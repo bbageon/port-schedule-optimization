@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"[Project Board] 작업 시작 전: .claude/Dashboard/ (상태별 파일 분리) 를 읽어라. ready.md 에서 착수 항목을 in-progress.md 로 이동(pull). 종료(commit) 시 in-progress.md→done.md + commit 링크 박제. index=README.md. board 운영 절차: .claude/skills/dashboard-ops.md, 설계문서 요약: .claude/docs/.\"}}'",
+            "statusMessage": "Project board reminder"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "cat | grep -q 'git commit' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"[Project Board] commit 완료 = 작업 segment 종료. .claude/Dashboard/in-progress.md 의 해당 항목을 done.md 로 이동하고 방금 commit 해시/링크를 Evidence 열에 박제했는지 확인하라. 새 후속 작업은 backlog.md 에 추가.\"}}' || true",
+            "statusMessage": "Project board update reminder"
+          }
+        ]
+      }
+    ]
+  }
+}
