@@ -4,7 +4,8 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-004 | Data | Phase 1 전반: 도메인 모델 (Enum·dataclass·validator) | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-004-domain-models.md) · Exp-1 진행 push 2단계 |
+| YR-006 | Sim | Phase 2: 단일 YC 이벤트 시뮬레이터 | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-006-single-yc-simulator.md) · YR-007 과 동반 개발 |
+| YR-007 | Sim | Phase 2: SafetyConstraintEngine + invariant 테스트 | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-007-constraint-engine.md) · YR-006 과 동반 (설계상 분리 불가) |
 
 ---
 

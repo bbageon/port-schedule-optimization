@@ -6,8 +6,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
-| YR-006 | Sim | Phase 2: 단일 YC 이벤트 시뮬레이터 | 🟠 | [spec](../docs/dashboard-task-specs/YR-006-single-yc-simulator.md) · YR-004 후속 |
-| YR-007 | Sim | Phase 2: SafetyConstraintEngine + invariant 테스트 | 🟠 | [spec](../docs/dashboard-task-specs/YR-007-constraint-engine.md) · YR-006 과 동반 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
 | YR-008 | Baseline | Phase 3: Baseline 정책 + KPI·paired runner | 🟠 | [spec](../docs/dashboard-task-specs/YR-008-baseline-policies.md) |
 | YR-010 | RL | Phase 4: Tabular Q-learning PoC | 🟡 | [spec](../docs/dashboard-task-specs/YR-010-tabular-q-poc.md) |
