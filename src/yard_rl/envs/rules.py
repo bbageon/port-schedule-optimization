@@ -82,7 +82,8 @@ class PriorityRuleExecutor:
             return min(pool, key=key(lambda j: blockers_of(j, stacks)))
         if rule == PriorityRule.VESSEL_PRIORITY:
             pool = [j for j in candidates if j.is_vessel_linked]
-            return min(pool, key=key(lambda j: (j.deadline - now) if j.deadline else _INF))
+            return min(pool, key=key(
+                lambda j: (j.deadline - now) if j.deadline is not None else _INF))
         if rule == PriorityRule.SAME_BAY_BATCH:
             pool = [j for j in candidates
                     if self._job_bay(j, stacks) is not None

@@ -54,11 +54,16 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
         row = [f"{_mean(rs, key):.2f}" for rs in results.values()]
         lines.append(f"| {key} | " + " | ".join(row) + " |")
     lines.append("")
+    base_rs = results[baseline]
+    if len(base_rs) < 2:
+        lines.append("> seed 1개 — paired 통계·합격기준 점검 생략 (n≥2 필요).")
+        path = out / "exp1_report.md"
+        path.write_text("\n".join(lines), encoding="utf-8")
+        return path
     lines.append(f"## Paired 비교 — 기준: {baseline} (도착순 Baseline)")
     lines.append("")
     lines.append("| 정책 | 지표 | 기준평균 | 대안평균 | Δ (95% CI) | 변화% | 방향일치 seed | 유의 |")
     lines.append("|---|---|---|---|---|---|---|---|")
-    base_rs = results[baseline]
     for pname, rs in results.items():
         if pname == baseline:
             continue

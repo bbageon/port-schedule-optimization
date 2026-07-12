@@ -95,26 +95,30 @@ class YardSimulator:
 
     # ------------------------------------------------------------- main loop
     def run_until_decision(self) -> DecisionPoint | None:
-        """다음 의사결정 시점까지 진행. 종료 시 None (KPI 는 종료시각까지 적분됨)."""
+        """다음 의사결정 시점까지 진행. 종료 시 None.
+
+        02 §1.2: 같은 시각의 이벤트를 전부 소진한 뒤에만 의사결정을 반환한다
+        (동시 도착 작업이 후보에서 누락되지 않도록). 평가 윈도우는 [0, end_time]
+        — KPI 적분은 end 에서 절단되며, end 이후는 이미 시작된 작업의 완료
+        이벤트 처리만 일어난다 (non-preemptive drain).
+        """
         end = self.scenario.end_time
         while True:
             if self._terminal:
                 return None
+            nt = self.queue.peek_time()
+            # 동시각 이벤트 소진이 의사결정보다 먼저 (02 §1.2 처리순서)
+            if nt is not None and nt <= self.clock + _EPS:
+                self._process_next_event()
+                continue
             if self.crane_idle() and self.clock < end - _EPS and self.dispatchable_jobs():
                 return DecisionPoint(self.clock, self.crane.crane_id)
-            nt = self.queue.peek_time()
             if nt is None:
                 if not self.crane_idle():
                     raise RuntimeError("크레인 작업 중인데 완료 이벤트가 없음 — 엔진 버그")
-                # 잔여 대기(미처리 backlog)의 대기시간을 종료시각까지 적분
-                self._advance(max(self.clock, end))
-                self._terminal = True
+                self._finalize()
                 return None
-            ev = self.queue.pop()
-            self._advance(ev.time)
-            self._handle(ev)
-            if self._check:
-                self.constraints.check_invariants(self.stacks, self.jobs, self.crane, self.clock)
+            self._process_next_event()
 
     # ------------------------------------------------------------- dispatch
     def execute_job(self, job_id: str) -> ExecutionRecord:
@@ -196,22 +200,48 @@ class YardSimulator:
 
     def skip_to_next_event(self):
         """모든 행동이 mask 된 경우: 다음 외부 이벤트까지 자동 진행 (02 §6)."""
-        nt = self.queue.peek_time()
-        if nt is None:
-            self._advance(max(self.clock, self.scenario.end_time))
-            self._terminal = True
+        if self.queue.peek_time() is None:
+            self._finalize()
             return
+        self._process_next_event()
+
+    # ------------------------------------------------------------- internals
+    def _process_next_event(self):
         ev = self.queue.pop()
         self._advance(ev.time)
         self._handle(ev)
+        if self._check:
+            self.constraints.check_invariants(self.stacks, self.jobs, self.crane, self.clock)
 
-    # ------------------------------------------------------------- internals
     def _advance(self, t: float):
+        """시계 전진. KPI 적분은 평가 윈도우 [0, end_time] 에서 절단 —
+        마지막 작업 길이에 따라 정책별 측정 창이 달라지는 것을 방지."""
         if t < self.clock - _EPS:
             raise RuntimeError(f"시간 역행: {self.clock} -> {t}")
         if t > self.clock:
-            self.kpis.integrate(self.clock, t)
+            cap = self.scenario.end_time
+            lo, hi = min(self.clock, cap), min(t, cap)
+            if hi > lo:
+                self.kpis.integrate(lo, hi)
             self.clock = t
+
+    def _finalize(self):
+        """종료 처리 (1회): 잔여 대기를 종료시각까지 적분하고, 미완료 작업의
+        종료비용을 계상한다 (03 §2.2 — 미루는 정책이 유리해지지 않도록).
+
+        - 미완료 본선작업: max(0, end - deadline) 을 vessel_delay 에 가산
+        - 미서비스 외부트럭: (end - 도착) 검열 대기 표본으로 포함
+        """
+        if self._terminal:
+            return
+        end = self.scenario.end_time
+        self._advance(max(self.clock, end))
+        for j in self.jobs.values():
+            if (j.is_vessel_linked and j.deadline is not None and end > j.deadline
+                    and j.status in (JobStatus.PLANNED, JobStatus.RELEASED, JobStatus.WAITING)):
+                self.kpis.vessel_delay_s += end - j.deadline
+        self.kpis.close_censored(end)
+        self._terminal = True
 
     def _handle(self, ev):
         self.event_log.append((ev.time, ev.kind_name, ev.payload))

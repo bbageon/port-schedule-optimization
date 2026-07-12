@@ -69,6 +69,34 @@ class YardStacks:
         self.containers[container.container_id] = container
         return (bay, row, len(pile))
 
+    def rehandle_capacity_ok(self, target_id: str, spec: CraneSpec) -> bool:
+        """재조작 슬롯 존재 보장 (1차 차단용 — 만재 야드 크래시 방지).
+
+        스택은 항상 단일 규격(place 가 강제)이므로 blocker 전부 같은 규격 s.
+        s 를 받을 수 있는 스택(빈 바닥 또는 top==s, tier 여유)의 잔여용량 합이
+        blocker 수 이상이면 순차 배치가 항상 성공한다 (배치가 호환성을 보존).
+        """
+        blockers = self.blockers_above(target_id)
+        if not blockers:
+            return True
+        c = self.containers[target_id]
+        size = self.containers[blockers[0]].size
+        src = (c.bay, c.row)
+        capacity = 0
+        for bay in range(spec.service_bay_min, spec.service_bay_max + 1):
+            for row in range(1, self.geom.row_count + 1):
+                if (bay, row) == src:
+                    continue
+                top = self.top_tier(bay, row)
+                if top >= self.geom.tier_max:
+                    continue
+                if top > 0 and not self.stack_size_ok(bay, row, size):
+                    continue
+                capacity += self.geom.tier_max - top
+                if capacity >= len(blockers):
+                    return True
+        return False
+
     # --- 합법 슬롯 탐색 (결정론적) ---
     def find_slot(self, size: ContainerSize, spec: CraneSpec,
                   near_bay: float, near_row: float,

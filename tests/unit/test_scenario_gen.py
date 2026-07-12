@@ -29,8 +29,17 @@ def test_scenario_is_valid_and_within_horizon():
     for j in sc.jobs:
         if j.actual_block_arrival is not None:
             assert 0.0 <= j.actual_block_arrival <= sc.horizon_s
+            assert j.provided_eta is not None and j.provided_eta >= 0.0  # Exp-3 외생 입력
         if j.flow == JobFlow.VESSEL_LOAD:
             assert j.deadline is not None and j.deadline > j.release_time
+
+
+def test_peak_short_horizon_arrivals_within_bounds():
+    """리뷰 확정건 회귀 가드: peak + 짧은 horizon 에서도 도착이 [0, horizon] 안."""
+    p = GenParams(n_external=40, n_vessel=0, peak=True, horizon_s=3600.0)
+    sc = generate(PROFILE, seed=5, params=p)
+    arrivals = [j.actual_block_arrival for j in sc.jobs if j.actual_block_arrival is not None]
+    assert arrivals and all(0.0 <= a <= 3600.0 for a in arrivals)
 
 
 def test_job_mix_counts():

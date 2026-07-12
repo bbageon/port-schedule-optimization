@@ -14,8 +14,9 @@ from pathlib import Path
 
 from .domain.enums import InformationLevel, PriorityRule
 from .experiments.report import build_report
-from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, evaluate_paired,
-                                 fit_buckets_and_scales, make_scenarios, run_episode)
+from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, check_seed_bands,
+                                 evaluate_paired, fit_buckets_and_scales, make_scenarios,
+                                 run_episode)
 from .envs.yard_env import YardEnv
 from .io.profile_loader import load_profile
 from .io.scenario_gen import GenParams
@@ -28,6 +29,7 @@ DEFAULT_PROFILE = "configs/terminals/poc_single_crane.yaml"
 def run_exp1(n_train: int, epochs: int, n_eval: int, profile_path: str,
              out_dir: str) -> Path:
     t0 = time.time()
+    check_seed_bands(n_train, 4, n_eval)  # train-on-test 침범 가드
     profile = load_profile(profile_path)
     level = InformationLevel.BLOCK_ARRIVAL  # Exp-1: 블록 도착 이후 정보만
     params = GenParams()

@@ -39,6 +39,9 @@ class ConstraintEngine:
                 return False
             if not (crane.service_bay_min <= c.bay <= crane.service_bay_max):
                 return False
+            # 재조작 슬롯 고갈이면 후보 제외 (실행 중 NO_SAFE_SLOT 크래시 방지)
+            if not stacks.rehandle_capacity_ok(job.target_container, self.profile.crane):
+                return False
         if job.flow == JobFlow.GATE_IN:
             # 합법 장치슬롯이 하나라도 있어야 함
             if stacks.find_slot(job.inbound_size, self.profile.crane,

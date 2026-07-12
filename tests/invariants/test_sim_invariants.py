@@ -91,17 +91,66 @@ def test_double_dispatch_blocked():
 
 
 def test_backlog_counted_when_drain_expires():
-    """drain=0, 종료 직전 동시 도착 2건 → 1건만 처리되고 backlog 1."""
+    """drain=0, 종료 직전 동시 도착 2건 → 1건만 처리되고 backlog 1.
+
+    리뷰 확정건 회귀 가드:
+    - 적분은 평가 윈도우 end_time 에서 절단 (마지막 작업 길이와 무관)
+    - 미서비스 트럭은 (end - 도착) 검열 대기 표본으로 포함
+    - 동시각 도착 2건은 첫 의사결정에서 모두 후보로 보여야 함
+    """
     containers = {"C1": _c("C1", 24, 6, 1), "C3": _c("C3", 1, 1, 1)}
     jobs = [_gate_out("J01", "C1", 990.0), _gate_out("J02", "C3", 990.0)]
     sc = Scenario(scenario_id="drain0", seed=0, horizon_s=1000.0, drain_window_s=0.0,
                   jobs=jobs, containers=containers)
     sim = YardSimulator(PROFILE, sc)
+    dp = sim.run_until_decision()
+    assert dp is not None
+    assert [j.job_id for j in sim.dispatchable_jobs()] == ["J01", "J02"]  # 동시각 모두 공개
+    sim.execute_job("J01")
     _run_greedy(sim)
     assert sim.terminal
     assert sim.unfinished_backlog() == 1
-    # 미처리 차량 대기도 적분에 포함 (종료시각 또는 마지막 완료시각까지)
-    assert sim.kpis.queue_area_s >= 10.0
+    # J01 은 990 에 즉시 서비스(대기 0), J02 는 미서비스 → 검열 표본 (1000-990)=10
+    assert sorted(round(w, 6) for w in sim.kpis.wait_samples_s) == [0.0, 10.0]
+    # 적분 절단: queue_area == Σ 대기표본 (검열 포함 정합성)
+    assert abs(sim.kpis.queue_area_s - 10.0) < 1e-9
+    assert abs(sim.kpis.queue_area_s - sum(sim.kpis.wait_samples_s)) < 1e-9
+
+
+def test_unfinished_vessel_delay_charged_at_end():
+    """미완료 본선작업의 deadline 초과가 종료시점에 계상 — 방치 무벌점 방지."""
+    import dataclasses
+    narrow = dataclasses.replace(PROFILE, crane=dataclasses.replace(PROFILE.crane,
+                                                                    service_bay_max=10))
+    containers = {"C4": _c("C4", 20, 1, 1)}  # service range 밖 → 영구 미서비스
+    jobs = [Job(job_id="JV", flow=JobFlow.VESSEL_LOAD, release_time=0.0,
+                actual_gate_in=None, actual_block_arrival=None,
+                target_container="C4", deadline=500.0, priority_class=1)]
+    sc = Scenario(scenario_id="vessel-stuck", seed=0, horizon_s=1000.0,
+                  drain_window_s=0.0, jobs=jobs, containers=containers)
+    sim = YardSimulator(narrow, sc)
+    assert sim.run_until_decision() is None
+    assert sim.unfinished_backlog() == 1
+    assert abs(sim.kpis.vessel_delay_s - 500.0) < 1e-9  # end(1000) - deadline(500)
+
+
+def test_rehandle_slot_exhaustion_excluded_not_crash():
+    """재조작 슬롯 고갈 → 후보 제외 (NO_SAFE_SLOT 크래시 방지)."""
+    import dataclasses
+    geom = dataclasses.replace(PROFILE.block, bay_count=2, row_count=1, tier_max=2)
+    spec = dataclasses.replace(PROFILE.crane, service_bay_min=1, service_bay_max=2)
+    tiny = dataclasses.replace(PROFILE, block=geom, crane=spec)
+    containers = {
+        "C1": _c("C1", 1, 1, 1), "C2": _c("C2", 1, 1, 2),      # C2 = blocker(FT40)
+        "D1": _c("D1", 2, 1, 1, size=ContainerSize.FT20),       # 유일한 다른 스택은
+        "D2": _c("D2", 2, 1, 2, size=ContainerSize.FT20),       # FT20 만재 → 슬롯 없음
+    }
+    jobs = [_gate_out("J01", "C1", 100.0)]
+    sc = Scenario(scenario_id="full-yard", seed=0, horizon_s=1000.0, drain_window_s=0.0,
+                  jobs=jobs, containers=containers)
+    sim = YardSimulator(tiny, sc)
+    assert sim.run_until_decision() is None   # 크래시 없이 후보 제외 → 종료
+    assert sim.unfinished_backlog() == 1
 
 
 def test_service_range_restricts_dispatch():

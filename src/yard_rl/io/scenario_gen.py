@@ -30,15 +30,19 @@ class GenParams:
     drain_window_s: float = 7200.0
     gate_offset_range_s: tuple[float, float] = (300.0, 900.0)  # 게이트→블록 소요
     size_mix_ft40: float = 0.7
+    # 제공 ETA 품질 (Exp-3 외생 입력, §18.2 EMPIRICAL 대응): eta = 실제도착 ± 오차
+    eta_error_s: float = 300.0
 
 
 def _arrival_times(rng: random.Random, n: int, horizon: float, peak: bool) -> list[float]:
-    """시간대별 가중 추출 (피크: 2~5h 구간 2배 밀도). 정렬된 도착시각."""
+    """시간대별 가중 추출. 피크: horizon 의 25%~62.5% 구간이 2배 밀도
+    (horizon 상대좌표 — 어떤 horizon 값에서도 도착이 [0, horizon] 안에 생성됨)."""
     times = []
     for _ in range(n):
         if peak:
-            # 가중 구간 선택: 피크 3h 는 2배 가중
-            zones = [(0.0, 7200.0, 1.0), (7200.0, 18000.0, 2.0), (18000.0, horizon, 1.0)]
+            zones = [(0.0, 0.25 * horizon, 1.0),
+                     (0.25 * horizon, 0.625 * horizon, 2.0),
+                     (0.625 * horizon, horizon, 1.0)]
             weights = [(hi - lo) * w for lo, hi, w in zones]
             lo, hi, _w = rng.choices(zones, weights=weights)[0]
             times.append(rng.uniform(lo, hi))
@@ -108,15 +112,17 @@ def generate(profile: TerminalProfile, seed: int, params: GenParams | None = Non
     for i, arrival in enumerate(arrivals):
         offset = rng.uniform(*p.gate_offset_range_s)
         gate_in = max(0.0, arrival - offset)
+        # 제공 ETA: 실제 도착 ± 오차 (Exp-3 에서만 정책에 공개되는 외생 입력)
+        eta = max(0.0, arrival + rng.uniform(-p.eta_error_s, p.eta_error_s))
         if i < n_out:
             jobs.append(Job(job_id=f"JO{i:04d}", flow=JobFlow.GATE_OUT, release_time=0.0,
                             actual_gate_in=gate_in, actual_block_arrival=arrival,
-                            provided_eta=None, target_container=out_targets[i]))
+                            provided_eta=eta, target_container=out_targets[i]))
         else:
             size = ContainerSize.FT40 if rng.random() < p.size_mix_ft40 else ContainerSize.FT20
             jobs.append(Job(job_id=f"JI{i:04d}", flow=JobFlow.GATE_IN, release_time=0.0,
                             actual_gate_in=gate_in, actual_block_arrival=arrival,
-                            inbound_size=size, inbound_load=LoadStatus.FULL))
+                            provided_eta=eta, inbound_size=size, inbound_load=LoadStatus.FULL))
 
     # 본선·내부 연계: 반출 대상과 겹치지 않는 컨테이너
     used = set(out_targets)

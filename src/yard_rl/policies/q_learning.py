@@ -33,9 +33,14 @@ def _fallback_action(mask: list[bool]) -> int:
 
 
 class QTable:
+    """Q 값 + 방문횟수. 보상이 항상 ≤0 이므로 0-초기화 미시도 action 이
+    greedy 에서 학습값을 이기는 편향이 생긴다 → greedy/bootstrap 은
+    **시도해 본 action 만** 대상으로 한다 (없으면 fallback rule)."""
+
     def __init__(self, n_actions: int):
         self.n_actions = n_actions
         self.q: dict[tuple, list[float]] = {}
+        self.n: dict[tuple, list[int]] = {}
 
     def known(self, s) -> bool:
         return s in self.q
@@ -43,34 +48,45 @@ class QTable:
     def row(self, s) -> list[float]:
         if s not in self.q:
             self.q[s] = [0.0] * self.n_actions
+            self.n[s] = [0] * self.n_actions
         return self.q[s]
 
+    def visit(self, s, a: int):
+        self.row(s)
+        self.n[s][a] += 1
+
     def greedy(self, s, mask: list[bool]) -> int:
-        """방문한 상태면 masked argmax (동률: 낮은 action id), 아니면 fallback."""
+        """masked & 시도된 action 중 argmax (동률: 낮은 id). 없으면 fallback."""
         if s not in self.q:
             return _fallback_action(mask)
-        row = self.q[s]
+        row, cnt = self.q[s], self.n[s]
         best, best_v = None, None
         for a in range(self.n_actions):
-            if mask[a] and (best_v is None or row[a] > best_v):
+            if mask[a] and cnt[a] > 0 and (best_v is None or row[a] > best_v):
                 best, best_v = a, row[a]
         return _fallback_action(mask) if best is None else best
 
     def max_valid(self, s, mask: list[bool]) -> float:
+        """bootstrap 용 — 시도된 action 이 없으면 0 (문서화된 중립값)."""
         if s not in self.q or not any(mask):
             return 0.0
-        return max(v for a, v in enumerate(self.q[s]) if mask[a])
+        vals = [v for a, v in enumerate(self.q[s]) if mask[a] and self.n[s][a] > 0]
+        return max(vals) if vals else 0.0
 
     # 저장/로드 (해석가능성·재현용)
     def save(self, path: str | Path):
-        data = {",".join(map(str, k)): v for k, v in self.q.items()}
+        data = {"q": {",".join(map(str, k)): v for k, v in self.q.items()},
+                "n": {",".join(map(str, k)): v for k, v in self.n.items()}}
         Path(path).write_text(json.dumps(data), encoding="utf-8")
 
     @classmethod
     def load(cls, path: str | Path, n_actions: int) -> "QTable":
         t = cls(n_actions)
-        for k, v in json.loads(Path(path).read_text(encoding="utf-8")).items():
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        for k, v in data["q"].items():
             t.q[tuple(int(x) for x in k.split(","))] = v
+        for k, v in data["n"].items():
+            t.n[tuple(int(x) for x in k.split(","))] = v
         return t
 
 
@@ -107,6 +123,7 @@ class QLearningAgent:
         target = r + gamma * self.table.max_valid(s2, mask2)
         row = self.table.row(s)
         row[a] += self.cfg.alpha * (target - row[a])
+        self.table.visit(s, a)
 
 
 def train(agent: QLearningAgent, env, scenarios: list, epochs: int = 1) -> None:

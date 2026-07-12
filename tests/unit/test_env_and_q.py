@@ -53,6 +53,7 @@ def test_smdp_discount_and_update():
     s, s2 = (0,) * 7, (1,) * 7
     mask = [True] * 9
     ag.table.row(s2)[int(PriorityRule.FIFO)] = 2.0
+    ag.table.visit(s2, int(PriorityRule.FIFO))  # bootstrap 은 시도된 action 만
     ag.update(s, 0, r=-1.0, s2=s2, mask2=mask, elapsed_s=120.0, done=False)
     # gamma_eff = 0.9^(120/60) = 0.81 → target = -1 + 0.81*2 = 0.62 → Q = 0.5*0.62
     assert abs(ag.table.q[s][0] - 0.31) < 1e-9
@@ -77,8 +78,34 @@ def test_greedy_prefers_learned_value():
     row = ag.table.row(s)
     row[int(PriorityRule.NEAREST_JOB)] = 1.5
     row[int(PriorityRule.FIFO)] = 0.2
+    ag.table.visit(s, int(PriorityRule.NEAREST_JOB))
+    ag.table.visit(s, int(PriorityRule.FIFO))
     mask = [True] * 9
     assert ag.act(s, mask) == int(PriorityRule.NEAREST_JOB)
     # 최고값 action 이 mask 되면 차선
     mask[int(PriorityRule.NEAREST_JOB)] = False
     assert ag.act(s, mask) == int(PriorityRule.FIFO)
+
+
+def test_tried_negative_beats_untried_zero():
+    """보상 ≤0 환경 회귀 가드: 미시도 action(Q=0)이 학습된 음수 Q 를 이기면 안 됨."""
+    ag = QLearningAgent(QLearningConfig(), seed=0)
+    s = (0,) * 7
+    ag.table.row(s)[int(PriorityRule.NEAREST_JOB)] = -0.7
+    ag.table.visit(s, int(PriorityRule.NEAREST_JOB))
+    mask = [True] * 9
+    # FIFO(id 0) 등 미시도 action 은 0.0 이지만 greedy 대상에서 제외되어야 함
+    assert ag.act(s, mask) == int(PriorityRule.NEAREST_JOB)
+
+
+def test_qtable_save_load_roundtrip(tmp_path):
+    ag = QLearningAgent(QLearningConfig(), seed=0)
+    s = (1, 2, 3, 0, 1, 2, 0)
+    ag.table.row(s)[3] = -1.25
+    ag.table.visit(s, 3)
+    p = tmp_path / "q.json"
+    ag.table.save(p)
+    from yard_rl.policies.q_learning import QTable
+    t2 = QTable.load(p, 9)
+    assert t2.q[s][3] == -1.25 and t2.n[s][3] == 1
+    assert t2.greedy(s, [True] * 9) == 3

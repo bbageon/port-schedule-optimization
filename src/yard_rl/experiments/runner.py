@@ -19,6 +19,14 @@ from ..policies.baselines import FixedRulePolicy
 from .statistics import percentile
 
 TRAIN_SEED0, VAL_SEED0, TEST_SEED0 = 101, 201, 301
+_BAND = 100  # seed 대역 폭 — 대역 침범(train-on-test) 방지 가드
+
+
+def check_seed_bands(n_train: int, n_val: int, n_test: int) -> None:
+    """train/val/test seed 대역 중첩 방지 (03 §2.1 분리 규율)."""
+    for name, n in (("train", n_train), ("val", n_val), ("test", n_test)):
+        if not (0 < n <= _BAND):
+            raise ValueError(f"{name} 시나리오 수 {n} — 1..{_BAND} 여야 대역 분리가 보장됨")
 
 
 @dataclass

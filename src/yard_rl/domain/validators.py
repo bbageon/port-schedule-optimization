@@ -67,11 +67,17 @@ def validate_scenario(jobs: list[Job], containers: dict[str, Container],
         if tier > 1 and (bay, row, tier - 1) not in occupied:
             raise ValidationError("FLOATING_CONTAINER", f"({bay},{row},{tier}) 아래가 비어 있음")
     seen_ids: set[str] = set()
+    seen_targets: set[str] = set()
     for j in jobs:
         if j.job_id in seen_ids:
             raise ValidationError("DUPLICATE_EVENT", f"작업 ID 중복 {j.job_id}")
         seen_ids.add(j.job_id)
         validate_job(j)
-        if j.target_container is not None and j.target_container not in containers:
-            raise ValidationError("UNMATCHED_JOB",
-                                  f"{j.job_id}: 대상 컨테이너 {j.target_container} 가 야드에 없음")
+        if j.target_container is not None:
+            if j.target_container not in containers:
+                raise ValidationError("UNMATCHED_JOB",
+                                      f"{j.job_id}: 대상 컨테이너 {j.target_container} 가 야드에 없음")
+            if j.target_container in seen_targets:  # 2번째 작업은 영구 기아 → 금지
+                raise ValidationError("DUPLICATE_EVENT",
+                                      f"{j.job_id}: 대상 {j.target_container} 중복 참조")
+            seen_targets.add(j.target_container)

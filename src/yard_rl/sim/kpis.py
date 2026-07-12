@@ -47,6 +47,13 @@ class KpiTracker:
     def waiting_count(self) -> int:
         return len(self._waiting)
 
+    def close_censored(self, end: float):
+        """종료시점 미서비스 트럭을 검열 표본으로 포함 (완료-only 표본의
+        생존편향 방지 — backlog 를 남기는 정책이 대기지표에서 이득 보지 않게).
+        _waiting 은 비우지 않는다 (backlog 카운트·정합성 검증용)."""
+        for arrival in self._waiting.values():
+            self.wait_samples_s.append(max(0.0, end - arrival))
+
     def oldest_wait_s(self, now: float) -> float:
         if not self._waiting:
             return 0.0
