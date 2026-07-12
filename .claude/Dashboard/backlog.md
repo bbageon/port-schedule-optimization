@@ -12,7 +12,6 @@
 | YR-011-a | Exp | Phase 5: Exp-1 (블록 도착 이후 정보, sequence_only) | 🟡 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · 예비 PoC 는 합성 데이터로 |
 | YR-011-b | Exp | Phase 5: Exp-2 (게이트 진입 이후 정보) | 🟡 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · YR-011-a 후 |
 | YR-011-c | Exp | Phase 5: Exp-3 (사전 반출입정보+제공 ETA, 3A/B/C) | 🟡 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · YR-011-b 후 |
-| YR-017 | Data | 합성 시나리오 생성기 (가정 프로파일 기반, 실자료 확보 전 PoC 구동용) | 🟠 | 실자료 대체 아님 — YR-005·009 로 대체·검증 예정. 도착분포·초기장치·재조작위험 파라미터화 |
 | YR-015 | UI | Phase 6: 검증 UI MVP (recorder·replay·정책설명·동기비교) | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · 신규 범위 (04 문서) |
 | YR-012 | RL | Phase 7: Masked DQN/PPO 함수근사 | ⚪ | [spec](../docs/dashboard-task-specs/YR-012-dqn-ppo.md) · YR-010 에서 전환조건 확인 시만 |
 | YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) |

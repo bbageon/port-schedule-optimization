@@ -65,6 +65,10 @@ def test_full_run_completes_all_jobs_with_invariants():
     assert sim.kpis.completed_vessel == 1
     assert sim.kpis.queue_area_s > 0
     assert len(sim.kpis.wait_samples_s) == 3     # 외부트럭만
+    # 회귀 가드(EventKind alias 버그): 전부 완료 시 대기열은 비어야 하고
+    # queue-area == 완료 대기 합 (정확 적분 정합성)
+    assert sim.kpis.waiting_count() == 0
+    assert abs(sim.kpis.queue_area_s - sum(sim.kpis.wait_samples_s)) < 1e-6
 
 
 def test_determinism_same_seed_same_trace():

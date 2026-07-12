@@ -4,8 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-006 | Sim | Phase 2: 단일 YC 이벤트 시뮬레이터 | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-006-single-yc-simulator.md) · YR-007 과 동반 개발 |
-| YR-007 | Sim | Phase 2: SafetyConstraintEngine + invariant 테스트 | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-007-constraint-engine.md) · YR-006 과 동반 (설계상 분리 불가) |
+| YR-017 | Data | 합성 시나리오 생성기 (가정 프로파일 기반) | 🟠 | 2026-07-12 | 실자료 대체 아님 — Exp-1 예비 PoC 구동용 |
 
 ---
 
