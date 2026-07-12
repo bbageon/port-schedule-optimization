@@ -12,6 +12,9 @@
 | YR-017 | Data | **합성 시나리오 생성기 완료** — 시드 결정론·피크 도착·재조작위험 파라미터. 부수: EventKind alias 버그(본선 release→트럭도착 오처리, KPI 과대계상) 발견·수정 + 정합성 회귀 가드 | 2026-07-12 | `794ede5` |
 | YR-008 | Baseline | **Baseline 4종 + 공통 RL 환경 완료** — 정보필터(누출 자동검사)·rule 실행기(결정론 동점체인)·mask·bucket 인코더·Core Cost 보상·paired 통계·golden 회귀 | 2026-07-12 | `cd5fbd6` |
 | YR-010 | RL | **Tabular Q-learning(SMDP) 완료** — elapsed-time 할인·masked ε-greedy·미방문 fallback·CLI 파이프라인. quick 검증에서 val 4/4 seed 휴리스틱 우위 | 2026-07-12 | `8df03b4` |
+| YR-011-a | Exp | **Exp-1 예비 지지 (합성·가정 조건)** — QL 이 FIFO 대비 평균대기 -15.2% (12/12 seed 유의)·이동 -16%·본선지연 0. 단 P95 +10.8% trade-off (→YR-018) | 2026-07-12 | `24b095a`·`bb1e8e5` · [report](../../outputs/reports/exp_matrix/exp_matrix_report.md) |
+| YR-011-b | Exp | **Exp-2 예비결과: 정보선행 이득 미확인** — -5.7% vs FIFO 로 Exp-1 대비 유의 열세. 상태공간 희석 의심 (→YR-020) | 2026-07-12 | 〃 (동일 matrix, paired) |
+| YR-011-c | Exp | **Exp-3A/B/C 예비결과: H2 이 조건 미지지** — 3A 는 학습예산 2.5×에서 격차 축소(16.56→15.14분, tabular 한계 시사), 3B 포지셔닝 빈이동 +60% 무익, 3C 선재조작 총재조작 +3.3% 역효과 | 2026-07-12 | 〃 + [민감도](../../outputs/reports/exp_matrix_e10/exp_matrix_report.md) |
 | YR-016 | Infra | **구현계획서 분할(index+5문서) 하네스 반영 완료** — Phase 0~9 재편·UI 신규 epic/row(YR-015)·task-spec 14건 생성·요약 재작성 | 2026-07-12 | 원본: [구현계획서](../../부산항_야드크레인_강화학습_구현계획서.md)·`docs/구현계획/01~05` · 산출물: [task-specs](../docs/dashboard-task-specs/)·[구현계획서-요약](../docs/구현계획서-요약.md) · commit 없음 (2026-07-12 대화) |
 
 ---

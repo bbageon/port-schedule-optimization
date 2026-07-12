@@ -37,8 +37,8 @@
 
 ## 📌 현재 상태 overview (한눈에)
 
-- **설계 단계 완료, 코드 미착수**: [실험설계안](../../부산항_야드크레인_강화학습_실험설계안_업데이트.md)(연구 설계) + [구현계획서](../../부산항_야드크레인_강화학습_구현계획서.md)(index) → `docs/구현계획/01~05` 분할 5문서. 요약은 [../docs/](../docs/), row 명세는 [task-specs](../docs/dashboard-task-specs/).
-- **핵심 가설(H1~H5)**: "차량 정보를 더 이른 시점에 확보할수록 YC 작업순서 최적화 효과가 커지는가" — 사전 결론이 아닌 검증가설.
-- **2026-07-12 구현계획 재편**: Phase 0~9 (검증 UI Phase 6 신설 → YR-015, 실측 validation 은 Phase 2 게이트로 이동).
-- **병목**: 대상 터미널·운영자료 미확보([ready](ready.md) YR-002, 사용자/운영사 결정 필요). 단 스캐폴드·도메인 모델·시뮬레이터는 가정 프로파일(`assumed: true`)로 선착수 가능.
-- **Git 원격 연결 완료** — 현재 저장소의 `origin` 은 [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization) 이다. 완료 작업은 검증·commit·Dashboard evidence 갱신 후 push 성공까지 확인한다.
+- **Phase 0~5 예비 PoC 완주 (2026-07-12, 합성 데이터)**: 시뮬레이터+제약(YR-006/007)·Baseline 4종(YR-008)·Tabular Q(YR-010)·Exp-1~3C matrix(YR-011-a/b/c) 구현·실행 완료. 테스트 46건. 리포트: `outputs/reports/exp_matrix/`.
+- **핵심 결과(합성·가정 조건)**: QL_EXP1 이 FIFO 대비 **평균대기 -15.2% (12/12 seed 유의)**·본선지연 0 달성. 단 **정보 선행(Exp-2/3)이 오히려 열세** — 상태공간 희석 의심(YR-020), P95 는 전 QL 에서 악화 경향(YR-018 w_tail 탐색 필요). H1~H2 는 이 조건에서 **미지지** — 사전 결론 금지 원칙 그대로 유효.
+- **67-agent 리뷰 워크플로우**로 확정 결함 9건 수정 완료 (`24b095a`) — KPI 적분창·본선 방치 무벌점·검열 편향 등.
+- **병목 불변**: 실측자료·CURRENT_RULE 미확보(YR-002) — 모든 수치는 실운영 대비 아님. YR-009 validation 게이트 전까지 연구 주장 불가.
+- **Git**: `origin` = [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization). 완료 작업은 검증·commit·evidence 갱신 후 push 성공까지 확인.

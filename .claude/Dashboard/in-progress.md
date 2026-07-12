@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-011-a | Exp | Phase 5: Exp-1 (블록 도착 이후 정보, sequence_only) — 예비 PoC | 🟡 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · 리뷰 워크플로우 → 본 실험 순 |
 
 ---
 
