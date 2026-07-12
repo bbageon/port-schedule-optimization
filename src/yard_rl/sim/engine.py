@@ -15,11 +15,11 @@ from ..domain.enums import CraneStatus, JobFlow, JobStatus
 from ..domain.models import Container, CraneState, Job, TerminalProfile
 from ..domain.scenario import Scenario
 from ..domain.validators import validate_scenario
-from .constraints import ConstraintEngine, ConstraintViolation
+from .constraints import CRANE_TASK_SENTINEL, ConstraintEngine, ConstraintViolation
 from .events import EventKind, EventQueue
 from .kpis import KpiTracker
 from .stack import YardStacks
-from .travel_time import move_container
+from .travel_time import gantry_m, move_container, trolley_m
 
 _EPS = 1e-9
 
@@ -66,6 +66,9 @@ class YardSimulator:
         self.queue = EventQueue()
         self.clock = 0.0
         self._terminal = False
+        # True 면 dispatch 후보가 없어도 idle 시점에 의사결정을 낸다
+        # (env 의 사전행동 — 포지셔닝·선재조작 — 용. env 가 scope 에 따라 설정)
+        self.yield_idle_decisions = False
         self.event_log: list[tuple[float, str, str]] = []
         for j in sorted(self.jobs.values(), key=lambda x: x.job_id):
             if j.is_external_truck:
@@ -111,7 +114,8 @@ class YardSimulator:
             if nt is not None and nt <= self.clock + _EPS:
                 self._process_next_event()
                 continue
-            if self.crane_idle() and self.clock < end - _EPS and self.dispatchable_jobs():
+            if self.crane_idle() and self.clock < end - _EPS and (
+                    self.yield_idle_decisions or self.dispatchable_jobs()):
                 return DecisionPoint(self.clock, self.crane.crane_id)
             if nt is None:
                 if not self.crane_idle():
@@ -150,24 +154,12 @@ class YardSimulator:
         else:
             # GATE_OUT / VESSEL_* : 야드 컨테이너 반출 (재조작 선처리 후 본 작업)
             target_id = job.target_container
+            (dt, lm, em, rehandles,
+             cur_bay, cur_row) = self._relocate_blockers(target_id, cur_bay, cur_row)
+            total_s += dt
+            loaded_m += lm
+            empty_m += em
             target = self.stacks.containers[target_id]
-            for blocker_id in self.stacks.blockers_above(target_id):
-                b = self.stacks.containers[blocker_id]
-                src = (b.bay, b.row, b.tier)
-                dest = self.stacks.find_slot(b.size, spec, float(b.bay), float(b.row),
-                                             exclude={(b.bay, b.row)})
-                if dest is None:
-                    raise ConstraintViolation("NO_SAFE_SLOT", f"{job_id} 재조작 슬롯 없음")
-                db, dr = dest
-                dtier = self.stacks.top_tier(db, dr) + 1
-                self.stacks.remove(blocker_id)
-                mv = move_container(spec, geom, cur_bay, cur_row, src, (db, dr, dtier))
-                self.stacks.place(b, db, dr)
-                total_s += mv.duration_s
-                loaded_m += mv.loaded_gantry_m
-                empty_m += mv.empty_gantry_m
-                cur_bay, cur_row = mv.end_bay, mv.end_row
-                rehandles += 1
             src = (target.bay, target.row, target.tier)
             dst = (target.bay, geom.transfer_row, 1)  # 인계지점(차선)으로 상차
             self.stacks.remove(target_id)
@@ -197,6 +189,93 @@ class YardSimulator:
         self.queue.push(t0 + total_s, EventKind.JOB_COMPLETED, job.job_id)
         self.event_log.append((t0, "DISPATCH", job.job_id))
         return ExecutionRecord(job.job_id, t0, total_s, rehandles, loaded_m, empty_m)
+
+    def _relocate_blockers(self, target_id: str, cur_bay: float, cur_row: float
+                           ) -> tuple[float, float, float, int, float, float]:
+        """대상 위 blocker 를 전부 최근접 합법슬롯으로 이동 (체이닝).
+
+        반환: (소요시간, 적재 gantry m, 빈 gantry m, 재조작 수, 크레인 최종 bay/row)
+        """
+        geom, spec = self.profile.block, self.profile.crane
+        total_s, loaded_m, empty_m, count = 0.0, 0.0, 0.0, 0
+        for blocker_id in self.stacks.blockers_above(target_id):
+            b = self.stacks.containers[blocker_id]
+            src = (b.bay, b.row, b.tier)
+            dest = self.stacks.find_slot(b.size, spec, float(b.bay), float(b.row),
+                                         exclude={(b.bay, b.row)})
+            if dest is None:  # rehandle_capacity_ok 가 걸렀어야 함 (2중 차단)
+                raise ConstraintViolation("NO_SAFE_SLOT", f"{target_id} 재조작 슬롯 없음")
+            db, dr = dest
+            dtier = self.stacks.top_tier(db, dr) + 1
+            self.stacks.remove(blocker_id)
+            mv = move_container(spec, geom, cur_bay, cur_row, src, (db, dr, dtier))
+            self.stacks.place(b, db, dr)
+            total_s += mv.duration_s
+            loaded_m += mv.loaded_gantry_m
+            empty_m += mv.empty_gantry_m
+            cur_bay, cur_row = mv.end_bay, mv.end_row
+            count += 1
+        return total_s, loaded_m, empty_m, count, cur_bay, cur_row
+
+    # ---------------------------------------- 사전 행동 (control_scope 확장)
+    def execute_positioning(self, target_bay: float) -> float:
+        """빈 크레인 사전 포지셔닝 (plus_positioning, 실험설계안 §8.4).
+
+        컨테이너를 잡지 않고 목표 bay 차선측으로 이동만 한다. 이동거리는
+        빈 주행으로 계상 — 비용(w_M)과 편익(미래 작업 근접)을 정책이 학습.
+        """
+        if not self.crane_idle():
+            raise ConstraintViolation("DOUBLE_ASSIGN", "포지셔닝: 크레인 사용 중")
+        geom, spec = self.profile.block, self.profile.crane
+        tb = float(min(max(target_bay, spec.service_bay_min), spec.service_bay_max))
+        dist = gantry_m(geom, self.crane.position_bay, tb)
+        t_dist = trolley_m(geom, self.crane.trolley_row, geom.transfer_row)
+        dur = dist / spec.gantry_speed_mps + t_dist / spec.trolley_speed_mps
+        self.crane.assigned_job = CRANE_TASK_SENTINEL
+        self.crane.status = CraneStatus.MOVING
+        self.crane.position_bay, self.crane.trolley_row = tb, float(geom.transfer_row)
+        self.crane.empty_travel_m += dist
+        self.kpis.add_travel(0.0, dist)
+        self.kpis.positioning_count += 1
+        self.queue.push(self.clock + dur, EventKind.JOB_COMPLETED, CRANE_TASK_SENTINEL)
+        self.event_log.append((self.clock, "POSITIONING", f"bay={tb:g}"))
+        return dur
+
+    def execute_pre_rehandle(self, job_id: str) -> float:
+        """도착 전 재조작 선처리 (plus_pre_rehandle, 02 §6.1).
+
+        미도착 GATE_OUT 대상의 blocker 만 미리 치운다. 재조작 비용(w_R)은
+        동일하게 계상 — 편익은 도착 후 서비스시간 단축으로 실현된다.
+        """
+        job = self.jobs[job_id]
+        if not self.crane_idle():
+            raise ConstraintViolation("DOUBLE_ASSIGN", "선재조작: 크레인 사용 중")
+        target_id = job.target_container
+        c = self.stacks.containers.get(target_id)
+        if c is None or not c.work_available:
+            raise ConstraintViolation("NOT_DISPATCHABLE", f"{job_id} 선재조작 대상 없음")
+        if not (self.crane.service_bay_min <= c.bay <= self.crane.service_bay_max):
+            raise ConstraintViolation("OUT_OF_RANGE", f"{job_id} 대상 bay {c.bay}")
+        blockers = self.stacks.blockers_above(target_id)
+        if not blockers:
+            raise ConstraintViolation("NOT_DISPATCHABLE", f"{job_id} blocker 없음")
+        if not self.stacks.rehandle_capacity_ok(target_id, self.profile.crane):
+            raise ConstraintViolation("NO_SAFE_SLOT", f"{job_id} 선재조작 슬롯 없음")
+        t0 = self.clock
+        (dur, lm, em, cnt,
+         cb, cr) = self._relocate_blockers(target_id, self.crane.position_bay,
+                                           self.crane.trolley_row)
+        self.crane.assigned_job = CRANE_TASK_SENTINEL
+        self.crane.status = CraneStatus.HANDLING
+        self.crane.position_bay, self.crane.trolley_row = cb, cr
+        self.crane.loaded_travel_m += lm
+        self.crane.empty_travel_m += em
+        self.kpis.add_travel(lm, em)
+        self.kpis.add_rehandles(cnt)
+        self.kpis.pre_rehandle_count += cnt
+        self.queue.push(t0 + dur, EventKind.JOB_COMPLETED, CRANE_TASK_SENTINEL)
+        self.event_log.append((t0, "PRE_REHANDLE", job_id))
+        return dur
 
     def skip_to_next_event(self):
         """모든 행동이 mask 된 경우: 다음 외부 이벤트까지 자동 진행 (02 §6)."""
@@ -252,6 +331,10 @@ class YardSimulator:
         elif ev.kind_name == "JOB_RELEASED":
             self.jobs[ev.payload].status = JobStatus.RELEASED
         elif ev.kind_name == "JOB_COMPLETED":
+            if ev.payload == CRANE_TASK_SENTINEL:   # 포지셔닝·선재조작 종료
+                self.crane.assigned_job = None
+                self.crane.status = CraneStatus.IDLE
+                return
             job = self.jobs[ev.payload]
             job.status = JobStatus.DONE
             job.service_end = ev.time

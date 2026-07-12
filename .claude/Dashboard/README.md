@@ -41,4 +41,4 @@
 - **핵심 가설(H1~H5)**: "차량 정보를 더 이른 시점에 확보할수록 YC 작업순서 최적화 효과가 커지는가" — 사전 결론이 아닌 검증가설.
 - **2026-07-12 구현계획 재편**: Phase 0~9 (검증 UI Phase 6 신설 → YR-015, 실측 validation 은 Phase 2 게이트로 이동).
 - **병목**: 대상 터미널·운영자료 미확보([ready](ready.md) YR-002, 사용자/운영사 결정 필요). 단 스캐폴드·도메인 모델·시뮬레이터는 가정 프로파일(`assumed: true`)로 선착수 가능.
-- **git 미초기화** — done evidence 는 당분간 문서/대화 날짜로 박제. 코드 착수(YR-003) 시 git init 권장.
+- **Git 원격 연결 완료** — 현재 저장소의 `origin` 은 [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization) 이다. 완료 작업은 검증·commit·Dashboard evidence 갱신 후 push 성공까지 확인한다.

@@ -119,3 +119,5 @@ class TerminalProfile:
     crane: CraneSpec
     long_wait_sla_s: float
     decision_horizon_s: float
+    # Exp-2: 게이트 진입 후 블록 도착예상 = gate_in + 본 추정치 (자체 추정, ETA 아님)
+    gate_travel_estimate_s: float = 600.0

@@ -1,9 +1,11 @@
-"""CLI — Exp-1 예비 PoC 파이프라인.
+"""CLI — Exp 예비 PoC 파이프라인.
 
-python -m yard_rl.cli run-exp1 [--train N] [--epochs K] [--eval M] [--quick]
+python -m yard_rl.cli run-exp1   [--train N] [--epochs K] [--eval M] [--quick]
+python -m yard_rl.cli run-matrix [--train N] [--epochs K] [--eval M] [--quick]
 
-순서: train 시나리오 생성 → FIFO 로 bucket·Scale fit(고정) → Q-learning 학습
-→ validation greedy 확인 → test seeds paired 평가(Baseline 4종 + QL) → 리포트.
+공통 순서: train 시나리오 생성 → FIFO 로 bucket·Scale fit(고정) → Q-learning 학습
+→ (val greedy 확인) → test seeds paired 평가 → 리포트.
+run-matrix 는 Exp-1/2/3A/3B/3C 조건별 QL 을 각각 학습해 동일 test 일에 비교한다.
 """
 from __future__ import annotations
 
@@ -12,11 +14,11 @@ import json
 import time
 from pathlib import Path
 
-from .domain.enums import InformationLevel, PriorityRule
-from .experiments.report import build_report
-from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, check_seed_bands,
-                                 evaluate_paired, fit_buckets_and_scales, make_scenarios,
-                                 run_episode)
+from .domain.enums import ControlScope, InformationLevel, PriorityRule
+from .experiments.report import build_matrix_report, build_report
+from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, PolicySpec,
+                                 check_seed_bands, evaluate_paired,
+                                 fit_buckets_and_scales, make_scenarios, run_episode)
 from .envs.yard_env import YardEnv
 from .io.profile_loader import load_profile
 from .io.scenario_gen import GenParams
@@ -25,77 +27,135 @@ from .policies.q_learning import QLearningAgent, QLearningConfig, train
 
 DEFAULT_PROFILE = "configs/terminals/poc_single_crane.yaml"
 
+# 실험 matrix — 정보수준 × 행동범위 (실험설계안 §3, 02 §3)
+EXP_CONDITIONS = [
+    ("QL_EXP1", InformationLevel.BLOCK_ARRIVAL, ControlScope.SEQUENCE_ONLY),
+    ("QL_EXP2", InformationLevel.GATE_IN, ControlScope.SEQUENCE_ONLY),
+    ("QL_EXP3A", InformationLevel.PRE_ADVICE, ControlScope.SEQUENCE_ONLY),
+    ("QL_EXP3B", InformationLevel.PRE_ADVICE, ControlScope.PLUS_POSITIONING),
+    ("QL_EXP3C", InformationLevel.PRE_ADVICE, ControlScope.PLUS_PRE_REHANDLE),
+]
 
-def run_exp1(n_train: int, epochs: int, n_eval: int, profile_path: str,
-             out_dir: str) -> Path:
-    t0 = time.time()
-    check_seed_bands(n_train, 4, n_eval)  # train-on-test 침범 가드
+LADDER = [
+    ("QL_EXP1", "QL_EXP2", "Exp-1→2 정보시점(게이트) 효과 (H1)"),
+    ("QL_EXP2", "QL_EXP3A", "Exp-2→3A 사전정보 효과 (H2, 동일 행동공간)"),
+    ("QL_EXP3A", "QL_EXP3B", "3A→3B +포지셔닝 효과"),
+    ("QL_EXP3B", "QL_EXP3C", "3B→3C +선재조작 효과"),
+]
+
+
+def _prepare(n_train: int, n_eval: int, profile_path: str, out_dir: str):
+    check_seed_bands(n_train, 4, n_eval)
     profile = load_profile(profile_path)
-    level = InformationLevel.BLOCK_ARRIVAL  # Exp-1: 블록 도착 이후 정보만
     params = GenParams()
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-
-    print(f"[1/5] train 시나리오 {n_train}개 생성 (seed {TRAIN_SEED0}+)")
+    print(f"[prep] train {n_train} / test {n_eval} 시나리오 생성 + FIFO fit")
     train_scs = make_scenarios(profile, TRAIN_SEED0, n_train, params)
-
-    print("[2/5] FIFO train 실행 → bucket·reward Scale fit (이후 고정)")
-    buckets, reward = fit_buckets_and_scales(profile, train_scs, level)
+    test_scs = make_scenarios(profile, TEST_SEED0, n_eval, params)
+    buckets, reward = fit_buckets_and_scales(profile, train_scs,
+                                             InformationLevel.BLOCK_ARRIVAL)
     buckets.save(out / "buckets.json")
     reward.save(out / "reward_scales.json")
+    return profile, params, out, train_scs, test_scs, buckets, reward
 
-    print(f"[3/5] Tabular Q-learning 학습: {n_train}ep × {epochs}epoch")
-    env_train = YardEnv(profile, info_level=level, bucket_cfg=buckets, reward_cfg=reward)
-    agent = QLearningAgent(QLearningConfig(), seed=0)
-    train(agent, env_train, train_scs, epochs=epochs)
-    agent.table.save(out / "qtable.json")
+
+def _train_agent(name, level, scope, profile, train_scs, buckets, reward,
+                 epochs, out: Path) -> QLearningAgent:
+    print(f"[train] {name} (level={level.value}, scope={scope.value})")
+    env = YardEnv(profile, info_level=level, control_scope=scope,
+                  bucket_cfg=buckets, reward_cfg=reward)
+    agent = QLearningAgent(QLearningConfig(), seed=0, policy_name=name)
+    train(agent, env, train_scs, epochs=epochs)
+    agent.table.save(out / f"qtable_{name}.json")
+    return agent
+
+
+def _baseline_specs() -> list[PolicySpec]:
+    # Baseline 은 현행 방식 정보수준(블록 도착 이후)·sequence_only 로 고정
+    return [PolicySpec(p.name, p) for p in baseline_policies()]
+
+
+def run_exp1(n_train, epochs, n_eval, profile_path, out_dir) -> Path:
+    t0 = time.time()
+    (profile, params, out, train_scs, test_scs,
+     buckets, reward) = _prepare(n_train, n_eval, profile_path, out_dir)
+    name, level, scope = EXP_CONDITIONS[0]
+    agent = _train_agent(name, level, scope, profile, train_scs, buckets, reward,
+                         epochs, out)
     (out / "train_log.json").write_text(json.dumps(agent.train_log, indent=1),
                                         encoding="utf-8")
-
-    print("[4/5] validation greedy 확인 (seed %d+)" % VAL_SEED0)
     val_scs = make_scenarios(profile, VAL_SEED0, 4, params)
-    for name, pol in [("LONGEST_WAIT", FixedRulePolicy(PriorityRule.LONGEST_WAIT)),
-                      ("QL_EXP1", agent)]:
+    for pname, pol in [("LONGEST_WAIT", FixedRulePolicy(PriorityRule.LONGEST_WAIT)),
+                       (name, agent)]:
         envv = YardEnv(profile, info_level=level, bucket_cfg=buckets, reward_cfg=reward)
         ws = [run_episode(pol, envv, sc).metrics["mean_wait_min"] for sc in val_scs]
-        print(f"    val mean_wait_min {name}: " + ", ".join(f"{w:.1f}" for w in ws))
-
-    print(f"[5/5] test paired 평가 (seed {TEST_SEED0}+, {n_eval} seeds, invariant ON)")
-    test_scs = make_scenarios(profile, TEST_SEED0, n_eval, params)
-    policies = baseline_policies() + [agent]
-    results = evaluate_paired(policies, profile, test_scs, level=level,
-                              buckets=buckets, reward=reward, check_invariants=True)
-
-    meta = {
-        "실험": "Exp-1 (정보=블록 도착 이후, control=sequence_only, 단일 YC)",
-        "프로파일": f"{profile.terminal_id} (assumed={profile.assumed})",
-        "시나리오": f"합성 v1 — {params}",
-        "seeds": f"train {TRAIN_SEED0}..{TRAIN_SEED0 + n_train - 1} ×{epochs}epoch / "
-                 f"val {VAL_SEED0}.. / test {TEST_SEED0}..{TEST_SEED0 + n_eval - 1} (paired)",
-        "Q-learning": f"{agent.cfg} / 방문상태 {len(agent.table.q)}",
-        "reward": "정규화 Core Cost (탄소 미포함), w=(1,.3,.1,.1,.3) assumed",
-        "주의": "CURRENT_RULE 미확보 — 휴리스틱 대비 비교만 유효",
-    }
+        print(f"    val mean_wait_min {pname}: " + ", ".join(f"{w:.1f}" for w in ws))
+    specs = _baseline_specs() + [PolicySpec(name, agent, level, scope)]
+    results = evaluate_paired(specs, profile, test_scs, buckets=buckets,
+                              reward=reward, check_invariants=True)
+    meta = _meta(profile, params, n_train, epochs, n_eval,
+                 실험="Exp-1 (정보=블록 도착 이후, sequence_only, 단일 YC)")
     path = build_report(results, baseline="FIFO", meta=meta, out_dir=out)
     print(f"완료 ({time.time() - t0:.1f}s) → {path}")
     return path
 
 
+def run_matrix(n_train, epochs, n_eval, profile_path, out_dir) -> Path:
+    t0 = time.time()
+    (profile, params, out, train_scs, test_scs,
+     buckets, reward) = _prepare(n_train, n_eval, profile_path, out_dir)
+    specs = _baseline_specs()
+    for name, level, scope in EXP_CONDITIONS:
+        agent = _train_agent(name, level, scope, profile, train_scs, buckets, reward,
+                             epochs, out)
+        specs.append(PolicySpec(name, agent, level, scope))
+    print(f"[eval] test paired 평가 ({len(specs)} 조건 × {n_eval} seeds, invariant ON)")
+    results = evaluate_paired(specs, profile, test_scs, buckets=buckets,
+                              reward=reward, check_invariants=True)
+    meta = _meta(profile, params, n_train, epochs, n_eval,
+                 실험="Exp-1/2/3A/3B/3C matrix — 정보시점 × 행동범위",
+                 ETA="합성 제공 ETA = 실제도착 ± U(0,300s) (EMPIRICAL 대응, assumed)")
+    path = build_matrix_report(results, baseline="FIFO", ladder=LADDER,
+                               meta=meta, out_dir=out)
+    print(f"완료 ({time.time() - t0:.1f}s) → {path}")
+    return path
+
+
+def _meta(profile, params, n_train, epochs, n_eval, **extra) -> dict:
+    meta = dict(extra)
+    meta.update({
+        "프로파일": f"{profile.terminal_id} (assumed={profile.assumed})",
+        "시나리오": f"합성 v1 — {params}",
+        "seeds": f"train {TRAIN_SEED0}..{TRAIN_SEED0 + n_train - 1} ×{epochs}epoch / "
+                 f"test {TEST_SEED0}..{TEST_SEED0 + n_eval - 1} (paired)",
+        "reward": "정규화 Core Cost (탄소 미포함), w=(1,.3,.1,.1,.3) assumed, "
+                  "Scale=train FIFO fit 고정",
+        "주의": "CURRENT_RULE 미확보 — 휴리스틱 대비 비교만 유효",
+    })
+    return meta
+
+
 def main(argv: list[str] | None = None):
     ap = argparse.ArgumentParser(prog="yard_rl")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p1 = sub.add_parser("run-exp1", help="Exp-1 예비 PoC 전체 파이프라인")
-    p1.add_argument("--train", type=int, default=30, help="train 시나리오 수")
-    p1.add_argument("--epochs", type=int, default=4)
-    p1.add_argument("--eval", type=int, default=12, help="test paired seeds")
-    p1.add_argument("--profile", default=DEFAULT_PROFILE)
-    p1.add_argument("--out", default="outputs/reports/exp1")
-    p1.add_argument("--quick", action="store_true", help="빠른 스모크 (train 6, epochs 1, eval 4)")
+    for cmd, help_ in [("run-exp1", "Exp-1 예비 PoC"), ("run-matrix", "Exp-1~3C 종합")]:
+        p = sub.add_parser(cmd, help=help_)
+        p.add_argument("--train", type=int, default=30)
+        p.add_argument("--epochs", type=int, default=4)
+        p.add_argument("--eval", type=int, default=12)
+        p.add_argument("--profile", default=DEFAULT_PROFILE)
+        p.add_argument("--out", default=None)
+        p.add_argument("--quick", action="store_true")
     args = ap.parse_args(argv)
+    if args.quick:
+        args.train, args.epochs, args.eval = 6, 1, 4
+    out = args.out or ("outputs/reports/exp1" if args.cmd == "run-exp1"
+                       else "outputs/reports/exp_matrix")
     if args.cmd == "run-exp1":
-        if args.quick:
-            args.train, args.epochs, args.eval = 6, 1, 4
-        run_exp1(args.train, args.epochs, args.eval, args.profile, args.out)
+        run_exp1(args.train, args.epochs, args.eval, args.profile, out)
+    else:
+        run_matrix(args.train, args.epochs, args.eval, args.profile, out)
 
 
 if __name__ == "__main__":

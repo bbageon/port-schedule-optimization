@@ -17,6 +17,10 @@ class ConstraintViolation(RuntimeError):
         super().__init__(f"[{code}] {message}")
 
 
+# 포지셔닝·선재조작 중 크레인 점유 표시 (Job 이 아닌 크레인 단독작업)
+CRANE_TASK_SENTINEL = "__CRANE_TASK__"
+
+
 class ConstraintEngine:
     def __init__(self, profile: TerminalProfile):
         self.profile = profile
@@ -81,7 +85,8 @@ class ConstraintEngine:
             raise ConstraintViolation("MULTI_RUN", f"{[j.job_id for j in running]}")
         if running and crane.assigned_job != running[0].job_id:
             raise ConstraintViolation("ASSIGN_DESYNC", f"crane={crane.assigned_job} run={running[0].job_id}")
-        if not running and crane.assigned_job is not None:
+        if (not running and crane.assigned_job is not None
+                and crane.assigned_job != CRANE_TASK_SENTINEL):
             raise ConstraintViolation("ASSIGN_DESYNC", f"실행작업 없이 crane={crane.assigned_job}")
         if not (crane.service_bay_min <= crane.position_bay <= crane.service_bay_max):
             raise ConstraintViolation("OUT_OF_RANGE", f"crane bay={crane.position_bay}")

@@ -15,10 +15,12 @@ class KpiSnapshot:
     tail_area_s: float
     loaded_gantry_m: float
     empty_gantry_m: float
-    rehandle_count: int
+    rehandle_count: int          # 선재조작 포함 (비용은 동일 항목으로 계상)
     completed_external: int
     completed_vessel: int
     vessel_delay_s: float
+    pre_rehandle_count: int = 0  # 이 중 선재조작(도착 전 처리)분 — 리포트 분해용
+    positioning_count: int = 0
 
 
 @dataclass
@@ -32,7 +34,9 @@ class KpiTracker:
     completed_external: int = 0
     completed_vessel: int = 0
     vessel_delay_s: float = 0.0
-    wait_samples_s: list[float] = field(default_factory=list)   # 완료 외부트럭의 실제 대기
+    pre_rehandle_count: int = 0
+    positioning_count: int = 0
+    wait_samples_s: list[float] = field(default_factory=list)   # 대기 표본 (검열 포함)
     # 내부 상태: 현재 대기 중 외부트럭 job_id -> block_arrival
     _waiting: dict[str, float] = field(default_factory=dict)
 
@@ -90,4 +94,5 @@ class KpiTracker:
     def snapshot(self) -> KpiSnapshot:
         return KpiSnapshot(self.queue_area_s, self.tail_area_s, self.loaded_gantry_m,
                            self.empty_gantry_m, self.rehandle_count, self.completed_external,
-                           self.completed_vessel, self.vessel_delay_s)
+                           self.completed_vessel, self.vessel_delay_s,
+                           self.pre_rehandle_count, self.positioning_count)

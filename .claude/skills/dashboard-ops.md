@@ -14,13 +14,15 @@
 2. WIP 는 한 번에 1개 권장. 예외는 `⏸ 외부 대기` row 뿐 — 그 외 in-progress 2개면 하나는 거짓이다.
 3. Agent 작업이 끝나고 사용자/외부 응답만 남으면 Note 에 `⏸ 외부 대기` 를 명시한다.
 
-## 작업 종료 (commit)
+## 작업 종료 (commit + push)
 
-1. `in-progress.md` → `done.md` 로 row 이동.
-2. Evidence 열에 해당하는 것 전부 박제: `<commit 해시> · [report](경로) · [snapshot](경로) · [일지](경로)`.
-   git 미초기화/커밋 없는 작업(문서·사용자 결정)은 근거 문서·대화 날짜로 대체.
-3. Title 에 결론을 굵게 1구절 포함 (예: "**X 가설 지지 (p<1e-4)**") — done 목록 스캔만으로 확정사항이 보이게.
-4. 파생 후속 작업은 **같은 turn 에** `backlog.md` 에 등록한다 — row 가 아니면 증발한다.
+1. 관련 테스트·lint·문서 검증을 실행하고 결과를 확인한다.
+2. 현재 작업에 속한 파일만 stage 하여 범위가 명확한 commit 을 만든다. 다른 작업자의 미커밋 변경을 포함하지 않는다.
+3. `in-progress.md` → `done.md` 로 row 를 이동하고 Evidence 열에 해당하는 것 전부 박제한다: `<commit 해시/링크> · [report](경로) · [snapshot](경로) · [일지](경로)`. Evidence 갱신이 commit 뒤에 이뤄지면 별도 bookkeeping commit 으로 남긴다.
+4. upstream 이 없으면 `git push -u origin HEAD`, 있으면 `git push` 를 실행하고 원격 반영을 확인한다. 원격은 `https://github.com/bbageon/port-schedule-optimization.git` 이다.
+5. push 실패 시 작업을 완료로 보고하지 않는다. 인증·권한·non-fast-forward 등 원인을 기록하고 사용자에게 필요한 조치를 알린다. 사용자가 명시적으로 로컬 전용 또는 push 금지를 요청한 경우만 예외다.
+6. Title 에 결론을 굵게 1구절 포함 (예: "**X 가설 지지 (p<1e-4)**") — done 목록 스캔만으로 확정사항이 보이게.
+7. 파생 후속 작업은 **같은 turn 에** `backlog.md` 에 등록한다 — row 가 아니면 증발한다.
 
 ## 폐기
 

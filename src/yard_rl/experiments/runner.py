@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..domain.enums import InformationLevel, PriorityRule
+from ..domain.enums import ControlScope, InformationLevel, PriorityRule
 from ..domain.models import TerminalProfile
 from ..domain.scenario import Scenario
 from ..envs.observations import BucketConfig
@@ -37,6 +37,15 @@ class EpisodeResult:
     metrics: dict
 
 
+@dataclass
+class PolicySpec:
+    """평가 단위: 정책 + 그 정책이 실행될 정보수준·행동범위 (실험 조건)."""
+    name: str
+    policy: object
+    level: InformationLevel = InformationLevel.BLOCK_ARRIVAL
+    scope: ControlScope = ControlScope.SEQUENCE_ONLY
+
+
 def collect_metrics(env: YardEnv) -> dict:
     sim = env.sim
     k = sim.kpis
@@ -59,16 +68,19 @@ def collect_metrics(env: YardEnv) -> dict:
         "completed_vessel": float(k.completed_vessel),
         "vessel_delay_min": k.vessel_delay_s / 60.0,
         "backlog": float(sim.unfinished_backlog()),
+        "pre_rehandles": float(k.pre_rehandle_count),
+        "positionings": float(k.positioning_count),
         "n_decisions": float(env.n_steps),
     }
 
 
-def run_episode(policy, env: YardEnv, scenario: Scenario) -> EpisodeResult:
+def run_episode(policy, env: YardEnv, scenario: Scenario,
+                name: str | None = None) -> EpisodeResult:
     state, info = env.reset(scenario)
     while state is not None:
         a = policy.act(state, info.action_mask)
         state, _r, _done, info = env.step(a)
-    return EpisodeResult(policy.name, scenario.scenario_id, scenario.seed,
+    return EpisodeResult(name or policy.name, scenario.scenario_id, scenario.seed,
                          collect_metrics(env))
 
 
@@ -108,15 +120,20 @@ def fit_buckets_and_scales(profile: TerminalProfile, train_scenarios: list[Scena
     return buckets, reward
 
 
-def evaluate_paired(policies: list, profile: TerminalProfile,
-                    scenarios: list[Scenario], *, level: InformationLevel,
+def evaluate_paired(specs: list[PolicySpec], profile: TerminalProfile,
+                    scenarios: list[Scenario], *,
                     buckets: BucketConfig, reward: RewardConfig,
                     check_invariants: bool = True) -> dict[str, list[EpisodeResult]]:
-    """모든 정책 × 같은 시나리오(공통난수) — 안전검증 켠 채 실행."""
-    out: dict[str, list[EpisodeResult]] = {p.name: [] for p in policies}
+    """모든 정책조건 × 같은 시나리오(공통난수·동일 초기상태) — 안전검증 켠 채 실행.
+
+    정보수준·행동범위는 spec 별로 다르지만 시나리오(진실 이벤트)는 동일 —
+    '같은 하루'를 조건만 바꿔 재생하는 paired 설계 (03 §3.1).
+    """
+    out: dict[str, list[EpisodeResult]] = {s.name: [] for s in specs}
     for sc in scenarios:
-        for p in policies:
-            env = YardEnv(profile, info_level=level, bucket_cfg=buckets,
-                          reward_cfg=reward, check_invariants=check_invariants)
-            out[p.name].append(run_episode(p, env, sc))
+        for s in specs:
+            env = YardEnv(profile, info_level=s.level, control_scope=s.scope,
+                          bucket_cfg=buckets, reward_cfg=reward,
+                          check_invariants=check_invariants)
+            out[s.name].append(run_episode(s.policy, env, sc, name=s.name))
     return out

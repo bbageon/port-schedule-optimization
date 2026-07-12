@@ -12,8 +12,10 @@ from .runner import EpisodeResult
 from .statistics import paired_diff
 
 _KEY_METRICS = ["mean_wait_min", "p95_wait_min", "queue_area_h", "tail_area_h",
-                "travel_km", "rehandles", "vessel_delay_min", "completed_external",
-                "backlog", "sla_exceed_count"]
+                "travel_km", "rehandles", "pre_rehandles", "positionings",
+                "vessel_delay_min", "completed_external", "backlog", "sla_exceed_count"]
+_PAIRED_METRICS = ["mean_wait_min", "p95_wait_min", "queue_area_h", "travel_km",
+                   "rehandles", "vessel_delay_min"]
 
 
 def _mean(rs: list[EpisodeResult], key: str) -> float:
@@ -67,8 +69,7 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
     for pname, rs in results.items():
         if pname == baseline:
             continue
-        for key in ["mean_wait_min", "p95_wait_min", "queue_area_h", "travel_km",
-                    "rehandles", "vessel_delay_min"]:
+        for key in _PAIRED_METRICS:
             d = paired_diff(_series(base_rs, key), _series(rs, key))
             lines.append(
                 f"| {pname} | {key} | {d['mean_base']:.2f} | {d['mean_alt']:.2f} "
@@ -98,5 +99,73 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
     lines.append("")
     lines.append("*생성: yard_rl.experiments.report — 원자료 exp1_results.json*")
     path = out / "exp1_report.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def build_matrix_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
+                        ladder: list[tuple[str, str, str]], meta: dict,
+                        out_dir: str | Path) -> Path:
+    """Exp-1~3C 종합 리포트 — 정보시점·행동범위 사다리 paired 비교 (H1~H3 재료)."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "exp_matrix_results.json").write_text(
+        json.dumps({p: [r.__dict__ for r in rs] for p, rs in results.items()},
+                   indent=1, ensure_ascii=False), encoding="utf-8")
+    lines: list[str] = []
+    lines.append("# Exp-1~3 예비 PoC 종합 결과 (합성 시나리오)")
+    lines.append("")
+    lines.append("> ⚠ **가정 프로파일(assumed) + 합성 시나리오 + 합성 ETA(오차 ±300s)** 예비 PoC.")
+    lines.append("> CURRENT_RULE·실측자료 미확보 — 실제 운영 대비 개선율이 아님. 정보시점·")
+    lines.append("> 행동범위의 **상대 효과 방향**을 알고리즘 수준에서 확인하는 목적으로만 해석.")
+    lines.append("")
+    lines.append("## 실행 조건")
+    lines.append("")
+    for k, v in meta.items():
+        lines.append(f"- **{k}**: {v}")
+    lines.append("")
+    lines.append("## 정책·실험조건별 평균 (test seeds, 공통난수)")
+    lines.append("")
+    lines.append("| 지표 | " + " | ".join(results.keys()) + " |")
+    lines.append("|" + "---|" * (len(results) + 1))
+    for key in _KEY_METRICS:
+        row = [f"{_mean(rs, key):.2f}" for rs in results.values()]
+        lines.append(f"| {key} | " + " | ".join(row) + " |")
+    base_rs = results[baseline]
+    if len(base_rs) >= 2:
+        lines.append("")
+        lines.append(f"## Paired vs {baseline} (핵심 지표)")
+        lines.append("")
+        lines.append("| 정책 | mean_wait Δ% | p95_wait Δ% | queue_area Δ% | travel Δ% | 유의(wait) |")
+        lines.append("|---|---|---|---|---|---|")
+        for pname, rs in results.items():
+            if pname == baseline:
+                continue
+            ds = {k: paired_diff(_series(base_rs, k), _series(rs, k))
+                  for k in ["mean_wait_min", "p95_wait_min", "queue_area_h", "travel_km"]}
+            w = ds["mean_wait_min"]
+            lines.append(
+                f"| {pname} | {w['pct_change']:+.1f}% ({w['seeds_same_direction']}/{w['n']}) "
+                f"| {ds['p95_wait_min']['pct_change']:+.1f}% "
+                f"| {ds['queue_area_h']['pct_change']:+.1f}% "
+                f"| {ds['travel_km']['pct_change']:+.1f}% "
+                f"| {'✔' if w['significant'] else '—'} |")
+        lines.append("")
+        lines.append("## 정보시점·행동범위 사다리 (paired, b vs a)")
+        lines.append("")
+        lines.append("| 비교 | 지표 | a | b | Δ (95% CI) | 변화% | 유의 |")
+        lines.append("|---|---|---|---|---|---|---|")
+        for a, b, label in ladder:
+            if a not in results or b not in results:
+                continue
+            for key in _PAIRED_METRICS:
+                d = paired_diff(_series(results[a], key), _series(results[b], key))
+                lines.append(
+                    f"| {label} | {key} | {d['mean_base']:.2f} | {d['mean_alt']:.2f} "
+                    f"| {d['mean_diff']:+.2f} [{d['ci_lo']:+.2f}, {d['ci_hi']:+.2f}] "
+                    f"| {d['pct_change']:+.1f}% | {'✔' if d['significant'] else '—'} |")
+    lines.append("")
+    lines.append("*생성: yard_rl.experiments.report — 원자료 exp_matrix_results.json*")
+    path = out / "exp_matrix_report.md"
     path.write_text("\n".join(lines), encoding="utf-8")
     return path

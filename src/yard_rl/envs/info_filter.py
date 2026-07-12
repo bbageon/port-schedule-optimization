@@ -27,3 +27,22 @@ def assert_no_leakage(jobs: list[Job], now: float, level: InformationLevel) -> N
     for j in jobs:
         if not is_visible(j, now, level):
             raise RuntimeError(f"정보 누출: {j.job_id} 는 level={level.value}, t={now} 에서 비공개여야 함")
+
+
+def predicted_arrival(job: Job, level: InformationLevel, gate_travel_estimate_s: float) -> float | None:
+    """정책이 사용할 수 있는 (수준별) 도착예상.
+
+    - BLOCK_ARRIVAL: 예측정보 없음 (이미 도착한 작업만 보임)
+    - GATE_IN: 게이트 진입시각 + 자체 소요추정 — 실제 도착과 오차 존재 (Exp-2)
+    - PRE_ADVICE: 부산항 제공 ETA (외생 입력, Exp-3)
+    실제 actual_block_arrival 은 절대 정책에 노출하지 않는다.
+    """
+    if not job.is_external_truck:
+        return None
+    if level == InformationLevel.GATE_IN:
+        if job.actual_gate_in is None:
+            return None
+        return job.actual_gate_in + gate_travel_estimate_s
+    if level == InformationLevel.PRE_ADVICE:
+        return job.provided_eta
+    return None

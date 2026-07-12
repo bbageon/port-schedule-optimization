@@ -26,6 +26,9 @@ class FixedRulePolicy:
         for r in _FALLBACK_ORDER:
             if mask[r]:
                 return int(r)
+        for a, ok in enumerate(mask):  # 방어적: 사전행동만 열린 상태
+            if ok:
+                return a
         raise RuntimeError("가능한 rule 없음 — mask 전부 False 인데 step 호출됨")
 
 

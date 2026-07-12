@@ -5,4 +5,4 @@
 
 | Skill | 파일 | 용도 (트리거) |
 |---|---|---|
-| Dashboard 운영 절차 | [skills/dashboard-ops.md](skills/dashboard-ops.md) | 세션 시작·작업 착수/종료(commit)·후속 등록·폐기 시 board 갱신 절차 |
+| Dashboard 운영 절차 | [skills/dashboard-ops.md](skills/dashboard-ops.md) | 세션 시작·작업 착수/종료(commit·push)·후속 등록·폐기 시 board 갱신 절차 |

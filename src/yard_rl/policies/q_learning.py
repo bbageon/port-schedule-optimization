@@ -29,6 +29,9 @@ def _fallback_action(mask: list[bool]) -> int:
     for r in _FALLBACK_ORDER:
         if mask[r]:
             return int(r)
+    for a, ok in enumerate(mask):  # 사전행동(EPA·PRE_REHANDLE)만 열린 상태
+        if ok:
+            return a
     raise RuntimeError("mask 전부 False")
 
 
@@ -94,6 +97,7 @@ class QTable:
 class QLearningAgent:
     cfg: QLearningConfig
     seed: int = 0
+    policy_name: str = "QL"
     table: QTable = None
     rng: random.Random = None
     train_log: list[dict] = field(default_factory=list)
@@ -114,7 +118,7 @@ class QLearningAgent:
 
     @property
     def name(self) -> str:
-        return "QL_EXP1"
+        return self.policy_name
 
     # --- SMDP 업데이트 ---
     def update(self, s, a: int, r: float, s2, mask2: list[bool],

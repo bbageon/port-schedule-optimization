@@ -42,6 +42,7 @@ def load_profile(path: str | Path) -> TerminalProfile:
         ),
         long_wait_sla_s=float(ops["long_wait_sla_s"]),
         decision_horizon_s=float(ops["decision_horizon_s"]),
+        gate_travel_estimate_s=float(ops.get("gate_travel_estimate_s", 600.0)),
     )
     validate_profile(profile)
     return profile

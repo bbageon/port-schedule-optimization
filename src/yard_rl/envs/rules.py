@@ -62,7 +62,11 @@ class PriorityRuleExecutor:
         self.profile = profile
 
     def select(self, rule: PriorityRule, candidates: list[Job], *,
-               crane: CraneState, stacks: YardStacks, now: float) -> Job:
+               crane: CraneState, stacks: YardStacks, now: float,
+               eta_of=None) -> Job:
+        """eta_of: 정보수준별 도착예상 함수 (info_filter.predicted_arrival 바인딩).
+        EARLIEST_PROVIDED_ARRIVAL 은 반드시 이를 통해서만 예측값을 본다 —
+        actual_block_arrival 직접 참조 금지 (정보 누출)."""
         if not candidates:
             raise ValueError("후보 없음 — mask 로 걸렀어야 함")
         sla = self.profile.long_wait_sla_s
@@ -90,8 +94,10 @@ class PriorityRuleExecutor:
                     and abs(self._job_bay(j, stacks) - crane.position_bay) <= 1.0]
             return min(pool, key=key(lambda j: abs(self._job_bay(j, stacks) - crane.position_bay)))
         if rule == PriorityRule.EARLIEST_PROVIDED_ARRIVAL:
-            pool = [j for j in candidates if j.provided_eta is not None]
-            return min(pool, key=key(lambda j: j.provided_eta))
+            if eta_of is None:
+                raise ValueError("EPA rule 은 eta_of 필요 (정보수준별 예측자)")
+            pool = [j for j in candidates if eta_of(j) is not None]
+            return min(pool, key=key(eta_of))
         raise ValueError(f"PoC 미지원 rule {rule.name}")  # PRE_REHANDLE·WAIT_YIELD 는 Exp-3C/4
 
     def _job_bay(self, job: Job, stacks: YardStacks) -> float | None:
