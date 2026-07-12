@@ -1,0 +1,35 @@
+# 가정 프로파일 (PoC 전용) — 전 항목 assumed. 실측 아님.
+# 근거: 선행연구·일반 RTG 제원 수준의 임시값 (구현계획 01 §2 설정값 우선순위 5순위).
+# YR-002 완료 시 target_terminal.yaml 로 교체하고 본 파일은 개발용으로만 유지.
+terminal_id: POC-SINGLE
+profile_date: 2026-07-12
+assumed: true
+
+block:
+  block_id: B1
+  bay_count: 24
+  row_count: 6
+  tier_max: 5
+  bay_length_m: 6.5
+  row_width_m: 2.9
+  tier_height_m: 2.6
+
+crane:
+  crane_id: YC-01
+  service_bay_min: 1
+  service_bay_max: 24
+  gantry_speed_mps: 2.0
+  trolley_speed_mps: 1.0
+  hoist_speed_loaded_mps: 0.5
+  hoist_speed_empty_mps: 0.9
+  lock_time_s: 30
+  unlock_time_s: 20
+  truck_positioning_time_s: 25
+
+handover:
+  transfer_row: 0   # 차선(트럭 인계) — trolley 좌표 0
+
+operations:
+  long_wait_sla_s: 1800        # 30분 장기대기 기준 (가정)
+  vessel_deadline_slack_warn_s: 900
+  decision_horizon_s: 1800

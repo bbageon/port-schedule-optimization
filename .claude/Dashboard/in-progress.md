@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-003 | Infra | 프로젝트 스캐폴드 (pyproject·src/yard_rl·tests·configs) + git init | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-003-project-scaffold.md) · Exp-1 진행 push 의 1단계 |
+| YR-004 | Data | Phase 1 전반: 도메인 모델 (Enum·dataclass·validator) | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-004-domain-models.md) · Exp-1 진행 push 2단계 |
 
 ---
 

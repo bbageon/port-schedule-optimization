@@ -5,7 +5,6 @@
 | ID | Epic | Title | Priority | Blocked by / Note |
 |---|---|---|---|---|
 | YR-002 | Data | Phase 0: 대상 터미널·블록·기준기간 확정 + TerminalProfile 초안 | 🔴 | [spec](../docs/dashboard-task-specs/YR-002-phase0-terminal-profile.md) · 사용자/운영사 결정 필요, 미확정 시 가정 프로파일로 우회 |
-| YR-004 | Data | Phase 1 전반: 도메인 모델 (Enum·dataclass·validator) | 🟠 | [spec](../docs/dashboard-task-specs/YR-004-domain-models.md) · YR-003 후 |
 
 ---
 
