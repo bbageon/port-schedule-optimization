@@ -7,7 +7,6 @@
 |---|---|---|---|---|
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
-| YR-008 | Baseline | Phase 3: Baseline 정책 + KPI·paired runner | 🟠 | [spec](../docs/dashboard-task-specs/YR-008-baseline-policies.md) |
 | YR-010 | RL | Phase 4: Tabular Q-learning PoC | 🟡 | [spec](../docs/dashboard-task-specs/YR-010-tabular-q-poc.md) |
 | YR-011-a | Exp | Phase 5: Exp-1 (블록 도착 이후 정보, sequence_only) | 🟡 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · 예비 PoC 는 합성 데이터로 |
 | YR-011-b | Exp | Phase 5: Exp-2 (게이트 진입 이후 정보) | 🟡 | [spec](../docs/dashboard-task-specs/YR-011-exp1-3-experiments.md) · YR-011-a 후 |

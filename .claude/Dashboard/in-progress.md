@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-017 | Data | 합성 시나리오 생성기 (가정 프로파일 기반) | 🟠 | 2026-07-12 | 실자료 대체 아님 — Exp-1 예비 PoC 구동용 |
+| YR-008 | Baseline | Phase 3: Baseline 정책 + 공통 RL 환경 + paired runner | 🟠 | 2026-07-12 | [spec](../docs/dashboard-task-specs/YR-008-baseline-policies.md) · CURRENT_RULE 미확보 → 실운영 대비 표현 금지 |
 
 ---
 
