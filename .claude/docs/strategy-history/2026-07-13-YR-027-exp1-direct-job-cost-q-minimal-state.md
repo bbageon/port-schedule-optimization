@@ -1,6 +1,6 @@
 # YR-027 v2 — Exp-1 Direct-Job Cost-Q 최소상태
 
-> 기록일: 2026-07-13 · 상태: 구현·전체 재평가 진행
+> 기록일: 2026-07-13 · 상태: **전체 평가 완료 — coverage 통과, primary 미통과**
 > v1 원본: [5+5 상태 전략](2026-07-13-YR-027-exp1-direct-job-cost-q.md)
 
 ## 1. 변경 이유
@@ -54,3 +54,21 @@ tie-break 진단값으로 유지하되 Cost-Q key에는 넣지 않는다.
 v1 산출물 `outputs/reports/exp1_direct_costq_hjnc/`은 덮어쓰지 않는다. v2는
 `outputs/reports/exp1_direct_costq_minimal_hjnc/`에 별도 기록해 state 축소가 fallback과
 평균대기 차이에 미친 영향을 같은 seed·설정으로 비교한다.
+
+## 5. 전체 평가 결과
+
+- clean source `687e5d5`, train 1,000 / validation 30 / test 100을 실행했다.
+- SLA_OFF 선택값은 `p=1.0`, episode 300이며 validation 평균은 `8.716`분이다.
+- test 평균은 Cost-Q `8.984`분, shortest-service `7.789`분으로 차이 `+1.195`분이다.
+  paired bootstrap 95% CI는 `[+0.963,+1.438]`이므로 개선되지 않았다.
+- P95는 `44.685`분 대 `30.280`분으로 `+47.57%`; 95% CI는
+  `[+35.87%,+59.96%]`여서 guardrail도 통과하지 못했다.
+- SLA_OFF fallback은 v1 `55.04%`에서 `0.01%`(1/10,000)로 감소했고 coverage 기준은
+  통과했다. SLA_ON fallback도 `0.36%`였다.
+- 모든 test episode의 completion은 100%, backlog는 0이며 물리·cost invariant는 통과했다.
+
+따라서 state 희석은 해결됐지만 primary 실패 원인은 남았다. v2는 거의 순수 Cost-Q의 순서가
+shortest-service보다 열세임을 보여준다. v1의 `+0.039`분 근접 결과는 55.04% decision에서
+shortest-service fallback을 사용한 영향과 함께 해석해야 한다.
+
+[전체 결과](../../../outputs/reports/exp1_direct_costq_minimal_hjnc/exp1_direct_costq_report.md)

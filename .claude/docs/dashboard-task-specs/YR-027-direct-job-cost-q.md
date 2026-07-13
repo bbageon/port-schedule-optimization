@@ -42,4 +42,8 @@
 - 사용자 결정에 따라 `GlobalState=(operation_phase, queue_length_bucket)`으로 축소했다.
 - `CandidateFeature=(transfer_direction, estimated_service_time_bucket, end_crane_zone)`으로 바꾸고, 작업 완료 후 실제 YC bay 구간을 key에 추가했다.
 - queue/service bucket만 train의 SLA_OFF FIFO 관측으로 fit하며 v1 산출물은 보존한다.
-- 전체 동결설정 재실행 결과는 `outputs/reports/exp1_direct_costq_minimal_hjnc/`에 별도 기록한다.
+- clean source `687e5d5`에서 train 1,000 / validation 30 / locked test 100 전체 설정을 재실행했다.
+- SLA_OFF는 `p=1.0`, episode 300을 선택했고 평균대기는 `8.984`분으로 shortest-service `7.789`분보다 `+1.195`분 나빴다(95% CI `[+0.963,+1.438]`).
+- P95는 `44.685`분으로 shortest-service `30.280`분 대비 `+47.57%`(95% CI `[+35.87%,+59.96%]`)였다.
+- fallback은 v1 `55.04%`에서 `0.01%`(1/10,000 decision)로 감소해 coverage 기준은 통과했다. completion 100%·backlog 0·모든 invariant도 통과했다.
+- 최소상태는 state 희석을 해결했지만 학습 순서 품질은 greedy보다 열세였다. v1의 근접 수치는 높은 shortest-service fallback의 영향을 함께 받은 결과로 해석한다. [v2 report](../../../outputs/reports/exp1_direct_costq_minimal_hjnc/exp1_direct_costq_report.md)

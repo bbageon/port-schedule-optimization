@@ -1,0 +1,26 @@
+{
+  "SLA_OFF": {
+    "baseline": {
+      "policy": "SHORTEST_ESTIMATED_SERVICE_TIME",
+      "validation_mean_wait_min": 7.640908775153485
+    },
+    "cost_q": {
+      "checkpoint_episode": 300,
+      "p": 1.0,
+      "tie_break": "mean_wait_min, then lower p, then earlier checkpoint",
+      "validation_mean_wait_min": 8.71606749959679
+    }
+  },
+  "SLA_ON": {
+    "baseline": {
+      "policy": "SHORTEST_ESTIMATED_SERVICE_TIME",
+      "validation_mean_wait_min": 10.888397386618465
+    },
+    "cost_q": {
+      "checkpoint_episode": 50,
+      "p": 1.0,
+      "tie_break": "mean_wait_min, then lower p, then earlier checkpoint",
+      "validation_mean_wait_min": 11.126849870971622
+    }
+  }
+}
