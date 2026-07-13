@@ -27,7 +27,13 @@ def _series(rs: list[EpisodeResult], key: str) -> list[float]:
 
 
 def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
-                 meta: dict, out_dir: str | Path) -> Path:
+                 meta: dict, out_dir: str | Path,
+                 extra_metrics: tuple[str, ...] = (),
+                 ql_name: str | None = None) -> Path:
+    """extra_metrics: 평균표·paired 에 추가할 metric 키 (예: total_cost_manwon).
+    ql_name: 합격기준 점검 대상 QL 정책 (기본: 첫 QL*)."""
+    key_metrics = _KEY_METRICS + list(extra_metrics)
+    paired_metrics = _PAIRED_METRICS + list(extra_metrics)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     (out / "exp1_results.json").write_text(
@@ -52,7 +58,7 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
     header = "| 지표 | " + " | ".join(results.keys()) + " |"
     lines.append(header)
     lines.append("|" + "---|" * (len(results) + 1))
-    for key in _KEY_METRICS:
+    for key in key_metrics:
         row = [f"{_mean(rs, key):.2f}" for rs in results.values()]
         lines.append(f"| {key} | " + " | ".join(row) + " |")
     lines.append("")
@@ -69,7 +75,7 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
     for pname, rs in results.items():
         if pname == baseline:
             continue
-        for key in _PAIRED_METRICS:
+        for key in paired_metrics:
             d = paired_diff(_series(base_rs, key), _series(rs, key))
             lines.append(
                 f"| {pname} | {key} | {d['mean_base']:.2f} | {d['mean_alt']:.2f} "
@@ -79,7 +85,8 @@ def build_report(results: dict[str, list[EpisodeResult]], *, baseline: str,
     lines.append("")
     lines.append("## 잠정 합격기준 점검 (03 §5.1 — 예비 PoC 버전)")
     lines.append("")
-    ql = next((n for n in results if n.startswith("QL")), None)
+    ql = ql_name if ql_name in results else next(
+        (n for n in results if n.startswith("QL")), None)
     if ql:
         d_wait = paired_diff(_series(base_rs, "mean_wait_min"), _series(results[ql], "mean_wait_min"))
         d_p95 = paired_diff(_series(base_rs, "p95_wait_min"), _series(results[ql], "p95_wait_min"))

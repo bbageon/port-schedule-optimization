@@ -19,6 +19,7 @@ from .experiments.report import build_matrix_report, build_report
 from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, PolicySpec,
                                  check_seed_bands, evaluate_paired,
                                  fit_buckets_and_scales, make_scenarios, run_episode)
+from .envs.rewards import CostConfig
 from .envs.yard_env import YardEnv
 from .io.profile_loader import load_profile
 from .io.scenario_gen import GenParams
@@ -26,6 +27,7 @@ from .policies.baselines import FixedRulePolicy, baseline_policies
 from .policies.q_learning import QLearningAgent, QLearningConfig, train
 
 DEFAULT_PROFILE = "configs/terminals/poc_single_crane.yaml"
+DEFAULT_COST = "configs/costs/won_cost_v1.yaml"
 
 # 실험 matrix — 정보수준 × 행동범위 (실험설계안 §3, 02 §3)
 EXP_CONDITIONS = [
@@ -101,6 +103,54 @@ def run_exp1(n_train, epochs, n_eval, profile_path, out_dir) -> Path:
     return path
 
 
+def run_exp1_cost(n_train, epochs, n_eval, profile_path, out_dir, cost_path) -> Path:
+    """YR-025: 목적함수를 원화비용 argmin 으로 재정의한 Exp-1 재실험.
+
+    QL_EXP1(정규화 Core Cost, 대조군) vs QL_EXP1_COST(reward=-C_won) 를 같은
+    train 시나리오로 학습해 동일 test 일에 paired 비교. C_won 은 5개 KPI 에
+    선형이라 학습 파이프라인은 RewardConfig 치환만으로 재사용된다.
+    """
+    t0 = time.time()
+    (profile, params, out, train_scs, test_scs,
+     buckets, reward) = _prepare(n_train, n_eval, profile_path, out_dir)
+    cost = CostConfig.load(cost_path)
+    cost_reward = cost.to_reward_config()
+    cost_reward.save(out / "cost_reward_scales.json")
+    name, level, scope = EXP_CONDITIONS[0]
+    agent_norm = _train_agent(name, level, scope, profile, train_scs, buckets,
+                              reward, epochs, out)
+    print(f"[train] QL_EXP1_COST (reward=-C_won, {cost.cost_id})")
+    env = YardEnv(profile, info_level=level, control_scope=scope,
+                  bucket_cfg=buckets, reward_cfg=cost_reward)
+    agent_cost = QLearningAgent(QLearningConfig(), seed=0,
+                                policy_name="QL_EXP1_COST")
+    train(agent_cost, env, train_scs, epochs=epochs)
+    agent_cost.table.save(out / "qtable_QL_EXP1_COST.json")
+    (out / "train_log_cost.json").write_text(
+        json.dumps(agent_cost.train_log, indent=1), encoding="utf-8")
+    specs = (_baseline_specs()
+             + [PolicySpec(name, agent_norm, level, scope),
+                PolicySpec("QL_EXP1_COST", agent_cost, level, scope)])
+    results = evaluate_paired(specs, profile, test_scs, buckets=buckets,
+                              reward=reward, check_invariants=True)
+    for rs in results.values():  # 총비용(만원) 지표 주입 — 전 정책 공통 산식
+        for r in rs:
+            r.metrics["total_cost_manwon"] = cost.cost_of_metrics(r.metrics)
+    meta = _meta(profile, params, n_train, epochs, n_eval,
+                 실험="Exp-1 비용 argmin (YR-025) — QL_EXP1_COST(reward=-C_won) vs "
+                    "QL_EXP1(정규화) vs baseline",
+                 목적함수=f"{cost.cost_id} (assumed) — 대기 {cost.truck_wait_krw_per_hour:,.0f}₩/h·"
+                     f"tail 할증 {cost.tail_extra_krw_per_hour:,.0f}₩/h(안전운임 anchor, 30분 proxy)·"
+                     f"이동 {cost.gantry_move_krw_per_km:,.0f}₩/km·"
+                     f"재조작 {cost.rehandle_krw_per_move:,.0f}₩·"
+                     f"본선 {cost.vessel_delay_krw_per_hour:,.0f}₩/h")
+    path = build_report(results, baseline="FIFO", meta=meta, out_dir=out,
+                        extra_metrics=("total_cost_manwon",),
+                        ql_name="QL_EXP1_COST")
+    print(f"완료 ({time.time() - t0:.1f}s) → {path}")
+    return path
+
+
 def run_matrix(n_train, epochs, n_eval, profile_path, out_dir) -> Path:
     t0 = time.time()
     (profile, params, out, train_scs, test_scs,
@@ -139,7 +189,8 @@ def _meta(profile, params, n_train, epochs, n_eval, **extra) -> dict:
 def main(argv: list[str] | None = None):
     ap = argparse.ArgumentParser(prog="yard_rl")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for cmd, help_ in [("run-exp1", "Exp-1 예비 PoC"), ("run-matrix", "Exp-1~3C 종합")]:
+    for cmd, help_ in [("run-exp1", "Exp-1 예비 PoC"), ("run-matrix", "Exp-1~3C 종합"),
+                       ("run-exp1-cost", "Exp-1 원화비용 argmin (YR-025)")]:
         p = sub.add_parser(cmd, help=help_)
         p.add_argument("--train", type=int, default=30)
         p.add_argument("--epochs", type=int, default=4)
@@ -147,13 +198,18 @@ def main(argv: list[str] | None = None):
         p.add_argument("--profile", default=DEFAULT_PROFILE)
         p.add_argument("--out", default=None)
         p.add_argument("--quick", action="store_true")
+        if cmd == "run-exp1-cost":
+            p.add_argument("--cost", default=DEFAULT_COST)
     args = ap.parse_args(argv)
     if args.quick:
         args.train, args.epochs, args.eval = 6, 1, 4
-    out = args.out or ("outputs/reports/exp1" if args.cmd == "run-exp1"
-                       else "outputs/reports/exp_matrix")
+    out = args.out or {"run-exp1": "outputs/reports/exp1",
+                       "run-matrix": "outputs/reports/exp_matrix",
+                       "run-exp1-cost": "outputs/reports/exp1_cost"}[args.cmd]
     if args.cmd == "run-exp1":
         run_exp1(args.train, args.epochs, args.eval, args.profile, out)
+    elif args.cmd == "run-exp1-cost":
+        run_exp1_cost(args.train, args.epochs, args.eval, args.profile, out, args.cost)
     else:
         run_matrix(args.train, args.epochs, args.eval, args.profile, out)
 

@@ -1,0 +1,24 @@
+# 터미널 원화비용 목적함수 v1 — YR-025 (argmin C_won)
+# C_won = 대기비용 + 장기대기 할증 + 이동에너지 + 재조작 + 본선지연.
+# ⚠ 계수는 전부 assumed — 제도 anchor 는 tail 할증(안전운임제 대기료) 1건뿐.
+#   실측 원가 미확보 상태의 상대가격 가정이며, 계수 민감도는 후속 과제.
+# 한계: tail 임계는 KPI 정의(profile long_wait_sla_s=30분)를 따름 — 안전운임
+#   제도 임계(60분)의 보수적 proxy. 60분 정합은 KPI 확장 필요 (후속).
+cost_id: WON-COST-V1
+assumed: true
+
+# 외부트럭 대기 기회비용 (₩/대기시간 h) — 화물차 운송원가의 시간분 수준 가정
+truck_wait_krw_per_hour: 30000
+
+# 장기대기 할증 (₩/SLA 초과 h) — 안전운임제 부대조항: 대기 60분 초과 시
+# 30분당 2만원 = 시간당 4만원 (제도 근거, 결정자료 §5.4). 기본 대기비용에 가산.
+tail_extra_krw_per_hour: 40000
+
+# 크레인 갠트리 이동 (₩/km) — ARMG 전동 에너지 개략 (수 kWh/km × 산업 전기료) 가정
+gantry_move_krw_per_km: 1000
+
+# 재조작 1회 (₩/move) — 크레인 사이클 점유(2~3분) 기회비용 + 에너지 가정
+rehandle_krw_per_move: 5000
+
+# 본선 지연 (₩/h) — 선석·본선 스케줄 지연의 기회비용 수준 가정 (지배항 — 민감도 필수)
+vessel_delay_krw_per_hour: 1000000
