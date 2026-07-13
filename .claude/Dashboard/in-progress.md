@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-027-a | RL | Exp-1 Direct-Job Cost-Q 전략 명세 동결·히스토리 기록 | 🟠 | 2026-07-13 | YR-027 선행 문서화 · [전략](../docs/strategy-history/2026-07-13-YR-027-exp1-direct-job-cost-q.md) |
 
 ---
 
