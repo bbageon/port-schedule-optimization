@@ -33,4 +33,6 @@
 - HJNC assumed 프로파일, train 1,000 / validation 30 / locked test 100으로 동결 설정을 실행했다.
 - Primary 비교군은 validation-selected shortest-service였고 Cost-Q 평균대기 차이는 `+0.039`분(95% bootstrap CI `[+0.006,+0.072]`)이었다.
 - P95 변화율 CI 상한 `+7.13%`, fallback `55.04%`로 개선·guardrail·coverage 기준을 통과하지 못했다.
+- Shortest-service는 FIFO `13.782→7.789`분(`-43.5%`)이었지만 NEAREST는 `11.285`분이었다. 따라서 효과는 이동거리 최소화가 아니라 접근·취급·positioning·blocker 재조작을 합친 총 예상 cycle time 최소화로 해석한다.
+- 게이트 진입 후 `BLOCK_ENTRY` 전 차량도 YC 관점의 미래차량이며 Exp-1 정책에는 비공개다. 따라서 이 결과는 현재 블록 대기열만 본 조건이며 게이트 미래정보의 효과를 검증한 것이 아니다.
 - completion 100%·backlog 0·물리 invariant·alias 회귀는 통과했다. [report](../../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md)
