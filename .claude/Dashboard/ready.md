@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | Blocked by / Note |
 |---|---|---|---|---|
-| YR-002 | Data | Phase 0: 대상 터미널·블록·기준기간 확정 + TerminalProfile 초안 | 🔴 | [spec](../docs/dashboard-task-specs/YR-002-phase0-terminal-profile.md) · 사용자/운영사 결정 필요, 미확정 시 가정 프로파일로 우회 · [결정자료](../docs/YR-002-터미널선정-결정자료.md) 준비됨 (D1~D5 결정 대기) |
+| YR-002 | Data | Phase 0: 대상 터미널·블록·기준기간 확정 + TerminalProfile 초안 | 🔴 | [spec](../docs/dashboard-task-specs/YR-002-phase0-terminal-profile.md) · 후보 HJNC·DGT 2케이스 압축, [결정자료](../docs/YR-002-터미널선정-결정자료.md)·[요구정보 목록](../docs/YR-002-HJNC-DGT-요구정보.md) 준비됨 — 협약 트랙(D3~D5)만 사용자 결정 대기 |
 
 ---
 
