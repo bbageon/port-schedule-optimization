@@ -1,4 +1,5 @@
 """YR-027 Direct-Job environment contract tests."""
+import json
 from dataclasses import FrozenInstanceError, replace
 
 import pytest
@@ -49,10 +50,12 @@ def test_block_entry_release_dynamic_actions_and_policy_safe_features():
             Job("JI", JobFlow.GATE_IN, 0.0, 0.0, 200.0,
                 inbound_size=ContainerSize.FT20, inbound_load=LoadStatus.FULL)]
     state, info = DirectJobEnv(P).reset(_scenario(jobs, containers))
-    assert state is not None
+    assert state is not None and state[0] == "OPERATING" and len(state) == 2
     assert info.allowed_job_ids == ("JA", "JZ")  # 동시 BLOCK_ENTRY 전부 + job_id 결정론
     assert {c.transfer_direction for c in info.candidates} == {"YARD_TO_TRUCK"}
     assert all(c.feature[0] == "YARD_TO_TRUCK" for c in info.candidates)
+    assert all(len(c.feature) == 3 and c.feature[2] == c.end_crane_zone
+               for c in info.candidates)
     assert not ({"actual_gate_in", "provided_eta", "deadline"}
                 & set(info.candidates[0].__dataclass_fields__))
 
@@ -101,19 +104,30 @@ def test_sla_on_masks_only_after_physical_feasibility_and_is_inclusive():
     assert after.masked_job_ids == ("J_NEW",)
 
 
-def test_bucket_fit_json_roundtrip_preserves_sla_edge_and_is_immutable(tmp_path):
+def test_minimal_bucket_fit_json_roundtrip_is_immutable(tmp_path):
     cfg = DirectJobBucketConfig.fit(
-        queue_lengths=[1, 2, 3, 4], oldest_waits_s=[10, 20, 30, 40],
-        own_waits_s=[11, 21, 31, 41], reaches_s=[1, 2, 3, 4],
-        service_times_s=[100, 200, 300, 400], sla_s=1800.0)
-    assert cfg.fitted and 1800.0 in cfg.oldest_wait_s and 1800.0 in cfg.own_wait_s
-    assert _bucket(1799.999, (1800.0,)) == 0
-    assert _bucket(1800.0, (1800.0,)) == 1  # inclusive SLA-side bucket
+        queue_lengths=[1, 2, 3, 4], service_times_s=[100, 200, 300, 400])
+    assert cfg.fitted
     path = tmp_path / "direct-job-buckets.json"
     cfg.save(path)
     assert DirectJobBucketConfig.load(path) == cfg
+    assert set(json.loads(path.read_text())) == {
+        "fitted", "queue_len", "service_s"
+    }
     with pytest.raises(FrozenInstanceError):
         cfg.fitted = False
+
+
+def test_operation_phase_changes_to_clear_out_after_arrival_horizon():
+    containers = {"C1": _container("C1", 2, 1), "C2": _container("C2", 8, 1)}
+    env = DirectJobEnv(P)
+    state, info = env.reset(_scenario(
+        [_out("J1", "C1", 10.0), _out("J2", "C2", 10.0)],
+        containers, horizon=20.0, drain=5000.0,
+    ))
+    assert state[0] == "OPERATING"
+    next_state, _, done, _ = env.step(info.candidates[0])
+    assert not done and next_state[0] == "CLEAR_OUT"
 
 
 def test_inbound_reach_and_service_use_the_same_selected_slot():
@@ -135,6 +149,11 @@ def test_inbound_reach_and_service_use_the_same_selected_slot():
     expected_service += spec.truck_positioning_time_s
     assert candidate.reach_s == pytest.approx(expected_reach)
     assert candidate.service_s == pytest.approx(expected_service)
+    assert candidate.end_crane_zone == env._bay_zone(float(dest[0]))
+    assert candidate.feature == (
+        "TRUCK_TO_YARD", _bucket(expected_service, env.buckets.service_s),
+        candidate.end_crane_zone,
+    )
 
 
 def test_outbound_service_estimator_matches_actual_engine_duration_with_blocker():
@@ -147,6 +166,7 @@ def test_outbound_service_estimator_matches_actual_engine_duration_with_blocker(
     record = env.sim.execute_job("JO")
     assert candidate.blocker_count == 1
     assert candidate.service_s == pytest.approx(record.duration_s)
+    assert candidate.end_crane_zone == env._bay_zone(4.0)
 
 
 def test_clear_out_backlog_is_explicit_episode_failure():

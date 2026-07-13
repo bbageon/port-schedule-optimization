@@ -249,7 +249,7 @@ def main(argv: list[str] | None = None):
     pd.add_argument("--checkpoint", type=int, default=50)
     pd.add_argument("--n-external", type=int, default=100)
     pd.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
-    pd.add_argument("--out", default="outputs/reports/exp1_direct_costq_hjnc")
+    pd.add_argument("--out", default="outputs/reports/exp1_direct_costq_minimal_hjnc")
     pd.add_argument("--quick", action="store_true")
     pr = sub.add_parser("record-replay", help="replay 기록 (YR-015-a, UI 용)")
     pr.add_argument("--profile", default=DEFAULT_PROFILE)

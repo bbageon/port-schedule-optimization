@@ -8,7 +8,7 @@
 - **범위 밖**: 선박·본선 deadline, ETA·미래정보, 사전 포지셔닝·선재조작, 다중 YC, 실운영 개선 주장.
 - **비교군**: FIFO, LONGEST_WAIT, NEAREST_JOB, MIN_BLOCKER, SHORTEST_ESTIMATED_SERVICE_TIME, ImmediateCostGreedy, Direct-Job Cost-Q.
 - **주 지표**: `mean_wait_min`; guardrail은 P95·30분 SLA 초과율·backlog·완료율·이동·재조작.
-- **전략 원본**: [2026-07-13 전략 히스토리](../strategy-history/2026-07-13-YR-027-exp1-direct-job-cost-q.md).
+- **전략 원본**: [v1 5+5 상태](../strategy-history/2026-07-13-YR-027-exp1-direct-job-cost-q.md) · [v2 최소상태](../strategy-history/2026-07-13-YR-027-exp1-direct-job-cost-q-minimal-state.md).
 
 ## 구현 경계
 
@@ -36,3 +36,10 @@
 - Shortest-service는 FIFO `13.782→7.789`분(`-43.5%`)이었지만 NEAREST는 `11.285`분이었다. 따라서 효과는 이동거리 최소화가 아니라 접근·취급·positioning·blocker 재조작을 합친 총 예상 cycle time 최소화로 해석한다.
 - 게이트 진입 후 `BLOCK_ENTRY` 전 차량도 YC 관점의 미래차량이며 Exp-1 정책에는 비공개다. 따라서 이 결과는 현재 블록 대기열만 본 조건이며 게이트 미래정보의 효과를 검증한 것이 아니다.
 - completion 100%·backlog 0·물리 invariant·alias 회귀는 통과했다. [report](../../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md)
+
+## 최소상태 v2 재평가 (2026-07-13)
+
+- 사용자 결정에 따라 `GlobalState=(operation_phase, queue_length_bucket)`으로 축소했다.
+- `CandidateFeature=(transfer_direction, estimated_service_time_bucket, end_crane_zone)`으로 바꾸고, 작업 완료 후 실제 YC bay 구간을 key에 추가했다.
+- queue/service bucket만 train의 SLA_OFF FIFO 관측으로 fit하며 v1 산출물은 보존한다.
+- 전체 동결설정 재실행 결과는 `outputs/reports/exp1_direct_costq_minimal_hjnc/`에 별도 기록한다.

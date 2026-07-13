@@ -29,10 +29,11 @@ from ..policies.direct_baselines import (DirectJobRulePolicy, DirectRule,
                                          direct_baseline_policies)
 from .direct_stats import MetricDirection, MetricSpec, paired_bootstrap
 
-STRATEGY_ID = "YR-027-v1"
+STRATEGY_ID = "YR-027-v2-minimal-state"
 POLICY_COST_Q = "CostQ+GreedyFallback"
 PRIMARY_ARM = SLAMode.OFF.value
 DEFAULT_DIRECT_PROFILE = "configs/terminals/hjnc_armg.yaml"
+DEFAULT_DIRECT_OUT = "outputs/reports/exp1_direct_costq_minimal_hjnc"
 
 
 @dataclass(frozen=True)
@@ -290,9 +291,6 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
                        ) -> tuple[DirectJobBucketConfig, list[dict[str, object]]]:
     """Fit all continuous edges using SLA_OFF FIFO training observations only."""
     queue_lengths: list[float] = []
-    oldest_waits: list[float] = []
-    own_waits: list[float] = []
-    reaches: list[float] = []
     services: list[float] = []
     descriptors: list[dict[str, object]] = []
     fifo = DirectJobRulePolicy(DirectRule.FIFO)
@@ -307,10 +305,7 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
         while state is not None:
             raw = info.raw_global
             queue_lengths.append(raw.queue_length)
-            oldest_waits.append(raw.oldest_wait_s)
             for candidate in info.feasible_candidates:
-                own_waits.append(candidate.wait_s)
-                reaches.append(candidate.reach_s)
                 services.append(candidate.estimated_service_s)
             candidate = fifo.act(state, info.candidates)
             state, _cost, _done, info = env.step(candidate)
@@ -318,11 +313,7 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
             progress(f"[bucket] FIFO train observations {index}/{len(seeds)}")
     buckets = DirectJobBucketConfig.fit(
         queue_lengths=queue_lengths,
-        oldest_waits_s=oldest_waits,
-        own_waits_s=own_waits,
-        reaches_s=reaches,
         service_times_s=services,
-        sla_s=profile.long_wait_sla_s,
     )
     return buckets, descriptors
 
@@ -590,7 +581,7 @@ def _acceptance(summary: dict[str, dict[str, dict[str, float]]],
 
 
 def run_direct_job_experiment(profile_path: str = DEFAULT_DIRECT_PROFILE,
-                              out_dir: str = "outputs/reports/exp1_direct_costq_hjnc",
+                              out_dir: str = DEFAULT_DIRECT_OUT,
                               cfg: DirectExperimentConfig | None = None,
                               progress: Callable[[str], None] = print) -> Path:
     """Run the complete frozen YR-027 protocol and write reproducible artifacts."""
@@ -693,10 +684,14 @@ def run_direct_job_experiment(profile_path: str = DEFAULT_DIRECT_PROFILE,
         "n_vessel": 0,
         "information_boundary": "BLOCK_ENTRY",
         "transfer_directions": ["TRUCK_TO_YARD", "YARD_TO_TRUCK"],
+        "global_state_schema": ["operation_phase", "queue_length_bucket"],
+        "candidate_feature_schema": ["transfer_direction",
+                                     "estimated_service_time_bucket",
+                                     "end_crane_zone"],
         "objective": "sum(queue_area_delta_s)/(60*N_config)=mean_wait_min",
         "gamma": 1.0,
         "epsilon": "1/sqrt(episode_index+1)",
-        "bucket_fit": "SLA_OFF FIFO, train seeds only, quartiles + 1800s hard edge",
+        "bucket_fit": "SLA_OFF FIFO, train seeds only, queue/service quartiles",
         "sla_threshold_s": profile.long_wait_sla_s,
         "primary_arm": PRIMARY_ARM,
         "alias_assertions": ["FIFO=LONGEST_WAIT",

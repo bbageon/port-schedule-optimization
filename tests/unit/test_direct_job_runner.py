@@ -77,6 +77,15 @@ def test_dedicated_quick_pipeline_writes_no_claim_paired_artifacts(tmp_path):
     assert report.exists() and report.parent == tmp_path
     assert payload["manifest"]["n_vessel"] == 0
     assert payload["manifest"]["information_boundary"] == "BLOCK_ENTRY"
+    assert payload["manifest"]["strategy_id"] == "YR-027-v2-minimal-state"
+    assert payload["manifest"]["global_state_schema"] == [
+        "operation_phase", "queue_length_bucket"
+    ]
+    assert payload["manifest"]["candidate_feature_schema"] == [
+        "transfer_direction", "estimated_service_time_bucket", "end_crane_zone"
+    ]
+    buckets = json.loads((tmp_path / "direct_buckets.json").read_text())
+    assert set(buckets) == {"fitted", "queue_len", "service_s"}
     assert set(payload["summary"]) == {"SLA_OFF", "SLA_ON"}
     assert POLICY_COST_Q in payload["summary"]["SLA_OFF"]
     assert payload["acceptance"]["overall"] is None

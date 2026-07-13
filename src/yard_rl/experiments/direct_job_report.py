@@ -214,6 +214,8 @@ def build_direct_job_report(payload: Mapping[str, Any], out_dir: str | Path,
         "- 대상: 외부트럭-only, 선박 작업 제외(`n_vessel=0`).",
         "- 의사결정 시점: 실제 블록 진입인 `BLOCK_ENTRY`.",
         "- 정책: 직접 feasible job 선택형 Cost-Q(`argmin`); `SLA_OFF`가 primary, `SLA_ON`이 secondary arm.",
+        f"- State: `{_cell(manifest.get('global_state_schema', '—'))}`; "
+        f"candidate: `{_cell(manifest.get('candidate_feature_schema', '—'))}`.",
         f"- 실행 모드: `{_cell(mode)}`; manifest n_vessel: `{_cell(scenario.get('n_vessel', manifest.get('n_vessel', '—')))}`.",
         "",
         "## Validation 선택",
