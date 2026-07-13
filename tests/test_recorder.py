@@ -85,6 +85,20 @@ def test_replay_repository_roundtrip(replay_path):
     assert decision_at(rep, -5)["i"] == 0
 
 
+def test_live_run_and_record(tmp_path):
+    """즉석 실행 백엔드 (YR-015-d) — 환경·정책·부하 파라미터로 replay 생성."""
+    from yard_rl.ui.live import policy_choices, run_and_record
+    pols = policy_choices(PROFILE)
+    assert pols[:4] == ["FIFO", "LONGEST_WAIT", "NEAREST_JOB", "MIN_REHANDLE"]
+    assert "QL_EXP1" in pols  # exp_matrix 산출물 등록 확인
+    p = run_and_record(PROFILE, "FIFO", 777, n_external=20, n_vessel=2,
+                       out_dir=tmp_path)
+    rec = json.loads(p.read_text(encoding="utf-8"))
+    assert rec["manifest"]["policy_id"] == "FIFO"
+    assert rec["manifest"]["final_metrics"]["completed_external"] == 20.0
+    assert "t20v2" in rec["manifest"]["run_id"]  # 부하 파라미터가 run_id 에 반영
+
+
 def test_streamlit_app_renders():
     """UI 스모크 (streamlit 설치 + 실제 replay 존재 시에만 — dev 기본은 skip)."""
     st = pytest.importorskip("streamlit")

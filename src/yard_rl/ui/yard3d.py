@@ -8,8 +8,17 @@ from __future__ import annotations
 
 import plotly.graph_objects as go
 
-# 컨테이너 표면 색 (tier 낮음=어두움 → 높음=밝음: 적층이 눈에 읽히는 방향)
-_CONTAINER_SCALE = [[0.0, "#5b7285"], [0.5, "#8ba3b8"], [1.0, "#cfdde8"]]
+# 컨테이너 색 팔레트 — 실제 선사 컨테이너 톤 (muted; 신호색 초록/보라/주황/빨강
+# 순색과 충돌하지 않게 채도 낮춤). slot 좌표 해시로 결정론 배색.
+_CONTAINER_PALETTE = ["#7a4a38", "#31597f", "#4e6e51", "#8a8d93", "#a06a30",
+                      "#27605c", "#6e5a7e", "#95793f", "#5b7285", "#874f56"]
+
+
+def _shade(hex_color: str, frac: float) -> str:
+    """흰색 쪽으로 frac(0~1)만큼 밝힘 — 위 tier 일수록 밝아 적층이 읽히게."""
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+    mix = lambda c: int(c + (255 - c) * frac)  # noqa: E731 — 3회 반복 축약
+    return f"#{mix(r):02x}{mix(g):02x}{mix(b):02x}"
 _GAP = 0.35          # 박스 간 시각 간격 (m)
 _LANE_W = 4.0        # 인계 차선 폭 (m)
 _GATE_SPACING = 8.0  # 게이트측(GATE_IN) 대기 트럭 간격 (m)
@@ -22,8 +31,10 @@ class _Mesh:
         self.x, self.y, self.z = [], [], []
         self.i, self.j, self.k = [], [], []
         self.intensity = []
+        self.facecolor = []  # 박스별 개별색 (삼각형 12개 단위) — intensity 와 택1
 
-    def add_box(self, x0, x1, y0, y1, z0, z1, val: float = 0.0):
+    def add_box(self, x0, x1, y0, y1, z0, z1, val: float = 0.0,
+                color: str | None = None):
         b = len(self.x)
         for (xx, yy, zz) in [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0),
                              (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)]:
@@ -37,6 +48,8 @@ class _Mesh:
             self.j.append(b + c)
             self.k.append(b + d)
         self.intensity.extend([val] * 8)
+        if color is not None:
+            self.facecolor.extend([color] * 12)
 
     def trace(self, *, name: str, color: str | None = None, colorscale=None,
               opacity: float = 1.0, showlegend: bool = False) -> go.Mesh3d:
@@ -46,7 +59,9 @@ class _Mesh:
                   lighting=dict(ambient=0.72, diffuse=0.5, specular=0.06,
                                 roughness=0.9, fresnel=0.05),
                   lightposition=dict(x=-1000, y=-3000, z=8000))
-        if colorscale is not None:
+        if self.facecolor:
+            kw.update(facecolor=self.facecolor)
+        elif colorscale is not None:
             kw.update(intensity=self.intensity, colorscale=colorscale,
                       cmin=0, cmax=1, showscale=False)
         else:
@@ -107,14 +122,17 @@ def build_yard_figure(d: dict, jobs: dict, block: dict, sla_s: float,
             x0, x1 = b * BL + _GAP, (b + 1) * BL - _GAP
             y0, y1 = r * RW + _GAP / 2, (r + 1) * RW - _GAP / 2
             for k in range(h):
+                # slot 좌표 해시 배색 (결정론 — 같은 slot 은 재생 내내 같은 색)
+                base = _CONTAINER_PALETTE[(b * 7919 + r * 104729 + k * 1299709)
+                                          % len(_CONTAINER_PALETTE)]
                 boxes.add_box(x0, x1, y0, y1, k * TH + 0.02, (k + 1) * TH - 0.08,
-                              val=(k + 1) / T)
+                              color=_shade(base, 0.10 + 0.28 * k / max(1, T - 1)))
             if h:
                 hover_x.append((x0 + x1) / 2)
                 hover_y.append((y0 + y1) / 2)
                 hover_z.append(h * TH + 0.9)
                 hover_t.append(f"bay {b + 1} · row {r + 1} · {h}단")
-    fig.add_trace(boxes.trace(name="컨테이너", colorscale=_CONTAINER_SCALE))
+    fig.add_trace(boxes.trace(name="컨테이너"))
     fig.add_trace(go.Scatter3d(  # 스택 상단 hover 포인트 (비가시 — hover 전용)
         x=hover_x, y=hover_y, z=hover_z, mode="markers",
         marker=dict(size=6, color="rgba(0,0,0,0)"),

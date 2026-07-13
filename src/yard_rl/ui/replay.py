@@ -22,12 +22,12 @@ class RunRef:
 
 
 def scan_runs(root: str | Path = DEFAULT_ROOT) -> list[RunRef]:
-    """root/*/replay.json 을 스캔해 선택 가능한 run 목록을 만든다."""
+    """root 아래 replay.json 을 스캔 (박제분 root/*/ + 즉석 실행분 root/live/*/)."""
     out = []
     rootp = Path(root)
     if not rootp.exists():
         return out
-    for p in sorted(rootp.glob("*/replay.json")):
+    for p in sorted(rootp.rglob("replay.json")):
         try:
             m = json.loads(p.read_text(encoding="utf-8"))["manifest"]
             out.append(RunRef(m["run_id"], p, m["terminal_id"], m["policy_id"],

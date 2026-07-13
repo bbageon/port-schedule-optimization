@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import plotly.graph_objects as go
 import streamlit as st
 
+from yard_rl.ui.live import policy_choices, profile_choices, run_and_record
 from yard_rl.ui.replay import (decision_at, events_window, load_replay,
                                queue_series, scan_runs)
 from yard_rl.ui.yard3d import build_yard_figure
@@ -29,15 +30,56 @@ def _cached_runs():
 
 
 runs = _cached_runs()
+
+# ---- 새 실행 (실시간 테스트): 환경·정책·부하 파라미터 선택 → 즉석 시뮬 → 재생
+st.sidebar.title("Yard RL 시뮬레이션")
+with st.sidebar.expander("🎬 새 실행 — 환경·정책 골라 바로 보기",
+                         expanded=not runs):
+    profs = profile_choices()
+    p_i = st.selectbox("터미널 환경", range(len(profs)),
+                       format_func=lambda i: profs[i][0], key="live_prof")
+    pol = st.selectbox("정책", policy_choices(profs[p_i][1]), key="live_pol")
+    lc1, lc2 = st.columns(2)
+    seed_v = lc1.number_input("시나리오 seed", 1, 99999, 301,
+                              help="같은 seed = 같은 하루 (정책 간 비교용)")
+    trucks = lc2.number_input("외부트럭 수", 10, 300, 100, step=10,
+                              help="8h shift 도착 대수 (기본 100)")
+    vessels = st.slider("본선 작업 수", 0, 20, 8)
+    peak = st.checkbox("피크 도착 패턴", value=False)
+    st.caption("⚠ QL 정책은 기본 부하(트럭 100·본선 8)로 학습됨 — "
+               "다른 부하는 일반화 시험입니다")
+    if st.button("▶ 시뮬레이션 실행", type="primary", width='stretch'):
+        with st.spinner("시뮬레이션 실행 중…"):
+            rp = run_and_record(profs[p_i][1], pol, int(seed_v),
+                                n_external=int(trucks), n_vessel=int(vessels),
+                                peak=peak)
+        _cached_runs.clear()
+        load_replay.cache_clear()
+        st.session_state["pending_run"] = rp.parent.name
+        st.session_state["auto_play"] = True  # 생성 즉시 자동 재생
+        st.rerun()
+
 if not runs:
-    st.error("outputs/replays/ 에 replay 가 없습니다 — "
-             "`python -m yard_rl.cli record-replay ...` 로 먼저 생성하세요.")
+    st.info("아직 replay 가 없습니다 — 사이드바 '🎬 새 실행'으로 첫 시뮬레이션을 "
+            "실행하세요.")
     st.stop()
 
-st.sidebar.title("Replay 선택")
-labels = [f"{r.terminal_id} · {r.policy_id} · seed{r.seed}" for r in runs]
-sel = st.sidebar.selectbox("run", range(len(runs)), format_func=lambda i: labels[i])
-replay = load_replay(str(runs[sel].path))
+# 방금 실행한 run 자동 선택 (위젯 인스턴스화 전에 session_state 세팅)
+run_ids = [r.run_id for r in runs]
+_pending = st.session_state.pop("pending_run", None)
+if _pending in run_ids:
+    st.session_state["run_select"] = _pending
+    st.session_state[f"idx_{_pending}"] = 0
+if st.session_state.get("run_select") not in run_ids:
+    st.session_state.pop("run_select", None)  # 삭제된 run 참조 방지
+
+_by_id = {r.run_id: r for r in runs}
+sel_id = st.sidebar.selectbox(
+    "run", run_ids, key="run_select",
+    format_func=lambda rid: f"{_by_id[rid].terminal_id} · {_by_id[rid].policy_id} "
+                            f"· seed{_by_id[rid].seed}"
+                            + (" · live" if "live" in str(_by_id[rid].path) else ""))
+replay = load_replay(str(_by_id[sel_id].path))
 man = replay["manifest"]
 n_dec = man["n_decisions"]
 
