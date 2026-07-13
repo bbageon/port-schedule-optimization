@@ -1,0 +1,73 @@
+"""YR-015-a recorder·replay 검증 — 04 §8.1/8.2 축소판.
+
+핵심: UI 기록이 시뮬레이션 결과를 바꾸지 않고(regression), 정보 누출이 없다.
+"""
+import json
+
+import pytest
+
+from yard_rl.domain.enums import PriorityRule
+from yard_rl.experiments.recorder import record_episode
+from yard_rl.experiments.runner import make_scenarios, run_episode
+from yard_rl.envs.yard_env import YardEnv
+from yard_rl.io.profile_loader import load_profile
+from yard_rl.io.scenario_gen import GenParams
+from yard_rl.policies.baselines import FixedRulePolicy
+from yard_rl.ui.replay import decision_at, load_replay, scan_runs
+
+PROFILE = "configs/terminals/poc_single_crane.yaml"
+PARAMS = GenParams(n_external=25, n_vessel=2, horizon_s=10800.0, drain_window_s=3600.0)
+
+
+@pytest.fixture(scope="module")
+def replay_path(tmp_path_factory):
+    profile = load_profile(PROFILE)
+    sc = make_scenarios(profile, 301, 1, PARAMS)[0]
+    env = YardEnv(profile, check_invariants=True)
+    return record_episode(FixedRulePolicy(PriorityRule.FIFO), env, sc,
+                          run_id="TEST_FIFO_seed301",
+                          out_dir=tmp_path_factory.mktemp("replays"))
+
+
+def test_recording_does_not_change_results(replay_path):
+    """기록된 final_metrics == 기록 없는 run_episode 결과 (04 §8.2 읽기 전용 보장)."""
+    profile = load_profile(PROFILE)
+    sc = make_scenarios(profile, 301, 1, PARAMS)[0]
+    plain = run_episode(FixedRulePolicy(PriorityRule.FIFO),
+                        YardEnv(profile, check_invariants=True), sc)
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    assert rec["manifest"]["final_metrics"] == pytest.approx(plain.metrics)
+    assert rec["manifest"]["n_decisions"] == plain.metrics["n_decisions"]
+    assert len(rec["decisions"]) == rec["manifest"]["n_decisions"]
+
+
+def test_no_future_information_leakage(replay_path):
+    """대기열 스냅샷에 미도착 작업이 없고, 미공개는 개수만 (04 §3.2)."""
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    jobs = rec["jobs"]
+    for d in rec["decisions"]:
+        assert d["hidden_job_count"] >= 0
+        for q in d["queue"]:
+            assert q["wait_s"] >= 0.0  # 도착 이전이면 음수 대기 — 누출
+            assert jobs[q["job"]]["arrival"] <= d["t"] + 1e-6
+
+
+def test_replay_repository_roundtrip(replay_path):
+    runs = scan_runs(replay_path.parent.parent)
+    assert [r.run_id for r in runs] == ["TEST_FIFO_seed301"]
+    rep = load_replay(str(runs[0].path))
+    assert decision_at(rep, 10 ** 9)["i"] == rep["manifest"]["n_decisions"] - 1
+    assert decision_at(rep, -5)["i"] == 0
+
+
+def test_streamlit_app_renders():
+    """UI 스모크 (streamlit 설치 + 실제 replay 존재 시에만 — dev 기본은 skip)."""
+    st = pytest.importorskip("streamlit")
+    from streamlit.testing.v1 import AppTest
+    if not scan_runs():
+        pytest.skip("outputs/replays 에 replay 없음")
+    at = AppTest.from_file("src/yard_rl/ui/app.py", default_timeout=60)
+    at.run()
+    assert not at.exception, at.exception[0].value
+    at.slider[0].set_value(min(50, at.slider[0].max)).run()
+    assert not at.exception

@@ -19,9 +19,12 @@ from .experiments.report import build_matrix_report, build_report
 from .experiments.runner import (TEST_SEED0, TRAIN_SEED0, VAL_SEED0, PolicySpec,
                                  check_seed_bands, evaluate_paired,
                                  fit_buckets_and_scales, make_scenarios, run_episode)
+from .envs.observations import BucketConfig
 from .envs.rewards import CostConfig
 from .envs.yard_env import YardEnv
+from .experiments.recorder import record_episode
 from .io.profile_loader import load_profile
+from .policies.q_learning import QTable
 from .io.scenario_gen import GenParams
 from .policies.baselines import FixedRulePolicy, baseline_policies
 from .policies.q_learning import QLearningAgent, QLearningConfig, train
@@ -151,6 +154,37 @@ def run_exp1_cost(n_train, epochs, n_eval, profile_path, out_dir, cost_path) -> 
     return path
 
 
+def record_replay(profile_path: str, exp_dir: str, policy_name: str, seed: int,
+                  out_dir: str) -> Path:
+    """YR-015-a: 학습 산출물(exp_dir 의 qtable/buckets)로 replay 를 기록.
+
+    policy_name: baseline rule 이름(FIFO 등) 또는 exp_dir 의 qtable_<NAME>.json.
+    시나리오는 실험과 동일한 GenParams·seed 로 재생성 (결정론 재현).
+    """
+    profile = load_profile(profile_path)
+    exp = Path(exp_dir)
+    buckets = BucketConfig.load(exp / "buckets.json")
+    scenario = make_scenarios(profile, seed, 1, GenParams())[0]
+    rule_names = {r.name for r in PriorityRule}
+    if policy_name in rule_names:
+        policy = FixedRulePolicy(PriorityRule[policy_name])
+    else:
+        qpath = exp / f"qtable_{policy_name}.json"
+        agent = QLearningAgent(QLearningConfig(), seed=0, policy_name=policy_name)
+        agent.table = QTable.load(qpath, agent.cfg.n_actions)
+        policy = agent
+    level, scope = InformationLevel.BLOCK_ARRIVAL, ControlScope.SEQUENCE_ONLY
+    env = YardEnv(profile, info_level=level, control_scope=scope,
+                  bucket_cfg=buckets, check_invariants=True)
+    run_id = f"{profile.terminal_id}_{policy_name}_seed{seed}"
+    path = record_episode(policy, env, scenario, run_id=run_id,
+                          policy_name=policy_name, out_dir=out_dir)
+    m = json.loads(path.read_text(encoding="utf-8"))["manifest"]["final_metrics"]
+    print(f"[replay] {run_id}: {m['n_decisions']:.0f} decisions, "
+          f"mean_wait {m['mean_wait_min']:.1f}min → {path}")
+    return path
+
+
 def run_matrix(n_train, epochs, n_eval, profile_path, out_dir) -> Path:
     t0 = time.time()
     (profile, params, out, train_scs, test_scs,
@@ -200,7 +234,18 @@ def main(argv: list[str] | None = None):
         p.add_argument("--quick", action="store_true")
         if cmd == "run-exp1-cost":
             p.add_argument("--cost", default=DEFAULT_COST)
+    pr = sub.add_parser("record-replay", help="replay 기록 (YR-015-a, UI 용)")
+    pr.add_argument("--profile", default=DEFAULT_PROFILE)
+    pr.add_argument("--exp-dir", required=True,
+                    help="buckets.json·qtable_*.json 이 있는 실험 산출물 디렉토리")
+    pr.add_argument("--policy", default="QL_EXP1",
+                    help="baseline rule 이름 또는 qtable_<NAME>.json 의 NAME")
+    pr.add_argument("--seed", type=int, default=TEST_SEED0)
+    pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "record-replay":
+        record_replay(args.profile, args.exp_dir, args.policy, args.seed, args.out)
+        return
     if args.quick:
         args.train, args.epochs, args.eval = 6, 1, 4
     out = args.out or {"run-exp1": "outputs/reports/exp1",

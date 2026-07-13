@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-015-a | UI | UI-1 Recorder + UI-2 단일 replay (Streamlit 야드 평면도·크레인 이동·정책 결정 표시) | 🟡 | 2026-07-13 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · HJNC·DGT Exp-1 학습 QL vs FIFO replay 생성 포함. Parquet 대신 JSON (MVP 단순화, 04 §3 스키마 준수) |
 
 ---
 

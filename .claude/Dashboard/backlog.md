@@ -13,7 +13,7 @@
 | YR-021 | Exp | 부하조건별 정보효과 — peak·고장치율·고재조작 시나리오 재실험 | 🟡 | 정보 선행 편익은 혼잡 조건 의존 가설 — §18.3 운영부하 축 |
 | YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. YR-018 과 통합 검토 |
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |
-| YR-015 | UI | Phase 6: 검증 UI MVP (recorder·replay·정책설명·동기비교) | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · 신규 범위 (04 문서) |
+| YR-015-b | UI | Phase 6 후반: UI-3 정책설명 패널 고도화·UI-4 동기비교·검증 테스트 확충 | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · UI-1/2 는 YR-015-a 로 분할 착수 (2026-07-13) |
 | YR-012 | RL | Phase 7: Masked DQN/PPO 함수근사 | ⚪ | [spec](../docs/dashboard-task-specs/YR-012-dqn-ppo.md) · YR-010 에서 전환조건 확인 시만 |
 | YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) |
 | YR-014 | Exp | Phase 9: 최종평가·ablation·탄소 사후평가 | ⚪ | [spec](../docs/dashboard-task-specs/YR-014-final-evaluation.md) |

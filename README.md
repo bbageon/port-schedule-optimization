@@ -13,6 +13,15 @@ pytest                                  # 단위·불변조건·회귀 테스트
 python -m yard_rl.cli run-exp1          # Exp-1 예비 PoC (합성 시나리오)
 ```
 
+### 검증 replay UI (읽기 전용, 04 문서)
+
+```bash
+pip install -e .[ui]
+python -m yard_rl.cli record-replay --profile configs/terminals/hjnc_armg.yaml \
+  --exp-dir outputs/reports/exp1_hjnc --policy QL_EXP1 --seed 301   # replay 기록
+streamlit run src/yard_rl/ui/app.py                                 # replay 재생
+```
+
 ## 현재 상태
 
 - **가정 프로파일 기반 예비 PoC** — `configs/terminals/poc_single_crane.yaml` 의 모든 수치는
