@@ -18,11 +18,17 @@ import streamlit as st
 
 from yard_rl.ui.replay import (decision_at, events_window, load_replay,
                                queue_series, scan_runs)
+from yard_rl.ui.yard3d import build_yard_figure
 
 st.set_page_config(page_title="yard_rl replay", layout="wide")
 
 # ----------------------------------------------------------------- run 선택
-runs = scan_runs()
+@st.cache_data(ttl=30)  # rerun 마다 전체 replay.json 재파싱 방지 (리뷰 확정 결함)
+def _cached_runs():
+    return scan_runs()
+
+
+runs = _cached_runs()
 if not runs:
     st.error("outputs/replays/ 에 replay 가 없습니다 — "
              "`python -m yard_rl.cli record-replay ...` 로 먼저 생성하세요.")
@@ -43,6 +49,11 @@ if man.get("profile_assumed", True):
 ss = st.session_state
 key_i = f"idx_{man['run_id']}"
 ss.setdefault(key_i, 0)
+# 자동 재생 전진은 슬라이더 '인스턴스화 이전'에 처리 — 위젯 생성 후 같은 run 에서
+# widget-key session_state 를 수정하면 StreamlitAPIException (리뷰 확정 결함).
+# 토글 값은 직전 run 의 session_state 로 읽는다.
+if ss.get("auto_play") and ss[key_i] < n_dec - 1:
+    ss[key_i] += 1
 c1, c2, c3, c4 = st.sidebar.columns(4)
 if c1.button("⏮", help="처음"):
     ss[key_i] = 0
@@ -53,7 +64,7 @@ if c3.button("▶", help="다음 결정"):
 if c4.button("⏭", help="끝"):
     ss[key_i] = n_dec - 1
 idx = st.sidebar.slider("의사결정 #", 0, n_dec - 1, key=key_i)
-play = st.sidebar.toggle("▶ 자동 재생")
+play = st.sidebar.toggle("▶ 자동 재생", key="auto_play")
 speed = st.sidebar.select_slider("재생 속도", [1, 2, 5, 10], value=5,
                                  help="초당 의사결정 수")
 
@@ -70,76 +81,84 @@ st.caption(f"t = {t / 3600:.2f} h ({t:,.0f} s) · 결정 {idx + 1}/{n_dec} · "
 
 left, right = st.columns([2.1, 1])
 
-# ----------------------------------------------------------------- 야드 평면도
+# ----------------------------------------------------------------- 야드 뷰
 with left:
-    fig = go.Figure()
-    heights = d["stack_heights"]  # [bay][row]
-    fig.add_trace(go.Heatmap(
-        z=[[heights[b][r] for b in range(B)] for r in range(R)],
-        x=list(range(1, B + 1)), y=list(range(1, R + 1)),
-        colorscale=[[0, "#f5f5f5"], [1, "#4a6fa5"]],
-        zmin=0, zmax=blk["tier_max"], showscale=True,
-        colorbar=dict(title="tier", thickness=10),
-        hovertemplate="bay %{x} · row %{y} · %{z}단<extra></extra>"))
-    # 크레인: 이번 결정의 이동 (before → after)
-    b0, b1 = d["crane_bay_before"], d["crane_bay_after"]
-    fig.add_shape(type="line", x0=b1, x1=b1, y0=0.5, y1=R + 0.5,
-                  line=dict(color="#e06c00", width=3))
-    if abs(b1 - b0) > 0.01:
-        fig.add_annotation(x=b1, y=R + 0.7, ax=b0, ay=R + 0.7,
-                           xref="x", axref="x", yref="y", ayref="y",
-                           showarrow=True, arrowhead=2, arrowcolor="#e06c00")
-    fig.add_trace(go.Scatter(x=[b1], y=[R + 0.7], mode="markers+text",
-                             marker=dict(symbol="square", size=14, color="#e06c00"),
-                             text=["YC"], textposition="middle right",
-                             name="크레인", hovertext=f"bay {b0:g}→{b1:g}"))
-    # 대기 외부트럭 (차선 y=0): GATE_OUT 은 대상 bay, GATE_IN 은 게이트측(0) 표기
-    jobs = replay["jobs"]
-    qx, qc, qs, qtext = [], [], [], []
-    for q in d["queue"]:
-        meta = jobs.get(q["job"], {})
-        qx.append(meta.get("target_bay") or 0)
-        over = q["wait_s"] >= sla_s
-        qc.append("#c62828" if over else "#1565c0")
-        qs.append("x" if over else "circle")
-        qtext.append(f"{q['job']} ({q['flow']}) 대기 {q['wait_s'] / 60:.0f}분"
-                     + (" ⚠SLA 초과" if over else ""))
-    if qx:
-        fig.add_trace(go.Scatter(x=qx, y=[0] * len(qx), mode="markers",
-                                 marker=dict(size=12, color=qc, symbol=qs),
-                                 name="대기 트럭", hovertext=qtext,
-                                 hoverinfo="text"))
-    # 본선 연계 후보 (보라 ◆, 대상 컨테이너 위치)
-    vx, vy, vtext = [], [], []
-    for jid in d["vessel_candidates"]:
-        meta = jobs.get(jid, {})
-        if meta.get("target_bay"):
-            vx.append(meta["target_bay"])
-            vy.append(meta.get("target_row") or 0)
-            vtext.append(f"{jid} (본선, 마감 {meta['deadline'] / 3600:.1f}h)"
-                         if meta.get("deadline") else jid)
-    if vx:
-        fig.add_trace(go.Scatter(x=vx, y=vy, mode="markers",
-                                 marker=dict(symbol="diamond", size=13,
-                                             color="#7b1fa2",
-                                             line=dict(width=1, color="white")),
-                                 name="본선 후보", hovertext=vtext, hoverinfo="text"))
-    # 선택된 작업 표시 (초록 테두리)
-    sel_job = d["selected"]
-    sel_meta = jobs.get(sel_job.split(":")[-1], {}) if sel_job else {}
-    if sel_meta.get("target_bay"):
-        fig.add_trace(go.Scatter(x=[sel_meta["target_bay"]],
-                                 y=[sel_meta.get("target_row") or 0],
-                                 mode="markers",
-                                 marker=dict(symbol="circle-open", size=22,
-                                             color="#2e7d32", line=dict(width=3)),
-                                 name="선택 작업", hovertext=[sel_job or ""],
-                                 hoverinfo="text"))
-    fig.update_layout(height=430, margin=dict(l=10, r=10, t=10, b=10),
-                      xaxis=dict(title="bay", range=[-0.8, B + 1], dtick=2),
-                      yaxis=dict(title="row (0=차선)", range=[-0.8, R + 1.3], dtick=1),
-                      legend=dict(orientation="h", y=-0.18))
-    st.plotly_chart(fig, width='stretch')
+    tab3d, tab2d = st.tabs(["🧊 입체 뷰", "▦ 평면 뷰"])
+    with tab3d:
+        fig3d = build_yard_figure(d, replay["jobs"], blk, sla_s)
+        st.plotly_chart(fig3d, width='stretch',
+                        config={"displayModeBar": True})
+        st.caption("드래그=회전 · 스크롤=확대 · 색: 🟧크레인 🔵대기트럭 "
+                   "🔴SLA초과 🟣본선후보 🟢선택작업")
+    with tab2d:
+        fig = go.Figure()
+        heights = d["stack_heights"]  # [bay][row]
+        fig.add_trace(go.Heatmap(
+            z=[[heights[b][r] for b in range(B)] for r in range(R)],
+            x=list(range(1, B + 1)), y=list(range(1, R + 1)),
+            colorscale=[[0, "#f5f5f5"], [1, "#4a6fa5"]],
+            zmin=0, zmax=blk["tier_max"], showscale=True,
+            colorbar=dict(title="tier", thickness=10),
+            hovertemplate="bay %{x} · row %{y} · %{z}단<extra></extra>"))
+        # 크레인: 이번 결정의 이동 (before → after)
+        b0, b1 = d["crane_bay_before"], d["crane_bay_after"]
+        fig.add_shape(type="line", x0=b1, x1=b1, y0=0.5, y1=R + 0.5,
+                      line=dict(color="#e06c00", width=3))
+        if abs(b1 - b0) > 0.01:
+            fig.add_annotation(x=b1, y=R + 0.7, ax=b0, ay=R + 0.7,
+                               xref="x", axref="x", yref="y", ayref="y",
+                               showarrow=True, arrowhead=2, arrowcolor="#e06c00")
+        fig.add_trace(go.Scatter(x=[b1], y=[R + 0.7], mode="markers+text",
+                                 marker=dict(symbol="square", size=14, color="#e06c00"),
+                                 text=["YC"], textposition="middle right",
+                                 name="크레인", hovertext=f"bay {b0:g}→{b1:g}"))
+        # 대기 외부트럭 (차선 y=0): GATE_OUT 은 대상 bay, GATE_IN 은 게이트측(0) 표기
+        jobs = replay["jobs"]
+        qx, qc, qs, qtext = [], [], [], []
+        for q in d["queue"]:
+            meta = jobs.get(q["job"], {})
+            qx.append(meta.get("target_bay") or 0)
+            over = q["wait_s"] >= sla_s
+            qc.append("#c62828" if over else "#1565c0")
+            qs.append("x" if over else "circle")
+            qtext.append(f"{q['job']} ({q['flow']}) 대기 {q['wait_s'] / 60:.0f}분"
+                         + (" ⚠SLA 초과" if over else ""))
+        if qx:
+            fig.add_trace(go.Scatter(x=qx, y=[0] * len(qx), mode="markers",
+                                     marker=dict(size=12, color=qc, symbol=qs),
+                                     name="대기 트럭", hovertext=qtext,
+                                     hoverinfo="text"))
+        # 본선 연계 후보 (보라 ◆, 대상 컨테이너 위치)
+        vx, vy, vtext = [], [], []
+        for jid in d["vessel_candidates"]:
+            meta = jobs.get(jid, {})
+            if meta.get("target_bay"):
+                vx.append(meta["target_bay"])
+                vy.append(meta.get("target_row") or 0)
+                vtext.append(f"{jid} (본선, 마감 {meta['deadline'] / 3600:.1f}h)"
+                             if meta.get("deadline") else jid)
+        if vx:
+            fig.add_trace(go.Scatter(x=vx, y=vy, mode="markers",
+                                     marker=dict(symbol="diamond", size=13,
+                                                 color="#7b1fa2",
+                                                 line=dict(width=1, color="white")),
+                                     name="본선 후보", hovertext=vtext, hoverinfo="text"))
+        # 선택된 작업 표시 (초록 테두리)
+        sel_job = d["selected"]
+        sel_meta = jobs.get(sel_job.split(":")[-1], {}) if sel_job else {}
+        if sel_meta.get("target_bay"):
+            fig.add_trace(go.Scatter(x=[sel_meta["target_bay"]],
+                                     y=[sel_meta.get("target_row") or 0],
+                                     mode="markers",
+                                     marker=dict(symbol="circle-open", size=22,
+                                                 color="#2e7d32", line=dict(width=3)),
+                                     name="선택 작업", hovertext=[sel_job or ""],
+                                     hoverinfo="text"))
+        fig.update_layout(height=430, margin=dict(l=10, r=10, t=10, b=10),
+                          xaxis=dict(title="bay", range=[-0.8, B + 1], dtick=2),
+                          yaxis=dict(title="row (0=차선)", range=[-0.8, R + 1.3], dtick=1),
+                          legend=dict(orientation="h", y=-0.18))
+        st.plotly_chart(fig, width='stretch')
 
     # 대기열 타임라인 (현재 위치 표시)
     ts, ns = queue_series(replay)
@@ -194,7 +213,7 @@ with st.expander(f"이벤트 로그 (현재 ±10분, 총 {len(replay['events'])}
                  width='stretch', height=240)
 
 # ----------------------------------------------------------------- 자동 재생
+# 인덱스 전진은 위젯 생성 전(상단)에서 수행 — 여기서는 다음 rerun 만 예약한다
 if play and ss[key_i] < n_dec - 1:
     time.sleep(1.0 / speed)
-    ss[key_i] += 1
     st.rerun()

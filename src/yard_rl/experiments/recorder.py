@@ -68,6 +68,10 @@ def record_episode(policy, env: YardEnv, scenario: Scenario, *, run_id: str,
     pname = policy_name or policy.name
     state, info = env.reset(scenario)
     sim = env.sim
+    # 작업 메타는 초기 상태에서 캡처 — dispatch 시 대상 컨테이너가 스택에서
+    # 제거되므로 종료 후에 읽으면 target_bay 가 전부 소실된다 (리뷰 확정 결함).
+    # 재조작으로 옮겨진 컨테이너도 초기(시나리오) 위치 기준으로 표시된다.
+    jobs_meta = _job_meta(sim)
     decisions: list[dict] = []
     i = 0
     while state is not None:
@@ -128,9 +132,12 @@ def record_episode(policy, env: YardEnv, scenario: Scenario, *, run_id: str,
             "n_decisions": len(decisions),
             "final_metrics": collect_metrics(env),
             "block": {"bay_count": g.bay_count, "row_count": g.row_count,
-                      "tier_max": g.tier_max, "transfer_row": g.transfer_row},
+                      "tier_max": g.tier_max, "transfer_row": g.transfer_row,
+                      # 3D 뷰 실측 비례 렌더용 — 프로파일이 원본 (하드코딩 금지)
+                      "bay_length_m": g.bay_length_m, "row_width_m": g.row_width_m,
+                      "tier_height_m": g.tier_height_m},
         },
-        "jobs": _job_meta(sim),
+        "jobs": jobs_meta,
         "decisions": decisions,
         "events": [(round(t, 1), kind, payload) for t, kind, payload in sim.event_log],
     }

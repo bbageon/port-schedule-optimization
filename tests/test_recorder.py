@@ -52,6 +52,31 @@ def test_no_future_information_leakage(replay_path):
             assert jobs[q["job"]]["arrival"] <= d["t"] + 1e-6
 
 
+def test_job_meta_captured_before_dispatch(replay_path):
+    """target_bay 는 초기 상태에서 캡처 — dispatch 후 컨테이너 삭제로 소실되면
+    선택 마커·트럭 위치가 전부 틀린다 (리뷰 확정 결함 회귀 가드)."""
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    targeted = [m for m in rec["jobs"].values() if m["flow"] != "GATE_IN"]
+    assert targeted and all(m["target_bay"] is not None for m in targeted)
+
+
+def test_yard3d_figure_builds(replay_path):
+    """3D 뷰 figure 구성 — mesh 정합(vertex/intensity 길이)·필수 trace 존재."""
+    pytest.importorskip("plotly")
+    from yard_rl.ui.yard3d import build_yard_figure
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    man = rec["manifest"]
+    assert "bay_length_m" in man["block"]  # 치수는 프로파일→manifest 가 원본
+    for i in (0, len(rec["decisions"]) // 2, len(rec["decisions"]) - 1):
+        fig = build_yard_figure(rec["decisions"][i], rec["jobs"], man["block"],
+                                man["sla_s"])
+        names = {t.name for t in fig.data}
+        assert {"컨테이너", "크레인 (YC)", "크레인 위치"} <= names
+        for tr in fig.data:
+            if tr.type == "mesh3d" and tr.intensity is not None:
+                assert len(tr.intensity) == len(tr.x)
+
+
 def test_replay_repository_roundtrip(replay_path):
     runs = scan_runs(replay_path.parent.parent)
     assert [r.run_id for r in runs] == ["TEST_FIFO_seed301"]
@@ -71,3 +96,7 @@ def test_streamlit_app_renders():
     assert not at.exception, at.exception[0].value
     at.slider[0].set_value(min(50, at.slider[0].max)).run()
     assert not at.exception
+    # 자동재생: 위젯 생성 후 key 수정 금지 위반 회귀 가드 (끝 인덱스에서 토글 ON)
+    at.slider[0].set_value(at.slider[0].max).run()
+    at.toggle[0].set_value(True).run()
+    assert not at.exception, at.exception[0].value
