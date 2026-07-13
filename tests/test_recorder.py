@@ -85,6 +85,19 @@ def test_replay_repository_roundtrip(replay_path):
     assert decision_at(rep, -5)["i"] == 0
 
 
+def test_animation_figure_builds(replay_path):
+    """애니메이션 모드 — 프레임 수·동적 trace 정합 (YR-015-e)."""
+    pytest.importorskip("plotly")
+    from yard_rl.ui.yard3d import build_animation_figure
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    fig = build_animation_figure(rec)
+    assert len(fig.frames) == rec["manifest"]["n_decisions"]
+    n_dyn = len(fig.frames[0].traces)
+    assert all(len(f.data) == n_dyn and f.traces == fig.frames[0].traces
+               for f in fig.frames)  # 프레임별 trace 수·대상 인덱스 불변
+    assert fig.layout.updatemenus and fig.layout.sliders
+
+
 def test_live_run_and_record(tmp_path):
     """즉석 실행 백엔드 (YR-015-d) — 환경·정책·부하 파라미터로 replay 생성."""
     from yard_rl.ui.live import policy_choices, run_and_record

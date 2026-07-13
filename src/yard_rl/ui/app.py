@@ -19,7 +19,7 @@ import streamlit as st
 from yard_rl.ui.live import policy_choices, profile_choices, run_and_record
 from yard_rl.ui.replay import (decision_at, events_window, load_replay,
                                queue_series, scan_runs)
-from yard_rl.ui.yard3d import build_yard_figure
+from yard_rl.ui.yard3d import build_animation_figure, build_yard_figure
 
 st.set_page_config(page_title="yard_rl replay", layout="wide")
 
@@ -124,8 +124,20 @@ st.caption(f"t = {t / 3600:.2f} h ({t:,.0f} s) · 결정 {idx + 1}/{n_dec} · "
 left, right = st.columns([2.1, 1])
 
 # ----------------------------------------------------------------- 야드 뷰
+@st.cache_resource(max_entries=4)  # 프레임 구축 재사용 — rerun 마다 재계산 방지
+def _anim_fig(path_str: str):
+    return build_animation_figure(load_replay(path_str))
+
+
 with left:
-    tab3d, tab2d = st.tabs(["🧊 입체 뷰", "▦ 평면 뷰"])
+    tab_anim, tab3d, tab2d = st.tabs(["🎞 애니메이션", "🧊 입체 뷰 (스텝)",
+                                      "▦ 평면 뷰"])
+    with tab_anim:
+        st.plotly_chart(_anim_fig(str(_by_id[sel_id].path)), width='stretch',
+                        config={"displayModeBar": True})
+        st.caption("차트 안 **▶ 재생** — 브라우저에서 프레임 재생 (서버 왕복 없음, "
+                   "깜빡임 없음). ⚠ 장치(스택)는 시작 시점 고정 — 정확한 스택 "
+                   "변화·Q-value 추적은 '입체 뷰 (스텝)' 탭 사용")
     with tab3d:
         fig3d = build_yard_figure(d, replay["jobs"], blk, sla_s)
         st.plotly_chart(fig3d, width='stretch',
