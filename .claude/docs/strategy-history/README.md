@@ -5,4 +5,4 @@
 
 | 기록일 | ID | 상태 | 핵심 결정 | 문서 |
 |---|---|---|---|---|
-| 2026-07-13 | YR-027 | 전략 동결·구현 대기 | 선박 제외, `BLOCK_ENTRY` 이후 외부트럭 Job 직접 선택, queue-area Cost-Q `argmin` | [Exp-1 Direct-Job Cost-Q](2026-07-13-YR-027-exp1-direct-job-cost-q.md) |
+| 2026-07-13 | YR-027 | 구현·평가 완료, primary 미통과 | Direct-Job Cost-Q가 shortest-service보다 평균 +0.039분, fallback 55.0%로 coverage 부족 | [전략·결과](2026-07-13-YR-027-exp1-direct-job-cost-q.md) |

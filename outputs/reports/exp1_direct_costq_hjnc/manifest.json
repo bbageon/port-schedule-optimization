@@ -1,0 +1,72 @@
+{
+  "N_config": 100,
+  "alias_assertions": [
+    "FIFO=LONGEST_WAIT",
+    "SHORTEST_ESTIMATED_SERVICE_TIME=IMMEDIATE_COST_GREEDY"
+  ],
+  "bucket_fit": "SLA_OFF FIFO, train seeds only, quartiles + 1800s hard edge",
+  "config": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 72027,
+    "check_train_invariants": true,
+    "checkpoint_every": 50,
+    "drain_window_s": 86400.0,
+    "learning_rate_powers": [
+      0.6,
+      0.8,
+      1.0
+    ],
+    "n_external": 100,
+    "quick": false,
+    "test_episodes": 100,
+    "test_seed0": 30000,
+    "train_episodes": 1000,
+    "train_seed0": 10000,
+    "validation_episodes": 30,
+    "validation_seed0": 20000
+  },
+  "created_at_local": "2026-07-13T21:40:03+0900",
+  "elapsed_s": 1428.64257478714,
+  "epsilon": "1/sqrt(episode_index+1)",
+  "gamma": 1.0,
+  "generator_params": {
+    "drain_window_s": 86400.0,
+    "eta_error_s": 300.0,
+    "fill_ratio": 0.45,
+    "gate_offset_range_s": [
+      300.0,
+      900.0
+    ],
+    "gate_out_share": 0.6,
+    "horizon_s": 28800.0,
+    "n_external": 100,
+    "n_vessel": 0,
+    "peak": false,
+    "rehandle_risk": 0.35,
+    "size_mix_ft40": 0.7
+  },
+  "git": {
+    "commit": "b174b09d97a25bca03dda9529f3065160d728257",
+    "dirty": true
+  },
+  "information_boundary": "BLOCK_ENTRY",
+  "mode": "full",
+  "n_vessel": 0,
+  "objective": "sum(queue_area_delta_s)/(60*N_config)=mean_wait_min",
+  "primary_arm": "SLA_OFF",
+  "profile": {
+    "assumed": true,
+    "path": "configs/terminals/hjnc_armg.yaml",
+    "profile_date": "2026-07-13",
+    "sha256": "9c421d3aa595dcddd8c717021a3402db084d5b387c0aaf97a81c047147933a62",
+    "terminal_id": "HJNC-ARMG"
+  },
+  "schema_version": 1,
+  "sla_threshold_s": 1800.0,
+  "strategy_compliant_setting": true,
+  "strategy_id": "YR-027-v1",
+  "transfer_directions": [
+    "TRUCK_TO_YARD",
+    "YARD_TO_TRUCK"
+  ]
+}

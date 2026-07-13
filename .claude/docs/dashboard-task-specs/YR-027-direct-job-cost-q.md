@@ -27,3 +27,10 @@
 6. primary SLA OFF와 secondary ON, `1800초` 경계, mask가 infeasible Job을 되살리지 않음을 검사한다.
 7. FIFO=LONGEST_WAIT 및 ImmediateCostGreedy=shortest-service 동일성을 paired run에서 검사한다.
 8. 기존 `run-exp1`, `run-exp1-cost`, golden 결과가 변하지 않는 회귀 검증을 수행한다.
+
+## 평가 결과 (2026-07-13)
+
+- HJNC assumed 프로파일, train 1,000 / validation 30 / locked test 100으로 동결 설정을 실행했다.
+- Primary 비교군은 validation-selected shortest-service였고 Cost-Q 평균대기 차이는 `+0.039`분(95% bootstrap CI `[+0.006,+0.072]`)이었다.
+- P95 변화율 CI 상한 `+7.13%`, fallback `55.04%`로 개선·guardrail·coverage 기준을 통과하지 못했다.
+- completion 100%·backlog 0·물리 invariant·alias 회귀는 통과했다. [report](../../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md)

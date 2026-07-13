@@ -1,6 +1,7 @@
 """CLI — Exp 예비 PoC 파이프라인.
 
 python -m yard_rl.cli run-exp1   [--train N] [--epochs K] [--eval M] [--quick]
+python -m yard_rl.cli run-exp1-direct-costq [--train 1000] [--val 30] [--eval 100]
 python -m yard_rl.cli run-matrix [--train N] [--epochs K] [--eval M] [--quick]
 
 공통 순서: train 시나리오 생성 → FIFO 로 bucket·Scale fit(고정) → Q-learning 학습
@@ -23,6 +24,10 @@ from .envs.observations import BucketConfig
 from .envs.rewards import CostConfig
 from .envs.yard_env import YardEnv
 from .experiments.recorder import record_episode
+from .experiments.direct_job_runner import (
+    DEFAULT_DIRECT_PROFILE, DirectExperimentConfig, quick_direct_config,
+    run_direct_job_experiment,
+)
 from .io.profile_loader import load_profile
 from .policies.q_learning import QTable
 from .io.scenario_gen import GenParams
@@ -234,6 +239,18 @@ def main(argv: list[str] | None = None):
         p.add_argument("--quick", action="store_true")
         if cmd == "run-exp1-cost":
             p.add_argument("--cost", default=DEFAULT_COST)
+    pd = sub.add_parser(
+        "run-exp1-direct-costq",
+        help="Exp-1 외부트럭 Direct-Job Cost-Q (YR-027)",
+    )
+    pd.add_argument("--train", type=int, default=1_000)
+    pd.add_argument("--val", type=int, default=30)
+    pd.add_argument("--eval", type=int, default=100)
+    pd.add_argument("--checkpoint", type=int, default=50)
+    pd.add_argument("--n-external", type=int, default=100)
+    pd.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pd.add_argument("--out", default="outputs/reports/exp1_direct_costq_hjnc")
+    pd.add_argument("--quick", action="store_true")
     pr = sub.add_parser("record-replay", help="replay 기록 (YR-015-a, UI 용)")
     pr.add_argument("--profile", default=DEFAULT_PROFILE)
     pr.add_argument("--exp-dir", required=True,
@@ -245,6 +262,16 @@ def main(argv: list[str] | None = None):
     args = ap.parse_args(argv)
     if args.cmd == "record-replay":
         record_replay(args.profile, args.exp_dir, args.policy, args.seed, args.out)
+        return
+    if args.cmd == "run-exp1-direct-costq":
+        cfg = (quick_direct_config() if args.quick else DirectExperimentConfig(
+            train_episodes=args.train,
+            validation_episodes=args.val,
+            test_episodes=args.eval,
+            checkpoint_every=args.checkpoint,
+            n_external=args.n_external,
+        ))
+        run_direct_job_experiment(args.profile, args.out, cfg)
         return
     if args.quick:
         args.train, args.epochs, args.eval = 6, 1, 4

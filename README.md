@@ -11,6 +11,7 @@
 pip install -e .[dev]
 pytest                                  # 단위·불변조건·회귀 테스트
 python -m yard_rl.cli run-exp1          # Exp-1 예비 PoC (합성 시나리오)
+python -m yard_rl.cli run-exp1-direct-costq --quick  # YR-027 외부트럭 직접선택 smoke
 ```
 
 ### 검증 replay UI (읽기 전용, 04 문서)
