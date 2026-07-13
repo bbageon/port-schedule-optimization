@@ -15,6 +15,8 @@
 | YR-011-a | Exp | **Exp-1 예비 지지 (합성·가정 조건)** — QL 이 FIFO 대비 평균대기 -15.2% (12/12 seed 유의)·이동 -16%·본선지연 0. 단 P95 +10.8% trade-off (→YR-018) | 2026-07-12 | `24b095a`·`bb1e8e5` · [report](../../outputs/reports/exp_matrix/exp_matrix_report.md) (`a8d9039` 재실행 복원 — .gitignore 재포함 무효로 원커밋 누락, 결정론 재현 일치 확인) |
 | YR-011-b | Exp | **Exp-2 예비결과: 정보선행 이득 미확인** — -5.7% vs FIFO 로 Exp-1 대비 유의 열세. 상태공간 희석 의심 (→YR-020) | 2026-07-12 | 〃 (동일 matrix, paired) |
 | YR-011-c | Exp | **Exp-3A/B/C 예비결과: H2 이 조건 미지지** — 3A 는 학습예산 2.5×에서 격차 축소(16.56→15.14분, tabular 한계 시사), 3B 포지셔닝 빈이동 +60% 무익, 3C 선재조작 총재조작 +3.3% 역효과 | 2026-07-12 | 〃 + [민감도](../../outputs/reports/exp_matrix_e10/exp_matrix_report.md) (`a8d9039` 복원 포함) |
+| YR-022 | Data | **프로파일 v2 초안 2벌 완료 — 공개정보 수준에서 HJNC·DGT 수치 동일 수렴** (10열×6단·Kalmar ASC 문헌속도·SLA/gate_travel 보정, 전 항목 근거 주석, assumed 유지). 케이스 차별화 항목은 전부 🤝 협약 필요 → 확률화는 YR-024 | 2026-07-13 | `7b62738` · [hjnc](../../configs/terminals/hjnc_armg.yaml)·[dgt](../../configs/terminals/dgt_armg.yaml) · [요구정보](../docs/YR-002-HJNC-DGT-요구정보.md) |
+| YR-023 | Exp | **ARMG 프로파일에서도 Exp-1 방향 유지, 폭 축소** — QL_EXP1 이 FIFO 대비 평균대기 -10.4% (9/12 유의, POC 프로파일 -15.2% 대비 축소)·이동 -11.3%·본선지연 -55.8%, P95 +17.4% 악화 재현 (YR-018 전제 유지). 두 프로파일 결과 동일 (수치 동일 수렴 탓) | 2026-07-13 | `7b62738` · [hjnc report](../../outputs/reports/exp1_hjnc/exp1_report.md)·[dgt report](../../outputs/reports/exp1_dgt/exp1_report.md) |
 | YR-016 | Infra | **구현계획서 분할(index+5문서) 하네스 반영 완료** — Phase 0~9 재편·UI 신규 epic/row(YR-015)·task-spec 14건 생성·요약 재작성 | 2026-07-12 | 원본: [구현계획서](../../부산항_야드크레인_강화학습_구현계획서.md)·`docs/구현계획/01~05` · 산출물: [task-specs](../docs/dashboard-task-specs/)·[구현계획서-요약](../docs/구현계획서-요약.md) · commit 없음 (2026-07-12 대화) |
 
 ---
