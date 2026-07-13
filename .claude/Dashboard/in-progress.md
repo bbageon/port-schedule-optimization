@@ -4,8 +4,8 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-027-a | RL | Exp-1 Direct-Job Cost-Q 전략 명세 동결·히스토리 기록 | 🟠 | 2026-07-13 | ⏸ 외부 대기 — 문서 commit `9b46ae2`; `origin` push는 GitHub CLI 설치·인증 필요 |
-| YR-027 | RL | 외부트럭 Direct-Job Cost-Q 구현·평가 — 선박 제외, `BLOCK_ENTRY` 이후 개별 작업 `argmin` | 🟠 | 2026-07-13 | full run 완료·primary FAIL: 평균 +0.039분, P95 CI 상한 +7.13%, fallback 55.0%; commit·push/evidence 정리 중 · [report](../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md) |
+| YR-027-a | RL | Exp-1 Direct-Job Cost-Q 전략 명세 동결·히스토리 기록 | 🟠 | 2026-07-13 | ⏸ 외부 대기 — 문서 `9b46ae2`; `git push`가 GitHub HTTPS 인증 부재로 실패 |
+| YR-027 | RL | 외부트럭 Direct-Job Cost-Q 구현·평가 — 선박 제외, `BLOCK_ENTRY` 이후 개별 작업 `argmin` | 🟠 | 2026-07-13 | ⏸ 외부 대기 — 구현 `20a42cf`·clean-run evidence `6654636`; primary FAIL(+0.039분, P95 CI 상한 +7.13%, fallback 55.0%); `git push` 인증 실패 · [report](../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md) |
 
 ---
 
