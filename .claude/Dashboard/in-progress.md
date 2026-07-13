@@ -6,7 +6,6 @@
 |---|---|---|---|---|---|
 | YR-027-a | RL | Exp-1 Direct-Job Cost-Q 전략 명세 동결·히스토리 기록 | 🟠 | 2026-07-13 | ⏸ 외부 대기 — 문서 commit `9b46ae2`; `origin` push는 GitHub CLI 설치·인증 필요 |
 | YR-027 | RL | 외부트럭 Direct-Job Cost-Q 구현·평가 — 선박 제외, `BLOCK_ENTRY` 이후 개별 작업 `argmin` | 🟠 | 2026-07-13 | full run 완료·primary FAIL: 평균 +0.039분, P95 CI 상한 +7.13%, fallback 55.0%; commit·push/evidence 정리 중 · [report](../../outputs/reports/exp1_direct_costq_hjnc/exp1_direct_costq_report.md) |
-| YR-015-e | UI | 애니메이션 모드 (plotly 프레임 — 깜빡임 제거) + 실제 항만 환경 디자인 (바다·안벽·게이트·차선·트럭·스프레더) | 🟡 | 2026-07-13 | 사용자 요청. 애니메이션은 장치상태 시작시점 고정 (부드러운 재생용) — 정확 검증은 스텝 모드 유지 |
 
 ---
 
