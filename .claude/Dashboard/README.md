@@ -41,5 +41,6 @@
 - **핵심 결과(합성·가정 조건)**: QL_EXP1 이 FIFO 대비 **평균대기 -15.2% (12/12 seed 유의)**·본선지연 0 달성. 단 **정보 선행(Exp-2/3)이 오히려 열세** — 상태공간 희석 의심(YR-020), P95 는 전 QL 에서 악화 경향(YR-018 w_tail 탐색 필요). H1~H2 는 이 조건에서 **미지지** — 사전 결론 금지 원칙 그대로 유효.
 - **67-agent 리뷰 워크플로우**로 확정 결함 9건 수정 완료 (`24b095a`) — KPI 적분창·본선 방치 무벌점·검열 편향 등.
 - **프로파일 v2 (2026-07-13, YR-022/023)**: HJNC·DGT ARMG 초안 2벌로 Exp-1 재실행 — 방향 유지(평균대기 -10.4%)·개선폭 축소·P95 악화 재현. 공개정보만으론 두 케이스 수치 동일 수렴 (차별화는 🤝 협약 또는 YR-024 확률화).
+- **원화비용 argmin (2026-07-13, YR-025)**: reward=−C_won 교체는 유의차 없음 (negative) — 대기항 지배(56%)로 상대구조 유사 + tabular 한계 추정. 비용 KPI(total_cost_manwon)는 상시 리포트 자산화 (계수 민감도 YR-026).
 - **병목 불변**: 실측자료·CURRENT_RULE 미확보(YR-002) — 모든 수치는 실운영 대비 아님. YR-009 validation 게이트 전까지 연구 주장 불가.
 - **Git**: `origin` = [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization). 완료 작업은 검증·commit·evidence 갱신 후 push 성공까지 확인.
