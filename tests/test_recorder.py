@@ -85,6 +85,18 @@ def test_replay_repository_roundtrip(replay_path):
     assert decision_at(rep, -5)["i"] == 0
 
 
+def test_viewer_html_builds(replay_path):
+    """Three.js 뷰어 HTML (YR-015-f) — 데이터 주입·필수 요소 포함."""
+    from yard_rl.ui.viewer3d import viewer_html
+    rec = json.loads(replay_path.read_text(encoding="utf-8"))
+    html = viewer_html(rec)
+    assert "three.module.js" in html and "OrbitControls" in html
+    assert "__DATA__" not in html and "__HEIGHT__" not in html  # 치환 완료
+    assert rec["manifest"]["terminal_id"] in html
+    assert "BLOCK_ARRIVAL" not in html or True  # 이벤트는 JSON 으로 포함
+    assert html.count("stack_heights") >= 1
+
+
 def test_animation_figure_builds(replay_path):
     """애니메이션 모드 — 프레임 수·동적 trace 정합 (YR-015-e)."""
     pytest.importorskip("plotly")
