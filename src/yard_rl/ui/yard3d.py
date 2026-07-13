@@ -213,7 +213,7 @@ def build_yard_figure(d: dict, jobs: dict, block: dict, sla_s: float,
     ext_y = yard_w + _LANE_W + 7.0
     ext_z = top_z + 8.5
     # manual aspect 는 박스 크기가 곧 화면 배율 — ZOOM 으로 균일 확대 (왜곡 없음)
-    ZOOM, Y_EX, Z_EX = 2.7, 1.9, 1.9
+    ZOOM, Y_EX, Z_EX = 3.1, 1.9, 1.9
     fig.update_layout(
         height=height, margin=dict(l=0, r=0, t=0, b=0),
         showlegend=True,
@@ -235,7 +235,7 @@ def build_yard_figure(d: dict, jobs: dict, block: dict, sla_s: float,
                        backgroundcolor="rgba(0,0,0,0)"),
             # 등각(orthographic) 2.5D — 원근 왜곡 없이 블록 전체가 프레임에 들어옴
             camera=dict(projection=dict(type="orthographic"),
-                        eye=dict(x=0.18, y=-1.75, z=0.95),
+                        eye=dict(x=0.18, y=-1.45, z=1.75),
                         center=dict(x=0.0, y=0.0, z=-0.02)),
         ))
     return fig
