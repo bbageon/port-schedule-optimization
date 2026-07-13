@@ -11,7 +11,6 @@
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |
 | YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟠 | 학습예산·상태 축소 실험. 함수근사(YR-012) 전환조건 §16.3 판단 재료 |
 | YR-021 | Exp | 부하조건별 정보효과 — peak·고장치율·고재조작 시나리오 재실험 | 🟡 | 정보 선행 편익은 혼잡 조건 의존 가설 — §18.3 운영부하 축 |
-| YR-022 | Data | 프로파일 v2 — HJNC·DGT 케이스별 초안 2벌 (공개 스펙+ARMG 문헌값, 근거 주석) | 🟡 | [요구정보 §6](../docs/YR-002-HJNC-DGT-요구정보.md) 하단 — 협약 없이 진행 가능, ✅·📚 항목으로 `hjnc_armg.yaml`·`dgt_armg.yaml` |
 | YR-015 | UI | Phase 6: 검증 UI MVP (recorder·replay·정책설명·동기비교) | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · 신규 범위 (04 문서) |
 | YR-012 | RL | Phase 7: Masked DQN/PPO 함수근사 | ⚪ | [spec](../docs/dashboard-task-specs/YR-012-dqn-ppo.md) · YR-010 에서 전환조건 확인 시만 |
 | YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) |
