@@ -36,7 +36,7 @@
 
 ## Primary paired bootstrap (`SLA_OFF`)
 
-- 비교: `Cost-Q` − validation-selected baseline `SHORTEST_ESTIMATED_SERVICE_TIME`.
+- 비교: `CostQ+GreedyFallback` − validation-selected baseline `SHORTEST_ESTIMATED_SERVICE_TIME`.
 - Mean wait 차이: +0.04 min (95% bootstrap CI [+0.01, +0.07]).
 - P95 wait 변화: +2.87% (95% bootstrap percent CI [-0.76%, +7.13%]).
 
