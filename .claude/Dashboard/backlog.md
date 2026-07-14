@@ -10,7 +10,7 @@
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |
 | YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟡 | [수렴진단](../docs/YR-020-수렴진단-2026-07-14.md): 희석 방문통계 증거 확보. **YR-030 전환 결정으로 "함수근사 판단재료" 역할 종결** — 학술적 원인 규명 가치로만 유지 (🟠→🟡, 2026-07-14) |
 | YR-021 | Exp | 부하조건별 정보효과 — peak·고장치율·고재조작 시나리오 재실험 | 🟡 | 정보 선행 편익은 혼잡 조건 의존 가설 — §18.3 운영부하 축 |
-| YR-030 | RL | **계열 2 baseline 승격** — Direct-Job Cost-Q 골격에서 상태 v3·학습설정(α/ε/checkpoint)·제약 확장 실험 | 🟠 | 사용자 결정 (2026-07-14): rule-선택(계열 1)은 상태별 행동 기준 모호 → 후보 단위 스코어링으로 전환. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) · 선행: YR-028 |
+| YR-030 | RL | **계열 2 baseline 승격** — 1차 과제 확정: **순서품질** (greedy-prior Q0/잔차학습·후보 맥락 feature), coverage 는 해결됨 | 🟠 | 사용자 결정 (2026-07-14) + YR-028 판정 반영: 선택규칙은 R2(coverage-gate) 채택, Q0=0 낙관 초기화 대신 greedy 추정치를 prior 로 검토 — 순수 Q 가 greedy 에 지는 원인이 다음 실험 질문. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) |
 | YR-029 | RL | P95 보호 — SLA 임박 시 후보 필터 (계열 2, YR-030 라인) | 🟠 | YR-018 negative 파생. **보상형 후보(분위수/비선형 페널티) 폐기 — 사용자 결정**: 상태별 트레이드오프 신호 부재·기준 모호 — 학습이 아닌 명시적 제약(후보 제한)으로 강제 |
 | YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. tail 지표 재정의는 YR-029 와 연계 |
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |

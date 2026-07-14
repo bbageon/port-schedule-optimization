@@ -43,6 +43,6 @@
 - **방향 전환 (2026-07-14, 사용자 결정)**: 신규 RL 실험 baseline 을 **계열 2 (Direct-Job Cost-Q, 후보 단위 스코어링)** 로 승격 — rule-선택은 상태별 행동 기준이 모호. 계열 1 결과는 PoC 증거로 동결. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) · 실행: YR-028(선행)→YR-030, P95 는 후보 필터(YR-029)로.
 - **67-agent 리뷰 워크플로우**로 확정 결함 9건 수정 완료 (`24b095a`) — KPI 적분창·본선 방치 무벌점·검열 편향 등.
 - **프로파일 v2 (2026-07-13, YR-022/023)**: HJNC·DGT ARMG 초안 2벌로 Exp-1 재실행 — 방향 유지(평균대기 -10.4%)·개선폭 축소·P95 악화 재현. 공개정보만으론 두 케이스 수치 동일 수렴 (차별화는 🤝 협약 또는 YR-024 확률화).
-- **비용 최소화 RL (2026-07-13, YR-025/027)**: 최소상태 v2는 fallback을 55.04%→0.01%로 낮춰 coverage는 통과했지만 shortest-service 대비 평균 `+1.195`분(95% CI `+0.963~+1.438`), P95 `+47.57%`로 primary 미통과. shortest-service의 FIFO 대비 `-43.5%` 우위는 유지되어 coverage가 아니라 학습 순서 품질이 병목임을 확인했다.
+- **비용 최소화 RL (YR-025/027/028)**: YR-028 ablation 판정 **CHECKPOINT_RULE** — v1 fallback 55% 는 선택규칙 탓 (gate 통과 ckpt 15개 존재, 도달가능 서명 ~17.6k). 결정 증거: **fallback↓=성능↓ 단조** (55%→+0.13분 … 순수 0%→+1.28 vs shortest-service) — 병목은 coverage 가 아니라 **학습 Q 의 순서품질**. YR-030 1차 과제로 확정 (greedy-prior Q0·후보 맥락 feature).
 - **병목 불변**: 실측자료·CURRENT_RULE 미확보(YR-002) — 모든 수치는 실운영 대비 아님. YR-009 validation 게이트 전까지 연구 주장 불가.
 - **Git**: `origin` = [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization). 완료 작업은 검증·commit·evidence 갱신 후 push 성공까지 확인.

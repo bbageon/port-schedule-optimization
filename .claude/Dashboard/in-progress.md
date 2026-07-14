@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-028 | RL | Direct-Job Cost-Q coverage 회복 — checkpoint 제약·state aliasing ablation | 🟠 | 2026-07-14 | 사용자 착수 지시. [spec](../docs/dashboard-task-specs/YR-028-cost-q-coverage.md) 사전등록 준수: 새 seed band·선택규칙 실행 전 동결. YR-030 상태 v3 설계 재료 |
 
 ---
 
