@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 import heapq
-import itertools
 from dataclasses import dataclass, field
 from enum import IntEnum
 
@@ -44,11 +43,14 @@ class _Entry:
 class EventQueue:
     def __init__(self):
         self._heap: list[_Entry] = []
-        self._seq = itertools.count()
+        # 일반 int 카운터 — itertools.count 는 deepcopy 불가 (YR-031 beam 분기
+        # 가 시뮬레이터 상태 복제를 요구). 동작은 동일 (발행 순서 결정론).
+        self._seq = 0
 
     def push(self, time: float, kind: EventKind, payload: str = ""):
+        self._seq += 1
         heapq.heappush(self._heap,
-                       _Entry(time, _PRIORITY[kind], next(self._seq), payload, kind.name))
+                       _Entry(time, _PRIORITY[kind], self._seq, payload, kind.name))
 
     def pop(self) -> _Entry:
         return heapq.heappop(self._heap)
