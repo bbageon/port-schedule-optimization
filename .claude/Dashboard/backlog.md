@@ -13,7 +13,6 @@
 | YR-030 | RL | **계열 2 baseline 승격** — Direct-Job Cost-Q 골격에서 상태 v3·학습설정(α/ε/checkpoint)·제약 확장 실험 | 🟠 | 사용자 결정 (2026-07-14): rule-선택(계열 1)은 상태별 행동 기준 모호 → 후보 단위 스코어링으로 전환. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) · 선행: YR-028 |
 | YR-029 | RL | P95 보호 — SLA 임박 시 후보 필터 (계열 2, YR-030 라인) | 🟠 | YR-018 negative 파생. **보상형 후보(분위수/비선형 페널티) 폐기 — 사용자 결정**: 상태별 트레이드오프 신호 부재·기준 모호 — 학습이 아닌 명시적 제약(후보 제한)으로 강제 |
 | YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. tail 지표 재정의는 YR-029 와 연계 |
-| YR-028 | RL | Direct-Job Cost-Q coverage 회복 — checkpoint 제약·state aliasing ablation | 🟠 | YR-027 selected checkpoint fallback 55.0% 원인 분리 · [spec](../docs/dashboard-task-specs/YR-028-cost-q-coverage.md) · **YR-030 의 1차 선행 ablation** — 결과가 상태 v3 설계를 결정 |
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |
 | YR-015-b | UI | Phase 6 후반: UI-3 정책설명 패널 고도화·UI-4 동기비교·검증 테스트 확충 | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · UI-1/2 는 YR-015-a 로 분할 착수 (2026-07-13) |
 | YR-012 | RL | Phase 7: Masked DQN/PPO 함수근사 | ⚪ | [spec](../docs/dashboard-task-specs/YR-012-dqn-ppo.md) · YR-010 에서 전환조건 확인 시만 |

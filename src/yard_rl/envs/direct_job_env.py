@@ -25,9 +25,11 @@ from ..sim.travel_time import (gantry_m, move_container, trolley_m)
 
 TransferDirection: TypeAlias = Literal["TRUCK_TO_YARD", "YARD_TO_TRUCK"]
 OperationPhase: TypeAlias = Literal["OPERATING", "CLEAR_OUT"]
-GlobalState: TypeAlias = tuple[OperationPhase, int]
-CandidateFeature: TypeAlias = tuple[TransferDirection, int, int]
+# v2_minimal: (phase, queue_bucket) / v1_rich: (period, zone, queue, oldest, sla_over)
+GlobalState: TypeAlias = tuple
+CandidateFeature: TypeAlias = tuple
 CostQKey: TypeAlias = tuple[GlobalState, CandidateFeature]
+STATE_SCHEMAS = ("v2_minimal", "v1_rich")
 
 
 class SLAMode(str, Enum):
@@ -55,31 +57,54 @@ def _quartile_bounds(values: Iterable[float], hard_edges: tuple[float, ...] = ()
     return tuple(sorted(set((*quantiles, *hard_edges))))
 
 
+_BUCKET_FIELDS = ("queue_len", "service_s", "oldest_wait_s", "own_wait_s", "reach_s")
+
+
 @dataclass(frozen=True)
 class DirectJobBucketConfig:
-    """Immutable bucket edges; ``fit`` must only receive training observations."""
+    """Immutable bucket edges; ``fit`` must only receive training observations.
+
+    v2_minimal 은 queue_len·service_s 만 사용한다. v1_rich(YR-028 ablation 복원)는
+    oldest/own wait(30분 hard edge 포함)·reach edge 를 추가로 사용한다 — YR-027 v1
+    구현(20a42cf)과 동일 정의.
+    """
 
     queue_len: tuple[float, ...] = (1.0, 3.0, 6.0)
     service_s: tuple[float, ...] = (120.0, 300.0, 600.0)
+    oldest_wait_s: tuple[float, ...] = (300.0, 900.0, 1800.0)
+    own_wait_s: tuple[float, ...] = (300.0, 900.0, 1800.0)
+    reach_s: tuple[float, ...] = (60.0, 150.0, 300.0)
     fitted: bool = False
 
     def __post_init__(self) -> None:
-        for name in ("queue_len", "service_s"):
+        for name in _BUCKET_FIELDS:
             edges = getattr(self, name)
             if any(not isfinite(x) or x < 0.0 for x in edges) or tuple(sorted(edges)) != edges:
                 raise ValueError(f"{name} bucket edge는 유한한 비음수 오름차순이어야 함")
 
     @classmethod
     def fit(cls, *, queue_lengths: Iterable[float],
-            service_times_s: Iterable[float]) -> "DirectJobBucketConfig":
+            service_times_s: Iterable[float],
+            oldest_waits_s: Iterable[float] | None = None,
+            own_waits_s: Iterable[float] | None = None,
+            reaches_s: Iterable[float] | None = None,
+            sla_s: float = 1800.0) -> "DirectJobBucketConfig":
+        extra: dict[str, tuple[float, ...]] = {}
+        if oldest_waits_s is not None:
+            extra["oldest_wait_s"] = _quartile_bounds(oldest_waits_s, (float(sla_s),))
+        if own_waits_s is not None:
+            extra["own_wait_s"] = _quartile_bounds(own_waits_s, (float(sla_s),))
+        if reaches_s is not None:
+            extra["reach_s"] = _quartile_bounds(reaches_s)
         return cls(
             queue_len=_quartile_bounds(queue_lengths),
             service_s=_quartile_bounds(service_times_s),
             fitted=True,
+            **extra,
         )
 
     def save(self, path: str | Path) -> None:
-        payload = {name: list(getattr(self, name)) for name in ("queue_len", "service_s")}
+        payload = {name: list(getattr(self, name)) for name in _BUCKET_FIELDS}
         payload["fitted"] = self.fitted
         Path(path).write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
@@ -87,7 +112,7 @@ class DirectJobBucketConfig:
     def load(cls, path: str | Path) -> "DirectJobBucketConfig":
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
         selected = {name: tuple(float(x) for x in payload[name])
-                    for name in ("queue_len", "service_s")}
+                    for name in _BUCKET_FIELDS if name in payload}
         return cls(**selected, fitted=bool(payload.get("fitted", False)))
 
 
@@ -125,6 +150,9 @@ class DirectJobRawGlobal:
     now_s: float
     horizon_s: float
     queue_length: int
+    crane_bay: float = 0.0
+    oldest_wait_s: float = 0.0
+    sla_over_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -157,9 +185,12 @@ class DirectJobEnv:
     def __init__(self, profile: TerminalProfile, *, sla_mode: SLAMode | str = SLAMode.OFF,
                  bucket_cfg: DirectJobBucketConfig | None = None,
                  expected_n_config: int | None = None, check_invariants: bool = True,
-                 strict_clear_out: bool = True):
+                 strict_clear_out: bool = True, state_schema: str = "v2_minimal"):
+        if state_schema not in STATE_SCHEMAS:
+            raise ValueError(f"state_schema must be one of {STATE_SCHEMAS}: {state_schema}")
         self.profile = profile
         self.sla_mode = SLAMode(sla_mode)
+        self.state_schema = state_schema
         self.buckets = bucket_cfg or DirectJobBucketConfig()
         self.expected_n_config = expected_n_config
         self.check_invariants = check_invariants
@@ -279,11 +310,25 @@ class DirectJobEnv:
 
     def _raw_global(self) -> DirectJobRawGlobal:
         waiting = self._waiting_jobs()
+        waits = [max(0.0, self.sim.now - j.actual_block_arrival) for j in waiting]
         return DirectJobRawGlobal(
             now_s=self.sim.now, horizon_s=self.sim.scenario.horizon_s,
-            queue_length=len(waiting))
+            queue_length=len(waiting),
+            crane_bay=self.sim.crane.position_bay,
+            oldest_wait_s=max(waits, default=0.0),
+            sla_over_count=sum(w >= self.profile.long_wait_sla_s for w in waits))
 
     def _encode_global(self, raw: DirectJobRawGlobal) -> GlobalState:
+        if self.state_schema == "v1_rich":
+            # YR-027 v1 원 정의 (20a42cf): 도착창 4분위 + DRAIN(4), crane zone 4구간
+            if raw.now_s >= raw.horizon_s - 1e-9:
+                period = 4
+            else:
+                period = min(3, int(4.0 * raw.now_s / max(raw.horizon_s, 1e-9)))
+            return (period, self._bay_zone(raw.crane_bay),
+                    _bucket(raw.queue_length, self.buckets.queue_len),
+                    _bucket(raw.oldest_wait_s, self.buckets.oldest_wait_s),
+                    min(3, raw.sla_over_count))
         phase: OperationPhase = ("CLEAR_OUT" if raw.now_s >= raw.horizon_s - 1e-9
                                  else "OPERATING")
         return phase, _bucket(raw.queue_length, self.buckets.queue_len)
@@ -297,8 +342,13 @@ class DirectJobEnv:
         reach = self._reach_s(job)
         service, end_bay = self._estimate_service(job)
         end_zone = self._bay_zone(end_bay)
-        feature: CandidateFeature = (
-            direction, _bucket(service, self.buckets.service_s), end_zone)
+        if self.state_schema == "v1_rich":
+            feature: CandidateFeature = (
+                direction, _bucket(wait, self.buckets.own_wait_s),
+                _bucket(reach, self.buckets.reach_s),
+                _bucket(service, self.buckets.service_s), min(3, blockers))
+        else:
+            feature = (direction, _bucket(service, self.buckets.service_s), end_zone)
         return DirectJobCandidate(job.job_id, feature, direction, wait, reach, service,
                                   end_zone, blockers, float(job.actual_block_arrival))
 

@@ -260,6 +260,11 @@ def main(argv: list[str] | None = None):
     pw.add_argument("--profile", default=DEFAULT_PROFILE)
     pw.add_argument("--out", default="outputs/reports/wtail_grid")
     pw.add_argument("--quick", action="store_true")
+    pa = sub.add_parser("run-costq-ablation",
+                        help="YR-028 coverage ablation (checkpoint 규칙 vs 상태 vs 예산)")
+    pa.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pa.add_argument("--out", default="outputs/reports/costq_coverage_ablation_hjnc")
+    pa.add_argument("--quick", action="store_true")
     pr = sub.add_parser("record-replay", help="replay 기록 (YR-015-a, UI 용)")
     pr.add_argument("--profile", default=DEFAULT_PROFILE)
     pr.add_argument("--exp-dir", required=True,
@@ -269,6 +274,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-costq-ablation":
+        from .experiments.coverage_ablation import (AblationConfig,
+                                                    quick_ablation_config,
+                                                    run_coverage_ablation)
+        cfg = quick_ablation_config() if args.quick else AblationConfig()
+        run_coverage_ablation(args.profile, args.out, cfg)
+        return
     if args.cmd == "run-wtail":
         from .experiments.wtail_grid import run_wtail_grid
         if args.quick:
