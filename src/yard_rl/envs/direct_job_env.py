@@ -202,6 +202,11 @@ class DirectJobCandidate:
     # YR-030-c: 종료 bay (반출=대상 bay, 반입=장치 슬롯 bay) + future_situation 키
     end_bay: float = 0.0
     future_feature: tuple = ()
+    # YR-012: 연속 원값 (bucket 없는 함수근사 입력 — 사전등록 §2)
+    # future_raw = (남은 작업 수, 남은 총 서비스 s, 잔여 짧은작업 비율, 최근접 잔여 bay 거리)
+    # global_raw = (진행률, 크레인 bay 정규화, 대기 수, 최장대기 s, 30분초과 수)
+    future_raw: tuple = ()
+    global_raw: tuple = ()
 
     @property
     def service_s(self) -> float:
@@ -465,20 +470,32 @@ class DirectJobEnv:
         short_edge = self.buckets.short_service_s[0]
         jobs_left = max(0, raw.waiting_truck_count - 1)
         jobs_lv = 0 if jobs_left == 0 else 1 + _bucket(jobs_left, self.buckets.jobs_left)
+        geom_bays = max(1, self.profile.block.bay_count - 1)
+        global_raw = (min(1.0, raw.now_s / max(raw.horizon_s, 1e-9)),
+                      (raw.crane_position_bay - 1.0) / geom_bays,
+                      float(raw.waiting_truck_count), raw.longest_wait_s,
+                      float(raw.over_30min_truck_count))
         out = []
         for i, c in enumerate(feasible):
             others = [s for k, s in enumerate(services) if k != i]
             if not others:
                 work_lv, mix_lv, near_lv = 0, 0, 3  # 잔여 후보 없음
+                work_sum, share_short, near_bay = 0.0, 0.0, float(geom_bays + 1)
             else:
-                work_lv = 1 + _bucket(sum(others), self.buckets.work_left_s)
+                work_sum = sum(others)
+                work_lv = 1 + _bucket(work_sum, self.buckets.work_left_s)
                 share_short = sum(s < short_edge for s in others) / len(others)
                 mix_lv = 1 if share_short >= 2 / 3 else (3 if share_short <= 1 / 3 else 2)
                 dz = min(abs(zones[i] - zones[k])
                          for k in range(len(feasible)) if k != i)
                 near_lv = 0 if dz == 0 else (1 if dz == 1 else 2)
-            out.append(replace(c, future_feature=(
-                c.end_crane_zone, jobs_lv, work_lv, mix_lv, near_lv)))
+                near_bay = min(abs(c.end_bay - feasible[k].end_bay)
+                               for k in range(len(feasible)) if k != i)
+            out.append(replace(
+                c,
+                future_feature=(c.end_crane_zone, jobs_lv, work_lv, mix_lv, near_lv),
+                future_raw=(float(jobs_left), work_sum, share_short, near_bay),
+                global_raw=global_raw))
         return tuple(out)
 
     def _check_state_consistency(self, raw: DirectJobRawGlobal,

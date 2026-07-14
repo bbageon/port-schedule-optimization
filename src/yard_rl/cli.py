@@ -265,6 +265,11 @@ def main(argv: list[str] | None = None):
     pv.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pv.add_argument("--out", default="outputs/reports/costq_v1final_hjnc")
     pv.add_argument("--quick", action="store_true")
+    pdn = sub.add_parser("run-delta-net",
+                         help="YR-012 잔차 연속-feature Δ 학습 (함수근사, 사전등록)")
+    pdn.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pdn.add_argument("--out", default="outputs/reports/residual_delta_hjnc")
+    pdn.add_argument("--quick", action="store_true")
     prc = sub.add_parser("run-costq-residual",
                          help="YR-030-c Greedy 기반 잔차 Cost-Q 3-arm (사전등록)")
     prc.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -284,6 +289,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-delta-net":
+        from .experiments.residual_delta_experiment import (DeltaExpConfig,
+                                                            quick_delta_config,
+                                                            run_delta_experiment)
+        cfg = quick_delta_config() if args.quick else DeltaExpConfig()
+        run_delta_experiment(args.profile, args.out, cfg)
+        return
     if args.cmd == "run-costq-residual":
         from .experiments.residual_costq import (ResidualConfig,
                                                  quick_residual_config,
