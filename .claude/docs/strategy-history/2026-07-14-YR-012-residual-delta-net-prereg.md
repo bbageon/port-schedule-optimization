@@ -1,6 +1,7 @@
 # YR-012 — 잔차 연속-feature Δ 학습 (함수근사) 사전등록
 
-> 기록일: 2026-07-14 · 상태: **사전등록 (실행 전 동결)** · 사용자 승인: "응 한번 해봐 —
+> 기록일: 2026-07-14 · 상태: **완료 — 판정 미달이나 격차 +0.083분 (역대 최소)·P95 첫
+> 개선·해상도 세금 실증** · 결과는 하단 append · 사용자 승인: "응 한번 해봐 —
 > 기본 정책은 G+ΔQ 로 가서 bucket 해상도에 대해 실험" (2026-07-14)
 > 상위: [YR-030 계열 2](2026-07-14-YR-030-series2-baseline-pivot.md) · 선행: [YR-030-c 결과](2026-07-14-YR-030-c-residual-costq-prereg.md)
 
@@ -73,3 +74,30 @@ checkpoint_curve·selections·test_results·delta_net_results·delta_net_report.
 model_*.pt. 구현: `policies/residual_delta_net.py`·`envs/direct_job_env.py`
 (연속 future 원값)·`experiments/residual_delta_experiment.py`·CLI
 `run-delta-net [--quick]`.
+
+---
+
+## 실행 결과 (2026-07-14 append — 사전등록 원문 §1~§7 불변)
+
+- 실행: clean source `702f8d5`, 소요 13.5분. [리포트](../../../outputs/reports/residual_delta_hjnc/delta_net_report.md)
+
+### 판정: 미달 (CI 상한 +0.145 > 0) — 그러나 세 가지 확정
+
+| 정책 | test mean (분) | Δ vs greedy [95% CI] | test P95 | guardrail |
+|---|---|---|---|---|
+| greedy (baseline) | 7.347 | — | 27.66분 | — |
+| **ResidualDeltaNet** | 7.430 | **+0.083 [+0.020, +0.145]** | **26.00분 (개선!)** | **4/4 ✅ (역대 최초)** |
+| tabular ref (YR-030-c, 동일 test) | 7.595 | +0.248 [+0.162, +0.340] | — | P95 ❌ |
+
+**확정 1 — 해상도 세금 실증**: 동일 정보·동일 잔차구조·동일 test 100일에서
+tabular +0.248 vs net +0.083 — CI 비중첩. bucket 이산화가 격차의 약 2/3
+(≈0.165분)를 설명함이 직접 증명됨 (본 실험의 1차 목적 달성).
+
+**확정 2 — P95 첫 개선**: p95 26.00 vs 27.66 (Δ% CI 상한 −0.5%) — 프로젝트
+전체에서 "평균 동급 + 최악층 개선"을 달성한 **첫 정책**. YR-018 이후 보상으로
+불가능했던 tail 보호가 연속 상태의 부산물로 등장.
+
+**확정 3 — 남은 용의자 = 학습 안정성**: 격차 진화 +1.283→+0.525→+0.454→
++0.216→**+0.083** (CI 하한 +0.020 — 문턱 직전). checkpoint 곡선이 심한 진동
+(7.97~10.29, online 단일표본 TD 특성) — §5 에 예고했던 replay buffer + target
+network 안정화가 자연 후속 (YR-012-b 등록).
