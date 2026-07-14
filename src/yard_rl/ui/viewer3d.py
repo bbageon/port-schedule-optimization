@@ -31,10 +31,11 @@ def viewer_html(replay: dict, *, height: int = 700) -> str:
                       for d in replay["decisions"]],
         "events": replay["events"],
     }
+    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     return (_TEMPLATE
             .replace("__HEIGHT__", str(height))
             .replace("__CDN__", _CDN)
-            .replace("__DATA__", json.dumps(data, ensure_ascii=False)))
+            .replace("__DATA__", payload))
 
 
 _TEMPLATE = r"""
@@ -119,6 +120,7 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 Object.assign(sun.shadow.camera, {left:-140, right:L+60, top:120, bottom:-90});
 sun.shadow.camera.far = 400;
+sun.shadow.camera.updateProjectionMatrix();  // 경계 변경 반영 (기본 ±5m 절두체 방지)
 scene.add(sun);
 
 const box = (w,h,d,color,x,y,z,parent=scene,shadow=true)=>{
