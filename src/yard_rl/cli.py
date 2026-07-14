@@ -265,6 +265,11 @@ def main(argv: list[str] | None = None):
     pv.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pv.add_argument("--out", default="outputs/reports/costq_v1final_hjnc")
     pv.add_argument("--quick", action="store_true")
+    prc = sub.add_parser("run-costq-residual",
+                         help="YR-030-c Greedy 기반 잔차 Cost-Q 3-arm (사전등록)")
+    prc.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    prc.add_argument("--out", default="outputs/reports/costq_residual_hjnc")
+    prc.add_argument("--quick", action="store_true")
     pa = sub.add_parser("run-costq-ablation",
                         help="YR-028 coverage ablation (checkpoint 규칙 vs 상태 vs 예산)")
     pa.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -279,6 +284,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-costq-residual":
+        from .experiments.residual_costq import (ResidualConfig,
+                                                 quick_residual_config,
+                                                 run_residual_experiment)
+        cfg = quick_residual_config() if args.quick else ResidualConfig()
+        run_residual_experiment(args.profile, args.out, cfg)
+        return
     if args.cmd == "run-costq-v1final":
         from .experiments.state_v1_final import (V1FinalConfig,
                                                  quick_v1final_config,

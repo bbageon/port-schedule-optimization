@@ -99,7 +99,9 @@ def _tertile_bounds(values: Iterable[float], hard_edges: tuple[float, ...] = ())
 
 
 _BUCKET_FIELDS = ("queue_len", "service_s", "oldest_wait_s", "own_wait_s", "reach_s",
-                  "truck_wait_s", "crane_travel_s")
+                  "truck_wait_s", "crane_travel_s",
+                  # YR-030-c future_situation 경계 (train fit 후 동결)
+                  "jobs_left", "work_left_s", "short_service_s")
 
 
 @dataclass(frozen=True)
@@ -119,6 +121,10 @@ class DirectJobBucketConfig:
     # v1_final 저입도 edge (사용자 최종안): truck_wait 4단계 / crane_travel 3단계
     truck_wait_s: tuple[float, ...] = (600.0, 1800.0)
     crane_travel_s: tuple[float, ...] = (90.0, 240.0)
+    # YR-030-c future_situation: 남은 작업 수/총량 3분위 + 짧은작업 임계(중앙값)
+    jobs_left: tuple[float, ...] = (2.0, 5.0)
+    work_left_s: tuple[float, ...] = (1200.0, 3600.0)
+    short_service_s: tuple[float, ...] = (300.0,)
     fitted: bool = False
 
     def __post_init__(self) -> None:
@@ -133,8 +139,20 @@ class DirectJobBucketConfig:
             oldest_waits_s: Iterable[float] | None = None,
             own_waits_s: Iterable[float] | None = None,
             reaches_s: Iterable[float] | None = None,
+            jobs_left_counts: Iterable[float] | None = None,
+            work_left_totals_s: Iterable[float] | None = None,
             sla_s: float = 1800.0) -> "DirectJobBucketConfig":
+        service_times_s = [float(s) for s in service_times_s]  # 이중 소비 방지
         extra: dict[str, tuple[float, ...]] = {}
+        if jobs_left_counts is not None:  # YR-030-c: 0(없음)은 경계 밖 — 양수만 fit
+            extra["jobs_left"] = _tertile_bounds(
+                [c for c in jobs_left_counts if c > 0])
+        if work_left_totals_s is not None:
+            extra["work_left_s"] = _tertile_bounds(
+                [w for w in work_left_totals_s if w > 0])
+            services = sorted(float(s) for s in service_times_s)
+            if services:  # 짧은작업 임계 = train service 중앙값 (§2 mix 기준)
+                extra["short_service_s"] = (services[len(services) // 2],)
         if oldest_waits_s is not None:
             extra["oldest_wait_s"] = _quartile_bounds(oldest_waits_s, (float(sla_s),))
         if own_waits_s is not None:
@@ -181,6 +199,9 @@ class DirectJobCandidate:
     block_entry_s: float
     # greedy 즉시비용 ĉ(j) = (대기대수-1)×service/(60N) — greedy-prior Q0 용 (분 단위)
     prior_cost: float = 0.0
+    # YR-030-c: 종료 bay (반출=대상 bay, 반입=장치 슬롯 bay) + future_situation 키
+    end_bay: float = 0.0
+    future_feature: tuple = ()
 
     @property
     def service_s(self) -> float:
@@ -339,6 +360,7 @@ class DirectJobEnv:
         state = self._encode_global(raw)
         feasible = tuple(self._candidate(j, raw) for j in self._feasible_jobs())
         if self.state_schema == "v1_final":
+            feasible = self._attach_future(feasible, raw)
             self._check_state_consistency(raw, feasible)
         allowed, restricted = self._apply_sla(feasible)
         masked = tuple(c.job_id for c in feasible if c not in allowed)
@@ -425,7 +447,39 @@ class DirectJobEnv:
         prior = max(0, waiting - 1) * service / (60.0 * max(1, self.n_config))
         return DirectJobCandidate(job.job_id, feature, direction, wait, reach, service,
                                   end_zone, blockers, float(job.actual_block_arrival),
-                                  prior)
+                                  prior, float(end_bay))
+
+    def _attach_future(self, feasible: tuple[DirectJobCandidate, ...],
+                       raw: DirectJobRawGlobal) -> tuple[DirectJobCandidate, ...]:
+        """YR-030-c future_situation — 후보 j 선택 '이후' 상황의 동결 bucket 키.
+
+        (종료 YC 구역, 남은 작업 수, 남은 총 작업량, 남은 구성, 최근접 거리).
+        '잔여' 는 결정 시점 feasible − 선택 후보로 근사 (사전등록 §2·§6).
+        0단계('없음')는 fit 경계 밖의 명시 코드 — bucket 결과에 +1 offset.
+        """
+        from dataclasses import replace
+        if not feasible:
+            return feasible
+        services = [c.estimated_service_s for c in feasible]
+        zones = [self._bay_zone(c.end_bay) for c in feasible]
+        short_edge = self.buckets.short_service_s[0]
+        jobs_left = max(0, raw.waiting_truck_count - 1)
+        jobs_lv = 0 if jobs_left == 0 else 1 + _bucket(jobs_left, self.buckets.jobs_left)
+        out = []
+        for i, c in enumerate(feasible):
+            others = [s for k, s in enumerate(services) if k != i]
+            if not others:
+                work_lv, mix_lv, near_lv = 0, 0, 3  # 잔여 후보 없음
+            else:
+                work_lv = 1 + _bucket(sum(others), self.buckets.work_left_s)
+                share_short = sum(s < short_edge for s in others) / len(others)
+                mix_lv = 1 if share_short >= 2 / 3 else (3 if share_short <= 1 / 3 else 2)
+                dz = min(abs(zones[i] - zones[k])
+                         for k in range(len(feasible)) if k != i)
+                near_lv = 0 if dz == 0 else (1 if dz == 1 else 2)
+            out.append(replace(c, future_feature=(
+                c.end_crane_zone, jobs_lv, work_lv, mix_lv, near_lv)))
+        return tuple(out)
 
     def _check_state_consistency(self, raw: DirectJobRawGlobal,
                                  feasible: tuple[DirectJobCandidate, ...]) -> None:

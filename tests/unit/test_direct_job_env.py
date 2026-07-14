@@ -111,11 +111,12 @@ def test_minimal_bucket_fit_json_roundtrip_is_immutable(tmp_path):
     path = tmp_path / "direct-job-buckets.json"
     cfg.save(path)
     assert DirectJobBucketConfig.load(path) == cfg
-    # YR-028/030-b: bucket 스키마 확장 — v2 인코딩은 확장 필드를 읽지 않음
+    # YR-028/030-b/030-c: bucket 스키마 확장 — v2 인코딩은 확장 필드를 읽지 않음
     assert set(json.loads(path.read_text())) == {
         "fitted", "queue_len", "service_s",
         "oldest_wait_s", "own_wait_s", "reach_s",
         "truck_wait_s", "crane_travel_s",
+        "jobs_left", "work_left_s", "short_service_s",
     }
     with pytest.raises(FrozenInstanceError):
         cfg.fitted = False

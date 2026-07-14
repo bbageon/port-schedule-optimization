@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-030-c | RL | Greedy 기반 잔차 Cost-Q — `Q_total=G(정확 greedy 비용)+ΔQ(future_situation)`, 3-arm paired (greedy/잔차-only/잔차+맥락) | 🟠 | 2026-07-14 | 사용자 최종 전략 명세 접수 (2026-07-14) — 사전등록·구현·테스트 진행. 되돌림 조건 2회차 시험대 |
 
 ---
 
