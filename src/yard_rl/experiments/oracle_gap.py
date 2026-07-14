@@ -94,29 +94,36 @@ def _beam_day(profile, scenario, greedy_trace: list[str],
     상위 W 를 beam 으로. greedy 노드 자체는 궤적을 따라 in-place 전진 —
     beam 에서 탈락해도 소멸하지 않으므로 best_found ≤ greedy 가 보장된다.
     """
-    def expand(cum: float, env: DirectJobEnv, info) -> list:
-        out = []
+    # node = (누적비용, env, info, 실행 궤적 tuple). 궤적이 상태를 유일 결정
+    # (결정론 엔진) — 궤적 키 dedup 으로 중복 상태 제거 (리뷰 확정 결함:
+    # 중복 미제거 시 유효 폭이 W/2~W/3 로 붕괴 → 상금 과소평가·CLOSED 편향)
+    def expand(cum: float, env: DirectJobEnv, info, trace: tuple
+               ) -> dict[tuple, tuple]:
+        out: dict[tuple, tuple] = {}
         for cand in info.candidates:
             child = copy.deepcopy(env)
             _s, cost, _d, child_info = child.step(cand.job_id)
-            out.append((cum + cost, child, child_info))
+            key = trace + (cand.job_id,)
+            out[key] = (cum + cost, child, child_info, key)
         return out
 
-    root = _new_env(profile, cfg)
-    _state, root_info = root.reset(scenario)
     g_env = _new_env(profile, cfg)          # greedy 전용 트랙 (결정론 재현)
     _gs, g_info = g_env.reset(scenario)
-    g_cum = 0.0
-    beam: list[tuple[float, DirectJobEnv, object]] = [(0.0, root, root_info)]
+    g_cum, g_trace = 0.0, ()
+    # beam 은 빈 상태로 시작 — step 0 의 root 자식은 greedy 트랙 expand 가 전부
+    # 공급한다 (root 별도 시드는 완전 중복이라 제거)
+    beam: dict[tuple, tuple] = {}
     for job_id in greedy_trace:
-        children = expand(g_cum, g_env, g_info)          # greedy 이웃 (1-이탈)
-        for cum, env, info in beam:
-            children.extend(expand(cum, env, info))
-        children.sort(key=lambda n: n[0])
-        beam = children[:cfg.beam_width]
-        _s, cost, _d, g_info = g_env.step(job_id)        # greedy 트랙 전진
+        children = expand(g_cum, g_env, g_info, g_trace)  # greedy 이웃 (1-이탈)
+        for cum, env, info, trace in beam.values():
+            for key, node in expand(cum, env, info, trace).items():
+                children.setdefault(key, node)  # 동일 궤적 = 동일 상태·비용
+        ranked = sorted(children.values(), key=lambda n: (n[0], n[3]))
+        beam = {n[3]: n for n in ranked[:cfg.beam_width]}
+        _s, cost, _d, g_info = g_env.step(job_id)         # greedy 트랙 전진
         g_cum += cost
-    return min([g_cum] + [cum for cum, _e, _i in beam])
+        g_trace += (job_id,)
+    return min([g_cum] + [n[0] for n in beam.values()])
 
 
 def run_oracle_gap(profile_path: str = "configs/terminals/hjnc_armg.yaml",
