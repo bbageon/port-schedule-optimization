@@ -7,9 +7,9 @@
 |---|---|---|---|---|
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
-| YR-018 | RL | reward weight 민감도 — {0,.1,.3,1} grid, P95(tail) 보호 중심 | 🟠 | Exp-1 에서 평균↓·P95↑ trade-off 관찰 → w_tail 탐색 필요 (03 §1.2 weight 원칙) |
+| YR-018 | RL | reward weight 민감도 — {0,.1,.3,1} grid, P95(tail) 보호 중심 | 🟠 | Exp-1 에서 평균↓·P95↑ trade-off 관찰 → w_tail 탐색 필요 (03 §1.2 weight 원칙) · [수렴진단](../docs/YR-020-수렴진단-2026-07-14.md): 현 4ep 는 수렴 전 — grid 에 학습예산 축(≥e10)·fallback/thin 지표 동반 필수 |
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |
-| YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟠 | 학습예산·상태 축소 실험. 함수근사(YR-012) 전환조건 §16.3 판단 재료 |
+| YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟠 | 학습예산·상태 축소 실험. 함수근사(YR-012) 전환조건 §16.3 판단 재료 · [수렴진단](../docs/YR-020-수렴진단-2026-07-14.md): 희석 방문통계 증거 확보 (EXP2/3 커버 1.3~2.5%·방문 중앙값 2) — 잔여 판별은 예산 통제 실험 |
 | YR-021 | Exp | 부하조건별 정보효과 — peak·고장치율·고재조작 시나리오 재실험 | 🟡 | 정보 선행 편익은 혼잡 조건 의존 가설 — §18.3 운영부하 축 |
 | YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. YR-018 과 통합 검토 |
 | YR-028 | RL | Direct-Job Cost-Q coverage 회복 — checkpoint 제약·state aliasing ablation | 🟠 | YR-027 selected checkpoint fallback 55.0% 원인 분리 · [spec](../docs/dashboard-task-specs/YR-028-cost-q-coverage.md) |
