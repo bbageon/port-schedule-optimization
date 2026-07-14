@@ -22,3 +22,4 @@
 | 2026-07-13 | YR-027 v2 | 평가 완료 — coverage 통과, primary 미통과 | 최소상태로 fallback 0.01% 달성했으나 순수 Cost-Q 순서가 shortest-service 열세 (+1.195분) | [v2 최소상태](2026-07-13-YR-027-exp1-direct-job-cost-q-minimal-state.md) |
 | 2026-07-14 | YR-030 | 방향 결정 (사용자) — 구현 전 | 계열 2(Direct-Job Cost-Q)를 실험 baseline 으로 승격, 상태 v3·학습설정·후보필터 확장 실험. 계열 1은 PoC 증거로 동결 | [전략](2026-07-14-YR-030-series2-baseline-pivot.md) |
 | 2026-07-14 | YR-028 | **완료 — 판정 CHECKPOINT_RULE** | v1 fallback 55% 는 선택규칙 탓 (gate 통과 ckpt 15개 존재). 부가 발견: fallback↓=성능↓ 단조 — 순수 Cost-Q 순서가 greedy 열세, 다음 과제는 순서품질 | [사전등록](2026-07-14-YR-028-coverage-ablation-prereg.md) |
+| 2026-07-14 | YR-030-b | 사전등록 — 실행 전 동결 | 사용자 v1 최종안 상태(저입도·일관성 규칙) + greedy-prior Q0 + γ{0.90,0.95,0.99,1.0} grid — 순서품질 1차 실험 | [사전등록](2026-07-14-YR-030-b-v1final-greedy-prior-prereg.md) |

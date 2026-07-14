@@ -62,13 +62,18 @@ def test_q0_standard_min_backup_and_visit_power_learning_rate():
     assert agent.table.visits(agent.key(state, chosen)) == 2
 
 
-def test_terminal_target_is_cost_and_gamma_is_fixed_to_one():
+def test_terminal_target_is_cost_and_gamma_contract():
     state = State(0, 0)
     chosen = candidate("chosen", "current")
     agent = CostQAgent(CostQConfig(learning_rate_power=1.0))
     assert agent.update(state, chosen, 4.5, None, [], done=True) == 4.5
-    with pytest.raises(ValueError, match="gamma exactly 1.0"):
-        CostQConfig(gamma=0.99)
+    # YR-030-b: γ∈(0,1] 은 실험 축으로 개방 — YR-027 프로토콜은 호출부에서 1.0 고정
+    assert CostQConfig(gamma=0.99).gamma == 0.99
+    assert CostQConfig().gamma == 1.0
+    with pytest.raises(ValueError):
+        CostQConfig(gamma=0.0)
+    with pytest.raises(ValueError):
+        CostQConfig(gamma=1.5)
 
 
 def test_training_prioritizes_unvisited_unique_keys_before_epsilon():

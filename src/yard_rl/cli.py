@@ -260,6 +260,11 @@ def main(argv: list[str] | None = None):
     pw.add_argument("--profile", default=DEFAULT_PROFILE)
     pw.add_argument("--out", default="outputs/reports/wtail_grid")
     pw.add_argument("--quick", action="store_true")
+    pv = sub.add_parser("run-costq-v1final",
+                        help="YR-030-b v1 최종안 상태 + greedy-prior + γ grid")
+    pv.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pv.add_argument("--out", default="outputs/reports/costq_v1final_hjnc")
+    pv.add_argument("--quick", action="store_true")
     pa = sub.add_parser("run-costq-ablation",
                         help="YR-028 coverage ablation (checkpoint 규칙 vs 상태 vs 예산)")
     pa.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -274,6 +279,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-costq-v1final":
+        from .experiments.state_v1_final import (V1FinalConfig,
+                                                 quick_v1final_config,
+                                                 run_v1_final_experiment)
+        cfg = quick_v1final_config() if args.quick else V1FinalConfig()
+        run_v1_final_experiment(args.profile, args.out, cfg)
+        return
     if args.cmd == "run-costq-ablation":
         from .experiments.coverage_ablation import (AblationConfig,
                                                     quick_ablation_config,

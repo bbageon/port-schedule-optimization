@@ -85,9 +85,10 @@ def test_dedicated_quick_pipeline_writes_no_claim_paired_artifacts(tmp_path):
         "transfer_direction", "estimated_service_time_bucket", "end_crane_zone"
     ]
     buckets = json.loads((tmp_path / "direct_buckets.json").read_text())
-    # YR-028: bucket 스키마 확장 (v1_rich 필드) — v2 인코딩 불변
+    # YR-028/030-b: bucket 스키마 확장 — v2 인코딩 불변
     assert set(buckets) == {"fitted", "queue_len", "service_s",
-                            "oldest_wait_s", "own_wait_s", "reach_s"}
+                            "oldest_wait_s", "own_wait_s", "reach_s",
+                            "truck_wait_s", "crane_travel_s"}
     assert set(payload["summary"]) == {"SLA_OFF", "SLA_ON"}
     assert POLICY_COST_Q in payload["summary"]["SLA_OFF"]
     assert payload["acceptance"]["overall"] is None

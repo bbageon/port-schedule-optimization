@@ -23,6 +23,7 @@ class CandidateProtocol(Protocol):
     wait_s: float
     estimated_service_s: float
     block_entry_s: float
+    prior_cost: float  # greedy 즉시비용 ĉ(j) — use_greedy_prior 에서만 사용
 
 
 CandidateT = TypeVar("CandidateT", bound=CandidateProtocol)
@@ -161,13 +162,14 @@ class CostQTable:
 @dataclass(frozen=True)
 class CostQConfig:
     learning_rate_power: float = 0.6
-    gamma: float = 1.0
+    gamma: float = 1.0                 # YR-027 프로토콜은 호출부에서 1.0 고정
+    use_greedy_prior: bool = False     # 미방문 Q0 = ĉ(greedy 즉시비용) — YR-030-b
 
     def __post_init__(self) -> None:
         if not 0.0 < self.learning_rate_power <= 1.0:
             raise ValueError("learning_rate_power must be in (0, 1]")
-        if self.gamma != 1.0:
-            raise ValueError("YR-027 Cost-Q requires gamma exactly 1.0")
+        if not 0.0 < self.gamma <= 1.0:
+            raise ValueError("gamma must be in (0, 1]")
 
 
 @dataclass
@@ -248,7 +250,20 @@ class CostQAgent:
             str(candidate.job_id),
         )
 
+    def _value_or_prior(self, state: object, candidate: CandidateProtocol) -> float:
+        """미방문 키 기본값: 표준(0.0) 또는 greedy 즉시비용 prior (YR-030-b)."""
+        key = self.key(state, candidate)
+        if self.table.is_visited(key):
+            return self.table.value(key)
+        return float(candidate.prior_cost) if self.cfg.use_greedy_prior else 0.0
+
     def _argmin_q(self, state: object, candidates: list[CandidateT]) -> CandidateT:
+        if self.cfg.use_greedy_prior:
+            return min(
+                candidates,
+                key=lambda candidate: (self._value_or_prior(state, candidate),
+                                       *self._tie_break(candidate)),
+            )
         return min(
             candidates,
             key=lambda candidate: (self.table.value(self.key(state, candidate)),
@@ -271,10 +286,18 @@ class CostQAgent:
         candidates: Iterable[CandidateT],
         epsilon: float,
     ) -> CandidateT:
-        """Prioritize unseen signatures, then epsilon exploration, then min-Q."""
+        """Prioritize unseen signatures, then epsilon exploration, then min-Q.
+
+        greedy-prior 모드(YR-030-b)는 '처음에는 greedy' — 미방문 우선탐색 없이
+        ε-random / argmin(prior 포함) 만 사용한다 (미방문 키는 prior 가 안내).
+        """
         if not 0.0 <= epsilon <= 1.0:
             raise ValueError("epsilon must be in [0, 1]")
         feasible = self._candidates(candidates)
+        if self.cfg.use_greedy_prior:
+            if self.rng.random() < epsilon:
+                return self.rng.choice(feasible)
+            return self._argmin_q(global_state, feasible)
         candidates_by_key: dict[CostQKey, list[CandidateT]] = {}
         for candidate in feasible:
             candidates_by_key.setdefault(self.key(global_state, candidate), []).append(candidate)
@@ -288,7 +311,11 @@ class CostQAgent:
         return self._argmin_q(global_state, feasible)
 
     def act(self, global_state: object, candidates: Iterable[CandidateT]) -> CandidateT:
-        """Evaluate with min-Q only under full signature coverage."""
+        """Evaluate with min-Q only under full signature coverage.
+
+        greedy-prior 모드는 fallback 없이 항상 argmin(학습값 ∪ prior) — 미방문
+        조우는 진단(fallback_count 대신 coverage 지표)으로만 기록한다.
+        """
         feasible = self._candidates(candidates)
         unique_keys = tuple(dict.fromkeys(self.key(global_state, c) for c in feasible))
         visited = sum(self.table.is_visited(key) for key in unique_keys)
@@ -296,11 +323,11 @@ class CostQAgent:
         self.diagnostics.decisions += 1
         self.diagnostics.signatures_checked += len(unique_keys)
         self.diagnostics.visited_signatures += visited
-        if visited != len(unique_keys):
+        if visited == len(unique_keys):
+            self.diagnostics.fully_covered_decisions += 1
+        elif not self.cfg.use_greedy_prior:
             self.diagnostics.fallback_count += 1
             return self._immediate_cost_greedy(feasible)
-
-        self.diagnostics.fully_covered_decisions += 1
         return self._argmin_q(global_state, feasible)
 
     select_train = act_train
@@ -315,7 +342,11 @@ class CostQAgent:
         next_candidates: Iterable[CandidateProtocol],
         done: bool,
     ) -> float:
-        """Apply ``Q <- Q + n^-p * (cost + min Q' - Q)`` with gamma=1."""
+        """Apply ``Q <- Q + n^-p * (cost + gamma * min Q' - Q)``.
+
+        YR-027 프로토콜은 gamma=1 (호출부 고정). greedy-prior 모드의 bootstrap
+        min 은 미방문 다음 키를 0 대신 해당 후보의 prior 로 평가한다.
+        """
         step_cost = float(cost)
         if not math.isfinite(step_cost) or step_cost < 0.0:
             raise ValueError("Cost-Q step cost must be finite and non-negative")
@@ -324,8 +355,16 @@ class CostQAgent:
         else:
             if next_global_state is None:
                 raise ValueError("non-terminal Cost-Q update requires next_global_state")
-            next_keys = [self.key(next_global_state, item) for item in next_candidates]
-            target = step_cost + self.table.min_value(next_keys)
+            if self.cfg.use_greedy_prior:
+                nxt = list(next_candidates)
+                if not nxt:
+                    raise ValueError("non-terminal Cost-Q backup requires a feasible next key")
+                bootstrap = min(self._value_or_prior(next_global_state, item)
+                                for item in nxt)
+            else:
+                next_keys = [self.key(next_global_state, item) for item in next_candidates]
+                bootstrap = self.table.min_value(next_keys)
+            target = step_cost + self.cfg.gamma * bootstrap
         return self.table.update(
             self.key(global_state, candidate),
             target,

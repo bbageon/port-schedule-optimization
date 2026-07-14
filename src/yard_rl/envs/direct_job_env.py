@@ -41,12 +41,28 @@ class YardState(NamedTuple):
     over_30min_truck_count: int
 
 
-# v2_minimal: (operation_phase, waiting_truck_level) / v1_rich: YardState
+class JobState(NamedTuple):
+    """운영자가 읽을 수 있는 후보 작업 정보 (v1_final — 사용자 최종안 2026-07-14).
+
+    구성은 v1_rich 후보 5-tuple 과 같되 입도가 다르다: truck_wait 4단계
+    (짧음/보통/김/30분 이상), crane_travel_time 3단계(가까움/보통/멂).
+    반입(TRUCK_TO_YARD)은 job_type 이 키에 있으므로 containers_to_move_first=0
+    이 반출의 '없음'과 충돌하지 않는다 (반입 = 해당 없음).
+    """
+
+    job_type: TransferDirection
+    truck_wait: int
+    crane_travel_time: int
+    total_work_time: int
+    containers_to_move_first: int
+
+
+# v2_minimal: (operation_phase, waiting_truck_level) / v1_rich·v1_final: YardState
 MinimalYardState: TypeAlias = tuple[OperationPhase, int]
 GlobalState: TypeAlias = YardState | MinimalYardState
 CandidateFeature: TypeAlias = tuple
 CostQKey: TypeAlias = tuple[GlobalState, CandidateFeature]
-STATE_SCHEMAS = ("v2_minimal", "v1_rich")
+STATE_SCHEMAS = ("v2_minimal", "v1_rich", "v1_final")
 
 
 class SLAMode(str, Enum):
@@ -74,7 +90,16 @@ def _quartile_bounds(values: Iterable[float], hard_edges: tuple[float, ...] = ()
     return tuple(sorted(set((*quantiles, *hard_edges))))
 
 
-_BUCKET_FIELDS = ("queue_len", "service_s", "oldest_wait_s", "own_wait_s", "reach_s")
+def _tertile_bounds(values: Iterable[float], hard_edges: tuple[float, ...] = ()) -> tuple[float, ...]:
+    """v1_final 의 저입도 edge — 3분위(33/67%) + hard edge."""
+    xs = sorted(float(v) for v in values if isfinite(float(v)) and float(v) >= 0.0)
+    tertiles = () if not xs else tuple(xs[min(len(xs) - 1, int(len(xs) * q))]
+                                         for q in (1 / 3, 2 / 3))
+    return tuple(sorted(set((*tertiles, *hard_edges))))
+
+
+_BUCKET_FIELDS = ("queue_len", "service_s", "oldest_wait_s", "own_wait_s", "reach_s",
+                  "truck_wait_s", "crane_travel_s")
 
 
 @dataclass(frozen=True)
@@ -91,6 +116,9 @@ class DirectJobBucketConfig:
     oldest_wait_s: tuple[float, ...] = (300.0, 900.0, 1800.0)
     own_wait_s: tuple[float, ...] = (300.0, 900.0, 1800.0)
     reach_s: tuple[float, ...] = (60.0, 150.0, 300.0)
+    # v1_final 저입도 edge (사용자 최종안): truck_wait 4단계 / crane_travel 3단계
+    truck_wait_s: tuple[float, ...] = (600.0, 1800.0)
+    crane_travel_s: tuple[float, ...] = (90.0, 240.0)
     fitted: bool = False
 
     def __post_init__(self) -> None:
@@ -110,9 +138,14 @@ class DirectJobBucketConfig:
         if oldest_waits_s is not None:
             extra["oldest_wait_s"] = _quartile_bounds(oldest_waits_s, (float(sla_s),))
         if own_waits_s is not None:
-            extra["own_wait_s"] = _quartile_bounds(own_waits_s, (float(sla_s),))
+            own = [float(w) for w in own_waits_s]
+            extra["own_wait_s"] = _quartile_bounds(own, (float(sla_s),))
+            extra["truck_wait_s"] = _tertile_bounds(
+                [w for w in own if w < sla_s], (float(sla_s),))
         if reaches_s is not None:
-            extra["reach_s"] = _quartile_bounds(reaches_s)
+            reaches = [float(r) for r in reaches_s]
+            extra["reach_s"] = _quartile_bounds(reaches)
+            extra["crane_travel_s"] = _tertile_bounds(reaches)
         return cls(
             queue_len=_quartile_bounds(queue_lengths),
             service_s=_quartile_bounds(service_times_s),
@@ -146,6 +179,8 @@ class DirectJobCandidate:
     end_crane_zone: int
     blocker_count: int
     block_entry_s: float
+    # greedy 즉시비용 ĉ(j) = (대기대수-1)×service/(60N) — greedy-prior Q0 용 (분 단위)
+    prior_cost: float = 0.0
 
     @property
     def service_s(self) -> float:
@@ -302,7 +337,9 @@ class DirectJobEnv:
                 False, (), backlog, self.sim.kpis.completed_external, success)
         raw = self._raw_global()
         state = self._encode_global(raw)
-        feasible = tuple(self._candidate(j) for j in self._feasible_jobs())
+        feasible = tuple(self._candidate(j, raw) for j in self._feasible_jobs())
+        if self.state_schema == "v1_final":
+            self._check_state_consistency(raw, feasible)
         allowed, restricted = self._apply_sla(feasible)
         masked = tuple(c.job_id for c in feasible if c not in allowed)
         return state, DirectJobStepInfo(
@@ -337,8 +374,9 @@ class DirectJobEnv:
                 w >= self.profile.long_wait_sla_s for w in waits))
 
     def _encode_global(self, raw: DirectJobRawGlobal) -> GlobalState:
-        if self.state_schema == "v1_rich":
-            # YR-027 v1 값·순서 유지: 운영 4구간 + 도착 종료 후(4), 크레인 4구역
+        if self.state_schema in ("v1_rich", "v1_final"):
+            # YR-027 v1 값·순서 유지: 운영 4구간 + 도착 종료 후(4), 크레인 4구역.
+            # v1_final(사용자 최종안 2026-07-14)의 YardState 정의도 이와 동일.
             if raw.now_s >= raw.horizon_s - 1e-9:
                 work_phase = 4
             else:
@@ -357,7 +395,8 @@ class DirectJobEnv:
                                  else "OPERATING")
         return phase, _bucket(raw.waiting_truck_count, self.buckets.queue_len)
 
-    def _candidate(self, job: Job) -> DirectJobCandidate:
+    def _candidate(self, job: Job,
+                   raw: DirectJobRawGlobal | None = None) -> DirectJobCandidate:
         direction: TransferDirection = ("TRUCK_TO_YARD" if job.flow == JobFlow.GATE_IN
                                         else "YARD_TO_TRUCK")
         wait = max(0.0, self.sim.now - job.actual_block_arrival)
@@ -371,10 +410,34 @@ class DirectJobEnv:
                 direction, _bucket(wait, self.buckets.own_wait_s),
                 _bucket(reach, self.buckets.reach_s),
                 _bucket(service, self.buckets.service_s), min(3, blockers))
+        elif self.state_schema == "v1_final":
+            feature = JobState(
+                job_type=direction,
+                truck_wait=_bucket(wait, self.buckets.truck_wait_s),
+                crane_travel_time=_bucket(reach, self.buckets.crane_travel_s),
+                total_work_time=_bucket(service, self.buckets.service_s),
+                containers_to_move_first=min(3, blockers),
+            )
         else:
             feature = (direction, _bucket(service, self.buckets.service_s), end_zone)
+        waiting = (raw.waiting_truck_count if raw is not None
+                   else len(self._waiting_jobs()))
+        prior = max(0, waiting - 1) * service / (60.0 * max(1, self.n_config))
         return DirectJobCandidate(job.job_id, feature, direction, wait, reach, service,
-                                  end_zone, blockers, float(job.actual_block_arrival))
+                                  end_zone, blockers, float(job.actual_block_arrival),
+                                  prior)
+
+    def _check_state_consistency(self, raw: DirectJobRawGlobal,
+                                 feasible: tuple[DirectJobCandidate, ...]) -> None:
+        """v1_final 상태 일관성 규칙 (사용자 최종안 §5) — 위반 시 즉시 중단."""
+        if raw.over_30min_truck_count > raw.waiting_truck_count:
+            raise AssertionError("30분 초과 차량 수가 전체 대기 차량 수를 초과")
+        for c in feasible:
+            if c.wait_s > raw.longest_wait_s + 1e-6:
+                raise AssertionError(
+                    f"후보 대기({c.wait_s:.0f}s)가 최장 대기({raw.longest_wait_s:.0f}s) 초과")
+            if c.transfer_direction == "TRUCK_TO_YARD" and c.blocker_count != 0:
+                raise AssertionError("반입 작업에 선행 이동 컨테이너가 계상됨")
 
     def _apply_sla(self, candidates: tuple[DirectJobCandidate, ...]
                    ) -> tuple[tuple[DirectJobCandidate, ...], bool]:
