@@ -251,6 +251,15 @@ def main(argv: list[str] | None = None):
     pd.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pd.add_argument("--out", default="outputs/reports/exp1_direct_costq_minimal_hjnc")
     pd.add_argument("--quick", action="store_true")
+    pw = sub.add_parser("run-wtail", help="YR-018 w_tail × 학습예산 grid")
+    pw.add_argument("--train", type=int, default=30)
+    pw.add_argument("--epochs-list", default="4,10",
+                    help="쉼표 구분 학습예산 축 (수렴진단 요건: 예산 동반)")
+    pw.add_argument("--weights", default="0,0.1,0.3,1.0")
+    pw.add_argument("--eval", type=int, default=12)
+    pw.add_argument("--profile", default=DEFAULT_PROFILE)
+    pw.add_argument("--out", default="outputs/reports/wtail_grid")
+    pw.add_argument("--quick", action="store_true")
     pr = sub.add_parser("record-replay", help="replay 기록 (YR-015-a, UI 용)")
     pr.add_argument("--profile", default=DEFAULT_PROFILE)
     pr.add_argument("--exp-dir", required=True,
@@ -260,6 +269,15 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-wtail":
+        from .experiments.wtail_grid import run_wtail_grid
+        if args.quick:
+            args.train, args.eval, args.epochs_list = 6, 4, "1"
+        run_wtail_grid(profile_path=args.profile, out_dir=args.out,
+                       n_train=args.train, n_eval=args.eval,
+                       epochs_list=tuple(int(x) for x in args.epochs_list.split(",")),
+                       weights=tuple(float(x) for x in args.weights.split(",")))
+        return
     if args.cmd == "record-replay":
         record_replay(args.profile, args.exp_dir, args.policy, args.seed, args.out)
         return
