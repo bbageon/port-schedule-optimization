@@ -110,12 +110,27 @@ class DeltaNetConfig:
     lr: float = 1e-3
     grad_clip: float = 1.0
     hidden: int = 64
+    # YR-012-b 안정화 (기본 0 = YR-012 online TD 와 동일 동작 보존)
+    replay_capacity: int = 0     # >0 이면 replay buffer 학습
+    batch_size: int = 64
+    min_replay: int = 1_000      # 샘플링 시작 전 최소 축적 (warmup)
+    target_sync_every: int = 0   # >0 이면 target network, N gradient step 마다 동기화
 
     def __post_init__(self) -> None:
         if not 0.0 < self.gamma <= 1.0:
             raise ValueError("gamma must be in (0, 1]")
         if self.lr <= 0 or self.grad_clip <= 0 or self.hidden <= 0:
             raise ValueError("lr/grad_clip/hidden must be positive")
+        if self.replay_capacity < 0 or self.target_sync_every < 0:
+            raise ValueError("replay_capacity/target_sync_every must be >= 0")
+        if self.replay_capacity and (self.batch_size <= 0
+                                     or self.min_replay <= 0
+                                     or self.min_replay > self.replay_capacity):
+            raise ValueError("replay 사용 시 0 < batch_size, 0 < min_replay <= capacity")
+
+    @property
+    def stabilized(self) -> bool:
+        return self.replay_capacity > 0 or self.target_sync_every > 0
 
 
 @dataclass
@@ -135,6 +150,15 @@ class ResidualDeltaNetAgent:
         self.rng = random.Random(self.seed)
         self.net = _DeltaMLP(self.cfg.hidden)
         self.opt = torch.optim.Adam(self.net.parameters(), lr=self.cfg.lr)
+        # YR-012-b: target network — zero-init 복사본이므로 미학습 ≡ greedy 유지
+        self.target_net: _DeltaMLP | None = None
+        if self.cfg.target_sync_every > 0:
+            self.target_net = _DeltaMLP(self.cfg.hidden)
+            self.target_net.load_state_dict(self.net.state_dict())
+            self.target_net.eval()
+        self._replay: list[tuple] = []   # (x, prior, cost, next_xs, next_priors, done)
+        self._replay_pos = 0
+        self._grad_steps = 0
 
     @property
     def name(self) -> str:
@@ -190,27 +214,89 @@ class ResidualDeltaNetAgent:
     def update(self, global_state: object, candidate: CandidateProtocol,
                cost: float, next_global_state: object | None,
                next_candidates: Iterable[CandidateProtocol], done: bool) -> float:
-        """online TD 회귀: loss = (Δθ(x) − (Y − G))² — 사전등록 §1·§3."""
+        """online TD 회귀 (YR-012) 또는 replay+target 안정화 (YR-012-b)."""
         step_cost = float(cost)
         if not math.isfinite(step_cost) or step_cost < 0.0:
             raise ValueError("step cost must be finite and non-negative")
+        nxt = list(next_candidates)
+        if not done and not nxt:
+            raise ValueError("non-terminal backup requires a feasible next key")
+        if self.cfg.replay_capacity > 0:
+            return self._update_replay(candidate, step_cost, nxt, done)
         if done:
             target_total = step_cost
         else:
-            nxt = list(next_candidates)
-            if not nxt:
-                raise ValueError("non-terminal backup requires a feasible next key")
-            target_total = step_cost + self.cfg.gamma * min(self.q_totals(nxt))
+            target_total = step_cost + self.cfg.gamma * self._bootstrap_min(nxt)
         target_delta = target_total - float(candidate.prior_cost)
         if not math.isfinite(target_delta):
             raise ValueError("residual target must be finite")
         pred = self.net(self._x([candidate]))[0]
         loss = (pred - torch.tensor(float(target_delta))) ** 2
+        self._step_optimizer(loss)
+        return float(pred.detach())
+
+    # --------------------------------------------------- YR-012-b 안정화 경로
+    @torch.no_grad()
+    def _bootstrap_min(self, candidates: Sequence[CandidateProtocol]) -> float:
+        """bootstrap 용 min Q_total — target network 가 있으면 그것으로 평가."""
+        net = self.target_net if self.target_net is not None else self.net
+        deltas = net(self._x(candidates)).tolist()
+        return min(float(c.prior_cost) + d for c, d in zip(candidates, deltas))
+
+    def _step_optimizer(self, loss: torch.Tensor) -> None:
         self.opt.zero_grad()
         loss.backward()
         nn.utils.clip_grad_norm_(self.net.parameters(), self.cfg.grad_clip)
         self.opt.step()
-        return float(pred.detach())
+        self._grad_steps += 1
+        if (self.target_net is not None
+                and self._grad_steps % self.cfg.target_sync_every == 0):
+            self.target_net.load_state_dict(self.net.state_dict())
+
+    def _update_replay(self, candidate: CandidateProtocol, step_cost: float,
+                       nxt: list, done: bool) -> float:
+        """transition 저장 → warmup 후 배치 1회 학습 (per-step 업데이트 수 동일)."""
+        row = (self.scaler.transform(extract_features(candidate)),
+               float(candidate.prior_cost), step_cost,
+               [self.scaler.transform(extract_features(c)) for c in nxt],
+               [float(c.prior_cost) for c in nxt], done)
+        if len(self._replay) < self.cfg.replay_capacity:
+            self._replay.append(row)
+        else:
+            self._replay[self._replay_pos] = row
+            self._replay_pos = (self._replay_pos + 1) % self.cfg.replay_capacity
+        if len(self._replay) < self.cfg.min_replay:
+            return 0.0
+        batch = [self._replay[self.rng.randrange(len(self._replay))]
+                 for _ in range(self.cfg.batch_size)]
+        xs = torch.tensor([b[0] for b in batch], dtype=torch.float32)
+        priors = torch.tensor([b[1] for b in batch], dtype=torch.float32)
+        costs = torch.tensor([b[2] for b in batch], dtype=torch.float32)
+        # 다음 상태 min Q_total — 전이별 후보 수가 달라 한 번에 forward 후 분할
+        boot = torch.zeros(len(batch), dtype=torch.float32)
+        flat, lengths, prior_flat = [], [], []
+        for b in batch:
+            if not b[5]:
+                flat.extend(b[3])
+                prior_flat.extend(b[4])
+                lengths.append(len(b[3]))
+            else:
+                lengths.append(0)
+        if flat:
+            net = self.target_net if self.target_net is not None else self.net
+            with torch.no_grad():
+                d_flat = net(torch.tensor(flat, dtype=torch.float32))
+            totals = d_flat + torch.tensor(prior_flat, dtype=torch.float32)
+            offset = 0
+            for i, ln in enumerate(lengths):
+                if ln:
+                    boot[i] = totals[offset:offset + ln].min()
+                    offset += ln
+        target_delta = costs + self.cfg.gamma * boot - priors
+        pred = self.net(xs)
+        loss = ((pred - target_delta) ** 2).mean()
+        self._step_optimizer(loss)
+        return float(pred.mean().detach())
 
     def reset_diagnostics(self) -> None:
         self.diagnostics = EvaluationDiagnostics()
@@ -240,4 +326,6 @@ class ResidualDeltaNetAgent:
                     diagnostics=EvaluationDiagnostics(**payload["diagnostics"]))
         agent.net.load_state_dict(payload["state_dict"])
         agent.opt.load_state_dict(payload["optimizer"])
+        if agent.target_net is not None:  # 로드 후 target 동기화 (평가 일관성)
+            agent.target_net.load_state_dict(agent.net.state_dict())
         return agent

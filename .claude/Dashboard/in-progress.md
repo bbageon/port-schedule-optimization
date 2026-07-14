@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-012-b | RL | Δ-net 학습 안정화 — replay buffer + target network (DQN 표준화) | 🟠 | 2026-07-15 | 사용자 착수 지시. YR-012 진동(7.97~10.29) 해소로 greedy 초과 시도 — YR-031 이 상금(≥0.182분) 실재 확인 |
 
 ---
 

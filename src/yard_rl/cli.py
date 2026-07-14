@@ -275,6 +275,11 @@ def main(argv: list[str] | None = None):
     pdn.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pdn.add_argument("--out", default="outputs/reports/residual_delta_hjnc")
     pdn.add_argument("--quick", action="store_true")
+    pds = sub.add_parser("run-delta-stable",
+                         help="YR-012-b Δ-net 안정화 (replay+target net, 사전등록)")
+    pds.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pds.add_argument("--out", default="outputs/reports/residual_delta_stable_hjnc")
+    pds.add_argument("--quick", action="store_true")
     prc = sub.add_parser("run-costq-residual",
                          help="YR-030-c Greedy 기반 잔차 Cost-Q 3-arm (사전등록)")
     prc.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -307,6 +312,13 @@ def main(argv: list[str] | None = None):
                                                             run_delta_experiment)
         cfg = quick_delta_config() if args.quick else DeltaExpConfig()
         run_delta_experiment(args.profile, args.out, cfg)
+        return
+    if args.cmd == "run-delta-stable":
+        from .experiments.residual_delta_stable import (StableExpConfig,
+                                                        quick_stable_config,
+                                                        run_stable_experiment)
+        cfg = quick_stable_config() if args.quick else StableExpConfig()
+        run_stable_experiment(args.profile, args.out, cfg)
         return
     if args.cmd == "run-costq-residual":
         from .experiments.residual_costq import (ResidualConfig,
