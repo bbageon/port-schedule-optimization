@@ -116,7 +116,7 @@ def _fit_buckets(profile: TerminalProfile, seeds: Sequence[int], params: GenPara
                  cfg: AblationConfig, progress: Callable[[str], None]
                  ) -> DirectJobBucketConfig:
     """FIFO train 관측으로 전 bucket edge fit — v1/v2 arm 이 공유 (같은 궤적)."""
-    queue, service, oldest, own, reach = [], [], [], [], []
+    waiting_counts, service, longest_waits, own, reach = [], [], [], [], []
     fifo = DirectJobRulePolicy(DirectRule.FIFO)
     for index, seed in enumerate(seeds, start=1):
         scenario = _scenario(profile, seed, params, cfg.n_external)
@@ -125,8 +125,8 @@ def _fit_buckets(profile: TerminalProfile, seeds: Sequence[int], params: GenPara
         state, info = env.reset(scenario)
         while state is not None:
             raw = info.raw_global
-            queue.append(raw.queue_length)
-            oldest.append(raw.oldest_wait_s)
+            waiting_counts.append(raw.waiting_truck_count)
+            longest_waits.append(raw.longest_wait_s)
             for c in info.feasible_candidates:
                 service.append(c.estimated_service_s)
                 own.append(c.wait_s)
@@ -135,7 +135,8 @@ def _fit_buckets(profile: TerminalProfile, seeds: Sequence[int], params: GenPara
         if index % max(1, min(200, len(seeds))) == 0 or index == len(seeds):
             progress(f"[bucket] FIFO train {index}/{len(seeds)}")
     return DirectJobBucketConfig.fit(
-        queue_lengths=queue, service_times_s=service, oldest_waits_s=oldest,
+        queue_lengths=waiting_counts, service_times_s=service,
+        oldest_waits_s=longest_waits,
         own_waits_s=own, reaches_s=reach, sla_s=profile.long_wait_sla_s)
 
 

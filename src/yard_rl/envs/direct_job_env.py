@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from enum import Enum
 from math import isfinite
 from pathlib import Path
-from typing import Iterable, Literal, TypeAlias
+from typing import Iterable, Literal, NamedTuple, TypeAlias
 
 from ..domain.enums import JobFlow, JobStatus
 from ..domain.models import Job, TerminalProfile
@@ -25,8 +25,25 @@ from ..sim.travel_time import (gantry_m, move_container, trolley_m)
 
 TransferDirection: TypeAlias = Literal["TRUCK_TO_YARD", "YARD_TO_TRUCK"]
 OperationPhase: TypeAlias = Literal["OPERATING", "CLEAR_OUT"]
-# v2_minimal: (phase, queue_bucket) / v1_rich: (period, zone, queue, oldest, sla_over)
-GlobalState: TypeAlias = tuple
+
+
+class YardState(NamedTuple):
+    """운영자가 읽을 수 있는 v1_rich 야드 상태.
+
+    NamedTuple을 사용해 필드 이름을 제공하되, 값과 순서는 기존 5-tuple 그대로
+    유지한다. 따라서 저장된 Cost-Q key와 hash/JSON 직렬화가 호환된다.
+    """
+
+    work_phase: int
+    crane_area: int
+    waiting_truck_level: int
+    longest_wait_level: int
+    over_30min_truck_count: int
+
+
+# v2_minimal: (operation_phase, waiting_truck_level) / v1_rich: YardState
+MinimalYardState: TypeAlias = tuple[OperationPhase, int]
+GlobalState: TypeAlias = YardState | MinimalYardState
 CandidateFeature: TypeAlias = tuple
 CostQKey: TypeAlias = tuple[GlobalState, CandidateFeature]
 STATE_SCHEMAS = ("v2_minimal", "v1_rich")
@@ -149,10 +166,10 @@ class DirectJobCandidate:
 class DirectJobRawGlobal:
     now_s: float
     horizon_s: float
-    queue_length: int
-    crane_bay: float = 0.0
-    oldest_wait_s: float = 0.0
-    sla_over_count: int = 0
+    waiting_truck_count: int
+    crane_position_bay: float = 0.0
+    longest_wait_s: float = 0.0
+    over_30min_truck_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -313,25 +330,32 @@ class DirectJobEnv:
         waits = [max(0.0, self.sim.now - j.actual_block_arrival) for j in waiting]
         return DirectJobRawGlobal(
             now_s=self.sim.now, horizon_s=self.sim.scenario.horizon_s,
-            queue_length=len(waiting),
-            crane_bay=self.sim.crane.position_bay,
-            oldest_wait_s=max(waits, default=0.0),
-            sla_over_count=sum(w >= self.profile.long_wait_sla_s for w in waits))
+            waiting_truck_count=len(waiting),
+            crane_position_bay=self.sim.crane.position_bay,
+            longest_wait_s=max(waits, default=0.0),
+            over_30min_truck_count=sum(
+                w >= self.profile.long_wait_sla_s for w in waits))
 
     def _encode_global(self, raw: DirectJobRawGlobal) -> GlobalState:
         if self.state_schema == "v1_rich":
-            # YR-027 v1 원 정의 (20a42cf): 도착창 4분위 + DRAIN(4), crane zone 4구간
+            # YR-027 v1 값·순서 유지: 운영 4구간 + 도착 종료 후(4), 크레인 4구역
             if raw.now_s >= raw.horizon_s - 1e-9:
-                period = 4
+                work_phase = 4
             else:
-                period = min(3, int(4.0 * raw.now_s / max(raw.horizon_s, 1e-9)))
-            return (period, self._bay_zone(raw.crane_bay),
-                    _bucket(raw.queue_length, self.buckets.queue_len),
-                    _bucket(raw.oldest_wait_s, self.buckets.oldest_wait_s),
-                    min(3, raw.sla_over_count))
+                work_phase = min(
+                    3, int(4.0 * raw.now_s / max(raw.horizon_s, 1e-9)))
+            return YardState(
+                work_phase=work_phase,
+                crane_area=self._bay_zone(raw.crane_position_bay),
+                waiting_truck_level=_bucket(
+                    raw.waiting_truck_count, self.buckets.queue_len),
+                longest_wait_level=_bucket(
+                    raw.longest_wait_s, self.buckets.oldest_wait_s),
+                over_30min_truck_count=min(3, raw.over_30min_truck_count),
+            )
         phase: OperationPhase = ("CLEAR_OUT" if raw.now_s >= raw.horizon_s - 1e-9
                                  else "OPERATING")
-        return phase, _bucket(raw.queue_length, self.buckets.queue_len)
+        return phase, _bucket(raw.waiting_truck_count, self.buckets.queue_len)
 
     def _candidate(self, job: Job) -> DirectJobCandidate:
         direction: TransferDirection = ("TRUCK_TO_YARD" if job.flow == JobFlow.GATE_IN

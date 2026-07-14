@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-030-a | RL | v1 상태 이름을 운영자 용어로 정리 — `work_phase`·`crane_area`·대기차량 중심 표현 | 🟠 | 2026-07-14 | 사용자 확정 명칭 반영. 기존 Q-table tuple 직렬화 호환 유지 |
 
 ---
 

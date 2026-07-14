@@ -71,10 +71,18 @@ assert한다. 부하 수준이 다르면 별도 arm·정책으로 학습한다. 
 
 ## 5. State와 후보 표현
 
+> 2026-07-14 사용자 용어 확정에 따라 이름만 교체했다. tuple 값·순서·Q-key는 불변이다.
+>
+> | 원 이름 | 현재 이름 | 원 이름 | 현재 이름 |
+> |---|---|---|---|
+> | `time_period` | `work_phase` | `crane_position_zone` | `crane_area` |
+> | `queue_length_bucket` | `waiting_truck_level` | `oldest_wait_bucket` | `longest_wait_level` |
+> | `sla_over_count_bucket` | `over_30min_truck_count` |  |  |
+
 ```text
-GlobalState = (
-    time_period, crane_position_zone, queue_length_bucket,
-    oldest_wait_bucket, sla_over_count_bucket
+YardState = (
+    work_phase, crane_area, waiting_truck_level,
+    longest_wait_level, over_30min_truck_count
 )
 
 CandidateFeature(j) = (
@@ -83,10 +91,11 @@ CandidateFeature(j) = (
 )
 ```
 
-- `time_period`: 8시간 도착창 4구간과 별도 `DRAIN` 구간이다.
-- `crane_position_zone`: 서비스 bay를 4구간으로 나눈다.
-- `queue_length`: FIFO train 관측 분위수, `oldest_wait`: train 분위수와 30분 hard edge를 쓴다.
-- `sla_over_count`: 30분 이상 대기 차량 수 `0/1/2/3+`다.
+- `work_phase`: 운영 초반·전반·후반·막판과 도착 종료 후 처리 구간이다.
+- `crane_area`: 크레인이 현재 위치한 서비스 bay 구역(1~4)이다.
+- `waiting_truck_level`: 기다리는 차량이 적음·보통·많음·매우 많음 중 어디인지 나타낸다.
+- `longest_wait_level`: 가장 오래 기다린 차량의 대기시간 수준이며 30분 경계를 보존한다.
+- `over_30min_truck_count`: 30분 넘게 기다린 차량 수 `0/1/2/3+`다.
 - `transfer_direction`: `TRUCK_TO_YARD` 또는 `YARD_TO_TRUCK`이다.
 - `own_wait`: train 분위수와 30분 hard edge로 해당 트럭의 대기를 구분한다.
 - `reach_time`: 현재 YC 위치에서 작업 시작점까지의 프로파일 기반 예상시간이다.
@@ -94,7 +103,7 @@ CandidateFeature(j) = (
 - `blocker`: 반출 대상 위 blocker `0/1/2/3+`; 반입은 방향 feature와 함께 0으로 둔다.
 
 모든 bucket edge는 train에서만 fit한 뒤 고정한다. Job ID는 실행·결정론 동점처리에만 쓰며,
-학습 key는 `K(j)=(GlobalState, CandidateFeature(j))`로 Job 사이에 값을 공유한다.
+학습 key는 `K(j)=(YardState, CandidateFeature(j))`로 Job 사이에 값을 공유한다.
 
 ## 6. 후보집합과 SLA action mask
 

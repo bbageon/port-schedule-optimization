@@ -290,7 +290,7 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
                        progress: Callable[[str], None] = print
                        ) -> tuple[DirectJobBucketConfig, list[dict[str, object]]]:
     """Fit all continuous edges using SLA_OFF FIFO training observations only."""
-    queue_lengths: list[float] = []
+    waiting_truck_counts: list[float] = []
     services: list[float] = []
     descriptors: list[dict[str, object]] = []
     fifo = DirectJobRulePolicy(DirectRule.FIFO)
@@ -304,7 +304,7 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
         state, info = env.reset(scenario)
         while state is not None:
             raw = info.raw_global
-            queue_lengths.append(raw.queue_length)
+            waiting_truck_counts.append(raw.waiting_truck_count)
             for candidate in info.feasible_candidates:
                 services.append(candidate.estimated_service_s)
             candidate = fifo.act(state, info.candidates)
@@ -312,7 +312,7 @@ def fit_direct_buckets(profile: TerminalProfile, seeds: Sequence[int], params: G
         if index % max(1, min(100, len(seeds))) == 0 or index == len(seeds):
             progress(f"[bucket] FIFO train observations {index}/{len(seeds)}")
     buckets = DirectJobBucketConfig.fit(
-        queue_lengths=queue_lengths,
+        queue_lengths=waiting_truck_counts,
         service_times_s=services,
     )
     return buckets, descriptors

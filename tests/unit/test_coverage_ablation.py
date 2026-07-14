@@ -4,12 +4,13 @@ import json
 import pytest
 
 from yard_rl.envs.direct_job_env import (DirectJobBucketConfig, DirectJobEnv,
-                                         SLAMode)
+                                         SLAMode, YardState)
 from yard_rl.experiments.coverage_ablation import (AblationConfig,
                                                    quick_ablation_config,
                                                    run_coverage_ablation)
 from yard_rl.io.profile_loader import load_profile
 from yard_rl.io.scenario_gen import GenParams, generate
+from yard_rl.policies.cost_q import CostQAgent
 
 PROFILE = "configs/terminals/hjnc_armg.yaml"
 
@@ -19,16 +20,30 @@ def _scenario(profile, seed=40_001, n=10):
                                              drain_window_s=86_400.0))
 
 
-def test_v1_rich_schema_shapes_and_v2_default_unchanged():
+def test_v1_rich_schema_shapes_and_v2_default_unchanged(tmp_path):
     profile = load_profile(PROFILE)
     scenario = _scenario(profile)
     env1 = DirectJobEnv(profile, sla_mode=SLAMode.OFF, state_schema="v1_rich",
                         expected_n_config=10)
     state1, info1 = env1.reset(scenario)
+    assert isinstance(state1, YardState)
+    assert state1._fields == (
+        "work_phase", "crane_area", "waiting_truck_level",
+        "longest_wait_level", "over_30min_truck_count",
+    )
     assert len(state1) == 5 and all(isinstance(x, int) for x in state1)
+    # NamedTuple 도 기존 tuple key와 동일 비교·hash — 저장된 Q-table 호환 계약.
+    assert state1 == tuple(state1) and hash(state1) == hash(tuple(state1))
     feat = info1.candidates[0].feature
     assert len(feat) == 5 and feat[0] in ("TRUCK_TO_YARD", "YARD_TO_TRUCK")
-    assert info1.raw_global.crane_bay > 0
+    assert info1.raw_global.crane_position_bay > 0
+    agent = CostQAgent()
+    key = agent.key(state1, info1.candidates[0])
+    agent.table.q[key], agent.table.n[key] = 1.25, 1
+    saved = tmp_path / "named-state-agent.json"
+    agent.save(saved)
+    loaded = CostQAgent.load(saved)
+    assert loaded.table.is_visited(loaded.key(state1, info1.candidates[0]))
 
     env2 = DirectJobEnv(profile, sla_mode=SLAMode.OFF, expected_n_config=10)
     state2, info2 = env2.reset(scenario)
