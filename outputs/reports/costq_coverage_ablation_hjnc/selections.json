@@ -1,0 +1,56 @@
+{
+  "CostQ[v1_rich|R1_min_wait@1000]": {
+    "episode": 50,
+    "horizon": 1000,
+    "p": 0.6,
+    "rule": "R1_min_wait",
+    "schema": "v1_rich",
+    "val_mean_wait_min": 7.240185926177071
+  },
+  "CostQ[v1_rich|R1_min_wait@3000]": {
+    "episode": 50,
+    "horizon": 3000,
+    "p": 0.6,
+    "rule": "R1_min_wait",
+    "same_agent_as": "CostQ[v1_rich|R1_min_wait@1000]",
+    "schema": "v1_rich",
+    "val_mean_wait_min": 7.240185926177071
+  },
+  "CostQ[v1_rich|R2_coverage_gate@1000]": {
+    "episode": 1000,
+    "horizon": 1000,
+    "p": 1.0,
+    "rule": "R2_coverage_gate",
+    "schema": "v1_rich",
+    "val_mean_wait_min": 7.79414284314311
+  },
+  "CostQ[v1_rich|R2_coverage_gate@3000]": {
+    "episode": 2200,
+    "horizon": 3000,
+    "p": 1.0,
+    "rule": "R2_coverage_gate",
+    "schema": "v1_rich",
+    "val_mean_wait_min": 7.542492478034077
+  },
+  "CostQ[v2_minimal|R1_min_wait@1000]": {
+    "episode": 800,
+    "horizon": 1000,
+    "p": 1.0,
+    "rule": "R1_min_wait",
+    "schema": "v2_minimal",
+    "val_mean_wait_min": 8.168491667680334
+  },
+  "CostQ[v2_minimal|R2_coverage_gate@1000]": {
+    "episode": 800,
+    "horizon": 1000,
+    "p": 1.0,
+    "rule": "R2_coverage_gate",
+    "same_agent_as": "CostQ[v2_minimal|R1_min_wait@1000]",
+    "schema": "v2_minimal",
+    "val_mean_wait_min": 8.168491667680334
+  },
+  "_baseline": {
+    "policy": "IMMEDIATE_COST_GREEDY",
+    "validation_mean_wait_min": 7.2017475771167225
+  }
+}
