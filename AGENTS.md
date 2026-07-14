@@ -11,6 +11,7 @@ claude.md 에 대해 수정하지 않는다.
 - 원격 저장소 single source 는 `origin = https://github.com/bbageon/port-schedule-optimization.git` 이다. 사용자가 명시적으로 로컬 전용 또는 push 금지를 요청한 작업만 예외로 한다.
 - 본 문서(AGENTS.md)에는 전역 규칙과 1~2줄 명세만 둔다. 구체적 기술·방법론·절차는 `.claude/skills/` 에 두고, `.claude/skills.md` 가 그 index 다.
 - 참조 요약은 `.claude/docs/`, 작업 상태는 `.claude/Dashboard/` (index: README.md). board 규약 원본은 루트 `dashboard-board.md`.
+- 요약은 board row·index 의 몫 — **히스토리·전략 문서(`.claude/docs/strategy-history/`)는 요약하지 않고 결정 경위·대안·설정·근거 수치를 상세 보존**한다 (작성 규약: strategy-history/README.md).
 
 ## 원본 문서 (single source)
 
