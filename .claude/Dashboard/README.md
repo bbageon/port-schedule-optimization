@@ -43,6 +43,6 @@
 - **방향 전환 (2026-07-14, 사용자 결정)**: 신규 RL 실험 baseline 을 **계열 2 (Direct-Job Cost-Q, 후보 단위 스코어링)** 로 승격 — rule-선택은 상태별 행동 기준이 모호. 계열 1 결과는 PoC 증거로 동결. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) · 실행: YR-028(선행)→YR-030, P95 는 후보 필터(YR-029)로.
 - **67-agent 리뷰 워크플로우**로 확정 결함 9건 수정 완료 (`24b095a`) — KPI 적분창·본선 방치 무벌점·검열 편향 등.
 - **프로파일 v2 (2026-07-13, YR-022/023)**: HJNC·DGT ARMG 초안 2벌로 Exp-1 재실행 — 방향 유지(평균대기 -10.4%)·개선폭 축소·P95 악화 재현. 공개정보만으론 두 케이스 수치 동일 수렴 (차별화는 🤝 협약 또는 YR-024 확률화).
-- **비용 최소화 RL (YR-025/027/028/030-b)**: 병목은 coverage 아닌 **순서품질** (YR-028: fallback↓=성능↓ 단조). YR-030-b 에서 greedy-prior 가 "학습할수록 악화" 병리를 제거했으나 γ 전 구간 greedy +0.45분 열세 — **초기화·할인·입도 3축 소진, 잔여 용의자 = 대기열 맥락 결손 단독** (잔차학습 1순위, 되돌릴 조건 1/2 소진).
+- **비용 최소화 RL (YR-025/027/028/030-b/c)**: 병목은 coverage 아닌 **순서품질**. YR-030-c 잔차 Cost-Q(사용자 전략: Q_total=정확한 G+ΔQ)로 **격차 역대 최소 +0.216분** (병리 없는 단조개선 — 잔차 구조 유효), future 단독 키는 유해(aggregation bias). **되돌림 조건 2/2 발동 — tabular 한계 판정, 함수근사(YR-012, 잔차 승계) 착수는 사용자 승인 대기.**
 - **병목 불변**: 실측자료·CURRENT_RULE 미확보(YR-002) — 모든 수치는 실운영 대비 아님. YR-009 validation 게이트 전까지 연구 주장 불가.
 - **Git**: `origin` = [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization). 완료 작업은 검증·commit·evidence 갱신 후 push 성공까지 확인.

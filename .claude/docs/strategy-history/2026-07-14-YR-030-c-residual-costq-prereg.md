@@ -1,6 +1,7 @@
 # YR-030-c — Greedy 기반 잔차 Cost-Q 사전등록
 
-> 기록일: 2026-07-14 · 상태: **사전등록 (실행 전 동결)** · 전략 원문: 사용자 제출 (2026-07-14)
+> 기록일: 2026-07-14 · 상태: **완료 — 개선 없음 (단 격차 역대 최소 +0.216분·잔차 구조 유효 확정)** · 결과는 하단 append
+> 전략 원문: 사용자 제출 (2026-07-14)
 > 상위: [YR-030 계열 2 baseline 승격](2026-07-14-YR-030-series2-baseline-pivot.md) · 선행: [YR-030-b 결과](2026-07-14-YR-030-b-v1final-greedy-prior-prereg.md)
 > **되돌림 조건 2회차**: 본 실험도 greedy 유의 미달 시 tabular 한계 판정 → YR-012/재정의 재논의.
 
@@ -90,3 +91,39 @@
 checkpoint_curve·selections·test_results·residual_results·residual_report.md ·
 agent_*.json. 구현: `policies/residual_cost_q.py`·`envs/direct_job_env.py`(future
 feature)·`experiments/residual_costq.py`·CLI `run-costq-residual [--quick]`.
+
+---
+
+## 실행 결과 (2026-07-14 append — 사전등록 원문 §1~§7 불변)
+
+- 실행: clean source `04104c8`, 소요 20.0분. [리포트](../../../outputs/reports/costq_residual_hjnc/residual_report.md)
+
+### 판정: 개선 없음 — 두 arm 모두 baseline(IMMEDIATE_COST_GREEDY) 유의 열세
+
+| arm | 선택 ep | mean Δ [95% CI] | p95 Δ% 상한 | guardrail |
+|---|---|---|---|---|
+| ResidualCostQ[**state_job**] | 2950 | **+0.216 [+0.149, +0.289]** | +9.0% | P95 ❌ / 완료·backlog·invariant ✅ |
+| ResidualCostQ[**future**] | 50 | +0.778 [+0.656, +0.911] | +17.1% | 〃 |
+
+### 확정 1 (positive) — 잔차 구조는 유효: 격차 역대 최소로 절반 축소
+
+- state_job arm: 학습곡선 **병리 없는 단조 개선** (7.76→7.34, 선택 ep 2950 —
+  마지막 checkpoint), 격차 +0.216분 = **YR-030-b prior(+0.454)의 절반, YR-028
+  순수(+0.525~+1.283)의 1/2~1/6**. "G 를 절대 보존하고 Δ만 학습" 구조가
+  초기화·병리·스케일 문제를 모두 제거하면서 순서품질을 실질 개선.
+
+### 확정 2 (negative) — future_situation 단독 키는 유해
+
+- future arm: **학습할수록 악화** (ep50 8.02 → ep2950 8.94), best = ep50 (사실상
+  무학습). 키 215개 — 너무 조악해 서로 다른 상황들이 한 칸에 뭉개지고, 그 평균
+  보정이 개별 결정에 해로움 (aggregation bias). §3 해석(단독 키)의 리스크가
+  현실화 — 미래 맥락 정보가 무익한 게 아니라 **coarse 현재-상태 정보를 버린 것**
+  이 원인일 가능성이 남음 (단독 키로는 판별 불가, §5 에서 결합 키는 폭발로 기각).
+
+### 되돌림 조건 발동 — 사전등록 2회 연속 greedy 미달 (YR-030-b → YR-030-c)
+
+상위 전략 §6 합의대로 **"후보 단위 tabular 스코어링의 한계" 판정** → YR-012
+(함수근사 직행) 또는 문제 재정의를 재논의한다. 함수근사는 본 실험의 두 교훈과
+정확히 정합: (a) G 를 연속 feature 로 주입(잔차 구조 유지 가능), (b) bucket 없이
+연속 상태로 Δ 학습 — state_job 의 남은 격차(+0.216)가 bucket 해상도 손실이라는
+가설을 직접 시험. **다음 단계는 사용자 승인 대기.**
