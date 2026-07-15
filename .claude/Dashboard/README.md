@@ -28,21 +28,17 @@
 | Epic | 의미 | 상태 |
 |---|---|---|
 | Infra | 하네스·환경·도구·프로젝트 스캐폴드 | 상시 |
-| Data | 자료 확보·TerminalProfile·도메인 모델·전처리 (Phase 0~1) | active |
-| Sim | 이벤트 시뮬레이터·Hard Constraint·실측 validation (Phase 2) | 예정 |
-| Baseline | Baseline 정책·KPI·paired runner (Phase 3) | 예정 |
-| RL | Tabular Q-learning → Masked DQN/PPO (Phase 4·7) | 예정 |
-| Exp | Exp-1~4 요인실험·최종평가·ablation (Phase 5·8·9) | 예정 |
-| UI | 검증·시연용 읽기 전용 replay UI (Phase 6) | 예정 |
+| Data | TOS·VBS·ETA·본선·장비·레인 통합 schema와 실자료 매핑 | active |
+| Sim | 통합 이벤트 시뮬레이터·Hard Constraint·실측 validation | active |
+| Baseline | 강한 동정보 휴리스틱·중앙 matching·paired runner | active |
+| RL | 동적 후보 Double DQN·Total Cost·QMIX 협조학습 | active |
+| Exp | 동일 통합정책의 locked 평가·ablation·민감도 | active |
+| UI | 정책 replay·설명·운영자 승인/반려 피드백 | active |
 
 ## 📌 현재 상태 overview (한눈에)
 
-- **Phase 0~5 예비 PoC 완주 (2026-07-12, 합성 데이터)**: 시뮬레이터+제약(YR-006/007)·Baseline 4종(YR-008)·Tabular Q(YR-010)·Exp-1~3C matrix(YR-011-a/b/c) 구현·실행 완료. 테스트 46건. 리포트: `outputs/reports/exp_matrix/`.
-- **핵심 결과(합성·가정 조건)**: QL_EXP1 이 FIFO 대비 **평균대기 -15.2% (12/12 seed 유의)**·본선지연 0 달성. 단 **정보 선행(Exp-2/3)이 오히려 열세** — 상태공간 희석은 방문통계로 정량 확인([수렴진단](../docs/YR-020-수렴진단-2026-07-14.md)), 잔여 판별은 YR-020. H1~H2 는 이 조건에서 **미지지** — 사전 결론 금지 원칙 그대로 유효.
-- **P95 악화는 w_tail 로 제어 불가 (2026-07-14, YR-018 negative)**: 2프로파일×2예산 전 grid 에서 가중치 간 유의차 0 — tail_area(총량)는 개선되나 p95(극단)는 +17~+35% 악화 지속 (지표 불일치).
-- **방향 전환 (2026-07-14, 사용자 결정)**: 신규 RL 실험 baseline 을 **계열 2 (Direct-Job Cost-Q, 후보 단위 스코어링)** 로 승격 — rule-선택은 상태별 행동 기준이 모호. 계열 1 결과는 PoC 증거로 동결. [전략](../docs/strategy-history/2026-07-14-YR-030-series2-baseline-pivot.md) · 실행: YR-028(선행)→YR-030, P95 는 후보 필터(YR-029)로.
-- **67-agent 리뷰 워크플로우**로 확정 결함 9건 수정 완료 (`24b095a`) — KPI 적분창·본선 방치 무벌점·검열 편향 등.
-- **프로파일 v2 (2026-07-13, YR-022/023)**: HJNC·DGT ARMG 초안 2벌로 Exp-1 재실행 — 방향 유지(평균대기 -10.4%)·개선폭 축소·P95 악화 재현. 공개정보만으론 두 케이스 수치 동일 수렴 (차별화는 🤝 협약 또는 YR-024 확률화).
-- **비용 최소화 RL (YR-025~031-b)**: 병목은 coverage 아닌 **순서품질** — 격차 추격 +1.28→**+0.083 (YR-012 Δ-net, 실정책 최강)**, oracle 상금 하한 +0.182분 실재. 학습절차 축 소진 (YR-012-b: 안정화 역효과) 후 **YR-031-b (2026-07-15) 가 원인 확정: H-A 지지 (이탈 시점 AUC 0.852 예측가능) · H-B 기각 (argmin 골격 충분)** — 이탈의 정체는 근소 동급 작업 미세 스왑, 신호는 Δ-net 이 못 보던 **집합 맥락 feature**. 다음: **YR-012-c (14→22 feature) 🟠** — 사용자 승인 대기. 부수: 선택 프로토콜 보완(YR-032).
-- **병목 불변**: 실측자료·CURRENT_RULE 미확보(YR-002) — 모든 수치는 실운영 대비 아님. YR-009 validation 게이트 전까지 연구 주장 불가.
-- **Git**: `origin` = [bbageon/port-schedule-optimization](https://github.com/bbageon/port-schedule-optimization). 완료 작업은 검증·commit·evidence 갱신 후 push 성공까지 확인.
+- **최종 목표 전환 (2026-07-15, 사용자 결정)**: 별도 Exp 정책이 아니라 차량·본선·이송장비·레인·다중 YC를 처음부터 같은 State·Action·Total Cost 계약으로 다루는 단일 통합정책. [최종전략](../docs/부산항_레인_다중야드크레인_협조최적화_강화학습_최종전략.md) · [결정 이력](../docs/strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md).
+- **정책 구조**: 가변 후보 `Q_cost`를 Candidate Double DQN으로 평가하고 중앙 resolver가 공동제약을 보장한 뒤 QMIX 추가효과를 검증한다. 안전·물리·마감 위반은 보상이 아니라 mask다.
+- **보존된 PoC 증거**: tabular/잔차 계열은 모두 greedy 미달이나 격차를 +1.195→+0.083분으로 축소했고 oracle 상금 하한 +0.182분을 확인했다. YR-031-b는 이탈 시점 AUC 0.852, 집합구조 추가이득 0.000으로 **입력 요약 부족·후보별 점수 골격 충분**을 판정했다.
+- **현재 실행 순서**: YR-035 통합 MDP·데이터 계약 → YR-036 시뮬레이터 → YR-037 후보·공동제약 + YR-038 Total Cost → YR-039 Candidate DDQN → YR-013 공동배정·QMIX → YR-014 locked ablation.
+- **주장 게이트**: 실측자료·CURRENT_RULE은 YR-002, 실측 validation은 YR-009가 담당한다. 두 게이트 전 모든 결과는 합성·가정 조건의 구현 증거이며 부산항 실운영 개선 주장이 아니다.

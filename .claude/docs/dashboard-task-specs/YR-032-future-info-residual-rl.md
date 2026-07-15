@@ -1,7 +1,8 @@
-# YR-032 — 계열 2 미래정보 잔차 Δ-net 단계 검증
+# YR-032 — 계열 2 미래정보 잔차 Δ-net 단계 검증 (폐기)
 
-- **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-07-14 / **상태**: Backlog·승인 대기
-- **배경**: [YR-031](../../Dashboard/in-progress.md)은 외부트럭-only·순서선택 환경에서
+- **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-07-14 / **상태**: Cancelled 2026-07-15
+- **폐기 사유**: ETA·포지셔닝·선재조작마다 별도 정책을 만드는 계획은 [최종 통합전략 전환](../strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md)과 충돌한다. 정보·행동의 가치는 YR-014에서 동일 통합정책의 ablation으로 보존한다. 본 문서의 정보시점·누출검사·공정 비교 계약은 YR-035·014로 이관한다.
+- **배경**: [YR-031](../strategy-history/2026-07-14-YR-031-oracle-gap-prereg.md)은 외부트럭-only·순서선택 환경에서
   전 도착을 아는 beam도 greedy를 이길 상금이 있는지 측정한다. 현
   `DirectJobEnv`의 `future_raw`는 이미 도착한 잔여 후보만 뜻하며 제공 ETA는 아니다.
   [원래 H1/H2](../실험설계안-요약.md)는 제공 ETA를 이용한 사전 준비의 가치를 묻는다.

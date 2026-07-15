@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-034 | Infra | 최종 통합전략 기준 Dashboard·히스토리 재기준화 | 🔴 | 2026-07-15 | 사용자 지시 · [결정 이력](../docs/strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md) |
 
 ---
 

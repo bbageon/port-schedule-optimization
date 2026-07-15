@@ -4,7 +4,8 @@
 
 | ID | Epic | Title | 폐기 | 사유 |
 |---|---|---|---|---|
-| _(없음)_ | | | | |
+| YR-032 | RL | 계열 2 미래정보 잔차 Δ-net 별도 단계정책 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-032-future-info-residual-rl.md) · ETA/포지셔닝/선재조작을 별도 정책으로 나누지 않고 YR-014의 동일 통합정책 ablation으로 흡수 |
+| YR-026 | RL | 트럭-only 비용계수 민감도 | 2026-07-15 | 최종 Q 목표가 터미널 Total Cost로 확대되어 [YR-038](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md)의 정규화·가중치 민감도로 흡수. 기존 YR-025 negative 근거는 Done에 보존 |
 
 ---
 

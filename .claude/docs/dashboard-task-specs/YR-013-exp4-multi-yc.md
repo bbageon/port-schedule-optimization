@@ -1,9 +1,9 @@
-# YR-013 — Phase 8: Exp-4 다중 YC 협조
+# YR-013 — 중앙 공동배정·QMIX 다중 YC 협조
 
-- **Epic**: Exp / **Priority**: ⚪ / **등록일**: 2026-07-12
-- **배경**: [03 §1.3](../../../docs/구현계획/03_정책_실험_평가.md)·[06](../../../docs/구현계획/06_동적후보_Deep_Q_다중YC.md) 구현 계약 — 동적 후보 Candidate Double DQN → 중앙 공동 matching → QMIX CTDE 추가효과 순으로 분리한다. 처음부터 검증되지 않은 로컬 평가망과 mixer를 함께 도입하지 않는다. [02 §8](../../../docs/구현계획/02_시뮬레이터_RL환경.md) 비통과·안전거리·인계지점 점유.
-- **목표(수용 기준)**: [05 §4 Phase 8](../../../docs/구현계획/05_테스트_로드맵_산출물.md) — 실제 공통 서비스영역 구조 반영 + **간섭 제약 위반 0**. 간섭·양보·교착 테스트 및 UI 표시(YR-015 UI-5) 포함. 단일 정책 대비 공동 KPI 비교 (H4 판정).
+- **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-07-12 / **재기준화**: 2026-07-15
+- **배경**: [최종전략 전환](../strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md)·[06](../../../docs/구현계획/06_동적후보_Deep_Q_다중YC.md) — 검증된 Candidate Double DQN utility와 중앙 공동 matching을 기준선으로 두고 QMIX의 추가효과를 분리한다.
+- **목표(수용 기준)**: 실제 공통 서비스영역과 joint mask를 반영하고 동일 Job·레인충돌·비통과·안전거리 위반 0을 보장한다. 중앙 matching 대비 QMIX의 locked 총비용·P95·본선·이송·교착 KPI를 paired 비교한다.
 - **범위 밖(non-goal)**: 수직형·수평형 터미널 혼합, 물리적 레일 재배치.
-- **계획**: YC별 동적 후보 tensor·mask → Candidate DQN/Double/Dueling 비교 → 중앙 joint-action resolver → QMIX paired 비교. 학습은 GPU 권장·CPU fallback, 운영 추론은 CPU 계약.
-- **산출물**: `candidate_q_network.py`, `candidate_double_dqn.py`, `joint_assignment.py`, `qmix.py`, Exp-4 리포트.
-- **의존**: YR-011, 실제 서비스영역 자료(YR-002).
+- **계획**: YR-037 resolver 기준선 → YR-039 local utility 공유 → monotonic mixer → Double joint target → central-vs-QMIX ablation.
+- **산출물**: `joint_assignment.py`, `qmix.py`, 협조 학습 runner·리포트·UI replay.
+- **의존**: YR-036~039, 실제 서비스영역 자료 YR-002.

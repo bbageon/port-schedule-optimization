@@ -1,24 +1,26 @@
 # 🗂️ Backlog (미래)
 
 > 미착수·미래 작업. 방향이 자주 바뀌면 재정렬. [index](README.md) · 다음 상태: [ready](ready.md).
-> Phase 는 [구현계획서](../../부산항_야드크레인_강화학습_구현계획서.md) 분할문서 [05 §4](../../docs/구현계획/05_테스트_로드맵_산출물.md) 기준 (0~9).
+> 순서는 [최종전략 전환 이력](../docs/strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md)과 각 task spec의 의존관계가 기준이다. 과거 Phase/Exp 명칭은 완료 이력에만 남긴다.
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-036 | Sim | 통합 터미널 이벤트 시뮬레이터 | 🔴 | [spec](../docs/dashboard-task-specs/YR-036-integrated-terminal-simulator.md) · YR-035 후, 실측 validation은 YR-002/009 |
+| YR-037 | RL | 동적 후보·공동 Action·Hard Constraint | 🟠 | [spec](../docs/dashboard-task-specs/YR-037-joint-candidates-constraints.md) · YR-035/036 후, YR-029 SLA 보호 흡수 |
+| YR-038 | RL | 정규화 터미널 Total Cost·Reward | 🟠 | [spec](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md) · YR-035/036 후, YR-026 민감도 흡수 |
+| YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
+| YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
+| YR-012-c | RL | 고정 대기열 요약 feature 검증 | 🟡 | [spec](../docs/dashboard-task-specs/YR-012-c-context-features.md) · YR-031-b H-A 지지/H-B 기각 파생, 최종망 입력 근거 |
+| YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
+| YR-033 | Exp | checkpoint 선택 프로토콜 보완 | 🟡 | [spec](../docs/dashboard-task-specs/YR-033-checkpoint-selection.md) · 기존 중복 YR-032를 바로잡음 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |
 | YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟡 | [수렴진단](../docs/YR-020-수렴진단-2026-07-14.md): 희석 방문통계 증거 확보. **YR-030 전환 결정으로 "함수근사 판단재료" 역할 종결** — 학술적 원인 규명 가치로만 유지 (🟠→🟡, 2026-07-14) |
-| YR-021 | Exp | 부하조건별 정보효과 — peak·고장치율·고재조작 시나리오 재실험 | 🟡 | 정보 선행 편익은 혼잡 조건 의존 가설 — §18.3 운영부하 축 |
-| YR-012-c | RL | Δ-net feature 확장 14→22 — 집합 맥락 8 추가 (H-A 신호 운반체), 구조·online TD 불변 | 🟠 | YR-031-b 파생: 이탈 예측 신호 상위 4/5가 집합 feature — greedy 초과의 최단 경로. 착수는 사용자 승인 대기 |
-| YR-032 | RL | 계열 2 미래정보 Δ-net — ETA 정보효과→사전포지셔닝→선재조작 단계 검증 | 🟠 | [spec](../docs/dashboard-task-specs/YR-032-future-info-residual-rl.md) · YR-031 종료 후 승인 대기; 본선·다중 YC는 YR-013으로 분리 |
-| YR-032 | RL | checkpoint 선택 프로토콜 보완 — validation 확대·이중 검증 (winner's curse 대응) | 🟡 | YR-012-b 부수 발견: val 최저와 test 최저 역전 (60~120 ckpt × val 30일) — arm 간 ~0.1분 분별에 표본 부족. 저비용 보완 |
-| YR-029 | RL | P95 보호 — SLA 임박 시 후보 필터 (계열 2, YR-030 라인) | 🟠 | YR-018 negative 파생. **보상형 후보(분위수/비선형 페널티) 폐기 — 사용자 결정**: 상태별 트레이드오프 신호 부재·기준 모호 — 학습이 아닌 명시적 제약(후보 제한)으로 강제 |
-| YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. tail 지표 재정의는 YR-029 와 연계 |
+| YR-021 | Exp | 부하조건별 통합정책 강건성 — peak·고장치율·고재조작 | 🟡 | 혼잡일 상금 편중(YR-031/031-b) 파생 · YR-014 부하 ablation 입력 |
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |
-| YR-015-b | UI | Phase 6 후반: UI-3 정책설명 패널 고도화·UI-4 동기비교·검증 테스트 확충 | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · UI-1/2 는 YR-015-a 로 분할 착수 (2026-07-13) |
-| YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · 동적 후보 Double DQN→중앙 matching→QMIX 구현계약 갱신 |
-| YR-014 | Exp | Phase 9: 최종평가·ablation·탄소 사후평가 | ⚪ | [spec](../docs/dashboard-task-specs/YR-014-final-evaluation.md) |
+| YR-015-b | UI | 통합정책 설명·동기비교·운영자 승인/반려 UI | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · YR-035 schema부터 recorder 선반영, 정책 연결은 YR-013/039 후 |
+| YR-014 | Exp | 통합정책 locked 평가·ablation·운영 적용판정 | 🟡 | [spec](../docs/dashboard-task-specs/YR-014-final-evaluation.md) · YR-002/009/013/035~039 후 |
 
 ---
 
