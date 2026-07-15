@@ -128,9 +128,10 @@ def _dims(profile, params, seed: int) -> tuple[int, int, int, int]:
 
 
 def _train_variant(variant: str, profile, params, cfg: CandidateDqnConfig,
-                   dims, progress) -> tuple[list[dict], dict, CandidateDQNLearner]:
+                   dims, cost_scale: float, progress
+                   ) -> tuple[list[dict], dict, CandidateDQNLearner]:
     learner = CandidateDQNLearner(
-        LearnerConfig(variant=variant), dims,
+        LearnerConfig(variant=variant, cost_scale=cost_scale), dims,
         seed=cfg.train_seed0 + VARIANTS.index(variant))
     explore = random.Random(cfg.train_seed0 + 7 + VARIANTS.index(variant))
     curve: list[dict] = []
@@ -169,8 +170,14 @@ def run_candidate_dqn(out_dir: str = "outputs/reports/candidate_dqn_poc",
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     dims = _dims(profile, params, cfg.train_seeds[0])
+    # 학습 표적 스케일 fit — train band 선두 5일 baseline 결정당 비용 (test 미접촉)
+    fit_rows = _eval_policy(profile, params, cfg.train_seeds[:5],
+                            preference_factory=BaselinePreference)
+    cost_scale = max(1e-6, fmean(r.total_cost / max(1, r.n_decisions)
+                                 for r in fit_rows))
     progress(f"[YR-039] profile={profile.terminal_id} dims={dims} "
-             f"variants={list(cfg.variants)} train={cfg.train_episodes}")
+             f"variants={list(cfg.variants)} train={cfg.train_episodes} "
+             f"cost_scale={cost_scale:.1f}")
 
     # ---- baseline 선택 (validation, YR-033: test 미접촉)
     base_val = {name: _eval_policy(profile, params, cfg.validation_seeds,
@@ -187,7 +194,7 @@ def run_candidate_dqn(out_dir: str = "outputs/reports/candidate_dqn_poc",
     learners: dict[str, CandidateDQNLearner] = {}
     for variant in cfg.variants:
         vcurve, selection, learner = _train_variant(variant, profile, params, cfg,
-                                                    dims, progress)
+                                                    dims, cost_scale, progress)
         curve.extend(vcurve)
         selections[f"CandidateDQN[{variant}]"] = selection
         learners[f"CandidateDQN[{variant}]"] = learner

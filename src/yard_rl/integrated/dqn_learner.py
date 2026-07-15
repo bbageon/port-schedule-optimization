@@ -46,6 +46,7 @@ class LearnerConfig:
     min_replay: int = 500
     target_sync_every: int = 500       # gradient step 단위
     updates_per_decision: int = 1
+    cost_scale: float = 1.0            # 학습 표적 정규화 (train baseline fit — test 미접촉)
     device: str = "cpu"                # 결정론 기준 (매핑 §3 — GPU 는 성능 옵션)
 
     def __post_init__(self) -> None:
@@ -59,6 +60,8 @@ class LearnerConfig:
             raise ValueError("learner 수치는 전부 양수")
         if self.min_replay > self.replay_capacity:
             raise ValueError("min_replay <= replay_capacity")
+        if self.cost_scale <= 0:
+            raise ValueError("cost_scale must be positive")
 
 
 @dataclass(frozen=True)
@@ -248,7 +251,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
 
     samples: list[Sample] = []
     if collect and learner is not None:
-        samples = stitch_samples(times, costs, events, learner.cfg.gamma,
+        scaled = [c / learner.cfg.cost_scale for c in costs]  # 표적 정규화
+        samples = stitch_samples(times, scaled, events, learner.cfg.gamma,
                                  learner.cfg.ref_s)
         for s in samples:
             learner.replay.append(s)
