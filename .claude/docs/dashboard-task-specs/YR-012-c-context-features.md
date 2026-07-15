@@ -6,4 +6,3 @@
 - **범위 밖**: QMIX, 본선·다중 YC, attention/set encoder, replay 재도입, test 기반 feature 선택.
 - **계획**: feature 공식·정보시점 동결 → zero/scale·permutation 테스트 → 동일 예산 재학습 → YR-012와 paired 비교.
 - **산출물**: context-feature agent 설정·리포트·사전등록. 최종 통합망 YR-039의 feature 근거로만 사용한다.
-

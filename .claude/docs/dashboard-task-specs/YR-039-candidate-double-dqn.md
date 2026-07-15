@@ -7,4 +7,3 @@
 - **계획**: permutation-invariant 고정요약 → replay/target DDQN → masked batch → GPU/CPU parity → checkpoint protocol YR-033 적용.
 - **산출물**: candidate Q-network/learner, device-independent checkpoint, paired report.
 - **의존**: YR-037·YR-038. YR-012-c 결과는 feature 선택 근거로 사용하되 최종 test와 분리한다.
-

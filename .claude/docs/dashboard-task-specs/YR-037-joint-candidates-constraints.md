@@ -7,4 +7,3 @@
 - **계획**: 후보 생성 → 이중 constraint 검사 → deterministic pruning/tie-break → feasible matching → deadlock yield.
 - **산출물**: candidate generator, constraint extensions, joint assignment baseline, 감사 로그.
 - **의존**: YR-035·YR-036. SLA 임박 보호는 YR-029 계약을 흡수한다.
-

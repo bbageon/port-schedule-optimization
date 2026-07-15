@@ -7,4 +7,3 @@
 - **계획**: 비용 인과 ledger → train baseline scale 동결 → 정적/동적 본선계수 비교 → YR-026 민감도 흡수 → guardrail 분리.
 - **산출물**: cost config/schema, reward calculator, cost identity·sensitivity report.
 - **의존**: YR-035·YR-036. 실제 scale은 YR-002 이후 확정.
-

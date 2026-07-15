@@ -7,4 +7,3 @@
 - **계획**: 데이터 source/time-of-knowledge 표 → tensor·ID 감사필드 schema → 최소 통합 fixture → 정보누출·단위·결측 validation.
 - **산출물**: 통합 MDP/데이터 매핑 문서, schema·fixture·contract tests.
 - **의존**: 합성 계약은 즉시 가능. 실제 범위·분포 보정과 운영 주장은 YR-002·YR-009 이후.
-

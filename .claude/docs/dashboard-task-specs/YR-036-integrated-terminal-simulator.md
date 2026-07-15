@@ -7,4 +7,3 @@
 - **계획**: YR-035 fixture 구동 → 본선/이송/레인 이벤트 → 다중 YC 자원예약 → 장애·계획변경 → golden scenario.
 - **산출물**: 통합 simulator 모듈, synthetic terminal fixtures, invariant·golden tests.
 - **의존**: YR-035. 실측 validation은 YR-002·YR-009.
-
