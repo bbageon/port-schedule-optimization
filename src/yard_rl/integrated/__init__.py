@@ -12,7 +12,11 @@ from .audit import (CandidateVerdict, CraneResolution, JointResolution,
 from .candidates import CandidateGenerator, GenCandidate, GeneratedCandidates
 from .cost import (ASSUMED_SCALE, ASSUMED_WEIGHT, CostAccumulator,
                    assumed_lambda_vessel)
+from .cost_config import (LambdaMode, LambdaVesselPolicy, Provenance, ProvBasis,
+                          RewardCalculator, RiskBand, TermCost, TerminalCostConfig,
+                          default_assumed_config)
 from .dispatcher import ReferenceDispatcher
+from .ledger import (CostCause, CostLedger, assert_ledger_identity, build_ledger_report)
 from .engine import (CommitProjection, CraneAssignment, TerminalDecision,
                      TerminalSimulator)
 from .resolver import (BaselinePreference, CentralResolver, DispatcherPreference)
@@ -35,5 +39,8 @@ __all__ = [
     "ReservationTable", "Reservation", "Corridor",
     "JobPlan", "JobRef", "Move", "EventKind", "EventQueue",
     "CostAccumulator", "ASSUMED_SCALE", "ASSUMED_WEIGHT", "assumed_lambda_vessel",
+    "TerminalCostConfig", "RewardCalculator", "default_assumed_config", "LambdaVesselPolicy",
+    "LambdaMode", "RiskBand", "Provenance", "ProvBasis", "TermCost",
+    "CostLedger", "CostCause", "assert_ledger_identity", "build_ledger_report",
     "build_integrated_profile", "build_minimal_terminal_scenario",
 ]

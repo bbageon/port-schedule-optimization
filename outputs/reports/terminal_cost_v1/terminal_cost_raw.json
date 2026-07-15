@@ -1,0 +1,336 @@
+{
+ "assumed": true,
+ "guardrail_note": "전 항목 assumed·synthetic — 탐색 전용, 가중치 확정 금지(YR-002 후 실측)",
+ "lambda_static_vs_dynamic": {
+  "total": {
+   "ci_hi": 0.0,
+   "ci_lo": 0.0,
+   "mean_alt": 20687.756451799996,
+   "mean_base": 20687.756451799996,
+   "mean_diff": 0.0,
+   "n": 5,
+   "pct_change": 0.0,
+   "seeds_same_direction": 0,
+   "significant": false
+  },
+  "vessel_delay_contrib": {
+   "ci_hi": 0.0,
+   "ci_lo": 0.0,
+   "mean_alt": 0.0,
+   "mean_base": 0.0,
+   "mean_diff": 0.0,
+   "n": 5,
+   "pct_change": NaN,
+   "seeds_same_direction": 0,
+   "significant": false
+  }
+ },
+ "ledger_identity": {
+  "digest": "416b609400a87d0e",
+  "identity_per_term": {
+   "crane_travel": {
+    "ledger": 0.0,
+    "raw": 0.0,
+    "residual": 0.0
+   },
+   "depart_delay": {
+    "ledger": 0.0,
+    "raw": 0.0,
+    "residual": 0.0
+   },
+   "empty_travel": {
+    "ledger": 513.5,
+    "raw": 513.5,
+    "residual": 0.0
+   },
+   "imbalance": {
+    "ledger": 14779.430556,
+    "raw": 14779.430556,
+    "residual": 0.0
+   },
+   "interference": {
+    "ledger": 420.377778,
+    "raw": 420.377778,
+    "residual": 0.0
+   },
+   "lane_cong": {
+    "ledger": 527.713889,
+    "raw": 527.713889,
+    "residual": 0.0
+   },
+   "long_wait": {
+    "ledger": 0.0,
+    "raw": 0.0,
+    "residual": 0.0
+   },
+   "rehandle": {
+    "ledger": 1.0,
+    "raw": 1.0,
+    "residual": 0.0
+   },
+   "resequence": {
+    "ledger": 0.0,
+    "raw": 0.0,
+    "residual": 0.0
+   },
+   "sts_wait": {
+    "ledger": 768.0,
+    "raw": 768.0,
+    "residual": 0.0
+   },
+   "transfer_wait": {
+    "ledger": 10620.0,
+    "raw": 10620.0,
+    "residual": 0.0
+   },
+   "truck_wait": {
+    "ledger": 184.877778,
+    "raw": 184.877778,
+    "residual": 0.0
+   },
+   "vessel_delay": {
+    "ledger": 0.0,
+    "raw": 0.0,
+    "residual": 0.0
+   }
+  },
+  "inactive_terms": [
+   "long_wait",
+   "crane_travel",
+   "vessel_delay",
+   "depart_delay",
+   "resequence"
+  ],
+  "report_id": "cost-ledger-report-v1",
+  "subjects": {
+   "crane_travel": {},
+   "depart_delay": {},
+   "empty_travel": {
+    "YC-A": 513.5
+   },
+   "rehandle": {
+    "YC-A": 1.0
+   },
+   "vessel_delay": {}
+  },
+  "term_cause": {
+   "empty_travel|DISPATCH": 513.5,
+   "imbalance|IMBALANCE": 14779.430556,
+   "interference|INTERFERENCE": 420.377778,
+   "lane_cong|LANE": 527.713889,
+   "rehandle|DISPATCH": 1.0,
+   "sts_wait|STS_BLOCK": 768.0,
+   "transfer_wait|TRANSFER_QUEUE": 10620.0,
+   "truck_wait|WAIT_INTEGRAL": 184.877778
+  }
+ },
+ "report_id": "terminal-cost-report-v1",
+ "scale_fit": {
+  "crane_travel": {
+   "episode_raw_sum": 0.0,
+   "fallback": true,
+   "n_intervals": 25,
+   "per_interval": 0.0
+  },
+  "depart_delay": {
+   "episode_raw_sum": 0.0,
+   "fallback": true,
+   "n_intervals": 25,
+   "per_interval": 0.0
+  },
+  "empty_travel": {
+   "episode_raw_sum": 1456.0,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 58.24
+  },
+  "imbalance": {
+   "episode_raw_sum": 82839.31938610635,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 3313.572775444254
+  },
+  "interference": {
+   "episode_raw_sum": 2420.7352955188408,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 96.82941182075363
+  },
+  "lane_cong": {
+   "episode_raw_sum": 2312.1194444444445,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 92.48477777777778
+  },
+  "long_wait": {
+   "episode_raw_sum": 0.0,
+   "fallback": true,
+   "n_intervals": 25,
+   "per_interval": 0.0
+  },
+  "rehandle": {
+   "episode_raw_sum": 5.0,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 0.2
+  },
+  "resequence": {
+   "episode_raw_sum": 0.0,
+   "fallback": true,
+   "n_intervals": 25,
+   "per_interval": 0.0
+  },
+  "sts_wait": {
+   "episode_raw_sum": 3840.0,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 153.6
+  },
+  "transfer_wait": {
+   "episode_raw_sum": 53100.0,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 2124.0
+  },
+  "truck_wait": {
+   "episode_raw_sum": 1866.2695461550854,
+   "fallback": false,
+   "n_intervals": 25,
+   "per_interval": 74.65078184620342
+  },
+  "vessel_delay": {
+   "episode_raw_sum": 0.0,
+   "fallback": true,
+   "n_intervals": 25,
+   "per_interval": 0.0
+  }
+ },
+ "sensitivity": {
+  "base_total_mean": 20687.756451799996,
+  "lambda_axis": {
+   "lam_x0.5": {
+    "ci_hi": -9.489999999997455,
+    "ci_lo": -9.489999999999927,
+    "mean_alt": 20678.266451800002,
+    "mean_base": 20687.756451799996,
+    "mean_diff": -9.489999999998691,
+    "n": 5,
+    "pct_change": -0.045872543125250236,
+    "seeds_same_direction": 5,
+    "significant": true
+   },
+   "lam_x1.0": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   },
+   "lam_x2.0": {
+    "ci_hi": 18.980000000004132,
+    "ci_lo": 18.98000000000009,
+    "mean_alt": 20706.7364518,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 18.98000000000211,
+    "n": 5,
+    "pct_change": 0.09174508625052333,
+    "seeds_same_direction": 5,
+    "significant": true
+   }
+  },
+  "weight_axis": {
+   "truck_waitx0.5": {
+    "ci_hi": -0.1031317411473345,
+    "ci_lo": -0.3758014588505113,
+    "mean_alt": 20687.5169852,
+    "mean_base": 20687.756451799996,
+    "mean_diff": -0.2394665999989229,
+    "n": 5,
+    "pct_change": -0.0011575281280831564,
+    "seeds_same_direction": 5,
+    "significant": true
+   },
+   "truck_waitx1.0": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   },
+   "truck_waitx2.0": {
+    "ci_hi": 0.7516003085519036,
+    "ci_lo": 0.20626409144965935,
+    "mean_alt": 20688.235384,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.47893220000078146,
+    "n": 5,
+    "pct_change": 0.002315051422403567,
+    "seeds_same_direction": 5,
+    "significant": true
+   },
+   "truck_waitx4.0": {
+    "ci_hi": 2.2548037803357053,
+    "ci_lo": 0.6187898196654811,
+    "mean_alt": 20689.193248599997,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 1.436796800000593,
+    "n": 5,
+    "pct_change": 0.006945155233957623,
+    "seeds_same_direction": 5,
+    "significant": true
+   },
+   "vessel_delayx0.5": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   },
+   "vessel_delayx1.0": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   },
+   "vessel_delayx2.0": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   },
+   "vessel_delayx4.0": {
+    "ci_hi": 0.0,
+    "ci_lo": 0.0,
+    "mean_alt": 20687.756451799996,
+    "mean_base": 20687.756451799996,
+    "mean_diff": 0.0,
+    "n": 5,
+    "pct_change": 0.0,
+    "seeds_same_direction": 0,
+    "significant": false
+   }
+  }
+ }
+}

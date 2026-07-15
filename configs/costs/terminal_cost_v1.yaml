@@ -1,0 +1,158 @@
+cost_id: TERMINAL-COST-V1
+schema_version: itc-v1
+assumed: true
+scale_fitted: false
+provenance_note: 전 항목 assumed. 실측=YR-002, baseline-fit=YR-038
+terms:
+  truck_wait:
+    scale: 600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  long_wait:
+    scale: 1800.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  crane_travel:
+    scale: 1000.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  empty_travel:
+    scale: 1000.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  rehandle:
+    scale: 5.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  sts_wait:
+    scale: 600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  transfer_wait:
+    scale: 600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  vessel_delay:
+    scale: 600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  depart_delay:
+    scale: 600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  lane_cong:
+    scale: 100.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  interference:
+    scale: 100.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  resequence:
+    scale: 10.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  imbalance:
+    scale: 1.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: ''
+    scale_note: PoC placeholder, YR-002 확정 대상
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+lambda_vessel:
+  mode: dynamic
+  static_value: 1.0
+  basis: assumed
+  source: 최종전략 §10.6 초기후보
+  note: 확정 아님·민감도 대상
+  bands:
+  - risk_ge: 0.8
+    lam: 6.0
+    label: 실제지연
+  - risk_ge: 0.6
+    lam: 4.0
+    label: 위험
+  - risk_ge: 0.4
+    lam: 2.5
+    label: 경계
+  - risk_ge: 0.2
+    lam: 1.5
+    label: 주의
+  - risk_ge: 0.0
+    lam: 1.0
+    label: 정상

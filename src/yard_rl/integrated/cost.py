@@ -15,6 +15,8 @@ from ..contract.schema import COST_TERMS
 # 피스와이즈 상수율로 시간적분하는 항 (엔진이 이벤트마다 set_rate)
 RATE_TERMS: frozenset = frozenset(
     {"sts_wait", "transfer_wait", "lane_cong", "interference", "imbalance"})
+# advance 결정론 순회 (dict 반복순서·PYTHONHASHSEED 격리 — ledger append 순서 고정, YR-038)
+RATE_TERMS_ORDERED: tuple = tuple(t for t in COST_TERMS if t in RATE_TERMS)
 
 # assumed placeholder (YR-038 이 costcfg 만 교체) — won_cost_v1 관습과 정합
 ASSUMED_SCALE: dict[str, float] = {
@@ -43,6 +45,7 @@ class CostAccumulator:
     _rate: dict[str, float] = field(default_factory=lambda: {t: 0.0 for t in RATE_TERMS})
     _pending: dict[str, float] = field(default_factory=lambda: {t: 0.0 for t in COST_TERMS})
     _episode: dict[str, float] = field(default_factory=lambda: {t: 0.0 for t in COST_TERMS})
+    ledger: object = None            # CostLedger | None — 인과 side-channel (기본 off, YR-038)
 
     def set_rate(self, term: str, rate: float) -> None:
         if term not in RATE_TERMS:
@@ -50,25 +53,38 @@ class CostAccumulator:
         self._rate[term] = max(0.0, float(rate))
 
     def advance(self, t0: float, t1: float) -> None:
+        from .ledger import RATE_CAUSE
         dt = t1 - t0
         if dt <= 0:
             return
-        for term, rate in self._rate.items():
-            self.accrue(term, rate * dt)
+        for term in RATE_TERMS_ORDERED:      # 결정론 순회 (ledger append 순서 고정)
+            self.accrue(term, self._rate[term] * dt, cause=RATE_CAUSE[term])
 
-    def accrue(self, term: str, amount: float) -> None:
-        """임의 항에 raw 증분 누적 (한 구간·한 소스에서만 호출 — 이중계상 금지)."""
+    def accrue(self, term: str, amount: float, *, cause=None, subject: str | None = None) -> None:
+        """임의 항에 raw 증분 누적 (한 구간·한 소스에서만 호출 — 이중계상 금지).
+
+        ledger 활성 시 (term, cause, subject) 를 단일 write path 로 기록 → Σledger==episode_raw 자동.
+        """
         if term not in self._pending:
             raise ValueError(f"미지원 비용항 {term}")
         if amount < 0:
             raise ValueError(f"{term} 음수 증분 {amount}")
         self._pending[term] += float(amount)
         self._episode[term] += float(amount)
+        if self.ledger is not None:
+            from .ledger import TERM_CAUSES
+            if cause is None:
+                raise ValueError(f"{term} accrue cause 누락 (ledger 활성)")
+            if cause not in TERM_CAUSES[term]:
+                raise ValueError(f"{term} 허용밖 cause {cause}")
+            self.ledger.record(term, cause, subject, float(amount))
 
     def cut(self) -> dict[str, float]:
-        """현재 결정구간 raw 를 반환하고 리셋 (_episode 보존)."""
+        """현재 결정구간 raw 를 반환하고 리셋 (_episode 보존). ledger 도 동일 경계로 seal."""
         out = dict(self._pending)
         self._pending = {t: 0.0 for t in COST_TERMS}
+        if self.ledger is not None:
+            self.ledger.seal()
         return out
 
     def episode_raw(self) -> dict[str, float]:

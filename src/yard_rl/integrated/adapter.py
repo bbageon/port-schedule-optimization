@@ -14,13 +14,14 @@ from ..contract import (SCHEMA_VERSION, Assignment, Candidate, CandidateSet,
 from ..domain.enums import ControlScope, InformationLevel, JobFlow, JobStatus
 from ..sim.travel_time import estimate_reach_s
 from .candidates import CandidateGenerator
-from .cost import ASSUMED_SCALE, ASSUMED_WEIGHT, assumed_lambda_vessel
+from .cost_config import RewardCalculator
 from .engine import CraneAssignment, _pstdev
 from .resolver import BaselinePreference, CentralResolver, DispatcherPreference
 
 _KINDS = list(CandidateKind)
 _WAITING = (JobStatus.WAITING, JobStatus.RELEASED)
 _GEN = CandidateGenerator()          # 기본 생성기 (k_max=12·mandatory_frac=0.8, YR-037)
+_DEFAULT_RC = RewardCalculator.assumed_default()   # 기본 비용 config (현 assumed, YR-038)
 
 
 def _c01(x: float) -> float:
@@ -265,15 +266,14 @@ def capture(sim, crane_ids, level, episode_id, k, ablation_off=(), generator=Non
 
 
 def _assemble(state, obs, cranes_k, assigns, raw, dt, next_state, next_obs, terminal,
-              episode_id, k, level, ablation_off, ehash) -> TransitionRecord:
+              episode_id, k, level, ablation_off, ehash, calc=None) -> TransitionRecord:
     joint = JointAction(SCHEMA_VERSION, state.now_s, tuple(
         Assignment(cid, assigns[cid][0], assigns[cid][1],
                    "yield" if assigns[cid][1] == CandidateKind.WAIT else "central_resolver")
         for cid in sorted(cranes_k)))
-    lam = assumed_lambda_vessel(_max_vessel_risk_state(state))
-    cost = make_cost(interval_start_s=state.now_s, interval_end_s=state.now_s + dt,
-                     raw=raw, scale=ASSUMED_SCALE, weight=ASSUMED_WEIGHT,
-                     lambda_vessel=lam, assumed=True)
+    rc = calc or _DEFAULT_RC
+    cost = rc.cost_for(interval_start_s=state.now_s, interval_end_s=state.now_s + dt,
+                       raw=raw, risk_max=_max_vessel_risk_state(state))
     miss, asm = _scan_audit(state, obs)
     audit = TransitionAudit(built_at_now_s=state.now_s, info_level=level.value,
                             ablation_off=tuple(sorted((a.value if hasattr(a, "value") else a)
@@ -300,10 +300,11 @@ def _max_vessel_risk_state(state) -> float:
 
 
 def record_episode(sim, dispatcher=None, *, info_level: InformationLevel, episode_id: str,
-                   ablation_off=(), generator=None) -> list[TransitionRecord]:
+                   ablation_off=(), generator=None, reward_calc=None) -> list[TransitionRecord]:
     """중앙 resolver 로 완주하며 결정마다 validate_all 통과 TransitionRecord 산출 (YR-037).
 
     dispatcher 를 주면 그 tie-break 규칙(DispatcherPreference)을, 없으면 BaselinePreference.
+    reward_calc 를 주면 그 비용 config 로, 없으면 기본 assumed config (YR-038).
     """
     gen = generator or _GEN
     resolver = CentralResolver(DispatcherPreference(dispatcher) if dispatcher else BaselinePreference())
@@ -325,7 +326,7 @@ def record_episode(sim, dispatcher=None, *, info_level: InformationLevel, episod
         nxt = capture(sim, dp.crane_ids, info_level, episode_id, k + 1, ablation_off, gen) if dp else None
         rec = _assemble(state, obs, cranes_k, assigns, raw, sim.now - t_k,
                         nxt[0] if nxt else None, nxt[1] if nxt else (), dp is None,
-                        episode_id, k, info_level, ablation_off, sim.event_stream_hash())
+                        episode_id, k, info_level, ablation_off, sim.event_stream_hash(), reward_calc)
         records.append(rec)
         cur = nxt
         k += 1

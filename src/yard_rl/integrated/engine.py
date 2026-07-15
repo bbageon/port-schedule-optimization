@@ -17,6 +17,7 @@ from ..sim.stack import YardStacks
 from ..sim.travel_time import gantry_m, move_container, trolley_m
 from .cost import CostAccumulator
 from .cranes import CraneFleet
+from .ledger import CostCause
 from .events import EventKind, EventQueue
 from .jobplan import JobPlan, JobRef, Move
 from .lane import LaneNetwork
@@ -54,11 +55,13 @@ class CommitProjection:
 
 class TerminalSimulator:
     def __init__(self, profile, scenario, *, check_invariants: bool = True,
-                 info_level: InformationLevel = InformationLevel.BLOCK_ARRIVAL):
+                 info_level: InformationLevel = InformationLevel.BLOCK_ARRIVAL,
+                 enable_cost_ledger: bool = False):
         self.profile = profile
         self.scenario = scenario
         self._check = check_invariants
         self.info_level = info_level     # PRE_REHANDLE/REPOSITION 정보시점 게이팅 (YR-037)
+        self._enable_ledger = enable_cost_ledger   # 비용 인과 ledger (기본 off → golden 불변, YR-038)
         self.reset()
 
     # ------------------------------------------------------------- lifecycle
@@ -71,7 +74,8 @@ class TerminalSimulator:
         for spec in self.profile.cranes:
             self.fleet.add(spec, geom.transfer_row)
         self.reservations = ReservationTable(self.profile.safety_gap_bay)
-        self.cost = CostAccumulator()
+        from .ledger import CostLedger
+        self.cost = CostAccumulator(ledger=CostLedger() if self._enable_ledger else None)
         self.kpis = KpiTracker(sla_s=self.profile.long_wait_sla_s)
         self.transfer = TransferFleet(
             self.profile.transfer.fleet_id, self.profile.transfer.kind,
@@ -394,9 +398,12 @@ class TerminalSimulator:
             j.service_start = self.clock
             if j.is_external_truck:   # 서비스 시작 = dispatch 시점 (대기 적분 종료, engine.py:185)
                 self.kpis.service_started(j.job_id, self.clock)
-        self.cost.accrue("crane_travel", plan.loaded_gantry_m)
-        self.cost.accrue("empty_travel", plan.empty_gantry_m)
-        self.cost.accrue("rehandle", float(plan.rehandles))
+        self.cost.accrue("crane_travel", plan.loaded_gantry_m,
+                         cause=CostCause.DISPATCH, subject=crane_id)
+        self.cost.accrue("empty_travel", plan.empty_gantry_m,
+                         cause=CostCause.DISPATCH, subject=crane_id)
+        self.cost.accrue("rehandle", float(plan.rehandles),
+                         cause=CostCause.DISPATCH, subject=crane_id)
         self.queue.push(plan.start_s + plan.duration_s, EventKind.JOB_COMPLETED, crane_id)
         self.event_log.append((self.clock, "DISPATCH", f"{crane_id}:{plan.job_id}"))
         self._assigned[crane_id] = assignment
@@ -462,8 +469,10 @@ class TerminalSimulator:
             if hi > lo:
                 q0, tl0 = self.kpis.queue_area_s, self.kpis.tail_area_s
                 self.kpis.integrate(lo, hi)
-                self.cost.accrue("truck_wait", self.kpis.queue_area_s - q0)
-                self.cost.accrue("long_wait", self.kpis.tail_area_s - tl0)
+                self.cost.accrue("truck_wait", self.kpis.queue_area_s - q0,
+                                 cause=CostCause.WAIT_INTEGRAL)
+                self.cost.accrue("long_wait", self.kpis.tail_area_s - tl0,
+                                 cause=CostCause.WAIT_INTEGRAL)
                 self.transfer.integrate(lo, hi)
                 occ = frozenset(r.lane_id for r in self.reservations.active() if r.lane_id)
                 self.lanes.integrate(lo, hi, occ)
@@ -628,9 +637,11 @@ class TerminalSimulator:
         v.truth.actual_completion_s = self.clock
         pc = v.plan.planned_completion_s
         if pc is not None and self.clock > pc:
-            self.cost.accrue("vessel_delay", self.clock - pc)
+            self.cost.accrue("vessel_delay", self.clock - pc,
+                             cause=CostCause.VESSEL_FINISH, subject=vid)
         if v.plan.etd_s is not None and self.clock > v.plan.etd_s:
-            self.cost.accrue("depart_delay", self.clock - v.plan.etd_s)
+            self.cost.accrue("depart_delay", self.clock - v.plan.etd_s,
+                             cause=CostCause.VESSEL_FINISH, subject=vid)
 
     def _equipment_down(self, crane_id: str):
         yc = self.fleet.get(crane_id)
@@ -663,7 +674,8 @@ class TerminalSimulator:
         self._advance(max(self.clock, self.end))
         for v in self.vessels.values():
             if not v.done and not v.is_symptom() and self.end > v.plan.planned_completion_s:
-                self.cost.accrue("vessel_delay", self.end - v.plan.planned_completion_s)
+                self.cost.accrue("vessel_delay", self.end - v.plan.planned_completion_s,
+                                 cause=CostCause.CLEAROUT, subject=v.vessel_id)
         self.kpis.close_censored(self.end)
         self._terminal = True
 
