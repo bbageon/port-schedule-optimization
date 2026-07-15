@@ -61,13 +61,14 @@ def validate_schema_fv(path: str, fv: FeatureVector) -> None:
         raise ValidationError("LENGTH_MISMATCH", f"{path}: 채널 길이 불일치")
 
 
-def validate_missing_fv(path: str, fv: FeatureVector) -> None:
+def validate_missing_fv(path: str, fv: FeatureVector, ablation_off=frozenset()) -> None:
     for nm, val, kn in zip(fv.names, fv.value, fv.known):
         sp = SCHEMA.spec(fv.group, nm)
         if not kn:
             if val != 0.0:
                 raise ValidationError("STALE_MISSING", f"{path}.{nm}: known=0 인데 value={val}")
-            if not sp.nullable:
+            # §16.3 ablation: 꺼진 그룹의 필드는 known=0 이 의도된 상태 — 필수라도 면제
+            if not sp.nullable and sp.ablation.value not in ablation_off:
                 raise ValidationError("REQUIRED_MISSING", f"{path}.{nm}: 필수 필드 결측")
 
 
@@ -235,6 +236,7 @@ def validate_all(rec: TransitionRecord) -> None:
     if rec.schema_version != SCHEMA_VERSION:
         raise ValidationError("SCHEMA_MISMATCH", rec.schema_version)
     level = InformationLevel(rec.state.info_level)
+    off = frozenset(rec.audit.ablation_off)
     specs_cache = {g: SCHEMA.group_specs(g) for g in SCHEMA.groups()}
     for path, fv, is_pad in _iter_vectors(rec):
         validate_schema_fv(path, fv)
@@ -242,7 +244,7 @@ def validate_all(rec: TransitionRecord) -> None:
         if is_pad:
             continue   # 패딩 슬롯: all-known=0 은 validate_candidates 가 강제
         validate_units_fv(path, fv)
-        validate_missing_fv(path, fv)
+        validate_missing_fv(path, fv, off)
         validate_assumed_fv(path, fv)
         validate_leakage_fv(path, fv, level)
     for st, tag in ((rec.state, "state"), (rec.next_state, "next_state")):
