@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-036 | Sim | 통합 터미널 이벤트 시뮬레이터 | 🔴 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-036-integrated-terminal-simulator.md) · YR-035 계약 구동, 다중 YC·본선·이송·레인 이벤트 |
 
 ---
 
