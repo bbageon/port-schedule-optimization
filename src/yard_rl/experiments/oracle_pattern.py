@@ -227,7 +227,7 @@ def run_oracle_pattern(profile_path: str = "configs/terminals/hjnc_armg.yaml",
                             "improvement": greedy_mean - best,
                             "decisions": len(rows), "divergences": n_div})
         if index % 10 == 0 or index == cfg.test_episodes:
-            progress(f"[pattern] {index}/{cfg.test_episodes}일 — 이탈 "
+            progress(f"[pattern] {index}/{cfg.test_episodes}일 - 이탈 "
                      f"{sum(d['divergences'] for d in day_records)}건 누적")
     _json_dump(out / "divergence_events.json", all_rows)
     _json_dump(out / "per_day.json", day_records)

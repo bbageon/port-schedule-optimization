@@ -166,7 +166,7 @@ def run_oracle_gap(profile_path: str = "configs/terminals/hjnc_armg.yaml",
                      "improvement": greedy_mean - best})
         if index % 10 == 0 or index == cfg.test_episodes:
             running = fmean(r["improvement"] for r in rows)
-            progress(f"[beam] {index}/{cfg.test_episodes} 일 — 상금(하한) "
+            progress(f"[beam] {index}/{cfg.test_episodes} 일 - 상금(하한) "
                      f"누적평균 {running:.3f}분")
 
     imps = [float(r["improvement"]) for r in rows]
