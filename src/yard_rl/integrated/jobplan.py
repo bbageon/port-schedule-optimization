@@ -27,16 +27,17 @@ class Move:
 
 @dataclass(frozen=True)
 class JobRef:
-    """candidates_for 반환 (계약 Candidate 아님 — 어댑터가 계약으로 변환)."""
+    """candidates_for/generator 반환 (계약 Candidate 아님 — 어댑터가 계약으로 변환)."""
 
     job_id: str
-    token: str
+    token: str | None          # SERVE/PRE_REHANDLE=job_id, REPOSITION/WAIT=None
     kind: CandidateKind
     target_container: str | None
     lane_id: str | None
     eligible_crane_ids: tuple[str, ...]
     is_vessel: bool
     is_external: bool
+    reposition_target_bay: float | None = None   # REPOSITION 목표 bay (YR-037)
 
 
 @dataclass(frozen=True)

@@ -66,38 +66,33 @@ class ReservationTable:
                 return cid
         return None
 
+    def reject_reason(self, r: Reservation) -> str | None:
+        """5-lock 순차 판정 코드 (None=성공). 생성기·can_reserve·reserve 가 공유 —
+        1·2·3차 방어가 동일 소스라 divergence 0 (YR-037)."""
+        if r.crane_id in self._by_crane:
+            return "DOUBLE_RESERVE"
+        if self.job_taken(r.job_token) is not None:
+            return "DUP_JOB"
+        if self.lane_owner(r.lane_id) is not None:
+            return "LANE_CONFLICT"
+        if self.corridor_conflict(r.crane_id, r.corridor) is not None:
+            return "CRANE_INTERFERENCE"
+        if self.reserved_slots() & r.slots:
+            return "SLOT_CONFLICT"
+        return None
+
     def reserve(self, r: Reservation) -> None:
         """2차 방어선 — 임의 joint 입력도 검증 (DUP_JOB·LANE_CONFLICT·CRANE_INTERFERENCE)."""
-        if r.crane_id in self._by_crane:
-            raise ConstraintViolation("DOUBLE_RESERVE", f"{r.crane_id} 이미 예약")
-        taken = self.job_taken(r.job_token)
-        if taken is not None:
-            raise ConstraintViolation("DUP_JOB", f"{r.job_token}: {taken}·{r.crane_id} 중복")
-        owner = self.lane_owner(r.lane_id)
-        if owner is not None:
-            raise ConstraintViolation("LANE_CONFLICT", f"lane {r.lane_id}: {owner}·{r.crane_id}")
-        clash = self.corridor_conflict(r.crane_id, r.corridor)
-        if clash is not None:
-            raise ConstraintViolation("CRANE_INTERFERENCE",
-                                      f"{r.crane_id}·{clash} corridor 간섭")
-        overlap = self.reserved_slots() & r.slots
-        if overlap:
-            raise ConstraintViolation("SLOT_CONFLICT", f"{r.crane_id}: 슬롯 {overlap} 예약충돌")
+        reason = self.reject_reason(r)
+        if reason is not None:
+            raise ConstraintViolation(reason, f"{r.crane_id}: {reason} (token={r.job_token} lane={r.lane_id})")
         self._by_crane[r.crane_id] = r
         if r.job_token is not None:
             self._tokens[r.job_token] = r.crane_id
 
     def can_reserve(self, r: Reservation) -> bool:
-        """예약 성공 여부만 판정 (실제 예약 없이 — candidates_for 순차 전파용)."""
-        if r.crane_id in self._by_crane:
-            return False
-        if self.job_taken(r.job_token) is not None:
-            return False
-        if self.lane_owner(r.lane_id) is not None:
-            return False
-        if self.corridor_conflict(r.crane_id, r.corridor) is not None:
-            return False
-        return not (self.reserved_slots() & r.slots)
+        """예약 성공 여부만 판정 (실제 예약 없이 — 순차 전파·dry_run 용)."""
+        return self.reject_reason(r) is None
 
     def release(self, crane_id: str) -> None:
         r = self._by_crane.pop(crane_id, None)

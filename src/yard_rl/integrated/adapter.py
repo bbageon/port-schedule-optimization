@@ -10,14 +10,17 @@ from ..contract import (SCHEMA_VERSION, Assignment, Candidate, CandidateSet,
                         CandidateKind, CostBreakdown, GlobalState, JointAction,
                         LocalObservation, TransitionAudit, TransitionRecord,
                         VesselUrgency, build_feature_vector, dumps, loads,
-                        make_cost, resolve_mode, validate_all)
+                        make_cost, padding_candidate, resolve_mode, validate_all)
 from ..domain.enums import ControlScope, InformationLevel, JobFlow, JobStatus
 from ..sim.travel_time import estimate_reach_s
+from .candidates import CandidateGenerator
 from .cost import ASSUMED_SCALE, ASSUMED_WEIGHT, assumed_lambda_vessel
-from .engine import _pstdev
+from .engine import CraneAssignment, _pstdev
+from .resolver import BaselinePreference, CentralResolver, DispatcherPreference
 
 _KINDS = list(CandidateKind)
 _WAITING = (JobStatus.WAITING, JobStatus.RELEASED)
+_GEN = CandidateGenerator()          # 기본 생성기 (k_max=12·mandatory_frac=0.8, YR-037)
 
 
 def _c01(x: float) -> float:
@@ -117,68 +120,99 @@ def _vessel_urgency(sim, v, now: float, level: InformationLevel, ablation_off=()
     return VesselUrgency(v.vessel_id, mode, basis, assumed, fv)
 
 
-def _candidates(sim, cid: str, refs, now: float, level: InformationLevel, ablation_off=()):
+def _cand_raw(sim, cid, gc, now):
+    """GenCandidate → (feature raw dict, realized_at) — kind 분기 (YR-037)."""
+    yc = sim.fleet.get(cid)
     spec = sim.fleet.spec(cid)
     geom = sim.profile.block
-    yc = sim.fleet.get(cid)
-    plans = [sim._plan(cid, r) for r in refs]
-    svc_all = sorted(p.duration_s for p in plans)
-    median = svc_all[len(svc_all) // 2] if svc_all else 0.0
-    items, svc, reach_l, waits, outbound, short = [], [], [], [], 0, 0
-    for i, (ref, plan) in enumerate(zip(refs, plans)):
-        j = sim.jobs[ref.job_id]
-        reach = estimate_reach_s(spec, geom, yc.state.position_bay, yc.state.trolley_row,
-                                 plan.end_bay, geom.transfer_row)
-        cum = sim.cum_wait(ref.job_id) if ref.is_external else None
-        raw = {
-            "action_kind_idx": _KINDS.index(ref.kind) / (len(_KINDS) - 1),
-            "is_external": 1.0 if ref.is_external else 0.0,
-            "is_vessel": 1.0 if ref.is_vessel else 0.0,
-            "cum_wait_s": cum,
-            "long_wait_excess_s": max(0.0, cum - sim.profile.long_wait_sla_s) if cum is not None else None,
-            "predicted_arrival_gap_s": None, "eta_confidence": None,
-            "deadline_slack_s": (j.deadline - now) if (ref.is_vessel and j.deadline is not None) else None,
-            "reach_s": reach, "expected_service_time_s": plan.duration_s,
-            "expected_handling_count": float(len(plan.moves)),
-            "blocker_count": float(plan.rehandles),
-            "expected_rehandle_time_s": _rehandle_time(plan), "end_bay": plan.end_bay,
-            "lane_congestion_local": _lane_local(sim, ref.lane_id),
-            "interference_penalty_s": 0.0, "resequence_count": 0.0, "vessel_risk_delta": None,
-        }
-        realized = {}
-        if ref.is_external and j.actual_block_arrival is not None:
-            realized = {"cum_wait_s": j.actual_block_arrival,
-                        "long_wait_excess_s": j.actual_block_arrival}
+    kind = gc.kind
+    ref, plan = gc.job_ref, gc.plan
+    # WAIT 또는 계획실패(mandatory SERVE 가 혼잡으로 unplannable — PLAN_FAILED, feasible=False,
+    # YR-029 무손실 보존). 물리 feature 없음 — 중립 raw (infeasible 이라 정책 선택 대상 아님).
+    if kind == CandidateKind.WAIT or plan is None:
+        is_ext = bool(ref and kind != CandidateKind.WAIT and ref.is_external)
+        is_ves = bool(ref and kind != CandidateKind.WAIT and ref.is_vessel)
+        raw = {"action_kind_idx": _KINDS.index(kind) / (len(_KINDS) - 1),
+               "is_external": 1.0 if is_ext else 0.0, "is_vessel": 1.0 if is_ves else 0.0,
+               "cum_wait_s": None, "long_wait_excess_s": None, "predicted_arrival_gap_s": None,
+               "eta_confidence": None, "deadline_slack_s": None, "reach_s": 0.0,
+               "expected_service_time_s": 0.0, "expected_handling_count": 0.0, "blocker_count": 0.0,
+               "expected_rehandle_time_s": 0.0, "end_bay": yc.state.position_bay,
+               "lane_congestion_local": 0.0, "interference_penalty_s": 0.0,
+               "resequence_count": 0.0, "vessel_risk_delta": None}
+        return raw, {}
+    reach = estimate_reach_s(spec, geom, yc.state.position_bay, yc.state.trolley_row,
+                             plan.end_bay, geom.transfer_row)
+    j = sim.jobs.get(ref.job_id)
+    # PRE_REHANDLE 은 미도착 미래 트럭 대상 → 누적대기 없음(None); SERVE 외부만 cum.
+    cum = sim.cum_wait(ref.job_id) if (kind == CandidateKind.SERVE and ref.is_external) else None
+    raw = {
+        "action_kind_idx": _KINDS.index(kind) / (len(_KINDS) - 1),
+        "is_external": 1.0 if ref.is_external else 0.0,
+        "is_vessel": 1.0 if ref.is_vessel else 0.0,
+        "cum_wait_s": cum,
+        "long_wait_excess_s": max(0.0, cum - sim.profile.long_wait_sla_s) if cum is not None else None,
+        "predicted_arrival_gap_s": None, "eta_confidence": None,
+        "deadline_slack_s": (j.deadline - now) if (ref.is_vessel and j and j.deadline is not None) else None,
+        "reach_s": reach, "expected_service_time_s": plan.duration_s,
+        "expected_handling_count": float(len(plan.moves)), "blocker_count": float(plan.rehandles),
+        "expected_rehandle_time_s": _rehandle_time(plan), "end_bay": plan.end_bay,
+        "lane_congestion_local": _lane_local(sim, ref.lane_id),
+        "interference_penalty_s": 0.0, "resequence_count": 0.0, "vessel_risk_delta": None,
+    }
+    realized = {}
+    if cum is not None and j is not None and j.actual_block_arrival is not None:
+        realized = {"cum_wait_s": j.actual_block_arrival, "long_wait_excess_s": j.actual_block_arrival}
+    return raw, realized
+
+
+def _build_candidate_set(sim, cid, gen, now, level, ablation_off, k_max):
+    items = []
+    svc, reach_l, waits, outbound, work = [], [], [], 0, 0
+    for gc in gen.items:
+        raw, realized = _cand_raw(sim, cid, gc, now)
         fv = build_feature_vector("candidate", raw, now=now, info_level=level,
                                   realized_at=realized, ablation_off=ablation_off)
-        items.append(Candidate(candidate_id=i, kind=ref.kind, features=fv,
-                               mandatory=bool(cum is not None and cum >= sim.profile.long_wait_sla_s),
-                               ref_job_id=ref.job_id, resolver_token=ref.token,
-                               eligible_crane_ids=ref.eligible_crane_ids, lane_id=ref.lane_id))
-        svc.append(plan.duration_s)
-        reach_l.append(reach)
-        if cum is not None:
-            waits.append(cum)
-        if ref.is_external and j.flow == JobFlow.GATE_OUT:
-            outbound += 1
-        if plan.duration_s <= median:
-            short += 1
-    n = len(items)
+        ref = gc.job_ref
+        items.append(Candidate(
+            candidate_id=gc.candidate_id, kind=gc.kind, features=fv, mandatory=gc.mandatory,
+            ref_job_id=(ref.job_id if (ref and gc.kind in (CandidateKind.SERVE, CandidateKind.PRE_REHANDLE))
+                        else None),
+            resolver_token=(ref.token if ref else None),
+            eligible_crane_ids=(ref.eligible_crane_ids if ref else ()),
+            lane_id=(ref.lane_id if ref else None)))
+        if gc.kind != CandidateKind.WAIT and gc.plan is not None:
+            work += 1
+            svc.append(gc.plan.duration_s)
+            reach_l.append(raw["reach_s"])
+            if gc.kind == CandidateKind.SERVE and ref.is_external:
+                c = sim.cum_wait(ref.job_id)
+                waits.append(c)
+                if (sim.jobs.get(ref.job_id) or gc.job_ref) and gc.job_ref.target_container is not None:
+                    outbound += 1
+    n_real = len(items)
+    med = sorted(svc)[len(svc) // 2] if svc else 0.0
     qraw = {
-        "cand_count": float(n),
-        "service_min_s": min(svc) if svc else 0.0, "service_mean_s": (sum(svc) / n) if n else 0.0,
+        "cand_count": float(work),
+        "service_min_s": min(svc) if svc else 0.0, "service_mean_s": (sum(svc) / len(svc)) if svc else 0.0,
         "service_max_s": max(svc) if svc else 0.0,
-        "reach_min_s": min(reach_l) if reach_l else 0.0, "reach_mean_s": (sum(reach_l) / n) if n else 0.0,
-        "wait_max_s": max(waits) if waits else 0.0, "wait_mean_s": (sum(waits) / len(waits)) if waits else 0.0,
-        "outbound_share": (outbound / n) if n else 0.0, "short_service_share": (short / n) if n else 0.0,
-        "vessel_urgency_max": _max_vessel_risk(sim, now), "lane_cong_mean": _c01(
-            sim.lanes.occupancy(frozenset(r.lane_id for r in sim.reservations.active() if r.lane_id))[0]),
+        "reach_min_s": min(reach_l) if reach_l else 0.0,
+        "reach_mean_s": (sum(reach_l) / len(reach_l)) if reach_l else 0.0,
+        "wait_max_s": max(waits) if waits else 0.0,
+        "wait_mean_s": (sum(waits) / len(waits)) if waits else 0.0,
+        "outbound_share": (outbound / work) if work else 0.0,
+        "short_service_share": (sum(1 for s in svc if s <= med) / len(svc)) if svc else 0.0,
+        "vessel_urgency_max": _max_vessel_risk(sim, now),
+        "lane_cong_mean": _c01(sim.lanes.occupancy(
+            frozenset(r.lane_id for r in sim.reservations.active() if r.lane_id))[0]),
         "over_sla_count": float(sum(1 for w in waits if w >= sim.profile.long_wait_sla_s)),
     }
     qfv = build_feature_vector("queue", qraw, now=now, info_level=level, ablation_off=ablation_off)
-    cs = CandidateSet(cid, tuple(items), (True,) * n, (True,) * n, (None,) * n, qfv)
-    tok_idx = {c.resolver_token: c.candidate_id for c in items}
-    return cs, tok_idx
+    pad = tuple(padding_candidate(n_real + i) for i in range(k_max - n_real))
+    pad_mask = (True,) * n_real + (False,) * len(pad)
+    feasible = tuple(gc.feasible for gc in gen.items) + (False,) * len(pad)
+    reason = tuple(gc.mask_reason for gc in gen.items) + ("PADDING",) * len(pad)
+    return CandidateSet(cid, tuple(items) + pad, pad_mask, feasible, reason, qfv)
 
 
 # ------------------------------------------------------------ capture + record
@@ -203,8 +237,13 @@ def _scan_audit(state: GlobalState, obs) -> tuple[tuple[str, ...], tuple[str, ..
     return tuple(sorted(missing)), tuple(sorted(assumed))
 
 
-def capture(sim, crane_ids, level, episode_id, k, ablation_off=()):
-    """결정 시점 상태 s_k 를 계약 객체로 (state, observations, token→index map)."""
+def capture(sim, crane_ids, level, episode_id, k, ablation_off=(), generator=None):
+    """결정 시점 상태 s_k 를 계약 객체로 (state, observations, gen_by_crane).
+
+    후보는 CandidateGenerator 가 4종(SERVE/PRE_REHANDLE/REPOSITION/WAIT)·mandatory·padding 으로
+    생성. gen_by_crane 을 resolver 에 전달(candidate_id 직수, YR-037).
+    """
+    gen = generator or _GEN
     now = sim.now
     gfv = build_feature_vector("global", _global_raw(sim, now), now=now,
                                info_level=level, ablation_off=ablation_off)
@@ -213,15 +252,16 @@ def capture(sim, crane_ids, level, episode_id, k, ablation_off=()):
     state = GlobalState(SCHEMA_VERSION, episode_id, k, now, level.value,
                         ControlScope.PLUS_PRE_REHANDLE.value, sim.profile.assumed,
                         gfv, vessels, sim.profile.lane_graph)
-    obs, tok_map = [], {}
+    obs, gen_by = [], {}
     for cid in crane_ids:
         yc_raw, yc_real = _yc_raw(sim, cid, now)
         yfv = build_feature_vector("yc", yc_raw, now=now, info_level=level,
                                    realized_at=yc_real, ablation_off=ablation_off)
-        cs, tok_idx = _candidates(sim, cid, sim.candidates_for(cid), now, level, ablation_off)
+        gc = gen.generate(sim, cid, level)
+        cs = _build_candidate_set(sim, cid, gc, now, level, ablation_off, gen.k_max)
         obs.append(LocalObservation(SCHEMA_VERSION, cid, now, yfv, cs))
-        tok_map[cid] = tok_idx
-    return state, tuple(obs), tok_map
+        gen_by[cid] = gc
+    return state, tuple(obs), gen_by
 
 
 def _assemble(state, obs, cranes_k, assigns, raw, dt, next_state, next_obs, terminal,
@@ -259,32 +299,30 @@ def _max_vessel_risk_state(state) -> float:
     return best
 
 
-def record_episode(sim, dispatcher, *, info_level: InformationLevel, episode_id: str,
-                   ablation_off=()) -> list[TransitionRecord]:
-    """참조 디스패처로 완주하며 결정마다 validate_all 통과 TransitionRecord 산출."""
+def record_episode(sim, dispatcher=None, *, info_level: InformationLevel, episode_id: str,
+                   ablation_off=(), generator=None) -> list[TransitionRecord]:
+    """중앙 resolver 로 완주하며 결정마다 validate_all 통과 TransitionRecord 산출 (YR-037).
+
+    dispatcher 를 주면 그 tie-break 규칙(DispatcherPreference)을, 없으면 BaselinePreference.
+    """
+    gen = generator or _GEN
+    resolver = CentralResolver(DispatcherPreference(dispatcher) if dispatcher else BaselinePreference())
+    sim.info_level = info_level
     records: list[TransitionRecord] = []
     dp = sim.run_until_decision()
     sim.cost.cut()   # [0, t0) 대기비용은 선행 결정 없음 — 폐기
-    cur = capture(sim, dp.crane_ids, info_level, episode_id, 0, ablation_off) if dp else None
+    cur = capture(sim, dp.crane_ids, info_level, episode_id, 0, ablation_off, gen) if dp else None
     k = 0
     while dp is not None:
-        state, obs, tok_map = cur
+        state, obs, gen_by = cur
         cranes_k, t_k = dp.crane_ids, dp.time
-        assigns: dict[str, tuple] = {}
-        from .engine import CraneAssignment
-        for cid in cranes_k:
-            live = sim.candidates_for(cid)
-            if not live:
-                sim.assign(cid, CraneAssignment(cid, CandidateKind.WAIT))
-                assigns[cid] = (None, CandidateKind.WAIT)
-            else:
-                ref = dispatcher.select(sim, cid, live)
-                sim.assign(cid, CraneAssignment(cid, CandidateKind.SERVE, job_ref=ref))
-                assigns[cid] = (tok_map[cid][ref.token], CandidateKind.SERVE)
-        sim.close_decision()
+        res = resolver.resolve(sim, dp, gen_by)
+        resolver.apply(sim, res, gen_by)
+        assigns = {r.crane_id: ((None, CandidateKind.WAIT) if r.action == CandidateKind.WAIT
+                                else (r.chosen_candidate_id, r.action)) for r in res.resolutions}
         dp = sim.run_until_decision()
         raw = sim.cost.cut()
-        nxt = capture(sim, dp.crane_ids, info_level, episode_id, k + 1, ablation_off) if dp else None
+        nxt = capture(sim, dp.crane_ids, info_level, episode_id, k + 1, ablation_off, gen) if dp else None
         rec = _assemble(state, obs, cranes_k, assigns, raw, sim.now - t_k,
                         nxt[0] if nxt else None, nxt[1] if nxt else (), dp is None,
                         episode_id, k, info_level, ablation_off, sim.event_stream_hash())

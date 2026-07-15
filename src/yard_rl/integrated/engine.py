@@ -26,6 +26,7 @@ from .vessel import VesselWorkType
 
 from dataclasses import dataclass
 from ..contract.schema import CandidateKind
+from ..domain.enums import InformationLevel
 
 _EPS = 1e-9
 
@@ -43,11 +44,21 @@ class CraneAssignment:
     job_ref: JobRef | None = None
 
 
+@dataclass(frozen=True)
+class CommitProjection:
+    """dry_run_commit 결과 — resolver 의 joint feasibility 오라클 (commit 과 동일 경로)."""
+
+    plans: dict            # crane_id -> JobPlan (수용된 배정)
+    reasons: dict          # crane_id -> reject 코드 (미수용)
+
+
 class TerminalSimulator:
-    def __init__(self, profile, scenario, *, check_invariants: bool = True):
+    def __init__(self, profile, scenario, *, check_invariants: bool = True,
+                 info_level: InformationLevel = InformationLevel.BLOCK_ARRIVAL):
         self.profile = profile
         self.scenario = scenario
         self._check = check_invariants
+        self.info_level = info_level     # PRE_REHANDLE/REPOSITION 정보시점 게이팅 (YR-037)
         self.reset()
 
     # ------------------------------------------------------------- lifecycle
@@ -75,6 +86,7 @@ class TerminalSimulator:
         self._assigned: dict[str, CraneAssignment] = {}
         self._active_plans: dict[str, JobPlan] = {}
         self.event_log: list[tuple[float, str, str]] = []
+        self.resolution_log: list = []       # JointResolution (YR-037, 계약 밖 side-channel)
         self._seed_events()
         self._refresh_rates()
 
@@ -242,14 +254,34 @@ class TerminalSimulator:
                       is_vessel=j.is_vessel_linked, is_external=j.is_external_truck)
 
     # ------------------------------------------------------------- planning
-    def _plan(self, crane_id: str, ref: JobRef) -> JobPlan | None:
-        """스택 미변형으로 JobPlan 계산 (deferred). 실패 시 None."""
+    def _plan(self, crane_id: str, ref: JobRef, *, extra_exclude=frozenset()) -> JobPlan | None:
+        """스택 미변형으로 JobPlan 계산 (deferred). 실패 시 None.
+
+        kind 분기: SERVE(GATE_IN 장치 / GATE_OUT·본선 반출) · PRE_REHANDLE(blocker 만 relocate,
+        target 잔존) · REPOSITION(컨테이너 미조작, 빈 주행만). extra_exclude 는 dry_run 순차 예약.
+        """
         yc = self.fleet.get(crane_id)
         spec = self.fleet.spec(crane_id)
         geom = self.profile.block
-        work = copy.deepcopy(self.stacks)
-        exclude = set(self.reservations.reserved_slots())
         cur_bay, cur_row = yc.state.position_bay, yc.state.trolley_row
+
+        if ref.kind == CandidateKind.REPOSITION:
+            tb = ref.reposition_target_bay
+            if tb is None:
+                return None
+            tb = float(min(max(tb, spec.service_bay_min), spec.service_bay_max))
+            dist = gantry_m(geom, cur_bay, tb)
+            t_dist = trolley_m(geom, cur_row, geom.transfer_row)
+            dur = dist / spec.gantry_speed_mps + t_dist / spec.trolley_speed_mps
+            return JobPlan(crane_id=crane_id, job_id=ref.job_id, token=None,
+                           kind=CandidateKind.REPOSITION, moves=(),
+                           corridor=(min(cur_bay, tb), max(cur_bay, tb)), slots=frozenset(),
+                           lane_id=None, start_s=self.clock, duration_s=dur, end_bay=tb,
+                           end_row=float(geom.transfer_row), rehandles=0,
+                           loaded_gantry_m=0.0, empty_gantry_m=dist)
+
+        work = copy.deepcopy(self.stacks)
+        exclude = set(self.reservations.reserved_slots()) | set(extra_exclude)
         moves: list[Move] = []
         touched_bays = {cur_bay}
         slots: set[tuple[int, int]] = set()
@@ -257,7 +289,7 @@ class TerminalSimulator:
         rehandles = 0
         j = self.jobs[ref.job_id]
 
-        if j.flow == JobFlow.GATE_IN:
+        if j.flow == JobFlow.GATE_IN and ref.kind == CandidateKind.SERVE:
             dest = work.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
             if dest is None:
                 return None
@@ -300,20 +332,22 @@ class TerminalSimulator:
                 exclude.add((db, dr))
                 touched_bays |= {b.bay, db}
                 slots |= {(b.bay, b.row), (db, dr)}
-            target = work.containers[target_id]
-            src = (target.bay, target.row, target.tier)
-            dst = (target.bay, geom.transfer_row, 1)
-            mv = move_container(spec, geom, cur_bay, cur_row, src, dst)
-            moves.append(Move(target_id, src, dst, mv.loaded_gantry_m, mv.empty_gantry_m,
-                              mv.duration_s, depart=True))
-            total_s += mv.duration_s
-            if j.is_external_truck:
-                total_s += spec.truck_positioning_time_s
-            loaded_m += mv.loaded_gantry_m
-            empty_m += mv.empty_gantry_m
-            cur_bay, cur_row = mv.end_bay, mv.end_row
-            touched_bays |= {target.bay}
-            slots.add((target.bay, target.row))
+            if ref.kind == CandidateKind.SERVE:
+                # 대상 반출 (PRE_REHANDLE 은 blocker 만 치우고 target 잔존)
+                target = work.containers[target_id]
+                src = (target.bay, target.row, target.tier)
+                dst = (target.bay, geom.transfer_row, 1)
+                mv = move_container(spec, geom, cur_bay, cur_row, src, dst)
+                moves.append(Move(target_id, src, dst, mv.loaded_gantry_m, mv.empty_gantry_m,
+                                  mv.duration_s, depart=True))
+                total_s += mv.duration_s
+                if j.is_external_truck:
+                    total_s += spec.truck_positioning_time_s
+                loaded_m += mv.loaded_gantry_m
+                empty_m += mv.empty_gantry_m
+                cur_bay, cur_row = mv.end_bay, mv.end_row
+                touched_bays |= {target.bay}
+                slots.add((target.bay, target.row))
 
         lo, hi = min(touched_bays), max(touched_bays)
         return JobPlan(crane_id=crane_id, job_id=j.job_id, token=ref.token, kind=ref.kind,
@@ -341,24 +375,25 @@ class TerminalSimulator:
             return
         ref = assignment.job_ref
         if ref is None:
-            raise ConstraintViolation("BAD_ASSIGN", f"{crane_id} SERVE 인데 job 없음")
+            raise ConstraintViolation("BAD_ASSIGN", f"{crane_id} {assignment.action.value} 인데 job 없음")
         plan = self._plan(crane_id, ref)
         if plan is None:
             raise ConstraintViolation("NOT_DISPATCHABLE", f"{crane_id}:{ref.job_id} 계획 불가")
         self.reservations.reserve(self._reservation(plan))   # 2차 방어선
         self._active_plans[crane_id] = plan
-        j = self.jobs[plan.job_id]
-        j.status = JobStatus.RUNNING
-        j.assigned_crane = crane_id
-        j.service_start = self.clock
         yc.state.assigned_job = plan.job_id
         yc.state.status = CraneStatus.HANDLING
         yc.state.available_at = plan.start_s + plan.duration_s
-        yc.is_loaded = True
-        # 서비스 시작 = dispatch 시점 (단일 YC engine.py:185 계승). 대기 적분이 서비스시간을
-        # 포함하지 않도록 여기서 _waiting 에서 제거 — 완료 시점이 아니라 dispatch 시점.
-        if j.is_external_truck:
-            self.kpis.service_started(j.job_id, self.clock)
+        yc.is_loaded = assignment.action != CandidateKind.REPOSITION
+        # SERVE 만 job 을 RUNNING 으로 (PRE_REHANDLE 은 대상 job 을 서비스하지 않음 — PLANNED 잔존,
+        # 동시 SERVE 는 token 예약이 차단). REPOSITION 은 job 없음.
+        if assignment.action == CandidateKind.SERVE:
+            j = self.jobs[plan.job_id]
+            j.status = JobStatus.RUNNING
+            j.assigned_crane = crane_id
+            j.service_start = self.clock
+            if j.is_external_truck:   # 서비스 시작 = dispatch 시점 (대기 적분 종료, engine.py:185)
+                self.kpis.service_started(j.job_id, self.clock)
         self.cost.accrue("crane_travel", plan.loaded_gantry_m)
         self.cost.accrue("empty_travel", plan.empty_gantry_m)
         self.cost.accrue("rehandle", float(plan.rehandles))
@@ -379,6 +414,33 @@ class TerminalSimulator:
         for a in sorted(assignments, key=lambda x: x.crane_id):
             self.assign(a.crane_id, a)
         self.close_decision()
+
+    def dry_run_commit(self, choices: dict) -> CommitProjection:
+        """resolver joint-feasibility 오라클 — choices{crane_id→JobRef|None} 를 실제 커밋과
+        동일 경로(_plan + reject_reason, crane_id 순)로 시뮬한다. 라이브 상태 미변형.
+
+        불변식(D-ORACLE): dry_run.plans == commit 실제 배정 plans → resolver 가 수용한 joint 는
+        assign→reserve() 에서 예외 없이 통과한다.
+        """
+        scratch = copy.deepcopy(self.reservations)
+        plans: dict = {}
+        reasons: dict = {}
+        for cid in sorted(choices):
+            ref = choices[cid]
+            if ref is None:
+                continue
+            plan = self._plan(cid, ref, extra_exclude=scratch.reserved_slots())
+            if plan is None:
+                reasons[cid] = "NO_PLAN"
+                continue
+            r = self._reservation(plan)
+            reason = scratch.reject_reason(r)
+            if reason is not None:
+                reasons[cid] = reason
+                continue
+            scratch.reserve(r)
+            plans[cid] = plan
+        return CommitProjection(plans, reasons)
 
     def last_assignments(self) -> dict[str, CraneAssignment]:
         return dict(self._assigned)
@@ -445,13 +507,15 @@ class TerminalSimulator:
         elif k == "TRANSFER_ARRIVE":
             self._transfer_arrive(ev.payload)
         elif k == "EQUIPMENT_DOWN":
-            self._equipment_down(ev.payload)
+            if ev.payload in self.fleet._cranes:
+                self._equipment_down(ev.payload)
         elif k == "EQUIPMENT_UP":
-            yc = self.fleet.get(ev.payload)
-            # down_pending 중(작업 진행 중) UP 이면 지연 DOWN 을 취소 — 정전이 실현 전 해소.
-            yc.down = False
-            yc.down_pending = False
-            self._clear_yields()
+            if ev.payload in self.fleet._cranes:
+                yc = self.fleet.get(ev.payload)
+                # down_pending 중(작업 진행 중) UP 이면 지연 DOWN 을 취소 — 정전이 실현 전 해소.
+                yc.down = False
+                yc.down_pending = False
+                self._clear_yields()
         elif k == "PLAN_CHANGE":
             self._plan_change(ev.payload, ev.data)
         elif k in ("HORIZON", "ETA_UPDATED", "VESSEL_RELEASED"):
@@ -480,18 +544,21 @@ class TerminalSimulator:
         yc.state.available_at = self.clock
         yc.is_loaded = False
         yc.recent_completions += 1
-        yc.served_count += 1
         yc.state.loaded_travel_m += plan.loaded_gantry_m
         yc.state.empty_travel_m += plan.empty_gantry_m
         self.kpis.add_travel(plan.loaded_gantry_m, plan.empty_gantry_m)
         self.kpis.add_rehandles(plan.rehandles)
-        j = self.jobs.get(plan.job_id)
-        if j is not None:
-            j.status = JobStatus.DONE
-            j.service_end = self.clock
-            j.rehandle_count = plan.rehandles
-            self.kpis.job_completed(external=j.is_external_truck, deadline=j.deadline,
-                                    end=self.clock)
+        # SERVE 만 대상 job 을 완료·served 계상 (PRE_REHANDLE 은 target 잔존·job 미완료,
+        # REPOSITION 은 job 없음 — kind 가드로 jobs.get(sentinel/PLANNED) 오설정 차단).
+        if plan.kind == CandidateKind.SERVE:
+            yc.served_count += 1
+            j = self.jobs.get(plan.job_id)
+            if j is not None:
+                j.status = JobStatus.DONE
+                j.service_end = self.clock
+                j.rehandle_count = plan.rehandles
+                self.kpis.job_completed(external=j.is_external_truck, deadline=j.deadline,
+                                        end=self.clock)
         if yc.down_pending:
             yc.down, yc.down_pending = True, False
         self._clear_yields()
@@ -625,6 +692,23 @@ class TerminalSimulator:
             spec = self.fleet.spec(c.crane_id)
             if not (spec.service_bay_min <= c.state.position_bay <= spec.service_bay_max):
                 raise ConstraintViolation("OUT_OF_RANGE", f"{c.crane_id}")
+        self._assert_pairwise_resources()
+
+    def _assert_pairwise_resources(self):
+        """상시 4-lock 무결성 — 삽입시점뿐 아니라 매 이벤트 후 active 예약 쌍별 검사 (YR-037)."""
+        active = self.reservations.active()
+        gap = self.reservations.safety_gap_bay
+        for i in range(len(active)):
+            for jx in range(i + 1, len(active)):
+                a, b = active[i], active[jx]
+                if a.job_token is not None and a.job_token == b.job_token:
+                    raise ConstraintViolation("TOKEN_DOUBLE", f"{a.crane_id}·{b.crane_id} {a.job_token}")
+                if a.lane_id is not None and a.lane_id == b.lane_id:
+                    raise ConstraintViolation("LANE_DOUBLE", f"{a.crane_id}·{b.crane_id} {a.lane_id}")
+                if a.corridor.overlaps(b.corridor, gap):
+                    raise ConstraintViolation("CORRIDOR_OVERLAP", f"{a.crane_id}·{b.crane_id}")
+                if a.slots & b.slots:
+                    raise ConstraintViolation("SLOT_DOUBLE", f"{a.crane_id}·{b.crane_id}")
 
     def unfinished_backlog(self) -> int:
         return sum(1 for j in self.jobs.values()

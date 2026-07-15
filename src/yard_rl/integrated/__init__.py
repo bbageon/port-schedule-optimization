@@ -7,10 +7,15 @@
 from __future__ import annotations
 
 from .adapter import capture, record_episode
+from .audit import (CandidateVerdict, CraneResolution, JointResolution,
+                    resolution_stream_hash)
+from .candidates import CandidateGenerator, GenCandidate, GeneratedCandidates
 from .cost import (ASSUMED_SCALE, ASSUMED_WEIGHT, CostAccumulator,
                    assumed_lambda_vessel)
 from .dispatcher import ReferenceDispatcher
-from .engine import CraneAssignment, TerminalDecision, TerminalSimulator
+from .engine import (CommitProjection, CraneAssignment, TerminalDecision,
+                     TerminalSimulator)
+from .resolver import (BaselinePreference, CentralResolver, DispatcherPreference)
 from .events import EventKind, EventQueue
 from .fixtures import build_integrated_profile, build_minimal_terminal_scenario
 from .jobplan import JobPlan, JobRef, Move
@@ -20,8 +25,11 @@ from .scenario import InjectedEvent, TerminalScenario
 from .vessel import (VesselPlan, VesselProcess, VesselTruth, VesselWorkType)
 
 __all__ = [
-    "TerminalSimulator", "TerminalDecision", "CraneAssignment",
+    "TerminalSimulator", "TerminalDecision", "CraneAssignment", "CommitProjection",
     "ReferenceDispatcher", "record_episode", "capture",
+    "CandidateGenerator", "GenCandidate", "GeneratedCandidates",
+    "CentralResolver", "BaselinePreference", "DispatcherPreference",
+    "JointResolution", "CraneResolution", "CandidateVerdict", "resolution_stream_hash",
     "IntegratedProfile", "TransferFleetSpec", "TerminalScenario", "InjectedEvent",
     "VesselProcess", "VesselPlan", "VesselTruth", "VesselWorkType",
     "ReservationTable", "Reservation", "Corridor",
