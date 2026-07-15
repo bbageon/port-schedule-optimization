@@ -5,7 +5,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-037 | RL | 동적 후보·공동 Action·Hard Constraint | 🟠 | [spec](../docs/dashboard-task-specs/YR-037-joint-candidates-constraints.md) · YR-035/036 후, YR-029 SLA 보호 흡수 |
 | YR-038 | RL | 정규화 터미널 Total Cost·Reward | 🟠 | [spec](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md) · YR-035/036 후, YR-026 민감도 흡수 |
 | YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
