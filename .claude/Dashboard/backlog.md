@@ -5,7 +5,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-038 | RL | 정규화 터미널 Total Cost·Reward | 🟠 | [spec](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md) · YR-035/036 후, YR-026 민감도 흡수 |
 | YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
