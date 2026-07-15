@@ -275,6 +275,11 @@ def main(argv: list[str] | None = None):
     pdn.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pdn.add_argument("--out", default="outputs/reports/residual_delta_hjnc")
     pdn.add_argument("--quick", action="store_true")
+    pop = sub.add_parser("run-oracle-pattern",
+                         help="YR-031-b Oracle 개선 패턴 분석 (H-A/H-B, 사전등록)")
+    pop.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pop.add_argument("--out", default="outputs/reports/oracle_pattern_hjnc")
+    pop.add_argument("--quick", action="store_true")
     pds = sub.add_parser("run-delta-stable",
                          help="YR-012-b Δ-net 안정화 (replay+target net, 사전등록)")
     pds.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -312,6 +317,13 @@ def main(argv: list[str] | None = None):
                                                             run_delta_experiment)
         cfg = quick_delta_config() if args.quick else DeltaExpConfig()
         run_delta_experiment(args.profile, args.out, cfg)
+        return
+    if args.cmd == "run-oracle-pattern":
+        from .experiments.oracle_pattern import (PatternConfig,
+                                                 quick_pattern_config,
+                                                 run_oracle_pattern)
+        cfg = quick_pattern_config() if args.quick else PatternConfig()
+        run_oracle_pattern(args.profile, args.out, cfg)
         return
     if args.cmd == "run-delta-stable":
         from .experiments.residual_delta_stable import (StableExpConfig,

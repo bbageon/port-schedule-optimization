@@ -88,11 +88,19 @@ def _greedy_day(profile, scenario, cfg: OracleGapConfig) -> tuple[float, list[st
 
 def _beam_day(profile, scenario, greedy_trace: list[str],
               cfg: OracleGapConfig) -> float:
-    """결정 lockstep beam — greedy 노드를 별도 트랙으로 항상 유지 (§2).
+    """결정 lockstep beam — greedy 노드를 별도 트랙으로 항상 유지 (§2)."""
+    best, _trace = beam_day_with_trace(profile, scenario, greedy_trace, cfg)
+    return best
+
+
+def beam_day_with_trace(profile, scenario, greedy_trace: list[str],
+                        cfg: OracleGapConfig) -> tuple[float, tuple[str, ...]]:
+    """YR-031 beam + 최적 궤적 반환 (YR-031-b 패턴 분석용 — 알고리즘 동일).
 
     매 step: greedy 노드 + beam 노드의 모든 feasible 자식을 만들고 누적비용
     상위 W 를 beam 으로. greedy 노드 자체는 궤적을 따라 in-place 전진 —
     beam 에서 탈락해도 소멸하지 않으므로 best_found ≤ greedy 가 보장된다.
+    동률이면 greedy 궤적을 반환한다 (이탈 최소 원칙 — 분석 보수성).
     """
     # node = (누적비용, env, info, 실행 궤적 tuple). 궤적이 상태를 유일 결정
     # (결정론 엔진) — 궤적 키 dedup 으로 중복 상태 제거 (리뷰 확정 결함:
@@ -123,7 +131,11 @@ def _beam_day(profile, scenario, greedy_trace: list[str],
         _s, cost, _d, g_info = g_env.step(job_id)         # greedy 트랙 전진
         g_cum += cost
         g_trace += (job_id,)
-    return min([g_cum] + [n[0] for n in beam.values()])
+    best_cum = min([g_cum] + [n[0] for n in beam.values()])  # 원본과 동일 연산
+    if g_cum == best_cum:                                    # 동률 시 greedy 우선
+        return best_cum, g_trace
+    best_trace = min((n[3] for n in beam.values() if n[0] == best_cum))
+    return best_cum, best_trace
 
 
 def run_oracle_gap(profile_path: str = "configs/terminals/hjnc_armg.yaml",
