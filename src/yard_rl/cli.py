@@ -265,6 +265,10 @@ def main(argv: list[str] | None = None):
     pv.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pv.add_argument("--out", default="outputs/reports/costq_v1final_hjnc")
     pv.add_argument("--quick", action="store_true")
+    pdg = sub.add_parser("run-dgt-gen",
+                         help="YR-042 DGT 근사 일반화 게이트 (zero-shot+재학습)")
+    pdg.add_argument("--out", default="outputs/reports/dgt_generalization")
+    pdg.add_argument("--quick", action="store_true")
     pcd = sub.add_parser("run-candidate-dqn",
                          help="YR-039 통합 Candidate DQN/DDQN/Dueling 3-arm")
     pcd.add_argument("--out", default="outputs/reports/candidate_dqn_poc")
@@ -318,6 +322,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-dgt-gen":
+        from .experiments.dgt_generalization import (DgtGenConfig,
+                                                     quick_dgt_gen_config,
+                                                     run_dgt_generalization)
+        cfg = quick_dgt_gen_config() if args.quick else DgtGenConfig()
+        run_dgt_generalization(args.out, cfg)
+        return
     if args.cmd == "run-candidate-dqn":
         from .experiments.candidate_dqn_experiment import (
             CandidateDqnConfig, quick_candidate_dqn_config, run_candidate_dqn)
