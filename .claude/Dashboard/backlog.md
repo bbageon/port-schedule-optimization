@@ -16,7 +16,7 @@
 | YR-026 | RL | 비용계수 민감도 + tail 60분 임계 KPI 확장 (안전운임 제도 정합) | 🟡 | YR-025 후속: 계수 4/5가 assumed·tail 은 30분 proxy — 본선·tail 계수 grid 로 negative 결과의 강건성 판별. tail 지표 재정의는 YR-029 와 연계 |
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |
 | YR-015-b | UI | Phase 6 후반: UI-3 정책설명 패널 고도화·UI-4 동기비교·검증 테스트 확충 | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · UI-1/2 는 YR-015-a 로 분할 착수 (2026-07-13) |
-| YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) |
+| YR-013 | Exp | Phase 8: Exp-4 다중 YC 협조 | ⚪ | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · 동적 후보 Double DQN→중앙 matching→QMIX 구현계약 갱신 |
 | YR-014 | Exp | Phase 9: 최종평가·ablation·탄소 사후평가 | ⚪ | [spec](../docs/dashboard-task-specs/YR-014-final-evaluation.md) |
 
 ---
