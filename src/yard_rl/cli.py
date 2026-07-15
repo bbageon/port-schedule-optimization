@@ -267,7 +267,8 @@ def main(argv: list[str] | None = None):
     pv.add_argument("--quick", action="store_true")
     pdg = sub.add_parser("run-dgt-gen",
                          help="YR-042 DGT 근사 일반화 게이트 (zero-shot+재학습)")
-    pdg.add_argument("--out", default="outputs/reports/dgt_generalization")
+    pdg.add_argument("--out", default=None)
+    pdg.add_argument("--terminal", choices=("dgt", "hjnc"), default="dgt")
     pdg.add_argument("--quick", action="store_true")
     pcd = sub.add_parser("run-candidate-dqn",
                          help="YR-039 통합 Candidate DQN/DDQN/Dueling 3-arm")
@@ -326,8 +327,13 @@ def main(argv: list[str] | None = None):
         from .experiments.dgt_generalization import (DgtGenConfig,
                                                      quick_dgt_gen_config,
                                                      run_dgt_generalization)
+        from .integrated.profiles import (build_dgt_approx_profile,
+                                          build_hjnc_approx_profile)
         cfg = quick_dgt_gen_config() if args.quick else DgtGenConfig()
-        run_dgt_generalization(args.out, cfg)
+        builder = (build_hjnc_approx_profile if args.terminal == "hjnc"
+                   else build_dgt_approx_profile)
+        out = args.out or f"outputs/reports/{args.terminal}_generalization"
+        run_dgt_generalization(out, cfg, profile_builder=builder)
         return
     if args.cmd == "run-candidate-dqn":
         from .experiments.candidate_dqn_experiment import (

@@ -15,6 +15,7 @@ from ..io.profile_loader import load_profile
 from .profile import IntegratedProfile, TransferFleetSpec
 
 DGT_SINGLE_YAML = "configs/terminals/dgt_armg.yaml"
+HJNC_SINGLE_YAML = "configs/terminals/hjnc_armg.yaml"
 
 
 def build_dgt_approx_profile(single_yaml: str | Path = DGT_SINGLE_YAML
@@ -36,6 +37,32 @@ def build_dgt_approx_profile(single_yaml: str | Path = DGT_SINGLE_YAML
         cranes=cranes,
         lane_graph=LaneGraph(("L1", "L2"), (("L1", "L2"),)),
         transfer=TransferFleetSpec("AGV1", "AGV", n_units=3, move_time_s=180.0),
+        long_wait_sla_s=single.long_wait_sla_s,
+        decision_horizon_s=single.decision_horizon_s,
+        gate_travel_estimate_s=single.gate_travel_estimate_s,
+    )
+
+
+def build_hjnc_approx_profile(single_yaml: str | Path = HJNC_SINGLE_YAML
+                              ) -> IntegratedProfile:
+    """HJNC 근사 통합 프로파일 — 전 항목 assumed.
+
+    주의 (YR-022 수렴): 공개정보 수준에서 hjnc_armg 과 dgt_armg 은 수치 동일 —
+    본 근사에서 실질 차이는 이송 fleet 종류(YT vs AGV, 라벨) 뿐이며 역학은 같다.
+    따라서 동일 seed 실행 결과는 DGT 근사와 일치할 것으로 예상 (그 수렴 자체가
+    evidence — YR-023 선례). 실차별화는 수평배열·YT 대수 등 협약(🤝) 후.
+    """
+    single = load_profile(single_yaml)
+    base = single.crane
+    cranes = tuple(replace(base, crane_id=cid) for cid in ("YC-L", "YC-W"))
+    return IntegratedProfile(
+        terminal_id="HJNC-APPROX-2CR",
+        profile_date="2026-07-15",
+        assumed=True,
+        block=single.block,
+        cranes=cranes,
+        lane_graph=LaneGraph(("L1", "L2"), (("L1", "L2"),)),
+        transfer=TransferFleetSpec("YT1", "YT", n_units=3, move_time_s=180.0),
         long_wait_sla_s=single.long_wait_sla_s,
         decision_horizon_s=single.decision_horizon_s,
         gate_travel_estimate_s=single.gate_travel_estimate_s,

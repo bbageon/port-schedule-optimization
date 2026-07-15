@@ -76,13 +76,14 @@ def quick_dgt_gen_config() -> DgtGenConfig:
 
 def run_dgt_generalization(out_dir: str = "outputs/reports/dgt_generalization",
                            cfg: DgtGenConfig | None = None,
+                           profile_builder: Callable = build_dgt_approx_profile,
                            progress: Callable[[str], None] = print) -> Path:
     cfg = cfg or DgtGenConfig()
     started = time.time()
     git = _git_state()
     if not cfg.quick and (git["commit"] == "unknown" or git["dirty"]):
         raise RuntimeError("full YR-042 run requires a clean committed tree")
-    profile = build_dgt_approx_profile()
+    profile = profile_builder()
     params = (TerminalGenParams(n_external=cfg.n_external,
                                 n_vessels=cfg.n_vessels, vessel_moves=6,
                                 horizon_s=7_200.0, drain_window_s=3_600.0)
