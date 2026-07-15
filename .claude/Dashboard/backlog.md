@@ -11,7 +11,6 @@
 | YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
-| YR-033 | Exp | checkpoint 선택 프로토콜 보완 | 🟡 | [spec](../docs/dashboard-task-specs/YR-033-checkpoint-selection.md) · 기존 중복 YR-032를 바로잡음 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |

@@ -290,6 +290,11 @@ def main(argv: list[str] | None = None):
     psf.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     psf.add_argument("--out", default="outputs/reports/residual_setfeat_hjnc")
     psf.add_argument("--quick", action="store_true")
+    pcs = sub.add_parser("run-setfeat-select",
+                         help="YR-033 checkpoint 선택 프로토콜 보완 (사전등록)")
+    pcs.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    pcs.add_argument("--out", default="outputs/reports/setfeat_selection_hjnc")
+    pcs.add_argument("--quick", action="store_true")
     prc = sub.add_parser("run-costq-residual",
                          help="YR-030-c Greedy 기반 잔차 Cost-Q 3-arm (사전등록)")
     prc.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -343,6 +348,13 @@ def main(argv: list[str] | None = None):
                                                              run_setfeat_experiment)
         cfg = quick_setfeat_config() if args.quick else SetFeatConfig()
         run_setfeat_experiment(args.profile, args.out, cfg)
+        return
+    if args.cmd == "run-setfeat-select":
+        from .experiments.setfeat_selection import (SelectConfig,
+                                                    quick_select_config,
+                                                    run_selection_experiment)
+        cfg = quick_select_config() if args.quick else SelectConfig()
+        run_selection_experiment(args.profile, args.out, cfg)
         return
     if args.cmd == "run-costq-residual":
         from .experiments.residual_costq import (ResidualConfig,
