@@ -285,6 +285,11 @@ def main(argv: list[str] | None = None):
     pds.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pds.add_argument("--out", default="outputs/reports/residual_delta_stable_hjnc")
     pds.add_argument("--quick", action="store_true")
+    psf = sub.add_parser("run-delta-setfeat",
+                         help="YR-012-c Δ-net feature 14→22 집합맥락 (사전등록)")
+    psf.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
+    psf.add_argument("--out", default="outputs/reports/residual_setfeat_hjnc")
+    psf.add_argument("--quick", action="store_true")
     prc = sub.add_parser("run-costq-residual",
                          help="YR-030-c Greedy 기반 잔차 Cost-Q 3-arm (사전등록)")
     prc.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -331,6 +336,13 @@ def main(argv: list[str] | None = None):
                                                         run_stable_experiment)
         cfg = quick_stable_config() if args.quick else StableExpConfig()
         run_stable_experiment(args.profile, args.out, cfg)
+        return
+    if args.cmd == "run-delta-setfeat":
+        from .experiments.residual_setfeat_experiment import (SetFeatConfig,
+                                                             quick_setfeat_config,
+                                                             run_setfeat_experiment)
+        cfg = quick_setfeat_config() if args.quick else SetFeatConfig()
+        run_setfeat_experiment(args.profile, args.out, cfg)
         return
     if args.cmd == "run-costq-residual":
         from .experiments.residual_costq import (ResidualConfig,

@@ -22,8 +22,12 @@ from torch import nn
 from .cost_q import CandidateProtocol, CandidateT, EvaluationDiagnostics
 
 N_FEATURES = 14
+N_FEATURES_SET = 22             # YR-012-c: 14 + 집합 맥락 8
 # z-score 적용 차원 (나머지는 [0,1] 스케일 — passthrough, 사전등록 §2)
 _ZSCORE_DIMS = (2, 3, 4, 6, 7, 8, 9, 10, 11, 13)
+# YR-012-c 집합 8 중 z-score 대상: 후보수(14)·svc min/mean/max(15,16,17)·
+# reach min/mean(18,19) — 비율 2개(20,21)는 [0,1] passthrough
+_ZSCORE_DIMS_SET = _ZSCORE_DIMS + (14, 15, 16, 17, 18, 19)
 
 
 def extract_features(candidate: CandidateProtocol) -> list[float]:
@@ -50,6 +54,14 @@ def extract_features(candidate: CandidateProtocol) -> list[float]:
     ]
 
 
+def extract_features_with_set(candidate: CandidateProtocol) -> list[float]:
+    """후보 → 22차원 (14 + 집합 맥락 8, YR-012-c). set_raw 는 결정 시점 확정값."""
+    s = getattr(candidate, "set_raw", ())
+    if len(s) != 8:
+        raise ValueError("set_raw 미부착 후보 — v1_final env 필요 (YR-012-c)")
+    return extract_features(candidate) + [float(v) for v in s]
+
+
 @dataclass(frozen=True)
 class FeatureScaler:
     """train FIFO 관측 mean/std z-score — fit 후 동결 (val/test 재조정 금지)."""
@@ -59,15 +71,22 @@ class FeatureScaler:
     fitted: bool = False
 
     @classmethod
-    def fit(cls, rows: Sequence[Sequence[float]]) -> "FeatureScaler":
+    def fit(cls, rows: Sequence[Sequence[float]],
+            zscore_dims: Sequence[int] | None = None) -> "FeatureScaler":
+        """train 관측으로 z-score fit. dim=14(기본)·22(YR-012-c) 모두 지원 —
+        zscore_dims 미지정 시 feature 수로 자동 선택."""
         if not rows:
             raise ValueError("scaler fit 에 관측이 필요")
         cols = list(zip(*rows))
-        if len(cols) != N_FEATURES:
-            raise ValueError(f"feature 차원 불일치: {len(cols)} != {N_FEATURES}")
+        if len(cols) not in (N_FEATURES, N_FEATURES_SET):
+            raise ValueError(
+                f"feature 차원 {len(cols)} — {N_FEATURES} 또는 {N_FEATURES_SET} 여야 함")
+        if zscore_dims is None:
+            zscore_dims = _ZSCORE_DIMS if len(cols) == N_FEATURES else _ZSCORE_DIMS_SET
+        zset = set(zscore_dims)
         mean, std = [], []
         for d, col in enumerate(cols):
-            if d in _ZSCORE_DIMS:
+            if d in zset:
                 m = sum(col) / len(col)
                 var = sum((v - m) ** 2 for v in col) / len(col)
                 mean.append(m)
@@ -90,10 +109,10 @@ class FeatureScaler:
 
 
 class _DeltaMLP(nn.Module):
-    def __init__(self, hidden: int):
+    def __init__(self, hidden: int, n_in: int = N_FEATURES):
         super().__init__()
         self.body = nn.Sequential(
-            nn.Linear(N_FEATURES, hidden), nn.ReLU(),
+            nn.Linear(n_in, hidden), nn.ReLU(),
             nn.Linear(hidden, hidden), nn.ReLU())
         self.head = nn.Linear(hidden, 1)
         # 출력층 zero-init — 미학습 Δθ(x) ≡ 0 → 정책 ≡ greedy (사전등록 §1)
@@ -115,6 +134,7 @@ class DeltaNetConfig:
     batch_size: int = 64
     min_replay: int = 1_000      # 샘플링 시작 전 최소 축적 (warmup)
     target_sync_every: int = 0   # >0 이면 target network, N gradient step 마다 동기화
+    use_set_context: bool = False  # YR-012-c: True 면 22입력 (14 + 집합 8)
 
     def __post_init__(self) -> None:
         if not 0.0 < self.gamma <= 1.0:
@@ -145,15 +165,22 @@ class ResidualDeltaNetAgent:
     def __post_init__(self) -> None:
         if self.scaler is None or not self.scaler.fitted:
             raise ValueError("fitted FeatureScaler 필요 (train 관측으로 동결)")
+        n_in = N_FEATURES_SET if self.cfg.use_set_context else N_FEATURES
+        if len(self.scaler.mean) != n_in:
+            raise ValueError(
+                f"scaler 차원 {len(self.scaler.mean)} ≠ 모드 기대 {n_in} "
+                f"(use_set_context={self.cfg.use_set_context})")
+        self._extract = (extract_features_with_set if self.cfg.use_set_context
+                         else extract_features)
         torch.manual_seed(self.seed)
         torch.set_num_threads(1)  # 결정론 (사전등록 §3)
         self.rng = random.Random(self.seed)
-        self.net = _DeltaMLP(self.cfg.hidden)
+        self.net = _DeltaMLP(self.cfg.hidden, n_in)
         self.opt = torch.optim.Adam(self.net.parameters(), lr=self.cfg.lr)
         # YR-012-b: target network — zero-init 복사본이므로 미학습 ≡ greedy 유지
         self.target_net: _DeltaMLP | None = None
         if self.cfg.target_sync_every > 0:
-            self.target_net = _DeltaMLP(self.cfg.hidden)
+            self.target_net = _DeltaMLP(self.cfg.hidden, n_in)
             self.target_net.load_state_dict(self.net.state_dict())
             self.target_net.eval()
         self._replay: list[tuple] = []   # (x, prior, cost, next_xs, next_priors, done)
@@ -166,7 +193,7 @@ class ResidualDeltaNetAgent:
 
     # ------------------------------------------------------------- Q_total
     def _x(self, candidates: Sequence[CandidateProtocol]) -> torch.Tensor:
-        rows = [self.scaler.transform(extract_features(c)) for c in candidates]
+        rows = [self.scaler.transform(self._extract(c)) for c in candidates]
         return torch.tensor(rows, dtype=torch.float32)
 
     @torch.no_grad()
@@ -256,9 +283,9 @@ class ResidualDeltaNetAgent:
     def _update_replay(self, candidate: CandidateProtocol, step_cost: float,
                        nxt: list, done: bool) -> float:
         """transition 저장 → warmup 후 배치 1회 학습 (per-step 업데이트 수 동일)."""
-        row = (self.scaler.transform(extract_features(candidate)),
+        row = (self.scaler.transform(self._extract(candidate)),
                float(candidate.prior_cost), step_cost,
-               [self.scaler.transform(extract_features(c)) for c in nxt],
+               [self.scaler.transform(self._extract(c)) for c in nxt],
                [float(c.prior_cost) for c in nxt], done)
         if len(self._replay) < self.cfg.replay_capacity:
             self._replay.append(row)

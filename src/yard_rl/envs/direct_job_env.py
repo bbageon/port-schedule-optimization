@@ -13,6 +13,7 @@ from bisect import bisect_right
 from dataclasses import dataclass
 from enum import Enum
 from math import isfinite
+from statistics import fmean
 from pathlib import Path
 from typing import Iterable, Literal, NamedTuple, TypeAlias
 
@@ -207,6 +208,10 @@ class DirectJobCandidate:
     # global_raw = (진행률, 크레인 bay 정규화, 대기 수, 최장대기 s, 30분초과 수)
     future_raw: tuple = ()
     global_raw: tuple = ()
+    # YR-012-c: 후보 집합 맥락 8 (결정 시점 전체 feasible 에서 1회 산출 — 전 후보 공통)
+    # set_raw = (후보수, svc_min, svc_mean, svc_max, reach_min, reach_mean, 반출비율, 짧은작업비율)
+    # H-A(YR-031-b) 신호 운반체. 결정 시점 관측만 (인과적) — 미래 도착 미사용.
+    set_raw: tuple = ()
 
     @property
     def service_s(self) -> float:
@@ -466,6 +471,7 @@ class DirectJobEnv:
         if not feasible:
             return feasible
         services = [c.estimated_service_s for c in feasible]
+        reaches = [c.reach_s for c in feasible]
         zones = [self._bay_zone(c.end_bay) for c in feasible]
         short_edge = self.buckets.short_service_s[0]
         jobs_left = max(0, raw.waiting_truck_count - 1)
@@ -475,6 +481,17 @@ class DirectJobEnv:
                       (raw.crane_position_bay - 1.0) / geom_bays,
                       float(raw.waiting_truck_count), raw.longest_wait_s,
                       float(raw.over_30min_truck_count))
+        # YR-012-c: 집합 맥락 8 — 결정 시점 전체 feasible 에서 1회 산출 (전 후보 공통).
+        # oracle_pattern._set_aggregates 와 비트 단위 동일 산식 (fmean 정밀합, H-A 신호 재현).
+        n_c = len(feasible)
+        mean_svc = fmean(services)
+        set_raw = (
+            float(n_c),
+            min(services), mean_svc, max(services),
+            min(reaches), fmean(reaches),
+            sum(c.transfer_direction == "YARD_TO_TRUCK" for c in feasible) / n_c,
+            sum(s < mean_svc for s in services) / n_c,
+        )
         out = []
         for i, c in enumerate(feasible):
             others = [s for k, s in enumerate(services) if k != i]
@@ -495,7 +512,7 @@ class DirectJobEnv:
                 c,
                 future_feature=(c.end_crane_zone, jobs_lv, work_lv, mix_lv, near_lv),
                 future_raw=(float(jobs_left), work_sum, share_short, near_bay),
-                global_raw=global_raw))
+                global_raw=global_raw, set_raw=set_raw))
         return tuple(out)
 
     def _check_state_consistency(self, raw: DirectJobRawGlobal,
