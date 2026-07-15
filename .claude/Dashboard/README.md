@@ -39,6 +39,6 @@
 
 - **최종 목표 전환 (2026-07-15, 사용자 결정)**: 별도 Exp 정책이 아니라 차량·본선·이송장비·레인·다중 YC를 처음부터 같은 State·Action·Total Cost 계약으로 다루는 단일 통합정책. [최종전략](../docs/부산항_레인_다중야드크레인_협조최적화_강화학습_최종전략.md) · [결정 이력](../docs/strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md).
 - **정책 구조**: 가변 후보 `Q_cost`를 Candidate Double DQN으로 평가하고 중앙 resolver가 공동제약을 보장한 뒤 QMIX 추가효과를 검증한다. 안전·물리·마감 위반은 보상이 아니라 mask다.
-- **보존된 PoC 증거 (단일 야드 트랙)**: 격차를 +1.195→**+0.035분(YR-012-c)** 으로 축소, oracle 상금 하한 +0.182분 확인. YR-031-b가 이탈 AUC 0.852·집합구조 이득 0.000으로 **입력 요약 부족·후보별 골격 충분**을 판정 → YR-012-c 가 집합 8 feature 추가로 **greedy 통계적 동률(CI 0 포함) 첫 달성** (형식 승리는 미달 — 선택 winner's curse·검정력 잔존, YR-032). 이 트랙은 YR-034 통합전략과 별개로 계속.
+- **보존된 PoC 증거 (단일 야드 트랙)**: 격차 +1.195→**+0.035(YR-012-c, 220k)** 로 축소·집합 8 feature 가 격차 절반(YR-031-b H-A 처방). 단 **YR-033 이 그 동률을 정정** — winner's curse 기각(val-test Spearman 0.96·선택 이미 최적), 동일 checkpoint 가 fresh band(240k) 에선 **+0.111** → robust 격차 ~+0.1, +0.035 는 test-band draw. 결론: 선택·구조(H-B 기각)·해상도 소진 — 단일 야드에서 greedy 는 near-optimal, RL 순가치는 tail(p95) 개선·oracle 상금(+0.182) headroom. 방법론 시정: 다중 band 평가(YR-040). 이 트랙은 YR-034 통합전략과 별개.
 - **현재 실행 순서**: YR-035 통합 MDP·데이터 계약 → YR-036 시뮬레이터 → YR-037 후보·공동제약 + YR-038 Total Cost → YR-039 Candidate DDQN → YR-013 공동배정·QMIX → YR-014 locked ablation.
 - **주장 게이트**: 실측자료·CURRENT_RULE은 YR-002, 실측 validation은 YR-009가 담당한다. 두 게이트 전 모든 결과는 합성·가정 조건의 구현 증거이며 부산항 실운영 개선 주장이 아니다.

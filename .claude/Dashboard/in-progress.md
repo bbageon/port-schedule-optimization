@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-033 | Exp | checkpoint 선택 프로토콜 보완 — winner's curse 진단·강건 재선택 (단일 야드) | 🟠 | 2026-07-15 | 사용자 지시 ("해봐"). YR-012-c 격차 +0.035 가 winner's curse 규모라 선택 규칙이 동률→승리 전환에 직접 영향. [spec](../docs/dashboard-task-specs/YR-033-checkpoint-selection.md) |
+| YR-036 | Sim | 통합 터미널 이벤트 시뮬레이터 | 🔴 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-036-integrated-terminal-simulator.md) · YR-035 계약 구동, 다중 YC·본선·이송·레인 이벤트 |
 
 ---
 

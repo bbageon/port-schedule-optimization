@@ -5,12 +5,12 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-036 | Sim | 통합 터미널 이벤트 시뮬레이터 | 🔴 | [spec](../docs/dashboard-task-specs/YR-036-integrated-terminal-simulator.md) · YR-035 후, 실측 validation은 YR-002/009 |
 | YR-037 | RL | 동적 후보·공동 Action·Hard Constraint | 🟠 | [spec](../docs/dashboard-task-specs/YR-037-joint-candidates-constraints.md) · YR-035/036 후, YR-029 SLA 보호 흡수 |
 | YR-038 | RL | 정규화 터미널 Total Cost·Reward | 🟠 | [spec](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md) · YR-035/036 후, YR-026 민감도 흡수 |
 | YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
+| YR-040 | Exp | 단일 야드 평가 다중 test band (band-draw 방어, test≥300일 또는 3-band 평균) | 🟡 | YR-033 발견: 동일 ep550 이 220k +0.035 vs 240k +0.111 — 단일 band 과대평가. 이후 단일야드 판정 전 필수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |

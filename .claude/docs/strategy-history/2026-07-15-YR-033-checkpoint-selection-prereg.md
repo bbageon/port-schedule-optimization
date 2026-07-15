@@ -1,6 +1,6 @@
 # YR-033 — checkpoint 선택 프로토콜 보완 사전등록
 
-> 기록일: 2026-07-15 · 상태: **사전등록 — 본 실행 전 동결** · 사용자 승인: "해봐"
+> 기록일: 2026-07-15 · 상태: **완료 — winner's curse 기각, 격차는 실재(+0.111 robust)** · 사용자 승인: "해봐" · 사전등록 원문(§1~§7) 불변, 결과는 하단 append
 > 트랙: 단일 야드 greedy 격차 추격 (YR-034 통합전략과 별개) · spec: [YR-033](../dashboard-task-specs/YR-033-checkpoint-selection.md)
 > 상위: [YR-012-c 결과](2026-07-15-YR-012-c-setfeat-prereg.md) · 근거: [YR-012-b winner's curse](2026-07-15-YR-012-b-delta-stable-prereg.md)
 
@@ -64,3 +64,51 @@ YR-012-c 결론 재해석 · YR-034 통합전략 요소.
 checkpoint_records(ep별 val30/val90/test)·selection_results(프로토콜·paired·진단)·
 selection_report.md. 구현: `experiments/setfeat_selection.py`·CLI
 `run-setfeat-select [--quick]`. 예상 소요 ~50분 (60 ckpt × (90 val + 100 test) 평가).
+
+---
+
+## 실행 결과 (2026-07-15 append — 사전등록 원문 불변)
+
+- 실행: clean source `ed13d2f`, 소요 45.4분. 결과 커밋 `dc2fd00` ·
+  [리포트](../../../outputs/reports/setfeat_selection_hjnc/selection_report.md)
+
+### 판정: winner's curse **기각** (H 반증) — 선택은 이미 최적이었다
+
+| 프로토콜 | 선택 ep | fresh test Δ vs greedy [95% CI] | 형식승리 |
+|---|---|---|---|
+| greedy (240k) | — | 6.948분 (기준) | — |
+| P1_val30 (YR-012-c 재현) | **550** | +0.111 [+0.045, +0.182] | 미달 |
+| P2_val90 (확대) | 550 | +0.111 [+0.046, +0.182] | 미달 |
+| P3_val90_smooth3 | 600 | +0.341 [+0.262, +0.422] | 미달 (오히려 열세) |
+| **최적선택 하한** (test argmin, 도달불가) | 550 | **+0.111** | 미달 |
+
+- **val-test Spearman +0.935(val30)·+0.958(val90)** — val 이 test 를 거의 완전
+  예측. 선택 노이즈 문제 없음.
+- **P1 optimism +0.000** — val30 이 고른 ep550 이 곧 test 최적 checkpoint.
+  개선할 winner's curse 가 애초에 없었다 (P1=P2=최적선택 전부 ep550 일치).
+- P3(평활화)는 ep600 을 골라 **오히려 열세** — 근시안 처방이 무익.
+
+### 핵심 발견 — YR-012-c 의 "동률(+0.035)"은 test-band draw 였다
+
+- **동일 checkpoint ep550** 이 220k(YR-012-c test)에선 +0.035(CI 0 포함, 동률)인데
+  **fresh 240k 에선 +0.111** [+0.045,+0.182] (유의 열세). greedy 절대값도
+  7.472(220k)→6.948(240k) 로 band 마다 다름.
+- 즉 SetFeat[22] 의 **robust 격차는 ~+0.08~0.11**, YR-012-c 의 +0.035 는 유리한
+  test 추첨. **단일 band 평가가 정책을 과대평가**할 수 있다는 방법론 교훈 —
+  향후 다중 band(또는 더 큰 test) 필수.
+- p95 guardrail 도 240k 에선 실패(+5.7~9.9%>5%) — 220k(+2.6%)와 상반. tail 개선도
+  band 종속.
+
+### 파생 결정
+
+1. **선택 프로토콜 트랙 종료** — Spearman 0.96·optimism 0 으로 선택은 병목이
+   아님이 확정. YR-032/033 계열 닫음.
+2. **최적선택 하한(+0.111)이 greedy 미달** — 현 checkpoint 집합 안에서는 어떤
+   선택으로도 이 문제에서 greedy 를 못 이김. 남은 것은 (a) 정책 자체의 표현/학습
+   개선(구조는 H-B 기각이라 학습 알고리즘 축) 또는 (b) 근본적으로 greedy 가
+   near-optimal 인 문제라는 수용.
+3. **평가 방법론 시정**: 이후 단일 야드 실험은 다중 test band 또는 test≥300일로
+   band-draw 방어 (backlog 등록).
+4. **가치 재정리**: RL 의 순가치는 "greedy 대비 평균 승리"가 아니라 (i) 220k 에서
+   관측된 tail(p95) 개선 (band 종속이나 방향 유효) (ii) oracle 상금 +0.182 중
+   회수 잠재. 통합전략(YR-034)의 다요소 비용에서 RL headroom 재탐색이 본류.
