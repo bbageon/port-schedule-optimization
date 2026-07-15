@@ -115,7 +115,10 @@ def validate_leakage_fv(path: str, fv: FeatureVector, level: InformationLevel) -
 
 
 # --------------------------------------------------------------- vessel
-def validate_vessel(path: str, v: VesselUrgency) -> None:
+def validate_vessel(path: str, v: VesselUrgency, ablation_off=frozenset()) -> None:
+    # VESSEL_RISK ablation: 본선 채널 전부 known=0 이 의도 — mode 정합 검사 면제 (§16.3).
+    if "VESSEL_RISK" in ablation_off:
+        return
     f = v.features
     known = {nm: kn for nm, kn in zip(f.names, f.known)}
     risk_known = known.get("risk", False)
@@ -250,7 +253,7 @@ def validate_all(rec: TransitionRecord) -> None:
     for st, tag in ((rec.state, "state"), (rec.next_state, "next_state")):
         if st is not None:
             for i, v in enumerate(st.vessels):
-                validate_vessel(f"{tag}.vessels[{i}]", v)
+                validate_vessel(f"{tag}.vessels[{i}]", v, off)
     for o in (*rec.observations, *rec.next_observations):
         validate_candidates(o.candidates)
     validate_joint(rec)

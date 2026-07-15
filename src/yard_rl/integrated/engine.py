@@ -355,6 +355,10 @@ class TerminalSimulator:
         yc.state.status = CraneStatus.HANDLING
         yc.state.available_at = plan.start_s + plan.duration_s
         yc.is_loaded = True
+        # 서비스 시작 = dispatch 시점 (단일 YC engine.py:185 계승). 대기 적분이 서비스시간을
+        # 포함하지 않도록 여기서 _waiting 에서 제거 — 완료 시점이 아니라 dispatch 시점.
+        if j.is_external_truck:
+            self.kpis.service_started(j.job_id, self.clock)
         self.cost.accrue("crane_travel", plan.loaded_gantry_m)
         self.cost.accrue("empty_travel", plan.empty_gantry_m)
         self.cost.accrue("rehandle", float(plan.rehandles))
@@ -444,7 +448,9 @@ class TerminalSimulator:
             self._equipment_down(ev.payload)
         elif k == "EQUIPMENT_UP":
             yc = self.fleet.get(ev.payload)
+            # down_pending 중(작업 진행 중) UP 이면 지연 DOWN 을 취소 — 정전이 실현 전 해소.
             yc.down = False
+            yc.down_pending = False
             self._clear_yields()
         elif k == "PLAN_CHANGE":
             self._plan_change(ev.payload, ev.data)
@@ -484,8 +490,6 @@ class TerminalSimulator:
             j.status = JobStatus.DONE
             j.service_end = self.clock
             j.rehandle_count = plan.rehandles
-            if j.is_external_truck:
-                self.kpis.service_started(j.job_id, plan.start_s)
             self.kpis.job_completed(external=j.is_external_truck, deadline=j.deadline,
                                     end=self.clock)
         if yc.down_pending:

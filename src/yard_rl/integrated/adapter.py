@@ -112,7 +112,9 @@ def _vessel_urgency(sim, v, now: float, level: InformationLevel, ablation_off=()
         raw = {"slack_s": None, "risk": None, "delay_symptom_score": sym,
                "remaining_service_time_s": None, "expected_delay_s": None, **common}
     fv = build_feature_vector("vessel", raw, now=now, info_level=level, ablation_off=ablation_off)
-    return VesselUrgency(v.vessel_id, mode, v.plan.completion_basis, assumed, fv)
+    # SYMPTOM 은 완료근거 없음이 계약 불변식 — 계획변경으로 basis 만 생겨도 mode 에 맞춘다.
+    basis = v.plan.completion_basis if mode.value == "RISK" else None
+    return VesselUrgency(v.vessel_id, mode, basis, assumed, fv)
 
 
 def _candidates(sim, cid: str, refs, now: float, level: InformationLevel, ablation_off=()):
@@ -234,7 +236,8 @@ def _assemble(state, obs, cranes_k, assigns, raw, dt, next_state, next_obs, term
                      lambda_vessel=lam, assumed=True)
     miss, asm = _scan_audit(state, obs)
     audit = TransitionAudit(built_at_now_s=state.now_s, info_level=level.value,
-                            ablation_off=tuple(sorted(str(a) for a in ablation_off)),
+                            ablation_off=tuple(sorted((a.value if hasattr(a, "value") else a)
+                                                      for a in ablation_off)),
                             missing_fields=miss, assumed_fields=asm, forbidden_touched=(),
                             event_stream_hash=ehash)
     rec = TransitionRecord(SCHEMA_VERSION, episode_id, k, dt_s=dt, state=state,

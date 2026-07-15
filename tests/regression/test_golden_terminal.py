@@ -20,7 +20,7 @@ GOLDEN = {
     "completed_external": 3, "completed_vessel": 2,
     "empty_m": 513.5, "rehandles": 1,
     "episode_raw": {
-        "truck_wait": 841.433, "long_wait": 0.0, "crane_travel": 0.0, "empty_travel": 513.5,
+        "truck_wait": 184.878, "long_wait": 0.0, "crane_travel": 0.0, "empty_travel": 513.5,
         "rehandle": 1.0, "sts_wait": 768.0, "transfer_wait": 10620.0, "vessel_delay": 0.0,
         "depart_delay": 0.0, "lane_cong": 527.714, "interference": 420.378,
         "resequence": 0.0, "imbalance": 14779.431},

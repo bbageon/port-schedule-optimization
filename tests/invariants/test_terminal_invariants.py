@@ -201,3 +201,42 @@ def test_ablation_zeroes_group():
     assert r.state.features.value_of("lane_congestion_mean") == 0.0
     for o in r.observations:
         assert o.candidates.queue_summary.known_of("lane_cong_mean") is False
+
+
+def test_enum_ablation_normalized():
+    """AblationGroup enum 을 넘겨도 audit.ablation_off 는 .value 로 정규화 (문자열 API 와 동치)."""
+    from yard_rl.contract import AblationGroup
+    recs = record_episode(_fresh(), ReferenceDispatcher(), info_level=InformationLevel.PRE_ADVICE,
+                          episode_id="E", ablation_off=(AblationGroup.LANE,))
+    assert recs[0].audit.ablation_off == ("LANE",)   # str(enum) 이 아니라 .value
+
+
+def test_vessel_risk_ablation_runs():
+    """VESSEL_RISK ablation 이 RISK 본선(V-DISCH)에서 크래시하지 않는다 (validate_vessel 면제)."""
+    from yard_rl.contract import AblationGroup
+    recs = record_episode(_fresh(), ReferenceDispatcher(), info_level=InformationLevel.PRE_ADVICE,
+                          episode_id="E", ablation_off=(AblationGroup.VESSEL_RISK,))
+    assert len(recs) >= 1
+    v = recs[0].state.vessels[0]        # V-DISCH (RISK)
+    assert v.features.known_of("risk") is False   # ablation 으로 known=0
+
+
+def test_equipment_up_cancels_pending_down():
+    """작업 중 EquipmentDown 후 완료 전 EquipmentUp → 지연 DOWN 취소 (영구 DOWN 방지)."""
+    from yard_rl.integrated.scenario import InjectedEvent
+    sc = build_minimal_terminal_scenario()
+    sc.injected_events = [InjectedEvent(2000.0, "EQUIPMENT_DOWN", "YC-B"),
+                          InjectedEvent(2050.0, "EQUIPMENT_UP", "YC-B")]
+    sim = TerminalSimulator(PROF, sc, check_invariants=True)
+    _run(sim)
+    assert sim.terminal and sim.unfinished_backlog() == 0
+    assert sim.fleet.get("YC-B").down is False
+    assert sim.fleet.get("YC-B").down_pending is False
+
+
+def test_truck_wait_excludes_service_time():
+    """truck_wait 적분이 서비스시간을 포함하지 않음 — queue_area == Σ 대기표본 (dispatch 시점 종료)."""
+    sim = _run(_fresh())
+    assert sim.kpis.waiting_count() == 0
+    er = sim.cost.episode_raw()
+    assert abs(er["truck_wait"] - sum(sim.kpis.wait_samples_s)) < 1e-6
