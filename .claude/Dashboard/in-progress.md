@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-039 | RL | 동적 후보 Candidate Double DQN — `[Global, YC, Candidate, Queue Summary] → Q_cost` 공유망, DQN→DDQN→Dueling 비교 | 🟠 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · 의존 YR-037/038 충족. YR-033 checkpoint protocol·YR-031-b feature 판정 반영 |
+| YR-039 | RL | 동적 후보 Candidate Double DQN — `[Global, YC, Candidate, Queue Summary] → Q_cost` 공유망, DQN→DDQN→Dueling 비교 | 🟠 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · **Stage A 완료 `25406e6`** (설계 매핑·시나리오 생성기·인코딩·Q망·QPreference — 미학습≡baseline 계약, 285 tests) · Stage B 남음: DDQN 학습기·runner·locked 평가 |
 
 ---
 
