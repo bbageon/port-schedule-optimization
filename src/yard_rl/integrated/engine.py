@@ -489,8 +489,23 @@ class TerminalSimulator:
         occ = frozenset(r.lane_id for r in self.reservations.active() if r.lane_id)
         self.cost.set_rate("lane_cong", self.lanes.occupancy(occ)[0])
         self.cost.set_rate("interference", sum(1 for c in self.fleet.all() if c.yielded))
-        counts = [c.served_count for c in self.fleet.all()]
-        self.cost.set_rate("imbalance", _pstdev(counts))
+        self.cost.set_rate("imbalance", self.load_imbalance() / self.profile.shift_len_s)
+
+    def load_imbalance(self) -> float:
+        """§10.2 크레인별 **작업부하** 불균형 I(t) ∈ [0,1] (YR-043 재정의).
+
+        Load_i(t) = 현재 작업 잔여시간 + 할당·예약 작업 예상 서비스시간 (idle=0).
+        I(t) = (max−min)/Σ Load, Σ=0 이면 0.
+
+        누적 완료건수 pstdev 는 폐기 — 처리건수 균등화는 사용자 목적이 아니었고, 누적·미정규화라
+        총비용을 지배했다 (YR-039 무효 판정). rate=I/T_shift → ∫ 이 에피소드당 O(1).
+        """
+        loads = [max(0.0, c.state.available_at - self.clock) if c.state.assigned_job else 0.0
+                 for c in self.fleet.all()]
+        total = sum(loads)
+        if total <= 0.0 or len(loads) < 2:
+            return 0.0
+        return (max(loads) - min(loads)) / total
 
     def _clear_yields(self):
         for c in self.fleet.all():

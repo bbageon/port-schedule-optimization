@@ -44,6 +44,8 @@ class CandidateGenerator:
                  pre_rehandle_min_window_s: float = 600.0):
         self.k_max = k_max
         self.mandatory_wait_frac = mandatory_wait_frac
+        # YR-043: mask 아님 — "도착 전 완료 가능" 은 §8.4 운영 트레이드오프라 State/Cost 로 이관.
+        # 참고값으로만 보존 (후보 생성 게이트로 사용 금지).
         self.pre_window = pre_rehandle_min_window_s
 
     # -------------------------------------------------------- entry points
@@ -117,7 +119,10 @@ class CandidateGenerator:
             if not sim.stacks.rehandle_capacity_ok(j.target_container, spec):
                 continue
             eta = self._visible_eta(j, level)
-            if eta is None or not (self.pre_window <= eta - now <= horizon):
+            # 정보 제약(ETA 미가시) + §8.3 탐색축소(결정 지평)만 게이트.
+            # YR-043: "도착 전 완료 가능"(pre_window) 게이트 제거 — §8.4 운영 트레이드오프는
+            # mask 가 아니라 State/Cost 로 제공(predicted_arrival_gap_s feature)해 RL 이 학습한다.
+            if eta is None or eta - now > horizon:
                 continue
             ref = JobRef(job_id=jid, token=jid, kind=CandidateKind.PRE_REHANDLE,
                          target_container=j.target_container, lane_id=sim._lane_for(c.bay),

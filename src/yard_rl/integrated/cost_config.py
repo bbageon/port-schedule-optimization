@@ -200,6 +200,19 @@ def default_lambda_bands() -> tuple[RiskBand, ...]:
             RiskBand(0.4, 2.5, "경계"), RiskBand(0.2, 1.5, "주의"), RiskBand(0.0, 1.0, "정상"))
 
 
+def neutral_lambda_config() -> TerminalCostConfig:
+    """YR-043 정정 트랙 중립 config — λ_vessel=1.0 정적 (동적 위험 비활성).
+
+    본선 악화 축은 **별도 실험으로 분리**(사용자 결정 2026-07-15): 스트레스 시나리오 제외·본선 KPI 는
+    기록만(고위험 성능 주장 금지). 동적 밴드 설계는 YR-041. λ=2.5 잠정 결정은 본 트랙에서 대체.
+    """
+    return default_assumed_config().with_lambda(LambdaVesselPolicy(
+        LambdaMode.STATIC,
+        Provenance(ProvBasis.ASSUMED, "YR-043 정정 트랙",
+                   "본선 악화 축 분리 — 동적 위험 비활성·본선 KPI 기록만. 밴드 설계는 YR-041"),
+        static_value=1.0))
+
+
 def default_assumed_config() -> TerminalCostConfig:
     """현 ASSUMED_SCALE/WEIGHT·assumed_lambda_vessel 바이트 재현 (파일 IO 없음 → golden·격리 안전)."""
     a = Provenance(ProvBasis.ASSUMED, note="PoC placeholder, YR-002 확정 대상")

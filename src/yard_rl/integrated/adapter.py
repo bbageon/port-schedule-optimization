@@ -65,7 +65,9 @@ def _global_raw(sim, now: float) -> dict:
         "transfer_wait_accum_s": sim.transfer.transfer_wait_accum_s,
         "backlog_external": float(ext), "backlog_vessel": float(ves),
         "crane_count": float(len(sim.fleet)),
-        "load_imbalance": _pstdev([c.served_count for c in sim.fleet.all()]),
+        # §10.2 작업부하 불균형 I(t)∈[0,1] — cost imbalance 와 동일 정의 (YR-043 재정의).
+        # 누적 완료건수 pstdev 폐기: 처리건수 균등화는 목적이 아니었고 총비용을 지배했다.
+        "load_imbalance": sim.load_imbalance(),
     }
 
 
@@ -147,13 +149,17 @@ def _cand_raw(sim, cid, gc, now):
     j = sim.jobs.get(ref.job_id)
     # PRE_REHANDLE 은 미도착 미래 트럭 대상 → 누적대기 없음(None); SERVE 외부만 cum.
     cum = sim.cum_wait(ref.job_id) if (kind == CandidateKind.SERVE and ref.is_external) else None
+    # YR-043: PRE_REHANDLE 의 "도착까지 남은 시간" 을 mask 가 아니라 feature 로 제공 →
+    # RL 이 선처리 가치를 학습. 계약이 tok=PRE_ADVICE 로 게이팅하므로 누출 없음.
+    eta_gap = (j.provided_eta - now if (kind == CandidateKind.PRE_REHANDLE and j is not None
+                                        and j.provided_eta is not None) else None)
     raw = {
         "action_kind_idx": _KINDS.index(kind) / (len(_KINDS) - 1),
         "is_external": 1.0 if ref.is_external else 0.0,
         "is_vessel": 1.0 if ref.is_vessel else 0.0,
         "cum_wait_s": cum,
         "long_wait_excess_s": max(0.0, cum - sim.profile.long_wait_sla_s) if cum is not None else None,
-        "predicted_arrival_gap_s": None, "eta_confidence": None,
+        "predicted_arrival_gap_s": eta_gap, "eta_confidence": None,
         "deadline_slack_s": (j.deadline - now) if (ref.is_vessel and j and j.deadline is not None) else None,
         "reach_s": reach, "expected_service_time_s": plan.duration_s,
         "expected_handling_count": float(len(plan.moves)), "blocker_count": float(plan.rehandles),

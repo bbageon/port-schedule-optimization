@@ -241,7 +241,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
         resolver.apply(sim, resn, gen_by)
         for r in resn.resolutions:
             enc = encs[r.crane_id]
-            pos = (None if r.chosen_candidate_id is None
+            # WAIT 는 계약상 candidate_id=None → 인코딩의 WAIT 행으로 매핑해 표본에 포함 (YR-043).
+            pos = (enc.wait_pos if r.chosen_candidate_id is None
                    else enc.candidate_ids.index(r.chosen_candidate_id))
             events.setdefault(r.crane_id, []).append((k, enc, pos))
         t_k = dp.time
@@ -280,7 +281,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
 def stitch_samples(times: list[float], costs: list[float],
                    events: dict[str, list[tuple[int, DecisionEncoding, int | None]]],
                    gamma: float, ref_s: float) -> list[Sample]:
-    """per-crane SMDP 전이 (매핑 §3). '실행' 결정만 표본 — WAIT 는 창에 흡수."""
+    """per-crane SMDP 전이 (매핑 §3). YR-043: WAIT 도 실제 행동이라 표본에 포함
+    (pos=WAIT 행). pos=None 은 인코딩에 WAIT 행이 없는 예외뿐."""
     end_k = len(times)
     samples: list[Sample] = []
     for _cid, evs in sorted(events.items()):

@@ -26,11 +26,12 @@ class DecisionEncoding:
     queue: tuple[float, ...]             # queue summary 2·Fq
     cand: tuple[tuple[float, ...], ...]  # [K_max][2·Fc]
     selectable: tuple[bool, ...]         # feasible ∧ 비패딩
-    # 학습·backup 행동집합 (리뷰 HIGH): WAIT 는 resolver 가 pair 에서 배제해
-    # 절대 회귀 표적을 받지 않음 → backup argmin 에 포함하면 표류값이 표적을
-    # 하향 오염. actionable = selectable ∧ (kind != WAIT).
+    # 학습·backup 행동집합. YR-043: WAIT 를 실제 학습 행동으로 복구 — resolver 가 WAIT 를
+    # pair 에 포함해 선택·회귀 표적을 받으므로 backup argmin 에서 배제할 이유가 사라졌다
+    # (배제 근거였던 "표적 못 받는 표류값" 전제 소멸). actionable = selectable.
     actionable: tuple[bool, ...]
     candidate_ids: tuple[int, ...]
+    wait_pos: int | None = None          # WAIT 후보의 행 위치 (replay 표본 매핑용, YR-043)
 
     @property
     def k_max(self) -> int:
@@ -42,8 +43,9 @@ def encode_observation(state: GlobalState, ob: LocalObservation) -> DecisionEnco
     selectable = tuple(bool(p and f) for p, f in zip(cs.pad_mask, cs.feasible_mask))
     if not any(selectable):
         raise ValueError(f"{ob.crane_id}: 선택 가능 후보 없음 — 결정 계약 위반")
-    actionable = tuple(s and c.kind != CandidateKind.WAIT
-                       for s, c in zip(selectable, cs.items))
+    actionable = selectable            # YR-043: WAIT 포함 (Hold/Yield 는 실제 행동)
+    wait_pos = next((i for i, (s, c) in enumerate(zip(selectable, cs.items))
+                     if s and c.kind == CandidateKind.WAIT), None)
     return DecisionEncoding(
         crane_id=ob.crane_id,
         g=tuple(fv_to_vec(state.features)),
@@ -52,7 +54,8 @@ def encode_observation(state: GlobalState, ob: LocalObservation) -> DecisionEnco
         cand=tuple(tuple(fv_to_vec(c.features)) for c in cs.items),
         selectable=selectable,
         actionable=actionable,
-        candidate_ids=tuple(c.candidate_id for c in cs.items))
+        candidate_ids=tuple(c.candidate_id for c in cs.items),
+        wait_pos=wait_pos)
 
 
 def encoding_dims(enc: DecisionEncoding) -> tuple[int, int, int, int]:

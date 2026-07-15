@@ -25,6 +25,40 @@ from .statistics import paired_diff
 _LEVEL = InformationLevel.PRE_ADVICE
 _FALLBACK_SCALE = dict(ASSUMED_SCALE)   # baseline 미발현 항의 문서화된 fallback (assumed 유지)
 
+# 단일 항이 총비용을 이 비율 넘게 차지하면 reward 로 쓸 수 없다 (YR-039 무효 재발 방지, YR-043).
+DOMINANCE_THRESHOLD = 0.70
+
+
+class CostDominanceError(RuntimeError):
+    """단일 항 지배 — 학습 표적으로 사용 금지 (scale/정의 재검토 필요)."""
+
+
+def contribution_shares(costs) -> dict[str, float]:
+    """항목별 기여율 (정규화 후 contributions 총합 대비) — **보고 의무** (YR-043)."""
+    tot = {t: 0.0 for t in COST_TERMS}
+    for c in costs:
+        for k, v in c.contributions().items():
+            tot[k] += v
+    total = sum(tot.values())
+    if total <= 0:
+        return {t: 0.0 for t in COST_TERMS}
+    return {t: tot[t] / total for t in COST_TERMS}
+
+
+def assert_no_dominance(shares: dict[str, float], *, threshold: float = DOMINANCE_THRESHOLD) -> None:
+    """baseline fit 상 단일 항 지배 시 run 실패 — placeholder scale 로 학습하던 사고 차단.
+
+    YR-039: imbalance 가 총비용의 97.6~99.9% 를 차지해 '승리'가 그 항 최적화였다.
+    """
+    if not shares:
+        return
+    term, share = max(shares.items(), key=lambda kv: kv[1])
+    if share > threshold:
+        raise CostDominanceError(
+            f"단일 항 지배: {term} {share:.1%} > {threshold:.0%} — reward 사용 금지 "
+            f"(항 정의·scale 재검토). 기여율: "
+            f"{ {k: round(v, 3) for k, v in sorted(shares.items(), key=lambda kv: -kv[1])[:5]} }")
+
 
 # ------------------------------------------------------------ 시나리오 (fit 전용)
 def generate_terminal_scenarios(seeds: list[int]) -> list:
@@ -83,16 +117,42 @@ def fit_terminal_scale(profile, scenarios, *, generator=None) -> tuple[dict, dic
     return scale, rep
 
 
-def freeze_fitted_config(profile, seeds, *, out_path=None):
-    """TRAIN baseline 에서 scale 을 fit·동결한 config 반환 (+ 선택적 저장)."""
+def freeze_fitted_config(profile, seeds, *, out_path=None, base_cfg=None, guard=True):
+    """TRAIN baseline 에서 scale 을 fit·**동결** (val/test 재계산 금지) + 지배도 guard (YR-043).
+
+    fit 후 동일 baseline 을 fitted config 로 재채점해 항목별 기여율을 산출하고, 단일 항이
+    DOMINANCE_THRESHOLD 를 넘으면 `CostDominanceError` 로 run 을 실패시킨다.
+    """
     scenarios = generate_terminal_scenarios(seeds)
-    scale, rep = fit_terminal_scale(profile, scenarios)
+    all_recs = []
+    tot = {k: 0.0 for k in COST_TERMS}
+    n_int = 0
+    for sc in scenarios:
+        sim, recs = _baseline_records(profile, sc)
+        er = sim.cost.episode_raw()
+        for k in COST_TERMS:
+            tot[k] += er[k]
+        n_int += len(recs)
+        all_recs.extend(recs)
+    n = max(1, n_int)
+    scale, rep = {}, {}
+    for k in COST_TERMS:
+        per = tot[k] / n
+        fb = per <= 1e-9
+        scale[k] = _FALLBACK_SCALE.get(k, 1.0) if fb else max(1e-6, per)
+        rep[k] = {"episode_raw_sum": tot[k], "n_intervals": n_int,
+                  "per_interval": per, "fallback": fb}
     prov = Provenance(ProvBasis.FITTED_BASELINE, source="ReferenceDispatcher TRAIN baseline",
                       note="합성 proxy·잠정 — 실측 scale 은 YR-002",
-                      fit_stat=f"mean episode_raw/interval, n_int={rep[COST_TERMS[0]]['n_intervals']}")
-    cfg = default_assumed_config().with_scale(scale, prov=prov)
+                      fit_stat=f"mean episode_raw/interval, n_int={n_int}")
     from dataclasses import replace
-    cfg = replace(cfg, cost_id="TERMINAL-COST-V2")
+    cfg = replace((base_cfg or default_assumed_config()).with_scale(scale, prov=prov),
+                  cost_id="TERMINAL-COST-V2")
+    shares = contribution_shares(rescore(all_recs, cfg))
+    if guard:
+        assert_no_dominance(shares)        # 지배 시 즉시 실패 (학습 표적 사용 금지)
+    for k in COST_TERMS:
+        rep[k]["share"] = shares[k]        # 항목별 기여율 보고 의무
     if out_path:
         cfg.save(out_path)
     return cfg, rep

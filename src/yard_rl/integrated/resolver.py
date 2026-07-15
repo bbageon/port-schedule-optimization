@@ -18,13 +18,19 @@ from .engine import CraneAssignment
 
 
 class BaselinePreference:
-    """본선 우선 → 최장 트럭대기 → job_id. ReferenceDispatcher.select 와 동일 key."""
+    """본선 우선 → 최장 트럭대기 → job_id. ReferenceDispatcher.select 와 동일 key.
+
+    WAIT 는 항상 최하위 — baseline 은 실행 가능한 작업이 있으면 반드시 수행한다 (YR-043 에서
+    WAIT 가 학습 행동으로 복구되었으나, baseline 의 기존 거동은 보존).
+    """
 
     def rank(self, sim, crane_id, gc) -> tuple:
         ref = gc.job_ref
-        is_v = bool(ref and ref.is_vessel)
-        cum = sim.cum_wait(ref.job_id) if (ref and ref.is_external) else 0.0
-        return (0 if is_v else 1, -cum, ref.job_id if ref else "")
+        if ref is None:                       # WAIT — 최하위 tier
+            return (2, 0.0, "")
+        is_v = bool(ref.is_vessel)
+        cum = sim.cum_wait(ref.job_id) if ref.is_external else 0.0
+        return (0 if is_v else 1, -cum, ref.job_id)
 
 
 class DispatcherPreference(BaselinePreference):
@@ -41,16 +47,17 @@ class CentralResolver:
     # ------------------------------------------------------------ resolve
     def resolve(self, sim, decision, gen_by_crane) -> JointResolution:
         cranes = decision.crane_ids                       # crane_id 정렬 (engine)
-        pairs = [(c, gc) for c in cranes
-                 for gc in gen_by_crane[c].items
-                 if gc.feasible and gc.kind != CandidateKind.WAIT]
+        # WAIT 포함 — 정책이 선택할 수 있는 실제 행동 (YR-043 복구, 최종전략 Hold/Yield §8.2).
+        # WAIT 는 예약을 잡지 않으므로 joint feasibility 에 중립이며, 선택 시 다음 외생 이벤트/
+        # 타 크레인 완료까지 대기(engine yielded) → 0초 재결정 루프 없음.
+        pairs = [(c, gc) for c in cranes for gc in gen_by_crane[c].items if gc.feasible]
         pairs.sort(key=lambda cg: self._pair_key(sim, cg[0], cg[1]))
         chosen: dict = {}
         taken_token: set = set()
         rejects: dict = defaultdict(list)
         contested: dict = defaultdict(set)
         for (c, gc) in pairs:
-            tok = gc.job_ref.token
+            tok = gc.job_ref.token if gc.job_ref else None
             if tok is not None:
                 contested[tok].add(c)
             if c in chosen:
@@ -60,7 +67,8 @@ class CentralResolver:
                 continue
             trial = {**chosen, c: gc}
             proj = sim.dry_run_commit({x: g.job_ref for x, g in trial.items()})
-            if set(proj.plans) == set(trial):             # 전원 동시 feasible → 수용 (단조)
+            work = {x for x, g in trial.items() if g.job_ref is not None}
+            if set(proj.plans) == work:                   # 실행 배정 전원 feasible → 수용 (단조)
                 chosen = trial
                 if tok is not None:
                     taken_token.add(tok)
@@ -69,8 +77,9 @@ class CentralResolver:
         return self._finalize(sim, decision, gen_by_crane, chosen, rejects, contested)
 
     def _pair_key(self, sim, c, gc) -> tuple:
+        tok = (gc.job_ref.token or "") if gc.job_ref else ""
         return ((0 if gc.mandatory else 1,) + tuple(self.preference.rank(sim, c, gc))
-                + (_KIND_RANK[gc.kind], c, gc.job_ref.token or "", gc.candidate_id))
+                + (_KIND_RANK[gc.kind], c, tok, gc.candidate_id))
 
     def _finalize(self, sim, decision, gen_by_crane, chosen, rejects, contested) -> JointResolution:
         resolutions = []
@@ -81,10 +90,13 @@ class CentralResolver:
                                   g.kind, False, reason, g.mandatory)
                  for (g, reason) in rejects.get(c, [])),
                 key=lambda v: (v.candidate_id, v.reason or "")))
-            if gc is None:
-                yield_reason = "NO_FEASIBLE" if not rejects.get(c) else "LOST_CONTENTION"
-                resolutions.append(CraneResolution(c, CandidateKind.WAIT, None, None,
-                                                   yield_reason, (), verdicts))
+            if gc is None or gc.kind == CandidateKind.WAIT:
+                # WAIT: 정책이 명시 선택했거나(chosen WAIT pair) 실행 가능 후보가 없거나 경합 패배.
+                # 계약 불변식(candidate_id=None ⟺ WAIT) 유지 — chosen_candidate_id 는 None.
+                yield_reason = ("NO_FEASIBLE" if not rejects.get(c) else "LOST_CONTENTION")
+                resolutions.append(CraneResolution(
+                    c, CandidateKind.WAIT, None, None, yield_reason,
+                    self._pair_key(sim, c, gc) if gc is not None else (), verdicts))
             else:
                 resolutions.append(CraneResolution(
                     c, gc.kind, gc.candidate_id, gc.job_ref.token,
