@@ -205,6 +205,7 @@ def run_candidate_dqn(out_dir: str = "outputs/reports/candidate_dqn_poc",
     def rows_of(results: list[EpisodeResult], seeds) -> list[dict]:
         return [{"seed": s, "total_cost": r.total_cost,
                  "mean_wait_min": r.mean_wait_min, "p95_wait_min": r.p95_wait_min,
+                 "vessel_delay_min": r.vessel_delay_min,
                  "completion_rate": r.completion_rate, "backlog": r.backlog,
                  "invariants_ok": r.invariants_ok}
                 for s, r in zip(seeds, results)]
@@ -230,7 +231,9 @@ def run_candidate_dqn(out_dir: str = "outputs/reports/candidate_dqn_poc",
         entry: dict[str, object] = {}
         for m_off, (label, key_, direction) in enumerate((
                 ("total_cost", "total_cost", MetricDirection.MINIMIZE),
-                ("p95_wait", "p95_wait_min", MetricDirection.MINIMIZE))):
+                ("mean_wait", "mean_wait_min", MetricDirection.MINIMIZE),
+                ("p95_wait", "p95_wait_min", MetricDirection.MINIMIZE),
+                ("vessel_delay", "vessel_delay_min", MetricDirection.MINIMIZE))):
             stats = paired_bootstrap(
                 [float(r[key_]) for r in base_rows],
                 [float(r[key_]) for r in alt],
@@ -289,8 +292,9 @@ def _build_report(payload: dict, curve: list[dict], out: Path) -> Path:
     L.append("## locked test — paired vs " + str(sel["_baseline"]["policy"]))
     L.append("")
     L.append("| variant | 선택 ep | val_cost | total_cost Δ [95% CI] "
-             "| p95 대기 Δ% 상한 | guardrail (P95≤+5%/완료/backlog0/invariant) |")
-    L.append("|---|---|---|---|---|---|")
+             "| mean 대기 Δ | 본선지연 Δ | p95 대기 Δ% 상한 "
+             "| guardrail (P95≤+5%/완료/backlog0/invariant) |")
+    L.append("|---|---|---|---|---|---|---|---|")
     for name, entry in paired.items():
         s = sel.get(name, {})
         mw = entry["total_cost"]["difference"]
@@ -305,6 +309,8 @@ def _build_report(payload: dict, curve: list[dict], out: Path) -> Path:
         L.append(f"| {name} | {s.get('episode', '—')} "
                  f"| {s.get('val_total_cost', float('nan')):.2f} "
                  f"| {mw:+.3f} [{ci['lower']:+.3f}, {ci['upper']:+.3f}] "
+                 f"| {entry['mean_wait']['difference']:+.3f} "
+                 f"| {entry['vessel_delay']['difference']:+.3f} "
                  f"| {p95_txt} | {g_txt} |")
     L.append("")
     L.append("## checkpoint 곡선 (validation)")

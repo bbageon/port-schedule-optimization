@@ -47,7 +47,7 @@ class LearnerConfig:
     target_sync_every: int = 500       # gradient step 단위
     updates_per_decision: int = 1
     cost_scale: float = 1.0            # 학습 표적 정규화 (train baseline fit — test 미접촉)
-    device: str = "cpu"                # 결정론 기준 (매핑 §3 — GPU 는 성능 옵션)
+    device: str = "cpu"                # "cpu" | "cuda" | "auto" (가용 시 cuda — 매핑 §3)
 
     def __post_init__(self) -> None:
         if self.variant not in VARIANTS:
@@ -81,7 +81,9 @@ class CandidateDQNLearner:
         torch.manual_seed(seed)
         torch.set_num_threads(1)
         self.rng = random.Random(seed)
-        self.device = torch.device(cfg.device)
+        resolved = ("cuda" if (cfg.device == "auto" and torch.cuda.is_available())
+                    else ("cpu" if cfg.device == "auto" else cfg.device))
+        self.device = torch.device(resolved)
         qcfg = QNetConfig(hidden=cfg.hidden, dueling=(cfg.variant == "dueling"))
         self.online = CandidateQNet(dims, qcfg).to(self.device)
         self.target = copy.deepcopy(self.online)
@@ -103,7 +105,7 @@ class CandidateDQNLearner:
                 torch.tensor([list(e.queue) for e in encs], dtype=f32, device=dev),
                 torch.tensor([[list(c) for c in e.cand] for e in encs],
                              dtype=f32, device=dev),
-                torch.tensor([list(e.selectable) for e in encs],
+                torch.tensor([list(e.actionable) for e in encs],
                              dtype=torch.bool, device=dev))
 
     def _masked_min(self, q: torch.Tensor, sel: torch.Tensor) -> torch.Tensor:
@@ -149,15 +151,18 @@ class CandidateDQNLearner:
 
     # ------------------------------------------------------------- 저장
     def save(self, path) -> None:
+        """device-independent (매핑 §3·YR-033): 텐서를 CPU 로 이동해 저장."""
+        cpu = lambda sd: {k: v.cpu() for k, v in sd.items()}  # noqa: E731
         torch.save({"format": "yard-rl-candidate-dqn-v1", "dims": self.dims,
                     "config": self.cfg.__dict__, "grad_steps": self.grad_steps,
-                    "online": self.online.state_dict(),
-                    "target": self.target.state_dict(),
+                    "scaler": None,   # 프로토콜 슬롯 — 정규화는 cost_scale(config)
+                    "online": cpu(self.online.state_dict()),
+                    "target": cpu(self.target.state_dict()),
                     "optimizer": self.opt.state_dict()}, str(path))
 
     @classmethod
     def load(cls, path) -> "CandidateDQNLearner":
-        payload = torch.load(str(path), weights_only=False)
+        payload = torch.load(str(path), map_location="cpu", weights_only=False)
         if payload.get("format") != "yard-rl-candidate-dqn-v1":
             raise ValueError("unsupported candidate DQN format")
         learner = cls(LearnerConfig(**payload["config"]),
@@ -178,6 +183,7 @@ class EpisodeResult:
     backlog: int
     mean_wait_min: float
     p95_wait_min: float
+    vessel_delay_min: float
     invariants_ok: bool
     samples: list[Sample] = field(default_factory=list)
 
@@ -223,11 +229,12 @@ def run_episode(sim, *, level: InformationLevel, preference,
             for cid, enc in encs.items():
                 s = (learner.scores_for(enc) if learner is not None
                      else {c: 0.0 for i, c in enumerate(enc.candidate_ids)
-                           if enc.selectable[i]})
+                           if enc.actionable[i]})
                 if epsilon > 0.0 and rng.random() < epsilon:
-                    pick = rng.choice([c for i, c in enumerate(enc.candidate_ids)
-                                       if enc.selectable[i]])
-                    s[pick] = _FORCE
+                    pool = [c for i, c in enumerate(enc.candidate_ids)
+                            if enc.actionable[i]]
+                    if pool:
+                        s[rng.choice(pool)] = _FORCE
                 scores.update({(cid, c): v for c, v in s.items()})
             preference.set_scores(scores)
         resn = resolver.resolve(sim, dp, gen_by)
@@ -266,6 +273,7 @@ def run_episode(sim, *, level: InformationLevel, preference,
         backlog=len(jobs) - done,
         mean_wait_min=(sum(waits) / len(waits)) if waits else 0.0,
         p95_wait_min=_percentile(waits, 0.95),
+        vessel_delay_min=sim.kpis.vessel_delay_s / 60.0,
         invariants_ok=ok, samples=samples)
 
 

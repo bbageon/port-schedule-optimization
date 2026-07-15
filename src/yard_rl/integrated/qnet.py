@@ -51,11 +51,12 @@ class CandidateQNet(nn.Module):
             nn.init.zeros_(self.val_head.bias)
 
     def forward(self, g: torch.Tensor, yc: torch.Tensor, queue: torch.Tensor,
-                cand: torch.Tensor, selectable: torch.Tensor) -> torch.Tensor:
-        """g/yc/queue: [B,F*] · cand: [B,K,Fc] · selectable: [B,K] bool → Q [B,K].
+                cand: torch.Tensor, actionable: torch.Tensor) -> torch.Tensor:
+        """g/yc/queue: [B,F*] · cand: [B,K,Fc] · actionable: [B,K] bool → Q [B,K].
 
-        비선택(패딩·infeasible) 위치도 채점은 하되, Dueling 평균과 사용처의
-        argmin/backup 은 selectable 만 본다 (호출부 masked_fill 책임 분담).
+        비대상(패딩·infeasible·WAIT) 위치도 채점은 하되, Dueling 평균과 사용처의
+        argmin/backup 은 actionable 만 본다 (리뷰 HIGH — WAIT 는 학습 표적을
+        받지 않으므로 행동집합에서 제외).
         """
         ctx = self.ctx(torch.cat([g, yc, queue], dim=-1))            # [B,H]
         k = cand.shape[1]
@@ -65,7 +66,7 @@ class CandidateQNet(nn.Module):
         if not self.cfg.dueling:
             return adv
         val = self.val_head(z.mean(dim=1))                           # [B,1]→[B]
-        sel = selectable.float()
+        sel = actionable.float()
         denom = sel.sum(dim=1).clamp(min=1.0)
         adv_mean = (adv * sel).sum(dim=1) / denom                    # selectable 평균
         return val + adv - adv_mean.unsqueeze(1)
@@ -74,16 +75,16 @@ class CandidateQNet(nn.Module):
 @torch.no_grad()
 def score_decision(net: CandidateQNet, enc: DecisionEncoding,
                    device: torch.device | str = "cpu") -> dict[int, float]:
-    """결정 1건 채점 → {candidate_id: Q}. selectable 후보만 반환."""
+    """결정 1건 채점 → {candidate_id: Q}. actionable(실행 대상) 후보만 반환."""
     net.eval()
     dev = torch.device(device)
     t = lambda x: torch.tensor([x], dtype=torch.float32, device=dev)  # noqa: E731
     q = net(t(list(enc.g)), t(list(enc.yc)), t(list(enc.queue)),
             torch.tensor([list(map(list, enc.cand))], dtype=torch.float32,
                          device=dev),
-            torch.tensor([list(enc.selectable)], dtype=torch.bool, device=dev))[0]
+            torch.tensor([list(enc.actionable)], dtype=torch.bool, device=dev))[0]
     return {cid: float(q[i]) for i, cid in enumerate(enc.candidate_ids)
-            if enc.selectable[i]}
+            if enc.actionable[i]}
 
 
 class QPreference(BaselinePreference):

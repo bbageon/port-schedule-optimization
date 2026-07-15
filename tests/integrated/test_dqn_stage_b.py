@@ -106,3 +106,58 @@ def test_quick_run_end_to_end(tmp_path):
     assert "CandidateDQN[ddqn]" in text and "guardrail" in text
     assert (tmp_path / "out" / "candidate_dqn_results.json").exists()
     assert (tmp_path / "out" / "model_CandidateDQN[ddqn].pt").exists()
+
+
+def test_actionable_excludes_wait_and_scores_follow():
+    """리뷰 HIGH 회귀 가드: WAIT 는 actionable·score·backup 행동집합에서 제외."""
+    from yard_rl.contract import CandidateKind
+    from yard_rl.integrated.qnet import CandidateQNet, score_decision
+    sim = TerminalSimulator(PROF, generate_terminal_scenario(PROF, 300_103, PARAMS),
+                            check_invariants=True)
+    sim.info_level = LEVEL
+    dp = sim.run_until_decision()
+    state, obs, gen_by = capture(sim, dp.crane_ids, LEVEL, "wg", 0)
+    enc = encode_observation(state, obs[0])
+    kinds = [c.kind for c in obs[0].candidates.items]
+    assert CandidateKind.WAIT in kinds            # WAIT 후보는 존재하고
+    for i, kind in enumerate(kinds):
+        if kind == CandidateKind.WAIT:
+            assert not enc.actionable[i]          # 행동집합에선 제외
+    assert any(enc.actionable)
+    net = CandidateQNet(encoding_dims(enc))
+    scores = score_decision(net, enc)
+    wait_ids = {c.candidate_id for c in obs[0].candidates.items
+                if c.kind == CandidateKind.WAIT}
+    assert not (set(scores) & wait_ids)
+
+
+def test_checkpoint_device_independent_roundtrip(tmp_path):
+    """매핑 §3: CPU 저장·map_location 로드·scaler 슬롯 존재."""
+    enc = _enc()
+    learner = CandidateDQNLearner(LearnerConfig(cost_scale=100.0),
+                                  encoding_dims(enc), seed=1)
+    learner.replay.append(Sample(enc, enc.actionable.index(True), 1.0, 0.0, None))
+    for _ in range(3):
+        learner.replay.append(Sample(enc, enc.actionable.index(True), 1.0, 0.0, None))
+    path = tmp_path / "ckpt.pt"
+    learner.save(path)
+    payload = torch.load(str(path), map_location="cpu", weights_only=False)
+    assert "scaler" in payload and payload["scaler"] is None
+    assert all(v.device.type == "cpu" for v in payload["online"].values())
+    loaded = CandidateDQNLearner.load(path)
+    assert loaded.cfg.cost_scale == 100.0
+    g, yc, qs, cand, sel = loaded._tensors([enc])
+    a = loaded.online(g, yc, qs, cand, sel)
+    b = learner.online(*learner._tensors([enc]))
+    assert torch.allclose(a, b)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA 없음 — parity skip")
+def test_gpu_cpu_parity():
+    enc = _enc()
+    dims = encoding_dims(enc)
+    cpu = CandidateDQNLearner(LearnerConfig(device="cpu"), dims, seed=5)
+    gpu = CandidateDQNLearner(LearnerConfig(device="cuda"), dims, seed=5)
+    gpu.online.load_state_dict(cpu.online.state_dict())
+    sc, sg = cpu.scores_for(enc), gpu.scores_for(enc)
+    assert all(abs(sc[k] - sg[k]) < 1e-4 for k in sc)
