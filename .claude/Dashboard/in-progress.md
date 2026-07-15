@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-035 | Data | 최종 통합 MDP·데이터 계약과 수직절편 | 🔴 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-035-integrated-mdp-contract.md) · synthetic 계약 구현 중 |
 
 ---
 
