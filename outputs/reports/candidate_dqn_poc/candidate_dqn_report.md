@@ -1,5 +1,10 @@
 # YR-039 — 동적 후보 Candidate DQN/DDQN/Dueling (통합 터미널)
 
+> **🚫 판정 무효 (2026-07-15 사후 정정)** — 아래 총비용 수치는 잘못 구현된
+> imbalance 항(전체의 97.6~99.9%)이 지배하고 baseline SPT 는 퇴화 정책으로
+> 판명 — 승리 판정 근거로 사용 금지. 원자료 보존 목적으로만 유지.
+> 상세: `.claude/docs/strategy-history/2026-07-15-YR-039-무효판정-imbalance-지배.md`
+
 > ⚠ 가정 프로파일(POC-MULTI 2-crane) + 합성 시나리오. 1차 지표 = 정규화 누적 터미널 총비용 (YR-038).
 
 - baseline (validation 선택): **BASELINE_SPT**

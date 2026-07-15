@@ -5,7 +5,10 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · **착수 조건 충족 (YR-039 dueling 승리, 2026-07-15)** — 검증된 로컬 utility 확보. 중앙 matching 대비 추가효과 판정 |
+| YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · **착수 조건 미충족 회귀 (2026-07-15)** — 전제였던 YR-039 로컬 utility 검증이 [무효](../docs/strategy-history/2026-07-15-YR-039-무효판정-imbalance-지배.md). YR-045 정정 재실험 통과 후 재판정 |
+| YR-044 | Baseline | 총비용용 baseline 신설 — Joint Immediate-Cost Greedy(공동 feasible 즉시비용 argmin) + 2~3단 beam/rolling-horizon + 행동분포 건전성 계약 | 🟠 | YR-039 무효 파생 (baseline 퇴화 재발 방지) — 동일 정보·후보·제약·비용 config. FIFO·ServiceFirstSPT 는 보조 진단군 |
+| YR-045 | Exp | YR-039 정정판 locked 재실험 — 신규 seed 대역 + §18 다중 게이트(평균대기↓·P95/본선/STS·이송 비악화·이동/재조작 1+ 개선·위반 0) + 항목별 기여율 보고 의무 | 🟠 | 기존 test 대역(320000~) 진단 사용으로 소각. 의존 YR-043·044. 총비용 CI 단독으로는 불채택 |
+| YR-042 | Exp | DGT·HJNC 근사 프로파일 일반화 게이트 (재실행 대기) | 🟡 | **run 중단 (2026-07-15)** — YR-039 무효로 전제 상실 (동일 imbalance reward·동일 baseline 상속). 구현(`0cd547d`·`f51818c`)은 유효 — YR-045 통과 후 정정판 정책으로 재실행 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |

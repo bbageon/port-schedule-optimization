@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-042 | Exp | DGT 근사 프로파일 일반화 게이트 — POC 학습 dueling zero-shot + DGT 재학습 vs baseline | 🟠 | 2026-07-15 | **사용자 승인 (2026-07-15)** — YR-039 승리의 프로파일 강건성 게이트. 구현 동결 `0cd547d` + **HJNC 레그 확장 `f51818c`** (사용자 요청 — 수렴 계약: 공개정보 수준 DGT≡HJNC, 동일 seed 대칭 실행). DGT run 진행 중 → 완료 시 HJNC run. 역할분리(육/해측)는 근사 제외 — 정식 DGT 는 별도 |
+| YR-043 | RL | 목적함수·행동공간 정정 — imbalance Load 재정의(0~1)·per-term fit scale 동결+지배도 guard·WAIT 실행동 복구·물리 mask 만·가우시안 평균조건 시나리오·λ_vessel=1.0 중립 | 🔴 | 2026-07-15 | **사용자 확정 방향 (2026-07-15)** — YR-039 무효 파생, 최종전략 유지(queue-area 회귀 금지). [무효 판정·재설계 §6](../docs/strategy-history/2026-07-15-YR-039-무효판정-imbalance-지배.md). YR-042 는 run 중단 후 backlog 회귀 |
 
 ---
 

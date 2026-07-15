@@ -7,3 +7,7 @@
 - **계획**: YR-037 resolver 기준선 → YR-039 local utility 공유 → monotonic mixer → Double joint target → central-vs-QMIX ablation.
 - **산출물**: `joint_assignment.py`, `qmix.py`, 협조 학습 runner·리포트·UI replay.
 - **의존**: YR-036~039, 실제 서비스영역 자료 YR-002.
+- **⚠ 착수 조건 미충족 회귀 (2026-07-15)**: 계획의 전제 "검증된 YR-039 local
+  utility" 가 [무효 판정](../strategy-history/2026-07-15-YR-039-무효판정-imbalance-지배.md)
+  (imbalance 지배 reward·퇴화 baseline). YR-043(목적함수 정정)·YR-044(baseline)·
+  YR-045(정정 재실험) 통과 후의 utility 로 재판정한다.

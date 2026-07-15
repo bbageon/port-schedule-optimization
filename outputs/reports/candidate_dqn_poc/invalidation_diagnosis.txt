@@ -1,0 +1,46 @@
+
+========================================================================
+[test seed 320000 (사용자 표 재현)]
+
+BASELINE_VESSEL_WAIT
+  total=267,592.1  imbalance=267,475.7(100.0%)  truck_wait=2.3  ex-imbalance total=116.4
+  mean_wait=0.584분  completion=100.0%  top terms: imbalance=267,475.7  interference=61.7  lane_cong=46.6
+  actions: SERVE=50(56%)  WAIT/none=36(40%)  REPOSITION=3(3%)
+
+BASELINE_SPT (YR-039 사용)
+  total=15,120.7  imbalance=15,001.9(99.2%)  truck_wait=16.1  ex-imbalance total=118.8
+  mean_wait=4.031분  completion=100.0%  top terms: imbalance=15,001.9  lane_cong=44.2  interference=43.6
+  actions: REPOSITION=314(81%)  SERVE=50(13%)  WAIT/none=26(7%)
+
+ServiceFirstSPT (진단)
+  total=64,785.2  imbalance=64,681.5(99.8%)  truck_wait=1.2  ex-imbalance total=103.6
+  mean_wait=0.306분  completion=100.0%  top terms: imbalance=64,681.5  interference=53.8  lane_cong=43.8
+  actions: SERVE=50(56%)  WAIT/none=35(39%)  REPOSITION=5(6%)
+
+DuelingDQN (YR-039 승자)
+  total=4,859.5  imbalance=4,741.6(97.6%)  truck_wait=4.7  ex-imbalance total=118.0
+  mean_wait=1.174분  completion=100.0%  top terms: imbalance=4,741.6  interference=58.6  lane_cong=48.3
+  actions: SERVE=50(53%)  WAIT/none=36(38%)  REPOSITION=8(9%)
+
+========================================================================
+[val 310000~310004 (5 seeds 평균)]
+
+BASELINE_VESSEL_WAIT
+  total=245,268.0  imbalance=245,153.1(100.0%)  truck_wait=4.1  ex-imbalance total=114.9
+  mean_wait=1.023분  completion=100.0%  top terms: imbalance=245,153.1  interference=53.2  lane_cong=50.3
+  actions: SERVE=250(57%)  WAIT/none=156(36%)  REPOSITION=31(7%)
+
+BASELINE_SPT (YR-039 사용)
+  total=38,718.9  imbalance=38,586.1(99.7%)  truck_wait=15.5  ex-imbalance total=132.9
+  mean_wait=3.866분  completion=100.0%  top terms: imbalance=38,586.1  interference=57.3  lane_cong=47.6
+  actions: REPOSITION=1161(54%)  WAIT/none=759(35%)  SERVE=250(12%)
+
+ServiceFirstSPT (진단)
+  total=37,996.3  imbalance=37,893.4(99.7%)  truck_wait=1.7  ex-imbalance total=102.8
+  mean_wait=0.415분  completion=100.0%  top terms: imbalance=37,893.4  lane_cong=47.7  interference=47.0
+  actions: SERVE=250(57%)  WAIT/none=143(32%)  REPOSITION=48(11%)
+
+DuelingDQN (YR-039 승자)
+  total=4,773.6  imbalance=4,659.7(97.6%)  truck_wait=2.0  ex-imbalance total=114.0
+  mean_wait=0.505분  completion=100.0%  top terms: imbalance=4,659.7  interference=54.8  lane_cong=49.9
+  actions: SERVE=250(54%)  WAIT/none=161(35%)  REPOSITION=53(11%)
