@@ -1,0 +1,63 @@
+{
+  "congestion": {
+    "calm_third": 3.787878787878788,
+    "congested_third": 4.470588235294118,
+    "mid_third": 4.212121212121212,
+    "prize_share_congested_third": 0.5038302676857503
+  },
+  "hypothesis_a": {
+    "auc": 0.8522928839732888,
+    "n": 10000,
+    "positives": 416,
+    "verdict": "SUPPORTED"
+  },
+  "hypothesis_b": {
+    "n_divergences": 416,
+    "pairwise_auc": 0.9925862148668639,
+    "set_auc": 0.9927017843934911,
+    "set_gain": 0.00011556952662716835,
+    "verdict": "REJECTED"
+  },
+  "manifest": {
+    "arm": "SLA_OFF",
+    "config": {
+      "beam_width": 12,
+      "cv_folds": 5,
+      "drain_window_s": 86400.0,
+      "logistic_lr": 0.05,
+      "logistic_steps": 600,
+      "n_external": 100,
+      "quick": false,
+      "test_episodes": 100,
+      "test_seed0": 160000,
+      "torch_seed": 74031
+    },
+    "created_at_local": "2026-07-15T12:36:12+0900",
+    "elapsed_s": 7087.130885839462,
+    "git": {
+      "commit": "79597986c3e956b7e925ef961c30de673c80db73",
+      "dirty": false
+    },
+    "mode": "full",
+    "profile": {
+      "assumed": true,
+      "path": "configs/terminals/hjnc_armg.yaml",
+      "sha256": "d14a28955bc705574ba5e6a07dd156e689856a4ad75ce8d715010a676497e863",
+      "terminal_id": "HJNC-ARMG"
+    },
+    "schema_version": 1,
+    "strategy_id": "YR-031-b-oracle-pattern",
+    "thresholds": {
+      "ha_predictable_auc": 0.75,
+      "hb_set_gain": 0.05
+    }
+  },
+  "taxonomy": {
+    "direction_switch_pct": 2.644230769230769,
+    "divergence_rate_pct": 4.16,
+    "median_immediate_sacrifice_min": 0.0037612468071519765,
+    "oracle_farther_pct": 39.18269230769231,
+    "oracle_longer_service_pct": 90.38461538461539,
+    "oracle_longer_wait_pct": 49.75961538461539
+  }
+}
