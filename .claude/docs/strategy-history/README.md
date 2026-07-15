@@ -26,4 +26,4 @@
 | 2026-07-14 | YR-030-c | **완료 — 미달, 격차 당시 최소 +0.216** | 잔차 Cost-Q (Q_total=정확한 G+ΔQ) — 잔차 구조 유효 (병리 없는 단조개선), future 단독 키는 유해 (aggregation bias). 되돌림 조건 2회차 발동 → 함수근사 | [사전등록+결과](2026-07-14-YR-030-c-residual-costq-prereg.md) |
 | 2026-07-14 | YR-012 | **완료 — 미달, 격차 역대 최소 +0.083** | Δ 저장소만 표→MLP(연속 14-feature): 해상도 세금 실증 (tabular +0.248 vs net +0.083, CI 비중첩)·P95 첫 개선·guardrail 4/4 최초. 남은 용의자 = 학습 진동 | [사전등록+결과](2026-07-14-YR-012-residual-delta-net-prereg.md) |
 | 2026-07-14 | YR-031 | **완료 — INTERMEDIATE** | 전지적 beam vs greedy: 상금 하한 +0.182분 실재 (90/100일, 혼잡일 편중) — greedy 비최적 증명, 추격 목표 확정 | [사전등록+결과](2026-07-14-YR-031-oracle-gap-prereg.md) |
-| 2026-07-15 | YR-012-b | 사전등록 — 실행 전 동결 | Δ-net 진동 해소: replay(100k·batch64·warmup1k) + target net sync {500,2000} grid, per-step 1 update 예산 등가 | [사전등록](2026-07-15-YR-012-b-delta-stable-prereg.md) |
+| 2026-07-15 | YR-012-b | **완료 — 진동 감소, 성능 악화 (용의자 기각)** | replay+target 이 진동 폭 2.32→0.91 로 줄였으나 두 arm 모두 online 미달 (+0.158/+0.317 vs +0.107) — 잔차 Δ 는 online TD 상성. 부수: 선택 규칙 winner's curse (YR-032). 남은 용의자 = feature 정보 (YR-031-b) | [사전등록+결과](2026-07-15-YR-012-b-delta-stable-prereg.md) |
