@@ -5,6 +5,8 @@
 # 케이스 특이: 블록당 2기 육/해측 분리 (육측=외부트럭 원격조종, 해측=AGV). 본 초안은 단일 YC
 # 모델이라 육측 외부트럭 인계만 반영 — 해측 AGV 연동·인계시간 확률화(PEMA 분산 명시)는 후속 🤝.
 # 주의: 문헌 보정본이며 실측 아님 → assumed: true 유지. 협약 데이터 확보 전 실운영 주장 불가.
+# 실제 육측 LSTP·해측 WSTP·AGV 동선은 dgt_public_topology.yaml 이 원본이다.
+# 아래 transfer_row=0은 레거시 단일 YC 좌표이며 실제 DGT 레인 토폴로지가 아니다.
 terminal_id: DGT-ARMG
 profile_date: 2026-07-13
 assumed: true

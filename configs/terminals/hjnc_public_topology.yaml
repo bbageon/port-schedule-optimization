@@ -1,0 +1,62 @@
+# HJNC 부산신항 3부두 공개근거 토폴로지. 정확한 차로 edge는 운영사 확인 전 확정하지 않는다.
+schema: public-topology-v1
+terminal_id: HJNC-2-1
+profile_date: 2026-07-15
+profile_assumed: true
+
+yard:
+  orientation: PARALLEL_TO_QUAY
+  block_count: 21
+  block_length_teu: 52
+  row_count: 10
+  tier_max: 6
+  crane_count: 42
+  cranes_per_block: 2
+  crane_design: TWIN_CANTILEVER_C_ASC
+  yard_tractor_count: 96
+
+block_template:
+  service_sides:
+    - id_template: "{block_id}-CANT-A"
+      allowed_vehicle_types: null
+      service_capacity: null
+    - id_template: "{block_id}-CANT-B"
+      allowed_vehicle_types: null
+      service_capacity: null
+  crane_role_sharing: null
+  can_cranes_cross: null
+  safety_distance_bay: null
+
+road_network:
+  external_loop: [GATE, YARD_ROAD, BLOCK_CANTILEVER, YARD_ROAD, GATE]
+  internal_loop: [STS, QUAY_ROAD, BLOCK_CANTILEVER, QUAY_ROAD, STS]
+  separate_vehicle_paths_supported: true
+  directed_circulation_depicted: true
+  vehicle_to_colored_path_mapping_confirmed: false
+  directed_edges: null
+  gate_in_lanes: 6
+  gate_out_lanes: 4
+
+evidence:
+  confirmed:
+    - horizontal blocks parallel to quay
+    - 21 blocks and 42 automated rail-mounted yard cranes
+    - twin-cantilever side-loading; trucks and internal vehicles served at block sides
+    - 10 rows, six tiers, RFID recognition at block entry
+    - terminal gate has six inbound and four outbound lanes
+  derived:
+    - two cranes per block from 42 cranes divided by 21 blocks
+  inferred:
+    - official schematic arrows justify a directed road graph, but not exact edge definitions
+    - twin cantilevers support separated external/internal paths; HJNC side assignment is unconfirmed
+  unknown:
+    - exact lane count and simultaneous capacity under each cantilever
+    - exact one-way edges and external/internal color legend
+    - two-crane work sharing, passing rule and safety distance
+
+sources:
+  - https://www.hjnc.co.kr/terminal/feature
+  - https://www.hjnc.co.kr/terminal/facility
+  - https://www.hjnc.co.kr/terminal/equipment
+  - https://www.hjnc.co.kr/terminal/operation
+  - https://www.pema.org/wp-content/uploads/2022/09/PEMA-IP3-Container-terminal-yard-automation.pdf

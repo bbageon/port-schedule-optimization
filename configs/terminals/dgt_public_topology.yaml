@@ -1,0 +1,70 @@
+# DGT 부산신항 7부두 공개근거 토폴로지. 성능 파라미터가 아니라 물리·운영 구조 계약이다.
+schema: public-topology-v1
+terminal_id: DGT-2-5
+profile_date: 2026-07-15
+profile_assumed: true  # 차로 수·용량·정확한 방향 edge가 공개되지 않아 전체 프로파일은 가정 상태
+
+yard:
+  orientation: PERPENDICULAR_TO_QUAY
+  block_count: 23              # 유도: ARMG 46기 / 블록당 2기
+  row_count_max: 10
+  tier_max: 6
+  crane_count: 46
+  cranes_per_block: 2
+  transfer_vehicle_count: 60  # AGV, BPA 공개값
+
+block_template:
+  crane_roles:
+    - role_id: LANDSIDE_ARMG
+      side: LANDSIDE
+      serves_transfer_type: LSTP
+      allowed_vehicle_types: [EXTERNAL_TRUCK]
+    - role_id: WATERSIDE_ARMG
+      side: WATERSIDE
+      serves_transfer_type: WSTP
+      allowed_vehicle_types: [AGV]
+  can_cranes_cross: null
+  safety_distance_bay: null
+
+transfer_points:
+  - id_template: "{block_id}-LSTP"
+    type: LSTP
+    side: LANDSIDE
+    allowed_vehicle_types: [EXTERNAL_TRUCK]
+    approach_maneuver: REVERSE_IN
+    service_capacity: null
+    control: TRAFFIC_LIGHT_AND_READY_BUTTON
+  - id_template: "{block_id}-WSTP"
+    type: WSTP
+    side: WATERSIDE
+    allowed_vehicle_types: [AGV]
+    approach_maneuver: FMS_CONTROLLED
+    service_capacity: null
+    control: FMS
+
+road_network:
+  external_path: [GATE, LANDSIDE_ROAD, LSTP, LANDSIDE_ROAD, GATE]
+  internal_path: [STS, AGV_NETWORK, WSTP, AGV_NETWORK, STS]
+  hard_vehicle_separation: true
+  main_road_direction_confirmed: false
+  directed_edges: null
+
+evidence:
+  confirmed:
+    - vertical yard and landside/waterside separation
+    - two ARMG per block; landside external truck and waterside AGV roles
+    - LSTP reverse-in procedure with traffic light, vehicle recognition and ready button
+    - WSTP-to-quay automated zone and FMS-controlled AGV routing
+  derived:
+    - 23 blocks from 46 ARMG divided by two per block
+  unknown:
+    - exact transfer-position count and simultaneous capacity per block
+    - main-road one-way directions and segment capacities
+    - crane rail-sharing, passing rule and safety distance
+
+sources:
+  - https://info.dgtbusan.com/DGT/terminal/feature
+  - https://info.dgtbusan.com/DGT/terminal/equipment
+  - https://info.dgtbusan.com/DGT/terminal/operation
+  - https://info.dgtbusan.com/DGT/esvc/board/notice/detail?bIdx=921
+  - https://www.busanpa.com/index.bpa?menuCd=DOM_000000103001002011
