@@ -265,6 +265,10 @@ def main(argv: list[str] | None = None):
     pv.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
     pv.add_argument("--out", default="outputs/reports/costq_v1final_hjnc")
     pv.add_argument("--quick", action="store_true")
+    pcd = sub.add_parser("run-candidate-dqn",
+                         help="YR-039 통합 Candidate DQN/DDQN/Dueling 3-arm")
+    pcd.add_argument("--out", default="outputs/reports/candidate_dqn_poc")
+    pcd.add_argument("--quick", action="store_true")
     pog = sub.add_parser("run-oracle-gap",
                          help="YR-031 Oracle 상한 측정 (전지적 beam vs greedy)")
     pog.add_argument("--profile", default=DEFAULT_DIRECT_PROFILE)
@@ -314,6 +318,13 @@ def main(argv: list[str] | None = None):
     pr.add_argument("--seed", type=int, default=TEST_SEED0)
     pr.add_argument("--out", default="outputs/replays")
     args = ap.parse_args(argv)
+    if args.cmd == "run-candidate-dqn":
+        from .experiments.candidate_dqn_experiment import (
+            CandidateDqnConfig, quick_candidate_dqn_config, run_candidate_dqn)
+        cfg = (quick_candidate_dqn_config() if args.quick
+               else CandidateDqnConfig())
+        run_candidate_dqn(args.out, cfg)
+        return
     if args.cmd == "run-oracle-gap":
         from .experiments.oracle_gap import (OracleGapConfig,
                                              quick_oracle_config,
