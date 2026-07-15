@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-031-b | Exp | Oracle 개선 패턴 분석 — H-A(feature 예측가능)·H-B(조합 의존) 판정 | 🟠 | 2026-07-15 | 사용자 가설 반영·착수 지시. [사전등록](../docs/strategy-history/2026-07-15-YR-031-b-oracle-pattern-prereg.md) 동결 — beam 재실행(궤적 보존)·재학습 없음 |
 
 ---
 

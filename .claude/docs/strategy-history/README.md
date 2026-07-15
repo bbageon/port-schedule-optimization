@@ -27,4 +27,4 @@
 | 2026-07-14 | YR-012 | **완료 — 미달, 격차 역대 최소 +0.083** | Δ 저장소만 표→MLP(연속 14-feature): 해상도 세금 실증 (tabular +0.248 vs net +0.083, CI 비중첩)·P95 첫 개선·guardrail 4/4 최초. 남은 용의자 = 학습 진동 | [사전등록+결과](2026-07-14-YR-012-residual-delta-net-prereg.md) |
 | 2026-07-14 | YR-031 | **완료 — INTERMEDIATE** | 전지적 beam vs greedy: 상금 하한 +0.182분 실재 (90/100일, 혼잡일 편중) — greedy 비최적 증명, 추격 목표 확정 | [사전등록+결과](2026-07-14-YR-031-oracle-gap-prereg.md) |
 | 2026-07-15 | YR-012-b | **완료 — 진동 감소, 성능 악화 (용의자 기각)** | replay+target 이 진동 폭 2.32→0.91 로 줄였으나 두 arm 모두 online 미달 (+0.158/+0.317 vs +0.107) — 잔차 Δ 는 online TD 상성. 부수: 선택 규칙 winner's curse (YR-032). 남은 용의자 = feature 정보 (YR-031-b) | [사전등록+결과](2026-07-15-YR-012-b-delta-stable-prereg.md) |
-| 2026-07-15 | YR-031-b | 사전등록 — 실행 전 동결 | 사용자 가설 명명: H-A(이탈 시점 feature 예측가능, AUC≥0.75)·H-B(이탈 선택 조합 의존, 집합맥락 이득≥0.05) — oracle 궤적 리플레이 분석, 재학습 없음 | [사전등록](2026-07-15-YR-031-b-oracle-pattern-prereg.md) |
+| 2026-07-15 | YR-031-b | **완료 — H-A 지지 (0.852) · H-B 기각 (이득 0)** | 이탈 = 근소 동급 작업 미세 스왑 (anti-SPT 90%, service 차이 중앙값 +9.5초). 신호 운반체는 집합 맥락 feature — Δ-net 이 못 보던 정보. argmin 골격 충분 → YR-012-c (14→22) | [사전등록+결과](2026-07-15-YR-031-b-oracle-pattern-prereg.md) |
