@@ -5,7 +5,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-039 | RL | 동적 후보 Candidate Double DQN | 🟠 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · YR-037/038 후, YR-031-b feature 판정 반영 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · YR-036~039 후, 중앙 matching 대비 추가효과 판정 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |

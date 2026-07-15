@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-039 | RL | 동적 후보 Candidate Double DQN — `[Global, YC, Candidate, Queue Summary] → Q_cost` 공유망, DQN→DDQN→Dueling 비교 | 🟠 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-039-candidate-double-dqn.md) · 의존 YR-037/038 충족. YR-033 checkpoint protocol·YR-031-b feature 판정 반영 |
 
 ---
 
