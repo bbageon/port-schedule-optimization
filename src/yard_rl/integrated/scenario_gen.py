@@ -36,6 +36,9 @@ class TerminalGenParams:
     sts_move_interval_s: float = 144.0   # STS 간격 — μ
     gaussian: bool = True            # 평균조건 가우시안 변주 (YR-043)
     sigma_frac: float = 0.12         # σ ≈ 10~15% of μ (assumed)
+    # YR-048: 제공 ETA 오차 — 단일야드 관행(io/scenario_gen §18.2 EMPIRICAL)과 동일하게
+    # eta = 실제도착 ± uniform(eta_error_s). 0 이면 PERFECT. 품질 매트릭스는 YR-019.
+    eta_error_s: float = 300.0
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -46,6 +49,8 @@ class TerminalGenParams:
             raise ValueError("horizon/drain 은 양수")
         if not (0.0 <= self.sigma_frac < 0.5):
             raise ValueError("sigma_frac 은 [0,0.5)")
+        if self.eta_error_s < 0:
+            raise ValueError("eta_error_s 는 0 이상")
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -118,20 +123,27 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     jobs: list[Job] = []
 
     # ---- 외부트럭 (도착 horizon 내 균등 + jitter)
+    # YR-048: 제공 ETA 주입 — 없으면 PRE_ADVICE 레벨에서도 PRE_REHANDLE(선제 재조작) 후보가
+    # 전혀 생성되지 않아 H2(ETA 선제정리) 축이 통째로 비활성이 된다 (YR-047 리뷰 파생 발견).
+    # **전용 RNG 스트림**을 쓰는 이유: 기존 draw 열(도착·대상·본선)을 밀지 않아 같은 seed 의
+    # 시나리오 구조가 이전과 바이트 동일하게 유지되고, 변화가 정확히 "ETA 추가"로 한정된다.
+    eta_rng = random.Random(f"eta:{seed}")
     for i in range(params.n_external):
         arrival = params.horizon_s * (i + rng.random()) / params.n_external
         # ETA 오차 축 (YR-043): 게이트→블록 소요를 μ=600s 평균조건 가우시안으로
         gate_travel = trunc_normal(rng, 600.0, params.sigma_frac or 0.12, lo=60.0)
         gate_in = max(0.0, arrival - gate_travel)
+        eta = max(0.0, arrival + eta_rng.uniform(-params.eta_error_s, params.eta_error_s))
         if rng.random() < params.gate_out_share and free_targets:
             target = free_targets.pop()
             jobs.append(Job(job_id=f"J-OUT-{i:03d}", flow=JobFlow.GATE_OUT,
                             release_time=0.0, actual_gate_in=gate_in,
-                            actual_block_arrival=arrival, target_container=target))
+                            actual_block_arrival=arrival, provided_eta=eta,
+                            target_container=target))
         else:
             jobs.append(Job(job_id=f"J-IN-{i:03d}", flow=JobFlow.GATE_IN,
                             release_time=0.0, actual_gate_in=gate_in,
-                            actual_block_arrival=arrival,
+                            actual_block_arrival=arrival, provided_eta=eta,
                             inbound_size=(ContainerSize.FT40
                                           if rng.random() < params.size_mix_ft40
                                           else ContainerSize.FT20),
@@ -176,4 +188,6 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         drain_window_s=params.drain_window_s,
         containers=containers, jobs=jobs, vessels=vessels,
         injected_events=[],
-        meta={"generator": "terminal-gen-v1", "assumed": True})
+        # eta_error_s 를 박제 — YR-019 품질축 실험에서 arm 간 시나리오 정체성 구분 (리뷰 반영)
+        meta={"generator": "terminal-gen-v1", "assumed": True,
+              "eta_error_s": params.eta_error_s})

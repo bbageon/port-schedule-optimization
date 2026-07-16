@@ -5,9 +5,9 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-048 | Sim | PRE_REHANDLE(ETA 선제 재조작) 후보가 통합 실험에서 전혀 발생하지 않음 — `integrated/scenario_gen.py` 가 `provided_eta` 미설정 | 🟠 | **YR-047 적대 리뷰 파생 발견 (2026-07-16)**: 후보 생성기는 PRE_ADVICE + `job.provided_eta` 를 요구하는데(candidates.py:172) 통합 시나리오 생성기·fixture 는 provided_eta 를 설정하지 않는다 (설정처는 단일야드 `io/scenario_gen.py` 뿐). 실측: 3개 시나리오 후보 385건 중 PRE_REHANDLE **0건**. ETA 기반 선제정리는 연구 핵심 축(가설 H2·최종전략 §8.2)이므로 이대로 YR-045 를 돌리면 해당 축이 통째로 비활성인 채 판정하게 된다. 할 일: 통합 생성기에 ETA 분포(기존 gaussian 파라미터와 정합) 주입 + PRE_REHANDLE 발생율 검증 테스트 + YR-045 사전등록에 반영. **YR-045 착수 전 처리 권장** |
+| YR-050 | Sim | ETA만 보이는 한산기에도 선제 재조작 결정을 열고, 이미 지난 ETA의 음수 신호를 보존 | 🟠 | [spec](../docs/dashboard-task-specs/YR-050-eta-decision-epoch.md) · **YR-048 적대 리뷰 파생** — 현재는 SERVE가 있어야만 결정 시점이 열려 첫 트럭 전 선제작업 불가. YR-045 선결조건 |
+| YR-045 | Exp | YR-039 정정판 locked 재실험 — 신규 seed + ETA 두 경로 3-arm 분리 + §18 다중 게이트 | 🟠 | [spec](../docs/dashboard-task-specs/YR-045-corrected-locked-rerun.md) · [사전등록](../docs/strategy-history/2026-07-16-YR-045-corrected-locked-rerun-prereg.md) · **YR-050 완료 전 실행 금지** · 총비용 CI 단독 불채택 |
 | YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · **착수 조건 미충족 회귀 (2026-07-15)** — 전제였던 YR-039 로컬 utility 검증이 [무효](../docs/strategy-history/2026-07-15-YR-039-무효판정-imbalance-지배.md). YR-045 정정 재실험 통과 후 재판정 |
-| YR-045 | Exp | YR-039 정정판 locked 재실험 — 신규 seed 대역 + §18 다중 게이트(평균대기↓·P95/본선/STS·이송 비악화·이동/재조작 1+ 개선·위반 0) + 항목별 기여율 보고 의무 | 🟠 | 기존 test 대역(320000~) 진단 사용으로 소각. 의존 YR-043·044. 총비용 CI 단독으로는 불채택 |
 | YR-042 | Exp | DGT·HJNC 근사 프로파일 일반화 게이트 (재실행 대기) | 🟡 | **run 중단 (2026-07-15)** — YR-039 무효로 전제 상실 (동일 imbalance reward·동일 baseline 상속). 구현(`0cd547d`·`f51818c`)은 유효 — YR-045 통과 후 정정판 정책으로 재실행 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |

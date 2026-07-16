@@ -98,9 +98,9 @@ def assert_healthy_action_mix(mix: ActionMix, *, min_serve_when_available: float
     - `max_nonserve_share`: 단일 비-SERVE 행동이 전체를 장악하면 퇴화.
 
     문턱 보정 근거 (YR-044 실측, seed 310000): **퇴화 0.03~0.08** (YR-039 SPT·즉시비용 greedy —
-    REPOSITION 50~59%·완료율 41%) vs **건전 0.46~0.57** (ServiceFirstSPT·FIFO·VesselWait·
-    JointRollout). 두 무리가 뚜렷이 갈리므로 그 사이(0.25)를 문턱으로 둔다 — 좋은 정책이
-    선제 위치조정을 섞는 것을 벌하지 않으면서 퇴화만 잡는다.
+    REPOSITION 50~59%·완료율 41%) vs **건전 0.46~0.57**. YR-048 ETA 주입 후에도 건전군은
+    0.46~0.58로 유지돼 0.25 문턱은 유효하다. PRE_REHANDLE도 비-SERVE로 세므로 YR-045에서는
+    해당 선택 횟수를 별도 보고한다 — 문턱은 성능 판정이 아니라 명백한 퇴화 검출용이다.
     """
     if mix.total == 0:
         return
@@ -200,6 +200,7 @@ class JointRolloutGreedy:
         self.base_policy = base_policy or ResolverPolicy(ServiceFirstSPTPreference(), "BASE")
         self.max_combos = max_combos
         self.generator = generator
+        self.n_truncated = 0     # 조합 절단 발생 횟수 — "조용한 축소 금지": 평가 리포트가 보고
 
     def decide(self, sim, dp, gen_by) -> dict:
         best, best_key = None, None
@@ -221,6 +222,7 @@ class JointRolloutGreedy:
         for o in opts:
             n *= max(1, len(o))
         if n > self.max_combos:              # 조합 폭발 방지 (절단은 보고 대상 — 조용한 축소 금지)
+            self.n_truncated += 1            # YR-048 리뷰: ETA 로 후보 밀도↑ → 발동 빈도↑, 계수 의무화
             per = max(1, int(self.max_combos ** (1 / max(1, len(opts)))))
             opts = [o[:per] for o in opts]
         return itertools.product(*opts)
@@ -321,6 +323,7 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
     level = level or sim.info_level
     sim.info_level = level
     mix = ActionMix()
+    truncated_before = int(getattr(policy, "n_truncated", 0))
     total, n_dec = 0.0, 0
     dp = sim.run_until_decision()
     sim.cost.cut()                              # 첫 결정 이전 구간은 선행 행동 없음 — 폐기
@@ -345,6 +348,8 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
     ws = sorted(waits)
     return {"policy": getattr(policy, "name", type(policy).__name__),
             "total_cost": total, "n_decisions": n_dec,
+            "combo_truncations": (int(getattr(policy, "n_truncated", 0))
+                                    - truncated_before),
             "completion_rate": done / max(1, len(jobs)), "backlog": len(jobs) - done,
             "mean_wait_min": (sum(waits) / len(waits)) if waits else 0.0,
             "p95_wait_min": (ws[min(len(ws) - 1, int(0.95 * len(ws)))] if ws else 0.0),

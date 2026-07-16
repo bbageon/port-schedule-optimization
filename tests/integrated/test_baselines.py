@@ -2,6 +2,8 @@
 
 핵심: 비교 기준(baseline)이 퇴화하면 어떤 승리 주장도 성립하지 않는다 (YR-039 무효 사유 2).
 """
+from types import SimpleNamespace
+
 import pytest
 
 from yard_rl.contract.schema import CandidateKind
@@ -73,10 +75,23 @@ def test_joint_rollout_greedy_is_healthy_and_competitive():
     """고정 시간창 rollout — 퇴화 없이 base 정책(ServiceFirstSPT) 이하 총비용."""
     base = run_joint_episode(_sim(), ResolverPolicy(ServiceFirstSPTPreference(), "SF"),
                              RC, level=LEVEL)
-    roll = run_joint_episode(_sim(), JointRolloutGreedy(RC, horizon_s=600.0), RC, level=LEVEL)
+    policy = JointRolloutGreedy(RC, horizon_s=600.0)
+    roll = run_joint_episode(_sim(), policy, RC, level=LEVEL)
     assert_healthy_action_mix(roll["_mix"], label="ROLLOUT")
     assert roll["completion_rate"] == 1.0
     assert roll["total_cost"] <= base["total_cost"]        # 1-step 정책개선
+    assert roll["combo_truncations"] == policy.n_truncated  # 조용한 후보 축소 금지
+
+
+def test_joint_rollout_counts_combo_truncation():
+    """후보 조합을 max_combos로 줄이면 반드시 계수되어 평가 결과에 노출된다."""
+    policy = JointRolloutGreedy(RC, max_combos=64)
+    dp = SimpleNamespace(crane_ids=("YC-1", "YC-2"))
+    gen_by = {cid: SimpleNamespace(items=tuple(SimpleNamespace(feasible=True)
+                                                for _ in range(9)))
+              for cid in dp.crane_ids}
+    assert len(list(policy._combos(dp, gen_by))) == 64
+    assert policy.n_truncated == 1
 
 
 def test_joint_rollout_deterministic():

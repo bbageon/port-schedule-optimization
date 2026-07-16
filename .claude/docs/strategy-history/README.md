@@ -33,3 +33,4 @@
 | 2026-07-15 | 단일야드 종료 | **트랙 종료 (사용자 결정)** | greedy(SPT) near-optimal 결론. 커버리지·초기화·구조(H-B)·해상도·학습기법·선택 전 축 소진, robust 격차 ~+0.1 는 문제 성질. RL 잔존가치(tail·oracle 상금)는 통합전략으로 이관 | [종료 결론서](2026-07-15-single-yard-track-closure.md) |
 | 2026-07-15 | YR-034 | **최종 통합전략 전환 (사용자 결정)** | 별도 Exp 정책을 단일 통합 State·Action·Total Cost 정책과 요소별 ablation으로 재기준화. 동적 후보 DDQN→중앙 resolver→QMIX 구현 순서와 Dashboard work package 확정 | [결정 이력](2026-07-15-YR-034-final-integrated-strategy-pivot.md) |
 | 2026-07-16 | YR-049 | **구현·RL 전략 정정판 (사용자 요청 재작성)** | YR-039 무효·정정 트랙(YR-043~047) 완료 시점 기준 실행 전략 고정 — 동결 골격·정정 설계(guard 2종)·코드 실명 매핑·YR-045 프로토콜·환경/소요(학습 25분)·되돌릴 조건. 원본 최종전략은 §번호 인용 보존 위해 무수정 | [정정판](2026-07-16-구현-RL전략-정정판.md) |
+| 2026-07-16 | YR-045 | **사전등록 완료·실행 대기** | YR-048에서 확인한 ETA의 PRE_REHANDLE·REPOSITION 두 경로를 3-arm으로 분리하고 신규 seed 400k/410k/420k와 §18 다중 게이트를 동결. YR-050 완료 전 실행 금지 | [사전등록](2026-07-16-YR-045-corrected-locked-rerun-prereg.md) |
