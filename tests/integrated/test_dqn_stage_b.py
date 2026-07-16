@@ -108,8 +108,15 @@ def test_quick_run_end_to_end(tmp_path):
     assert (tmp_path / "out" / "model_CandidateDQN[ddqn].pt").exists()
 
 
-def test_actionable_excludes_wait_and_scores_follow():
-    """리뷰 HIGH 회귀 가드: WAIT 는 actionable·score·backup 행동집합에서 제외."""
+def test_actionable_includes_wait_and_scores_follow():
+    """YR-043 회귀 가드: WAIT 는 실제 행동 — actionable·score·wait_pos 에 포함.
+
+    구 계약은 WAIT 배제였고, 그 근거는 "resolver 가 pair 에서 WAIT 를 빼므로 회귀 표적을
+    못 받아 backup argmin 이 표류값에 오염된다" 였다. YR-043 이 resolver pair 에 WAIT 를
+    포함시키면서 그 전제가 소멸 → 배제는 학습 가능한 행동을 지우는 손실일 뿐이다
+    (매핑 §4). 여기서 지키는 것은 "WAIT 를 별도로 빼지 않는다" 이다 — 선택 여부는
+    physical/정보 feasibility(selectable)만 결정한다.
+    """
     from yard_rl.contract import CandidateKind
     from yard_rl.integrated.qnet import CandidateQNet, score_decision
     sim = TerminalSimulator(PROF, generate_terminal_scenario(PROF, 300_103, PARAMS),
@@ -119,16 +126,18 @@ def test_actionable_excludes_wait_and_scores_follow():
     state, obs, gen_by = capture(sim, dp.crane_ids, LEVEL, "wg", 0)
     enc = encode_observation(state, obs[0])
     kinds = [c.kind for c in obs[0].candidates.items]
-    assert CandidateKind.WAIT in kinds            # WAIT 후보는 존재하고
-    for i, kind in enumerate(kinds):
-        if kind == CandidateKind.WAIT:
-            assert not enc.actionable[i]          # 행동집합에선 제외
+    assert CandidateKind.WAIT in kinds                 # WAIT 후보는 존재하고
+    wait_rows = [i for i, k in enumerate(kinds) if k == CandidateKind.WAIT]
+    for i in wait_rows:
+        assert enc.actionable[i] == enc.selectable[i]  # kind 로 인한 별도 배제 없음
+    assert enc.wait_pos in wait_rows                   # replay 표본 매핑 지점
+    assert enc.actionable[enc.wait_pos]
     assert any(enc.actionable)
     net = CandidateQNet(encoding_dims(enc))
     scores = score_decision(net, enc)
-    wait_ids = {c.candidate_id for c in obs[0].candidates.items
-                if c.kind == CandidateKind.WAIT}
-    assert not (set(scores) & wait_ids)
+    wait_ids = {c.candidate_id for i, c in enumerate(obs[0].candidates.items)
+                if c.kind == CandidateKind.WAIT and enc.selectable[i]}
+    assert wait_ids <= set(scores)                     # 선택 가능한 WAIT 는 채점 대상
 
 
 def test_checkpoint_device_independent_roundtrip(tmp_path):
