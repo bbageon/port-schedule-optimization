@@ -94,6 +94,26 @@ def test_joint_rollout_counts_combo_truncation():
     assert policy.n_truncated == 1
 
 
+def test_joint_rollout_no_livelock_when_truncating(seed=310003):
+    """YR-051 회귀 — 후보 조합 절단이 WAIT(no-op)을 떨구면 decide 가 진행 가능한 조합을
+    못 찾아 라이브락(WAIT 무한반복·완료율 0%)에 빠지던 결함. ETA 로 후보 밀도가 높아지는
+    seed 310003~310006 에서 완료율 0%였다. 절단이 WAIT 를 항상 보존하도록 고쳐 완주 보장.
+    """
+    from yard_rl.integrated import BeamLookahead
+
+    def _episode(seed):
+        return TerminalSimulator(PROF, generate_terminal_scenario(PROF, seed), info_level=LEVEL)
+
+    for s in (310003, 310004, 310005, 310006):
+        r = run_joint_episode(_episode(s), JointRolloutGreedy(RC, horizon_s=600.0), RC, level=LEVEL)
+        assert r["combo_truncations"] > 0, f"seed {s}: 절단이 없으면 이 회귀를 검증 못함"
+        assert r["completion_rate"] == 1.0, f"seed {s}: 라이브락 재발 (완료율 {r['completion_rate']})"
+        assert r["backlog"] == 0
+    # 강 baseline(BeamLookahead)도 같은 _combos 를 쓰므로 함께 보호됨
+    rb = run_joint_episode(_episode(seed), BeamLookahead(RC, horizon_s=600.0, width=2), RC, level=LEVEL)
+    assert rb["completion_rate"] == 1.0
+
+
 def test_joint_rollout_deterministic():
     a = run_joint_episode(_sim(), JointRolloutGreedy(RC, horizon_s=300.0), RC, level=LEVEL)
     b = run_joint_episode(_sim(), JointRolloutGreedy(RC, horizon_s=300.0), RC, level=LEVEL)

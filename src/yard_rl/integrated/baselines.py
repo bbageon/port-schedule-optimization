@@ -224,7 +224,18 @@ class JointRolloutGreedy:
         if n > self.max_combos:              # 조합 폭발 방지 (절단은 보고 대상 — 조용한 축소 금지)
             self.n_truncated += 1            # YR-048 리뷰: ETA 로 후보 밀도↑ → 발동 빈도↑, 계수 의무화
             per = max(1, int(self.max_combos ** (1 / max(1, len(opts)))))
-            opts = [o[:per] for o in opts]
+            # YR-051: 절단이 WAIT(no-op)을 떨구면, 남은 실작업 조합이 전부 공동 실행불가일 때
+            # decide 가 진행 가능한 조합을 못 찾아 라이브락(WAIT 무한반복·완료율 0%)에 빠진다.
+            # WAIT 는 정렬 말미라 [:per] 에서 우선 잘려나간다 → 항상 재보존해 SERVE/WAIT 등
+            # 부분작업 조합을 보장한다 (WAIT/WAIT 최소한의 feasible 조합도 항상 확보).
+            trunc = []
+            for o in opts:
+                head = list(o[:per])
+                w = next((g for g in o if getattr(g, "kind", None) == CandidateKind.WAIT), None)
+                if w is not None and w not in head:
+                    head.append(w)
+                trunc.append(head)
+            opts = trunc
         return itertools.product(*opts)
 
 
