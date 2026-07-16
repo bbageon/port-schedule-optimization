@@ -218,14 +218,18 @@ class CandidateGenerator:
 
     # -------------------------------------------------------- prune·order
     def _prune(self, raw) -> list:
+        """mandatory 는 전량 보존, 나머지를 score 로 budget 까지 채운다.
+
+        YR-044: mandatory 가 budget(k_max-1) 을 넘으면 **후보칸을 늘려 전부 싣는다** (이전엔
+        K_TOO_SMALL 로 크래시 — 혼잡 시 SLA 임박 트럭이 12대를 넘으면 에피소드가 죽었다).
+        "조용한 유실 금지" 의도는 유실 0 이지 크래시가 아니다. 후보 수는 가변이고 Q망은
+        후보별 공유 점수 구조(YR-031-b)라 K 확장이 안전하다.
+        """
         budget = self.k_max - 1                       # WAIT 1칸 예약
         mand = [c for c in raw if c.mandatory]
         rest = [c for c in raw if not c.mandatory]
-        if len(mand) > budget:
-            raise ConstraintViolation("K_TOO_SMALL",
-                                      f"mandatory {len(mand)} > budget {budget} — 조용한 유실 금지")
         rest.sort(key=lambda c: (-c.score,) + self._order_key(c))
-        return mand + rest[:budget - len(mand)]
+        return mand + rest[:max(0, budget - len(mand))]
 
     def _order_key(self, gc) -> tuple:
         """canonical id 순 — score 미세동률이 텐서 레이아웃을 흔들지 않게 membership/id 분리."""

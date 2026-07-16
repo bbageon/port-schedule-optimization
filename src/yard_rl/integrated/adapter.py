@@ -215,7 +215,8 @@ def _build_candidate_set(sim, cid, gen, now, level, ablation_off, k_max):
         "over_sla_count": float(sum(1 for w in waits if w >= sim.profile.long_wait_sla_s)),
     }
     qfv = build_feature_vector("queue", qraw, now=now, info_level=level, ablation_off=ablation_off)
-    pad = tuple(padding_candidate(n_real + i) for i in range(k_max - n_real))
+    # mandatory 전량 보존으로 실후보가 k_max 를 넘을 수 있다 (YR-044) → K 는 max(k_max, n_real).
+    pad = tuple(padding_candidate(n_real + i) for i in range(max(0, k_max - n_real)))
     pad_mask = (True,) * n_real + (False,) * len(pad)
     feasible = tuple(gc.feasible for gc in gen.items) + (False,) * len(pad)
     reason = tuple(gc.mask_reason for gc in gen.items) + ("PADDING",) * len(pad)

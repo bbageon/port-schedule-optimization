@@ -96,13 +96,27 @@ def test_mandatory_plan_failed_no_crash():
     validate_candidates(cs)     # 크래시 없이 계약 통과
 
 
-def test_prune_k_too_small():
-    """mandatory 수가 budget 초과 → K_TOO_SMALL (조용한 유실 금지)."""
+def test_prune_expands_for_mandatory():
+    """mandatory 가 budget 을 넘으면 후보칸을 늘려 **전량 보존** (YR-044: 이전엔 크래시).
+
+    유실 0 이 의도이지 크래시가 아니다 — 혼잡 시 SLA 임박 트럭이 k_max 를 넘어도 에피소드가
+    죽지 않아야 한다.
+    """
     gen = CandidateGenerator(k_max=3)   # budget = 2
     fake = [GenCandidate(0, CandidateKind.SERVE, None, None, True, True, None, 0.0)
             for _ in range(4)]
-    with pytest.raises(ConstraintViolation, match="K_TOO_SMALL"):
-        gen._prune(fake)
+    kept = gen._prune(fake)
+    assert len(kept) == 4 and all(g.mandatory for g in kept)   # 전량 보존
+
+
+def test_prune_fills_rest_within_budget():
+    """non-mandatory 는 budget 안에서만 (score 순)."""
+    gen = CandidateGenerator(k_max=4)   # budget = 3
+    mand = [GenCandidate(0, CandidateKind.SERVE, None, None, True, True, None, 0.0)]
+    rest = [GenCandidate(0, CandidateKind.SERVE, None, None, False, True, None, float(i))
+            for i in range(5)]
+    kept = gen._prune(mand + rest)
+    assert len(kept) == 3 and sum(1 for g in kept if g.mandatory) == 1
 
 
 def test_feasibility_matches_reservation():

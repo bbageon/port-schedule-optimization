@@ -9,6 +9,10 @@ from __future__ import annotations
 from .adapter import capture, record_episode
 from .audit import (CandidateVerdict, CraneResolution, JointResolution,
                     resolution_stream_hash)
+from .baselines import (ActionMix, ActionMixError, BeamLookahead, FIFOPreference,
+                        JointImmediateCostGreedy, JointRolloutGreedy, ResolverPolicy,
+                        ServiceFirstSPTPreference, assert_healthy_action_mix,
+                        run_joint_episode)
 from .candidates import CandidateGenerator, GenCandidate, GeneratedCandidates
 from .cost import (ASSUMED_SCALE, ASSUMED_WEIGHT, CostAccumulator,
                    assumed_lambda_vessel)
@@ -33,6 +37,9 @@ __all__ = [
     "ReferenceDispatcher", "record_episode", "capture",
     "CandidateGenerator", "GenCandidate", "GeneratedCandidates",
     "CentralResolver", "BaselinePreference", "DispatcherPreference",
+    "JointRolloutGreedy", "JointImmediateCostGreedy", "BeamLookahead", "ResolverPolicy",
+    "ServiceFirstSPTPreference", "FIFOPreference", "ActionMix", "ActionMixError",
+    "assert_healthy_action_mix", "run_joint_episode",
     "JointResolution", "CraneResolution", "CandidateVerdict", "resolution_stream_hash",
     "IntegratedProfile", "TransferFleetSpec", "TerminalScenario", "InjectedEvent",
     "VesselProcess", "VesselPlan", "VesselTruth", "VesselWorkType",
