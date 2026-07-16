@@ -74,9 +74,13 @@ PYTHONPATH=$PWD/src PYTHONDONTWRITEBYTECODE=1 ~/.venvs/yard-rl/bin/python -m pyt
 
 ## 6. 남은 스킵과 열린 선택
 
-- `test_dqn_stage_b.py:164` — CUDA parity. **RTX A400이 실제로 있으나** CPU 휠을 설치해
-  건너뛴다. Windows 기존 환경(CPU)과 조건을 맞춰 이전 결과와 비교 가능하게 하려는 의도.
-  YR-045에서 학습이 느리면 CUDA 휠로 바꾸는 선택지가 열려 있다 (수치 재현성 영향 검토 필요).
+- `test_dqn_stage_b.py:164` — CUDA parity. **RTX A400이 실제로 있으나** CPU 휠을 설치해 건너뛴다.
+  **CPU로 충분하다 — 실측으로 확인(2026-07-16)**: 학습 시간의 약 **4%만 torch**이고 나머지는
+  순수 파이썬 시뮬레이터라, GPU를 붙여도 상한이 **1.04배**다. 망도 작다(은닉 128·배치 64).
+  게다가 `dqn_learner.py:82`가 재현성을 위해 `torch.set_num_threads(1)`로 고정해 둔 상태라
+  CUDA 전환은 재현성 질문을 새로 연다. **실제 병목은 GPU가 아니라 `engine.py:287`의
+  전체 스택 deepcopy(71.4%)** → backlog **YR-047**(상한 3.57배).
+  판단: YR-045는 CPU로 진행. 참고 실측 — 학습 3.26s/에피소드, 3 variant × 500 ep ≈ **81분**.
 - `test_recorder.py` plotly 2건 — WSL 미설치. Windows 쪽에서 실행되므로 커버됨.
 
 ## 7. 이 과정에서 드러난 실제 버그
