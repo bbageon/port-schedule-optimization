@@ -3,7 +3,8 @@
 - SMDP per-crane 전이 스티칭: 크레인 c 의 연속 '실행' 결정 (k, k') 사이 구간비용을
   할인 합산 C = Σ γ^{(t_j−t_k)/ref}·cost_j, 부트스트랩 할인 γ^{(t_k'−t_k)/ref}.
   팀 공유비용을 각 크레인에 동일 귀속 (독립 학습자 v1 — mixer 는 YR-013).
-  WAIT/yield 결정은 표본 제외 (환경의 일부로 취급, 매핑 §3).
+  WAIT 도 실행동으로 표본 포함 — chosen_candidate_id=None 은 enc.wait_pos 로 매핑 (YR-043 §4;
+  구 계약 "표본 제외"는 resolver 가 WAIT 를 pair 에서 빼던 시절의 것으로 전제 소멸).
 - variant: dqn(target argmin=target) / ddqn(online argmin→target 평가, 기본) /
   dueling(ddqn + dueling head). Huber loss·grad clip·target sync.
 - 탐험: 크레인별 ε 확률로 selectable 후보 1개의 score 를 −∞ 로 강제 (그 크레인

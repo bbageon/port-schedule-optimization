@@ -4,9 +4,11 @@ YR-039 무효 사유 2 — baseline 이 "최단 서비스"가 아니라 "최단 
 REPOSITION(순수 크레인 이동)인 퇴화 정책이었다. 비교 기준이 무너지면 어떤 승리 주장도 성립하지 않는다.
 
 여기서 제공:
-- `JointImmediateCostGreedy` — 1차 baseline. 두 YC 의 **공동 feasible 행동 조합을 열거**해 동일 13항
-  비용의 **즉시비용 argmin** (deepcopy 1-step rollout = 실제 엔진·실제 비용 config).
-- `BeamLookahead` — 강 baseline. 위를 depth D·width W 로 확장한 rolling-horizon.
+- `JointRolloutGreedy` — **1차 baseline**. 두 YC 의 공동 feasible 행동 조합을 열거해 **고정 시간창
+  (horizon_s) 누적비용** argmin — 행동 후 base_policy 로 시간창 끝까지 진행 = 1-step 정책개선.
+- `JointImmediateCostGreedy` — **진단 전용** (무효판정 §6.2 문자 그대로의 "즉시비용(다음 결정까지)
+  argmin"). 짧은 행동일수록 rate 비용이 덜 쌓여 구성상 퇴화 — baseline 으로 쓰지 않는다 (매핑 §3).
+- `BeamLookahead` — 강 baseline. 1차를 width W 로 가지치기해 시간창 2개까지 확장한 rolling-horizon.
 - `ServiceFirstSPTPreference`·`FIFOPreference` — 보조 진단군 (동일 정보·후보·제약·비용 config).
 - `ActionMix`·`assert_healthy_action_mix` — 퇴화 사전 검출 계약 (REPOSITION 지배 등).
 전 정책은 동일 드라이버(`run_joint_episode`)·동일 후보 생성기·동일 resolver 제약을 쓴다.

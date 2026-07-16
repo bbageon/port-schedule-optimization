@@ -284,7 +284,16 @@ class TerminalSimulator:
                            end_row=float(geom.transfer_row), rehandles=0,
                            loaded_gantry_m=0.0, empty_gantry_m=dist)
 
-        work = copy.deepcopy(self.stacks)
+        # YR-047: 가상 진행의 격리는 exclude 집합이 운반한다 — 각 blocker 의 목적지는 배치 즉시
+        # exclude 에 들어가고, 원천 스택(대상과 같은 pile)은 호출마다 제외되므로, find_slot/
+        # top_tier 는 가상으로 변형된 스택을 다시 읽지 않는다. 따라서 스택 전체 deepcopy 없이
+        # 원본을 읽기 전용으로 써도 SERVE/REPOSITION 은 결과 동일 (등가성: test_plan_no_deepcopy.py).
+        # 단 PRE_REHANDLE 의 slots·corridor 는 **의도적으로 구버전과 다르다**: 구버전은 place() 가
+        # b.bay/b.row 를 목적지로 덮어쓴 '뒤' 장부를 기록하는 별칭(aliasing) 버그로 원천 pile 을
+        # 예약에서 누락했다(과소예약 — SERVE 는 target 반출이 같은 pile 을 재추가해 우연히 은폐).
+        # 신버전은 원천 pile 도 slots·corridor 에 포함한다 — 크레인이 실제로 주행·조작하는 범위.
+        # stk 를 변형하는 호출(remove/place)을 추가하면 격리 전제가 깨진다 — 금지.
+        stk = self.stacks
         exclude = set(self.reservations.reserved_slots()) | set(extra_exclude)
         moves: list[Move] = []
         touched_bays = {cur_bay}
@@ -294,11 +303,11 @@ class TerminalSimulator:
         j = self.jobs[ref.job_id]
 
         if j.flow == JobFlow.GATE_IN and ref.kind == CandidateKind.SERVE:
-            dest = work.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
+            dest = stk.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
             if dest is None:
                 return None
             db, dr = dest
-            dtier = work.top_tier(db, dr) + 1
+            dtier = stk.top_tier(db, dr) + 1
             src = (db, geom.transfer_row, 1)
             mv = move_container(spec, geom, cur_bay, cur_row, src, (db, dr, dtier))
             inbound = Container(container_id=f"IN_{j.job_id}", size=j.inbound_size,
@@ -314,18 +323,21 @@ class TerminalSimulator:
             slots.add((db, dr))
         else:
             target_id = j.target_container
-            for blocker_id in work.blockers_above(target_id):
-                b = work.containers[blocker_id]
+            for blocker_id in stk.blockers_above(target_id):
+                b = stk.containers[blocker_id]
                 src = (b.bay, b.row, b.tier)
-                dest = work.find_slot(b.size, spec, float(b.bay), float(b.row),
-                                      exclude=frozenset(exclude | {(b.bay, b.row)}))
+                dest = stk.find_slot(b.size, spec, float(b.bay), float(b.row),
+                                     exclude=frozenset(exclude | {(b.bay, b.row)}))
                 if dest is None:
                     return None
                 db, dr = dest
-                dtier = work.top_tier(db, dr) + 1
-                work.remove(blocker_id)
+                dtier = stk.top_tier(db, dr) + 1
+                # 구 place() 검증 승계 + exclude 계약 가드 — 위의 격리 전제가 기대는 후조건이므로
+                # find_slot 이 변경되면 여기서 즉시 발화해야 한다 (조용한 물리 불일치 계획 방지).
+                if (dtier > geom.tier_max or not stk.stack_size_ok(db, dr, b.size)
+                        or dest in exclude or dest == (b.bay, b.row)):
+                    raise RuntimeError(f"({db},{dr}) find_slot 후조건 위반")
                 mv = move_container(spec, geom, cur_bay, cur_row, src, (db, dr, dtier))
-                work.place(b, db, dr)
                 moves.append(Move(blocker_id, src, (db, dr, dtier),
                                   mv.loaded_gantry_m, mv.empty_gantry_m, mv.duration_s))
                 total_s += mv.duration_s
@@ -338,7 +350,7 @@ class TerminalSimulator:
                 slots |= {(b.bay, b.row), (db, dr)}
             if ref.kind == CandidateKind.SERVE:
                 # 대상 반출 (PRE_REHANDLE 은 blocker 만 치우고 target 잔존)
-                target = work.containers[target_id]
+                target = stk.containers[target_id]
                 src = (target.bay, target.row, target.tier)
                 dst = (target.bay, geom.transfer_row, 1)
                 mv = move_container(spec, geom, cur_bay, cur_row, src, dst)
