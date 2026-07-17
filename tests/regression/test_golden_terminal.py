@@ -5,7 +5,7 @@
 """
 from pathlib import Path
 
-from yard_rl.contract import dumps
+from yard_rl.contract import SCHEMA_VERSION, dumps
 from yard_rl.domain.enums import InformationLevel
 from yard_rl.integrated import (CraneAssignment, ReferenceDispatcher, TerminalSimulator,
                                build_integrated_profile, build_minimal_terminal_scenario,
@@ -13,7 +13,7 @@ from yard_rl.integrated import (CraneAssignment, ReferenceDispatcher, TerminalSi
 from yard_rl.contract.schema import CandidateKind
 
 _HERE = Path(__file__).parent
-_RECORD_GOLDEN = _HERE / "golden_terminal_record_itc-v1.json"
+_RECORD_GOLDEN = _HERE / f"golden_terminal_record_{SCHEMA_VERSION}.json"
 
 GOLDEN = {
     "n_events": 115, "n_decisions": 4, "hash": "970b45a27b3da76e",

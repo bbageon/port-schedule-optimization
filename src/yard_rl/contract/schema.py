@@ -1,4 +1,4 @@
-"""통합 전이 계약 스키마 (itc-v1) — YR-035.
+"""통합 전이 계약 스키마 (itc-v2) — YR-035, YR-050.
 
 최종전략(별도 Exp 정책 폐기, 처음부터 차량·본선·이송장비·레인·다중 YC 를 같은
 State/Action/Total Cost 계약으로 다루는 단일 통합정책)의 데이터 계약 단일 소스.
@@ -19,7 +19,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-SCHEMA_VERSION = "itc-v1"   # integrated transition contract v1
+# v2 (YR-050): predicted_arrival_gap_s 의 clip_lo=0 제거 — 부호 보존(음수 = ETA 경과·미도착
+# 연착). 값 범위 재해석이므로 규약(위 "변경은 반드시 bump")에 따라 명시적 버전 상승.
+SCHEMA_VERSION = "itc-v2"   # integrated transition contract v2
 FLOAT_DECIMALS = 6          # 교차플랫폼 float 정규화 소수자리 (직렬화 idempotent)
 
 
@@ -144,7 +146,8 @@ _SPECS: tuple[FieldSpec, ...] = (
     _s("is_vessel", _SRC.DERIVED, _TOK.ALWAYS, _U.BOOL01, "candidate", lo=0.0, hi=1.0),
     _s("cum_wait_s", _SRC.DERIVED, _TOK.BLOCK_ARRIVAL, _U.S, "candidate", nullable=True, lo=0.0),
     _s("long_wait_excess_s", _SRC.DERIVED, _TOK.BLOCK_ARRIVAL, _U.S, "candidate", _AB.LONG_WAIT, nullable=True, lo=0.0),
-    _s("predicted_arrival_gap_s", _SRC.ETA_PROVIDER, _TOK.PRE_ADVICE, _U.S, "candidate", _AB.ETA, nullable=True, lo=0.0),
+    _s("predicted_arrival_gap_s", _SRC.ETA_PROVIDER, _TOK.PRE_ADVICE, _U.S, "candidate", _AB.ETA, nullable=True,
+       note="signed (v2, YR-050): 음수 = ETA 경과·미도착 연착"),  # v1 은 lo=0 절단으로 연착 신호 소실
     _s("eta_confidence", _SRC.ETA_PROVIDER, _TOK.PRE_ADVICE, _U.RATIO_0_1, "candidate", _AB.ETA, nullable=True, lo=0.0, hi=1.0),
     _s("deadline_slack_s", _SRC.DERIVED, _TOK.PLANNED, _U.S, "candidate", nullable=True),  # 음수 허용
     _s("reach_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "candidate", lo=0.0),

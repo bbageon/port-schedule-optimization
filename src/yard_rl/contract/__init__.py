@@ -1,4 +1,4 @@
-"""통합 전이 계약 (itc-v1) — YR-035.
+"""통합 전이 계약 (itc-v2) — YR-035 (v1), YR-050 (v2: 연착 gap 부호 보존).
 
 차량·본선·이송장비·레인·다중 YC 를 처음부터 같은 State/Action/Total Cost 계약으로 다루는
 단일 통합정책(최종전략)의 데이터 계약. 이 패키지는 schema·fixture·validation·serialization 만

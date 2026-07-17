@@ -83,6 +83,14 @@ PYTHONPATH=$PWD/src PYTHONDONTWRITEBYTECODE=1 ~/.venvs/yard-rl/bin/python -m pyt
   판단: YR-045는 CPU로 진행. 참고 실측 — 학습 3.26s/에피소드, 3 variant × 500 ep ≈ **81분**.
 - `test_recorder.py` plotly 2건 — WSL 미설치. Windows 쪽에서 실행되므로 커버됨.
 
+## 8. 신규 머신 (rjsdn, 2026-07-17 — YR-050 중 발견)
+
+위 §5 구성은 이전 머신(GeonU) 기준이다. 새 클론 머신(`c:\Users\rjsdn\...`)에는 venv 2종이
+모두 없어 임시로 **Anaconda py3.12** (`py -3.12`) + `PYTHONPATH=src` 로 순수 파이썬 테스트를
+돌린다. 제약 2건: torch 8파일 실행 불가(WSL venv 미구성), Anaconda 의 구버전 streamlit 이
+`st.button(width=…)` 신 API 를 몰라 `test_recorder.py::test_streamlit_app_renders` 1건 실패
+(코드 회귀 아님 — 환경 비호환). 정식 구성은 [YR-053](../Dashboard/backlog.md) 이 담당한다.
+
 ## 7. 이 과정에서 드러난 실제 버그
 
 환경이 막혀 8파일이 몇 달간 미실행이었고, 그 사이 **YR-043이 뒤집은 계약을 옛 테스트가 계속 붙들고

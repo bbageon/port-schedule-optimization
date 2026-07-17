@@ -10,8 +10,9 @@ from yard_rl.contract import (SCHEMA_VERSION, build_minimal_transition, dumps)
 from yard_rl.contract.schema import schema_descriptor
 
 _HERE = Path(__file__).parent
-_SCHEMA_GOLDEN = _HERE / "golden_schema_itc-v1.json"
-_TRANS_GOLDEN = _HERE / "golden_transition_itc-v1.json"
+# 파일명을 버전에서 유도 — bump 시 구버전 golden 이 조용히 재사용되지 않고 부재로 즉시 발화.
+_SCHEMA_GOLDEN = _HERE / f"golden_schema_{SCHEMA_VERSION}.json"
+_TRANS_GOLDEN = _HERE / f"golden_transition_{SCHEMA_VERSION}.json"
 
 
 def test_schema_frozen():

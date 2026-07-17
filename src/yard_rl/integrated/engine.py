@@ -3,6 +3,8 @@
 단일 YC sim/engine.py 를 동결하고 순수 프리미티브만 재사용해 조립한 신규 엔진.
 핵심: deferred commit(dispatch=예약·완료=스택 커밋 → 진행 중 이동 비관측·누출 0),
 4종 자원 lock(ReservationTable), rate/delta 구간 비용 적분, clear-out drain, 결정론.
+YR-050: 결정 시점은 SERVE 뿐 아니라 ETA 주도 선제 기회(PRE_ADVICE 한정)로도 열린다 —
+wake 스케줄은 provided_eta·결정 지평만 사용(도착 진실 미열람), 술어는 candidates 와 공유.
 """
 from __future__ import annotations
 
@@ -28,6 +30,7 @@ from .vessel import VesselWorkType
 from dataclasses import dataclass
 from ..contract.schema import CandidateKind
 from ..domain.enums import InformationLevel
+from .candidates import eta_opportunity
 
 _EPS = 1e-9
 
@@ -91,6 +94,25 @@ class TerminalSimulator:
         self._active_plans: dict[str, JobPlan] = {}
         self.event_log: list[tuple[float, str, str]] = []
         self.resolution_log: list = []       # JointResolution (YR-037, 계약 밖 side-channel)
+        # YR-050 ETA wake 스케줄 — 외부 반출트럭 provided_eta 가 결정 지평에 들어오는 시각.
+        # actual_* 은 절대 읽지 않는다(누출 0). queue 이벤트가 아니라 데이터로 두고
+        # run_until_decision 이 PRE_ADVICE 일 때만 소비 → 낮은 정보수준의 이벤트 스트림·
+        # golden 은 불변이고, info_level 을 reset 후에 바꿔도(record_episode) 정상 동작한다.
+        # GATE_OUT 한정: 선제 재조작 기회(eta_opportunity)는 반출 대상에서만 생기므로
+        # GATE_IN wake 는 항상 no-op — 시드하지 않는다.
+        horizon = self.profile.decision_horizon_s
+        self._eta_wakes: list[tuple[float, str]] = sorted(
+            (max(0.0, j.provided_eta - horizon), j.job_id)
+            for j in self.scenario.jobs
+            if j.flow == JobFlow.GATE_OUT and j.target_container is not None
+            and j.provided_eta is not None
+            and max(0.0, j.provided_eta - horizon) < self.end)
+        self._wake_idx = 0
+        # wake 1회당 크레인별 1회 질문(armed) — 기회가 잔존하는 동안 모든 이벤트가 결정을
+        # 재개방하면 WAIT-최하위 baseline 이 REPOSITION 을 반복 선택하는 되먹임(결정 464건·
+        # REPO 88% 실측)이 생긴다. 거절한 크레인은 다음 wake 까지 선제 전용 결정을 안 연다.
+        # SERVE 주도 결정에서는 PRE 후보가 기존(YR-048)대로 계속 발행된다.
+        self._eta_armed: set[str] = set()
         self._seed_events()
         self._refresh_rates()
 
@@ -171,24 +193,65 @@ class TerminalSimulator:
             if nt is not None and nt <= self.clock + _EPS:
                 self._process_next_event()
                 continue
+            if self._consume_due_wakes():   # YR-050: 동시각 이벤트 처리 후·결정 판정 전
+                continue
             idle = self._decision_cranes()
             if idle and self.clock < self.end - _EPS:
                 self._pending = idle
                 self._assigned = {}
+                self._eta_armed -= set(idle)   # 결정에 포함 = 이번 wake 의 질문 소진
                 return TerminalDecision(self.clock, idle)
-            if nt is None:
+            wt = self._next_wake_time()
+            if nt is None and wt is None:
                 if any(c.state.assigned_job for c in self.fleet.all()):
                     raise RuntimeError("작업 중인데 완료 이벤트 없음 — 엔진 버그")
                 self._finalize()
                 return None
+            if wt is not None and (nt is None or wt < nt - _EPS):
+                self._advance(wt)           # 이벤트 없는 구간의 시계 전진 — 다음 순회에서 소비
+                continue
             self._process_next_event()
+
+    # ------------------------------------------------------ ETA wake (YR-050)
+    def _next_wake_time(self) -> float | None:
+        """미소비 wake 의 최소 시각 — PRE_ADVICE 외 정보수준에서는 항상 None(완전 비활성)."""
+        if self.info_level != InformationLevel.PRE_ADVICE:
+            return None
+        if self._wake_idx >= len(self._eta_wakes):
+            return None
+        return self._eta_wakes[self._wake_idx][0]
+
+    def _consume_due_wakes(self) -> bool:
+        """현재 시각 도래 wake 를 전부 소비 — 전 크레인 arm + yield 해제로 결정 평가를 연다.
+
+        wake 는 1회성(같은 시각 무한 WAIT 재결정 없음). arm 은 크레인이 결정에 한 번
+        포함되면 소진 — 그 사이 바쁜 크레인은 armed 를 유지해 놓친 wake 를 유휴화 시점에
+        받는다. 소비는 event_log 에 남아 PRE_ADVICE 의 event_stream_hash 에 가시화된다.
+        """
+        if self.info_level != InformationLevel.PRE_ADVICE:
+            return False
+        fired = False
+        while (self._wake_idx < len(self._eta_wakes)
+               and self._eta_wakes[self._wake_idx][0] <= self.clock + _EPS):
+            _, jid = self._eta_wakes[self._wake_idx]
+            self._wake_idx += 1
+            self.event_log.append((self.clock, "ETA_WAKE", jid))
+            fired = True
+        if fired:
+            self._eta_armed = set(self.fleet.ids())
+            self._clear_yields()
+        return fired
 
     def _decision_cranes(self) -> tuple[str, ...]:
         out = []
         for yc in self.fleet.all():
             if not yc.idle or yc.yielded:
                 continue
-            if self.candidates_for(yc.crane_id):
+            # SERVE 실행가능(전 정보수준). ETA 주도 선제 기회(PRE_ADVICE 한정, YR-050)는
+            # wake 로 armed 된 크레인만 연다 — 술어는 후보 생성기와 공유(어긋남 차단).
+            if (self.candidates_for(yc.crane_id)
+                    or (yc.crane_id in self._eta_armed
+                        and eta_opportunity(self, yc.crane_id, self.info_level))):
                 out.append(yc.crane_id)
         return tuple(out)
 

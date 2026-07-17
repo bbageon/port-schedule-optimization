@@ -134,9 +134,10 @@ def _yc_a_candidates() -> CandidateSet:
                            end_bay=8.0, vessel_risk_delta=0.15),
                   ref_job_id="J-VES-1", resolver_token="JVES1",
                   eligible_crane_ids=("YC-A", "YC-B")),
-        # 3: 도착 전 재조작 선처리
+        # 3: 도착 전 재조작 선처리 — J-OUT-2 와 동일 gap(+600, 미도착)
         Candidate(3, CandidateKind.PRE_REHANDLE,
-                  _cand_fv(CandidateKind.PRE_REHANDLE, reach_s=60.0, service_s=0.0,
+                  _cand_fv(CandidateKind.PRE_REHANDLE, is_external=True,
+                           predicted_arrival_gap_s=600.0, reach_s=60.0, service_s=0.0,
                            handling=2.0, blockers=2.0, rehandle_s=180.0, end_bay=12.0),
                   ref_job_id="J-OUT-2"),
         # 4: 위치조정 (ref_job 없음)
@@ -178,17 +179,23 @@ def _yc_b_candidates() -> CandidateSet:
                            reach_s=55.0, service_s=150.0, handling=1.0, blockers=0.0,
                            end_bay=28.0, lane_local=0.4),
                   ref_job_id="J-IN-1", resolver_token="JIN1", lane_id="L2"),
-        # 2: 위치조정
-        Candidate(2, CandidateKind.REPOSITION,
+        # 2: 연착 트럭 선제 재조작 — ETA 경과·미도착 = 음수 gap (v2/YR-050 부호 보존 커버)
+        Candidate(2, CandidateKind.PRE_REHANDLE,
+                  _cand_fv(CandidateKind.PRE_REHANDLE, is_external=True,
+                           predicted_arrival_gap_s=-180.0, reach_s=75.0, service_s=90.0,
+                           handling=1.0, blockers=1.0, rehandle_s=90.0, end_bay=30.0),
+                  ref_job_id="J-OUT-4"),
+        # 3: 위치조정
+        Candidate(3, CandidateKind.REPOSITION,
                   _cand_fv(CandidateKind.REPOSITION, reach_s=110.0, end_bay=34.0)),
-        # 3: 양보/대기
-        Candidate(3, CandidateKind.WAIT, _cand_fv(CandidateKind.WAIT)),
+        # 4: 양보/대기
+        Candidate(4, CandidateKind.WAIT, _cand_fv(CandidateKind.WAIT)),
     )
-    pad = (True, True, True, True)
-    feas = (True, True, True, True)
-    reason = (None, None, None, None)
+    pad = (True, True, True, True, True)
+    feas = (True, True, True, True, True)
+    reason = (None, None, None, None, None)
     return CandidateSet("YC-B", items, pad, feas, reason,
-                        _queue_fv(cand_count=4.0, wait_max_s=800.0, wait_mean_s=300.0,
+                        _queue_fv(cand_count=5.0, wait_max_s=800.0, wait_mean_s=300.0,
                                   over_sla_count=0.0, outbound_share=0.25))
 
 
