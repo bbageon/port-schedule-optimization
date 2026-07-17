@@ -83,13 +83,23 @@ PYTHONPATH=$PWD/src PYTHONDONTWRITEBYTECODE=1 ~/.venvs/yard-rl/bin/python -m pyt
   판단: YR-045는 CPU로 진행. 참고 실측 — 학습 3.26s/에피소드, 3 variant × 500 ep ≈ **81분**.
 - `test_recorder.py` plotly 2건 — WSL 미설치. Windows 쪽에서 실행되므로 커버됨.
 
-## 8. 신규 머신 (rjsdn, 2026-07-17 — YR-050 중 발견)
+## 8. 신규 머신 (rjsdn, 2026-07-17 구성 완료 — YR-053)
 
-위 §5 구성은 이전 머신(GeonU) 기준이다. 새 클론 머신(`c:\Users\rjsdn\...`)에는 venv 2종이
-모두 없어 임시로 **Anaconda py3.12** (`py -3.12`) + `PYTHONPATH=src` 로 순수 파이썬 테스트를
-돌린다. 제약 2건: torch 8파일 실행 불가(WSL venv 미구성), Anaconda 의 구버전 streamlit 이
-`st.button(width=…)` 신 API 를 몰라 `test_recorder.py::test_streamlit_app_renders` 1건 실패
-(코드 회귀 아님 — 환경 비호환). 정식 구성은 [YR-053](../Dashboard/backlog.md) 이 담당한다.
+위 §1~7 은 이전 머신(GeonU) 기준 기록이다. 새 머신(`c:\Users\rjsdn\...`, i7-14700K 20코어)은
+**스마트 앱 컨트롤이 꺼져 있어(`VerifiedAndReputablePolicyState=0`) WSL 이 필요 없다** —
+서명 없는 torch DLL 차단이 없으므로 **Windows 단일 `.venv` 로 torch 포함 전부** 돌린다.
+
+```powershell
+$env:PYTHONPATH="$PWD\src"
+.\.venv\Scripts\python.exe -m pytest -q     # torch·UI 포함 전체, 제외 없음
+```
+
+- venv: Anaconda `py -3.12` (3.12.4) 기반. pyyaml·pytest·streamlit·plotly·**torch 2.8.0**.
+- **torch 는 2.8.0 고정** — 최신 2.13.0 Windows 휠은 이 머신에서 `c10.dll` 초기화 실패
+  (WinError **1114** — 구 머신의 정책 차단 4551 과 다른 원인, base/venv 동일 재현)라 한 단계
+  안정 휠로 회피했다. 2.8.0 은 pyproject 요건(`torch>=2.2`)을 충족한다.
+- 이전에 임시로 쓰던 Anaconda base 직행(297 passed·streamlit 구버전 1건 실패)은 폐기 —
+  venv 의 신버전 streamlit 으로 UI 테스트까지 통과한다.
 
 ## 7. 이 과정에서 드러난 실제 버그
 
