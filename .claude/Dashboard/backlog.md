@@ -5,11 +5,11 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-054 | RL | RL 재감사 — YR-045 게이트 전패 원인 (feature·비용·후보 누락 + 전략 WAIT 오용·NO_ETA 폭주) | 🟠 | **YR-045 §7 지시 파생 (2026-07-18)** — RL이 rollout 대비 +25~28%·게이트 36행 통과 0. 우선 가설: 전략적 WAIT 오용(미완주 6건 전부 allow), 학습예산 500ep 대비 rollout의 600s 탐색 격차, NO_ETA에서 dqn 134.9 폭주(입력 결측 강건성), SMDP 스티칭/γ·ref 적정성. [실행 결과](../docs/strategy-history/2026-07-16-YR-045-corrected-locked-rerun-prereg.md) |
-| YR-055 | Baseline | BEAM 2단 lookahead 무효과 조사 — JointRollout과 60/60 seed 완전 동일 | 🟡 | **YR-045 파생 (2026-07-18)** — width 3·2단 rollout이 전 조건·전 seed에서 1단 결정을 한 번도 안 바꿈. tail 계산 결함인지 실질 무가치인지 판별. 결함이면 YR-044 "강 baseline" 지위 재평가 |
 | YR-052 | RL | 전략적 WAIT(할 일 있는데 대기) 설계 결정 — RL 행동공간 유지 vs 구조적(경합 양보)만 | 🟡 | **판정 데이터 도착 (2026-07-18, YR-045 신규 seed)**: 전 정책·전 arm에서 금지가 같거나 우월 — JR −0.8~−1.6, RL −4.0~−15.7, RL 미완주 6건 전부 허용 조건(오용 확정). 강제 WAIT(양보)은 계약상 필수 유지. **설계 결정은 사용자 보류 유지** — 데이터상 권고는 "RL 행동공간에서 전략적 WAIT 제외(구조적만)". [분석](../docs/YR-052-WAIT-행동-필요성.md) |
-| YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · **착수 조건 재불충족 (2026-07-18)** — YR-045에서 RL 게이트 전패, §7 지시대로 QMIX 미진행. YR-054 재감사 통과 후 재판정 |
-| YR-042 | Exp | DGT·HJNC 근사 프로파일 일반화 게이트 (재실행 대기) | 🟡 | **run 중단 (2026-07-15)** — YR-039 무효로 전제 상실 (동일 imbalance reward·동일 baseline 상속). 구현(`0cd547d`·`f51818c`)은 유효 — YR-045 통과 후 정정판 정책으로 재실행 |
+| YR-013 | RL | 중앙 공동배정·QMIX 다중 YC 협조 | 🟠 | [spec](../docs/dashboard-task-specs/YR-013-exp4-multi-yc.md) · **YR-054 재감사 완료 (2026-07-18)** — RL 전패 원인이 누락이 아니라 **독립 학습자의 조정 실패(interference가 격차의 85%)**로 특정 — 정확히 QMIX가 겨냥하는 문제. [재감사](../docs/YR-054-RL-재감사.md) · **착수 재판정은 사용자 결정 대기** (경량 대안: YR-056 선행 가능) |
+| YR-056 | RL | 협조 신호 경량 실험 — 상대 크레인 의도·경합 이력 feature 로 interference 격차 축소 시도 | 🟡 | **YR-054 권고 파생 (2026-07-18)** — QMIX(YR-013) 전 단계 경량책. 계약 feature 추가는 스키마 bump 필요(itc-v3) — 설계 후 착수 |
+| YR-057 | RL | checkpoint 선택 안정화 — val seed 확대·이동평균 선택 | ⚪ | **YR-054 부차 발견** — val 20-seed 곡선 변동폭이 평균의 1.5배, val→test 격차 +3~+9. 격차 주인 아님(우선순위 낮음) |
+| YR-042 | Exp | DGT·HJNC 근사 프로파일 일반화 게이트 (재실행 대기) | 🟡 | **run 중단 (2026-07-15)** — YR-039 무효로 전제 상실. 구현(`0cd547d`·`f51818c`)은 유효. **2026-07-18 갱신**: YR-045에서 RL 미채택 — 일반화할 채택 정책이 없어 보류. 협조 재판정(YR-013/056) 후 재개 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | 🟡 | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · 실자료는 YR-002 후 |
 | YR-009 | Sim | Phase 2 게이트: 시뮬레이터 실측 validation | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · 실자료 의존, 미충족 시 RL 평가 금지 |
