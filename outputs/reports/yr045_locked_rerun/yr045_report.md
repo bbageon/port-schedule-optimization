@@ -1,0 +1,91 @@
+# YR-045 — 정정판 locked 재실험 결과
+
+> ⚠ 가정 프로파일(POC-MULTI)·합성 시나리오 — 실운영 주장 아님 (주장 게이트: YR-002/009). 사전등록 동결본 집행, 해석 3건은 manifest 참조.
+
+## 동시 판정 게이트 (§6) — baseline=JointRollout(같은 arm/mode)
+
+| 조건::정책 | 대기↓ | P95 | 본선 | STS | 이송 | 이동/재조작↓ | 완주 | 지배도 | 건전성 | **전부** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ETA_NO_PRE/allow::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/allow::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| ETA_NO_PRE/allow::DQN[dqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| ETA_NO_PRE/allow::DQN[dueling] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/allow::FIFO | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/allow::SF_SPT | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| ETA_NO_PRE/forbid::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/forbid::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| ETA_NO_PRE/forbid::DQN[dqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| ETA_NO_PRE/forbid::DQN[dueling] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/forbid::FIFO | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| ETA_NO_PRE/forbid::SF_SPT | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| FULL/allow::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| FULL/allow::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| FULL/allow::DQN[dqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| FULL/allow::DQN[dueling] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| FULL/allow::FIFO | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| FULL/allow::SF_SPT | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| FULL/forbid::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| FULL/forbid::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| FULL/forbid::DQN[dqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| FULL/forbid::DQN[dueling] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| FULL/forbid::FIFO | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| FULL/forbid::SF_SPT | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/allow::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/allow::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/allow::DQN[dqn] | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| NO_ETA/allow::DQN[dueling] | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/allow::FIFO | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| NO_ETA/allow::SF_SPT | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| NO_ETA/forbid::BEAM | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/forbid::DQN[ddqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/forbid::DQN[dqn] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/forbid::DQN[dueling] | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/forbid::FIFO | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| NO_ETA/forbid::SF_SPT | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+## ETA 경로 기여 분리 (§4) — paired Δ [95% CI]
+
+| 정책/mode/경로 | total_cost Δ | mean_wait Δ |
+|---|---|---|
+| BEAM/allow/pre_rehandle_path | -1.583 [-2.443, -0.745] | +0.005 [-0.099, +0.108] |
+| BEAM/allow/reposition_path | -29.131 [-30.689, -27.593] | -0.100 [-0.193, -0.006] |
+| BEAM/forbid/pre_rehandle_path | -2.447 [-3.200, -1.672] | +0.035 [-0.033, +0.103] |
+| BEAM/forbid/reposition_path | -29.060 [-30.875, -27.255] | -0.042 [-0.133, +0.045] |
+| DQN[ddqn]/allow/pre_rehandle_path | -2.709 [-16.548, +10.761] | +0.070 [-0.182, +0.330] |
+| DQN[ddqn]/allow/reposition_path | -10.367 [-19.661, +1.339] | +0.514 [+0.307, +0.749] |
+| DQN[ddqn]/forbid/pre_rehandle_path | -2.917 [-4.419, -1.423] | +0.007 [-0.076, +0.089] |
+| DQN[ddqn]/forbid/reposition_path | -20.519 [-23.147, -17.731] | +0.431 [+0.311, +0.558] |
+| DQN[dqn]/allow/pre_rehandle_path | -9.970 [-23.314, +2.561] | -0.302 [-0.881, +0.084] |
+| DQN[dqn]/allow/reposition_path | -27.387 [-42.314, -12.221] | +0.120 [-0.352, +0.742] |
+| DQN[dqn]/forbid/pre_rehandle_path | -3.610 [-5.679, -1.686] | -0.077 [-0.170, +0.012] |
+| DQN[dqn]/forbid/reposition_path | -18.468 [-21.021, -15.860] | +0.366 [+0.242, +0.491] |
+| DQN[dueling]/allow/pre_rehandle_path | -8.572 [-16.781, -2.315] | -0.186 [-0.360, -0.043] |
+| DQN[dueling]/allow/reposition_path | -12.012 [-19.979, -2.016] | +0.181 [+0.008, +0.390] |
+| DQN[dueling]/forbid/pre_rehandle_path | -4.026 [-5.979, -1.983] | -0.099 [-0.168, -0.025] |
+| DQN[dueling]/forbid/reposition_path | -20.083 [-22.354, -17.728] | +0.059 [-0.043, +0.154] |
+| FIFO/allow/pre_rehandle_path | -2.759 [-4.916, -0.513] | +0.053 [-0.023, +0.132] |
+| FIFO/allow/reposition_path | -8.413 [-10.361, -6.468] | +0.019 [-0.034, +0.071] |
+| FIFO/forbid/pre_rehandle_path | -2.759 [-4.923, -0.487] | +0.053 [-0.023, +0.132] |
+| FIFO/forbid/reposition_path | -8.413 [-10.305, -6.452] | +0.019 [-0.035, +0.073] |
+| JOINT_ROLLOUT/allow/pre_rehandle_path | -1.583 [-2.445, -0.742] | +0.005 [-0.098, +0.105] |
+| JOINT_ROLLOUT/allow/reposition_path | -29.131 [-30.654, -27.558] | -0.100 [-0.195, -0.009] |
+| JOINT_ROLLOUT/forbid/pre_rehandle_path | -2.447 [-3.221, -1.695] | +0.035 [-0.032, +0.100] |
+| JOINT_ROLLOUT/forbid/reposition_path | -29.060 [-30.844, -27.264] | -0.042 [-0.132, +0.044] |
+| SF_SPT/allow/pre_rehandle_path | -2.865 [-3.945, -1.758] | -0.002 [-0.021, +0.016] |
+| SF_SPT/allow/reposition_path | -23.559 [-25.761, -21.438] | -0.011 [-0.052, +0.029] |
+| SF_SPT/forbid/pre_rehandle_path | -2.865 [-3.959, -1.773] | -0.002 [-0.021, +0.016] |
+| SF_SPT/forbid/reposition_path | -23.559 [-25.772, -21.438] | -0.011 [-0.052, +0.030] |
+
+## 총비용 요약 (locked test 60-seed 평균)
+
+| 정책 | ETA_NO_PRE/allow | ETA_NO_PRE/forbid | FULL/allow | FULL/forbid | NO_ETA/allow | NO_ETA/forbid |
+|---|---|---|---|---|---|---|
+| BEAM | 72.37 | 71.62 | 70.78 | 69.18 | 101.50 | 100.68 |
+| DQN[ddqn] | 101.82 | 90.08 | 99.11 | 87.17 | 112.18 | 110.60 |
+| DQN[dqn] | 107.54 | 91.88 | 97.57 | 88.27 | 134.92 | 110.34 |
+| DQN[dueling] | 99.52 | 90.34 | 90.95 | 86.31 | 111.54 | 110.42 |
+| FIFO | 113.57 | 113.57 | 110.81 | 110.81 | 121.98 | 121.98 |
+| JOINT_ROLLOUT | 72.37 | 71.62 | 70.78 | 69.18 | 101.50 | 100.68 |
+| SF_SPT | 84.57 | 84.57 | 81.70 | 81.70 | 108.13 | 108.13 |
+
+*원자료: yr045_results.json·phase_d/ (seed별 행렬·행동분포·항별 기여·절단 횟수)*
