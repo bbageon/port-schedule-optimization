@@ -331,14 +331,36 @@ def _gates(base_rows, alt_rows, paired: dict) -> dict:
 
 
 # ------------------------------------------------------------------- 실행
+def _dirty_outside(out: Path) -> tuple[bool, str]:
+    """out_dir(이 실험의 산출물 트리) **밖**의 변경만 dirty 로 판정.
+
+    §2.4 의 의도는 코드 정체성 고정이다. outputs/reports/** 는 evidence 로 git 추적
+    대상이라, 실행 자신이 만드는 로그·phase 산출물·resume 재호출이 검사를 오탐시킨다 —
+    자기 산출물은 코드가 아니므로 제외하고, 그 사실을 manifest 에 기록한다.
+    """
+    import subprocess
+    try:
+        txt = subprocess.check_output(["git", "status", "--porcelain"], text=True,
+                                      stderr=subprocess.DEVNULL)
+    except Exception:
+        return True, "git unavailable"
+    rel = out.as_posix().lstrip("./").rstrip("/") + "/"
+    outside = [ln for ln in txt.splitlines() if ln.strip()
+               and not ln[3:].strip().strip('"').replace("\\", "/").startswith(rel)]
+    return bool(outside), "; ".join(outside[:10])
+
+
 def run_yr045(out_dir: str = "outputs/reports/yr045_locked_rerun",
               cfg: Yr045Config | None = None,
               progress: Callable[[str], None] = print) -> Path:
     cfg = cfg or Yr045Config()
     started = time.time()
     git = _git_state()
-    if not cfg.quick and (git["commit"] == "unknown" or git["dirty"]):
-        raise RuntimeError("locked run 은 clean commit 필수 (사전등록 §2.4)")
+    dirty_out, dirty_detail = _dirty_outside(Path(out_dir))
+    git["dirty_outside_outdir"] = dirty_out
+    if not cfg.quick and (git["commit"] == "unknown" or dirty_out):
+        raise RuntimeError("locked run 은 clean commit 필수 (사전등록 §2.4) — "
+                           f"out_dir 밖 변경: {dirty_detail}")
     profile = build_integrated_profile()
     params = _gen_params(cfg)
     out = Path(out_dir)
