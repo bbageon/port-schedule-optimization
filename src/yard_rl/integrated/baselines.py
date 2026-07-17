@@ -307,15 +307,26 @@ class BeamLookahead(JointRolloutGreedy):
         return best
 
     def _tail(self, scratch) -> float:
-        """분기 이후 한 시간창을 base_policy 로 더 진행한 누적비용."""
+        """분기 이후 한 시간창을 base_policy 로 더 진행한 누적비용.
+
+        YR-055 정정: 첫 window(_rollout_cost)는 지평 도달 시 **미해소 결정(pending)** 상태로
+        scratch 를 반환한다. 구버전은 pending 이면 dp=None 으로 간주해 즉시 반환 — tail 이
+        전 분기에서 ≈0 이 되어 2단 lookahead 가 순위를 한 번도 못 바꿨다 (YR-045 에서
+        BEAM==JointRollout 60/60 seed 완전 동일로 발현). pending 결정을 base_policy 로
+        해소한 뒤 진행한다.
+        """
         from .adapter import _max_vessel_risk
+        from .engine import TerminalDecision
         if scratch.terminal:
             return 0.0
         gen = self.generator or _default_gen()
         total, t0, tk = 0.0, scratch.now, scratch.now
         risk = _max_vessel_risk(scratch, t0)
         while scratch.now - t0 < self.horizon_s:
-            dp = scratch.run_until_decision() if not scratch._pending else None
+            if scratch._pending:
+                dp = TerminalDecision(scratch.now, scratch._pending)
+            else:
+                dp = scratch.run_until_decision()
             raw = scratch.cost.cut()
             total += self.rc.cost_for(interval_start_s=tk, interval_end_s=scratch.now,
                                       raw=raw, risk_max=risk).total_normalized
