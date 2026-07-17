@@ -187,6 +187,8 @@ class EpisodeResult:
     vessel_delay_min: float
     invariants_ok: bool
     samples: list[Sample] = field(default_factory=list)
+    # YR-045 보고 의무: 행동분포·후보 발생·비용 기여·물리 지표 (run_joint_episode 와 동형)
+    extras: dict = field(default_factory=dict)
 
 
 def _percentile(xs: list[float], q: float) -> float:
@@ -201,12 +203,16 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 reward_calc: RewardCalculator | None = None,
                 epsilon: float = 0.0, explore_rng: random.Random | None = None,
                 generator: CandidateGenerator | None = None,
-                collect: bool = False, learn: bool = False) -> EpisodeResult:
+                collect: bool = False, learn: bool = False,
+                forbid_strategic_wait: bool = False) -> EpisodeResult:
     """capture→score→resolve→cost 루프 (record_episode 동형, assemble 생략).
 
     preference 가 QPreference 면 결정마다 learner 점수(+ε 탐험 강제)를 주입.
     collect=True 면 per-crane SMDP 스티칭 표본을 EpisodeResult.samples 로 반환,
     learn=True 면 결정마다 learner.learn_step() 을 updates_per_decision 회 수행.
+    forbid_strategic_wait=True (YR-045/052 ablation): 다른 actionable 후보가 있으면
+    WAIT 의 Q 점수를 +∞ 로 강제해 argmin 에서 제외 — 구조적 WAIT(경합 양보·NO_FEASIBLE)는
+    resolver 가 보존한다. QPreference 경로에만 적용.
     """
     if not 0.0 <= epsilon <= 1.0:
         raise ValueError("epsilon must be in [0, 1]")
@@ -218,6 +224,11 @@ def run_episode(sim, *, level: InformationLevel, preference,
     times: list[float] = []
     costs: list[float] = []
     events: dict[str, list[tuple[int, DecisionEncoding, int | None]]] = {}
+    term_contrib: dict[str, float] = {}
+    action_counts: dict[str, int] = {}
+    listed: dict[str, int] = {}
+    listed_feasible: dict[str, int] = {}
+    serve_available = serve_taken = 0
     dp = sim.run_until_decision()
     sim.cost.cut()                       # [0,t0) 선행 결정 없음 — 폐기 (record_episode 동일)
     k = 0
@@ -231,9 +242,16 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 s = (learner.scores_for(enc) if learner is not None
                      else {c: 0.0 for i, c in enumerate(enc.candidate_ids)
                            if enc.actionable[i]})
+                wait_cid = (enc.candidate_ids[enc.wait_pos]
+                            if enc.wait_pos is not None else None)
+                if (forbid_strategic_wait and wait_cid is not None
+                        and any(enc.actionable[i] and i != enc.wait_pos
+                                for i in range(len(enc.candidate_ids)))):
+                    s[wait_cid] = -_FORCE          # +1e9 — argmin 에서 항상 배제
                 if epsilon > 0.0 and rng.random() < epsilon:
                     pool = [c for i, c in enumerate(enc.candidate_ids)
-                            if enc.actionable[i]]
+                            if enc.actionable[i]
+                            and not (forbid_strategic_wait and c == wait_cid)]
                     if pool:
                         s[rng.choice(pool)] = _FORCE
                 scores.update({(cid, c): v for c, v in s.items()})
@@ -246,6 +264,18 @@ def run_episode(sim, *, level: InformationLevel, preference,
             pos = (enc.wait_pos if r.chosen_candidate_id is None
                    else enc.candidate_ids.index(r.chosen_candidate_id))
             events.setdefault(r.crane_id, []).append((k, enc, pos))
+            action_counts[r.action.value] = action_counts.get(r.action.value, 0) + 1
+            serve_ok = any(g.feasible and g.kind.value == "SERVE"
+                           for g in gen_by[r.crane_id].items)
+            if serve_ok:
+                serve_available += 1
+                if r.action.value == "SERVE":
+                    serve_taken += 1
+        for cid in dp.crane_ids:
+            for g in gen_by[cid].items:
+                listed[g.kind.value] = listed.get(g.kind.value, 0) + 1
+                if g.feasible:
+                    listed_feasible[g.kind.value] = listed_feasible.get(g.kind.value, 0) + 1
         t_k = dp.time
         dp = sim.run_until_decision()
         raw = sim.cost.cut()
@@ -253,6 +283,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
                            risk_max=_max_vessel_risk_state(state))
         times.append(t_k)
         costs.append(cost.total_normalized)
+        for term, v in cost.contributions().items():
+            term_contrib[term] = term_contrib.get(term, 0.0) + v
         if learn and learner is not None:
             for _ in range(learner.cfg.updates_per_decision):
                 learner.learn_step()
@@ -269,6 +301,18 @@ def run_episode(sim, *, level: InformationLevel, preference,
     jobs = list(sim.jobs.values())
     done = sum(1 for j in jobs if j.status.name == "DONE")
     waits = [w / 60.0 for w in sim.kpis.wait_samples_s]
+    extras = {
+        "action_counts": dict(sorted(action_counts.items())),
+        "serve_available": serve_available, "serve_taken": serve_taken,
+        "cand_listed": dict(sorted(listed.items())),
+        "cand_feasible": dict(sorted(listed_feasible.items())),
+        "term_contrib": dict(sorted(term_contrib.items())),
+        "sts_wait_s": sum(v.sts_wait_accum_s for v in sim.vessels.values()),
+        "transfer_wait_s": sim.transfer.transfer_wait_accum_s,
+        "loaded_travel_m": sim.kpis.loaded_gantry_m,
+        "empty_travel_m": sim.kpis.empty_gantry_m,
+        "rehandles": sim.kpis.rehandle_count,
+    }
     return EpisodeResult(
         total_cost=sum(costs), n_decisions=k,
         completion_rate=done / max(1, len(jobs)),
@@ -276,7 +320,7 @@ def run_episode(sim, *, level: InformationLevel, preference,
         mean_wait_min=(sum(waits) / len(waits)) if waits else 0.0,
         p95_wait_min=_percentile(waits, 0.95),
         vessel_delay_min=sim.kpis.vessel_delay_s / 60.0,
-        invariants_ok=ok, samples=samples)
+        invariants_ok=ok, samples=samples, extras=extras)
 
 
 def stitch_samples(times: list[float], costs: list[float],

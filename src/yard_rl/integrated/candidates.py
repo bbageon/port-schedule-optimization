@@ -144,12 +144,17 @@ class GeneratedCandidates:
 
 class CandidateGenerator:
     def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
-                 pre_rehandle_min_window_s: float = 600.0):
+                 pre_rehandle_min_window_s: float = 600.0,
+                 block_pre_rehandle: bool = False):
         self.k_max = k_max
         self.mandatory_wait_frac = mandatory_wait_frac
         # YR-043: mask 아님 — "도착 전 완료 가능" 은 §8.4 운영 트레이드오프라 State/Cost 로 이관.
         # 참고값으로만 보존 (후보 생성 게이트로 사용 금지).
         self.pre_window = pre_rehandle_min_window_s
+        # YR-045 ETA_NO_PRE arm 전용: ETA 는 보이되 선제 재조작 후보만 발행 차단 —
+        # 위치선점(REPOSITION) 경로의 순효과 분리. 엔진 결정 개방(eta_opportunity)은
+        # 이 플래그와 독립이라 arm 간 결정 기회가 동등하다 (YR-050 매핑 §6).
+        self.block_pre_rehandle = block_pre_rehandle
 
     # -------------------------------------------------------- entry points
     def serve_refs(self, sim, crane_id: str) -> list[JobRef]:
@@ -165,8 +170,9 @@ class CandidateGenerator:
         if not yc.idle or yc.yielded:
             return GeneratedCandidates(crane_id, (replace(self._wait(), candidate_id=0),))
         now = sim.now
-        raw = (self._serve(sim, crane_id, now)
-               + self._pre_rehandle(sim, crane_id, now, level)
+        pre = ([] if self.block_pre_rehandle
+               else self._pre_rehandle(sim, crane_id, now, level))
+        raw = (self._serve(sim, crane_id, now) + pre
                + self._reposition(sim, crane_id, now, level))
         keep = sorted(self._prune(raw), key=self._order_key)
         items = list(keep) + [self._wait()]

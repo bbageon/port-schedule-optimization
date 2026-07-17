@@ -194,17 +194,32 @@ class JointRolloutGreedy:
     name = "JOINT_ROLLOUT_GREEDY"
 
     def __init__(self, reward_calc, *, horizon_s: float = 600.0, base_policy=None,
-                 max_combos: int = 64, generator=None):
+                 max_combos: int = 64, generator=None,
+                 forbid_strategic_wait: bool = False):
         self.rc = reward_calc
         self.horizon_s = horizon_s
         self.base_policy = base_policy or ResolverPolicy(ServiceFirstSPTPreference(), "BASE")
         self.max_combos = max_combos
         self.generator = generator
+        # YR-045/052 ablation arm: 실작업(전원 비-WAIT) 조합이 공동 실행가능하면 WAIT 포함
+        # 조합을 argmin 후보에서 제외. 구조적 WAIT(경합 양보·NO_FEASIBLE)은 아래 fallback 과
+        # "실작업 조합 부재 시 전체 유지"로 보존 — 강제 WAIT 는 계약상 어느 arm 에서도 필수.
+        self.forbid_strategic_wait = forbid_strategic_wait
         self.n_truncated = 0     # 조합 절단 발생 횟수 — "조용한 축소 금지": 평가 리포트가 보고
+
+    def _admissible_combos(self, sim, dp, gen_by) -> list:
+        combos = list(self._combos(dp, gen_by))
+        if not self.forbid_strategic_wait:
+            return combos
+        full = [c for c in combos
+                if all(g.kind != CandidateKind.WAIT for g in c)]
+        if any(_feasible_joint(sim, dict(zip(dp.crane_ids, c))) for c in full):
+            return full
+        return combos            # 실작업 조합이 전부 공동 실행불가 → 구조적 WAIT 경로 보존
 
     def decide(self, sim, dp, gen_by) -> dict:
         best, best_key = None, None
-        for combo in self._combos(dp, gen_by):
+        for combo in self._admissible_combos(sim, dp, gen_by):
             assign = dict(zip(dp.crane_ids, combo))
             if not _feasible_joint(sim, assign):
                 continue
@@ -262,14 +277,16 @@ class BeamLookahead(JointRolloutGreedy):
     name = "BEAM_LOOKAHEAD"
 
     def __init__(self, reward_calc, *, horizon_s: float = 600.0, width: int = 3,
-                 base_policy=None, max_combos: int = 64, generator=None):
+                 base_policy=None, max_combos: int = 64, generator=None,
+                 forbid_strategic_wait: bool = False):
         super().__init__(reward_calc, horizon_s=horizon_s, base_policy=base_policy,
-                         max_combos=max_combos, generator=generator)
+                         max_combos=max_combos, generator=generator,
+                         forbid_strategic_wait=forbid_strategic_wait)
         self.width = width
 
     def decide(self, sim, dp, gen_by) -> dict:
         scored = []
-        for combo in self._combos(dp, gen_by):
+        for combo in self._admissible_combos(sim, dp, gen_by):
             assign = dict(zip(dp.crane_ids, combo))
             if not _feasible_joint(sim, assign):
                 continue
@@ -336,6 +353,9 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
     mix = ActionMix()
     truncated_before = int(getattr(policy, "n_truncated", 0))
     total, n_dec = 0.0, 0
+    term_contrib: dict[str, float] = {}
+    listed: dict[str, int] = {}
+    listed_feasible: dict[str, int] = {}
     dp = sim.run_until_decision()
     sim.cost.cut()                              # 첫 결정 이전 구간은 선행 행동 없음 — 폐기
     from .adapter import _max_vessel_risk
@@ -346,13 +366,20 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
             serve_ok = any(g.feasible and g.kind == CandidateKind.SERVE
                            for g in gen_by[c].items)
             mix.record(assign[c].kind, serve_ok)
+            for g in gen_by[c].items:           # ETA 경로별 후보 발생 보고 의무 (YR-045)
+                listed[g.kind.value] = listed.get(g.kind.value, 0) + 1
+                if g.feasible:
+                    listed_feasible[g.kind.value] = listed_feasible.get(g.kind.value, 0) + 1
         t_k, risk = dp.time, _max_vessel_risk(sim, dp.time)
         _apply(sim, assign)
         n_dec += 1
         dp = sim.run_until_decision()
         raw = sim.cost.cut()
-        total += reward_calc.cost_for(interval_start_s=t_k, interval_end_s=sim.now,
-                                      raw=raw, risk_max=risk).total_normalized
+        cb = reward_calc.cost_for(interval_start_s=t_k, interval_end_s=sim.now,
+                                  raw=raw, risk_max=risk)
+        total += cb.total_normalized
+        for k, v in cb.contributions().items():
+            term_contrib[k] = term_contrib.get(k, 0.0) + v
     jobs = list(sim.jobs.values())
     done = sum(1 for j in jobs if j.status.name == "DONE")
     waits = [w / 60.0 for w in sim.kpis.wait_samples_s]
@@ -365,4 +392,13 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
             "mean_wait_min": (sum(waits) / len(waits)) if waits else 0.0,
             "p95_wait_min": (ws[min(len(ws) - 1, int(0.95 * len(ws)))] if ws else 0.0),
             "vessel_delay_min": sim.kpis.vessel_delay_s / 60.0,
-            "action_mix": mix.as_dict(), "_mix": mix}
+            "action_mix": mix.as_dict(), "_mix": mix,
+            # YR-045 보고 의무 확장 — 비용 기여·후보 발생·물리 지표
+            "term_contrib": dict(sorted(term_contrib.items())),
+            "cand_listed": dict(sorted(listed.items())),
+            "cand_feasible": dict(sorted(listed_feasible.items())),
+            "sts_wait_s": sum(v.sts_wait_accum_s for v in sim.vessels.values()),
+            "transfer_wait_s": sim.transfer.transfer_wait_accum_s,
+            "loaded_travel_m": sim.kpis.loaded_gantry_m,
+            "empty_travel_m": sim.kpis.empty_gantry_m,
+            "rehandles": sim.kpis.rehandle_count}
