@@ -95,6 +95,20 @@ def test_forbid_strategic_wait_rl_path_keeps_structural_wait():
             <= res[False].extras["action_counts"].get("WAIT", 0))
 
 
+def test_run_episode_honors_arm_generator():
+    """run_episode 가 generator 를 capture 에 전달하는지 — 미전달이면 기본 생성기가
+    쓰여 ETA_NO_PRE arm 이 조용히 FULL 이 된다 (YR-045 locked run 에서 실측 발견·정정)."""
+    sim = TerminalSimulator(PROF, generate_terminal_scenario(PROF, SEED), info_level=PA)
+    r = run_episode(sim, level=PA, preference=QPreference(),
+                    generator=generator_for_arm("ETA_NO_PRE"))
+    assert r.extras["cand_listed"].get("PRE_REHANDLE", 0) == 0, \
+        "차단 generator 가 무시됨 — arm 오염 재발"
+    sim2 = TerminalSimulator(PROF, generate_terminal_scenario(PROF, SEED), info_level=PA)
+    r2 = run_episode(sim2, level=PA, preference=QPreference(),
+                     generator=generator_for_arm("FULL"))
+    assert r2.extras["cand_listed"].get("PRE_REHANDLE", 0) > 0
+
+
 def test_config_guards_seed_hygiene():
     import pytest
     with pytest.raises(ValueError):

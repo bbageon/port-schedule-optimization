@@ -234,7 +234,11 @@ def run_episode(sim, *, level: InformationLevel, preference,
     k = 0
     ok = True
     while dp is not None:
-        state, obs, gen_by = capture(sim, dp.crane_ids, level, "drive", k)
+        # generator 전달 필수 (YR-045 결함 정정): 미전달 시 capture 가 기본 _GEN 을 써서
+        # arm 별 생성기(ETA_NO_PRE 차단 등)가 조용히 무시된다 — RL의 ETA_NO_PRE 평가가
+        # FULL 과 동일해지는 사고를 locked run 원자료 대조로 발견.
+        state, obs, gen_by = capture(sim, dp.crane_ids, level, "drive", k,
+                                     generator=gen)
         encs = {ob.crane_id: encode_observation(state, ob) for ob in obs}
         if isinstance(preference, QPreference):
             scores: dict[tuple[str, int], float] = {}
