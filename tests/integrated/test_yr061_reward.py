@@ -85,3 +85,8 @@ def test_yr061_config_guards():
     with pytest.raises(ValueError):
         Yr061Config(train_seed0=300_000)              # 기사용 대역 금지
     assert Yr061Config().penalties[0] == 0.0
+    with pytest.raises(ValueError):
+        Yr061Config(gammas=(0.99, 1.0))               # control(0.95) 필수
+    with pytest.raises(ValueError):
+        Yr061Config(gammas=(0.95, 1.0, 0.99))         # 오름차순 위반
+    assert Yr061Config(gammas=(0.95, 0.99, 1.0)).gammas[-1] == 1.0

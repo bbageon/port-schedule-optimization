@@ -56,6 +56,10 @@ class Yr061Config:
     n_vessels: int = 2
     lr: float = 1e-3
     penalties: tuple[float, ...] = (0.0, 2.0, 5.0, 10.0)   # 0.0 = control
+    # 2차 축 (phase-1 판정 후 등록): 비어있지 않으면 penalties 대신 γ 사다리를 arm 으로.
+    # phase-1 실측 — 미완료가 구조적으로 0 이라 페널티 무발동, 퇴화는 '방치'가 아니라
+    # '지연'. 용의자 = 할인 근시(γ^(Δt/60): 1h 후 비용 ×0.046 ≈ 소멸) vs 비할인 평가.
+    gammas: tuple[float, ...] = ()                          # 첫 값 = control(0.95)
     bootstrap_seed: int = 75_061
     bootstrap_resamples: int = 10_000
     quick: bool = False
@@ -75,6 +79,13 @@ class Yr061Config:
             raise ValueError("penalties[0] 은 control(0.0) 이어야 함")
         if list(self.penalties) != sorted(set(self.penalties)):
             raise ValueError("penalties 는 오름차순 유일값")
+        if self.gammas:
+            if self.gammas[0] != 0.95:
+                raise ValueError("gammas[0] 은 control(0.95 — 기존 기본값) 이어야 함")
+            if list(self.gammas) != sorted(set(self.gammas)):
+                raise ValueError("gammas 는 오름차순 유일값")
+            if any(not 0.0 < g <= 1.0 for g in self.gammas):
+                raise ValueError("gamma ∈ (0, 1]")
 
     @property
     def train_seeds(self) -> tuple[int, ...]:
@@ -119,12 +130,13 @@ def _objective(rows: list[EpisodeResult], penalty: float) -> float:
     return fmean(r.total_cost + penalty * r.backlog for r in rows)
 
 
-def _train(arm: str, penalty: float, cost_scale: float, dims, profile, params,
+def _train(arm: str, overrides: dict, cost_scale: float, dims, profile, params,
            cfg: Yr061Config, progress):
     """공통 학습 루프 — 전 arm 동일 초기화 seed·동일 train seed 열 (paired)."""
+    penalty = overrides.get("unserved_terminal_cost", 0.0)
     learner = CandidateDQNLearner(
         LearnerConfig(variant=cfg.variant, cost_scale=cost_scale, lr=cfg.lr,
-                      unserved_terminal_cost=penalty), dims, seed=61_000)
+                      **overrides), dims, seed=61_000)
     explore = random.Random(61_100)
     curve: list[dict] = []
     best: tuple | None = None
@@ -239,10 +251,14 @@ def run_yr061(out_dir: str = "outputs/reports/yr061_reward",
     cost_scale = max(1e-6, fmean(r.total_cost / max(1, r.n_decisions) for r in fit))
     progress(f"[YR-061] dims={dims} cost_scale={cost_scale:.2f}")
 
+    if cfg.gammas:
+        arm_specs = [(f"g{g:g}", {"gamma": g}) for g in cfg.gammas]
+    else:
+        arm_specs = [(f"pen{p:g}", {"unserved_terminal_cost": p})
+                     for p in cfg.penalties]
     curve, selections, results = [], {}, {}
-    for penalty in cfg.penalties:
-        arm = f"pen{penalty:g}"
-        acurve, sel, chosen = _train(arm, penalty, cost_scale, dims, profile,
+    for arm, overrides in arm_specs:
+        acurve, sel, chosen = _train(arm, overrides, cost_scale, dims, profile,
                                      params, cfg, progress)
         curve.extend(acurve)
         selections[arm] = sel
@@ -259,10 +275,9 @@ def run_yr061(out_dir: str = "outputs/reports/yr061_reward",
     _json_dump(out / "selections.json", selections)
     _json_dump(out / "test_results.json", results)
 
-    control = f"pen{cfg.penalties[0]:g}"
+    control = arm_specs[0][0]
     paired = {}
-    for t, penalty in enumerate(cfg.penalties[1:], start=1):
-        arm = f"pen{penalty:g}"
+    for t, (arm, _o) in enumerate(arm_specs[1:], start=1):
         paired[f"{arm}_vs_{control}"] = _paired(results[control], results[arm], cfg, t * 2)
         paired[f"{arm}_vs_SF_SPT"] = _paired(results["SF_SPT"], results[arm], cfg,
                                              t * 2 + 1)
@@ -309,7 +324,13 @@ def _report(payload: dict, out: Path) -> Path:
 
 if __name__ == "__main__":
     import sys
-    cfg = quick_yr061_config() if "--quick" in sys.argv[1:] else None
-    out = ("outputs/reports/yr061_reward_quick" if "--quick" in sys.argv[1:]
-           else "outputs/reports/yr061_reward")
+    argv = sys.argv[1:]
+    if "--quick" in argv:
+        cfg, out = quick_yr061_config(), "outputs/reports/yr061_reward_quick"
+    elif "--gamma" in argv:
+        # 2차: 할인 근시 검정 — γ 사다리 (ref_s 60 고정, 페널티 0).
+        cfg = Yr061Config(gammas=(0.95, 0.99, 0.999, 1.0))
+        out = "outputs/reports/yr061_gamma"
+    else:
+        cfg, out = None, "outputs/reports/yr061_reward"
     run_yr061(out_dir=out, cfg=cfg)
