@@ -44,3 +44,23 @@
 
 스키마 v3 구조·busy/idle 의도 관측·경합 위험 발현(≥0.5)·counter==resolution_log 정합·
 ablation off 시 5채널 known=0. Windows 302 / WSL 353 passed (기지 머신민감 1건 제외 — YR-058).
+
+## 6. 결과 (2026-07-18 full run, 2216s — negative)
+
+| 정책 | total_cost | interference | WAIT 수 | mean_wait(분) | 완료율 |
+|---|---:|---:|---:|---:|---:|
+| COORD | 91.73 | 24.88 | 34.7 | 1.57 | 1.000 |
+| NO_COORD | 88.03 | 22.86 | 33.3 | 1.08 | 1.000 |
+| JOINT_ROLLOUT | 70.57 | 10.28 | 11.5 | 0.73 | 1.000 |
+
+- **판정: feature 만으로는 협조 격차가 줄지 않는다.** COORD vs NO_COORD (paired 60 seed)
+  Δtotal +3.70 [+1.52, +5.93]·Δinterference +2.02 [+0.49, +3.56] — 개선 증거 0,
+  점추정은 오히려 악화. JR 대비 interference 격차(+12.6~+14.6)는 양 arm 공히 잔존.
+- **해석**: 동시 결정 구조에서 "상대의 현재 상태 관측"은 "상대가 지금 무엇을 고를지"를
+  알려주지 못한다 — 독립 argmin 학습자의 조정 실패는 관측 추가가 아니라 **결합
+  가치/절차(joint value·mixer) 구조**를 요구한다는 YR-054 해석을 재확인.
+- **한계**: arm 간 학습기 초기화 seed 상이(56000/56001) + checkpoint 선택 노이즈(YR-057,
+  val→test 격차 ±3~9 기지) → "유의 악화 +3.7"의 크기는 과대해석 금지. 결정에 충분한
+  사실은 방향 — **개선이 전혀 없다**는 것.
+- **처분**: COORD 채널은 itc-v3 에 유지 (QMIX/YR-013 이 동일 채널을 mixer 입력으로 재사용
+  가능, off arm 으로 언제든 재검증). 원자료: `outputs/reports/yr056_coord/`.
