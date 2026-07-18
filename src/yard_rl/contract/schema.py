@@ -21,7 +21,11 @@ from enum import Enum
 
 # v2 (YR-050): predicted_arrival_gap_s 의 clip_lo=0 제거 — 부호 보존(음수 = ETA 경과·미도착
 # 연착). 값 범위 재해석이므로 규약(위 "변경은 반드시 bump")에 따라 명시적 버전 상승.
-SCHEMA_VERSION = "itc-v2"   # integrated transition contract v2
+# v3 (YR-056): COORD 협조 feature 5종 추가 — YR-054 재감사가 특정한 "상대 의도 미제공"
+# 구조 공백을 경량으로 메운다 (yc: neighbor_busy_kind/neighbor_target_bay/
+# neighbor_available_in_s/recent_yield_count, candidate: contention_risk).
+# 신규 AblationGroup.COORD — 끄면 v2 와 동일 정보 (실험 arm 구성용).
+SCHEMA_VERSION = "itc-v3"   # integrated transition contract v3
 FLOAT_DECIMALS = 6          # 교차플랫폼 float 정규화 소수자리 (직렬화 idempotent)
 
 
@@ -60,6 +64,7 @@ class AblationGroup(str, Enum):
     LANE = "LANE"
     MULTI_YC = "MULTI_YC"
     LONG_WAIT = "LONG_WAIT"
+    COORD = "COORD"       # v3 (YR-056): 상대 의도·경합 협조 신호 — off = v2 동일 정보
 
 
 class Unit(str, Enum):
@@ -140,6 +145,16 @@ _SPECS: tuple[FieldSpec, ...] = (
     _s("own_oldest_wait_s", _SRC.DERIVED, _TOK.BLOCK_ARRIVAL, _U.S, "yc", _AB.LONG_WAIT, lo=0.0),
     _s("neighbor_load_gap", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.NORM, "yc", _AB.MULTI_YC, nullable=True),
     _s("neighbor_min_gap_bay", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.NORM, "yc", _AB.MULTI_YC, nullable=True, lo=0.0),
+    # v3 COORD (YR-056): 최근접 상대 크레인의 현재 의도 — busy 면 실행 중 계획의
+    # 종류/종료 bay, idle 이면 결측(known=0). 관측 사실만 제공 (미래 예측·진실 아님).
+    _s("neighbor_busy_kind", _SRC.DERIVED, _TOK.ALWAYS, _U.NORM, "yc", _AB.COORD, nullable=True, lo=0.0, hi=1.0,
+       note="action_kind_idx 와 동일 정규화 — 상대 실행 중 행동 종류"),
+    _s("neighbor_busy_target_bay", _SRC.DERIVED, _TOK.ALWAYS, _U.M, "yc", _AB.COORD, nullable=True, lo=0.0,
+       note="상대 실행 중 계획의 종료 bay (idle=결측)"),
+    _s("neighbor_available_in_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "yc", _AB.COORD, nullable=True, lo=0.0,
+       note="상대 크레인 가용까지 남은 시간 (상대 없으면 결측)"),
+    _s("recent_yield_count", _SRC.DERIVED, _TOK.ALWAYS, _U.COUNT, "yc", _AB.COORD, lo=0.0,
+       note="에피소드 내 경합 패배(LOST_CONTENTION) 양보 누적 — recent_* 관례 동일(누적)"),
     # ---- candidate (§7.2·7.3·7.4·8.2) ----
     _s("action_kind_idx", _SRC.DERIVED, _TOK.ALWAYS, _U.NORM, "candidate", lo=0.0, hi=1.0),
     _s("is_external", _SRC.DERIVED, _TOK.ALWAYS, _U.BOOL01, "candidate", lo=0.0, hi=1.0),
@@ -160,6 +175,10 @@ _SPECS: tuple[FieldSpec, ...] = (
     _s("interference_penalty_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "candidate", _AB.MULTI_YC, lo=0.0),
     _s("resequence_count", _SRC.DERIVED, _TOK.ALWAYS, _U.COUNT, "candidate", lo=0.0),
     _s("vessel_risk_delta", _SRC.DERIVED, _TOK.PLANNED, _U.NORM, "candidate", _AB.VESSEL_RISK, nullable=True),  # 음수 허용
+    # v3 COORD (YR-056): 이 후보가 상대 크레인과 부딪힐 위험 — 결정론 산식
+    # max(같은 작업을 idle 상대도 수행가능 1.0 / busy 상대도 eligible 0.5 /
+    #     상대 실행 corridor 와 본 후보 corridor 겹침 0.7), 신호 없음 0.
+    _s("contention_risk", _SRC.DERIVED, _TOK.ALWAYS, _U.RATIO_0_1, "candidate", _AB.COORD, lo=0.0, hi=1.0),
     # ---- queue (permutation-invariant 요약, 결정당 1개 — YR-031-b H-A 지지) ----
     _s("cand_count", _SRC.DERIVED, _TOK.ALWAYS, _U.COUNT, "queue", lo=0.0),
     _s("service_min_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "queue", lo=0.0),

@@ -71,6 +71,40 @@ def _global_raw(sim, now: float) -> dict:
     }
 
 
+def _nearest_other(sim, yc):
+    """최근접 상대 크레인 (bay 거리, 동률 시 crane_id) — COORD 관측 기준점 (YR-056)."""
+    others = [c for c in sim.fleet.all() if c.crane_id != yc.crane_id]
+    if not others:
+        return None
+    return min(others, key=lambda o: (abs(yc.state.position_bay - o.state.position_bay),
+                                      o.crane_id))
+
+
+def _corridor_overlap(a: tuple, b: tuple) -> bool:
+    return a[0] <= b[1] and b[0] <= a[1]
+
+
+def _contention_risk(sim, cid: str, gc) -> float:
+    """후보의 경합 위험 (COORD, YR-056) — 관측 사실 기반 결정론 산식.
+
+    max( 같은 작업을 idle 상대도 수행가능 1.0 / busy 상대도 eligible 0.5 /
+         상대 실행 corridor 와 본 후보 corridor 겹침 0.7 ), 신호 없음 0.
+    """
+    if gc.kind == CandidateKind.WAIT or gc.plan is None:
+        return 0.0
+    risk = 0.0
+    for o in sim.fleet.all():
+        if o.crane_id == cid:
+            continue
+        o_plan = sim.active_plan(o.crane_id)
+        ref = gc.job_ref
+        if ref is not None and o.crane_id in ref.eligible_crane_ids:
+            risk = max(risk, 0.5 if o_plan is not None else 1.0)
+        if o_plan is not None and _corridor_overlap(gc.plan.corridor, o_plan.corridor):
+            risk = max(risk, 0.7)
+    return risk
+
+
 def _yc_raw(sim, cid: str, now: float):
     yc = sim.fleet.get(cid)
     spec = sim.fleet.spec(cid)
@@ -98,6 +132,18 @@ def _yc_raw(sim, cid: str, now: float):
         "neighbor_min_gap_bay": min((abs(yc.state.position_bay - o.state.position_bay)
                                      for o in others), default=None),
     }
+    # COORD (YR-056): 최근접 상대의 현재 의도 — busy 면 실행 계획의 종류/종료 bay,
+    # idle 이면 결측(None→known=0). 전부 commit 된 관측 사실 (진실·예측 아님).
+    near = _nearest_other(sim, yc)
+    n_plan = sim.active_plan(near.crane_id) if near is not None else None
+    raw.update({
+        "neighbor_busy_kind": (_KINDS.index(n_plan.kind) / (len(_KINDS) - 1)
+                               if n_plan is not None else None),
+        "neighbor_busy_target_bay": n_plan.end_bay if n_plan is not None else None,
+        "neighbor_available_in_s": (max(0.0, near.state.available_at - now)
+                                    if near is not None else None),
+        "recent_yield_count": float(yc.recent_yield_count),
+    })
     realized = {"own_oldest_wait_s": oldest} if oldest is not None else {}
     return raw, realized
 
@@ -142,7 +188,8 @@ def _cand_raw(sim, cid, gc, now):
                "expected_service_time_s": 0.0, "expected_handling_count": 0.0, "blocker_count": 0.0,
                "expected_rehandle_time_s": 0.0, "end_bay": yc.state.position_bay,
                "lane_congestion_local": 0.0, "interference_penalty_s": 0.0,
-               "resequence_count": 0.0, "vessel_risk_delta": None}
+               "resequence_count": 0.0, "vessel_risk_delta": None,
+               "contention_risk": 0.0}
         return raw, {}
     reach = estimate_reach_s(spec, geom, yc.state.position_bay, yc.state.trolley_row,
                              plan.end_bay, geom.transfer_row)
@@ -166,6 +213,7 @@ def _cand_raw(sim, cid, gc, now):
         "expected_rehandle_time_s": _rehandle_time(plan), "end_bay": plan.end_bay,
         "lane_congestion_local": _lane_local(sim, ref.lane_id),
         "interference_penalty_s": 0.0, "resequence_count": 0.0, "vessel_risk_delta": None,
+        "contention_risk": _contention_risk(sim, cid, gc),
     }
     realized = {}
     if cum is not None and j is not None and j.actual_block_arrival is not None:

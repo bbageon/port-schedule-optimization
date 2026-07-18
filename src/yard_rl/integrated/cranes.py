@@ -17,6 +17,7 @@ class YcRuntime:
     down: bool = False
     down_pending: bool = False        # 작업 중 EquipmentDown → 완료 후 DOWN (비선점)
     yielded: bool = False             # WAIT 후 다음 상태변경까지 결정 제외 (무한루프 방지)
+    recent_yield_count: int = 0       # 경합 패배(LOST_CONTENTION) 양보 누적 (COORD, YR-056)
     recent_completions: int = 0
     served_count: int = 0             # 부하 불균형 산출
     recent_empty_travel_s: float = 0.0

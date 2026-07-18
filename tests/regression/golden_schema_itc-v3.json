@@ -292,6 +292,54 @@
    "unit": "norm"
   },
   {
+   "ablation": "COORD",
+   "assumed_default": null,
+   "clip_hi": 1.0,
+   "clip_lo": 0.0,
+   "group": "yc",
+   "name": "neighbor_busy_kind",
+   "nullable": true,
+   "source": "DERIVED",
+   "tok": "ALWAYS",
+   "unit": "norm"
+  },
+  {
+   "ablation": "COORD",
+   "assumed_default": null,
+   "clip_hi": null,
+   "clip_lo": 0.0,
+   "group": "yc",
+   "name": "neighbor_busy_target_bay",
+   "nullable": true,
+   "source": "DERIVED",
+   "tok": "ALWAYS",
+   "unit": "m"
+  },
+  {
+   "ablation": "COORD",
+   "assumed_default": null,
+   "clip_hi": null,
+   "clip_lo": 0.0,
+   "group": "yc",
+   "name": "neighbor_available_in_s",
+   "nullable": true,
+   "source": "DERIVED",
+   "tok": "ALWAYS",
+   "unit": "s"
+  },
+  {
+   "ablation": "COORD",
+   "assumed_default": null,
+   "clip_hi": null,
+   "clip_lo": 0.0,
+   "group": "yc",
+   "name": "recent_yield_count",
+   "nullable": false,
+   "source": "DERIVED",
+   "tok": "ALWAYS",
+   "unit": "count"
+  },
+  {
    "ablation": "CORE",
    "assumed_default": null,
    "clip_hi": 1.0,
@@ -506,6 +554,18 @@
    "source": "DERIVED",
    "tok": "PLANNED",
    "unit": "norm"
+  },
+  {
+   "ablation": "COORD",
+   "assumed_default": null,
+   "clip_hi": 1.0,
+   "clip_lo": 0.0,
+   "group": "candidate",
+   "name": "contention_risk",
+   "nullable": false,
+   "source": "DERIVED",
+   "tok": "ALWAYS",
+   "unit": "ratio_0_1"
   },
   {
    "ablation": "CORE",
@@ -760,7 +820,7 @@
    "unit": "s"
   }
  ],
- "version": "itc-v2",
+ "version": "itc-v3",
  "vessel_family": [
   "depart_delay",
   "sts_wait",

@@ -46,6 +46,8 @@ class CraneAssignment:
     crane_id: str
     action: CandidateKind
     job_ref: JobRef | None = None
+    # WAIT 사유 (resolver 판별: NO_FEASIBLE | LOST_CONTENTION) — 경합 이력 집계용 (YR-056)
+    yield_reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -450,6 +452,8 @@ class TerminalSimulator:
         yc = self.fleet.get(crane_id)
         if assignment.action == CandidateKind.WAIT:
             yc.yielded = True
+            if assignment.yield_reason == "LOST_CONTENTION":
+                yc.recent_yield_count += 1     # 경합 이력 (COORD feature, YR-056)
             self._assigned[crane_id] = assignment
             return
         ref = assignment.job_ref
@@ -526,6 +530,13 @@ class TerminalSimulator:
 
     def last_assignments(self) -> dict[str, CraneAssignment]:
         return dict(self._assigned)
+
+    def active_plan(self, crane_id: str):
+        """실행 중 JobPlan (idle 이면 None) — 관측 계층의 상대 의도 산출용 (YR-056).
+
+        이미 commit 된 사실(예약·이동 중 계획)만 노출 — 미래 예측·진실값 아님.
+        """
+        return self._active_plans.get(crane_id)
 
     # ------------------------------------------------------------- internals
     def _process_next_event(self):

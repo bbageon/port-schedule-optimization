@@ -204,7 +204,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 epsilon: float = 0.0, explore_rng: random.Random | None = None,
                 generator: CandidateGenerator | None = None,
                 collect: bool = False, learn: bool = False,
-                forbid_strategic_wait: bool = True) -> EpisodeResult:
+                forbid_strategic_wait: bool = True,
+                ablation_off: tuple = ()) -> EpisodeResult:
     """capture→score→resolve→cost 루프 (record_episode 동형, assemble 생략).
 
     preference 가 QPreference 면 결정마다 learner 점수(+ε 탐험 강제)를 주입.
@@ -240,7 +241,7 @@ def run_episode(sim, *, level: InformationLevel, preference,
         # arm 별 생성기(ETA_NO_PRE 차단 등)가 조용히 무시된다 — RL의 ETA_NO_PRE 평가가
         # FULL 과 동일해지는 사고를 locked run 원자료 대조로 발견.
         state, obs, gen_by = capture(sim, dp.crane_ids, level, "drive", k,
-                                     generator=gen)
+                                     ablation_off=ablation_off, generator=gen)
         encs = {ob.crane_id: encode_observation(state, ob) for ob in obs}
         if isinstance(preference, QPreference):
             scores: dict[tuple[str, int], float] = {}

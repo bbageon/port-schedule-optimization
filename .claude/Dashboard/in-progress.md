@@ -4,6 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-056 | RL | 협조 신호 경량 실험 — 상대 크레인 의도·경합 이력 feature 로 interference 격차 축소 | 🟡 | 2026-07-18 | YR-054 권고 파생 · 스키마 bump(itc-v3) 설계 → 구현 → 학습 실험. QMIX(YR-013) 착수 판단 재료 |
 
 ---
 

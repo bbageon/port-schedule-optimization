@@ -60,6 +60,7 @@ def _cand_fv(kind, *, is_external=False, is_vessel=False, cum_wait_s=None,
         "interference_penalty_s": interference_s,
         "resequence_count": resequence,
         "vessel_risk_delta": vessel_risk_delta,
+        "contention_risk": 0.0,   # v3 COORD — minimal fixture 는 경합 없음
     }
     realized = {}
     if arrival_realized_at is not None:   # 도착시점 파생 필드의 실현시각
@@ -86,7 +87,10 @@ def _yc_fv(*, crane_bay, own_queue_len, own_oldest_wait_s, neighbor_load_gap,
            "is_loaded": 0.0, "last_move_dir": 1.0, "recent_throughput": recent_throughput,
            "recent_empty_travel_s": 120.0, "assigned_load": 0.0,
            "own_queue_len": own_queue_len, "own_oldest_wait_s": own_oldest_wait_s,
-           "neighbor_load_gap": neighbor_load_gap, "neighbor_min_gap_bay": neighbor_min_gap_bay}
+           "neighbor_load_gap": neighbor_load_gap, "neighbor_min_gap_bay": neighbor_min_gap_bay,
+           # v3 COORD — minimal fixture: 상대는 SERVE 실행 중 (채널 직렬화 검증용)
+           "neighbor_busy_kind": 0.0, "neighbor_busy_target_bay": 18.0,
+           "neighbor_available_in_s": 90.0, "recent_yield_count": 1.0}
     return build_feature_vector("yc", raw, now=_NOW, info_level=_LEVEL)
 
 

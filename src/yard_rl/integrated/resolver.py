@@ -119,7 +119,8 @@ class CentralResolver:
         for c in sorted(resolution.crane_ids):        # crane_id 순 == commit·dry_run 순
             r = by_crane[c]
             if r.action == CandidateKind.WAIT:
-                sim.assign(c, CraneAssignment(c, CandidateKind.WAIT))
+                sim.assign(c, CraneAssignment(c, CandidateKind.WAIT,
+                                              yield_reason=r.yield_reason))
             else:
                 gc = gen_by_crane[c].items[r.chosen_candidate_id]
                 sim.assign(c, CraneAssignment(c, gc.kind, gc.job_ref))   # 2차 reserve() backstop
