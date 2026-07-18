@@ -405,16 +405,17 @@ def run_yr061_imitation(out_dir: str = "outputs/reports/yr061_imitation",
     return report
 
 
-def _report(payload: dict, out: Path) -> Path:
+def _report(payload: dict, out: Path, name: str = "yr061_report.md",
+            title: str = "YR-061 — 미완료 잔존 페널티 판정 결과") -> Path:
     m, p = payload["means"], payload["paired"]
-    lines = ["# YR-061 — 미완료 잔존 페널티 판정 결과", "",
+    lines = [f"# {title}", "",
              "> ⚠ 합성·가정 조건 (주장 게이트 YR-002/009). 페널티는 학습 표적 전용 —",
              "> 아래 total_cost 는 전 arm 실제(비페널티) 비용. 판정 축: 퇴화 해소 여부",
              "> (serve_when_available ≥ 0.25 — YR-044 건전성 계약) + 완료율 + 실제비용.", ""]
     lines.append("| arm | total_cost | 완료율 | backlog | serve_share | serve_when_avail | mean_wait(분) |")
     lines.append("|---|---|---|---|---|---|---|")
-    for name, v in m.items():
-        lines.append(f"| {name} | {v['total_cost']:.2f} | {v['completion_rate']:.3f} "
+    for pol, v in m.items():
+        lines.append(f"| {pol} | {v['total_cost']:.2f} | {v['completion_rate']:.3f} "
                      f"| {v['backlog']:.1f} | {v['serve_share']:.3f} "
                      f"| {v['serve_when_available']:.3f} | {v['mean_wait_min']:.2f} |")
     lines.append("")
@@ -424,8 +425,8 @@ def _report(payload: dict, out: Path) -> Path:
                      f"[{tc['difference_ci']['lower']:+.2f}, "
                      f"{tc['difference_ci']['upper']:+.2f}]")
     lines.append("")
-    lines.append("*원자료: yr061_results.json · test_results.json (seed별)*")
-    path = out / "yr061_report.md"
+    lines.append("*원자료: results json · test_results.json (seed별)*")
+    path = out / name
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
 
