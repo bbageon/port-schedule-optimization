@@ -1,0 +1,136 @@
+{
+  "config": {
+    "variant": "ddqn",
+    "lr": 0.001,
+    "gamma": 0.95,
+    "hidden": 128,
+    "target_sync": 500,
+    "replay_cap": 50000,
+    "cost_scale": 1.84,
+    "epochs": 150,
+    "n_external": 24,
+    "n_vessels": 2,
+    "train_seeds": [
+      300000,
+      300001,
+      300002
+    ],
+    "held_seeds": [
+      310000,
+      310001,
+      310002,
+      310003,
+      310004
+    ]
+  },
+  "baseline_held": {
+    "VESSEL_WAIT": 77.763,
+    "SPT": 128.554
+  },
+  "baseline_train_VW": 77.031,
+  "overfit_train": {
+    "pre": 77.031,
+    "post": 109.796,
+    "drop": -32.765,
+    "drop_pct": -42.5,
+    "vs_baseline_train": 32.765
+  },
+  "generalize_held": {
+    "pre": 77.763,
+    "post": 101.292,
+    "drop": -23.529,
+    "vs_best_baseline": 23.529
+  },
+  "loss": {
+    "n": 19509,
+    "first50": 0.31,
+    "last50": 0.0592
+  },
+  "action_mix_train": {
+    "pre": {
+      "PRE_REHANDLE": 0.082,
+      "REPOSITION": 0.182,
+      "SERVE": 0.446,
+      "WAIT": 0.29
+    },
+    "post": {
+      "PRE_REHANDLE": 0.005,
+      "REPOSITION": 0.601,
+      "SERVE": 0.054,
+      "WAIT": 0.34
+    }
+  },
+  "curve": [
+    {
+      "ep": 15,
+      "train": 114.932351,
+      "held": 136.62761740000002,
+      "replay": 2252,
+      "grad": 1040
+    },
+    {
+      "ep": 30,
+      "train": 135.991632,
+      "held": 130.2675668,
+      "replay": 5575,
+      "grad": 3204
+    },
+    {
+      "ep": 45,
+      "train": 120.30809366666666,
+      "held": 115.6058362,
+      "replay": 8979,
+      "grad": 5379
+    },
+    {
+      "ep": 60,
+      "train": 123.86631266666666,
+      "held": 103.1187334,
+      "replay": 12595,
+      "grad": 7737
+    },
+    {
+      "ep": 75,
+      "train": 101.27551766666666,
+      "held": 102.26006240000001,
+      "replay": 15862,
+      "grad": 9857
+    },
+    {
+      "ep": 90,
+      "train": 81.31972833333333,
+      "held": 96.561834,
+      "replay": 19011,
+      "grad": 11856
+    },
+    {
+      "ep": 105,
+      "train": 117.31797133333333,
+      "held": 115.24883259999999,
+      "replay": 22054,
+      "grad": 13814
+    },
+    {
+      "ep": 120,
+      "train": 72.64643366666667,
+      "held": 91.100698,
+      "replay": 24806,
+      "grad": 15571
+    },
+    {
+      "ep": 135,
+      "train": 80.588178,
+      "held": 78.47793240000001,
+      "replay": 28067,
+      "grad": 17658
+    },
+    {
+      "ep": 150,
+      "train": 109.795832,
+      "held": 101.2920732,
+      "replay": 30963,
+      "grad": 19509
+    }
+  ],
+  "elapsed_s": 199.0
+}

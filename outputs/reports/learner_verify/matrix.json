@@ -1,0 +1,614 @@
+{
+  "elapsed_s": 735.5,
+  "setup": {
+    "epochs": 90,
+    "n_external": 16,
+    "train": [
+      300000,
+      300001,
+      300002
+    ],
+    "held": [
+      310000,
+      310001,
+      310002,
+      310003
+    ],
+    "clip": 5.0
+  },
+  "runs": [
+    {
+      "label": "A1.ddqn_ref",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 71.74,
+        "drop_pct": -12.5
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 65.33,
+        "drop_pct": 3.8
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": -2.57,
+      "loss": {
+        "first": 0.4052,
+        "last": 0.0507
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.005,
+        "REPOSITION": 0.763,
+        "SERVE": 0.058,
+        "WAIT": 0.175
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 76.7,
+          "held": 84.18
+        },
+        {
+          "ep": 60,
+          "train": 72.8,
+          "held": 88.18
+        },
+        {
+          "ep": 90,
+          "train": 71.74,
+          "held": 65.33
+        }
+      ]
+    },
+    {
+      "label": "A1.dqn",
+      "knobs": {
+        "variant": "dqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 83.26,
+        "drop_pct": -30.5
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 90.71,
+        "drop_pct": -33.6
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 22.81,
+      "loss": {
+        "first": 0.4052,
+        "last": 0.0389
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.005,
+        "REPOSITION": 0.683,
+        "SERVE": 0.053,
+        "WAIT": 0.259
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 92.46,
+          "held": 96.32
+        },
+        {
+          "ep": 60,
+          "train": 82.8,
+          "held": 83.09
+        },
+        {
+          "ep": 90,
+          "train": 83.26,
+          "held": 90.71
+        }
+      ]
+    },
+    {
+      "label": "A1.dueling",
+      "knobs": {
+        "variant": "dueling",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 68.37,
+        "drop_pct": -7.2
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 69.77,
+        "drop_pct": -2.8
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 1.87,
+      "loss": {
+        "first": 0.4342,
+        "last": 0.0553
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.005,
+        "REPOSITION": 0.69,
+        "SERVE": 0.06,
+        "WAIT": 0.245
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 80.67,
+          "held": 87.98
+        },
+        {
+          "ep": 60,
+          "train": 69.06,
+          "held": 75.36
+        },
+        {
+          "ep": 90,
+          "train": 68.37,
+          "held": 69.77
+        }
+      ]
+    },
+    {
+      "label": "A1.lr3e-4",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.0003,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 67.96,
+        "drop_pct": -6.5
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 72.34,
+        "drop_pct": -6.5
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 4.44,
+      "loss": {
+        "first": 0.2169,
+        "last": 0.0422
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.006,
+        "REPOSITION": 0.579,
+        "SERVE": 0.073,
+        "WAIT": 0.342
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 102.14,
+          "held": 96.69
+        },
+        {
+          "ep": 60,
+          "train": 70.98,
+          "held": 74.49
+        },
+        {
+          "ep": 90,
+          "train": 67.96,
+          "held": 72.34
+        }
+      ]
+    },
+    {
+      "label": "A1.tsync200",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 200,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 73.9,
+        "drop_pct": -15.8
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 74.05,
+        "drop_pct": -9.1
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 6.15,
+      "loss": {
+        "first": 0.4052,
+        "last": 0.0506
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.006,
+        "REPOSITION": 0.631,
+        "SERVE": 0.064,
+        "WAIT": 0.299
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 75.0,
+          "held": 84.76
+        },
+        {
+          "ep": 60,
+          "train": 67.75,
+          "held": 83.44
+        },
+        {
+          "ep": 90,
+          "train": 73.9,
+          "held": 74.05
+        }
+      ]
+    },
+    {
+      "label": "A2.state_norm",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": true,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 89.59,
+        "drop_pct": -40.4
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 75.43,
+        "drop_pct": -11.1
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 7.53,
+      "loss": {
+        "first": 0.1893,
+        "last": 0.0505
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.002,
+        "REPOSITION": 0.536,
+        "SERVE": 0.049,
+        "WAIT": 0.413
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 87.83,
+          "held": 89.42
+        },
+        {
+          "ep": 60,
+          "train": 84.13,
+          "held": 98.68
+        },
+        {
+          "ep": 90,
+          "train": 89.59,
+          "held": 75.43
+        }
+      ]
+    },
+    {
+      "label": "A2.cost_x0.5",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 0.5,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 72.44,
+        "drop_pct": -13.6
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 82.49,
+        "drop_pct": -21.5
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 14.59,
+      "loss": {
+        "first": 0.6795,
+        "last": 0.1771
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.005,
+        "REPOSITION": 0.696,
+        "SERVE": 0.057,
+        "WAIT": 0.242
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 77.61,
+          "held": 80.1
+        },
+        {
+          "ep": 60,
+          "train": 78.51,
+          "held": 85.68
+        },
+        {
+          "ep": 90,
+          "train": 72.44,
+          "held": 82.49
+        }
+      ]
+    },
+    {
+      "label": "A2.cost_x2",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 2.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 89.42,
+        "drop_pct": -40.2
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 84.74,
+        "drop_pct": -24.8
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 16.84,
+      "loss": {
+        "first": 0.301,
+        "last": 0.0127
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.003,
+        "REPOSITION": 0.548,
+        "SERVE": 0.054,
+        "WAIT": 0.395
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 85.2,
+          "held": 97.33
+        },
+        {
+          "ep": 60,
+          "train": 73.95,
+          "held": 84.31
+        },
+        {
+          "ep": 90,
+          "train": 89.42,
+          "held": 84.74
+        }
+      ]
+    },
+    {
+      "label": "A3.block_pre",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": true,
+        "k_max": 12
+      },
+      "overfit": {
+        "pre": 68.12,
+        "post": 96.51,
+        "drop_pct": -41.7
+      },
+      "generalize": {
+        "pre": 67.06,
+        "post": 82.93,
+        "drop_pct": -23.7
+      },
+      "baseline_held": {
+        "VW": 67.06,
+        "SPT": 99.58
+      },
+      "post_vs_bestbase_held": 15.88,
+      "loss": {
+        "first": 0.3449,
+        "last": 0.0557
+      },
+      "action_mix_post": {
+        "REPOSITION": 0.586,
+        "SERVE": 0.044,
+        "WAIT": 0.37
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 83.38,
+          "held": 107.69
+        },
+        {
+          "ep": 60,
+          "train": 91.44,
+          "held": 96.66
+        },
+        {
+          "ep": 90,
+          "train": 96.51,
+          "held": 82.93
+        }
+      ]
+    },
+    {
+      "label": "A3.kmax8",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 8
+      },
+      "overfit": {
+        "pre": 63.74,
+        "post": 60.61,
+        "drop_pct": 4.9
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 78.49,
+        "drop_pct": -15.6
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 101.99
+      },
+      "post_vs_bestbase_held": 10.59,
+      "loss": {
+        "first": 0.366,
+        "last": 0.05
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.005,
+        "REPOSITION": 0.818,
+        "SERVE": 0.085,
+        "WAIT": 0.091
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 83.95,
+          "held": 91.33
+        },
+        {
+          "ep": 60,
+          "train": 81.7,
+          "held": 86.02
+        },
+        {
+          "ep": 90,
+          "train": 60.61,
+          "held": 78.49
+        }
+      ]
+    },
+    {
+      "label": "A3.kmax20",
+      "knobs": {
+        "variant": "ddqn",
+        "lr": 0.001,
+        "target_sync": 500,
+        "cost_scale_mult": 1.0,
+        "norm": false,
+        "block_pre": false,
+        "k_max": 20
+      },
+      "overfit": {
+        "pre": 63.79,
+        "post": 73.44,
+        "drop_pct": -15.1
+      },
+      "generalize": {
+        "pre": 67.9,
+        "post": 84.66,
+        "drop_pct": -24.7
+      },
+      "baseline_held": {
+        "VW": 67.9,
+        "SPT": 98.46
+      },
+      "post_vs_bestbase_held": 16.75,
+      "loss": {
+        "first": 0.4052,
+        "last": 0.0464
+      },
+      "action_mix_post": {
+        "PRE_REHANDLE": 0.004,
+        "REPOSITION": 0.719,
+        "SERVE": 0.051,
+        "WAIT": 0.226
+      },
+      "curve": [
+        {
+          "ep": 30,
+          "train": 92.33,
+          "held": 83.96
+        },
+        {
+          "ep": 60,
+          "train": 82.44,
+          "held": 87.99
+        },
+        {
+          "ep": 90,
+          "train": 73.44,
+          "held": 84.66
+        }
+      ]
+    }
+  ]
+}
