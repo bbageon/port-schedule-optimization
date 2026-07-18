@@ -205,7 +205,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 generator: CandidateGenerator | None = None,
                 collect: bool = False, learn: bool = False,
                 forbid_strategic_wait: bool = True,
-                ablation_off: tuple = ()) -> EpisodeResult:
+                ablation_off: tuple = (),
+                joint_sink: dict | None = None) -> EpisodeResult:
     """capture→score→resolve→cost 루프 (record_episode 동형, assemble 생략).
 
     preference 가 QPreference 면 결정마다 learner 점수(+ε 탐험 강제)를 주입.
@@ -265,12 +266,14 @@ def run_episode(sim, *, level: InformationLevel, preference,
             preference.set_scores(scores)
         resn = resolver.resolve(sim, dp, gen_by)
         resolver.apply(sim, resn, gen_by)
+        joint_rec: list[tuple[str, DecisionEncoding, int | None]] = []
         for r in resn.resolutions:
             enc = encs[r.crane_id]
             # WAIT 는 계약상 candidate_id=None → 인코딩의 WAIT 행으로 매핑해 표본에 포함 (YR-043).
             pos = (enc.wait_pos if r.chosen_candidate_id is None
                    else enc.candidate_ids.index(r.chosen_candidate_id))
             events.setdefault(r.crane_id, []).append((k, enc, pos))
+            joint_rec.append((r.crane_id, enc, pos))
             action_counts[r.action.value] = action_counts.get(r.action.value, 0) + 1
             serve_ok = any(g.feasible and g.kind.value == "SERVE"
                            for g in gen_by[r.crane_id].items)
@@ -278,6 +281,9 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 serve_available += 1
                 if r.action.value == "SERVE":
                     serve_taken += 1
+        if joint_sink is not None:   # QMIX joint 전이 수집 (YR-013) — 실행된 그대로
+            joint_sink.setdefault("events", []).append(
+                (k, tuple(sorted(joint_rec, key=lambda x: x[0]))))
         for cid in dp.crane_ids:
             for g in gen_by[cid].items:
                 listed[g.kind.value] = listed.get(g.kind.value, 0) + 1
@@ -297,6 +303,9 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 learner.learn_step()
         k += 1
 
+    if joint_sink is not None:
+        joint_sink["times"] = list(times)
+        joint_sink["costs"] = list(costs)
     samples: list[Sample] = []
     if collect and learner is not None:
         scaled = [c / learner.cfg.cost_scale for c in costs]  # 표적 정규화
