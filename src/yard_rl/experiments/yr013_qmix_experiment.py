@@ -49,6 +49,10 @@ class Yr013Config:
     bootstrap_seed: int = 75_013
     bootstrap_resamples: int = 10_000
     quick: bool = False
+    # 학습예산 사다리 (사용자 지시 2026-07-18): 비어있으면 단일 예산.
+    # 예: (500, 1000, 2000) — 한 번 2000ep 학습하며 tier 별 val-best checkpoint 를
+    # 각각 test 평가 → "구조 무효 vs 학습량 부족" 판별.
+    budget_ladder: tuple[int, ...] = ()
 
     # 소각·기사용 대역: 단일야드(<250k)·YR-039(300k대)·YR-045(400k대)·YR-056(500k~530k)
     _USED_RANGES = ((0, 250_000), (300_000, 330_000), (400_000, 430_000),
@@ -61,6 +65,11 @@ class Yr013Config:
         if any(lo <= s < hi for band in bands for s in band
                for lo, hi in self._USED_RANGES):
             raise ValueError("기존 실험 seed 대역 재사용 금지")
+        if self.budget_ladder:
+            if list(self.budget_ladder) != sorted(set(self.budget_ladder)):
+                raise ValueError("budget_ladder 는 오름차순 유일값")
+            if self.budget_ladder[-1] != self.train_episodes:
+                raise ValueError("budget_ladder 최댓값 == train_episodes 여야 함")
 
     @property
     def train_seeds(self) -> tuple[int, ...]:
@@ -101,9 +110,16 @@ def _eval(profile, params, seeds, learner) -> list:
 
 
 def _train(arm: str, learner, profile, params, cfg, progress):
-    """공통 학습 루프 — QMIX 는 joint replay(absorb_joint), INDEP 는 per-crane collect."""
+    """공통 학습 루프 — QMIX 는 joint replay(absorb_joint), INDEP 는 per-crane collect.
+
+    budget_ladder 지원: 한 번 학습하며 tier(≤ep)별 val-best snapshot 을 따로 유지 —
+    같은 학습 궤적에서 예산만 다른 checkpoint 를 얻는다 (재학습 없음·재현 동일).
+    반환 chosen: {tier: snapshot} (단일 예산이면 {train_episodes: snap}).
+    """
     explore = random.Random(13_100 + (0 if arm == "QMIX" else 1))
-    curve, best = [], None
+    tiers = tuple(cfg.budget_ladder) or (cfg.train_episodes,)
+    curve: list[dict] = []
+    best: dict[int, tuple] = {}
     is_qmix = isinstance(learner, QmixLearner)
     for ep, seed in enumerate(cfg.train_seeds, start=1):
         eps = 1.0 / (ep ** 0.5)
@@ -116,15 +132,20 @@ def _train(arm: str, learner, profile, params, cfg, progress):
         if ep % cfg.checkpoint_every and ep != cfg.train_episodes:
             continue
         snap = copy.deepcopy(learner)
+        snap.replay.clear()          # 평가엔 불필요 — tier 다중 보관 메모리 절약
         mean = fmean(r.total_cost for r in
                      _eval(profile, params, cfg.validation_seeds, snap))
         curve.append({"arm": arm, "episode": ep, "val_total_cost": mean,
                       "replay": len(learner.replay)})
         progress(f"[train:{arm}] ep={ep}/{cfg.train_episodes} val_cost={mean:.2f}")
-        if best is None or (mean, ep) < (best[0], best[1]):
-            best = (mean, ep, snap)
-    mean, ep, chosen = best
-    return curve, {"arm": arm, "episode": ep, "val_total_cost": mean}, chosen
+        for tier in tiers:
+            if ep <= tier and (tier not in best
+                               or (mean, ep) < (best[tier][0], best[tier][1])):
+                best[tier] = (mean, ep, snap)
+    selections = {tier: {"arm": arm, "episode": best[tier][1],
+                         "val_total_cost": best[tier][0]} for tier in tiers}
+    chosen = {tier: best[tier][2] for tier in tiers}
+    return curve, selections, chosen
 
 
 def _paired(base_rows, alt_rows, cfg, tag: int) -> dict:
@@ -142,7 +163,9 @@ def _paired(base_rows, alt_rows, cfg, tag: int) -> dict:
 
 def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
               cfg: Yr013Config | None = None,
-              progress: Callable[[str], None] = print) -> Path:
+              progress: Callable[[str], None] = print,
+              reuse_jr: str | None = None) -> Path:
+    """reuse_jr: 같은 test 대역의 선행 run test_results.json — JR(결정적·비학습) 행 재사용."""
     cfg = cfg or Yr013Config()
     started = time.time()
     git = _git_state()
@@ -173,26 +196,45 @@ def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
                                                    cost_scale=cost_scale),
                                      dims, seed=13_000),
     }
+    tiers = tuple(cfg.budget_ladder) or (cfg.train_episodes,)
+
+    def _name(arm: str, tier: int) -> str:
+        return arm if len(tiers) == 1 else f"{arm}@{tier}"
+
     curve, selections, results = [], {}, {}
     for arm, learner in learners.items():
-        acurve, sel, chosen = _train(arm, learner, profile, params, cfg, progress)
+        acurve, sels, chosen = _train(arm, learner, profile, params, cfg, progress)
         curve.extend(acurve)
-        selections[arm] = sel
-        progress(f"[test] RL {arm}")
-        results[arm] = _rl_rows(_eval(profile, params, cfg.test_seeds, chosen),
-                                cfg.test_seeds)
-        chosen.save(out / f"model_{arm}.pt")
-    progress("[test] JointRollout (forbid)")
-    results["JOINT_ROLLOUT"] = _jr_rows(profile, params, cfg.test_seeds, rc)
+        for tier in tiers:
+            name = _name(arm, tier)
+            selections[name] = sels[tier]
+            progress(f"[test] RL {name}")
+            results[name] = _rl_rows(
+                _eval(profile, params, cfg.test_seeds, chosen[tier]), cfg.test_seeds)
+            chosen[tier].save(out / f"model_{name}.pt")
+    if reuse_jr:
+        import json
+        prior = json.loads(Path(reuse_jr).read_text(encoding="utf-8"))
+        rows = prior["JOINT_ROLLOUT"]
+        if [r["seed"] for r in rows] != list(cfg.test_seeds):
+            raise ValueError("reuse_jr 의 test seed 가 현재 config 와 불일치")
+        results["JOINT_ROLLOUT"] = rows
+        progress(f"[test] JointRollout — 선행 run 재사용 ({reuse_jr})")
+    else:
+        progress("[test] JointRollout (forbid)")
+        results["JOINT_ROLLOUT"] = _jr_rows(profile, params, cfg.test_seeds, rc)
     _json_dump(out / "checkpoint_curve.json", curve)
     _json_dump(out / "selections.json", selections)
     _json_dump(out / "test_results.json", results)
 
-    paired = {
-        "QMIX_vs_INDEP": _paired(results["INDEP"], results["QMIX"], cfg, 0),
-        "QMIX_vs_JR": _paired(results["JOINT_ROLLOUT"], results["QMIX"], cfg, 1),
-        "INDEP_vs_JR": _paired(results["JOINT_ROLLOUT"], results["INDEP"], cfg, 2),
-    }
+    paired = {}
+    for t, tier in enumerate(tiers):
+        qn, dn = _name("QMIX", tier), _name("INDEP", tier)
+        paired[f"{qn}_vs_{dn}"] = _paired(results[dn], results[qn], cfg, t * 3)
+        paired[f"{qn}_vs_JR"] = _paired(results["JOINT_ROLLOUT"], results[qn],
+                                        cfg, t * 3 + 1)
+        paired[f"{dn}_vs_JR"] = _paired(results["JOINT_ROLLOUT"], results[dn],
+                                        cfg, t * 3 + 2)
     payload = {
         "manifest": {"schema_version": 1, "strategy_id": EXPERIMENT_ID,
                      "mode": "quick" if cfg.quick else "full",
@@ -239,4 +281,17 @@ def _report(payload: dict, out: Path) -> Path:
 
 if __name__ == "__main__":
     import sys
-    run_yr013(cfg=quick_yr013_config() if "--quick" in sys.argv else None)
+    argv = sys.argv[1:]
+    reuse = None
+    if "--reuse-jr" in argv:
+        reuse = argv[argv.index("--reuse-jr") + 1]
+    if "--quick" in argv:
+        cfg = quick_yr013_config()
+    elif "--ladder" in argv:
+        # 예산 사다리 (사용자 지시): 2000ep 1회 학습, tier 별 checkpoint 판정
+        cfg = Yr013Config(train_episodes=2000, budget_ladder=(500, 1000, 2000))
+    else:
+        cfg = None
+    out = ("outputs/reports/yr013_qmix_ladder" if "--ladder" in argv
+           else "outputs/reports/yr013_qmix")
+    run_yr013(out_dir=out, cfg=cfg, reuse_jr=reuse)
