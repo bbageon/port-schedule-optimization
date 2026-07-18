@@ -49,6 +49,11 @@ class LearnerConfig:
     updates_per_decision: int = 1
     cost_scale: float = 1.0            # 학습 표적 정규화 (train baseline fit — test 미접촉)
     device: str = "cpu"                # "cpu" | "cuda" | "auto" (가용 시 cuda — 매핑 §3)
+    # YR-061: 에피소드 종료 시 미완료 job 1건당 학습 표적에 가산하는 페널티
+    # (total_normalized 단위). **학습신호 전용** — 평가 total_cost·ledger·게이트 불변.
+    # 0.0 = off (기존 거동 동일). 근거: 2026-07-18 단일 DQN 11조건 진단 —
+    # 학습신호가 미완료를 과소처벌해 전 조건 SERVE 붕괴.
+    unserved_terminal_cost: float = 0.0
 
     def __post_init__(self) -> None:
         if self.variant not in VARIANTS:
@@ -63,6 +68,8 @@ class LearnerConfig:
             raise ValueError("min_replay <= replay_capacity")
         if self.cost_scale <= 0:
             raise ValueError("cost_scale must be positive")
+        if self.unserved_terminal_cost < 0:
+            raise ValueError("unserved_terminal_cost must be >= 0")
 
 
 @dataclass(frozen=True)
@@ -306,16 +313,21 @@ def run_episode(sim, *, level: InformationLevel, preference,
     if joint_sink is not None:
         joint_sink["times"] = list(times)
         joint_sink["costs"] = list(costs)
+    jobs = list(sim.jobs.values())
+    done = sum(1 for j in jobs if j.status.name == "DONE")
     samples: list[Sample] = []
     if collect and learner is not None:
         scaled = [c / learner.cfg.cost_scale for c in costs]  # 표적 정규화
+        # YR-061: 미완료 잔존 페널티를 종결 구간 비용에 가산 — 각 크레인의 마지막
+        # 표본이 자기 결정시점 기준 할인으로 흡수하고, 부트스트랩 사슬로 역전파된다.
+        # 학습 표적 전용 (joint_sink·평가 total_cost 는 그대로).
+        pen = learner.cfg.unserved_terminal_cost * (len(jobs) - done)
+        if pen > 0.0 and scaled:
+            scaled[-1] += pen / learner.cfg.cost_scale
         samples = stitch_samples(times, scaled, events, learner.cfg.gamma,
                                  learner.cfg.ref_s)
         for s in samples:
             learner.replay.append(s)
-
-    jobs = list(sim.jobs.values())
-    done = sum(1 for j in jobs if j.status.name == "DONE")
     waits = [w / 60.0 for w in sim.kpis.wait_samples_s]
     extras = {
         "action_counts": dict(sorted(action_counts.items())),

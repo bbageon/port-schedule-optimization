@@ -1,0 +1,315 @@
+"""YR-061 — 단일 DQN 보상 재설계: 미완료 잔존 페널티 판정 실험.
+
+배경 (2026-07-18 단일 DQN 11조건 진단, strategy-history 박제): 학습부·정규화·후보부
+어느 knob 으로도 SERVE 붕괴(0.04~0.09)·REPOSITION 퇴화를 못 막았고, 원인은 학습신호
+(총비용)가 미서비스·미완료를 과소처벌하는 것("일 안 해도 낮게")으로 특정됐다.
+
+질문: 학습 표적에만 미완료 잔존 페널티(`LearnerConfig.unserved_terminal_cost`)를 넣으면
+— 평가 지표·게이트·비용 ledger 는 그대로 — 퇴화가 사라지고 SERVE·완료율이 회복되는가.
+
+- arm = 페널티 크기 사다리 (0.0 = control, 기존 거동 재현).
+- checkpoint 선택은 **학습 목적함수와 동일한 penalized val 비용** (control 은 둘이 같음)
+  — "게이밍된 지표로 게이밍된 정책을 뽑는" 순환을 선택 단계에서도 끊는다.
+- 판정 지표는 실제(비페널티) total_cost + 행동분포 건전성(YR-044 계약) + 완료율.
+"""
+from __future__ import annotations
+
+import copy
+import random
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from statistics import fmean
+from typing import Callable
+
+from ..domain.enums import InformationLevel
+from ..integrated import TerminalSimulator, build_integrated_profile, run_joint_episode
+from ..integrated.adapter import capture
+from ..integrated.baselines import (FIFOPreference, ResolverPolicy,
+                                    ServiceFirstSPTPreference)
+from ..integrated.cost_config import RewardCalculator
+from ..integrated.dqn_learner import (CandidateDQNLearner, EpisodeResult,
+                                      LearnerConfig, run_episode)
+from ..integrated.encoding import encode_observation, encoding_dims
+from ..integrated.qnet import QPreference
+from ..integrated.resolver import BaselinePreference
+from ..integrated.scenario_gen import (TerminalGenParams,
+                                       generate_terminal_scenario)
+from .direct_job_runner import _git_state, _json_dump
+from .direct_stats import MetricDirection, MetricSpec, paired_bootstrap
+
+EXPERIMENT_ID = "YR-061-reward-unserved-penalty"
+LEVEL = InformationLevel.PRE_ADVICE
+
+
+@dataclass(frozen=True)
+class Yr061Config:
+    train_episodes: int = 150
+    validation_episodes: int = 8
+    test_episodes: int = 20
+    checkpoint_every: int = 15
+    variant: str = "ddqn"              # 진단 판정: ddqn≈dueling 최선, 기본 유지
+    train_seed0: int = 600_000
+    validation_seed0: int = 610_000
+    test_seed0: int = 620_000
+    n_external: int = 16               # 진단과 동일한 소형 시나리오 (빠른 판정 루프)
+    n_vessels: int = 2
+    lr: float = 1e-3
+    penalties: tuple[float, ...] = (0.0, 2.0, 5.0, 10.0)   # 0.0 = control
+    bootstrap_seed: int = 75_061
+    bootstrap_resamples: int = 10_000
+    quick: bool = False
+
+    # 소각·기사용 대역: 단일야드(<250k)·YR-039(300k대)·YR-045(400k대)·YR-056/013(500k~560k)
+    _USED_RANGES = ((0, 250_000), (300_000, 330_000), (400_000, 430_000),
+                    (500_000, 560_000))
+
+    def __post_init__(self) -> None:
+        bands = [set(self.train_seeds), set(self.validation_seeds), set(self.test_seeds)]
+        if any(a & b for i, a in enumerate(bands) for b in bands[i + 1:]):
+            raise ValueError("seed bands must be disjoint")
+        if any(lo <= s < hi for band in bands for s in band
+               for lo, hi in self._USED_RANGES):
+            raise ValueError("기존 실험 seed 대역 재사용 금지")
+        if not self.penalties or self.penalties[0] != 0.0:
+            raise ValueError("penalties[0] 은 control(0.0) 이어야 함")
+        if list(self.penalties) != sorted(set(self.penalties)):
+            raise ValueError("penalties 는 오름차순 유일값")
+
+    @property
+    def train_seeds(self) -> tuple[int, ...]:
+        return tuple(range(self.train_seed0, self.train_seed0 + self.train_episodes))
+
+    @property
+    def validation_seeds(self) -> tuple[int, ...]:
+        return tuple(range(self.validation_seed0,
+                           self.validation_seed0 + self.validation_episodes))
+
+    @property
+    def test_seeds(self) -> tuple[int, ...]:
+        return tuple(range(self.test_seed0, self.test_seed0 + self.test_episodes))
+
+
+def quick_yr061_config() -> Yr061Config:
+    return Yr061Config(train_episodes=6, validation_episodes=2, test_episodes=3,
+                       checkpoint_every=3, n_external=8, n_vessels=1,
+                       penalties=(0.0, 5.0), bootstrap_resamples=200, quick=True)
+
+
+def _params(cfg: Yr061Config) -> TerminalGenParams:
+    if cfg.quick:
+        return TerminalGenParams(n_external=cfg.n_external, n_vessels=cfg.n_vessels,
+                                 vessel_moves=6, horizon_s=7_200.0,
+                                 drain_window_s=3_600.0)
+    return TerminalGenParams(n_external=cfg.n_external, n_vessels=cfg.n_vessels)
+
+
+def _sim(profile, seed, params) -> TerminalSimulator:
+    return TerminalSimulator(profile, generate_terminal_scenario(profile, seed, params),
+                             check_invariants=True)
+
+
+def _eval(profile, params, seeds, learner) -> list[EpisodeResult]:
+    return [run_episode(_sim(profile, s, params), level=LEVEL,
+                        preference=QPreference(), learner=learner) for s in seeds]
+
+
+def _objective(rows: list[EpisodeResult], penalty: float) -> float:
+    """학습 목적함수와 동형의 선택 기준 — 실제비용 + 페널티×미완료 (control 은 실제비용)."""
+    return fmean(r.total_cost + penalty * r.backlog for r in rows)
+
+
+def _train(arm: str, penalty: float, cost_scale: float, dims, profile, params,
+           cfg: Yr061Config, progress):
+    """공통 학습 루프 — 전 arm 동일 초기화 seed·동일 train seed 열 (paired)."""
+    learner = CandidateDQNLearner(
+        LearnerConfig(variant=cfg.variant, cost_scale=cost_scale, lr=cfg.lr,
+                      unserved_terminal_cost=penalty), dims, seed=61_000)
+    explore = random.Random(61_100)
+    curve: list[dict] = []
+    best: tuple | None = None
+    for ep, seed in enumerate(cfg.train_seeds, start=1):
+        eps = 1.0 / (ep ** 0.5)
+        run_episode(_sim(profile, seed, params), level=LEVEL, preference=QPreference(),
+                    learner=learner, epsilon=eps, explore_rng=explore,
+                    collect=True, learn=True)
+        if ep % cfg.checkpoint_every and ep != cfg.train_episodes:
+            continue
+        snap = copy.deepcopy(learner)
+        snap.replay.clear()
+        rows = _eval(profile, params, cfg.validation_seeds, snap)
+        obj = _objective(rows, penalty)
+        raw_mean = fmean(r.total_cost for r in rows)
+        swa = _swa(rows)
+        curve.append({"arm": arm, "episode": ep, "val_objective": obj,
+                      "val_total_cost": raw_mean, "val_serve_when_available": swa})
+        progress(f"[train:{arm}] ep={ep}/{cfg.train_episodes} "
+                 f"val_obj={obj:.2f} val_cost={raw_mean:.2f} swa={swa:.2f}")
+        if best is None or (obj, ep) < (best[0], best[1]):
+            best = (obj, ep, snap)
+    sel = {"arm": arm, "episode": best[1], "val_objective": best[0]}
+    return curve, sel, best[2]
+
+
+def _swa(rows: list[EpisodeResult]) -> float:
+    avail = sum(r.extras["serve_available"] for r in rows)
+    taken = sum(r.extras["serve_taken"] for r in rows)
+    return taken / avail if avail else 1.0
+
+
+def _rl_rows(results: list[EpisodeResult], seeds) -> list[dict]:
+    rows = []
+    for s, r in zip(seeds, results):
+        total_actions = max(1, sum(r.extras["action_counts"].values()))
+        rows.append({
+            "seed": s, "total_cost": r.total_cost,
+            "completion_rate": r.completion_rate, "backlog": r.backlog,
+            "mean_wait_min": r.mean_wait_min, "p95_wait_min": r.p95_wait_min,
+            "interference": float(r.extras["term_contrib"].get("interference", 0.0)),
+            "action_counts": r.extras["action_counts"],
+            "serve_share": r.extras["action_counts"].get("SERVE", 0) / total_actions,
+            "serve_available": r.extras["serve_available"],
+            "serve_taken": r.extras["serve_taken"],
+        })
+    return rows
+
+
+def _baseline_rows(profile, params, seeds, rc, preference, name) -> list[dict]:
+    rows = []
+    for s in seeds:
+        r = run_joint_episode(_sim(profile, s, params),
+                              ResolverPolicy(preference, name), rc, level=LEVEL)
+        rows.append({"seed": s, "total_cost": r["total_cost"],
+                     "completion_rate": r["completion_rate"], "backlog": r["backlog"],
+                     "mean_wait_min": r["mean_wait_min"],
+                     "p95_wait_min": r["p95_wait_min"],
+                     "interference": float(r["term_contrib"].get("interference", 0.0)),
+                     "action_counts": r["action_mix"]["counts"],
+                     "serve_share": r["action_mix"]["shares"].get("SERVE", 0.0),
+                     "serve_available": r["action_mix"]["serve_available"],
+                     "serve_taken": r["action_mix"]["serve_taken"]})
+    return rows
+
+
+def _paired(base_rows, alt_rows, cfg: Yr061Config, tag: int) -> dict:
+    seeds = [r["seed"] for r in base_rows]
+    out = {}
+    for i, key_ in enumerate(("total_cost", "mean_wait_min", "p95_wait_min")):
+        out[key_] = paired_bootstrap(
+            [float(r[key_]) for r in base_rows], [float(r[key_]) for r in alt_rows],
+            metric=MetricSpec(key_, MetricDirection.MINIMIZE), seeds=seeds,
+            seed=cfg.bootstrap_seed + tag * 10 + i,
+            n_resamples=cfg.bootstrap_resamples).as_dict()
+    return out
+
+
+def _agg(rows: list[dict]) -> dict:
+    avail = sum(r["serve_available"] for r in rows)
+    taken = sum(r["serve_taken"] for r in rows)
+    return {"total_cost": fmean(r["total_cost"] for r in rows),
+            "completion_rate": fmean(r["completion_rate"] for r in rows),
+            "backlog": fmean(r["backlog"] for r in rows),
+            "mean_wait_min": fmean(r["mean_wait_min"] for r in rows),
+            "serve_share": fmean(r["serve_share"] for r in rows),
+            "serve_when_available": taken / avail if avail else 1.0}
+
+
+def run_yr061(out_dir: str = "outputs/reports/yr061_reward",
+              cfg: Yr061Config | None = None,
+              progress: Callable[[str], None] = print) -> Path:
+    cfg = cfg or Yr061Config()
+    started = time.time()
+    git = _git_state()
+    if not cfg.quick and (git["commit"] == "unknown" or git["dirty"]):
+        raise RuntimeError("full YR-061 run requires a clean committed tree")
+    profile = build_integrated_profile()
+    params = _params(cfg)
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    rc = RewardCalculator.assumed_default()
+
+    sim0 = _sim(profile, cfg.train_seeds[0], params)
+    sim0.info_level = LEVEL
+    dp0 = sim0.run_until_decision()
+    state, obs, _g = capture(sim0, dp0.crane_ids, LEVEL, "dims", 0)
+    dims = encoding_dims(encode_observation(state, obs[0]))
+    fit = [run_episode(_sim(profile, s, params), level=LEVEL,
+                       preference=BaselinePreference())
+           for s in cfg.train_seeds[:5]]
+    cost_scale = max(1e-6, fmean(r.total_cost / max(1, r.n_decisions) for r in fit))
+    progress(f"[YR-061] dims={dims} cost_scale={cost_scale:.2f}")
+
+    curve, selections, results = [], {}, {}
+    for penalty in cfg.penalties:
+        arm = f"pen{penalty:g}"
+        acurve, sel, chosen = _train(arm, penalty, cost_scale, dims, profile,
+                                     params, cfg, progress)
+        curve.extend(acurve)
+        selections[arm] = sel
+        progress(f"[test] {arm}")
+        results[arm] = _rl_rows(_eval(profile, params, cfg.test_seeds, chosen),
+                                cfg.test_seeds)
+        chosen.save(out / f"model_{arm}.pt")
+    progress("[test] baselines (SF_SPT·FIFO)")
+    results["SF_SPT"] = _baseline_rows(profile, params, cfg.test_seeds, rc,
+                                       ServiceFirstSPTPreference(), "SF_SPT")
+    results["FIFO"] = _baseline_rows(profile, params, cfg.test_seeds, rc,
+                                     FIFOPreference(), "FIFO")
+    _json_dump(out / "checkpoint_curve.json", curve)
+    _json_dump(out / "selections.json", selections)
+    _json_dump(out / "test_results.json", results)
+
+    control = f"pen{cfg.penalties[0]:g}"
+    paired = {}
+    for t, penalty in enumerate(cfg.penalties[1:], start=1):
+        arm = f"pen{penalty:g}"
+        paired[f"{arm}_vs_{control}"] = _paired(results[control], results[arm], cfg, t * 2)
+        paired[f"{arm}_vs_SF_SPT"] = _paired(results["SF_SPT"], results[arm], cfg,
+                                             t * 2 + 1)
+    payload = {
+        "manifest": {"schema_version": 1, "strategy_id": EXPERIMENT_ID,
+                     "mode": "quick" if cfg.quick else "full",
+                     "created_at_local": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                     "git": git, "config": asdict(cfg), "info_level": LEVEL.value,
+                     "note": "페널티는 학습 표적 전용 — test total_cost 는 실제(비페널티) 비용",
+                     "elapsed_s": time.time() - started},
+        "selections": selections, "paired": paired,
+        "means": {name: _agg(rows) for name, rows in results.items()},
+    }
+    _json_dump(out / "yr061_results.json", payload)
+    report = _report(payload, out)
+    progress(f"[YR-061] 완료 ({payload['manifest']['elapsed_s']:.0f}s) → {report}")
+    return report
+
+
+def _report(payload: dict, out: Path) -> Path:
+    m, p = payload["means"], payload["paired"]
+    lines = ["# YR-061 — 미완료 잔존 페널티 판정 결과", "",
+             "> ⚠ 합성·가정 조건 (주장 게이트 YR-002/009). 페널티는 학습 표적 전용 —",
+             "> 아래 total_cost 는 전 arm 실제(비페널티) 비용. 판정 축: 퇴화 해소 여부",
+             "> (serve_when_available ≥ 0.25 — YR-044 건전성 계약) + 완료율 + 실제비용.", ""]
+    lines.append("| arm | total_cost | 완료율 | backlog | serve_share | serve_when_avail | mean_wait(분) |")
+    lines.append("|---|---|---|---|---|---|---|")
+    for name, v in m.items():
+        lines.append(f"| {name} | {v['total_cost']:.2f} | {v['completion_rate']:.3f} "
+                     f"| {v['backlog']:.1f} | {v['serve_share']:.3f} "
+                     f"| {v['serve_when_available']:.3f} | {v['mean_wait_min']:.2f} |")
+    lines.append("")
+    for tag, d in p.items():
+        tc = d["total_cost"]
+        lines.append(f"- **{tag}**: Δtotal={tc['difference']:+.2f} "
+                     f"[{tc['difference_ci']['lower']:+.2f}, "
+                     f"{tc['difference_ci']['upper']:+.2f}]")
+    lines.append("")
+    lines.append("*원자료: yr061_results.json · test_results.json (seed별)*")
+    path = out / "yr061_report.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+if __name__ == "__main__":
+    import sys
+    cfg = quick_yr061_config() if "--quick" in sys.argv[1:] else None
+    out = ("outputs/reports/yr061_reward_quick" if "--quick" in sys.argv[1:]
+           else "outputs/reports/yr061_reward")
+    run_yr061(out_dir=out, cfg=cfg)
