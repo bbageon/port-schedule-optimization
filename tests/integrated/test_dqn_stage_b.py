@@ -78,11 +78,16 @@ def test_ddqn_target_uses_online_argmin_target_value():
 
 
 def test_driver_untrained_equals_baseline_total_cost():
-    """드라이버 경유 미학습 QPreference ≡ BaselinePreference (총비용·결정수 일치)."""
+    """드라이버 경유 미학습 QPreference ≡ BaselinePreference (총비용·결정수 일치).
+
+    배관 동형성 검증이므로 YR-052 기본값(전략 WAIT 제외)을 중립화한다 — baseline
+    경로에는 flag 가 적용되지 않아 켜두면 비대칭이 생긴다.
+    """
     def run(pref, learner=None):
         sim = TerminalSimulator(PROF, generate_terminal_scenario(PROF, 300_102, PARAMS),
                                 check_invariants=True)
-        return run_episode(sim, level=LEVEL, preference=pref, learner=learner)
+        return run_episode(sim, level=LEVEL, preference=pref, learner=learner,
+                           forbid_strategic_wait=False)
 
     enc = _enc()
     learner = CandidateDQNLearner(LearnerConfig(), encoding_dims(enc), seed=0)

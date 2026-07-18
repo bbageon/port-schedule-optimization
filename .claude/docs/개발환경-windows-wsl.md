@@ -101,6 +101,17 @@ $env:PYTHONPATH="$PWD\src"
 - 이전에 임시로 쓰던 Anaconda base 직행(297 passed·streamlit 구버전 1건 실패)은 폐기 —
   venv 의 신버전 streamlit 으로 UI 테스트까지 통과한다.
 
+## 9. 세 번째 환경 (geonu · `Desktop\port_reinforcement` 클론, 2026-07-18 구성)
+
+§5 의 GeonU 머신과 같은 사용자명이나 **별도 클론·별도 환경**이다 (side-project 클론·`.venv` 없음).
+- **Windows**: `pythoncore-3.14-64` (`C:\Users\geonu\AppData\Local\Python\`) — PATH 미등록이라 전체
+  경로로 호출. 순수 파이썬 스위트(§5 의 8파일 ignore) **297 passed**.
+- **WSL**: `~/.venvs/yard-rl` 을 uv 로 재구성 (Python 3.12 standalone + torch 2.13.0+cpu).
+  전체 스위트 **348 passed / 1 failed** — 실패 1건은 `test_residual_delta_net.py::
+  test_update_regresses_toward_residual_target` (닫힌 단일야드 트랙의 수렴 허용오차 테스트,
+  −2.5±0.15 기대에 −2.22). **변경 전 코드에서도 동일 실패 (stash 왕복 확인) — 회귀 아님**,
+  CPU 부동소수점 경로 차이로 인한 머신 민감성. 후속: YR-058.
+
 ## 7. 이 과정에서 드러난 실제 버그
 
 환경이 막혀 8파일이 몇 달간 미실행이었고, 그 사이 **YR-043이 뒤집은 계약을 옛 테스트가 계속 붙들고

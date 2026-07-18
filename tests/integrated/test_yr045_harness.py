@@ -4,6 +4,10 @@
 seed 310000 대역은 실험에서 폐기됐지만 기제 검증용 테스트에는 사용 가능하다 (소각 대상은
 실험 판정이지 코드 검증이 아님).
 """
+import pytest
+
+torch = pytest.importorskip("torch")  # dqn_learner 경유 — torch 없는 머신은 파일 단위 skip
+
 from yard_rl.contract.schema import CandidateKind
 from yard_rl.domain.enums import InformationLevel
 from yard_rl.integrated import (CandidateGenerator, JointRolloutGreedy, ResolverPolicy,
@@ -93,6 +97,25 @@ def test_forbid_strategic_wait_rl_path_keeps_structural_wait():
             assert key in r.extras
     assert (res[True].extras["action_counts"].get("WAIT", 0)
             <= res[False].extras["action_counts"].get("WAIT", 0))
+
+
+def test_strategic_wait_excluded_by_default_yr052():
+    """YR-052 사용자 결정 (2026-07-18): RL 행동공간에서 전략적 WAIT 는 **기본 제외**.
+
+    기본 호출이 forbid_strategic_wait=True 와 완전히 동일해야 한다 (회귀 가드 —
+    기본값이 조용히 되돌아가면 여기서 잡힌다). 구조적 WAIT 보존은 위 테스트가 담당.
+    """
+    import inspect
+    default = inspect.signature(run_episode).parameters["forbid_strategic_wait"].default
+    assert default is True
+    runs = {}
+    for label, kwargs in (("default", {}), ("explicit", {"forbid_strategic_wait": True})):
+        sim = TerminalSimulator(PROF, generate_terminal_scenario(PROF, SEED),
+                                info_level=PA)
+        runs[label] = run_episode(sim, level=PA, preference=QPreference(), **kwargs)
+    assert runs["default"].total_cost == runs["explicit"].total_cost
+    assert (runs["default"].extras["action_counts"]
+            == runs["explicit"].extras["action_counts"])
 
 
 def test_run_episode_honors_arm_generator():

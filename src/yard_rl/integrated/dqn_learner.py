@@ -204,15 +204,17 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 epsilon: float = 0.0, explore_rng: random.Random | None = None,
                 generator: CandidateGenerator | None = None,
                 collect: bool = False, learn: bool = False,
-                forbid_strategic_wait: bool = False) -> EpisodeResult:
+                forbid_strategic_wait: bool = True) -> EpisodeResult:
     """capture→score→resolve→cost 루프 (record_episode 동형, assemble 생략).
 
     preference 가 QPreference 면 결정마다 learner 점수(+ε 탐험 강제)를 주입.
     collect=True 면 per-crane SMDP 스티칭 표본을 EpisodeResult.samples 로 반환,
     learn=True 면 결정마다 learner.learn_step() 을 updates_per_decision 회 수행.
-    forbid_strategic_wait=True (YR-045/052 ablation): 다른 actionable 후보가 있으면
-    WAIT 의 Q 점수를 +∞ 로 강제해 argmin 에서 제외 — 구조적 WAIT(경합 양보·NO_FEASIBLE)는
-    resolver 가 보존한다. QPreference 경로에만 적용.
+    forbid_strategic_wait — **기본 True (YR-052 사용자 결정 2026-07-18)**: RL 행동공간에서
+    전략적 WAIT 제외. 근거: YR-045 신규 seed 전 정책·전 arm 에서 금지가 같거나 우월
+    (RL −4.0~−15.7), RL 미완주 6건 전부 허용 조건. 다른 actionable 후보가 있으면 WAIT 의
+    Q 점수를 +∞ 로 강제해 argmin 에서 제외 — 구조적 WAIT(경합 양보·NO_FEASIBLE)는
+    resolver 가 항상 보존한다. QPreference 경로에만 적용. False 는 ablation 재현 전용.
     """
     if not 0.0 <= epsilon <= 1.0:
         raise ValueError("epsilon must be in [0, 1]")
