@@ -202,7 +202,7 @@ def run_yr063(out_dir: str = "outputs/reports/yr063_diff",
     chosen.save(out / "model_DIFF.pt")
     if cfg.reuse:
         results.update(_load_reused_rows(base.test_seeds))
-        progress("[test] CONTROL_TD·BC·SF_SPT·FIFO — 기존 판정 행 재사용")
+        progress("[test] CONTROL_TD/BC/SF_SPT/FIFO 기존 판정 행 재사용")
     _json_dump(out / "checkpoint_curve.json", curve)
     _json_dump(out / "selections.json", selections)
     _json_dump(out / "test_results.json", results)
