@@ -4,7 +4,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-059 | RL | 상태 feature scale-only 정규화 + 클리핑 → QMIX 재실행 | 🟠 | 2026-07-18 | [적용전략](../docs/상태정규화-보상가중치-적용전략.md) §4·6-1 기준. **병행 세션(YR-061)과 동시 진행 — 사용자 지시**, 파일 경계: schema/encoding/qmix 하네스 (YR-061은 보상 경로) |
 
 ---
 
