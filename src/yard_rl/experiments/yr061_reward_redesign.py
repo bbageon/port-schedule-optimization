@@ -60,6 +60,9 @@ class Yr061Config:
     # phase-1 실측 — 미완료가 구조적으로 0 이라 페널티 무발동, 퇴화는 '방치'가 아니라
     # '지연'. 용의자 = 할인 근시(γ^(Δt/60): 1h 후 비용 ×0.046 ≈ 소멸) vs 비할인 평가.
     gammas: tuple[float, ...] = ()                          # 첫 값 = control(0.95)
+    # 3차 축 (phase-2 판정 후 등록): SF_SPT 모방 지도학습 — 표현력 vs TD 신호 이분 검정.
+    imitation_epochs: int = 30
+    imitation_checkpoint_every: int = 5
     bootstrap_seed: int = 75_061
     bootstrap_resamples: int = 10_000
     quick: bool = False
@@ -297,6 +300,111 @@ def run_yr061(out_dir: str = "outputs/reports/yr061_reward",
     return report
 
 
+def run_yr061_imitation(out_dir: str = "outputs/reports/yr061_imitation",
+                        cfg: Yr061Config | None = None,
+                        progress: Callable[[str], None] = print) -> Path:
+    """phase 3 (prereg §6) — SF_SPT 모방 이분 검정.
+
+    같은 Q-망·인코딩이 SF_SPT 선택을 지도학습으로 배우면 표현력은 충분(병목=TD 신호),
+    못 배우면 인코딩/후보 feature 결함. −Q 를 logit 으로 cross-entropy → argmin Q = 모방.
+    """
+    import torch
+    from torch import nn
+    cfg = cfg or Yr061Config()
+    started = time.time()
+    git = _git_state()
+    if not cfg.quick and (git["commit"] == "unknown" or git["dirty"]):
+        raise RuntimeError("full YR-061 imitation run requires a clean committed tree")
+    profile = build_integrated_profile()
+    params = _params(cfg)
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    rc = RewardCalculator.assumed_default()
+
+    sim0 = _sim(profile, cfg.train_seeds[0], params)
+    sim0.info_level = LEVEL
+    dp0 = sim0.run_until_decision()
+    state, obs, _g = capture(sim0, dp0.crane_ids, LEVEL, "dims", 0)
+    dims = encoding_dims(encode_observation(state, obs[0]))
+
+    data: list[tuple] = []                     # (enc, pos) — SF_SPT 의 실제 선택
+    for s in cfg.train_seeds:
+        sink: dict = {}
+        run_episode(_sim(profile, s, params), level=LEVEL,
+                    preference=ServiceFirstSPTPreference(), joint_sink=sink)
+        for _k, recs in sink.get("events", []):
+            for _cid, enc, pos in recs:
+                if pos is not None:
+                    data.append((enc, pos))
+    progress(f"[YR-061i] dims={dims} demos={len(data)} "
+             f"({len(cfg.train_seeds)} episodes)")
+
+    learner = CandidateDQNLearner(LearnerConfig(variant=cfg.variant, lr=cfg.lr),
+                                  dims, seed=61_200)
+    rng = random.Random(61_200)
+    idx = list(range(len(data)))
+    curve: list[dict] = []
+    best: tuple | None = None
+    for epoch in range(1, cfg.imitation_epochs + 1):
+        rng.shuffle(idx)
+        losses = []
+        for lo in range(0, len(idx), 128):
+            batch = [data[i] for i in idx[lo:lo + 128]]
+            g, yc, qs, cand, sel = learner._tensors([b[0] for b in batch])
+            logits = (-learner.online(g, yc, qs, cand, sel)).masked_fill(
+                ~sel, float("-inf"))
+            tgt = torch.tensor([b[1] for b in batch], device=learner.device)
+            loss = nn.functional.cross_entropy(logits, tgt)
+            learner.opt.zero_grad()
+            loss.backward()
+            learner.opt.step()
+            losses.append(float(loss.detach()))
+        if epoch % cfg.imitation_checkpoint_every and epoch != cfg.imitation_epochs:
+            continue
+        snap = copy.deepcopy(learner)
+        snap.replay.clear()
+        rows = _eval(profile, params, cfg.validation_seeds, snap)
+        mean = fmean(r.total_cost for r in rows)
+        swa = _swa(rows)
+        curve.append({"arm": "IMITATE", "episode": epoch, "val_total_cost": mean,
+                      "val_serve_when_available": swa, "ce_loss": fmean(losses)})
+        progress(f"[imitate] epoch={epoch}/{cfg.imitation_epochs} "
+                 f"ce={fmean(losses):.3f} val_cost={mean:.2f} swa={swa:.2f}")
+        if best is None or (mean, epoch) < (best[0], best[1]):
+            best = (mean, epoch, snap)
+    selections = {"IMITATE": {"arm": "IMITATE", "episode": best[1],
+                              "val_total_cost": best[0]}}
+    chosen = best[2]
+    progress("[test] IMITATE")
+    results = {"IMITATE": _rl_rows(_eval(profile, params, cfg.test_seeds, chosen),
+                                   cfg.test_seeds)}
+    chosen.save(out / "model_IMITATE.pt")
+    progress("[test] baselines (SF_SPT·FIFO)")
+    results["SF_SPT"] = _baseline_rows(profile, params, cfg.test_seeds, rc,
+                                       ServiceFirstSPTPreference(), "SF_SPT")
+    results["FIFO"] = _baseline_rows(profile, params, cfg.test_seeds, rc,
+                                     FIFOPreference(), "FIFO")
+    _json_dump(out / "checkpoint_curve.json", curve)
+    _json_dump(out / "selections.json", selections)
+    _json_dump(out / "test_results.json", results)
+    paired = {"IMITATE_vs_SF_SPT": _paired(results["SF_SPT"], results["IMITATE"],
+                                           cfg, 2)}
+    payload = {
+        "manifest": {"schema_version": 1, "strategy_id": EXPERIMENT_ID + "-imitation",
+                     "mode": "quick" if cfg.quick else "full",
+                     "created_at_local": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                     "git": git, "config": asdict(cfg), "info_level": LEVEL.value,
+                     "note": "prereg §6 — 모방 이분 검정 (표현력 vs TD 신호)",
+                     "elapsed_s": time.time() - started},
+        "selections": selections, "paired": paired,
+        "means": {name: _agg(rows) for name, rows in results.items()},
+    }
+    _json_dump(out / "yr061_results.json", payload)
+    report = _report(payload, out)
+    progress(f"[YR-061i] 완료 ({payload['manifest']['elapsed_s']:.0f}s) → {report}")
+    return report
+
+
 def _report(payload: dict, out: Path) -> Path:
     m, p = payload["means"], payload["paired"]
     lines = ["# YR-061 — 미완료 잔존 페널티 판정 결과", "",
@@ -325,12 +433,19 @@ def _report(payload: dict, out: Path) -> Path:
 if __name__ == "__main__":
     import sys
     argv = sys.argv[1:]
-    if "--quick" in argv:
-        cfg, out = quick_yr061_config(), "outputs/reports/yr061_reward_quick"
-    elif "--gamma" in argv:
-        # 2차: 할인 근시 검정 — γ 사다리 (ref_s 60 고정, 페널티 0).
-        cfg = Yr061Config(gammas=(0.95, 0.99, 0.999, 1.0))
-        out = "outputs/reports/yr061_gamma"
+    if "--imitate" in argv:
+        # 3차 (prereg §6): SF_SPT 모방 이분 검정 — 표현력 vs TD 신호.
+        cfg = quick_yr061_config() if "--quick" in argv else None
+        out = ("outputs/reports/yr061_imitation_quick" if "--quick" in argv
+               else "outputs/reports/yr061_imitation")
+        run_yr061_imitation(out_dir=out, cfg=cfg)
     else:
-        cfg, out = None, "outputs/reports/yr061_reward"
-    run_yr061(out_dir=out, cfg=cfg)
+        if "--quick" in argv:
+            cfg, out = quick_yr061_config(), "outputs/reports/yr061_reward_quick"
+        elif "--gamma" in argv:
+            # 2차: 할인 근시 검정 — γ 사다리 (ref_s 60 고정, 페널티 0).
+            cfg = Yr061Config(gammas=(0.95, 0.99, 0.999, 1.0))
+            out = "outputs/reports/yr061_gamma"
+        else:
+            cfg, out = None, "outputs/reports/yr061_reward"
+        run_yr061(out_dir=out, cfg=cfg)
