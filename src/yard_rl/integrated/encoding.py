@@ -3,16 +3,42 @@
 FeatureVector 3채널 계약: 그룹별 `x = [value ⊙ known ‖ known]` — 결측은
 value=0·known=0 으로 이미 중화돼 있고, known 지시자를 함께 주어 망이 결측을
 구분하게 한다. 차원은 SCHEMA_VERSION 의 fv.names 길이에서 유도.
+
+YR-059 상태 정규화 (적용전략 §4): StateNorm 을 주면 value/norm_ref 로 나눠 O(1)
+범위로 맞추고 ±clip 에서 자른다 — **scale-only** (중심이동 없음: 결측=0 규약 보존,
+0/ref==0). running 통계 금지(골든 결정성) — 기준값은 스키마 assumed + fitted 동결
+override 뿐이다. 저장 레코드(계약 값)는 불변 — 정규화는 학습 텐서에서만.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from ..contract import CandidateKind, GlobalState, LocalObservation
+from ..contract import SCHEMA, CandidateKind, GlobalState, LocalObservation
 
 
-def fv_to_vec(fv) -> list[float]:
-    vals = [v * (1.0 if k else 0.0) for v, k in zip(fv.value, fv.known)]
+@dataclass(frozen=True)
+class StateNorm:
+    """필드별 동결 정규화 기준 — refs["group.name"] 이 스키마 assumed norm_ref 를 override.
+
+    basis: "assumed"(스키마 초기값만) | "fitted_baseline_p90" 등 — provenance 문서화 의무.
+    """
+
+    refs: dict = field(default_factory=dict)
+    clip: float = 5.0
+    basis: str = "assumed"
+
+    def ref_row(self, group: str) -> tuple[float, ...]:
+        return tuple(float(self.refs.get(f"{group}.{sp.name}", sp.norm_ref))
+                     for sp in SCHEMA.group_specs(group))
+
+
+def fv_to_vec(fv, norm: StateNorm | None = None) -> list[float]:
+    if norm is None:
+        vals = [v * (1.0 if k else 0.0) for v, k in zip(fv.value, fv.known)]
+    else:
+        c = norm.clip
+        vals = [max(-c, min(c, v / r)) * (1.0 if k else 0.0)
+                for v, r, k in zip(fv.value, norm.ref_row(fv.group), fv.known)]
     return vals + [1.0 if k else 0.0 for k in fv.known]
 
 
@@ -38,7 +64,8 @@ class DecisionEncoding:
         return len(self.cand)
 
 
-def encode_observation(state: GlobalState, ob: LocalObservation) -> DecisionEncoding:
+def encode_observation(state: GlobalState, ob: LocalObservation,
+                       norm: StateNorm | None = None) -> DecisionEncoding:
     cs = ob.candidates
     selectable = tuple(bool(p and f) for p, f in zip(cs.pad_mask, cs.feasible_mask))
     if not any(selectable):
@@ -48,10 +75,10 @@ def encode_observation(state: GlobalState, ob: LocalObservation) -> DecisionEnco
                      if s and c.kind == CandidateKind.WAIT), None)
     return DecisionEncoding(
         crane_id=ob.crane_id,
-        g=tuple(fv_to_vec(state.features)),
-        yc=tuple(fv_to_vec(ob.features)),
-        queue=tuple(fv_to_vec(cs.queue_summary)),
-        cand=tuple(tuple(fv_to_vec(c.features)) for c in cs.items),
+        g=tuple(fv_to_vec(state.features, norm)),
+        yc=tuple(fv_to_vec(ob.features, norm)),
+        queue=tuple(fv_to_vec(cs.queue_summary, norm)),
+        cand=tuple(tuple(fv_to_vec(c.features, norm)) for c in cs.items),
         selectable=selectable,
         actionable=actionable,
         candidate_ids=tuple(c.candidate_id for c in cs.items),

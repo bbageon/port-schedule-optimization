@@ -213,7 +213,8 @@ def run_episode(sim, *, level: InformationLevel, preference,
                 collect: bool = False, learn: bool = False,
                 forbid_strategic_wait: bool = True,
                 ablation_off: tuple = (),
-                joint_sink: dict | None = None) -> EpisodeResult:
+                joint_sink: dict | None = None,
+                state_norm=None) -> EpisodeResult:
     """capture→score→resolve→cost 루프 (record_episode 동형, assemble 생략).
 
     preference 가 QPreference 면 결정마다 learner 점수(+ε 탐험 강제)를 주입.
@@ -250,7 +251,9 @@ def run_episode(sim, *, level: InformationLevel, preference,
         # FULL 과 동일해지는 사고를 locked run 원자료 대조로 발견.
         state, obs, gen_by = capture(sim, dp.crane_ids, level, "drive", k,
                                      ablation_off=ablation_off, generator=gen)
-        encs = {ob.crane_id: encode_observation(state, ob) for ob in obs}
+        # state_norm (YR-059): 학습 텐서에만 적용 — 계약 record·resolver 경로 불변.
+        encs = {ob.crane_id: encode_observation(state, ob, norm=state_norm)
+                for ob in obs}
         if isinstance(preference, QPreference):
             scores: dict[tuple[str, int], float] = {}
             for cid, enc in encs.items():

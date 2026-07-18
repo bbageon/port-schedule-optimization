@@ -105,12 +105,13 @@ def _sim(profile, seed, params) -> TerminalSimulator:
                              check_invariants=True)
 
 
-def _eval(profile, params, seeds, learner) -> list:
+def _eval(profile, params, seeds, learner, state_norm=None) -> list:
     return [run_episode(_sim(profile, s, params), level=LEVEL,
-                        preference=QPreference(), learner=learner) for s in seeds]
+                        preference=QPreference(), learner=learner,
+                        state_norm=state_norm) for s in seeds]
 
 
-def _train(arm: str, learner, profile, params, cfg, progress):
+def _train(arm: str, learner, profile, params, cfg, progress, state_norm=None):
     """공통 학습 루프 — QMIX 는 joint replay(absorb_joint), INDEP 는 per-crane collect.
 
     budget_ladder 지원: 한 번 학습하며 tier(≤ep)별 val-best snapshot 을 따로 유지 —
@@ -127,7 +128,8 @@ def _train(arm: str, learner, profile, params, cfg, progress):
         sink: dict | None = {} if is_qmix else None
         run_episode(_sim(profile, seed, params), level=LEVEL, preference=QPreference(),
                     learner=learner, epsilon=eps, explore_rng=explore,
-                    collect=not is_qmix, learn=True, joint_sink=sink)
+                    collect=not is_qmix, learn=True, joint_sink=sink,
+                    state_norm=state_norm)
         if is_qmix:
             learner.absorb_joint(sink)
         if ep % cfg.checkpoint_every and ep != cfg.train_episodes:
@@ -135,7 +137,7 @@ def _train(arm: str, learner, profile, params, cfg, progress):
         snap = copy.deepcopy(learner)
         snap.replay.clear()          # 평가엔 불필요 — tier 다중 보관 메모리 절약
         mean = fmean(r.total_cost for r in
-                     _eval(profile, params, cfg.validation_seeds, snap))
+                     _eval(profile, params, cfg.validation_seeds, snap, state_norm))
         curve.append({"arm": arm, "episode": ep, "val_total_cost": mean,
                       "replay": len(learner.replay)})
         progress(f"[train:{arm}] ep={ep}/{cfg.train_episodes} val_cost={mean:.2f}")
@@ -165,8 +167,10 @@ def _paired(base_rows, alt_rows, cfg, tag: int) -> dict:
 def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
               cfg: Yr013Config | None = None,
               progress: Callable[[str], None] = print,
-              reuse_jr: str | None = None) -> Path:
-    """reuse_jr: 같은 test 대역의 선행 run test_results.json — JR(결정적·비학습) 행 재사용."""
+              reuse_jr: str | None = None,
+              state_norm=None) -> Path:
+    """reuse_jr: 같은 test 대역의 선행 run test_results.json — JR(결정적·비학습) 행 재사용.
+    state_norm (YR-059): 학습·평가 인코딩에 상태 정규화 적용 — JR 은 인코딩 미사용이라 무관."""
     cfg = cfg or Yr013Config()
     started = time.time()
     git = _git_state()
@@ -205,14 +209,16 @@ def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
 
     curve, selections, results = [], {}, {}
     for arm, learner in learners.items():
-        acurve, sels, chosen = _train(arm, learner, profile, params, cfg, progress)
+        acurve, sels, chosen = _train(arm, learner, profile, params, cfg, progress,
+                                      state_norm)
         curve.extend(acurve)
         for tier in tiers:
             name = _name(arm, tier)
             selections[name] = sels[tier]
             progress(f"[test] RL {name}")
             results[name] = _rl_rows(
-                _eval(profile, params, cfg.test_seeds, chosen[tier]), cfg.test_seeds)
+                _eval(profile, params, cfg.test_seeds, chosen[tier], state_norm),
+                cfg.test_seeds)
             chosen[tier].save(out / f"model_{name}.pt")
     if reuse_jr:
         import json
@@ -242,7 +248,10 @@ def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
                      "mode": "quick" if cfg.quick else "full",
                      "created_at_local": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                      "git": git, "config": asdict(cfg), "info_level": LEVEL.value,
-                     "contract": "itc-v3 (COORD on 양 arm — 차이는 학습 구조만)",
+                     "contract": "itc-v4 (COORD on 양 arm — 차이는 학습 구조만)",
+                     "state_norm": (None if state_norm is None else
+                                    {"basis": state_norm.basis, "clip": state_norm.clip,
+                                     "n_refs": len(state_norm.refs)}),
                      "elapsed_s": time.time() - started},
         "selections": selections, "paired": paired,
         "means": {name: {k: fmean(float(r[k]) for r in rows)

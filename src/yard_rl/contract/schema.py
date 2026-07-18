@@ -25,7 +25,10 @@ from enum import Enum
 # 구조 공백을 경량으로 메운다 (yc: neighbor_busy_kind/neighbor_target_bay/
 # neighbor_available_in_s/recent_yield_count, candidate: contention_risk).
 # 신규 AblationGroup.COORD — 끄면 v2 와 동일 정보 (실험 arm 구성용).
-SCHEMA_VERSION = "itc-v3"   # integrated transition contract v3
+# v4 (YR-059): FieldSpec.norm_ref 추가 — 상태 scale-only 정규화의 필드별 assumed 기준값
+# (적용전략 §4). 저장 레코드 **값은 불변**(정규화는 학습 인코딩에서만 적용) — 스키마
+# 구조 변경이므로 규약대로 bump. fitted 기준값은 config 로 override (Provenance 관례).
+SCHEMA_VERSION = "itc-v4"   # integrated transition contract v4
 FLOAT_DECIMALS = 6          # 교차플랫폼 float 정규화 소수자리 (직렬화 idempotent)
 
 
@@ -103,14 +106,26 @@ class FieldSpec:
     assumed_default: float | None = None   # 결측 imputation 값(있으면 assumed=1 로 채움)
     clip_lo: float | None = None
     clip_hi: float | None = None
+    # v4 (YR-059): 상태 scale-only 정규화의 assumed 기준값 (양수) — 인코딩이 value/norm_ref
+    # 로 나눠 O(1) 범위로 맞춘다. 저장 레코드 값·validate 범위와 무관 (학습 인코딩 전용).
+    # baseline-fit 된 값은 StateNorm config 가 override 한다 (비용 scale 관례 동일).
+    norm_ref: float = 1.0
     note: str = ""                  # 설계문서 § 근거
 
 
+# unit 별 assumed norm_ref — 도메인 상식 초기값 (적용전략 §4: fit 전 시작점).
+# M 은 이 계약에서 bay/row 좌표 관례(모듈 내 주석) → 블록 bay_count 규모 40.
+_NORM_BY_UNIT = {Unit.S: 3600.0, Unit.M: 40.0, Unit.COUNT: 10.0,
+                 Unit.RATIO_0_1: 1.0, Unit.BOOL01: 1.0, Unit.NORM: 1.0, Unit.KRW: 1.0}
+
+
 def _s(name, source, tok, unit, group, ablation=AblationGroup.CORE, *,
-       nullable=False, default=None, lo=None, hi=None, note=""):
+       nullable=False, default=None, lo=None, hi=None, norm=None, note=""):
     return FieldSpec(name=name, source=source, tok=tok, unit=unit, group=group,
                      ablation=ablation, nullable=nullable, assumed_default=default,
-                     clip_lo=lo, clip_hi=hi, note=note)
+                     clip_lo=lo, clip_hi=hi,
+                     norm_ref=(norm if norm is not None else _NORM_BY_UNIT[unit]),
+                     note=note)
 
 
 _SRC = FieldSource
@@ -134,7 +149,7 @@ _SPECS: tuple[FieldSpec, ...] = (
     _s("load_imbalance", _SRC.DERIVED, _TOK.ALWAYS, _U.NORM, "global", _AB.MULTI_YC, lo=0.0),
     # ---- yc (§7.1·7.7) ----
     _s("crane_bay", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.M, "yc", lo=0.0),
-    _s("trolley_row", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.M, "yc", lo=0.0),
+    _s("trolley_row", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.M, "yc", lo=0.0, norm=4.0),
     _s("available_in_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "yc", lo=0.0),
     _s("is_loaded", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.BOOL01, "yc", lo=0.0, hi=1.0),
     _s("last_move_dir", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.NORM, "yc", lo=-1.0, hi=1.0),
@@ -254,7 +269,7 @@ def schema_descriptor() -> dict:
             {"group": sp.group, "name": sp.name, "source": sp.source.value,
              "tok": sp.tok.value, "unit": sp.unit.value, "ablation": sp.ablation.value,
              "nullable": sp.nullable, "assumed_default": sp.assumed_default,
-             "clip_lo": sp.clip_lo, "clip_hi": sp.clip_hi}
+             "clip_lo": sp.clip_lo, "clip_hi": sp.clip_hi, "norm_ref": sp.norm_ref}
             for sp in _SPECS
         ],
     }
