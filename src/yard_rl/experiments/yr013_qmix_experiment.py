@@ -174,8 +174,14 @@ def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
     cfg = cfg or Yr013Config()
     started = time.time()
     git = _git_state()
-    if not cfg.quick and (git["commit"] == "unknown" or git["dirty"]):
-        raise RuntimeError("full YR-013 run requires a clean committed tree")
+    # out_dir 밖 변경만 dirty 판정 (YR-045 f928807 관례) — 자기 산출물(state_norm.json 등)·
+    # resume 재호출이 검사를 오탐시키지 않게. 제외 사실은 manifest 에 기록.
+    from .yr045_locked_rerun import _dirty_outside
+    dirty_out, dirty_detail = _dirty_outside(Path(out_dir))
+    git["dirty_outside_outdir"] = dirty_out
+    if not cfg.quick and (git["commit"] == "unknown" or dirty_out):
+        raise RuntimeError("full YR-013 run requires a clean committed tree — "
+                           f"out_dir 밖 변경: {dirty_detail}")
     profile = build_integrated_profile()
     params = _params(cfg)
     out = Path(out_dir)
