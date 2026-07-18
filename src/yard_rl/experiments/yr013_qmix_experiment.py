@@ -46,6 +46,7 @@ class Yr013Config:
     test_seed0: int = 550_000
     n_external: int = 40
     n_vessels: int = 2
+    lr: float = 1e-3          # phase-1(500ep)에서 QMIX 후반 발산 관찰 → ladder 는 3e-4
     bootstrap_seed: int = 75_013
     bootstrap_resamples: int = 10_000
     quick: bool = False
@@ -191,9 +192,10 @@ def run_yr013(out_dir: str = "outputs/reports/yr013_qmix",
 
     learners = {
         "QMIX": QmixLearner(QmixConfig(variant=cfg.variant, n_agents=n_agents,
-                                       cost_scale=cost_scale), dims, seed=13_000),
+                                       cost_scale=cost_scale, lr=cfg.lr),
+                            dims, seed=13_000),
         "INDEP": CandidateDQNLearner(LearnerConfig(variant=cfg.variant,
-                                                   cost_scale=cost_scale),
+                                                   cost_scale=cost_scale, lr=cfg.lr),
                                      dims, seed=13_000),
     }
     tiers = tuple(cfg.budget_ladder) or (cfg.train_episodes,)
@@ -288,8 +290,11 @@ if __name__ == "__main__":
     if "--quick" in argv:
         cfg = quick_yr013_config()
     elif "--ladder" in argv:
-        # 예산 사다리 (사용자 지시): 2000ep 1회 학습, tier 별 checkpoint 판정
-        cfg = Yr013Config(train_episodes=2000, budget_ladder=(500, 1000, 2000))
+        # 예산 사다리 (사용자 지시): 2000ep 1회 학습, tier 별 checkpoint 판정.
+        # lr 3e-4: phase-1 에서 1e-3 QMIX 가 ep150 후 발산(115→155) — 안정화 없인
+        # 사다리가 예산 가설을 검정하지 못함 (양 arm 동일 적용 — 공정성 유지).
+        cfg = Yr013Config(train_episodes=2000, budget_ladder=(500, 1000, 2000),
+                          lr=3e-4)
     else:
         cfg = None
     out = ("outputs/reports/yr013_qmix_ladder" if "--ladder" in argv
