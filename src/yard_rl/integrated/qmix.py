@@ -119,6 +119,135 @@ class MonotonicMixer(nn.Module):
         return (h * w2).sum(dim=-1) + self.v(g).squeeze(-1)
 
 
+@dataclass(frozen=True)
+class DiffQmixConfig:
+    """차분 표적 QMIX (YR-013c prereg §2~3) — 1-step·부트스트랩/target 망 없음."""
+
+    variant: str = "ddqn"             # agent head (dueling 여부만 관여 — TD 분기 없음)
+    n_agents: int = 2
+    lr: float = 1e-3
+    grad_clip: float = 1.0
+    hidden: int = 128
+    mix_embed: int = 32
+    lambda_mix: float = 1.0           # mixer 팀 보정항 가중 (prereg 동결 — knob 탐색 금지)
+    replay_capacity: int = 50_000
+    batch_size: int = 64
+    min_replay: int = 500
+    updates_per_decision: int = 1
+    cost_scale: float = 1.0           # D 는 O(1) — 관례 필드 (fit 불요)
+    device: str = "cpu"
+
+    def __post_init__(self) -> None:
+        if self.variant not in VARIANTS:
+            raise ValueError(f"variant must be one of {VARIANTS}")
+        if self.n_agents < 1 or self.lambda_mix < 0:
+            raise ValueError("n_agents >= 1, lambda_mix >= 0")
+        if min(self.lr, self.grad_clip, self.hidden, self.mix_embed,
+               self.replay_capacity, self.batch_size, self.min_replay,
+               self.updates_per_decision) <= 0:
+            raise ValueError("learner 수치는 전부 양수")
+
+
+@dataclass(frozen=True)
+class JointDiffSample:
+    """결정 1회 — 참여 크레인별 차분 앵커 + 같은 결정의 실제 창 팀비용."""
+
+    encs: tuple[DecisionEncoding, ...]
+    action_pos: tuple[int, ...]
+    d_targets: tuple[float, ...]      # D_i (YR-063 정의, WAIT=0 앵커)
+    team_cost: float                  # C_W_team (actual rollout — D 계산의 부산물)
+
+
+class DiffQmixLearner:
+    """L = Σ_i huber(Q_i, D_i) + λ·huber(Mixer(Q, g), C_W_team) — 기울기 양항 모두
+    agent 망까지. 실행은 agent Q 만 (scores_for) — mixer 는 학습 전용 (CTDE)."""
+
+    def __init__(self, cfg: DiffQmixConfig, dims: tuple[int, int, int, int],
+                 seed: int = 0):
+        self.cfg = cfg
+        self.dims = dims
+        torch.manual_seed(seed)
+        torch.set_num_threads(1)
+        self.rng = random.Random(seed)
+        self.device = torch.device(
+            "cuda" if (cfg.device == "auto" and torch.cuda.is_available())
+            else ("cpu" if cfg.device == "auto" else cfg.device))
+        qcfg = QNetConfig(hidden=cfg.hidden, dueling=(cfg.variant == "dueling"))
+        self.agent = CandidateQNet(dims, qcfg).to(self.device)
+        g_dim = dims[0] + cfg.n_agents
+        self.mixer = MonotonicMixer(cfg.n_agents, g_dim, cfg.mix_embed).to(self.device)
+        self.opt = torch.optim.Adam(
+            list(self.agent.parameters()) + list(self.mixer.parameters()), lr=cfg.lr)
+        self.replay: deque[JointDiffSample] = deque(maxlen=cfg.replay_capacity)
+        self.grad_steps = 0
+
+    def scores_for(self, enc: DecisionEncoding) -> dict[int, float]:
+        return score_decision(self.agent, enc, device=self.device)
+
+    def learn_step(self) -> float | None:
+        if len(self.replay) < self.cfg.min_replay:
+            return None
+        batch = self.rng.sample(list(self.replay),
+                                min(self.cfg.batch_size, len(self.replay)))
+        n = self.cfg.n_agents
+        flat_encs, flat_pos, flat_d, index = [], [], [], []
+        for b, s in enumerate(batch):
+            for slot, (enc, pos, d) in enumerate(zip(s.encs, s.action_pos,
+                                                     s.d_targets)):
+                if slot >= n:
+                    break
+                flat_encs.append(enc)
+                flat_pos.append(pos)
+                flat_d.append(d)
+                index.append((b, slot))
+        g, yc, qs, cand, sel = _enc_tensors(flat_encs, self.device)
+        q_flat = self.agent(g, yc, qs, cand, sel).gather(
+            1, torch.tensor([[p] for p in flat_pos], device=self.device)).squeeze(1)
+        d_t = torch.tensor(flat_d, dtype=torch.float32, device=self.device)
+        loss_anchor = nn.functional.smooth_l1_loss(q_flat, d_t)
+        # mixer 팀 보정항
+        pres = torch.zeros(len(batch), n, device=self.device)
+        q_mat = torch.zeros(len(batch), n, device=self.device)
+        for (b, slot), qv in zip(index, q_flat):
+            pres[b, slot] = 1.0
+            q_mat[b, slot] = qv
+        g_mix = torch.cat([torch.tensor([list(s.encs[0].g) for s in batch],
+                                        dtype=torch.float32, device=self.device),
+                           pres], dim=1)
+        q_tot = self.mixer(q_mat, pres, g_mix)
+        team = torch.tensor([s.team_cost for s in batch], dtype=torch.float32,
+                            device=self.device)
+        loss = loss_anchor + self.cfg.lambda_mix * nn.functional.smooth_l1_loss(
+            q_tot, team)
+        self.opt.zero_grad()
+        loss.backward()
+        nn.utils.clip_grad_norm_(list(self.agent.parameters())
+                                 + list(self.mixer.parameters()), self.cfg.grad_clip)
+        self.opt.step()
+        self.grad_steps += 1
+        return float(loss.detach())
+
+    def save(self, path) -> None:
+        cpu = lambda sd: {k: v.cpu() for k, v in sd.items()}  # noqa: E731
+        torch.save({"format": "yard-rl-diff-qmix-v1", "dims": self.dims,
+                    "config": self.cfg.__dict__, "grad_steps": self.grad_steps,
+                    "agent": cpu(self.agent.state_dict()),
+                    "mixer": cpu(self.mixer.state_dict()),
+                    "optimizer": self.opt.state_dict()}, str(path))
+
+    @classmethod
+    def load(cls, path) -> "DiffQmixLearner":
+        payload = torch.load(str(path), map_location="cpu", weights_only=False)
+        if payload.get("format") != "yard-rl-diff-qmix-v1":
+            raise ValueError("unsupported diff-qmix format")
+        learner = cls(DiffQmixConfig(**payload["config"]), tuple(payload["dims"]))
+        learner.agent.load_state_dict(payload["agent"])
+        learner.mixer.load_state_dict(payload["mixer"])
+        learner.opt.load_state_dict(payload["optimizer"])
+        learner.grad_steps = int(payload["grad_steps"])
+        return learner
+
+
 def _enc_tensors(encs: list[DecisionEncoding], device):
     f32 = torch.float32
     return (torch.tensor([list(e.g) for e in encs], dtype=f32, device=device),
