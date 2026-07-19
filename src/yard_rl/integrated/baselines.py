@@ -144,8 +144,12 @@ def _apply(sim, assign) -> None:
 
 
 def _rollout_cost(sim, assign, rc, *, horizon_s: float = 0.0, base_policy=None,
-                  generator=None) -> tuple[float, object]:
+                  generator=None, term_sink: dict | None = None) -> tuple[float, object]:
     """joint 행동의 평가비용 — deepcopy 후 **실제 엔진**으로 진행 (정확).
+
+    term_sink 가 주어지면 창 누적 **항별 기여**(CostBreakdown.contributions)를 그
+    dict 에 합산한다 — 계층목적(YR-071 objectives.hierarchy_key) 평가용. None(기본)
+    이면 기존 경로와 바이트 동일.
 
     horizon_s=0 : 다음 결정까지의 구간비용 = 문자 그대로의 "즉시비용".
       ⚠ 이 기준은 **짧은 행동을 체계적으로 우대**한다 — 구간이 짧으면 대기·혼잡 rate 비용이
@@ -166,8 +170,12 @@ def _rollout_cost(sim, assign, rc, *, horizon_s: float = 0.0, base_policy=None,
     while True:
         dp = scratch.run_until_decision()
         raw = scratch.cost.cut()
-        total += rc.cost_for(interval_start_s=tk, interval_end_s=scratch.now,
-                             raw=raw, risk_max=risk).total_normalized
+        cb = rc.cost_for(interval_start_s=tk, interval_end_s=scratch.now,
+                         raw=raw, risk_max=risk)
+        total += cb.total_normalized
+        if term_sink is not None:
+            for k, v in cb.contributions().items():
+                term_sink[k] = term_sink.get(k, 0.0) + v
         tk = scratch.now
         if dp is None or horizon_s <= 0.0 or scratch.now - t0 >= horizon_s:
             break
@@ -195,12 +203,16 @@ class JointRolloutGreedy:
 
     def __init__(self, reward_calc, *, horizon_s: float = 600.0, base_policy=None,
                  max_combos: int = 64, generator=None,
-                 forbid_strategic_wait: bool = False):
+                 forbid_strategic_wait: bool = False, objective=None):
         self.rc = reward_calc
         self.horizon_s = horizon_s
         self.base_policy = base_policy or ResolverPolicy(ServiceFirstSPTPreference(), "BASE")
         self.max_combos = max_combos
         self.generator = generator
+        # YR-071: 조합 비교 key 교체 훅 — None(기본)이면 기존 scalar 누적비용 argmin
+        # 바이트 동일. callable 이면 창 누적 항별 기여 dict → comparable (예:
+        # objectives.hierarchy_key 사전식 tuple). 창·base_policy·후보·resolver 는 불변.
+        self.objective = objective
         # YR-045/052 ablation arm: 실작업(전원 비-WAIT) 조합이 공동 실행가능하면 WAIT 포함
         # 조합을 argmin 후보에서 제외. 구조적 WAIT(경합 양보·NO_FEASIBLE)은 아래 fallback 과
         # "실작업 조합 부재 시 전체 유지"로 보존 — 강제 WAIT 는 계약상 어느 arm 에서도 필수.
@@ -223,10 +235,13 @@ class JointRolloutGreedy:
             assign = dict(zip(dp.crane_ids, combo))
             if not _feasible_joint(sim, assign):
                 continue
+            sink = None if self.objective is None else {}
             cost, _ = _rollout_cost(sim, assign, self.rc, horizon_s=self.horizon_s,
-                                    base_policy=self.base_policy, generator=self.generator)
-            # 완전순서 tie-break (결정론): 비용 → 후보 id 조합
-            key = (round(cost, 9), tuple((c, assign[c].candidate_id) for c in dp.crane_ids))
+                                    base_policy=self.base_policy, generator=self.generator,
+                                    term_sink=sink)
+            score = round(cost, 9) if self.objective is None else self.objective(sink)
+            # 완전순서 tie-break (결정론): 점수(scalar 또는 계층 tuple) → 후보 id 조합
+            key = (score, tuple((c, assign[c].candidate_id) for c in dp.crane_ids))
             if best_key is None or key < best_key:
                 best, best_key = assign, key
         return best or {c: _wait_of(gen_by[c]) for c in dp.crane_ids}
