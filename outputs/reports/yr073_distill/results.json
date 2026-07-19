@@ -1,0 +1,182 @@
+{
+  "prereg": "2026-07-19-YR-073-순위증류-prereg.md",
+  "horizon_s": 1800.0,
+  "final": "STUDENT_R0",
+  "val": {
+    "v0": 2.7315,
+    "v1": 2.9434
+  },
+  "train_meta": {
+    "n_r0": 7141,
+    "n_r1": 7058,
+    "disagree_share_r0": 0.3242,
+    "agreement": {
+      "v0": {
+        "top1_all": 0.581,
+        "top1_disagree": 0.1629,
+        "n_disagree": 2315
+      },
+      "v1": {
+        "top1_all": 0.4266,
+        "top1_disagree": 0.29,
+        "n_disagree": 7417
+      }
+    },
+    "best": {
+      "v0": "ep10",
+      "v1": "ep5"
+    }
+  },
+  "determinism_ok": true,
+  "levels": {
+    "mid": {
+      "arms": {
+        "SF_SPT": {
+          "mean_wait": 3.412,
+          "p95_wait": 17.5524,
+          "total_cost_OLD": 134.2035,
+          "swa": 0.6767,
+          "serve_share": 0.4845,
+          "repo_share": 0.3346,
+          "wall_s": 0.1915,
+          "healthy_all": true,
+          "completion_all1": true,
+          "backlog_all0": true
+        },
+        "JR_NEW_1800": {
+          "mean_wait": 1.1417,
+          "p95_wait": 5.9635,
+          "total_cost_OLD": 123.951,
+          "swa": 0.5907,
+          "serve_share": 0.4402,
+          "repo_share": 0.2994,
+          "wall_s": 39.1635,
+          "healthy_all": true,
+          "completion_all1": true,
+          "backlog_all0": true
+        },
+        "STUDENT_R0": {
+          "mean_wait": 2.1161,
+          "p95_wait": 8.6848,
+          "total_cost_OLD": 170.1465,
+          "swa": 0.2788,
+          "serve_share": 0.2323,
+          "repo_share": 0.5645,
+          "wall_s": 2.562,
+          "healthy_all": false,
+          "completion_all1": false,
+          "backlog_all0": false
+        },
+        "STUDENT_R1": {
+          "mean_wait": 1.907,
+          "p95_wait": 7.6806,
+          "total_cost_OLD": 147.248,
+          "swa": 0.405,
+          "serve_share": 0.3386,
+          "repo_share": 0.3219,
+          "wall_s": 0.735,
+          "healthy_all": false,
+          "completion_all1": true,
+          "backlog_all0": true
+        }
+      },
+      "d_wait_vs_SF": {
+        "mean": -1.2958,
+        "lo": -1.7217,
+        "hi": -0.8674,
+        "n": 20
+      },
+      "d_p95_vs_SF": {
+        "mean": -8.8676,
+        "lo": -11.5884,
+        "hi": -6.2312,
+        "n": 20
+      },
+      "d_wait_vs_teacher": {
+        "mean": 0.9745,
+        "lo": 0.6242,
+        "hi": 1.3823,
+        "n": 20
+      },
+      "g1_pass": true,
+      "g2_capture": 0.571,
+      "g3_wall_ratio": 0.065,
+      "guard_all": false
+    },
+    "high": {
+      "arms": {
+        "SF_SPT": {
+          "mean_wait": 7.4141,
+          "p95_wait": 29.8297,
+          "total_cost_OLD": 195.1105,
+          "swa": 0.789,
+          "serve_share": 0.5977,
+          "repo_share": 0.2636,
+          "wall_s": 0.285,
+          "healthy_all": true,
+          "completion_all1": true,
+          "backlog_all0": true
+        },
+        "JR_NEW_1800": {
+          "mean_wait": 3.6316,
+          "p95_wait": 18.284,
+          "total_cost_OLD": 169.4475,
+          "swa": 0.6786,
+          "serve_share": 0.5339,
+          "repo_share": 0.2307,
+          "wall_s": 55.592,
+          "healthy_all": true,
+          "completion_all1": true,
+          "backlog_all0": true
+        },
+        "STUDENT_R0": {
+          "mean_wait": 5.1708,
+          "p95_wait": 28.0814,
+          "total_cost_OLD": 224.8805,
+          "swa": 0.2918,
+          "serve_share": 0.261,
+          "repo_share": 0.5486,
+          "wall_s": 2.2935,
+          "healthy_all": false,
+          "completion_all1": false,
+          "backlog_all0": false
+        },
+        "STUDENT_R1": {
+          "mean_wait": 4.863,
+          "p95_wait": 20.9249,
+          "total_cost_OLD": 201.307,
+          "swa": 0.4383,
+          "serve_share": 0.3785,
+          "repo_share": 0.3021,
+          "wall_s": 1.1765,
+          "healthy_all": false,
+          "completion_all1": true,
+          "backlog_all0": true
+        }
+      },
+      "d_wait_vs_SF": {
+        "mean": -2.2433,
+        "lo": -3.0247,
+        "hi": -1.4443,
+        "n": 20
+      },
+      "d_p95_vs_SF": {
+        "mean": -1.7482,
+        "lo": -7.7058,
+        "hi": 4.7161,
+        "n": 20
+      },
+      "d_wait_vs_teacher": {
+        "mean": 1.5392,
+        "lo": 0.927,
+        "hi": 2.3035,
+        "n": 20
+      },
+      "g1_pass": true,
+      "g2_capture": 0.593,
+      "g3_wall_ratio": 0.041,
+      "guard_all": false
+    }
+  },
+  "G1_PASS": false
+}
