@@ -1,0 +1,173 @@
+{
+  "seeds": [
+    330000,
+    330001,
+    330002,
+    330003,
+    330004,
+    330005,
+    330006,
+    330007
+  ],
+  "priority": {
+    "truck_wait": 100.0,
+    "long_wait": 100.0,
+    "vessel_delay": 5.0,
+    "depart_delay": 5.0,
+    "sts_wait": 3.0,
+    "transfer_wait": 3.0,
+    "rehandle": 1.0,
+    "crane_travel": 1.0,
+    "empty_travel": 1.0,
+    "resequence": 1.0,
+    "imbalance": 0.5,
+    "interference": 0.1,
+    "lane_cong": 0.1
+  },
+  "loads": {
+    "MODERATE": {
+      "OLD": {
+        "res": {
+          "SF_SPT": {
+            "total": 66.68,
+            "swa": 0.55,
+            "mean_wait": 0.37,
+            "p95_wait": 1.54
+          },
+          "FIFO": {
+            "total": 76.17,
+            "swa": 0.541,
+            "mean_wait": 0.28,
+            "p95_wait": 2.05
+          },
+          "JR_600": {
+            "total": 61.71,
+            "swa": 0.468,
+            "mean_wait": 0.44,
+            "p95_wait": 2.42
+          },
+          "BEAM_w3": {
+            "total": 61.63,
+            "swa": 0.473,
+            "mean_wait": 0.49,
+            "p95_wait": 2.58
+          }
+        },
+        "winner": "BEAM_w3",
+        "healthiest": "SF_SPT",
+        "gaming_closed": false
+      },
+      "NEW": {
+        "res": {
+          "SF_SPT": {
+            "total": 90.43,
+            "swa": 0.55,
+            "mean_wait": 0.37,
+            "p95_wait": 1.54
+          },
+          "FIFO": {
+            "total": 73.2,
+            "swa": 0.541,
+            "mean_wait": 0.28,
+            "p95_wait": 2.05
+          },
+          "JR_600": {
+            "total": 24.63,
+            "swa": 0.513,
+            "mean_wait": 0.06,
+            "p95_wait": 0.21
+          },
+          "BEAM_w3": {
+            "total": 26.64,
+            "swa": 0.526,
+            "mean_wait": 0.07,
+            "p95_wait": 0.43
+          }
+        },
+        "winner": "JR_600",
+        "healthiest": "SF_SPT",
+        "gaming_closed": false
+      },
+      "NEW_ceiling": {
+        "BEAM_wide": {
+          "total": 17.57,
+          "swa": 0.524,
+          "mean_wait": 0.03,
+          "p95_wait": 0.04
+        },
+        "SF_SPT": {
+          "total": 59.46,
+          "swa": 0.54,
+          "mean_wait": 0.23,
+          "p95_wait": 1.06
+        },
+        "headroom": -41.89
+      }
+    },
+    "HIGHLOAD": {
+      "OLD": {
+        "res": {
+          "SF_SPT": {
+            "total": 121.49,
+            "swa": 0.587,
+            "mean_wait": 0.83,
+            "p95_wait": 4.44
+          },
+          "FIFO": {
+            "total": 137.65,
+            "swa": 0.574,
+            "mean_wait": 1.11,
+            "p95_wait": 4.5
+          },
+          "JR_600": {
+            "total": 112.24,
+            "swa": 0.518,
+            "mean_wait": 1.33,
+            "p95_wait": 6.63
+          },
+          "BEAM_w3": {
+            "total": 111.29,
+            "swa": 0.534,
+            "mean_wait": 1.27,
+            "p95_wait": 6.01
+          }
+        },
+        "winner": "BEAM_w3",
+        "healthiest": "SF_SPT",
+        "gaming_closed": false
+      },
+      "NEW": {
+        "res": {
+          "SF_SPT": {
+            "total": 448.64,
+            "swa": 0.587,
+            "mean_wait": 0.83,
+            "p95_wait": 4.44
+          },
+          "FIFO": {
+            "total": 585.69,
+            "swa": 0.574,
+            "mean_wait": 1.11,
+            "p95_wait": 4.5
+          },
+          "JR_600": {
+            "total": 219.46,
+            "swa": 0.559,
+            "mean_wait": 0.38,
+            "p95_wait": 2.32
+          },
+          "BEAM_w3": {
+            "total": 204.98,
+            "swa": 0.564,
+            "mean_wait": 0.36,
+            "p95_wait": 2.28
+          }
+        },
+        "winner": "BEAM_w3",
+        "healthiest": "SF_SPT",
+        "gaming_closed": false
+      }
+    }
+  },
+  "elapsed_s": 149.6
+}
