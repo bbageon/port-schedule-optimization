@@ -43,6 +43,19 @@ def build_dgt_approx_profile(single_yaml: str | Path = DGT_SINGLE_YAML
     )
 
 
+def build_calibrated_profile() -> IntegratedProfile:
+    """문헌 보정 v2 — "신항 표준 ARMG 블록" (YR-002 재기준화, D5·D1 사용자 확정).
+
+    협약 트랙 폐기 후 공식 기준 프로파일. HJNC·DGT 공개 스펙 종합(두 yaml 은
+    공개정보 수준에서 수치 동일 — YR-022 수렴)이며 특정사 실측 주장이 아니다.
+    내용 = dgt_armg.yaml 조립(ARMG 문헌 속도·10열 6단·SLA 앵커·gate 210s)에
+    중립 terminal_id 만 부여. 근거: strategy-history/2026-07-19-YR-002-D1-D5.
+    기존 진단 프로파일(fixtures.build_integrated_profile)은 동결 유지 — 본 빌더는
+    opt-in 이다. 부하 현실화는 scenario_gen.calibrated_load_params 가 담당.
+    """
+    return replace(build_dgt_approx_profile(), terminal_id="SNP-ARMG-STD")
+
+
 def build_hjnc_approx_profile(single_yaml: str | Path = HJNC_SINGLE_YAML
                               ) -> IntegratedProfile:
     """HJNC 근사 통합 프로파일 — 전 항목 assumed.

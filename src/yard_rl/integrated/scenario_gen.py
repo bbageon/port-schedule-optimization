@@ -39,6 +39,14 @@ class TerminalGenParams:
     # YR-048: 제공 ETA 오차 — 단일야드 관행(io/scenario_gen §18.2 EMPIRICAL)과 동일하게
     # eta = 실제도착 ± uniform(eta_error_s). 0 이면 PERFECT. 품질 매트릭스는 YR-019.
     eta_error_s: float = 300.0
+    # YR-002 재기준화 (D5): 도착 피크 — 0.0 이면 기존 stratified-uniform 과 바이트 동일.
+    # amp>0 이면 [center−width/2, center+width/2]·horizon 창의 도착률이 (1+amp)배.
+    # 형태 근거는 문헌(부산신항 반출입 주간 피크·8h 주기 — 결정자료 §5-6), 강도는 assumed.
+    arrival_peak_amp: float = 0.0
+    arrival_peak_center_frac: float = 0.5
+    arrival_peak_width_frac: float = 0.25
+    # 게이트→블록 순주행 μ (기존 하드코딩 600s 를 파라미터화 — 기본값 동일, 문헌은 210s 대)
+    gate_travel_mu_s: float = 600.0
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -51,6 +59,13 @@ class TerminalGenParams:
             raise ValueError("sigma_frac 은 [0,0.5)")
         if self.eta_error_s < 0:
             raise ValueError("eta_error_s 는 0 이상")
+        if self.arrival_peak_amp < 0:
+            raise ValueError("arrival_peak_amp 는 0 이상")
+        if not (0.0 <= self.arrival_peak_center_frac <= 1.0
+                and 0.0 < self.arrival_peak_width_frac <= 1.0):
+            raise ValueError("peak center∈[0,1]·width∈(0,1] 위반")
+        if self.gate_travel_mu_s <= 0:
+            raise ValueError("gate_travel_mu_s 는 양수")
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -69,6 +84,44 @@ def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
         if lo <= x <= hi:
             return x
     return min(hi, max(lo, mu))              # fallback: μ clamp
+
+
+def _peak_warp(u: float, amp: float, center: float, width: float) -> float:
+    """stratified-uniform 분위 u∈[0,1] 를 피크 밀도의 역CDF 로 사상 (YR-002 D5).
+
+    도착률 = 창 밖 1, 창 안 (1+amp) 인 구간상수 밀도. amp=0 이면 항등(u 그대로)
+    — 추가 난수 소비 없음 → 기존 seed 시나리오 바이트 동일 보존이 계약이다.
+    """
+    if amp <= 0.0:
+        return u
+    a = max(0.0, center - width / 2.0)
+    b = min(1.0, center + width / 2.0)
+    w = b - a
+    total = 1.0 + amp * w                      # 정규화 전 총질량
+    m = u * total
+    if m < a:
+        return m
+    if m < a + (1.0 + amp) * w:
+        return a + (m - a) / (1.0 + amp)
+    return b + (m - a - (1.0 + amp) * w)
+
+
+def calibrated_load_params(level: str = "mid", **overrides) -> TerminalGenParams:
+    """문헌 보정 부하 프리셋 (YR-002 재기준화 — 결정자료 §5-6·§5-8).
+
+    문헌: 외부트럭 4~10대/h/크레인 × 크레인 2기 × 도착창 4h →
+    현행 40대(=5/h/크레인)는 하한권. mid=7/h/크레인(56대)·high=상한 10(80대)·
+    current=기존 40 대조용. 피크 창(중앙 1h, 2배)·게이트 순주행 210s(문헌 §5-7,
+    프로파일 yaml 과 정합) 동반. 강도·창폭은 assumed (형태만 문헌).
+    """
+    n_ext = {"current": 40, "mid": 56, "high": 80}
+    if level not in n_ext:
+        raise ValueError(f"level 은 {sorted(n_ext)} 중 하나: {level!r}")
+    base = dict(n_external=n_ext[level], arrival_peak_amp=1.0,
+                arrival_peak_center_frac=0.5, arrival_peak_width_frac=0.25,
+                gate_travel_mu_s=210.0)
+    base.update(overrides)
+    return TerminalGenParams(**base)
 
 
 def _place_containers(rng: random.Random, profile: IntegratedProfile,
@@ -129,9 +182,15 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     # 시나리오 구조가 이전과 바이트 동일하게 유지되고, 변화가 정확히 "ETA 추가"로 한정된다.
     eta_rng = random.Random(f"eta:{seed}")
     for i in range(params.n_external):
+        # 기존 수식 보존 (부동소수점 결합 순서까지 — 골든 계약). 피크는 opt-in 후처리.
         arrival = params.horizon_s * (i + rng.random()) / params.n_external
-        # ETA 오차 축 (YR-043): 게이트→블록 소요를 μ=600s 평균조건 가우시안으로
-        gate_travel = trunc_normal(rng, 600.0, params.sigma_frac or 0.12, lo=60.0)
+        if params.arrival_peak_amp > 0.0:
+            arrival = params.horizon_s * _peak_warp(
+                arrival / params.horizon_s, params.arrival_peak_amp,
+                params.arrival_peak_center_frac, params.arrival_peak_width_frac)
+        # 게이트→블록 소요 μ (기본 600s — YR-043 평균조건 가우시안, YR-002 D5 파라미터화)
+        gate_travel = trunc_normal(rng, params.gate_travel_mu_s,
+                                   params.sigma_frac or 0.12, lo=60.0)
         gate_in = max(0.0, arrival - gate_travel)
         eta = max(0.0, arrival + eta_rng.uniform(-params.eta_error_s, params.eta_error_s))
         if rng.random() < params.gate_out_share and free_targets:
@@ -182,12 +241,19 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                 priority_class=1))
 
     jobs.sort(key=lambda j: j.job_id)
+    # eta_error_s 박제 — YR-019 품질축 arm 정체성 (리뷰 반영). 부하 현실화(YR-002 D5)
+    # 필드는 비기본일 때만 추가 — 기본 시나리오 meta 는 기존과 완전 동일 유지.
+    meta: dict = {"generator": "terminal-gen-v1", "assumed": True,
+                  "eta_error_s": params.eta_error_s}
+    if params.arrival_peak_amp > 0.0:
+        meta["arrival_peak"] = (params.arrival_peak_amp,
+                                params.arrival_peak_center_frac,
+                                params.arrival_peak_width_frac)
+    if params.gate_travel_mu_s != 600.0:
+        meta["gate_travel_mu_s"] = params.gate_travel_mu_s
     return TerminalScenario(
         scenario_id=f"gen-t{params.n_external}v{params.n_vessels}-s{seed}",
         seed=seed, horizon_s=params.horizon_s,
         drain_window_s=params.drain_window_s,
         containers=containers, jobs=jobs, vessels=vessels,
-        injected_events=[],
-        # eta_error_s 를 박제 — YR-019 품질축 실험에서 arm 간 시나리오 정체성 구분 (리뷰 반영)
-        meta={"generator": "terminal-gen-v1", "assumed": True,
-              "eta_error_s": params.eta_error_s})
+        injected_events=[], meta=meta)
