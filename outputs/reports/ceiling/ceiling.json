@@ -1,0 +1,146 @@
+{
+  "setup": {
+    "n_external": 20,
+    "seeds_cheap": [
+      330000,
+      330001,
+      330002,
+      330003,
+      330004,
+      330005,
+      330006,
+      330007,
+      330008,
+      330009
+    ],
+    "seeds_wide": [
+      330000,
+      330001,
+      330002,
+      330003
+    ],
+    "rc": "assumed_default"
+  },
+  "families": {
+    "NOISY_eta300": {
+      "SF_SPT": {
+        "n": 10,
+        "total_cost": 65.95,
+        "completion": 1.0,
+        "mean_wait": 0.34,
+        "p95_wait": 1.77,
+        "swa": 0.549,
+        "vessel_delay": 0.0
+      },
+      "FIFO": {
+        "n": 10,
+        "total_cost": 75.58,
+        "completion": 1.0,
+        "mean_wait": 0.31,
+        "p95_wait": 2.33,
+        "swa": 0.54,
+        "vessel_delay": 0.0
+      },
+      "JR_600": {
+        "n": 10,
+        "total_cost": 61.27,
+        "completion": 1.0,
+        "mean_wait": 0.42,
+        "p95_wait": 2.59,
+        "swa": 0.467,
+        "vessel_delay": 0.0
+      },
+      "BEAM_w3_600": {
+        "n": 10,
+        "total_cost": 61.2,
+        "completion": 1.0,
+        "mean_wait": 0.45,
+        "p95_wait": 2.52,
+        "swa": 0.475,
+        "vessel_delay": 0.0
+      },
+      "BEAM_wide_w6_900": {
+        "n": 4,
+        "total_cost": 64.97,
+        "completion": 1.0,
+        "mean_wait": 0.2,
+        "p95_wait": 1.25,
+        "swa": 0.513,
+        "vessel_delay": 0.0
+      },
+      "SF_SPT_wideSeeds": {
+        "n": 4,
+        "total_cost": 69.26,
+        "completion": 1.0,
+        "mean_wait": 0.2,
+        "p95_wait": 0.9,
+        "swa": 0.544,
+        "vessel_delay": 0.0
+      }
+    },
+    "PERFECT_eta0": {
+      "SF_SPT": {
+        "n": 10,
+        "total_cost": 65.95,
+        "completion": 1.0,
+        "mean_wait": 0.34,
+        "p95_wait": 1.77,
+        "swa": 0.549,
+        "vessel_delay": 0.0
+      },
+      "FIFO": {
+        "n": 10,
+        "total_cost": 75.58,
+        "completion": 1.0,
+        "mean_wait": 0.31,
+        "p95_wait": 2.33,
+        "swa": 0.54,
+        "vessel_delay": 0.0
+      },
+      "JR_600": {
+        "n": 10,
+        "total_cost": 61.27,
+        "completion": 1.0,
+        "mean_wait": 0.42,
+        "p95_wait": 2.59,
+        "swa": 0.467,
+        "vessel_delay": 0.0
+      },
+      "BEAM_w3_600": {
+        "n": 10,
+        "total_cost": 61.2,
+        "completion": 1.0,
+        "mean_wait": 0.45,
+        "p95_wait": 2.52,
+        "swa": 0.475,
+        "vessel_delay": 0.0
+      },
+      "BEAM_wide_w6_900": {
+        "n": 4,
+        "total_cost": 64.97,
+        "completion": 1.0,
+        "mean_wait": 0.2,
+        "p95_wait": 1.25,
+        "swa": 0.513,
+        "vessel_delay": 0.0
+      },
+      "SF_SPT_wideSeeds": {
+        "n": 4,
+        "total_cost": 69.26,
+        "completion": 1.0,
+        "mean_wait": 0.2,
+        "p95_wait": 0.9,
+        "swa": 0.544,
+        "vessel_delay": 0.0
+      }
+    }
+  },
+  "headroom": {
+    "SF_SPT_noisy": 65.95,
+    "best_search_noisy_vs_SF": -4.75,
+    "perfect_info_gain_SF": 0.0,
+    "BEAMwide_perfect_vs_SFwide_perfect": -4.29,
+    "note": "음수 = 천장이 SF_SPT 보다 낮음(=개선여지). swa 동반 확인 필수."
+  },
+  "elapsed_s": 60.7
+}

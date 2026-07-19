@@ -27,8 +27,8 @@ from ..integrated.scenario_gen import TerminalGenParams
 from .direct_job_runner import _git_state, _json_dump
 from .yr013_diff_qmix import run_diff_qmix_episode
 from .yr059_state_norm import fit_state_norm
-from .yr061_reward_redesign import (_agg, _baseline_rows, _paired, _report,
-                                    _rl_rows, _sim, _swa)
+from .yr061_reward_redesign import (_agg, _baseline_rows, _paired, _rl_rows,
+                                    _sim, _swa)
 from .yr067_norm_apply import _eval_norm
 
 EXPERIMENT_ID = "YR-068-scale-diff-qmix"
@@ -86,6 +86,40 @@ def _params(cfg: Yr068Config) -> TerminalGenParams:
                                  vessel_moves=6, horizon_s=7_200.0,
                                  drain_window_s=3_600.0)
     return TerminalGenParams(n_external=cfg.n_external, n_vessels=cfg.n_vessels)
+
+
+def _agg_any(rows: list[dict]) -> dict:
+    """트랙 간 행 포맷 관용 집계 — yr061 형(serve_available 보유)은 _agg,
+    yr013/yr059 형(미보유)은 공통 키만 평균 (1차 실행 실측 크래시 정정)."""
+    if rows and "serve_available" in rows[0]:
+        return _agg(rows)
+    keys = ("total_cost", "interference", "mean_wait_min", "p95_wait_min",
+            "completion_rate", "backlog", "wait_actions")
+    return {k: fmean(float(r[k]) for r in rows) for k in keys if k in rows[0]}
+
+
+def _report_yr068(payload: dict, out: Path) -> Path:
+    """트랙 간 키 차이에 관용적인 자체 리포트 (yr061._report 는 serve_share 요구)."""
+    m, p = payload["means"], payload["paired"]
+    lines = ["# YR-068 — 차분 표적 QMIX 본 시나리오 확전 판정", "",
+             "> ⚠ 합성·가정 조건 (주장 게이트 YR-002/009). 승자 처방(YR-013c) 무조정 확전 —",
+             "> G1: vs INDEP@2000(norm) / G2: vs JOINT_ROLLOUT / G3: vs SF_SPT.", ""]
+    keys = ("total_cost", "mean_wait_min", "p95_wait_min", "completion_rate", "backlog")
+    lines.append("| arm | " + " | ".join(keys) + " |")
+    lines.append("|" + "---|" * (len(keys) + 1))
+    for name, v in m.items():
+        lines.append("| " + name + " | "
+                     + " | ".join(f"{v[k]:.3f}" if k in v else "—" for k in keys) + " |")
+    lines.append("")
+    for tag, d in p.items():
+        tc = d["total_cost"]
+        lines.append(f"- **{tag}**: Δtotal={tc['difference']:+.2f} "
+                     f"[{tc['difference_ci']['lower']:+.2f}, {tc['difference_ci']['upper']:+.2f}]")
+    lines.append("")
+    lines.append("*원자료: yr068_results.json · test_results.json (seed별)*")
+    path = out / "yr068_report.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
 
 
 def _load_reused_rows(test_seeds) -> dict:
@@ -186,11 +220,10 @@ def run_yr068(out_dir: str = "outputs/reports/yr068_scale_diff_qmix",
                      "note": "승자 처방 무조정 확전 — 외부 40·550k 대역 (prereg §2)",
                      "elapsed_s": time.time() - started},
         "selections": selections, "paired": paired,
-        "means": {name: _agg(rows) for name, rows in results.items()},
+        "means": {name: _agg_any(rows) for name, rows in results.items()},
     }
     _json_dump(out / "yr068_results.json", payload)
-    report = _report(payload, out, name="yr068_report.md",
-                     title="YR-068 — 차분 표적 QMIX 본 시나리오 확전 판정")
+    report = _report_yr068(payload, out)
     progress(f"[YR-068] 완료 ({payload['manifest']['elapsed_s']:.0f}s) -> {report}")
     return report
 
