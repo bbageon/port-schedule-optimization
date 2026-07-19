@@ -1,0 +1,205 @@
+{
+  "profile": "SNP-ARMG-STD",
+  "n_seeds": 12,
+  "public_anchor_min": {
+    "IN": [
+      9.0,
+      22.0
+    ],
+    "OUT": [
+      19.0,
+      33.0
+    ]
+  },
+  "pema_move_min": [
+    2.0,
+    3.0
+  ],
+  "definition": "turn=(service_end-gate_in+gate_travel_out)/60, 출문주행=gate_travel_estimate_s(210s) 근사",
+  "levels": {
+    "current": {
+      "params": {
+        "n_external_mu": 40
+      },
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 210,
+            "p50": 9.85,
+            "p90": 13.46,
+            "mean": 10.8,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 294,
+            "p50": 12.71,
+            "p90": 21.42,
+            "mean": 14.79,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 504,
+            "p50": 3.05,
+            "p90": 7.25,
+            "mean": 3.93
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 2.16,
+          "p95_wait_min": 11.31,
+          "total_cost": 126.25
+        },
+        "FIFO": {
+          "turn_in": {
+            "n": 210,
+            "p50": 10.07,
+            "p90": 15.05,
+            "mean": 11.14,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 294,
+            "p50": 13.12,
+            "p90": 21.02,
+            "mean": 14.49,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 504,
+            "p50": 3.12,
+            "p90": 7.25,
+            "mean": 3.98
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 2.08,
+          "p95_wait_min": 8.31,
+          "total_cost": 134.84
+        }
+      }
+    },
+    "mid": {
+      "params": {
+        "n_external_mu": 56
+      },
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 256,
+            "p50": 10.09,
+            "p90": 15.17,
+            "mean": 11.33,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 430,
+            "p50": 13.85,
+            "p90": 34.54,
+            "mean": 17.67,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 686,
+            "p50": 3.06,
+            "p90": 7.12,
+            "mean": 3.98
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 4.23,
+          "p95_wait_min": 18.7,
+          "total_cost": 155.17
+        },
+        "FIFO": {
+          "turn_in": {
+            "n": 256,
+            "p50": 10.65,
+            "p90": 18.15,
+            "mean": 12.64,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 430,
+            "p50": 14.81,
+            "p90": 27.64,
+            "mean": 17.41,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 686,
+            "p50": 3.15,
+            "p90": 7.23,
+            "mean": 4.04
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 4.5,
+          "p95_wait_min": 18.98,
+          "total_cost": 165.65
+        }
+      }
+    },
+    "high": {
+      "params": {
+        "n_external_mu": 80
+      },
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 358,
+            "p50": 10.37,
+            "p90": 15.22,
+            "mean": 11.68,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 538,
+            "p50": 16.17,
+            "p90": 40.98,
+            "mean": 22.26,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 896,
+            "p50": 2.98,
+            "p90": 6.96,
+            "mean": 3.92
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 6.82,
+          "p95_wait_min": 26.46,
+          "total_cost": 193.2
+        },
+        "FIFO": {
+          "turn_in": {
+            "n": 358,
+            "p50": 12.12,
+            "p90": 21.36,
+            "mean": 14.98,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 538,
+            "p50": 18.59,
+            "p90": 47.62,
+            "mean": 23.95,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 896,
+            "p50": 3.04,
+            "p90": 7.06,
+            "mean": 3.97
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "mean_wait_min": 8.98,
+          "p95_wait_min": 28.65,
+          "total_cost": 220.65
+        }
+      }
+    }
+  },
+  "elapsed_s": 11.1
+}

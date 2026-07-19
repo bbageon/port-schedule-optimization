@@ -15,7 +15,7 @@
 | YR-042 | Exp | DGT·HJNC 근사 프로파일 일반화 게이트 (재실행 대기) | 🟡 | **run 중단 (2026-07-15)** — YR-039 무효로 전제 상실. 구현(`0cd547d`·`f51818c`)은 유효. **2026-07-18 갱신**: YR-045에서 RL 미채택 — 일반화할 채택 정책이 없어 보류. 협조 재판정(YR-013/056) 후 재개 |
 | YR-029 | RL | P95 보호 — SLA 임박 후보 필터 | 🟠 | YR-018 negative 파생 · 보상형이 아닌 YR-037 mandatory 후보/명시적 제약으로 흡수 |
 | YR-005 | Data | Phase 1 후반: 원천자료 loader·익명화·품질 플래그·날짜 split | ⚪ | [spec](../docs/dashboard-task-specs/YR-005-data-pipeline.md) · **D5 결정(2026-07-19)으로 전제 상실** (협약 폐기) — 공개 데이터 재활용 여지 검토 후 폐기 판단 |
-| YR-009 | Sim | Phase 2 게이트: **공개 실측 대조** (재정의 — 舊 "실측 validation") | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · **D5 재정의 (2026-07-19, [결정 기록](../docs/strategy-history/2026-07-19-YR-002-D1-D5-사용자결정.md))**: PNIT·HPNT 공개 turn-time (반입 9~22분·반출 19~33분) 분포와 시뮬 KPI 대조 — 1차 대조는 YR-002 재기준화에서 실행 |
+| YR-009 | Sim | Phase 2 게이트: **공개 실측 대조** (재정의 — 舊 "실측 validation") | 🟡 | [spec](../docs/dashboard-task-specs/YR-009-simulator-validation.md) · **D5 재정의 + 1차 대조 완료 (2026-07-19)**: v2 부분 정합 — 반입 P50 9.9~12.1분 전 수준 ✅(공개 9~22)·반출 P50 12.7~18.6 하회 ❌(공개 19~33, P90·부하 방향은 정합)·작업시간 3.9~4.0분 (PEMA 2~3 상회). 후속 보정 후보: 게이트 처리 모형·장치율 현실화 — [report](../../outputs/reports/yr009_turntime/yr009_report.md)·[결정 기록](../docs/strategy-history/2026-07-19-YR-002-D1-D5-사용자결정.md) |
 | YR-019 | Exp | ETA 품질 시나리오 매트릭스 (PERFECT/BIASED/NO_SHOW/STALE) | 🟡 | §18.2 — 현재는 EMPIRICAL(±300s)만 구현. Exp-3 결과의 강건성 확인용 |
 | YR-020 | RL | Exp-2/3 열세 원인 분석 — 상태공간 희석 vs 정보 무익 판별 | 🟡 | [수렴진단](../docs/YR-020-수렴진단-2026-07-14.md): 희석 방문통계 증거 확보. **YR-030 전환 결정으로 "함수근사 판단재료" 역할 종결** — 학술적 원인 규명 가치로만 유지 (🟠→🟡, 2026-07-14) |
 | YR-021 | Exp | 부하조건별 통합정책 강건성 — peak·고장치율·고재조작 | 🟡 | 혼잡일 상금 편중(YR-031/031-b) 파생 · YR-014 부하 ablation 입력 |
