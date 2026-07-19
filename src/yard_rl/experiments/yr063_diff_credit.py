@@ -67,10 +67,11 @@ def quick_yr063_config() -> Yr063Config:
 
 def run_diff_episode(sim, *, learner: CandidateDQNLearner, rc, window_s: float,
                      epsilon: float = 0.0, explore_rng: random.Random | None = None,
-                     learn: bool = True) -> dict:
+                     learn: bool = True, state_norm=None) -> dict:
     """차분 credit 수집·학습 드라이버 — run_episode 의 score/resolve 골격 +
     결정마다 counterfactual WAIT rollout 으로 D_i 를 계산해 1-step 표본을 쌓는다.
-    전략적 WAIT 기본 제외(YR-052)·탐험 강제 방식은 run_episode 와 동일."""
+    전략적 WAIT 기본 제외(YR-052)·탐험 강제 방식은 run_episode 와 동일.
+    state_norm (YR-059/067): 학습 인코딩 전용 — rollout·resolver 경로 불변."""
     gen = CandidateGenerator()
     preference = QPreference()
     resolver = CentralResolver(preference)
@@ -84,7 +85,8 @@ def run_diff_episode(sim, *, learner: CandidateDQNLearner, rc, window_s: float,
     while dp is not None:
         state, obs, gen_by = capture(sim, dp.crane_ids, LEVEL, "drive", k,
                                      generator=gen)
-        encs = {ob.crane_id: encode_observation(state, ob) for ob in obs}
+        encs = {ob.crane_id: encode_observation(state, ob, norm=state_norm)
+                for ob in obs}
         scores: dict[tuple[str, int], float] = {}
         for cid, enc in encs.items():
             s = learner.scores_for(enc)
