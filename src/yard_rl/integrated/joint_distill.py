@@ -289,3 +289,16 @@ def load_student(path) -> tuple[JointPairNet, StateNorm]:
     net.load_state_dict(d["state"])
     net.eval()
     return net, StateNorm(refs=d["norm_refs"], basis="fitted_baseline_p90")
+
+
+def adopted_slot_selector():
+    """채택된 재조작 목적지 규칙 (YR-075-a 박제, 2026-07-20).
+
+    배포 시 채택 정책(student_ft.pt)을 굴리는 sim 에 `sim.slot_selector =
+    adopted_slot_selector()` 로 설정한다 — 배포형 H1(관측 ETA·마감 인지)이 고혼잡
+    에서 오라클 천장 100% 잡음(총비용 fill0.70 −27·~10% 유의)·저혼잡 중립·다운사이드
+    없음. RL K-후보 확장은 H1==오라클로 격차 0 = 생략. 미설정 시 greedy find_slot
+    (골든 불변 기본). 근거: strategy-history/2026-07-20-YR-075a-재조작목적지-0단계.
+    """
+    from .rehandle_oracle import deployable_future_selector
+    return deployable_future_selector
