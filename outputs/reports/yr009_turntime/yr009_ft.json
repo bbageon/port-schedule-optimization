@@ -1,0 +1,326 @@
+{
+  "profile": "SNP-ARMG-STD",
+  "n_seeds": 12,
+  "slots": [
+    "YC-L",
+    "YC-W"
+  ],
+  "note": "FT=채택 진단(OLD 목적 증류본, YR-080 재설계 대상)·환경 동결용",
+  "public_anchor_min": {
+    "IN": [
+      9.0,
+      22.0
+    ],
+    "OUT": [
+      19.0,
+      33.0
+    ]
+  },
+  "levels": {
+    "current": {
+      "n_external_mu": 40,
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 210,
+            "p50": 9.85,
+            "p90": 13.46,
+            "mean": 10.8,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 294,
+            "p50": 12.71,
+            "p90": 21.42,
+            "mean": 14.79,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 504,
+            "p50": 3.05,
+            "p90": 7.25,
+            "mean": 3.93
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 2.16,
+          "p95_wait_min": 11.31
+        },
+        "FT": {
+          "turn_in": {
+            "n": 210,
+            "p50": 10.05,
+            "p90": 14.32,
+            "mean": 11.0,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 294,
+            "p50": 12.6,
+            "p90": 19.21,
+            "mean": 14.16,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 504,
+            "p50": 3.05,
+            "p90": 7.21,
+            "mean": 3.94
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 1.88,
+          "p95_wait_min": 8.17
+        }
+      }
+    },
+    "mid": {
+      "n_external_mu": 56,
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 256,
+            "p50": 10.09,
+            "p90": 15.17,
+            "mean": 11.33,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 430,
+            "p50": 13.85,
+            "p90": 34.54,
+            "mean": 17.67,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 686,
+            "p50": 3.06,
+            "p90": 7.12,
+            "mean": 3.98
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 4.23,
+          "p95_wait_min": 18.7
+        },
+        "FT": {
+          "turn_in": {
+            "n": 256,
+            "p50": 10.03,
+            "p90": 12.51,
+            "mean": 10.6,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 430,
+            "p50": 13.34,
+            "p90": 22.58,
+            "mean": 15.15,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 686,
+            "p50": 3.1,
+            "p90": 6.96,
+            "mean": 3.97
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 2.43,
+          "p95_wait_min": 10.67
+        }
+      }
+    },
+    "high": {
+      "n_external_mu": 80,
+      "policies": {
+        "SF_SPT": {
+          "turn_in": {
+            "n": 358,
+            "p50": 10.37,
+            "p90": 15.22,
+            "mean": 11.68,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 538,
+            "p50": 16.17,
+            "p90": 40.98,
+            "mean": 22.26,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 896,
+            "p50": 2.98,
+            "p90": 6.96,
+            "mean": 3.92
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 6.82,
+          "p95_wait_min": 26.46
+        },
+        "FT": {
+          "turn_in": {
+            "n": 358,
+            "p50": 10.51,
+            "p90": 14.39,
+            "mean": 11.3,
+            "in_public_range": true
+          },
+          "turn_out": {
+            "n": 538,
+            "p50": 14.74,
+            "p90": 29.71,
+            "mean": 19.46,
+            "in_public_range": false
+          },
+          "service_move_min": {
+            "n": 896,
+            "p50": 2.98,
+            "p90": 6.92,
+            "mean": 3.91
+          },
+          "censored_total": 0,
+          "completion": 1.0,
+          "backlog": 0.0,
+          "mean_wait_min": 5.03,
+          "p95_wait_min": 22.85
+        }
+      }
+    }
+  },
+  "manifest": {
+    "terminal_id": "SNP-ARMG-STD",
+    "block": {
+      "block_id": "B1",
+      "bay_count": 24,
+      "row_count": 10,
+      "tier_max": 6,
+      "bay_length_m": 6.5,
+      "row_width_m": 3.1,
+      "tier_height_m": 2.6,
+      "transfer_row": 0
+    },
+    "cranes": [
+      {
+        "crane_id": "YC-L",
+        "service_bay_min": 1,
+        "service_bay_max": 24,
+        "gantry_speed_mps": 4.0,
+        "trolley_speed_mps": 1.0,
+        "hoist_speed_loaded_mps": 0.58,
+        "hoist_speed_empty_mps": 1.17,
+        "lock_time_s": 30.0,
+        "unlock_time_s": 20.0,
+        "truck_positioning_time_s": 25.0
+      },
+      {
+        "crane_id": "YC-W",
+        "service_bay_min": 1,
+        "service_bay_max": 24,
+        "gantry_speed_mps": 4.0,
+        "trolley_speed_mps": 1.0,
+        "hoist_speed_loaded_mps": 0.58,
+        "hoist_speed_empty_mps": 1.17,
+        "lock_time_s": 30.0,
+        "unlock_time_s": 20.0,
+        "truck_positioning_time_s": 25.0
+      }
+    ],
+    "gate_travel_estimate_s": 210.0,
+    "long_wait_sla_s": 1800.0,
+    "load_params": {
+      "current": {
+        "n_external": 40,
+        "gate_out_share": 0.6,
+        "n_vessels": 2,
+        "vessel_moves": 15,
+        "fill_ratio": 0.3,
+        "horizon_s": 14400.0,
+        "drain_window_s": 7200.0,
+        "size_mix_ft40": 0.7,
+        "sts_move_interval_s": 144.0,
+        "gaussian": true,
+        "sigma_frac": 0.12,
+        "eta_error_s": 300.0,
+        "arrival_peak_amp": 1.0,
+        "arrival_peak_center_frac": 0.5,
+        "arrival_peak_width_frac": 0.25,
+        "gate_travel_mu_s": 210.0,
+        "fault_outages": 0,
+        "fault_outage_dur_s": 900.0
+      },
+      "mid": {
+        "n_external": 56,
+        "gate_out_share": 0.6,
+        "n_vessels": 2,
+        "vessel_moves": 15,
+        "fill_ratio": 0.3,
+        "horizon_s": 14400.0,
+        "drain_window_s": 7200.0,
+        "size_mix_ft40": 0.7,
+        "sts_move_interval_s": 144.0,
+        "gaussian": true,
+        "sigma_frac": 0.12,
+        "eta_error_s": 300.0,
+        "arrival_peak_amp": 1.0,
+        "arrival_peak_center_frac": 0.5,
+        "arrival_peak_width_frac": 0.25,
+        "gate_travel_mu_s": 210.0,
+        "fault_outages": 0,
+        "fault_outage_dur_s": 900.0
+      },
+      "high": {
+        "n_external": 80,
+        "gate_out_share": 0.6,
+        "n_vessels": 2,
+        "vessel_moves": 15,
+        "fill_ratio": 0.3,
+        "horizon_s": 14400.0,
+        "drain_window_s": 7200.0,
+        "size_mix_ft40": 0.7,
+        "sts_move_interval_s": 144.0,
+        "gaussian": true,
+        "sigma_frac": 0.12,
+        "eta_error_s": 300.0,
+        "arrival_peak_amp": 1.0,
+        "arrival_peak_center_frac": 0.5,
+        "arrival_peak_width_frac": 0.25,
+        "gate_travel_mu_s": 210.0,
+        "fault_outages": 0,
+        "fault_outage_dur_s": 900.0
+      }
+    },
+    "public_anchor_min": {
+      "IN": [
+        9.0,
+        22.0
+      ],
+      "OUT": [
+        19.0,
+        33.0
+      ]
+    },
+    "pema_move_min": [
+      2.0,
+      3.0
+    ],
+    "src_sha256_16": {
+      "profiles.py": "6a6918231d53fd88",
+      "scenario_gen.py": "cf5092e83ff2c044",
+      "travel_time.py": "d0f2fcda862687d5",
+      "fixtures.py": "ab0e82996578d86e",
+      "engine.py": "d225bb34772bac79",
+      "schema.py": "63e5585989fa24ac"
+    },
+    "ft_model_sha256_16": "f39cdebb7746a734",
+    "manifest_sha256": "b1b542037f6ef4f66ac5e9bf67899ecb7331afe6ee7c7f9c54917eaaa7a8e447"
+  },
+  "elapsed_s": 20.6
+}

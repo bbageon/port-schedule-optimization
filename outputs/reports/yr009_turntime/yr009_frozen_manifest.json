@@ -1,0 +1,127 @@
+{
+  "terminal_id": "SNP-ARMG-STD",
+  "block": {
+    "block_id": "B1",
+    "bay_count": 24,
+    "row_count": 10,
+    "tier_max": 6,
+    "bay_length_m": 6.5,
+    "row_width_m": 3.1,
+    "tier_height_m": 2.6,
+    "transfer_row": 0
+  },
+  "cranes": [
+    {
+      "crane_id": "YC-L",
+      "service_bay_min": 1,
+      "service_bay_max": 24,
+      "gantry_speed_mps": 4.0,
+      "trolley_speed_mps": 1.0,
+      "hoist_speed_loaded_mps": 0.58,
+      "hoist_speed_empty_mps": 1.17,
+      "lock_time_s": 30.0,
+      "unlock_time_s": 20.0,
+      "truck_positioning_time_s": 25.0
+    },
+    {
+      "crane_id": "YC-W",
+      "service_bay_min": 1,
+      "service_bay_max": 24,
+      "gantry_speed_mps": 4.0,
+      "trolley_speed_mps": 1.0,
+      "hoist_speed_loaded_mps": 0.58,
+      "hoist_speed_empty_mps": 1.17,
+      "lock_time_s": 30.0,
+      "unlock_time_s": 20.0,
+      "truck_positioning_time_s": 25.0
+    }
+  ],
+  "gate_travel_estimate_s": 210.0,
+  "long_wait_sla_s": 1800.0,
+  "load_params": {
+    "current": {
+      "n_external": 40,
+      "gate_out_share": 0.6,
+      "n_vessels": 2,
+      "vessel_moves": 15,
+      "fill_ratio": 0.3,
+      "horizon_s": 14400.0,
+      "drain_window_s": 7200.0,
+      "size_mix_ft40": 0.7,
+      "sts_move_interval_s": 144.0,
+      "gaussian": true,
+      "sigma_frac": 0.12,
+      "eta_error_s": 300.0,
+      "arrival_peak_amp": 1.0,
+      "arrival_peak_center_frac": 0.5,
+      "arrival_peak_width_frac": 0.25,
+      "gate_travel_mu_s": 210.0,
+      "fault_outages": 0,
+      "fault_outage_dur_s": 900.0
+    },
+    "mid": {
+      "n_external": 56,
+      "gate_out_share": 0.6,
+      "n_vessels": 2,
+      "vessel_moves": 15,
+      "fill_ratio": 0.3,
+      "horizon_s": 14400.0,
+      "drain_window_s": 7200.0,
+      "size_mix_ft40": 0.7,
+      "sts_move_interval_s": 144.0,
+      "gaussian": true,
+      "sigma_frac": 0.12,
+      "eta_error_s": 300.0,
+      "arrival_peak_amp": 1.0,
+      "arrival_peak_center_frac": 0.5,
+      "arrival_peak_width_frac": 0.25,
+      "gate_travel_mu_s": 210.0,
+      "fault_outages": 0,
+      "fault_outage_dur_s": 900.0
+    },
+    "high": {
+      "n_external": 80,
+      "gate_out_share": 0.6,
+      "n_vessels": 2,
+      "vessel_moves": 15,
+      "fill_ratio": 0.3,
+      "horizon_s": 14400.0,
+      "drain_window_s": 7200.0,
+      "size_mix_ft40": 0.7,
+      "sts_move_interval_s": 144.0,
+      "gaussian": true,
+      "sigma_frac": 0.12,
+      "eta_error_s": 300.0,
+      "arrival_peak_amp": 1.0,
+      "arrival_peak_center_frac": 0.5,
+      "arrival_peak_width_frac": 0.25,
+      "gate_travel_mu_s": 210.0,
+      "fault_outages": 0,
+      "fault_outage_dur_s": 900.0
+    }
+  },
+  "public_anchor_min": {
+    "IN": [
+      9.0,
+      22.0
+    ],
+    "OUT": [
+      19.0,
+      33.0
+    ]
+  },
+  "pema_move_min": [
+    2.0,
+    3.0
+  ],
+  "src_sha256_16": {
+    "profiles.py": "6a6918231d53fd88",
+    "scenario_gen.py": "cf5092e83ff2c044",
+    "travel_time.py": "d0f2fcda862687d5",
+    "fixtures.py": "ab0e82996578d86e",
+    "engine.py": "d225bb34772bac79",
+    "schema.py": "63e5585989fa24ac"
+  },
+  "ft_model_sha256_16": "f39cdebb7746a734",
+  "manifest_sha256": "b1b542037f6ef4f66ac5e9bf67899ecb7331afe6ee7c7f9c54917eaaa7a8e447"
+}
