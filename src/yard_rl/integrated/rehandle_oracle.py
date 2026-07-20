@@ -95,6 +95,51 @@ def deployable_future_selector(sim, stk, blocker, spec, exclude):
     return _select(stk, blocker, spec, exclude, _oft(sim))
 
 
+def _next_demand_bay(stk, ft, now):
+    """지금 이후 가장 이른 반출 컨테이너의 현재 bay = 크레인의 유력한 다음 목적지."""
+    best = None
+    for cid, t in ft.items():
+        if t <= now:
+            continue
+        c = stk.containers.get(cid)
+        if c is None:
+            continue
+        if best is None or t < best[0]:
+            best = (t, c.bay)
+    return best[1] if best else None
+
+
+def strong_oracle_slot_selector(sim, stk, blocker, spec, exclude):
+    """YR-075-a 0b — 강한 오라클: 비방해물(1차) + **미래 이동**(2차: 지금 이동 +
+    다음 수요 방향 거리 = 선제 위치선점) 사전식. 사용자 3층 설계(비방해물→다음작업
+    방향→최소이동)를 전지적 미래로 상한 측정. 기존 오라클은 '지금 이동'만 봤음.
+    """
+    ft = _ft(sim)
+    geom = stk.geom
+    b_time = ft.get(blocker.container_id, _INF)
+    nd_bay = _next_demand_bay(stk, ft, sim.now)
+    best = None
+    for bay in range(spec.service_bay_min, spec.service_bay_max + 1):
+        for row in range(1, geom.row_count + 1):
+            if (bay, row) in exclude:
+                continue
+            top = stk.top_tier(bay, row)
+            if top >= geom.tier_max:
+                continue
+            if not stk.stack_size_ok(bay, row, blocker.size):
+                continue
+            future_blocked = sum(1 for cid in stk.stack(bay, row)
+                                 if ft.get(cid, _INF) < b_time)
+            immediate = (gantry_m(geom, float(blocker.bay), bay)
+                         + trolley_m(geom, float(blocker.row), row)
+                         + top * geom.tier_height_m)
+            fwd = gantry_m(geom, float(bay), nd_bay) if nd_bay is not None else 0.0
+            key = (future_blocked, immediate + fwd, bay, row)
+            if best is None or key < best:
+                best = key
+    return None if best is None else (best[2], best[3])
+
+
 def oracle_slot_selector(sim, stk, blocker, spec, exclude):
     """미래 재조작 회피 배치. find_slot 과 동일 후보 집합·동일 유효성 규칙."""
     ft = _ft(sim)
