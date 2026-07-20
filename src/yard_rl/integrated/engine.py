@@ -92,6 +92,10 @@ class TerminalSimulator:
         self.end = self.scenario.end_time
         self._terminal = False
         self._pending: tuple[str, ...] = ()
+        # YR-075-a: 재조작 목적지 선택 훅 (opt-in). None(기본)이면 stk.find_slot greedy
+        # 그대로 = 골든 바이트 동일. 설정 시 selector(sim, stk, blocker, spec, exclude)
+        # → (bay,row)|None. 평가 오라클·후보 확장이 재사용 (rollout deepcopy 보존).
+        self.slot_selector = getattr(self, "slot_selector", None)
         self._assigned: dict[str, CraneAssignment] = {}
         self._active_plans: dict[str, JobPlan] = {}
         self.event_log: list[tuple[float, str, str]] = []
@@ -391,8 +395,12 @@ class TerminalSimulator:
             for blocker_id in stk.blockers_above(target_id):
                 b = stk.containers[blocker_id]
                 src = (b.bay, b.row, b.tier)
-                dest = stk.find_slot(b.size, spec, float(b.bay), float(b.row),
-                                     exclude=frozenset(exclude | {(b.bay, b.row)}))
+                excl = frozenset(exclude | {(b.bay, b.row)})
+                if self.slot_selector is not None:      # YR-075-a opt-in (오라클/후보)
+                    dest = self.slot_selector(self, stk, b, spec, excl)
+                else:
+                    dest = stk.find_slot(b.size, spec, float(b.bay), float(b.row),
+                                         exclude=excl)
                 if dest is None:
                     return None
                 db, dr = dest
