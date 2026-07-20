@@ -95,6 +95,39 @@ def deployable_future_selector(sim, stk, blocker, spec, exclude):
     return _select(stk, blocker, spec, exclude, _oft(sim))
 
 
+def mask_only_selector(sim, stk, blocker, spec, exclude):
+    """H1-mask — 사용자 제안: 방해물 생성 **딱딱한 금지**(future_blocked==0 만 허용),
+    그 안에서 이동은 비용(=지금 거리)이 고르게. 비방해물 슬롯이 없으면 pure greedy
+    폴백. H1(부드러운 사전식)과 고포화 불가능 케이스에서만 갈린다 (mask 는 폴백에서
+    future_blocked 를 아예 무시).
+    """
+    times = _oft(sim)
+    geom = stk.geom
+    b_time = times.get(blocker.container_id, _INF)
+    clean, dirty = None, None
+    for bay in range(spec.service_bay_min, spec.service_bay_max + 1):
+        for row in range(1, geom.row_count + 1):
+            if (bay, row) in exclude:
+                continue
+            top = stk.top_tier(bay, row)
+            if top >= geom.tier_max:
+                continue
+            if not stk.stack_size_ok(bay, row, blocker.size):
+                continue
+            cost = (gantry_m(geom, float(blocker.bay), bay)
+                    + trolley_m(geom, float(blocker.row), row)
+                    + top * geom.tier_height_m)
+            key = (cost, bay, row)
+            fb = sum(1 for cid in stk.stack(bay, row)
+                     if times.get(cid, _INF) < b_time)
+            if fb == 0 and (clean is None or key < clean):
+                clean = key
+            if dirty is None or key < dirty:
+                dirty = key
+    pick = clean if clean is not None else dirty
+    return None if pick is None else (pick[1], pick[2])
+
+
 def _next_demand_bay(stk, ft, now):
     """지금 이후 가장 이른 반출 컨테이너의 현재 bay = 크레인의 유력한 다음 목적지."""
     best = None
