@@ -196,6 +196,7 @@ class CentralJointValuePolicy:
                      if eb and cb in assign else z_c)
             rows.append(ctx_a + blk_a + ctx_b + blk_b)
             assigns.append(assign)
+        self._last = (rows, assigns)           # YR-074 교정 수집 재사용 (결정 직후 유효)
         if not assigns:
             return {c: _wait_of(gen_by[c]) for c in dp.crane_ids}
         with torch.no_grad():
@@ -206,6 +207,73 @@ class CentralJointValuePolicy:
                                   tuple((c, assigns[i][c].candidate_id)
                                         for c in sorted(dp.crane_ids))))
         return assigns[best]
+
+
+def finetune_pairwise(net0: JointPairNet, pairs: list, *, epochs: int = 20,
+                      lr: float = 1e-4, anchor: float = 1.0, seed: int = 74_000,
+                      batch: int = 64, val_fn=None, progress=print):
+    """YR-074 — 반사실 쌍별 교정 (prereg 동결): 학생/SF 선택 쌍 (row_c, row_s, A).
+
+    손실 = BCE(σ(s_c−s_s), y=[A>0])·min(1+|A|,4) + anchor·mean((θ−θ₀)²).
+    ep0(net0) 포함 val 최저 선택 · 트리거(완주 실패 val=inf 또는 최저 대비 +15%
+    2연속) 시 중단 — 미세조정 전 구간 손해면 ep0 잔류가 정직 보고다.
+    """
+    import copy as _copy
+    torch.manual_seed(seed)
+    rng = random.Random(seed)
+    net = _copy.deepcopy(net0)
+    theta0 = [p.detach().clone() for p in net0.parameters()]
+    opt = torch.optim.Adam(net.parameters(), lr=lr)
+    hist = []
+    best_val = val_fn(net0) if val_fn else float("inf")
+    best_state, best_tag = None, "ep0"
+    hist.append({"epoch": 0, "val": best_val})
+    progress(f"[ft] ep0 val={best_val}")
+    worse_streak = 0
+    for ep in range(1, epochs + 1):
+        order = list(range(len(pairs)))
+        rng.shuffle(order)
+        tot = 0.0
+        for k in range(0, len(order), batch):
+            idx = order[k:k + batch]
+            xc = torch.tensor([pairs[i][0] for i in idx], dtype=torch.float32)
+            xs = torch.tensor([pairs[i][1] for i in idx], dtype=torch.float32)
+            a = torch.tensor([pairs[i][2] for i in idx], dtype=torch.float32)
+            sc, _ = net(xc)
+            ss, _ = net(xs)
+            w = torch.clamp(1.0 + a.abs(), max=4.0)
+            bce = nn.functional.binary_cross_entropy_with_logits(
+                sc - ss, (a > 0).float(), weight=w)
+            reg = sum(((p - p0) ** 2).mean() for p, p0 in zip(net.parameters(), theta0))
+            loss = bce + anchor * reg / max(1, len(theta0))
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+            tot += float(loss.detach()) * len(idx)
+        row = {"epoch": ep, "loss": round(tot / max(1, len(order)), 4)}
+        if val_fn is not None:
+            net.eval()
+            with torch.no_grad():
+                row["val"] = val_fn(net)
+            net.train()
+            if row["val"] < best_val:
+                best_val, best_tag, worse_streak = row["val"], f"ep{ep}", 0
+                best_state = {k: v.detach().clone() for k, v in net.state_dict().items()}
+            elif row["val"] == float("inf") or row["val"] > best_val * 1.15:
+                worse_streak += 1
+            else:
+                worse_streak = 0
+        hist.append(row)
+        progress(f"[ft] {row}")
+        if worse_streak >= 2:
+            progress("[ft] 즉시 복귀 트리거 — 중단")
+            break
+    if best_tag == "ep0":
+        net = _copy.deepcopy(net0)
+    elif best_state is not None:
+        net.load_state_dict(best_state)
+    net.eval()
+    return net, hist, best_tag
 
 
 def save_student(path, tr: TrainResult, norm_refs: dict) -> None:
