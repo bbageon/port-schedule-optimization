@@ -47,6 +47,10 @@ class TerminalGenParams:
     arrival_peak_width_frac: float = 0.25
     # 게이트→블록 순주행 μ (기존 하드코딩 600s 를 파라미터화 — 기본값 동일, 문헌은 210s 대)
     gate_travel_mu_s: float = 600.0
+    # YR-077: 돌발 고장 주입 — 0(기본)이면 injected_events=[] 바이트 동일. n>0 이면
+    # 전용 스트림(fault:{seed})으로 크레인 정지 n회 (시작 15~75% 지평·고정 지속).
+    fault_outages: int = 0
+    fault_outage_dur_s: float = 900.0
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -66,6 +70,8 @@ class TerminalGenParams:
             raise ValueError("peak center∈[0,1]·width∈(0,1] 위반")
         if self.gate_travel_mu_s <= 0:
             raise ValueError("gate_travel_mu_s 는 양수")
+        if self.fault_outages < 0 or self.fault_outage_dur_s <= 0:
+            raise ValueError("fault_outages≥0·fault_outage_dur_s>0")
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -251,9 +257,22 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                 params.arrival_peak_width_frac)
     if params.gate_travel_mu_s != 600.0:
         meta["gate_travel_mu_s"] = params.gate_travel_mu_s
+    injected: list = []
+    if params.fault_outages > 0:                 # YR-077 — 전용 스트림, 기존 draw 불변
+        from .scenario import InjectedEvent
+        frng = random.Random(f"fault:{seed}")
+        crane_ids = sorted(c.crane_id for c in profile.cranes)
+        for _ in range(params.fault_outages):
+            t0f = params.horizon_s * frng.uniform(0.15, 0.75)
+            cid = crane_ids[frng.randrange(len(crane_ids))]
+            injected.append(InjectedEvent(t0f, "EQUIPMENT_DOWN", cid))
+            injected.append(InjectedEvent(t0f + params.fault_outage_dur_s,
+                                          "EQUIPMENT_UP", cid))
+        injected.sort(key=lambda e: e.time)
+        meta["fault_outages"] = (params.fault_outages, params.fault_outage_dur_s)
     return TerminalScenario(
         scenario_id=f"gen-t{params.n_external}v{params.n_vessels}-s{seed}",
         seed=seed, horizon_s=params.horizon_s,
         drain_window_s=params.drain_window_s,
         containers=containers, jobs=jobs, vessels=vessels,
-        injected_events=[], meta=meta)
+        injected_events=injected, meta=meta)
