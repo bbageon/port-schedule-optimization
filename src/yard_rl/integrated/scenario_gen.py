@@ -51,6 +51,9 @@ class TerminalGenParams:
     # 전용 스트림(fault:{seed})으로 크레인 정지 n회 (시작 15~75% 지평·고정 지속).
     fault_outages: int = 0
     fault_outage_dur_s: float = 900.0
+    # YR-041/본선 스트레스 (부산 근사): 본선 작업창 배율. 완료마감 = start + moves×cadence×배율.
+    # 기본 2.0 = 기존 바이트 동일(넉넉). 낮출수록 ETD 압력↑(1.0~1.3 스트레스). etd = ×(배율+1).
+    vessel_deadline_mult: float = 2.0
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -72,6 +75,8 @@ class TerminalGenParams:
             raise ValueError("gate_travel_mu_s 는 양수")
         if self.fault_outages < 0 or self.fault_outage_dur_s <= 0:
             raise ValueError("fault_outages≥0·fault_outage_dur_s>0")
+        if self.vessel_deadline_mult <= 0:
+            raise ValueError("vessel_deadline_mult 은 양수")
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -126,6 +131,36 @@ def calibrated_load_params(level: str = "mid", **overrides) -> TerminalGenParams
     base = dict(n_external=n_ext[level], arrival_peak_amp=1.0,
                 arrival_peak_center_frac=0.5, arrival_peak_width_frac=0.25,
                 gate_travel_mu_s=210.0)
+    base.update(overrides)
+    return TerminalGenParams(**base)
+
+
+def busan_scenario_params(kind: str = "normal", **overrides) -> TerminalGenParams:
+    """부산 근사 본선/트럭 긴장 시나리오 (PoC·일반화용 — 문헌 근사, 실측 아님).
+
+    본선/트럭이 크레인 한 대를 두고 밀치는 4셀. base = calibrated_load_params('high')
+    (문헌 부하·피크·gate 210s) 위에 본선 스트레스 손잡이. 파라미터는 문헌상 그럴듯한
+    가정값 (부산 특정 선석 스케줄 비공개 — D5). YR-041 본선 λ·YR-009 turn-time 정합.
+
+    - normal   : 본선 1척·느슨 마감(기존)                              → 기준
+    - vessel_rush : 본선 대물량·빡빡 ETD(배율 1.15)·높은 STS 수요       → 본선 보호력
+    - coincident : 트럭 피크(2배)가 본선 작업 중 겹침·중간 마감(1.4)    → 트럭↔본선 트레이드오프
+    - saturation : 고부하·고장치율·본선 (초과수요)                     → 붕괴 거동
+    """
+    base = dict(calibrated_load_params("high").__dict__)
+    base.pop("gaussian", None)                       # 아래서 명시
+    presets = {
+        "normal": {},
+        "vessel_rush": {"n_vessels": 2, "vessel_moves": 24, "sts_move_interval_s": 110.0,
+                        "vessel_deadline_mult": 1.15},
+        "coincident": {"n_vessels": 2, "vessel_moves": 20, "vessel_deadline_mult": 1.4,
+                       "arrival_peak_amp": 2.0, "arrival_peak_width_frac": 0.2},
+        "saturation": {"n_external": 112, "fill_ratio": 0.65, "vessel_moves": 20,
+                       "vessel_deadline_mult": 1.3},
+    }
+    if kind not in presets:
+        raise ValueError(f"kind 은 {sorted(presets)} 중: {kind!r}")
+    base.update(presets[kind])
     base.update(overrides)
     return TerminalGenParams(**base)
 
@@ -222,11 +257,12 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         n_moves = params.vessel_moves
         work = (VesselWorkType.DISCHARGE if v % 2 == 0 else VesselWorkType.LOAD)
         vid = f"V-{work.value[:4]}-{v}"
+        dmult = params.vessel_deadline_mult
         if work == VesselWorkType.DISCHARGE:
             plan = VesselPlan(planned_start_s=start,
-                              planned_completion_s=start + n_moves * cadence * 2.0,
+                              planned_completion_s=start + n_moves * cadence * dmult,
                               completion_basis=CompletionBasis.PLAN_COMPUTED,
-                              etd_s=start + n_moves * cadence * 3.0,
+                              etd_s=start + n_moves * cadence * (dmult + 1.0),
                               total_moves=n_moves, sts_move_interval_s=cadence)
         else:
             plan = VesselPlan(planned_start_s=start, planned_completion_s=None,
@@ -243,7 +279,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                 release_time=start + m * cadence,
                 actual_gate_in=None, actual_block_arrival=None,
                 target_container=target,
-                deadline=start + n_moves * cadence * 2.0 + 1800.0,
+                deadline=start + n_moves * cadence * dmult + 1800.0,
                 priority_class=1))
 
     jobs.sort(key=lambda j: j.job_id)
@@ -257,6 +293,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                 params.arrival_peak_width_frac)
     if params.gate_travel_mu_s != 600.0:
         meta["gate_travel_mu_s"] = params.gate_travel_mu_s
+    if params.vessel_deadline_mult != 2.0:
+        meta["vessel_deadline_mult"] = params.vessel_deadline_mult
     injected: list = []
     if params.fault_outages > 0:                 # YR-077 — 전용 스트림, 기존 draw 불변
         from .scenario import InjectedEvent
