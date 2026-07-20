@@ -284,7 +284,7 @@ def save_student(path, tr: TrainResult, norm_refs: dict) -> None:
 
 def load_student(path) -> tuple[JointPairNet, StateNorm]:
     d = torch.load(path, weights_only=False)
-    assert d["fmt"] == "yard-rl-joint-distill-v1"
+    assert d["fmt"] in ("yard-rl-joint-distill-v1", "yard-rl-joint-ft-v1")
     net = JointPairNet(d["in_dim"])
     net.load_state_dict(d["state"])
     net.eval()
