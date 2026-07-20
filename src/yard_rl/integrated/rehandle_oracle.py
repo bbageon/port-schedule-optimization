@@ -37,6 +37,64 @@ def _ft(sim) -> dict:
     return ft
 
 
+def observable_retrieval_times(sim) -> dict:
+    """배포형 — **관측 가능** 정보만: 외부트럭 provided_eta·본선 release_time.
+
+    전지적 actual_block_arrival 을 안 쓴다 (미도착 트럭의 진짜 도착시각 미열람 =
+    누출 0). ETA 오차(±)가 그대로 실려 오라클보다 신호가 흐리다 — 그 손실이
+    "배포 가능성의 값" 이다. PRE_ADVICE 정보수준 가정.
+    """
+    out: dict[str, float] = {}
+    for j in sim.jobs.values():
+        c = j.target_container
+        if c is None:
+            continue
+        if j.is_external_truck:
+            t = j.provided_eta if j.provided_eta is not None else _INF
+        else:
+            t = j.release_time
+        if c not in out or t < out[c]:
+            out[c] = t
+    return out
+
+
+def _oft(sim) -> dict:
+    oft = getattr(sim, "_yr075_oft", None)
+    if oft is None:
+        oft = observable_retrieval_times(sim)
+        sim._yr075_oft = oft
+    return oft
+
+
+def _select(stk, blocker, spec, exclude, times: dict):
+    geom = stk.geom
+    b_time = times.get(blocker.container_id, _INF)
+    best = None
+    for bay in range(spec.service_bay_min, spec.service_bay_max + 1):
+        for row in range(1, geom.row_count + 1):
+            if (bay, row) in exclude:
+                continue
+            top = stk.top_tier(bay, row)
+            if top >= geom.tier_max:
+                continue
+            if not stk.stack_size_ok(bay, row, blocker.size):
+                continue
+            future_blocked = sum(1 for cid in stk.stack(bay, row)
+                                 if times.get(cid, _INF) < b_time)
+            greedy_cost = (gantry_m(geom, float(blocker.bay), bay)
+                           + trolley_m(geom, float(blocker.row), row)
+                           + top * geom.tier_height_m)
+            key = (future_blocked, greedy_cost, bay, row)
+            if best is None or key < best:
+                best = key
+    return None if best is None else (best[2], best[3])
+
+
+def deployable_future_selector(sim, stk, blocker, spec, exclude):
+    """H1 — 배포형(관측 ETA·마감 인지) 목적지. 오라클과 동형, 시각원만 관측값."""
+    return _select(stk, blocker, spec, exclude, _oft(sim))
+
+
 def oracle_slot_selector(sim, stk, blocker, spec, exclude):
     """미래 재조작 회피 배치. find_slot 과 동일 후보 집합·동일 유효성 규칙."""
     ft = _ft(sim)
