@@ -7,3 +7,6 @@
 - **계획**: UI-1 recorder(데이터 계약) → UI-2 단일 replay → UI-3 정책 설명 패널 → UI-4 동기 비교 → UI-5 다중 YC 표시 (04 §9).
 - **산출물**: `experiments/recorder.py`, `src/yard_rl/ui/`, UI 검증 테스트(04 §8).
 - **의존**: recorder 스키마는 YR-006·008 산출물과 정합 필요. UI-5 는 YR-013 과 동반.
+- **현장 연계**: 현재 범위는 읽기 전용 시뮬레이션 replay다. YR-014 채택 bundle과
+  YR-082 Level 4 범위·접근권한이 확정되면 실제 제어 없이 권고와 운영자 승인·반려를
+  기록하는 Shadow Mode로 별도 확장한다.
