@@ -148,6 +148,10 @@ class TerminalSimulator:
             if j.is_external_truck:
                 self.queue.push(j.actual_block_arrival, EventKind.BLOCK_ARRIVAL, j.job_id)
             else:
+                # YR-080 단계2: 양하(STORE) job 은 시간 해제가 아니라 박스의 물리 도착
+                # (STS→이송→TRANSFER_ARRIVE→VESSEL_RELEASED)으로 해제 — 인과 사슬 양하 절반.
+                if j.is_vessel_linked and j.service_mode == ServiceMode.STORE:
+                    continue
                 self.queue.push(j.release_time, EventKind.JOB_RELEASED, j.job_id)
         for v in sorted(self.scenario.vessels, key=lambda x: x.vessel_id):
             self.queue.push(v.plan.planned_start_s, EventKind.VESSEL_START, v.vessel_id)
@@ -384,7 +388,9 @@ class TerminalSimulator:
                                 bay=db, row=dr, tier=dtier)
             moves.append(Move(inbound.container_id, src, (db, dr, dtier),
                               mv.loaded_gantry_m, mv.empty_gantry_m, mv.duration_s, inbound=inbound))
-            total_s += mv.duration_s + spec.truck_positioning_time_s
+            total_s += mv.duration_s
+            if j.is_external_truck:      # 본선 양하는 트럭 위치잡기 없음 (인계 0초 — 단계0 결정)
+                total_s += spec.truck_positioning_time_s
             loaded_m += mv.loaded_gantry_m
             empty_m += mv.empty_gantry_m
             cur_bay, cur_row = mv.end_bay, mv.end_row
@@ -636,7 +642,12 @@ class TerminalSimulator:
                 self._clear_yields()
         elif k == "PLAN_CHANGE":
             self._plan_change(ev.payload, ev.data)
-        elif k in ("HORIZON", "ETA_UPDATED", "VESSEL_RELEASED"):
+        elif k == "VESSEL_RELEASED":
+            # YR-080 단계2: 양하 박스 야드 인계 완료 → 해당 job 선택 가능.
+            # 같은 시각 TRANSFER_ARRIVE(priority 2) 뒤에 처리(priority 3) — tie-break 고정.
+            self.jobs[ev.payload].status = JobStatus.RELEASED
+            self._clear_yields()
+        elif k in ("HORIZON", "ETA_UPDATED"):
             pass
         else:
             raise RuntimeError(f"미지원 이벤트 {k}")
@@ -724,10 +735,24 @@ class TerminalSimulator:
         if arrive is not None:
             self.queue.push(arrive, EventKind.TRANSFER_ARRIVE, vid)
 
+    def _release_next_discharge(self, vid: str):
+        """양하 박스 1개 야드 인계 → 그 선박의 다음 PLANNED 양하 job 1건 해제 (FIFO).
+
+        YR-080 단계2 — job_id 정렬 = 생성 순 FIFO (결정론). 이벤트로 우회해
+        event_log 가시성·동시각 tie-break(TRANSFER_ARRIVE 2 → VESSEL_RELEASED 3) 고정.
+        """
+        for jid in sorted(self.jobs):
+            j = self.jobs[jid]
+            if (j.vessel_id == vid and j.status == JobStatus.PLANNED
+                    and j.service_mode == ServiceMode.STORE):
+                self.queue.push(self.clock, EventKind.VESSEL_RELEASED, jid)
+                return
+
     def _transfer_arrive(self, vid: str):
         v = self.vessels[vid]
         if v.work_type == VesselWorkType.DISCHARGE:
             v.buffer_level = max(0, v.buffer_level - 1)   # box 야드 인계
+            self._release_next_discharge(vid)             # YR-080: 도착 박스 = job 해제
         else:
             v.buffer_level += 1                           # box 안벽 staged
         nxt = self.transfer.dispatch_pending(self.clock)

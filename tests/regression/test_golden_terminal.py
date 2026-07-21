@@ -16,16 +16,23 @@ _HERE = Path(__file__).parent
 _RECORD_GOLDEN = _HERE / f"golden_terminal_record_{SCHEMA_VERSION}.json"
 
 GOLDEN = {
-    "n_events": 115, "n_decisions": 4, "hash": "970b45a27b3da76e",
+    # YR-080 단계2 재동결 (양하=신규 반입 STORE·물리 도착 해제) — 항목별 사유:
+    # n_decisions 4→5: J-VES-D 해제가 600(시간)→924(STS 144+이송 180 물리 도착)로 늦어져
+    #   결정 시점 1회 증가. n_events 115 불변(JOB_RELEASED −1, VESSEL_RELEASED +1).
+    # empty_m 513.5→253.5: 양하가 bay 10 반출(빈 주행 왕복)에서 인계점 인근 적재로 바뀜.
+    # lane_cong 527.7→454.3·interference 420.4→691.2·imbalance 0.0282→0.0316: 결정
+    #   시점·크레인 동선 변화의 파생 (rate 항 적분 구간 이동).
+    # truck_wait·long_wait·sts_wait·transfer_wait 완전 불변 — 트럭 트랙·본선 프로세스
+    #   (STS/이송 rate)는 단계 2 미접촉 증거 (단계 3 에서 LOAD 게이팅 시 변경 예정).
+    "n_events": 115, "n_decisions": 5, "hash": "d0e73d88245c8304",
     "completed_external": 3, "completed_vessel": 2,
-    "empty_m": 513.5, "rehandles": 1,
+    "empty_m": 253.5, "rehandles": 1,
     "episode_raw": {
-        "truck_wait": 184.878, "long_wait": 0.0, "crane_travel": 0.0, "empty_travel": 513.5,
+        "truck_wait": 184.878, "long_wait": 0.0, "crane_travel": 0.0, "empty_travel": 253.5,
         "rehandle": 1.0, "sts_wait": 768.0, "transfer_wait": 10620.0, "vessel_delay": 0.0,
-        "depart_delay": 0.0, "lane_cong": 527.714, "interference": 420.378,
+        "depart_delay": 0.0, "lane_cong": 454.319, "interference": 691.206,
         # YR-043: imbalance 재정의 (누적 완료건수 pstdev → 작업부하 I(t)∈[0,1] / T_shift).
-        # 14779.431 → 0.028 — 총비용 지배(YR-039 무효 사유) 해소. event hash 는 불변.
-        "resequence": 0.0, "imbalance": 0.028186},
+        "resequence": 0.0, "imbalance": 0.03155},
 }
 
 

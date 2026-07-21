@@ -222,6 +222,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     # **전용 RNG 스트림**을 쓰는 이유: 기존 draw 열(도착·대상·본선)을 밀지 않아 같은 seed 의
     # 시나리오 구조가 이전과 바이트 동일하게 유지되고, 변화가 정확히 "ETA 추가"로 한정된다.
     eta_rng = random.Random(f"eta:{seed}")
+    # YR-080 단계2: 양하 inbound 규격 전용 스트림 — eta 스트림과 같은 이유(격리)로 분리.
+    vdis_rng = random.Random(f"vdis:{seed}")
     for i in range(params.n_external):
         # 기존 수식 보존 (부동소수점 결합 순서까지 — 골든 계약). 피크는 opt-in 후처리.
         arrival = params.horizon_s * (i + rng.random()) / params.n_external
@@ -269,18 +271,37 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                               completion_basis=None, etd_s=None,
                               total_moves=n_moves, sts_move_interval_s=cadence)
         vessels.append(VesselProcess(vid, work, plan))
-        n_linked = min(max(2, n_moves // 3), len(free_targets))
         flow = (JobFlow.VESSEL_DISCHARGE if work == VesselWorkType.DISCHARGE
                 else JobFlow.VESSEL_LOAD)
-        for m in range(n_linked):
-            target = free_targets.pop()
-            jobs.append(Job(
-                job_id=f"J-{vid}-{m:02d}", flow=flow,
-                release_time=start + m * cadence,
-                actual_gate_in=None, actual_block_arrival=None,
-                target_container=target,
-                deadline=start + n_moves * cadence * dmult + 1800.0,
-                priority_class=1))
+        if work == VesselWorkType.DISCHARGE:
+            # YR-080 단계2: 양하 = 선박→야드 **신규 반입(STORE)**. 야드 재고(free_targets)를
+            # 소비하지 않고 inbound 규격을 전용 RNG 스트림(vdis:{seed})으로 추출 — 기존
+            # draw 열(트럭·적하)을 밀지 않아 본선 없는 시나리오가 바이트 불변(스냅샷 계약).
+            # release_time 은 참고용 — 실제 해제는 박스 물리 도착(VESSEL_RELEASED, engine).
+            n_linked = max(2, n_moves // 3)
+            for m in range(n_linked):
+                jobs.append(Job(
+                    job_id=f"J-{vid}-{m:02d}", flow=flow,
+                    release_time=start + m * cadence,
+                    actual_gate_in=None, actual_block_arrival=None,
+                    target_container=None,
+                    inbound_size=(ContainerSize.FT40
+                                  if vdis_rng.random() < params.size_mix_ft40
+                                  else ContainerSize.FT20),
+                    inbound_load=LoadStatus.FULL,
+                    deadline=start + n_moves * cadence * dmult + 1800.0,
+                    priority_class=1, vessel_id=vid))
+        else:
+            n_linked = min(max(2, n_moves // 3), len(free_targets))
+            for m in range(n_linked):
+                target = free_targets.pop()
+                jobs.append(Job(
+                    job_id=f"J-{vid}-{m:02d}", flow=flow,
+                    release_time=start + m * cadence,
+                    actual_gate_in=None, actual_block_arrival=None,
+                    target_container=target,
+                    deadline=start + n_moves * cadence * dmult + 1800.0,
+                    priority_class=1, vessel_id=vid))
 
     jobs.sort(key=lambda j: j.job_id)
     # eta_error_s 박제 — YR-019 품질축 arm 정체성 (리뷰 반영). 부하 현실화(YR-002 D5)

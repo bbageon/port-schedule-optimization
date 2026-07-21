@@ -14,7 +14,7 @@ import copy
 from dataclasses import replace
 
 from yard_rl.contract import CandidateKind
-from yard_rl.domain.enums import InformationLevel, JobFlow
+from yard_rl.domain.enums import InformationLevel, JobFlow, ServiceMode
 from yard_rl.domain.models import Container
 from yard_rl.integrated import (BaselinePreference, CandidateGenerator, CentralResolver,
                                 TerminalSimulator, build_integrated_profile,
@@ -59,7 +59,7 @@ def _plan_reference(sim, crane_id, ref, *, extra_exclude=frozenset()):
     rehandles = 0
     j = sim.jobs[ref.job_id]
 
-    if j.flow == JobFlow.GATE_IN and ref.kind == CandidateKind.SERVE:
+    if j.service_mode == ServiceMode.STORE and ref.kind == CandidateKind.SERVE:
         dest = work.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
         if dest is None:
             return None
@@ -72,7 +72,9 @@ def _plan_reference(sim, crane_id, ref, *, extra_exclude=frozenset()):
                             bay=db, row=dr, tier=dtier)
         moves.append(Move(inbound.container_id, src, (db, dr, dtier),
                           mv.loaded_gantry_m, mv.empty_gantry_m, mv.duration_s, inbound=inbound))
-        total_s += mv.duration_s + spec.truck_positioning_time_s
+        total_s += mv.duration_s
+        if j.is_external_truck:      # 엔진과 동형 (YR-080 단계2 — 본선 양하 위치잡기 없음)
+            total_s += spec.truck_positioning_time_s
         loaded_m += mv.loaded_gantry_m
         empty_m += mv.empty_gantry_m
         cur_bay, cur_row = mv.end_bay, mv.end_row
