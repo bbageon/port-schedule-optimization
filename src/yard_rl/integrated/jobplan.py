@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..contract.schema import CandidateKind
+from ..domain.enums import ServiceMode
 from ..domain.models import Container
 
 
@@ -38,6 +39,7 @@ class JobRef:
     is_vessel: bool
     is_external: bool
     reposition_target_bay: float | None = None   # REPOSITION 목표 bay (YR-037)
+    service_mode: ServiceMode | None = None      # SERVE 물리 모드 (YR-080 §1; WAIT/REPO=None)
 
 
 @dataclass(frozen=True)

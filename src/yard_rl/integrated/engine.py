@@ -11,7 +11,7 @@ from __future__ import annotations
 import copy
 import hashlib
 
-from ..domain.enums import CraneStatus, JobFlow, JobStatus
+from ..domain.enums import CraneStatus, JobFlow, JobStatus, ServiceMode
 from ..domain.models import Container
 from ..sim.constraints import ConstraintViolation
 from ..sim.kpis import KpiTracker
@@ -303,7 +303,7 @@ class TerminalSimulator:
                 return False
             if not self.stacks.rehandle_capacity_ok(j.target_container, spec):
                 return False
-        if j.flow == JobFlow.GATE_IN:
+        if j.service_mode == ServiceMode.STORE:      # 신규 반입 — 적재 슬롯 필요 (YR-080 §1)
             yc = self.fleet.get(crane_id)
             if self.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
                                      yc.state.trolley_row) is None:
@@ -313,7 +313,7 @@ class TerminalSimulator:
     def _jobref(self, j, spec, yc) -> JobRef | None:
         if j.target_container is not None:
             bay = self.stacks.containers[j.target_container].bay
-        elif j.flow == JobFlow.GATE_IN:
+        elif j.service_mode == ServiceMode.STORE:
             slot = self.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
                                          yc.state.trolley_row)
             if slot is None:
@@ -371,7 +371,7 @@ class TerminalSimulator:
         rehandles = 0
         j = self.jobs[ref.job_id]
 
-        if j.flow == JobFlow.GATE_IN and ref.kind == CandidateKind.SERVE:
+        if j.service_mode == ServiceMode.STORE and ref.kind == CandidateKind.SERVE:
             dest = stk.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
             if dest is None:
                 return None

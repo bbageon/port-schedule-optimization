@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .enums import ContainerSize, CraneStatus, JobFlow, JobStatus, LoadStatus
+from .enums import (ContainerSize, CraneStatus, JobFlow, JobStatus, LoadStatus,
+                    RequesterType, ServiceMode)
 
 
 @dataclass
@@ -35,9 +36,10 @@ class Job:
     deadline: float | None = None       # 본선·내부작업 마감
     # --- 대상 ---
     target_container: str | None = None  # GATE_OUT·VESSEL_*: 야드 내 컨테이너
-    inbound_size: ContainerSize | None = None      # GATE_IN: 반입 컨테이너 규격
+    inbound_size: ContainerSize | None = None      # 신규 반입 규격 (GATE_IN·양하 STORE)
     inbound_load: LoadStatus | None = None
     priority_class: int = 0             # 0=일반 외부트럭, 1=본선·내부 연계
+    vessel_id: str | None = None        # 본선연계 job 의 소속 선박 (YR-080 인과 연결)
     # --- 런타임 상태 ---
     status: JobStatus = JobStatus.PLANNED
     assigned_crane: str | None = None
@@ -52,6 +54,23 @@ class Job:
     @property
     def is_vessel_linked(self) -> bool:
         return self.flow in (JobFlow.VESSEL_LOAD, JobFlow.VESSEL_DISCHARGE, JobFlow.TRANSSHIPMENT)
+
+    @property
+    def service_mode(self) -> ServiceMode:
+        """물리 실행 모드 (YR-080 §1) — **데이터 주도** 판정.
+
+        inbound_size 가 있으면 신규 반입(STORE = 인계점→스택), 없으면 반출(RETRIEVE).
+        현재는 GATE_IN 만 STORE 라 flow 분기와 완전 등가(단계 1 등가 리팩터 계약).
+        본선 양하가 inbound 로 전환되면(단계 2) 자동으로 STORE 경로를 탄다.
+        """
+        return (ServiceMode.STORE if self.inbound_size is not None
+                else ServiceMode.RETRIEVE)
+
+    @property
+    def requester_type(self) -> RequesterType:
+        """업무 요청 주체 — 비용(트럭 대기 vs 선석 초과)·통계 구분용 (YR-080 §1)."""
+        return (RequesterType.VESSEL if self.is_vessel_linked
+                else RequesterType.TRUCK)
 
 
 @dataclass

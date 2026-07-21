@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from ..domain.enums import InformationLevel, JobFlow, JobStatus
+from ..domain.enums import InformationLevel, JobFlow, JobStatus, ServiceMode
 from ..sim.constraints import ConstraintViolation
 from ..contract.schema import CandidateKind
 from .jobplan import JobPlan, JobRef
@@ -38,7 +38,7 @@ def _visible_eta_of(j, level) -> float | None:
 def _future_bay_of(sim, j, spec, yc) -> float | None:
     if j.target_container is not None and j.target_container in sim.stacks.containers:
         return float(sim.stacks.containers[j.target_container].bay)
-    if j.flow == JobFlow.GATE_IN and j.inbound_size is not None:
+    if j.service_mode == ServiceMode.STORE and j.inbound_size is not None:
         slot = sim.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
                                     yc.state.trolley_row)
         return float(slot[0]) if slot else None

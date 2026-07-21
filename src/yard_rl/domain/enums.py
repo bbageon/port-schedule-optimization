@@ -16,6 +16,24 @@ class JobFlow(str, Enum):
     REHANDLE = "REHANDLE"          # 재조작 (blocker 이동)
 
 
+class ServiceMode(str, Enum):
+    """야드크레인 물리 실행 모드 (YR-080 §1) — 행동 종류(SERVE)는 하나, 물리는 2모드.
+
+    STORE=인계점→스택(트럭 반입·본선 양하), RETRIEVE=스택→인계점(트럭 반출·본선 적하).
+    Job.service_mode 가 데이터(inbound_size 유무)로 파생 — flow 분기 하드코딩 대체.
+    """
+
+    STORE = "STORE"
+    RETRIEVE = "RETRIEVE"
+
+
+class RequesterType(str, Enum):
+    """업무 요청 주체 (YR-080 §1) — 비용·통계·인계 구분용 (물리 실행과 독립)."""
+
+    TRUCK = "TRUCK"
+    VESSEL = "VESSEL"
+
+
 class LoadStatus(str, Enum):
     FULL = "FULL"
     EMPTY = "EMPTY"
