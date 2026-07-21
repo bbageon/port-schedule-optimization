@@ -1,0 +1,356 @@
+# 부산항 10개 컨테이너터미널 공개자료 레지스트리 (YR-082-A) — 기계가독 manifest
+# 원본(single source, 사용자 소유 로컬): 부산항_터미널별_강화학습_환경정보_상세조사.md (938줄, 2026-07-20)
+# 목적: 공개자료를 "바로 실행값"으로 오해하지 않도록 필드별 증거등급을 박제한다.
+#
+# 증거등급(status) 어휘 — 승격 금지 계약:
+#   confirmed  : BPA 또는 운영사 공식 페이지에서 직접 확인
+#   derived    : 확인값에서 유도(참고용). confirmed 로 올리지 않는다 (예: 46÷2=23블록)
+#   assumed    : 문헌 보정 가정값 (실측 아님). 구조군 physics_base 가 제공
+#   unresolved : 공개자료로 확인 안 됨 / 충돌. 0·평균으로 채우지 않는다
+# 충돌값(BPA≠운영사)은 한 값으로 합치지 않고 both 로 보존한다.
+#
+# 금지(spec §프로파일 증거 계약): 부두·안벽·철도·전체야드 길이를 차량 레인 길이로 대체 /
+#   CY 면적에서 블록길이·Bay 역산 / 전체 크레인수÷블록수를 블록당 대수로 확정 /
+#   연간 처리능력·전체 장비수를 블록별 도착률·장치율로 환산.
+
+schema: busan-terminal-registry-v1
+source_doc: 부산항_터미널별_강화학습_환경정보_상세조사.md
+source_date: 2026-07-20
+source_authority_default: BPA(부산항만공사) 신항/북항 시설현황 총괄 + 각 운영사 공식 페이지
+claim_gate: >-
+  전 터미널 Level 0~1. 실운영 개선율·CURRENT_RULE 재현·운영사 실측 validation 주장 금지.
+  가능한 주장 = 문헌·공개자료 보정 시뮬레이션의 방법론 결과. Level 2 는 블록좌표·Bay·레인그래프·
+  크레인 통과규칙 확인 후, Level 3 는 TOS/VBS/RTLS 실측 후, Level 4(현장) 는 별도 승인 후.
+
+# ── 구조군 (spec §구조군): 다르면 동결 가중치 재사용·성능 평균합산 금지.
+#    수직/혼합형을 현 2크레인 공동경합 엔진에 이름만 바꿔 넣는 시험은 금지(runnable_in_current_engine=false).
+archetypes:
+  PROVISIONAL_RMG_ATC_YT:
+    desc: RMG/ATC·YT 계열 잠정군 — 크레인 2기 같은 블록·둘 다 트럭+본선(수평 가정)
+    members: [PNIT, PNC, HJNC, HPNT]
+    physics_base: configs/terminals/hjnc_armg.yaml   # 문헌 보정 assumed physics (현 SNP-ARMG-STD 와 동일 계열)
+    role_separated: false
+    runnable_in_current_engine: true    # 단 Level 1 stress 전용 — 성능주장 금지. HJNC 만 수평 확인, 나머지 방향 unresolved
+  VERTICAL_ARMG_AGV:
+    desc: 수직형 ARMG·AGV — 블록당 2기 육측(외부트럭)/해측(AGV) 역할분리
+    members: [DGT]
+    physics_base: configs/terminals/dgt_armg.yaml
+    role_separated: true                # 엔진 실제 소비는 YR-083 (도로·인계점·역할 런타임화)
+    runnable_in_current_engine: false   # 역할분리·AGV 흐름 미구현 — 이름만 바꿔 실행 금지(spec)
+  VERTICAL_TC_SC:
+    desc: 수직형 자동화·Straddle Carrier — S/C 이동·인계 규칙이 AGV·YT 와 다름
+    members: [BNCT, BCT]
+    physics_base: null                  # S/C 역학 미구현 — physics_base 없음
+    role_separated: null                # 육해측 분리 가능성 있으나 공개 확정 불가
+    runnable_in_current_engine: false
+  CONVENTIONAL_MIXED_PROVISIONAL:
+    desc: 북항 기존형·혼합 — 장비형식·블록이동·최신 운영구조부터 현장 확인 필요
+    members: [BPT_SINSEONDAE, BPT_GAMMAN, HKT]
+    physics_base: null
+    role_separated: null
+    runnable_in_current_engine: false
+
+# ── 터미널별 레지스트리. v=value, u=unit, s=status, src=authority, note/conflict 부가.
+terminals:
+  PNIT:
+    name_kr: 신항 1부두
+    operator: 부산신항국제터미널㈜
+    archetype: PROVISIONAL_RMG_ATC_YT
+    opened: 2010-03
+    facility:
+      berth_length_m: {v: 1200, s: confirmed}
+      depth_m: {v: 16, s: confirmed}
+      throughput_teu_yr: {v: 2090000, s: confirmed}
+      cy_area_m2: {v: 294000, s: confirmed}
+    yard_crane:
+      type: {v: RMG, s: confirmed}
+      count: {v: 42, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved, note: 배열방향 공개 미확인(spec)}
+      block_count: {v: null, s: unresolved}
+      rows: {v: null, s: unresolved, note: 운영사 영문 "9 Tier 6 Row" 표기 상충 — 해석 확인 필요}
+      tiers: {v: null, s: unresolved, note: 위와 동일 상충}
+      rail_gap_m: {v: 28.4, s: confirmed}
+    gate:
+      in_lanes: {v: 4, s: confirmed}
+      out_lanes: {v: 3, s: confirmed}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 82, s: confirmed, verification_required: true, note: 요약표·상세표 대조 권고}
+      chassis: {v: 166, s: confirmed}
+  PNC:
+    name_kr: 신항 2부두
+    operator: 부산신항만㈜
+    archetype: PROVISIONAL_RMG_ATC_YT
+    opened: 2006-01
+    facility:
+      berth_length_m: {v: 2000, s: confirmed}
+      depth_m: {v: null, s: unresolved, conflict: {BPA: "16~17", operator: 17}}
+      throughput_teu_yr: {v: 3790000, s: confirmed, src: BPA, note: 운영사는 "500만 처리가능"(다른 지표) — 합산 금지}
+      cy_area_m2: {v: 525000, s: confirmed}
+    yard_crane:
+      type: {v: RMG, s: confirmed, note: "대규모 RMG 야드 확인(§5.1)"}
+      count: {v: 69, s: confirmed, src: BPA}
+      count_general_yard: {v: null, s: unresolved, note: 69기 중 철송 RMGC 4기 포함 — 일반야드 배분 미확인}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved}
+      block_count: {v: 40, s: confirmed, note: 일반32·공컨5·냉동2·위험물1}
+      rows: {v: null, s: unresolved}
+      tiers: {v: null, s: unresolved}
+      rail_gap_m: {v: null, s: unresolved}
+    gate:
+      in_lanes: {v: 8, s: confirmed, note: 동4+서4}
+      out_lanes: {v: 5, s: confirmed, note: 동1+서4}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 154, s: confirmed}
+      chassis: {v: 313, s: confirmed}
+    rail_yard: {work_lines: 8, line_length_m: 600, rmgc: 4, s: confirmed, note: 일반야드와 분리}
+  HJNC:
+    name_kr: 신항 3부두
+    operator: 한진부산컨테이너터미널㈜
+    archetype: PROVISIONAL_RMG_ATC_YT
+    opened: 2009-02
+    facility:
+      berth_length_m: {v: 1100, s: confirmed}
+      depth_m: {v: 17, s: confirmed}
+      throughput_teu_yr: {v: 2310000, s: confirmed}
+      cy_area_m2: {v: 346000, s: confirmed}
+    yard_crane:
+      type: {v: ARMGC, s: confirmed}
+      count: {v: 42, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved, derived_ref: 2, note: "42÷21=2 는 참고 유도값, 확정 아님(spec)"}
+    layout:
+      orientation: {v: HORIZONTAL, s: confirmed, note: 부산항 신항 유일 수평형 공식 확인}
+      block_count: {v: 21, s: confirmed}
+      rows: {v: 10, s: confirmed}
+      tiers: {v: 6, s: confirmed}
+      rail_gap_m: {v: 31, s: confirmed}
+    gate:
+      in_lanes: {v: 6, s: confirmed}
+      out_lanes: {v: 4, s: confirmed}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: null, s: unresolved, conflict: {operator: 96, BPA: 105}}
+      chassis: {v: null, s: unresolved, conflict: {operator: 193, BPA: 216}}
+    features:
+      separate_vehicle_paths: {v: null, s: unresolved, note: RFID 트럭인식은 확인, 물리 분리방식은 추론 이상 금지}
+      crane_passing: {v: null, s: unresolved}
+  HPNT:
+    name_kr: 신항 4부두
+    operator: HMM PSA 신항만㈜
+    archetype: PROVISIONAL_RMG_ATC_YT
+    opened: 2010-02
+    facility:
+      berth_length_m: {v: 1150, s: confirmed}
+      depth_m: {v: null, s: unresolved, conflict: {BPA: "16~17"}}
+      throughput_teu_yr: {v: 1930000, s: confirmed}
+      cy_area_m2: {v: 213000, s: confirmed}
+    yard_crane:
+      type: {v: ATC/RMGC, s: confirmed, note: 무인 자동화 ATC}
+      count: {v: 38, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved}
+      block_count: {v: null, s: unresolved}
+      rows: {v: 10, s: confirmed}
+      tiers: {v: 6, s: confirmed}
+      rail_gap_m: {v: null, s: unresolved}
+    gate:
+      in_lanes: {v: null, s: unresolved}
+      out_lanes: {v: null, s: unresolved}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 85, s: confirmed}
+      chassis: {v: 160, s: confirmed}
+    features:
+      one_way_roads: {v: true, s: confirmed}
+      internal_external_roads_separated: {v: true, s: confirmed}
+      reefer_blocks: {v: 3, s: confirmed}
+  DGT:
+    name_kr: 신항 7부두
+    operator: 동원글로벌터미널부산㈜
+    archetype: VERTICAL_ARMG_AGV
+    opened: 2024-04
+    facility:
+      berth_length_m: {v: 1050, s: confirmed}
+      depth_m: {v: null, s: confirmed, note: "18~20"}
+      throughput_teu_yr: {v: 1950000, s: confirmed}
+      cy_area_m2: {v: 517000, s: confirmed}
+    yard_crane:
+      type: {v: ARMG, s: confirmed}
+      count: {v: 46, s: confirmed}
+      cranes_per_block: {v: 2, s: confirmed, note: 육측·해측 역할분리 공식 확인}
+    layout:
+      orientation: {v: VERTICAL, s: confirmed}
+      block_count: {v: 23, s: derived, note: "46÷2=23 유도 후보 — 확정 아님(spec)"}
+      rows: {v: 10, s: confirmed}
+      tiers: {v: 6, s: confirmed}
+      rail_gap_m: {v: null, s: unresolved, note: DGT 레일간격 공개 미확인}
+    gate:
+      in_lanes: {v: null, s: unresolved}
+      out_lanes: {v: null, s: unresolved}
+    transfer:
+      kind: {v: AGV, s: confirmed}
+      count: {v: 60, s: confirmed}
+      yt: {v: 18, s: confirmed}
+      chassis: {v: 74, s: confirmed}
+    features:
+      sts_count: {v: 9, s: confirmed}
+      sts_to_agv_ratio: {v: "1:5", s: confirmed, note: 운영사 서술}
+      landside_seaside_roles_separated: {v: true, s: confirmed}
+      hard_vehicle_separation: {v: null, s: unresolved, note: 물리 분리방식 추론 이상 금지}
+  BNCT:
+    name_kr: 신항 5부두
+    operator: ㈜비엔씨티
+    archetype: VERTICAL_TC_SC
+    opened: 2012-01
+    facility:
+      berth_length_m: {v: 1400, s: confirmed}
+      depth_m: {v: 17, s: confirmed}
+      throughput_teu_yr: {v: 2440000, s: confirmed}
+      cy_area_m2: {v: 154000, s: confirmed}
+    yard_crane:
+      type: {v: T/C, s: confirmed}
+      count: {v: 52, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: VERTICAL, s: confirmed}
+      block_count: {v: null, s: unresolved}
+      rows: {v: null, s: unresolved}
+      tiers: {v: null, s: unresolved}
+      rail_gap_m: {v: null, s: unresolved}
+    gate:
+      in_lanes: {v: null, s: unresolved}
+      out_lanes: {v: null, s: unresolved}
+    transfer:
+      kind: {v: SC, s: confirmed}
+      count: {v: 40, s: confirmed}
+      yt: {v: 10, s: confirmed}
+      chassis: {v: 71, s: confirmed}
+    features:
+      landside_seaside_roles_separated: {v: null, s: unresolved, note: 수직형 일반특성상 가능하나 확정 불가}
+  BCT:
+    name_kr: 신항 6부두
+    operator: ㈜부산컨테이너터미널
+    archetype: VERTICAL_TC_SC
+    opened: 2022-06
+    facility:
+      berth_length_m: {v: 1050, s: confirmed}
+      depth_m: {v: 18, s: confirmed}
+      throughput_teu_yr: {v: 1950000, s: confirmed}
+      cy_area_m2: {v: 350000, s: confirmed}
+    yard_crane:
+      type: {v: T/C, s: confirmed}
+      count: {v: 44, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: VERTICAL, s: confirmed}
+      block_count: {v: null, s: unresolved}
+      rows: {v: null, s: unresolved}
+      tiers: {v: null, s: unresolved}
+      rail_gap_m: {v: null, s: unresolved}
+    gate:
+      in_lanes: {v: null, s: unresolved}
+      out_lanes: {v: null, s: unresolved}
+    transfer:
+      kind: {v: SC, s: confirmed}
+      count: {v: 28, s: confirmed}
+      yt: {v: 10, s: confirmed}
+      chassis: {v: 72, s: confirmed}
+  BPT_SINSEONDAE:
+    name_kr: 북항 신선대
+    operator: 부산항터미널㈜
+    archetype: CONVENTIONAL_MIXED_PROVISIONAL
+    facility:
+      berth_length_m: {v: 1500, s: confirmed}
+      depth_m: {v: null, s: confirmed, note: "15~16"}
+      throughput_teu_yr: {v: 2236000, s: confirmed}
+      cy_area_m2: {v: 804000, s: confirmed}
+    yard_crane:
+      type: {v: null, s: unresolved, note: RMG/RTG/ATC 중 무엇인지 미확인(spec)}
+      count: {v: 41, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved}
+      block_count: {v: null, s: unresolved}
+      rows: {v: null, s: unresolved}
+      tiers: {v: null, s: unresolved}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 104, s: confirmed}
+      chassis: {v: 168, s: confirmed}
+  BPT_GAMMAN:
+    name_kr: 북항 감만 3·4B
+    operator: 부산항터미널㈜
+    archetype: CONVENTIONAL_MIXED_PROVISIONAL
+    note: 2025년 이후 운영사·선석 구조 변경 중 — 실적용 전 최신 확인 필수
+    facility:
+      berth_length_m: {v: 700, s: confirmed}
+      depth_m: {v: 15, s: confirmed}
+      throughput_teu_yr: {v: 800000, s: confirmed}
+      cy_area_m2: {v: 136000, s: confirmed}
+    yard_crane:
+      type: {v: null, s: unresolved}
+      count: {v: 30, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved}
+      block_count: {v: null, s: unresolved}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 54, s: confirmed}
+      chassis: {v: 156, s: confirmed}
+  HKT:
+    name_kr: 북항 신감만·감만 1B
+    operator: 한국허치슨터미널㈜
+    archetype: CONVENTIONAL_MIXED_PROVISIONAL
+    facility:
+      berth_length_m: {v: 1176, s: confirmed}
+      depth_m: {v: 15, s: confirmed}
+      throughput_teu_yr: {v: 1219000, s: confirmed}
+      cy_area_m2: {v: 221000, s: confirmed}
+    yard_crane:
+      type: {v: null, s: unresolved}
+      count: {v: 37, s: confirmed}
+      cranes_per_block: {v: null, s: unresolved}
+    layout:
+      orientation: {v: null, s: unresolved}
+      block_count: {v: null, s: unresolved}
+    transfer:
+      kind: {v: YT, s: confirmed}
+      count: {v: 64, s: confirmed}
+      chassis: {v: 152, s: confirmed}
+
+# ── 자료충족도 (Level, spec §9). 전 터미널 Level 0~1. Level 2 적격 = 0개.
+data_sufficiency:
+  note: >-
+    Level2 자격 = 블록좌표·Bay/Row/Tier·진입출구·작업면 + 실제 크레인배치·담당Bay·통과규칙·안전거리 +
+    방향·길이·용량·허용차종 레인/인계점. 현재 전 터미널 미충족(0개). HJNC 가 구조 확인 최다이나
+    블록좌표·Bay·레인그래프·통과규칙 부재로 Level2 아님.
+  level_rule: >-
+    Level0=규모비교(장비수·CY·게이트). Level1=개념 격자 시뮬레이션 — 조사문서 §9 정의상
+    "블록 수가 공개된 터미널"이 전제이므로 block_count 가 confirmed 또는 derived 여야 한다.
+    block_count=unresolved 면 격자조차 못 만들어 Level0 이다(감사 low findings 반영, 내부 일관성).
+    Level2 는 블록좌표·Bay·레인그래프·통과규칙 확인 후 — 전 터미널 미충족.
+  levels:
+    PNIT: 0     # block_count unresolved → 규모비교만
+    PNC: 1      # block_count 40 confirmed
+    HJNC: 1     # block_count 21 confirmed (구조 확인 최다이나 좌표·Bay·레인그래프 부재로 Level2 미달)
+    HPNT: 0     # block_count unresolved
+    DGT: 1      # block_count 23 derived(46÷2) — 규칙상 derived 허용, 단 확정 아님
+    BNCT: 0     # block_count unresolved
+    BCT: 0      # block_count unresolved
+    BPT_SINSEONDAE: 0
+    BPT_GAMMAN: 0
+    HKT: 0
+
+# ── YR-042(다른 터미널 무재학습 게이트) 입력 자격 판정.
+yr042_eligibility:
+  rule: 같은 구조군 Level2 적격 2크레인 블록 프로파일 2개 이상이면 cross-terminal structure arm 개방
+  verdict: "DATA-BLOCKED — NO ELIGIBLE PROFILE"
+  detail: >-
+    전 구조군 Level2 적격 0개. 수평형 PROVISIONAL 군은 assumed profile stress arm 만 허용
+    (성능주장 금지, profile-shift stress 로만 표기). 수직·혼합군은 YR-083 런타임 미지원까지 실행 금지.
