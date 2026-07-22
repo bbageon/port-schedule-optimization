@@ -26,7 +26,7 @@
 | YR-024 | Sim | 취급시간 확률화 — DGT 육측 원격 인계 분산(PEMA) 반영, 결정적 모델 확장 | 🟡 | YR-023 발견: 공개정보만으론 HJNC·DGT 프로파일이 수치 동일 — 케이스 차별화의 유일한 문헌 경로 |
 | YR-015-b | UI | 통합정책 설명·동기비교·운영자 승인/반려 UI | 🟡 | [spec](../docs/dashboard-task-specs/YR-015-verification-ui.md) · 현재는 읽기전용 replay. YR-014 채택 bundle과 YR-082 Level 4 범위가 확정되면 실제 제어 없는 Shadow Mode의 승인·반려 기록으로 확장 |
 | YR-014 | Exp | **채택 정책 locked 종합평가·주장 확정** | 🟡 | [spec](../docs/dashboard-task-specs/YR-014-final-evaluation.md) · 정책 bundle 동결, 조건검증, YR-082 자료등급·YR-083 런타임 호환·YR-042 구조 분류 후. 기준·stress·무재학습·재적응 결과를 분리하고 완주 guard 우선 판정 |
-| YR-081 | RL | **구조 확장 게이트 — 가변 크레인 수·다중 블록 계층관제** | ⚪ | [spec](../docs/dashboard-task-specs/YR-081-variable-crane-yard-scaling.md) · YR-082가 나눈 RMG/ATC-YT·수직 AGV·수직 S/C·북항 혼합형을 별도 환경군으로 확장. YR-042·014 뒤 독립 블록 기준선부터 측정하고 공유 병목 상금이 있을 때만 상위 관제·QMIX 검토 |
+| YR-081 | RL | **구조 확장 게이트 — 가변 크레인 수·다중 블록 계층관제** | ⚪ | [spec](../docs/dashboard-task-specs/YR-081-variable-crane-yard-scaling.md) · YR-082가 나눈 RMG/ATC-YT·수직 AGV·수직 S/C·북항 혼합형을 별도 환경군으로 확장. YR-042·014 뒤 독립 블록 기준선부터 측정하고 공유 병목 상금이 있을 때만 상위 관제·QMIX 검토 · **선행 발판 (YR-086, 2026-07-22 `54152ec`)**: 크레인 수 선택 컴포넌트 + 게이트 완비. 실측 = 현 엔진은 다크레인 용량 스케일링 미충실(고정 이송fleet·단일 인계행·bay 불균형) → 본 태스크는 인계 zone·크레인별 이송·교차 handoff·가변 슬롯 정책(FT 재학습)의 **엔진/정책 확장**이 핵심 |
 | YR-084 | Infra | **장기 운영화 북극성 — LLM 감독형 터미널 오케스트레이션·관제 Shadow PoC** | ⚪ | [spec](../docs/dashboard-task-specs/YR-084-llm-terminal-orchestration.md) · **지금 착수하지 않음(2026-07-22 사용자 결정)**. 블록→야드(YR-081)→결정론적 터미널 계획기가 먼저이며, LLM은 장비제어가 아니라 예외 해석·검증된 재계획 도구 호출·설명만 담당. Level 3 운영로그·Level 4 Shadow 승인과 권한/감사/복귀 계약 뒤 개방 |
 
 ---
