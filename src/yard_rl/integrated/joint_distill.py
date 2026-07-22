@@ -48,6 +48,7 @@ class JointDecisionSample:
     sf_pos: int | None
     disagree: bool
     round_tag: str = "r0"
+    vessel: tuple = ()                          # YR-087 본선 전역 (결정마다 공유, 기본 () 하위호환)
 
 
 def combo_matrix(s: JointDecisionSample) -> torch.Tensor:
@@ -59,7 +60,8 @@ def combo_matrix(s: JointDecisionSample) -> torch.Tensor:
     qa = list(s.qa) if s.qa else z_q
     ycb = list(s.ycb) if s.ycb else z_yc
     qb = list(s.qb) if s.qb else z_q
-    rows = [list(s.ga) + yca + qa + (list(s.canda[i]) if i >= 0 else z_c)
+    ves = list(s.vessel)                        # YR-087: 본선 전역 (결정마다 1회 공유)
+    rows = [list(s.ga) + ves + yca + qa + (list(s.canda[i]) if i >= 0 else z_c)
             + ycb + qb + (list(s.candb[j]) if j >= 0 else z_c)
             for i, j in s.combos]
     return torch.tensor(rows, dtype=torch.float32)
@@ -163,12 +165,13 @@ class CentralJointValuePolicy:
     """
 
     def __init__(self, net: JointPairNet, norm: StateNorm | None, generator,
-                 slots: tuple[str, str], name: str = "STUDENT"):
+                 slots: tuple[str, str], name: str = "STUDENT", use_vessel: bool = False):
         self.net = net
         self.norm = norm
         self.gen = generator
         self.slots = slots                     # 프로파일 크레인 id 오름차순 고정
         self.name = name
+        self.use_vessel = use_vessel           # YR-087: 본선 전역 블록 포함 (net 학습과 정합)
         self._jr = JointRolloutGreedy(None, generator=generator)   # 조합 열거 전용
         self._k = 0
 
@@ -183,7 +186,8 @@ class CentralJointValuePolicy:
         ref = ea or eb
         z_yc, z_q = [0.0] * len(ref.yc), [0.0] * len(ref.queue)
         z_c = [0.0] * len(ref.cand[0])
-        ctx_a = list(ref.g) + (list(ea.yc) + list(ea.queue) if ea else z_yc + z_q)
+        ves = list(ref.vessel) if self.use_vessel else []      # YR-087 본선 전역
+        ctx_a = list(ref.g) + ves + (list(ea.yc) + list(ea.queue) if ea else z_yc + z_q)
         ctx_b = (list(eb.yc) + list(eb.queue)) if eb else z_yc + z_q
         rows, assigns = [], []
         for combo in self._jr._admissible_combos(sim, dp, gen_by):

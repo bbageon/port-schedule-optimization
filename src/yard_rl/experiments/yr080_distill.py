@@ -112,7 +112,7 @@ def collect_one(task: tuple) -> dict:
                 (ea or eb).g, ea.yc if ea else (), ea.queue if ea else (),
                 ea.cand if ea else (), eb.yc if eb else (), eb.queue if eb else (),
                 eb.cand if eb else (), tuple(combos), tuple(scores), best, sf_pos,
-                disagree, cell))
+                disagree, cell, vessel=(ea or eb).vessel))
             _apply(sim, assigns[best])
         else:
             _apply(sim, {c: _wait_of(gen_by[c]) for c in dp.crane_ids})
@@ -128,7 +128,8 @@ def collect_one(task: tuple) -> dict:
 
 
 def eval_student(net, norm, cell: str, seed: int) -> dict:
-    pol = CentralJointValuePolicy(net, norm, CandidateGenerator(), SLOTS, name="STUDENT")
+    pol = CentralJointValuePolicy(net, norm, CandidateGenerator(), SLOTS, name="STUDENT",
+                                  use_vessel=True)
     row = run_joint_episode(_sim(cell, seed), pol, RC, generator=CandidateGenerator())
     healthy = True
     try:

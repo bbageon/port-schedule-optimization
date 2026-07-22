@@ -15,6 +15,14 @@ from dataclasses import dataclass, field
 
 from ..contract import SCHEMA, CandidateKind, GlobalState, LocalObservation
 
+# YR-087: 본선 그룹 전역 인코딩 — 학생이 후보와 무관하게 "어느 배가 얼마나 급한지"를
+# 보게 한다(증류 격차 해소). top-K 위험순 정렬·부족분 0패딩(결측=0 규약).
+_VESSEL_SPECS = SCHEMA.group_specs("vessel")
+_FV_VESSEL = len(_VESSEL_SPECS)
+_RISK_IDX = next(i for i, sp in enumerate(_VESSEL_SPECS) if sp.name == "risk")
+K_VESSEL = 2                                     # 인코딩할 본선 슬롯 수 (시나리오 n_vessels=2)
+_VESSEL_PAD = tuple([0.0] * (2 * _FV_VESSEL))    # 부재 슬롯 = value0+known0
+
 
 @dataclass(frozen=True)
 class StateNorm:
@@ -58,10 +66,22 @@ class DecisionEncoding:
     actionable: tuple[bool, ...]
     candidate_ids: tuple[int, ...]
     wait_pos: int | None = None          # WAIT 후보의 행 위치 (replay 표본 매핑용, YR-043)
+    vessel: tuple[float, ...] = ()        # YR-087: K_VESSEL·2·Fv 본선 전역 (기본 () = 미사용)
 
     @property
     def k_max(self) -> int:
         return len(self.cand)
+
+
+def _encode_vessels(vessels, norm: StateNorm | None) -> tuple[float, ...]:
+    """본선 전역 블록 — 위험 desc 정렬 top-K, 부족분 0패딩. 결정마다 공유(global 처럼)."""
+    def risk_of(vu):
+        return vu.features.value[_RISK_IDX] if vu.features.known[_RISK_IDX] else 0.0
+    top = sorted(vessels, key=risk_of, reverse=True)[:K_VESSEL]
+    out: list[float] = []
+    for i in range(K_VESSEL):
+        out.extend(fv_to_vec(top[i].features, norm) if i < len(top) else _VESSEL_PAD)
+    return tuple(out)
 
 
 def encode_observation(state: GlobalState, ob: LocalObservation,
@@ -82,7 +102,8 @@ def encode_observation(state: GlobalState, ob: LocalObservation,
         selectable=selectable,
         actionable=actionable,
         candidate_ids=tuple(c.candidate_id for c in cs.items),
-        wait_pos=wait_pos)
+        wait_pos=wait_pos,
+        vessel=_encode_vessels(state.vessels, norm))
 
 
 def encoding_dims(enc: DecisionEncoding) -> tuple[int, int, int, int]:
