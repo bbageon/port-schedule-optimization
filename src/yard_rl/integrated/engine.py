@@ -688,6 +688,10 @@ class TerminalSimulator:
                 j.rehandle_count = plan.rehandles
                 self.kpis.job_completed(external=j.is_external_truck, deadline=j.deadline,
                                         end=self.clock)
+                # YR-080 단계3: 적하 반출 완료 → 박스를 안벽으로 이송 — 인과 사슬의
+                # 적하 절반 (YC 반출 → YT → 안벽버퍼 → STS 처리 가능).
+                if j.flow == JobFlow.VESSEL_LOAD and j.vessel_id is not None:
+                    self._transfer_request(j.vessel_id)
         if yc.down_pending:
             yc.down, yc.down_pending = True, False
         self._clear_yields()
@@ -699,9 +703,9 @@ class TerminalSimulator:
             return
         v.started = True
         v.remaining_moves = v.plan.total_moves
-        if v.work_type == VesselWorkType.LOAD:
-            for _ in range(min(v.plan.quay_buffer_cap, v.plan.total_moves)):
-                self._transfer_request(vid)
+        # YR-080 단계3: 적하 유령 pre-fill 삭제 — 안벽 버퍼의 박스는 야드 반출 완료가
+        # 만든다(_complete → _transfer_request). 야드작업과 무관하게 버퍼가 차던
+        # 인과 단절(가중치를 올려도 행동 불변, YR-080d)의 적하 절반 교정.
         self.queue.push(self.clock + v.plan.sts_move_interval_s, EventKind.STS_MOVE, vid)
 
     def _can_sts_process(self, v) -> bool:
@@ -721,9 +725,9 @@ class TerminalSimulator:
             v.sts_blocked_since_s = None
         if v.work_type == VesselWorkType.DISCHARGE:
             v.buffer_level += 1
+            self._transfer_request(vid)      # 양하 박스 → 야드 이송 (도착 시 job 해제)
         else:
-            v.buffer_level -= 1
-        self._transfer_request(vid)
+            v.buffer_level -= 1              # 적하 소비 — 보충은 야드 반출 완료가 (단계3)
         v.remaining_moves -= 1
         if v.remaining_moves <= 0:
             self._vessel_finish(vid)
@@ -762,6 +766,7 @@ class TerminalSimulator:
         if not v.done and v.sts_blocked_since_s is not None and self._can_sts_process(v):
             v.sts_blocked_since_s = None
             self.queue.push(self.clock, EventKind.STS_MOVE, vid)
+        self._clear_yields()      # 버퍼 변화로 결정 지형이 바뀜 — yielded 크레인 재개방 (단계3)
 
     def _vessel_finish(self, vid: str):
         v = self.vessels[vid]

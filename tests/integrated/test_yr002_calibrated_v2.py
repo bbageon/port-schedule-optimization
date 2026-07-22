@@ -25,10 +25,15 @@ def _fingerprint(profile, seed, params=None):
 
 
 def test_default_scenario_frozen_golden():
-    """변경 전(commit 8ddbef7 직전) 실측 지문 — 기본 파라미터 시나리오 불변 guard."""
-    assert _fingerprint(build_integrated_profile(), 530000) == "edfd8dde05fc469d"
-    assert _fingerprint(build_integrated_profile(), 700000) == "f93ae26660eaf96a"
-    assert _fingerprint(build_dgt_approx_profile(), 700000) == "53f174ae3614c3d6"
+    """기본 파라미터 시나리오 불변 guard — YR-080 단계2·3 재동결.
+
+    변경 사유(의도된 본선 잡 재정의): 양하=신규 반입(target 없음·inbound, 전용 RNG
+    스트림 vdis:)·본선 잡 전량 정합(n_moves)·적하 계획시각 부여. 트럭 트랙은
+    test_yr080_stage0_snapshots(본선 없는 시나리오 바이트 동결)가 별도 보증.
+    직전 값: edfd8dde…·f93ae266…·53f174ae… (commit 3e313ef 이전)."""
+    assert _fingerprint(build_integrated_profile(), 530000) == "79bbd52aa0d913fd"
+    assert _fingerprint(build_integrated_profile(), 700000) == "656fa17da8a1d277"
+    assert _fingerprint(build_dgt_approx_profile(), 700000) == "914c0164fa9ac791"
 
 
 def test_peak_warp_identity_and_bounds():

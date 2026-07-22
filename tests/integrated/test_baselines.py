@@ -72,10 +72,15 @@ def test_immediate_cost_greedy_is_degenerate_by_construction():
 
 # ------------------------------------------------------------ 1차 baseline
 def test_joint_rollout_greedy_is_healthy_and_competitive():
-    """고정 시간창 rollout — 퇴화 없이 base 정책(ServiceFirstSPT) 이하 총비용."""
+    """고정 시간창 rollout — 퇴화 없이 base 정책(ServiceFirstSPT) 이하 총비용.
+
+    창 1800s = YR-078 채택 표준 (사용자 확정 e4de481). YR-080 단계3 인과 연결 후
+    600s 는 본선 사슬(반출→이송→STS) 파급을 창 밖으로 밀어 근시안 재발
+    (실측 91.74 > base 90.77) — 1800s 에선 80.07 로 개선 성질이 강하게 성립.
+    """
     base = run_joint_episode(_sim(), ResolverPolicy(ServiceFirstSPTPreference(), "SF"),
                              RC, level=LEVEL)
-    policy = JointRolloutGreedy(RC, horizon_s=600.0)
+    policy = JointRolloutGreedy(RC, horizon_s=1800.0)
     roll = run_joint_episode(_sim(), policy, RC, level=LEVEL)
     assert_healthy_action_mix(roll["_mix"], label="ROLLOUT")
     assert roll["completion_rate"] == 1.0

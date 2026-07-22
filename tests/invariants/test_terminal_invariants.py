@@ -33,7 +33,7 @@ def test_full_run_completes_all_jobs():
     assert sim.unfinished_backlog() == 0
     assert all(j.status == JobStatus.DONE for j in sim.jobs.values())
     assert sim.kpis.completed_external == 3
-    assert sim.kpis.completed_vessel == 2
+    assert sim.kpis.completed_vessel == 4    # YR-080 단계3: 1박스=1야드작업 정합 (2선박×2)
     assert all(v.done for v in sim.vessels.values())
     assert sim.reservations.orphan_count() == 0   # 완료 후 예약 해제
 

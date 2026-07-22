@@ -260,16 +260,25 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         work = (VesselWorkType.DISCHARGE if v % 2 == 0 else VesselWorkType.LOAD)
         vid = f"V-{work.value[:4]}-{v}"
         dmult = params.vessel_deadline_mult
+        # YR-080 단계3: 1박스=1야드작업 **전량 정합** — STS move 수 == 본선연계 야드 job 수.
+        # 적하는 야드 재고 한도로 clamp(생성기 재고 보장상 통상 미발동), 계획시각도 실물량 기준.
+        eff_moves = (n_moves if work == VesselWorkType.DISCHARGE
+                     else min(n_moves, len(free_targets)))
         if work == VesselWorkType.DISCHARGE:
             plan = VesselPlan(planned_start_s=start,
-                              planned_completion_s=start + n_moves * cadence * dmult,
+                              planned_completion_s=start + eff_moves * cadence * dmult,
                               completion_basis=CompletionBasis.PLAN_COMPUTED,
-                              etd_s=start + n_moves * cadence * (dmult + 1.0),
-                              total_moves=n_moves, sts_move_interval_s=cadence)
+                              etd_s=start + eff_moves * cadence * (dmult + 1.0),
+                              total_moves=eff_moves, sts_move_interval_s=cadence)
         else:
-            plan = VesselPlan(planned_start_s=start, planned_completion_s=None,
-                              completion_basis=None, etd_s=None,
-                              total_moves=n_moves, sts_move_interval_s=cadence)
+            # YR-080 결정3 (사용자 승인 2026-07-22): 적하도 계획 선석 종료시각 부여 —
+            # 선석 초과비용 계산 가능. completion_basis=None 유지 → 관측 축(RISK/SYMPTOM)은
+            # SYMPTOM 그대로 (resolve_mode: basis 없으면 RISK 금지).
+            plan = VesselPlan(planned_start_s=start,
+                              planned_completion_s=start + eff_moves * cadence * dmult,
+                              completion_basis=None,
+                              etd_s=start + eff_moves * cadence * (dmult + 1.0),
+                              total_moves=eff_moves, sts_move_interval_s=cadence)
         vessels.append(VesselProcess(vid, work, plan))
         flow = (JobFlow.VESSEL_DISCHARGE if work == VesselWorkType.DISCHARGE
                 else JobFlow.VESSEL_LOAD)
@@ -278,8 +287,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
             # 소비하지 않고 inbound 규격을 전용 RNG 스트림(vdis:{seed})으로 추출 — 기존
             # draw 열(트럭·적하)을 밀지 않아 본선 없는 시나리오가 바이트 불변(스냅샷 계약).
             # release_time 은 참고용 — 실제 해제는 박스 물리 도착(VESSEL_RELEASED, engine).
-            n_linked = max(2, n_moves // 3)
-            for m in range(n_linked):
+            for m in range(eff_moves):
                 jobs.append(Job(
                     job_id=f"J-{vid}-{m:02d}", flow=flow,
                     release_time=start + m * cadence,
@@ -289,18 +297,17 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                   if vdis_rng.random() < params.size_mix_ft40
                                   else ContainerSize.FT20),
                     inbound_load=LoadStatus.FULL,
-                    deadline=start + n_moves * cadence * dmult + 1800.0,
+                    deadline=start + eff_moves * cadence * dmult + 1800.0,
                     priority_class=1, vessel_id=vid))
         else:
-            n_linked = min(max(2, n_moves // 3), len(free_targets))
-            for m in range(n_linked):
+            for m in range(eff_moves):
                 target = free_targets.pop()
                 jobs.append(Job(
                     job_id=f"J-{vid}-{m:02d}", flow=flow,
                     release_time=start + m * cadence,
                     actual_gate_in=None, actual_block_arrival=None,
                     target_container=target,
-                    deadline=start + n_moves * cadence * dmult + 1800.0,
+                    deadline=start + eff_moves * cadence * dmult + 1800.0,
                     priority_class=1, vessel_id=vid))
 
     jobs.sort(key=lambda j: j.job_id)

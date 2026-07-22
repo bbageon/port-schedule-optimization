@@ -50,7 +50,7 @@ def build_minimal_terminal_scenario() -> TerminalScenario:
         "C-A1": _c("C-A1", 5, 1, 1), "C-A2": _c("C-A2", 5, 1, 2),   # A2 = C-A1 위 blocker
         "C-B1": _c("C-B1", 35, 1, 1),
         # C-VD 제거 (YR-080 단계2): 양하는 야드 재고 반출이 아니라 신규 반입(STORE)
-        "C-VL": _c("C-VL", 30, 2, 1),
+        "C-VL": _c("C-VL", 30, 2, 1), "C-VL2": _c("C-VL2", 32, 2, 1),  # 적하 대상 2건 (1:1)
         "C-F1": _c("C-F1", 15, 3, 1), "C-F2": _c("C-F2", 25, 3, 1),
     }
     jobs = [
@@ -59,24 +59,33 @@ def build_minimal_terminal_scenario() -> TerminalScenario:
         Job(job_id="J-IN-A", flow=JobFlow.GATE_IN, release_time=0.0,
             actual_gate_in=100.0, actual_block_arrival=700.0,
             inbound_size=ContainerSize.FT40, inbound_load=LoadStatus.FULL),
-        # YR-080 단계2: 양하 = 신규 반입(STORE) — target 없음·inbound 규격, 해제는
-        # 박스 물리 도착(VESSEL_RELEASED). release_time 은 참고값.
-        Job(job_id="J-VES-D", flow=JobFlow.VESSEL_DISCHARGE, release_time=600.0,
+        # YR-080 단계2·3: 양하 = 신규 반입(STORE, 해제=박스 물리 도착 VESSEL_RELEASED)·
+        # 적하 = 야드 반출(완료가 안벽 버퍼를 채움). **1박스=1야드작업 전량 정합** —
+        # 선박 total_moves == 연계 야드 job 수 (2:2).
+        Job(job_id="J-VES-D0", flow=JobFlow.VESSEL_DISCHARGE, release_time=600.0,
             actual_gate_in=None, actual_block_arrival=None, target_container=None,
             inbound_size=ContainerSize.FT40, inbound_load=LoadStatus.FULL,
             deadline=7200.0, priority_class=1, vessel_id="V-DISCH"),
-        Job(job_id="J-VES-L", flow=JobFlow.VESSEL_LOAD, release_time=1200.0,
+        Job(job_id="J-VES-D1", flow=JobFlow.VESSEL_DISCHARGE, release_time=744.0,
+            actual_gate_in=None, actual_block_arrival=None, target_container=None,
+            inbound_size=ContainerSize.FT40, inbound_load=LoadStatus.FULL,
+            deadline=7200.0, priority_class=1, vessel_id="V-DISCH"),
+        Job(job_id="J-VES-L0", flow=JobFlow.VESSEL_LOAD, release_time=1200.0,
             actual_gate_in=None, actual_block_arrival=None, target_container="C-VL",
+            deadline=8000.0, priority_class=1, vessel_id="V-LOAD"),
+        Job(job_id="J-VES-L1", flow=JobFlow.VESSEL_LOAD, release_time=1344.0,
+            actual_gate_in=None, actual_block_arrival=None, target_container="C-VL2",
             deadline=8000.0, priority_class=1, vessel_id="V-LOAD"),
     ]
     vessels = [
         VesselProcess("V-DISCH", VesselWorkType.DISCHARGE, VesselPlan(
             planned_start_s=600.0, planned_completion_s=7200.0,
             completion_basis=CompletionBasis.PLAN_COMPUTED, etd_s=9000.0,
-            total_moves=20, sts_move_interval_s=144.0, quay_buffer_cap=3)),
+            total_moves=2, sts_move_interval_s=144.0, quay_buffer_cap=3)),
+        # YR-080 결정3: 적하도 계획 선석 종료시각 부여 (basis None → 관측은 SYMPTOM 유지)
         VesselProcess("V-LOAD", VesselWorkType.LOAD, VesselPlan(
-            planned_start_s=1200.0, planned_completion_s=None, completion_basis=None,
-            etd_s=None, total_moves=15, sts_move_interval_s=144.0, quay_buffer_cap=3)),
+            planned_start_s=1200.0, planned_completion_s=8000.0, completion_basis=None,
+            etd_s=9500.0, total_moves=2, sts_move_interval_s=144.0, quay_buffer_cap=3)),
     ]
     injected = [
         InjectedEvent(2000.0, "EQUIPMENT_DOWN", "YC-B"),
