@@ -96,6 +96,10 @@ class TerminalSimulator:
         # 그대로 = 골든 바이트 동일. 설정 시 selector(sim, stk, blocker, spec, exclude)
         # → (bay,row)|None. 평가 오라클·후보 확장이 재사용 (rollout deepcopy 보존).
         self.slot_selector = getattr(self, "slot_selector", None)
+        # YR-080 단계6: 신규 적재(STORE — 트럭 반입·본선 양하) 위치 선택 훅 (opt-in).
+        # None(기본)이면 find_slot greedy 그대로 = 골든 바이트 동일. 설정 시
+        # selector(sim, stk, job, spec, bay, row, exclude) → (bay,row)|None.
+        self.store_slot_selector = getattr(self, "store_slot_selector", None)
         self._assigned: dict[str, CraneAssignment] = {}
         self._active_plans: dict[str, JobPlan] = {}
         self.event_log: list[tuple[float, str, str]] = []
@@ -309,17 +313,37 @@ class TerminalSimulator:
                 return False
         if j.service_mode == ServiceMode.STORE:      # 신규 반입 — 적재 슬롯 필요 (YR-080 §1)
             yc = self.fleet.get(crane_id)
-            if self.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
-                                     yc.state.trolley_row) is None:
+            if self._store_slot(j, spec, yc.state.position_bay,
+                                yc.state.trolley_row) is None:
                 return False
         return True
+
+    def _store_slot(self, j, spec, bay, row, exclude=frozenset()):
+        """신규 적재(STORE) 슬롯 — opt-in 훅 (YR-080 단계6, seam 3곳 일관 적용).
+
+        None(기본) = find_slot greedy 그대로 (골든 불변). 훅 반환은 find_slot 후조건과
+        동일해야 하며 위반 시 즉시 발화 (조용한 물리 불일치 계획 방지 — 재조작 seam 관습).
+        """
+        if self.store_slot_selector is None:
+            return self.stacks.find_slot(j.inbound_size, spec, bay, row,
+                                         exclude=frozenset(exclude))
+        dest = self.store_slot_selector(self, self.stacks, j, spec, bay, row,
+                                        frozenset(exclude))
+        if dest is not None:
+            db, dr = dest
+            if (dest in exclude
+                    or not (spec.service_bay_min <= db <= spec.service_bay_max)
+                    or self.stacks.top_tier(db, dr) + 1 > self.profile.block.tier_max
+                    or not self.stacks.stack_size_ok(db, dr, j.inbound_size)):
+                raise RuntimeError(f"store_slot_selector 후조건 위반 ({db},{dr})")
+        return dest
 
     def _jobref(self, j, spec, yc) -> JobRef | None:
         if j.target_container is not None:
             bay = self.stacks.containers[j.target_container].bay
         elif j.service_mode == ServiceMode.STORE:
-            slot = self.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
-                                         yc.state.trolley_row)
+            slot = self._store_slot(j, spec, yc.state.position_bay,
+                                    yc.state.trolley_row)
             if slot is None:
                 return None
             bay = slot[0]
@@ -376,7 +400,7 @@ class TerminalSimulator:
         j = self.jobs[ref.job_id]
 
         if j.service_mode == ServiceMode.STORE and ref.kind == CandidateKind.SERVE:
-            dest = stk.find_slot(j.inbound_size, spec, cur_bay, cur_row, exclude=frozenset(exclude))
+            dest = self._store_slot(j, spec, cur_bay, cur_row, exclude=exclude)
             if dest is None:
                 return None
             db, dr = dest
