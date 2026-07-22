@@ -98,6 +98,11 @@ def make(arm: str):
                                horizon_s=3600.0, generator=CandidateGenerator(), objective=None)
         p.name = arm
         return p
+    if arm == "TEACHER_STS5_H3600":  # 두 레버 모두 (sts 선행신호 + 긴 창) @3600
+        p = JointRolloutGreedy(RewardCalculator.numeraire({**_ROLLOUT_OVERRIDES, "sts_wait": 5.0}),
+                               horizon_s=3600.0, generator=CandidateGenerator(), objective=None)
+        p.name = arm
+        return p
     if arm.startswith("SELECTIVE@"):
         return SelectiveRolloutPolicy(trigger_s=float(arm.split("@")[1]))
     raise ValueError(arm)
@@ -132,25 +137,47 @@ def run(out: Path, arms: list, seeds: int, workers: int = 16) -> dict:
     for r in rows:
         by.setdefault((r["cell"], r["arm"]), []).append(r)
 
+    _TC = {4: 2.776, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201,
+           12: 2.179, 13: 2.160, 14: 2.145, 19: 2.093}
+
     def agg(cell, arm, k):
         return round(fmean(r[k] for r in by[(cell, arm)]), 3)
 
+    def paired_vs_sf(cell, arm, k):
+        """짝지은 차(arm−SF) CI — 표본sd+t (seed 대응)."""
+        a = {r["seed"]: r for r in by.get((cell, arm), [])}
+        b = {r["seed"]: r for r in by.get((cell, "SF"), [])}
+        d = [a[s][k] - b[s][k] for s in sorted(a) if s in b]
+        if len(d) < 2:
+            return None
+        m = fmean(d); sd = stdev(d); n = len(d); se = sd / n ** 0.5
+        tc = _TC.get(n - 1, 2.1)
+        return {"mean": round(m, 2), "lo": round(m - tc * se, 2), "hi": round(m + tc * se, 2)}
+
     res = {"cells": {}, "arms": arms, "seeds": seeds, "rows": rows}
-    print("\n=== 셀별 (berth=본선초과분·낮을수록↑ / wall·frac=비용) ===", flush=True)
+    print("\n=== 셀별 짝지은 Δ vs SF (음수=SF보다 개선. B★=배 유의개선, W★=트럭유의개선) ===", flush=True)
     for cell in CELLS:
         res["cells"][cell] = {}
-        print(f"[{cell}]", flush=True)
+        sf = {k: agg(cell, "SF", k) for k in ("berth", "mean_wait", "p95")} if (cell, "SF") in by else {}
+        print(f"[{cell}] SF berth={sf.get('berth')} wait={sf.get('mean_wait')} P95={sf.get('p95')}", flush=True)
         for arm in arms:
             if (cell, arm) not in by:
                 continue
             g = {k: agg(cell, arm, k) for k in ("berth", "mean_wait", "p95", "wall_s", "rollout_frac")}
             g["completion_all1"] = all(r["completion"] == 1.0 for r in by[(cell, arm)])
-            g["backlog_all0"] = all(r["backlog"] == 0 for r in by[(cell, arm)])
             g["healthy_all"] = all(r["healthy"] for r in by[(cell, arm)])
+            g["d_berth"] = paired_vs_sf(cell, arm, "berth")
+            g["d_wait"] = paired_vs_sf(cell, arm, "mean_wait")
+            g["d_p95"] = paired_vs_sf(cell, arm, "p95")
             res["cells"][cell][arm] = g
-            print(f"  {arm:14s} berth={g['berth']:7.2f} wait={g['mean_wait']:6.2f} "
-                  f"P95={g['p95']:6.2f} | rollout={g['rollout_frac']:.2f} wall={g['wall_s']:6.2f}s "
-                  f"compl={g['completion_all1']}", flush=True)
+            if arm == "SF":
+                continue
+            b, p = g["d_berth"], g["d_p95"]
+            bsig = "B★" if b and b["hi"] < 0 else "  "
+            psig = "W★" if p and p["hi"] < 0 else "  "
+            print(f"  {arm:16s} Δberth {b['mean']:+7.2f}[{b['lo']:+7.2f},{b['hi']:+7.2f}]{bsig} "
+                  f"ΔP95 {p['mean']:+6.2f}[{p['lo']:+6.2f},{p['hi']:+6.2f}]{psig} "
+                  f"| roll={g['rollout_frac']:.2f} wall={g['wall_s']:.0f}s", flush=True)
     (out / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
     print("\nDONE", flush=True)
     return res
