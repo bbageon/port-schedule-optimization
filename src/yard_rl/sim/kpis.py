@@ -21,6 +21,7 @@ class KpiSnapshot:
     vessel_delay_s: float
     pre_rehandle_count: int = 0  # 이 중 선재조작(도착 전 처리)분 — 리포트 분해용
     positioning_count: int = 0
+    berth_overrun_s: float = 0.0  # 선석 사용시간 초과 (YR-080 단계4 — 비용항과 동일 정의)
 
 
 @dataclass
@@ -33,9 +34,12 @@ class KpiTracker:
     rehandle_count: int = 0
     completed_external: int = 0
     completed_vessel: int = 0
-    vessel_delay_s: float = 0.0
+    vessel_delay_s: float = 0.0        # 본선연계 **야드 job** 지각 합 (job_completed 기준 —
+    #                                    비용항 vessel_delay(선석 초과)와 다른 축, YR-080 단계4 명시)
     pre_rehandle_count: int = 0
     positioning_count: int = 0
+    berth_overrun_s: float = 0.0       # **선석 사용시간 초과** — 비용항 vessel_delay 와 같은
+    #                                    식·같은 시점에 적립 (학습비용=보고 KPI 등식 계약, YR-080)
     wait_samples_s: list[float] = field(default_factory=list)   # 대기 표본 (검열 포함)
     # 내부 상태: 현재 대기 중 외부트럭 job_id -> block_arrival
     _waiting: dict[str, float] = field(default_factory=dict)
@@ -91,8 +95,14 @@ class KpiTracker:
             if deadline is not None and end > deadline:
                 self.vessel_delay_s += end - deadline
 
+    def add_berth_overrun(self, seconds: float):
+        """선석 초과 적립 — 비용항 vessel_delay 와 반드시 같은 호출부에서 같은 값으로
+        (등식 계약: Σcost raw == berth_overrun_s, test_yr080_numeraire)."""
+        self.berth_overrun_s += max(0.0, seconds)
+
     def snapshot(self) -> KpiSnapshot:
         return KpiSnapshot(self.queue_area_s, self.tail_area_s, self.loaded_gantry_m,
                            self.empty_gantry_m, self.rehandle_count, self.completed_external,
                            self.completed_vessel, self.vessel_delay_s,
-                           self.pre_rehandle_count, self.positioning_count)
+                           self.pre_rehandle_count, self.positioning_count,
+                           self.berth_overrun_s)

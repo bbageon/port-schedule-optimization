@@ -1,0 +1,143 @@
+cost_id: TERMINAL-COST-NUMERAIRE-V1
+schema_version: itc-v4
+assumed: true
+scale_fitted: false
+provenance_note: 기준재 상대비용 (트럭대기 1h=1.0). 전 ρ assumed — 실측/계약자료 시 교체
+terms:
+  truck_wait:
+    scale: 3600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  long_wait:
+    scale: 3600.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  crane_travel:
+    scale: 7200.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  empty_travel:
+    scale: 7200.0
+    weight: 1.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  rehandle:
+    scale: 1.0
+    weight: 0.05
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  sts_wait:
+    scale: 3600.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  transfer_wait:
+    scale: 3600.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  vessel_delay:
+    scale: 3600.0
+    weight: 33.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  depart_delay:
+    scale: 3600.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  lane_cong:
+    scale: 100.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  interference:
+    scale: 100.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  resequence:
+    scale: 10.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+  imbalance:
+    scale: 1.0
+    weight: 0.0
+    unit: ''
+    scale_basis: assumed
+    scale_source: YR-080 단계4
+    scale_note: 순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)
+    scale_tbv: true
+    scale_fit_stat: ''
+    weight_basis: assumed
+lambda_vessel:
+  mode: static
+  static_value: 1.0
+  basis: assumed
+  source: YR-080 단계4
+  note: ρ_vessel 단일 배율 — λ 이중곱 금지
+  bands: []

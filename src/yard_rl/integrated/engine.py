@@ -776,8 +776,11 @@ class TerminalSimulator:
         v.truth.actual_completion_s = self.clock
         pc = v.plan.planned_completion_s
         if pc is not None and self.clock > pc:
+            # YR-080 단계4: 비용(vessel_delay=선석 초과)과 보고 KPI(berth_overrun_s)를
+            # **같은 호출부·같은 식**으로 동시 적립 — 학습이 최적화하는 양 == 보고하는 양.
             self.cost.accrue("vessel_delay", self.clock - pc,
                              cause=CostCause.VESSEL_FINISH, subject=vid)
+            self.kpis.add_berth_overrun(self.clock - pc)
         if v.plan.etd_s is not None and self.clock > v.plan.etd_s:
             self.cost.accrue("depart_delay", self.clock - v.plan.etd_s,
                              cause=CostCause.VESSEL_FINISH, subject=vid)
@@ -812,9 +815,14 @@ class TerminalSimulator:
             return
         self._advance(max(self.clock, self.end))
         for v in self.vessels.values():
-            if not v.done and not v.is_symptom() and self.end > v.plan.planned_completion_s:
-                self.cost.accrue("vessel_delay", self.end - v.plan.planned_completion_s,
+            # YR-080 단계4: is_symptom 제외 → **선석 종료시각 존재** 기준으로 교정 —
+            # 결정3(적하도 계획시각 부여, 관측 SYMPTOM 은 별개)에 따라 미완 적하도
+            # 선석 초과를 정산한다 (이전엔 SYMPTOM 이라 미완 clear-out 에서 누락).
+            pc = v.plan.planned_completion_s
+            if not v.done and pc is not None and self.end > pc:
+                self.cost.accrue("vessel_delay", self.end - pc,
                                  cause=CostCause.CLEAROUT, subject=v.vessel_id)
+                self.kpis.add_berth_overrun(self.end - pc)
         self.kpis.close_censored(self.end)
         self._terminal = True
 

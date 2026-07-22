@@ -193,6 +193,10 @@ class RewardCalculator:
     def assumed_default(cls) -> "RewardCalculator":
         return cls(default_assumed_config())
 
+    @classmethod
+    def numeraire_v1(cls) -> "RewardCalculator":
+        return cls(numeraire_v1_config())
+
 
 def default_lambda_bands() -> tuple[RiskBand, ...]:
     """assumed_lambda_vessel 과 값 동치 (§10.6 초기후보)."""
@@ -211,6 +215,52 @@ def neutral_lambda_config() -> TerminalCostConfig:
         Provenance(ProvBasis.ASSUMED, "YR-043 정정 트랙",
                    "본선 악화 축 분리 — 동적 위험 비활성·본선 KPI 기록만. 밴드 설계는 YR-041"),
         static_value=1.0))
+
+
+# ---------------------------------------------------------------- 기준재 (YR-080 단계4)
+# scale = **순수 단위환산**(스케일 함정 제거): 시간항 3600s=1h · travel 7200m=크레인 1h
+# (POC gantry 2.0 m/s 기준) · count 1. weight = **경제 비율 ρ** (기준재: 트럭대기 1h = 1.0).
+# 문헌 근거: 상대계수(numeraire)가 지배 관행 — 2026-07-21 본선전략 v5 §2 (Imai 2003·
+# Meisel&Bierwirth 2009·Ng 1999 양의 선형변환 불변). 결정 비율 vs 학습 스케일 분리 —
+# 학습 표적 축소는 make_cost 밖 learner cost_scale 로만 (여기 금지).
+NUMERAIRE_SCALE: dict[str, float] = {
+    "truck_wait": 3600.0, "long_wait": 3600.0, "crane_travel": 7200.0, "empty_travel": 7200.0,
+    "rehandle": 1.0, "sts_wait": 3600.0, "transfer_wait": 3600.0, "vessel_delay": 3600.0,
+    "depart_delay": 3600.0, "lane_cong": 100.0, "interference": 100.0,
+    "resequence": 10.0, "imbalance": 1.0}
+NUMERAIRE_WEIGHT: dict[str, float] = {
+    "truck_wait": 1.0,       # 기준재 (고정)
+    "long_wait": 1.0,        # SLA 초과 대기 = 가산 페널티 (tail 이 queue 에 더해져 2배 아픔)
+    "vessel_delay": 33.0,    # ρ_vessel (assumed) — 접안료요율÷트럭시간비용 근사, 민감도 ×⅓~3 필수
+    "rehandle": 0.05,        # ρ_rehandle = 재조작 1회 ≈ 크레인 0.05h(180s) × ρ_crane
+    "crane_travel": 1.0, "empty_travel": 1.0,   # ρ_crane = 1.0 (assumed — 장비 1h ≈ 트럭대기 1h)
+    "depart_delay": 0.0,     # 선석초과 단일 정의 — etd 축 이중계상 방지 (단계0 일치권고)
+    "sts_wait": 0.0, "transfer_wait": 0.0,      # 내부 대기 = 선석초과에 흡수되는 proxy
+    "lane_cong": 0.0, "interference": 0.0,      # 혼잡 proxy 제거 — 마스크/resolver 소관 (문헌)
+    "resequence": 0.0, "imbalance": 0.0}
+
+
+def numeraire_v1_config() -> TerminalCostConfig:
+    """기준재 상대비용 v1 — 트럭대기 1h = 1.0, 나머지는 경제 비율 ρ (YR-080 단계4).
+
+    λ_vessel 정적 1.0 — **ρ_vessel 이 유일한 본선 배율** (이중곱 금지 계약,
+    test_yr080_numeraire). 13항 이름·순서 불변(계약 유지) — 미사용 항은 weight 0.
+    원화 복원: 기여분 × (트럭 시간비용 원/h) 로 언제든 복원 가능 (v5 §2 유효조건).
+    """
+    sp = Provenance(ProvBasis.ASSUMED, "YR-080 단계4",
+                    "순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)")
+    wp = Provenance(ProvBasis.ASSUMED, "본선전략 v5 §2·문헌조사 2026-07-21",
+                    "ρ_vessel=33 assumed(접안료÷트럭시간비용 근사) — 민감도 ×1/3~3 보고 의무")
+    terms = {t: TermCost(t, NUMERAIRE_SCALE[t], NUMERAIRE_WEIGHT[t], sp, wp)
+             for t in COST_TERMS}
+    lp = LambdaVesselPolicy(
+        LambdaMode.STATIC,
+        Provenance(ProvBasis.ASSUMED, "YR-080 단계4", "ρ_vessel 단일 배율 — λ 이중곱 금지"),
+        static_value=1.0)
+    return TerminalCostConfig(
+        "TERMINAL-COST-NUMERAIRE-V1", SCHEMA_VERSION, True, terms, lp,
+        provenance_note="기준재 상대비용 (트럭대기 1h=1.0). 전 ρ assumed — 실측/계약자료 시 교체"
+    ).validate()
 
 
 def default_assumed_config() -> TerminalCostConfig:

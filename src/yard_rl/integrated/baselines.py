@@ -417,7 +417,8 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
             "completion_rate": done / max(1, len(jobs)), "backlog": len(jobs) - done,
             "mean_wait_min": (sum(waits) / len(waits)) if waits else 0.0,
             "p95_wait_min": (ws[min(len(ws) - 1, int(0.95 * len(ws)))] if ws else 0.0),
-            "vessel_delay_min": sim.kpis.vessel_delay_s / 60.0,
+            "vessel_delay_min": sim.kpis.vessel_delay_s / 60.0,   # 야드 job 지각 (구 정의 병기)
+            "berth_overrun_min": sim.kpis.berth_overrun_s / 60.0,  # 선석 초과 (YR-080 — 비용과 동일 정의)
             "action_mix": mix.as_dict(), "_mix": mix,
             # YR-045 보고 의무 확장 — 비용 기여·후보 발생·물리 지표
             "term_contrib": dict(sorted(term_contrib.items())),
