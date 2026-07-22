@@ -129,6 +129,15 @@ def run(obj: str, cell: str, seeds: int, out: Path) -> dict:
 
 OBJECTIVES = ["SF", "LEX", "NUM_v1", "NUM_t0", "NUM_t0_sts1", "NUM_t0_sts5"]
 
+# t_{0.975, df} — 소표본 짝지은 CI 용 (scipy 무의존). df=n-1.
+_TCRIT = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
+          8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145,
+          15: 2.131, 16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086}
+
+
+def _tcrit(df: int) -> float:
+    return _TCRIT.get(df, 1.96)      # df>20 → z 근사
+
 
 def _eval_task(t: tuple) -> dict:
     obj, cell, seed = t
@@ -140,7 +149,7 @@ def psweep(seeds: int, out_dir: Path, objectives: list, cells=None,
     """병렬 sweep (multiprocessing) — 독립 에피소드라 near-linear. 결정론 불변
     (각 (obj,cell,seed) 는 독립 시드). 짝지은 CI(vs LEX) 까지 산출."""
     import multiprocessing as mp
-    from statistics import fmean, pstdev
+    from statistics import fmean, stdev
     cells = cells or list(CELLS)
     out_dir.mkdir(parents=True, exist_ok=True)
     tasks = [(obj, cell, BASE_SEED[cell] + i)
@@ -155,14 +164,16 @@ def psweep(seeds: int, out_dir: Path, objectives: list, cells=None,
         return round(fmean(by[(cell, obj)][s][key] for s in by[(cell, obj)]), 4)
 
     def paired(cell, obj, key):
+        """짝지은 차(obj−LEX) CI — 표본표준편차(÷n−1)+t분포 (소표본 정직 CI)."""
         a, b = by[(cell, obj)], by.get((cell, "LEX"), {})
         d = [a[s][key] - b[s][key] for s in sorted(a) if s in b]
-        if not d:
+        if len(d) < 2:
             return None
-        m = fmean(d); sd = pstdev(d) if len(d) > 1 else 0.0
-        se = sd / (len(d) ** 0.5)
-        return {"mean": round(m, 3), "lo": round(m - 1.96 * se, 3),
-                "hi": round(m + 1.96 * se, 3)}
+        m = fmean(d); sd = stdev(d); n = len(d)
+        se = sd / (n ** 0.5)
+        tc = _tcrit(n - 1)
+        return {"mean": round(m, 3), "lo": round(m - tc * se, 3),
+                "hi": round(m + tc * se, 3), "n": n}
 
     grid: dict = {}
     for cell in cells:
@@ -179,7 +190,8 @@ def psweep(seeds: int, out_dir: Path, objectives: list, cells=None,
                 "healthy_all": all(by[k][s]["healthy"] for s in by[k]),
                 "repo_share": agg(cell, obj, "repo_share"),
                 "d_berth_vs_LEX": paired(cell, obj, "berth_overrun"),
-                "d_wait_vs_LEX": paired(cell, obj, "mean_wait")}
+                "d_wait_vs_LEX": paired(cell, obj, "mean_wait"),
+                "d_p95_vs_LEX": paired(cell, obj, "p95_wait")}   # 꼬리·공정성 (필수 검정)
     res = {"horizon_s": HORIZON, "n_seeds": seeds, "objectives": objectives,
            "workers": workers, "grid": grid,
            "rows": sorted(rows, key=lambda r: (r["cell"], r["obj"], r["seed"]))}
@@ -195,11 +207,13 @@ def psweep(seeds: int, out_dir: Path, objectives: list, cells=None,
                     print(f"    LEX(기준)   berth={g['berth_overrun']:7.2f} "
                           f"wait={g['mean_wait']:6.3f}", flush=True)
                 continue
-            b, w = g["d_berth_vs_LEX"], g["d_wait_vs_LEX"]
-            sig = "★" if b and b["hi"] < 0 else " "
-            print(f"  {sig} {obj:12s} berth={g['berth_overrun']:7.2f} "
+            b, w, p = g["d_berth_vs_LEX"], g["d_wait_vs_LEX"], g["d_p95_vs_LEX"]
+            bsig = "B★" if b and b["hi"] < 0 else "  "        # 배 유의 개선
+            psig = "P+" if p and p["lo"] > 0 else "  "        # 트럭 꼬리 유의 악화
+            print(f" {bsig} {obj:12s} berth={g['berth_overrun']:7.2f} "
                   f"Δ[{b['lo']:+7.2f},{b['hi']:+7.2f}] wait={g['mean_wait']:6.3f} "
-                  f"Δ[{w['lo']:+5.2f},{w['hi']:+5.2f}] compl={g['completion_all1']}", flush=True)
+                  f"Δ[{w['lo']:+5.2f},{w['hi']:+5.2f}] P95Δ[{p['lo']:+6.2f},{p['hi']:+6.2f}]{psig} "
+                  f"compl={g['completion_all1']}", flush=True)
     print("\nPSWEEP DONE", flush=True)
     return res
 
