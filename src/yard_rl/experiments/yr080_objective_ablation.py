@@ -64,13 +64,23 @@ def make_policy(obj: str):
     elif obj == "NUM_v1":
         p = JointRolloutGreedy(RewardCalculator.numeraire(), horizon_s=horizon,
                                generator=CandidateGenerator(), objective=None)
-    elif obj == "NUM_t0":
-        p = JointRolloutGreedy(RewardCalculator.numeraire(dict(_T0)), horizon_s=horizon,
+    elif obj.split("_")[0] == "NUM":
+        # 조합 파서: NUM_<tok>_<tok>... — t0(이동0)·stsN(sts_wait)·lwN(long_wait)·
+        # vN(vessel_delay). 예: NUM_t0_sts5_lw8 = 이동0+sts5+long_wait8. 실수는 p=소수점.
+        ov: dict = {}
+        for tok in obj.split("_")[1:]:
+            if tok == "t0":
+                ov.update(_T0)
+            elif tok.startswith("sts"):
+                ov["sts_wait"] = float(tok[3:].replace("p", "."))
+            elif tok.startswith("lw"):
+                ov["long_wait"] = float(tok[2:].replace("p", "."))
+            elif tok.startswith("v") and tok[1:].replace("p", ".").replace(".", "").isdigit():
+                ov["vessel_delay"] = float(tok[1:].replace("p", "."))
+            else:
+                raise ValueError(f"미지 NUM 토큰: {tok!r} in {obj!r}")
+        p = JointRolloutGreedy(RewardCalculator.numeraire(ov), horizon_s=horizon,
                                generator=CandidateGenerator(), objective=None)
-    elif obj.startswith("NUM_t0_sts"):     # NUM_t0_stsN — 이동0 + sts_wait=N (N 실수 허용)
-        n = float(obj[len("NUM_t0_sts"):].replace("p", "."))
-        p = JointRolloutGreedy(RewardCalculator.numeraire({**_T0, "sts_wait": n}),
-                               horizon_s=horizon, generator=CandidateGenerator(), objective=None)
     else:
         raise ValueError(f"미지 objective: {obj}")
     p.name = name
