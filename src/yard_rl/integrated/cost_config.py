@@ -197,6 +197,11 @@ class RewardCalculator:
     def numeraire_v1(cls) -> "RewardCalculator":
         return cls(numeraire_v1_config())
 
+    @classmethod
+    def numeraire(cls, weight_overrides: dict[str, float] | None = None,
+                  **kw) -> "RewardCalculator":
+        return cls(numeraire_config(weight_overrides, **kw))
+
 
 def default_lambda_bands() -> tuple[RiskBand, ...]:
     """assumed_lambda_vessel 과 값 동치 (§10.6 초기후보)."""
@@ -240,27 +245,39 @@ NUMERAIRE_WEIGHT: dict[str, float] = {
     "resequence": 0.0, "imbalance": 0.0}
 
 
-def numeraire_v1_config() -> TerminalCostConfig:
-    """기준재 상대비용 v1 — 트럭대기 1h = 1.0, 나머지는 경제 비율 ρ (YR-080 단계4).
+def numeraire_config(weight_overrides: dict[str, float] | None = None, *,
+                     cost_id: str = "TERMINAL-COST-NUMERAIRE-V1",
+                     note: str = "기준재 상대비용 (트럭대기 1h=1.0). 전 ρ assumed — 실측/계약자료 시 교체"
+                     ) -> TerminalCostConfig:
+    """기준재 상대비용 — 트럭대기 1h = 1.0, 나머지는 경제 비율 ρ (YR-080 단계4).
 
-    λ_vessel 정적 1.0 — **ρ_vessel 이 유일한 본선 배율** (이중곱 금지 계약,
-    test_yr080_numeraire). 13항 이름·순서 불변(계약 유지) — 미사용 항은 weight 0.
-    원화 복원: 기여분 × (트럭 시간비용 원/h) 로 언제든 복원 가능 (v5 §2 유효조건).
+    scale 은 순수 단위환산 고정(NUMERAIRE_SCALE). weight 는 NUMERAIRE_WEIGHT 를
+    기본값으로 하되 weight_overrides 로 항별 ρ 를 덮어쓴다 (YR-080 2단계a ablation —
+    ρ_crane·sts_wait 교정 실험용). λ_vessel 정적 1.0 (ρ_vessel 단일 배율, 이중곱 금지).
+    13항 이름·순서 불변 (계약 유지) — 미사용 항은 weight 0.
     """
+    w = dict(NUMERAIRE_WEIGHT)
+    if weight_overrides:
+        for k, v in weight_overrides.items():
+            if k not in w:
+                raise KeyError(f"미지의 비용항 override: {k!r}")
+            w[k] = float(v)
     sp = Provenance(ProvBasis.ASSUMED, "YR-080 단계4",
                     "순수 단위환산 (3600s=1h·7200m=크레인1h@2.0m/s·count=1)")
     wp = Provenance(ProvBasis.ASSUMED, "본선전략 v5 §2·문헌조사 2026-07-21",
                     "ρ_vessel=33 assumed(접안료÷트럭시간비용 근사) — 민감도 ×1/3~3 보고 의무")
-    terms = {t: TermCost(t, NUMERAIRE_SCALE[t], NUMERAIRE_WEIGHT[t], sp, wp)
-             for t in COST_TERMS}
+    terms = {t: TermCost(t, NUMERAIRE_SCALE[t], w[t], sp, wp) for t in COST_TERMS}
     lp = LambdaVesselPolicy(
         LambdaMode.STATIC,
         Provenance(ProvBasis.ASSUMED, "YR-080 단계4", "ρ_vessel 단일 배율 — λ 이중곱 금지"),
         static_value=1.0)
-    return TerminalCostConfig(
-        "TERMINAL-COST-NUMERAIRE-V1", SCHEMA_VERSION, True, terms, lp,
-        provenance_note="기준재 상대비용 (트럭대기 1h=1.0). 전 ρ assumed — 실측/계약자료 시 교체"
-    ).validate()
+    return TerminalCostConfig(cost_id, SCHEMA_VERSION, True, terms, lp,
+                              provenance_note=note).validate()
+
+
+def numeraire_v1_config() -> TerminalCostConfig:
+    """기준재 상대비용 v1 (동결 기본값 — test_yr080_numeraire·numeraire_v1.yaml 계약)."""
+    return numeraire_config()
 
 
 def default_assumed_config() -> TerminalCostConfig:
