@@ -22,6 +22,11 @@ claim_gate: >-
   가능한 주장 = 문헌·공개자료 보정 시뮬레이션의 방법론 결과. Level 2 는 블록좌표·Bay·레인그래프·
   크레인 통과규칙 확인 후, Level 3 는 TOS/VBS/RTLS 실측 후, Level 4(현장) 는 별도 승인 후.
 
+# physics_base 가 null 인 구조군(수직 S/C·북항 혼합)도 **선택·실행**되게 하는 공용 assumed
+# substrate. 단 그 실행은 "이름표 stress(구조 미충실)" — 역할분리·S/C·AGV 역학 미모형이라
+# 성능·구조 주장 금지(faithful=False, warnings 동반). 충실 실행은 YR-083 런타임 후.
+fallback_physics_base: configs/terminals/hjnc_armg.yaml
+
 # ── 구조군 (spec §구조군): 다르면 동결 가중치 재사용·성능 평균합산 금지.
 #    수직/혼합형을 현 2크레인 공동경합 엔진에 이름만 바꿔 넣는 시험은 금지(runnable_in_current_engine=false).
 archetypes:

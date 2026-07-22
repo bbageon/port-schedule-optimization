@@ -14,35 +14,39 @@ physics 위에 공개 확인값을 극소 오버레이할 뿐이다. **터미널
 Bay·레인그래프·크레인 통과규칙 확인 후, Level 3(성능)은 TOS/VBS/RTLS 실측 후, Level 4(현장)는
 별도 승인 후에만 연다.
 
-## 4개 구조군 (archetype 층)
+## 4개 구조군 (archetype 층) — 10개 전부 선택·실행 가능
 
-| 구조군 | 터미널 | 현 엔진 실행 | 근거 |
+| 구조군 | 터미널 | 충실도 | 근거 |
 |---|---|---|---|
-| `PROVISIONAL_RMG_ATC_YT` | PNIT·PNC·HJNC·HPNT | ✅ stress 전용 | RMG/ATC·YT 잠정군. **HJNC만 수평 확인**, 나머지 배열방향 unresolved |
-| `VERTICAL_ARMG_AGV` | DGT | 🚫 blocked | 블록당 2기 육/해측 역할분리·AGV 흐름 — 미구현 |
-| `VERTICAL_TC_SC` | BNCT·BCT | 🚫 blocked | S/C 이동·인계가 YT/AGV 와 다름 |
-| `CONVENTIONAL_MIXED_PROVISIONAL` | BPT 신선대·감만·HKT | 🚫 blocked | 북항 혼합 — 장비형식조차 unresolved |
+| `PROVISIONAL_RMG_ATC_YT` | PNIT·PNC·HJNC·HPNT | ✅ **faithful** | RMG/ATC·YT 잠정군. **HJNC만 수평 확인**, 나머지 배열방향 unresolved |
+| `VERTICAL_ARMG_AGV` | DGT | ⚠️ nameplate | 블록당 2기 육/해측 역할분리·AGV — 미모형, 공용 substrate 근사 |
+| `VERTICAL_TC_SC` | BNCT·BCT | ⚠️ nameplate | S/C 이동·인계가 YT/AGV 와 달라 미모형 |
+| `CONVENTIONAL_MIXED_PROVISIONAL` | BPT 신선대·감만·HKT | ⚠️ nameplate | 북항 혼합 — 장비형식조차 unresolved |
 
-**구조군 게이트(핵심 안전장치)**: 수직·혼합형을 현 2크레인 공동경합 엔진에 **이름만 바꿔 넣는
-시험은 spec 이 금지**한다. 선택기가 `StructureBlockedError` 로 거부하며, 실제 실행은 YR-083
-(도로·인계점·크레인 역할 런타임화) 이후에만 열린다.
+**10개 전부 선택·실행 가능**하다. 단 **충실도 게이트**로 정직성을 지킨다: 수평형은 `faithful=True`
+(엔진이 SHARED 2크레인·YT 구조를 충실히 실행), 수직·혼합형은 `faithful=False` — 역할분리·S/C·AGV
+역학이 현 엔진에 없어 **공용 assumed substrate 위의 "이름표 stress"** 로 실행된다(`warnings` 동반).
+이름표 stress 실행을 **"해당 터미널 성능"으로 주장하는 것은 금지**(claim gate) — 충실 실행은 YR-083
+(도로·인계점·크레인 역할 런타임화) 이후에 열린다. claim-bearing 실험 코드는 `require_faithful=True`
+로 수직·혼합형을 차단(`StructureBlockedError`)해 사고를 막는다.
 
 ## 선택기 사용법
 
 ```python
 from yard_rl.integrated.terminal_registry import (
-    build_stress_profile, list_terminals, runnable_terminals, StructureBlockedError)
+    build_stress_profile, list_terminals, faithful_terminals, StructureBlockedError)
 
-list_terminals()          # 10개 (id·구조군·Level·실행가능) 선택 표면
-runnable_terminals()      # ['PNIT', 'PNC', 'HJNC', 'HPNT'] — 현 엔진 stress 가능
+list_terminals()          # 10개 (id·구조군·Level·selectable·faithful) 선택 표면 — 전부 selectable
+faithful_terminals()      # ['PNIT', 'PNC', 'HJNC', 'HPNT'] — 구조 충실 실행 집합
 
-env = build_stress_profile("HJNC")   # 수평형: 성공
+env = build_stress_profile("DGT")    # 10개 전부 성공 (막지 않음)
 env.profile               # build_calibrated_profile() 자리에 그대로 꽂는 IntegratedProfile
-env.data_grade            # "Level1-STRESS"
-env.physics_overlays      # 실제 물리에 반영한 확인/유도 오버레이
-env.unresolved_fields     # 미확인 필드 경로들
+env.faithful              # False (DGT=nameplate stress)
+env.data_grade            # "Level1-NAMEPLATE(구조미충실)"
+env.warnings              # 미충실 사유·주장 금지 경고
+env.physics_overlays      # 실제 물리에 반영한 확인/유도 오버레이 (예: PNIT 열폭 2.84)
 
-build_stress_profile("DGT")          # 수직형: StructureBlockedError
+build_stress_profile("DGT", require_faithful=True)   # 실험 보호: StructureBlockedError
 ```
 
 ## "터미널 선택"이 실제로 바꾸는 것 (정직성)
