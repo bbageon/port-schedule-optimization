@@ -200,6 +200,18 @@ def _cand_raw(sim, cid, gc, now):
     # RL 이 선처리 가치를 학습. 계약이 tok=PRE_ADVICE 로 게이팅하므로 누출 없음.
     eta_gap = (j.provided_eta - now if (kind == CandidateKind.PRE_REHANDLE and j is not None
                                         and j.provided_eta is not None) else None)
+    # YR-087: 죽어있던 두 후보 본선 훅을 관측가능 실값으로 (증류 격차 해소).
+    # deadline_slack_s = 잔여작업 차감한 실여유(naive deadline−now 대체),
+    # vessel_risk_delta = 이 후보 처리로 본선 1 move 진행 시 줄어드는 위험량(관측 delta).
+    # 원천: VesselProcess.slack_s/expected_delay_s (PLANNED, 진실값 아님 — 누출 없음).
+    v = (sim.vessels.get(j.vessel_id) if (ref.is_vessel and j is not None
+         and getattr(j, "vessel_id", None) is not None) else None)
+    ves_slack = v.slack_s(now) if v is not None else None
+    ves_risk_delta = None
+    if v is not None and v.expected_delay_s(now) is not None:
+        exp = v.expected_delay_s(now)
+        iv = v.plan.sts_move_interval_s
+        ves_risk_delta = _c01(exp / 1800.0) - _c01(max(0.0, exp - iv) / 1800.0)
     raw = {
         "action_kind_idx": _KINDS.index(kind) / (len(_KINDS) - 1),
         "is_external": 1.0 if ref.is_external else 0.0,
@@ -207,12 +219,12 @@ def _cand_raw(sim, cid, gc, now):
         "cum_wait_s": cum,
         "long_wait_excess_s": max(0.0, cum - sim.profile.long_wait_sla_s) if cum is not None else None,
         "predicted_arrival_gap_s": eta_gap, "eta_confidence": None,
-        "deadline_slack_s": (j.deadline - now) if (ref.is_vessel and j and j.deadline is not None) else None,
+        "deadline_slack_s": ves_slack,
         "reach_s": reach, "expected_service_time_s": plan.duration_s,
         "expected_handling_count": float(len(plan.moves)), "blocker_count": float(plan.rehandles),
         "expected_rehandle_time_s": _rehandle_time(plan), "end_bay": plan.end_bay,
         "lane_congestion_local": _lane_local(sim, ref.lane_id),
-        "interference_penalty_s": 0.0, "resequence_count": 0.0, "vessel_risk_delta": None,
+        "interference_penalty_s": 0.0, "resequence_count": 0.0, "vessel_risk_delta": ves_risk_delta,
         "contention_risk": _contention_risk(sim, cid, gc),
     }
     realized = {}
