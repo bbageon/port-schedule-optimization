@@ -61,12 +61,17 @@ class CommitProjection:
 class TerminalSimulator:
     def __init__(self, profile, scenario, *, check_invariants: bool = True,
                  info_level: InformationLevel = InformationLevel.BLOCK_ARRIVAL,
-                 enable_cost_ledger: bool = False):
+                 enable_cost_ledger: bool = False,
+                 yard_handover_cap: int | None = None):
         self.profile = profile
         self.scenario = scenario
         self._check = check_invariants
         self.info_level = info_level     # PRE_REHANDLE/REPOSITION 정보시점 게이팅 (YR-037)
         self._enable_ledger = enable_cost_ledger   # 비용 인과 ledger (기본 off → golden 불변, YR-038)
+        # YR-088 파생: 양하 인계버퍼 역압력 (opt-in). None(기본)=현행(이송 도착 시 quay 버퍼
+        # 해제·YC 적재 지연이 STS 에 역압력 안 감) = 골든 바이트 동일. int 면 STS-뽑기~YC-적재
+        # 사이 미완 양하 박스를 그 수로 제한 → YC 가 늦으면 STS 가 막힌다(양하 결정권 부여).
+        self.yard_handover_cap = yard_handover_cap
         self.reset()
 
     # ------------------------------------------------------------- lifecycle
@@ -87,6 +92,9 @@ class TerminalSimulator:
             self.profile.transfer.n_units, self.profile.transfer.move_time_s)
         self.lanes = LaneNetwork(self.profile.lane_graph)
         self.vessels = {v.vessel_id: copy.deepcopy(v) for v in self.scenario.vessels}
+        # YR-088: 양하 인계 파이프라인 (vessel_id→미완 적재 박스 수) — yard_handover_cap None 이면
+        # 미사용(빈 dict). VesselProcess 스키마 불변 유지 위해 sim 레벨로 둔다(골든 안전).
+        self._discharge_pipeline: dict[str, int] = {}
         self.queue = EventQueue()
         self.clock = 0.0
         self.end = self.scenario.end_time
@@ -716,6 +724,16 @@ class TerminalSimulator:
                 # 적하 절반 (YC 반출 → YT → 안벽버퍼 → STS 처리 가능).
                 if j.flow == JobFlow.VESSEL_LOAD and j.vessel_id is not None:
                     self._transfer_request(j.vessel_id)
+                # YR-088: 양하 적재 완료 → 인계 파이프라인 1 해제 → 밀렸던 STS 재개(역압력 해소).
+                elif (self.yard_handover_cap is not None
+                      and j.flow == JobFlow.VESSEL_DISCHARGE and j.vessel_id is not None):
+                    vid = j.vessel_id
+                    self._discharge_pipeline[vid] = max(0, self._discharge_pipeline.get(vid, 0) - 1)
+                    v = self.vessels.get(vid)
+                    if (v is not None and not v.done and v.sts_blocked_since_s is not None
+                            and self._can_sts_process(v)):
+                        v.sts_blocked_since_s = None
+                        self.queue.push(self.clock, EventKind.STS_MOVE, vid)
         if yc.down_pending:
             yc.down, yc.down_pending = True, False
         self._clear_yields()
@@ -734,6 +752,9 @@ class TerminalSimulator:
 
     def _can_sts_process(self, v) -> bool:
         if v.work_type == VesselWorkType.DISCHARGE:
+            if (self.yard_handover_cap is not None
+                    and self._discharge_pipeline.get(v.vessel_id, 0) >= self.yard_handover_cap):
+                return False                 # 인계버퍼 만재 — YC 적재가 밀림 (역압력)
             return v.buffer_level < v.plan.quay_buffer_cap
         return v.buffer_level > 0
 
@@ -749,6 +770,8 @@ class TerminalSimulator:
             v.sts_blocked_since_s = None
         if v.work_type == VesselWorkType.DISCHARGE:
             v.buffer_level += 1
+            if self.yard_handover_cap is not None:   # STS 뽑기 = 인계 파이프라인 진입
+                self._discharge_pipeline[vid] = self._discharge_pipeline.get(vid, 0) + 1
             self._transfer_request(vid)      # 양하 박스 → 야드 이송 (도착 시 job 해제)
         else:
             v.buffer_level -= 1              # 적하 소비 — 보충은 야드 반출 완료가 (단계3)
