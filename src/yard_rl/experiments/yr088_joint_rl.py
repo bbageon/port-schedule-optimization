@@ -41,11 +41,11 @@ from ..integrated.scenario_gen import calibrated_load_params, generate_terminal_
 from .yr059_state_norm import fit_state_norm
 
 LEVEL = InformationLevel.PRE_ADVICE
-# 기준재 보상.
-# - crane_travel=0.1: 작은 이동비용(REPOSITION 남용 방지 보조; per-meter 라 약함, 주력은 REPO_PENALTY).
-# - sts_wait=5.0: **본선 선행신호**(안벽크레인 굶주림). RL 은 rollout 을 안 하므로 vessel_delay
-#   (후행) 만으론 배를 미리 못 챙긴다 — 교사가 rollout 으로 얻던 선행정보를 즉시보상에 넣어줌.
-#   평가 판정은 순수 berth(선석초과) KPI 로 하므로 shaping 이어도 정직(YR-080 sts5 근거).
+# 기준재 보상 (v5 채택 — v6 sts_wait 지배 재조정은 berth 악화·건전깨짐으로 실패, 되돌림).
+# - crane_travel=0.1: 작은 이동비용(REPOSITION 남용 방지 보조).
+# - sts_wait=5.0: 본선 선행신호(약). vessel_delay 33 유지.
+# 진단: 본선 통제여지는 lookahead(미래계획) 의존 — 반응형 RL 은 보상 shaping 만으론 미포착
+# (v6 실패가 확증). 본선 심화는 credit(n-step) 또는 hybrid rollout 축, 보상축 아님.
 RC = RewardCalculator.numeraire({"crane_travel": 0.1, "empty_travel": 0.1, "sts_wait": 5.0})
 GAMMA, REF_S = 0.99, 600.0
 UNSERVED = 30.0          # 미완료 job 1건당 종결 페널티 (퇴화방지 ② — 완주 학습신호)
@@ -253,8 +253,9 @@ def run(out=OUT, episodes=200, seeds_per_cell=4, batch=32, lr=1e-3,
             compl_rate = fmean(r["completion"] for r in ev)
             row.update(val_num=vnum, val_wait=vwait, val_berth=vberth,
                        val_healthy=round(healthy_rate, 2), val_compl=round(compl_rate, 3))
-            # 체크포인트: 완주율·건전율 비례 페널티 + 최소 val_num (전-무 아닌 연속 — best_ep 견고화).
-            score = vnum + 300.0 * (1.0 - compl_rate) + 100.0 * (1.0 - healthy_rate)
+            # 체크포인트: **참 목적**(트럭대기+본선 berth, RC-무관 고정척도)로 선택 — shaping RC 로
+            # val_num 의미가 바뀌어도 견고. berth 0.3 가중(트럭-min 과 균형). 완주·건전 비례 페널티.
+            score = vwait + 0.3 * vberth + 300.0 * (1.0 - compl_rate) + 100.0 * (1.0 - healthy_rate)
             if score < best["val"]:
                 best = {"val": score, "num": vnum, "state": copy.deepcopy(net.state_dict()),
                         "ep": ep, "healthy": round(healthy_rate, 2), "compl": round(compl_rate, 3)}
