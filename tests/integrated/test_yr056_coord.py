@@ -25,8 +25,8 @@ def _records(seed=None, ablation_off=()):
 
 
 def test_schema_v3_coord_fields():
-    # v4 (YR-059) 는 norm_ref 메타데이터만 추가 — COORD 채널 계약(이 파일의 대상)은 불변.
-    assert SCHEMA_VERSION == "itc-v4"
+    # v5 (YR-088) 는 vessel flow_margin 만 추가 — COORD 채널 계약(이 파일의 대상)은 불변.
+    assert SCHEMA_VERSION == "itc-v5"
     for name in _COORD_YC:
         assert SCHEMA.spec("yc", name).ablation is AblationGroup.COORD
     assert SCHEMA.spec("candidate", "contention_risk").ablation is AblationGroup.COORD

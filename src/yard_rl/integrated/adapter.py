@@ -17,6 +17,7 @@ from .candidates import CandidateGenerator
 from .cost_config import RewardCalculator
 from .engine import CraneAssignment, _pstdev
 from .resolver import BaselinePreference, CentralResolver, DispatcherPreference
+from .vessel_signals import flow_margin_s
 
 _KINDS = list(CandidateKind)
 _WAITING = (JobStatus.WAITING, JobStatus.RELEASED)
@@ -153,7 +154,8 @@ def _vessel_urgency(sim, v, now: float, level: InformationLevel, ablation_off=()
     ed = v.expected_delay_s(now)
     rem = float(max(0, v.remaining_moves) if v.started else v.plan.total_moves)
     common = {"remaining_moves": rem, "sts_wait_s": v.sts_wait_accum_s,
-              "transfer_wait_s": sim.transfer.transfer_wait_accum_s}
+              "transfer_wait_s": sim.transfer.transfer_wait_accum_s,
+              "flow_margin_s": flow_margin_s(sim, v, now)}   # YR-088 STS 흐름 여유(feedback)
     if mode.value == "RISK":
         raw = {"slack_s": v.slack_s(now), "risk": _c01((ed or 0.0) / 1800.0),
                "delay_symptom_score": None,

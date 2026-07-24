@@ -28,7 +28,7 @@ from enum import Enum
 # v4 (YR-059): FieldSpec.norm_ref 추가 — 상태 scale-only 정규화의 필드별 assumed 기준값
 # (적용전략 §4). 저장 레코드 **값은 불변**(정규화는 학습 인코딩에서만 적용) — 스키마
 # 구조 변경이므로 규약대로 bump. fitted 기준값은 config 로 override (Provenance 관례).
-SCHEMA_VERSION = "itc-v4"   # integrated transition contract v4
+SCHEMA_VERSION = "itc-v5"   # integrated transition contract v5 (YR-088: vessel flow_margin 추가)
 FLOAT_DECIMALS = 6          # 교차플랫폼 float 정규화 소수자리 (직렬화 idempotent)
 
 
@@ -217,6 +217,9 @@ _SPECS: tuple[FieldSpec, ...] = (
     _s("sts_wait_s", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.S, "vessel", _AB.VESSEL_RISK, lo=0.0),
     _s("transfer_wait_s", _SRC.EQUIPMENT, _TOK.ALWAYS, _U.S, "vessel", _AB.VESSEL_RISK, lo=0.0),
     _s("expected_delay_s", _SRC.DERIVED, _TOK.PLANNED, _U.S, "vessel", _AB.VESSEL_RISK, nullable=True, lo=0.0),
+    # YR-088: STS 흐름 여유(feedback) — 굶기(적하)/막히기(양하)까지 여유 한 숫자 (음수=곧 정지 위험).
+    # 스케줄만으론 못 잡는 경합·교란을 요약(YT/버퍼 raw 미노출). 계산: vessel_signals.flow_margin_s.
+    _s("flow_margin_s", _SRC.DERIVED, _TOK.ALWAYS, _U.S, "vessel", _AB.VESSEL_RISK, nullable=True),
 )
 
 
