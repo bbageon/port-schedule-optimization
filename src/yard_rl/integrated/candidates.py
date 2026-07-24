@@ -124,6 +124,39 @@ def eta_opportunity(sim, crane_id: str, level) -> bool:
     return any(True for _ in iter_pre_rehandle_jobs(sim, crane_id, level))
 
 
+def iter_vessel_prep_jobs(sim, crane_id: str, level):
+    """본선판 ETA — 다가올 **적하(반출)** 대상의 blocker 를 미리 정리(선제 준비)하는 (job, container).
+
+    트럭 PRE_REHANDLE 의 본선판. 게이트: PLANNED VESSEL_LOAD + 대상 실재·작업가능·서비스구간 내 +
+    blocker 존재 + 재조작 여유 + release_time(스케줄) 이 결정 지평 이내. 스케줄은 알려진 계획이라
+    정보수준 무관하나, 트럭과 평행하게 PRE_ADVICE 로 둔다(결정론·기존 게이트 재사용).
+    """
+    if level != InformationLevel.PRE_ADVICE:
+        return
+    spec = sim.fleet.spec(crane_id)
+    horizon = sim.profile.decision_horizon_s
+    now = sim.now
+    for jid in sorted(sim.jobs):
+        j = sim.jobs[jid]
+        if j.flow != JobFlow.VESSEL_LOAD or j.status != JobStatus.PLANNED:
+            continue
+        if j.target_container is None:
+            continue
+        c = sim.stacks.containers.get(j.target_container)
+        if c is None or not c.work_available:
+            continue
+        if not (spec.service_bay_min <= c.bay <= spec.service_bay_max):
+            continue
+        if not sim.stacks.blockers_above(j.target_container):
+            continue
+        if not sim.stacks.rehandle_capacity_ok(j.target_container, spec):
+            continue
+        rt = j.release_time
+        if rt is None or rt - now > horizon:      # 스케줄 지평 (본선판 ETA)
+            continue
+        yield j, c
+
+
 @dataclass(frozen=True)
 class GenCandidate:
     candidate_id: int                 # 튜플 위치 == CandidateSet items 인덱스
@@ -145,9 +178,13 @@ class GeneratedCandidates:
 class CandidateGenerator:
     def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
                  pre_rehandle_min_window_s: float = 600.0,
-                 block_pre_rehandle: bool = False):
+                 block_pre_rehandle: bool = False, vessel_prep: bool = False):
         self.k_max = k_max
         self.mandatory_wait_frac = mandatory_wait_frac
+        # YR-088 "본선판 ETA" (opt-in, 기본 off=골든 바이트 동일). ON 이면 다가올 적하(반출)
+        # 대상의 blocker 를 미리 정리하는 PRE_REHANDLE 후보를 스케줄(release_time) 기반으로 발행
+        # — 트럭 PRE_REHANDLE 의 본선판(선제 준비). 정책/rollout 이 미리 준비할 선택지를 얻는다.
+        self.vessel_prep = vessel_prep
         # YR-043: mask 아님 — "도착 전 완료 가능" 은 §8.4 운영 트레이드오프라 State/Cost 로 이관.
         # 참고값으로만 보존 (후보 생성 게이트로 사용 금지).
         self.pre_window = pre_rehandle_min_window_s
@@ -223,6 +260,19 @@ class CandidateGenerator:
             out.append(GenCandidate(0, CandidateKind.PRE_REHANDLE, ref, plan, False,
                                     reason is None, reason,
                                     self._score(sim, ref, plan, now, None)))
+        if self.vessel_prep:                       # YR-088 본선판 ETA — 다가올 적하 선제 준비
+            for j, c in iter_vessel_prep_jobs(sim, cid, level):
+                ref = JobRef(job_id=j.job_id, token=j.job_id, kind=CandidateKind.PRE_REHANDLE,
+                             target_container=j.target_container, lane_id=sim._lane_for(c.bay),
+                             eligible_crane_ids=sim.eligible_cranes(c.bay),
+                             is_vessel=True, is_external=False)
+                plan = sim._plan(cid, ref)
+                if plan is None:
+                    continue
+                reason = self._committed_reason(sim, plan)
+                out.append(GenCandidate(0, CandidateKind.PRE_REHANDLE, ref, plan, False,
+                                        reason is None, reason,
+                                        self._score(sim, ref, plan, now, None)))
         return out
 
     def _reposition(self, sim, cid, now, level) -> list[GenCandidate]:
