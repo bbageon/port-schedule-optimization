@@ -48,6 +48,9 @@ LEVEL = InformationLevel.PRE_ADVICE
 # (v6 실패가 확증). 본선 심화는 credit(n-step) 또는 hybrid rollout 축, 보상축 아님.
 RC = RewardCalculator.numeraire({"crane_travel": 0.1, "empty_travel": 0.1, "sts_wait": 5.0})
 GAMMA, REF_S = 0.99, 600.0
+N_STEP = 1               # 1-step 채택 (n=5 실험 실패: 큰·지연 vessel_delay 33× 를 n-step 이
+#                          변동성 증폭 → berth 악화·완주 깨짐. 본선은 credit 축으로도 미개선).
+#                          본선 미학습은 보상(v6)·인지(flow_margin,미사용)·신용(n-step) 3연속 실패.
 UNSERVED = 30.0          # 미완료 job 1건당 종결 페널티 (퇴화방지 ② — 완주 학습신호)
 FORBID_WAIT = True       # 퇴화방지 ① — 일할 게 있으면 전략적 WAIT 조합 제외 (YR-052)
 REPO_PENALTY = 0.5       # 퇴화방지 ③ — REPOSITION **행동당** 고정 벌점 (per-meter travel 은
@@ -144,9 +147,23 @@ def collect_episode(cell, seed, net, norm, epsilon, rng):
                                  raw=raw, risk_max=0.0).total_normalized
         pend["r"] += UNSERVED * n_unserved
         trans.append([pend["rows"], pend["pos"], pend["r"], 1.0, None])
+    # n-step 변환: transition i → (rows_i, pos_i, R_n, γ_n, boot_{i+n}). 궤적 순서 이용.
+    nstep = []
+    for i in range(len(trans)):
+        R, g, boot = 0.0, 1.0, None
+        for kk in range(N_STEP):
+            j = i + kk
+            if j >= len(trans):
+                break
+            R += g * trans[j][2]                 # 누적 할인 보상
+            g *= trans[j][3]                     # 할인 누적
+            boot = trans[j][4]                   # j 이후 상태 (= i+kk+1)
+            if boot is None:                     # n 스텝 내 종결 → 부트스트랩 없음
+                break
+        nstep.append([trans[i][0], trans[i][1], R, g, boot])
     stat = {"cell": cell, "seed": seed, "n": k,
             "completion": sum(1 for j in jobs if j.status.name == "DONE") / len(jobs)}
-    return trans, stat
+    return nstep, stat
 
 
 class RLPolicy:
