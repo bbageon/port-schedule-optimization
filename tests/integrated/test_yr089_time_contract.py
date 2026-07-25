@@ -194,6 +194,29 @@ def test_v2_no_new_event_kinds_and_deterministic():
     assert abs(r1["block_turntime_mean_min"] - r2["block_turntime_mean_min"]) < EPS
 
 
+def test_no_completion_after_evaluation_end():
+    """외부감사 결함1 회귀 가드: 평가창(end) 밖 완료는 없다 — end 시점 RUNNING 은
+    미완료(검열·backlog). 비용 적분(end 절단)과 완주율이 같은 시간창을 본다."""
+    sim = _v2_sim()
+    sim.end = 3600.0                                     # 평가창 강제 축소 → 미완료 유발
+    r = _run_sf(sim)
+    assert sim.clock <= sim.end + 1e-6                   # 시계가 평가창을 넘지 않는다
+    done = [j for j in sim.jobs.values() if j.status.name == "DONE"]
+    assert all(j.service_end <= sim.end + 1e-6 for j in done)
+    assert r["completion_rate"] < 1.0 and r["backlog"] > 0
+    tl = sim.time_ledger
+    assert all(rec.job_done <= sim.end + 1e-6
+               for rec in tl.records.values() if rec.job_done is not None)
+    # 적분 등식이 축소창에서도 성립 (표본 C ≤ end ⇒ 표본합 == 적분)
+    end = tl.closed_end_s
+    expect = 0.0
+    for rec in tl.records.values():
+        if rec.block_arrival is None or rec.block_arrival >= end:
+            continue
+        expect += min(rec.job_done if rec.job_done is not None else end, end) - rec.block_arrival
+    assert abs(tl.block_area_s - expect) < 1e-3
+
+
 def test_v2_metrics_reported_and_named_separately():
     r = _run_sf(_v2_sim())
     for k in ("block_turntime_mean_min", "block_turntime_p95_min",

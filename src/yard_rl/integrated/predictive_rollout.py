@@ -33,7 +33,13 @@ def make_predicted_scratch(sim, rng: random.Random, eta_error_s: float = DEFAULT
     for jid, j in scratch.jobs.items():
         if (getattr(j, "is_external_truck", False) and j.actual_block_arrival is not None
                 and j.actual_block_arrival > now):
-            eta = j.provided_eta if j.provided_eta is not None else j.actual_block_arrival
+            # 외부감사 결함4 정정: ETA 결측 트럭을 실제 도착으로 대체하던 조건부 누출 제거 —
+            # fail-closed (예측 불가면 예외). ETA 완비 시나리오(현 실험 전부)는 영향 없음.
+            # 잔여 누출(deepcopy 가 미통지 고장·계획변경 이벤트 보유)은 YR-093 전용 작업.
+            eta = j.provided_eta
+            if eta is None:
+                raise ValueError(f"{jid}: provided_eta 없음 — 현실형 예측 rollout 은 "
+                                 "공개 ETA 없는 미래 트럭을 다룰 수 없다 (YR-093)")
             pt = max(now + 1.0, eta + rng.uniform(-eta_error_s, eta_error_s))
             j.actual_block_arrival = pt
             pred[jid] = pt

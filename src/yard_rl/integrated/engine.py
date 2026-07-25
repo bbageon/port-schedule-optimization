@@ -223,7 +223,12 @@ class TerminalSimulator:
         while True:
             if self._terminal:
                 return None
-            nt = self.queue.peek_time()
+            raw_nt = self.queue.peek_time()
+            # YR-089 정정(외부감사 결함1): 평가창(end) 밖 이벤트는 처리하지 않는다.
+            # 비용 적분은 end 에서 잘리는데 완료·완주율은 그 뒤까지 반영되던 시간창 불일치
+            # (포화 셀에서 "완주 100%·backlog 0·최종시계 241.61s>end=100s" 실측) 제거 —
+            # end 시점 RUNNING 작업은 미완료(검열 표본·backlog)로 남는다.
+            nt = raw_nt if (raw_nt is None or raw_nt <= self.end + _EPS) else None
             if nt is not None and nt <= self.clock + _EPS:
                 self._process_next_event()
                 continue
@@ -236,8 +241,10 @@ class TerminalSimulator:
                 self._eta_armed -= set(idle)   # 결정에 포함 = 이번 wake 의 질문 소진
                 return TerminalDecision(self.clock, idle)
             wt = self._next_wake_time()
+            if wt is not None and wt > self.end + _EPS:   # wake 도 평가창 밖이면 시계 전진 금지
+                wt = None
             if nt is None and wt is None:
-                if any(c.state.assigned_job for c in self.fleet.all()):
+                if raw_nt is None and any(c.state.assigned_job for c in self.fleet.all()):
                     raise RuntimeError("작업 중인데 완료 이벤트 없음 — 엔진 버그")
                 self._finalize()
                 return None
