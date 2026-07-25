@@ -38,3 +38,11 @@ paired 95% CI (JR−SF · n=10 · t(9)=2.262, 음수=rollout 우세):
 - 재현: `tests/integrated/test_yr089_time_contract.py`(12 계약) ·
   `src/yard_rl/integrated/time_contract.py` · scenario `TerminalGenParams(time_contract_v2=True)`.
 - 한계: 분포 assumed(D5)·2셀×5seed·관측 스키마 미확장(estimated 는 provided_eta alias 경로).
+
+## 외부감사 결함1 정정 후 재검증 (2026-07-26, `7fe7616`)
+
+평가창 밖 완료를 완주로 세던 결함(포화셀 실측) 수정 후 본 보고서 전 수치 재실행 —
+**소수점까지 완전 재현**(SF B−C 16.44·JR 11.99·ΔB−C −4.45 [−6.26,−2.64]·Δberth 동일).
+= 이 에피소드들엔 종료 밖 완료가 없었음이 증명, 수치 정정 불필요. YR-087 오라클/현실형
+(122.0/107.6/105.6·CI 동일)도 같이 재확증. 단 포화·미완주 guard 판정은 수정 전 결과에
+한해 신뢰 불가(해당 박제 없음).
