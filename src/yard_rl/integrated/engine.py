@@ -87,6 +87,18 @@ class TerminalSimulator:
         from .ledger import CostLedger
         self.cost = CostAccumulator(ledger=CostLedger() if self._enable_ledger else None)
         self.kpis = KpiTracker(sla_s=self.profile.long_wait_sla_s)
+        # YR-089 시간계약 v2 — 시나리오가 v2 필드(exit_travel_s)로 생성됐을 때만 장부 활성.
+        # v1 시나리오는 None = 기존 비용·이벤트 경로 바이트 동일 (골든 안전). 장부는 비용·KPI
+        # 정산 전용(GROUND_TRUTH) — 정책 입력 아님. A(진입)·O(출문)는 이벤트 큐에 넣지 않고
+        # 장부가 구간적분 중 경계 처리 → event_log 불변·YC 결정시점 미개방 (계약).
+        from .time_contract import TimeLedger
+        _v2 = [j for j in self.jobs.values()
+               if j.is_external_truck and j.exit_travel_s is not None]
+        self.time_ledger = TimeLedger(sla_s=self.profile.long_wait_sla_s) if _v2 else None
+        if self.time_ledger is not None:
+            for j in sorted(_v2, key=lambda x: x.job_id):
+                self.time_ledger.register(j.job_id, j.actual_gate_in or 0.0)
+            self.time_ledger.seal()
         self.transfer = TransferFleet(
             self.profile.transfer.fleet_id, self.profile.transfer.kind,
             self.profile.transfer.n_units, self.profile.transfer.move_time_s)
@@ -523,6 +535,8 @@ class TerminalSimulator:
             j.service_start = self.clock
             if j.is_external_truck:   # 서비스 시작 = dispatch 시점 (대기 적분 종료, engine.py:185)
                 self.kpis.service_started(j.job_id, self.clock)
+                if self.time_ledger is not None:        # YR-089 v2: S 기록 (블록 점유는 C 까지)
+                    self.time_ledger.service_start(j.job_id, self.clock)
         self.cost.accrue("crane_travel", plan.loaded_gantry_m,
                          cause=CostCause.DISPATCH, subject=crane_id)
         self.cost.accrue("empty_travel", plan.empty_gantry_m,
@@ -600,11 +614,21 @@ class TerminalSimulator:
             lo, hi = min(self.clock, self.end), min(t, self.end)
             if hi > lo:
                 q0, tl0 = self.kpis.queue_area_s, self.kpis.tail_area_s
-                self.kpis.integrate(lo, hi)
-                self.cost.accrue("truck_wait", self.kpis.queue_area_s - q0,
-                                 cause=CostCause.WAIT_INTEGRAL)
-                self.cost.accrue("long_wait", self.kpis.tail_area_s - tl0,
-                                 cause=CostCause.WAIT_INTEGRAL)
+                self.kpis.integrate(lo, hi)          # S−B 대기 적분 (v2 에선 진단 지표로만)
+                if self.time_ledger is not None:
+                    # YR-089 v2: 학습비용 = 블록 처리시간(B→C) 점유 적분 — 대기+서비스.
+                    # "빨리 시작했지만 오래 처리한" 정책의 오채택 방지 (spec 학습표적).
+                    b0, bt0 = self.time_ledger.block_area_s, self.time_ledger.block_tail_area_s
+                    self.time_ledger.integrate(lo, hi)
+                    self.cost.accrue("truck_wait", self.time_ledger.block_area_s - b0,
+                                     cause=CostCause.WAIT_INTEGRAL)
+                    self.cost.accrue("long_wait", self.time_ledger.block_tail_area_s - bt0,
+                                     cause=CostCause.WAIT_INTEGRAL)
+                else:
+                    self.cost.accrue("truck_wait", self.kpis.queue_area_s - q0,
+                                     cause=CostCause.WAIT_INTEGRAL)
+                    self.cost.accrue("long_wait", self.kpis.tail_area_s - tl0,
+                                     cause=CostCause.WAIT_INTEGRAL)
                 self.transfer.integrate(lo, hi)
                 occ = frozenset(r.lane_id for r in self.reservations.active() if r.lane_id)
                 self.lanes.integrate(lo, hi, occ)
@@ -650,6 +674,8 @@ class TerminalSimulator:
             j = self.jobs[ev.payload]
             j.status = JobStatus.WAITING
             self.kpis.truck_arrived(j.job_id, ev.time)
+            if self.time_ledger is not None:            # YR-089 v2: B 기록·블록 점유 시작
+                self.time_ledger.block_arrival(j.job_id, ev.time)
             self._clear_yields()
         elif k == "JOB_RELEASED":
             self.jobs[ev.payload].status = JobStatus.RELEASED
@@ -720,6 +746,11 @@ class TerminalSimulator:
                 j.rehandle_count = plan.rehandles
                 self.kpis.job_completed(external=j.is_external_truck, deadline=j.deadline,
                                         end=self.clock)
+                # YR-089 v2: C 기록·블록 점유 종료·O = C+exit_travel(외생) 확정
+                if (self.time_ledger is not None and j.is_external_truck
+                        and j.exit_travel_s is not None):
+                    j.actual_gate_out = self.time_ledger.job_done(
+                        j.job_id, self.clock, j.exit_travel_s)
                 # YR-080 단계3: 적하 반출 완료 → 박스를 안벽으로 이송 — 인과 사슬의
                 # 적하 절반 (YC 반출 → YT → 안벽버퍼 → STS 처리 가능).
                 if j.flow == JobFlow.VESSEL_LOAD and j.vessel_id is not None:
@@ -871,6 +902,8 @@ class TerminalSimulator:
                                  cause=CostCause.CLEAROUT, subject=v.vessel_id)
                 self.kpis.add_berth_overrun(self.end - pc)
         self.kpis.close_censored(self.end)
+        if self.time_ledger is not None:      # YR-089 v2: 검열 기준시각 고정 (미완료 = end−A 노출)
+            self.time_ledger.close(self.end)
         self._terminal = True
 
     # ------------------------------------------------------------- invariants

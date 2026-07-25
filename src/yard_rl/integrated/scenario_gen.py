@@ -54,6 +54,13 @@ class TerminalGenParams:
     # YR-041/본선 스트레스 (부산 근사): 본선 작업창 배율. 완료마감 = start + moves×cadence×배율.
     # 기본 2.0 = 기존 바이트 동일(넉넉). 낮출수록 ETD 압력↑(1.0~1.3 스트레스). etd = ×(배율+1).
     vessel_deadline_mult: float = 2.0
+    # YR-089 시간계약 v2 (opt-in — False 면 기존 생성 바이트 동일). 예약(T_appt)이 1차 정보이고
+    # 실제 진입 A = T_appt + 준수오차, 블록도착 B = A + 게이트·내부주행, 예측 ETA = 예약 기반.
+    # 분포 전부 assumed (실측은 YR-082 Level 3 운영로그 — spec 자료 한계 조항).
+    time_contract_v2: bool = False
+    appt_window_s: float = 3600.0          # VBS 예약창 폭 (체인포털 — 터미널별 상이, assumed)
+    appt_adherence_sigma_s: float = 600.0  # 예약 준수오차 σ (signed 정규, ±2σ 절단, assumed)
+    exit_travel_mu_s: float = 300.0        # 작업완료→출문 μ (assumed)
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -77,6 +84,10 @@ class TerminalGenParams:
             raise ValueError("fault_outages≥0·fault_outage_dur_s>0")
         if self.vessel_deadline_mult <= 0:
             raise ValueError("vessel_deadline_mult 은 양수")
+        if self.appt_window_s <= 0 or self.exit_travel_mu_s <= 0:
+            raise ValueError("appt_window_s·exit_travel_mu_s 는 양수")
+        if self.appt_adherence_sigma_s < 0:
+            raise ValueError("appt_adherence_sigma_s 는 0 이상")
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -224,6 +235,11 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     eta_rng = random.Random(f"eta:{seed}")
     # YR-080 단계2: 양하 inbound 규격 전용 스트림 — eta 스트림과 같은 이유(격리)로 분리.
     vdis_rng = random.Random(f"vdis:{seed}")
+    # YR-089 v2: 예약 준수·게이트/내부이동·출문 — 서로 다른 난수 흐름 (spec 계약). v1 draw 열은
+    # 그대로 소비해 스트림 정렬 보존 → v2 OFF 시 바이트 동일, ON 시 변화가 정확히 v2 필드로 한정.
+    adh_rng = random.Random(f"adh:{seed}")
+    gtx_rng = random.Random(f"gtx:{seed}")
+    exit_rng = random.Random(f"exit:{seed}")
     for i in range(params.n_external):
         # 기존 수식 보존 (부동소수점 결합 순서까지 — 골든 계약). 피크는 opt-in 후처리.
         arrival = params.horizon_s * (i + rng.random()) / params.n_external
@@ -236,6 +252,26 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                    params.sigma_frac or 0.12, lo=60.0)
         gate_in = max(0.0, arrival - gate_travel)
         eta = max(0.0, arrival + eta_rng.uniform(-params.eta_error_s, params.eta_error_s))
+        v2: dict = {}
+        if params.time_contract_v2:
+            # 예약이 1차 — 기존 도착 공식(피크 포함)을 **예약 게이트 시각**으로 재해석.
+            appt = arrival
+            sig = params.appt_adherence_sigma_s
+            delta = max(-2.0 * sig, min(2.0 * sig, adh_rng.gauss(0.0, sig))) if sig > 0 else 0.0
+            a_in = max(0.0, appt + delta)                       # 실제 진입 = 예약 + 준수오차
+            travel2 = trunc_normal(gtx_rng, params.gate_travel_mu_s,
+                                   params.sigma_frac or 0.12, lo=60.0)
+            b_arr = a_in + travel2                              # 실제 블록도착
+            exit_t = trunc_normal(exit_rng, params.exit_travel_mu_s,
+                                  params.sigma_frac or 0.12, lo=60.0)
+            # 예측 = 예약 + 준수예측 0(준수 가정, assumed) + 기대 주행 — 실현 draw 미참조 (누출 0)
+            est = appt + 0.0 + params.gate_travel_mu_s
+            v2 = {"actual_gate_in": a_in, "actual_block_arrival": b_arr,
+                  "provided_eta": est,                          # deprecated alias == estimated
+                  "appointment_window_start": appt - params.appt_window_s / 2.0,
+                  "appointment_window_end": appt + params.appt_window_s / 2.0,
+                  "appointment_gate_time": appt,
+                  "estimated_block_arrival": est, "exit_travel_s": exit_t}
         if rng.random() < params.gate_out_share and free_targets:
             target = free_targets.pop()
             jobs.append(Job(job_id=f"J-OUT-{i:03d}", flow=JobFlow.GATE_OUT,
@@ -250,6 +286,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                           if rng.random() < params.size_mix_ft40
                                           else ContainerSize.FT20),
                             inbound_load=LoadStatus.FULL))
+        for k_, v_ in v2.items():               # YR-089 v2 재해석 (v1 경로는 v2 빈 dict)
+            setattr(jobs[-1], k_, v_)
 
     # ---- 본선 (DISCHARGE=RISK 완결근거 / LOAD=SYMPTOM 결측 — fixture 계약)
     vessels: list[VesselProcess] = []
@@ -323,6 +361,11 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         meta["gate_travel_mu_s"] = params.gate_travel_mu_s
     if params.vessel_deadline_mult != 2.0:
         meta["vessel_deadline_mult"] = params.vessel_deadline_mult
+    if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)
+        meta["time_contract"] = "truck-time-v2"
+        meta["appt_window_s"] = params.appt_window_s
+        meta["appt_adherence_sigma_s"] = params.appt_adherence_sigma_s
+        meta["exit_travel_mu_s"] = params.exit_travel_mu_s
     injected: list = []
     if params.fault_outages > 0:                 # YR-077 — 전용 스트림, 기존 draw 불변
         from .scenario import InjectedEvent

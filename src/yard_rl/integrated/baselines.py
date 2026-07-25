@@ -410,22 +410,37 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
     done = sum(1 for j in jobs if j.status.name == "DONE")
     waits = [w / 60.0 for w in sim.kpis.wait_samples_s]
     ws = sorted(waits)
-    return {"policy": getattr(policy, "name", type(policy).__name__),
-            "total_cost": total, "n_decisions": n_dec,
-            "combo_truncations": (int(getattr(policy, "n_truncated", 0))
-                                    - truncated_before),
-            "completion_rate": done / max(1, len(jobs)), "backlog": len(jobs) - done,
-            "mean_wait_min": (sum(waits) / len(waits)) if waits else 0.0,
-            "p95_wait_min": (ws[min(len(ws) - 1, int(0.95 * len(ws)))] if ws else 0.0),
-            "vessel_delay_min": sim.kpis.vessel_delay_s / 60.0,   # 야드 job 지각 (구 정의 병기)
-            "berth_overrun_min": sim.kpis.berth_overrun_s / 60.0,  # 선석 초과 (YR-080 — 비용과 동일 정의)
-            "action_mix": mix.as_dict(), "_mix": mix,
-            # YR-045 보고 의무 확장 — 비용 기여·후보 발생·물리 지표
-            "term_contrib": dict(sorted(term_contrib.items())),
-            "cand_listed": dict(sorted(listed.items())),
-            "cand_feasible": dict(sorted(listed_feasible.items())),
-            "sts_wait_s": sum(v.sts_wait_accum_s for v in sim.vessels.values()),
-            "transfer_wait_s": sim.transfer.transfer_wait_accum_s,
-            "loaded_travel_m": sim.kpis.loaded_gantry_m,
-            "empty_travel_m": sim.kpis.empty_gantry_m,
-            "rehandles": sim.kpis.rehandle_count}
+    res = {"policy": getattr(policy, "name", type(policy).__name__),
+           "total_cost": total, "n_decisions": n_dec,
+           "combo_truncations": (int(getattr(policy, "n_truncated", 0))
+                                   - truncated_before),
+           "completion_rate": done / max(1, len(jobs)), "backlog": len(jobs) - done,
+           "mean_wait_min": (sum(waits) / len(waits)) if waits else 0.0,
+           "p95_wait_min": (ws[min(len(ws) - 1, int(0.95 * len(ws)))] if ws else 0.0),
+           "vessel_delay_min": sim.kpis.vessel_delay_s / 60.0,   # 야드 job 지각 (구 정의 병기)
+           "berth_overrun_min": sim.kpis.berth_overrun_s / 60.0,  # 선석 초과 (YR-080 — 비용과 동일 정의)
+           "action_mix": mix.as_dict(), "_mix": mix,
+           # YR-045 보고 의무 확장 — 비용 기여·후보 발생·물리 지표
+           "term_contrib": dict(sorted(term_contrib.items())),
+           "cand_listed": dict(sorted(listed.items())),
+           "cand_feasible": dict(sorted(listed_feasible.items())),
+           "sts_wait_s": sum(v.sts_wait_accum_s for v in sim.vessels.values()),
+           "transfer_wait_s": sim.transfer.transfer_wait_accum_s,
+           "loaded_travel_m": sim.kpis.loaded_gantry_m,
+           "empty_travel_m": sim.kpis.empty_gantry_m,
+           "rehandles": sim.kpis.rehandle_count}
+    # YR-089 시간계약 v2 지표 — ledger 활성(v2 시나리오)일 때만 추가 (v1 결과 dict 불변).
+    # 이름 규약: mean_wait/p95_wait(=S−B 대기)와 절대 혼용 금지 (spec 수용기준).
+    tl = getattr(sim, "time_ledger", None)
+    if tl is not None:
+        def _stats(sec):
+            m = sorted(x / 60.0 for x in sec)
+            return ((sum(m) / len(m)) if m else 0.0,
+                    (m[min(len(m) - 1, int(0.95 * len(m)))] if m else 0.0))
+        bt_mean, bt_p95 = _stats(tl.block_turntime_samples_s())
+        tt_mean, tt_p95 = _stats(tl.terminal_turntime_samples_s())
+        res.update(block_turntime_mean_min=bt_mean, block_turntime_p95_min=bt_p95,
+                   terminal_turntime_mean_min=tt_mean, terminal_turntime_p95_min=tt_p95,
+                   terminal_truck_area_h=tl.terminal_area_s / 3600.0,
+                   censored_exposure_h=tl.censored_exposure_s() / 3600.0)
+    return res

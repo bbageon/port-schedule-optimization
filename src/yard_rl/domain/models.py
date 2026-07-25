@@ -33,7 +33,15 @@ class Job:
     actual_gate_in: float | None        # 외부트럭: 게이트 진입 실제시각
     actual_block_arrival: float | None  # 외부트럭: 블록 도착 실제시각
     provided_eta: float | None = None   # 부산항 제공 ETA (Exp-3 에서만 공개, 외생 입력)
+    #                                     YR-089 v2: estimated_block_arrival 의 deprecated alias
     deadline: float | None = None       # 본선·내부작업 마감
+    # --- YR-089 시간계약 v2 (opt-in — 전부 None 이면 구 계약, 골든 불변) ---
+    appointment_window_start: float | None = None  # VBS 예약창 (예약 접수시 공개, 정책 가시)
+    appointment_window_end: float | None = None
+    appointment_gate_time: float | None = None     # 예약창 한 점 proxy (파생, 정책 가시)
+    estimated_block_arrival: float | None = None   # 예약 기반 예측 (진실 아님 — 정책 가시)
+    exit_travel_s: float | None = None             # 완료→출문 소요 (외생, 시나리오 사전추출)
+    actual_gate_out: float | None = None           # 런타임: job_done + exit_travel (완료 시 확정)
     # --- 대상 ---
     target_container: str | None = None  # GATE_OUT·VESSEL_*: 야드 내 컨테이너
     inbound_size: ContainerSize | None = None      # 신규 반입 규격 (GATE_IN·양하 STORE)
