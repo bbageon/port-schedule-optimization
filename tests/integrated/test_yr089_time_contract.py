@@ -217,6 +217,22 @@ def test_no_completion_after_evaluation_end():
     assert abs(tl.block_area_s - expect) < 1e-3
 
 
+def test_unfinished_backlog_counts_running():
+    """외부감사 2차: 종료시점 RUNNING 도 backlog — unfinished_backlog 가 DONE(·CANCELLED)
+    외 전부를 센다 (runner/direct_job_env 소비 경로 정합)."""
+    from yard_rl.domain.enums import JobStatus
+    sim = _v2_sim()
+    sim.end = 3600.0
+    r = _run_sf(sim)
+    assert sim.unfinished_backlog() == r["backlog"]      # 보고 정의와 일치 (DONE 외 전부)
+    done_jobs = [j for j in sim.jobs.values() if j.status == JobStatus.DONE]
+    assert done_jobs
+    before = sim.unfinished_backlog()
+    done_jobs[0].status = JobStatus.RUNNING              # RUNNING 이 실제로 세어지는지
+    assert sim.unfinished_backlog() == before + 1
+    done_jobs[0].status = JobStatus.DONE
+
+
 def test_v2_metrics_reported_and_named_separately():
     r = _run_sf(_v2_sim())
     for k in ("block_turntime_mean_min", "block_turntime_p95_min",

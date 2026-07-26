@@ -957,8 +957,11 @@ class TerminalSimulator:
                     raise ConstraintViolation("SLOT_DOUBLE", f"{a.crane_id}·{b.crane_id}")
 
     def unfinished_backlog(self) -> int:
+        # 외부감사 2차(2026-07-26): ASSIGNED·RUNNING 포함 — 평가창 정정 후 종료시점 작업 중
+        # 인 job 도 미완료다. 이전엔 계획·대기·해제만 세어 "종료시점 작업 중 = backlog" 가
+        # 이 경로에서 성립하지 않았다. (DONE·CANCELLED 만 backlog 아님.)
         return sum(1 for j in self.jobs.values()
-                   if j.status in (JobStatus.PLANNED, JobStatus.WAITING, JobStatus.RELEASED))
+                   if j.status not in (JobStatus.DONE, JobStatus.CANCELLED))
 
     def event_stream_hash(self) -> str:
         blob = "|".join(f"{round(t, 6)}:{k}:{p}" for (t, k, p) in self.event_log)

@@ -349,5 +349,7 @@ class YardSimulator:
 
     # ------------------------------------------------------------- summary
     def unfinished_backlog(self) -> int:
+        # 외부감사 2차(2026-07-26): ASSIGNED·RUNNING 포함 — 종료시점 작업 중인 job 도
+        # 미완료 (runner.py·direct_job_env.py 가 본 함수를 직접 소비). DONE·CANCELLED 제외.
         return sum(1 for j in self.jobs.values()
-                   if j.status in (JobStatus.PLANNED, JobStatus.WAITING, JobStatus.RELEASED))
+                   if j.status not in (JobStatus.DONE, JobStatus.CANCELLED))
