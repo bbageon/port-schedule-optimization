@@ -26,8 +26,10 @@ Gain = OutRelief − InBurden − Route − Margin,  부가지표 pos_frac(표�
 
 - **설정**: K=5 · GAIN_MARGIN=0.5(기존 동일) · epoch당 transfer ≤1 · 같은 8 paired seeds·
   셀(BASE 833000/834000, high-tight+mid-loose) — G1·오라클과 직접 비교 가능.
-- **pick 규칙**: eligible 전수에서 **mean-Gain 최대 & mean-Gain > MARGIN** (pos_frac 은
-  보고용 부가지표 — 선택 규칙에 미사용, 사후 분석만).
+- **pick 규칙**: eligible 전수에서 **mean-Gain 최대 & mean-Gain > 0** — Margin(0.5)은
+  Gain 산식 내 이미 차감(이중 적용 아님·기존 단일-quote 와 동일 규칙). (pos_frac 은
+  보고용 부가지표 — 선택 규칙에 미사용.) *[문구 정정 2026-07-27, 결과 열람 전 —
+  검증 agent 지적: 구 문구 "mean-Gain > MARGIN" 은 margin 이중 적용으로 읽힘]*
 - **주판정**: ① 부호일치(예측 mean-Gain>0 ↔ 실현 d<0)가 단일-quote 2/8 대비 개선되나
   ② G1 d_total CI — **상한<0 이면 "상금 회수 개시"** / CI 0 포함이면 "미달(단 부호일치
   개선 여부 별도 보고)" / 평균>0 이면 실패. ③ 오라클 대비 회수율 = mean_d/−22.41 보고.

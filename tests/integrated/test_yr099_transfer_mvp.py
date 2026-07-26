@@ -63,6 +63,37 @@ def test_info_safety_predicted_has_no_realized_draw(pair):
             assert j.actual_gate_in == pytest.approx(j.appointment_gate_time)
 
 
+def test_ens_sample_deterministic_and_varied(pair):
+    from yard_rl.experiments.yr099_transfer_mvp import _params, to_predicted_sample
+    sa, _ = pair
+    p = _params(CELL_A)
+    s1 = to_predicted_sample(sa, p, "t:0")
+    s2 = to_predicted_sample(sa, p, "t:0")
+    s3 = to_predicted_sample(sa, p, "t:1")
+    a1 = [j.actual_block_arrival for j in s1.jobs if getattr(j, "appointment_gate_time", None)]
+    a2 = [j.actual_block_arrival for j in s2.jobs if getattr(j, "appointment_gate_time", None)]
+    a3 = [j.actual_block_arrival for j in s3.jobs if getattr(j, "appointment_gate_time", None)]
+    assert a1 == a2                                                # 같은 key = 결정론
+    assert a1 != a3                                                # 다른 k = 표본 다양성
+
+
+def test_ens_sample_info_safe(pair):
+    # 실현 draw 를 오염시켜도 표본 출력 불변 = 실현 미참조 (누출 0)
+    from yard_rl.experiments.yr099_transfer_mvp import _params, to_predicted_sample
+    sa, _ = pair
+    p = _params(CELL_A)
+    ref = to_predicted_sample(sa, p, "t:9")
+    tam = copy.deepcopy(sa)
+    for j in tam.jobs:
+        if getattr(j, "appointment_gate_time", None) is not None:
+            j.actual_block_arrival = 99_999.0                      # 실현값 오염
+            j.actual_gate_in = 88_888.0
+    out = to_predicted_sample(tam, p, "t:9")
+    r1 = [j.actual_block_arrival for j in ref.jobs if getattr(j, "appointment_gate_time", None)]
+    r2 = [j.actual_block_arrival for j in out.jobs if getattr(j, "appointment_gate_time", None)]
+    assert r1 == r2
+
+
 def test_fail_closed_eligibility(pair):
     sa, _ = pair
     elig = eligible_inbound(sa)
