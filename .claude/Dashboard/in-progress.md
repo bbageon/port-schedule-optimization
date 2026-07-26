@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-101 | RL | **ensemble quote — 공개 오차분포 K표본 평균 marginal 로 quote 강건화** | 🟠 | 2026-07-27 | **착수 (사용자 지시)**. 근거: YR-099-G1 오라클 진단 — 상금 실재(−22.41 8/8)·단일 예측궤적 quote 무상관(2/8) → 처방 = 표본 평균. 같은 8 seeds·셀(직접 비교), K=5, prereg 동결 후 집행. [spec](../docs/dashboard-task-specs/YR-101-ensemble-quote.md) |
+| — | — | (비어 있음 — YR-101 기각 완료, 다음 순서 결정 대기) | — | — | YR-101 기각(done.md — 추정기 문제 확정: 카오틱 marginal·winner's curse·편향). 다음 후보: **YR-102 분해 quote**(J_계산식+J_잔여 — 저분산 구성적, 🟠 backlog) / YR-096 선결(@3600 재검) |
 
 ---
 

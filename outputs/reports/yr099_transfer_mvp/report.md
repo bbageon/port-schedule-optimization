@@ -27,3 +27,33 @@ epoch당 transfer ≤1, 전수 quote(Gain=OutRelief−InBurden−Route−Margin)
    에서 8/8 transfer 실행(margin 이 노이즈 quote 를 못 거름 — ensemble 전 margin 상향 무의미).
 
 원자료: results.json(예측-quote) · results_oracle.json(오라클)
+
+---
+
+# YR-101 ensemble quote K=5 — 판정 (2026-07-27, prereg `0d988d0`·정정 `c07a88d`)
+
+| arm | Δterminal | 부호일치 | 비고 |
+|---|---|---|---|
+| 단일 예측-quote | +3.08 [−4.55,+10.71] | 2/8 | G1 기준선 |
+| **ensemble K=5** | **+3.54 [−4.12,+11.20]** | **3/8** | **기각 (prereg ②: 평균>0 = 실패)** |
+| 오라클 (진단) | −22.41 [−32.12,−12.70] | 8/8 | 상금 상한 |
+
+## 판정: 기각 — K=5 표본 평균으로는 회수 안 됨 (회수율 −0.158)
+
+**진단 (gains_k 원자료):**
+1. **표본 간 marginal 분산이 거대** — 예: seed 5 [+56.8, +18.4, +14.3, −12.5, +3.2],
+   σ≈15~25 numeraire vs 참 신호 ~1-3. K=5 SE ≈ 7~11 ≫ MARGIN 0.5.
+2. **~50후보 argmax winner's curse** — 검증 agent 사전 예측(√(2ln50)·σ/√5 ≈ 상향편향
+   수~십수) 적중: 선택된 gain(5.2~16.0)이 편향 크기와 일치, 8/8 transfer 실행.
+3. **분산만이 아니라 편향** — pos_frac 1.0(전 표본 양수)·LOO 안정성 1.0 인 pick 조차
+   실현 +10.8 악화 → 예측세계 앙상블(준수 가정 중심)이 실현 분기와 체계적으로 다름.
+   K 상향 단독으론 편향을 못 고침.
+
+**함의 — quote 추정기 자체가 문제**: full-episode SF 총비용의 단일작업 marginal 은
+berth(33×) 분기 카오스가 지배하는 고분산 추정기 — 공개정보 하에서 통계적으로 회수
+불가(필요 K ~수백 = 비실용). 오라클이 되는 이유 = 추정이 아니라 참 분기의 정확 평가.
+**다음 처방 = 추정기 교체**: YR-099 spec 의 `J = J_계산식 + J_잔여` 분해 —
+트럭 항은 매끄러운 국소 marginal(대기·거리), 본선 항은 YR-100 계산식(저분산 구성적) —
+카오틱 총비용 rollout 을 quote 에서 제거 (→ YR-102 등록). 중앙 joint scorer 는 그 뒤.
+
+원자료: results_ens_K5.json (+ shard 0~3)
