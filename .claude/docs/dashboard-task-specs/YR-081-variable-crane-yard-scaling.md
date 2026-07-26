@@ -17,8 +17,9 @@
 다중 블록의 기본형은 같은 블록 정책을 여러 블록에 독립 배포하는 구조다.
 
 블록 간 추가 결정권은 별도 상금이 확인되는 경우에만 연다. 현재 사용자 확정 대상은
-TOS 배정 후, 재배정 가능한 반입 작업을 블록 Q가 판매/수용 한계비용으로 평가하고 중앙
-`TransferResolver`가 `KEEP` 또는 실제 `A→B`를 원자적으로 확정하는 기능이다.
+TOS 배정 후, 아직 적재되지 않은 **재배정 가능한 반입·본선 양하(STORE)**를 블록 Q가
+판매/수용 한계비용으로 평가하고 중앙 `TransferResolver`가 `KEEP` 또는 실제 `A→B`를
+원자적으로 확정하는 기능이다.
 
 ## 목표 구조
 
@@ -30,7 +31,7 @@ TOS 배정 후, 재배정 가능한 반입 작업을 블록 Q가 판매/수용 �
                          ↓
              독립 블록 실행이 기본 기준선
 
-재배정 가능한 GATE_IN만:
+재배정 가능한 GATE_IN·DISCHARGE STORE만:
 BlockQ OutRelief/InBurden → deterministic TransferResolver
 → KEEP 또는 concrete TRANSFER(A→B) → 최종 블록 ExecutionQ
 ```
@@ -54,15 +55,15 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
 - TOS가 각 블록에 배정한 작업을 그대로 처리하는 독립 블록 정책을 첫 기준선으로 둠.
 - TOS 최초 배정·선석/QC/YT 전역 계획을 연구 레이어가 재구축하지 않음.
 
-### C. 배정 후 반입 재배정
+### C. 배정 후 반입·양하 STORE 재배정
 
-- source Q: 해당 반입 작업을 뺄 때 감소하는 비용 `OutRelief`.
+- source Q: 해당 STORE 작업을 뺄 때 감소하는 비용 `OutRelief`.
 - receiver Q: 해당 작업을 받을 때 증가하는 비용 `InBurden`.
 - 중앙 resolver: `KEEP/A→B/A→C`의 terminal 순이득과 제약을 비교.
 - 성공 시에만 source→receiver owner/queue/route를 한 transaction으로 변경.
 - 실패·수신자 없음·순이득≤0이면 source가 계속 처리.
 - resolver가 균등화하는 "부하"는 작업 수가 아니라 **한계비용**이다. 한계비용을 맞추는 것이 곧 총비용 최소이고, 본선이 눌린(비용 높은) 블록이 자동으로 반입을 덜어낸다 — "본선 집중"이 아니라 **비용 기반 부하분포의 창발적 결과**.
-- 본선 지연항은 **YR-100 계산식**으로, 블록 내 ExecutionQ와 이 transfer J가 공유한다. 블록 Q는 본선/트럭을 구분하지 않고 비용만 최소화한다(type-agnostic). 이 type-agnostic은 본선 긴급도가 학습이 아니라 계산으로 비용에 들어가 있기에 성립한다.
+- 본선 지연항은 **YR-100 계산식**으로, 블록 내 ExecutionQ와 이 transfer J가 공유한다. 물리·자격·공식 계산은 작업 흐름을 구분하고, 그 결과를 받은 **잔여 Q망만** 작업 라벨에 의존하지 않고 비용을 최소화한다.
 - 자세한 상태·event·commit·검증 계약은 YR-099가 원본.
 
 ### D. 터미널 구조군
@@ -74,20 +75,21 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
 
 ## 재배정 taxonomy (재배정 불가 + 3유형)
 
-작업을 "재배정 가능 여부"와 "매칭 방향"으로 나눈다. 넷 다 **하나의 원시연산(블록 marginal-cost bid + 결정적 resolver)** 을 방향만 달리 쓴다.
+작업을 "재배정 가능 여부"와 "매칭 방향"으로 나눈다. 재배정 불가 작업은 원래 블록이 실행하고, 아래 세 재배정 유형은 **블록 한계비용 입찰 + 결정론적 resolver**를 방향만 달리 쓴다.
 
 | 유형 | 예 | 방향 | 메커니즘 |
 |---|---|---|---|
-| 재배정 불가 | 지정 반출·본선 적하(LOAD) | — | 블록 Q가 ETA로 실행순서·경로 최적화 (기존) |
+| 재배정 불가 | 지정 반출·본선 적하(LOAD) | — | 대상 컨테이너·소유블록은 고정하되 블록 내 실행순서·rehandle은 최적화 |
 | ① 장치 위치 | 반입·본선 양하(DISCHARGE) | 컨테이너→블록 | resolver가 블록 선택(InBurden bid); 블록 내 bay/row/tier는 블록 Q(find_slot) |
 | ② 후보 선택 | 미지정 공컨·환적 그룹오더 | 주문→컨테이너 | resolver가 주문 등록, 조건 만족 후보 가진 블록이 구매(fulfillment 입찰); 차량 도착 시 조건 내 최저 rehandle 컨테이너 선택 |
 | ③ 물리 재배치 | 이미 장치된 컨테이너 | 블록이 offload | source 블록이 판매, target이 InBurden 입찰; 실물 이동 고비용→높은 최소 순이득 gate |
 
-- **①의 2계층**: 블록 선택=resolver(inter-block), 블록 내 슬롯=블록 Q(intra-block). resolver가 bay/row/tier까지 정하지 않는다.
-- **양하 배치는 야드 효율**(미래 반출 비용)이지 본선 보호 아님(`yard_handover_cap=None`). 적하(retrieve)만 위치 고정=재배정 불가.
-- **본선 urgency(YR-100)** 는 반입 판매(크레인 relief)·환적 후보(적재순서)에 들어가고, 양하 배치엔 안 들어간다.
+- **①의 2계층**: 블록 선택=resolver(inter-block), 블록 내 슬롯=선택 블록의 allocator(현재 `find_slot`, 향후 슬롯정책). resolver가 bay/row/tier까지 정하지 않는다.
+- `yard_handover_cap=None`에서 양하 배치는 해당 양하 선박의 완료를 직접 당기지 않는다. 다만 다른 블록의 YC 시간을 비워 LOAD를 앞당기는 간접효과는 YR-100의 `KEEP vs TRANSFER` 반사실이 입증할 때만 센다.
+- **본선 긴급도(YR-100)** 는 현재 반입·양하 STORE가 만드는 LOAD 처리여유에 들어간다. 미래 ② 환적 후보를 열 때 선적순서 효과를 별도 재검토한다.
+- 현재 반입·양하 PoC는 공간·높이·규격·pile 일관성 등 최소 물리만 사용한다. 중량·냉동·위험물·선사·항차 그룹 규칙은 메커니즘 검증을 막지 않고 YR-095 최종 현실화 단계에서 추가한다.
 
-**착수 순서** (payoff·복잡도 순, 각 단계 상금 확인 후): ① 반입([YR-099](YR-099-post-tos-inbound-transfer-resolver.md), 현재) → ① 양하(stowage/그룹 YR-095 후) → ② 후보 선택(자격 로직 신설) → ③ 물리 재배치(최고비용, 마지막). ②③은 현 YR-099 범위 밖(별도 개방).
+**착수 순서** (payoff·복잡도 순, 각 단계 상금 확인 후): ① 반입+양하([YR-099](YR-099-post-tos-inbound-transfer-resolver.md), 현재 단순화 PoC) → ② 후보 선택(자격 로직 신설) → ③ 물리 재배치(최고비용) → 실제 자료 기반 YR-095 현실 적재규칙(최종 실증). ②③은 현 YR-099 범위 밖이다.
 
 ## 판정 원칙
 
@@ -117,12 +119,13 @@ QMIX는 central resolver가 아니다. 여러 Q의 학습 교차항 보정이 �
 - YR-089 시간장부, YR-093 공개정보 rollout 안전
 - YR-086 크레인 수 선택 컴포넌트는 선행 발판으로 재사용
 - YR-100 본선 비용 계산식 — ExecutionQ·TransferResolver 공유 원료(블록 Q type-agnostic 전제)
+- YR-095 현실 적재규칙은 반입·양하 PoC 선결이 아니라 최종 실증 게이트
 
 ## 범위 밖
 
 - TOS 최초 배정 경매·TOS 알고리즘 변경
 - 독자적인 터미널 통합계획기 구축
-- 지정 반출 컨테이너 변경·본선 job 블록 이전
+- 지정 반출 컨테이너 변경·본선 적하(LOAD) 블록 이전·이미 적재된 양하 컨테이너 물리이동
 - 실제 지원 근거 없는 YC 블록 간 이동
 - LLM의 실시간 배정·장비제어
 - 단일 블록 결과를 다중 블록·실운영 성과로 확대 주장

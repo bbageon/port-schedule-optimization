@@ -1,8 +1,9 @@
 # YR-100 — 본선 비용 계산식 (ExecutionQ·TransferResolver 공유 원료)
 
 - **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-07-26
-- **상태**: 본선 트랙 핵심 원료. 단일 블록에서 착수·검증 후 다중 블록(YR-099)이 재사용.
-- **관련**: [[YR-098]] 여지감사(선결) · [[YR-097]] PER(순수 RL 대안축) · [[YR-099]] transfer(소비자) · [[YR-081]]
+- **상태**: 본선 트랙 핵심 원료 초안. 아래 4개 계약 정정 전 구현 금지.
+- **관련**: [[YR-098]] 여지감사(선결) · [[YR-099]] transfer(소비자) · [[YR-081]]
+- **사용자 정정**: [반입·양하 우선과 착수 전 선결문제](../strategy-history/2026-07-26-YR-081-반입-양하-우선-현실적재규칙-후순위.md)
 
 ## 왜 (근거)
 
@@ -14,15 +15,15 @@
 - 블록 내 **ExecutionQ**: 배정된 작업 중 지금 무엇을 서빙할지(본선 vs 트럭 타이밍).
 - 블록 간 **TransferResolver(YR-099)**: 판매/수용 한계비용 `J`의 본선 항.
 
-**핵심 효과 — type-agnostic 가능**: 본선 긴급도가 비용에 계산돼 들어가면, 블록 Q도 resolver도 "본선/트럭"을 구분할 필요 없이 **비용만 최소화**한다. 본선 보호는 "본선"이라 이름 붙은 로직 없이 비용에서 창발한다.
+**핵심 효과 — 잔여 Q만 작업종류 비의존 가능**: 물리·자격·공식 계산은 LOAD·DISCHARGE·트럭을 구분한다. 다만 본선 긴급도를 공식 비용으로 계산한 뒤에는 잔여 Q망이 작업 라벨 대신 비용과 물리효과만 학습할 수 있다.
 
-## 공식
+## 공식 초안
 
-LOAD 본선만 (양하는 [engine.py:65](../../../src/yard_rl/integrated/engine.py#L65) `yard_handover_cap=None`이라 크레인 레버 0 → 제외):
+직접적인 해당 선박 위험항은 LOAD에만 쓴다. 양하 STORE의 간접 LOAD 기회효과는 아래 반사실 계약에서 별도로 다룬다.
 
 ```text
 F_v    = now + 남은_STS이동수 · cadence            # 현 작업률 기준 예상 완료시각
-Risk_v = softplus((F_v − ETD_v + margin) / κ)      # 부드러운 지연위험(안전여유 margin)
+Risk_v = softplus((F_v − D_v + margin) / κ)        # D_v는 공식 평가계약과 맞출 기준시각
 ΔC_vessel(a) = ρ_vessel · Σ_v [Risk_v(s') − Risk_v(s)]   # 행동 a 전후 위험 증분
 ```
 
@@ -30,22 +31,50 @@ Risk_v = softplus((F_v − ETD_v + margin) / κ)      # 부드러운 지연위�
 - 본선 서빙 → now 진행하나 남은작업↓ → `F_v↓` → `Risk↓` → ΔC 음수(위험 감소).
 - **YR-090 clip 결함 교정**: `max(0,·)` clip이 아니라 무클립 softplus로 **지연 발생 전에도** 신호가 발화한다(YR-090이 high-loose에서 침묵한 원인 제거).
 
+## 착수 전 정정 게이트
+
+위 식은 방향을 적은 초안이며 그대로 구현하지 않는다. 다음 네 계약을 먼저 고정한다.
+
+1. **기준시간 정합**: 현재 공식 `vessel_delay`·berth KPI는 `planned_completion_s` 초과를
+   계산하고 `depart_delay` 가중치는 0이다. 현 목적을 유지하면 Risk 기준도 ETD가 아니라
+   계획 작업완료시각으로 맞춘다. 단 softplus는 공식 ledger와 같은 비용이 아니라 학습용
+   surrogate다. 예측 초과비용과 surrogate 중 하나를 명시하고 평가창 미완료의 clearout 비용까지
+   공식 평가비용에 연결한다. ETD 비용으로 바꾸려면 평가계약 전체를 별도 변경한다.
+2. **공급 인과 포함**: YC 적하 준비가 STS 남은 작업을 즉시 줄인다고 두지 않는다.
+   `예상완료 = STS 순수작업 + YC·YT·안벽버퍼 공급부족으로 예상되는 STS 정지`로 계산한다.
+3. **재배정 반사실**: 블록 변경 순간의 상태차가 아니라 같은 공개정보·같은 지평의
+   `C_vessel(KEEP) − C_vessel(TRANSFER)`를 계산한다. 반입·양하를 옮겨 확보한 미래 YC 시간이
+   적하 완료를 얼마나 당기는지가 신호다.
+4. **정책정보 계약**: 현재 LOAD 생성은 `planned_completion_s`가 있어도 `completion_basis=None`이라
+   adapter가 slack·risk를 숨긴다. TOS가 공개한 계획완료시각의 provenance를 정책 입력으로
+   허용할지 정하고, 허용하지 않으면 이 항은 fail-closed로 비활성화한다.
+
+수정 뒤 개념식은 `후보 a의 공급경로 포함 예상완료비용 − 같은 시점 기준행동의 예상완료비용`이다.
+전체 미래 rollout을 본선망에 증류하는 것은 금지하되, 이 계산식 내부의 짧은 결정론적
+완료시각 projection은 필수다.
+
 ## 두 주입 방식 (택1 — YR-098 여지 결과로 결정)
 
 - **A. 계산비용 주입 (residual)**: 점수 `= C_known(ΔC_vessel 포함) + Q_residual`. RL은 잔여만 학습 → 가장 강건(학습 의존 최소).
 - **B. 처리진전 보상 (순수 RL)**: 매 본선 진전마다 dense 보상(정렬 포화). 순수 RL에 가장 부합.
 - 둘 다 뿌리는 같다(조밀·귀속·정렬). **A 먼저 권장**, B는 순수 RL 고집 시.
 
+A의 TD 계약은 `Q_total=C_known+Q_residual`,
+`y_total=c_eval+γ·min(C_known_next+Q_target_next)`로 두고
+`loss=(Q_total−y_total)²`를 쓴다. 기존 terminal 본선비용을 별도 reward로 한 번 더 더하지 않으며,
+동치인 `y_residual=y_total−C_known`로 이중계상 0을 테스트한다.
+
 ## 정렬 가드 (v6 프록시 재발 방지)
 
 - **버퍼 cap에서 포화** — 꽉 찬 버퍼에 더 먹여도 이득 0 (over-serving·프록시 게임 차단).
 - **평가는 순수 numeraire** — 훈련만 이 공식, 평가 비용식 무변경.
-- **LOAD 전용** — 양하 제외.
+- **직접 위험항은 LOAD 전용** — 양하 STORE는 해당 선박 직접항이 아니라 다른 LOAD의 기회효과만 반사실에서 허용.
 
 ## 소비자 계약
 
-- **ExecutionQ**: 통합비용 `= 트럭대기 + ΔC_vessel + 이동·전환·재취급`, argmin. 본선/트럭 무구분.
-- **TransferResolver (YR-099)**: `J = J_계산식 + J_잔여`. 본선 항은 이 계산식(`ΔC_vessel`)으로 직접 산출, **rollout/증류는 J_잔여만**. 본선 항을 증류에서 빼면 YR-087 관측별칭 위험이 quote로 전파되지 않는다.
+- **ExecutionQ**: 통합비용 `= 트럭대기 + ΔC_vessel + 이동·전환·재취급`, argmin. eligibility·물리 실행은 흐름을 구분하고 잔여 Q만 작업 라벨에 의존하지 않는다.
+- **TransferResolver (YR-099)**: `J = J_계산식 + J_잔여`. 본선 항은 같은 공급경로 계산식으로 `KEEP`과 `TRANSFER`를 비교하고, **학습/증류는 J_잔여만** 맡는다. 본선 항을 잔여망에서 빼면 YR-087 관측별칭 위험이 quote로 전파되지 않는다.
+- **DISCHARGE 배치**: 현재 단일 블록·고정 YT 시간·`yard_handover_cap=None`에서는 해당 양하 선박의 직접항은 0이다. 다른 LOAD의 YC 여유를 통한 간접항은 `KEEP vs TRANSFER` projection이 포착할 때만 포함한다. cap·다중블록 경로·공유 YT가 안벽 흐름을 바꾸면 직접 인과도 재검증한다.
 
 ## 받는다 vs 학습 안 한다 (구현 가드 — 본선 feature 재유입 금지)
 
@@ -55,7 +84,7 @@ Risk_v = softplus((F_v − ETD_v + margin) / κ)      # 부드러운 지연위�
 |---|---|
 | KPI/평가 | berth 지연·healthy·완주 **측정** (평가 목적) |
 | 물리 실행 | 크레인이 본선 job 서빙 (실제 작업) |
-| 비용 계산식 | `ΔC_vessel` 계산 입력 (ETD·남은작업·작업률) |
+| 비용 계산식 | `ΔC_vessel` 계산 입력 (공개된 계획완료 기준·남은작업·작업률) |
 
 **금지**: block Q(잔여망)의 **학습 입력/표적에 본선 긴급도 feature(`is_vessel`·`flow_margin_s`·`schedule_slack_s`·`vessel_risk_delta`)를 다시 넣지 않는다.** 그 긴급도는 학습이 아니라 공식이 계산해 비용 숫자에 넣는다 — 학습 입력에 재유입하면 실패한 "본선을 학습으로 배우기"(v6·flow_margin·n-step·YR-090)로 회귀한다.
 
@@ -69,15 +98,17 @@ Risk_v = softplus((F_v − ETD_v + margin) / κ)      # 부드러운 지연위�
 - schedule_slack sweep(90→−10분)에서 본선 선택/서빙이 **단조 증가**.
 - 트럭 대기 **무회귀 하드게이트** — 위반 시 실패.
 - counterfactual 10분 비교와 정책 선택 일치.
-- 3시드 재현성(본선 이득이 운 아닌 실력).
+- 현재 `yr088_joint_rl.py`의 전체 vessel/candidate 입력을 그대로 재사용하지 않고 residual 전용 encoder/mask로 금지 feature 부재를 assert.
+- `time_contract_v2=True`와 블록 처리시간 `B→C`를 강제.
+- 3시드는 개발 재현성만 확인하고 최종 주장은 YR-041 잠금 평가로 판정.
 
 ## 기각 (하지 말 것 — 재탕)
 
 - **순수 학습 본선비용** — 4연속 실패(v6·flow_margin·n-step·YR-090).
-- **rollout로 본선비용 계산 후 증류** — YR-087 관측별칭 실패 + rollout 일반화 거부. 본선 항은 공식.
+- **전체 rollout 본선비용을 잔여망에 증류** — YR-087 관측별칭 실패 + 일반화 거부. 단 공급경로를 반영한 짧은 결정론적 완료시각 projection은 공식의 일부로 허용.
 - **HRA·Lagrangian·RUDDER** — 워크플로 적대검증 기각(재탕).
 
 ## 의존·순서
 
 - **YR-098**: 본선 여지·LOAD 스코핑 확정 (선결).
-- 단일 블록 [yr088](../../../src/yard_rl/experiments/yr088_joint_rl.py) 실행 Q에 먼저 붙여 검증 → 통과 시 YR-099가 J 본선 항으로 재사용.
+- 위 4개 계약을 명세·테스트로 먼저 고정한 뒤, 단일 블록 [yr088](../../../src/yard_rl/experiments/yr088_joint_rl.py) 실행 Q에 `time_contract_v2=True`로 붙여 검증 → 통과 시 YR-099가 J 본선 항으로 재사용.

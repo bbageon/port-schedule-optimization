@@ -1,14 +1,14 @@
-# YR-099 — TOS 배정 후 반입 재배정·중앙 Transfer Resolver
+# YR-099 — TOS 배정 후 반입·양하 STORE 재배정·중앙 Transfer Resolver
 
 - **Epic**: RL / **Priority**: ⚪ / **등록일**: 2026-07-26
-- **상태**: 미래 다중 블록 확장 작업. 현재 단일 블록 성능 트랙을 바꾸지 않는다.
+- **상태**: 미래 다중 블록 확장 작업. 현재 단일 블록 성능 트랙을 바꾸지 않으며, 상세 현실 적재규칙은 YR-095 최종 단계로 둔다.
 - **상위 작업**: [YR-081 가변 크레인·다중 블록 확장](YR-081-variable-crane-yard-scaling.md)
-- **결정 원본**: [2026-07-26 사용자 확정 아키텍처](../strategy-history/2026-07-26-YR-081-배정후-반입재배정-중앙-resolver-사용자확정.md)
+- **결정 원본**: [반입·양하 우선과 현실 적재규칙 후순위](../strategy-history/2026-07-26-YR-081-반입-양하-우선-현실적재규칙-후순위.md)
 
 ## 배경
 
 TOS는 연구 통제영역 밖의 최초 배정자다. 최초 블록 경매나 TOS 대체 계획기는 만들지 않는다.
-다중 블록 단계에서는 TOS가 A에 배정한 **재배정 가능한 반입 작업**을 source BlockQ가
+다중 블록 단계에서는 TOS가 A에 배정한 **재배정 가능한 반입·본선 양하 STORE 작업**을 source BlockQ가
 판매 후보로 평가하고, receiver BlockQ의 수용비용과 함께 중앙 resolver가 실제 `KEEP/A→B`를
 확정한다. 단순 판매 요청만 남기거나 source queue에서 먼저 지우는 구조는 금지한다.
 
@@ -18,7 +18,7 @@ TOS는 연구 통제영역 밖의 최초 배정자다. 최초 블록 경매나 T
 
 ## 현재 코드 seam
 
-- `integrated/engine.py:194-203`: 외부트럭은 `BLOCK_ARRIVAL`만 event queue에 등록.
+- `integrated/engine.py:194-203, 847-869`: 외부트럭은 `BLOCK_ARRIVAL`만 등록하고, 양하는 YT 도착 뒤 job을 해제한다. 목적지 확정 전 review 또는 명시적 YT reroute seam이 아직 없다.
 - `integrated/engine.py:244-266`: 현재 SMDP decision loop.
 - `integrated/engine.py:351-370`: `WAITING/RELEASED` job만 YC 실행후보가 됨.
 - `integrated/qnet.py:33`: CandidateQNet은 현재 YC 물리후보 비용망 — raw Q를 quote로 사용 금지.
@@ -31,7 +31,7 @@ TOS는 연구 통제영역 밖의 최초 배정자다. 최초 블록 경매나 T
 ## 목표
 
 ```text
-TOS 최초 배정
+TOS 최초 배정(반입·양하 STORE, 허용 블록 명시)
   → BlockQ별 OutRelief/InBurden quote
   → deterministic TransferResolver
   → KEEP 또는 concrete TRANSFER(A→B)
@@ -48,20 +48,21 @@ QMIX·PPO·LLM 통신 없이 명시적 한계비용과 제약 resolver로 배정
 
 - `tos_assigned_block_id`: 최초 배정, 불변 감사값
 - `execution_block_id`: 현재 실행 소유 블록
+- `placement_source`: `GATE_IN` 또는 `VESSEL_DISCHARGE`
 - `assignment_received_at`, `reassignable: bool`, `allowed_execution_blocks`
 - `reassignable_until` 또는 동등한 `transfer_lock_at`
 - `assignment_version`, `transfer_count`, `transfer_history`
-- 기존 `job_id`, 예약·실제 A/B/C/O 시각, deadline은 이전 뒤에도 유지
+- 기존 `job_id`·deadline은 유지한다. 반입은 A/B/C/O, 양하는 `expected/actual_yard_handover`와 YT 목적지·도착시각을 별도 기록한다.
 
 ### 이벤트
 
 - `TOS_ASSIGNMENT_RECEIVED`: 외부 배정과 공개정보 수신
 - `TRANSFER_REVIEW`: 계획창 진입 또는 허용된 상태 급변
-- `TRANSFER_PREPARED`, `TRANSFER_COMMITTED`, `TRANSFER_ABORTED`
+- `TRANSFER_PREPARED`, `TRANSFER_COMMITTED`, `TRANSFER_ABORTED`; STS→YT→handover 이벤트는 `job_id/container_id/destination/version`을 끝까지 보존
 
-`reassignable_until`이 없거나 마감·YC 예약·RUNNING 이후면 transfer 후보를 fail-closed로 막는다.
-수신 블록까지의 실제 이동으로 B가 달라지므로 이전 전 A용 `actual_block_arrival`을 재사용하지
-않는다. 정책에는 receiver별 예상 경로시간만 공개하고 실제 B는 실행 경로에서 새로 확정한다.
+`reassignable_until`·`allowed_execution_blocks`가 없거나 마감·슬롯/YC 예약·RUNNING 이후면 transfer 후보를 fail-closed로 막는다. 양하는 단순히 미장치라는 이유로 열지 않고 YT 목적지 commit 전이거나 안전한 reroute 계약이 있을 때만 연다.
+반입은 수신 블록까지의 실제 이동으로 B가 달라지므로 이전 전 A용 `actual_block_arrival`을 재사용하지 않는다. 양하에는 B를 억지로 재사용하지 않고 YT의 실제 yard handover 시각을 확정한다.
+정책에는 receiver별 예상 경로시간만 공개하고 실제 도착·인계시각은 실행 경로에서 기록한다.
 
 다중 블록은 독립 simulator 복사본의 느슨한 묶음이 아니라 shared clock, canonical
 `JobRegistry`, 블록별 stack/crane/queue로 구성한다. 이전 전 queue에 남은 낡은 도착 event는
@@ -76,11 +77,11 @@ OutRelief(A,j) = J_A(with j) - J_A(without j)
 InBurden(B,j)  = J_B(with j) - J_B(without j)
 ```
 
-- 입력: block profile, 현재 스택·YC·queue·본선상태, 작업 규격·예약·예상 블록도착·마감.
-- **J 분해 (YR-100)**: `J = J_계산식 + J_잔여`. 본선 지연항은 스케줄 기반 계산식(YR-100 `ΔC_vessel`)으로 직접 산출하고, rollout/증류 대상은 **J_잔여(트럭 도착·큐 상호작용)만**이다. 본선 항을 증류에서 빼면 YR-087 관측별칭 위험과 반응형 본선 미학습이 quote로 전파되지 않는다. 블록 내 ExecutionQ와 **같은 공식을 공유**한다.
+- 결정론적 route/eligibility adapter는 STORE 출처를 구분해 예상 이동·인계시각을 만든다. 잔여 Q망은 raw `is_vessel` 대신 block profile, stack·YC·queue와 이 파생 물리량·규격·예약·마감을 받는다.
+- **J 분해 (YR-100)**: `J = J_계산식 + J_잔여`. 본선 지연항은 스케줄 기반 계산식(YR-100 `ΔC_vessel`)으로 직접 산출하고, rollout/증류 대상은 **J_잔여(미래 queue·stack·YC 상호작용)만**이다. 본선 항을 증류에서 빼면 YR-087 관측별칭 위험과 반응형 본선 미학습이 quote로 전파되지 않는다. 블록 내 ExecutionQ와 **같은 공식을 공유**한다.
 - 정답: J_잔여만 동일 공개정보 예측표본을 쓴 paired counterfactual rollout, 본선 항은 계산식.
 - 출력: 한계비용 평균, 불확실성, quote 생성 시각·상태 version·TTL.
-- `SELL_INBOUND`는 YC 물리 action이 아니라 transfer review의 source quote다.
+- `SELL_STORE`는 YC 물리 action이 아니라 반입·양하 transfer review의 source quote다.
 - OFFER 자체에는 완료·비용감소 보상을 주지 않는다. commit된 결과만 실행 replay에 기록한다.
 
 ## TransferResolver 계약
@@ -88,13 +89,14 @@ InBurden(B,j)  = J_B(with j) - J_B(without j)
 ```text
 Gain(A→B,j)
  = OutRelief(A,j) - InBurden(B,j)
-   - RouteCost(A→B,j) - RiskMargin(A→B,j)
+   - ΔRouteCost(origin,A→B,j) - RiskMargin(A→B,j)
 ```
 
+- `origin`은 A가 아니라 게이트·안벽의 실제 출발점이다. `ΔRouteCost`는 `origin→B − origin→A`이며 적재된 컨테이너의 A→B 물리이동을 뜻하지 않는다.
 - 후보: `KEEP(A,j)`와 eligible receiver별 `TRANSFER(A→B,j)`.
 - 최적화: 양의 Gain 최대화. 동시 다작업은 batch matching으로 receiver 용량 중복을 방지.
 - 제약: job owner 정확히 1, 슬롯·규격·높이·용량·경로·마감·공유자원 예약, 중복 0.
-- 이미 YC에 예약·배정·실행된 작업과 지정 반출·본선 적하(LOAD, 위치 고정)는 이전 금지. 본선 양하(DISCHARGE)는 store라 배치 가능하나 stowage/그룹 모델(YR-095) 후 별도 개방(현재 범위 밖). 재배정 taxonomy는 [YR-081](YR-081-variable-crane-yard-scaling.md) 참조.
+- 이미 슬롯·YC에 예약·배정·실행된 작업과 지정 반출·본선 적하(LOAD, 대상·소유블록 고정)는 이전 금지. 본선 양하(DISCHARGE)는 안벽 출발 전 목적지를 정하거나 명시적 YT reroute가 가능한 미장치 물량만 현재 단순화 PoC 범위다. 실제 stowage/그룹 제약은 YR-095 최종 실증에서 추가한다. 재배정 taxonomy는 [YR-081](YR-081-variable-crane-yard-scaling.md) 참조.
 - tie-break: `(job_id, source_block_id, receiver_block_id)` 완전순서.
 - 같은 snapshot과 quote에는 같은 결과를 내는 순수·결정론적 resolver.
 - 첫 headroom은 epoch당 transfer 최대 1건을 전수비교한다. 다작업 개방 전까지 ping-pong을
@@ -132,13 +134,14 @@ Gain(A→B,j)
   `C_terminal(KEEP)-C_terminal(A→B)`의 부호·순위·오차를 비교. 불일치가 크면 D 금지.
 - **G3 근사**: D가 C의 transfer 순위와 성능에 근사하고 A/B를 초과하며 결정시간을 줄임.
 - **G4 조건 일반화**: 구조군·부하별 결과를 분리 보고. 하나의 터미널 평균으로 합치지 않음.
+- G1~G4는 반입-only·양하-only·혼합 셀을 분리해 어느 흐름에서 상금이 생겼는지 보고.
 
 정량 비열등 margin은 실제 SLA 근거를 확보한 뒤 결과 열람 전에 사전등록한다.
 
 ## 필수 지표·불변식
 
-- 최종 KPI: gate-in→gate-out `A→O` 평균·P95, terminal total cost.
-- 통제 KPI: block-arrival→job-done `B→C`, berth overrun, rehandle, 추가 차량거리.
+- 최종 KPI: terminal total cost. 반입은 gate-in→gate-out `A→O` 평균·P95, 양하는 STORE 처리시간·후속 재조작비용을 본다.
+- 통제 KPI: block-arrival→job-done `B→C`, berth overrun, rehandle, 추가 차량거리. `cap=None`의 양하→동일선박 직접효과는 0이며, berth 개선은 LOAD 여유의 반사실 경로가 확인될 때만 주장한다.
 - 운영량: transfer/keep/reject/rollback/stale quote 수, decision latency, message 수.
 - guard: 완료율 100%, backlog 0, owner 없음 0, 이중 owner 0, 중복 도착/event 0,
   transfer lock 이후 이전 0, 시간 reset 0, 규격·슬롯·크레인 물리위반 0.
@@ -149,7 +152,7 @@ Gain(A→B,j)
 
 1. 다중 블록 shared clock·canonical job registry·owner/version 계약. 기능 off일 때 기존
    단일 블록 golden byte 불변을 먼저 고정.
-2. GATE_IN 배정통지·review epoch와 transfer eligibility mask.
+2. GATE_IN·DISCHARGE STORE 배정통지, flow별 review epoch·시간장부·eligibility mask와 STS→YT→handover identity 보존.
 3. atomic transaction·실패주입·불변식 tests.
 4. paired predictive rollout의 source/receiver quote와 no-transfer headroom.
 5. G1 통과 때만 공유 TransferQuoteQ를 증류.
@@ -163,12 +166,13 @@ Gain(A→B,j)
 - YR-089: A/B/C/O 시간장부
 - YR-093: 공개정보 예측 rollout 정보안전
 - YR-100: ExecutionQ와 공유하는 본선 비용 계산식 — J_계산식의 본선 항을 재계산 말고 재사용
+- YR-095: 메커니즘 통과 후 실제 자료 기반 적재규칙을 추가하는 최종 실증 게이트(선결 아님)
 
 ## 범위 밖
 
 - TOS 최초 배정·최초 경매·TOS 알고리즘 수정
 - 선석·QC·YT 전체계획기 재구축
-- 지정 반출 target 변경, 미지정 공컨 terminal request, 본선 job 이전
+- 지정 반출 target 변경, 미지정 공컨 terminal request, 본선 적하 이전, 이미 적재된 양하의 물리이동
 - YC 자체의 블록 간 이동
 - QMIX/PPO/자유형 agent 통신/LLM 감독
 - 운영 인터페이스 확인 전 실운영 자동 재배정 주장
