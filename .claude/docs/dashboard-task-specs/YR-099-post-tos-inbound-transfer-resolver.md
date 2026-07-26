@@ -77,7 +77,8 @@ InBurden(B,j)  = J_B(with j) - J_B(without j)
 ```
 
 - 입력: block profile, 현재 스택·YC·queue·본선상태, 작업 규격·예약·예상 블록도착·마감.
-- 정답: 동일 공개정보 예측표본을 쓴 paired counterfactual rollout.
+- **J 분해 (YR-100)**: `J = J_계산식 + J_잔여`. 본선 지연항은 스케줄 기반 계산식(YR-100 `ΔC_vessel`)으로 직접 산출하고, rollout/증류 대상은 **J_잔여(트럭 도착·큐 상호작용)만**이다. 본선 항을 증류에서 빼면 YR-087 관측별칭 위험과 반응형 본선 미학습이 quote로 전파되지 않는다. 블록 내 ExecutionQ와 **같은 공식을 공유**한다.
+- 정답: J_잔여만 동일 공개정보 예측표본을 쓴 paired counterfactual rollout, 본선 항은 계산식.
 - 출력: 한계비용 평균, 불확실성, quote 생성 시각·상태 version·TTL.
 - `SELL_INBOUND`는 YC 물리 action이 아니라 transfer review의 source quote다.
 - OFFER 자체에는 완료·비용감소 보상을 주지 않는다. commit된 결과만 실행 replay에 기록한다.
@@ -161,6 +162,7 @@ Gain(A→B,j)
 - YR-081: 가변 크레인·다중 블록 환경과 독립 블록 기준선
 - YR-089: A/B/C/O 시간장부
 - YR-093: 공개정보 예측 rollout 정보안전
+- YR-100: ExecutionQ와 공유하는 본선 비용 계산식 — J_계산식의 본선 항을 재계산 말고 재사용
 
 ## 범위 밖
 

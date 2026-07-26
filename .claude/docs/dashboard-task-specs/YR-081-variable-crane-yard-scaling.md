@@ -61,6 +61,8 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
 - 중앙 resolver: `KEEP/A→B/A→C`의 terminal 순이득과 제약을 비교.
 - 성공 시에만 source→receiver owner/queue/route를 한 transaction으로 변경.
 - 실패·수신자 없음·순이득≤0이면 source가 계속 처리.
+- resolver가 균등화하는 "부하"는 작업 수가 아니라 **한계비용**이다. 한계비용을 맞추는 것이 곧 총비용 최소이고, 본선이 눌린(비용 높은) 블록이 자동으로 반입을 덜어낸다 — "본선 집중"이 아니라 **비용 기반 부하분포의 창발적 결과**.
+- 본선 지연항은 **YR-100 계산식**으로, 블록 내 ExecutionQ와 이 transfer J가 공유한다. 블록 Q는 본선/트럭을 구분하지 않고 비용만 최소화한다(type-agnostic). 이 type-agnostic은 본선 긴급도가 학습이 아니라 계산으로 비용에 들어가 있기에 성립한다.
 - 자세한 상태·event·commit·검증 계약은 YR-099가 원본.
 
 ### D. 터미널 구조군
@@ -97,6 +99,7 @@ QMIX는 central resolver가 아니다. 여러 Q의 학습 교차항 보정이 �
 - YR-042 다른 단일 블록 구조 일반화 분류
 - YR-089 시간장부, YR-093 공개정보 rollout 안전
 - YR-086 크레인 수 선택 컴포넌트는 선행 발판으로 재사용
+- YR-100 본선 비용 계산식 — ExecutionQ·TransferResolver 공유 원료(블록 Q type-agnostic 전제)
 
 ## 범위 밖
 
