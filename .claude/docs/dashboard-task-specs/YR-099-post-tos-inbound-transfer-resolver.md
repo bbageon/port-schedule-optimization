@@ -94,7 +94,7 @@ Gain(A→B,j)
 - 후보: `KEEP(A,j)`와 eligible receiver별 `TRANSFER(A→B,j)`.
 - 최적화: 양의 Gain 최대화. 동시 다작업은 batch matching으로 receiver 용량 중복을 방지.
 - 제약: job owner 정확히 1, 슬롯·규격·높이·용량·경로·마감·공유자원 예약, 중복 0.
-- 이미 YC에 예약·배정·실행된 작업과 지정 반출·본선 작업은 이전 금지.
+- 이미 YC에 예약·배정·실행된 작업과 지정 반출·본선 적하(LOAD, 위치 고정)는 이전 금지. 본선 양하(DISCHARGE)는 store라 배치 가능하나 stowage/그룹 모델(YR-095) 후 별도 개방(현재 범위 밖). 재배정 taxonomy는 [YR-081](YR-081-variable-crane-yard-scaling.md) 참조.
 - tie-break: `(job_id, source_block_id, receiver_block_id)` 완전순서.
 - 같은 snapshot과 quote에는 같은 결과를 내는 순수·결정론적 resolver.
 - 첫 headroom은 epoch당 transfer 최대 1건을 전수비교한다. 다작업 개방 전까지 ping-pong을

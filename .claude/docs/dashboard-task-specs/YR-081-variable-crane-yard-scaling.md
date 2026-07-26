@@ -72,6 +72,23 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
   북항은 혼합장비·블록 간 이동 가능성부터 별도 모델링한다.
 - 공개 Level 0~1 자료는 stress 조건일 뿐 실제 터미널 일반화 증거가 아니다.
 
+## 재배정 taxonomy (재배정 불가 + 3유형)
+
+작업을 "재배정 가능 여부"와 "매칭 방향"으로 나눈다. 넷 다 **하나의 원시연산(블록 marginal-cost bid + 결정적 resolver)** 을 방향만 달리 쓴다.
+
+| 유형 | 예 | 방향 | 메커니즘 |
+|---|---|---|---|
+| 재배정 불가 | 지정 반출·본선 적하(LOAD) | — | 블록 Q가 ETA로 실행순서·경로 최적화 (기존) |
+| ① 장치 위치 | 반입·본선 양하(DISCHARGE) | 컨테이너→블록 | resolver가 블록 선택(InBurden bid); 블록 내 bay/row/tier는 블록 Q(find_slot) |
+| ② 후보 선택 | 미지정 공컨·환적 그룹오더 | 주문→컨테이너 | resolver가 주문 등록, 조건 만족 후보 가진 블록이 구매(fulfillment 입찰); 차량 도착 시 조건 내 최저 rehandle 컨테이너 선택 |
+| ③ 물리 재배치 | 이미 장치된 컨테이너 | 블록이 offload | source 블록이 판매, target이 InBurden 입찰; 실물 이동 고비용→높은 최소 순이득 gate |
+
+- **①의 2계층**: 블록 선택=resolver(inter-block), 블록 내 슬롯=블록 Q(intra-block). resolver가 bay/row/tier까지 정하지 않는다.
+- **양하 배치는 야드 효율**(미래 반출 비용)이지 본선 보호 아님(`yard_handover_cap=None`). 적하(retrieve)만 위치 고정=재배정 불가.
+- **본선 urgency(YR-100)** 는 반입 판매(크레인 relief)·환적 후보(적재순서)에 들어가고, 양하 배치엔 안 들어간다.
+
+**착수 순서** (payoff·복잡도 순, 각 단계 상금 확인 후): ① 반입([YR-099](YR-099-post-tos-inbound-transfer-resolver.md), 현재) → ① 양하(stowage/그룹 YR-095 후) → ② 후보 선택(자격 로직 신설) → ③ 물리 재배치(최고비용, 마지막). ②③은 현 YR-099 범위 밖(별도 개방).
+
 ## 판정 원칙
 
 1. 단일 블록 정책의 현재 계약과 성능을 먼저 동결한다.
