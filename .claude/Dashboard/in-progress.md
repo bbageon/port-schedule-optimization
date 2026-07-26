@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-098 | Exp | **통제권한 감사(authority-null) — 블록Q 본선 여지 측정·LOAD 스코핑 확정** | 🟡 | 2026-07-26 | **Pull (사용자 확인 — YR-090 기각 후 게이팅 측정)**. [spec](../docs/dashboard-task-specs/YR-098-authority-null-audit.md). 수정 아닌 측정: 고정규칙 4팔(SF·VesselFirst·LoadOnly·ConditionalVF)·load/disch 분해·YT 스윕. 게이트=최선 규칙팔−SF (선택 대역 +500 → **확증 대역 +700 재검증**으로 선택 편향 차단, 사전등록). GO=행동여지이지 학습가능성 아님 — YR-097 투자 판단은 천장 숫자 보고 |
+| — | — | (비어 있음 — 사용자 결정 대기: YR-097 진행/생략, 또는 YR-096 rollout 트랙) | — | — | YR-098 완료·GO·done 이동 (2026-07-26). 천장 숫자 = VF −2.84(~4%)·조건부 이득 0·rollout 의 1/3~1/4 → YR-097 기대 상금 좁음 신호. 성능 트랙 = YR-096(ready) |
 
 ---
 
