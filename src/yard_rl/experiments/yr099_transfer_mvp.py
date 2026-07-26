@@ -113,9 +113,17 @@ def move_job(scen_from, scen_to, jid: str, route_s: float = ROUTE_S):
     return sf_, st_
 
 
-def quote_and_pick(scen_a, scen_b) -> dict | None:
-    """예측 시나리오에서 전수 quote — 최대 양의 Gain 1건 (없으면 None=KEEP)."""
-    pa, pb = to_predicted(scen_a), to_predicted(scen_b)
+def quote_and_pick(scen_a, scen_b, *, oracle: bool = False) -> dict | None:
+    """예측 시나리오에서 전수 quote — 최대 양의 Gain 1건 (없으면 None=KEEP).
+
+    oracle=True: **진단 전용** — 참(실현) 시나리오로 quote (정보누출·배포 금지).
+    예측-quote 실패의 원인 분리용: 오라클도 실패 = marginal 카오스 자체 /
+    오라클 성공 = 예측↔실현 정보 한계.
+    """
+    if oracle:
+        pa, pb = copy.deepcopy(scen_a), copy.deepcopy(scen_b)
+    else:
+        pa, pb = to_predicted(scen_a), to_predicted(scen_b)
     ja, jb = sf_run(pa)["total"], sf_run(pb)["total"]
     best = None
     for src, dst, j_src, j_dst, tag in ((pa, pb, ja, jb, "A->B"), (pb, pa, jb, ja, "B->A")):
@@ -134,12 +142,12 @@ def quote_and_pick(scen_a, scen_b) -> dict | None:
     return best
 
 
-def run_seed(i: int) -> dict:
+def run_seed(i: int, *, oracle: bool = False) -> dict:
     sa, sb = _scen(BASE_A + i, CELL_A), _scen(BASE_B + i, CELL_B)
     ra0, rb0 = sf_run(sa), sf_run(sb)
     a0 = {"total": ra0["total"] + rb0["total"], "berth": ra0["berth"] + rb0["berth"],
           "compl": min(ra0["compl"], rb0["compl"])}
-    pick = quote_and_pick(sa, sb)
+    pick = quote_and_pick(sa, sb, oracle=oracle)
     if pick is None:
         c = dict(a0)
         n_moved = 0
@@ -166,23 +174,24 @@ def run_seed(i: int) -> dict:
             "gain_pred": pick["gain"] if pick else 0.0}
 
 
-def run() -> dict:
+def run(*, oracle: bool = False) -> dict:
     OUT.mkdir(parents=True, exist_ok=True)
-    rows = [run_seed(i) for i in range(N_SEEDS)]
+    rows = [run_seed(i, oracle=oracle) for i in range(N_SEEDS)]
     for r in rows:
         print(f"[seed {r['seed']}] A0={r['a0']['total']:.2f} C={r['c']['total']:.2f} "
               f"d={r['d_total']:+.2f} pick={r['pick']}", flush=True)
     d = [r["d_total"] for r in rows]
     moved = [r for r in rows if r["n_moved"]]
     sign_ok = sum(1 for r in moved if (r["d_total"] < 0) == (r["gain_pred"] > 0))
-    res = {"rows": rows, "g1_d_total_ci": _ci(d),
+    res = {"rows": rows, "g1_d_total_ci": _ci(d), "oracle": oracle,
            "n_transfer": len(moved), "n_keep": len(rows) - len(moved),
            "g2lite_sign_agree": f"{sign_ok}/{len(moved)}" if moved else "n/a",
            "compl_min": min(min(r["a0"]["compl"], r["c"]["compl"]) for r in rows),
            "prereg": "G1: d_total CI 상한<0 → 반입 재배정 상금 실재 (t=0 review·SF 고정·"
                      "반입-only). 양하·창중 review 는 잔여작업."}
-    (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
-                                      encoding="utf-8")
+    name = "results_oracle.json" if oracle else "results.json"
+    (OUT / name).write_text(json.dumps(res, ensure_ascii=False, indent=1),
+                            encoding="utf-8")
     print(f"\nG1 d_total CI={res['g1_d_total_ci']} transfers={res['n_transfer']}/{N_SEEDS} "
           f"g2lite={res['g2lite_sign_agree']}")
     return res
@@ -191,7 +200,8 @@ def run() -> dict:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=N_SEEDS)
+    ap.add_argument("--oracle", action="store_true", help="진단 전용 — 참 시나리오 quote")
     a = ap.parse_args()
     N_SEEDS = a.seeds
-    run()
+    run(oracle=a.oracle)
     print("DONE")

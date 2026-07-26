@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-100 | RL | **본선 비용 계산식 — 4게이트 정정 + 단일블록 검증** | 🟠 | 2026-07-26 | **순서 확정 (사용자 지시)**: [1]YR-100 4게이트→[2]단일블록 검증→[3]후보 확정(RL+100 vs rollout 참고군, YR-096 진행/폐기 여기서)→[4]YR-041 잠금→[5]YR-099 다중블록 G1→[6]YR-095(실자료 게이트). 4게이트: ①기준시간(planned_completion_s) ②공급경로 인과 ③KEEP/TRANSFER 반사실 ④LOAD 계획시각 공개근거. [spec](../docs/dashboard-task-specs/YR-100-vessel-cost-formula.md) |
+| YR-041 | Exp | **잠금 평가 실행 중 — 후보 JR1800 (사전규칙: [3] guard 통과 중 Δtotal 최소)** | 🟠 | 2026-07-27 | prereg 동결 `f250ee1`(결과 미열람) — 신규 셀(마감 0.40/0.75)·신규 seed(+900)·SF paired·게이트(guard→berth→P95 δ3.0→total). [prereg](../../outputs/reports/yr041_locked/prereg.md). [1]~[3]·[5]·[6] 완료(done.md YR-100·YR-099-G1 참조) — 이 row 가 사용자 지시 6단계 파이프라인의 마지막 실행 단계 |
 
 ---
 
