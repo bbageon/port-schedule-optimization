@@ -1,0 +1,230 @@
+{
+  "summary": "YR-100 본선 비용 계산식의 4계약 충실성·물리 정합·게임 벡터를 적대 검증",
+  "agentCount": 4,
+  "logs": [],
+  "result": [
+    {
+      "findings": [
+        {
+          "severity": "major",
+          "claim": "이송중 확정공급이 구조적으로 fold 에 못 들어간다 — 모듈 자신의 계약②(\"버퍼·이송중 확정공급\" fold, vessel_cost.py:11·64)를 빌더가 이행 불가. base 세계에 실재하지 않는 굶주림을 조작해 |ΔC_vessel| 을 과대평가한다.",
+          "evidence": "load_supply_state(vessel_cost.py:121-137)는 supply_etas 기본 () 이고, 전 코드베이스에서 실제 이송중 도착을 넣는 호출부가 없다(grep: 유일한 비어있지 않은 사용은 serve_supply_delta:156 의 후보 박스 (t0,) 하나). 엔진의 확정 도착시각은 queue 의 TRANSFER_ARRIVE 이벤트(engine.py:849-850·865-879)에만 있고, transfer.py:20-21 은 per-box 신원 없는 집계 카운터(busy_until: list[float])라 빌더가 sim.transfer 로는 선박별 이송중 박스를 복원할 수 없다. 결과: YC 가 직전에 적하 반출을 여러 건 완료해 박스 k개가 이송중(도착 ≤ now+move_time=180s)이어도, serve_supply_delta 의 base 세계는 첫 공급을 t0+defer = now+dur+move_time+cadence(수백 초 뒤)로 두어 존재하지 않는 정지를 F 에 넣는다 → 후보 delta 가 실제 엔진에서는 이득 0(cadence-bound)인 상황에서도 큰 음수 → 본선 과서빙·트럭 희생. 짝 내 부호(delta ≤ 0)는 유지되나 본선-vs-트럭 argmin 마진이 왜곡된다 — v6(실제 berth 와 디커플된 프록시 최적화)의 재발 방향이며, 하류 방어는 트럭 무회귀 하드게이트뿐.",
+          "fix": "엔진에 선박별 이송중 카운터 또는 도착시각 목록(예: v.inflight_etas, _transfer_request/_transfer_arrive 에서 push/pop)을 유지하고 load_supply_state 가 이를 supply_etas 로 주입. serve_supply_delta 의 base/cand 두 세계 모두 같은 이송중 목록을 공유시켜 후보 박스 1개만 차이 나게 유지(계약③ 정합). 최소한으로는 sim.queue 의 TRANSFER_ARRIVE(vid) 스캔도 가능하나 큐 내부 의존이므로 선박측 카운터가 깨끗하다."
+        },
+        {
+          "severity": "major",
+          "claim": "fold 의 cadence 위치가 엔진 물리와 반대다: 모델은 max(STS가용, 박스가용)+cadence(박스가 move 시작에 필요), 엔진은 직전 move+cadence 시점에 박스만 있으면 그 즉시 완료·blocked 는 도착 즉시(0초) 재개(박스가 move 완료에 필요). F 가 공급제약 구간마다 최대 1 cadence 비관이고, 이 비물리가 테스트에 박제돼 있다.",
+          "evidence": "엔진: engine.py:845 다음 move = clock+cadence(직전 move 시각 기준), engine.py:876-878 blocked 해제 시 push(self.clock, STS_MOVE) → engine.py:824-845 에서 도착 tick 에 buffer 소비·remaining 감소·(마지막이면) _vessel_finish — 즉 공급제약 완료시각 = 마지막 도착시각. 모델: vessel_cost.py:89 `t = max(t, avail) + cadence`. 수치 재현(test_yr100:60-67 시나리오, buffer0·eta250·steady1000/1100·c100·m3): 엔진 = move@250(도착 즉시), @350 blocked, @1000, @1100 finish → F=1100. 모델·테스트 기대 = 1200. 닫힌형: F_model = max(t0+m·c, S+c), F_engine = max(t0'+m·c, S), S = max_k(a_k+(m−k)·c). 짝비교 판정: KEEP/TRANSFER·base/cand 가 t0·m·c 를 공유하므로 max(B,S)→max(B,S+c) 는 S 단조 → **엄격한 부호 역전은 불가능(증명)**. 그러나 (i) 엔진 동률(둘 다 cadence-bound, B 지배)을 모델이 S+c 로 깨서 공급 좋은 쪽을 항상 선호 — 실이득 0 인 TRANSFER/서빙 유발, (ii) 굶는 선박의 F 가 1 cadence 일찍 마감을 넘겨 softplus 급경사 구간 진입 → 긴급도 조기 발화(방향은 YR-090 침묵의 반대라 안전하지만, 포화 구간에서 1 cadence = 33·c/3600 numeraire ≈ c=100s 기준 트럭대기 55분 상당의 유령 마진).",
+          "fix": "재귀를 엔진 정합형 t_k = max(t_{k-1}+cadence, a_k) 로 교체하고 시작항은 t_0+cadence = STS 다음 가용시각으로 앵커(신규 필드 sts_ready_s — blocked 면 now, 아니면 pending STS_MOVE 시각; 미개시면 planned_start+cadence). test_gate2_starvation_stall_included 기대값 1200→1100 수정. 유지하려면 최소한 docstring 에 \"엔진 대비 ≤ +1 cadence 일방 비관, 짝 순서 보존\" 을 명시해 이후 소비자(YR-099 J)가 상계로 다루게 할 것."
+        },
+        {
+          "severity": "minor",
+          "claim": "위상 리셋 t = max(now, planned_start)가 STS 의 실제 위상(직전 move 로부터 cadence, blocked 면 도착 즉시)을 버려 진행 중 선박의 F 를 δ∈[0, cadence) 추가 비관한다 — 단 짝비교 양쪽이 동일 δ 를 공유해 F 차이에서는 정확히 상쇄된다.",
+          "evidence": "vessel_cost.py:81 `t = max(st.now, st.planned_start_s)` vs 엔진의 pending STS_MOVE = T_last+cadence ≤ now+cadence (engine.py:845). 최악: 결정 시점이 pending 이벤트 직전(δ→cadence). \"방금 막 소비된 경우\"는 δ=0 으로 정확(STS_MOVE 가 now 에 처리된 직후 buffer 는 post-decrement·다음 move now+c = 모델과 일치). 같은 timestamp 에 STS_MOVE 가 아직 미처리면 buffer·remaining 이 둘 다 pre-decrement 라 박스/move 대응은 일관 — 오차는 위상 δ 뿐. serve_supply_delta·compare_completion_cost 는 두 세계가 t0·buffer 를 공유하므로 F 차이 불변, softplus 곡률 구간에서만 |delta| 이 δ 만큼 상향(부호 불변). 절대값 소비자(completion_cost 단독 사용)만 δ 만큼 과대.",
+          "fix": "finding 2 의 sts_ready_s 앵커 도입 시 자동 해소. 도입 전이면 completion_cost 를 절대 위험으로 단독 소비하지 말고 짝비교 형태(계약③)로만 쓰도록 소비자 계약에 명시."
+        },
+        {
+          "severity": "minor",
+          "claim": "serve_supply_delta 의 t0 = now+dur+move_time 이 YT 대기(pending 큐·busy 유닛)를 무시한다 — 같은 모듈 _first_unassured_gap_s 가 따르는 flow_margin 관례 move_time×(1+대기/n)과 불일치하며, 방향이 낙관(도착을 이르게)이라 늦은 발화(YR-090 벡터) 쪽 오차다.",
+          "evidence": "vessel_cost.py:153 `t0 = sim.now + serve_duration_s + sim.transfer.move_time_s` — 대기 항 없음. 같은 파일 :118 은 `move_time_s * (1.0 + waiting_count()/n)` 로 큐를 반영. 엔진: transfer.request(transfer.py:34-41)는 유닛 만재 시 pending 적재 → 실제 도착 = 유닛 해방 후 + move_time > t0. base·cand 가 모두 t0 앵커라 delta 부호는 안전하나, 혼잡 시 두 세계의 F 가 공히 이르게 평가돼 softplus 진입이 늦어 긴급도 과소(과소서빙) 방향.",
+          "fix": "t0 = now + dur + move_time×(1 + waiting_count()/n) 로 _first_unassured_gap_s 와 관례 통일(한 줄). 정밀하게는 request 시뮬레이션(min busy_until 초과분)도 가능하나 flow_margin 급 싼 근사 유지가 스펙 정합."
+        },
+        {
+          "severity": "minor",
+          "claim": "compare_completion_cost 의 계약③ 강제가 불완전하다 — \"차이는 공급측에만\"(docstring)이라면서 assert 는 now·planned_completion 만 검사해, 호출부가 TRANSFER 세계에서 remaining_moves 감소+supply_eta 추가 같은 이중계상을 하면 침묵 통과한다.",
+          "evidence": "vessel_cost.py:109-110 은 now·planned_completion_s 만 비교. planned_start_s·cadence_s·remaining_moves·buffer_level 불일치 미검출. finding 2 의 순서보존 증명도 t0·m·c 공유가 전제라, 이 필드들이 어긋나면 부호 보증 자체가 무너진다(예: m 이 다르면 base 항 t0+m·c 가 달라져 공급이 나쁜 쪽이 이길 수 있음).",
+          "fix": "assert 를 planned_start_s·cadence_s·remaining_moves·buffer_level 동일성까지 확장(공급측 supply_etas·steady_* 만 자유). YR-099 소비 전에 잠그는 게 싸다."
+        },
+        {
+          "severity": "minor",
+          "claim": "평가창 밖 초과에서 엔진 clearout 은 end−pc 로 상한을 두는데 surrogate 는 F−pc 무상한이라, 두 세계 모두 F>end 인 짝은 엔진 실현 delta = 0 인데 모델 delta ≠ 0 — 실현 불가능한 이득으로 TRANSFER/서빙을 선호한다.",
+          "evidence": "engine.py:932-935 `_finalize`: 미완 선박 vessel_delay = end−pc (F 무관 상수). vessel_cost.py:96 overrun_cost 는 f_s−pc_s 를 그대로 청구. 스펙 게이트①도 \"평가창 미완료의 clearout 비용까지 공식 평가비용에 연결\"을 요구하나 모듈은 end 를 모른다. 부호는 안전(모델이 이득이라 하는 방향이 엔진에선 0)이나 지평 말미에 무의미한 재배정을 유발할 수 있다.",
+          "fix": "VesselSupplyState 에 horizon_s(옵션) 추가 후 overrun_cost 입력을 min(F, horizon) 으로 캡, 또는 소비자 문서에 \"지평 근처 delta 는 clearout 상한 미반영 — 상계\" 한계를 명시하고 YR-099 에서 지평 인지 소비로 이월."
+        }
+      ],
+      "lens": "엔진 물리 정합 — projected_completion_s 공급 fold vs engine.py LOAD 실물리 (cadence 위상·blocked 재개·버퍼/이송중 공급), 짝비교(paired delta) 부호 안전성 판정",
+      "verdict": "DEFECT_FOUND"
+    },
+    {
+      "lens": "계약① 청구 정합 (overrun_cost vs engine._vessel_finish/_finalize 실제 청구)",
+      "verdict": "DEFECT_FOUND",
+      "findings": [
+        {
+          "severity": "major",
+          "claim": "CLEAROUT 검열 미반영 — F 가 평가창 끝(end)을 넘는 구간에서 surrogate 가 실제 청구와 괴리되고, 그 구간의 delta 는 청구 불가능한 '유령 이득'이 된다. 엔진의 정확한 청구는 33·max(0, min(F,end)−pc)/3600 인데(완주 시 clock−pc, 미완주 시 end−pc) 공식은 min(F,end) 캡 없이 33·softplus(F−pc)/3600 을 무한히 키운다.",
+          "evidence": "engine.py:931-935 `_finalize`: `if not v.done and pc is not None and self.end > pc: accrue('vessel_delay', self.end - pc, CLEAROUT)` — 미완주 청구 상한은 end−pc 로 고정이며 행동 불변량이다. 반면 vessel_cost.py 전체에 `end` 참조가 없고(VesselSupplyState 필드 59-66행에도 없음), projected_completion_s(69-90행)·overrun_cost(93-96행)는 F>end 여부를 모른다. 결과: 두 후보의 F 가 모두 end 를 넘는 검열 영역에서 실제 청구差는 정확히 0 인데 compare_completion_cost/serve_supply_delta(103-157행)는 33·ΔF/3600 의 비영(非零) delta 를 낸다 — 예: ΔF=−180s 슬롯 당김이면 유령 이득 1.65 numeraire(트럭대기 1.65시간 상당)로 실비용인 트럭대기와 교환된다. 이는 docstring 8-9행의 'κ→0 극한에서 평가비용 33·max(0,F−pc)/3600 과 일치(테스트 고정)' 주장과 spec 41-42행 '평가창 미완료의 clearout 비용까지 공식 평가비용에 연결한다' 요건에 위배되고, 테스트 17건 중 검열 경로 케이스가 0건이다. 과거 실패 v6(실제 청구와 디커플된 항 최적화) 재발 벡터이며 spec 의 '트럭 대기 무회귀 하드게이트'를 후반부 과부하 구간에서 위협한다.",
+          "fix": "completion_cost/overrun_cost 에 선택 인자 end_s 를 추가해 비용 기준을 min(F, end_s)−pc 로 캡하고(load_supply_state 에서 sim.end 전달 — end 는 공개 설정값이라 계약④ 안전), 검열 영역(F_base·F_cand 모두 > end)에서 delta==0 을 고정하는 테스트를 추가한다. 무캡을 의도적 선행 shaping 으로 유지하려면 docstring 의 '평가비용과 일치' 주장을 정정하고 residual 주입(C_known) 경로에는 캡 버전만 쓰도록 분리한다."
+        },
+        {
+          "severity": "minor",
+          "claim": "ρ_vessel(33)·scale(3600)이 모듈 로드 시점 상수로 고정되어, 의무화된 ρ_vessel 민감도 스윕(×1/3~3)이나 numeraire weight_overrides 실행 시 청구(스윕된 ρ)와 공식(고정 33)이 소리 없이 어긋난다.",
+          "evidence": "vessel_cost.py:33-34 `RHO_VESSEL = NUMERAIRE_WEIGHT['vessel_delay']` — import 시 33.0 고정, overrun_cost(93-96행)의 kw 는 kappa_s/margin_s 뿐이라 ρ 주입 경로가 없다. cost_config.py:239·268 은 'ρ_vessel=33 assumed — 민감도 ×1/3~3 보고 의무'를 명시하고, numeraire_config(248-264행)는 임의 항 weight_overrides 를 허용하며 yr088_joint_rl.py:49 는 이미 3개 항을 override 중이다. ρ_vessel=11 로 스윕하면 청구는 11·raw/3600, 공식은 33·(F−pc)/3600 — 3배 괴리로 본선 과잉우선.",
+          "fix": "overrun_cost 에 rho/scale 선택 인자(기본 numeraire)를 추가하거나 활성 RewardCalculator config 에서 vessel_delay 항을 읽어 전달하는 훅을 두고, ρ 스윕 하네스가 같은 ρ 를 공식에 주입하는지 assert 한다."
+        },
+        {
+          "severity": "minor",
+          "claim": "margin_s>0 의 청구 괴리 지점 명세: delta 소비(비교·서빙)에서는 후기 영역 상수 오프셋 33·margin/3600 이 정확히 상쇄되어 무해하고 전이대역 (pc−margin, pc] 에서만 게이트를 앞당기지만(의도된 선행 보수화), 절대값 소비(주입방식 A 의 C_known)에서는 정시 선박에도 33·softplus(margin)/3600 의 미청구 비용이 매 스텝 실려 C_known−c_eval 정합이 구조적으로 깨진다.",
+          "evidence": "vessel_cost.py:96 margin 이 softplus 인자 내부(F−pc+margin)라 F≫pc 에서 상수 가산 — compare_completion_cost(111행)·serve_supply_delta(157행)는 양쪽 세계가 같은 pc·margin 을 공유해 상쇄. 반면 F=pc 정시 선박도 hinge 극한에서 33·margin/3600>0 인데 엔진 청구는 0(engine.py:888 `clock > pc` 조건). spec 의 주입방식 A(YR-100 md 62-65행: Q_total=C_known+Q_residual, y_total=c_eval+γ·min)는 C_known 절대값을 TD 표적에 쓰므로 margin>0 이면 c_eval 과의 체계적 편차를 residual 이 도로 학습해야 한다. 현재 기본 MARGIN_S=0.0(36행)이라 잠복 상태.",
+          "fix": "margin_s>0 은 delta(결정 shaping) 경로 전용임을 docstring/가드로 명시하고, 주입방식 A 의 C_known 계산 경로에서는 margin_s=0 을 강제(assert 또는 별도 진입점)한다."
+        }
+      ]
+    },
+    {
+      "lens": "직렬 체인 pairing 의 건전성 (serve_supply_delta 기준/후보 세계 모델). 건전 확인: (b) delta>0 경로 없음 — 무작위 5만 상태 max=0.0, cand 가용열(t0,t0+c,…)이 base 열(t0+c,t0+2c,…)을 원소별 지배 + fold·softplus 단조로 증명. (d) 포화 정확히 0 — buf≥m−1·STS-bound·미개시 원거리 start 전부 +0.000000 (사전 staging 무credit 은 설계상 잔여망 몫). (e) 게이트 수치 — 서빙 1회 상한 ρc/3600=1.32 numeraire(트럭 79분), slack +900s→0.032(1.9 트럭·분), +1800s→0.0016, +3600s→4e-6: 여유 30분 이상이면 트럭 1대 서빙 비용조차 못 이겨 트럭 희생 차단. 단 아래 결함으로 saturated 영역·knee 영역에 실제 왜곡 존재.",
+      "verdict": "DEFECT_FOUND",
+      "findings": [
+        {
+          "severity": "major",
+          "claim": "동일 선박 동시 2서빙 합산(candidate_vessel_delta)이 자기 모델의 joint 값의 정확히 2배를 credit — '드묾·근사'가 아니라 전 게이트 수준에서 100% 과대이며, 2크레인 프로파일에서 일상적으로 발생 가능한 v6형 벡터",
+          "evidence": "src/yard_rl/integrated/vessel_cost.py:163 '서빙별 delta 합 근사 (드묾)'. 실측(c=144,κ=300,m=8,buf=0): single=-0.7514/-0.4331/-0.3068/-0.2016, sum2=2×single, 그러나 같은 fold 에 박스 2개(supply_etas=(t0,t0)) 주입한 joint=single 과 동일 — 과대분이 모든 지점에서 |single| 전액. 원인: 첫 주입 박스 이후 fold 가 STS-bound 가 되어(공유 steady 열의 pace=cadence 가 STS cadence 와 정확히 일치) 두 번째 같은 박자 박스의 모델 내 가치가 정확히 0. 빈도: profiles.py:31,70 크레인 2기(YC-L·YC-W), 선박당 LOAD 15~24박스, baselines.py:126-133 _feasible_joint 는 동일 job token 만 배제 → {본선,본선} 조합 상시 후보. tight 셀(vessel_deadline_mult=0.5 → 초과 ≥0.5·m·c ≥1080s ≫ κ=300, 게이트 포화)에서 과대 = 1.32 numeraire = 트럭 79분/결정 — 두 번째 서빙이 모델 자신 기준 0 가치인데 만점 credit 을 받아 argmin 이 {본선,본선}으로 기울고 트럭이 지불.",
+          "fix": "합산 대신 선박별로 1회 계산: 같은 base 에 그 조합의 모든 t0 를 supply_etas=(t0_a,t0_b,…)로 주입한 completion_cost 차 1개를 쓴다 (projected_completion_s 는 이미 다중 supply_etas 지원 — candidate_vessel_delta 에서 vessel 별 t0 목록을 모아 1회 호출로 교체)."
+        },
+        {
+          "severity": "major",
+          "claim": "knee 구간 역전 — base 세계의 steady onset(t0+defer)에 후보 자신의 serve_duration 이 들어가 F 가 duration 과 1:1 로 밀리고, |delta|가 F 에 증가함수라 '박스를 더 늦게 배달하는(느린·재조작 많은) 후보가 더 큰 본선 credit'을 받는다",
+          "evidence": "vessel_cost.py:153-156 t0=now+serve_duration+move_time 이 base·cand 양쪽 onset 에 공통 진입 → |delta|=(ρ/3600)[sp(F−pc)−sp(F−c−pc)] 는 F(∝duration) 증가함수. 실측(c=144,κ=300,m=6,buf=0): pc=F_base+600 에서 dur 60s→-0.068 vs 600s→-0.326 (4.8배), pc=F_base+0 에서 -0.377 vs -0.932 (2.5배) — 차이 최대 ~0.55 numeraire(트럭 33분). duration 은 travel+재조작 포함(candidates.py GenCandidate.plan)이라 재조작 낀 서빙이 깨끗한 서빙보다 본선 credit 을 더 받음. yr100_single_block.py:_pick_calc 는 cvec 만 known 비용으로 주입하므로 이 역방향 기울기의 교정 부담이 전부 학습 Q_res 에 전가 — 실제 berth(박스 도착 t0)는 늦어지는데 delta 는 더 낮아지는 국소 v6 벡터 (pc±2κ ≈ ±10분 창 한정).",
+          "fix": "base 세계를 후보 duration 과 독립으로: 공유 steady onset 을 t0_ref=now+move_time(+cadence) 로 고정하고 후보 확정공급만 now+duration+move_time 에 둔다 → 느린 후보일수록 credit 이 단조 감소(물리 방향 일치). 수정 후 duration sweep 단조검사(느릴수록 |delta|↓)를 테스트로 고정."
+        },
+        {
+          "severity": "minor",
+          "claim": "YT 혼잡 무반영 — serve_supply_delta 의 t0 가 raw move_time_s 만 써서 pending 이 몇이든 delta 불변, 혼잡할수록(진짜 급할수록) 긴급도를 체계적으로 과소평가",
+          "evidence": "vessel_cost.py:153 (sim.transfer.move_time_s 직접 사용, _first_unassured_gap_s 의 (1+대기/n) 보정 미적용 — load_supply_state 기본경로(115-118)와 불일치). 실측: pending 0 vs 5 에서 delta 동일 -0.388076. 진짜 t0 는 move_time·대기/n 만큼 늦음(pending 5,n=3 → +300s) → tail 영역 게이트 e^{300/300}≈2.7배 과소 발화 — YR-090 침묵의 완화판(포화 영역에선 무영향).",
+          "fix": "t0 의 YT 구간을 두 세계 공통으로 _first_unassured_gap_s(sim) 로 교체 (pairing 유지, 게이트 위치만 혼잡 반영)."
+        },
+        {
+          "severity": "minor",
+          "claim": "엔진 물리 대비 F 를 공급-bound 에서 +1박자(굶주린 STS 는 도착 즉시 완료인데 모델은 avail+cadence), 진행중 선박 cadence 위상 리셋으로 +최대 1박자 — 합계 최대 2박자(≈288s) 보수 편향으로 게이트가 이르게 발화",
+          "evidence": "engine.py:876-878 + _sts_move(824-845): blocked STS 는 박스 도착 시각에 즉시 remaining 감소(실측 재현: 도착 1000 → 엔진 완료 1000). 모델 fold vessel_cost.py:89 는 max(t,avail)+cadence → F=1144. 또한 line 81 t=max(now,planned_start)가 진행중 선박의 남은 cadence 위상(0~c)을 버림. 두 세계가 공유해 delta 크기는 보존되나 게이트 평가점 F 가 최대 2c=288s(κ=300 대비 e^{288/300}≈2.6배 tail 과대) 이르게 잡힘 — 방향은 본선 선행(침묵 방지와 정합)이라 위험 낮음.",
+          "fix": "수정 불요 가능(보수 방향·κ 이내). 문서화하거나 MARGIN_S 해석에 흡수 — 단 κ 민감도 실험 시 이 내재 +1~2박자 선행분을 함께 보고."
+        },
+        {
+          "severity": "minor",
+          "claim": "지평 경계 phantom credit — 평가는 미완 선박을 end−pc 로 캡(clearout)하는데 surrogate 는 무한 선형이라, 어차피 end 안에 못 끝내는 선박(F_base·F_cand 모두 >end)에도 서빙당 최대 1.32 numeraire 를 지급: delta 와 실제 평가 berth 비용이 완전히 디커플되는 유일 지점",
+          "evidence": "engine.py:932-935 (_finalize: 미완 시 self.end−pc 로 캡 정산) vs vessel_cost.py:96 (overrun_cost 무상한). 두 세계 모두 F>end 면 평가 Δ=0 인데 delta=−게이트값(포화 시 −1.32). 현 셀에선 저빈도 — 선박 순수작업 종점 ≤ ~9,936s ≪ end=21,600s(horizon 14,400+drain 7,200, scenario_gen.py:33-34·scenario.py:38) — 극단 기아에서만 발동하나 v6 재발 표면의 잔여.",
+          "fix": "완료시각을 min(F, sim.end) 로 캡해 overrun 평가 (sim 접근 가능한 serve_supply_delta/load_supply_state 에서 horizon 주입; 계약③ 동일지평 비교와 양립)."
+        }
+      ]
+    },
+    {
+      "findings": [
+        {
+          "severity": "minor",
+          "claim": "projected_completion_s 의 fold(vessel_cost.py:89, t = max(t, avail) + cadence)가 엔진 물리(정지된 move 는 박스 도착 즉시 완료)보다 공급제한(binding) 사슬에서 F 를 정확히 +1 cadence 과대평가한다 — serve delta 에서는 두 세계가 함께 binding 이면 상쇄되지만, 계약③ compare_completion_cost 에서 binding(KEEP) vs 비정지(TRANSFER) 비교 시 TRANSFER 이득을 33·c/3600 ≈ 1.0~1.3 numeraire(트럭 60~78분 상당 — 신호 자체와 같은 자릿수)만큼 체계적으로 과대한다. YR-090 렌즈로는 침묵이 아니라 경미한 조기발화(보수 방향, ~0.4κ)라 안전하지만, YR-099 TransferResolver 가 소비하면 편향이 quote 로 전파된다.",
+          "evidence": "src/yard_rl/integrated/vessel_cost.py:89 `t = max(t, avail) + st.cadence_s` vs src/yard_rl/integrated/engine.py:824-845·865-878 — _transfer_arrive 가 self.clock 에 STS_MOVE push → _sts_move 가 그 즉시 remaining_moves 감소 → 엔진 점화식 T_k = max(T_{k-1}+c, 박스도착 a_k). 실행 검증(실제 함수 호출): 완전 binding(m=15, c=144, onset=1000) fold F=3160 vs 엔진 T_m=onset+(m-1)c=3016 → bias 정확히 +144s(=c). 비정지 사슬은 bias 0, 정지 1회 이상이면 항상 정확히 +c.",
+          "fix": "vessel_cost.py:89 를 엔진 점화식으로 교체: `t = max(t + st.cadence_s, avail)` (초기 t = max(now, planned_start) 유지 — 첫 move 가 max(start+c, a_1)로 엔진과 일치하고 비정지 사슬 start+m·c 는 불변). 동반: tests/integrated/test_yr100_vessel_cost.py::test_gate2_starvation_stall_included 기대값 1200→1100 등 테스트 갱신 (현 테스트가 편향된 모델을 박제 중)."
+        },
+        {
+          "severity": "minor",
+          "claim": "serve_supply_delta 의 공급 lead(vessel_cost.py:153)가 YT 대기열을 무시한다 — 같은 모듈의 관례 _first_unassured_gap_s(move_time×(1+대기/n), flow_margin 관례)와 불일치. 혼잡(큐 깊음) 상태일수록 두 세계의 F 가 공히 과소평가되어 loose 셀 전이구간에서 발화가 늦는다 — YR-090 침묵과 같은 방향의 잔존 벡터 (단 유계 ~1.2κ, tight 셀 선형역은 무영향).",
+          "evidence": "src/yard_rl/integrated/vessel_cost.py:153 `t0 = sim.now + serve_duration_s + sim.transfer.move_time_s`(큐 항 없음) vs 같은 파일 115-118 관례식(vessel_signals.py:37 flow_margin 과 동일). 실행 검증: high-loose(m=13, c=130.6) 창 50% 지점에서 q=0 과 q=6 의 delta 동일 −0.94328 (실측). q=6·n=3·move_time=180 이면 실제 첫 공급 lead 540s vs 모델 180s → F 약 360s(=1.2κ) 과소 → 전이 심부에서 delta ×~0.3 과소·발화 ~360s 지연. 부가: 모듈 docstring 12-13행은 첫 미확정 박스를 'YC서빙+YT이송 뒤'라 주장하나 _first_unassured_gap_s 는 YT 만 반영 — 기본 onset 도 YC 서빙시간(~120-300s ≈ 0.4-1κ)만큼 같은 방향으로 낙관.",
+          "fix": "vessel_cost.py:153 의 YT leg 를 관례대로 큐 반영: t0 = now + serve_duration + move_time×(1+waiting_count/n) — base/cand 에 동일 적용되므로 paired 구조·포화 게이트 불변. docstring 의 'YC서빙' 주장은 구현과 일치시키거나 문구를 수정."
+        },
+        {
+          "severity": "minor",
+          "claim": "κ=300·margin=0 기본값 자체는 적정 — 단, 고혼잡 loose 셀에서 트럭 항 대비 경제적 리드가 ~2 move 까지 얇아질 수 있고(finding 2 와 중첩 시 리드 소멸 가능) κ 민감도 축 미실행 상태. 침묵(YR-090)·과잉(v6 프록시) 재발은 둘 다 아님을 실스케일 수치로 확인.",
+          "evidence": "실행 검증(실제 셀, scenario_gen.py:305-330 pc=start+m·c·dmult): high-loose(seed 830100: m=13, c=130.6, pc−start=3395s) 선박 시작 시 delta=−0.0155(트럭 0.93분/서빙 — 0 아님) → 무진전 시 창 25%에 −0.217(13분), 50%에 −0.943(57분) 연속 램프 → YR-090 의 '초과 전 gradient 0' 재발 없음. high-tight(seed 830300: m=16, c=124.2, 순수작업만으로도 초과 +994s) 상시 z≥+3.2, delta=−1.08~−1.14 = ρ·c/3600 선형한계 = 평가비용(engine.py:891, 33×초과/3600) 한계효과와 일치(과잉 아님, σ<1 하한)·버퍼3 시 −0.74 감쇠(포화 게이트 작동). 전이곡선(c=144): x=−1200s→트럭 1.1분, −900→3.0, −600→7.7, −300→17.9, 0→34.9분; 트럭 결정 1회 방어값≈2.5분×대기트럭수 → 대기 3대면 교차 x≈−600s(4~5 move 리드), 피크 8대면 x≈−270s(~2 move). vessel_cost.py:35 스스로 κ 를 'assumed — 민감도 대상' 표기.",
+          "fix": "기본값 유지(margin>0 은 계약① κ→0 평가정합을 깨고 finding 1 의 +c 조기발화와 이중가산). 대신 yr100_single_block 단조성 probe(검증 a)에 κ∈{300,600} 민감도 축을 사전등록하고, finding 2 수정 후 loose 셀 발화 교차점이 x≤−600s 인지 확인하는 수치를 리포트에 포함."
+        }
+      ],
+      "lens": "YR-090 침묵 재발 방지 — softplus(κ=300, margin=0) 실스케일 결정당 delta 판정. 결론: 침묵·과잉 둘 다 재발 아님 (loose: 시작 −0.016 → 창25% −0.22 → 50% −0.94 numeraire 연속 램프, 전 구간 gradient 존재; tight: 상시 −1.08~−1.14 = ρ·c/3600 선형한계 = 평가 한계비용과 일치). 단 엔진 물리 대비 +1 cadence fold 편향, YT 큐 무시(혼잡 시 침묵 방향 ~1.2κ 지연) 2건의 유계 결함 발견.",
+      "verdict": "DEFECT_FOUND"
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "verify:physics",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a453ca2c70d8efecd",
+      "agentType": "general-purpose",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1785076015906,
+      "queuedAt": 1785076015896,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "엔진 물리 정합 — projected_completion_s 공급 fold vs engine…",
+      "promptPreview": "검증 대상: src/yard_rl/integrated/vessel_cost.py (방금 구현, 테스트 tests/integrated/test_yr100_vessel_cost.py 17통과).\n스펙: .claude/docs/dashboard-task-specs/YR-100-vessel-cost-formula.md 의 4계약 게이트.\n엔진 물리 근거: src/yard_rl/integrated/engine.py (_vessel_start/_sts_move/_can_sts_process/_transfer_request/_transfer_arrive/_vessel_finish/_finalize),\nsrc/yard_rl/integrated/vessel.py, src/yard_rl/integrated/transfer.p…",
+      "lastProgressAt": 1785076605927,
+      "tokens": 84045,
+      "toolCalls": 14,
+      "durationMs": 590021,
+      "resultPreview": "{\"findings\":[{\"severity\":\"major\",\"claim\":\"이송중 확정공급이 구조적으로 fold 에 못 들어간다 — 모듈 자신의 계약②(\\\"버퍼·이송중 확정공급\\\" fold, vessel_cost.py:11·64)를 빌더가 이행 불가. base 세계에 실재하지 않는 굶주림을 조작해 |ΔC_vessel| 을 과대평가한다.\",\"evidence\":\"load_supply_state(vessel_cost.py:121-137)는 supply_etas 기본 () 이고, 전 코드베이스에서 실제 이송중 도착을 넣는 호출부가 없다(grep: 유일한 비어있지 않은 사용은 serve_supply_delta:156 의 후보 박스 (t0,) 하나). 엔진의 확정 도착시각은 queue 의 TRANSFER_ARRIVE …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "verify:contract-billing",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a759c559b5e58c2cb",
+      "agentType": "general-purpose",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1785076015907,
+      "queuedAt": 1785076015897,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "계약① 청구 정합 (overrun_cost vs engine._vessel_finish/_fin…",
+      "promptPreview": "검증 대상: src/yard_rl/integrated/vessel_cost.py (방금 구현, 테스트 tests/integrated/test_yr100_vessel_cost.py 17통과).\n스펙: .claude/docs/dashboard-task-specs/YR-100-vessel-cost-formula.md 의 4계약 게이트.\n엔진 물리 근거: src/yard_rl/integrated/engine.py (_vessel_start/_sts_move/_can_sts_process/_transfer_request/_transfer_arrive/_vessel_finish/_finalize),\nsrc/yard_rl/integrated/vessel.py, src/yard_rl/integrated/transfer.p…",
+      "lastProgressAt": 1785076301268,
+      "tokens": 65829,
+      "toolCalls": 15,
+      "durationMs": 285361,
+      "resultPreview": "{\"lens\":\"계약① 청구 정합 (overrun_cost vs engine._vessel_finish/_finalize 실제 청구)\",\"verdict\":\"DEFECT_FOUND\",\"findings\":[{\"severity\":\"major\",\"claim\":\"CLEAROUT 검열 미반영 — F 가 평가창 끝(end)을 넘는 구간에서 surrogate 가 실제 청구와 괴리되고, 그 구간의 delta 는 청구 불가능한 '유령 이득'이 된다. 엔진의 정확한 청구는 33·max(0, min(F,end)−pc)/3600 인데(완주 시 clock−pc, 미완주 시 end−pc) 공식은 min(F,end) 캡 없이 33·softplus(F−pc)/3600 을 무한히 키운다.\",\"evidence\":\"engine.py:931-9…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "verify:pairing-model",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "a7d81f8739217f5c1",
+      "agentType": "general-purpose",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1785076015907,
+      "queuedAt": 1785076015897,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "직렬 체인 pairing 의 건전성 (serve_supply_delta 기준/후보 …",
+      "promptPreview": "검증 대상: src/yard_rl/integrated/vessel_cost.py (방금 구현, 테스트 tests/integrated/test_yr100_vessel_cost.py 17통과).\n스펙: .claude/docs/dashboard-task-specs/YR-100-vessel-cost-formula.md 의 4계약 게이트.\n엔진 물리 근거: src/yard_rl/integrated/engine.py (_vessel_start/_sts_move/_can_sts_process/_transfer_request/_transfer_arrive/_vessel_finish/_finalize),\nsrc/yard_rl/integrated/vessel.py, src/yard_rl/integrated/transfer.p…",
+      "lastProgressAt": 1785076811646,
+      "tokens": 116445,
+      "toolCalls": 31,
+      "durationMs": 795739,
+      "resultPreview": "{\"lens\":\"직렬 체인 pairing 의 건전성 (serve_supply_delta 기준/후보 세계 모델). 건전 확인: (b) delta>0 경로 없음 — 무작위 5만 상태 max=0.0, cand 가용열(t0,t0+c,…)이 base 열(t0+c,t0+2c,…)을 원소별 지배 + fold·softplus 단조로 증명. (d) 포화 정확히 0 — buf≥m−1·STS-bound·미개시 원거리 start 전부 +0.000000 (사전 staging 무credit 은 설계상 잔여망 몫). (e) 게이트 수치 — 서빙 1회 상한 ρc/3600=1.32 numeraire(트럭 79분), slack +900s→0.032(1.9 트럭·분), +1800s→0.0016, +3600s→4e-6: 여유 30분 이상이면 …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "verify:signal-liveness",
+      "phaseIndex": 1,
+      "phaseTitle": "Verify",
+      "agentId": "ad7e406e113d8f8a9",
+      "agentType": "general-purpose",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1785076015907,
+      "queuedAt": 1785076015897,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "YR-090 침묵 재발 방지 — softplus(κ=300, margin=0) 실스케일 …",
+      "promptPreview": "검증 대상: src/yard_rl/integrated/vessel_cost.py (방금 구현, 테스트 tests/integrated/test_yr100_vessel_cost.py 17통과).\n스펙: .claude/docs/dashboard-task-specs/YR-100-vessel-cost-formula.md 의 4계약 게이트.\n엔진 물리 근거: src/yard_rl/integrated/engine.py (_vessel_start/_sts_move/_can_sts_process/_transfer_request/_transfer_arrive/_vessel_finish/_finalize),\nsrc/yard_rl/integrated/vessel.py, src/yard_rl/integrated/transfer.p…",
+      "lastProgressAt": 1785076982306,
+      "tokens": 136269,
+      "toolCalls": 34,
+      "durationMs": 966399,
+      "resultPreview": "{\"findings\":[{\"severity\":\"minor\",\"claim\":\"projected_completion_s 의 fold(vessel_cost.py:89, t = max(t, avail) + cadence)가 엔진 물리(정지된 move 는 박스 도착 즉시 완료)보다 공급제한(binding) 사슬에서 F 를 정확히 +1 cadence 과대평가한다 — serve delta 에서는 두 세계가 함께 binding 이면 상쇄되지만, 계약③ compare_completion_cost 에서 binding(KEEP) vs 비정지(TRANSFER) 비교 시 TRANSFER 이득을 33·c/3600 ≈ 1.0~1.3 numeraire(트럭 60~78분 상당 — 신호 자체와 같은 자릿수)만큼 체계적으로 과대한다. YR-…"
+    }
+  ],
+  "totalTokens": 402588,
+  "totalToolCalls": 94
+}

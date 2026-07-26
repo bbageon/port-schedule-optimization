@@ -148,10 +148,15 @@ def run_seed(i: int) -> dict:
             sa2, sb2 = move_job(sa, sb, pick["jid"])
         else:
             sb2, sa2 = move_job(sb, sa, pick["jid"])
-        # G0 불변식: 보존·소유권 유일
+        # G0 불변식: 보존·블록내 유일·이동작업 단일 소유 (블록 간 id 네임스페이스는 독립)
         assert len(sa2.jobs) + len(sb2.jobs) == len(sa.jobs) + len(sb.jobs)
-        ids = [j.job_id for j in sa2.jobs] + [j.job_id for j in sb2.jobs]
-        assert len(ids) == len(set(ids))
+        for blk in (sa2, sb2):
+            ids = [j.job_id for j in blk.jobs]
+            assert len(ids) == len(set(ids))
+        moved_id = f"{pick['jid']}@X"
+        n_moved_total = sum(1 for j in list(sa2.jobs) + list(sb2.jobs)
+                            if j.job_id == moved_id)
+        assert n_moved_total == 1
         ra, rb = sf_run(sa2), sf_run(sb2)
         c = {"total": ra["total"] + rb["total"], "berth": ra["berth"] + rb["berth"],
              "compl": min(ra["compl"], rb["compl"])}
