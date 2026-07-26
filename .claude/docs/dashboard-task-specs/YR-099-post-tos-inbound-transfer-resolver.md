@@ -137,10 +137,12 @@ Gain(A→B,j)
 - G1~G4는 반입-only·양하-only·혼합 셀을 분리해 어느 흐름에서 상금이 생겼는지 보고.
 
 정량 비열등 margin은 실제 SLA 근거를 확보한 뒤 결과 열람 전에 사전등록한다.
+P95 자체의 margin은 실제 계약이 95백분위 SLA를 명시할 때만 사용한다.
 
 ## 필수 지표·불변식
 
-- 최종 KPI: terminal total cost. 반입은 gate-in→gate-out `A→O` 평균·P95, 양하는 STORE 처리시간·후속 재조작비용을 본다.
+- 최종 KPI: terminal total cost. 반입은 gate-in→gate-out `A→O` 평균을 주판정하고
+  P95는 보고용 꼬리 진단으로만 남긴다. 양하는 STORE 처리시간·후속 재조작비용을 본다.
 - 통제 KPI: block-arrival→job-done `B→C`, berth overrun, rehandle, 추가 차량거리. `cap=None`의 양하→동일선박 직접효과는 0이며, berth 개선은 LOAD 여유의 반사실 경로가 확인될 때만 주장한다.
 - 운영량: transfer/keep/reject/rollback/stale quote 수, decision latency, message 수.
 - guard: 완료율 100%, backlog 0, owner 없음 0, 이중 owner 0, 중복 도착/event 0,
