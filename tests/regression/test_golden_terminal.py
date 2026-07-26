@@ -16,24 +16,22 @@ _HERE = Path(__file__).parent
 _RECORD_GOLDEN = _HERE / f"golden_terminal_record_{SCHEMA_VERSION}.json"
 
 GOLDEN = {
-    # YR-080 단계3 재동결 (인과 연결 + fixture 1:1 정합) — 항목별 사유:
-    # n_events 115→36: fixture 선박 moves 20/15→2/2 (STS·이송 이벤트 대량 감소 —
-    #   1박스=1야드작업 전량 정합, 단계0 결정 2). n_decisions 5→7: 본선 야드 job 2→4건.
-    # completed_vessel 2→4: 정합된 job 수. V-LOAD 완료 1660.76 — **야드 반출→이송→
-    #   안벽 사슬을 실제로 통과**한 완료 (이전엔 야드와 무관하게 진행).
-    # sts_wait 768→172.76: 유령 pre-fill 제거 — 적하 STS 가 야드 완료를 기다린
-    #   시간만 계상 (진짜 인과 신호). transfer_wait 10620→0: 이송이 실요청만 처리.
-    # truck_wait 184.878 **완전 불변** — 트럭 트랙 무결 증거 (스냅샷 계약과 정합).
-    # empty_m 253.5→266.5·lane_cong·interference·imbalance: job 수·동선 변화 파생.
-    "n_events": 36, "n_decisions": 7, "hash": "63556f0e932dcdfd",
+    # YR-091/092 재동결 (2026-07-26, 외부감사 물리 정정) — 항목별 사유:
+    # 초기 위치 분산(동일 bay 시작 제거)·idle 상시 장벽으로 이동 동선이 바뀜:
+    #   empty_m 266.5→243.75 (크레인들이 구간 중앙 분산 시작 — 공차이동 감소),
+    #   truck_wait 184.878→114.19 (가까운 크레인이 먼저 잡음), sts_wait 172.76→240.66·
+    #   interference 943.55→636.18·lane_cong 파생 변화. n_events·n_decisions·완료수·
+    #   rehandles 불변 = 사건 구조 보존(이동 기하만 변화). fixture 는 전 pile FT40 이라
+    #   YR-092 영향 없음. 이전 재동결 사유(YR-080 단계3)는 git 이력 참조.
+    "n_events": 36, "n_decisions": 7, "hash": "cf563bc19ab43fa7",
     "completed_external": 3, "completed_vessel": 4,
-    "empty_m": 266.5, "rehandles": 1,
+    "empty_m": 243.75, "rehandles": 1,
     "episode_raw": {
-        "truck_wait": 184.878, "long_wait": 0.0, "crane_travel": 0.0, "empty_travel": 266.5,
-        "rehandle": 1.0, "sts_wait": 172.761, "transfer_wait": 0.0, "vessel_delay": 0.0,
-        "depart_delay": 0.0, "lane_cong": 580.981, "interference": 943.55,
-        # YR-043: imbalance 재정의 (누적 완료건수 pstdev → 작업부하 I(t)∈[0,1] / T_shift).
-        "resequence": 0.0, "imbalance": 0.040346},
+        "truck_wait": 114.190278, "long_wait": 0.0, "crane_travel": 0.0,
+        "empty_travel": 243.75, "rehandle": 1.0, "sts_wait": 240.661111,
+        "transfer_wait": 0.0, "vessel_delay": 0.0, "depart_delay": 0.0,
+        "lane_cong": 567.204167, "interference": 636.177778,
+        "resequence": 0.0, "imbalance": 0.039389},
 }
 
 

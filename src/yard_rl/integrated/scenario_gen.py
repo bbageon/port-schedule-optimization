@@ -178,10 +178,17 @@ def busan_scenario_params(kind: str = "normal", **overrides) -> TerminalGenParam
 
 def _place_containers(rng: random.Random, profile: IntegratedProfile,
                       params: TerminalGenParams) -> dict[str, Container]:
-    """초기 스택 — 슬롯 충돌·공중적재 없음 (아래부터 채움)."""
+    """초기 스택 — 슬롯 충돌·공중적재 없음 (아래부터 채움).
+
+    YR-092(외부감사 결함3): 규격은 **pile(적치열)당 1회 추첨** — 실행 적재규칙(stack.py
+    place(): 빈 바닥 또는 같은 규격 위에만)과 동일 계약. 이전엔 tier 마다 독립 추첨이라
+    시작상태부터 혼합규격 pile(전 seed·mid/high 평균 ~75개)이 생겨 재조작 용량검사의
+    "blocker 동일규격" 가정을 깼다. size_mix_ft40 은 이제 pile 단위 혼합비로 해석된다.
+    """
     g = profile.block
     containers: dict[str, Container] = {}
     heights: dict[tuple[int, int], int] = {}
+    pile_size: dict[tuple[int, int], ContainerSize] = {}
     n_slots = g.bay_count * g.row_count * g.tier_max
     target = max(params.n_external + params.n_vessels * params.vessel_moves,
                  int(n_slots * params.fill_ratio))
@@ -195,8 +202,11 @@ def _place_containers(rng: random.Random, profile: IntegratedProfile,
             continue
         idx += 1
         cid = f"C{idx:04d}"
-        size = (ContainerSize.FT40 if rng.random() < params.size_mix_ft40
-                else ContainerSize.FT20)
+        size = pile_size.get((b, r))
+        if size is None:                     # 새 pile — 규격 1회 추첨 후 pile 전체 고정
+            size = (ContainerSize.FT40 if rng.random() < params.size_mix_ft40
+                    else ContainerSize.FT20)
+            pile_size[(b, r)] = size
         containers[cid] = Container(container_id=cid, size=size,
                                     load_status=LoadStatus.FULL, block=g.block_id,
                                     bay=b, row=r, tier=h + 1)

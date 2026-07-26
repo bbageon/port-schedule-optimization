@@ -37,6 +37,9 @@ class ReservationTable:
     safety_gap_bay: float
     _by_crane: dict[str, Reservation] = field(default_factory=dict)
     _tokens: dict[str, str] = field(default_factory=dict)   # token -> crane_id
+    # YR-091(외부감사 결함2): 예약 없는(idle·down·WAIT) 크레인의 현재 bay — **상시 장벽**.
+    # 비통과 레일에서 쉬는 크레인도 물리 장애물이다. 엔진이 reset/dispatch/완료 시 동기화.
+    _idle_pos: dict[str, float] = field(default_factory=dict)
 
     def active(self) -> tuple[Reservation, ...]:
         return tuple(self._by_crane[c] for c in sorted(self._by_crane))
@@ -64,7 +67,21 @@ class ReservationTable:
                 continue
             if self._by_crane[cid].corridor.overlaps(corridor, self.safety_gap_bay):
                 return cid
+        # YR-091: 예약 없는 크레인의 현재 위치도 점(corridor [pos,pos]) 장벽 — idle 관통 차단
+        for cid in sorted(self._idle_pos):
+            if cid == crane_id or cid in self._by_crane:
+                continue
+            p = self._idle_pos[cid]
+            if Corridor(p, p).overlaps(corridor, self.safety_gap_bay):
+                return cid
         return None
+
+    # ---------------------------------------------------- YR-091 idle 장벽 동기화 (엔진 전용)
+    def set_idle_position(self, crane_id: str, bay: float) -> None:
+        self._idle_pos[crane_id] = float(bay)
+
+    def idle_positions(self) -> dict[str, float]:
+        return dict(self._idle_pos)
 
     def reject_reason(self, r: Reservation) -> str | None:
         """5-lock 순차 판정 코드 (None=성공). 생성기·can_reserve·reserve 가 공유 —

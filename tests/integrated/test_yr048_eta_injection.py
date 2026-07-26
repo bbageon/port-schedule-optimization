@@ -78,9 +78,11 @@ def test_eta_values_pinned_golden():
     """
     sc = generate_terminal_scenario(PROF, 310000)
     eta = {j.job_id: j.provided_eta for j in sc.jobs if j.is_external_truck}
-    for jid, expect in (("J-IN-003", 1897.9592478515692),
-                        ("J-IN-005", 2616.5992022176697),
-                        ("J-IN-009", 3999.1432854349496)):
+    # YR-092 재동결 (2026-07-26): pile 규격 1회 추첨이 주 스트림 draw 열을 바꿔 도착·분기
+    # 파생값 이동 (감사 결함3 정정) — eta 전용 스트림 격리 계약 자체는 불변.
+    for jid, expect in (("J-IN-006", 3118.9493670705097),
+                        ("J-IN-009", 4278.421980938413),
+                        ("J-IN-016", 7292.225147102467)):
         assert abs(eta[jid] - expect) < 1e-9, f"{jid}: eta 스트림 파생 변경 감지"
     assert sc.meta["eta_error_s"] == 300.0            # arm 정체성 박제 (YR-019 대비)
 

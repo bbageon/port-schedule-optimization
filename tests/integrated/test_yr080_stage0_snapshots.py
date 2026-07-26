@@ -39,17 +39,19 @@ def _snapshot(profile, params, seed):
             round(r["completion_rate"], 4), round(r["mean_wait_min"], 4))
 
 
-# 수정 전 실측 동결값 (2026-07-22, 커밋 직전 산출 — 재산출 스크립트는 docstring 참조)
+# 실측 동결값 — YR-091/092 재동결 (2026-07-26, 외부감사 물리 정정): ①초기 pile 규격
+# 1회 추첨(YR-092)이 배치·후속 draw 열 이동 ②비통과 초기 분산·idle 장벽(YR-091)이
+# 이동/대기 동역학 변경. 세 케이스 완주 1.0 유지 — 물리 강화 후에도 트랙 건전.
 CASES = [
     ("poc_novessel", build_integrated_profile,
      dict(n_external=20, n_vessels=0), 880001,
-     ("779eb22e8f271e83", "8f7987ff59701ef9", 45.435235, 16, 1.0, 0.0)),
+     ("3515de849b093c8b", "42bd0b524a01a7c9", 32.179371, 16, 1.0, 0.0)),
     ("poc_gatein_only", build_integrated_profile,
      dict(n_external=16, n_vessels=0, gate_out_share=0.0), 880002,
-     ("33a470e437499507", "1a7f58729b772e9c", 27.160938, 13, 1.0, 0.145)),
+     ("b41e53dbf2b728d3", "c815a4c3392a710b", 27.536664, 13, 1.0, 0.0)),
     ("calibrated_novessel", build_calibrated_profile,
      dict(n_external=20, n_vessels=0), 880003,
-     ("37a0f9eb482e5599", "13acb11db1e7d2cf", 77.03312, 22, 1.0, 0.0203)),
+     ("a7cd939e17852fac", "d6a902c9fa746053", 53.021938, 22, 1.0, 0.0)),
 ]
 
 

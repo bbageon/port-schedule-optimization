@@ -84,6 +84,23 @@ class TerminalSimulator:
         for spec in self.profile.cranes:
             self.fleet.add(spec, geom.transfer_row)
         self.reservations = ReservationTable(self.profile.safety_gap_bay)
+        # YR-091(외부감사 결함2): ①초기 위치 — 같은 담당구간(공유 레일 구간) 크레인들을
+        # id 순서 = 물리 순서로 등간격 분산 (이전엔 전부 service_bay_min 동일 시작 = 간격 0).
+        # ②예약 없는 크레인 현재 위치를 상시 장벽으로 등록 (비통과 레일 물리).
+        groups: dict[tuple[int, int], list[str]] = {}
+        for cid in self.fleet.ids():
+            sp = self.fleet.spec(cid)
+            groups.setdefault((sp.service_bay_min, sp.service_bay_max), []).append(cid)
+        for (lo, hi), ids in groups.items():
+            n = len(ids)
+            if n > 1:
+                for k, cid in enumerate(ids):                     # id 순 = 물리 순
+                    self.fleet.get(cid).state.position_bay = lo + (k + 0.5) * (hi - lo) / n
+        for cid in self.fleet.ids():
+            self.reservations.set_idle_position(cid, self.fleet.get(cid).state.position_bay)
+        # 물리(레일) 순서 = 초기 bay 오름차순 (tie=id) — 비통과 불변식의 기준 순서
+        self._rail_order: tuple[str, ...] = tuple(sorted(
+            self.fleet.ids(), key=lambda c: (self.fleet.get(c).state.position_bay, c)))
         from .ledger import CostLedger
         self.cost = CostAccumulator(ledger=CostLedger() if self._enable_ledger else None)
         self.kpis = KpiTracker(sla_s=self.profile.long_wait_sla_s)
@@ -160,6 +177,13 @@ class TerminalSimulator:
         for (b, r, t) in occupied:
             if t > 1 and (b, r, t - 1) not in occupied:
                 raise ConstraintViolation("FLOATING_CONTAINER", f"({b},{r},{t}) 아래 빔")
+        # YR-092(외부감사 결함3): 초기상태도 실행 적재규칙(pile 동일규격) 준수 — 위반 시 거부.
+        pile_sizes: dict[tuple[int, int], object] = {}
+        for c in self.scenario.containers.values():
+            prev = pile_sizes.setdefault((c.bay, c.row), c.size)
+            if prev != c.size:
+                raise ConstraintViolation(
+                    "PILE_SIZE_MIX", f"({c.bay},{c.row}) 혼합규격 초기 pile — 실행규칙 위반")
         for j in self.jobs_input():
             if j.target_container is not None and j.target_container not in self.scenario.containers:
                 raise ConstraintViolation("UNMATCHED_JOB", f"{j.job_id} 대상 부재")
@@ -733,6 +757,7 @@ class TerminalSimulator:
                 self.stacks.place(cont, mv.dst[0], mv.dst[1])
         self.reservations.release(crane_id)
         yc.state.position_bay, yc.state.trolley_row = plan.end_bay, plan.end_row
+        self.reservations.set_idle_position(crane_id, plan.end_bay)   # YR-091 상시 장벽 갱신
         yc.state.assigned_job = None
         yc.state.status = CraneStatus.IDLE
         yc.state.available_at = self.clock
@@ -938,6 +963,17 @@ class TerminalSimulator:
             spec = self.fleet.spec(c.crane_id)
             if not (spec.service_bay_min <= c.state.position_bay <= spec.service_bay_max):
                 raise ConstraintViolation("OUT_OF_RANGE", f"{c.crane_id}")
+        # YR-091: 비통과 순서·최소간격 — 레일 순서(초기 bay 오름차순)가 뒤집히면 관통이 있었던 것.
+        # 이동 중 크레인의 position_bay 는 출발값(완료 시 갱신)이라 이벤트 경계에서 항상 유효.
+        order = getattr(self, "_rail_order", ())
+        gap = self.reservations.safety_gap_bay
+        for a, b in zip(order, order[1:]):
+            pa = self.fleet.get(a).state.position_bay
+            pb = self.fleet.get(b).state.position_bay
+            if pa > pb + _EPS:
+                raise ConstraintViolation("CRANE_ORDER_SWAP", f"{a}({pa:.2f}) > {b}({pb:.2f})")
+            if pb - pa < gap - _EPS:
+                raise ConstraintViolation("CRANE_MIN_GAP", f"{a}·{b} 간격 {pb - pa:.2f} < {gap}")
         self._assert_pairwise_resources()
 
     def _assert_pairwise_resources(self):

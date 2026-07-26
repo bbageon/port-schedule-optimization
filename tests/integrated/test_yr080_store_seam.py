@@ -37,9 +37,10 @@ def _fresh(selector=None):
 
 
 def test_seam_off_matches_golden_hash():
-    """기본(off) = find_slot greedy 그대로 — 터미널 골든과 동일 (seam 무해성)."""
+    """기본(off) = find_slot greedy 그대로 — 터미널 골든과 동일 (seam 무해성).
+    YR-091/092 재동결 (2026-07-26): test_golden_terminal.GOLDEN["hash"] 와 동일 상수."""
     sim = _drive(_fresh())
-    assert sim.event_stream_hash() == "63556f0e932dcdfd"
+    assert sim.event_stream_hash() == "cf563bc19ab43fa7"
 
 
 def test_deployable_selector_completes_and_deterministic():

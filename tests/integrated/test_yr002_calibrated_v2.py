@@ -31,9 +31,11 @@ def test_default_scenario_frozen_golden():
     스트림 vdis:)·본선 잡 전량 정합(n_moves)·적하 계획시각 부여. 트럭 트랙은
     test_yr080_stage0_snapshots(본선 없는 시나리오 바이트 동결)가 별도 보증.
     직전 값: edfd8dde…·f93ae266…·53f174ae… (commit 3e313ef 이전)."""
-    assert _fingerprint(build_integrated_profile(), 530000) == "79bbd52aa0d913fd"
-    assert _fingerprint(build_integrated_profile(), 700000) == "656fa17da8a1d277"
-    assert _fingerprint(build_dgt_approx_profile(), 700000) == "914c0164fa9ac791"
+    # YR-091/092 재동결 (2026-07-26): 초기 pile 규격 1회 추첨(YR-092)이 배치 draw 열을
+    # 바꿔 시나리오 전체가 이동 — 물리 정정에 따른 의도된 재동결 (감사 결함3).
+    assert _fingerprint(build_integrated_profile(), 530000) == "eabb97459e5b9893"
+    assert _fingerprint(build_integrated_profile(), 700000) == "a79aee2627c4964b"
+    assert _fingerprint(build_dgt_approx_profile(), 700000) == "4950a260a3b70813"
 
 
 def test_peak_warp_identity_and_bounds():

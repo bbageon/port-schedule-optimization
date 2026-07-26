@@ -180,9 +180,12 @@ def test_negative_gap_reaches_validated_record():
     record_episode 가 매 결정 validate_all 을 통과시키므로 음수 값이 계약 위반 없이
     저장됨을 함께 증명한다 (v1 은 clip_lo=0 절단으로 이 값이 0 이 됐다).
     """
+    # YR-091 물리 정합: busy 대상을 좌(C-X bay8)/우(C-Y bay35) 분배 — 비통과 초기 분산
+    # (좌 크레인 ~10.75·우 ~30.25)에서 두 크레인이 t=0 에 모두 SERVE 로 소진되게.
+    # (이전엔 30·35 로 우측 몰림 — idle 좌 크레인이 즉시 PRE 를 +60 gap 에 소비해 의도 붕괴.)
     containers = {"C-T": _c("C-T", 5, 1, 1), "C-B": _c("C-B", 5, 1, 2),
                   "C-D": _c("C-D", 20, 2, 1),
-                  "C-X": _c("C-X", 30, 2, 1), "C-Y": _c("C-Y", 35, 3, 1)}
+                  "C-X": _c("C-X", 8, 2, 1), "C-Y": _c("C-Y", 35, 3, 1)}
     jobs = [_out("J-BUSY-X", "C-X", 0.0, None), _out("J-BUSY-Y", "C-Y", 0.0, None),
             _out("J-DECOY", "C-D", 250.0, 250.0),
             _out("J-OUT-T", "C-T", 900.0, 60.0)]
