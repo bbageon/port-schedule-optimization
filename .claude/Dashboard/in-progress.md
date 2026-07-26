@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| — | — | (비어 있음 — **YR-096 vs YR-100 순서 재확정 대기**) | — | — | YR-096·100 모두 Backlog, Ready 없음. YR-100은 기준시간·공급인과·KEEP/TRANSFER 반사실·정책정보의 4개 계약을 먼저 고친다. 현재 다중블록 범위는 반입·양하 STORE이며 YR-095 현실규칙은 최종 단계 |
+| YR-100 | RL | **본선 비용 계산식 — 4게이트 정정 + 단일블록 검증** | 🟠 | 2026-07-26 | **순서 확정 (사용자 지시)**: [1]YR-100 4게이트→[2]단일블록 검증→[3]후보 확정(RL+100 vs rollout 참고군, YR-096 진행/폐기 여기서)→[4]YR-041 잠금→[5]YR-099 다중블록 G1→[6]YR-095(실자료 게이트). 4게이트: ①기준시간(planned_completion_s) ②공급경로 인과 ③KEEP/TRANSFER 반사실 ④LOAD 계획시각 공개근거. [spec](../docs/dashboard-task-specs/YR-100-vessel-cost-formula.md) |
 
 ---
 

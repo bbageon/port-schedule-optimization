@@ -1,7 +1,7 @@
 # YR-100 — 본선 비용 계산식 (ExecutionQ·TransferResolver 공유 원료)
 
 - **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-07-26
-- **상태**: 본선 트랙 핵심 원료 초안. 아래 4개 계약 정정 전 구현 금지.
+- **상태**: **4계약 정정 구현 완료 (2026-07-26)** — [vessel_cost.py](../../../src/yard_rl/integrated/vessel_cost.py) + [계약 테스트 17](../../../tests/integrated/test_yr100_vessel_cost.py) + [잔여망 마스크 2](../../../tests/integrated/test_yr100_residual_mask.py). 단일블록 검증([yr100_single_block.py](../../../src/yard_rl/experiments/yr100_single_block.py) — 주입 A·CALC 3시드) 진행 중.
 - **관련**: [[YR-098]] 여지감사(선결) · [[YR-099]] transfer(소비자) · [[YR-081]]
 - **사용자 정정**: [반입·양하 우선과 착수 전 선결문제](../strategy-history/2026-07-26-YR-081-반입-양하-우선-현실적재규칙-후순위.md)
 
@@ -31,9 +31,15 @@ Risk_v = softplus((F_v − D_v + margin) / κ)        # D_v는 공식 평가계�
 - 본선 서빙 → now 진행하나 남은작업↓ → `F_v↓` → `Risk↓` → ΔC 음수(위험 감소).
 - **YR-090 clip 결함 교정**: `max(0,·)` clip이 아니라 무클립 softplus로 **지연 발생 전에도** 신호가 발화한다(YR-090이 high-loose에서 침묵한 원인 제거).
 
-## 착수 전 정정 게이트
+## 착수 전 정정 게이트 (✅ 2026-07-26 구현 — 게이트별 강제 지점 병기)
 
-위 식은 방향을 적은 초안이며 그대로 구현하지 않는다. 다음 네 계약을 먼저 고정한다.
+네 계약을 먼저 고정한다. 구현 강제: ① Risk 기준=pc — `VesselSupplyState` 에 ETD 필드
+자체가 없음(구조 강제)·surrogate 는 softplus(κ→0 극한=평가비용, 괴리≤κ·ln2 테스트 고정)
+② `projected_completion_s` = 버퍼+확정공급+미확정 steady 의 **병합 정렬 fold**(naive
+m·cadence 는 버퍼 만재시에만) ③ `compare_completion_cost` 가 같은 now·pc 를 assert —
+ExecutionQ 형태는 `serve_supply_delta`(직렬 체인: 기준행동=한 박자 뒤 서빙, 같은 시점 paired)
+④ 비용-관측 정합(청구 기준 pc 는 공식에 가시)·truth 미열람 테스트. 마스크: 잔여망 입력에서
+본선 그룹 전체+candidate 3필드+`queue.vessel_urgency_max`+`global.sts_wait_accum_s` 제거·assert.
 
 1. **기준시간 정합**: 현재 공식 `vessel_delay`·berth KPI는 `planned_completion_s` 초과를
    계산하고 `depart_delay` 가중치는 0이다. 현 목적을 유지하면 Risk 기준도 ETD가 아니라
