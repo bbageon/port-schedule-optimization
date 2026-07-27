@@ -59,6 +59,7 @@ QMIX·PPO·LLM 통신 없이 명시적 한계비용과 제약 resolver로 배정
 - `TOS_ASSIGNMENT_RECEIVED`: 외부 배정과 공개정보 수신
 - `TRANSFER_REVIEW`: 계획창 진입 또는 허용된 상태 급변
 - `TRANSFER_PREPARED`, `TRANSFER_COMMITTED`, `TRANSFER_ABORTED`; STS→YT→handover 이벤트는 `job_id/container_id/destination/version`을 끝까지 보존
+- 이 이벤트들이 쌓이는 곳 = resolver 의 **배치 요청 리스트(order book)** — 구조·생명주기·공급 주문 리스트(②)는 [YR-081 §요청 리스트](YR-081-variable-crane-yard-scaling.md) 참조
 
 `reassignable_until`·`allowed_execution_blocks`가 없거나 마감·슬롯/YC 예약·RUNNING 이후면 transfer 후보를 fail-closed로 막는다. 양하는 단순히 미장치라는 이유로 열지 않고 YT 목적지 commit 전이거나 안전한 reroute 계약이 있을 때만 연다.
 반입은 수신 블록까지의 실제 이동으로 B가 달라지므로 이전 전 A용 `actual_block_arrival`을 재사용하지 않는다. 양하에는 B를 억지로 재사용하지 않고 YT의 실제 yard handover 시각을 확정한다.
@@ -168,6 +169,7 @@ P95 자체의 margin은 실제 계약이 95백분위 SLA를 명시할 때만 사
 - YR-089: A/B/C/O 시간장부
 - YR-093: 공개정보 예측 rollout 정보안전
 - YR-100: ExecutionQ와 공유하는 본선 비용 계산식 — J_계산식의 본선 항을 재계산 말고 재사용
+- YR-103: gate-in→block-in 3~7분·갱신 ETA·동적 블록혼잡 관측과 공개정보 기대상금 게이트
 - YR-095: 메커니즘 통과 후 실제 자료 기반 적재규칙을 추가하는 최종 실증 게이트(선결 아님)
 
 ## 범위 밖

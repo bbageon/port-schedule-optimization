@@ -91,6 +91,27 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
 
 **착수 순서** (payoff·복잡도 순, 각 단계 상금 확인 후): ① 반입+양하([YR-099](YR-099-post-tos-inbound-transfer-resolver.md), 현재 단순화 PoC) → ② 후보 선택(자격 로직 신설) → ③ 물리 재배치(최고비용) → 실제 자료 기반 YR-095 현실 적재규칙(최종 실증). ②③은 현 YR-099 범위 밖이다.
 
+### 요청 리스트 (order book) — resolver 의 핵심 자료구조 (2026-07-27 명시)
+
+중앙 resolver 는 두 종류의 **요청 리스트**를 유지한다. 블록 간 상태를 아는 것은 이
+리스트를 든 resolver 하나뿐 — 블록 Q 는 견적 질문에 답만 하며 다른 블록·주문을 모른다
+(분업 불변식: 블록=계산, resolver=매칭·안전). 현실 대응물 = TOS 작업 대기열의 수신함.
+
+| 리스트 | 항목 | 미정인 것 | 블록의 입찰 |
+|---|---|---|---|
+| **배치 요청** (①, 정방향) | 반입 트럭·양하 STORE | 블록 | 수용비용(InBurden) |
+| **공급 주문** (②, 역방향) | 미지정 공컨 반출·환적 그룹오더 | 컨테이너 | 공급/불출 비용 |
+
+- **항목 공통 필드**: 공개정보 스냅샷(예약·예상도착·규격·허용블록 또는 주문조건) ·
+  **마감시각**(배치=transfer_lock/블록도착 전, 주문=차량 도착 전) · 상태(대기→견적→
+  확정/KEEP) · `version`(낡은 견적 거부).
+- **생명주기**: TOS 수신 → 등록 → review 에 견적 요청 → 낙찰 or KEEP → 원자 commit →
+  제거. **마감 경과 = fail-closed 자동 KEEP/기본배정** (미확정 방치 금지).
+- **구현 거리(정직)**: ①은 YR-099 데이터 계약(`TOS_ASSIGNMENT_RECEIVED`·`TRANSFER_REVIEW`·
+  `reassignable_until`·`assignment_version`)이 이미 정의 — 현 MVP 는 t=0 일괄 review 라
+  리스트가 자명하고, **실체화 시점 = 창중(run 중) review**(엔진 브리지 잔여작업). ②의
+  주문 등록·자격 매칭은 후속 신설.
+
 ## 판정 원칙
 
 1. 단일 블록 정책의 현재 계약과 성능을 먼저 동결한다.
@@ -119,6 +140,7 @@ QMIX는 central resolver가 아니다. 여러 Q의 학습 교차항 보정이 �
 - YR-089 시간장부, YR-093 공개정보 rollout 안전
 - YR-086 크레인 수 선택 컴포넌트는 선행 발판으로 재사용
 - YR-100 본선 비용 계산식 — ExecutionQ·TransferResolver 공유 원료(블록 Q type-agnostic 전제)
+- YR-103 게이트→블록 3~7분·동적 블록혼잡 관측 — 재배정 quote의 공개정보 원료
 - YR-095 현실 적재규칙은 반입·양하 PoC 선결이 아니라 최종 실증 게이트
 
 ## 범위 밖
