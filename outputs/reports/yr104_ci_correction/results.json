@@ -1,0 +1,142 @@
+{
+ "rows": [
+  {
+   "exp": "YR-099-G1 예측-quote",
+   "metric": "d_total",
+   "n": 8,
+   "t_correct": 2.365,
+   "old_ci": [
+    3.08,
+    -4.55,
+    10.71
+   ],
+   "new_ci": [
+    3.08,
+    -5.51,
+    11.67
+   ],
+   "verdict_rule": "상한<0=상금",
+   "significant_old": false,
+   "significant_new": false,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-099-G1 오라클",
+   "metric": "d_total",
+   "n": 8,
+   "t_correct": 2.365,
+   "old_ci": [
+    -22.41,
+    -32.12,
+    -12.7
+   ],
+   "new_ci": [
+    -22.41,
+    -33.35,
+    -11.48
+   ],
+   "verdict_rule": "상한<0=상금(진단)",
+   "significant_old": true,
+   "significant_new": true,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-101 ensemble K=5",
+   "metric": "d_total",
+   "n": 8,
+   "t_correct": 2.365,
+   "old_ci": [
+    3.54,
+    -4.12,
+    11.2
+   ],
+   "new_ci": [
+    3.54,
+    -5.08,
+    12.17
+   ],
+   "verdict_rule": "상한<0=회수",
+   "significant_old": false,
+   "significant_new": false,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-041-a JR1800",
+   "metric": "d_berth",
+   "n": 24,
+   "t_correct": 2.069,
+   "old_ci": [
+    3.89,
+    -2.13,
+    9.92
+   ],
+   "new_ci": [
+    3.89,
+    -2.04,
+    9.83
+   ],
+   "verdict_rule": "상한<5=비열등",
+   "significant_old": false,
+   "significant_new": false,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-041-a JR1800",
+   "metric": "d_p95",
+   "n": 24,
+   "t_correct": 2.069,
+   "old_ci": [
+    -10.38,
+    -13.34,
+    -7.43
+   ],
+   "new_ci": [
+    -10.38,
+    -13.29,
+    -7.47
+   ],
+   "verdict_rule": "상한<3=비열등(구 계약)",
+   "significant_old": true,
+   "significant_new": true,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-041-a JR1800",
+   "metric": "d_total",
+   "n": 24,
+   "t_correct": 2.069,
+   "old_ci": [
+    -3.15,
+    -7.49,
+    1.19
+   ],
+   "new_ci": [
+    -3.15,
+    -7.42,
+    1.13
+   ],
+   "verdict_rule": "보고",
+   "significant_old": false,
+   "significant_new": false,
+   "conclusion_changed": false
+  },
+  {
+   "exp": "YR-098 확증 VF",
+   "metric": "total_cost",
+   "n": 40,
+   "t_correct": 2.023,
+   "old_ci": [
+    -2.8405,
+    -5.5644,
+    -0.2058
+   ],
+   "new_ci": "자체 CI(n=40) — 정확 t=2.023 ≤ 사용값 → 보수 방향(안전), 재계산 불요",
+   "verdict_rule": "상한<0=GO",
+   "significant_old": true,
+   "significant_new": true,
+   "conclusion_changed": false
+  }
+ ],
+ "n_conclusion_changed": 0,
+ "note": "df=19(n=20) 사용 판정(yr090·yr100 behave)은 원래 정확 — 재계산 불요. df=23(n=24) 은 구 2.1 이 보수라 결론 안전."
+}

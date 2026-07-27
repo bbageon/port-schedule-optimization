@@ -56,7 +56,11 @@ BASE = {"mid-loose": 830000, "high-loose": 830100, "mid-tight": 830200, "high-ti
 EVAL_CELLS = ("high-loose", "high-tight")
 TRAIN_SEEDS = (88_000, 99_000, 123_000)
 OUT = Path("outputs/reports/yr090_dense_vessel")
-_TC = {19: 2.093}
+# YR-104 정정: df별 양측 95% t (이전엔 19:2.093 외 fallback 2.1 — df≤18 에서 반보수).
+_TC = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306,
+       9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131,
+       16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086, 21: 2.080, 22: 2.074,
+       23: 2.069, 24: 2.064, 25: 2.060, 26: 2.056, 27: 2.052, 28: 2.048, 29: 2.045}
 
 
 def _sim(cell: str, seed: int) -> TerminalSimulator:
@@ -240,7 +244,8 @@ def train_one(arm: str, base_seed: int, episodes=500, spc=16, batch=64, lr=5e-4)
 # ---------------------------------------------------------------- eval (순수 numeraire·paired)
 def _ci(d):
     m, sd, n = fmean(d), stdev(d), len(d); se = sd / n ** 0.5
-    return round(m, 2), round(m - _TC.get(n - 1, 2.1) * se, 2), round(m + _TC.get(n - 1, 2.1) * se, 2)
+    t = _TC.get(n - 1, 2.042 if n - 1 >= 30 else 2.571)   # 미지 df: ≥30=2.042·<30 보수
+    return round(m, 2), round(m - t * se, 2), round(m + t * se, 2)
 
 
 def evaluate(ck_path: Path, sf_cache: dict) -> dict:
