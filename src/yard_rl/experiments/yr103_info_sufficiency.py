@@ -8,7 +8,9 @@ Part A — 공개정보 기대상금 (선택/평가 표본 분리로 winner's cu
   "g1real:{seed}:{r}" 로 R=10개 생성 (공개 오차분포 = 생성 분포族 그대로).
 - d_{j,r} = terminal(transfer j | 실현 r) − terminal(KEEP | 실현 r)  [SF 실측, numeraire]
 - 선택 r∈0..4 (mean_sel), 평가 r∈5..9 (mean_eval — 선택과 독립 → 무편향):
-  j* = argmin_j mean_sel[d_j] (단 mean_sel[d_{j*}] ≥ 0 이면 KEEP=0).
+  j* = argmin_j mean_sel[d_j]. **주판정 KEEP 규칙 = mean_sel[d_{j*}] < −MARGIN(0.5)**
+  (yr099 배포 규칙과 동일 — 검증 정정 2026-07-27: 이전 문구 "≥0 이면 KEEP" 와 코드가
+  불일치했음. margin 규칙을 주판정으로 선언, 0-임계 변형은 참고 보고로 병기).
 - **주판정: 시드 pooled mean_eval[d_{j*}] CI 상한 < 0 →
   "공개정보에 회수 가능한 신호 존재 = YR-102(분해 quote) GO" /
   CI 0 포함·평균 ≥ 0 → "공개정보/결정시점 한계 — 동적 갱신정보 필요" (spec §G2 조항).**
@@ -39,6 +41,19 @@ from .yr099_transfer_mvp import (CELL_A, CELL_B, GAIN_MARGIN, ROUTE_S, _params, 
 OUT = Path("outputs/reports/yr103_info_sufficiency")
 BASE_A, BASE_B = 835_000, 836_000
 N_SEEDS, R_TOTAL, R_SEL = 6, 10, 5
+
+# 검증 정정(critical): 공용 _ci 는 df=19 외 fallback 2.1 — n=6(df=5)엔 2.571 이 옳다
+# (주판정 CI 가 GO 쪽으로 18% 좁아지는 산술 오류). df별 양측 95% t.
+_T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365,
+        8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 19: 2.093, 23: 2.069}
+
+
+def _ci_t(d):
+    from statistics import stdev
+    m, n = fmean(d), len(d)
+    se = stdev(d) / n ** 0.5
+    t = _T95.get(n - 1, 2.0 if n > 30 else 2.571)
+    return round(m, 3), round(m - t * se, 3), round(m + t * se, 3)
 
 
 def _params103(cell):
@@ -115,9 +130,14 @@ def part_a_seed(i: int) -> dict:
             "n_cands": len(cands)}
 
 
-# ---------------------------------------------------------------- Part B
+# ---------------------------------------------------------------- Part B (v2 — 검증 정정)
 def part_b_seed(i: int, every_s=900.0, window_s=1800.0) -> list[dict]:
-    """SF 실행 중 스냅샷 C± ↔ 후속 window 실현비용 쌍 수집 (셀 2 × 시드)."""
+    """SF 실행 중 스냅샷 C± ↔ **스냅샷 시각 기준** 후속 window 실현비용 (검증 정정 v2).
+
+    정정: ①창 = [t, t+window) 구간비용 합(버킷 근사 아님 — 시작시각 귀속, 경계 걸침
+    오차는 구간 1개 이내 한계 명시) ②catch-up 중복 제거(next_snap = t+every)
+    ③말미 창 잘림 검열 — t+window > 에피소드 끝이면 표본 제외 ④seed 태그 저장.
+    """
     from ..domain.enums import InformationLevel
     from ..integrated.baselines import ResolverPolicy, ServiceFirstSPTPreference, _apply, _wait_of
     from ..integrated.candidates import CandidateGenerator
@@ -128,7 +148,7 @@ def part_b_seed(i: int, every_s=900.0, window_s=1800.0) -> list[dict]:
         sim = _sim_of(_scen103(base + i, cell))
         pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
         gen = CandidateGenerator()
-        snaps, buckets = [], {}
+        snaps, intervals = [], []                 # intervals = (start, cost)
         dp = sim.run_until_decision()
         sim.cost.cut()
         last_b, next_snap = sim.now, every_s
@@ -136,26 +156,28 @@ def part_b_seed(i: int, every_s=900.0, window_s=1800.0) -> list[dict]:
             gen_by = {c: gen.generate(sim, c, InformationLevel.PRE_ADVICE)
                       for c in dp.crane_ids}
             raw = sim.cost.cut()
-            cost = rc.cost_for(interval_start_s=last_b, interval_end_s=sim.now,
-                               raw=raw, risk_max=0.0).total_normalized
-            buckets[int(last_b // every_s)] = buckets.get(int(last_b // every_s), 0.0) + cost
+            intervals.append((last_b, rc.cost_for(interval_start_s=last_b,
+                                                  interval_end_s=sim.now, raw=raw,
+                                                  risk_max=0.0).total_normalized))
             last_b = sim.now
             if sim.now >= next_snap:
                 snaps.append((sim.now, block_congestion(sim)))
-                next_snap += every_s
+                next_snap = sim.now + every_s     # catch-up 중복 제거
             try:
                 _apply(sim, pol.decide(sim, dp, gen_by))
             except Exception:
                 _apply(sim, {c: _wait_of(gen_by[c]) for c in dp.crane_ids})
             dp = sim.run_until_decision()
         raw = sim.cost.cut()
-        buckets[int(last_b // every_s)] = buckets.get(int(last_b // every_s), 0.0) + \
-            rc.cost_for(interval_start_s=last_b, interval_end_s=sim.now, raw=raw,
-                        risk_max=0.0).total_normalized
+        intervals.append((last_b, rc.cost_for(interval_start_s=last_b, interval_end_s=sim.now,
+                                              raw=raw, risk_max=0.0).total_normalized))
+        end = sim.now
         for t, c in snaps:
-            k0 = int(t // every_s)
-            fut = sum(buckets.get(k, 0.0) for k in range(k0, k0 + int(window_s // every_s)))
-            rows.append({"cell": cell[0], "t": t, "future_cost": round(fut, 3), **c})
+            if t + window_s > end:                # 창 잘림 검열 — 표본 제외
+                continue
+            fut = sum(cost for s, cost in intervals if t <= s < t + window_s)
+            rows.append({"seed": i, "cell": cell[0], "t": round(t, 1),
+                         "future_cost": round(fut, 3), **c})
     return rows
 
 
@@ -193,31 +215,50 @@ def run(shard: int, n_shards: int):
     print(f"saved {p}")
 
 
+def _rho_by(rows_b, key_filter=None) -> dict:
+    sub = [r for r in rows_b if key_filter is None or r["cell"] == key_filter]
+    if len(sub) < 3:
+        return {}
+    fut = [r["future_cost"] for r in sub]
+    return {k: round(_spearman([r[k] for r in sub], fut), 3)
+            for k in ("C_minus", "C_zero", "C_plus")}
+
+
 def merge(n_shards: int) -> dict:
     rows_a, rows_b = [], []
     for s in range(n_shards):
         d = json.loads((OUT / f"shard{s}.json").read_text(encoding="utf-8"))
         rows_a.extend(d["a"])
         rows_b.extend(d["b"])
+    # Part B v2 재수집분이 있으면 그것을 사용 (검증 정정 — shard 의 구버전 b 대체)
+    pb2 = OUT / "partb_v2.json"
+    if pb2.exists():
+        rows_b = json.loads(pb2.read_text(encoding="utf-8"))
     rows_a.sort(key=lambda r: r["seed"])
     assert [r["seed"] for r in rows_a] == list(range(N_SEEDS)), "시드 커버리지 불완전"
     dp = [r["d_public"] for r in rows_a]
-    fut = [r["future_cost"] for r in rows_b]
-    rho = {k: round(_spearman([r[k] for r in rows_b], fut), 3)
-           for k in ("C_minus", "C_zero", "C_plus")}
-    res = {"part_a": {"rows": rows_a, "d_public_ci": _ci(dp),
+    # 참고 변형(0-임계 KEEP — 검증 정정: 주판정은 margin 규칙, 이건 병기 보고)
+    dp0 = [(r["eval_gain"] if r["sel_gain"] < 0 else 0.0) for r in rows_a]
+    res = {"part_a": {"rows": rows_a, "d_public_ci": _ci_t(dp),
+                      "d_public_ci_zero_threshold_ref": _ci_t(dp0),
                       "n_transfer": sum(1 for r in rows_a if r["picked"]),
                       "oracle_mean": round(fmean(r["oracle_mean"] for r in rows_a), 3),
                       "optimistic_min_eval_mean":
                           round(fmean(r["optimistic_min_eval"] for r in rows_a), 3)},
-           "part_b": {"n_snapshots": len(rows_b), "spearman_vs_future_cost": rho},
-           "prereg": "A: pooled d_public CI 상한<0 → YR-102 GO / 아니면 정보·결정시점 한계. "
-                     "B: C_zero ρ>0 여부·최고 부호 보고(확정은 신규 seed 재현 후)."}
+           "part_b": {"n_snapshots": len(rows_b), "source": "v2" if pb2.exists() else "shard",
+                      "spearman_pooled": _rho_by(rows_b),
+                      "spearman_high": _rho_by(rows_b, "high"),
+                      "spearman_mid": _rho_by(rows_b, "mid")},
+           "prereg": "A: pooled d_public CI(t df=5) 상한<0 → YR-102 GO / 아니면 '이 MC 규칙"
+                     "(R_SEL=5) 한계' — 공개정보 상금 부재의 증명 아님(비대칭 명시). "
+                     "B: 셀별 ρ 병기·C_zero ρ>0 여부·최고 부호 보고(확정은 신규 seed 재현 후)."}
     (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
                                       encoding="utf-8")
-    print(f"G1 d_public CI={res['part_a']['d_public_ci']} "
+    print(f"G1 d_public CI={res['part_a']['d_public_ci']} (0-thr ref {res['part_a']['d_public_ci_zero_threshold_ref']}) "
           f"transfers={res['part_a']['n_transfer']}/{N_SEEDS} "
-          f"oracle={res['part_a']['oracle_mean']} | spearman={rho}")
+          f"oracle={res['part_a']['oracle_mean']}\n"
+          f"spearman pooled={res['part_b']['spearman_pooled']} "
+          f"high={res['part_b']['spearman_high']} mid={res['part_b']['spearman_mid']}")
     return res
 
 
@@ -226,8 +267,17 @@ if __name__ == "__main__":
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--n-shards", type=int, default=1)
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--partb-v2", action="store_true", help="검증 정정판 Part B 만 재수집")
     a = ap.parse_args()
-    if a.merge:
+    if a.partb_v2:
+        OUT.mkdir(parents=True, exist_ok=True)
+        rows = []
+        for i in range(N_SEEDS):
+            rows.extend(part_b_seed(i))
+            print(f"[B2 seed {i}] cum={len(rows)}", flush=True)
+        (OUT / "partb_v2.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1),
+                                           encoding="utf-8")
+    elif a.merge:
         merge(a.n_shards)
     else:
         run(a.shard, a.n_shards)
