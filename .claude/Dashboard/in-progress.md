@@ -4,7 +4,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-099-b | RL | **창중 재배정 브리지 계약 보정 — 이벤트·공용시계·전역 A→O 장부·owner/version·2단계 commit·용량검사** | 🟠 | 2026-07-27 | **사용자 순서 결정 (2026-07-27)**: YR-105 임계 탐색보다 **브리지 계약 보정이 먼저** — 기반이 틀리면 임계를 잘 찾아도 실제 중앙 resolver 에서 재현되지 않는다. 범위: ①`GATE_IN_EVENT` 정확 결정시점(현 lockstep 근사 제거) ②공용 시계 ③전역 `A→O` 장부(터미널 단일 원장) ④`owner/version` 필드 ⑤prepare→validate→commit/rollback 2단계 ⑥**수신 블록 용량 검사**(현재 없음 — 무한수용 가정). MVP(yr099_midrun_review, 기각)는 관측·발화 자산으로만 재사용. [spec](../docs/dashboard-task-specs/YR-099-post-tos-inbound-transfer-resolver.md) |
+| — | — | (비어 있음 — YR-099-b·YR-105-a 완료, 다음 축 결정 대기) | — | — | 브리지 계약 6종 완료(골든 보존)·YR-105 단일축① 본선 보호 필터 **반대 방향 반증** + 교락 통제로 "손해는 볼륨 감소 탓" 확정. **확증대역 849k/850k 미소모**. 다음 후보(각각 사전등록): YR-105-b `C_HIGH`, YR-105-c 지속 혼잡, YR-105-d 역가설(압박 블록 우선 이송) — [ready](ready.md) |
 
 ---
 
