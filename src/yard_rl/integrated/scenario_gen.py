@@ -61,6 +61,10 @@ class TerminalGenParams:
     appt_window_s: float = 3600.0          # VBS 예약창 폭 (체인포털 — 터미널별 상이, assumed)
     appt_adherence_sigma_s: float = 600.0  # 예약 준수오차 σ (signed 정규, ±2σ 절단, assumed)
     exit_travel_mu_s: float = 300.0        # 작업완료→출문 μ (assumed)
+    # YR-103 게이트→블록 시간계약 (opt-in — False 면 기존 바이트 동일·전용 스트림 미소비).
+    # ON: B−A 지원범위 180~420s(3~7분, 사용자 계약), 중심 300·σ60 절단정규(assumed, D5),
+    # 전용 난수열 g2b:{seed}. 예측(estimated)도 중심값 300 사용. v2 위에서만 유효.
+    gate_block_contract: bool = False
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -88,6 +92,13 @@ class TerminalGenParams:
             raise ValueError("appt_window_s·exit_travel_mu_s 는 양수")
         if self.appt_adherence_sigma_s < 0:
             raise ValueError("appt_adherence_sigma_s 는 0 이상")
+
+
+# YR-103 게이트→블록 시간계약 상수 (spec: 180~420s 지원범위·중심 300·σ60, D5 assumed)
+GATE_BLOCK_MIN_S = 180.0
+GATE_BLOCK_MAX_S = 420.0
+GATE_BLOCK_MEAN_S = 300.0
+GATE_BLOCK_SIGMA_S = 60.0
 
 
 def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
@@ -250,6 +261,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     adh_rng = random.Random(f"adh:{seed}")
     gtx_rng = random.Random(f"gtx:{seed}")
     exit_rng = random.Random(f"exit:{seed}")
+    g2b_rng = random.Random(f"g2b:{seed}")   # YR-103 전용 (OFF 면 draw 0 = 바이트 동일)
     for i in range(params.n_external):
         # 기존 수식 보존 (부동소수점 결합 순서까지 — 골든 계약). 피크는 opt-in 후처리.
         arrival = params.horizon_s * (i + rng.random()) / params.n_external
@@ -269,13 +281,20 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
             sig = params.appt_adherence_sigma_s
             delta = max(-2.0 * sig, min(2.0 * sig, adh_rng.gauss(0.0, sig))) if sig > 0 else 0.0
             a_in = max(0.0, appt + delta)                       # 실제 진입 = 예약 + 준수오차
-            travel2 = trunc_normal(gtx_rng, params.gate_travel_mu_s,
-                                   params.sigma_frac or 0.12, lo=60.0)
+            if params.gate_block_contract:
+                # YR-103: 180~420s 계약 — 전용 스트림(gtx 미소비), σ/μ=0.2 → ±2σ=[180,420]
+                travel2 = trunc_normal(g2b_rng, GATE_BLOCK_MEAN_S,
+                                       GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,
+                                       lo=GATE_BLOCK_MIN_S, hi=GATE_BLOCK_MAX_S)
+            else:
+                travel2 = trunc_normal(gtx_rng, params.gate_travel_mu_s,
+                                       params.sigma_frac or 0.12, lo=60.0)
             b_arr = a_in + travel2                              # 실제 블록도착
             exit_t = trunc_normal(exit_rng, params.exit_travel_mu_s,
                                   params.sigma_frac or 0.12, lo=60.0)
             # 예측 = 예약 + 준수예측 0(준수 가정, assumed) + 기대 주행 — 실현 draw 미참조 (누출 0)
-            est = appt + 0.0 + params.gate_travel_mu_s
+            est = appt + 0.0 + (GATE_BLOCK_MEAN_S if params.gate_block_contract
+                                else params.gate_travel_mu_s)
             v2 = {"actual_gate_in": a_in, "actual_block_arrival": b_arr,
                   "provided_eta": est,                          # deprecated alias == estimated
                   "appointment_window_start": appt - params.appt_window_s / 2.0,
@@ -373,6 +392,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         meta["vessel_deadline_mult"] = params.vessel_deadline_mult
     if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)
         meta["time_contract"] = "truck-time-v2"
+        if params.gate_block_contract:           # YR-103 계약 박제
+            meta["gate_block_contract"] = "180-420s-v1"
         meta["appt_window_s"] = params.appt_window_s
         meta["appt_adherence_sigma_s"] = params.appt_adherence_sigma_s
         meta["exit_travel_mu_s"] = params.exit_travel_mu_s
