@@ -7,8 +7,12 @@
   `C_zero(src) − C_zero(dst) ≥ THRESH(0.10, assumed)` 면 이송 (rollout·미래열람 0 —
   YR-101/103 이 기각한 quote 대신 YR-103 이 예측력을 실증한 혼잡 관측만 사용).
 - 이식 물리: 새 도착 = gate_in + **신규 draw**(계약분포 180~420, 전용 스트림
-  "mid:{tag}:{jid}" — 실현 이동 draw 재사용 금지 = 누출 0) + ROUTE_S(180).
+  "mid:{seed}:{소스sim}:{jid}" — 실현 draw 재사용 금지·소스별 독립 = 누출 0) + ROUTE_S(180).
+  **이송 추가주행 비용 = 건당 ROUTE_S/3600 numeraire 를 C_mid total 에 계상**
+  (검증 F3 정정 — yr103/yr099-G1 선례 정합, pro-이송 편향 제거).
   타깃 시계가 이미 지난 경우 skip (fail-closed, 드리프트 근사 문서화).
+- **판정런 = 신규 대역 840k/841k (결과 미열람)** — 구 838k/839k 는 개발런 강등
+  (검증 probe·테스트가 seed0 소비 + 정정 전 전체 열람. 검증 F8 위생 조치).
 - 환경: yr103 과 동일 블록쌍(A=high-tight·B=mid-loose)·gate_block_contract=True·
   SF 고정. 신규 seed 대역 838000/839000+i, N=8.
 - arm: A0(무이송) vs C_mid(창중 규칙) — 같은 lockstep runner(짝지음)·같은 seed.
@@ -43,7 +47,9 @@ from ..integrated.scenario_gen import (GATE_BLOCK_MAX_S, GATE_BLOCK_MEAN_S, GATE
 RC = RewardCalculator.numeraire_v1()
 OUT = Path("outputs/reports/yr099_midrun_review")
 CELL_A, CELL_B = ("high", 0.5), ("mid", 2.0)
-BASE_A, BASE_B = 838_000, 839_000
+# 판정 대역 840k/841k — 구 838k/839k 는 개발런(검증 probe·테스트가 seed0 소비 + 전체 열람)
+# 으로 강등. 검증 정정(route 비용·원장·방향counter·스트림 키) 후 새 대역 결과 미열람 판정.
+BASE_A, BASE_B = 840_000, 841_000
 N_SEEDS, THRESH, ROUTE_S = 8, 0.10, 180.0
 LEVEL = InformationLevel.PRE_ADVICE
 
@@ -64,7 +70,8 @@ def move_inflight_job(src, dst, jid: str, tag: str) -> str:
     새 도착 = gate_in + 신규 계약 draw + ROUTE_S (실현 draw 미재사용 — 누출 0).
     실패 시 ValueError — 호출부는 KEEP (소스 원상태 유지: 검증 후 pop 순서)."""
     j = src.jobs.get(jid)
-    if j is None or j.status != JobStatus.PLANNED or not j.is_external_truck:
+    if (j is None or j.status != JobStatus.PLANNED or not j.is_external_truck
+            or j.flow != JobFlow.GATE_IN):                 # 검증 F2: 반입(STORE)만 — 반출 위치고정
         raise ValueError(f"{jid}: 이식 불가 상태")
     new_id = f"{jid}@M"
     if new_id in dst.jobs:
@@ -79,8 +86,12 @@ def move_inflight_job(src, dst, jid: str, tag: str) -> str:
     src.queue._heap = [e for e in src.queue._heap
                        if not (e.kind_name == "BLOCK_ARRIVAL" and e.payload == jid)]
     heapq.heapify(src.queue._heap)
-    if src.time_ledger is not None:
+    if src.time_ledger is not None:                        # 검증 F1: _a_sorted 도 이관 (잔여 A 제거)
         src.time_ledger.records.pop(jid, None)
+        try:
+            src.time_ledger._a_sorted.remove(j.actual_gate_in)
+        except ValueError:
+            pass
     j.job_id = new_id
     j.actual_block_arrival = arr
     if getattr(j, "estimated_block_arrival", None) is not None:
@@ -88,8 +99,11 @@ def move_inflight_job(src, dst, jid: str, tag: str) -> str:
     dst.jobs[new_id] = j
     from ..integrated.events import EventKind
     dst.queue.push(arr, EventKind.BLOCK_ARRIVAL, new_id)
-    if dst.time_ledger is not None:
-        dst.time_ledger.register(new_id, j.actual_gate_in)
+    if dst.time_ledger is not None:                        # 검증 F1: 정렬 유지 삽입 (seal 이후)
+        import bisect
+        from ..integrated.time_contract import TruckTimes
+        dst.time_ledger.records[new_id] = TruckTimes(gate_in=j.actual_gate_in)
+        bisect.insort(dst.time_ledger._a_sorted, j.actual_gate_in)
     return new_id
 
 
@@ -100,7 +114,7 @@ def run_pair(seed_i: int, *, transfer: bool, thresh: float = THRESH) -> dict:
     total = {k: 0.0 for k in sims}
     last_b = {k: 0.0 for k in sims}
     decided: set[tuple[str, str]] = set()
-    n_moved, n_skipped = 0, 0
+    stats = {"A->B": 0, "B->A": 0, "skipped": 0, "missed": 0}   # 검증 F7·F4: 방향·미검토 창
     dps = {}
     for k, s in sims.items():
         dps[k] = s.run_until_decision()
@@ -111,8 +125,7 @@ def run_pair(seed_i: int, *, transfer: bool, thresh: float = THRESH) -> dict:
         k = min(active, key=lambda x: sims[x].now)          # 뒤처진 sim 먼저 (lockstep)
         sim = sims[k]
         if transfer:
-            n_moved, n_skipped = _review_gateins(sims, k, decided, thresh, seed_i,
-                                                 n_moved, n_skipped)
+            _review_gateins(sims, decided, thresh, seed_i, stats)
         gen_by = {c: gens[k].generate(sim, c, LEVEL) for c in dps[k].crane_ids}
         raw = sim.cost.cut()
         total[k] += RC.cost_for(interval_start_s=last_b[k], interval_end_s=sim.now,
@@ -130,16 +143,24 @@ def run_pair(seed_i: int, *, transfer: bool, thresh: float = THRESH) -> dict:
     compl = {k: (sum(1 for j in s.jobs.values() if j.status == JobStatus.DONE)
                  / max(1, len(s.jobs))) for k, s in sims.items()}
     berth = {k: getattr(s.kpis, "berth_overrun_s", 0.0) / 60.0 for k, s in sims.items()}
-    return {"total": round(total["A"] + total["B"], 3),
+    n_moved = stats["A->B"] + stats["B->A"]
+    route_cost = n_moved * ROUTE_S / 3600.0            # 검증 F3: 이송 추가주행 비용 계상 (선례 정합)
+    return {"total": round(total["A"] + total["B"] + route_cost, 3),
             "total_a": round(total["A"], 3), "total_b": round(total["B"], 3),
+            "route_cost": round(route_cost, 3),
             "compl_min": round(min(compl.values()), 4),
             "berth_sum": round(berth["A"] + berth["B"], 1),
-            "n_moved": n_moved, "n_skipped": n_skipped,
+            "n_moved": n_moved, "n_ab": stats["A->B"], "n_ba": stats["B->A"],
+            "n_skipped": stats["skipped"], "n_missed": stats["missed"],
             "n_jobs": sum(len(s.jobs) for s in sims.values())}
 
 
-def _review_gateins(sims, cur: str, decided, thresh, seed_i, n_moved, n_skipped):
-    """gate-in 창 진입 트럭들 결정 (트럭당 1회). 관측 = 두 sim 의 현재 혼잡 (드리프트 ≤1결정)."""
+def _review_gateins(sims, decided, thresh, seed_i, stats):
+    """gate-in 창 진입 트럭들 결정 (트럭당 1회).
+
+    관측 한계(검증 F4, 정직): 혼잡은 각 sim 의 자기 시계 스냅샷 — 결정시점(sync_now)
+    대비 선행 sim 쪽은 최대 1 결정간격 **앞선** 관측, 뒤처진 쪽은 그만큼 낡음.
+    결정 지연 중 이미 도착해버린 창은 missed 로 집계(검토 없이 닫힘)."""
     sync_now = min(s.now for s in sims.values())
     cong = {k: block_congestion(s)["C_zero"] for k, s in sims.items()}
     for k, sim in sims.items():
@@ -148,17 +169,21 @@ def _review_gateins(sims, cur: str, decided, thresh, seed_i, n_moved, n_skipped)
             if (k, jid) in decided or not j.is_external_truck or j.flow != JobFlow.GATE_IN:
                 continue
             gi = getattr(j, "actual_gate_in", None)
-            if gi is None or gi > sync_now or j.status != JobStatus.PLANNED:
+            if gi is None or gi > sync_now:
+                continue
+            if j.status != JobStatus.PLANNED:              # 검토 전에 도착 = 창 놓침
+                decided.add((k, jid))
+                stats["missed"] += 1
                 continue
             decided.add((k, jid))
             if cong[k] - cong[other] >= thresh:
                 try:
-                    new_id = move_inflight_job(sim, sims[other], jid, f"s{seed_i}")
+                    new_id = move_inflight_job(sim, sims[other], jid,
+                                               f"s{seed_i}:{k}")     # 검증 F6: 소스 식별자
                     decided.add((other, new_id))
-                    n_moved += 1
+                    stats[f"{k}->{other}"] += 1
                 except ValueError:
-                    n_skipped += 1
-    return n_moved, n_skipped
+                    stats["skipped"] += 1
 
 
 def run(thresh: float = THRESH) -> dict:
@@ -172,8 +197,8 @@ def run(thresh: float = THRESH) -> dict:
         d = round(c["total"] - a0["total"], 3)
         rows.append({"seed": i, "a0": a0, "c": c, "d_total": d})
         print(f"[seed {i}] A0={a0['total']:.2f} C={c['total']:.2f} d={d:+.2f} "
-              f"moved={c['n_moved']} skipped={c['n_skipped']} compl={c['compl_min']}",
-              flush=True)
+              f"moved={c['n_moved']}(A>B {c['n_ab']}/B>A {c['n_ba']}) "
+              f"missed={c['n_missed']} compl={c['compl_min']}", flush=True)
     dts = [r["d_total"] for r in rows]
     res = {"rows": rows, "thresh": thresh, "d_total_ci": _ci_t(dts),
            "moved_mean": round(fmean(r["c"]["n_moved"] for r in rows), 1),

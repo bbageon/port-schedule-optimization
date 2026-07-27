@@ -34,6 +34,9 @@ def test_g0_move_atomic_owner_queue_ledger(pair):
     if src.time_ledger is not None:
         assert jid not in src.time_ledger.records                    # 원장 이관
         assert new_id in dst.time_ledger.records
+        assert dst.time_ledger._a_sorted == sorted(dst.time_ledger._a_sorted)  # F1: 정렬 유지
+        assert dst.jobs[new_id].actual_gate_in not in src.time_ledger._a_sorted or \
+            src.time_ledger._a_sorted.count(dst.jobs[new_id].actual_gate_in) < 2
     j = dst.jobs[new_id]
     assert j.actual_block_arrival > j.actual_gate_in + 180.0 + 179.0  # 신규 draw + route
 
@@ -61,8 +64,9 @@ def test_g0_fail_closed_states(pair):
 
 
 def test_integration_paired_run_completes():
-    a0 = run_pair(900 - BASE_A + BASE_A and 0, transfer=False)       # seed 0
-    c = run_pair(0, transfer=True)
+    # 판정 대역(0..7) 밖 seed 사용 — 검증 F8 (판정 seed 를 테스트가 소비하지 않게)
+    a0 = run_pair(950, transfer=False)
+    c = run_pair(950, transfer=True)
     assert a0["n_jobs"] == c["n_jobs"]                               # 보존 (터미널 합)
     assert a0["compl_min"] > 0.9 and c["compl_min"] > 0.9
-    assert c["n_moved"] >= 0
+    assert c["total"] >= c["total_a"] + c["total_b"] - 1e-9          # F3: route 비용 계상 방향
