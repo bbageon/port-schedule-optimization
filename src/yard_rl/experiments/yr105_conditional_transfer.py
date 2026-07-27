@@ -43,6 +43,7 @@ from ..integrated.baselines import (ResolverPolicy, ServiceFirstSPTPreference, _
 from ..integrated.block_congestion import block_congestion
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_config import RewardCalculator
+from ..integrated.evalkit import CHANNELS, channel_split, check_guards, paired_by_channel
 from ..integrated.multiblock import MultiBlockTerminal
 from ..integrated.profiles import build_calibrated_profile
 from ..integrated.scenario_gen import (GATE_BLOCK_MAX_S, GATE_BLOCK_MEAN_S, GATE_BLOCK_MIN_S,
@@ -143,9 +144,13 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                 else:
                     stats["rejected"] += 1
 
+    chan = {k: 0.0 for k in CHANNELS}                # YR-106: 채널 분해 누적
+
     def cost_fn(sim, t0, t1, raw):
-        return RC.cost_for(interval_start_s=t0, interval_end_s=t1, raw=raw,
-                           risk_max=0.0).total_normalized
+        cb = RC.cost_for(interval_start_s=t0, interval_end_s=t1, raw=raw, risk_max=0.0)
+        for k, v in channel_split(cb.contributions()).items():
+            chan[k] += v
+        return cb.total_normalized
 
     res = mbt.run(policy, review, cost_fn)
     mbt.check_invariants()
@@ -158,7 +163,11 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
            for x in (s.time_ledger.block_turntime_samples_s() if s.time_ledger else [])]
     done = sum(1 for s in mbt.blocks.values()
                for j in s.jobs.values() if j.status.name == "DONE")
-    return {"total": round(res["terminal_total"] + route_cost, 3),
+    chan_out = {k: round(v, 4) for k, v in chan.items()}
+    chan_out["move"] = round(chan_out["move"] + route_cost, 4)   # 이송 주행은 move 채널
+    chan_out["total"] = round(sum(chan_out.values()), 4)
+    return {"total": round(res["terminal_total"] + route_cost, 3), "chan": chan_out,
+            "backlog": sum(s.unfinished_backlog() for s in mbt.blocks.values()),
             "route_cost": round(route_cost, 3), "berth_min": round(berth, 1),
             "a2o_mean_min": round(fmean(a2o) / 60.0, 2) if a2o else None,
             "b2c_mean_min": round(fmean(b2c) / 60.0, 2) if b2c else None,
@@ -189,7 +198,18 @@ def run(band: str, n_seeds: int = N_SEEDS) -> dict:
               f"(mv {rg['n_moved']}) d={d:+.2f} d_vs_RG={d_r:+.2f} "
               f"berth {base['berth_min']:.0f}→{vg['berth_min']:.0f}", flush=True)
     dts = [r["d_total"] for r in rows]
+    # YR-106: 채널 분해 판정 + 하드 guard 기계 검사 + 관심효과 δ 사전지정
+    guards = check_guards([{"compl": r[a]["compl"], "backlog": r[a]["backlog"]}
+                           for r in rows for a in ("base", "vguard", "rguard")])
+    delta = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0, "total": 10.0}
+    by_ch_vg = paired_by_channel([r["vguard"]["chan"] for r in rows],
+                                 [r["base"]["chan"] for r in rows], delta_interest=delta)
+    by_ch_rg = paired_by_channel([r["vguard"]["chan"] for r in rows],
+                                 [r["rguard"]["chan"] for r in rows], delta_interest=delta)
     res = {"band": band, "rows": rows, "d_total_ci": _ci_t(dts),
+           "yr106_channels_vs_base": by_ch_vg, "yr106_channels_vs_rguard": by_ch_rg,
+           "yr106_guards": {"ok": guards.ok, "failures": guards.failures[:5]},
+           "yr106_delta_interest": delta,
            "d_vs_rguard_ci": _ci_t([r["d_vs_rguard"] for r in rows]),
            "d_berth": _ci_t([r["vguard"]["berth_min"] - r["base"]["berth_min"] for r in rows]),
            "moved_base": round(fmean(r["base"]["n_moved"] for r in rows), 1),
@@ -206,6 +226,10 @@ def run(band: str, n_seeds: int = N_SEEDS) -> dict:
                                                 encoding="utf-8")
     print(f"\nYR-105[{band}] d_total CI={res['d_total_ci']} d_berth={res['d_berth']} "
           f"moved {res['moved_base']}→{res['moved_vguard']} blocked={res['blocked_mean']}")
+    print(f"[YR-106 채널분해 VGUARD−BASE] guards_ok={guards.ok}")
+    for ch, v in by_ch_vg.items():
+        print(f"   {ch:7s} {v['mean']:+8.3f} CI[{v['ci'][0]:+7.2f},{v['ci'][1]:+7.2f}] "
+              f"MDE {v['mde80']:6.2f} · {v['label']}")
     return res
 
 

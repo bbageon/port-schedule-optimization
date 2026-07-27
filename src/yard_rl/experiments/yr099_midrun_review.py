@@ -200,7 +200,16 @@ def run(thresh: float = THRESH) -> dict:
               f"moved={c['n_moved']}(A>B {c['n_ab']}/B>A {c['n_ba']}) "
               f"missed={c['n_missed']} compl={c['compl_min']}", flush=True)
     dts = [r["d_total"] for r in rows]
+    # YR-106: 총비용은 본선분산이 지배 — 채널 분해 판정을 함께 낸다(설계감사 critical)
+    from ..integrated.evalkit import paired
+    yr106 = {}
+    if all("chan" in r["a0"] and "chan" in r["c"] for r in rows):
+        delta = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0}
+        for ch, d in delta.items():
+            yr106[ch] = paired([r["c"]["chan"].get(ch, 0.0) - r["a0"]["chan"].get(ch, 0.0)
+                                for r in rows], delta_interest=d).as_dict()
     res = {"rows": rows, "thresh": thresh, "d_total_ci": _ci_t(dts),
+           "yr106_channels": yr106,
            "moved_mean": round(fmean(r["c"]["n_moved"] for r in rows), 1),
            "compl_min": min(min(r["a0"]["compl_min"], r["c"]["compl_min"]) for r in rows),
            "prereg": "상한<0 → 창중 재배정 상금 실증 / 아니면 '혼잡격차 규칙 한계'"
