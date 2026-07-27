@@ -42,6 +42,19 @@ class TerminalDecision:
 
 
 @dataclass(frozen=True)
+class ReviewEpoch:
+    """YR-099-b — 외부 조정자(다중블록 브리지)가 예약한 **정확한 결정시점** 도달 신호.
+
+    `sim.review_epochs`(기본 [] = 미사용)에 시각을 넣으면 `run_until_decision` 이 그
+    시각으로 시계를 전진시킨 뒤 이 값을 반환한다. 빈 리스트면 분기 자체가 성립하지
+    않아 **기존 경로·골든 바이트 동일**(계약: review_epochs 미설정 호출자는 이 타입을
+    영원히 못 본다). 용도 = 트럭 gate-in 순간에 재배정 창을 정확히 여는 것(근사 금지).
+    """
+
+    time: float
+
+
+@dataclass(frozen=True)
 class CraneAssignment:
     crane_id: str
     action: CandidateKind
@@ -72,6 +85,8 @@ class TerminalSimulator:
         # 해제·YC 적재 지연이 STS 에 역압력 안 감) = 골든 바이트 동일. int 면 STS-뽑기~YC-적재
         # 사이 미완 양하 박스를 그 수로 제한 → YC 가 늦으면 STS 가 막힌다(양하 결정권 부여).
         self.yard_handover_cap = yard_handover_cap
+        # YR-099-b: 외부 조정자가 예약하는 정확 결정시점(오름차순). 기본 [] = 골든 불변.
+        self.review_epochs: list[float] = []
         self.reset()
 
     # ------------------------------------------------------------- lifecycle
@@ -256,6 +271,19 @@ class TerminalSimulator:
             if nt is not None and nt <= self.clock + _EPS:
                 self._process_next_event()
                 continue
+            # YR-099-b: 예약된 review epoch 이 다음 이벤트보다 이르면(또는 동시각) 그
+            # 시각으로만 전진하고 제어를 조정자에게 반환한다 — 동시각 이벤트를 위에서
+            # 이미 소진했으므로 상태는 정확히 epoch 시점의 상태다. 빈 리스트면 무동작.
+            if self.review_epochs:
+                ep = self.review_epochs[0]
+                if ep <= self.end + _EPS and (nt is None or ep <= nt + _EPS):
+                    self.review_epochs.pop(0)
+                    if ep > self.clock + _EPS:
+                        self._advance(ep)
+                    return ReviewEpoch(self.clock)
+                if ep > self.end + _EPS:          # 평가창 밖 epoch 은 폐기 (전진 금지)
+                    self.review_epochs.clear()
+                    continue
             if self._consume_due_wakes():   # YR-050: 동시각 이벤트 처리 후·결정 판정 전
                 continue
             idle = self._decision_cranes()
