@@ -185,3 +185,4 @@ cost_network_target
 - **실증 때 재개**: YR-019의 예약편향·노쇼·낡은 ETA 강건성
 - **자료 한계**: 예약 준수·게이트 처리·출문 분포는 YR-082 Level 3 운영로그 전까지 assumed로 표시
 - **후속 평가계약**: [2026-07-27 P95 역할 정정](../strategy-history/2026-07-27-P95-평가계약-정정.md)
+- **후속 이동·혼잡 계약**: [YR-103](YR-103-gate-block-congestion-contract.md)의 B−A 3~7분·gate-in 뒤 ETA 갱신·동적 block pressure
