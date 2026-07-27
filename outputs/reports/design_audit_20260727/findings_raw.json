@@ -1,0 +1,759 @@
+{
+  "summary": "현 설계 전반의 빈 공간·오류를 6렌즈로 감사하고 각 발견을 적대 검증",
+  "agentCount": 12,
+  "logs": [],
+  "result": [
+    {
+      "lens": "비용·목적 계약 정합 (numeraire 이중계상 · 학습량==보고 KPI 등식 · YR-089 v2 일관성 · P95 강등의 코드 반영 · YR-100 surrogate vs 실청구) — 적대적 재검증",
+      "verdict": "ERRORS_FOUND",
+      "findings": [
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "numeraire 이동항 scale 7200 m 는 gantry 2.0 m/s 전제인데 실제 판정 프로파일은 4.0 m/s 라, 선언한 ρ_crane=1.0 이 코드에서는 실효 2.0 이다.",
+          "evidence": "cost_config.py:226-227 주석 'travel 7200m=크레인 1h (POC gantry 2.0 m/s 기준)' + :232 NUMERAIRE_SCALE['crane_travel']=7200.0 · configs/costs/numeraire_v1.yaml scale_note '7200m=크레인1h@2.0m/s'. 실제 프로파일 build_calibrated_profile(profiles.py:46-56) → configs/terminals/dgt_armg.yaml crane.gantry_speed_mps: 4.0 (yaml 주석이 '기존 2.0 의 2배' 라고 스스로 명시). WSL 재실측(SF·high-0.40·time_contract_v2·numeraire_v1): seed 831000 gantry 2765.8 m → 실제 크레인시간 0.1921 h vs 청구 0.3841 '크레인시간', 비율 정확히 2.000 (seed 831001 도 1953.2 m·0.1356 vs 0.2713 = 2.000). 감사자 evidence 정정 2건: 라인은 :233 이 아니라 :232, 그리고 test_yr080_numeraire 가 '픽스처 2.0 m/s 라 못 잡는' 것이 아니라 이동 scale 을 프로파일 속도와 대조하는 테스트가 아예 없다(그 파일은 truck_wait/vessel_delay 항등식·λ 이중곱·berth 등식·스케일 불변만 검사).",
+          "impact": "발행된 판정 수치는 뒤집히지 않는다 — 이동항 기여가 총비용 101.669 중 0.3841(0.38%)이고 양 arm 에 같은 규칙이 적용된다. 남는 손상은 선언 의미: 'ρ_crane=1.0 = 장비 1h ≈ 트럭대기 1h' 가 코드에서는 '장비 0.5h ≈ 트럭대기 1h' 이며, 향후 ρ_crane 민감도 스윕·이동비용 해석·REPOSITION 페널티 설계 근거(yr088_joint_rl.py:56-57)가 2배 어긋난 기준 위에 선다.",
+          "fix": "travel scale 을 상수 대신 프로파일에서 유도(3600×gantry_speed_mps)하거나, RewardCalculator 를 프로파일과 함께 쓸 때 정합 assert 를 둔다. 최소 조치로 cost_config.py:226-227 주석과 numeraire_v1.yaml scale_note 를 실제 4.0 m/s 기준으로 정정하고 '7200 은 gantry 2.0 m/s 유산' 임을 박제한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "잠금 채택 하네스 yr041_locked 가 결정문서에서 채택 거부조건에서 제외된 구 S−B P95 를 여전히 하드 게이트로 쓰고, 새 계층 2·3 지표는 이미 반환되는데도 저장하지 않는다.",
+          "evidence": "yr041_locked.py:96 `p95_ok = p_ci[2] < 3.0`, :103 `adopt = guard_ok and berth_v != '실패' and p95_ok`. p95 원천은 :74 `r['p95_wait_min']` = baselines.py:411,419 `sim.kpis.wait_samples_s` = S−B(kpis.py:51-53 service_started 적립). 결정문서 .claude/docs/strategy-history/2026-07-27-P95-평가계약-정정.md §1·§5-3 이 P95 를 채택 거부조건에서 제외. 세 지표 차이 재현(WSL, high-0.40): seed 831000 S−B 30.94 / B→C 34.07 / A→O 43.14 분, seed 831001 26.03 / 31.56 / 39.43 분. 감사자 evidence 정정: 계층2·3 은 '수집하지 않는' 것이 아니라 run_joint_episode 가 v2 에서 이미 반환하며(baselines.py:440-445 block_turntime_mean/p95·terminal_turntime_mean/p95·terminal_truck_area_h), _row(:72-74)가 버린다.",
+          "impact": "발행된 YR-041-a 기각 판정은 berth 비열등 실패 사유라 불변이고 결정문서 §5-3 이 이미 그 한계를 박제했다. 남는 위험은 재집행 시 폐기 게이트가 adopt 를 좌우할 수 있다는 것과, 새 계약의 주판정 보조지표(계층2·3)가 results.json 에 남지 않는다는 것 뿐이다.",
+          "fix": "_row 에 block_turntime_mean/p95·terminal_turntime_mean/p95 를 추가하고, verdict 에서 p95 를 adopt 조건에서 빼 보고 필드로 옮긴다(계층0/1 guard + total + berth 만 게이트).",
+          "already_registered": "YR-041 (backlog.md:17 — '다음 재집행은 새 후보 확정 뒤 P95 보고용 계약으로 수행'. 코드 수정 시점만 미지정)"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "평가계층 4 중 'SLA 초과 건수·비율'은 통합 트랙 어디에서도 계산되지 않고, 계층 4 전체가 판정 하네스의 row·verdict 에 보고되지 않는다. (초과'면적'은 이미 계산·비용 포함 — 감사자 주장 중 이 부분은 성립하지 않는다.)",
+          "evidence": "결정문서 §3 계층4 = long_wait 초과면적 + SLA 초과 건수·비율·초과시간. 실측 정정(SF·high-0.40·v2·numeraire_v1, seed 831000): long_wait 초과면적은 run_joint_episode 가 `term_contrib['long_wait']` = 1.8894 h 로 이미 반환하며 numeraire weight 1.0 으로 총비용 101.669 안에 들어 있다(1.9%). 즉 '무감시'가 아니다. 반면 SLA 초과 건수·비율(B→C 표본 기준 9/82 = 11.0%, seed 831001 은 4/61)은 어떤 통합 모듈도 계산하지 않는다 — 초과 건수 집계는 legacy 단일블록 direct_job_runner.py 에만 존재한다. 소비 하네스 row 는 tail 계열을 전혀 저장하지 않는다: yr041_locked.py:72-74 · yr100_candidate_eval.py:36-38 · yr105_conditional_transfer.py:161-168 · yr099_transfer_mvp.py:64-68.",
+          "impact": "면적이 주판정(total)에 흡수돼 있어 장기대기가 판정에서 완전히 빠진 상태는 아니다. 다만 건수·비율이 없으면 '소수 트럭이 크게 희생'(1건 × 1.9h)과 '다수가 조금씩 초과'(9건 × 0.2h)를 구분할 수 없고, 결정문서 §7 이 P95 완전삭제를 기각하며 지목한 바로 그 탐지 능력이 계층4 보고 부재로 산출물에 나타나지 않는다.",
+          "fix": "run_joint_episode 결과에 long_wait_area_h(term_contrib 재노출)·sla_over_count·sla_over_rate·sla_over_time_h(B→C 표본 기준)를 추가하고, yr041_locked·yr100_candidate_eval·yr105 의 row·verdict 에 실어 계층4 를 보고한다. 다중블록은 mbt.blocks 별 합산.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "시간계약 v2 활성화가 시나리오 필드 존재 여부에 암묵 의존해 플래그를 빠뜨리면 경고 없이 구 S−B 비용으로 되돌아가고, 판정 하네스가 저장하는 row json 에는 어느 계약이었는지 남지 않는다.",
+          "evidence": "engine.py:127-129 `_v2 = [j ... if j.exit_travel_s is not None]; self.time_ledger = ... if _v2 else None`, :687-691 else 분기가 kpis.queue_area_s/tail_area_s(S−B)로 assert·경고 없이 fallback. exit_travel_s 는 scenario_gen.py:~277 `if params.time_contract_v2:` 안에서만 채워진다. 누락 실사례는 yr088_joint_rl.py:66-72 `_sim` (학습 :106·평가 :216·SF 대조 :293 전부 구 S−B). 감사자 evidence 2건 정정: ① '메타 기록 없음'은 오류 — scenario_gen.py:393 이 meta['time_contract']='truck-time-v2' 로 박제한다. ② yr088 은 '프로덕션 판정 하네스'가 아니라 종결된 트랙(2026-07-26 RL본선트랙-종결-경계발견-5축소진)이며, 현 판정에 쓰이는 CONTROL/CALC 체크포인트는 yr090_dense_vessel.py:70·yr100_single_block.py:250 의 v2 경로 산출물이다. 다만 yr041_locked·yr100_candidate_eval 이 저장하는 row json 에는 meta 도 v2 전용 키(block_turntime_*)도 실리지 않는다.",
+          "impact": "현재 발행 수치의 오염은 확인되지 않는다(활성 판정 하네스 yr041/090/098/099/100/103/105 전부 v2 ON). 남는 위험은 신규 하네스가 한 줄을 빠뜨리면 truck_wait 정의가 B→C↔S−B 로 조용히 바뀌는데, 저장된 결과 파일만으로는 어느 계약이었는지 판별할 수 없다는 것이다.",
+          "fix": "run_joint_episode 결과와 저장 row 에 time_contract 버전을 박제하고, 판정용 하네스에 v2 요구 assert(또는 v1 이면 경고 로그)를 둔다. yr088_joint_rl 은 파일 상단에 '구 계약 전용 — 트랙 종결' 을 명시한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "CALC 잔여망은 입력에서 global.sts_wait_accum_s 를 마스크하면서 그 잔여 표적이 되는 학습보상은 sts_wait 을 5.0 으로 청구한다 — 감춘 원인의 비용을 잔여망에 학습시키는 구조이고, 빼내는 c(a) 는 vessel_delay 축만 덮는다.",
+          "evidence": "yr100_single_block.py:41 이 yr088_joint_rl.py:49 `RC = numeraire({'crane_travel':0.1,'empty_travel':0.1,'sts_wait':5.0})` 를 RC_TRAIN 으로 import → :150·:162·:188 보상, :168·:192 잔여 표적 `r − c`. c 는 :136 candidate_vessel_delta = vessel_cost 의 vessel_delay surrogate 뿐이다. 동시에 :56-57 `_BAN_FIELDS = {... 'global': ('sts_wait_accum_s',)}` 가 :135 mask_rows 로 잔여망 입력에서 그 필드를 제거한다(test_yr100_residual_mask 가 부재를 assert). 규모 실측(SF·high-0.40·s831000): sts_wait raw 6252.6 s → 5.0×6252.6/3600 = 8.68 numeraire 단위, 같은 에피소드 총비용 101.669·truck_wait 기여 17.470 대비 작지 않다. 감사자 주장 중 삭제한 부분: cost_config 는 이 override 를 금지하지 않는다 — numeraire_config docstring(:254-256)이 'ρ_crane·sts_wait 교정 실험용' 으로 weight_overrides 를 명시 제공하고, :229-230 의 '여기 금지' 는 학습 표적 '축소'(스케일)를 가리킨다. 또한 평가는 RC_EVAL=numeraire_v1(sts_wait weight 0)이라 발행 수치는 오염되지 않는다.",
+          "impact": "'이중계상'으로는 성립하지 않는다(훈련 shaping 은 spec 이 명시 허용, 평가식 무변경). 남는 두 가지: ① 학습목적 ≠ 평가목적인데(비-potential 재가중이라 최적정책 보존 보장 없음) 어떤 override 였는지가 결과 파일에 박제되지 않는다 ② CALC 는 sts_wait 을 못 보면서 5× 로 벌점받고 CONTROL(yr090, 마스크 없음)은 보는 관측 비대칭이 YR-100 [2] 의 'CALC 재현성 없음' 해석에 미정정 교란으로 남는다. 버퍼 수위 등 물리상태는 잔여망에 남아 있어 완전 불가관측은 아니므로 minor.",
+          "fix": "잔여 표적과 잔여망 관측을 한쪽으로 정합시킨다 — RC_TRAIN 의 sts_wait 를 0 으로 되돌리고 본선 선행신호를 candidate_vessel_delta 로 일원화하거나, 반대로 마스크에서 sts_wait_accum_s 를 복원한다. 어느 쪽이든 학습 RC 의 weight override 를 저장 json 에 박제한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-100 계약②의 공급열이 이송 요청됐지만 미배차인 박스(transfer.pending)를 선박별 확정 공급으로 반영하지 않는다 — 현 파라미터에서 발화 0 이라 실측 영향은 없다.",
+          "evidence": "vessel_cost.py:133-143 inflight_supply_etas 는 sim.queue._heap 의 TRANSFER_ARRIVE 만 스캔한다. engine.py:818 이 LOAD job 완료 시 _transfer_request 를 호출하고 transfer.py:34-41 은 유닛 만재면 이벤트 없이 pending.append((now, vessel_id)) 만 한다(vid 보유 → 복원 가능). WSL 실측(SF·v2, high-tight s830300~830302 + high-0.40 s831000~831001): LOAD 선박 스냅샷 606건 중 pending 존재 0건, transfer_wait_accum_s = 0.0 (n_units=3·move_time 180s 에서 이송 fleet 미포화) → 현 판정 수치 영향 0. 감사자가 반영하지 않은 완화요인 2건: _gap_s(vessel_cost.py:127-130)가 이미 transfer.waiting_count()(=len(pending))를 gap 에 곱해 반영하고, base·cand 두 세계가 같은 steady 열을 공유하므로 delta 로의 전파는 2차항이다. 따라서 '계약 문언이 이미 깨졌다'는 과장 — docstring 의 '이송중 확정도착'은 배차된 건을 가리키고 pending 은 미배차다.",
+          "impact": "현 셀에서는 무해. 이송 대수 축소·물량 증대·다중블록 fleet 공유로 포화가 발생하면 특정 선박 앞으로 잡힌 박스가 미확정 steady 로 밀려 F 추정이 흔들릴 수 있다(gap 팽창과 상쇄돼 |ΔC_vessel| 의 부호·방향은 예단 불가 — 감사자의 '과대' 방향 주장은 근거 없음).",
+          "fix": "즉시 코드 수정 불요. spec/docstring 에 '이송 fleet 포화 시 pending 은 gap 항으로만 반영되고 vid 별 확정 공급으로는 계상되지 않는다' 한계를 명시하고, 회귀 테스트에 n_units=1 포화 케이스를 추가해 포화 시 거동을 고정한다.",
+          "already_registered": "none"
+        }
+      ],
+      "passed_checks": "삭제 1건 — '라이브러리 기본 rc = assumed_default' (제출 #7): (a) 라인은 맞지만(adapter.py:25, dqn_learner.py:232, depart_delay raw 5455.87 과 vessel_delay 8642.79 공존 실측) (b) 'assumed_default 는 폐기'가 오기술이다 — cost_config.py:5 가 '골든 불변 바이트 재현용' 으로 의도 보존을 명시하고 yr013~074 레거시 20여 파일이 이를 명시 고정한다 (c) '결과 파일에 안 남는다'가 거짓 — CostBreakdown 이 scale/weight/λ 를 그대로 담고 TransitionRecord.cost(transition.py:35)로 저장된다 (d) 제안된 기본값 교체·예외는 rc 없이 record_episode 를 부르는 계약·골든 테스트 10여 곳(test_qnet_stage_a, test_resolver, test_ledger, test_yr043/048/050/056, test_terminal_cost_fit)을 깨뜨린다.\n재확인 통과(감사자 통과항목 유효): 이중계상 주요 경로는 깨끗함 — travel_time.py:52-69 의 e_gantry/l_gantry 비중첩, long_wait 은 cost_config.py:238 이 선언한 의도된 가산, depart_delay 는 numeraire weight 0. '학습량 == 보고 KPI' 등식 실측 성립: episode_raw['vessel_delay'] 8642.79 == kpis.berth_overrun_s 8642.79.\n활성 판정 하네스 6종(yr041_locked·yr090·yr099_transfer_mvp·yr100·yr103·yr105)은 전부 numeraire_v1 평가 + time_contract_v2 를 켠다. yr105 는 total 주판정 + b2c/a2o 평균 보고 + P95 게이트 없음으로 새 계약을 이미 따른다.\nYR-100 surrogate 는 앞선 지적이 반영돼 있다 — horizon 캡 min(F,end)(vessel_cost.py:103-105), 점화식 t_k=max(t_{k-1}+cadence,a_k)(:91), 반사실 7필드 assert(:119-122) 전부 코드로 확인."
+    },
+    {
+      "findings": [
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-041-a 잠금평가(배포 게이트)의 \"신규 seed +900 대역\"은 실현(트럭 도착·초기 스택) 기준으로 신규가 아니다 — 24 paired 표본 전부가 YR-098 확증대역, 18/24 가 후보를 뽑은 YR-100-[3] 평가대역과 같은 실현 위에서 돌았다.",
+          "evidence": "seed 산술 재확인: yr041_locked.py:27 `BASE41={high-0.40:830_100, high-0.75:830_100, mid-0.40:830_000}` + :83 `BASE41[cell]+900+i` → results.json 실측 (high-0.40·high-0.75 각각 831000..007 / mid-0.40 830900..907, 총 24행·**서로 다른 실현은 16개**). yr100_candidate_eval.py:26 `BASE[c]+700+i` → arm_SF.json 실측 high-tight 831000..005·mid-tight 830900..905. yr098 rows.jsonl 실측 확증대역 high-tight 831000..009·mid-tight 830900..909. WSL 재현: `calibrated_load_params(level, vessel_deadline_mult=dm)` 는 dm 이 RNG 를 소비하지 않아(scenario_gen.py:329·335·344 — dmult 는 plan/deadline 에만 진입) 같은 (level,seed) 면 컨테이너·트럭 job(actual_gate_in·actual_block_arrival·provided_eta) 이 **완전 동일**, deadline 만 상이 (high 831000/831003/831007·mid 830900/830905 전부 True/False 로 확인). prereg(outputs/reports/yr041_locked/prereg.md) 는 \"[3] +700 대역과 불겹침\" 이라 명시.",
+          "impact": "후보 선택(YR-100-[3])과 잠금 판정(YR-041-a)의 실현 독립성이 깨져 winner's curse 차단 장치가 실질적으로 부재하다. 또 high-0.40·high-0.75 두 셀이 같은 8 실현을 공유하는데 `_ci`(yr090_dense_vessel.py:245-248)가 n=24·df=23 으로 계산해(실현 단위로는 16) CI 가 과소 폭이다 — d_berth [-2.13,+9.92]·d_total [-7.49,+1.19]. 다만 CI 협소는 채택 쪽으로 기우는 방향이라 현 판정(berth 상한 9.92>δ5 → adopt=False)은 오히려 보수적이며 결론은 뒤집히지 않는다. 문제는 \"공식 배포 후보 없음\"의 근거가 무독립 비교 위에 서 있고, 다음 후보 재집행이 같은 대역 규칙을 물려받는다는 점.",
+          "fix": "① BASE41 을 셀 기준(BASE[cell])으로 바꾸고 미소모 대역(예: +1300)에서 8 seed 재추출. ② `(cell, seed)` 소모 대장(.claude/Dashboard/seed-bands.md 등)을 두고 실험 시작 시 중복이면 assert 실패 — 셀 간격(100)보다 큰 대역 오프셋 사용. ③ 같은 실현을 여러 셀에 재사용할 때는 CI 를 실현 단위 clustered/paired 로 계산.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "JR1800(JointRolloutGreedy horizon 1800s)은 프로젝트 자신이 \"진짜 미래를 소비하는 오라클(상한)·배포 금지\"로 규정한 계열인데, YR-100-[3] 은 \"공개정보 rollout 참고군\"으로 표기하고 YR-041-a 는 이것을 배포 후보로 잠금 평가했다.",
+          "evidence": "predictive_rollout.py:3-4 \"기존 rollout(`_rollout_cost`)은 deepcopy 후 **실제 엔진**으로 진행 → 큐의 `actual_block_arrival`(진짜 미래 도착)을 소비 = **오라클(상한)**\". 실제 경로 확인: baselines.py:163 `scratch=copy.deepcopy(sim)` → :171 `scratch.run_until_decision()`, 큐에는 engine.py:212 가 `j.actual_block_arrival` 로 밀어넣은 BLOCK_ARRIVAL 이 그대로 있다. 그런데 yr100_candidate_eval.py:5 는 \"JR1800(**공개정보** 공동 rollout 참고군)\", yr041_locked.py:45-46 은 JR1800 을 후보 arm 으로 집행하고 done.md YR-041-a 는 \"후보 JR1800 기각\"으로 박제. 대조: 같은 deepcopy-완벽미래 기법을 쓴 YR-075-c 는 done.md 에서 \"**완벽미래 deepcopy = 낙관적 국소 benchmark 전용·배포 금지**\"로 정확히 라벨링돼 있다. 공개정보판 `PredictiveRollout`(REALISTIC_ROLLOUT)은 판정 하네스에서 호출 0건(grep: 사용처 = tests/test_yr087_predictive_rollout.py 뿐).",
+          "impact": "잠금 게이트를 통과했다면 30분 앞 트럭 도착을 정확히 아는 정책을 \"배포 채택\"할 뻔했다 — 배포 가능성 판정의 전제가 무너진다. 또 YR-100-[3] 의 \"JR1800 total −0.73 무의·berth +7.3 악화\"와 README [3] 는 오라클 대비 수치인데 공개정보 rollout 성적처럼 읽혀, YR-096(공개정보 예측 rollout 단일계층) 진행/폐기 근거로 오독될 수 있다. (기각된 결과라 현 판정 방향 자체는 유지된다.)",
+          "fix": "① yr100_candidate_eval.py:5·yr041_locked.py docstring·board YR-100/YR-041-a 행에서 JR1800 을 YR-075-c 와 같은 문구(\"오라클 상한 참고군·배포 금지\")로 정정. ② `JointRolloutGreedy` 에 `deployable=False` 클래스 속성을 달고 후보 선택 규칙에서 구조적으로 제외(assert). ③ rollout 계열을 배포 후보로 다시 세운다면 `PredictiveRollout` 만 사용.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "major",
+          "claim": "다중블록 브리지가 `travel_s` 를 호출자 주입으로 바꾸면서 MVP 가 함수 안에서 보장하던 \"실현 draw 재사용 금지 = 누출 0\" 계약이 사라졌다 — 브리지에 정보안전 조항·가드·테스트가 모두 없는데 spec 은 이를 G0 통과 요건으로 선언했다.",
+          "evidence": "MVP: yr099_midrun_review.py:79-82 는 함수 내부에서 `rng=random.Random(f\"mid:{tag}:{jid}\")`·`trunc_normal(...)` 로 새로 뽑고 주석에 \"실현 draw 미재사용 — 누출 0\" 을 박제. 브리지: multiblock.py:228-229 `def prepare_transfer(self, job_id, dst, *, route_s, travel_s)`, :249 `arr = rec.a_gate_in + travel_s + route_s` — travel_s 출처 검증 0. 모듈 계약표 ①~⑥(multiblock.py:8-13)에 정보안전 항목 없음. tests/integrated/test_yr099b_bridge_contract.py 는 테스트 11개(golden·epoch·namespace·ledger·capacity·rollback) 전부 travel_s=300.0 상수 주입(:186,202,221,233)이고 정보안전 테스트 0개. 반면 spec .claude/docs/dashboard-task-specs/YR-099-post-tos-inbound-transfer-resolver.md:130 은 \"G0 계약: … **정보안전** tests 통과\"를 요구하고, done.md YR-099-b 는 G0 통과로 박제돼 있다.",
+          "impact": "현 유일 호출자 yr105_conditional_transfer.py:137-140 은 전용 스트림 신규 draw 라 실제 누출은 0 이지만, 계약이 코드가 아니라 호출 관습에 의존한다. 다음 축(ready 의 YR-105-b/c/d, YR-102)에서 `j.actual_block_arrival − j.actual_gate_in`(실현 주행)을 넘겨도 브리지가 조용히 통과시켜 \"이송 arm 만 미래를 아는\" 무효 비교가 만들어지고, 그 판정이 보존 중인 확증대역(849k/850k)까지 소모한다. 부수적으로 \"G0 통과\" 박제도 선언된 요건 하나가 미충족인 채다.",
+          "fix": "prepare_transfer 를 fail-closed 로: `travel_s` 가 소스 job 의 실현 주행(`j.actual_block_arrival − j.actual_gate_in`)과 일치하면 TransferError, `route_s>0` 검증 추가(더 강하게는 `travel_sampler: Callable[[str], float]` 로 시그니처 교체 — 단 이 경우 기존 테스트 4곳·yr105 호출부 동시 수정 필요). 계약표에 ⑦ 정보안전 행을 추가하고 test_yr099b_bridge_contract.py 에 \"실현 주행 주입 시 TransferError\" 테스트 신설.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "YR-098 의 선택 대역과 확증 대역이 셀 간 aliasing 으로 겹친다 — 확증 40표본 중 20표본이 선택 단계에서 이미 읽은 실현이다.",
+          "evidence": "yr098_authority_null.py:42-43 `BASE={mid-loose:830000, high-loose:830100, mid-tight:830200, high-tight:830300}`·`SELECT_OFF=500, CONFIRM_OFF=700` — 셀 간격 100, 대역 오프셋 차 200 이라 정확히 충돌. rows.jsonl 실측: mid-loose {830500..509 선택, 830700..709 확증} / mid-tight {830700..709 선택, 830900..909 확증} → mid-loose 확증 == mid-tight 선택. high 도 동일(830800..809). WSL 확인: (mid,2.0)@830700 과 (mid,0.5)@830700 은 컨테이너·트럭 job 완전 동일(deadline 만 상이). 공유 실현쌍의 d(VF−SF) 상관 실측 재현: **mid r=0.315·high r=−0.064**. 같은 aliasing 으로 YR-090/YR-100-single_block 평가대역(BASE+500+i)도 YR-098 선택대역과 (cell,seed) 일치.",
+          "impact": "YR-098 GO 판정(확증 total −2.84 [−5.56,−0.21])의 \"확증 대역 독립\" 전제가 절반 위반이다. 실측 상관이 0.3 이하라 실질 오염은 작아 판정을 뒤집을 근거는 없지만, 대역 오프셋 차가 셀 간격의 배수인 한 앞으로 만드는 모든 확증 대역이 같은 방식으로 오염된다(발견 1과 같은 뿌리).",
+          "fix": "셀 간격을 대역 오프셋보다 크게(예: 셀 간격 10_000, 대역 0/500/700) 재설계하거나 대역 키를 `f\"{cell}:{band}:{i}\"` 문자열 seed 로 바꿔 정수 aliasing 자체를 제거. 최소 조치로 실험 시작 시 사용 (cell,seed) 집합을 소모 대장과 대조해 중복이면 즉시 실패.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "FIFOPreference 가 아직 도착하지 않은 트럭의 실제 블록도착 시각(actual_block_arrival)으로 PRE_REHANDLE 후보를 정렬한다 — PRE_ADVICE 계약이 허용한 provided_eta 가 아니라 진실값을 읽는다(단, 현 판정에 영향받는 결과는 실측상 없음).",
+          "evidence": "baselines.py:48-52 `arrival = j.actual_block_arrival if (j.is_external_truck and ...) else inf`. PRE_REHANDLE 후보는 `status==PLANNED`(=미도착) GATE_OUT 트럭만(candidates.py:60-62 `iter_pre_rehandle_jobs`)이라 구조적으로 항상 미래값이다. WSL 실측: FIFO 가 rank 한 PRE_REHANDLE 후보 중 `actual_block_arrival > sim.now` 비율 = **106/106·80/80·99/99 (전부)**. 공개 ETA 와의 괴리 |provided_eta − actual| 평균 136.5s(v1)~554s(v2). 대조: BaselinePreference 는 `sim.cum_wait`(engine.py:244-248, 미도착이면 0.0)만 써서 안전.",
+          "impact": "**감사자가 주장한 YR-045 편향은 실측으로 성립하지 않는다** — YR-045 정확 설정(build_integrated_profile · TerminalGenParams(40,2) · test seed 420000..420011)에서 누출 key 와 공개 ETA key 로 고친 FIFO 를 돌린 결과 **12/12 seed 총비용이 완전 동일**(PRE_REHANDLE 선택 수까지 동일)이라, YR-045 의 \"FIFO 1 조건 게이트 통과\"·ETA 기여 분해는 영향 없다. 다만 현행 문헌보정 고부하(v2, 847000 대역)에서는 **4 seed 중 2개가 갈리고 Δtotal 최대 +12.1** — FIFO 를 지금 조건에서 참조군으로 다시 쓰는 순간 정보수준 계약이 실제로 깨진다.",
+          "fix": "baselines.py FIFOPreference.rank 의 `arrival` 을 두 갈래로: 도착 완료분은 `sim.cum_wait(ref.job_id)` 기반 실현대기, 미도착분은 `candidates._visible_eta_of(j, sim.info_level)`(없으면 inf). tests/ 에 \"어떤 Preference 도 미도착 트럭의 actual_* 를 읽지 않는다\" 회귀가드 추가(위 probe 를 테스트화).",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-099-mid 확증런(842k)이 코드에 존재하지 않아 저장소만으로 재현할 수 없다 — 기각 판정의 감사 추적성이 끊긴다.",
+          "evidence": "yr099_midrun_review.py:52 `BASE_A, BASE_B = 840_000, 841_000` 하드코딩, argparse 는 `--thresh` 뿐(:216-219) — 대역 인자 없음. 확증런 산출물 outputs/reports/yr099_midrun_review/confirm/results_t10.json 은 rows 의 seed 필드가 상대 index 0..7(:190 `rows.append({\"seed\": i, ...})`)이라 실제 seed 미기록. report.md 표는 \"확증런 | 842k | −1.45 [−17.56,+14.67] | 재현 실패\" 로 인용. B 블록 base(843k 추정)는 어디에도 없다. 부수: docstring :17 \"신규 seed 대역 838000/839000+i\" 는 같은 docstring :13-14 의 정정(840k/841k 판정런·838k/839k 개발런 강등)과 어긋나는 잔여 문구. 대조: yr105_conditional_transfer.py:58 은 `BANDS={\"select\":(847_000,848_000),\"confirm\":(849_000,850_000)}` + `--band` 로 대역을 코드에 박제.",
+          "impact": "board 와 report 가 \"확증런 842k 독립 → 재현 실패\"를 YR-099-mid 기각의 결정 근거로 인용하는데, 어떤 (BASE_A,BASE_B) 조합이었는지 저장소에서 확인·재실행할 수 없다. 판정 자체를 의심할 근거는 아니지만 재검증 경로가 없다.",
+          "fix": "yr099_midrun_review.py 에 yr105 와 같은 `BANDS={\"judge\":(840_000,841_000),\"confirm\":(842_000,843_000)}` + `--band` 를 소급 추가하고, rows 에 실제 seed(BASE_A+i / BASE_B+i)를 기록. docstring :17 의 838k/839k 잔여 문구도 정정.",
+          "already_registered": "none"
+        }
+      ],
+      "lens": "정보 경계·누출 (미래 실현값 접근 경로 · 정보수준 계약 · seed 대역 분리)",
+      "passed_checks": "삭제 1건: block_congestion 의 D 항 \\\"정보량 0\\\" 발견은 **이미 명시된 한계**라 기각했다 — block_congestion.py:24-26 docstring 이 \\\"예상 g2b 가 계약 중심값 상수 → D 는 사실상 {0, 상수} 근처, 변별력은 '미도착 유입 존재량'에 한정\\\" 이라고 직접 적어두었고, done.md YR-103 미확정 ③(\\\"+D 부호 — 신규 seed 미재현·D 계단 교란\\\")으로 등록까지 돼 있다. 새 정보가 없다.\\n심각도 하향 2건: ①YR-041 대역 중복은 critical→major (CI 협소가 채택 쪽으로 기우는 방향이라 adopt=False 판정 자체는 보수적·불변) ②FIFO 누출은 major→minor (YR-045 정확 설정 12/12 seed 에서 누출판과 정정판 결과가 완전 동일 — 감사자가 주장한 ETA arm 편향은 실측으로 성립하지 않음).\\n감사자 통과 항목 재확인: adapter/leakage 게이팅·engine.cum_wait 미도착 0.0·`_visible_eta_of` 의 provided_eta 한정·PredictiveRollout 의 ETA 결측 fail-closed 는 코드대로 성립했고, 재배정 트랙 대역(833k~850k)이 서로 겹치지 않는다는 점도 확인했다 — 대역 문제는 830k 단일블록 계열에 국한된다.",
+      "verdict": "ERRORS_FOUND"
+    },
+    {
+      "lens": "스펙 대비 구현 격차 — YR-099/100/103/081 spec 계약 항목 대조 및 dead contract 실행 확인 (적대적 재검증)",
+      "verdict": "ERRORS_FOUND",
+      "findings": [
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-105-a 의 '본선 악화 방지 필터'가 쓰는 본선 여유는 YR-100 게이트 ②가 대체한 naive 계산식(pc − now − 남은작업×박자)이고, YR-100 계약 fold 로 바꾸면 임계 0 에서 이송이 전부 차단돼 단일축 arm 이 성립하지 않는다 — 재현으로 확증.",
+          "evidence": "yr105_conditional_transfer.py:75-84 → vessel.py:57-61 `slack_s = pc − now − remaining_moves×cadence`. YR-100 spec:37-39 는 `projected_completion_s` = 버퍼+확정공급+미확정 steady 의 병합 정렬 fold 를 요구하고 vessel_cost.py:72-92 에 구현돼 있다(naive 는 버퍼 만재 시에만 일치). **직접 재현(WSL, 선택대역 847k/848k, 시드 0~2, 계약량 가드 arm)**: 발화 52건 중 naive<0 = 43/52(82.7%), 계약 fold 기준 `pc − projected_completion_s` <0 = **52/52(100%)**, 부호 불일치 9/52, 차이 중앙값 −180.0s·최대 −4496.7s — 제출값과 소수점까지 일치. 같은 조건에서 계약량 가드를 실제로 걸면 3시드 모두 **이송 0건**(moved=0, blocked=10/28/14). 수학적으로도 fold 는 t_k ≥ t_{k−1}+cadence 라 항상 naive F 이상 → 계약 여유 ≤ naive 여유(부호는 한 방향으로만 뒤집힘). **제출 근거 1건 정정**: `projected_completion_s` 는 tests 외에도 yr100_single_block.py:136 이 `candidate_vessel_delta` 경유로 소비한다(완전 사장 아님). 사장된 것은 '이송 트랙'이다 — yr105·yr099_midrun_review 에 vessel_cost import 0건인데 YR-099 spec:171 은 'YR-100 본선 항을 재계산 말고 재사용' 을 의존으로 못박았다.",
+          "impact": "YR-105-a 가 시험한 축은 계약 정의의 '본선 인지'가 아니라 계약 밖 근사량으로 82%만 막는 규칙이었다. 계약량으로 바꾸면 임계 0 은 '무이송 arm' 이라 본선인지 vs 볼륨 교락 통제 자체가 성립하지 않는다. 판정 수치(d_total +4.19 무의)는 그대로 유효하지만, ready.md YR-105-b 가 근거로 든 '볼륨이 지배' 라는 해석과 b/c/d 순서 결정이 이 arm 의 의미에 의존한다.",
+          "fix": "yr105 계열 본선 신호를 `vessel_cost.load_supply_state + projected_completion_s`(또는 `compare_completion_cost`)로 교체하고, 임계 0 이 계약량에서 degenerate 함을 먼저 보고한 뒤 비영 임계를 결과 열람 전 사전등록한다. 교체 전후 발화집합 차이(9/52)를 병기한다. 비용·보상 경로는 건드리지 않으므로 YR-103 가산 금지·numeraire 계약과 충돌하지 않는다.",
+          "already_registered": "none (done.md YR-099-mid 의 '후속 가설: YR-100 본선항 결합' 이 인접하나 row 아님, 그리고 '기존 arm 이 계약 밖 량을 썼다' 는 지적은 아님)"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-103 의 도로지연 항 D 가 생성 단계에서 사실상 상수라 부호 비교의 변별 표본이 6/175 뿐인데, 판정문이 제시한 해소 경로('신규 seed 재현')로는 원리적으로 해소되지 않는다.",
+          "evidence": "scenario_gen.py:296 `est = appt + 0.0 + GATE_BLOCK_MEAN_S` → est−appt ≡ 300s, block_congestion.py:64-69 의 `clip(((est−appt)−180)/240)` → D ≡ 0.5. partb_v2.json 175 스냅샷 실측: D {0.5:169, 0.0:6}, C_plus−C_zero {0.05:169, 0.0:6}. yr103_info_sufficiency.py:183-193 은 순위기반 Spearman 이라 상수 이동에 불변 → 변별 표본 6건(3.4%). **정정(제출 대비 심각도 하향 사유)**: 이 한계는 이미 3곳에 명시돼 있다 — block_congestion.py:23-24 '예상 g2b 가 계약 중심값 상수 → D 는 사실상 {0,상수} 근처, 부호 검증의 변별력은 미도착 유입 존재량에 한정', report.md 한계 'D 는 갱신 ETA 전이라 준-계단함수', done.md YR-103 미확정③ '+D 부호(신규 seed 미재현·D 계단 교란)·확정 인용 금지'. 남는 것은 두 가지다: ①report/done 이 적은 해소 경로가 '신규 seed 재현' 인데 D 상수성은 시드 무관 구조라 재현으로 해소 불가 ②YR-103 spec:52 '실제 gate-in 뒤 = actual_gate_in + 현재 정보의 갱신 이동시간' 은 미구현이다(estimated_block_arrival 은 생성 시 1회 세팅 후 multiblock.py:297 의 route 가산 외 갱신 없음, ETA_UPDATED 는 engine.py:768 에서 wake 취급).",
+          "impact": "판정 결론(+D 우세)은 이미 '미확정·확정 인용 금지' 로 묶여 있어 왜곡은 없다. 다만 해소 조건이 잘못 적혀 있어, 신규 seed 를 돌려 '재현됐다/안 됐다' 로 부호를 확정하려는 후속 시도가 무의미한 비용이 된다.",
+          "fix": "done.md·report 의 미확정③ 해소 조건을 '신규 seed 재현' → 'YR-103 spec §시간지식 경계 2단계(gate-in 후 갱신 이동시간) 구현 후 재집행' 으로 정정하고, 그 구현을 board row 로 등록한다. 그 전까지 '+D 우세' 는 '미도착 유입 존재 지표' 로 표기한다.",
+          "already_registered": "부분 — done.md YR-103 미확정③ (한계 자체는 등록·인용 금지) / done.md YR-089 잔여 '단계별 ETA 갱신(진입 후 재추정)' (전용 row 는 없음)"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "같은 작업을 2회 이상 이송하면 실제 도착시각이 누적되지 않아(항상 gate-in 에서 재계산) 예상도착·비용만 중복 계상된다 — 현재 하네스에서는 도달 불가한 잠재 결함.",
+          "evidence": "multiblock.py:248 `arr = rec.a_gate_in + travel_s + route_s` 는 직전 도착이 아니라 항상 게이트 시각 기준이고 :294 가 `j.actual_block_arrival = arr` 로 덮어쓴다. 반면 :297 `estimated_block_arrival = est + route_s` 와 :317 `route_cost_s += route_s` 는 누적된다 → 같은 travel draw 로 왕복하면 실제 도착만 제자리. :351-364 check_invariants 는 이를 보지 않는다. **도달성 재확인(직접 실행)**: 선택대역 3시드 BASE arm 에서 `max(transfer_count)` = 1/1/1 — 현 규칙(리뷰 시점이 그 작업의 gate-in epoch 1회뿐, 같은 epoch 의 역방향 격차는 정확히 −gap 이라 THRESH 미달)에서 2회 이송은 발생하지 않는다. 즉 제출자의 '현재는 우연히 도달하지 않는다' 는 실측으로 확인되며, 그만큼 심각도는 major 가 아니다.",
+          "impact": "이미 발행된 판정 수치에는 영향 0. 다만 실제 도착·정책이 보는 예상 도착·계상 비용이 서로 다른 세계가 되는 결함이 아무 가드 없이 남아 있어, 리뷰 시점을 늘리거나 3블록으로 넓히는 순간 조용히 열린다(아래 transfer_count 미강제 발견과 한 쌍).",
+          "fix": "arr 을 '현재 예정 도착 + 추가 route' 기준으로 계산하도록 고치고, 동시에 prepare_transfer 에 transfer_count≤1 fail-closed 를 넣는다. 왕복 2회 시 도착·예상·비용이 함께 누적되는지 회귀 테스트로 고정한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-099 spec 이 '첫 headroom 단계에 적용' 이라고 못박은 `transfer_count≤1` 가드가 선언만 되고 강제되지 않는다(필드는 증가만 하고 읽는 곳 0) — 전형적 dead contract.",
+          "evidence": "grep 실측: `transfer_count` 는 multiblock.py:39 정의·:314 증가·tests 1건 읽기가 전부, 프로덕션 읽기 0건. spec:103-104 는 '첫 headroom 은 epoch 당 transfer 최대 1건을 전수비교하고, 다작업 개방 전까지 ping-pong 을 막기 위해 transfer_count≤1 을 적용' 이라 현재 단계에 적용을 요구한다. `TransferResolver` 클래스 정의 0건·tie-break `(job_id, source_block_id, receiver_block_id)`(spec:101) 미구현·batch matching(spec:98) 미구현도 사실이다. **정정(심각도 하향 사유)**: ①클래스·batch·quote 는 spec §구현 순서 4~6 에 '이후 단계' 로 명시된 계획 작업이고 spec 상태줄이 '미래 다중 블록 확장 작업' 이라 미등록 빈 공간으로 보기 어렵다 ②결정론(spec:102)은 현 2블록 하네스에서 dict 삽입순서로 사실상 성립한다(yr105:109·112) ③기각 판정의 규칙 한정성은 done.md 에 '이 형태의 규칙'·'조잡한 규칙군 한계와 미분리' 로 이미 기재돼 있다.",
+          "impact": "지금 당장 잘못된 수치는 없다. 남는 위험은 위 도착시각 결함과의 결합 — 이송을 늘리는 방향도 사전등록한 YR-105-b 나 다건/다블록 확장에서 ping-pong 방어가 계약상 있다고 적혀 있는데 코드에는 없다는 점이다.",
+          "fix": "prepare_transfer 첫머리에 `rec.transfer_count >= 1 → TransferError` fail-closed 한 줄을 넣고 테스트로 고정한다(현 판정 재현성에는 영향 없음 — 실측 max=1). 클래스·batch 신설은 spec §구현 순서 4~6 시점에.",
+          "already_registered": "부분 — YR-099 spec §구현 순서 4~6·backlog YR-081 row (클래스·batch 부분만). transfer_count≤1 강제는 미등록"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-099 '필수 데이터 계약' 중 allowed_execution_blocks·reassignable_until(transfer_lock_at)·assignment_received_at·placement_source·tos_assigned_block_id 가 전무해, spec 이 fail-closed 로 지정한 자리가 다른 기준으로 대체돼 있다.",
+          "evidence": "grep: 위 5개 식별자 모두 src/·tests/ 전체 0건. JobRecord(multiblock.py:31-50)에는 origin_block/owner/version/transfer_count/transfer_history/locked 만 있고 시간 기반 마감이 없다. spec:64 는 '`reassignable_until`·`allowed_execution_blocks` 가 없거나 마감·예약·RUNNING 이후면 fail-closed' 를 요구한다. YR-081 spec:110-113 이 요구한 요청 리스트(마감시각·상태·version·마감 경과 자동 KEEP)도 자료구조로 존재하지 않아 yr105:112 는 전역 원장 dict 를 매 epoch 전수 순회한다. **정정(심각도 하향 사유)**: 수신 자격이 완전 무검사는 아니다 — prepare_transfer 는 reassignable·소스 PLANNED·gate-in 창·장부 대칭·용량(:246)을, validate 는 dst 규격 적합 슬롯(:266-270)을 검사한다. 없는 것은 'TOS 가 지정한 허용 블록' 과 '시간 마감' 이라는 두 축이다. 또 YR-081 spec:110-113 은 이 리스트의 '구현 거리(정직)' 를 잔여작업으로 스스로 선언해 두었다.",
+          "impact": "현재 2블록·동일 프로파일에서는 무해하다. 재배정 마감이 없어 '리뷰 시점이 gate-in 순간뿐' 이라는 하네스 우연(yr105:115)에 의존하고 있고, 구조가 다른 블록군(YR-081 §B·§D)으로 넓히면 TOS 허용범위 개념이 아예 없어 물리 적합만으로 이송이 승인된다.",
+          "fix": "JobRecord 에 allowed_execution_blocks·reassignable_until 을 추가하고 prepare_transfer 첫 줄에 '필드 없음 → 거부' fail-closed 를 넣는다(기존 경로 보존이 필요하면 opt-in 플래그로). 시나리오 생성기 TOS 배정에서 두 값을 채우고, 마감 경과 항목은 자동 KEEP 후 후보에서 제거한다.",
+          "already_registered": "부분 — YR-081 spec §요청 리스트 '구현 거리(정직)' 로 잔여작업 선언 (board row 는 없음)"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "본선 양하(VESSEL_DISCHARGE) STORE 재배정이 구현돼 있지 않아, spec 이 요구한 '반입-only·양하-only·혼합 셀 분리 보고' 가 불가능하고 세 판정 모두 반입-only 다.",
+          "evidence": "multiblock.py:47-50 `reassignable` 이 `flow == JobFlow.GATE_IN` 을 하드코딩(양하 항상 False). yr099_midrun_review.py:80-82 도 `flow != GATE_IN` 이면 ValueError. YR-099 spec:100 은 '미장치 + YT 목적지 commit 전' 양하를 현재 PoC 범위에 포함시켰고 spec:138 은 G1~G4 의 흐름별 셀 분리 보고를 요구한다(YR-081 spec:92 착수 순서도 '① 반입+양하'). 판정 3건(YR-099-G1·YR-099-mid·YR-105-a) 전부 반입-only 이고, 두 report.md 에 '반입 한정' 이라는 범위 문장이 없다(yr099_midrun_review/report.md:25 의 '반입 이식' 이 유일한 간접 표기). **정정(심각도 하향 사유)**: 양하 셀의 기대 상금이 0 에 가깝다는 근거가 이미 있다 — YR-081 spec:88 '`yard_handover_cap=None` 에서 양하 배치는 해당 선박 완료를 직접 당기지 않는다', YR-099 spec:147 'cap=None 의 양하→동일선박 직접효과는 0', done.md YR-098 '양하 개입 무효(통제권한 0 확증)'.",
+          "impact": "board 판정문들은 이미 '이 형태의 규칙' 으로 범위를 좁혀 두어 과대주장은 없다. 남는 문제는 spec 이 명시한 셀 분리 보고 요건이 충족되지 않은 채 G1 이 종료됐고, 반입-only 라는 범위가 report·board 어디에도 명시적으로 적혀 있지 않다는 점이다.",
+          "fix": "report·done 행에 '반입-only(양하 셀 미개방, 사유: yard_handover_cap=None 에서 직접효과 0)' 한 줄을 병기하고, '양하 STORE 재배정 seam(cap 활성 조건부)' 을 backlog row 로 등록한다. 구현은 engine.py:194-203·847-869 의 YT 목적지 확정 지점에 seam 을 두는 형태.",
+          "already_registered": "none (양하 무효 근거는 YR-098 done 에 있으나 '이송 트랙의 양하 셀 미개방' 자체는 미등록)"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "TRANSFER_* 이벤트 4종이 없고 try_transfer 가 prepare 실패와 commit-rollback 을 같은 False 로 뭉개, spec:148 이 요구한 운영량(keep/reject/rollback/stale 분리)을 셀 수 없다.",
+          "evidence": "events.py:14-26 EventKind 12종에 TOS_ASSIGNMENT_RECEIVED·TRANSFER_REVIEW·TRANSFER_PREPARED·TRANSFER_COMMITTED·TRANSFER_ABORTED 없음(spec:59-61 요구). multiblock.py:336-348 은 prepare 실패도 commit 후 rollback 도 `return False`, yr105:141-144 가 이를 n_rejected 하나로 합산. results_select.json 실측: 8시드 × 3arm 전부 n_rejected=0 → 판정런에서 2단계 실패 경로가 한 번도 밟히지 않음. **정정(제출 근거 1건 철회)**: '원자성·rollback 이 검증 없이 G0 통과로 기록됐다' 는 성립하지 않는다 — spec:130 의 G0 은 tests 통과를 요구하고, tests/integrated/test_yr099b_bridge_contract.py:196-210 이 stale version 을 주입해 commit 예외 → rollback → 소유권 원상·예약 해제를 실제로 검증한다(spec §구현 순서 3 의 실패주입 test 존재).",
+          "impact": "판정 유효성에는 영향 없다. 남는 것은 계측 공백 — 용량이 빡빡해지는 조건에서 rollback 이 처음 발생할 때 빈도·사유를 사후 구분할 수 없고, spec:148 운영량 항목이 보고서에 비어 있다.",
+          "fix": "try_transfer 반환을 (결과, 사유) 로 바꿔 keep/reject(prepare)/rollback(commit)/stale 을 분리 집계하고, 필요하면 EventKind 에 TRANSFER_REVIEW/PREPARED/COMMITTED/ABORTED 를 추가해 event_log 에 남긴다(골든 불변 확인 필요 — 이벤트 추가는 event_log 회귀와 충돌할 수 있으므로 opt-in).",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-099 spec guard 목록 중 backlog 0·중복 도착/event 0·시간 reset 0 이 어떤 자동 불변식 검사에도 없고, 완주율은 기록만 되고 게이트가 아니다.",
+          "evidence": "multiblock.py:351-364 check_invariants 는 이중 소유·소유자 없음·owner 불일치·작업 수 보존 4가지뿐. spec:149-152 는 완료율 100%·backlog 0·중복 도착/event 0·시간 reset 0 과 '평가창 종료의 RUNNING·transfer-pending 은 unfinished backlog 로 계산' 을 추가로 요구한다. `unfinished_backlog` 호출부는 envs/direct_job_env.py:362,381·experiments/runner.py:70·direct_job_report.py:81 뿐이고 yr105/yr099-mid/yr099b 하네스에는 0건(제출 근거의 호출부 목록 2건 → 4건으로 정정). yr105:199 compl_min 은 저장값이고 assert 가 없다. **정정(제출 근거 1건 철회)**: '규격·슬롯·크레인 물리위반 0' 은 미검사가 아니다 — yr105:70 이 `check_invariants=True` 로 sim 을 만들고 engine.py:971-1022 가 매 이벤트마다 tier overflow·중복 컨테이너·위치 desync·예약/계획 desync·크레인 순서·간격·슬롯/레인/코리도 중복을 상시 강제한다.",
+          "impact": "현재 완주율 1.0 이라 실질 위반은 없지만, 터미널 수준 guard(backlog·중복 도착·시계 단조)가 자동 검사가 아니라 사람 눈에 의존한다. 조건이 빡빡해지면 조용히 지나갈 수 있다.",
+          "fix": "check_invariants 에 (평가창 종료 시) 블록별 unfinished_backlog()==0·큐 내 동일 job BLOCK_ARRIVAL 중복 0·clock 단조를 추가하고, 하네스가 판정 전에 assert 로 건다. validate 의 규격 검사는 dst 의 cranes[0] 한 대가 아니라 전 크레인 합집합으로 넓힌다(admission 낙관 제거).",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "이송 트랙의 지표로 지정된 A→O·B→C 가 평균만 저장되고 paired CI·판정문이 산출되지 않는다.",
+          "evidence": "yr105_conditional_transfer.py:192-200 의 결과 dict 에는 d_total_ci·d_vs_rguard_ci·d_berth 만 있고 a2o/b2c CI 가 없다(행에는 a2o_mean_min·b2c_mean_min 저장). report.md 표에도 없다. YR-099 spec:145 는 '반입은 A→O 평균을 주판정', YR-103 spec:137 은 'total·평균 B→C/A→O·본선·완주를 주판정' 이라 지정한다. 저장 원자료로 프로젝트 `_ci_t`(n=8) 직접 계산 실측: **A→O +0.479 [−0.460, +1.417], B→C +0.729 [−0.251, +1.708]** (제출값과 일치), vs RGUARD A→O −0.750 [−1.867, +0.367]. **정정(부분)**: YR-105-a 자신의 사전등록(모듈 docstring:27)은 A→O·B→C 를 '부지표' 로 선언했으므로 '주판정 미산출' 은 YR-099/103 spec 기준에서만 성립한다.",
+          "impact": "결론은 바뀌지 않는다(둘 다 무의·d_total 과 같은 방향 = VGUARD 가 근소하게 나쁨). 다만 트럭 턴타임 지표에 대한 판정문이 비어 있어, 같은 형식을 답습하는 YR-105-b/c/d 가 '총비용만 보고 턴타임은 안 본' 판정을 반복한다.",
+          "fix": "run() 의 res 에 a2o/b2c paired CI 를 추가하고 report 표를 4행(총비용·본선·A→O·B→C)으로 고정한다. YR-105-a 판정문에 위 계산값을 소급 병기한다.",
+          "already_registered": "none"
+        }
+      ],
+      "passed_checks": "① 삭제 1건 — 'YR-081 요청 리스트(order book) 미실체화' 는 근거는 맞으나 spec:110-113 이 스스로 '구현 거리(정직)·잔여작업' 으로 선언했고 실제 영향이 0(epoch 당 후보 1건, 실측 56 epoch=56 GATE_IN)이라, 남은 실질(마감 fail-closed·상태·version)을 '데이터 계약' 발견으로 흡수했다. ② 심각도 하향 7건 — 제출 major 6건 중 5건을 minor 로 낮췄다: YR-103 D 상수(block_congestion.py:23-24·report 한계·done.md 미확정③에 이미 3중 문서화), 다중이송 도착 누적(실측 max transfer_count=1 = 현 하네스 도달 불가), TransferResolver 부재(spec §구현 순서 4~6 에 계획 단계로 등록됨), 데이터 계약 fail-open(용량·규격·창·상태 검사는 실재), 양하 셀 미개방(YR-098·YR-081 spec:88 이 cap=None 에서 상금 0 을 이미 실증·명시). ③ 제출 근거 3건 철회·정정 — 'projected_completion_s 호출자 0건'(yr100_single_block.py:136 이 candidate_vessel_delta 경유로 소비), 'rollback 이 한 번도 검증 안 됨'(tests:196-210 stale 주입 실패주입 테스트 존재), '규격·슬롯·크레인 물리위반 미검사'(engine.py:971-1022 가 check_invariants=True 로 매 이벤트 상시 강제). ④ 유일한 major 는 직접 재현으로 확증 — 계약 fold 여유는 발화 52/52 에서 음수, 계약량 가드를 실제로 걸면 3시드 모두 이송 0건(무이송 arm), 차이 중앙값 −180.0s·최대 −4496.7s 가 제출값과 일치했다."
+    },
+    {
+      "findings": [
+        {
+          "kind": "gap",
+          "severity": "critical",
+          "claim": "이 트랙의 어떤 사전등록·보고서·보드에도 \"이 표본으로 얼마나 큰 효과까지 잡을 수 있나\"(검정력·최소검출가능효과) 계산이 없고, 특히 확증 대역을 선택 대역과 같은 n=8 로 잡아 확증런이 자기 선택런의 효과를 재현할 확률이 30%도 안 된다 — 즉 '선택→확증' 판정 구조가 구조적으로 확증을 못 한다.",
+          "evidence": "저장 원자료를 WSL 로 직접 재계산(MDE80=(t.975,df+t.80,df)·se, df=n−1). ①yr099_transfer_mvp/results.json n=8 sd=10.276 se=3.633 → MDE80=11.85 (오라클 상한 −22.41 의 53%); ②results_ens_K5.json sd=10.315 → MDE80=11.89; ③yr103_info_sufficiency/results.json part_a n=6 sd=5.271 se=2.152 → MDE80=7.51 (자기 '낙관 하한' −8.5 는 겨우 잡히나 −5 급은 못 잡음); ④yr099_midrun_review/results_t10.json sd=15.211 → MDE80=17.54, **confirm/results_t10.json sd=19.274 se=6.814 → MDE80=22.22** → 판정런 효과 −12.08 을 80%로 잡으려면 n≈19 필요, 현 n=8 검정력 ≈28%; ⑤yr105 results_select.json d_total sd=14.781 → MDE80=17.04, d_vs_rguard sd=14.418 → MDE80=16.62, d_berth sd=20.966 → MDE80=24.17. 저장 CI 와 재계산 CI 는 소수점까지 일치(예: yr105 [−8.165,+16.554] 동일). 문서 전체 grep 결과 '검정력' 언급은 과거 3건뿐이고 전부 산문 경고이며 수치 계산·표본크기 산정은 0건.",
+          "impact": "YR-099-mid 확증런은 진짜 −12 효과가 있어도 약 72% 확률로 '재현 실패'가 나오는 도구인데, 그 결과가 '창중 재배정 기각'과 YR-105 축 전환의 근거였다. 보고서 산문은 '부재의 증명 아님'을 반복해 지키고 있으나(yr103·yr099-mid·yr105 모두), 보드 done.md 의 한 단어 '기각' 라벨과 다음 축 결정에는 그 구분이 반영돼 있지 않다. 더 나쁜 것은 ready.md 의 YR-105-b/c/d 세 건이 같은 n=8 설계를 그대로 반복하도록 대기 중이라는 점이다.",
+          "fix": "①각 사전등록에 목표효과(예: 오라클 −22.4 의 30%)와 그에 필요한 시드 수를 먼저 계산해 박제하고, 판정 표에 MDE80·관측효과 검정력을 함께 싣는다. ②확증 대역 크기는 선택 대역 효과를 80%로 잡을 n 으로 산정한다(YR-099-mid 기준 n≈19). ③보드의 '기각'을 '이 표본에서 X 이상의 효과는 배제'로 정정한다. ④YR-105-b 착수 전에 이 규칙을 적용한다 — 기존 계약(사전등록 동결·결과 미열람)과 충돌하지 않는다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-104 가 'YR-098 은 자체 CI 라 보수 방향이어서 재계산이 필요 없다'고 코드와 보고서에 적었으나 방향이 반대다 — 실제로 쓰인 백분위 부트스트랩 구간이 정확 t 구간보다 좁고, 정확 t 로 다시 계산하면 유일한 GO 판정의 여유가 −0.21 에서 −0.08 로 2.6배 줄어 사실상 경계값이 된다.",
+          "evidence": "yr104_ci_recompute.py:65-70 이 재계산 없이 문자열 '자체 CI(n=40) — 정확 t=2.023 ≤ 사용값 → 보수 방향(안전), 재계산 불요'를 기록하고 report.md 표 마지막 행도 '보수 방향 — 안전'으로 박제. 실제 사용 함수는 yr071_realign_g0.py:73-79 `_paired_ci`(BOOT_N=10000·BOOT_SEED=75168 백분위 부트스트랩)이며 t 계수를 쓰지 않는다. yr098 rows.jsonl 40쌍으로 WSL 재계산: 같은 seed 로 부트스트랩을 재현해 저장값 [−5.5644,−0.2058] 을 소수점까지 일치 확인 → 정확 paired t-CI(df=39,t=2.023) 는 [−5.6015,**−0.0795**], 폭 5.359 vs 5.522 로 부트스트랩이 2.96% 더 좁다. 관측효과 −2.8405, se=1.365, MDE80=3.92 > 관측효과.",
+          "impact": "YR-098 의 GO 판정 자체는 뒤집히지 않는다(상한 여전히 <0). 그러나 'GO — 본선 타이밍 여지 실재'·'LOAD 한정 스코핑 확정'·'YR-097 투자 판단 재료'가 상한 −0.08 짜리 경계 위에 서 있다는 사실이 문서 어디에도 없고, YR-104 가 '확인했다'고 적은 근거는 실제 계산이 아니라 잘못된 방향의 추정이었다. 같은 부트스트랩 함수를 18개 하네스가 import 하므로 같은 반보수 편의가 전 트랙에 깔려 있다.",
+          "fix": "yr104_ci_recompute.py 에 yr098 rows.jsonl 기반 정확 t 재계산을 추가하고, done.md YR-098·YR-104 행과 yr098 report.md 를 [−5.60,−0.08]·경계 판정으로 정정한다. `_paired_ci` 전면 교체는 18개 하네스의 과거 수치를 모두 바꾸므로 하지 말고, 함수 docstring 과 보고 문구에 '반보수(정확 t보다 약 3~5% 좁음)'를 표기한 뒤 경계 판정 건만 정확 t 를 병기한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-098 의 확증 대역 40쌍 중 20쌍이 선택 대역과 완전히 같은 트럭 실현을 쓴다 — '확증 대역(+700)으로 선택 편향을 차단했다'는 사전등록 전제가 절반만 성립하고, 하필 그 겹치는 절반이 GO 판정을 떠받치고 있다.",
+          "evidence": "yr098_authority_null.py:42-43 `BASE`(셀 간격 100)+`N,SELECT_OFF,CONFIRM_OFF=10,500,700` → 선택 high-tight=830800~809(high,0.5) 와 확증 high-loose=830800~809(high,2.0) 가 같은 seed, 선택 mid-tight=830700~709 와 확증 mid-loose=830700~709 도 동일. WSL 실측: 같은 level·seed 면 vessel_deadline_mult 만 달라도 시나리오가 동일(scenario_gen.py:329 dmult 는 난수를 소비하지 않음) — seed 830800 high 에서 job 106개 동일·트럭 74건의 gate_in/block_arrival/eta 불일치 0건, 선박 planned_completion 만 2444.6↔5458.4 로 다름. 유발 상관(총비용 VF−SF): mid +0.315, high −0.064. 추가로 확증 대역을 반으로 갈라 보면 **겹치는 절반(loose 2셀) 평균 −5.11 vs 신선한 절반(tight 2셀) −0.571** 이라 확증 평균 −2.84(상한 −0.08)는 사실상 겹치는 절반이 만든 값이다.",
+          "impact": "yr098 docstring L11-13 과 report.md 의 '독립 신선 표본으로 선택 편향 차단'이 절반 무너진다. 항목 2의 경계 판정(상한 −0.08)과 겹치면 '선택 −6.3 → 확증 −2.8 = 편향 정직 제거'라는 서술의 강도가 실제보다 세다. 시드 배치 규칙(BASE 간격 100 < 대역 offset 간격 200)이 그대로라 앞으로 만드는 모든 대역이 같은 충돌을 낳는다.",
+          "fix": "셀 BASE 간격을 대역 offset 최대치보다 크게(예: 10만) 두는 규칙을 신규 실험에만 적용하고(기존 대역을 바꾸면 과거 결과와 비교 불가), 하네스에 '전 셀×전 대역 seed 집합 교집합 0' assert 를 넣는다. YR-098 GO 는 충돌 없는 신규 20쌍으로 재확인한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-041-a 의 비열등 게이트(δ=5분)가 자기 표본의 신뢰구간 반폭(5.94분, 시드 재사용까지 감안하면 약 7.5분)보다 좁아, 후보가 SF 와 완전히 같아도 통과 확률이 25~37%뿐이다 — '비열등 실패 → 기각'이 검정력 실패와 구분되지 않는다.",
+          "evidence": "prereg.md 게이트2='Δberth 상한 < +5.0분이면 비열등', yr041_locked.py:95 `'비열등' if b_ci[2] < 5.0`. results.json 재계산: n=24 mean +3.892 sd 14.055 se 2.869 t(df=23)=2.069 → 반폭 5.936 > δ=5.0. 참값 0이면 통과에 필요한 표본평균 < 5.0−5.936 = −0.936 → Φ(−0.936/2.869)=37%. 더구나 yr041_locked.py:27 `BASE41` 이 high-0.40 과 high-0.75 에 같은 830_100 을 줘 두 셀이 **같은 8개 트럭 실현(831000~007)을 재사용**하고, 두 셀 berth 차의 상관은 r=0.651 이다 — 상관을 반영하면 se 는 2.869→약 3.60, 반폭 약 7.45, 참값 0 통과 확률 약 25%로 더 떨어진다(즉 저장 CI 자체가 반보수).",
+          "impact": "보드 README.md L44 [4]·backlog YR-041 행·사용자 요약의 '단일블록 배포 후보 없음(berth 비열등 실패)'이 트랙 종결 근거인데, 그 게이트는 설계상 통과가 거의 불가능했다. 점추정 +3.89 가 양수라 후보가 실제로 나쁠 여지는 남지만 '비열등 실패'는 열등의 증거가 아니다.",
+          "fix": "비열등 시험은 δ와 예상 sd 로 필요한 n 을 먼저 계산해 사전등록에 박제한다(현 sd 기준 δ=5 를 쓰려면 n≥34, 시드 재사용까지 없애면 더 필요). 셀별로 서로 다른 seed 대역을 주어 재사용을 없애거나, 재사용이 불가피하면 셀을 클러스터로 보는 CI 를 쓴다. done.md YR-041-a 행과 README L44 를 '비열등을 보일 검정력이 없었고 점추정은 열세 방향'으로 정정한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "major",
+          "claim": "평가계약이 0순위 무조건 하드 guard 로 정한 '완주율 1.0·backlog 0·검열 회피 0'이 최근 판정 하네스에서 기계적으로 검사되지 않는다 — 기록만 하거나(YR-105·YR-099-mid) 아예 수집조차 안 한다(YR-103).",
+          "evidence": "계약 원문: .claude/docs/strategy-history/2026-07-27-P95-평가계약-정정.md §3 표 0행 '완주율 1.0, backlog 0, 검열 회피 0 = 무조건 하드 guard', 적용 대상에 'YR-099 후속·이후 신규 실험' 명시. 실제: ①yr103_info_sufficiency.py 는 completion/backlog 을 한 번도 다루지 않는다(파일 내 compl·backlog grep 0건) — 사후 검열 여부 확인 수단조차 없다. ②yr105_conditional_transfer.py:167,199 와 yr099_midrun_review.py:143,151,205 는 compl_min 만 저장·출력하고 assert 가 없으며 backlog 은 미수집. ③대조로 yr041_locked.py:91-94 는 guard_ok 를 verdict.adopt 에 실제로 곱해 넣는다(yr075c 는 guards 를 기록만 한다). ④계약보다 하루 앞선 YR-098(2026-07-26 완료, 계약 '비적용' 대상)에는 검사 없는 미완주 1건이 실제로 남아 있다 — rows.jsonl cell=high-tight·seed=830806·arm=SF·completion_rate 0.99138·backlog 1, 그 쌍의 VF−SF=−43.39 로 전체 최대 이상치이며 제외하면 선택 대역 VF−SF 가 −6.338→−5.388 로 바뀐다(단 세 팔이 함께 이동해 최선팔 VF 선택은 불변임을 확인).",
+          "impact": "'완주 1.0 guard 통과'라는 보고 문구가 기계 검사가 아니라 사람 눈대중이다. YR-103 은 검열 여부를 되짚을 원자료조차 없어 그 판정의 0순위 guard 는 사실상 미검증 상태다. 계약이 코드에 구현되지 않은 채 문서에만 존재한다.",
+          "fix": "run_joint_episode·멀티블록 러너 반환에 completion_rate·backlog·검열 카운트를 필수 필드로 넣고, 판정 함수 진입부에서 `assert compl==1.0 and backlog==0` 을 강제한다. 단 위반 시드를 사후에 빼면 그 자체가 선택 장치가 되므로, 교체 규칙(어느 시드로 대체할지)을 반드시 사전등록에 함께 박제해야 한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "보드의 in-progress·ready 가 **철회된** YR-105 1차(오염판) 결론을 다음 작업 우선순위의 유일한 근거로 계속 쓰고 있다 — '검출 실패(무의)'를 '원인 확정'으로 승격한 논증 오류다.",
+          "evidence": ".claude/Dashboard/in-progress.md:7 Note: 'YR-105 단일축① 본선 보호 필터 **반대 방향 반증** + 교락 통제로 \"손해는 볼륨 감소 탓\" 확정'. ready.md:7 YR-105-b Note: '교락 통제 결과 손해/이득은 ... **이송 볼륨**이 지배(VGUARD vs 볼륨매칭 무작위 무의)'. ready.md:9 YR-105-d Note: 'YR-105-a 가 반대 방향으로 반증한 데이터가 가리키는 방향'. 정본(outputs/reports/yr105_conditional_transfer/report.md:19-32·done.md:7)은 d_total +4.19 [−8.17,+16.55] 무의·d_berth +4.70 무의·교락통제 −6.20 [−18.26,+5.85] **무의**이고 L32 에 '방향 주장은 어느 쪽으로도 하지 않는다'라고 못박았다. 세 Note 의 문구는 report.md L54-80 의 **철회 표시된 1차 절**에서 그대로 옮겨온 것이다. 게다가 교락통제의 MDE80 은 16.62 라 관측 −6.20 을 잡을 검정력은 약 13%뿐이다.",
+          "impact": "YR-105-b(볼륨·타이밍)를 YR-105-d(역가설) 앞에 두는 순서 결정이 철회된 수치와 '무의=지배 확정' 오류 위에 서 있다. 보드가 판정의 single source 라는 규약과 정면으로 어긋나며, 다음 실험 설계가 잘못된 전제에서 출발한다.",
+          "fix": "in-progress.md·ready.md 의 YR-105-b/d Note 를 정본 문구('총비용·본선 어느 쪽에도 검출 가능한 효과 없음 / 방향·원인 주장 없음 / 교락통제는 검정력 부족으로 미결')로 교체하고, 축 순서는 철회된 근거 대신 새 근거(또는 항목 1의 검정력 계산)로 다시 정한다. report.md L54-80 철회 절에도 '이 절의 문장을 인용 금지' 표시를 단다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-099-mid 기각 판정의 결정적 근거인 확증런(842k)이 커밋된 코드로 재현되지 않는다 — 대역이 상수로 박혀 있고 band 인자도, confirm/ 출력 경로도 코드에 없다.",
+          "evidence": "src/yard_rl/experiments/yr099_midrun_review.py:52 `BASE_A, BASE_B = 840_000, 841_000` 상수, argparse 는 `--thresh` 하나뿐(L216-218), 출력은 `OUT / f\"results_t{...}.json\"` 고정(L208-209)이고 파일 전체에 'confirm' 문자열이 없다. 그런데 판정 근거 파일은 outputs/reports/yr099_midrun_review/confirm/results_t10.json 이고 report.md 표에 '확증런 842k'로 기재돼 있다. `git log -- src/yard_rl/experiments/yr099_midrun_review.py` 는 7c3d6a9·940fcc1 두 커밋뿐이고 940fcc1 의 diff 는 838k→840k 한 줄 변경만 담는다(다른 하네스는 없음 — grep 결과 이 경로에 쓰는 스크립트는 이 파일 하나). 대조: yr105_conditional_transfer.py:58 은 `BANDS = {\"select\": (847_000,848_000), \"confirm\": (849_000,850_000)}` 로 대역을 명시 관리한다.",
+          "impact": "'선택→확증 2대역'이라는 판정 절차의 확증 절반이 감사·재실행 불가능하다. 항목 1(확증런 검정력 28%)과 겹쳐, 이 기각 판정은 검증도 재현도 되지 않은 상태로 YR-105 축 전환의 근거가 됐다.",
+          "fix": "yr099_midrun_review 에 yr105 와 같은 `BANDS`/`--band`/대역별 출력 경로를 추가하되 기본값은 현 840k/841k 로 두어 기존 판정런 출력이 그대로 재현되게 하고, 확증런(842k/843k)을 커밋된 코드로 재실행해 수치 일치를 박제한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "YR-103 Part B 의 혼잡점수 예측력 상관 0.599 는 시점(에피소드 진행) 교락을 통제하지 않은 pooled 값이라 부풀려져 있고, 서로 독립이 아닌 175개 스냅샷에 어떤 구간추정도 붙어 있지 않다.",
+          "evidence": "yr103_info_sufficiency.py:218-224 `_rho_by` 가 시드·시점 구분 없이 스냅샷을 pooled 로 순위상관(표본 = 6시드×2셀 = 12런에서 나온 175 스냅샷). partb_v2.json 재계산: ρ(t, C_zero) = high 0.532 / mid 0.324, ρ(t, future_cost) ≈ 0.18 → 시간이 두 변수의 공통 원인. 900초 시각 버킷 안에서만 계산한 평균 ρ = 0.423(버킷 33개), high 셀은 17개 버킷 중 6개가 음수. 다만 런 단위(시드×셀 12개) 상관은 평균 0.437·최소 0.129 로 **12/12 전부 양수**라 '예측력 실재'라는 결론 자체는 살아남는다.",
+          "impact": "report.md 의 '셀 안에서도 전부 양수(pooling 부풀림 제거 후에도)'는 셀 pooling 만 제거하고 시점 pooling 은 남긴 서술이며, 표에 실린 0.599 는 실제 신호 강도(약 0.42~0.44)보다 크다. 다만 신호의 존재·부호는 통제 후에도 유지되므로 '후속 축이 과대평가된 신호 위에 섰다'까지는 아니다. 세 부호 비교(0.613/0.599/0.580)는 D 가 거의 상수라 차이가 노이즈 수준이나, 이 점은 이미 report.md 와 done.md:11 이 '확정은 신규 seed 재현 후·미확정 4건'으로 표시하고 있다.",
+          "fix": "스냅샷 상관을 시드 단위 클러스터 부트스트랩 또는 시점 버킷 내 상관의 평균으로 다시 산출하고 CI 를 붙인다. report.md 표에 pooled 0.599 와 시점통제 0.42 를 병기하고 high 셀 버킷의 부호 불안정을 한 줄 명시한다.",
+          "already_registered": "부분 — done.md:11 YR-103 행이 '+D 부호'를 미확정 4건(확정 인용 금지)에 포함. 시점 교락·구간추정 부재는 미등록"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "YR-104 가 고친 것은 공용 `_ci` 뿐인데 report.md 함의 절이 '이후 실험은 정정된 _ci 로 정확한 CI 를 산출한다'라고 넓게 적었다 — 자기 t표를 따로 가진 하네스가 4개 남아 있고 그중 yr087_selective 는 기본 인자에서 결함이 실제로 발화해 저장된 CI 가 18% 좁다.",
+          "evidence": "①yr087_selective.py:140-141 `_TC` 에 df=5 키가 없고 154행 fallback 2.1 — argparse 기본 `--seeds 6`(n=6, df=5)이라 정확값 2.571 대신 2.1 사용 → CI 18.3% 협소, 실제 outputs/reports/yr087_selective/results.json 의 \"seeds\": 6 확인(저장 CI 가 좁은 값). ②yr080_objective_ablation.py:147-148 `_tcrit` fallback 1.96 — df 21~30 에서 최대 6% 협소(기본 --seeds 3 이라 현재는 미발화). ③yr075c_rollout_headroom.py:52 `_TC={4:2.776,14:2.145}`+177행 fallback 2.0 — 현 결과는 n=15(df=14) 라 정확값 적중, 잠재 결함. ④yr103_info_sufficiency.py:55 는 n>30 에 2.0(정확 2.042~2.023, 최대 2% 협소·현재 미발화). 다만 YR-104 의 '전 소비자 자동 정정'은 `_ci` 를 import 하는 소비자로 한정한 표현이므로 그 문장 자체는 틀리지 않았다. 또 yr087_selective 결과를 인용하는 보드·문서는 grep 상 0건이라 현재 살아 있는 판정을 오염시키진 않는다.",
+          "impact": "보고서 함의 문장이 실제보다 넓은 안전을 약속한다. yr087_selective 를 기본값으로 재실행하면 18% 좁은 CI 가 조용히 다시 나온다.",
+          "fix": "t 임계 조회를 experiments/statistics.py 의 단일 함수로 통합하고(df>30 fallback 도 2.042 로 보수화) 하네스별 사설 `_TC`/`_TCRIT`/`_T95` 를 제거한다. 통합 시 df 미존재는 예외로 던진다. YR-104 report.md 함의 문장을 '`_ci` 소비자에 한정'으로 좁힌다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "시드 배치 규칙(셀 BASE 간격 100 · 대역 offset 이 100의 배수) 때문에 서로 다른 실험·셀이 같은 트럭 실현을 공유하는데, 두 사전등록 문서가 '신선·불겹침'이라고 사실과 다르게 적어 두었다.",
+          "evidence": "yr100_candidate_eval.py:4 docstring('평가대역: 4셀 × 신선 seed 6 (BASE+700..705 — 학습 tr/va/기존 eval 대역과 불겹침)')·26행 `SEEDS = {c: [BASE[c]+700+i]}` 는 yr090 의 BASE·CELLS 를 그대로 import 하므로 4셀 전부 yr098 확증 대역(`CONFIRM_OFF=700`, 같은 BASE·같은 CELLS)의 앞 6개와 셀·시드가 완전히 같다. yr041_locked/prereg.md L15 는 'seed 셀별 8 — BASE[level]+900..907 ([3] +700 대역과 불겹침)'이라 적었지만, high-0.40/high-0.75 의 831000~007 은 yr100 high-tight 의 831000~005 와 같은 level·seed 라 트럭 실현이 동일하다(WSL 로 level=high seed=831000 확인: job 110개·트럭 82건 타이밍 불일치 0). '불겹침'은 seed 정수만 본 표현이고, 실제로 같은 것은 시나리오다.",
+          "impact": "YR-041-a 후보 선정(yr100_candidate_eval)·YR-041-a 잠금평가·YR-098 확증이 부분적으로 같은 트럭 시나리오 위에서 이뤄져 서로 독립 증거로 인용될 수 없다. 실질 오염은 작지만 사전등록에 적힌 사실 주장이 틀렸다.",
+          "fix": "두 문서의 '불겹침' 문구를 실제 겹침 상태로 정정하고, 앞으로 '신선 대역' 판정 기준을 seed 정수가 아니라 (level, seed) 쌍으로 정의한다 — 항목 3의 시드 배치 재설계에 함께 포함한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "다수 하네스의 짝짓기가 seed 동일성 검사 없이 zip 으로만 이뤄져, 한쪽 arm 이 시드 하나를 빠뜨리면 조용히 어긋난 짝이 만들어진다(현재 실제 어긋남은 없음 — 잠재 결함).",
+          "evidence": "yr080_readjudicate.py:150-152 `_diff` 가 정렬 후 `zip(ra, rb)` 만 한다. 같은 형태 확인: yr041b_truck_peak.py:67, yr041c_sts_aware.py:105-106, yr073_reverify.py:83-84, yr074_finetune.py:160-163, yr075a_ceiling.py:57-59, yr077_robust.py:81, yr041_locked.py:88-90. 대조: yr071_realign_g0.py:90 `assert [r['seed'] for r in ra] == [r['seed'] for r in rb]`, yr098 `_diffs` 는 (cell,seed) dict 매칭, yr087 `paired_vs_sf` 는 seed dict 매칭. 저장 원자료에서는 전 arm 이 같은 시드 루프를 돌아 실제 어긋남 0(yr041_locked results.json 24쌍 seed·cell 전수 대조로 확인).",
+          "impact": "부분 실행·샤드 병합·arm 추가 시 CI 가 조용히 오염될 수 있다. 실제로 yr099_transfer_mvp.py:259 는 이 위험 때문에 샤드 병합에 커버리지 assert 를 두고 있다.",
+          "fix": "yr071 의 seed assert 또는 (cell,seed) dict 매칭을 공통 헬퍼로 올리고 zip 직접 사용을 제거한다. 기존 수치는 바뀌지 않으므로 다른 계약을 깨지 않는다.",
+          "already_registered": "none"
+        }
+      ],
+      "lens": "실험 방법론 (CI·짝짓기·guard·검정력·수치 정합성)",
+      "passed_checks": "감사자가 통과 처리한 4개 항목을 재확인해 모두 성립함을 확인했다: ①공통난수 짝짓기(YR-105·YR-099-mid·YR-099-G1 의 전용 난수 스트림 분리·작업 수 보존 assert)와 (cell,seed) dict 매칭 계열은 어긋날 여지가 없다. ②YR-104 가 실제로 고친 공용 `_ci`(yr090_dense_vessel.py:245-248)는 df 1~29 전표+보수 fallback 으로 정확하며, 표의 n=8 재계산 3건을 원자료로 재검산해 소수점까지 일치했다([−5.511,+11.675]·[−33.345,−11.478]·[−5.084,+12.165]). ③편향 제거 장치(route 비용 계상·RGUARD 볼륨매칭 대조군·YR-103 선택/평가 표본 분리)는 코드에 실제 구현돼 있다. ④완주율 값 자체의 오염 증거는 YR-105 select 8시드 전 arm 1.0, YR-099-mid 판정런·확증런 compl_min 1.0 으로 재확인했다 — 문제는 값이 아니라 계약 미시행이다.\n심각도 조정: 제출본 critical 2건 중 1건(YR-104/YR-098 부트스트랩)은 GO 판정이 뒤집히지 않으므로 major 로 낮췄고, major 3건(사설 t표·옛 CI 인용·YR-103 Part B)은 살아 있는 판정을 왜곡하지 않아 minor 로 낮췄다. 원본 6번(옛 CI 5곳 인용)은 결론 변경이 0건이고 순수 문서 정합 문제라 minor 로 낮춰 유지했다.",
+      "verdict": "ERRORS_FOUND"
+    },
+    {
+      "findings": [
+        {
+          "kind": "gap",
+          "severity": "critical",
+          "claim": "판정 주지표인 '총비용'은 본선측 비용(전체의 70%)이 분산을 지배해 N=8 로는 이송 효과를 잴 검정력이 없다 — 총비용으로 유의판정하려면 시드가 약 100~140개 필요한데 모든 판정이 8개로 수행됐다.",
+          "evidence": "독립 재실행(선택대역 847k/848k, BASE 무이송 vs 혼잡격차 이송, N=8, 파일 scratchpad/adv_signal.py) 결과가 제출값과 소수점까지 일치: Δ총비용 −4.33 [−22.49,+13.83] sd 21.71 = Δ트럭측 −3.25 [−7.84,+1.35] sd 5.49 + Δ본선측 −1.09 [−16.76,+14.59] sd 18.75 (본선측 sd 가 트럭측의 3.41배). 기준선에서 vessel_delay 가 terminal_total 의 70.2%(범위 0.655~0.792, 8시드). 필요 시드수(z 근사): 트럭측 11 · 총비용 97 → 8.8배. 구조 원인 재확인: scenario_gen.py:323-378 이 sim 마다 n_vessels=2 를 독자 생성하고 multiblock.py:113-129 는 그대로 묶어, A·B 의 vessel_id 가 {'V-DISC-0','V-LOAD-1'} 로 겹치고 planned_start 도 1440/6480 으로 완전 일치(실측 seed 847000/848000). 스펙 어디에도 '블록마다 별개 본선'은 없다 — YR-099 spec:68 은 블록별로 두는 것을 stack/crane/queue 로만 열거하고, YR-081 spec:122·YR-099 spec:162·YR-100 spec:83 은 후속 물리축으로 '공유 YT/도로'만 언급한다. **제출본에서 삭제한 부분**: '이득 경로가 아예 없다'는 성립하지 않는다 — 실측 dA_vessel_delay=−10.25(소스 블록 본선 완화)로 블록 내 이득 경로는 존재한다. 남는 사실은 이득(−10.25)과 부담(+8.50)이 서로 무관한 두 선석에서 발생해 상쇄가 아니라 분산 누적이 된다는 것.",
+          "impact": "검증한 두 판정이 직접 영향: YR-099-mid 확증런 −1.45 [−17.56,+14.67] 을 '재현 실패'로, YR-105-a 정본 +4.19 [−8.17,+16.55] 를 '효과 미검출'로 기록했는데, 두 CI 폭(±16, ±12)이 트럭측 실효크기(≈−3)의 4~5배다. 즉 '효과 없음'과 '효과가 있어도 이 지표로는 안 보임'을 구분하지 못한다. ready.md 의 YR-105-b/c/d 세 축이 모두 같은 지표·같은 N=8 로 계획돼 있어 같은 결과가 반복된다. (t=0 트랙 YR-099-G1 은 같은 셀을 쓰지만 별도 하네스라 이번에 재측정하지 않았다 — 영향 가능성만 표기.)",
+          "fix": "① 판정 지표를 결과 열람 전에 '트럭측 비용'과 '본선측 비용'으로 분리 사전등록하고 각각 CI 를 낸다. 본선측은 현 N 으로 판정 불가임을 판정문에 명시. ② 판정런 전 사전진단으로 sd_트럭/sd_본선 과 '해당 효과크기에 필요한 시드수'를 보고하도록 고정(현재 계산은 scratchpad/adv_signal.py 그대로 재사용 가능). ③ 구조 축소는 별도 사전등록: 블록당 본선 노출을 줄이거나(2블록 1본선) 두 sim 이 같은 본선 집합을 공유하도록 브리지를 확장. ③은 engine 의 _vessel_finish/_finalize 비용적립이 sim 단위라 계약 변경 폭이 크므로 ①②를 먼저 한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "major",
+          "claim": "두 블록의 혼잡 격차가 방향을 거의 바꾸지 않아(역방향 0~5%) 혼잡격차 규칙은 사실상 'A 가 더 붐빈다'는 상수 방향만 검출한다 — 시나리오 생성기가 두 블록에 같은 트럭 피크·같은 본선 접안창을 주기 때문이다.",
+          "evidence": "독립 재실행(scratchpad/adv_sync.py, review epoch 전수)이 제출값과 일치: corr(C_zero_A, C_zero_B) = +0.859(n=56)/+0.712(n=59)/+0.636(n=48), gap 평균 +0.066/+0.219/+0.163 · sd 0.091/0.138/0.162, 역방향(gap≤−0.10) 발생률 5.4%/0%/0%. 판정 로그 outputs/reports/yr105_conditional_transfer/decisions_select.json(461 결정) 재집계: gap|src=A 평균 +0.140 · gap|src=B 평균 −0.151, 발화 16건 A→B / 2건 B→A. 생성기: scenario_gen.py:153-155 가 두 셀 모두에 arrival_peak_amp=1.0·center_frac=0.5·width_frac=0.25 를 주고, scenario_gen.py:324 vessel start = horizon*(0.1+0.7v/n) 도 셀 무관 → 실측 planned_start 가 A·B 모두 1440/6480 으로 동일. **제출본에서 낮춘 부분**: '동적 기회 자체가 없다'는 과장이다 — 임계 초과(gap≥0.10) 비율은 시드별 28.6%/88.1%/64.6% 로 에피소드 내 시간 변동은 존재한다. 성립하는 것은 '방향이 뒤집히지 않는다'(역방향 0~5%)까지다.",
+          "impact": "YR-099-mid report.md:27-28 이 '방향 물리 정합 — 이송의 93%+ 가 A→B'(재실행 8시드 실측 102/110=92.7%)를 확정 자산으로 기록했으나, 방향이 구조적으로 뒤집히지 않는 시나리오에서 나온 값이라 '혼잡 신호가 옳은 방향을 가리킨다'의 증거가 되지 못한다. 또 ready.md YR-105-c(지속 혼잡, 연속 k회 관측)는 신호가 이미 지속적(블록 간 corr 0.64~0.86)이므로 설계대로 실행해도 필터가 거의 no-op 이 될 공산이 크다.",
+          "fix": "① 판정런 전 사전진단 지표로 corr(C_zero_A, C_zero_B) 와 역방향 기회 비율(gap≤−THRESH)을 고정 보고하고, 역방향이 5% 미만이면 '부하균형 규칙 시험 부적합'으로 기록한다. ② 비동기 부하 셀을 별도 축으로 사전등록: 두 셀의 arrival_peak_center_frac 을 어긋나게(예: 0.35 vs 0.65) 하고 vessel planned_start 에 블록별 오프셋. 단 scenario_gen 의 골든 바이트 계약(peak amp=0 이면 항등, meta 비기본만 기록)을 지키려면 오프셋을 신규 opt-in 파라미터로 넣어야 한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-105-a 의 '본선 보호 필터(VGUARD)'는 접안 전 구간에서 본선 상태와 무관한 순수 시계 임계로 퇴화해 있었다 — 정보량이 사실상 0인 arm 이었다.",
+          "evidence": "vessel.py:53-61 — remaining_service_time_s() 가 started=False 인 동안 plan.total_moves*cadence 상수를 돌려주고 slack_s = pc − now − rem 이라 planned_start_s 가 반영되지 않아, 접안 전 슬랙은 야드 상태와 무관하게 초당 1초씩 감소한다. 판정 로그 재집계(decisions_select.json, scratchpad/adv_v2.py): src=A 는 slack<0 이 t∈[5466.9,15138.0], slack≥0 이 t∈[173.8,5500.2] 로 분리돼 단일 시계 임계 t≥5466.9 가 245건 중 244건을 맞춘다(오분류 0.41%). src=B 도 t≥10846.9 로 오분류 0.52%(191건 중 1건). 차단 116건 전부 src=A. 해석적 확인: slack<0 ⟺ now > start + moves·cadence·(dmult−1) 로, CELL_A(dmult=0.5)의 LOAD 는 seed 847000 에서 6480 − 14×141.59×0.5 = 5488.9 s (실측 대역과 정합).",
+          "impact": "outputs/reports/yr105_conditional_transfer/report.md:63-64 의 '본선 슬랙을 차단 조건으로 쓰는 것은 정보가치가 없다'는 결론 자체는 남지만, 원인 귀속이 다르다 — '본선 슬랙이라는 정보가 무가치'가 아니라 '이 구현의 슬랙이 접안 전 정보를 담지 않았다'가 맞다. 실험 docstring(yr105_conditional_transfer.py:17-19)의 '임계 0 은 튜닝값이 아니라 slack_s 의 의미 경계'도 성립하지 않는다. 나아가 ready.md YR-105-d 는 '압박 블록 트럭 부하를 덜면 본선에도 이롭다'를 근거로 등록돼 있는데, 그 근거는 이미 철회된 1차 오염판(+17.87 유의)에서 온 것이고 정본은 '방향 주장은 어느 쪽으로도 하지 않는다'(report.md:32)라고 명시한다 — row 근거문이 정본과 모순이다.",
+          "fix": "① YR-105-a 판정문과 done.md 행에 '이 arm 은 접안 전 구간에서 정보량 0(시계 임계 재현율 99.6%)이었음' 정정 각주를 박제하고, ready.md YR-105-d 의 근거문을 정본 기준으로 고친다. ② 앞으로 정보성 arm 을 만들 때 '결정 로그가 시각만으로 몇 % 재현되는가'를 사전진단으로 넣고 80% 이상이면 정보성 arm 으로 인정하지 않는다. ③ vessel.slack_s 자체를 pc − max(now, planned_start_s) − rem 으로 고치는 것은 **단독으로는 해결이 아니다** — dmult=0.5 에서는 슬랙이 시작부터 상수 음수가 되어 100% 차단으로 더 퇴화한다(근본 원인은 아래 dmult 발견). 또 이 함수는 adapter.py:160,211 을 거쳐 관측 계약 schema.py:212(slack_s)·182(deadline_slack_s)와 itc-v5 인코딩·골든 파일·학습된 체크포인트에 연결돼 있으므로, 고칠 경우 골든 재생성과 재학습이 동반된다. 별도 사전등록 없이 손대지 않는다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "vessel_deadline_mult=0.5 는 STS 자체 처리속도로도 달성 불가능한 계획완료시각을 만든다 — 블록 A 의 본선은 야드가 무한히 빨라도 반드시 선석을 초과한다.",
+          "evidence": "scenario_gen.py:335-348 planned_completion = start + eff_moves·cadence·dmult. 엔진 재확인: engine.py:834-843 _vessel_start 가 첫 STS_MOVE 를 start+cadence 에 예약하고 매 cadence 마다 1 move 씩 소진하므로 **물리 최소 완료 = start + moves·cadence**, 따라서 구조적 최소 초과 = moves·cadence·(1−dmult). 제출본의 (moves−1) 식은 이를 과소평가했다. 정정 실측(scratchpad/adv_berth.py, BASE 무이송): A 블록 구조적 최소 초과가 seed0/1/2 에서 33.0 / 38.3 / 37.9 분이고, 같은 런의 선석초과 합(A+B)이 160.4 / 199.8 / 129.8 분 → **19~29% 가 이 상수**. 블록별로는 A 가 144.8·186.6·123.0 분, B 가 15.6·13.2·6.8 분으로 선석초과의 약 90% 를 A 가 진다. CELL_B(dmult=2.0)의 구조적 최소 초과는 0.0. 셀 출처: yr080_distill.py:43-44 CELLS 의 high-tight/mid-loose 를 yr099_transfer_mvp.py:38·yr099_midrun_review.py:49·yr105_conditional_transfer.py:57 이 그대로 가져다 쓴다. 문서 상태: strategy-history/2026-07-21-본선처리-전략.md:54 는 'vessel_deadline_mult = 현실 입력 아님·스트레스 실험만'이라고 적어 두었지만, dmult<1.0 이 **물리적으로 달성 불가능한 계획**이 된다는 사실은 어디에도 없다(busan_scenario_params 의 스트레스 4셀은 전부 1.15~1.4 로 ≥1.0).",
+          "impact": "짝지은 Δ 에서는 상수가 상쇄되므로 판정 부호를 직접 뒤집지는 않지만 세 가지를 왜곡한다: ① slack_s<0 을 창발 상태가 아니라 초기조건으로 만들어 위 VGUARD 퇴화를 낳았다 ② vessel_delay(가중치 33)를 terminal_total 의 70% 로 밀어올려 판정 분산을 지배하게 했다(위 critical 발견의 물리적 뿌리) ③ '고부하-타이트 블록'의 의미가 '바쁜 블록'이 아니라 '애초에 지킬 수 없는 계획을 받은 블록'이 된다.",
+          "fix": "① 다중블록 셀에서 dmult 하한을 물리 실현가능 구간(≥1.0, 즉 planned_completion ≥ start + moves·cadence)으로 제한하거나, dmult<1.0 을 유지할 경우 '구조적 최소 초과분'을 시나리오 meta 에 사전 계산해 박제하고 보고 지표에서 상수로 분리한다. ② 셀 교체는 대역·판정 재실행을 유발하므로 별도 사전등록으로 처리하고, 그 전까지는 판정문에 '선석초과의 19~29% 는 정책과 무관한 시나리오 상수'를 명시한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "YR-099-b 가 계약 ⑥ 으로 선언한 수신 용량 검사는 판정 런에서 한 번도 구속되지 않았고(112건 발화 중 거부 0), 스펙이 fail-closed 로 요구한 수신 자격 마스크(allowed_execution_blocks)는 미구현이다.",
+          "evidence": "multiblock.py:13(계약 ⑥ 선언)·:215-225(free_slots)·:246-247(free_slots ≤ capacity_margin=2 이면 거부). 실측 블록 기하 24×10×6=1440 슬롯, 전 review epoch 에서 free_slots 최소값이 6~8시드에서 A 878~1059 · B 906~1036(margin 2 대비 400배 이상). 더 강한 증거: results_select.json BASE arm 8시드 전부 n_rejected=0 (발화 9/19/13/6/21/19/7/18 = 112건 중 용량·규격 거부 0건). 단위테스트 tests/integrated/test_yr099b_bridge_contract.py:225-235 는 capacity_margin=10**9 라는 인위적 값으로만 경로를 밟고, 테스트 주석 스스로 '실제로는 여유 있음(가드가 막은 것)'이라 적고 있다. **제출본에서 낮춘 부분**: 'YR-099 spec:52 의 Job 필드가 하나도 없다'는 오해를 부른다 — tos_assigned_block_id·execution_block_id·assignment_version·transfer_count/history·reassignable 은 Job 이 아니라 TerminalLedger.JobRecord(multiblock.py:30-50)에 origin_block/owner/version/transfer_count/transfer_history/locked 로 기능 등가 구현돼 있다. src/ 전체 grep 0건이 사실인 것은 allowed_execution_blocks·reassignable_until·assignment_received_at 세 이름뿐이고, 이 중 기능적으로 빠진 것은 **자격 마스크(allowed_execution_blocks) 하나**다.",
+          "impact": "재배정 기회집합이 실제보다 넓다(어떤 블록이든 어떤 반입이든 수용). 방향은 판정에 보수적이지 않고 중립이며(짝지은 비교의 정책 정의가 달라질 뿐), 다만 지금까지의 무의/기각 원인에서 '공간·자격 제약이 상금을 막았다'는 해석 경로는 데이터로 배제된다. 또 done.md YR-099-b 의 '⑥ 수신 블록 용량검사' 달성 주장은 코드·인위적 단위테스트 수준이지 판정 런 실증 수준이 아니다.",
+          "fix": "① 판정 보고에 '용량·규격 거부 = 0/112' guard 수치를 명시해 계약이 무구속임을 정직하게 박제한다(코드 변경 0). ② 용량을 실제 구속시키려면 fill_ratio 0.65 급(busan_scenario_params 'saturation') 셀이나 축소된 블록 기하를 별도 축으로 사전등록. ③ allowed_execution_blocks 한 필드만 Job 에 추가해 최소 자격 마스크(무작위 파티션 대용)를 넣는다 — 상세 적재규칙은 YR-095 로 유예해도 되지만 '허용 블록'은 spec 의 fail-closed 필수 계약이다.",
+          "already_registered": "YR-095 (부분 — 중량·냉동·위험물·선사 규칙만 등록. allowed_execution_blocks 자격 마스크와 '용량검사 무구속' 실증 guard 는 미등록)"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "ΔRouteCost 가 방향 무관 상수 180 s 로 구현돼 spec 의 부호 가변 정의(origin→B − origin→A)와 다르고, 애초에 두 블록이 같은 프로파일 복제라 위치·이질성 개념이 존재하지 않는다.",
+          "evidence": "spec: YR-099-post-tos-inbound-transfer-resolver.md:96 \"origin 은 A 가 아니라 게이트·안벽의 실제 출발점이다. ΔRouteCost 는 origin→B − origin→A\". 구현: yr105_conditional_transfer.py:60 ROUTE_S=180.0 상수를 :141 try_transfer 가 src='A'·src='B' 양쪽에 동일 적용(yr099_midrun_review.py:53·yr099_transfer_mvp.py:39 도 동일 상수, 후자는 '(assumed)' 라벨). multiblock.py:248 arr = a_gate_in + travel_s + route_s, :317 route_cost_s += route_s. 실측: 두 sim 의 profile.block.block_id 가 모두 'B1'(profiles.py:46-56 build_calibrated_profile 를 두 번 호출) → 기하 24×10×6·크레인 2기·gate_travel 까지 완전 동일해 블록 간 상대위치 정보가 없다. B→A 이송도 실제로 발생하며(재실행 seed2 2건·seed5 5건) 그 경우에도 +180 s 벌점. **제출본에서 낮춘 부분**: 크기가 이송 1건당 0.05 numeraire = terminal_total 의 0.3% 이고 전 arm 에 대칭 적용돼 어떤 판정 부호도 바꾸지 않으므로 major 가 아니다.",
+          "impact": "이송 방향 비대칭(게이트에서 가까운 블록으로 옮기면 주행이 줄어 이득)이라는 재배정 상금의 한 원천이 0 으로 고정된다. 판정 수치 영향은 미미하나, 다중블록 시험대가 '위치가 있는 두 블록'이 아니라 '같은 블록의 복제 2개'임을 드러내는 지표다.",
+          "fix": "블록 프로파일에 게이트 기준 상대위치(또는 블록별 gate_travel_estimate_s)를 넣고 route_s 를 origin→dst − origin→src 로 계산해 부호가 바뀌게 한다. 최소 조치로는 두 블록에 서로 다른 gate_travel 상수를 주고 A→B 는 +Δ, B→A 는 −Δ 로 계상. 어느 쪽이든 판정 대역 재실행이 필요하므로 별도 사전등록.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "전역 유일성 계약이 job_id 에만 적용돼, 두 블록이 같은 block_id·같은 컨테이너 id·같은 vessel_id 를 갖는다.",
+          "evidence": "실측(scratchpad/adv_v1.py): A.profile.block.block_id == B.profile.block.block_id == 'B1'; 컨테이너 id 충돌 seed0 332건(A 의 전 컨테이너가 B 에도 존재)·seed1 452건; vessel id 충돌 {'V-DISC-0','V-LOAD-1'}. multiblock.py:367-387 _namespace_jobs 는 sim.jobs·큐 payload·time_ledger·_eta_wakes 의 job_id 만 개명하고, check_invariants(:351-364)도 job 소유권·보존만 검사한다.",
+          "impact": "현 범위(반입 GATE_IN 만 이송, 컨테이너는 아직 생성 전, 본선 KPI 는 sim 단위 합산)에서는 실제 오염이 없음을 확인했다. 다만 YR-081 taxonomy ②(미지정 공컨·환적 후보 선택)·③(장치된 컨테이너 물리 재배치)이나 YR-100 vessel_cost 의 블록 간 집계를 여는 순간 조용히 별칭되며, 그때는 감사로 잡기 어렵다.",
+          "fix": "_namespace_jobs 와 같은 시점에 container_id·vessel_id 도 '{block}:' 접두를 붙이고 block_id 도 블록별로 부여(profiles 빌더에 block_id 인자 추가). check_invariants 에 컨테이너·본선 유일성 assert 추가. 골든 바이트 계약에 영향이 없는지(단일블록 경로 미경유) 회귀로 확인.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "'공유 YT·도로 외부효과 stress'는 후속으로 등록돼 있으나, 지금 켜면 결과가 자동으로 0 이 나온다 — 이송장비가 애초에 포화되지 않고 관련 비용항 가중치가 전부 0 이다.",
+          "evidence": "profiles.py:39 TransferFleetSpec(n_units=3, move_time_s=180.0) 를 sim 마다 별도 생성(공유 자원 객체 없음). 실측(scratchpad/adv_sync.py, 3시드 전 구간): A·B 모두 transfer_wait raw = 0.0 — engine.py:704 가 매 구간 set_rate('transfer_wait', transfer.waiting_count()) 로 살아있는 적립 경로임을 확인했으므로 이는 '한 번도 대기 없음'을 뜻한다. 가격: cost_config.py:236-244 NUMERAIRE_WEIGHT 에서 transfer_wait=0.0·sts_wait=0.0·lane_cong=0.0·interference=0.0. 반면 raw 는 0 이 아니다(seed0 lane_cong A=12697.0·B=10516.4, interference A=1038.8·B=1535.4, sts_wait A=6703.7·B=3447.3) — 물리는 시뮬되지만 0 이 곱해진다.",
+          "impact": "YR-081 spec:122·YR-099 spec:162 의 '공유 YT/도로 stress' 를 계획대로 실행하면 '비가산 효과 없음 → scalar quote 로 충분'이라는 잘못된 확인이 자동으로 나온다. 또 블록 간 도로가 모델에 없어 이송 트럭의 외부효과가 계상될 자리가 구조적으로 없다.",
+          "fix": "stress 착수 전 선결 두 가지를 해당 row 의 blocked-by 로 등록한다: ① fleet 을 실제 병목으로 만들고(n_units 축소 또는 vessel_moves·cadence 상향) 포화 발생을 실측으로 확인 ② transfer_wait·lane_cong 가중치를 0 이 아닌 값으로 여는 별도 목적계약 ablation. 둘 다 없이 '공유 YT stress' 판정을 내리지 않는다.",
+          "already_registered": "YR-099 spec 구현순서 6 (부분 — stress 자체는 등록. '먼저 YT 를 병목으로 만들고 가중치를 열어야 한다'는 선결 조건은 미등록)"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "MultiBlockTerminal.run() 이 돌려주는 terminal_total 에 이송 추가주행 비용이 빠져 있어, 이름만 믿고 쓰면 조용히 pro-이송 편향이 된다.",
+          "evidence": "multiblock.py:193-195 — {\"totals\":..., \"route_cost_s\":..., \"terminal_total\": round(sum(totals.values()),6)} 로 route 는 별도 키. **제출본 정정**: 현 소비자는 2곳이 아니라 1곳뿐이다 — grep 결과 MultiBlockTerminal 사용처는 yr105_conditional_transfer.py 와 테스트뿐이고(yr099_midrun_review.py 는 브리지를 쓰지 않는 MVP 로 :147 에서 자체 route_cost 를 계산한다), 그 1곳은 :161 에서 res[\"terminal_total\"] + route_cost 로 정상 합산한다. 크기: seed0 route 1620 s = 0.45 numeraire vs terminal_total 140.19 (0.3%).",
+          "impact": "지금은 무해하나 'terminal_total' 이라는 이름이 계약상 총비용을 뜻하므로 향후 소비자가 누락하면 검출이 어렵다. 실제로 YR-099-mid 검증 F3 와 YR-099-b 적대검증 critical-2 가 각각 이 누락(pro-이송 편향)을 한 번씩 잡은 전력이 있다.",
+          "fix": "terminal_total 에 route_cost 를 포함시키고 분해값을 별도 키(cost_blocks/cost_route)로 노출하거나, 키 이름을 blocks_total 로 바꿔 오해 소지를 없앤다. 유일 소비자(yr105:161)가 이중계상하지 않도록 같은 커밋에서 함께 고치고, 기존 판정 수치가 바뀌지 않음을 회귀로 확인.",
+          "already_registered": "none"
+        }
+      ],
+      "lens": "다중블록 물리 현실성 — multiblock.py 가 묶는 2개 독립 TerminalSimulator 가 실제 터미널의 재배정 문제를 대표하는가",
+      "passed_checks": "제출된 10건 중 9건은 근거가 재현됐고 1건(반입 컨테이너 생애주기 미연결)은 삭제했다 — YR-081 spec:86 이 'yard_handover_cap=None 에서 양하 배치는 해당 본선 완료를 직접 당기지 않고, 다른 블록 YC 시간을 비우는 간접효과만 센다'로, YR-100 spec:83 이 '직접항은 0'으로 이미 설계 의도를 명시했고, 생애주기 연결 결손 자체는 backlog YR-075-b 에 등록돼 있어 '빈 공간' 요건에 미달한다.\n감사자가 통과 처리한 항목들은 재검증에서도 유지된다: (a) terminal_total 의 블록 합산은 contract/cost.py make_cost 기여도가 raw 에 선형이고 구간 길이로 정규화하지 않아 단위 불일치·이중계상이 없다 (b) 이송 180 s 는 route_cost 로 1회만 계상되고, 도착 지연이 줄이는 truck_wait 은 weight 1.0·scale 3600 으로 route 와 같은 요율이라 상쇄돼 편향이 없다 (c) 전역 A→O 장부 이관은 multiblock.py:281-310 이 _a_sorted·_a_idx·_n_inside 포인터까지 보정하며 실제 작동한다 (d) 공용 시계·정확 gate-in epoch 정합(review 발화 = 두 블록 GATE_IN 수와 일치)도 재확인했다.\n추가로 확인해 문제없던 것: MultiBlockTerminal 소비자는 1곳뿐이고 route 를 정상 합산한다. try_transfer 는 모든 예외 경로에서 예약을 해제한다. 8시드 전 arm 완주율 1.0.",
+      "verdict": "ERRORS_FOUND"
+    },
+    {
+      "findings": [
+        {
+          "kind": "error",
+          "severity": "major",
+          "claim": "YR-105 계열의 시드 8개 설계는 이 레버가 실제로 낼 수 있는 최대 크기의 변화(이송 14.0건→1.9건 전면 차단)조차 검출하지 못한다 — b/c/d 를 그대로 집행하면 세 축 모두 같은 이유로 '무의'가 나온다.",
+          "evidence": "c:\\Users\\geonu\\Desktop\\port_reinforcement\\src\\yard_rl\\experiments\\yr105_conditional_transfer.py:59 `N_SEEDS = 8`. results_select.json 8행 재계산(WSL 실행, 원 감사 수치 전부 일치): 짝지은 차이 d_total sd 14.781·CI 반폭 12.36. 검출가능 최소효과(MDE, 양측5%·검정력80%) = (t.975+t.80)·sd/√n → n=8 이면 17.04 비용단위(평균 총비용 130.26 의 13%), n=20 이면 9.76, n=40 이면 6.72. 반면 이 레버의 최대 실측 이동폭(RGUARD−BASE, 이송 14.0→1.9)은 +10.396 [−8.97,+29.76] sd 23.16 로 MDE 17.04 미만. ready.md YR-105-b 의 확증 대역도 849k/850k(N=8).",
+          "impact": "b(볼륨)·c(지속혼잡)·d(역가설) 세 축이 사전에 결정된 '무의'를 반복 생산하고 확증 대역(849k/850k)이 정보 없이 소모될 위험. 다만 done.md YR-105-a·report.md 는 이미 '기각 = 효과 미검출'·'방향 주장 없음'으로 정직하게 박제돼 있어, 기존 판정문구가 '효과 없음'으로 왜곡됐다는 원 감사의 주장은 성립하지 않는다(그 부분은 삭제).",
+          "fix": "각 축 사전등록에 MDE 계산(가정효과·sd·n)을 필수 항목으로 넣고, 총비용 주판정을 유지하려면 시드 40 수준(MDE 6.7)으로 올리거나 finding 2 의 비본선 분해를 병기한다. 그 전에는 확증 대역을 열지 않는다. 비용: 시드 40 = 현 런의 5배 연산.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "major",
+          "claim": "주판정 지표(terminal total)의 70%가 본선 선석초과 비용이고 짝지은 분산의 61%도 본선에서 온다 — 비본선(트럭·주행) 채널로 분해하면 같은 시드 수에서 감도가 4배 높아지는데 그 CI 가 사전등록 지표에 없다.",
+          "evidence": "WSL 재계산으로 원 감사 수치 전부 재현: 8시드 평균 본선비용 91.38 / 총 130.26 = 70.2%(시드별 65.6~78.1%). 환산근거 = c:\\Users\\geonu\\Desktop\\port_reinforcement\\src\\yard_rl\\integrated\\engine.py:917-921(vessel_delay 와 berth_overrun_s 를 같은 호출부·같은 식으로 적립) + cost_config.py:239 weight 33 → 선석초과 1분 = 0.55 비용단위. 짝지은 차이 분해: 본선분 sd 11.531(분산비 0.609), 비본선 잔차 +1.610 [−1.389,+4.608] sd 3.587. 비본선 채널 MDE: n=8 → 4.14 (총비용 17.04 대비 4.1배 민감).",
+          "impact": "판정 잡음의 61%가 재배정 레버가 가장 약하게 통제하는 항에서 오고, 그 중 일부는 아예 통제 불가능하다(블록A 선석초과의 28.3분은 정책무관 하한 — finding 6 참조). 다만 '분해했으면 신호가 보였을 것'이라는 원 감사의 주장은 거짓이다 — 비본선 잔차도 0 을 포함하고 부호는 오히려 VGUARD 불리(+1.61)다. 실제 이득은 '같은 시드로 4배 좁은 CI'뿐이다.",
+          "fix": "사전등록에 ①비본선(A→O·B→C·주행·route) ②본선 분해 CI 를 부지표로 추가한다. 주판정은 총비용 그대로 둔다 — 비본선으로 주판정을 교체하면 numeraire 비용계약(총 정규화비용이 목적)을 깨고 vessel 33× 설계와 모순된다. 본선측(d_berth)은 이미 사전등록돼 있으므로 추가할 것은 비본선 잔차 CI 뿐이다.",
+          "already_registered": "none (부분: d_berth 는 YR-105-a 사전등록 부지표 ②로 이미 존재 — 비본선 잔차 CI 만 미등록)"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "ready.md YR-105-b 의 '이송을 늘리는 방향'은 등록된 이중(AND) 게이트로는 실행 불가능하고, 실행 가능한 '줄이는 방향'은 양 끝이 이미 측정돼 무의였다.",
+          "evidence": "c:\\Users\\geonu\\Desktop\\port_reinforcement\\.claude\\Dashboard\\ready.md YR-105-b: \"`C_zero(src) > C_HIGH` 이중 게이트로 이송을 줄이는 방향과 늘리는 방향 모두 사전등록\". 발화 조건은 yr105_conditional_transfer.py:117 `fire = gap >= THRESH`·:135-136 `if not fire: continue` 이므로 AND 조건 추가는 볼륨을 BASE(14.0건) 이하로만 이동시킨다(C_HIGH 하한 = BASE 재현). 그 구간의 양 끝은 BASE(14.0) vs RGUARD(1.9) = +10.396 [−8.97,+29.76] 무의로 이미 측정됐다.",
+          "impact": "축 b 를 등록 문구대로 집행하면 이미 무의로 확인된 구간 안에서만 움직이게 된다. 다만 board row 는 규약상 1줄 index 이고 상세 사전등록은 착수 시 작성되므로, 이는 판정을 오염시킨 결함이 아니라 착수 전에 해소해야 할 문구·범위 문제다. 원 감사의 'THRESH 는 다른 손잡이라 한 번에 한 축과 충돌' 논거도 성립하지 않는다 — row 가 축을 '이송 볼륨·타이밍'으로 정의하므로 THRESH 스윕은 같은 축이다.",
+          "fix": "b 의 사전등록에서 C_HIGH 를 gap 게이트의 '대체(치환)'로 정의하거나 THRESH 스윕(볼륨 축)으로 재정의한다. 줄이는 방향의 극단은 새 런 없이 기존 RGUARD 원자료 재분석으로 대체한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "gap",
+          "severity": "major",
+          "claim": "'혼잡을 관측해서 좋은 것'과 '그냥 A블록에서 B블록으로 보내서 좋은 것'을 가르는 대조군(같은 볼륨·신호 미사용 A→B)이 없다.",
+          "evidence": "decisions_select.json 461행 재계산(원 감사 수치 정확히 재현): 격차 발화 A 132/251·B 2/210(98.5%가 A→B), 혼잡격차 분산의 48.1%가 블록 정체성(사이 분산)에서 발생(A 평균 +0.140 / B 평균 −0.151). 셀 구성이 고정 비대칭 — yr105_conditional_transfer.py:57 `CELL_A, CELL_B = (\"high\", 0.5), (\"mid\", 2.0)`. 현 대조군은 BASE·VGUARD·RGUARD 3개인데 RGUARD 도 '격차로 발화한 후보 풀'에서 무작위 차단이라 신호를 쓴다. 영향받는 기존 문구: outputs/reports/yr099_midrun_review/report.md:26-28 확정 자산 ②\"이송의 93%+ 가 A→B: 혼잡 신호가 물리적으로 옳은 방향을 가리킴\".",
+          "impact": "YR-105-b·-c 는 둘 다 동적 혼잡 신호를 정교화하는 축이라, 결과가 양수로 나와도 '동적 정보 덕'이라고 귀속할 수 없고 확증 대역이 해석 불가 결과에 소모된다. 다만 완화 요인 있음 — 격차 분산의 51.9%는 블록 내 변동이고(신호가 블록 정체성만은 아님), YR-103 이 셀내 상관 ρ 0.25~0.73 으로 혼잡점수의 셀내 예측력을 별도 확인했으며, 현 판정은 전부 무의라 아직 오귀속된 판정은 없다.",
+          "fix": "다음 축 사전등록에 STATIC arm(블록 정체성만 보고 같은 볼륨·무작위 시점으로 A→B) 을 추가하거나, 대칭 셀(같은 level·같은 마감배율) 대역을 병행해 격차 부호가 양쪽으로 뒤집히게 한다. YR-099-mid 자산 ②는 '셀 비대칭 하에서는 자명' 한정을 붙여 표기 정정한다.",
+          "already_registered": "none"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "현실형 예측 rollout 의 도착오차 모형(±300초 균등)이 현 시간계약 v2 의 실현 오차(sd 582초)와 3.4배 어긋난다 — 정보 누출은 아니지만 계약 불일치다.",
+          "evidence": "c:\\Users\\geonu\\Desktop\\port_reinforcement\\src\\yard_rl\\integrated\\predictive_rollout.py:21 `DEFAULT_ETA_ERROR_S = 300.0`·:43 `pt = max(now+1.0, eta + rng.uniform(-eta_error_s, eta_error_s))`. WSL 실측(high-tight 8시드 642건): v1 생성기 실현오차 sd 167.9(표본 sd 173.2 와 일치), v2+gate_block_contract 에서는 scenario_gen.py:296-299 가 provided_eta = 예약+300(결정론)으로 두고 실현 B = 예약 + 준수오차(σ600·±1200 절단) + 주행이라 실현오차 sd 581.5·범위 −1255~+1297.",
+          "impact": "원 감사의 '준-오라클' 규정은 성립하지 않는다 — 예측 표본은 공개 예약값 est 만 참조하고 truth 를 보지 않으므로 누출이 없다(정보 이득 방향의 편향 근거 없음). 실제 위험은 반대다: 과소분산 믿음으로 계획하면 현실형 arm 이 불리해져 YR-096 선결①에서 위음성('공개정보 rollout 은 못 이긴다')이 날 수 있고, 어느 방향 결과든 '도착모형 오지정' 반론이 남는다. YR-096 은 backlog(착수 미확정)이고 어떤 실험 드라이버도 이 모듈을 호출하지 않아 기존 판정 오염은 없다.",
+          "fix": "eta_error 를 v2 계약에서 유도(준수오차 σ + 주행 σ)하거나 예약창 기반 표본으로 교체하고, '표본 오차 분포 ≈ 실현 오차 분포' 회귀 테스트를 추가한다. predictive_rollout.py:21 주석('scenario_gen 기본')도 v2 에서 무효이므로 함께 정정.",
+          "already_registered": "none (YR-093 은 미통지 고장·계획변경 누출로 별건 — 이 항목은 미등록)"
+        },
+        {
+          "kind": "gap",
+          "severity": "minor",
+          "claim": "목적함수의 70%를 차지하는 본선측 시나리오 원료(척수 2·척당 15move·마감배율)가 현 v2 판정 대역에서 민감도 검증 없이 고정돼 있고, 쓰이는 마감배율(0.40~0.75)은 물리적으로 달성 불가능한 구간이라 선석초과의 일부가 정책과 무관하게 고정된다.",
+          "evidence": "scenario_gen.py:30-31 `n_vessels=2`·`vessel_moves=15`, calibrated_load_params(:142-157)는 n_external·피크·게이트 210s 만 문헌 보정하고 본선 물량은 손대지 않는다. 설계문서 c:\\Users\\geonu\\Desktop\\port_reinforcement\\.claude\\docs\\strategy-history\\2026-07-20-본선트럭긴장-시나리오축-설계.md:27 도 \"현 근사는 vessel_moves 로만 반영, 정밀 T/S 비율은 후속\"이라고만 적혀 있고 board row 는 없다. 추가 실측(WSL): scenario_gen.py:336 `planned_completion = start + eff_moves*cadence*dmult` 이므로 dmult<1 이면 계획완료가 STS 최소 작업시간보다 이르다 — yr105 셀A(dmult 0.5)에서 척당 하한 14.2분·블록 28.3분(측정 총 berth 142~198분의 약 17%)이 어떤 정책으로도 제거 불가. YR-041-a 도 dmult 0.40/0.75 사용(yr041_locked.py:26), 설계문서의 스트레스 범위(1.15~2.0)를 벗어난 값.",
+          "impact": "'총비용 −24.2% 절감'·'berth 비열등 δ=5분' 같은 판정 상수가 미보정·부분 비현실 원료 위에서 정해지고, 본선 비용의 일부는 애초에 통제 불가능해 finding 2 의 잡음 지배를 키운다. 다만 원 감사의 '민감도를 한 번도 안 쟀다'는 과장이다 — busan_scenario_params(scenario_gen.py:174-182)가 vessel_moves 15/20/24·n_vessels 를 이미 변주하고 YR-041 λ·YR-080c/d/e 가 그 셀들을 썼다(단 전부 v1 계약·다른 목적). 또 D5 한정·assumed 표기는 문서에 명시돼 있다. 남는 실제 결손은 'v2 대역 판정의 본선 물량 민감도 미측정'과 '달성불가 마감(dmult<1)의 하한 미공시'다.",
+          "fix": "backlog 에 '본선 물량·마감배율 민감도(vessel_moves ×2, dmult≥1.0 셀 병행)' row 를 등록하고, 최소한 기존 판정(YR-041-a·YR-089·YR-098 천장)이 뒤집히는지 재확인한다. 보고서에는 셀별 '정책무관 선석초과 하한'을 병기한다.",
+          "already_registered": "none (문서 한계 명시는 있음: 2026-07-20 시나리오축 설계 §3·D5 게이트)"
+        },
+        {
+          "kind": "error",
+          "severity": "minor",
+          "claim": "이송 시 게이트→블록 주행시간을 원래 실현 draw 대신 새로 추첨해, 이송된 트럭의 반사실 물리에 불필요한 잡음이 들어간다.",
+          "evidence": "yr105_conditional_transfer.py:137-140 이 `random.Random(f\"y105:{band}:{seed_i}:{src}:{jid}\")` 로 travel 을 새로 뽑아 `try_transfer(..., travel_s=travel)` 로 넘기고, multiblock.py:248 `arr = rec.a_gate_in + travel_s + route_s` 로 도착을 재구성한다. KEEP 반사실의 도착은 생성기 g2b 스트림 draw(scenario_gen.py:286-288 travel2)다. 두 절단정규 차이의 sd≈75초, 이송 14건이면 누적 ≈0.07 비용단위(판정 sd 14.78 대비 0.5%).",
+          "impact": "현 판정을 뒤집지 않는다. 원 감사의 'arm 계약 위반'은 부정확하다 — 재추첨 시드가 (band, seed, src, job) 결정론이라 세 arm 은 같은 job 에 같은 주행을 주고 '유일 차이 = 차단 규칙'은 유지된다. 실제 결손은 이송-대-유지 반사실이 '같은 트럭·같은 주행 + 우회 180초'가 아니게 되는 점이며, 이송 건수가 늘어나는 축(YR-105-d)에서 √건수로 커진다.",
+          "fix": "이송 시 원 job 의 실현 주행(`j.actual_block_arrival − rec.a_gate_in`)을 재사용하고 route_s 만 더한다. 결과가 바이트 달라지므로 선택 대역 재실행이 필요하고, g2b 스트림 소비는 변하지 않아 골든 계약에는 영향 없다.",
+          "already_registered": "none"
+        }
+      ],
+      "lens": "연구 서사·계획 일관성 (ready/backlog 다음 축의 성공 가능성·미검 대가정·목표 도달 가능성·우선순위 정합)",
+      "passed_checks": "제출 7건 중 6건은 수치가 재현됐으나 5건은 주장·심각도가 과장돼 하향했고, 1건(오라클 서사)은 사실관계가 틀려 전면 재작성했다. 삭제·정정 근거: ①done.md YR-105-a·report.md 는 이미 '기각 = 효과 미검출·방향 주장 없음'으로 정직 박제돼 있어 '효과 없음으로 박제' 주장은 거짓. ②비본선 분해로도 신호는 안 보인다(+1.61 [−1.39,+4.61], 부호는 오히려 VGUARD 불리) — 이득은 CI 폭 4.1배뿐. ③예측 rollout 은 공개 est 만 참조해 누출이 없다(준-오라클 규정 기각, 위험은 위음성). ④'남은 큰 수치가 전부 오라클'은 거짓 — YR-087 현실형(berth −16.4 유의, 오라클과 구분 안 됨)이 done.md 22행에 있고, 오라클 한정은 strategy-history 2026-07-25 §1·done.md YR-075-c·README:44 에 이미 박제돼 있다(남는 것은 그 현실형 결과의 드라이버가 저장소에 없고 README:53 한 줄에 한정어가 빠진 정도라 별건 finding 으로 올릴 무게가 아님 → 삭제). ⑤본선 물량 민감도는 busan_scenario_params(15/20/24 move)로 이미 변주된 적 있어 '전무' 주장 하향. 문제없다고 확인한 것: 브리지 2단계 commit·route 비용 계상, 비용==KPI 등식(engine.py:917-921), _ci_t(df=n−1) 정정 반영, RGUARD 볼륨매칭 로직, decisions 로그 수치 전부 원 감사대로 재현.",
+      "verdict": "ERRORS_FOUND"
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Audit"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "audit:cost-contract",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "af6ebcfd1632761d9",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771877,
+      "queuedAt": 1785157771864,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "비용·목적 계약 정합 (numeraire 이중계상 · 학습량==보고 KPI …",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158699385,
+      "tokens": 244288,
+      "toolCalls": 79,
+      "durationMs": 927507,
+      "resultPreview": "{\"lens\":\"비용·목적 계약 정합 (numeraire 이중계상 · 학습량==보고 KPI 등식 · YR-089 v2 일관성 · P95 강등의 코드 반영 · YR-100 surrogate vs 실청구)\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"major\",\"claim\":\"numeraire 의 crane_travel/empty_travel scale(7200 m = 크레인 1시간)은 gantry 2.0 m/s 를 전제하는데, 현재 모든 판정 하네스가 쓰는 프로파일은 4.0 m/s 라 선언 ρ_crane=1.0 이 실효 2.0 으로 2배 과대청구된다.\",\"evidence\":\"src/yard_rl/integrated/cost_config…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "audit:info-boundary",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "ab0df73c5be38a6e8",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771878,
+      "queuedAt": 1785157771864,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "정보 경계·누출 (미래 실현값 접근 경로 · 정보수준 계약 · see…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158591259,
+      "tokens": 212139,
+      "toolCalls": 68,
+      "durationMs": 819381,
+      "resultPreview": "{\"lens\":\"정보 경계·누출 (미래 실현값 접근 경로 · 정보수준 계약 · seed 대역 분리)\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"critical\",\"claim\":\"YR-041-a 잠금평가(최종 배포 게이트)의 \\\"신규 seed +900 대역\\\"은 신규가 아니다 — 후보를 뽑은 YR-100-[3] 평가대역·YR-098 확증대역과 24/24 표본이 동일 실현(트럭·컨테이너 완전 일치, vessel_deadline_mult 만 다름)이다.\",\"evidence\":\"src/yard_rl/experiments/yr041_locked.py:26-28 `BASE41={high-0.40:830_100, high-0.75:830_100,…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "audit:spec-impl-gap",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "aee53b87cd8e9dcce",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771878,
+      "queuedAt": 1785157771864,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "스펙 대비 구현 격차 — YR-099 / YR-100 / YR-103 / YR-081 spe…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158807871,
+      "tokens": 184947,
+      "toolCalls": 63,
+      "durationMs": 1035993,
+      "resultPreview": "{\"lens\":\"스펙 대비 구현 격차 — YR-099 / YR-100 / YR-103 / YR-081 spec 이 요구한 계약 항목을 코드에서 하나씩 대조하고, 선언만 되고 강제되지 않는 계약(dead contract)을 실행으로 확인\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"major\",\"claim\":\"YR-105-a 의 '본선 악화 방지 필터'가 쓰는 본선 여유는 YR-100 spec 이 명시적으로 기각한 naive 계산식(남은작업 x 박자)이며, 계약대로 된 계산식을 쓰면 이 필터는 '전부 차단'으로 붕괴한다.\",\"evidence\":\"yr105_conditional_transfer.py:75-84 의 vessel_slack_m…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "audit:methodology",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "ab8f07094b8b8abcc",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771878,
+      "queuedAt": 1785157771865,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "실험 방법론 (CI·짝짓기·guard·검정력·수치 정합성)",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158699386,
+      "tokens": 184396,
+      "toolCalls": 63,
+      "durationMs": 927508,
+      "resultPreview": "{\"findings\":[{\"kind\":\"gap\",\"severity\":\"critical\",\"claim\":\"N=8 설계의 최소검출가능효과(MDE, 80% 검정력에서 겨우 잡히는 효과 크기)가 오라클 상한과 맞먹어, 이 트랙의 '기각·무의·재현 실패' 판정 전부가 '효과가 없다'와 '이 설계로는 못 잡는다'를 구분하지 못한다 — 어느 보고서·보드에도 검정력 계산이 없다.\",\"evidence\":\"저장 원자료로 재계산(MDE80=(t_.975,df+t_.80,df)·se): ①YR-099-G1 예측 quote outputs/reports/yr099_transfer_mvp/results.json n=8 sd=10.28 se=3.63 → MDE80=11.85 (기준선 139.3의 8.5%); 오라클 상한 −22.41 대…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "audit:multiblock-physics",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "ac053c65a0d3ca8ee",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771878,
+      "queuedAt": 1785157771865,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "다중블록 물리 현실성 — multiblock.py 가 묶는 2개 독립 Termi…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158745895,
+      "tokens": 183003,
+      "toolCalls": 51,
+      "durationMs": 974017,
+      "resultPreview": "{\"lens\":\"다중블록 물리 현실성 — multiblock.py 가 묶는 2개 독립 TerminalSimulator 가 실제 터미널의 재배정 문제를 대표하는가\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"gap\",\"severity\":\"critical\",\"claim\":\"블록마다 자기 전용 본선을 갖는 구조 때문에, 재배정의 실제 이득 경로(같은 본선에 더 빨리 공급)가 모델에 아예 없고 손해 경로(무관한 두 번째 선석 마감을 새로 늦춤)만 남는다 — '상금이 없다'가 아니라 '상금이 들어올 자리가 없다'.\",\"evidence\":\"구조: c:\\\\Users\\\\geonu\\\\Desktop\\\\port_reinforcement\\\\src\\\\yard_rl\\\\integrated\\\\sc…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "audit:research-coherence",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "a7f6593eab8c209be",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785157771879,
+      "queuedAt": 1785157771865,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "연구 서사·계획 일관성 (ready/backlog 다음 축의 성공 가능성·…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785158662475,
+      "tokens": 183558,
+      "toolCalls": 59,
+      "durationMs": 890596,
+      "resultPreview": "{\"lens\":\"연구 서사·계획 일관성 (ready/backlog 다음 축의 성공 가능성·미검 대가정·목표 도달 가능성·우선순위 정합)\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"critical\",\"claim\":\"ready 의 YR-105-b/c/d 는 시드 8개 설계로는 이 레버가 낼 수 있는 최대 효과조차 검출할 수 없다 — '무의' 판정이 실험 전에 결정돼 있다.\",\"evidence\":\"src/yard_rl/experiments/yr105_conditional_transfer.py:59 `N_SEEDS = 8`, :58 대역 2개(선택/확증 각 8시드). results_select.json 8행 재계산(WSL): 짝지은 차이 d…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 7,
+      "label": "verify:info-boundary",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a7a2d9648813ea5a3",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158591264,
+      "queuedAt": 1785158591262,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "정보 경계·누출 (미래 실현값 접근 경로 · 정보수준 계약 · see…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159219559,
+      "tokens": 166315,
+      "toolCalls": 42,
+      "durationMs": 628295,
+      "resultPreview": "{\"findings\":[{\"kind\":\"error\",\"severity\":\"major\",\"claim\":\"YR-041-a 잠금평가(배포 게이트)의 \\\"신규 seed +900 대역\\\"은 실현(트럭 도착·초기 스택) 기준으로 신규가 아니다 — 24 paired 표본 전부가 YR-098 확증대역, 18/24 가 후보를 뽑은 YR-100-[3] 평가대역과 같은 실현 위에서 돌았다.\",\"evidence\":\"seed 산술 재확인: yr041_locked.py:27 `BASE41={high-0.40:830_100, high-0.75:830_100, mid-0.40:830_000}` + :83 `BASE41[cell]+900+i` → results.json 실측 (high-0.40·high-0.75 각각 831000..007…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 8,
+      "label": "verify:research-coherence",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a2465efe2b6a6fc0b",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158662480,
+      "queuedAt": 1785158662478,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "연구 서사·계획 일관성 (ready/backlog 다음 축의 성공 가능성·…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159400501,
+      "tokens": 122294,
+      "toolCalls": 40,
+      "durationMs": 738021,
+      "resultPreview": "{\"findings\":[{\"kind\":\"error\",\"severity\":\"major\",\"claim\":\"YR-105 계열의 시드 8개 설계는 이 레버가 실제로 낼 수 있는 최대 크기의 변화(이송 14.0건→1.9건 전면 차단)조차 검출하지 못한다 — b/c/d 를 그대로 집행하면 세 축 모두 같은 이유로 '무의'가 나온다.\",\"evidence\":\"c:\\\\Users\\\\geonu\\\\Desktop\\\\port_reinforcement\\\\src\\\\yard_rl\\\\experiments\\\\yr105_conditional_transfer.py:59 `N_SEEDS = 8`. results_select.json 8행 재계산(WSL 실행, 원 감사 수치 전부 일치): 짝지은 차이 d_total sd 14.781·CI 반폭 12…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 9,
+      "label": "verify:cost-contract",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a5245e0051380d444",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158699387,
+      "queuedAt": 1785158699386,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "비용·목적 계약 정합 (numeraire 이중계상 · 학습량==보고 KPI …",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159336478,
+      "tokens": 139887,
+      "toolCalls": 41,
+      "durationMs": 637091,
+      "resultPreview": "{\"lens\":\"비용·목적 계약 정합 (numeraire 이중계상 · 학습량==보고 KPI 등식 · YR-089 v2 일관성 · P95 강등의 코드 반영 · YR-100 surrogate vs 실청구) — 적대적 재검증\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"minor\",\"claim\":\"numeraire 이동항 scale 7200 m 는 gantry 2.0 m/s 전제인데 실제 판정 프로파일은 4.0 m/s 라, 선언한 ρ_crane=1.0 이 코드에서는 실효 2.0 이다.\",\"evidence\":\"cost_config.py:226-227 주석 'travel 7200m=크레인 1h (POC gantry 2.0 m/s 기준)' + :…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 10,
+      "label": "verify:methodology",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "aee2ec9f6f46c281f",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158699391,
+      "queuedAt": 1785158699390,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "실험 방법론 (CI·짝짓기·guard·검정력·수치 정합성)",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159518176,
+      "tokens": 170884,
+      "toolCalls": 59,
+      "durationMs": 818785,
+      "resultPreview": "{\"findings\":[{\"kind\":\"gap\",\"severity\":\"critical\",\"claim\":\"이 트랙의 어떤 사전등록·보고서·보드에도 \\\"이 표본으로 얼마나 큰 효과까지 잡을 수 있나\\\"(검정력·최소검출가능효과) 계산이 없고, 특히 확증 대역을 선택 대역과 같은 n=8 로 잡아 확증런이 자기 선택런의 효과를 재현할 확률이 30%도 안 된다 — 즉 '선택→확증' 판정 구조가 구조적으로 확증을 못 한다.\",\"evidence\":\"저장 원자료를 WSL 로 직접 재계산(MDE80=(t.975,df+t.80,df)·se, df=n−1). ①yr099_transfer_mvp/results.json n=8 sd=10.276 se=3.633 → MDE80=11.85 (오라클 상한 −22.41 의 53%); ②re…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 11,
+      "label": "verify:multiblock-physics",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "aa3017691fb07f3fc",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158745897,
+      "queuedAt": 1785158745896,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "다중블록 물리 현실성 — multiblock.py 가 묶는 2개 독립 Termi…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159599636,
+      "tokens": 163800,
+      "toolCalls": 58,
+      "durationMs": 853739,
+      "resultPreview": "{\"findings\":[{\"kind\":\"gap\",\"severity\":\"critical\",\"claim\":\"판정 주지표인 '총비용'은 본선측 비용(전체의 70%)이 분산을 지배해 N=8 로는 이송 효과를 잴 검정력이 없다 — 총비용으로 유의판정하려면 시드가 약 100~140개 필요한데 모든 판정이 8개로 수행됐다.\",\"evidence\":\"독립 재실행(선택대역 847k/848k, BASE 무이송 vs 혼잡격차 이송, N=8, 파일 scratchpad/adv_signal.py) 결과가 제출값과 소수점까지 일치: Δ총비용 −4.33 [−22.49,+13.83] sd 21.71 = Δ트럭측 −3.25 [−7.84,+1.35] sd 5.49 + Δ본선측 −1.09 [−16.76,+14.59] sd 18.75 (본선측 s…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 12,
+      "label": "verify:spec-impl-gap",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a4edfe7a0bae6edf0",
+      "agentType": "general-purpose",
+      "model": "claude-opus-5[1m]",
+      "state": "done",
+      "startedAt": 1785158807873,
+      "queuedAt": 1785158807872,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "스펙 대비 구현 격차 — YR-099/100/103/081 spec 계약 항목 대…",
+      "promptPreview": "저장소: c:\\Users\\geonu\\Desktop\\port_reinforcement (부산항 야드크레인 강화학습 연구).\n실행 환경: torch 는 WSL. 예) wsl -e bash -lc \"cd /mnt/c/Users/geonu/Desktop/port_reinforcement && PYTHONPATH=\\$PWD/src ~/.venvs/yard-rl/bin/python -c '...'\"\n\n■ 현재 설계 스택 (감사 대상)\n1) 목적·비용 계약: src/yard_rl/integrated/cost_config.py (numeraire: truck_wait=1.0 기준, vessel_delay=33×),\n   engine 의 비용 적립(_vessel_finish/_finalize/advance), src/yar…",
+      "lastProgressAt": 1785159546172,
+      "tokens": 149990,
+      "toolCalls": 38,
+      "durationMs": 738299,
+      "resultPreview": "{\"lens\":\"스펙 대비 구현 격차 — YR-099/100/103/081 spec 계약 항목 대조 및 dead contract 실행 확인 (적대적 재검증)\",\"verdict\":\"ERRORS_FOUND\",\"findings\":[{\"kind\":\"error\",\"severity\":\"major\",\"claim\":\"YR-105-a 의 '본선 악화 방지 필터'가 쓰는 본선 여유는 YR-100 게이트 ②가 대체한 naive 계산식(pc − now − 남은작업×박자)이고, YR-100 계약 fold 로 바꾸면 임계 0 에서 이송이 전부 차단돼 단일축 arm 이 성립하지 않는다 — 재현으로 확증.\",\"evidence\":\"yr105_conditional_transfer.py:75-84 → vessel.py:57-61 `slack…"
+    }
+  ],
+  "totalTokens": 2105501,
+  "totalToolCalls": 661
+}
