@@ -150,7 +150,7 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
     res = mbt.run(policy, review, cost_fn)
     mbt.check_invariants()
     n_moved = stats["A->B"] + stats["B->A"]
-    route_cost = n_moved * ROUTE_S / 3600.0
+    route_cost = res["route_cost_s"] / 3600.0        # 브리지가 계상한 실제 추가주행
     end = res["end"]
     a2o = mbt.ledger.a_to_o_samples_s(end)
     berth = sum(getattr(s.kpis, "berth_overrun_s", 0.0) for s in mbt.blocks.values()) / 60.0

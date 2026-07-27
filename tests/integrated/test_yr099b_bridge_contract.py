@@ -50,6 +50,36 @@ def test_golden_unchanged_when_hook_unused():
     assert a.unfinished_backlog() == b.unfinished_backlog()
 
 
+def test_golden_unchanged_with_epochs_but_no_transfer():
+    """**진짜 계약** (적대검증 critical-1 회귀가드): epoch 을 깔고 통과만 시켜도
+    이송이 0건이면 런은 **바이트 동일**해야 한다. 정정 전에는 epoch 이 결정을 선점해
+    크레인이 놀고 비용이 24~32% 부풀었다."""
+    a = _sim()
+    ha = _run_sf(a)
+    b = _sim()
+    b.review_epochs = sorted({round(j.actual_gate_in, 6) for j in b.jobs.values()
+                              if getattr(j, "actual_gate_in", None) and
+                              j.flow == JobFlow.GATE_IN and 0 < j.actual_gate_in <= b.end})
+    assert len(b.review_epochs) > 10                       # 실제로 여러 개 깔림
+    pol, gen = ResolverPolicy(ServiceFirstSPTPreference(), "SF"), CandidateGenerator()
+    out, n_ep = b.run_until_decision(), 0
+    while out is not None:
+        if isinstance(out, ReviewEpoch):
+            n_ep += 1                                      # 통과만 (이송 0)
+        else:
+            gb = {c: gen.generate(b, c, LEVEL) for c in out.crane_ids}
+            try:
+                _apply(b, pol.decide(b, out, gb))
+            except Exception:
+                _apply(b, {c: _wait_of(gb[c]) for c in out.crane_ids})
+        out = b.run_until_decision()
+    assert n_ep > 10                                       # epoch 이 실제로 발화
+    assert b.event_stream_hash() == ha                     # 바이트 동일
+    assert b.kpis.berth_overrun_s == a.kpis.berth_overrun_s
+    if a.time_ledger is not None:
+        assert b.time_ledger.block_area_s == pytest.approx(a.time_ledger.block_area_s)
+
+
 # ---------------------------------------------------------------- ① 정확한 결정시점
 def test_review_epoch_lands_exactly():
     """현재 시각의 결정은 epoch 보다 우선(정상) — 그 뒤 epoch 은 **정확히** 그 시각에 발화."""
@@ -81,11 +111,21 @@ def test_event_before_epoch_wins():
 
 
 def test_epoch_outside_window_discarded():
+    """계약: 평가창 밖 epoch 은 **절대 발화하지 않고** 시계를 창 밖으로 밀지 않는다."""
     s = _sim()
     s.review_epochs = [s.end + 10_000.0]
+    pol, gen = ResolverPolicy(ServiceFirstSPTPreference(), "SF"), CandidateGenerator()
     out = s.run_until_decision()
-    assert not isinstance(out, ReviewEpoch)
-    assert s.review_epochs == []
+    while out is not None:
+        assert not isinstance(out, ReviewEpoch), "창 밖 epoch 이 발화"
+        gb = {c: gen.generate(s, c, LEVEL) for c in out.crane_ids}
+        try:
+            _apply(s, pol.decide(s, out, gb))
+        except Exception:
+            _apply(s, {c: _wait_of(gb[c]) for c in out.crane_ids})
+        out = s.run_until_decision()
+    assert s.review_epochs == []                 # 폐기됨
+    assert s.clock <= s.end + 1e-6
 
 
 # ---------------------------------------------------------------- ④ canonical id

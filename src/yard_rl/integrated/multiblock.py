@@ -116,6 +116,8 @@ class MultiBlockTerminal:
         self.ledger = TerminalLedger()
         self.capacity_margin = capacity_margin
         self._reserved_inbound: dict[str, int] = {b: 0 for b in self.blocks}
+        self._open_txn: set[tuple] = set()      # 살아있는 예약 (rollback 멱등 — major-5)
+        self.route_cost_s: float = 0.0          # 이송 추가주행 누적 (critical-2)
         self._parked: dict[str, float] = {}
         self._terminal: set[str] = set()
         for bid, sim in self.blocks.items():
@@ -183,13 +185,31 @@ class MultiBlockTerminal:
                 self._terminal.add(bid)
                 self._parked.pop(bid, None)
             elif isinstance(out, ReviewEpoch):
+                self._sync_locks(sim)          # major-6: 런 중 원장 lock/B 갱신
                 self._parked[bid] = out.time
             elif isinstance(out, TerminalDecision):
                 policy_fn(sim, out)
         self.ledger.harvest(self.blocks)
-        return {"totals": totals,
+        return {"totals": totals, "route_cost_s": self.route_cost_s,
                 "terminal_total": round(sum(totals.values()), 6),
                 "end": max(s.end for s in self.blocks.values())}
+
+    def _sync_locks(self, sim) -> None:
+        """검증 major-6: 원장 `locked`/`b_block_arrival` 을 **런 중에** 갱신.
+
+        (기존엔 harvest 가 종료 시 1회라 `reassignable` 이 항상 True — 실제 창 방어는
+        `status != PLANNED` 검사가 하고 있었다. 원장 수준 lock 계약을 실제로 살린다.)
+        """
+        tl = getattr(sim, "time_ledger", None)
+        for jid, j in sim.jobs.items():
+            rec = self.ledger.records.get(jid)
+            if rec is None or rec.locked:
+                continue
+            if j.status != JobStatus.PLANNED:
+                rec.locked = True
+                r = tl.records.get(jid) if tl is not None else None
+                if r is not None and r.block_arrival is not None:
+                    rec.b_block_arrival = r.block_arrival
 
     # -------------------------------------------------- 용량 (계약 ⑥)
     def free_slots(self, bid: str) -> int:
@@ -220,14 +240,19 @@ class MultiBlockTerminal:
             raise TransferError(f"{job_id}: 소스 상태 위반")
         if rec.a_gate_in is None or rec.a_gate_in > self.now + 1e-6:
             raise TransferError(f"{job_id}: gate-in 전 (창 밖)")
+        # 검증 major-4: 장부 유무 비대칭이면 이송 시 트럭 시간이 통째로 증발 — fail-closed
+        if (src_sim.time_ledger is None) != (self.blocks[dst].time_ledger is None):
+            raise TransferError(f"{job_id}: 블록 간 time_ledger 비대칭 (장부 유실 위험)")
         if self.free_slots(dst) <= self.capacity_margin:
             raise TransferError(f"{dst}: 용량 부족 (free={self.free_slots(dst)})")
         arr = rec.a_gate_in + travel_s + route_s
         if arr <= self.blocks[dst].clock + 1e-9 or arr > self.blocks[dst].end:
             raise TransferError(f"{job_id}: 도착시각 무효 {arr:.1f}")
         self._reserved_inbound[dst] += 1                     # 예약 (rollback 대상)
-        return TransferTxn(job_id=job_id, src=rec.owner, dst=dst, seen_version=rec.version,
-                           new_arrival_s=arr, prepared_at_s=self.now, route_s=route_s)
+        txn = TransferTxn(job_id=job_id, src=rec.owner, dst=dst, seen_version=rec.version,
+                          new_arrival_s=arr, prepared_at_s=self.now, route_s=route_s)
+        self._open_txn.add((txn.job_id, txn.dst, txn.prepared_at_s))
+        return txn
 
     def validate(self, txn: TransferTxn) -> None:
         rec = self.ledger.records[txn.job_id]
@@ -255,10 +280,17 @@ class MultiBlockTerminal:
         heapq.heapify(src.queue._heap)
         if src.time_ledger is not None:                       # 블록 장부에서만 해제
             src.time_ledger.records.pop(jid, None)
-            try:
-                src.time_ledger._a_sorted.remove(j.actual_gate_in)
-            except (ValueError, TypeError):
-                pass
+            # 검증 major-3: _a_sorted 만 고치면 그것을 가리키는 _a_idx·_n_inside 가 어긋나
+            # terminal_area 가 조용히 틀어진다(실측 226.9s 오차). 포인터도 함께 보정.
+            import bisect as _bs
+            tl = src.time_ledger
+            i = _bs.bisect_left(tl._a_sorted, j.actual_gate_in)
+            if i >= len(tl._a_sorted) or tl._a_sorted[i] != j.actual_gate_in:
+                raise TransferError(f"{jid}: 소스 장부에 A 부재 (정합 위반)")
+            del tl._a_sorted[i]
+            if i < tl._a_idx:
+                tl._a_idx -= 1
+                tl._n_inside -= 1
         j.actual_block_arrival = txn.new_arrival_s
         est = getattr(j, "estimated_block_arrival", None)
         if est is not None:
@@ -269,21 +301,38 @@ class MultiBlockTerminal:
         if dst.time_ledger is not None:
             import bisect
             from .time_contract import TruckTimes
-            dst.time_ledger.records[jid] = TruckTimes(gate_in=j.actual_gate_in)
-            bisect.insort(dst.time_ledger._a_sorted, j.actual_gate_in)
+            tl = dst.time_ledger
+            tl.records[jid] = TruckTimes(gate_in=j.actual_gate_in)
+            i = bisect.bisect_left(tl._a_sorted, j.actual_gate_in)
+            tl._a_sorted.insert(i, j.actual_gate_in)
+            if i < tl._a_idx:                    # 검증 major-3: 이미 소비된 구간에 삽입되면
+                tl._a_idx += 1                   # 포인터·카운터를 함께 밀어 이중소비 방지
+                tl._n_inside += 1
         rec = self.ledger.records[jid]                        # 전역 장부: owner/version 만 갱신
         rec.owner = txn.dst
         rec.version += 1
         rec.transfer_count += 1
         rec.transfer_history = rec.transfer_history + ((txn.src, txn.dst, self.now),)
-        self._reserved_inbound[txn.dst] -= 1                  # 예약 → 실도착 대기로 승격
+        self._release(txn)                                    # 예약 → 실도착 대기로 승격
+        self.route_cost_s += txn.route_s                      # 검증 critical-2: 추가주행 계상
 
     def rollback(self, txn: TransferTxn) -> None:
-        self._reserved_inbound[txn.dst] = max(0, self._reserved_inbound[txn.dst] - 1)
+        self._release(txn)
+
+    def _release(self, txn: TransferTxn) -> None:
+        """예약 해제 — **멱등**(검증 major-5: 이중 호출이 남의 예약을 훔치지 않게 키 추적)."""
+        key = (txn.job_id, txn.dst, txn.prepared_at_s)
+        if key in self._open_txn:
+            self._open_txn.discard(key)
+            self._reserved_inbound[txn.dst] = max(0, self._reserved_inbound[txn.dst] - 1)
 
     def try_transfer(self, job_id: str, dst: str, *, route_s: float,
                      travel_s: float) -> bool:
-        """prepare→validate→commit, 어느 단계 실패든 rollback 후 KEEP (원자성)."""
+        """prepare→validate→commit, 어느 단계 실패든 rollback 후 KEEP (원자성).
+
+        검증 major-5: TransferError 뿐 아니라 **모든 예외**에서 예약을 해제한 뒤 재발생
+        시킨다(비TransferError 가 새어나가 예약이 영구 누수되던 경로 차단).
+        """
         try:
             txn = self.prepare_transfer(job_id, dst, route_s=route_s, travel_s=travel_s)
         except TransferError:
@@ -294,6 +343,9 @@ class MultiBlockTerminal:
         except TransferError:
             self.rollback(txn)
             return False
+        except Exception:
+            self.rollback(txn)
+            raise
 
     # -------------------------------------------------- 불변식 (G0)
     def check_invariants(self) -> None:

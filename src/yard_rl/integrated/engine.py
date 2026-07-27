@@ -271,19 +271,6 @@ class TerminalSimulator:
             if nt is not None and nt <= self.clock + _EPS:
                 self._process_next_event()
                 continue
-            # YR-099-b: 예약된 review epoch 이 다음 이벤트보다 이르면(또는 동시각) 그
-            # 시각으로만 전진하고 제어를 조정자에게 반환한다 — 동시각 이벤트를 위에서
-            # 이미 소진했으므로 상태는 정확히 epoch 시점의 상태다. 빈 리스트면 무동작.
-            if self.review_epochs:
-                ep = self.review_epochs[0]
-                if ep <= self.end + _EPS and (nt is None or ep <= nt + _EPS):
-                    self.review_epochs.pop(0)
-                    if ep > self.clock + _EPS:
-                        self._advance(ep)
-                    return ReviewEpoch(self.clock)
-                if ep > self.end + _EPS:          # 평가창 밖 epoch 은 폐기 (전진 금지)
-                    self.review_epochs.clear()
-                    continue
             if self._consume_due_wakes():   # YR-050: 동시각 이벤트 처리 후·결정 판정 전
                 continue
             idle = self._decision_cranes()
@@ -295,6 +282,20 @@ class TerminalSimulator:
             wt = self._next_wake_time()
             if wt is not None and wt > self.end + _EPS:   # wake 도 평가창 밖이면 시계 전진 금지
                 wt = None
+            # YR-099-b: 예약된 review epoch 은 **현재 시각의 결정·wake 를 모두 소진한 뒤**,
+            # 다음 이벤트·wake 보다 이를 때만 그 시각으로 전진하고 제어를 반환한다.
+            # (적대검증 critical-1 정정: 이 분기가 결정 판정보다 위에 있으면 지금 열려야 할
+            #  결정을 선점해 크레인을 놀리고 기준선 비용이 24~32% 부풀었다. wt 와도 경쟁시켜
+            #  건너뛴 ETA wake 가 밀리는 부작용까지 제거 — 이송 0건이면 런이 바이트 동일.)
+            while self.review_epochs and self.review_epochs[0] > self.end + _EPS:
+                self.review_epochs.clear()
+            if self.review_epochs:
+                ep = self.review_epochs[0]
+                if (nt is None or ep <= nt + _EPS) and (wt is None or ep <= wt + _EPS):
+                    self.review_epochs.pop(0)
+                    if ep > self.clock + _EPS:
+                        self._advance(ep)
+                    return ReviewEpoch(self.clock)
             if nt is None and wt is None:
                 if raw_nt is None and any(c.state.assigned_job for c in self.fleet.all()):
                     raise RuntimeError("작업 중인데 완료 이벤트 없음 — 엔진 버그")
