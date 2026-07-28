@@ -63,14 +63,11 @@ def _band(band: str, n: int, exclude: set[str] | None = None):
 
 def run_pair(i: int, band: str, seeds: dict[str, int]) -> dict:
     """같은 시드에서 BASE(이송 허용) 와 NOTRANSFER(이송 0) 를 각각 실행."""
-    base = y5.run_arm(i, band, vessel_guard=False, seeds=seeds)
+    base = y5.run_arm(i, band, vessel_guard=False, seeds=seeds,
+                      gap_threshold=y5.THRESH)
     # 이송 0 = 격차 임계를 넘길 수 없게 만든다 (review 는 그대로 돈다 → epoch 교락 없음)
-    prev = y5.THRESH
-    y5.THRESH = float("inf")
-    try:
-        none = y5.run_arm(i, band, vessel_guard=False, seeds=seeds)
-    finally:
-        y5.THRESH = prev
+    none = y5.run_arm(i, band, vessel_guard=False, seeds=seeds,
+                      gap_threshold=float("inf"))
     assert base["n_jobs"] == none["n_jobs"]
     assert none["n_moved"] == 0, f"NOTRANSFER arm 이 {none['n_moved']}건 이송했다"
     return {"seed": i, "seed_A": seeds["A"], "seed_B": seeds["B"],

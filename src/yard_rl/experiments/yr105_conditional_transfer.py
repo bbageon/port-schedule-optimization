@@ -155,7 +155,8 @@ def vessel_slack_min_s(sim) -> float | None:
 
 
 def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = None,
-            random_block_p: float | None = None, seeds: dict[str, int] | None = None) -> dict:
+            random_block_p: float | None = None, seeds: dict[str, int] | None = None,
+            gap_threshold: float | None = None) -> dict:
     """arm 실행. vessel_guard=본선 보호 / random_block_p=볼륨 매칭 무작위 차단(대조군).
 
     seeds: 셀별 **절대 시드**. 생략하면 구 대역 산술(재현 전용).
@@ -163,6 +164,7 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
     if seeds is None:
         base_a, base_b = LEGACY_BANDS[band]
         seeds = {"A": base_a + seed_i, "B": base_b + seed_i}
+    threshold = THRESH if gap_threshold is None else float(gap_threshold)
     rblock = random.Random(f"y105-rg:{band}:{seed_i}") if random_block_p else None
     mbt = MultiBlockTerminal({"A": _sim(CELL_A, seeds["A"]),
                               "B": _sim(CELL_B, seeds["B"])})
@@ -195,7 +197,7 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                     continue
                 if rec.a_gate_in is None or abs(rec.a_gate_in - t) > 1e-6:
                     continue                       # 이 epoch 의 gate-in 만 (정확 창)
-                fire = gap >= THRESH
+                fire = gap >= threshold
                 if fire:
                     stats["fired"] += 1          # 차단 전 발화 수 (볼륨 매칭 분모)
                 vs = vslack[src]
@@ -205,7 +207,8 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                     blocked = rblock.random() < random_block_p
                 if log is not None:
                     log.append({"t": round(t, 1), "job": jid, "src": src,
-                                "gap": round(gap, 4), "vessel_slack_s": None if vs is None
+                                "gap": round(gap, 4), "gap_threshold": threshold,
+                                "vessel_slack_s": None if vs is None
                                 else round(vs, 1),
                                 **{k: round(v, 4) for k, v in cong[src].items()},
                                 "fired": bool(fire and not blocked),
@@ -267,7 +270,7 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
             "n_moved": n_moved, "n_blocked_vessel": stats["blocked_vessel"],
             "n_rejected": stats["rejected"], "n_fired": stats["fired"],
             "compl": round(done / max(1, len(mbt.ledger.records)), 4),
-            "n_jobs": len(mbt.ledger.records)}
+            "n_jobs": len(mbt.ledger.records), "gap_threshold": threshold}
 
 
 def run(band: str, n_seeds: int = N_SEEDS) -> dict:
