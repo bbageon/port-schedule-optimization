@@ -66,6 +66,19 @@ class VesselProcess:
             return None
         return max(0.0, now + self.remaining_service_time_s() - pc)
 
+    def structural_min_overrun_s(self) -> float:
+        """YR-109 진단 — **정책과 무관한** 최소 선석초과 (야드가 무한히 빨라도 남는 몫).
+
+        STS 물리 최소완료 = planned_start + total_moves × cadence. 계획완료가 그보다
+        앞서면(dmult<1) 그 차이는 어떤 야드 정책으로도 못 줄이는 상수다. 이 상수가
+        vessel_delay 를 총비용의 ~70% 로 밀어올려 판정 분산을 지배했다(설계감사).
+        """
+        pc = self.plan.planned_completion_s
+        if pc is None:
+            return 0.0
+        phys_min = self.plan.planned_start_s + self.plan.total_moves * self.plan.sts_move_interval_s
+        return max(0.0, phys_min - pc)
+
     def is_symptom(self) -> bool:
         return self.plan.planned_completion_s is None or self.plan.completion_basis is None
 

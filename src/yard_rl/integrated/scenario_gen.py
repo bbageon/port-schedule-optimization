@@ -65,6 +65,14 @@ class TerminalGenParams:
     # ON: B−A 지원범위 180~420s(3~7분, 사용자 계약), 중심 300·σ60 절단정규(assumed, D5),
     # 전용 난수열 g2b:{seed}. 예측(estimated)도 중심값 300 사용. v2 위에서만 유효.
     gate_block_contract: bool = False
+    # YR-109 본선 마감 물리 정합 (opt-in — False 면 기존 바이트 동일).
+    # 문제: planned_completion = start + moves·cadence·dmult 인데 STS 물리 최소완료가
+    # start + moves·cadence 이므로 **dmult<1 은 야드가 무한히 빨라도 달성 불가**다.
+    # 그 차이(moves·cadence·(1−dmult))는 정책과 무관한 상수 선석초과로 남아
+    # ①vessel_delay 를 총비용의 ~70% 로 밀어올리고 ②slack_s<0 을 초기조건으로 만든다
+    # (설계감사 2026-07-27). ON 이면 유효 dmult 를 1.0 으로 하한 클램프한다 —
+    # dmult=1.0 은 "여유 0 = 빡빡하되 달성 가능", 2.0 은 "여유 100%".
+    vessel_deadline_achievable: bool = False
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -327,6 +335,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         work = (VesselWorkType.DISCHARGE if v % 2 == 0 else VesselWorkType.LOAD)
         vid = f"V-{work.value[:4]}-{v}"
         dmult = params.vessel_deadline_mult
+        if params.vessel_deadline_achievable:      # YR-109: 물리 달성가능선 하한 클램프
+            dmult = max(dmult, 1.0)
         # YR-080 단계3: 1박스=1야드작업 **전량 정합** — STS move 수 == 본선연계 야드 job 수.
         # 적하는 야드 재고 한도로 clamp(생성기 재고 보장상 통상 미발동), 계획시각도 실물량 기준.
         eff_moves = (n_moves if work == VesselWorkType.DISCHARGE
@@ -388,6 +398,8 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                 params.arrival_peak_width_frac)
     if params.gate_travel_mu_s != 600.0:
         meta["gate_travel_mu_s"] = params.gate_travel_mu_s
+    if params.vessel_deadline_achievable:          # YR-109 계약 박제
+        meta["vessel_deadline_achievable"] = True
     if params.vessel_deadline_mult != 2.0:
         meta["vessel_deadline_mult"] = params.vessel_deadline_mult
     if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)

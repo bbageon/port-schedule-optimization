@@ -63,10 +63,14 @@ THRESH, ROUTE_S = 0.10, 180.0
 VESSEL_SLACK_MIN = 0.0
 
 
+ACHIEVABLE_DEADLINE = False        # YR-109: True 면 물리 달성가능 마감(dmult 하한 1.0)
+
+
 def _sim(cell, seed):
     prof = build_calibrated_profile()
     p = dataclasses.replace(calibrated_load_params(cell[0], vessel_deadline_mult=cell[1]),
-                            time_contract_v2=True, gate_block_contract=True)
+                            time_contract_v2=True, gate_block_contract=True,
+                            vessel_deadline_achievable=ACHIEVABLE_DEADLINE)
     s = TerminalSimulator(prof, generate_terminal_scenario(prof, seed, p),
                           check_invariants=True)
     s.info_level = LEVEL
