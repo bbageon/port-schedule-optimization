@@ -230,6 +230,8 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                         log_rec["dst"] = dst
                 else:
                     stats["rejected"] += 1
+                    if log_rec is not None:
+                        log_rec["rejected"] = True
 
     chan = {k: 0.0 for k in CHANNELS}                # YR-106: 채널 분해 누적
     # 게이트 B: 블록별로도 나눠 둔다 — 구판은 A·B 를 한 dict 에 합산해 블록별 채널 분해가
@@ -260,7 +262,9 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
     chan_out = {k: round(v, 4) for k, v in chan.items()}
     chan_out["move"] = round(chan_out["move"] + route_cost, 4)   # 이송 주행은 move 채널
     chan_out["total"] = round(sum(chan_out.values()), 4)
-    return {"total": round(res["terminal_total"] + route_cost, 3), "chan": chan_out,
+    total_raw = float(res["terminal_total"] + route_cost)
+    a2o_mean_min_raw = (fmean(a2o) / 60.0) if a2o else None
+    return {"total": round(total_raw, 3), "total_raw": total_raw, "chan": chan_out,
             "chan_by_block": {b: {k: round(v, 4) for k, v in d.items()}
                               for b, d in chan_by_block.items()},
             "policy_exceptions": stats["policy_exceptions"], "decisions": stats["decisions"],
@@ -269,7 +273,10 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
             "deadlock_escapes": sum(s.deadlock_escape_count for s in mbt.blocks.values()),
             "backlog": sum(s.unfinished_backlog() for s in mbt.blocks.values()),
             "route_cost": round(route_cost, 3), "berth_min": round(berth, 1),
-            "a2o_mean_min": round(fmean(a2o) / 60.0, 2) if a2o else None,
+            # 판정에는 full precision을 쓰고, 사람이 보는 요약만 반올림한다.
+            "a2o_mean_min": round(a2o_mean_min_raw, 2)
+            if a2o_mean_min_raw is not None else None,
+            "a2o_mean_min_raw": a2o_mean_min_raw, "n_a2o": len(a2o),
             "b2c_mean_min": round(fmean(b2c) / 60.0, 2) if b2c else None,
             "n_moved": n_moved, "n_blocked_vessel": stats["blocked_vessel"],
             "n_rejected": stats["rejected"], "n_fired": stats["fired"],

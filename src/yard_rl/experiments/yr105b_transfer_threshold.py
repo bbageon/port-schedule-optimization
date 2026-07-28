@@ -1,17 +1,12 @@
 """YR-105-b — 창중 이송의 상대 혼잡격차 임계값 단일축 최적화.
 
-바꾸는 것은 하나뿐이다.
+유일한 정책 변화는 ``gap >= tau``의 ``tau``다. 후보는 0.05, 0.10(현행),
+0.20이다. 총비용과 평균 게이트 진입→진출 시간(A→O)을 공동 주지표로 삼고,
+두 지표가 함께 좋아야 성공으로 판정한다.
 
-    C_zero(source) - C_zero(destination) >= tau
+실행 단계는 반드시 별도 커밋으로 끊는다.
 
-tau 후보는 0.05 / 0.10(현재 기준) / 0.20이다. 이 값은 이송 건수뿐 아니라 이송 시점과
-대상도 함께 바꾸므로, 결과는 "볼륨만의 효과"가 아니라 "상대 혼잡격차 임계 정책"의
-효과로 해석한다.
-
-실행 순서:
-  1. pilot n=16: 결과 평균은 후보 선택에 쓰지 않고 세 쌍의 truck 차이 분산만 산출한다.
-  2. select: 보수 필요표본수 이상에서 평균 truck 비용이 가장 낮은 임계 하나를 고른다.
-  3. winner_freeze.json을 별도 커밋한 뒤 confirm: 동결 승자와 0.10만 독립 대역에서 비교한다.
+``manifest -> pilot -> select -> freeze -> confirm``
 """
 from __future__ import annotations
 
@@ -19,6 +14,7 @@ import argparse
 import dataclasses
 import hashlib
 import json
+import math
 import subprocess
 from functools import lru_cache
 from pathlib import Path
@@ -33,13 +29,47 @@ from ..integrated.statfuncs import sd_upper_conf, t_ppf
 from . import yr105_conditional_transfer as y5
 
 OUT = Path("outputs/reports/yr105b_transfer_threshold")
+MANIFEST = OUT / "prereg_manifest.json"
+POWER_NOTE = OUT / "power_note.json"
+SELECT_RESULT = OUT / "results_select.json"
+WINNER_FREEZE = OUT / "winner_freeze.json"
+CONFIRM_RESULT = OUT / "results_confirm.json"
+
 GRID = (0.05, 0.10, 0.20)
 BASE = 0.10
-PRIMARY = "truck"
-DELTA = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0, "total": 10.0}
+CO_PRIMARY = ("total", "a2o_min")
+DELTA = {
+    "total": 10.0,
+    "a2o_min": 1.0,
+    "truck": 3.0,
+    "vessel": 10.0,
+    "move": 1.0,
+    "other": 1.0,
+}
 SD_CONF = 0.80
+ENDPOINT_POWER = 0.90
 PILOT_N = 16
 BAND_START = {"pilot": 920_000, "select": 930_000, "confirm": 950_000}
+
+CONTRACT_PATHS = (
+    "src/yard_rl/experiments/yr105b_transfer_threshold.py",
+    "src/yard_rl/experiments/yr105_conditional_transfer.py",
+    "src/yard_rl/experiments/yr113_transfer_net_effect.py",
+    "src/yard_rl/integrated/block_congestion.py",
+    "src/yard_rl/integrated/candidates.py",
+    "src/yard_rl/integrated/engine.py",
+    "src/yard_rl/integrated/evalkit.py",
+    "src/yard_rl/integrated/multiblock.py",
+    "src/yard_rl/integrated/profiles.py",
+    "src/yard_rl/integrated/repro.py",
+    "src/yard_rl/integrated/resolver.py",
+    "src/yard_rl/integrated/scenario_gen.py",
+    "src/yard_rl/integrated/seedbank.py",
+    "src/yard_rl/integrated/statfuncs.py",
+    "configs/costs/numeraire_v1.yaml",
+    ".claude/docs/dashboard-task-specs/YR-105-b-transfer-threshold.md",
+    ".claude/docs/strategy-history/2026-07-28-YR-105-b-상대혼잡격차-임계최적화-prereg.md",
+)
 
 
 def _generate(_key: str, cell, seed: int):
@@ -48,13 +78,12 @@ def _generate(_key: str, cell, seed: int):
 
 
 def _activate_contract() -> None:
-    """공개 함수 직접 호출에서도 정합 마감이 조용히 꺼지지 않게 한다."""
     y5.ACHIEVABLE_DEADLINE = True
 
 
 @lru_cache(maxsize=1)
 def _historical_hashes() -> frozenset[str]:
-    """이미 열어 본 YR-105/YR-113 실현을 신규 세 대역에서 배제한다."""
+    """이미 열어 본 YR-105/YR-113 실현을 신규 대역에서 제외한다."""
     from . import yr113_transfer_net_effect as y113
 
     _activate_contract()
@@ -72,13 +101,77 @@ def _historical_hashes() -> frozenset[str]:
     select_113 = y113._band("select", 53, set(pilot_113.all_hashes))
     confirm_113 = y113._band(
         "confirm", 106, set(pilot_113.all_hashes) | set(select_113.all_hashes))
-    hashes |= set(pilot_113.all_hashes) | set(select_113.all_hashes) | set(confirm_113.all_hashes)
+    hashes |= set(pilot_113.all_hashes) | set(select_113.all_hashes)
+    hashes |= set(confirm_113.all_hashes)
     return frozenset(hashes)
+
+
+def _run_git(*args: str) -> bytes:
+    p = subprocess.run(["git", *args], capture_output=True)
+    if p.returncode != 0:
+        raise RuntimeError(
+            f"git {' '.join(args)} 실패: {p.stderr.decode(errors='replace').strip()}")
+    return p.stdout
 
 
 def _require_clean() -> None:
     if git_dirty() is not False:
         raise RuntimeError("판정 실행은 추적 파일 변경이 없는 clean commit에서만 가능하다")
+    # 실행 코드·설정·사전등록 문서 아래의 untracked 파일도 계약 우회를 만들 수 있다.
+    watched = (
+        "src", "configs",
+        ".claude/docs/dashboard-task-specs/YR-105-b-transfer-threshold.md",
+        ".claude/docs/strategy-history/"
+        "2026-07-28-YR-105-b-상대혼잡격차-임계최적화-prereg.md",
+    )
+    p = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all", "--", *watched],
+        capture_output=True, text=True)
+    if p.returncode != 0 or p.stdout.strip():
+        raise RuntimeError(f"실행 계약 경로가 clean하지 않다: {p.stdout.strip()}")
+
+
+def _head_blob(path: str) -> bytes:
+    _run_git("ls-files", "--error-unmatch", path)
+    return _run_git("show", f"HEAD:{path}")
+
+
+def _sha256_bytes(blob: bytes) -> str:
+    return hashlib.sha256(blob).hexdigest()
+
+
+def _sha256(path: Path) -> str:
+    return _sha256_bytes(path.read_bytes())
+
+
+def _source_snapshot() -> dict:
+    files = {path: _sha256_bytes(_head_blob(path)) for path in CONTRACT_PATHS}
+    digest = _sha256_bytes(
+        json.dumps(files, sort_keys=True, separators=(",", ":")).encode())
+    return {"files": files, "digest": digest}
+
+
+def _relative(path: Path) -> str:
+    return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+
+
+def _require_head_artifact(path: Path) -> dict:
+    """산출물이 현재 HEAD에 추적·동결돼 있는지 확인하고 JSON을 읽는다."""
+    rel = _relative(path)
+    blob = _head_blob(rel)
+    if path.read_bytes() != blob:
+        raise RuntimeError(f"{rel}이 현재 HEAD와 다르다 — 별도 커밋으로 먼저 동결해야 한다")
+    return json.loads(blob.decode("utf-8"))
+
+
+def _require_source_contract(manifest: dict) -> None:
+    current = _source_snapshot()
+    frozen = manifest.get("source_contract", {})
+    if current != frozen:
+        changed = sorted(
+            p for p in set(current.get("files", {})) | set(frozen.get("files", {}))
+            if current.get("files", {}).get(p) != frozen.get("files", {}).get(p))
+        raise RuntimeError(f"사전등록 뒤 정책·물리·설정 계약이 바뀌었다: {changed}")
 
 
 def _band(stage: str, n: int, *, exclude: set[str] | None = None):
@@ -96,42 +189,111 @@ def _band(stage: str, n: int, *, exclude: set[str] | None = None):
     return spec, rep
 
 
+def _manifest() -> dict:
+    manifest = _require_head_artifact(MANIFEST)
+    _require_source_contract(manifest)
+    return manifest
+
+
 def pilot_hashes() -> set[str]:
-    return set(_band("pilot", PILOT_N, exclude=_historical_hashes())[0].all_hashes)
+    if MANIFEST.exists():
+        m = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        return {
+            h for values in m["pilot_band"]["realization_hashes"].values()
+            for h in values
+        }
+    return set(_band("pilot", PILOT_N, exclude=set(_historical_hashes()))[0].all_hashes)
 
 
 def select_hashes(n: int) -> set[str]:
     return set(_band(
-        "select", n, exclude=_historical_hashes() | pilot_hashes())[0].all_hashes)
+        "select", n, exclude=set(_historical_hashes()) | pilot_hashes())[0].all_hashes)
+
+
+def build_manifest() -> dict:
+    """결과를 만들기 전에 격자·지표·pilot 대역·소스 계약을 동결한다."""
+    _require_clean()
+    if MANIFEST.exists():
+        raise RuntimeError("prereg_manifest.json이 이미 있다 — 사전등록을 덮어쓸 수 없다")
+    _activate_contract()
+    historical = sorted(_historical_hashes())
+    pilot, independence = _band("pilot", PILOT_N, exclude=set(historical))
+    result = {
+        "schema": "yr105b-prereg-v2",
+        "status": "RESULTS_UNSEEN_FROZEN",
+        "question": "tau 0.05/0.20 중 현행 0.10보다 total과 A→O를 함께 낮추는 값이 있는가",
+        "grid": list(GRID),
+        "base": BASE,
+        "co_primary": list(CO_PRIMARY),
+        "delta_assumed": {"total": DELTA["total"], "a2o_min": DELTA["a2o_min"]},
+        "pilot_n": PILOT_N,
+        "power": {
+            "endpoint_power": ENDPOINT_POWER,
+            "sd_upper_confidence": SD_CONF,
+            "alpha_two_sided": 0.05,
+            "n_select_rule": "max(24, 3 pairs × 2 endpoints의 보수 필요 n)",
+            "n_confirm_rule": "2 * n_select",
+        },
+        "selection_rule": (
+            "두 편익 평균이 모두 양수인 후보 중 "
+            "min(B_total/10, B_a2o/1) 최대; 동률은 0.20, 없으면 NO_CANDIDATE"
+        ),
+        "confirmation_rule": (
+            "B=Metric(0.10)-Metric(winner); total과 A→O의 95% CI 하한이 모두 >0"
+        ),
+        "historical_hashes": {
+            "count": len(historical),
+            "digest": _sha256_bytes(
+                json.dumps(historical, separators=(",", ":")).encode()),
+        },
+        "pilot_band": pilot.freeze_json(),
+        "pilot_independence": independence,
+        "source_contract": _source_snapshot(),
+        "command": (
+            "python -m yard_rl.experiments.yr105b_transfer_threshold --stage pilot"
+        ),
+    }
+    OUT.mkdir(parents=True, exist_ok=True)
+    MANIFEST.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    return result
+
+
+def _canonical_trace(log: list[dict]) -> list[dict]:
+    """임계 숫자·혼잡 점수는 빼고 실제 결정·이송만 정준화한다."""
+    fields = (
+        "t", "job", "src", "dst", "fired", "blocked_by_vessel",
+        "transferred", "rejected",
+    )
+    return [{k: rec.get(k) for k in fields} for rec in log]
 
 
 def run_seed(i: int, stage: str, seeds: dict[str, int],
              thresholds: tuple[float, ...]) -> dict:
     _activate_contract()
-    arms = {}
-    traces = {}
+    arms: dict[str, dict] = {}
+    traces: dict[str, dict] = {}
     for tau in thresholds:
         log: list[dict] = []
         arm = y5.run_arm(
-            i,
-            stage,
-            vessel_guard=False,
-            seeds=seeds,
-            gap_threshold=tau,
-            log=log,
-        )
+            i, stage, vessel_guard=False, seeds=seeds, gap_threshold=tau, log=log)
         key = f"{tau:.2f}"
+        canonical = _canonical_trace(log)
+        transferred = [rec for rec in canonical if rec.get("transferred")]
+        rejected = [rec for rec in canonical if rec.get("rejected")]
+        if len(transferred) != arm["n_moved"]:
+            raise AssertionError(
+                f"tau {key}: trace 이송 {len(transferred)} != arm {arm['n_moved']}")
+        if len(rejected) != arm["n_rejected"]:
+            raise AssertionError(
+                f"tau {key}: trace reject {len(rejected)} != arm {arm['n_rejected']}")
         arms[key] = arm
-        transferred = [
-            {k: rec.get(k) for k in ("t", "job", "src", "gap", "gap_threshold")}
-            for rec in log if rec.get("transferred")
-        ]
         traces[key] = {
             "transfer_events": transferred,
-            "decision_digest": hashlib.sha256(
-                json.dumps(log, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16],
+            "rejected_events": rejected,
+            "action_digest": _sha256_bytes(
+                json.dumps(canonical, sort_keys=True, ensure_ascii=False).encode())[:16],
         }
-    jobs = {a["n_jobs"] for a in arms.values()}
+    jobs = {arm["n_jobs"] for arm in arms.values()}
     if len(jobs) != 1:
         raise AssertionError(f"arm별 작업 수 불일치: {jobs}")
     return {
@@ -143,38 +305,64 @@ def run_seed(i: int, stage: str, seeds: dict[str, int],
     }
 
 
+def _arm_metric(arm: dict, metric: str) -> float:
+    if metric == "total":
+        value = arm.get("total_raw", arm.get("total"))
+    elif metric == "a2o_min":
+        value = arm.get("a2o_mean_min_raw", arm.get("a2o_mean_min"))
+    else:
+        value = arm["chan"][metric]
+    if value is None or not math.isfinite(float(value)):
+        raise ValueError(f"{metric} 누락·비유한 값")
+    return float(value)
+
+
 def _guard(rows: list[dict], thresholds: tuple[float, ...]):
     keys = [f"{t:.2f}" for t in thresholds]
     rep = check_guards([
-        {"compl": r["arms"][k]["compl"], "backlog": r["arms"][k]["backlog"]}
-        for r in rows for k in keys
+        {"compl": row["arms"][key]["compl"], "backlog": row["arms"][key]["backlog"]}
+        for row in rows for key in keys
     ])
-    exceptions = sum(r["arms"][k]["policy_exceptions"] for r in rows for k in keys)
+    exceptions = sum(
+        row["arms"][key]["policy_exceptions"] for row in rows for key in keys)
     if exceptions:
         rep.ok = False
         rep.failures.append(f"정책 예외 {exceptions}건")
     for i, row in enumerate(rows):
+        n_a2o: set[int] = set()
         for key in keys:
             arm = row["arms"][key]
+            try:
+                _arm_metric(arm, "total")
+                _arm_metric(arm, "a2o_min")
+            except ValueError as exc:
+                rep.ok = False
+                rep.failures.append(f"row{i}/tau{key}: {exc}")
+            n_a2o.add(int(arm.get("n_a2o", 0)))
             if abs(arm["total"] - arm["chan"]["total"]) > 0.02:
                 rep.ok = False
                 rep.failures.append(
                     f"row{i}/tau{key}: 채널합 {arm['chan']['total']} != total {arm['total']}")
+        if n_a2o == {0} or len(n_a2o) != 1:
+            rep.ok = False
+            rep.failures.append(f"row{i}: arm별 A→O 표본수 불일치·0 {sorted(n_a2o)}")
     if rows and len(keys) > 1:
         distinct = any(
-            len({row["traces"][key]["decision_digest"] for key in keys}) > 1
+            len({row["traces"][key]["action_digest"] for key in keys}) > 1
             for row in rows
         )
         if not distinct:
             rep.ok = False
-            rep.failures.append("모든 임계 arm의 결정 trace가 동일 — 조작 미발화")
+            rep.failures.append("모든 임계 arm의 실제 행동 trace가 동일 — 조작 미발화")
     return rep
 
 
-def _run_rows(stage: str, n: int, thresholds: tuple[float, ...],
-              *, exclude: set[str] | None = None,
+def _run_rows(stage: str, n: int, thresholds: tuple[float, ...], *,
+              exclude: set[str], expected_band: dict,
               reveal_metrics: bool = True) -> tuple[list[dict], dict]:
     spec, independence = _band(stage, n, exclude=exclude)
+    if spec.freeze_json() != expected_band:
+        raise RuntimeError(f"{stage} 대역이 사전 동결 seed·실현지문과 다르다")
     rows = []
     for i in range(n):
         seeds = {"A": spec.seeds["A"][i], "B": spec.seeds["B"][i]}
@@ -182,327 +370,403 @@ def _run_rows(stage: str, n: int, thresholds: tuple[float, ...],
         rows.append(row)
         if reveal_metrics:
             summary = " ".join(
-                f"tau={tau:.2f}:{row['arms'][f'{tau:.2f}']['chan'][PRIMARY]:.2f}"
+                f"tau={tau:.2f}:T{_arm_metric(row['arms'][f'{tau:.2f}'],'total'):.2f}"
+                f"/A{_arm_metric(row['arms'][f'{tau:.2f}'],'a2o_min'):.2f}"
                 f"/mv{row['arms'][f'{tau:.2f}']['n_moved']}"
                 for tau in thresholds
             )
             print(f"[{stage} {i + 1}/{n}] {summary}", flush=True)
         else:
-            print(f"[{stage} {i + 1}/{n}] 분산 표본 수집", flush=True)
-    return rows, {
-        "band": spec.freeze_json(),
-        "independence": independence,
-    }
+            print(f"[{stage} {i + 1}/{n}] 봉인 분산 표본 수집", flush=True)
+    return rows, {"band": spec.freeze_json(), "independence": independence}
 
 
-def _pair(rows: list[dict], left: float, right: float, channel: str) -> list[float]:
+def _pair_metric(rows: list[dict], left: float, right: float,
+                 metric: str) -> list[float]:
     lk, rk = f"{left:.2f}", f"{right:.2f}"
     return [
-        r["arms"][lk]["chan"][channel] - r["arms"][rk]["chan"][channel]
-        for r in rows
+        _arm_metric(row["arms"][lk], metric)
+        - _arm_metric(row["arms"][rk], metric)
+        for row in rows
     ]
 
 
+def _mde(sd: float, n: int, power: float = ENDPOINT_POWER) -> float:
+    df = n - 1
+    return (t_ppf(0.975, df) + t_ppf(power, df)) * sd / n ** 0.5
+
+
 def run_pilot() -> dict:
-    """격자 동결 뒤 분산만 열어 선택·확증 표본수를 정한다."""
+    """평균은 봉인하고 3쌍×2지표 분산만 열어 표본수를 정한다."""
     _require_clean()
-    OUT.mkdir(parents=True, exist_ok=True)
-    _activate_contract()
+    manifest = _manifest()
     rows, band = _run_rows(
-        "pilot", PILOT_N, GRID, exclude=set(_historical_hashes()), reveal_metrics=False)
-    pairs = ((0.05, 0.10), (0.20, 0.10), (0.05, 0.20))
-    power = {}
-    needs = []
-    for left, right in pairs:
-        p = paired(_pair(rows, left, right, PRIMARY), delta_interest=DELTA[PRIMARY],
-                   sd_conf=SD_CONF)
-        need = required_n(
-            p.sd,
-            DELTA[PRIMARY],
-            sd_conf=SD_CONF,
-            sd_df=p.n - 1,
-        )
-        sd_upper = sd_upper_conf(p.sd, p.n - 1, SD_CONF)
-        power[f"{left:.2f}-{right:.2f}"] = {
-            "pilot_n": p.n,
-            "pilot_sd": round(p.sd, 6),
-            "pilot_sd_upper80": round(sd_upper, 6),
-            "conservative_n": need,
-        }
-        if need is not None:
-            needs.append(need)
-    n_select = max([24, *needs])
-    n_confirm = n_select * 2
-    for item in power.values():
-        df = n_select - 1
-        planned_mde = (
-            t_ppf(0.975, df) + t_ppf(0.80, df)
-        ) * item["pilot_sd_upper80"] / n_select ** 0.5
-        item["planned_select_mde80"] = round(planned_mde, 6)
-        if planned_mde > DELTA[PRIMARY] + 1e-9:
-            raise AssertionError(f"계획 MDE {planned_mde:.4f} > δ={DELTA[PRIMARY]}")
+        "pilot", PILOT_N, GRID,
+        exclude=set(_historical_hashes()),
+        expected_band=manifest["pilot_band"],
+        reveal_metrics=False,
+    )
     guards = _guard(rows, GRID)
+    pairs = ((0.05, 0.10), (0.20, 0.10), (0.05, 0.20))
+    power_by_pair: dict[str, dict] = {}
+    needs: list[int] = []
+    for left, right in pairs:
+        for metric in CO_PRIMARY:
+            diffs = _pair_metric(rows, left, right, metric)
+            p = paired(diffs, delta_interest=DELTA[metric], sd_conf=SD_CONF)
+            need = required_n(
+                p.sd, DELTA[metric], power=ENDPOINT_POWER,
+                sd_conf=SD_CONF, sd_df=p.n - 1)
+            upper = sd_upper_conf(p.sd, p.n - 1, SD_CONF)
+            key = f"{left:.2f}-{right:.2f}/{metric}"
+            power_by_pair[key] = {
+                "metric": metric,
+                "pilot_n": p.n,
+                "pilot_sd": round(p.sd, 9),
+                "pilot_sd_upper80": round(upper, 9),
+                "conservative_n_power90": need,
+            }
+            if need is None:
+                raise RuntimeError(f"{key}: 필요 표본수를 계산하지 못했다")
+            needs.append(need)
+    n_select = max(24, *needs)
+    n_confirm = 2 * n_select
+    for key, item in power_by_pair.items():
+        planned = _mde(item["pilot_sd_upper80"], n_select)
+        item["planned_select_mde90"] = round(planned, 9)
+        if planned > DELTA[item["metric"]] + 1e-9:
+            raise AssertionError(
+                f"{key}: 계획 MDE90 {planned:.4f} > δ={DELTA[item['metric']]}")
+
+    select_spec, select_independence = _band(
+        "select", n_select,
+        exclude=set(_historical_hashes()) | set(manifest["pilot_band"]
+                                                ["realization_hashes"]["A"])
+        | set(manifest["pilot_band"]["realization_hashes"]["B"]),
+    )
     result = {
         "repro": repro_stamp(
-            experiment="YR-105-b 상대 혼잡격차 임계 검정력 파일럿",
+            experiment="YR-105-b 공동 주지표 검정력 파일럿",
             seeds=band["band"]["seeds"],
             params={"cell_A": y5._params(y5.CELL_A), "cell_B": y5._params(y5.CELL_B)},
             profile_id=build_calibrated_profile().terminal_id,
-            prereg="격자 고정 후 pilot16; 평균은 선택 금지, 세 쌍의 분산만 표본수에 사용",
+            prereg="결과 미열람 manifest 뒤 pilot16; 평균 봉인, 6개 분산만 표본수에 사용",
         ),
+        "schema": "yr105b-power-v2",
         "stage": "pilot",
+        "manifest_sha256": _sha256(MANIFEST),
+        "source_contract_digest": manifest["source_contract"]["digest"],
         "contract": {
-            "grid": GRID,
+            "grid": list(GRID),
             "base": BASE,
-            "primary": PRIMARY,
-            "delta": DELTA,
+            "co_primary": list(CO_PRIMARY),
+            "delta": {m: DELTA[m] for m in CO_PRIMARY},
+            "endpoint_power": ENDPOINT_POWER,
             "sd_conf": SD_CONF,
-            "achievable_deadline": True,
             "pilot_means_not_for_selection": True,
         },
         "band": band,
-        "power_by_pair": power,
+        "power_by_pair": power_by_pair,
         "frozen_sample_plan": {
             "n_select": n_select,
             "n_confirm": n_confirm,
-            "rule": "max(24, 세 쌍의 보수 필요 n), 확증=선택×2",
+            "select_band": select_spec.freeze_json(),
+            "select_independence": select_independence,
+            "rule": "max(24, 3쌍×2지표 보수 필요 n), 확증=선택×2",
         },
         "guards": {"ok": guards.ok, "failures": guards.failures},
-        "sealed": "pilot arm 평균·CI·raw row는 선택 전 누출 방지를 위해 저장하지 않음",
+        "sealed": "pilot arm 평균·CI·raw row는 저장·출력하지 않음",
     }
-    (OUT / "power_note.json").write_text(
+    OUT.mkdir(parents=True, exist_ok=True)
+    POWER_NOTE.write_text(
         json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"표본 동결: select={n_select}, confirm={n_confirm}", flush=True)
     return result
 
 
-def run_select(n: int) -> dict:
-    _require_clean()
-    OUT.mkdir(parents=True, exist_ok=True)
-    _activate_contract()
-    power_path = OUT / "power_note.json"
-    if not power_path.exists():
-        raise FileNotFoundError("power_note.json이 없다 — pilot을 먼저 실행해야 한다")
-    power = json.loads(power_path.read_text(encoding="utf-8"))
-    expected_n = int(power["frozen_sample_plan"]["n_select"])
-    if not power["guards"]["ok"] or n != expected_n:
-        raise ValueError(f"pilot guard 또는 표본계약 위반: 요청 n={n}, 동결 n={expected_n}")
-    excluded = _historical_hashes() | pilot_hashes()
-    rows, band = _run_rows("select", n, GRID, exclude=excluded)
-    guards = _guard(rows, GRID)
-    means = {
-        f"{tau:.2f}": fmean(r["arms"][f"{tau:.2f}"]["chan"][PRIMARY] for r in rows)
-        for tau in GRID
+def _benefit_means(rows: list[dict], candidate: float) -> dict[str, float]:
+    ck, bk = f"{candidate:.2f}", f"{BASE:.2f}"
+    return {
+        metric: fmean(
+            _arm_metric(row["arms"][bk], metric)
+            - _arm_metric(row["arms"][ck], metric)
+            for row in rows
+        )
+        for metric in CO_PRIMARY
     }
-    # 정확 동률이면 현행 0.10을 우선한다. 그 밖에는 평균 truck 비용 최소 arm 한 개만 고른다.
-    winner_key = min(means, key=lambda k: (means[k], 0 if float(k) == BASE else 1, float(k)))
-    winner = float(winner_key)
-    mean_benefit = means[f"{BASE:.2f}"] - means[winner_key]
-    candidate = bool(guards.ok and winner != BASE and mean_benefit > 0)
+
+
+def _trace_diagnostics(rows: list[dict], thresholds: tuple[float, ...]) -> dict:
+    keys = [f"{tau:.2f}" for tau in thresholds]
+    out: dict[str, dict] = {}
+    for i, left in enumerate(keys):
+        for right in keys[i + 1:]:
+            out[f"{left}-{right}"] = {
+                "different_seed_count": sum(
+                    row["traces"][left]["action_digest"]
+                    != row["traces"][right]["action_digest"] for row in rows),
+                "mean_abs_transfer_count_diff": round(fmean(
+                    abs(row["arms"][left]["n_moved"]
+                        - row["arms"][right]["n_moved"]) for row in rows), 6),
+            }
+    return out
+
+
+def _select_candidate(benefits: dict[str, dict[str, float]],
+                      guards_ok: bool = True) -> tuple[float | None, str, dict[str, float]]:
+    eligible = {
+        key: value for key, value in benefits.items()
+        if value["total"] > 0 and value["a2o_min"] > 0
+    }
+    scores = {
+        key: min(value["total"] / DELTA["total"],
+                 value["a2o_min"] / DELTA["a2o_min"])
+        for key, value in eligible.items()
+    }
+    if guards_ok and scores:
+        # 같은 score면 이송을 덜 여는 보수적 0.20을 우선한다.
+        winner_key = sorted(scores, key=lambda k: (-scores[k], -float(k)))[0]
+        return float(winner_key), "CANDIDATE", scores
+    return None, ("NO_CANDIDATE" if guards_ok else "INVALID"), scores
+
+
+def run_select() -> dict:
+    _require_clean()
+    manifest = _manifest()
+    power = _require_head_artifact(POWER_NOTE)
+    if _sha256(MANIFEST) != power["manifest_sha256"]:
+        raise RuntimeError("pilot 뒤 사전등록 manifest가 바뀌었다")
+    if power["source_contract_digest"] != manifest["source_contract"]["digest"]:
+        raise RuntimeError("pilot과 현재 source contract가 다르다")
+    if not power["guards"]["ok"]:
+        raise RuntimeError("pilot guard 실패로 선택 대역을 열 수 없다")
+    n = int(power["frozen_sample_plan"]["n_select"])
+    excluded = set(_historical_hashes()) | pilot_hashes()
+    rows, band = _run_rows(
+        "select", n, GRID, exclude=excluded,
+        expected_band=power["frozen_sample_plan"]["select_band"])
+    guards = _guard(rows, GRID)
+    benefits = {f"{tau:.2f}": _benefit_means(rows, tau)
+                for tau in GRID if tau != BASE}
+    winner, selection, scores = _select_candidate(benefits, guards.ok)
     result = {
         "repro": repro_stamp(
             experiment="YR-105-b 상대 혼잡격차 임계 선택",
             seeds=band["band"]["seeds"],
             params={"cell_A": y5._params(y5.CELL_A), "cell_B": y5._params(y5.CELL_B)},
             profile_id=build_calibrated_profile().terminal_id,
-            prereg="세 arm 평균 truck 비용 순위만 사용; 유의성 주장은 독립 확증에서만",
+            prereg="total·A→O 편익 모두 양수인 후보의 정규화 maximin; 유의성 주장은 금지",
         ),
+        "schema": "yr105b-select-v2",
         "stage": "select",
-        "verdict_valid": guards.ok,
-        "selection_rule": "검정 없이 평균 truck 비용 최소; 정확 동률은 현행 0.10 우선",
-        "means_truck": {k: round(v, 6) for k, v in means.items()},
+        "manifest_sha256": _sha256(MANIFEST),
+        "power_note_sha256": _sha256(POWER_NOTE),
+        "source_contract_digest": manifest["source_contract"]["digest"],
+        "selection_rule": manifest["selection_rule"],
+        "benefit_means_010_minus_candidate": benefits,
+        "normalized_maximin_score": scores,
         "winner": winner,
-        "mean_benefit_vs_010": round(mean_benefit, 6),
-        "selection": "CANDIDATE" if candidate else "NO_CANDIDATE",
-        "claim_limit": "후보 순위 선정 전용이며 유의성 주장을 하지 않는다",
+        "selection": selection,
+        "verdict_valid": guards.ok,
+        "claim_limit": "승자 동결 전 순위 선정 전용; 유의성·효과 주장을 하지 않음",
         "band": band,
         "guards": {"ok": guards.ok, "failures": guards.failures},
+        "manipulation": _trace_diagnostics(rows, GRID),
         "rows": rows,
     }
-    (OUT / "results_select.json").write_text(
+    SELECT_RESULT.write_text(
         json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"선택 결과: {result['selection']} winner={winner:.2f} "
-          f"mean benefit={mean_benefit:+.3f}", flush=True)
+    print(f"선택 결과: {selection} winner={winner}", flush=True)
     return result
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def freeze_winner() -> dict:
-    """선택 결과와 확증 대역을 파일 하나로 결박한다. 이 파일을 커밋한 뒤에만 확증한다."""
+    """선택 결과와 독립 확증 대역을 별도 파일로 결박한다."""
     _require_clean()
-    select_path = OUT / "results_select.json"
-    power_path = OUT / "power_note.json"
-    if not select_path.exists() or not power_path.exists():
-        raise FileNotFoundError("power_note.json과 results_select.json이 모두 필요하다")
-    selection = json.loads(select_path.read_text(encoding="utf-8"))
-    power = json.loads(power_path.read_text(encoding="utf-8"))
-    if (selection["selection"] != "CANDIDATE" or not selection["verdict_valid"]
-            or not selection["guards"]["ok"]):
-        raise RuntimeError("유효한 CANDIDATE가 아니므로 승자를 동결할 수 없다")
+    manifest = _manifest()
+    power = _require_head_artifact(POWER_NOTE)
+    selection = _require_head_artifact(SELECT_RESULT)
+    if selection["selection"] != "CANDIDATE" or not selection["guards"]["ok"]:
+        raise RuntimeError("유효한 CANDIDATE가 없어 승자를 동결할 수 없다")
+    if selection["power_note_sha256"] != _sha256(POWER_NOTE):
+        raise RuntimeError("선택에 사용한 power note와 현재 파일이 다르다")
     winner = float(selection["winner"])
     n_select = int(power["frozen_sample_plan"]["n_select"])
     n_confirm = int(power["frozen_sample_plan"]["n_confirm"])
     if len(selection["rows"]) != n_select:
-        raise RuntimeError("선택 row 수가 pilot 동결 표본수와 다르다")
+        raise RuntimeError("선택 row 수가 동결 표본수와 다르다")
     exclude = set(_historical_hashes()) | pilot_hashes() | select_hashes(n_select)
     confirm_band, independence = _band("confirm", n_confirm, exclude=exclude)
     freeze = {
-        "schema": "yr105b-winner-freeze-v1",
+        "schema": "yr105b-winner-freeze-v2",
         "winner": winner,
         "base": BASE,
         "n_select": n_select,
         "n_confirm": n_confirm,
-        "selection_sha256": _sha256(select_path),
-        "power_note_sha256": _sha256(power_path),
-        "selection_git": selection["repro"]["code"]["git_head"],
+        "manifest_sha256": _sha256(MANIFEST),
+        "power_note_sha256": _sha256(POWER_NOTE),
+        "selection_sha256": _sha256(SELECT_RESULT),
+        "source_contract_digest": manifest["source_contract"]["digest"],
         "confirm_band": confirm_band.freeze_json(),
         "confirm_independence": independence,
-        "rule": "이 파일을 별도 commit한 뒤 winner·n·confirm digest 변경 금지",
+        "verdict_rule": manifest["confirmation_rule"],
+        "rule": "이 파일을 별도 commit한 뒤 winner·n·confirm 대역 변경 금지",
     }
-    (OUT / "winner_freeze.json").write_text(
+    WINNER_FREEZE.write_text(
         json.dumps(freeze, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"승자 동결 파일 생성: tau={winner:.2f}, confirm n={n_confirm}", flush=True)
+    print(f"승자 동결: tau={winner:.2f}, confirm n={n_confirm}", flush=True)
     return freeze
 
 
-def _classification(channels: dict[str, dict], guards_ok: bool) -> str:
-    if not guards_ok:
-        return "INVALID"
-    truck = channels["truck"]
-    if truck["ci"][1] < 0:
-        return "HARMFUL"
-    if truck["ci"][0] <= 0:
-        return "EQUIVALENT" if truck.get("equivalent") else "INCONCLUSIVE"
-    if channels["vessel"]["ci"][0] <= -DELTA["vessel"]:
-        return "TRADEOFF_FAIL"
-    if channels["total"]["ci"][0] <= -DELTA["total"]:
-        return "TRADEOFF_FAIL"
-    if truck["ci"][0] > DELTA["truck"]:
-        return "PRACTICAL_IMPROVEMENT"
-    return "SMALL_CONFIRMED"
-
-
-def _benefit_by_channel(rows: list[dict], base_key: str, winner_key: str) -> dict[str, dict]:
-    out = {}
-    for channel in list(CHANNELS) + ["total"]:
+def _benefit_stats(rows: list[dict], winner: float) -> tuple[dict, dict]:
+    bk, wk = f"{BASE:.2f}", f"{winner:.2f}"
+    primary: dict[str, dict] = {}
+    for metric in CO_PRIMARY:
         diffs = [
-            row["arms"][base_key]["chan"][channel]
-            - row["arms"][winner_key]["chan"][channel]
+            _arm_metric(row["arms"][bk], metric)
+            - _arm_metric(row["arms"][wk], metric)
+            for row in rows
+        ]
+        p = paired(diffs, delta_interest=DELTA[metric], sd_conf=SD_CONF)
+        item = p.as_dict()
+        item.pop("label", None)
+        item["mde90"] = round(_mde(p.sd, p.n), 6)
+        item["delta_assumed"] = DELTA[metric]
+        item["role"] = "공동 1차(양수=후보 개선)"
+        primary[metric] = item
+    diagnostic: dict[str, dict] = {}
+    for channel in CHANNELS:
+        diffs = [
+            row["arms"][bk]["chan"][channel]
+            - row["arms"][wk]["chan"][channel]
             for row in rows
         ]
         item = paired(
             diffs, delta_interest=DELTA[channel], sd_conf=SD_CONF).as_dict()
-        # 공용 evalkit의 양수=처리비용 악화 라벨은 여기의 양수=편익 부호와 반대다.
-        item.pop("label", None)
-        item["role"] = (
-            "1차 확증(양수=후보 개선)" if channel == PRIMARY
-            else "채택 비열등 guard(양수=후보 개선)"
-            if channel in ("vessel", "total")
-            else "진단(양수=후보 개선)"
-        )
-        out[channel] = item
-    return out
+        item["role"] = "진단(양수=후보 개선; 다중비교 보정 없음)"
+        diagnostic[channel] = item
+    return primary, diagnostic
 
 
-def run_confirm(n: int, winner: float) -> dict:
+def _classification(primary: dict[str, dict], guards_ok: bool,
+                    power_ok: bool = True) -> str:
+    if not guards_ok:
+        return "INVALID"
+    if not power_ok:
+        return "POWER_FAIL"
+    total, a2o = primary["total"], primary["a2o_min"]
+    lo = {"total": total["ci"][0], "a2o_min": a2o["ci"][0]}
+    hi = {"total": total["ci"][1], "a2o_min": a2o["ci"][1]}
+    if ((lo["total"] > 0 and hi["a2o_min"] < 0)
+            or (lo["a2o_min"] > 0 and hi["total"] < 0)):
+        return "TRADEOFF_FAIL"
+    if any(hi[m] < 0 for m in CO_PRIMARY):
+        return "HARMFUL"
+    if all(lo[m] > DELTA[m] for m in CO_PRIMARY):
+        return "JOINT_PRACTICAL_IMPROVEMENT"
+    if all(lo[m] > 0 for m in CO_PRIMARY):
+        return "JOINT_CONFIRMED_SMALL"
+    if all(primary[m].get("equivalent") for m in CO_PRIMARY):
+        return "EQUIVALENT"
+    return "INCONCLUSIVE"
+
+
+def run_confirm() -> dict:
     _require_clean()
-    _activate_contract()
-    if winner not in GRID or winner == BASE:
-        raise ValueError("확증 승자는 0.05 또는 0.20이어야 한다")
-    frozen = OUT / "winner_freeze.json"
-    if not frozen.exists():
-        raise FileNotFoundError("winner_freeze.json이 없다 — 승자를 먼저 별도 커밋으로 동결해야 한다")
-    freeze = json.loads(frozen.read_text(encoding="utf-8"))
-    if float(freeze["winner"]) != winner or int(freeze["n_confirm"]) != n:
-        raise ValueError("CLI 승자·표본수가 동결 파일과 다르다")
-    select_path = OUT / "results_select.json"
-    power_path = OUT / "power_note.json"
-    if (_sha256(select_path) != freeze["selection_sha256"]
-            or _sha256(power_path) != freeze["power_note_sha256"]):
-        raise RuntimeError("동결 뒤 선택·검정력 원자료가 바뀌었다")
-    selection = json.loads(select_path.read_text(encoding="utf-8"))
-    if (selection["selection"] != "CANDIDATE"
-            or float(selection["winner"]) != winner
-            or not selection["guards"]["ok"]):
-        raise RuntimeError("동결 승자와 선택 판정이 일치하지 않는다")
-    tracked = subprocess.run(
-        ["git", "ls-files", "--error-unmatch", str(frozen)],
-        capture_output=True, text=True)
-    unchanged = subprocess.run(
-        ["git", "diff", "--quiet", "HEAD", "--", str(frozen)]).returncode == 0
-    if tracked.returncode != 0 or not unchanged:
-        raise RuntimeError("winner_freeze.json이 현재 HEAD에 동결돼 있지 않다")
-    exclude = _historical_hashes() | pilot_hashes() | select_hashes(int(freeze["n_select"]))
+    manifest = _manifest()
+    power = _require_head_artifact(POWER_NOTE)
+    selection = _require_head_artifact(SELECT_RESULT)
+    freeze = _require_head_artifact(WINNER_FREEZE)
+    for path, key in (
+        (MANIFEST, "manifest_sha256"),
+        (POWER_NOTE, "power_note_sha256"),
+        (SELECT_RESULT, "selection_sha256"),
+    ):
+        if freeze[key] != _sha256(path):
+            raise RuntimeError(f"동결 뒤 {path.name}이 바뀌었다")
+    if freeze["source_contract_digest"] != manifest["source_contract"]["digest"]:
+        raise RuntimeError("확증 source contract가 사전등록과 다르다")
+    winner = float(freeze["winner"])
+    if selection["selection"] != "CANDIDATE" or float(selection["winner"]) != winner:
+        raise RuntimeError("동결 승자와 선택 결과가 다르다")
+    n = int(freeze["n_confirm"])
+    exclude = set(_historical_hashes()) | pilot_hashes() | select_hashes(
+        int(freeze["n_select"]))
     thresholds = (BASE, winner)
-    rows, band = _run_rows("confirm", n, thresholds, exclude=exclude)
-    if band["band"] != freeze["confirm_band"]:
-        raise RuntimeError("실행한 확증 대역이 동결된 seed·지문과 다르다")
+    rows, band = _run_rows(
+        "confirm", n, thresholds, exclude=exclude,
+        expected_band=freeze["confirm_band"])
     guards = _guard(rows, thresholds)
+    primary, diagnostic = _benefit_stats(rows, winner)
+    power_ok = all(
+        primary[metric]["mde90"] <= DELTA[metric] + 1e-9
+        for metric in CO_PRIMARY
+    )
+    verdict = _classification(primary, guards.ok, power_ok)
     bk, wk = f"{BASE:.2f}", f"{winner:.2f}"
-    # 편익 = 현행 비용 - 후보 비용. 양수면 후보가 더 싸다.
-    channels = _benefit_by_channel(rows, bk, wk)
-    verdict = _classification(channels, guards.ok)
     result = {
         "repro": repro_stamp(
-            experiment="YR-105-b 상대 혼잡격차 임계 정책 독립 확증",
+            experiment="YR-105-b 상대 혼잡격차 임계 독립 확증",
             seeds=band["band"]["seeds"],
             params={"cell_A": y5._params(y5.CELL_A), "cell_B": y5._params(y5.CELL_B),
                     "grid": GRID, "base": BASE, "winner": winner},
             profile_id=build_calibrated_profile().terminal_id,
-            prereg="편익=비용(0.10)-비용(승자), 1차 truck. "
-                    "CI 하한>0 개선, >3 실무개선. vessel·total 하한>-10 비열등.",
+            prereg="B=Metric(0.10)-Metric(winner); total AND A→O CI 하한>0 공동 확증",
         ),
+        "schema": "yr105b-confirm-v2",
         "stage": "confirm",
         "winner_freeze": freeze,
-        "benefit_010_minus_winner": channels,
+        "co_primary_benefit_010_minus_winner": primary,
+        "diagnostic_benefit_010_minus_winner": diagnostic,
+        "power_ok": power_ok,
         "verdict": verdict,
-        "verdict_valid": guards.ok,
-        "claim_limit": "동결 승자가 현행 0.10보다 나은지만 확증; 격자 전체 최적 주장은 금지",
+        "verdict_valid": guards.ok and power_ok,
+        "adoption_note": (
+            "JOINT_CONFIRMED_SMALL은 연구적 개선, 운영 채택은 "
+            "JOINT_PRACTICAL_IMPROVEMENT에서만 허용"
+        ),
+        "claim_limit": "동결 승자가 현행 0.10보다 나은지만 확증; 연속 임계 전역최적 금지",
         "exact_command": (
-            f"python -m yard_rl.experiments.yr105b_transfer_threshold "
-            f"--stage confirm --seeds {n} --winner {winner:.2f}"),
+            "python -m yard_rl.experiments.yr105b_transfer_threshold --stage confirm"
+        ),
         "band": band,
         "guards": {"ok": guards.ok, "failures": guards.failures},
+        "manipulation": _trace_diagnostics(rows, thresholds),
         "mean_moved": {
-            bk: round(fmean(r["arms"][bk]["n_moved"] for r in rows), 3),
-            wk: round(fmean(r["arms"][wk]["n_moved"] for r in rows), 3),
+            bk: round(fmean(row["arms"][bk]["n_moved"] for row in rows), 6),
+            wk: round(fmean(row["arms"][wk]["n_moved"] for row in rows), 6),
         },
         "deadlock_escapes": {
-            bk: sum(r["arms"][bk]["deadlock_escapes"] for r in rows),
-            wk: sum(r["arms"][wk]["deadlock_escapes"] for r in rows),
+            bk: sum(row["arms"][bk]["deadlock_escapes"] for row in rows),
+            wk: sum(row["arms"][wk]["deadlock_escapes"] for row in rows),
         },
         "rows": rows,
     }
-    (OUT / "results_confirm.json").write_text(
+    CONFIRM_RESULT.write_text(
         json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"확증 판정: {verdict}", flush=True)
-    for channel, value in channels.items():
-        print(f"  {channel}: {value['mean']:+.3f} CI {value['ci']}", flush=True)
+    for metric, item in primary.items():
+        print(f"  {metric}: {item['mean']:+.3f} CI {item['ci']}", flush=True)
     return result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", required=True, choices=("pilot", "select", "freeze", "confirm"))
-    parser.add_argument("--seeds", type=int)
-    parser.add_argument("--winner", type=float)
+    parser.add_argument(
+        "--stage", required=True,
+        choices=("manifest", "pilot", "select", "freeze", "confirm"))
     args = parser.parse_args()
-    y5.ACHIEVABLE_DEADLINE = True
-    if args.stage == "pilot":
+    _activate_contract()
+    if args.stage == "manifest":
+        result = build_manifest()
+    elif args.stage == "pilot":
         result = run_pilot()
     elif args.stage == "select":
-        if args.seeds is None:
-            raise SystemExit("--seeds 필요")
-        result = run_select(args.seeds)
+        result = run_select()
     elif args.stage == "freeze":
         result = freeze_winner()
     else:
-        if args.seeds is None or args.winner is None:
-            raise SystemExit("--seeds와 --winner 필요")
-        result = run_confirm(args.seeds, args.winner)
+        result = run_confirm()
     valid = result.get("verdict_valid", result.get("guards", {}).get("ok", True))
     return 0 if valid else 2
 
