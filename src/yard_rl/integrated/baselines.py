@@ -38,7 +38,15 @@ class ServiceFirstSPTPreference(BaselinePreference):
 
 
 class FIFOPreference(BaselinePreference):
-    """실작업 우선 → 먼저 도착한 트럭부터 (선착순). 보조 진단군."""
+    """실작업 우선 → 먼저 도착한 트럭부터 (선착순). 보조 진단군.
+
+    ⚠ **약한 미래정보 누출** (YR-107 발견, 2026-07-28): 정렬키가 `actual_block_arrival` 을
+    `now` 게이트 없이 읽는다. PRE_ADVICE 에서는 **미도착** 트럭에 대한 후보(PRE_REHANDLE·
+    REPOSITION)가 존재하므로 이 진단군도 진짜 도착순을 안다. 배포 후보 아님(진단 전용).
+    거동을 고치면 과거 골든이 전부 바뀌므로 **표기만 하고 수정은 별건**으로 둔다.
+    """
+
+    USES_FUTURE_INFORMATION = True
 
     def rank(self, sim, crane_id, gc) -> tuple:
         ref = gc.job_ref
@@ -147,6 +155,15 @@ def _rollout_cost(sim, assign, rc, *, horizon_s: float = 0.0, base_policy=None,
                   generator=None, term_sink: dict | None = None) -> tuple[float, object]:
     """joint 행동의 평가비용 — deepcopy 후 **실제 엔진**으로 진행 (정확).
 
+    ⚠ **오라클(미래정보 사용) — 배포 금지** (YR-107, 2026-07-28).
+    deepcopy 한 사본의 이벤트 큐에는 엔진이 `actual_block_arrival`(트럭의 **진짜** 블록
+    도착시각)로 밀어 넣은 BLOCK_ARRIVAL 이 그대로 남아 있다. 따라서 이 함수로 평가하는
+    정책은 시간창 안의 트럭 도착을 **정확히 알고** 결정한다. 실측(high-tight/830700,
+    PRE_ADVICE): 1800초 창의 트럭 9대를 전부 진짜 시각으로 실현, 같은 순간 정책이 볼 수
+    있는 공개 ETA 는 평균 447초·최대 1234초 어긋나 있었다.
+    공개정보만 쓰는 대응물은 `predictive_rollout.PredictiveRollout` 이다.
+    이 함수를 쓰는 정책은 반드시 `USES_FUTURE_INFORMATION = True` 를 선언해야 한다.
+
     term_sink 가 주어지면 창 누적 **항별 기여**(CostBreakdown.contributions)를 그
     dict 에 합산한다 — 계층목적(YR-071 objectives.hierarchy_key) 평가용. None(기본)
     이면 기존 경로와 바이트 동일.
@@ -190,6 +207,40 @@ def _default_gen():
     return CandidateGenerator()
 
 
+# ------------------------------------------------------------ 배포 자격 (YR-107)
+# 이름만으로도 판정 가능해야 한다 — 실험이 arm 을 **문자열**로 다루기 때문(arm="JR1800").
+ORACLE_ARM_PREFIXES = ("JR", "JOINT_ROLLOUT", "BEAM", "KROLL", "FIFO")
+
+
+def uses_future_information(policy_or_name) -> bool:
+    """이 정책이 **진짜 미래**를 소비하는가 (= 배포 불가·상한 benchmark 전용)."""
+    if isinstance(policy_or_name, str):
+        n = policy_or_name.upper()
+        return any(n.startswith(p) for p in ORACLE_ARM_PREFIXES)
+    if getattr(policy_or_name, "USES_FUTURE_INFORMATION", False):
+        return True
+    if uses_future_information(getattr(policy_or_name, "name", "")):
+        return True
+    # 선호규칙을 감싼 정책(ResolverPolicy → CentralResolver → preference)까지 따라간다
+    for attr in ("pref", "preference", "resolver"):
+        inner = getattr(policy_or_name, attr, None)
+        if inner is not None and not isinstance(inner, str):
+            if uses_future_information(inner):
+                return True
+    return False
+
+
+def is_deployable(policy_or_name) -> bool:
+    """**배포 후보 자격**. YR-107 규칙 결손 대응.
+
+    사고 경위: YR-100-[3] 에서 학습 arm 6개가 전부 healthy guard 에 걸려 탈락하자,
+    사전등록 규칙("guard 통과 arm 중 Δtotal 최소")이 **다른 선택지가 없어** 오라클
+    JR1800 을 배포 후보로 자동 지명했다. 라벨을 고치는 것만으로는 같은 사고가 재발한다 —
+    후보 선정에서 **구조적으로** 배제해야 한다.
+    """
+    return not uses_future_information(policy_or_name)
+
+
 class JointRolloutGreedy:
     """YR-044 1차 baseline — 공동 feasible 행동 조합 열거 → 동일 13항 비용 argmin.
 
@@ -197,9 +248,14 @@ class JointRolloutGreedy:
     "즉시비용(다음 결정까지) argmin"(horizon_s=0)은 **짧은 행동을 우대해 퇴화**함을 실측했으므로
     (REPOSITION 59%·SERVE 8%·대기 4.67분 — YR-039 SPT 와 동일 함정), 기본값을 고정 시간창으로 둔다.
     행동 후 base_policy 로 시간창 끝까지 진행 → base_policy 위의 1-step 정책개선(rollout algorithm).
+
+    ⚠ **오라클 — 배포 후보가 될 수 없다** (YR-107). 평가에 `_rollout_cost` 를 쓰므로
+    시간창 안의 트럭 도착을 **진짜 시각으로** 알고 결정한다. 성능 **상한(benchmark)** 으로만
+    읽어야 하며, "공개정보 rollout" 이 아니다(그건 `PredictiveRollout`).
     """
 
     name = "JOINT_ROLLOUT_GREEDY"
+    USES_FUTURE_INFORMATION = True          # 배포 후보 자동 지명 차단 (is_deployable)
 
     def __init__(self, reward_calc, *, horizon_s: float = 600.0, base_policy=None,
                  max_combos: int = 64, generator=None,
@@ -411,6 +467,10 @@ def run_joint_episode(sim, policy, reward_calc, *, level=None, generator=None) -
     waits = [w / 60.0 for w in sim.kpis.wait_samples_s]
     ws = sorted(waits)
     res = {"policy": getattr(policy, "name", type(policy).__name__),
+           # YR-107: **정보등급을 원자료마다 박제**한다. 사람 눈에 의존한 라벨은 이미 한 번
+           # 실패했다 — YR-087 이 정확히 라벨했는데 이틀 뒤 YR-100/041 에서 유실됐다.
+           "uses_future_truth": uses_future_information(policy),
+           "deployable": is_deployable(policy),
            "total_cost": total, "n_decisions": n_dec,
            "combo_truncations": (int(getattr(policy, "n_truncated", 0))
                                    - truncated_before),

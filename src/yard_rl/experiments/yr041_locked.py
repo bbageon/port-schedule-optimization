@@ -1,6 +1,14 @@
 """YR-041 — 잠금 평가 실행기 (prereg: outputs/reports/yr041_locked/prereg.md).
 
 동결 후보 vs SF paired — 신규 셀(마감강도 0.40/0.75)·신규 seed(+900 대역). 재선택 0.
+
+■ YR-107 정정 (2026-07-28) — **평가 대상의 성격 재서술**
+여기서 잠금평가한 후보 `JR1800` 은 **오라클(미래정보 사용)** 이다 — `_rollout_cost` 가
+deepcopy 사본의 진짜 `actual_block_arrival` 을 소비한다. 따라서 이 실행은
+"**배포 후보 잠금평가**"가 아니라 "**성능 상한의 잠금 측정**"으로 읽어야 한다.
+기각 방향(본선 berth 실패) 자체는 유지되지만, guard·트럭 P95 두 게이트를 이미 통과했으므로
+**통과했다면 미래를 아는 정책을 채택할 뻔했다**. 이제 `is_deployable()` 이 이를 막는다
+(`deployable` 필드로 결과에 박제 — 오라클이면 통과해도 후보 아님).
 """
 from __future__ import annotations
 
@@ -14,7 +22,7 @@ from ..domain.enums import InformationLevel
 from ..integrated import TerminalSimulator
 from ..integrated.baselines import (ActionMixError, JointRolloutGreedy, ResolverPolicy,
                                     ServiceFirstSPTPreference, assert_healthy_action_mix,
-                                    run_joint_episode)
+                                    is_deployable, run_joint_episode)
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_config import RewardCalculator
 from ..integrated.profiles import build_calibrated_profile
@@ -99,8 +107,12 @@ def run(candidate: str) -> dict:
            "per_cell_d_berth": {c: round(fmean(x["berth"] - y["berth"]
                                 for x, y in zip(rows_c, rows_s) if x["cell"] == c), 2)
                                 for c in CELLS41},
+           # YR-107: 오라클은 세 게이트를 다 통과해도 **채택 불가**다 (배포 자격 결손 차단).
+           "deployable": is_deployable(candidate),
            "verdict": {"guard": guard_ok, "berth": berth_v, "p95_noninferior": p95_ok,
-                       "adopt": bool(guard_ok and berth_v != "실패" and p95_ok)},
+                       "adopt": bool(guard_ok and berth_v != "실패" and p95_ok
+                                     and is_deployable(candidate)),
+                       "adopt_if_deployable": bool(guard_ok and berth_v != "실패" and p95_ok)},
            "rows_candidate": rows_c, "rows_sf": rows_s}
     (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
                                       encoding="utf-8")

@@ -28,6 +28,9 @@ class VesselPlan:
     total_moves: int
     sts_move_interval_s: float          # assumed cadence = 3600/목표생산성
     quay_buffer_cap: int = 3            # assumed STS 홀딩 버퍼
+    # YR-106-b 게이트 A: **정책 무관 최소 완료시각** (YC→YT→STS 전체 사슬). 생성기가
+    # `vessel_deadline_achievable=True` 일 때만 채운다. None = 구계약(STS 단독으로 추정).
+    phys_min_completion_s: float | None = None
 
 
 @dataclass
@@ -69,14 +72,21 @@ class VesselProcess:
     def structural_min_overrun_s(self) -> float:
         """YR-109 진단 — **정책과 무관한** 최소 선석초과 (야드가 무한히 빨라도 남는 몫).
 
-        STS 물리 최소완료 = planned_start + total_moves × cadence. 계획완료가 그보다
-        앞서면(dmult<1) 그 차이는 어떤 야드 정책으로도 못 줄이는 상수다. 이 상수가
-        vessel_delay 를 총비용의 ~70% 로 밀어올려 판정 분산을 지배했다(설계감사).
+        계획완료가 물리 최소완료보다 앞서면 그 차이는 어떤 야드 정책으로도 못 줄이는
+        상수다. 이 상수가 vessel_delay 를 총비용의 ~70% 로 밀어올려 판정 분산을
+        지배했다(설계감사 2026-07-27).
+
+        **YR-106-b 게이트 A**: 하한은 생성기가 계산한 `phys_min_completion_s`
+        (YC→YT→STS 전체 사슬)를 쓴다. 없으면(구계약 시나리오) STS 단독 하한으로
+        후퇴하는데, 이는 적하(LOAD)에서 **과소평가**임을 알고 쓰는 값이다.
         """
         pc = self.plan.planned_completion_s
         if pc is None:
             return 0.0
-        phys_min = self.plan.planned_start_s + self.plan.total_moves * self.plan.sts_move_interval_s
+        phys_min = self.plan.phys_min_completion_s
+        if phys_min is None:
+            phys_min = (self.plan.planned_start_s
+                        + self.plan.total_moves * self.plan.sts_move_interval_s)
         return max(0.0, phys_min - pc)
 
     def is_symptom(self) -> bool:

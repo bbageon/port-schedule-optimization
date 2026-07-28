@@ -39,6 +39,7 @@ from ..integrated.baselines import ResolverPolicy, ServiceFirstSPTPreference, _a
 from ..integrated.block_congestion import block_congestion
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_config import RewardCalculator
+from ..integrated.evalkit import CHANNELS, channel_split, check_guards
 from ..integrated.profiles import build_calibrated_profile
 from ..integrated.scenario_gen import (GATE_BLOCK_MAX_S, GATE_BLOCK_MEAN_S, GATE_BLOCK_MIN_S,
                                        GATE_BLOCK_SIGMA_S, calibrated_load_params,
@@ -113,8 +114,12 @@ def run_pair(seed_i: int, *, transfer: bool, thresh: float = THRESH) -> dict:
     gens = {k: CandidateGenerator() for k in sims}
     total = {k: 0.0 for k in sims}
     last_b = {k: 0.0 for k in sims}
+    # YR-110 정정: 채널 분해 누적. 구판은 이 값을 만들지 않아 아래 YR-106 블록의 조건이
+    # 항상 False → 결과 JSON 에 늘 빈 dict 가 쓰였다(코드만 읽으면 붙은 것처럼 보였다).
+    chan = {c: 0.0 for c in CHANNELS}
     decided: set[tuple[str, str]] = set()
-    stats = {"A->B": 0, "B->A": 0, "skipped": 0, "missed": 0}   # 검증 F7·F4: 방향·미검토 창
+    stats = {"A->B": 0, "B->A": 0, "skipped": 0, "missed": 0,   # 검증 F7·F4: 방향·미검토 창
+             "policy_exceptions": 0, "decisions": 0}
     dps = {}
     for k, s in sims.items():
         dps[k] = s.run_until_decision()
@@ -128,27 +133,41 @@ def run_pair(seed_i: int, *, transfer: bool, thresh: float = THRESH) -> dict:
             _review_gateins(sims, decided, thresh, seed_i, stats)
         gen_by = {c: gens[k].generate(sim, c, LEVEL) for c in dps[k].crane_ids}
         raw = sim.cost.cut()
-        total[k] += RC.cost_for(interval_start_s=last_b[k], interval_end_s=sim.now,
-                                raw=raw, risk_max=0.0).total_normalized
+        cb = RC.cost_for(interval_start_s=last_b[k], interval_end_s=sim.now,
+                         raw=raw, risk_max=0.0)
+        total[k] += cb.total_normalized
+        for _c, _v in channel_split(cb.contributions()).items():
+            chan[_c] += _v
         last_b[k] = sim.now
+        stats["decisions"] += 1
         try:
             _apply(sim, pol.decide(sim, dps[k], gen_by))
         except Exception:
+            stats["policy_exceptions"] += 1
             _apply(sim, {c: _wait_of(gen_by[c]) for c in dps[k].crane_ids})
         dps[k] = sim.run_until_decision()
     for k, sim in sims.items():                              # 종결 구간
         raw = sim.cost.cut()
-        total[k] += RC.cost_for(interval_start_s=last_b[k], interval_end_s=sim.now,
-                                raw=raw, risk_max=0.0).total_normalized
+        cb = RC.cost_for(interval_start_s=last_b[k], interval_end_s=sim.now,
+                         raw=raw, risk_max=0.0)
+        total[k] += cb.total_normalized
+        for _c, _v in channel_split(cb.contributions()).items():
+            chan[_c] += _v
     compl = {k: (sum(1 for j in s.jobs.values() if j.status == JobStatus.DONE)
                  / max(1, len(s.jobs))) for k, s in sims.items()}
     berth = {k: getattr(s.kpis, "berth_overrun_s", 0.0) / 60.0 for k, s in sims.items()}
     n_moved = stats["A->B"] + stats["B->A"]
     route_cost = n_moved * ROUTE_S / 3600.0            # 검증 F3: 이송 추가주행 비용 계상 (선례 정합)
+    chan_out = {c: round(v, 4) for c, v in chan.items()}
+    chan_out["move"] = round(chan_out["move"] + route_cost, 4)   # 이송 주행은 move 채널
     return {"total": round(total["A"] + total["B"] + route_cost, 3),
             "total_a": round(total["A"], 3), "total_b": round(total["B"], 3),
-            "route_cost": round(route_cost, 3),
+            "route_cost": round(route_cost, 3), "chan": chan_out,
             "compl_min": round(min(compl.values()), 4),
+            # YR-110: 하드 guard 0순위 (완주·backlog) — 구판은 backlog 를 수집조차 안 했다
+            "backlog": sum(x.unfinished_backlog() for x in sims.values()),
+            "policy_exceptions": stats["policy_exceptions"],
+            "decisions": stats["decisions"],
             "berth_sum": round(berth["A"] + berth["B"], 1),
             "n_moved": n_moved, "n_ab": stats["A->B"], "n_ba": stats["B->A"],
             "n_skipped": stats["skipped"], "n_missed": stats["missed"],
@@ -208,8 +227,17 @@ def run(thresh: float = THRESH) -> dict:
         for ch, d in delta.items():
             yr106[ch] = paired([r["c"]["chan"].get(ch, 0.0) - r["a0"]["chan"].get(ch, 0.0)
                                 for r in rows], delta_interest=d).as_dict()
+    # YR-110: 하드 guard 를 **기계로** 검사한다 — 통과 여부를 판정 유효성에 직결시킨다
+    guards = check_guards([{"compl": r[a]["compl_min"], "backlog": r[a]["backlog"]}
+                           for r in rows for a in ("a0", "c")])
+    n_exc = sum(r[a]["policy_exceptions"] for r in rows for a in ("a0", "c"))
+    if n_exc:
+        guards.ok = False
+        guards.failures.append(f"정책 예외 {n_exc}건 — 결정이 WAIT 로 대체됨(판정 무효)")
     res = {"rows": rows, "thresh": thresh, "d_total_ci": _ci_t(dts),
            "yr106_channels": yr106,
+           "guards": {"ok": guards.ok, "failures": guards.failures[:5]},
+           "verdict_valid": guards.ok,
            "moved_mean": round(fmean(r["c"]["n_moved"] for r in rows), 1),
            "compl_min": min(min(r["a0"]["compl_min"], r["c"]["compl_min"]) for r in rows),
            "prereg": "상한<0 → 창중 재배정 상금 실증 / 아니면 '혼잡격차 규칙 한계'"

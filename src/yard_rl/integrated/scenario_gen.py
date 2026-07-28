@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from ..contract.vessel import CompletionBasis
 from ..domain.enums import ContainerSize, JobFlow, LoadStatus
 from ..domain.models import Container, Job
+from ..sim.travel_time import move_container
 from .profile import IntegratedProfile
 from .scenario import TerminalScenario
 from .vessel import VesselPlan, VesselProcess, VesselWorkType
@@ -68,10 +69,15 @@ class TerminalGenParams:
     # YR-109 본선 마감 물리 정합 (opt-in — False 면 기존 바이트 동일).
     # 문제: planned_completion = start + moves·cadence·dmult 인데 STS 물리 최소완료가
     # start + moves·cadence 이므로 **dmult<1 은 야드가 무한히 빨라도 달성 불가**다.
-    # 그 차이(moves·cadence·(1−dmult))는 정책과 무관한 상수 선석초과로 남아
-    # ①vessel_delay 를 총비용의 ~70% 로 밀어올리고 ②slack_s<0 을 초기조건으로 만든다
-    # (설계감사 2026-07-27). ON 이면 유효 dmult 를 1.0 으로 하한 클램프한다 —
-    # dmult=1.0 은 "여유 0 = 빡빡하되 달성 가능", 2.0 은 "여유 100%".
+    # 그 차이는 정책과 무관한 상수 선석초과로 남아 ①vessel_delay 를 총비용의 ~70% 로
+    # 밀어올리고 ②slack_s<0 을 초기조건으로 만든다 (설계감사 2026-07-27).
+    # ON 이면 계획완료가 **물리 최소완료 아래로 내려가지 못하게** 한다.
+    #
+    # **YR-106-b 게이트 A 정정 (2026-07-28)**: 초판은 하한을 STS cadence 만으로 봤다
+    # (dmult≥1.0 클램프). 그러나 적하(LOAD)는 첫 박스가 **야드크레인→야드트랙터**를 거쳐
+    # 안벽에 도착해야 첫 STS move 가 가능하다 — dmult=1.0 클램프 후에도 145.1s 초과가
+    # 남는 것을 실측했다(고load·852000). 이제 `phys_min_completion_s` 로 **YC→YT→STS
+    # 전체 사슬**을 반영한다(STS 단독 하한을 포함하므로 구 클램프를 포섭).
     vessel_deadline_achievable: bool = False
 
     def __post_init__(self) -> None:
@@ -233,6 +239,48 @@ def _place_containers(rng: random.Random, profile: IntegratedProfile,
     return containers
 
 
+# ---------------------------------------------------------------- YR-106-b 게이트 A
+def _min_yc_cycle_s(profile: IntegratedProfile, c: Container) -> float:
+    """컨테이너 1개를 인계행까지 빼는 **정책 무관 최소** 야드크레인 1사이클.
+
+    전제(모두 하한 방향): ①크레인이 이미 해당 bay·row 에 있다(주행 0) ②재조작 0
+    ③가장 빠른 크레인. 실제는 이보다 느릴 수만 있다.
+    """
+    g = profile.block
+    src = (c.bay, c.row, c.tier)
+    dst = (c.bay, g.transfer_row, 1)
+    return min(move_container(spec, g, float(c.bay), float(c.row), src, dst).duration_s
+               for spec in profile.cranes)
+
+
+def phys_min_completion_s(profile: IntegratedProfile, *, work: VesselWorkType,
+                          start_s: float, moves: int, cadence_s: float,
+                          load_targets: list[Container] | None = None) -> float:
+    """**정책과 무관한** 최소 본선 완료시각 — YC→YT→STS 전체 사슬.
+
+    엔진 인과(engine `_vessel_start`/`_sts_move`/`_transfer_arrive`)에서 유도:
+      · STS move k 는 `start + k·cadence` 이전에 못 온다 (첫 move 가 start+cadence).
+      · **적하(LOAD)** 는 `buffer_level > 0` 이라야 처리 가능하고 버퍼는 야드 반출 완료 →
+        야드트랙터 도착으로만 찬다. 따라서 첫 박스 리드타임
+        `lead = min(YC 1사이클) + YT 편도` 가 반드시 앞에 붙는다.
+      · **양하(DISCHARGE)** 는 안벽 버퍼(cap)로 뽑아내므로 리드타임 0. 다만 버퍼를 비우는
+        야드트랙터 공급간격이 cadence 보다 느리면 그쪽이 율속이 된다.
+      · 야드 공급 최소 간격 = `YT 편도 / 대수` (fleet 전량을 이 본선에 몰아줘도 이 이상 불가).
+
+    ⇒ `start + max(moves·cadence, lead + (moves−1)·max(cadence, 야드간격))`
+
+    야드 **경합**(다른 트럭·본선과의 크레인 다툼)은 정책이 바꿀 수 있으므로 **넣지 않는다** —
+    여기 들어가는 항은 어떤 정책으로도 못 줄이는 것만이다.
+    """
+    yard_interval = profile.transfer.move_time_s / max(1, profile.transfer.n_units)
+    sts_only = start_s + moves * cadence_s
+    if work != VesselWorkType.LOAD or not load_targets:
+        return max(sts_only, start_s + moves * max(cadence_s, yard_interval))
+    lead = min(_min_yc_cycle_s(profile, c) for c in load_targets) + profile.transfer.move_time_s
+    chain = start_s + lead + (moves - 1) * max(cadence_s, yard_interval)
+    return max(sts_only, chain)
+
+
 def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                params: TerminalGenParams | None = None
                                ) -> TerminalScenario:
@@ -335,27 +383,37 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         work = (VesselWorkType.DISCHARGE if v % 2 == 0 else VesselWorkType.LOAD)
         vid = f"V-{work.value[:4]}-{v}"
         dmult = params.vessel_deadline_mult
-        if params.vessel_deadline_achievable:      # YR-109: 물리 달성가능선 하한 클램프
-            dmult = max(dmult, 1.0)
         # YR-080 단계3: 1박스=1야드작업 **전량 정합** — STS move 수 == 본선연계 야드 job 수.
         # 적하는 야드 재고 한도로 clamp(생성기 재고 보장상 통상 미발동), 계획시각도 실물량 기준.
         eff_moves = (n_moves if work == VesselWorkType.DISCHARGE
                      else min(n_moves, len(free_targets)))
+        pc = start + eff_moves * cadence * dmult
+        etd = start + eff_moves * cadence * (dmult + 1.0)
+        phys_min = None
+        if params.vessel_deadline_achievable:
+            # YR-106-b 게이트 A: 계획완료를 **YC→YT→STS 전체 사슬 하한** 위로 올린다.
+            # (적하는 free_targets 끝에서 pop 되므로 실제로 쓰일 대상만 본다.)
+            tgt = ([containers[t] for t in free_targets[-eff_moves:]]
+                   if work == VesselWorkType.LOAD else None)
+            phys_min = phys_min_completion_s(profile, work=work, start_s=start,
+                                             moves=eff_moves, cadence_s=cadence,
+                                             load_targets=tgt)
+            if phys_min > pc:                  # 클램프가 실제로 발동할 때만 식을 갈아끼운다
+                pc = phys_min                  # (OFF 경로의 부동소수점 결합순서 보존 = 골든)
+                etd = pc + eff_moves * cadence          # ETD 간격은 기존과 동일(=M·cadence)
         if work == VesselWorkType.DISCHARGE:
-            plan = VesselPlan(planned_start_s=start,
-                              planned_completion_s=start + eff_moves * cadence * dmult,
-                              completion_basis=CompletionBasis.PLAN_COMPUTED,
-                              etd_s=start + eff_moves * cadence * (dmult + 1.0),
-                              total_moves=eff_moves, sts_move_interval_s=cadence)
+            plan = VesselPlan(planned_start_s=start, planned_completion_s=pc,
+                              completion_basis=CompletionBasis.PLAN_COMPUTED, etd_s=etd,
+                              total_moves=eff_moves, sts_move_interval_s=cadence,
+                              phys_min_completion_s=phys_min)
         else:
             # YR-080 결정3 (사용자 승인 2026-07-22): 적하도 계획 선석 종료시각 부여 —
             # 선석 초과비용 계산 가능. completion_basis=None 유지 → 관측 축(RISK/SYMPTOM)은
             # SYMPTOM 그대로 (resolve_mode: basis 없으면 RISK 금지).
-            plan = VesselPlan(planned_start_s=start,
-                              planned_completion_s=start + eff_moves * cadence * dmult,
-                              completion_basis=None,
-                              etd_s=start + eff_moves * cadence * (dmult + 1.0),
-                              total_moves=eff_moves, sts_move_interval_s=cadence)
+            plan = VesselPlan(planned_start_s=start, planned_completion_s=pc,
+                              completion_basis=None, etd_s=etd,
+                              total_moves=eff_moves, sts_move_interval_s=cadence,
+                              phys_min_completion_s=phys_min)
         vessels.append(VesselProcess(vid, work, plan))
         flow = (JobFlow.VESSEL_DISCHARGE if work == VesselWorkType.DISCHARGE
                 else JobFlow.VESSEL_LOAD)
@@ -374,7 +432,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                                   if vdis_rng.random() < params.size_mix_ft40
                                   else ContainerSize.FT20),
                     inbound_load=LoadStatus.FULL,
-                    deadline=start + eff_moves * cadence * dmult + 1800.0,
+                    deadline=pc + 1800.0,
                     priority_class=1, vessel_id=vid))
         else:
             for m in range(eff_moves):
@@ -384,7 +442,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
                     release_time=start + m * cadence,
                     actual_gate_in=None, actual_block_arrival=None,
                     target_container=target,
-                    deadline=start + eff_moves * cadence * dmult + 1800.0,
+                    deadline=pc + 1800.0,
                     priority_class=1, vessel_id=vid))
 
     jobs.sort(key=lambda j: j.job_id)
@@ -399,7 +457,9 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     if params.gate_travel_mu_s != 600.0:
         meta["gate_travel_mu_s"] = params.gate_travel_mu_s
     if params.vessel_deadline_achievable:          # YR-109 계약 박제
-        meta["vessel_deadline_achievable"] = True
+        # 값을 **버전 문자열**로 둔다 — YR-109 초판(True = STS 단독 하한)과 게이트 A 정정판을
+        # 원자료에서 구분하기 위함. 구 원자료(legacy_vs_achievable.json)는 True 로 남아 있다.
+        meta["vessel_deadline_achievable"] = "chain-v2"
     if params.vessel_deadline_mult != 2.0:
         meta["vessel_deadline_mult"] = params.vessel_deadline_mult
     if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)

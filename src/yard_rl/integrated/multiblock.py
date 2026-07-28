@@ -100,6 +100,10 @@ class TransferTxn:
     new_arrival_s: float
     prepared_at_s: float
     route_s: float
+    # 게이트 D: 트랜잭션 **고유 식별자**. 구판은 예약 키가 (job, dst, prepared_at) 이라
+    # ①같은 시각 재-prepare 시 키가 겹쳐 예약이 영구 누수되고 ②rollback 한 txn 을 다시
+    # commit 할 수 있었다(멱등 해제가 키를 지워버려 재사용 가능). 단조증가 id 로 분리한다.
+    txn_id: int = -1
 
 
 class TransferError(RuntimeError):
@@ -116,7 +120,8 @@ class MultiBlockTerminal:
         self.ledger = TerminalLedger()
         self.capacity_margin = capacity_margin
         self._reserved_inbound: dict[str, int] = {b: 0 for b in self.blocks}
-        self._open_txn: set[tuple] = set()      # 살아있는 예약 (rollback 멱등 — major-5)
+        self._open_txn: set[int] = set()        # 살아있는 예약의 txn_id (rollback 멱등)
+        self._txn_seq: int = 0                  # 게이트 D: 트랜잭션 고유 id 발급기
         self.route_cost_s: float = 0.0          # 이송 추가주행 누적 (critical-2)
         self._parked: dict[str, float] = {}
         self._terminal: set[str] = set()
@@ -249,9 +254,11 @@ class MultiBlockTerminal:
         if arr <= self.blocks[dst].clock + 1e-9 or arr > self.blocks[dst].end:
             raise TransferError(f"{job_id}: 도착시각 무효 {arr:.1f}")
         self._reserved_inbound[dst] += 1                     # 예약 (rollback 대상)
+        self._txn_seq += 1
         txn = TransferTxn(job_id=job_id, src=rec.owner, dst=dst, seen_version=rec.version,
-                          new_arrival_s=arr, prepared_at_s=self.now, route_s=route_s)
-        self._open_txn.add((txn.job_id, txn.dst, txn.prepared_at_s))
+                          new_arrival_s=arr, prepared_at_s=self.now, route_s=route_s,
+                          txn_id=self._txn_seq)
+        self._open_txn.add(txn.txn_id)
         return txn
 
     def validate(self, txn: TransferTxn) -> None:
@@ -269,61 +276,145 @@ class MultiBlockTerminal:
                 j.inbound_size, spec, spec.service_bay_min, 1.0) is None:
             raise TransferError(f"{txn.dst}: 규격 적합 슬롯 없음")
 
-    def commit(self, txn: TransferTxn) -> None:
-        """검증 통과분만 원자적으로 이관 — 실패는 rollback 이 담당(소유권 원상)."""
-        self.validate(txn)
+    def _precommit(self, txn: TransferTxn) -> int | None:
+        """게이트 D — **변경 전에** 실패할 수 있는 검사를 전부 소진한다.
+
+        (구판은 소스 장부 정합 검사가 `src.jobs.pop()` **뒤에** 있어, 거기서 예외가 나면
+        작업이 어느 블록에도 없는 상태로 남았다 — `rollback` 은 예약만 풀 뿐 소유권을
+        되돌리지 않으므로 `check_invariants` 의 "소유자 없음"으로만 뒤늦게 드러난다.)
+
+        반환: 소스 장부에서 지울 `_a_sorted` 인덱스 (장부 없으면 None).
+        """
+        src, dst = self.blocks[txn.src], self.blocks[txn.dst]
+        j = src.jobs[txn.job_id]
+        if (src.time_ledger is not None or dst.time_ledger is not None) \
+                and j.actual_gate_in is None:
+            raise TransferError(f"{txn.job_id}: gate-in 결측 — 장부 이관 불가")
+        if src.time_ledger is None:
+            return None
+        import bisect as _bs
+        tl = src.time_ledger
+        i = _bs.bisect_left(tl._a_sorted, j.actual_gate_in)
+        if i >= len(tl._a_sorted) or tl._a_sorted[i] != j.actual_gate_in:
+            raise TransferError(f"{txn.job_id}: 소스 장부에 A 부재 (정합 위반)")
+        return i
+
+    def _snapshot(self, txn: TransferTxn) -> dict:
+        """게이트 D — 변경 구간에서 예상 못 한 예외가 나도 **원상복구**하기 위한 최소 스냅샷."""
+        src, dst = self.blocks[txn.src], self.blocks[txn.dst]
+        j = src.jobs[txn.job_id]
+        rec = self.ledger.records[txn.job_id]
+
+        def ledger_state(sim):
+            tl = getattr(sim, "time_ledger", None)
+            if tl is None:
+                return None
+            return (dict(tl.records), list(tl._a_sorted), tl._a_idx, tl._n_inside)
+
+        return {"job": j, "src_heap": list(src.queue._heap), "dst_heap": list(dst.queue._heap),
+                "arrival": j.actual_block_arrival,
+                "est": getattr(j, "estimated_block_arrival", None),
+                "eta": getattr(j, "provided_eta", None),
+                "src_ledger": ledger_state(src), "dst_ledger": ledger_state(dst),
+                "rec": (rec.owner, rec.version, rec.transfer_count, rec.transfer_history),
+                "route_cost_s": self.route_cost_s}
+
+    def _restore(self, txn: TransferTxn, snap: dict) -> None:
         src, dst = self.blocks[txn.src], self.blocks[txn.dst]
         jid = txn.job_id
-        j = src.jobs.pop(jid)
-        src.queue._heap = [e for e in src.queue._heap
-                           if not (e.kind_name == "BLOCK_ARRIVAL" and e.payload == jid)]
+        dst.jobs.pop(jid, None)
+        src.jobs[jid] = snap["job"]
+        src.queue._heap = snap["src_heap"]
         heapq.heapify(src.queue._heap)
-        if src.time_ledger is not None:                       # 블록 장부에서만 해제
-            src.time_ledger.records.pop(jid, None)
-            # 검증 major-3: _a_sorted 만 고치면 그것을 가리키는 _a_idx·_n_inside 가 어긋나
-            # terminal_area 가 조용히 틀어진다(실측 226.9s 오차). 포인터도 함께 보정.
-            import bisect as _bs
-            tl = src.time_ledger
-            i = _bs.bisect_left(tl._a_sorted, j.actual_gate_in)
-            if i >= len(tl._a_sorted) or tl._a_sorted[i] != j.actual_gate_in:
-                raise TransferError(f"{jid}: 소스 장부에 A 부재 (정합 위반)")
-            del tl._a_sorted[i]
-            if i < tl._a_idx:
-                tl._a_idx -= 1
-                tl._n_inside -= 1
-        j.actual_block_arrival = txn.new_arrival_s
-        est = getattr(j, "estimated_block_arrival", None)
-        if est is not None:
-            j.estimated_block_arrival = est + txn.route_s
-        dst.jobs[jid] = j
-        from .events import EventKind
-        dst.queue.push(txn.new_arrival_s, EventKind.BLOCK_ARRIVAL, jid)
-        if dst.time_ledger is not None:
-            import bisect
-            from .time_contract import TruckTimes
-            tl = dst.time_ledger
-            tl.records[jid] = TruckTimes(gate_in=j.actual_gate_in)
-            i = bisect.bisect_left(tl._a_sorted, j.actual_gate_in)
-            tl._a_sorted.insert(i, j.actual_gate_in)
-            if i < tl._a_idx:                    # 검증 major-3: 이미 소비된 구간에 삽입되면
-                tl._a_idx += 1                   # 포인터·카운터를 함께 밀어 이중소비 방지
-                tl._n_inside += 1
-        rec = self.ledger.records[jid]                        # 전역 장부: owner/version 만 갱신
-        rec.owner = txn.dst
-        rec.version += 1
-        rec.transfer_count += 1
-        rec.transfer_history = rec.transfer_history + ((txn.src, txn.dst, self.now),)
+        dst.queue._heap = snap["dst_heap"]
+        heapq.heapify(dst.queue._heap)
+        snap["job"].actual_block_arrival = snap["arrival"]
+        if snap["est"] is not None:
+            snap["job"].estimated_block_arrival = snap["est"]
+        if snap["eta"] is not None:
+            snap["job"].provided_eta = snap["eta"]
+        for sim, st in ((src, snap["src_ledger"]), (dst, snap["dst_ledger"])):
+            if st is None:
+                continue
+            tl = sim.time_ledger
+            tl.records, tl._a_sorted, tl._a_idx, tl._n_inside = st[0], st[1], st[2], st[3]
+        rec = self.ledger.records[jid]
+        rec.owner, rec.version, rec.transfer_count, rec.transfer_history = snap["rec"]
+        self.route_cost_s = snap["route_cost_s"]
+
+    def commit(self, txn: TransferTxn) -> None:
+        """검증 통과분만 **원자적으로** 이관 — 전부 반영되거나 전혀 반영되지 않는다.
+
+        게이트 D 구조: ①닫힌 txn 거절 ②validate(무변경) ③_precommit(무변경·실패 가능 검사
+        소진) ④변경 구간(예외 시 _restore 로 원상복구 후 재발생).
+        """
+        if txn.txn_id not in self._open_txn:
+            # 게이트 D: rollback 한 txn 을 다시 commit 하면 **예약 없이** 이송이 성사됐다.
+            raise TransferError(f"{txn.job_id}: 닫힌 트랜잭션 (이미 commit/rollback 됨)")
+        self.validate(txn)
+        src_i = self._precommit(txn)
+        snap = self._snapshot(txn)
+        try:
+            src, dst = self.blocks[txn.src], self.blocks[txn.dst]
+            jid = txn.job_id
+            j = src.jobs.pop(jid)
+            src.queue._heap = [e for e in src.queue._heap
+                               if not (e.kind_name == "BLOCK_ARRIVAL" and e.payload == jid)]
+            heapq.heapify(src.queue._heap)
+            if src.time_ledger is not None:                   # 블록 장부에서만 해제
+                # 검증 major-3: _a_sorted 만 고치면 그것을 가리키는 _a_idx·_n_inside 가 어긋나
+                # terminal_area 가 조용히 틀어진다(실측 226.9s 오차). 포인터도 함께 보정.
+                tl = src.time_ledger
+                tl.records = dict(tl.records)                 # 스냅샷과 별개 객체로
+                tl.records.pop(jid, None)
+                tl._a_sorted = list(tl._a_sorted)
+                del tl._a_sorted[src_i]
+                if src_i < tl._a_idx:
+                    tl._a_idx -= 1
+                    tl._n_inside -= 1
+            j.actual_block_arrival = txn.new_arrival_s
+            est = getattr(j, "estimated_block_arrival", None)
+            if est is not None:
+                j.estimated_block_arrival = est + txn.route_s
+            # 게이트 D: **정책이 실제로 읽는 예측 도착은 provided_eta** 다. 구판은
+            # estimated_block_arrival 만 밀어 두 필드가 이송 후 서로 어긋났다(생성기가
+            # 별칭으로 만든 값이므로 함께 밀어야 정책이 보는 세계가 일관된다).
+            eta = getattr(j, "provided_eta", None)
+            if eta is not None:
+                j.provided_eta = eta + txn.route_s
+            dst.jobs[jid] = j
+            from .events import EventKind
+            dst.queue.push(txn.new_arrival_s, EventKind.BLOCK_ARRIVAL, jid)
+            if dst.time_ledger is not None:
+                import bisect
+                from .time_contract import TruckTimes
+                tl = dst.time_ledger
+                tl.records = dict(tl.records)
+                tl.records[jid] = TruckTimes(gate_in=j.actual_gate_in)
+                tl._a_sorted = list(tl._a_sorted)
+                i = bisect.bisect_left(tl._a_sorted, j.actual_gate_in)
+                tl._a_sorted.insert(i, j.actual_gate_in)
+                if i < tl._a_idx:                # 검증 major-3: 이미 소비된 구간에 삽입되면
+                    tl._a_idx += 1               # 포인터·카운터를 함께 밀어 이중소비 방지
+                    tl._n_inside += 1
+            rec = self.ledger.records[jid]                    # 전역 장부: owner/version 만 갱신
+            rec.owner = txn.dst
+            rec.version += 1
+            rec.transfer_count += 1
+            rec.transfer_history = rec.transfer_history + ((txn.src, txn.dst, self.now),)
+            self.route_cost_s += txn.route_s                  # 검증 critical-2: 추가주행 계상
+        except BaseException:
+            self._restore(txn, snap)
+            raise
         self._release(txn)                                    # 예약 → 실도착 대기로 승격
-        self.route_cost_s += txn.route_s                      # 검증 critical-2: 추가주행 계상
 
     def rollback(self, txn: TransferTxn) -> None:
         self._release(txn)
 
     def _release(self, txn: TransferTxn) -> None:
-        """예약 해제 — **멱등**(검증 major-5: 이중 호출이 남의 예약을 훔치지 않게 키 추적)."""
-        key = (txn.job_id, txn.dst, txn.prepared_at_s)
-        if key in self._open_txn:
-            self._open_txn.discard(key)
+        """예약 해제 — **멱등**(이중 호출이 남의 예약을 훔치지 않게 txn_id 추적)."""
+        if txn.txn_id in self._open_txn:
+            self._open_txn.discard(txn.txn_id)
             self._reserved_inbound[txn.dst] = max(0, self._reserved_inbound[txn.dst] - 1)
 
     def try_transfer(self, job_id: str, dst: str, *, route_s: float,

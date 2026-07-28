@@ -233,3 +233,106 @@ def test_capacity_guard_blocks_transfer():
         mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
     assert mbt._reserved_inbound["B"] == 0
     assert mbt.free_slots("B") > 0                       # 실제로는 여유 있음(가드가 막은 것)
+
+
+# ------------------------------------------------- 게이트 D (YR-106-b) 원자성·멱등성 보완
+def _pick(mbt, owner="A"):
+    jid = next(j for j, r in mbt.ledger.records.items()
+               if r.flow == JobFlow.GATE_IN.value and r.owner == owner and r.a_gate_in)
+    rec = mbt.ledger.records[jid]
+    for s in mbt.blocks.values():
+        s.clock = rec.a_gate_in + 1.0
+    return jid, rec
+
+
+def test_commit_failure_leaves_no_orphan_job():
+    """게이트 D 핵심 — 변경 도중 실패해도 작업이 **어느 블록에도 없는** 상태가 되면 안 된다.
+
+    구판은 소스 장부 정합 검사가 `src.jobs.pop()` 뒤에 있어, 그 검사가 실패하면
+    작업이 사라지고 터미널 점유가 영구히 어긋났다.
+    """
+    mbt = _mbt()
+    jid, rec = _pick(mbt)
+    tl = mbt.blocks["A"].time_ledger
+    assert tl is not None
+    a = mbt.blocks["A"].jobs[jid].actual_gate_in
+    tl._a_sorted.remove(a)                      # 장부 정합을 인위적으로 깨뜨린다
+    n_before = len(tl._a_sorted)
+    assert mbt.try_transfer(jid, "B", route_s=180.0, travel_s=300.0) is False
+    assert jid in mbt.blocks["A"].jobs and jid not in mbt.blocks["B"].jobs
+    assert rec.owner == "A" and rec.version == 0 and rec.transfer_count == 0
+    assert len(tl._a_sorted) == n_before        # 장부도 손대지 않았다
+    assert mbt._reserved_inbound["B"] == 0
+    assert mbt.route_cost_s == 0.0              # 주행비도 계상되지 않았다
+    mbt.check_invariants()                      # 고아 없음
+
+
+def test_commit_restores_state_on_unexpected_exception():
+    """예상 못 한 예외(TransferError 아님)에도 원상복구 후 재발생해야 한다."""
+    mbt = _mbt()
+    jid, rec = _pick(mbt)
+    txn = mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    boom = RuntimeError("주입 실패")
+
+    class _Explode(dict):
+        def __setitem__(self, k, v):
+            raise boom
+
+    real = mbt.blocks["B"].jobs
+    mbt.blocks["B"].jobs = _Explode(real)
+    try:
+        with pytest.raises(RuntimeError):
+            mbt.commit(txn)
+    finally:
+        mbt.blocks["B"].jobs = real
+    assert jid in mbt.blocks["A"].jobs and rec.owner == "A" and rec.version == 0
+    assert mbt.route_cost_s == 0.0
+    mbt.check_invariants()
+
+
+def test_rolled_back_txn_cannot_be_committed():
+    """rollback 한 txn 재-commit 금지 — 구판은 **예약 없이** 이송이 성사됐다."""
+    mbt = _mbt()
+    jid, _ = _pick(mbt)
+    txn = mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    mbt.rollback(txn)
+    with pytest.raises(TransferError, match="닫힌 트랜잭션"):
+        mbt.commit(txn)
+    assert jid in mbt.blocks["A"].jobs
+
+
+def test_same_time_reprepare_does_not_leak_reservation():
+    """같은 (job,dst,시각) 재-prepare 시 예약이 새지 않는다 (구판은 키 충돌로 영구 누수)."""
+    mbt = _mbt()
+    jid, _ = _pick(mbt)
+    t1 = mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    t2 = mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    assert t1.txn_id != t2.txn_id and mbt._reserved_inbound["B"] == 2
+    mbt.rollback(t1)
+    mbt.rollback(t2)
+    assert mbt._reserved_inbound["B"] == 0
+
+
+def test_double_commit_rejected():
+    mbt = _mbt()
+    jid, _ = _pick(mbt)
+    txn = mbt.prepare_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    mbt.commit(txn)
+    with pytest.raises(TransferError):
+        mbt.commit(txn)
+    mbt.check_invariants()
+
+
+def test_transfer_shifts_provided_eta_with_actual():
+    """정책이 읽는 예측 도착(provided_eta)도 경로비용만큼 함께 밀린다."""
+    mbt = _mbt()
+    jid, _ = _pick(mbt)
+    j = mbt.blocks["A"].jobs[jid]
+    eta0, est0 = j.provided_eta, getattr(j, "estimated_block_arrival", None)
+    if eta0 is None:
+        pytest.skip("이 시나리오는 provided_eta 미사용")
+    assert mbt.try_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+    moved = mbt.blocks["B"].jobs[jid]
+    assert moved.provided_eta == pytest.approx(eta0 + 180.0)
+    if est0 is not None:
+        assert moved.estimated_block_arrival == pytest.approx(est0 + 180.0)

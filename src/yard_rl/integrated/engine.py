@@ -943,7 +943,9 @@ class TerminalSimulator:
             planned_completion_s=upd.get("planned_completion_s", p.planned_completion_s),
             completion_basis=upd.get("completion_basis", p.completion_basis),
             etd_s=upd.get("etd_s", p.etd_s), total_moves=p.total_moves,
-            sts_move_interval_s=p.sts_move_interval_s, quay_buffer_cap=p.quay_buffer_cap)
+            sts_move_interval_s=p.sts_move_interval_s, quay_buffer_cap=p.quay_buffer_cap,
+            # YR-106-b: 물리 하한은 계획변경으로 바뀌지 않는다(설비·물량 불변) — 승계.
+            phys_min_completion_s=p.phys_min_completion_s)
         for jid, dl in upd.get("job_deadlines", ()):
             if jid in self.jobs:
                 self.jobs[jid].deadline = dl

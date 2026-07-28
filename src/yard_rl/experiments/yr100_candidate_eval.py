@@ -2,10 +2,21 @@
 
 ■ 프로토콜 (결과 미열람 동결)
 - 평가대역: 4셀 × 신선 seed 6 (BASE+700..705 — 학습 tr/va/기존 eval 대역과 불겹침).
-- arm: SF · JR1800(공개정보 공동 rollout 참고군) · CONTROL_s{3} · CALC_s{3}.
+- arm: SF · **JR1800(오라클 — 배포 금지·성능 상한 전용)** · CONTROL_s{3} · CALC_s{3}.
 - 지표: 순수 numeraire_v1 total(1차) · berth · 트럭 mean/P95 · 완주 · healthy.
 - 판정: guard(완주 1.0·healthy) 통과 arm 중 pooled paired Δtotal(vs SF) 최소가 후보.
   학습 arm 은 시드별 개별 보고(재현성) + 3시드 평균. YR-096 진행/폐기 근거 = JR1800 상대성적.
+
+■ YR-107 정정 (2026-07-28) — **라벨 오류 + 규칙 결손**
+- 구 문구 "JR1800(공개정보 공동 rollout 참고군)"은 **사실이 아니다**. JR1800 은
+  `_rollout_cost`(deepcopy + 실제 엔진)로 평가하므로 시간창 안 트럭 도착을 **진짜 시각으로**
+  안다 = 오라클. 실측: 1800초 창의 트럭 9대 전부 정확 실현, 같은 시점 공개 ETA 는 평균
+  447초 어긋남. 공개정보 대응물(`PredictiveRollout`)은 **이 하네스에 등록된 적이 없다** —
+  없는 arm 을 있다고 적은 것이다.
+- 더 심각한 것: 이 실험에서 학습 arm 6개가 전부 healthy 에 걸려 탈락하자, 위 판정 규칙이
+  다른 선택지가 없어 **오라클을 배포 후보로 자동 지명**했다. 이제 `is_deployable()` 로
+  후보 자격을 **구조적으로** 거른다(verdict 에 `deployable` 표기).
+- RL arm(CONTROL/CALC)은 오염되지 않았다 — 조합 열거만 쓰고 `_rollout_cost` 를 호출하지 않는다.
 """
 from __future__ import annotations
 
@@ -16,7 +27,7 @@ from statistics import fmean
 
 from ..integrated.baselines import (ActionMixError, JointRolloutGreedy, ResolverPolicy,
                                     ServiceFirstSPTPreference, assert_healthy_action_mix,
-                                    run_joint_episode)
+                                    is_deployable, run_joint_episode)
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_config import RewardCalculator
 from .yr090_dense_vessel import BASE, CELLS, _ci, _sim
@@ -98,6 +109,8 @@ def verdict() -> dict:
             "total_mean": round(fmean(r["total"] for r in rows), 2),
             "compl_min": min(r["compl"] for r in rows),
             "healthy_all": all(r["healthy"] for r in rows),
+            # YR-107: 오라클은 guard 를 통과해도 **후보가 될 수 없다** (규칙 결손 차단)
+            "deployable": is_deployable(name),
             "per_cell_total": {c: round(fmean(r["total"] for r in rows if r["cell"] == c), 2)
                                for c in CELLS}}
     if "SF" in arms:
