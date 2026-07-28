@@ -1,0 +1,179 @@
+{
+ "purpose": "YR-116 공통 계약 보정 뒤 YR-113 확증 대역 민감도 재검",
+ "evidence_level": "기존 확증 대역 재사용 — 106쌍 집계방향 민감도, 독립 확증·개별시드 보존 아님",
+ "old_git": "71a8456d5a90d5889d1b83633e5fa9fe534d1a9a",
+ "new_git": "dad5df895d9cb24daae63d0c5ebc0818ca6c7f29",
+ "new_git_dirty": false,
+ "n": 106,
+ "same_band": true,
+ "band_digest": "e86a1f32976856ef",
+ "guards": {
+  "ok": true,
+  "failures": []
+ },
+ "old_deadlock_escapes": 10,
+ "new_deadlock_escapes": 10,
+ "channels": {
+  "truck": {
+   "old": {
+    "n": 106,
+    "mean": 3.347,
+    "sd": 4.944,
+    "ci": [
+     2.395,
+     4.299
+    ],
+    "mde80": 1.358,
+    "label": "유의(악화)",
+    "required_n_for_mean": 22,
+    "required_n_for_delta": 27,
+    "equivalent": false,
+    "tost_ci90": [
+     2.55,
+     4.144
+    ],
+    "role": "1차(확증)"
+   },
+   "new": {
+    "n": 106,
+    "mean": 3.365,
+    "sd": 4.93,
+    "ci": [
+     2.416,
+     4.315
+    ],
+    "mde80": 1.354,
+    "label": "유의(악화)",
+    "required_n_for_mean": 22,
+    "required_n_for_delta": 27,
+    "equivalent": false,
+    "tost_ci90": [
+     2.571,
+     4.16
+    ],
+    "role": "1차(확증)"
+   }
+  },
+  "vessel": {
+   "old": {
+    "n": 106,
+    "mean": 5.286,
+    "sd": 14.123,
+    "ci": [
+     2.566,
+     8.005
+    ],
+    "mde80": 3.879,
+    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=10.00)",
+    "required_n_for_mean": 66,
+    "required_n_for_delta": 20,
+    "equivalent": true,
+    "tost_ci90": [
+     3.009,
+     7.562
+    ],
+    "role": "탐색적(보정 없음)"
+   },
+   "new": {
+    "n": 106,
+    "mean": 5.562,
+    "sd": 14.041,
+    "ci": [
+     2.858,
+     8.266
+    ],
+    "mde80": 3.857,
+    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=10.00)",
+    "required_n_for_mean": 59,
+    "required_n_for_delta": 20,
+    "equivalent": true,
+    "tost_ci90": [
+     3.299,
+     7.825
+    ],
+    "role": "탐색적(보정 없음)"
+   }
+  },
+  "move": {
+   "old": {
+    "n": 106,
+    "mean": -0.572,
+    "sd": 0.314,
+    "ci": [
+     -0.633,
+     -0.512
+    ],
+    "mde80": 0.086,
+    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
+    "required_n_for_mean": 5,
+    "required_n_for_delta": 4,
+    "equivalent": true,
+    "tost_ci90": [
+     -0.623,
+     -0.522
+    ],
+    "role": "탐색적(보정 없음)"
+   },
+   "new": {
+    "n": 106,
+    "mean": -0.573,
+    "sd": 0.314,
+    "ci": [
+     -0.633,
+     -0.512
+    ],
+    "mde80": 0.086,
+    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
+    "required_n_for_mean": 5,
+    "required_n_for_delta": 4,
+    "equivalent": true,
+    "tost_ci90": [
+     -0.623,
+     -0.522
+    ],
+    "role": "탐색적(보정 없음)"
+   }
+  },
+  "total": {
+   "old": {
+    "n": 106,
+    "mean": 8.06,
+    "sd": 14.675,
+    "ci": [
+     5.234,
+     10.886
+    ],
+    "mde80": 4.031,
+    "label": "유의(악화)",
+    "required_n_for_mean": 32,
+    "required_n_for_delta": 22,
+    "equivalent": false,
+    "tost_ci90": [
+     5.695,
+     10.425
+    ],
+    "role": "탐색적(보정 없음)"
+   },
+   "new": {
+    "n": 106,
+    "mean": 8.355,
+    "sd": 14.521,
+    "ci": [
+     5.558,
+     11.151
+    ],
+    "mde80": 3.988,
+    "label": "유의(악화)",
+    "required_n_for_mean": 29,
+    "required_n_for_delta": 21,
+    "equivalent": false,
+    "tost_ci90": [
+     6.014,
+     10.695
+    ],
+    "role": "탐색적(보정 없음)"
+   }
+  }
+ },
+ "primary_aggregate_direction_preserved": true
+}
