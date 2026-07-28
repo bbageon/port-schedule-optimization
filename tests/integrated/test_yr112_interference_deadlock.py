@@ -1,8 +1,9 @@
-"""YR-112 — 크레인 간섭 교착: 결정 기회가 열리지 않아 작업이 사라지던 결함.
+"""YR-112 — 크레인 간섭 교착: 결정 기회가 열리지 않아 미완 작업이 남던 결함.
 
 증상(실측 seed 902013): 유휴 크레인 2기가 대상 bay 를 **사이에 두고** 안전간격 안에 서면
 어느 쪽도 그 bay 를 잡을 수 없는데(물리적으로 옳다), 비켜설 **결정 기회 자체가 열리지
-않아** 런이 그대로 끝났다. 미완 작업은 비용에 계상되지 않으므로 표본이 조용히 왜곡된다.
+않아** 런이 그대로 끝났다. 미완 트럭은 평가창 끝까지 대기비용이 계속 쌓여 해당 arm을
+불리하게 만들므로, arm별 발생률이 다르면 비교가 왜곡된다.
 
 수정 방향: 물리(유휴 크레인 관통 금지, YR-091)는 그대로 두고 **결정 기회만** 연다.
 발화 조건이 "이벤트도 wake 도 없고 · 실행가능 SERVE 도 없고 · 간섭으로만 막힌 작업이 있다"
@@ -280,8 +281,8 @@ def test_real_policy_needs_only_one_escape():
     assert compl == 1.0 and backlog == 0 and len(escapes) == 1
 
 
-def test_unfinished_work_would_have_been_silently_dropped():
-    """결함의 **연구적 위험**을 고정: 미완 작업은 비용에 안 잡힌다 = 조용한 왜곡."""
+def test_unfinished_work_is_rejected_by_completion_guard():
+    """결함의 연구적 위험을 고정: 미완·backlog가 남은 표본은 판정에서 막아야 한다."""
     sim = _sim(DEADLOCK_SEED)
     compl, backlog, _ = _run(sim)
     assert backlog == 0, "backlog 가 남으면 그 시드의 비용 비교는 무효로 취급해야 한다"

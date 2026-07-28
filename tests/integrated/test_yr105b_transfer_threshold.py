@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from yard_rl.experiments import yr105_conditional_transfer as y5
@@ -55,3 +57,14 @@ def test_confirm_classification_contract(truck_ci, vessel_ci, total_ci, expected
     }
     assert y105b._classification(channels, True) == expected
     assert y105b._classification(channels, False) == "INVALID"
+
+
+def test_select_rejects_sample_size_not_frozen_by_pilot(tmp_path, monkeypatch):
+    monkeypatch.setattr(y105b, "OUT", tmp_path)
+    monkeypatch.setattr(y105b, "_require_clean", lambda: None)
+    (tmp_path / "power_note.json").write_text(
+        json.dumps({"frozen_sample_plan": {"n_select": 24}, "guards": {"ok": True}}),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="표본계약"):
+        y105b.run_select(23)

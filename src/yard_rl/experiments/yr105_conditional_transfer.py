@@ -205,14 +205,15 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                                and vs < VESSEL_SLACK_MIN)
                 if rblock is not None and fire and not blocked:      # 볼륨 매칭 대조군
                     blocked = rblock.random() < random_block_p
+                log_rec = None
                 if log is not None:
-                    log.append({"t": round(t, 1), "job": jid, "src": src,
-                                "gap": round(gap, 4), "gap_threshold": threshold,
-                                "vessel_slack_s": None if vs is None
-                                else round(vs, 1),
-                                **{k: round(v, 4) for k, v in cong[src].items()},
-                                "fired": bool(fire and not blocked),
-                                "blocked_by_vessel": blocked})
+                    log_rec = {"t": round(t, 1), "job": jid, "src": src,
+                               "gap": round(gap, 4), "gap_threshold": threshold,
+                               "vessel_slack_s": None if vs is None else round(vs, 1),
+                               **{k: round(v, 4) for k, v in cong[src].items()},
+                               "fired": bool(fire and not blocked),
+                               "blocked_by_vessel": blocked, "transferred": False}
+                    log.append(log_rec)
                 if blocked:
                     stats["blocked_vessel"] += 1
                     continue
@@ -224,6 +225,9 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
                                       lo=GATE_BLOCK_MIN_S, hi=GATE_BLOCK_MAX_S)
                 if m.try_transfer(jid, dst, route_s=ROUTE_S, travel_s=travel):
                     stats[f"{src}->{dst}"] += 1
+                    if log_rec is not None:
+                        log_rec["transferred"] = True
+                        log_rec["dst"] = dst
                 else:
                     stats["rejected"] += 1
 

@@ -81,7 +81,8 @@ B(τ, channel) = Cost(0.10, channel) - Cost(τ, channel)
 7. 계획 표본에서 세 차이 모두 `MDE80 <= 3`인지 검사한다.
 
 pilot 실현지문은 이후 대역에서 제외한다. 결과 평균을 본 뒤 표본을 추가하는 post-hoc
-top-up은 금지한다.
+top-up은 금지한다. 선택 전 누출을 막기 위해 pilot 산출물·콘솔에는 arm별 평균·CI·raw row를
+남기지 않고 세 쌍의 표준편차·상측한계·필요 표본수·guard·지문만 봉인해 저장한다.
 
 ## 선택 대역
 

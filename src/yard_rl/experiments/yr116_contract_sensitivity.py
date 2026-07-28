@@ -22,28 +22,38 @@ OLD = Path("outputs/reports/yr113_transfer_net_effect/results_confirm.json")
 
 def run() -> dict:
     old = json.loads(OLD.read_text(encoding="utf-8"))
-    y5.ACHIEVABLE_DEADLINE = True
-
-    pilot = y113._band("pilot", 8)
-    select = y113._band("select", 53, set(pilot.all_hashes))
-    exclude = set(pilot.all_hashes) | set(select.all_hashes)
-
-    prev = y113.OUT
-    y113.OUT = OUT
+    prev_deadline = y5.ACHIEVABLE_DEADLINE
+    prev_out = y113.OUT
     try:
+        y5.ACHIEVABLE_DEADLINE = True
+        pilot = y113._band("pilot", 8)
+        select = y113._band("select", 53, set(pilot.all_hashes))
+        exclude = set(pilot.all_hashes) | set(select.all_hashes)
+        y113.OUT = OUT
         new = y113.run("confirm", 106, exclude)
     finally:
-        y113.OUT = prev
+        y113.OUT = prev_out
+        y5.ACHIEVABLE_DEADLINE = prev_deadline
+
+    same_band = old["repro"]["seeds"] == new["repro"]["seeds"]
+    old_digest = old["repro"]["band_spec"]["digest"]
+    new_digest = new["repro"]["band_spec"]["digest"]
+    if not same_band or old_digest != new_digest:
+        raise AssertionError("구·신 계약 민감도 실행 대역이 동일하지 않다")
+    if new["repro"]["code"]["git_dirty"] is not False:
+        raise RuntimeError("계약 민감도 정본은 clean commit에서 실행해야 한다")
 
     old_ch = old["channels_notransfer_minus_base"]
     new_ch = new["channels_notransfer_minus_base"]
     summary = {
         "purpose": "YR-116 공통 계약 보정 뒤 YR-113 확증 대역 민감도 재검",
-        "evidence_level": "기존 확증 대역 재사용 — 독립 확증 아님",
+        "evidence_level": "기존 확증 대역 재사용 — 106쌍 집계방향 민감도, 독립 확증·개별시드 보존 아님",
         "old_git": old["repro"]["code"]["git_head"],
         "new_git": new["repro"]["code"]["git_head"],
         "new_git_dirty": new["repro"]["code"]["git_dirty"],
         "n": len(new["rows"]),
+        "same_band": same_band,
+        "band_digest": new_digest,
         "guards": new["guards"],
         "old_deadlock_escapes": old["deadlock_escapes_total"],
         "new_deadlock_escapes": new["deadlock_escapes_total"],
@@ -51,8 +61,10 @@ def run() -> dict:
             ch: {"old": old_ch[ch], "new": new_ch[ch]}
             for ch in ("truck", "vessel", "move", "total")
         },
-        "primary_direction_preserved": (
-            old_ch["truck"]["ci"][0] > 0 and new_ch["truck"]["ci"][0] > 0
+        "primary_aggregate_direction_preserved": (
+            new["guards"]["ok"]
+            and old_ch["truck"]["role"] == new_ch["truck"]["role"] == "1차(확증)"
+            and old_ch["truck"]["ci"][0] > 0 and new_ch["truck"]["ci"][0] > 0
         ),
     }
     OUT.mkdir(parents=True, exist_ok=True)

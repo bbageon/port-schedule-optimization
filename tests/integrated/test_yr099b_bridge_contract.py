@@ -112,6 +112,35 @@ def test_multiblock_schedules_gate_in_at_zero():
     assert m.ledger.records[inbound.job_id].a_gate_in == 0.0
 
 
+def test_gate_in_zero_review_callback_can_transfer():
+    """로컬 t=0 결정을 먼저 소진한 뒤 review callback이 같은 t=0에 실제 이송을 수행한다."""
+    a, b = _sim(seed=845_010), _sim(seed=845_011)
+    inbound = next(j for j in a.jobs.values() if j.flow == JobFlow.GATE_IN)
+    inbound.actual_gate_in = 0.0
+    m = MultiBlockTerminal({"A": a, "B": b})
+    jid = inbound.job_id
+    seen = []
+    pol, gens = ResolverPolicy(ServiceFirstSPTPreference(), "SF"), {}
+
+    def policy(sim, dp):
+        gen = gens.setdefault(id(sim), CandidateGenerator())
+        by_crane = {c: gen.generate(sim, c, LEVEL) for c in dp.crane_ids}
+        try:
+            _apply(sim, pol.decide(sim, dp, by_crane))
+        except Exception:
+            _apply(sim, {c: _wait_of(by_crane[c]) for c in dp.crane_ids})
+
+    def review(term, t):
+        if t == pytest.approx(0.0):
+            seen.append(t)
+            assert term.try_transfer(jid, "B", route_s=180.0, travel_s=300.0)
+
+    m.run(policy, review)
+    assert seen == [0.0]
+    assert m.ledger.records[jid].owner == "B"
+    m.check_invariants()
+
+
 def test_event_before_epoch_wins():
     s = _sim()
     first_evt = s.queue.peek_time()
