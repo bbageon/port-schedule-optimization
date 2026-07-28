@@ -254,6 +254,8 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
     route_cost = res["route_cost_s"] / 3600.0        # 브리지가 계상한 실제 추가주행
     end = res["end"]
     a2o = mbt.ledger.a_to_o_samples_s(end)
+    n_a2o_expected = sum(
+        1 for rec in mbt.ledger.records.values() if rec.a_gate_in is not None)
     berth = sum(getattr(s.kpis, "berth_overrun_s", 0.0) for s in mbt.blocks.values()) / 60.0
     b2c = [x for s in mbt.blocks.values()
            for x in (s.time_ledger.block_turntime_samples_s() if s.time_ledger else [])]
@@ -277,6 +279,9 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
             "a2o_mean_min": round(a2o_mean_min_raw, 2)
             if a2o_mean_min_raw is not None else None,
             "a2o_mean_min_raw": a2o_mean_min_raw, "n_a2o": len(a2o),
+            # 전체 원장에는 본선 작업도 있으므로 n_jobs와 직접 비교하면 안 된다.
+            # A→O 계약은 실제 gate-in 기록이 있는 원장 건수와 따로 맞춘다.
+            "n_a2o_expected": n_a2o_expected,
             "b2c_mean_min": round(fmean(b2c) / 60.0, 2) if b2c else None,
             "n_moved": n_moved, "n_blocked_vessel": stats["blocked_vessel"],
             "n_rejected": stats["rejected"], "n_fired": stats["fired"],

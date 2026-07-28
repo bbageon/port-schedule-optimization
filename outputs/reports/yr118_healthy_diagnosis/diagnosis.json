@@ -1,0 +1,4537 @@
+{
+ "repro": {
+  "experiment": "YR-118 학습 정책 건전성 실패 진단",
+  "code": {
+   "git_head": "d7ddaad1f42ceacb36a90203b6b70c74ac884a0d",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "mid-loose": [
+    830700,
+    830701,
+    830702,
+    830703,
+    830704,
+    830705
+   ],
+   "high-loose": [
+    830800,
+    830801,
+    830802,
+    830803,
+    830804,
+    830805
+   ],
+   "mid-tight": [
+    830900,
+    830901,
+    830902,
+    830903,
+    830904,
+    830905
+   ],
+   "high-tight": [
+    831000,
+    831001,
+    831002,
+    831003,
+    831004,
+    831005
+   ]
+  },
+  "params": {},
+  "prereg": "판정 아님 — 진단. 문턱을 바꾸지 않고 실패 조건만 특정한다.",
+  "arms": [
+   "CALC:88000",
+   "CALC:99000",
+   "CALC:123000",
+   "CONTROL:88000",
+   "CONTROL:99000",
+   "CONTROL:123000"
+  ],
+  "cells": [
+   "mid-loose",
+   "high-loose",
+   "mid-tight",
+   "high-tight"
+  ]
+ },
+ "rows": [
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7355,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1818,
+   "shares": {
+    "PRE_REHANDLE": 0.1259,
+    "REPOSITION": 0.1818,
+    "SERVE": 0.6224,
+    "WAIT": 0.0699
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 26,
+    "SERVE": 89,
+    "WAIT": 10
+   },
+   "n_decisions": 143,
+   "serve_available": 121,
+   "serve_taken": 89,
+   "total_cost": 28.971,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5466,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3989,
+   "shares": {
+    "PRE_REHANDLE": 0.0874,
+    "REPOSITION": 0.3989,
+    "SERVE": 0.4809,
+    "WAIT": 0.0328
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 73,
+    "SERVE": 88,
+    "WAIT": 6
+   },
+   "n_decisions": 183,
+   "serve_available": 161,
+   "serve_taken": 88,
+   "total_cost": 17.028,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.304,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6606,
+   "shares": {
+    "PRE_REHANDLE": 0.0433,
+    "REPOSITION": 0.6606,
+    "SERVE": 0.2744,
+    "WAIT": 0.0217
+   },
+   "counts": {
+    "PRE_REHANDLE": 12,
+    "REPOSITION": 183,
+    "SERVE": 76,
+    "WAIT": 6
+   },
+   "n_decisions": 277,
+   "serve_available": 250,
+   "serve_taken": 76,
+   "total_cost": 37.649,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/mid-loose/s830702 퇴화: REPOSITION 가 전체 결정의 66.1% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 12, 'REPOSITION': 183, 'SERVE': 76, 'WAIT': 6}, 'total': 277, 'shares': {'PRE_REHANDLE': 0.0433, 'REPOSITION': 0.6606, 'SERVE': 0.2744, 'WAIT': 0.0217}, 'serve_available': 250, 'serve_taken': 76, 'serve_when_available': 0.304}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4971,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4433,
+   "shares": {
+    "PRE_REHANDLE": 0.0739,
+    "REPOSITION": 0.4433,
+    "SERVE": 0.4286,
+    "WAIT": 0.0542
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 90,
+    "SERVE": 87,
+    "WAIT": 11
+   },
+   "n_decisions": 203,
+   "serve_available": 175,
+   "serve_taken": 87,
+   "total_cost": 45.828,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": false,
+   "fail_conditions": [
+    "①SERVE선택률<0.25",
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.1663,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.797,
+   "shares": {
+    "PRE_REHANDLE": 0.0302,
+    "REPOSITION": 0.797,
+    "SERVE": 0.1577,
+    "WAIT": 0.0151
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 369,
+    "SERVE": 73,
+    "WAIT": 7
+   },
+   "n_decisions": 463,
+   "serve_available": 439,
+   "serve_taken": 73,
+   "total_cost": 32.074,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/mid-loose/s830704 퇴화: 실작업 가능 시 SERVE 선택 16.6% < 25% — {'counts': {'PRE_REHANDLE': 14, 'REPOSITION': 369, 'SERVE': 73, 'WAIT': 7}, 'total': 463, 'shares': {'PRE_REHANDLE': 0.0302, 'REPOSITION': 0.797, 'SERVE': 0.1577, 'WAIT': 0.0151}, 'serve_available': 439, 'serve_taken': 73, 'serve_when_available': 0.1663}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.256,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6845,
+   "shares": {
+    "PRE_REHANDLE": 0.0451,
+    "REPOSITION": 0.6845,
+    "SERVE": 0.2394,
+    "WAIT": 0.031
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 243,
+    "SERVE": 85,
+    "WAIT": 11
+   },
+   "n_decisions": 355,
+   "serve_available": 332,
+   "serve_taken": 85,
+   "total_cost": 37.741,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/mid-loose/s830705 퇴화: REPOSITION 가 전체 결정의 68.5% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 16, 'REPOSITION': 243, 'SERVE': 85, 'WAIT': 11}, 'total': 355, 'shares': {'PRE_REHANDLE': 0.0451, 'REPOSITION': 0.6845, 'SERVE': 0.2394, 'WAIT': 0.031}, 'serve_available': 332, 'serve_taken': 85, 'serve_when_available': 0.256}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6092,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.351,
+   "shares": {
+    "PRE_REHANDLE": 0.0913,
+    "REPOSITION": 0.351,
+    "SERVE": 0.5096,
+    "WAIT": 0.0481
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 73,
+    "SERVE": 106,
+    "WAIT": 10
+   },
+   "n_decisions": 208,
+   "serve_available": 174,
+   "serve_taken": 106,
+   "total_cost": 87.563,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7584,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1724,
+   "shares": {
+    "PRE_REHANDLE": 0.0977,
+    "REPOSITION": 0.1724,
+    "SERVE": 0.6494,
+    "WAIT": 0.0805
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 30,
+    "SERVE": 113,
+    "WAIT": 14
+   },
+   "n_decisions": 174,
+   "serve_available": 149,
+   "serve_taken": 113,
+   "total_cost": 52.445,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2968,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6523,
+   "shares": {
+    "PRE_REHANDLE": 0.0406,
+    "REPOSITION": 0.6523,
+    "SERVE": 0.2817,
+    "WAIT": 0.0254
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 257,
+    "SERVE": 111,
+    "WAIT": 10
+   },
+   "n_decisions": 394,
+   "serve_available": 374,
+   "serve_taken": 111,
+   "total_cost": 71.262,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/high-loose/s830802 퇴화: REPOSITION 가 전체 결정의 65.2% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 16, 'REPOSITION': 257, 'SERVE': 111, 'WAIT': 10}, 'total': 394, 'shares': {'PRE_REHANDLE': 0.0406, 'REPOSITION': 0.6523, 'SERVE': 0.2817, 'WAIT': 0.0254}, 'serve_available': 374, 'serve_taken': 111, 'serve_when_available': 0.2968}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.3519,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6019,
+   "shares": {
+    "PRE_REHANDLE": 0.0573,
+    "REPOSITION": 0.6019,
+    "SERVE": 0.3217,
+    "WAIT": 0.0191
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 189,
+    "SERVE": 101,
+    "WAIT": 6
+   },
+   "n_decisions": 314,
+   "serve_available": 287,
+   "serve_taken": 101,
+   "total_cost": 37.948,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/high-loose/s830803 퇴화: REPOSITION 가 전체 결정의 60.2% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 18, 'REPOSITION': 189, 'SERVE': 101, 'WAIT': 6}, 'total': 314, 'shares': {'PRE_REHANDLE': 0.0573, 'REPOSITION': 0.6019, 'SERVE': 0.3217, 'WAIT': 0.0191}, 'serve_available': 287, 'serve_taken': 101, 'serve_when_available': 0.3519}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6348,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2911,
+   "shares": {
+    "PRE_REHANDLE": 0.1455,
+    "REPOSITION": 0.2911,
+    "SERVE": 0.5305,
+    "WAIT": 0.0329
+   },
+   "counts": {
+    "PRE_REHANDLE": 31,
+    "REPOSITION": 62,
+    "SERVE": 113,
+    "WAIT": 7
+   },
+   "n_decisions": 213,
+   "serve_available": 178,
+   "serve_taken": 113,
+   "total_cost": 66.101,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4912,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4186,
+   "shares": {
+    "PRE_REHANDLE": 0.0814,
+    "REPOSITION": 0.4186,
+    "SERVE": 0.4341,
+    "WAIT": 0.0659
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 108,
+    "SERVE": 112,
+    "WAIT": 17
+   },
+   "n_decisions": 258,
+   "serve_available": 228,
+   "serve_taken": 112,
+   "total_cost": 79.809,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4551,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4667,
+   "shares": {
+    "PRE_REHANDLE": 0.0905,
+    "REPOSITION": 0.4667,
+    "SERVE": 0.3857,
+    "WAIT": 0.0571
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 98,
+    "SERVE": 81,
+    "WAIT": 12
+   },
+   "n_decisions": 210,
+   "serve_available": 178,
+   "serve_taken": 81,
+   "total_cost": 74.525,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5427,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4188,
+   "shares": {
+    "PRE_REHANDLE": 0.0942,
+    "REPOSITION": 0.4188,
+    "SERVE": 0.466,
+    "WAIT": 0.0209
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 80,
+    "SERVE": 89,
+    "WAIT": 4
+   },
+   "n_decisions": 191,
+   "serve_available": 164,
+   "serve_taken": 89,
+   "total_cost": 78.477,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": false,
+   "fail_conditions": [
+    "①SERVE선택률<0.25",
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2367,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.7093,
+   "shares": {
+    "PRE_REHANDLE": 0.0476,
+    "REPOSITION": 0.7093,
+    "SERVE": 0.2231,
+    "WAIT": 0.0201
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 283,
+    "SERVE": 89,
+    "WAIT": 8
+   },
+   "n_decisions": 399,
+   "serve_available": 376,
+   "serve_taken": 89,
+   "total_cost": 90.551,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/mid-tight/s830902 퇴화: 실작업 가능 시 SERVE 선택 23.7% < 25% — {'counts': {'PRE_REHANDLE': 19, 'REPOSITION': 283, 'SERVE': 89, 'WAIT': 8}, 'total': 399, 'shares': {'PRE_REHANDLE': 0.0476, 'REPOSITION': 0.7093, 'SERVE': 0.2231, 'WAIT': 0.0201}, 'serve_available': 376, 'serve_taken': 89, 'serve_when_available': 0.2367}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.3846,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5709,
+   "shares": {
+    "PRE_REHANDLE": 0.0421,
+    "REPOSITION": 0.5709,
+    "SERVE": 0.3448,
+    "WAIT": 0.0421
+   },
+   "counts": {
+    "PRE_REHANDLE": 11,
+    "REPOSITION": 149,
+    "SERVE": 90,
+    "WAIT": 11
+   },
+   "n_decisions": 261,
+   "serve_available": 234,
+   "serve_taken": 90,
+   "total_cost": 96.281,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6575,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3132,
+   "shares": {
+    "PRE_REHANDLE": 0.0989,
+    "REPOSITION": 0.3132,
+    "SERVE": 0.5275,
+    "WAIT": 0.0604
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 57,
+    "SERVE": 96,
+    "WAIT": 11
+   },
+   "n_decisions": 182,
+   "serve_available": 146,
+   "serve_taken": 96,
+   "total_cost": 85.507,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4154,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.528,
+   "shares": {
+    "PRE_REHANDLE": 0.0607,
+    "REPOSITION": 0.528,
+    "SERVE": 0.3785,
+    "WAIT": 0.0327
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 113,
+    "SERVE": 81,
+    "WAIT": 7
+   },
+   "n_decisions": 214,
+   "serve_available": 195,
+   "serve_taken": 81,
+   "total_cost": 61.049,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7692,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2275,
+   "shares": {
+    "PRE_REHANDLE": 0.0741,
+    "REPOSITION": 0.2275,
+    "SERVE": 0.582,
+    "WAIT": 0.1164
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 43,
+    "SERVE": 110,
+    "WAIT": 22
+   },
+   "n_decisions": 189,
+   "serve_available": 143,
+   "serve_taken": 110,
+   "total_cost": 100.309,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6744,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3086,
+   "shares": {
+    "PRE_REHANDLE": 0.1296,
+    "REPOSITION": 0.3086,
+    "SERVE": 0.537,
+    "WAIT": 0.0247
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 50,
+    "SERVE": 87,
+    "WAIT": 4
+   },
+   "n_decisions": 162,
+   "serve_available": 129,
+   "serve_taken": 87,
+   "total_cost": 75.323,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4029,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5322,
+   "shares": {
+    "PRE_REHANDLE": 0.0678,
+    "REPOSITION": 0.5322,
+    "SERVE": 0.3729,
+    "WAIT": 0.0271
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 157,
+    "SERVE": 110,
+    "WAIT": 8
+   },
+   "n_decisions": 295,
+   "serve_available": 273,
+   "serve_taken": 110,
+   "total_cost": 122.087,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": false,
+   "fail_conditions": [
+    "①SERVE선택률<0.25",
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2315,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.7287,
+   "shares": {
+    "PRE_REHANDLE": 0.0416,
+    "REPOSITION": 0.7287,
+    "SERVE": 0.2188,
+    "WAIT": 0.0109
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 333,
+    "SERVE": 100,
+    "WAIT": 5
+   },
+   "n_decisions": 457,
+   "serve_available": 432,
+   "serve_taken": 100,
+   "total_cost": 91.306,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:88000/high-tight/s831003 퇴화: 실작업 가능 시 SERVE 선택 23.1% < 25% — {'counts': {'PRE_REHANDLE': 19, 'REPOSITION': 333, 'SERVE': 100, 'WAIT': 5}, 'total': 457, 'shares': {'PRE_REHANDLE': 0.0416, 'REPOSITION': 0.7287, 'SERVE': 0.2188, 'WAIT': 0.0109}, 'serve_available': 432, 'serve_taken': 100, 'serve_when_available': 0.2315}"
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4978,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4502,
+   "shares": {
+    "PRE_REHANDLE": 0.0637,
+    "REPOSITION": 0.4502,
+    "SERVE": 0.4422,
+    "WAIT": 0.0438
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 113,
+    "SERVE": 111,
+    "WAIT": 11
+   },
+   "n_decisions": 251,
+   "serve_available": 223,
+   "serve_taken": 111,
+   "total_cost": 99.602,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:88000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8106,
+   "dominant_nonserve": "WAIT",
+   "dominant_share": 0.2291,
+   "shares": {
+    "PRE_REHANDLE": 0.1006,
+    "REPOSITION": 0.0726,
+    "SERVE": 0.5978,
+    "WAIT": 0.2291
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 13,
+    "SERVE": 107,
+    "WAIT": 41
+   },
+   "n_decisions": 179,
+   "serve_available": 132,
+   "serve_taken": 107,
+   "total_cost": 158.626,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7542,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.156,
+   "shares": {
+    "PRE_REHANDLE": 0.1348,
+    "REPOSITION": 0.156,
+    "SERVE": 0.6312,
+    "WAIT": 0.078
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 22,
+    "SERVE": 89,
+    "WAIT": 11
+   },
+   "n_decisions": 141,
+   "serve_available": 118,
+   "serve_taken": 89,
+   "total_cost": 28.51,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4112,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5289,
+   "shares": {
+    "PRE_REHANDLE": 0.0702,
+    "REPOSITION": 0.5289,
+    "SERVE": 0.3636,
+    "WAIT": 0.0372
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 128,
+    "SERVE": 88,
+    "WAIT": 9
+   },
+   "n_decisions": 242,
+   "serve_available": 214,
+   "serve_taken": 88,
+   "total_cost": 25.311,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7103,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2538,
+   "shares": {
+    "PRE_REHANDLE": 0.1077,
+    "REPOSITION": 0.2538,
+    "SERVE": 0.5846,
+    "WAIT": 0.0538
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 33,
+    "SERVE": 76,
+    "WAIT": 7
+   },
+   "n_decisions": 130,
+   "serve_available": 107,
+   "serve_taken": 76,
+   "total_cost": 39.475,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3353,
+   "shares": {
+    "PRE_REHANDLE": 0.0898,
+    "REPOSITION": 0.3353,
+    "SERVE": 0.521,
+    "WAIT": 0.0539
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 56,
+    "SERVE": 87,
+    "WAIT": 9
+   },
+   "n_decisions": 167,
+   "serve_available": 145,
+   "serve_taken": 87,
+   "total_cost": 39.29,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4294,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5,
+   "shares": {
+    "PRE_REHANDLE": 0.0765,
+    "REPOSITION": 0.5,
+    "SERVE": 0.3724,
+    "WAIT": 0.051
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 98,
+    "SERVE": 73,
+    "WAIT": 10
+   },
+   "n_decisions": 196,
+   "serve_available": 170,
+   "serve_taken": 73,
+   "total_cost": 14.036,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2881,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6487,
+   "shares": {
+    "PRE_REHANDLE": 0.0538,
+    "REPOSITION": 0.6487,
+    "SERVE": 0.269,
+    "WAIT": 0.0285
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 205,
+    "SERVE": 85,
+    "WAIT": 9
+   },
+   "n_decisions": 316,
+   "serve_available": 295,
+   "serve_taken": 85,
+   "total_cost": 32.226,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:99000/mid-loose/s830705 퇴화: REPOSITION 가 전체 결정의 64.9% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 17, 'REPOSITION': 205, 'SERVE': 85, 'WAIT': 9}, 'total': 316, 'shares': {'PRE_REHANDLE': 0.0538, 'REPOSITION': 0.6487, 'SERVE': 0.269, 'WAIT': 0.0285}, 'serve_available': 295, 'serve_taken': 85, 'serve_when_available': 0.2881}"
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7794,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1566,
+   "shares": {
+    "PRE_REHANDLE": 0.1386,
+    "REPOSITION": 0.1566,
+    "SERVE": 0.6386,
+    "WAIT": 0.0663
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 26,
+    "SERVE": 106,
+    "WAIT": 11
+   },
+   "n_decisions": 166,
+   "serve_available": 136,
+   "serve_taken": 106,
+   "total_cost": 86.334,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6075,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.316,
+   "shares": {
+    "PRE_REHANDLE": 0.0896,
+    "REPOSITION": 0.316,
+    "SERVE": 0.533,
+    "WAIT": 0.0613
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 67,
+    "SERVE": 113,
+    "WAIT": 13
+   },
+   "n_decisions": 212,
+   "serve_available": 186,
+   "serve_taken": 113,
+   "total_cost": 66.618,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5236,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4398,
+   "shares": {
+    "PRE_REHANDLE": 0.0664,
+    "REPOSITION": 0.4398,
+    "SERVE": 0.4606,
+    "WAIT": 0.0332
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 106,
+    "SERVE": 111,
+    "WAIT": 8
+   },
+   "n_decisions": 241,
+   "serve_available": 212,
+   "serve_taken": 111,
+   "total_cost": 55.092,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6779,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2601,
+   "shares": {
+    "PRE_REHANDLE": 0.104,
+    "REPOSITION": 0.2601,
+    "SERVE": 0.5838,
+    "WAIT": 0.052
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 45,
+    "SERVE": 101,
+    "WAIT": 9
+   },
+   "n_decisions": 173,
+   "serve_available": 149,
+   "serve_taken": 101,
+   "total_cost": 33.211,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.528,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.379,
+   "shares": {
+    "PRE_REHANDLE": 0.1169,
+    "REPOSITION": 0.379,
+    "SERVE": 0.4556,
+    "WAIT": 0.0484
+   },
+   "counts": {
+    "PRE_REHANDLE": 29,
+    "REPOSITION": 94,
+    "SERVE": 113,
+    "WAIT": 12
+   },
+   "n_decisions": 248,
+   "serve_available": 214,
+   "serve_taken": 113,
+   "total_cost": 59.967,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7273,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1685,
+   "shares": {
+    "PRE_REHANDLE": 0.1236,
+    "REPOSITION": 0.1685,
+    "SERVE": 0.6292,
+    "WAIT": 0.0787
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 30,
+    "SERVE": 112,
+    "WAIT": 14
+   },
+   "n_decisions": 178,
+   "serve_available": 154,
+   "serve_taken": 112,
+   "total_cost": 76.182,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6429,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2911,
+   "shares": {
+    "PRE_REHANDLE": 0.1203,
+    "REPOSITION": 0.2911,
+    "SERVE": 0.5127,
+    "WAIT": 0.0759
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 46,
+    "SERVE": 81,
+    "WAIT": 12
+   },
+   "n_decisions": 158,
+   "serve_available": 126,
+   "serve_taken": 81,
+   "total_cost": 90.46,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4428,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5157,
+   "shares": {
+    "PRE_REHANDLE": 0.0717,
+    "REPOSITION": 0.5157,
+    "SERVE": 0.3991,
+    "WAIT": 0.0135
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 115,
+    "SERVE": 89,
+    "WAIT": 3
+   },
+   "n_decisions": 223,
+   "serve_available": 201,
+   "serve_taken": 89,
+   "total_cost": 75.25,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6899,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.275,
+   "shares": {
+    "PRE_REHANDLE": 0.1125,
+    "REPOSITION": 0.275,
+    "SERVE": 0.5563,
+    "WAIT": 0.0563
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 44,
+    "SERVE": 89,
+    "WAIT": 9
+   },
+   "n_decisions": 160,
+   "serve_available": 129,
+   "serve_taken": 89,
+   "total_cost": 93.438,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8333,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2015,
+   "shares": {
+    "PRE_REHANDLE": 0.097,
+    "REPOSITION": 0.2015,
+    "SERVE": 0.6716,
+    "WAIT": 0.0299
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 27,
+    "SERVE": 90,
+    "WAIT": 4
+   },
+   "n_decisions": 134,
+   "serve_available": 108,
+   "serve_taken": 90,
+   "total_cost": 60.336,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5246,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4194,
+   "shares": {
+    "PRE_REHANDLE": 0.0922,
+    "REPOSITION": 0.4194,
+    "SERVE": 0.4424,
+    "WAIT": 0.0461
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 91,
+    "SERVE": 96,
+    "WAIT": 10
+   },
+   "n_decisions": 217,
+   "serve_available": 183,
+   "serve_taken": 96,
+   "total_cost": 81.735,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8438,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1441,
+   "shares": {
+    "PRE_REHANDLE": 0.1186,
+    "REPOSITION": 0.1441,
+    "SERVE": 0.6864,
+    "WAIT": 0.0508
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 17,
+    "SERVE": 81,
+    "WAIT": 6
+   },
+   "n_decisions": 118,
+   "serve_available": 96,
+   "serve_taken": 81,
+   "total_cost": 54.377,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.3364,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5803,
+   "shares": {
+    "PRE_REHANDLE": 0.0592,
+    "REPOSITION": 0.5803,
+    "SERVE": 0.3099,
+    "WAIT": 0.0507
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 206,
+    "SERVE": 110,
+    "WAIT": 18
+   },
+   "n_decisions": 355,
+   "serve_available": 327,
+   "serve_taken": 110,
+   "total_cost": 95.223,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7131,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.277,
+   "shares": {
+    "PRE_REHANDLE": 0.1284,
+    "REPOSITION": 0.277,
+    "SERVE": 0.5878,
+    "WAIT": 0.0068
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 41,
+    "SERVE": 87,
+    "WAIT": 1
+   },
+   "n_decisions": 148,
+   "serve_available": 122,
+   "serve_taken": 87,
+   "total_cost": 66.599,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8462,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.125,
+   "shares": {
+    "PRE_REHANDLE": 0.125,
+    "REPOSITION": 0.125,
+    "SERVE": 0.6875,
+    "WAIT": 0.0625
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 20,
+    "SERVE": 110,
+    "WAIT": 10
+   },
+   "n_decisions": 160,
+   "serve_available": 130,
+   "serve_taken": 110,
+   "total_cost": 117.363,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6849,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2164,
+   "shares": {
+    "PRE_REHANDLE": 0.117,
+    "REPOSITION": 0.2164,
+    "SERVE": 0.5848,
+    "WAIT": 0.0819
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 37,
+    "SERVE": 100,
+    "WAIT": 14
+   },
+   "n_decisions": 171,
+   "serve_available": 146,
+   "serve_taken": 100,
+   "total_cost": 108.05,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6379,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2816,
+   "shares": {
+    "PRE_REHANDLE": 0.0922,
+    "REPOSITION": 0.2816,
+    "SERVE": 0.5388,
+    "WAIT": 0.0874
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 58,
+    "SERVE": 111,
+    "WAIT": 18
+   },
+   "n_decisions": 206,
+   "serve_available": 174,
+   "serve_taken": 111,
+   "total_cost": 118.668,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:99000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8106,
+   "dominant_nonserve": "WAIT",
+   "dominant_share": 0.1529,
+   "shares": {
+    "PRE_REHANDLE": 0.1059,
+    "REPOSITION": 0.1118,
+    "SERVE": 0.6294,
+    "WAIT": 0.1529
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 19,
+    "SERVE": 107,
+    "WAIT": 26
+   },
+   "n_decisions": 170,
+   "serve_available": 132,
+   "serve_taken": 107,
+   "total_cost": 143.474,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7177,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1857,
+   "shares": {
+    "PRE_REHANDLE": 0.1857,
+    "REPOSITION": 0.1071,
+    "SERVE": 0.6357,
+    "WAIT": 0.0714
+   },
+   "counts": {
+    "PRE_REHANDLE": 26,
+    "REPOSITION": 15,
+    "SERVE": 89,
+    "WAIT": 10
+   },
+   "n_decisions": 140,
+   "serve_available": 124,
+   "serve_taken": 89,
+   "total_cost": 22.941,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7213,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2739,
+   "shares": {
+    "PRE_REHANDLE": 0.1083,
+    "REPOSITION": 0.2739,
+    "SERVE": 0.5605,
+    "WAIT": 0.0573
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 43,
+    "SERVE": 88,
+    "WAIT": 9
+   },
+   "n_decisions": 157,
+   "serve_available": 122,
+   "serve_taken": 88,
+   "total_cost": 33.345,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5846,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3935,
+   "shares": {
+    "PRE_REHANDLE": 0.0903,
+    "REPOSITION": 0.3935,
+    "SERVE": 0.4903,
+    "WAIT": 0.0258
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 61,
+    "SERVE": 76,
+    "WAIT": 4
+   },
+   "n_decisions": 155,
+   "serve_available": 130,
+   "serve_taken": 76,
+   "total_cost": 33.468,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.486,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4428,
+   "shares": {
+    "PRE_REHANDLE": 0.0846,
+    "REPOSITION": 0.4428,
+    "SERVE": 0.4328,
+    "WAIT": 0.0398
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 89,
+    "SERVE": 87,
+    "WAIT": 8
+   },
+   "n_decisions": 201,
+   "serve_available": 179,
+   "serve_taken": 87,
+   "total_cost": 33.308,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2776,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6713,
+   "shares": {
+    "PRE_REHANDLE": 0.0519,
+    "REPOSITION": 0.6713,
+    "SERVE": 0.2526,
+    "WAIT": 0.0242
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 194,
+    "SERVE": 73,
+    "WAIT": 7
+   },
+   "n_decisions": 289,
+   "serve_available": 263,
+   "serve_taken": 73,
+   "total_cost": 26.544,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CALC:123000/mid-loose/s830704 퇴화: REPOSITION 가 전체 결정의 67.1% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 15, 'REPOSITION': 194, 'SERVE': 73, 'WAIT': 7}, 'total': 289, 'shares': {'PRE_REHANDLE': 0.0519, 'REPOSITION': 0.6713, 'SERVE': 0.2526, 'WAIT': 0.0242}, 'serve_available': 263, 'serve_taken': 73, 'serve_when_available': 0.2776}"
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8416,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1452,
+   "shares": {
+    "PRE_REHANDLE": 0.0968,
+    "REPOSITION": 0.1452,
+    "SERVE": 0.6855,
+    "WAIT": 0.0726
+   },
+   "counts": {
+    "PRE_REHANDLE": 12,
+    "REPOSITION": 18,
+    "SERVE": 85,
+    "WAIT": 9
+   },
+   "n_decisions": 124,
+   "serve_available": 101,
+   "serve_taken": 85,
+   "total_cost": 24.504,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6752,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2819,
+   "shares": {
+    "PRE_REHANDLE": 0.117,
+    "REPOSITION": 0.2819,
+    "SERVE": 0.5638,
+    "WAIT": 0.0372
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 53,
+    "SERVE": 106,
+    "WAIT": 7
+   },
+   "n_decisions": 188,
+   "serve_available": 157,
+   "serve_taken": 106,
+   "total_cost": 79.457,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6608,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2538,
+   "shares": {
+    "PRE_REHANDLE": 0.1066,
+    "REPOSITION": 0.2538,
+    "SERVE": 0.5736,
+    "WAIT": 0.066
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 50,
+    "SERVE": 113,
+    "WAIT": 13
+   },
+   "n_decisions": 197,
+   "serve_available": 171,
+   "serve_taken": 113,
+   "total_cost": 55.242,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.745,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1845,
+   "shares": {
+    "PRE_REHANDLE": 0.1012,
+    "REPOSITION": 0.1845,
+    "SERVE": 0.6607,
+    "WAIT": 0.0536
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 31,
+    "SERVE": 111,
+    "WAIT": 9
+   },
+   "n_decisions": 168,
+   "serve_available": 149,
+   "serve_taken": 111,
+   "total_cost": 48.661,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7891,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1656,
+   "shares": {
+    "PRE_REHANDLE": 0.1401,
+    "REPOSITION": 0.1656,
+    "SERVE": 0.6433,
+    "WAIT": 0.051
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 26,
+    "SERVE": 101,
+    "WAIT": 8
+   },
+   "n_decisions": 157,
+   "serve_available": 128,
+   "serve_taken": 101,
+   "total_cost": 31.593,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7063,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2513,
+   "shares": {
+    "PRE_REHANDLE": 0.1179,
+    "REPOSITION": 0.2513,
+    "SERVE": 0.5795,
+    "WAIT": 0.0513
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 49,
+    "SERVE": 113,
+    "WAIT": 10
+   },
+   "n_decisions": 195,
+   "serve_available": 160,
+   "serve_taken": 113,
+   "total_cost": 50.964,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7778,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1977,
+   "shares": {
+    "PRE_REHANDLE": 0.1163,
+    "REPOSITION": 0.1977,
+    "SERVE": 0.6512,
+    "WAIT": 0.0349
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 34,
+    "SERVE": 112,
+    "WAIT": 6
+   },
+   "n_decisions": 172,
+   "serve_available": 144,
+   "serve_taken": 112,
+   "total_cost": 61.406,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4765,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4545,
+   "shares": {
+    "PRE_REHANDLE": 0.0808,
+    "REPOSITION": 0.4545,
+    "SERVE": 0.4091,
+    "WAIT": 0.0556
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 90,
+    "SERVE": 81,
+    "WAIT": 11
+   },
+   "n_decisions": 198,
+   "serve_available": 170,
+   "serve_taken": 81,
+   "total_cost": 55.469,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7008,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2484,
+   "shares": {
+    "PRE_REHANDLE": 0.1242,
+    "REPOSITION": 0.2484,
+    "SERVE": 0.5817,
+    "WAIT": 0.0458
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 38,
+    "SERVE": 89,
+    "WAIT": 7
+   },
+   "n_decisions": 153,
+   "serve_available": 127,
+   "serve_taken": 89,
+   "total_cost": 78.077,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7417,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1837,
+   "shares": {
+    "PRE_REHANDLE": 0.1497,
+    "REPOSITION": 0.1837,
+    "SERVE": 0.6054,
+    "WAIT": 0.0612
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 27,
+    "SERVE": 89,
+    "WAIT": 9
+   },
+   "n_decisions": 147,
+   "serve_available": 120,
+   "serve_taken": 89,
+   "total_cost": 88.909,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8257,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1866,
+   "shares": {
+    "PRE_REHANDLE": 0.0896,
+    "REPOSITION": 0.1866,
+    "SERVE": 0.6716,
+    "WAIT": 0.0522
+   },
+   "counts": {
+    "PRE_REHANDLE": 12,
+    "REPOSITION": 25,
+    "SERVE": 90,
+    "WAIT": 7
+   },
+   "n_decisions": 134,
+   "serve_available": 109,
+   "serve_taken": 90,
+   "total_cost": 69.319,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7934,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1688,
+   "shares": {
+    "PRE_REHANDLE": 0.1558,
+    "REPOSITION": 0.1688,
+    "SERVE": 0.6234,
+    "WAIT": 0.0519
+   },
+   "counts": {
+    "PRE_REHANDLE": 24,
+    "REPOSITION": 26,
+    "SERVE": 96,
+    "WAIT": 8
+   },
+   "n_decisions": 154,
+   "serve_available": 121,
+   "serve_taken": 96,
+   "total_cost": 87.642,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.802,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1345,
+   "shares": {
+    "PRE_REHANDLE": 0.1092,
+    "REPOSITION": 0.1345,
+    "SERVE": 0.6807,
+    "WAIT": 0.0756
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 16,
+    "SERVE": 81,
+    "WAIT": 9
+   },
+   "n_decisions": 119,
+   "serve_available": 101,
+   "serve_taken": 81,
+   "total_cost": 40.763,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8661,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1386,
+   "shares": {
+    "PRE_REHANDLE": 0.1024,
+    "REPOSITION": 0.1386,
+    "SERVE": 0.6627,
+    "WAIT": 0.0964
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 23,
+    "SERVE": 110,
+    "WAIT": 16
+   },
+   "n_decisions": 166,
+   "serve_available": 127,
+   "serve_taken": 110,
+   "total_cost": 72.541,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.435,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5,
+   "shares": {
+    "PRE_REHANDLE": 0.0841,
+    "REPOSITION": 0.5,
+    "SERVE": 0.385,
+    "WAIT": 0.031
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 113,
+    "SERVE": 87,
+    "WAIT": 7
+   },
+   "n_decisions": 226,
+   "serve_available": 200,
+   "serve_taken": 87,
+   "total_cost": 62.835,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8462,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1386,
+   "shares": {
+    "PRE_REHANDLE": 0.1386,
+    "REPOSITION": 0.0904,
+    "SERVE": 0.6627,
+    "WAIT": 0.1084
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 15,
+    "SERVE": 110,
+    "WAIT": 18
+   },
+   "n_decisions": 166,
+   "serve_available": 130,
+   "serve_taken": 110,
+   "total_cost": 115.384,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1528,
+   "shares": {
+    "PRE_REHANDLE": 0.1319,
+    "REPOSITION": 0.1528,
+    "SERVE": 0.6944,
+    "WAIT": 0.0208
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 22,
+    "SERVE": 100,
+    "WAIT": 3
+   },
+   "n_decisions": 144,
+   "serve_available": 125,
+   "serve_taken": 100,
+   "total_cost": 79.068,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8222,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1226,
+   "shares": {
+    "PRE_REHANDLE": 0.1226,
+    "REPOSITION": 0.1032,
+    "SERVE": 0.7161,
+    "WAIT": 0.0581
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 16,
+    "SERVE": 111,
+    "WAIT": 9
+   },
+   "n_decisions": 155,
+   "serve_available": 135,
+   "serve_taken": 111,
+   "total_cost": 94.385,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CALC:123000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8425,
+   "dominant_nonserve": "WAIT",
+   "dominant_share": 0.1779,
+   "shares": {
+    "PRE_REHANDLE": 0.092,
+    "REPOSITION": 0.0736,
+    "SERVE": 0.6564,
+    "WAIT": 0.1779
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 12,
+    "SERVE": 107,
+    "WAIT": 29
+   },
+   "n_decisions": 163,
+   "serve_available": 127,
+   "serve_taken": 107,
+   "total_cost": 141.614,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7876,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1333,
+   "shares": {
+    "PRE_REHANDLE": 0.1259,
+    "REPOSITION": 0.1333,
+    "SERVE": 0.6593,
+    "WAIT": 0.0815
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 18,
+    "SERVE": 89,
+    "WAIT": 11
+   },
+   "n_decisions": 135,
+   "serve_available": 113,
+   "serve_taken": 89,
+   "total_cost": 24.602,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5176,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4121,
+   "shares": {
+    "PRE_REHANDLE": 0.0905,
+    "REPOSITION": 0.4121,
+    "SERVE": 0.4422,
+    "WAIT": 0.0553
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 82,
+    "SERVE": 88,
+    "WAIT": 11
+   },
+   "n_decisions": 199,
+   "serve_available": 170,
+   "serve_taken": 88,
+   "total_cost": 29.662,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6726,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3288,
+   "shares": {
+    "PRE_REHANDLE": 0.0685,
+    "REPOSITION": 0.3288,
+    "SERVE": 0.5205,
+    "WAIT": 0.0822
+   },
+   "counts": {
+    "PRE_REHANDLE": 10,
+    "REPOSITION": 48,
+    "SERVE": 76,
+    "WAIT": 12
+   },
+   "n_decisions": 146,
+   "serve_available": 113,
+   "serve_taken": 76,
+   "total_cost": 12.145,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.361,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5817,
+   "shares": {
+    "PRE_REHANDLE": 0.057,
+    "REPOSITION": 0.5817,
+    "SERVE": 0.3308,
+    "WAIT": 0.0304
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 153,
+    "SERVE": 87,
+    "WAIT": 8
+   },
+   "n_decisions": 263,
+   "serve_available": 241,
+   "serve_taken": 87,
+   "total_cost": 28.383,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6134,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3219,
+   "shares": {
+    "PRE_REHANDLE": 0.0959,
+    "REPOSITION": 0.3219,
+    "SERVE": 0.5,
+    "WAIT": 0.0822
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 47,
+    "SERVE": 73,
+    "WAIT": 12
+   },
+   "n_decisions": 146,
+   "serve_available": 119,
+   "serve_taken": 73,
+   "total_cost": 14.909,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6489,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3052,
+   "shares": {
+    "PRE_REHANDLE": 0.0844,
+    "REPOSITION": 0.3052,
+    "SERVE": 0.5519,
+    "WAIT": 0.0584
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 47,
+    "SERVE": 85,
+    "WAIT": 9
+   },
+   "n_decisions": 154,
+   "serve_available": 131,
+   "serve_taken": 85,
+   "total_cost": 32.191,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8092,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1887,
+   "shares": {
+    "PRE_REHANDLE": 0.1006,
+    "REPOSITION": 0.1887,
+    "SERVE": 0.6667,
+    "WAIT": 0.044
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 30,
+    "SERVE": 106,
+    "WAIT": 7
+   },
+   "n_decisions": 159,
+   "serve_available": 131,
+   "serve_taken": 106,
+   "total_cost": 81.536,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8129,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1386,
+   "shares": {
+    "PRE_REHANDLE": 0.0964,
+    "REPOSITION": 0.1386,
+    "SERVE": 0.6807,
+    "WAIT": 0.0843
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 23,
+    "SERVE": 113,
+    "WAIT": 14
+   },
+   "n_decisions": 166,
+   "serve_available": 139,
+   "serve_taken": 113,
+   "total_cost": 60.277,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6768,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2757,
+   "shares": {
+    "PRE_REHANDLE": 0.0703,
+    "REPOSITION": 0.2757,
+    "SERVE": 0.6,
+    "WAIT": 0.0541
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 51,
+    "SERVE": 111,
+    "WAIT": 10
+   },
+   "n_decisions": 185,
+   "serve_available": 164,
+   "serve_taken": 111,
+   "total_cost": 54.564,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4764,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4776,
+   "shares": {
+    "PRE_REHANDLE": 0.0857,
+    "REPOSITION": 0.4776,
+    "SERVE": 0.4122,
+    "WAIT": 0.0245
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 117,
+    "SERVE": 101,
+    "WAIT": 6
+   },
+   "n_decisions": 245,
+   "serve_available": 212,
+   "serve_taken": 101,
+   "total_cost": 35.235,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5207,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4016,
+   "shares": {
+    "PRE_REHANDLE": 0.0924,
+    "REPOSITION": 0.4016,
+    "SERVE": 0.4538,
+    "WAIT": 0.0522
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 100,
+    "SERVE": 113,
+    "WAIT": 13
+   },
+   "n_decisions": 249,
+   "serve_available": 217,
+   "serve_taken": 113,
+   "total_cost": 64.204,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7273,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2116,
+   "shares": {
+    "PRE_REHANDLE": 0.1058,
+    "REPOSITION": 0.2116,
+    "SERVE": 0.5926,
+    "WAIT": 0.0899
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 40,
+    "SERVE": 112,
+    "WAIT": 17
+   },
+   "n_decisions": 189,
+   "serve_available": 154,
+   "serve_taken": 112,
+   "total_cost": 76.88,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6983,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3113,
+   "shares": {
+    "PRE_REHANDLE": 0.1192,
+    "REPOSITION": 0.3113,
+    "SERVE": 0.5364,
+    "WAIT": 0.0331
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 47,
+    "SERVE": 81,
+    "WAIT": 5
+   },
+   "n_decisions": 151,
+   "serve_available": 116,
+   "serve_taken": 81,
+   "total_cost": 64.002,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.3069,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6401,
+   "shares": {
+    "PRE_REHANDLE": 0.0541,
+    "REPOSITION": 0.6401,
+    "SERVE": 0.2834,
+    "WAIT": 0.0223
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 201,
+    "SERVE": 89,
+    "WAIT": 7
+   },
+   "n_decisions": 314,
+   "serve_available": 290,
+   "serve_taken": 89,
+   "total_cost": 73.423,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:88000/mid-tight/s830901 퇴화: REPOSITION 가 전체 결정의 64.0% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 17, 'REPOSITION': 201, 'SERVE': 89, 'WAIT': 7}, 'total': 314, 'shares': {'PRE_REHANDLE': 0.0541, 'REPOSITION': 0.6401, 'SERVE': 0.2834, 'WAIT': 0.0223}, 'serve_available': 290, 'serve_taken': 89, 'serve_when_available': 0.3069}"
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6449,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2924,
+   "shares": {
+    "PRE_REHANDLE": 0.1404,
+    "REPOSITION": 0.2924,
+    "SERVE": 0.5205,
+    "WAIT": 0.0468
+   },
+   "counts": {
+    "PRE_REHANDLE": 24,
+    "REPOSITION": 50,
+    "SERVE": 89,
+    "WAIT": 8
+   },
+   "n_decisions": 171,
+   "serve_available": 138,
+   "serve_taken": 89,
+   "total_cost": 78.605,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5882,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4,
+   "shares": {
+    "PRE_REHANDLE": 0.0571,
+    "REPOSITION": 0.4,
+    "SERVE": 0.5143,
+    "WAIT": 0.0286
+   },
+   "counts": {
+    "PRE_REHANDLE": 10,
+    "REPOSITION": 70,
+    "SERVE": 90,
+    "WAIT": 5
+   },
+   "n_decisions": 175,
+   "serve_available": 153,
+   "serve_taken": 90,
+   "total_cost": 67.112,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6486,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2967,
+   "shares": {
+    "PRE_REHANDLE": 0.1264,
+    "REPOSITION": 0.2967,
+    "SERVE": 0.5275,
+    "WAIT": 0.0495
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 54,
+    "SERVE": 96,
+    "WAIT": 9
+   },
+   "n_decisions": 182,
+   "serve_available": 148,
+   "serve_taken": 96,
+   "total_cost": 84.527,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.3375,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6062,
+   "shares": {
+    "PRE_REHANDLE": 0.0425,
+    "REPOSITION": 0.6062,
+    "SERVE": 0.3127,
+    "WAIT": 0.0386
+   },
+   "counts": {
+    "PRE_REHANDLE": 11,
+    "REPOSITION": 157,
+    "SERVE": 81,
+    "WAIT": 10
+   },
+   "n_decisions": 259,
+   "serve_available": 240,
+   "serve_taken": 81,
+   "total_cost": 61.438,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:88000/mid-tight/s830905 퇴화: REPOSITION 가 전체 결정의 60.6% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 11, 'REPOSITION': 157, 'SERVE': 81, 'WAIT': 10}, 'total': 259, 'shares': {'PRE_REHANDLE': 0.0425, 'REPOSITION': 0.6062, 'SERVE': 0.3127, 'WAIT': 0.0386}, 'serve_available': 240, 'serve_taken': 81, 'serve_when_available': 0.3375}"
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7285,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2287,
+   "shares": {
+    "PRE_REHANDLE": 0.0851,
+    "REPOSITION": 0.2287,
+    "SERVE": 0.5851,
+    "WAIT": 0.1011
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 43,
+    "SERVE": 110,
+    "WAIT": 19
+   },
+   "n_decisions": 188,
+   "serve_available": 151,
+   "serve_taken": 110,
+   "total_cost": 119.45,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.291,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6481,
+   "shares": {
+    "PRE_REHANDLE": 0.0586,
+    "REPOSITION": 0.6481,
+    "SERVE": 0.2685,
+    "WAIT": 0.0247
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 210,
+    "SERVE": 87,
+    "WAIT": 8
+   },
+   "n_decisions": 324,
+   "serve_available": 299,
+   "serve_taken": 87,
+   "total_cost": 77.697,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:88000/high-tight/s831001 퇴화: REPOSITION 가 전체 결정의 64.8% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 19, 'REPOSITION': 210, 'SERVE': 87, 'WAIT': 8}, 'total': 324, 'shares': {'PRE_REHANDLE': 0.0586, 'REPOSITION': 0.6481, 'SERVE': 0.2685, 'WAIT': 0.0247}, 'serve_available': 299, 'serve_taken': 87, 'serve_when_available': 0.291}"
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8271,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1474,
+   "shares": {
+    "PRE_REHANDLE": 0.1474,
+    "REPOSITION": 0.0321,
+    "SERVE": 0.7051,
+    "WAIT": 0.1154
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 5,
+    "SERVE": 110,
+    "WAIT": 18
+   },
+   "n_decisions": 156,
+   "serve_available": 133,
+   "serve_taken": 110,
+   "total_cost": 126.39,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.3584,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5738,
+   "shares": {
+    "PRE_REHANDLE": 0.0689,
+    "REPOSITION": 0.5738,
+    "SERVE": 0.3279,
+    "WAIT": 0.0295
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 175,
+    "SERVE": 100,
+    "WAIT": 9
+   },
+   "n_decisions": 305,
+   "serve_available": 279,
+   "serve_taken": 100,
+   "total_cost": 105.417,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8102,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1235,
+   "shares": {
+    "PRE_REHANDLE": 0.1111,
+    "REPOSITION": 0.1235,
+    "SERVE": 0.6852,
+    "WAIT": 0.0802
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 20,
+    "SERVE": 111,
+    "WAIT": 13
+   },
+   "n_decisions": 162,
+   "serve_available": 137,
+   "serve_taken": 111,
+   "total_cost": 91.726,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:88000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8359,
+   "dominant_nonserve": "WAIT",
+   "dominant_share": 0.2036,
+   "shares": {
+    "PRE_REHANDLE": 0.0838,
+    "REPOSITION": 0.0719,
+    "SERVE": 0.6407,
+    "WAIT": 0.2036
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 12,
+    "SERVE": 107,
+    "WAIT": 34
+   },
+   "n_decisions": 167,
+   "serve_available": 128,
+   "serve_taken": 107,
+   "total_cost": 121.083,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7876,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1594,
+   "shares": {
+    "PRE_REHANDLE": 0.1232,
+    "REPOSITION": 0.1594,
+    "SERVE": 0.6449,
+    "WAIT": 0.0725
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 22,
+    "SERVE": 89,
+    "WAIT": 10
+   },
+   "n_decisions": 138,
+   "serve_available": 113,
+   "serve_taken": 89,
+   "total_cost": 23.986,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1583,
+   "shares": {
+    "PRE_REHANDLE": 0.1151,
+    "REPOSITION": 0.1583,
+    "SERVE": 0.6331,
+    "WAIT": 0.0935
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 22,
+    "SERVE": 88,
+    "WAIT": 13
+   },
+   "n_decisions": 139,
+   "serve_available": 110,
+   "serve_taken": 88,
+   "total_cost": 20.168,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6496,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3357,
+   "shares": {
+    "PRE_REHANDLE": 0.0786,
+    "REPOSITION": 0.3357,
+    "SERVE": 0.5429,
+    "WAIT": 0.0429
+   },
+   "counts": {
+    "PRE_REHANDLE": 11,
+    "REPOSITION": 47,
+    "SERVE": 76,
+    "WAIT": 6
+   },
+   "n_decisions": 140,
+   "serve_available": 117,
+   "serve_taken": 76,
+   "total_cost": 20.415,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8365,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1385,
+   "shares": {
+    "PRE_REHANDLE": 0.1154,
+    "REPOSITION": 0.1385,
+    "SERVE": 0.6692,
+    "WAIT": 0.0769
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 18,
+    "SERVE": 87,
+    "WAIT": 10
+   },
+   "n_decisions": 130,
+   "serve_available": 104,
+   "serve_taken": 87,
+   "total_cost": 27.355,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5748,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3987,
+   "shares": {
+    "PRE_REHANDLE": 0.0886,
+    "REPOSITION": 0.3987,
+    "SERVE": 0.462,
+    "WAIT": 0.0506
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 63,
+    "SERVE": 73,
+    "WAIT": 8
+   },
+   "n_decisions": 158,
+   "serve_available": 127,
+   "serve_taken": 73,
+   "total_cost": 16.347,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6343,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3013,
+   "shares": {
+    "PRE_REHANDLE": 0.0897,
+    "REPOSITION": 0.3013,
+    "SERVE": 0.5449,
+    "WAIT": 0.0641
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 47,
+    "SERVE": 85,
+    "WAIT": 10
+   },
+   "n_decisions": 156,
+   "serve_available": 134,
+   "serve_taken": 85,
+   "total_cost": 25.599,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6235,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3467,
+   "shares": {
+    "PRE_REHANDLE": 0.0854,
+    "REPOSITION": 0.3467,
+    "SERVE": 0.5327,
+    "WAIT": 0.0352
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 69,
+    "SERVE": 106,
+    "WAIT": 7
+   },
+   "n_decisions": 199,
+   "serve_available": 170,
+   "serve_taken": 106,
+   "total_cost": 48.116,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8626,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1299,
+   "shares": {
+    "PRE_REHANDLE": 0.1299,
+    "REPOSITION": 0.0974,
+    "SERVE": 0.7338,
+    "WAIT": 0.039
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 15,
+    "SERVE": 113,
+    "WAIT": 6
+   },
+   "n_decisions": 154,
+   "serve_available": 131,
+   "serve_taken": 113,
+   "total_cost": 57.193,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4664,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4888,
+   "shares": {
+    "PRE_REHANDLE": 0.0373,
+    "REPOSITION": 0.4888,
+    "SERVE": 0.4142,
+    "WAIT": 0.0597
+   },
+   "counts": {
+    "PRE_REHANDLE": 10,
+    "REPOSITION": 131,
+    "SERVE": 111,
+    "WAIT": 16
+   },
+   "n_decisions": 268,
+   "serve_available": 238,
+   "serve_taken": 111,
+   "total_cost": 60.863,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7953,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1592,
+   "shares": {
+    "PRE_REHANDLE": 0.1338,
+    "REPOSITION": 0.1592,
+    "SERVE": 0.6433,
+    "WAIT": 0.0637
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 25,
+    "SERVE": 101,
+    "WAIT": 10
+   },
+   "n_decisions": 157,
+   "serve_available": 127,
+   "serve_taken": 101,
+   "total_cost": 49.07,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8692,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1212,
+   "shares": {
+    "PRE_REHANDLE": 0.103,
+    "REPOSITION": 0.1212,
+    "SERVE": 0.6848,
+    "WAIT": 0.0909
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 20,
+    "SERVE": 113,
+    "WAIT": 15
+   },
+   "n_decisions": 165,
+   "serve_available": 130,
+   "serve_taken": 113,
+   "total_cost": 58.071,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8235,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1771,
+   "shares": {
+    "PRE_REHANDLE": 0.1143,
+    "REPOSITION": 0.1771,
+    "SERVE": 0.64,
+    "WAIT": 0.0686
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 31,
+    "SERVE": 112,
+    "WAIT": 12
+   },
+   "n_decisions": 175,
+   "serve_available": 136,
+   "serve_taken": 112,
+   "total_cost": 73.319,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7364,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1544,
+   "shares": {
+    "PRE_REHANDLE": 0.1544,
+    "REPOSITION": 0.1176,
+    "SERVE": 0.5956,
+    "WAIT": 0.1324
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 16,
+    "SERVE": 81,
+    "WAIT": 18
+   },
+   "n_decisions": 136,
+   "serve_available": 110,
+   "serve_taken": 81,
+   "total_cost": 90.114,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5266,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4322,
+   "shares": {
+    "PRE_REHANDLE": 0.0804,
+    "REPOSITION": 0.4322,
+    "SERVE": 0.4472,
+    "WAIT": 0.0402
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 86,
+    "SERVE": 89,
+    "WAIT": 8
+   },
+   "n_decisions": 199,
+   "serve_available": 169,
+   "serve_taken": 89,
+   "total_cost": 84.558,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7739,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1745,
+   "shares": {
+    "PRE_REHANDLE": 0.1477,
+    "REPOSITION": 0.1745,
+    "SERVE": 0.5973,
+    "WAIT": 0.0805
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 26,
+    "SERVE": 89,
+    "WAIT": 12
+   },
+   "n_decisions": 149,
+   "serve_available": 115,
+   "serve_taken": 89,
+   "total_cost": 92.798,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7759,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2429,
+   "shares": {
+    "PRE_REHANDLE": 0.0857,
+    "REPOSITION": 0.2429,
+    "SERVE": 0.6429,
+    "WAIT": 0.0286
+   },
+   "counts": {
+    "PRE_REHANDLE": 12,
+    "REPOSITION": 34,
+    "SERVE": 90,
+    "WAIT": 4
+   },
+   "n_decisions": 140,
+   "serve_available": 116,
+   "serve_taken": 90,
+   "total_cost": 60.291,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4752,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4523,
+   "shares": {
+    "PRE_REHANDLE": 0.0705,
+    "REPOSITION": 0.4523,
+    "SERVE": 0.3983,
+    "WAIT": 0.0788
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 109,
+    "SERVE": 96,
+    "WAIT": 19
+   },
+   "n_decisions": 241,
+   "serve_available": 202,
+   "serve_taken": 96,
+   "total_cost": 90.078,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.3103,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6393,
+   "shares": {
+    "PRE_REHANDLE": 0.05,
+    "REPOSITION": 0.6393,
+    "SERVE": 0.2893,
+    "WAIT": 0.0214
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 179,
+    "SERVE": 81,
+    "WAIT": 6
+   },
+   "n_decisions": 280,
+   "serve_available": 261,
+   "serve_taken": 81,
+   "total_cost": 61.421,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:99000/mid-tight/s830905 퇴화: REPOSITION 가 전체 결정의 63.9% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 14, 'REPOSITION': 179, 'SERVE': 81, 'WAIT': 6}, 'total': 280, 'shares': {'PRE_REHANDLE': 0.05, 'REPOSITION': 0.6393, 'SERVE': 0.2893, 'WAIT': 0.0214}, 'serve_available': 261, 'serve_taken': 81, 'serve_when_available': 0.3103}"
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5189,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4091,
+   "shares": {
+    "PRE_REHANDLE": 0.0909,
+    "REPOSITION": 0.4091,
+    "SERVE": 0.4545,
+    "WAIT": 0.0455
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 99,
+    "SERVE": 110,
+    "WAIT": 11
+   },
+   "n_decisions": 242,
+   "serve_available": 212,
+   "serve_taken": 110,
+   "total_cost": 106.866,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5878,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3714,
+   "shares": {
+    "PRE_REHANDLE": 0.12,
+    "REPOSITION": 0.3714,
+    "SERVE": 0.4971,
+    "WAIT": 0.0114
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 65,
+    "SERVE": 87,
+    "WAIT": 2
+   },
+   "n_decisions": 175,
+   "serve_available": 148,
+   "serve_taken": 87,
+   "total_cost": 69.203,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6962,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2128,
+   "shares": {
+    "PRE_REHANDLE": 0.133,
+    "REPOSITION": 0.2128,
+    "SERVE": 0.5851,
+    "WAIT": 0.0691
+   },
+   "counts": {
+    "PRE_REHANDLE": 25,
+    "REPOSITION": 40,
+    "SERVE": 110,
+    "WAIT": 13
+   },
+   "n_decisions": 188,
+   "serve_available": 158,
+   "serve_taken": 110,
+   "total_cost": 120.715,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.277,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6727,
+   "shares": {
+    "PRE_REHANDLE": 0.0567,
+    "REPOSITION": 0.6727,
+    "SERVE": 0.2577,
+    "WAIT": 0.0129
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 261,
+    "SERVE": 100,
+    "WAIT": 5
+   },
+   "n_decisions": 388,
+   "serve_available": 361,
+   "serve_taken": 100,
+   "total_cost": 102.148,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:99000/high-tight/s831003 퇴화: REPOSITION 가 전체 결정의 67.3% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 22, 'REPOSITION': 261, 'SERVE': 100, 'WAIT': 5}, 'total': 388, 'shares': {'PRE_REHANDLE': 0.0567, 'REPOSITION': 0.6727, 'SERVE': 0.2577, 'WAIT': 0.0129}, 'serve_available': 361, 'serve_taken': 100, 'serve_when_available': 0.277}"
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7115,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2265,
+   "shares": {
+    "PRE_REHANDLE": 0.0939,
+    "REPOSITION": 0.2265,
+    "SERVE": 0.6133,
+    "WAIT": 0.0663
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 41,
+    "SERVE": 111,
+    "WAIT": 12
+   },
+   "n_decisions": 181,
+   "serve_available": 156,
+   "serve_taken": 111,
+   "total_cost": 104.127,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:99000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6993,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2398,
+   "shares": {
+    "PRE_REHANDLE": 0.0918,
+    "REPOSITION": 0.2398,
+    "SERVE": 0.5459,
+    "WAIT": 0.1224
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 47,
+    "SERVE": 107,
+    "WAIT": 24
+   },
+   "n_decisions": 196,
+   "serve_available": 153,
+   "serve_taken": 107,
+   "total_cost": 124.237,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830700,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4198,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5107,
+   "shares": {
+    "PRE_REHANDLE": 0.0687,
+    "REPOSITION": 0.5107,
+    "SERVE": 0.382,
+    "WAIT": 0.0386
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 119,
+    "SERVE": 89,
+    "WAIT": 9
+   },
+   "n_decisions": 233,
+   "serve_available": 212,
+   "serve_taken": 89,
+   "total_cost": 30.391,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830701,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8462,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1511,
+   "shares": {
+    "PRE_REHANDLE": 0.1151,
+    "REPOSITION": 0.1511,
+    "SERVE": 0.6331,
+    "WAIT": 0.1007
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 21,
+    "SERVE": 88,
+    "WAIT": 14
+   },
+   "n_decisions": 139,
+   "serve_available": 104,
+   "serve_taken": 88,
+   "total_cost": 11.364,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830702,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.76,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2097,
+   "shares": {
+    "PRE_REHANDLE": 0.1048,
+    "REPOSITION": 0.2097,
+    "SERVE": 0.6129,
+    "WAIT": 0.0726
+   },
+   "counts": {
+    "PRE_REHANDLE": 13,
+    "REPOSITION": 26,
+    "SERVE": 76,
+    "WAIT": 9
+   },
+   "n_decisions": 124,
+   "serve_available": 100,
+   "serve_taken": 76,
+   "total_cost": 19.51,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830703,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7838,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.188,
+   "shares": {
+    "PRE_REHANDLE": 0.1128,
+    "REPOSITION": 0.188,
+    "SERVE": 0.6541,
+    "WAIT": 0.0451
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 25,
+    "SERVE": 87,
+    "WAIT": 6
+   },
+   "n_decisions": 133,
+   "serve_available": 111,
+   "serve_taken": 87,
+   "total_cost": 32.55,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830704,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7526,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2143,
+   "shares": {
+    "PRE_REHANDLE": 0.119,
+    "REPOSITION": 0.2143,
+    "SERVE": 0.5794,
+    "WAIT": 0.0873
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 27,
+    "SERVE": 73,
+    "WAIT": 11
+   },
+   "n_decisions": 126,
+   "serve_available": 97,
+   "serve_taken": 73,
+   "total_cost": 18.337,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-loose",
+   "seed": 830705,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8252,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.127,
+   "shares": {
+    "PRE_REHANDLE": 0.127,
+    "REPOSITION": 0.127,
+    "SERVE": 0.6746,
+    "WAIT": 0.0714
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 16,
+    "SERVE": 85,
+    "WAIT": 9
+   },
+   "n_decisions": 126,
+   "serve_available": 103,
+   "serve_taken": 85,
+   "total_cost": 18.241,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830800,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8154,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1863,
+   "shares": {
+    "PRE_REHANDLE": 0.1056,
+    "REPOSITION": 0.1863,
+    "SERVE": 0.6584,
+    "WAIT": 0.0497
+   },
+   "counts": {
+    "PRE_REHANDLE": 17,
+    "REPOSITION": 30,
+    "SERVE": 106,
+    "WAIT": 8
+   },
+   "n_decisions": 161,
+   "serve_available": 130,
+   "serve_taken": 106,
+   "total_cost": 75.771,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830801,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7793,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1716,
+   "shares": {
+    "PRE_REHANDLE": 0.1361,
+    "REPOSITION": 0.1716,
+    "SERVE": 0.6686,
+    "WAIT": 0.0237
+   },
+   "counts": {
+    "PRE_REHANDLE": 23,
+    "REPOSITION": 29,
+    "SERVE": 113,
+    "WAIT": 4
+   },
+   "n_decisions": 169,
+   "serve_available": 145,
+   "serve_taken": 113,
+   "total_cost": 61.551,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830802,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8162,
+   "dominant_nonserve": "PRE_REHANDLE",
+   "dominant_share": 0.1195,
+   "shares": {
+    "PRE_REHANDLE": 0.1195,
+    "REPOSITION": 0.1132,
+    "SERVE": 0.6981,
+    "WAIT": 0.0692
+   },
+   "counts": {
+    "PRE_REHANDLE": 19,
+    "REPOSITION": 18,
+    "SERVE": 111,
+    "WAIT": 11
+   },
+   "n_decisions": 159,
+   "serve_available": 136,
+   "serve_taken": 111,
+   "total_cost": 60.996,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830803,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7266,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2663,
+   "shares": {
+    "PRE_REHANDLE": 0.1065,
+    "REPOSITION": 0.2663,
+    "SERVE": 0.5976,
+    "WAIT": 0.0296
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 45,
+    "SERVE": 101,
+    "WAIT": 5
+   },
+   "n_decisions": 169,
+   "serve_available": 139,
+   "serve_taken": 101,
+   "total_cost": 37.587,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830804,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6384,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2627,
+   "shares": {
+    "PRE_REHANDLE": 0.129,
+    "REPOSITION": 0.2627,
+    "SERVE": 0.5207,
+    "WAIT": 0.0876
+   },
+   "counts": {
+    "PRE_REHANDLE": 28,
+    "REPOSITION": 57,
+    "SERVE": 113,
+    "WAIT": 19
+   },
+   "n_decisions": 217,
+   "serve_available": 177,
+   "serve_taken": 113,
+   "total_cost": 74.948,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-loose",
+   "seed": 830805,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.4848,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4015,
+   "shares": {
+    "PRE_REHANDLE": 0.0927,
+    "REPOSITION": 0.4015,
+    "SERVE": 0.4324,
+    "WAIT": 0.0734
+   },
+   "counts": {
+    "PRE_REHANDLE": 24,
+    "REPOSITION": 104,
+    "SERVE": 112,
+    "WAIT": 19
+   },
+   "n_decisions": 259,
+   "serve_available": 231,
+   "serve_taken": 112,
+   "total_cost": 86.561,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830900,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6864,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1905,
+   "shares": {
+    "PRE_REHANDLE": 0.1224,
+    "REPOSITION": 0.1905,
+    "SERVE": 0.551,
+    "WAIT": 0.1361
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 28,
+    "SERVE": 81,
+    "WAIT": 20
+   },
+   "n_decisions": 147,
+   "serve_available": 118,
+   "serve_taken": 81,
+   "total_cost": 87.938,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830901,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6224,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3471,
+   "shares": {
+    "PRE_REHANDLE": 0.0824,
+    "REPOSITION": 0.3471,
+    "SERVE": 0.5235,
+    "WAIT": 0.0471
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 59,
+    "SERVE": 89,
+    "WAIT": 8
+   },
+   "n_decisions": 170,
+   "serve_available": 143,
+   "serve_taken": 89,
+   "total_cost": 85.447,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830902,
+   "healthy": false,
+   "fail_conditions": [
+    "①SERVE선택률<0.25",
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2294,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.7206,
+   "shares": {
+    "PRE_REHANDLE": 0.0441,
+    "REPOSITION": 0.7206,
+    "SERVE": 0.2181,
+    "WAIT": 0.0172
+   },
+   "counts": {
+    "PRE_REHANDLE": 18,
+    "REPOSITION": 294,
+    "SERVE": 89,
+    "WAIT": 7
+   },
+   "n_decisions": 408,
+   "serve_available": 388,
+   "serve_taken": 89,
+   "total_cost": 102.881,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:123000/mid-tight/s830902 퇴화: 실작업 가능 시 SERVE 선택 22.9% < 25% — {'counts': {'PRE_REHANDLE': 18, 'REPOSITION': 294, 'SERVE': 89, 'WAIT': 7}, 'total': 408, 'shares': {'PRE_REHANDLE': 0.0441, 'REPOSITION': 0.7206, 'SERVE': 0.2181, 'WAIT': 0.0172}, 'serve_available': 388, 'serve_taken': 89, 'serve_when_available': 0.2294}"
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830903,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.8108,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.1866,
+   "shares": {
+    "PRE_REHANDLE": 0.0821,
+    "REPOSITION": 0.1866,
+    "SERVE": 0.6716,
+    "WAIT": 0.0597
+   },
+   "counts": {
+    "PRE_REHANDLE": 11,
+    "REPOSITION": 25,
+    "SERVE": 90,
+    "WAIT": 8
+   },
+   "n_decisions": 134,
+   "serve_available": 111,
+   "serve_taken": 90,
+   "total_cost": 62.97,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830904,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5026,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.4136,
+   "shares": {
+    "PRE_REHANDLE": 0.1,
+    "REPOSITION": 0.4136,
+    "SERVE": 0.4364,
+    "WAIT": 0.05
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 91,
+    "SERVE": 96,
+    "WAIT": 11
+   },
+   "n_decisions": 220,
+   "serve_available": 191,
+   "serve_taken": 96,
+   "total_cost": 91.546,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "mid-tight",
+   "seed": 830905,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5745,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3416,
+   "shares": {
+    "PRE_REHANDLE": 0.087,
+    "REPOSITION": 0.3416,
+    "SERVE": 0.5031,
+    "WAIT": 0.0683
+   },
+   "counts": {
+    "PRE_REHANDLE": 14,
+    "REPOSITION": 55,
+    "SERVE": 81,
+    "WAIT": 11
+   },
+   "n_decisions": 161,
+   "serve_available": 141,
+   "serve_taken": 81,
+   "total_cost": 56.298,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831000,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.7586,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.2,
+   "shares": {
+    "PRE_REHANDLE": 0.1189,
+    "REPOSITION": 0.2,
+    "SERVE": 0.5946,
+    "WAIT": 0.0865
+   },
+   "counts": {
+    "PRE_REHANDLE": 22,
+    "REPOSITION": 37,
+    "SERVE": 110,
+    "WAIT": 16
+   },
+   "n_decisions": 185,
+   "serve_available": 145,
+   "serve_taken": 110,
+   "total_cost": 114.319,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831001,
+   "healthy": false,
+   "fail_conditions": [
+    "①SERVE선택률<0.25",
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.2086,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.7489,
+   "shares": {
+    "PRE_REHANDLE": 0.0452,
+    "REPOSITION": 0.7489,
+    "SERVE": 0.1968,
+    "WAIT": 0.009
+   },
+   "counts": {
+    "PRE_REHANDLE": 20,
+    "REPOSITION": 331,
+    "SERVE": 87,
+    "WAIT": 4
+   },
+   "n_decisions": 442,
+   "serve_available": 417,
+   "serve_taken": 87,
+   "total_cost": 77.075,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:123000/high-tight/s831001 퇴화: 실작업 가능 시 SERVE 선택 20.9% < 25% — {'counts': {'PRE_REHANDLE': 20, 'REPOSITION': 331, 'SERVE': 87, 'WAIT': 4}, 'total': 442, 'shares': {'PRE_REHANDLE': 0.0452, 'REPOSITION': 0.7489, 'SERVE': 0.1968, 'WAIT': 0.009}, 'serve_available': 417, 'serve_taken': 87, 'serve_when_available': 0.2086}"
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831002,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.5584,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.354,
+   "shares": {
+    "PRE_REHANDLE": 0.0929,
+    "REPOSITION": 0.354,
+    "SERVE": 0.4867,
+    "WAIT": 0.0664
+   },
+   "counts": {
+    "PRE_REHANDLE": 21,
+    "REPOSITION": 80,
+    "SERVE": 110,
+    "WAIT": 15
+   },
+   "n_decisions": 226,
+   "serve_available": 197,
+   "serve_taken": 110,
+   "total_cost": 119.598,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831003,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.6289,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.3207,
+   "shares": {
+    "PRE_REHANDLE": 0.087,
+    "REPOSITION": 0.3207,
+    "SERVE": 0.5435,
+    "WAIT": 0.0489
+   },
+   "counts": {
+    "PRE_REHANDLE": 16,
+    "REPOSITION": 59,
+    "SERVE": 100,
+    "WAIT": 9
+   },
+   "n_decisions": 184,
+   "serve_available": 159,
+   "serve_taken": 100,
+   "total_cost": 91.497,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831004,
+   "healthy": true,
+   "fail_conditions": [],
+   "serve_when_available": 0.3993,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.5563,
+   "shares": {
+    "PRE_REHANDLE": 0.0497,
+    "REPOSITION": 0.5563,
+    "SERVE": 0.3675,
+    "WAIT": 0.0265
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 168,
+    "SERVE": 111,
+    "WAIT": 8
+   },
+   "n_decisions": 302,
+   "serve_available": 278,
+   "serve_taken": 111,
+   "total_cost": 105.655,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": null
+  },
+  {
+   "arm": "CONTROL:123000",
+   "cell": "high-tight",
+   "seed": 831005,
+   "healthy": false,
+   "fail_conditions": [
+    "②REPOSITION장악>60%"
+   ],
+   "serve_when_available": 0.3397,
+   "dominant_nonserve": "REPOSITION",
+   "dominant_share": 0.6131,
+   "shares": {
+    "PRE_REHANDLE": 0.0446,
+    "REPOSITION": 0.6131,
+    "SERVE": 0.3185,
+    "WAIT": 0.0238
+   },
+   "counts": {
+    "PRE_REHANDLE": 15,
+    "REPOSITION": 206,
+    "SERVE": 107,
+    "WAIT": 8
+   },
+   "n_decisions": 336,
+   "serve_available": 315,
+   "serve_taken": 107,
+   "total_cost": 129.574,
+   "completion_rate": 1.0,
+   "backlog": 0,
+   "deployable": true,
+   "reason": "CONTROL:123000/high-tight/s831005 퇴화: REPOSITION 가 전체 결정의 61.3% 장악 (> 60%) — {'counts': {'PRE_REHANDLE': 15, 'REPOSITION': 206, 'SERVE': 107, 'WAIT': 8}, 'total': 336, 'shares': {'PRE_REHANDLE': 0.0446, 'REPOSITION': 0.6131, 'SERVE': 0.3185, 'WAIT': 0.0238}, 'serve_available': 315, 'serve_taken': 107, 'serve_when_available': 0.3397}"
+  }
+ ],
+ "summary": {
+  "CALC:123000": {
+   "n": 24,
+   "n_unhealthy": 1,
+   "serve_when_available": {
+    "min": 0.2776,
+    "mean": 0.7056,
+    "max": 0.8661
+   },
+   "fail_condition_counts": {
+    "②REPOSITION장악>60%": 1
+   },
+   "dominant_nonserve_counts": {
+    "PRE_REHANDLE": 3,
+    "REPOSITION": 20,
+    "WAIT": 1
+   },
+   "mean_total_cost": 61.977,
+   "min_completion": 1.0
+  },
+  "CALC:88000": {
+   "n": 24,
+   "n_unhealthy": 7,
+   "serve_when_available": {
+    "min": 0.1663,
+    "mean": 0.4886,
+    "max": 0.8106
+   },
+   "fail_condition_counts": {
+    "②REPOSITION장악>60%": 7,
+    "①SERVE선택률<0.25": 3
+   },
+   "dominant_nonserve_counts": {
+    "REPOSITION": 23,
+    "WAIT": 1
+   },
+   "mean_total_cost": 72.003,
+   "min_completion": 1.0
+  },
+  "CALC:99000": {
+   "n": 24,
+   "n_unhealthy": 1,
+   "serve_when_available": {
+    "min": 0.2881,
+    "mean": 0.6268,
+    "max": 0.8462
+   },
+   "fail_condition_counts": {
+    "②REPOSITION장악>60%": 1
+   },
+   "dominant_nonserve_counts": {
+    "REPOSITION": 22,
+    "PRE_REHANDLE": 1,
+    "WAIT": 1
+   },
+   "mean_total_cost": 69.218,
+   "min_completion": 1.0
+  },
+  "CONTROL:123000": {
+   "n": 24,
+   "n_unhealthy": 3,
+   "serve_when_available": {
+    "min": 0.2086,
+    "mean": 0.6237,
+    "max": 0.8462
+   },
+   "fail_condition_counts": {
+    "①SERVE선택률<0.25": 2,
+    "②REPOSITION장악>60%": 3
+   },
+   "dominant_nonserve_counts": {
+    "REPOSITION": 22,
+    "PRE_REHANDLE": 2
+   },
+   "mean_total_cost": 68.859,
+   "min_completion": 1.0
+  },
+  "CONTROL:88000": {
+   "n": 24,
+   "n_unhealthy": 3,
+   "serve_when_available": {
+    "min": 0.291,
+    "mean": 0.6125,
+    "max": 0.8359
+   },
+   "fail_condition_counts": {
+    "②REPOSITION장악>60%": 3
+   },
+   "dominant_nonserve_counts": {
+    "REPOSITION": 22,
+    "PRE_REHANDLE": 1,
+    "WAIT": 1
+   },
+   "mean_total_cost": 66.061,
+   "min_completion": 1.0
+  },
+  "CONTROL:99000": {
+   "n": 24,
+   "n_unhealthy": 2,
+   "serve_when_available": {
+    "min": 0.277,
+    "mean": 0.6588,
+    "max": 0.8692
+   },
+   "fail_condition_counts": {
+    "②REPOSITION장악>60%": 2
+   },
+   "dominant_nonserve_counts": {
+    "REPOSITION": 22,
+    "PRE_REHANDLE": 2
+   },
+   "mean_total_cost": 66.127,
+   "min_completion": 1.0
+  }
+ }
+}
