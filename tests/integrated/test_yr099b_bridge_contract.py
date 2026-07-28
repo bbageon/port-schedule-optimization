@@ -58,8 +58,8 @@ def test_golden_unchanged_with_epochs_but_no_transfer():
     ha = _run_sf(a)
     b = _sim()
     b.review_epochs = sorted({round(j.actual_gate_in, 6) for j in b.jobs.values()
-                              if getattr(j, "actual_gate_in", None) and
-                              j.flow == JobFlow.GATE_IN and 0 < j.actual_gate_in <= b.end})
+                              if getattr(j, "actual_gate_in", None) is not None and
+                              j.flow == JobFlow.GATE_IN and 0 <= j.actual_gate_in <= b.end})
     assert len(b.review_epochs) > 10                       # 실제로 여러 개 깔림
     pol, gen = ResolverPolicy(ServiceFirstSPTPreference(), "SF"), CandidateGenerator()
     out, n_ep = b.run_until_decision(), 0
@@ -100,6 +100,16 @@ def test_review_epoch_lands_exactly():
     assert isinstance(out, ReviewEpoch)
     assert out.time == pytest.approx(1234.0) and s.clock == pytest.approx(1234.0)
     assert s.review_epochs == []               # 소비됨
+
+
+def test_multiblock_schedules_gate_in_at_zero():
+    """평가창 시작(t=0)에 gate-in 한 반입도 review 창에서 빠지면 안 된다."""
+    a, b = _sim(seed=845_000), _sim(seed=845_001)
+    inbound = next(j for j in a.jobs.values() if j.flow == JobFlow.GATE_IN)
+    inbound.actual_gate_in = 0.0
+    m = MultiBlockTerminal({"A": a, "B": b})
+    assert 0.0 in a.review_epochs and 0.0 in b.review_epochs
+    assert m.ledger.records[inbound.job_id].a_gate_in == 0.0
 
 
 def test_event_before_epoch_wins():

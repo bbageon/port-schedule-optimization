@@ -310,9 +310,13 @@ class CandidateGenerator:
     def _reposition(self, sim, cid, now, level) -> list[GenCandidate]:
         yc = sim.fleet.get(cid)
         out = []
-        targets = set(self._future_target_bays(sim, cid, now, level)) | self._escape_bays(sim, cid)
+        escape_targets = self._escape_bays(sim, cid)
+        targets = set(self._future_target_bays(sim, cid, now, level)) | escape_targets
         for tb in sorted(targets):
-            if abs(tb - yc.state.position_bay) <= 1.0:   # 이동가치·0-루프 방지
+            # 일반 선제 위치조정은 1 bay 이하의 미세이동을 버리지만, 교착 탈출은
+            # **정확히 1 bay**만 비켜도 통로가 열릴 수 있다(YR-116: 16→15).
+            # 탈출 목표까지 같은 하한을 적용하면 계산된 목표가 최종 후보에서 다시 사라진다.
+            if tb not in escape_targets and abs(tb - yc.state.position_bay) <= 1.0:
                 continue
             ref = JobRef(job_id=f"REPO:{cid}:{int(tb)}", token=None,
                          kind=CandidateKind.REPOSITION, target_container=None, lane_id=None,

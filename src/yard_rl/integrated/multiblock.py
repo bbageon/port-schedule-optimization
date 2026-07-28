@@ -150,7 +150,9 @@ class MultiBlockTerminal:
             end = sim.end
             for j in sim.jobs.values():
                 a = getattr(j, "actual_gate_in", None)
-                if a is not None and j.flow == JobFlow.GATE_IN and 0.0 < a <= end:
+                # 평가창 시작과 동시에 gate-in 한 작업도 합법적인 창중 재배정 대상이다.
+                # 구 `0 < a`는 t=0 작업을 영구 누락해 임계별 후보집합을 왜곡했다(YR-116).
+                if a is not None and j.flow == JobFlow.GATE_IN and 0.0 <= a <= end:
                     ts.add(round(a, 6))
         eps = sorted(ts)
         for sim in self.blocks.values():

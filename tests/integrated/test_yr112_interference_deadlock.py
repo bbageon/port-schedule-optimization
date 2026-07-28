@@ -109,7 +109,7 @@ def test_one_bay_escape_candidate_is_actually_generated():
 
     앞 테스트는 산술만 확인한다 — 생성기가 그 목표를 발행하지 않으면 아무 소용이 없다.
     여기서는 교착 상태를 인위적으로 만들고(크레인 위치를 통로 (lo,hi) 옆에 세움)
-    `_escape_bays` 가 `lo − gap` 를 내는지, 그 거리가 1 bay 인지까지 확인한다.
+    `_escape_bays` 의 중간값이 아니라 최종 `_reposition` 후보까지 통과하는지 확인한다.
     """
     sim = _sim(DEADLOCK_SEED)
     sim.run_until_decision()
@@ -125,6 +125,10 @@ def test_one_bay_escape_candidate_is_actually_generated():
     assert min(abs(b - 16.0) for b in bays) == pytest.approx(1.0), "1 bay 이동이 후보에 있어야"
     # 일반 REPOSITION 의 '이동가치 하한(>1 bay)' 이 탈출에 적용되면 이 후보가 사라진다
     assert all(not Corridor(b, b).overlaps(Corridor(17.0, 19.0), gap) for b in bays)
+    final = gen._reposition(sim, cid, sim.now, LEVEL)
+    one_bay = [g for g in final if g.job_ref.reposition_target_bay == pytest.approx(15.0)]
+    assert one_bay, "통로 기준 1 bay 목표가 최종 REPOSITION 후보에서 사라졌다"
+    assert any(g.feasible for g in one_bay), "1 bay 탈출 후보가 실행 불가능하게 발행됐다"
 
 
 def test_generator_emits_feasible_escape_in_real_deadlock():
