@@ -175,6 +175,8 @@ class TerminalSimulator:
         # REPO 88% 실측)이 생긴다. 거절한 크레인은 다음 wake 까지 선제 전용 결정을 안 연다.
         # SERVE 주도 결정에서는 PRE 후보가 기존(YR-048)대로 계속 발행된다.
         self._eta_armed: set[str] = set()
+        # YR-112: 간섭 교착 탈출을 같은 시각에 두 번 열지 않기 위한 표식 (무한루프 방지)
+        self._escape_at: float | None = None
         self._seed_events()
         self._refresh_rates()
 
@@ -299,6 +301,21 @@ class TerminalSimulator:
             if nt is None and wt is None:
                 if raw_nt is None and any(c.state.assigned_job for c in self.fleet.all()):
                     raise RuntimeError("작업 중인데 완료 이벤트 없음 — 엔진 버그")
+                # YR-112: **간섭 교착 탈출**. 여기까지 왔다는 건 "더 볼 이벤트도 wake 도 없다"는
+                # 뜻인데, 남은 작업이 **오직 크레인 간섭으로만** 막혀 있을 수 있다(양쪽 크레인이
+                # 대상 bay 를 사이에 두고 안전간격 안에 서 있는 상태). 그러면 비켜설 기회를
+                # 한 번도 못 받고 런이 끝나 작업이 사라진다 — 실측 seed 902013.
+                # 물리(유휴 크레인 관통 금지, YR-091)는 옳으므로 **결정 기회만** 연다.
+                if (self.clock < self.end - _EPS and self._escape_at != self.clock
+                        and self.interference_deadlock_corridors()):
+                    self._clear_yields()
+                    esc = tuple(c.crane_id for c in self.fleet.all() if c.idle)
+                    if esc:
+                        self._escape_at = self.clock   # 같은 시각 무한 재개방 방지
+                        self._pending = esc
+                        self._assigned = {}
+                        self.event_log.append((self.clock, "DEADLOCK_ESCAPE", ",".join(esc)))
+                        return TerminalDecision(self.clock, esc)
                 self._finalize()
                 return None
             if wt is not None and (nt is None or wt < nt - _EPS):
@@ -335,6 +352,43 @@ class TerminalSimulator:
             self._eta_armed = set(self.fleet.ids())
             self._clear_yields()
         return fired
+
+    def interference_deadlock_corridors(self) -> tuple[tuple[float, float], ...]:
+        """YR-112 활성 결함 술어 — **후보 생성기와 공유**한다 (eta_opportunity 관습).
+
+        조건 셋을 모두 만족할 때만 참이다 (그래서 정상 런에는 절대 발화하지 않는다):
+          ① 진행 중인 작업이 없다 (모든 크레인 유휴)
+          ② 어떤 크레인에도 실행가능한 SERVE 후보가 없다
+          ③ 그런데 배차 가능한 작업이 있고, 그 거절 사유가 **오직 크레인 간섭**이다
+
+        반환: 막힌 작업들의 **통로 구간**(lo, hi). 대상 bay 하나가 아니라 구간을 주는 이유 —
+        재조작이 끼면 통로가 여러 bay 에 걸치고(실측 (17,19)), 그때 막는 크레인이 물러나야 할
+        거리는 구간의 **가까운 끝** 기준이라야 맞다(bay 하나만 보면 안 움직여도 된다고 잘못 계산).
+        """
+        if any(c.state.assigned_job for c in self.fleet.all()):
+            return ()
+        if any(self.candidates_for(cid) for cid in self.fleet.ids()):
+            return ()
+        cors: list[tuple[float, float]] = []
+        for jid in sorted(self.jobs):
+            j = self.jobs[jid]
+            if self.reservations.job_taken(j.job_id) is not None:
+                continue
+            for cid in self.fleet.ids():
+                if not self._dispatchable(j, cid):
+                    continue
+                yc, spec = self.fleet.get(cid), self.fleet.spec(cid)
+                ref = self._jobref(j, spec, yc)
+                if ref is None:
+                    continue
+                plan = self._plan(cid, ref)
+                if plan is None:
+                    continue
+                if self.reservations.reject_reason(
+                        self._reservation(plan)) == "CRANE_INTERFERENCE":
+                    cors.append((float(plan.corridor[0]), float(plan.corridor[1])))
+                    break
+        return tuple(sorted(set(cors)))
 
     def _decision_cranes(self) -> tuple[str, ...]:
         out = []

@@ -18,6 +18,7 @@ from ..domain.enums import InformationLevel, JobFlow, JobStatus, ServiceMode
 from ..sim.constraints import ConstraintViolation
 from ..contract.schema import CandidateKind
 from .jobplan import JobPlan, JobRef
+from .reservation import Corridor
 
 _KIND_RANK = {CandidateKind.SERVE: 0, CandidateKind.PRE_REHANDLE: 1,
               CandidateKind.REPOSITION: 2, CandidateKind.WAIT: 3}
@@ -275,10 +276,42 @@ class CandidateGenerator:
                                         self._score(sim, ref, plan, now, None)))
         return out
 
+    def _escape_bays(self, sim, cid) -> set[float]:
+        """YR-112 — 간섭 교착에서 **비켜서는** 목표 bay.
+
+        엔진 술어(`interference_deadlock_corridors`)가 참일 때만 발행하므로 정상 런에는
+        후보가 하나도 늘지 않는다(골든 보존).
+
+        막힌 통로 (lo,hi) 를 이 크레인의 정지 위치가 안전간격 안에서 가리고 있으면, 그
+        간격이 **정확히 풀리는 최소 거리**만큼 물러난다 — 가까운 쪽 끝에서 `안전간격` 만큼.
+        실측 두 형태 모두 이 식으로 풀린다:
+          · YC-L 22 · YC-W 24 · 통로 (22,23) → YC-L 을 20 으로
+          · YC-L 16 · YC-W 19 · 통로 (17,19) → YC-L 을 15 로 (1 bay 만 움직이면 된다)
+        1 bay 이동도 유효하므로 일반 REPOSITION 의 "이동가치" 하한(>1)을 여기엔 적용하지 않는다.
+        """
+        cors = sim.interference_deadlock_corridors()
+        if not cors:
+            return set()
+        yc, spec = sim.fleet.get(cid), sim.fleet.spec(cid)
+        gap = sim.reservations.safety_gap_bay
+        pos = yc.state.position_bay
+        out: set[float] = set()
+        for lo, hi in cors:
+            if not Corridor(pos, pos).overlaps(Corridor(lo, hi), gap):
+                continue                       # 이 크레인은 이 통로를 막고 있지 않다
+            for tgt in (lo - gap, hi + gap):   # 아래로 / 위로 — 둘 다 후보로 열어 둔다
+                t = float(min(max(tgt, spec.service_bay_min), spec.service_bay_max))
+                if abs(t - pos) < 1e-9:
+                    continue
+                if not Corridor(t, t).overlaps(Corridor(lo, hi), gap):
+                    out.add(t)
+        return out
+
     def _reposition(self, sim, cid, now, level) -> list[GenCandidate]:
         yc = sim.fleet.get(cid)
         out = []
-        for tb in sorted(self._future_target_bays(sim, cid, now, level)):
+        targets = set(self._future_target_bays(sim, cid, now, level)) | self._escape_bays(sim, cid)
+        for tb in sorted(targets):
             if abs(tb - yc.state.position_bay) <= 1.0:   # 이동가치·0-루프 방지
                 continue
             ref = JobRef(job_id=f"REPO:{cid}:{int(tb)}", token=None,

@@ -92,11 +92,14 @@ def assign_band(*, family: str, cells: dict[str, object], n: int, generate,
     banned = set(exclude or ())
     seeds: dict[str, list[int]] = {}
     hashes: dict[str, list[str]] = {}
+    # 시드 커서는 셀을 넘어 **이어서** 진행한다. 셀마다 start_seed 로 되돌리면 서로 다른
+    # 셀이 같은 시드 정수를 쓰게 되고(부하수준이 달라 지문은 갈리므로 검사는 통과한다),
+    # 그러면 두 블록이 **같은 난수 열**로 구동돼 의도한 블록 간 독립성이 사라진다.
+    seed = start_seed
     for key, params in cells.items():
         got_s: list[int] = []
         got_h: list[str] = []
         seen_here: set[str] = set()
-        seed = start_seed
         tries = 0
         while len(got_s) < n:
             tries += 1
