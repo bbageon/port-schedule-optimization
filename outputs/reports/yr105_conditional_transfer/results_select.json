@@ -2,7 +2,7 @@
  "repro": {
   "experiment": "YR-105 조건부 창중 이송 — 본선 악화 방지 필터 단일축",
   "code": {
-   "git_head": "ff843eb16dc8bdc56b6a1004f5c6bd77475329c1",
+   "git_head": "71a8456d5a90d5889d1b83633e5fa9fe534d1a9a",
    "git_dirty": true,
    "python": "3.12.13"
   },
@@ -283,6 +283,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 238,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 134.4,
@@ -320,6 +321,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 240,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 75.6,
@@ -357,6 +359,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 139.5,
@@ -450,6 +453,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 252,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.85,
     "berth_min": 154.0,
@@ -487,6 +491,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 246,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.05,
     "berth_min": 141.6,
@@ -524,6 +529,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 241,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.05,
     "berth_min": 152.7,
@@ -617,6 +623,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 279,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.95,
     "berth_min": 218.8,
@@ -654,6 +661,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 280,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 172.9,
@@ -691,6 +699,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 281,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 186.5,
@@ -784,6 +793,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 233,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.8,
     "berth_min": 133.2,
@@ -821,6 +831,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 237,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.2,
     "berth_min": 120.8,
@@ -858,6 +869,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 238,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 121.5,
@@ -951,6 +963,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 231,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 102.3,
@@ -988,6 +1001,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 242,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 164.9,
@@ -1025,6 +1039,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 233,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 103.8,
@@ -1094,113 +1109,116 @@
    "seed_A": 901005,
    "seed_B": 901029,
    "base": {
-    "total": 127.384,
+    "total": 101.92,
     "chan": {
-     "truck": 35.3173,
-     "vessel": 85.0385,
-     "move": 7.0277,
+     "truck": 29.7401,
+     "vessel": 65.2245,
+     "move": 6.9557,
      "other": 0.0,
-     "total": 127.3835
+     "total": 101.9203
     },
     "chan_by_block": {
      "A": {
-      "truck": 21.5475,
-      "vessel": 65.9204,
-      "move": 3.4927,
+      "truck": 17.1433,
+      "vessel": 46.2505,
+      "move": 3.6319,
       "other": 0.0
      },
      "B": {
-      "truck": 13.7698,
-      "vessel": 19.1182,
-      "move": 2.735,
+      "truck": 12.5968,
+      "vessel": 18.974,
+      "move": 2.8239,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 242,
+    "decisions": 240,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.8,
-    "berth_min": 154.6,
-    "a2o_mean_min": 24.54,
-    "b2c_mean_min": 14.12,
-    "n_moved": 16,
+    "route_cost": 0.5,
+    "berth_min": 118.6,
+    "a2o_mean_min": 22.71,
+    "b2c_mean_min": 12.41,
+    "n_moved": 10,
     "n_blocked_vessel": 0,
     "n_rejected": 0,
-    "n_fired": 16,
+    "n_fired": 10,
     "compl": 1.0,
     "n_jobs": 193
    },
    "vguard": {
-    "total": 141.664,
+    "total": 124.41,
     "chan": {
-     "truck": 40.3379,
-     "vessel": 94.7945,
-     "move": 6.5314,
+     "truck": 33.089,
+     "vessel": 84.896,
+     "move": 6.425,
      "other": 0.0,
-     "total": 141.6638
+     "total": 124.41
     },
     "chan_by_block": {
      "A": {
-      "truck": 28.8503,
-      "vessel": 66.4608,
-      "move": 3.5355,
+      "truck": 21.6511,
+      "vessel": 64.4453,
+      "move": 3.5102,
       "other": 0.0
      },
      "B": {
-      "truck": 11.4876,
-      "vessel": 28.3337,
-      "move": 2.7459,
+      "truck": 11.4378,
+      "vessel": 20.4508,
+      "move": 2.7148,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
     "decisions": 242,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.25,
-    "berth_min": 172.4,
-    "a2o_mean_min": 25.72,
-    "b2c_mean_min": 15.51,
-    "n_moved": 5,
-    "n_blocked_vessel": 15,
+    "route_cost": 0.2,
+    "berth_min": 154.4,
+    "a2o_mean_min": 23.82,
+    "b2c_mean_min": 13.64,
+    "n_moved": 4,
+    "n_blocked_vessel": 14,
     "n_rejected": 0,
-    "n_fired": 20,
+    "n_fired": 18,
     "compl": 1.0,
     "n_jobs": 193
    },
    "rguard": {
-    "total": 118.155,
+    "total": 103.515,
     "chan": {
-     "truck": 33.8283,
-     "vessel": 77.9723,
-     "move": 6.3539,
+     "truck": 29.1087,
+     "vessel": 68.0866,
+     "move": 6.3196,
      "other": 0.0,
-     "total": 118.1545
+     "total": 103.5149
     },
     "chan_by_block": {
      "A": {
-      "truck": 20.6433,
-      "vessel": 49.8124,
-      "move": 3.3692,
+      "truck": 18.8249,
+      "vessel": 45.8385,
+      "move": 3.3801,
       "other": 0.0
      },
      "B": {
-      "truck": 13.185,
-      "vessel": 28.1599,
-      "move": 2.7347,
+      "truck": 10.2838,
+      "vessel": 22.2481,
+      "move": 2.7395,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 241,
+    "decisions": 238,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.25,
-    "berth_min": 141.8,
-    "a2o_mean_min": 23.89,
-    "b2c_mean_min": 13.71,
-    "n_moved": 5,
-    "n_blocked_vessel": 7,
+    "route_cost": 0.2,
+    "berth_min": 123.8,
+    "a2o_mean_min": 22.6,
+    "b2c_mean_min": 12.43,
+    "n_moved": 4,
+    "n_blocked_vessel": 6,
     "n_rejected": 0,
-    "n_fired": 12,
+    "n_fired": 10,
     "compl": 1.0,
     "n_jobs": 193
    },
@@ -1252,9 +1270,9 @@
      "effective_deadline_mult": 2.0
     }
    ],
-   "block_p": 0.75,
-   "d_total": 14.28,
-   "d_vs_rguard": 23.509
+   "block_p": 0.778,
+   "d_total": 22.49,
+   "d_vs_rguard": 20.895
   },
   {
    "seed": 6,
@@ -1285,6 +1303,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 263,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 1.0,
     "berth_min": 167.5,
@@ -1322,6 +1341,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 269,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 199.9,
@@ -1359,6 +1379,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 259,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 171.3,
@@ -1428,113 +1449,116 @@
    "seed_A": 901007,
    "seed_B": 901031,
    "base": {
-    "total": 99.762,
+    "total": 106.083,
     "chan": {
-     "truck": 34.6002,
-     "vessel": 57.6675,
-     "move": 7.4939,
+     "truck": 33.1825,
+     "vessel": 65.3353,
+     "move": 7.565,
      "other": 0.0,
-     "total": 99.7616
+     "total": 106.0828
     },
     "chan_by_block": {
      "A": {
-      "truck": 23.5769,
-      "vessel": 44.1466,
-      "move": 4.0802,
+      "truck": 22.073,
+      "vessel": 41.803,
+      "move": 4.0386,
       "other": 0.0
      },
      "B": {
-      "truck": 11.0232,
-      "vessel": 13.5209,
-      "move": 2.5637,
-      "other": 0.0
-     }
-    },
-    "policy_exceptions": 0,
-    "decisions": 229,
-    "backlog": 0,
-    "route_cost": 0.85,
-    "berth_min": 104.9,
-    "a2o_mean_min": 23.97,
-    "b2c_mean_min": 13.73,
-    "n_moved": 17,
-    "n_blocked_vessel": 0,
-    "n_rejected": 0,
-    "n_fired": 17,
-    "compl": 1.0,
-    "n_jobs": 200
-   },
-   "vguard": {
-    "total": 137.95,
-    "chan": {
-     "truck": 42.5567,
-     "vessel": 88.3915,
-     "move": 7.0017,
-     "other": 0.0,
-     "total": 137.9499
-    },
-    "chan_by_block": {
-     "A": {
-      "truck": 32.9227,
-      "vessel": 76.7816,
-      "move": 4.2235,
-      "other": 0.0
-     },
-     "B": {
-      "truck": 9.634,
-      "vessel": 11.6099,
-      "move": 2.4782,
+      "truck": 11.1095,
+      "vessel": 23.5323,
+      "move": 2.6264,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
     "decisions": 240,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.3,
-    "berth_min": 160.7,
-    "a2o_mean_min": 26.23,
-    "b2c_mean_min": 16.2,
-    "n_moved": 6,
-    "n_blocked_vessel": 13,
+    "route_cost": 0.9,
+    "berth_min": 118.8,
+    "a2o_mean_min": 23.57,
+    "b2c_mean_min": 13.29,
+    "n_moved": 18,
+    "n_blocked_vessel": 0,
     "n_rejected": 0,
-    "n_fired": 19,
+    "n_fired": 18,
     "compl": 1.0,
     "n_jobs": 200
    },
-   "rguard": {
-    "total": 110.908,
+   "vguard": {
+    "total": 127.177,
     "chan": {
-     "truck": 38.7094,
-     "vessel": 64.9391,
-     "move": 7.2596,
+     "truck": 37.2552,
+     "vessel": 82.8461,
+     "move": 7.0758,
      "other": 0.0,
-     "total": 110.9081
+     "total": 127.1771
     },
     "chan_by_block": {
      "A": {
-      "truck": 30.4594,
-      "vessel": 56.1429,
-      "move": 4.1013,
+      "truck": 27.7088,
+      "vessel": 62.6236,
+      "move": 4.1049,
       "other": 0.0
      },
      "B": {
-      "truck": 8.25,
-      "vessel": 8.7962,
-      "move": 2.7083,
+      "truck": 9.5464,
+      "vessel": 20.2225,
+      "move": 2.6209,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 233,
+    "decisions": 238,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.35,
+    "berth_min": 150.6,
+    "a2o_mean_min": 24.78,
+    "b2c_mean_min": 14.7,
+    "n_moved": 7,
+    "n_blocked_vessel": 15,
+    "n_rejected": 0,
+    "n_fired": 22,
+    "compl": 1.0,
+    "n_jobs": 200
+   },
+   "rguard": {
+    "total": 103.056,
+    "chan": {
+     "truck": 37.2658,
+     "vessel": 58.6896,
+     "move": 7.1006,
+     "other": 0.0,
+     "total": 103.056
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 28.573,
+      "vessel": 41.6068,
+      "move": 4.0724,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.6929,
+      "vessel": 17.0829,
+      "move": 2.5782,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 245,
+    "deadlock_escapes": 1,
     "backlog": 0,
     "route_cost": 0.45,
-    "berth_min": 118.1,
-    "a2o_mean_min": 25.13,
-    "b2c_mean_min": 15.02,
+    "berth_min": 106.7,
+    "a2o_mean_min": 24.33,
+    "b2c_mean_min": 14.22,
     "n_moved": 9,
-    "n_blocked_vessel": 20,
+    "n_blocked_vessel": 19,
     "n_rejected": 0,
-    "n_fired": 29,
+    "n_fired": 28,
     "compl": 1.0,
     "n_jobs": 200
    },
@@ -1586,9 +1610,9 @@
      "effective_deadline_mult": 2.0
     }
    ],
-   "block_p": 0.684,
-   "d_total": 38.188,
-   "d_vs_rguard": 27.042
+   "block_p": 0.682,
+   "d_total": 21.094,
+   "d_vs_rguard": 24.121
   },
   {
    "seed": 8,
@@ -1619,6 +1643,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 235,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 115.7,
@@ -1656,6 +1681,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 234,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 117.3,
@@ -1693,6 +1719,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 238,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 90.2,
@@ -1786,6 +1813,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 258,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 146.6,
@@ -1823,6 +1851,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 271,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 159.0,
@@ -1860,6 +1889,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 254,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.5,
     "berth_min": 162.9,
@@ -1953,6 +1983,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 248,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 106.3,
@@ -1990,6 +2021,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 248,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.15,
     "berth_min": 143.6,
@@ -2027,6 +2059,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 244,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 144.9,
@@ -2096,113 +2129,116 @@
    "seed_A": 901011,
    "seed_B": 901035,
    "base": {
-    "total": 78.284,
+    "total": 82.2,
     "chan": {
-     "truck": 25.823,
-     "vessel": 46.5413,
-     "move": 5.9193,
+     "truck": 19.3589,
+     "vessel": 57.2625,
+     "move": 5.5789,
      "other": 0.0,
-     "total": 78.2836
+     "total": 82.2003
     },
     "chan_by_block": {
      "A": {
-      "truck": 14.9925,
-      "vessel": 33.6158,
-      "move": 3.117,
+      "truck": 11.8833,
+      "vessel": 45.4187,
+      "move": 3.0549,
       "other": 0.0
      },
      "B": {
-      "truck": 10.8305,
-      "vessel": 12.9255,
-      "move": 2.1523,
+      "truck": 7.4757,
+      "vessel": 11.8438,
+      "move": 2.174,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 233,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.35,
+    "berth_min": 104.1,
+    "a2o_mean_min": 19.26,
+    "b2c_mean_min": 9.03,
+    "n_moved": 7,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 7,
+    "compl": 1.0,
+    "n_jobs": 187
+   },
+   "vguard": {
+    "total": 80.006,
+    "chan": {
+     "truck": 19.7205,
+     "vessel": 54.9395,
+     "move": 5.3464,
+     "other": 0.0,
+     "total": 80.0064
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 12.6037,
+      "vessel": 44.6692,
+      "move": 3.0386,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.1168,
+      "vessel": 10.2703,
+      "move": 2.2077,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
     "decisions": 228,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.65,
-    "berth_min": 84.6,
-    "a2o_mean_min": 22.18,
-    "b2c_mean_min": 11.81,
-    "n_moved": 13,
-    "n_blocked_vessel": 0,
+    "route_cost": 0.1,
+    "berth_min": 99.9,
+    "a2o_mean_min": 19.28,
+    "b2c_mean_min": 9.18,
+    "n_moved": 2,
+    "n_blocked_vessel": 6,
     "n_rejected": 0,
-    "n_fired": 13,
-    "compl": 1.0,
-    "n_jobs": 187
-   },
-   "vguard": {
-    "total": 85.429,
-    "chan": {
-     "truck": 26.8713,
-     "vessel": 52.9941,
-     "move": 5.5639,
-     "other": 0.0,
-     "total": 85.4293
-    },
-    "chan_by_block": {
-     "A": {
-      "truck": 16.5225,
-      "vessel": 41.4275,
-      "move": 3.1061,
-      "other": 0.0
-     },
-     "B": {
-      "truck": 10.3487,
-      "vessel": 11.5666,
-      "move": 2.1577,
-      "other": 0.0
-     }
-    },
-    "policy_exceptions": 0,
-    "decisions": 229,
-    "backlog": 0,
-    "route_cost": 0.3,
-    "berth_min": 96.4,
-    "a2o_mean_min": 22.41,
-    "b2c_mean_min": 12.24,
-    "n_moved": 6,
-    "n_blocked_vessel": 7,
-    "n_rejected": 0,
-    "n_fired": 13,
+    "n_fired": 8,
     "compl": 1.0,
     "n_jobs": 187
    },
    "rguard": {
-    "total": 89.691,
+    "total": 81.919,
     "chan": {
-     "truck": 27.141,
-     "vessel": 57.1904,
-     "move": 5.3597,
+     "truck": 22.6546,
+     "vessel": 53.8735,
+     "move": 5.391,
      "other": 0.0,
-     "total": 89.6911
+     "total": 81.9191
     },
     "chan_by_block": {
      "A": {
-      "truck": 16.0954,
-      "vessel": 45.3875,
-      "move": 3.0507,
+      "truck": 14.9456,
+      "vessel": 46.576,
+      "move": 3.1296,
       "other": 0.0
      },
      "B": {
-      "truck": 11.0456,
-      "vessel": 11.8029,
-      "move": 2.159,
+      "truck": 7.7091,
+      "vessel": 7.2974,
+      "move": 2.1614,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 227,
+    "decisions": 223,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.15,
-    "berth_min": 104.0,
-    "a2o_mean_min": 22.47,
-    "b2c_mean_min": 12.36,
-    "n_moved": 3,
-    "n_blocked_vessel": 10,
+    "route_cost": 0.1,
+    "berth_min": 98.0,
+    "a2o_mean_min": 20.73,
+    "b2c_mean_min": 10.63,
+    "n_moved": 2,
+    "n_blocked_vessel": 9,
     "n_rejected": 0,
-    "n_fired": 13,
+    "n_fired": 11,
     "compl": 1.0,
     "n_jobs": 187
    },
@@ -2254,9 +2290,9 @@
      "effective_deadline_mult": 2.0
     }
    ],
-   "block_p": 0.538,
-   "d_total": 7.145,
-   "d_vs_rguard": -4.262
+   "block_p": 0.75,
+   "d_total": -2.194,
+   "d_vs_rguard": -1.913
   },
   {
    "seed": 12,
@@ -2287,6 +2323,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 163.9,
@@ -2324,6 +2361,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 235,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.05,
     "berth_min": 162.7,
@@ -2361,6 +2399,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 234,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.1,
     "berth_min": 165.4,
@@ -2454,6 +2493,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 225,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.85,
     "berth_min": 147.3,
@@ -2491,6 +2531,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 236,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.45,
     "berth_min": 148.5,
@@ -2528,6 +2569,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 129.7,
@@ -2621,6 +2663,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 249,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 168.6,
@@ -2658,6 +2701,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 249,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.15,
     "berth_min": 141.9,
@@ -2695,6 +2739,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 251,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.2,
     "berth_min": 164.3,
@@ -2788,6 +2833,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 218,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 170.7,
@@ -2825,6 +2871,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 222,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 172.0,
@@ -2862,6 +2909,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 219,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.35,
     "berth_min": 167.5,
@@ -2955,6 +3003,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 271,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.55,
     "berth_min": 218.0,
@@ -2992,6 +3041,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 272,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 204.0,
@@ -3029,6 +3079,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 263,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.15,
     "berth_min": 198.4,
@@ -3122,6 +3173,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 251,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 1.35,
     "berth_min": 197.7,
@@ -3159,6 +3211,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 255,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.55,
     "berth_min": 182.1,
@@ -3196,6 +3249,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 257,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.6,
     "berth_min": 199.3,
@@ -3289,6 +3343,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 174.1,
@@ -3326,6 +3381,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 174.1,
@@ -3363,6 +3419,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 174.1,
@@ -3456,6 +3513,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 226,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.5,
     "berth_min": 61.3,
@@ -3493,6 +3551,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 227,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.15,
     "berth_min": 88.1,
@@ -3530,6 +3589,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 227,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.15,
     "berth_min": 135.0,
@@ -3623,6 +3683,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 237,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 170.7,
@@ -3660,6 +3721,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.3,
     "berth_min": 175.2,
@@ -3697,6 +3759,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 245,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.45,
     "berth_min": 151.3,
@@ -3766,113 +3829,116 @@
    "seed_A": 901021,
    "seed_B": 901045,
    "base": {
-    "total": 197.216,
+    "total": 191.759,
     "chan": {
-     "truck": 58.5682,
-     "vessel": 130.759,
-     "move": 7.889,
+     "truck": 51.3146,
+     "vessel": 131.9386,
+     "move": 8.5062,
      "other": 0.0,
-     "total": 197.2162
+     "total": 191.7594
     },
     "chan_by_block": {
      "A": {
-      "truck": 36.1016,
-      "vessel": 79.0526,
-      "move": 4.682,
+      "truck": 32.0742,
+      "vessel": 78.2837,
+      "move": 4.6883,
       "other": 0.0
      },
      "B": {
-      "truck": 22.4667,
-      "vessel": 51.7063,
-      "move": 2.607,
+      "truck": 19.2404,
+      "vessel": 53.6549,
+      "move": 2.8679,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 264,
+    "decisions": 281,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.6,
-    "berth_min": 237.7,
-    "a2o_mean_min": 28.51,
-    "b2c_mean_min": 18.46,
-    "n_moved": 12,
+    "route_cost": 0.95,
+    "berth_min": 239.9,
+    "a2o_mean_min": 27.27,
+    "b2c_mean_min": 17.03,
+    "n_moved": 19,
     "n_blocked_vessel": 0,
     "n_rejected": 0,
-    "n_fired": 12,
+    "n_fired": 19,
     "compl": 1.0,
     "n_jobs": 220
    },
    "vguard": {
-    "total": 178.252,
+    "total": 203.668,
     "chan": {
-     "truck": 62.041,
-     "vessel": 108.5305,
-     "move": 7.68,
+     "truck": 60.5775,
+     "vessel": 134.9948,
+     "move": 8.0953,
      "other": 0.0,
-     "total": 178.2515
+     "total": 203.6676
     },
     "chan_by_block": {
      "A": {
-      "truck": 37.5669,
-      "vessel": 76.494,
-      "move": 4.6856,
+      "truck": 44.6232,
+      "vessel": 83.3668,
+      "move": 4.7239,
       "other": 0.0
      },
      "B": {
-      "truck": 24.4741,
-      "vessel": 32.0365,
-      "move": 2.5944,
+      "truck": 15.9544,
+      "vessel": 51.628,
+      "move": 2.9215,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 262,
+    "decisions": 281,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.4,
-    "berth_min": 197.3,
-    "a2o_mean_min": 29.52,
-    "b2c_mean_min": 19.55,
-    "n_moved": 8,
-    "n_blocked_vessel": 4,
+    "route_cost": 0.45,
+    "berth_min": 245.4,
+    "a2o_mean_min": 29.44,
+    "b2c_mean_min": 19.43,
+    "n_moved": 9,
+    "n_blocked_vessel": 16,
     "n_rejected": 0,
-    "n_fired": 12,
+    "n_fired": 25,
     "compl": 1.0,
     "n_jobs": 220
    },
    "rguard": {
-    "total": 197.431,
+    "total": 201.764,
     "chan": {
-     "truck": 55.7913,
-     "vessel": 133.8747,
-     "move": 7.7647,
+     "truck": 54.4748,
+     "vessel": 139.4067,
+     "move": 7.8822,
      "other": 0.0,
-     "total": 197.4307
+     "total": 201.7637
     },
     "chan_by_block": {
      "A": {
-      "truck": 34.9796,
-      "vessel": 88.6883,
-      "move": 4.672,
+      "truck": 35.5753,
+      "vessel": 88.0631,
+      "move": 4.7612,
       "other": 0.0
      },
      "B": {
-      "truck": 20.8117,
-      "vessel": 45.1864,
-      "move": 2.5426,
+      "truck": 18.8995,
+      "vessel": 51.3436,
+      "move": 2.7709,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 275,
+    "decisions": 272,
+    "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.55,
-    "berth_min": 243.4,
-    "a2o_mean_min": 28.32,
-    "b2c_mean_min": 18.27,
-    "n_moved": 11,
-    "n_blocked_vessel": 2,
+    "route_cost": 0.35,
+    "berth_min": 253.5,
+    "a2o_mean_min": 27.71,
+    "b2c_mean_min": 17.75,
+    "n_moved": 7,
+    "n_blocked_vessel": 9,
     "n_rejected": 0,
-    "n_fired": 13,
+    "n_fired": 16,
     "compl": 1.0,
     "n_jobs": 220
    },
@@ -3924,9 +3990,9 @@
      "effective_deadline_mult": 2.0
     }
    ],
-   "block_p": 0.333,
-   "d_total": -18.964,
-   "d_vs_rguard": -19.179
+   "block_p": 0.64,
+   "d_total": 11.909,
+   "d_vs_rguard": 1.904
   },
   {
    "seed": 22,
@@ -3957,6 +4023,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 241,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.1,
     "berth_min": 66.3,
@@ -3994,6 +4061,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 241,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.0,
     "berth_min": 55.1,
@@ -4031,6 +4099,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 241,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.0,
     "berth_min": 55.1,
@@ -4124,6 +4193,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 232,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.4,
     "berth_min": 149.0,
@@ -4161,6 +4231,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 232,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.25,
     "berth_min": 153.3,
@@ -4198,6 +4269,7 @@
     },
     "policy_exceptions": 0,
     "decisions": 239,
+    "deadlock_escapes": 0,
     "backlog": 0,
     "route_cost": 0.2,
     "berth_min": 163.5,
@@ -4264,56 +4336,56 @@
   }
  ],
  "d_total_ci": [
-  3.369,
-  -3.085,
-  9.822
+  3.896,
+  -1.881,
+  9.672
  ],
  "yr106_channels_vs_base": {
   "truck": {
    "n": 24,
-   "mean": 3.038,
-   "sd": 2.935,
+   "mean": 3.019,
+   "sd": 3.043,
    "ci": [
-    1.798,
-    4.277
+    1.734,
+    4.304
    ],
-   "mde80": 1.753,
+   "mde80": 1.817,
    "label": "유의(악화)",
-   "required_n_for_mean": 12,
+   "required_n_for_mean": 13,
    "required_n_for_delta": 13,
    "equivalent": false,
    "tost_ci90": [
-    2.011,
-    4.065
+    1.954,
+    4.083
    ],
    "role": "1차(확증)"
   },
   "vessel": {
    "n": 24,
-   "mean": 0.71,
-   "sd": 16.056,
+   "mean": 1.26,
+   "sd": 14.798,
    "ci": [
-    -6.07,
-    7.49
+    -4.988,
+    7.509
    ],
-   "mde80": 9.59,
+   "mde80": 8.839,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": 5377,
-   "required_n_for_delta": 30,
+   "required_n_for_mean": 1451,
+   "required_n_for_delta": 25,
    "equivalent": true,
    "tost_ci90": [
-    -4.907,
-    6.327
+    -3.917,
+    6.437
    ],
    "role": "탐색적(보정 없음)"
   },
   "move": {
    "n": 24,
-   "mean": -0.379,
+   "mean": -0.384,
    "sd": 0.266,
    "ci": [
-    -0.491,
-    -0.267
+    -0.496,
+    -0.271
    ],
    "mde80": 0.159,
    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
@@ -4321,8 +4393,8 @@
    "required_n_for_delta": 3,
    "equivalent": true,
    "tost_ci90": [
-    -0.472,
-    -0.286
+    -0.477,
+    -0.29
    ],
    "role": "탐색적(보정 없음)"
   },
@@ -4347,20 +4419,20 @@
   },
   "total": {
    "n": 24,
-   "mean": 3.369,
-   "sd": 15.28,
+   "mean": 3.896,
+   "sd": 13.677,
    "ci": [
-    -3.084,
-    9.821
+    -1.88,
+    9.671
    ],
-   "mde80": 9.127,
+   "mde80": 8.17,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": 219,
-   "required_n_for_delta": 27,
+   "required_n_for_mean": 132,
+   "required_n_for_delta": 22,
    "equivalent": true,
    "tost_ci90": [
-    -1.977,
-    8.714
+    -0.889,
+    8.68
    ],
    "role": "탐색적(보정 없음)"
   }
@@ -4368,58 +4440,58 @@
  "yr106_channels_vs_rguard": {
   "truck": {
    "n": 24,
-   "mean": 1.766,
-   "sd": 3.806,
+   "mean": 1.383,
+   "sd": 3.774,
    "ci": [
-    0.159,
-    3.373
+    -0.211,
+    2.976
    ],
-   "mde80": 2.274,
-   "label": "유의(악화)",
-   "required_n_for_mean": 51,
+   "mde80": 2.254,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±3.00)",
+   "required_n_for_mean": 81,
    "required_n_for_delta": 19,
-   "equivalent": false,
+   "equivalent": true,
    "tost_ci90": [
-    0.434,
-    3.098
+    0.062,
+    2.703
    ],
    "role": "1차(확증)"
   },
   "vessel": {
    "n": 24,
-   "mean": -0.115,
-   "sd": 15.689,
+   "mean": 1.005,
+   "sd": 14.79,
    "ci": [
-    -6.74,
-    6.509
+    -5.24,
+    7.25
    ],
-   "mde80": 9.371,
+   "mde80": 8.834,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": null,
-   "required_n_for_delta": 28,
+   "required_n_for_mean": 2278,
+   "required_n_for_delta": 25,
    "equivalent": true,
    "tost_ci90": [
-    -5.604,
-    5.373
+    -4.169,
+    6.179
    ],
    "role": "탐색적(보정 없음)"
   },
   "move": {
    "n": 24,
-   "mean": 0.014,
-   "sd": 0.22,
+   "mean": 0.023,
+   "sd": 0.211,
    "ci": [
-    -0.079,
-    0.107
+    -0.066,
+    0.112
    ],
-   "mde80": 0.132,
+   "mde80": 0.126,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±1.00)",
-   "required_n_for_mean": 2472,
+   "required_n_for_mean": 875,
    "required_n_for_delta": 3,
    "equivalent": true,
    "tost_ci90": [
-    -0.063,
-    0.091
+    -0.051,
+    0.097
    ],
    "role": "탐색적(보정 없음)"
   },
@@ -4444,20 +4516,20 @@
   },
   "total": {
    "n": 24,
-   "mean": 1.665,
-   "sd": 15.004,
+   "mean": 2.411,
+   "sd": 13.926,
    "ci": [
-    -4.671,
-    8.001
+    -3.47,
+    8.291
    ],
-   "mde80": 8.962,
+   "mde80": 8.318,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": 856,
-   "required_n_for_delta": 26,
+   "required_n_for_mean": 353,
+   "required_n_for_delta": 23,
    "equivalent": true,
    "tost_ci90": [
-    -3.584,
-    6.914
+    -2.461,
+    7.283
    ],
    "role": "탐색적(보정 없음)"
   }
@@ -4474,19 +4546,20 @@
   "total": 10.0
  },
  "d_vs_rguard_ci": [
-  1.665,
-  -4.672,
-  8.002
+  2.411,
+  -3.471,
+  8.292
  ],
  "d_berth": [
-  1.3,
-  -11.025,
-  13.625
+  2.296,
+  -9.064,
+  13.656
  ],
- "moved_base": 12.7,
- "moved_vguard": 5.2,
- "moved_rguard": 5.6,
- "blocked_mean": 10.1,
+ "deadlock_escapes_total": 12,
+ "moved_base": 12.5,
+ "moved_vguard": 5.1,
+ "moved_rguard": 5.3,
+ "blocked_mean": 10.6,
  "compl_min": 1.0,
  "prereg": "①d_total 상한<0 → 본선 보호 필터가 손실원 차단. ②d_vs_rguard 상한<0 → 이득이 볼륨감소 아닌 본선인지 덕(교락 통제)"
 }

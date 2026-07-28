@@ -1,0 +1,168 @@
+{
+ "n_pilot": 8,
+ "band": {
+  "family": "y113-pilot",
+  "hash_version": "rz1",
+  "seeds": {
+   "A": [
+    903000,
+    903001,
+    903002,
+    903003,
+    903004,
+    903005,
+    903006,
+    903007
+   ],
+   "B": [
+    903008,
+    903009,
+    903010,
+    903011,
+    903012,
+    903013,
+    903014,
+    903015
+   ]
+  },
+  "realization_hashes": {
+   "A": [
+    "rz1:3943d757cd189542",
+    "rz1:2d65948eef54d9b0",
+    "rz1:5238b179d5adf0c3",
+    "rz1:75d1ece01f433b8c",
+    "rz1:2a48adabf1a86e1f",
+    "rz1:63010fde1b1598c9",
+    "rz1:8e1635548d97ca9e",
+    "rz1:574abfd6bd8379db"
+   ],
+   "B": [
+    "rz1:61db84170bf03690",
+    "rz1:ba3f1292d56a0c32",
+    "rz1:46e81b043191bc0d",
+    "rz1:ccb3b0ca91bed158",
+    "rz1:6f33441e0c8b58be",
+    "rz1:3d69e25a99a1f8f5",
+    "rz1:af24da7914ec982b",
+    "rz1:9fff2df8cb62c15d"
+   ]
+  },
+  "digest": "d0923165bd002b36"
+ },
+ "channels": {
+  "truck": {
+   "n": 8,
+   "mean": 3.49,
+   "sd": 5.628,
+   "ci": [
+    -1.215,
+    8.195
+   ],
+   "mde80": 6.488,
+   "label": "검출 실패(표본 부족 — MDE 6.49, δ=3.00, TOST 미통과)",
+   "required_n_for_mean": 40,
+   "required_n_for_delta": 53,
+   "equivalent": false,
+   "tost_ci90": [
+    -0.28,
+    7.26
+   ],
+   "required_n_point": 30,
+   "required_n_conf80": 53
+  },
+  "vessel": {
+   "n": 8,
+   "mean": -2.687,
+   "sd": 9.532,
+   "ci": [
+    -10.656,
+    5.281
+   ],
+   "mde80": 10.989,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
+   "required_n_for_mean": 183,
+   "required_n_for_delta": 16,
+   "equivalent": true,
+   "tost_ci90": [
+    -9.072,
+    3.697
+   ],
+   "required_n_point": 10,
+   "required_n_conf80": 16
+  },
+  "move": {
+   "n": 8,
+   "mean": -0.341,
+   "sd": 0.211,
+   "ci": [
+    -0.517,
+    -0.165
+   ],
+   "mde80": 0.243,
+   "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
+   "required_n_for_mean": 8,
+   "required_n_for_delta": 3,
+   "equivalent": true,
+   "tost_ci90": [
+    -0.482,
+    -0.2
+   ],
+   "required_n_point": 3,
+   "required_n_conf80": 3
+  },
+  "other": {
+   "n": 8,
+   "mean": 0.0,
+   "sd": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "mde80": 0.0,
+   "label": "판정 대상 아님(전 시드 차이 0 — 가중치 0 또는 미측정)",
+   "required_n_for_mean": null,
+   "required_n_for_delta": null,
+   "equivalent": true,
+   "tost_ci90": [
+    0.0,
+    0.0
+   ],
+   "required_n_point": null,
+   "required_n_conf80": null
+  },
+  "total": {
+   "n": 8,
+   "mean": 0.462,
+   "sd": 10.182,
+   "ci": [
+    -8.05,
+    8.974
+   ],
+   "mde80": 11.738,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
+   "required_n_for_mean": 6987,
+   "required_n_for_delta": 17,
+   "equivalent": true,
+   "tost_ci90": [
+    -6.358,
+    7.282
+   ],
+   "required_n_point": 11,
+   "required_n_conf80": 17
+  }
+ },
+ "primary_power": {
+  "pilot_n": 8,
+  "pilot_sd": 5.628,
+  "pilot_mde80": 6.488,
+  "target_effect": 3.0,
+  "required_n_select": 53,
+  "required_n_select_point": 30,
+  "sd_conf": 0.8,
+  "sd_inflation": 1.3533,
+  "required_n_confirm": 106,
+  "rule": "확증 대역 n ≥ 선택 대역 n × 2 (감사 조치) · 필요 n 은 목표 df 반복수렴 + sd 상측한계(conf=0.8)"
+ },
+ "moved_base": 8.5,
+ "deadlock_escapes": 0
+}

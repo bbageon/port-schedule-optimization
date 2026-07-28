@@ -257,6 +257,9 @@ def run_arm(seed_i: int, band: str, *, vessel_guard: bool, log: list | None = No
             "chan_by_block": {b: {k: round(v, 4) for k, v in d.items()}
                               for b, d in chan_by_block.items()},
             "policy_exceptions": stats["policy_exceptions"], "decisions": stats["decisions"],
+            # YR-112: 간섭 교착 탈출이 이 런에 개입했는지 — arm 마다 저장해 감사 가능하게 한다
+            # (0 이면 결과는 탈출 로직과 무관하다는 뜻).
+            "deadlock_escapes": sum(s.deadlock_escape_count for s in mbt.blocks.values()),
             "backlog": sum(s.unfinished_backlog() for s in mbt.blocks.values()),
             "route_cost": round(route_cost, 3), "berth_min": round(berth, 1),
             "a2o_mean_min": round(fmean(a2o) / 60.0, 2) if a2o else None,
@@ -336,6 +339,9 @@ def run(band: str, n_seeds: int = N_SEEDS) -> dict:
            "yr106_delta_interest": delta,
            "d_vs_rguard_ci": _ci_t([r["d_vs_rguard"] for r in rows]),
            "d_berth": _ci_t([r["vguard"]["berth_min"] - r["base"]["berth_min"] for r in rows]),
+           # YR-112 감사: 탈출이 한 번도 발화하지 않았으면 판정은 탈출 로직과 무관하다
+           "deadlock_escapes_total": sum(r[a]["deadlock_escapes"]
+                                         for r in rows for a in ("base", "vguard", "rguard")),
            "moved_base": round(fmean(r["base"]["n_moved"] for r in rows), 1),
            "moved_vguard": round(fmean(r["vguard"]["n_moved"] for r in rows), 1),
            "moved_rguard": round(fmean(r["rguard"]["n_moved"] for r in rows), 1),

@@ -1,0 +1,6145 @@
+{
+ "repro": {
+  "experiment": "YR-113 창중 이송 자체의 순효과 (BASE vs 이송 0)",
+  "code": {
+   "git_head": "71a8456d5a90d5889d1b83633e5fa9fe534d1a9a",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": "SNP-ARMG-STD",
+  "seeds": {
+   "A": [
+    904000,
+    904001,
+    904002,
+    904003,
+    904004,
+    904005,
+    904006,
+    904007,
+    904008,
+    904009,
+    904010,
+    904011,
+    904012,
+    904013,
+    904014,
+    904015,
+    904016,
+    904017,
+    904018,
+    904019,
+    904020,
+    904021,
+    904022,
+    904023,
+    904024,
+    904025,
+    904026,
+    904027,
+    904028,
+    904029,
+    904030,
+    904031,
+    904032,
+    904033,
+    904034,
+    904035,
+    904036,
+    904037,
+    904038,
+    904039,
+    904040,
+    904041,
+    904042,
+    904043,
+    904044,
+    904045,
+    904046,
+    904047,
+    904048,
+    904049,
+    904050,
+    904051,
+    904052
+   ],
+   "B": [
+    904053,
+    904054,
+    904055,
+    904056,
+    904057,
+    904058,
+    904059,
+    904060,
+    904061,
+    904062,
+    904063,
+    904064,
+    904065,
+    904066,
+    904067,
+    904068,
+    904069,
+    904070,
+    904071,
+    904072,
+    904073,
+    904074,
+    904075,
+    904076,
+    904077,
+    904078,
+    904079,
+    904080,
+    904081,
+    904082,
+    904083,
+    904084,
+    904085,
+    904086,
+    904087,
+    904088,
+    904089,
+    904090,
+    904091,
+    904092,
+    904093,
+    904094,
+    904095,
+    904096,
+    904097,
+    904098,
+    904099,
+    904100,
+    904101,
+    904102,
+    904103,
+    904104,
+    904105
+   ]
+  },
+  "params": {
+   "cell_A": {
+    "n_external": 80,
+    "gate_out_share": 0.6,
+    "n_vessels": 2,
+    "vessel_moves": 15,
+    "fill_ratio": 0.3,
+    "horizon_s": 14400.0,
+    "drain_window_s": 7200.0,
+    "size_mix_ft40": 0.7,
+    "sts_move_interval_s": 144.0,
+    "gaussian": true,
+    "sigma_frac": 0.12,
+    "eta_error_s": 300.0,
+    "arrival_peak_amp": 1.0,
+    "arrival_peak_center_frac": 0.5,
+    "arrival_peak_width_frac": 0.25,
+    "gate_travel_mu_s": 210.0,
+    "fault_outages": 0,
+    "fault_outage_dur_s": 900.0,
+    "vessel_deadline_mult": 0.5,
+    "time_contract_v2": true,
+    "appt_window_s": 3600.0,
+    "appt_adherence_sigma_s": 600.0,
+    "exit_travel_mu_s": 300.0,
+    "gate_block_contract": true,
+    "vessel_deadline_achievable": true
+   },
+   "cell_B": {
+    "n_external": 56,
+    "gate_out_share": 0.6,
+    "n_vessels": 2,
+    "vessel_moves": 15,
+    "fill_ratio": 0.3,
+    "horizon_s": 14400.0,
+    "drain_window_s": 7200.0,
+    "size_mix_ft40": 0.7,
+    "sts_move_interval_s": 144.0,
+    "gaussian": true,
+    "sigma_frac": 0.12,
+    "eta_error_s": 300.0,
+    "arrival_peak_amp": 1.0,
+    "arrival_peak_center_frac": 0.5,
+    "arrival_peak_width_frac": 0.25,
+    "gate_travel_mu_s": 210.0,
+    "fault_outages": 0,
+    "fault_outage_dur_s": 900.0,
+    "vessel_deadline_mult": 2.0,
+    "time_contract_v2": true,
+    "appt_window_s": 3600.0,
+    "appt_adherence_sigma_s": 600.0,
+    "exit_travel_mu_s": 300.0,
+    "gate_block_contract": true,
+    "vessel_deadline_achievable": true
+   }
+  },
+  "prereg": "Δ = NOTRANSFER − BASE · 1차 채널 truck · (a) CI 가 0 배제 (b) δ=3.0 초과 여부를 **분리 보고**. 트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+  "delta_interest": {
+   "truck": 3.0,
+   "vessel": 10.0,
+   "move": 1.0,
+   "other": 1.0,
+   "total": 10.0
+  },
+  "sd_conf": 0.8,
+  "band": "select",
+  "primary_channel": "truck",
+  "band_spec": {
+   "family": "y113-select",
+   "hash_version": "rz1",
+   "seeds": {
+    "A": [
+     904000,
+     904001,
+     904002,
+     904003,
+     904004,
+     904005,
+     904006,
+     904007,
+     904008,
+     904009,
+     904010,
+     904011,
+     904012,
+     904013,
+     904014,
+     904015,
+     904016,
+     904017,
+     904018,
+     904019,
+     904020,
+     904021,
+     904022,
+     904023,
+     904024,
+     904025,
+     904026,
+     904027,
+     904028,
+     904029,
+     904030,
+     904031,
+     904032,
+     904033,
+     904034,
+     904035,
+     904036,
+     904037,
+     904038,
+     904039,
+     904040,
+     904041,
+     904042,
+     904043,
+     904044,
+     904045,
+     904046,
+     904047,
+     904048,
+     904049,
+     904050,
+     904051,
+     904052
+    ],
+    "B": [
+     904053,
+     904054,
+     904055,
+     904056,
+     904057,
+     904058,
+     904059,
+     904060,
+     904061,
+     904062,
+     904063,
+     904064,
+     904065,
+     904066,
+     904067,
+     904068,
+     904069,
+     904070,
+     904071,
+     904072,
+     904073,
+     904074,
+     904075,
+     904076,
+     904077,
+     904078,
+     904079,
+     904080,
+     904081,
+     904082,
+     904083,
+     904084,
+     904085,
+     904086,
+     904087,
+     904088,
+     904089,
+     904090,
+     904091,
+     904092,
+     904093,
+     904094,
+     904095,
+     904096,
+     904097,
+     904098,
+     904099,
+     904100,
+     904101,
+     904102,
+     904103,
+     904104,
+     904105
+    ]
+   },
+   "realization_hashes": {
+    "A": [
+     "rz1:2470a046e880ca95",
+     "rz1:61817b5b92bf1a8e",
+     "rz1:e7a21f762cffad32",
+     "rz1:0878147983960bce",
+     "rz1:b746f07acdb6ac09",
+     "rz1:cb436ee0cb4f3663",
+     "rz1:d3a5197647d06c8f",
+     "rz1:ddfece50ebbe60f0",
+     "rz1:cf571b6c19c48988",
+     "rz1:6232170020e2552a",
+     "rz1:500244fc96a1e07e",
+     "rz1:7e2f9904a3cc297e",
+     "rz1:c4c3fb9f8db515df",
+     "rz1:1341c08f461dcc4f",
+     "rz1:5bc66ab6150b59de",
+     "rz1:0f9af606513585d0",
+     "rz1:8d2c81a688a9b384",
+     "rz1:c6d564b6aca7d1be",
+     "rz1:6c7283e0d8519fc4",
+     "rz1:385164b5429b2dee",
+     "rz1:0f68724d9d2360c5",
+     "rz1:1433a8e22a0efeef",
+     "rz1:9e1c280a56418088",
+     "rz1:224af698037e70db",
+     "rz1:0de63d1d49c192f6",
+     "rz1:fc1be1ff20e0e693",
+     "rz1:7eae9a095291ee14",
+     "rz1:9d1dbe55e7ebcccf",
+     "rz1:950456fd1a9df9e2",
+     "rz1:1e198758c7fb139e",
+     "rz1:984a967dceaa7e8b",
+     "rz1:bd8502e9d842f491",
+     "rz1:653ae1ebc74ea27c",
+     "rz1:80a47c5673bb09b6",
+     "rz1:ffa0fde1e4001035",
+     "rz1:4b98f3d35cff9e9a",
+     "rz1:7f1905b26a5e0303",
+     "rz1:7481e2393bc129db",
+     "rz1:74330489982b4086",
+     "rz1:87ea6d7089ba92b9",
+     "rz1:52f7ad8b1e7d4146",
+     "rz1:963bc4dd3cd6d1ca",
+     "rz1:c888beff7cc850bb",
+     "rz1:6f782e0ac658ef46",
+     "rz1:5c437850844d18e7",
+     "rz1:8ca291c8b2e4c9b3",
+     "rz1:139f3dc95fee911b",
+     "rz1:b789da83690f4a88",
+     "rz1:d64d07373ba00044",
+     "rz1:61e72affa88beb05",
+     "rz1:e76036be4ea5709c",
+     "rz1:7d4b3ef04b12676c",
+     "rz1:15fc938cafab50b4"
+    ],
+    "B": [
+     "rz1:a6f444c7a0dc34e1",
+     "rz1:9ab8a9a5c4afc0c5",
+     "rz1:ce2fe35cccd8ce45",
+     "rz1:cb8989da9d3d1444",
+     "rz1:fcd9dde6f929b097",
+     "rz1:bfe4421b198472b2",
+     "rz1:7e28a26e5f6bb6db",
+     "rz1:3a85804c9c360a04",
+     "rz1:5c9b95168452d680",
+     "rz1:a723c6ba67026c8c",
+     "rz1:dfa86918806f10fe",
+     "rz1:c1783156a3f23015",
+     "rz1:66202f9edb3a9d64",
+     "rz1:7b47ed0aeb9da2e0",
+     "rz1:2eae51500e569e6b",
+     "rz1:765a16387c5b2cf2",
+     "rz1:021567ddc4127140",
+     "rz1:d2cb142215ffcb27",
+     "rz1:4db59dd457a89d58",
+     "rz1:b92c767230aebacb",
+     "rz1:1f2236d50bd1a741",
+     "rz1:c0b99e7b3342e439",
+     "rz1:1ca60a82c674c560",
+     "rz1:fa05b9513451b9b1",
+     "rz1:798ae422d2cfd021",
+     "rz1:0f0bbe94a0868aca",
+     "rz1:8b15abdbaa12f43f",
+     "rz1:8610ba60f46fbb49",
+     "rz1:58a4014c45bcbc82",
+     "rz1:f80893b0a7d787a9",
+     "rz1:1c62de3c1b6c853e",
+     "rz1:5063f38a7cd75236",
+     "rz1:55116f452df00894",
+     "rz1:da74f5af403ef618",
+     "rz1:f661c0f2b4595635",
+     "rz1:5f95e376861bb9e0",
+     "rz1:63a0d8a89c8ab2ba",
+     "rz1:5880f79f3489ca27",
+     "rz1:b7352dfbd8f64292",
+     "rz1:a48c9ded8d70efaa",
+     "rz1:113abe1979da7830",
+     "rz1:267d3d3ec1696d39",
+     "rz1:cf34a4c55d2ae5c9",
+     "rz1:bc4cd158d8f98a9e",
+     "rz1:0c890c690eb0e42e",
+     "rz1:a057f46809e37986",
+     "rz1:560a956ad2be81f6",
+     "rz1:4745c42b1de57261",
+     "rz1:bffc5c6c95182d08",
+     "rz1:bdcbd4c10721acb1",
+     "rz1:115554242c7504f8",
+     "rz1:7a25a918f3a92745",
+     "rz1:095abb4d128d1605"
+    ]
+   },
+   "digest": "cd442871f3e41181"
+  },
+  "achievable_deadline": true
+ },
+ "verdict_valid": true,
+ "band": "select",
+ "rows": [
+  {
+   "seed": 0,
+   "seed_A": 904000,
+   "seed_B": 904053,
+   "base": {
+    "total": 115.858,
+    "chan": {
+     "truck": 35.5542,
+     "vessel": 74.893,
+     "move": 5.4109,
+     "other": 0.0,
+     "total": 115.8581
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 22.4788,
+      "vessel": 55.3067,
+      "move": 2.7473,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.0754,
+      "vessel": 19.5863,
+      "move": 1.7136,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 244,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.95,
+    "berth_min": 136.2,
+    "a2o_mean_min": 24.18,
+    "b2c_mean_min": 13.76,
+    "n_moved": 19,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 19,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "notransfer": {
+    "total": 109.659,
+    "chan": {
+     "truck": 37.1187,
+     "vessel": 68.1358,
+     "move": 4.4041,
+     "other": 0.0,
+     "total": 109.6586
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 29.8274,
+      "vessel": 51.3569,
+      "move": 2.876,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.2912,
+      "vessel": 16.779,
+      "move": 1.5281,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 233,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 123.9,
+    "a2o_mean_min": 24.27,
+    "b2c_mean_min": 14.26,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "d_total": -6.199,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 152.903,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3886.455,
+     "phys_min_completion_s": 3886.455,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 152.903,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9066.997,
+     "phys_min_completion_s": 9066.997,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0574
+    }
+   ]
+  },
+  {
+   "seed": 1,
+   "seed_A": 904001,
+   "seed_B": 904054,
+   "base": {
+    "total": 131.533,
+    "chan": {
+     "truck": 39.2918,
+     "vessel": 85.4456,
+     "move": 6.796,
+     "other": 0.0,
+     "total": 131.5334
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 23.4498,
+      "vessel": 73.8818,
+      "move": 3.5823,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 15.842,
+      "vessel": 11.5638,
+      "move": 2.5637,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 258,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.65,
+    "berth_min": 155.4,
+    "a2o_mean_min": 24.49,
+    "b2c_mean_min": 14.31,
+    "n_moved": 13,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 13,
+    "compl": 1.0,
+    "n_jobs": 213
+   },
+   "notransfer": {
+    "total": 139.18,
+    "chan": {
+     "truck": 45.9449,
+     "vessel": 87.1408,
+     "move": 6.0939,
+     "other": 0.0,
+     "total": 139.1796
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 30.4823,
+      "vessel": 69.9286,
+      "move": 3.3661,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 15.4626,
+      "vessel": 17.2122,
+      "move": 2.7278,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 251,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 158.4,
+    "a2o_mean_min": 25.99,
+    "b2c_mean_min": 16.07,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 213
+   },
+   "d_total": 7.647,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 131.944,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3551.099,
+     "phys_min_completion_s": 3551.099,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 131.944,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8755.7,
+     "phys_min_completion_s": 8755.7,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.078
+    }
+   ]
+  },
+  {
+   "seed": 2,
+   "seed_A": 904002,
+   "seed_B": 904055,
+   "base": {
+    "total": 127.007,
+    "chan": {
+     "truck": 34.2442,
+     "vessel": 86.0435,
+     "move": 6.7196,
+     "other": 0.0,
+     "total": 127.0073
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.4957,
+      "vessel": 56.6605,
+      "move": 3.7468,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.7485,
+      "vessel": 29.383,
+      "move": 2.4228,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 243,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 156.4,
+    "a2o_mean_min": 23.16,
+    "b2c_mean_min": 12.95,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "notransfer": {
+    "total": 130.795,
+    "chan": {
+     "truck": 38.909,
+     "vessel": 85.6637,
+     "move": 6.2223,
+     "other": 0.0,
+     "total": 130.795
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 28.7653,
+      "vessel": 62.3517,
+      "move": 3.7706,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.1437,
+      "vessel": 23.3121,
+      "move": 2.4517,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 256,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 155.8,
+    "a2o_mean_min": 24.41,
+    "b2c_mean_min": 14.4,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "d_total": 3.788,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 155.963,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3623.487,
+     "phys_min_completion_s": 3623.487,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 155.963,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8804.069,
+     "phys_min_completion_s": 8804.069,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0644
+    }
+   ]
+  },
+  {
+   "seed": 3,
+   "seed_A": 904003,
+   "seed_B": 904056,
+   "base": {
+    "total": 132.177,
+    "chan": {
+     "truck": 28.6343,
+     "vessel": 98.3086,
+     "move": 5.2341,
+     "other": 0.0,
+     "total": 132.177
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.3625,
+      "vessel": 52.9304,
+      "move": 2.6802,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.2718,
+      "vessel": 45.3782,
+      "move": 2.1539,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 253,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.4,
+    "berth_min": 178.7,
+    "a2o_mean_min": 21.12,
+    "b2c_mean_min": 10.97,
+    "n_moved": 8,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 8,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "notransfer": {
+    "total": 112.717,
+    "chan": {
+     "truck": 33.0174,
+     "vessel": 75.0277,
+     "move": 4.6714,
+     "other": 0.0,
+     "total": 112.7165
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.3122,
+      "vessel": 36.1176,
+      "move": 2.5959,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.7053,
+      "vessel": 38.9101,
+      "move": 2.0756,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 250,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 136.4,
+    "a2o_mean_min": 21.69,
+    "b2c_mean_min": 11.66,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "d_total": -19.46,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 164.189,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3902.836,
+     "phys_min_completion_s": 3902.836,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 164.189,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9091.196,
+     "phys_min_completion_s": 9091.196,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0602
+    }
+   ]
+  },
+  {
+   "seed": 4,
+   "seed_A": 904004,
+   "seed_B": 904057,
+   "base": {
+    "total": 104.394,
+    "chan": {
+     "truck": 31.8331,
+     "vessel": 67.0437,
+     "move": 5.5176,
+     "other": 0.0,
+     "total": 104.3944
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.3014,
+      "vessel": 57.7339,
+      "move": 2.9207,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.5317,
+      "vessel": 9.3098,
+      "move": 2.0969,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.5,
+    "berth_min": 121.9,
+    "a2o_mean_min": 23.44,
+    "b2c_mean_min": 13.39,
+    "n_moved": 10,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 10,
+    "compl": 1.0,
+    "n_jobs": 195
+   },
+   "notransfer": {
+    "total": 114.551,
+    "chan": {
+     "truck": 34.3122,
+     "vessel": 75.5092,
+     "move": 4.7293,
+     "other": 0.0,
+     "total": 114.5507
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 28.9717,
+      "vessel": 64.4706,
+      "move": 2.8752,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 5.3405,
+      "vessel": 11.0386,
+      "move": 1.8541,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 237,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 137.3,
+    "a2o_mean_min": 23.96,
+    "b2c_mean_min": 14.11,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 195
+   },
+   "d_total": 10.157,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 171.1,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4006.494,
+     "phys_min_completion_s": 4006.494,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 171.1,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9182.249,
+     "phys_min_completion_s": 9182.249,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0529
+    }
+   ]
+  },
+  {
+   "seed": 5,
+   "seed_A": 904005,
+   "seed_B": 904058,
+   "base": {
+    "total": 128.279,
+    "chan": {
+     "truck": 33.9065,
+     "vessel": 88.317,
+     "move": 6.0556,
+     "other": 0.0,
+     "total": 128.2791
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.5453,
+      "vessel": 60.7874,
+      "move": 2.6842,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.3612,
+      "vessel": 27.5295,
+      "move": 2.5214,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 258,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.85,
+    "berth_min": 160.6,
+    "a2o_mean_min": 23.52,
+    "b2c_mean_min": 13.22,
+    "n_moved": 17,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 17,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "notransfer": {
+    "total": 137.731,
+    "chan": {
+     "truck": 40.4085,
+     "vessel": 92.1601,
+     "move": 5.1623,
+     "other": 0.0,
+     "total": 137.7309
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 29.9733,
+      "vessel": 71.1234,
+      "move": 2.6981,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.4352,
+      "vessel": 21.0367,
+      "move": 2.4642,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 255,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 167.6,
+    "a2o_mean_min": 25.29,
+    "b2c_mean_min": 15.36,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "d_total": 9.452,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 146.45,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3783.198,
+     "phys_min_completion_s": 3783.198,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 146.45,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8976.898,
+     "phys_min_completion_s": 8976.898,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0656
+    }
+   ]
+  },
+  {
+   "seed": 6,
+   "seed_A": 904006,
+   "seed_B": 904059,
+   "base": {
+    "total": 109.966,
+    "chan": {
+     "truck": 31.5464,
+     "vessel": 73.0214,
+     "move": 5.3982,
+     "other": 0.0,
+     "total": 109.966
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.1903,
+      "vessel": 58.2927,
+      "move": 3.1476,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 15.3561,
+      "vessel": 14.7286,
+      "move": 2.0006,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 238,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.25,
+    "berth_min": 132.8,
+    "a2o_mean_min": 22.78,
+    "b2c_mean_min": 12.48,
+    "n_moved": 5,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 5,
+    "compl": 1.0,
+    "n_jobs": 197
+   },
+   "notransfer": {
+    "total": 108.831,
+    "chan": {
+     "truck": 31.0112,
+     "vessel": 72.6765,
+     "move": 5.1437,
+     "other": 0.0,
+     "total": 108.8314
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.2921,
+      "vessel": 58.7389,
+      "move": 3.1394,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.7191,
+      "vessel": 13.9376,
+      "move": 2.0042,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 237,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 132.1,
+    "a2o_mean_min": 22.44,
+    "b2c_mean_min": 12.25,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 197
+   },
+   "d_total": -1.135,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 148.348,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3368.519,
+     "phys_min_completion_s": 3368.519,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 148.348,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8563.422,
+     "phys_min_completion_s": 8563.422,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0803
+    }
+   ]
+  },
+  {
+   "seed": 7,
+   "seed_A": 904007,
+   "seed_B": 904060,
+   "base": {
+    "total": 133.61,
+    "chan": {
+     "truck": 32.5791,
+     "vessel": 95.4197,
+     "move": 5.6113,
+     "other": 0.0,
+     "total": 133.6101
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.0508,
+      "vessel": 59.8021,
+      "move": 3.1147,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.5283,
+      "vessel": 35.6176,
+      "move": 2.2466,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.25,
+    "berth_min": 173.5,
+    "a2o_mean_min": 23.97,
+    "b2c_mean_min": 13.85,
+    "n_moved": 5,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 5,
+    "compl": 1.0,
+    "n_jobs": 188
+   },
+   "notransfer": {
+    "total": 125.87,
+    "chan": {
+     "truck": 31.2002,
+     "vessel": 89.3019,
+     "move": 5.3682,
+     "other": 0.0,
+     "total": 125.8703
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 19.8343,
+      "vessel": 60.2257,
+      "move": 3.1093,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.3659,
+      "vessel": 29.0762,
+      "move": 2.2589,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 242,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 162.4,
+    "a2o_mean_min": 23.71,
+    "b2c_mean_min": 13.7,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 188
+   },
+   "d_total": -7.74,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 149.362,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3680.425,
+     "phys_min_completion_s": 3680.425,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 149.362,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8874.313,
+     "phys_min_completion_s": 8874.313,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0687
+    }
+   ]
+  },
+  {
+   "seed": 8,
+   "seed_A": 904008,
+   "seed_B": 904061,
+   "base": {
+    "total": 121.329,
+    "chan": {
+     "truck": 29.0707,
+     "vessel": 85.8623,
+     "move": 6.3958,
+     "other": 0.0,
+     "total": 121.3288
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.2515,
+      "vessel": 64.9771,
+      "move": 4.0685,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.8192,
+      "vessel": 20.8852,
+      "move": 1.7773,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 156.1,
+    "a2o_mean_min": 22.08,
+    "b2c_mean_min": 11.73,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 198
+   },
+   "notransfer": {
+    "total": 136.136,
+    "chan": {
+     "truck": 33.2192,
+     "vessel": 96.8853,
+     "move": 6.0319,
+     "other": 0.0,
+     "total": 136.1364
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 24.9484,
+      "vessel": 66.8951,
+      "move": 4.0969,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.2708,
+      "vessel": 29.9903,
+      "move": 1.935,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 238,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 176.2,
+    "a2o_mean_min": 22.86,
+    "b2c_mean_min": 12.79,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 198
+   },
+   "d_total": 14.807,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 164.137,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3737.918,
+     "phys_min_completion_s": 3737.918,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 164.137,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8907.225,
+     "phys_min_completion_s": 8907.225,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0563
+    }
+   ]
+  },
+  {
+   "seed": 9,
+   "seed_A": 904009,
+   "seed_B": 904062,
+   "base": {
+    "total": 118.181,
+    "chan": {
+     "truck": 25.923,
+     "vessel": 87.1964,
+     "move": 5.0619,
+     "other": 0.0,
+     "total": 118.1813
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.8821,
+      "vessel": 61.6439,
+      "move": 2.668,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.0409,
+      "vessel": 25.5525,
+      "move": 1.694,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 251,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.7,
+    "berth_min": 158.5,
+    "a2o_mean_min": 20.6,
+    "b2c_mean_min": 10.31,
+    "n_moved": 14,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 14,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "notransfer": {
+    "total": 94.11,
+    "chan": {
+     "truck": 28.9606,
+     "vessel": 60.642,
+     "move": 4.5074,
+     "other": 0.0,
+     "total": 94.11
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.7463,
+      "vessel": 43.6443,
+      "move": 2.6328,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.2143,
+      "vessel": 16.9978,
+      "move": 1.8747,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 247,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 110.3,
+    "a2o_mean_min": 21.5,
+    "b2c_mean_min": 11.53,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "d_total": -24.071,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 133.773,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3312.823,
+     "phys_min_completion_s": 3312.823,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 133.773,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8522.3,
+     "phys_min_completion_s": 8522.3,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0905
+    }
+   ]
+  },
+  {
+   "seed": 10,
+   "seed_A": 904010,
+   "seed_B": 904063,
+   "base": {
+    "total": 76.414,
+    "chan": {
+     "truck": 24.3231,
+     "vessel": 47.086,
+     "move": 5.0047,
+     "other": 0.0,
+     "total": 76.4138
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 12.9655,
+      "vessel": 40.2486,
+      "move": 2.7653,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.3576,
+      "vessel": 6.8375,
+      "move": 1.9394,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 229,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 85.6,
+    "a2o_mean_min": 21.05,
+    "b2c_mean_min": 10.85,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 178
+   },
+   "notransfer": {
+    "total": 90.255,
+    "chan": {
+     "truck": 24.3248,
+     "vessel": 61.0909,
+     "move": 4.839,
+     "other": 0.0,
+     "total": 90.2547
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 13.6421,
+      "vessel": 46.5095,
+      "move": 2.7792,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.6827,
+      "vessel": 14.5814,
+      "move": 2.0599,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 226,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 111.1,
+    "a2o_mean_min": 21.19,
+    "b2c_mean_min": 11.13,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 178
+   },
+   "d_total": 13.841,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 127.452,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3351.779,
+     "phys_min_completion_s": 3351.779,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 127.452,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8564.477,
+     "phys_min_completion_s": 8564.477,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0903
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "seed_A": 904011,
+   "seed_B": 904064,
+   "base": {
+    "total": 77.142,
+    "chan": {
+     "truck": 19.9553,
+     "vessel": 51.8107,
+     "move": 5.3756,
+     "other": 0.0,
+     "total": 77.1416
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 12.9017,
+      "vessel": 41.3516,
+      "move": 2.902,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.0536,
+      "vessel": 10.459,
+      "move": 1.8236,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 233,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.65,
+    "berth_min": 94.2,
+    "a2o_mean_min": 20.09,
+    "b2c_mean_min": 9.63,
+    "n_moved": 13,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 13,
+    "compl": 1.0,
+    "n_jobs": 175
+   },
+   "notransfer": {
+    "total": 102.035,
+    "chan": {
+     "truck": 26.4837,
+     "vessel": 70.4541,
+     "move": 5.0973,
+     "other": 0.0,
+     "total": 102.0351
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.1152,
+      "vessel": 64.9743,
+      "move": 3.2484,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 5.3685,
+      "vessel": 5.4797,
+      "move": 1.8489,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 219,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 128.1,
+    "a2o_mean_min": 21.93,
+    "b2c_mean_min": 11.83,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 175
+   },
+   "d_total": 24.893,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 177.315,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3922.414,
+     "phys_min_completion_s": 3922.414,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 177.315,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9091.953,
+     "phys_min_completion_s": 9091.953,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0522
+    }
+   ]
+  },
+  {
+   "seed": 12,
+   "seed_A": 904012,
+   "seed_B": 904065,
+   "base": {
+    "total": 100.178,
+    "chan": {
+     "truck": 23.27,
+     "vessel": 71.805,
+     "move": 5.1035,
+     "other": 0.0,
+     "total": 100.1785
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.9442,
+      "vessel": 57.1505,
+      "move": 1.7964,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.3257,
+      "vessel": 14.6545,
+      "move": 2.807,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 235,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.5,
+    "berth_min": 130.6,
+    "a2o_mean_min": 20.14,
+    "b2c_mean_min": 10.09,
+    "n_moved": 10,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 10,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "notransfer": {
+    "total": 123.777,
+    "chan": {
+     "truck": 24.1774,
+     "vessel": 95.0102,
+     "move": 4.589,
+     "other": 0.0,
+     "total": 123.7766
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.5056,
+      "vessel": 59.8738,
+      "move": 1.8302,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.6718,
+      "vessel": 35.1365,
+      "move": 2.7589,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 237,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 172.7,
+    "a2o_mean_min": 20.11,
+    "b2c_mean_min": 10.31,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "d_total": 23.599,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 127.861,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3357.911,
+     "phys_min_completion_s": 3357.911,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 127.861,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8573.3,
+     "phys_min_completion_s": 8573.3,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0914
+    }
+   ]
+  },
+  {
+   "seed": 13,
+   "seed_A": 904013,
+   "seed_B": 904066,
+   "base": {
+    "total": 115.648,
+    "chan": {
+     "truck": 21.1997,
+     "vessel": 88.3502,
+     "move": 6.0984,
+     "other": 0.0,
+     "total": 115.6483
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 11.8841,
+      "vessel": 52.485,
+      "move": 3.7049,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.3156,
+      "vessel": 35.8653,
+      "move": 2.1435,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 235,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.25,
+    "berth_min": 160.6,
+    "a2o_mean_min": 19.42,
+    "b2c_mean_min": 9.27,
+    "n_moved": 5,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 5,
+    "compl": 1.0,
+    "n_jobs": 189
+   },
+   "notransfer": {
+    "total": 117.817,
+    "chan": {
+     "truck": 23.6882,
+     "vessel": 88.2414,
+     "move": 5.8876,
+     "other": 0.0,
+     "total": 117.8172
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.0091,
+      "vessel": 52.6505,
+      "move": 3.7567,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.6791,
+      "vessel": 35.5909,
+      "move": 2.1309,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 235,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 160.4,
+    "a2o_mean_min": 20.05,
+    "b2c_mean_min": 10.04,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 189
+   },
+   "d_total": 2.169,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 137.168,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3223.18,
+     "phys_min_completion_s": 3223.18,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 137.168,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8432.867,
+     "phys_min_completion_s": 8432.867,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0952
+    }
+   ]
+  },
+  {
+   "seed": 14,
+   "seed_A": 904014,
+   "seed_B": 904067,
+   "base": {
+    "total": 86.295,
+    "chan": {
+     "truck": 24.1961,
+     "vessel": 57.668,
+     "move": 4.4306,
+     "other": 0.0,
+     "total": 86.2947
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 11.7395,
+      "vessel": 42.7226,
+      "move": 1.7355,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.4565,
+      "vessel": 14.9454,
+      "move": 2.1951,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 230,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.5,
+    "berth_min": 104.9,
+    "a2o_mean_min": 20.69,
+    "b2c_mean_min": 10.42,
+    "n_moved": 10,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 10,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "notransfer": {
+    "total": 86.639,
+    "chan": {
+     "truck": 24.5657,
+     "vessel": 58.1971,
+     "move": 3.8766,
+     "other": 0.0,
+     "total": 86.6394
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 10.4493,
+      "vessel": 35.5942,
+      "move": 1.5958,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.1164,
+      "vessel": 22.6028,
+      "move": 2.2809,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 246,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 105.8,
+    "a2o_mean_min": 20.28,
+    "b2c_mean_min": 10.25,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "d_total": 0.344,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 121.176,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3257.635,
+     "phys_min_completion_s": 3257.635,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 121.176,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8466.3,
+     "phys_min_completion_s": 8466.3,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0928
+    }
+   ]
+  },
+  {
+   "seed": 15,
+   "seed_A": 904015,
+   "seed_B": 904068,
+   "base": {
+    "total": 105.193,
+    "chan": {
+     "truck": 23.536,
+     "vessel": 76.6653,
+     "move": 4.9919,
+     "other": 0.0,
+     "total": 105.1932
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.1432,
+      "vessel": 44.0708,
+      "move": 2.4526,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.3928,
+      "vessel": 32.5945,
+      "move": 1.9392,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 228,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.6,
+    "berth_min": 139.4,
+    "a2o_mean_min": 20.58,
+    "b2c_mean_min": 10.19,
+    "n_moved": 12,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 12,
+    "compl": 1.0,
+    "n_jobs": 187
+   },
+   "notransfer": {
+    "total": 88.861,
+    "chan": {
+     "truck": 25.4829,
+     "vessel": 58.9688,
+     "move": 4.409,
+     "other": 0.0,
+     "total": 88.8607
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 19.0473,
+      "vessel": 48.9052,
+      "move": 2.4153,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.4357,
+      "vessel": 10.0636,
+      "move": 1.9938,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 234,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 107.2,
+    "a2o_mean_min": 21.07,
+    "b2c_mean_min": 11.03,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 187
+   },
+   "d_total": -16.332,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 18,
+     "cadence_s": 132.056,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3817.012,
+     "phys_min_completion_s": 3817.012,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 18,
+     "cadence_s": 132.056,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9018.401,
+     "phys_min_completion_s": 9018.401,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0679
+    }
+   ]
+  },
+  {
+   "seed": 16,
+   "seed_A": 904016,
+   "seed_B": 904069,
+   "base": {
+    "total": 157.964,
+    "chan": {
+     "truck": 45.2333,
+     "vessel": 104.7264,
+     "move": 8.0047,
+     "other": 0.0,
+     "total": 157.9644
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 27.7195,
+      "vessel": 65.1362,
+      "move": 3.9963,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 17.5138,
+      "vessel": 39.5902,
+      "move": 3.1584,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 241,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.85,
+    "berth_min": 190.4,
+    "a2o_mean_min": 26.16,
+    "b2c_mean_min": 15.73,
+    "n_moved": 17,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 17,
+    "compl": 1.0,
+    "n_jobs": 209
+   },
+   "notransfer": {
+    "total": 125.23,
+    "chan": {
+     "truck": 48.6855,
+     "vessel": 69.6644,
+     "move": 6.8798,
+     "other": 0.0,
+     "total": 125.2297
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 31.9506,
+      "vessel": 45.843,
+      "move": 3.8003,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 16.7349,
+      "vessel": 23.8214,
+      "move": 3.0795,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 126.7,
+    "a2o_mean_min": 26.45,
+    "b2c_mean_min": 16.35,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 209
+   },
+   "d_total": -32.734,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 149.456,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3382.926,
+     "phys_min_completion_s": 3382.926,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 149.456,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8587.03,
+     "phys_min_completion_s": 8587.03,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0845
+    }
+   ]
+  },
+  {
+   "seed": 17,
+   "seed_A": 904017,
+   "seed_B": 904070,
+   "base": {
+    "total": 104.88,
+    "chan": {
+     "truck": 24.5012,
+     "vessel": 75.2804,
+     "move": 5.0983,
+     "other": 0.0,
+     "total": 104.8799
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 13.4968,
+      "vessel": 35.6651,
+      "move": 2.0863,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.0044,
+      "vessel": 39.6153,
+      "move": 2.762,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 233,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.25,
+    "berth_min": 136.9,
+    "a2o_mean_min": 20.57,
+    "b2c_mean_min": 10.5,
+    "n_moved": 5,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 5,
+    "compl": 1.0,
+    "n_jobs": 182
+   },
+   "notransfer": {
+    "total": 93.796,
+    "chan": {
+     "truck": 22.9596,
+     "vessel": 66.0294,
+     "move": 4.8073,
+     "other": 0.0,
+     "total": 93.7963
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 13.0527,
+      "vessel": 36.0615,
+      "move": 2.0381,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.9068,
+      "vessel": 29.968,
+      "move": 2.7692,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 233,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 120.1,
+    "a2o_mean_min": 19.81,
+    "b2c_mean_min": 9.88,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 182
+   },
+   "d_total": -11.084,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 149.398,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3531.569,
+     "phys_min_completion_s": 3531.569,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 149.398,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8718.716,
+     "phys_min_completion_s": 8718.716,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0704
+    }
+   ]
+  },
+  {
+   "seed": 18,
+   "seed_A": 904018,
+   "seed_B": 904071,
+   "base": {
+    "total": 85.801,
+    "chan": {
+     "truck": 25.3795,
+     "vessel": 54.5191,
+     "move": 5.9024,
+     "other": 0.0,
+     "total": 85.801
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.5731,
+      "vessel": 47.9468,
+      "move": 3.1625,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.8064,
+      "vessel": 6.5723,
+      "move": 1.9899,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 239,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.75,
+    "berth_min": 99.1,
+    "a2o_mean_min": 21.1,
+    "b2c_mean_min": 10.86,
+    "n_moved": 15,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 15,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "notransfer": {
+    "total": 108.948,
+    "chan": {
+     "truck": 27.6795,
+     "vessel": 76.1682,
+     "move": 5.1,
+     "other": 0.0,
+     "total": 108.9477
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.8985,
+      "vessel": 70.1491,
+      "move": 3.2016,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 5.781,
+      "vessel": 6.0191,
+      "move": 1.8984,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 242,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 138.5,
+    "a2o_mean_min": 21.39,
+    "b2c_mean_min": 11.48,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "d_total": 23.147,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 142.968,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3584.514,
+     "phys_min_completion_s": 3584.514,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 142.968,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8781.696,
+     "phys_min_completion_s": 8781.696,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0733
+    }
+   ]
+  },
+  {
+   "seed": 19,
+   "seed_A": 904019,
+   "seed_B": 904072,
+   "base": {
+    "total": 63.156,
+    "chan": {
+     "truck": 16.7935,
+     "vessel": 41.2954,
+     "move": 5.0674,
+     "other": 0.0,
+     "total": 63.1563
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 10.2281,
+      "vessel": 41.2954,
+      "move": 2.8333,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.5655,
+      "vessel": 0.0,
+      "move": 2.084,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 221,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.15,
+    "berth_min": 75.1,
+    "a2o_mean_min": 18.91,
+    "b2c_mean_min": 8.83,
+    "n_moved": 3,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 3,
+    "compl": 1.0,
+    "n_jobs": 166
+   },
+   "notransfer": {
+    "total": 68.192,
+    "chan": {
+     "truck": 16.1766,
+     "vessel": 47.2144,
+     "move": 4.8006,
+     "other": 0.0,
+     "total": 68.1916
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 9.8406,
+      "vessel": 47.2144,
+      "move": 2.7418,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.336,
+      "vessel": 0.0,
+      "move": 2.0587,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 220,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 85.8,
+    "a2o_mean_min": 18.37,
+    "b2c_mean_min": 8.37,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 166
+   },
+   "d_total": 5.036,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 114.476,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 2928.185,
+     "phys_min_completion_s": 2928.185,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 114.476,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8162.654,
+     "phys_min_completion_s": 8162.654,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1307
+    }
+   ]
+  },
+  {
+   "seed": 20,
+   "seed_A": 904020,
+   "seed_B": 904073,
+   "base": {
+    "total": 136.169,
+    "chan": {
+     "truck": 34.7615,
+     "vessel": 95.8427,
+     "move": 5.5648,
+     "other": 0.0,
+     "total": 136.169
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 23.7443,
+      "vessel": 71.0771,
+      "move": 2.6577,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.0171,
+      "vessel": 24.7656,
+      "move": 2.207,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 241,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.7,
+    "berth_min": 174.3,
+    "a2o_mean_min": 24.05,
+    "b2c_mean_min": 13.67,
+    "n_moved": 14,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 14,
+    "compl": 1.0,
+    "n_jobs": 189
+   },
+   "notransfer": {
+    "total": 150.448,
+    "chan": {
+     "truck": 44.3365,
+     "vessel": 101.0946,
+     "move": 5.0169,
+     "other": 0.0,
+     "total": 150.448
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 34.3774,
+      "vessel": 85.7232,
+      "move": 2.799,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.9591,
+      "vessel": 15.3714,
+      "move": 2.2179,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 250,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 183.8,
+    "a2o_mean_min": 26.88,
+    "b2c_mean_min": 16.81,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 189
+   },
+   "d_total": 14.279,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 12,
+     "cadence_s": 144.123,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3169.47,
+     "phys_min_completion_s": 3169.47,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 12,
+     "cadence_s": 144.123,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8368.597,
+     "phys_min_completion_s": 8368.597,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.092
+    }
+   ]
+  },
+  {
+   "seed": 21,
+   "seed_A": 904021,
+   "seed_B": 904074,
+   "base": {
+    "total": 119.316,
+    "chan": {
+     "truck": 27.5751,
+     "vessel": 86.0691,
+     "move": 5.6713,
+     "other": 0.0,
+     "total": 119.3155
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.4459,
+      "vessel": 50.1112,
+      "move": 2.7355,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.1292,
+      "vessel": 35.9578,
+      "move": 2.5858,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 238,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.35,
+    "berth_min": 156.5,
+    "a2o_mean_min": 21.23,
+    "b2c_mean_min": 11.14,
+    "n_moved": 7,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 7,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "notransfer": {
+    "total": 102.233,
+    "chan": {
+     "truck": 25.9848,
+     "vessel": 70.9967,
+     "move": 5.2515,
+     "other": 0.0,
+     "total": 102.233
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.8043,
+      "vessel": 60.2681,
+      "move": 2.5831,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.1805,
+      "vessel": 10.7286,
+      "move": 2.6683,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 243,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 129.1,
+    "a2o_mean_min": 20.66,
+    "b2c_mean_min": 10.77,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "d_total": -17.083,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 140.512,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3407.164,
+     "phys_min_completion_s": 3407.164,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 140.512,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8609.902,
+     "phys_min_completion_s": 8609.902,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0827
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "seed_A": 904022,
+   "seed_B": 904075,
+   "base": {
+    "total": 131.844,
+    "chan": {
+     "truck": 39.7339,
+     "vessel": 85.0661,
+     "move": 7.0443,
+     "other": 0.0,
+     "total": 131.8443
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 24.2331,
+      "vessel": 59.1592,
+      "move": 3.3996,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 15.5008,
+      "vessel": 25.907,
+      "move": 2.7948,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 245,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.85,
+    "berth_min": 154.7,
+    "a2o_mean_min": 25.34,
+    "b2c_mean_min": 14.95,
+    "n_moved": 17,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 17,
+    "compl": 1.0,
+    "n_jobs": 197
+   },
+   "notransfer": {
+    "total": 146.412,
+    "chan": {
+     "truck": 52.4793,
+     "vessel": 87.4801,
+     "move": 6.4525,
+     "other": 0.0,
+     "total": 146.4119
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 42.5848,
+      "vessel": 74.492,
+      "move": 3.5487,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.8946,
+      "vessel": 12.9881,
+      "move": 2.9038,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 247,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 159.1,
+    "a2o_mean_min": 29.18,
+    "b2c_mean_min": 19.17,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 197
+   },
+   "d_total": 14.568,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 175.187,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3892.612,
+     "phys_min_completion_s": 3892.612,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 175.187,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9064.28,
+     "phys_min_completion_s": 9064.28,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0537
+    }
+   ]
+  },
+  {
+   "seed": 23,
+   "seed_A": 904023,
+   "seed_B": 904076,
+   "base": {
+    "total": 110.632,
+    "chan": {
+     "truck": 39.086,
+     "vessel": 64.9578,
+     "move": 6.5885,
+     "other": 0.0,
+     "total": 110.6323
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 22.3907,
+      "vessel": 45.728,
+      "move": 2.967,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 16.6953,
+      "vessel": 19.2298,
+      "move": 3.4215,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 244,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.2,
+    "berth_min": 118.1,
+    "a2o_mean_min": 24.91,
+    "b2c_mean_min": 14.94,
+    "n_moved": 4,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 4,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "notransfer": {
+    "total": 118.847,
+    "chan": {
+     "truck": 33.0766,
+     "vessel": 79.3817,
+     "move": 6.3885,
+     "other": 0.0,
+     "total": 118.8468
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.6069,
+      "vessel": 37.5046,
+      "move": 2.9116,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 16.4697,
+      "vessel": 41.8771,
+      "move": 3.4769,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 246,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 144.3,
+    "a2o_mean_min": 23.25,
+    "b2c_mean_min": 13.38,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "d_total": 8.215,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 158.9,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3982.404,
+     "phys_min_completion_s": 3982.404,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 158.9,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9168.844,
+     "phys_min_completion_s": 9168.844,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0576
+    }
+   ]
+  },
+  {
+   "seed": 24,
+   "seed_A": 904024,
+   "seed_B": 904077,
+   "base": {
+    "total": 149.543,
+    "chan": {
+     "truck": 34.6413,
+     "vessel": 107.9295,
+     "move": 6.9727,
+     "other": 0.0,
+     "total": 149.5435
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 21.7104,
+      "vessel": 68.5623,
+      "move": 3.6959,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.9309,
+      "vessel": 39.3672,
+      "move": 2.5768,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 248,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.7,
+    "berth_min": 196.2,
+    "a2o_mean_min": 23.21,
+    "b2c_mean_min": 12.85,
+    "n_moved": 14,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 14,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "notransfer": {
+    "total": 142.317,
+    "chan": {
+     "truck": 37.4458,
+     "vessel": 98.6256,
+     "move": 6.2456,
+     "other": 0.0,
+     "total": 142.317
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 28.6762,
+      "vessel": 70.079,
+      "move": 3.7679,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.7697,
+      "vessel": 28.5466,
+      "move": 2.4777,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 247,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 179.3,
+    "a2o_mean_min": 23.91,
+    "b2c_mean_min": 13.81,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "d_total": -7.226,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 139.053,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3386.74,
+     "phys_min_completion_s": 3386.74,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 139.053,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8590.937,
+     "phys_min_completion_s": 8590.937,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0843
+    }
+   ]
+  },
+  {
+   "seed": 25,
+   "seed_A": 904025,
+   "seed_B": 904078,
+   "base": {
+    "total": 134.538,
+    "chan": {
+     "truck": 39.4753,
+     "vessel": 89.1992,
+     "move": 5.8631,
+     "other": 0.0,
+     "total": 134.5376
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 24.6055,
+      "vessel": 50.0081,
+      "move": 3.2008,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.8698,
+      "vessel": 39.1911,
+      "move": 1.8623,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 262,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.8,
+    "berth_min": 162.2,
+    "a2o_mean_min": 23.64,
+    "b2c_mean_min": 13.3,
+    "n_moved": 16,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 16,
+    "compl": 1.0,
+    "n_jobs": 212
+   },
+   "notransfer": {
+    "total": 128.369,
+    "chan": {
+     "truck": 37.5852,
+     "vessel": 85.703,
+     "move": 5.0808,
+     "other": 0.0,
+     "total": 128.369
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 27.6452,
+      "vessel": 65.5251,
+      "move": 3.1972,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.9399,
+      "vessel": 20.1779,
+      "move": 1.8836,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 268,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 155.8,
+    "a2o_mean_min": 23.22,
+    "b2c_mean_min": 13.24,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 212
+   },
+   "d_total": -6.169,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 154.82,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3452.662,
+     "phys_min_completion_s": 3452.662,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 154.82,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8641.092,
+     "phys_min_completion_s": 8641.092,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0737
+    }
+   ]
+  },
+  {
+   "seed": 26,
+   "seed_A": 904026,
+   "seed_B": 904079,
+   "base": {
+    "total": 106.069,
+    "chan": {
+     "truck": 30.8601,
+     "vessel": 69.5251,
+     "move": 5.6835,
+     "other": 0.0,
+     "total": 106.0687
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.6315,
+      "vessel": 50.2846,
+      "move": 2.9648,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.2286,
+      "vessel": 19.2405,
+      "move": 2.0187,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 248,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.7,
+    "berth_min": 126.4,
+    "a2o_mean_min": 21.34,
+    "b2c_mean_min": 11.0,
+    "n_moved": 14,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 14,
+    "compl": 1.0,
+    "n_jobs": 209
+   },
+   "notransfer": {
+    "total": 123.734,
+    "chan": {
+     "truck": 37.4314,
+     "vessel": 81.3299,
+     "move": 4.9727,
+     "other": 0.0,
+     "total": 123.734
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 30.5769,
+      "vessel": 61.3557,
+      "move": 2.9293,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.8545,
+      "vessel": 19.9742,
+      "move": 2.0434,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 244,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 147.9,
+    "a2o_mean_min": 23.34,
+    "b2c_mean_min": 13.26,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 209
+   },
+   "d_total": 17.665,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 168.218,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4131.49,
+     "phys_min_completion_s": 4131.49,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 168.218,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9302.412,
+     "phys_min_completion_s": 9302.412,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0486
+    }
+   ]
+  },
+  {
+   "seed": 27,
+   "seed_A": 904027,
+   "seed_B": 904080,
+   "base": {
+    "total": 115.388,
+    "chan": {
+     "truck": 31.09,
+     "vessel": 77.9478,
+     "move": 6.3502,
+     "other": 0.0,
+     "total": 115.388
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 17.984,
+      "vessel": 43.4703,
+      "move": 2.8033,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.106,
+      "vessel": 34.4775,
+      "move": 3.2469,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 252,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 141.7,
+    "a2o_mean_min": 23.12,
+    "b2c_mean_min": 13.0,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "notransfer": {
+    "total": 127.186,
+    "chan": {
+     "truck": 31.8285,
+     "vessel": 89.158,
+     "move": 6.1993,
+     "other": 0.0,
+     "total": 127.1858
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 18.6954,
+      "vessel": 55.4864,
+      "move": 2.9169,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.1331,
+      "vessel": 33.6717,
+      "move": 3.2824,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 247,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 162.1,
+    "a2o_mean_min": 23.04,
+    "b2c_mean_min": 13.05,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 205
+   },
+   "d_total": 11.798,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 18,
+     "cadence_s": 162.857,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4371.429,
+     "phys_min_completion_s": 4371.429,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 18,
+     "cadence_s": 162.857,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9548.722,
+     "phys_min_completion_s": 9548.722,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0468
+    }
+   ]
+  },
+  {
+   "seed": 28,
+   "seed_A": 904028,
+   "seed_B": 904081,
+   "base": {
+    "total": 69.571,
+    "chan": {
+     "truck": 19.575,
+     "vessel": 45.5243,
+     "move": 4.4715,
+     "other": 0.0,
+     "total": 69.5708
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 10.3335,
+      "vessel": 25.4648,
+      "move": 1.9749,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.2415,
+      "vessel": 20.0595,
+      "move": 2.1966,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 232,
+    "deadlock_escapes": 1,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 82.8,
+    "a2o_mean_min": 19.03,
+    "b2c_mean_min": 8.93,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 182
+   },
+   "notransfer": {
+    "total": 91.977,
+    "chan": {
+     "truck": 23.6029,
+     "vessel": 64.2172,
+     "move": 4.1567,
+     "other": 0.0,
+     "total": 91.9768
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 9.0624,
+      "vessel": 31.8635,
+      "move": 1.9411,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.5405,
+      "vessel": 32.3538,
+      "move": 2.2155,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 228,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 116.8,
+    "a2o_mean_min": 20.03,
+    "b2c_mean_min": 10.03,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 182
+   },
+   "d_total": 22.406,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 138.833,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3383.665,
+     "phys_min_completion_s": 3383.665,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 138.833,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8591.686,
+     "phys_min_completion_s": 8591.686,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0864
+    }
+   ]
+  },
+  {
+   "seed": 29,
+   "seed_A": 904029,
+   "seed_B": 904082,
+   "base": {
+    "total": 103.806,
+    "chan": {
+     "truck": 31.1465,
+     "vessel": 66.7811,
+     "move": 5.8785,
+     "other": 0.0,
+     "total": 103.8061
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.1174,
+      "vessel": 39.5345,
+      "move": 3.0531,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.0292,
+      "vessel": 27.2466,
+      "move": 2.2255,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 256,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.6,
+    "berth_min": 121.4,
+    "a2o_mean_min": 22.1,
+    "b2c_mean_min": 11.8,
+    "n_moved": 12,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 12,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "notransfer": {
+    "total": 110.037,
+    "chan": {
+     "truck": 34.5929,
+     "vessel": 70.0296,
+     "move": 5.415,
+     "other": 0.0,
+     "total": 110.0375
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 23.1491,
+      "vessel": 49.3707,
+      "move": 3.0305,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.4438,
+      "vessel": 20.6589,
+      "move": 2.3845,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 254,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 127.3,
+    "a2o_mean_min": 22.84,
+    "b2c_mean_min": 12.8,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "d_total": 6.231,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 143.727,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3308.457,
+     "phys_min_completion_s": 3308.457,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 143.727,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8507.474,
+     "phys_min_completion_s": 8507.474,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0851
+    }
+   ]
+  },
+  {
+   "seed": 30,
+   "seed_A": 904030,
+   "seed_B": 904083,
+   "base": {
+    "total": 71.928,
+    "chan": {
+     "truck": 21.853,
+     "vessel": 44.9108,
+     "move": 5.164,
+     "other": 0.0,
+     "total": 71.9278
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 10.9214,
+      "vessel": 36.6121,
+      "move": 2.8201,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.9316,
+      "vessel": 8.2987,
+      "move": 2.0939,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 231,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.25,
+    "berth_min": 81.7,
+    "a2o_mean_min": 20.26,
+    "b2c_mean_min": 9.97,
+    "n_moved": 5,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 5,
+    "compl": 1.0,
+    "n_jobs": 177
+   },
+   "notransfer": {
+    "total": 76.37,
+    "chan": {
+     "truck": 21.8911,
+     "vessel": 49.5462,
+     "move": 4.933,
+     "other": 0.0,
+     "total": 76.3703
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 10.8057,
+      "vessel": 40.0538,
+      "move": 2.8165,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.0854,
+      "vessel": 9.4924,
+      "move": 2.1164,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 229,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 90.1,
+    "a2o_mean_min": 20.06,
+    "b2c_mean_min": 9.93,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 177
+   },
+   "d_total": 4.442,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 111.189,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 2885.456,
+     "phys_min_completion_s": 2885.456,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 111.189,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8113.912,
+     "phys_min_completion_s": 8113.912,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1304
+    }
+   ]
+  },
+  {
+   "seed": 31,
+   "seed_A": 904031,
+   "seed_B": 904084,
+   "base": {
+    "total": 70.578,
+    "chan": {
+     "truck": 25.8295,
+     "vessel": 38.1548,
+     "move": 6.5934,
+     "other": 0.0,
+     "total": 70.5777
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.2724,
+      "vessel": 23.8431,
+      "move": 2.9193,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.5571,
+      "vessel": 14.3118,
+      "move": 3.1241,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 226,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 69.4,
+    "a2o_mean_min": 22.14,
+    "b2c_mean_min": 11.93,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 181
+   },
+   "notransfer": {
+    "total": 77.864,
+    "chan": {
+     "truck": 25.0619,
+     "vessel": 46.8842,
+     "move": 5.9182,
+     "other": 0.0,
+     "total": 77.8643
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.4566,
+      "vessel": 30.9359,
+      "move": 2.7995,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.6053,
+      "vessel": 15.9483,
+      "move": 3.1187,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 230,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 85.2,
+    "a2o_mean_min": 22.34,
+    "b2c_mean_min": 12.41,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 181
+   },
+   "d_total": 7.286,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 164.31,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4068.959,
+     "phys_min_completion_s": 4068.959,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 164.31,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9233.983,
+     "phys_min_completion_s": 9233.983,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0476
+    }
+   ]
+  },
+  {
+   "seed": 32,
+   "seed_A": 904032,
+   "seed_B": 904085,
+   "base": {
+    "total": 90.642,
+    "chan": {
+     "truck": 28.9292,
+     "vessel": 55.8767,
+     "move": 5.8361,
+     "other": 0.0,
+     "total": 90.642
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 18.052,
+      "vessel": 31.6871,
+      "move": 2.8089,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.8772,
+      "vessel": 24.1896,
+      "move": 2.1273,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 236,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.9,
+    "berth_min": 101.6,
+    "a2o_mean_min": 22.17,
+    "b2c_mean_min": 11.67,
+    "n_moved": 18,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 18,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "notransfer": {
+    "total": 113.755,
+    "chan": {
+     "truck": 32.4544,
+     "vessel": 76.6112,
+     "move": 4.6897,
+     "other": 0.0,
+     "total": 113.7553
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 24.0634,
+      "vessel": 66.8523,
+      "move": 2.7552,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.391,
+      "vessel": 9.7589,
+      "move": 1.9345,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 235,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 139.3,
+    "a2o_mean_min": 22.81,
+    "b2c_mean_min": 12.71,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "d_total": 23.113,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 135.62,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3609.915,
+     "phys_min_completion_s": 3609.915,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 135.62,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8817.04,
+     "phys_min_completion_s": 8817.04,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.077
+    }
+   ]
+  },
+  {
+   "seed": 33,
+   "seed_A": 904033,
+   "seed_B": 904086,
+   "base": {
+    "total": 103.668,
+    "chan": {
+     "truck": 31.0589,
+     "vessel": 66.8639,
+     "move": 5.7452,
+     "other": 0.0,
+     "total": 103.668
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.9649,
+      "vessel": 64.8181,
+      "move": 3.0567,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.094,
+      "vessel": 2.0458,
+      "move": 2.0885,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 251,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.6,
+    "berth_min": 121.6,
+    "a2o_mean_min": 21.25,
+    "b2c_mean_min": 11.05,
+    "n_moved": 12,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 12,
+    "compl": 1.0,
+    "n_jobs": 210
+   },
+   "notransfer": {
+    "total": 127.382,
+    "chan": {
+     "truck": 41.6219,
+     "vessel": 80.5119,
+     "move": 5.248,
+     "other": 0.0,
+     "total": 127.3818
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 29.9049,
+      "vessel": 69.7003,
+      "move": 3.0594,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.717,
+      "vessel": 10.8116,
+      "move": 2.1885,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 252,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 146.4,
+    "a2o_mean_min": 24.15,
+    "b2c_mean_min": 14.17,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 210
+   },
+   "d_total": 23.714,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 139.103,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3387.441,
+     "phys_min_completion_s": 3387.441,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 139.103,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8581.783,
+     "phys_min_completion_s": 8581.783,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0793
+    }
+   ]
+  },
+  {
+   "seed": 34,
+   "seed_A": 904034,
+   "seed_B": 904087,
+   "base": {
+    "total": 115.03,
+    "chan": {
+     "truck": 40.2667,
+     "vessel": 68.3304,
+     "move": 6.4331,
+     "other": 0.0,
+     "total": 115.0302
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 30.3015,
+      "vessel": 52.5967,
+      "move": 3.6919,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.9651,
+      "vessel": 15.7337,
+      "move": 1.8411,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 237,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.9,
+    "berth_min": 124.2,
+    "a2o_mean_min": 25.17,
+    "b2c_mean_min": 14.79,
+    "n_moved": 18,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 18,
+    "compl": 1.0,
+    "n_jobs": 200
+   },
+   "notransfer": {
+    "total": 143.702,
+    "chan": {
+     "truck": 44.8686,
+     "vessel": 93.1951,
+     "move": 5.6381,
+     "other": 0.0,
+     "total": 143.7018
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 37.2347,
+      "vessel": 78.0531,
+      "move": 3.8316,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.6339,
+      "vessel": 15.142,
+      "move": 1.8065,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 229,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 169.4,
+    "a2o_mean_min": 26.58,
+    "b2c_mean_min": 16.57,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 200
+   },
+   "d_total": 28.672,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 132.876,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3433.133,
+     "phys_min_completion_s": 3433.133,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 132.876,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8623.392,
+     "phys_min_completion_s": 8623.392,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0754
+    }
+   ]
+  },
+  {
+   "seed": 35,
+   "seed_A": 904035,
+   "seed_B": 904088,
+   "base": {
+    "total": 132.985,
+    "chan": {
+     "truck": 37.1318,
+     "vessel": 89.3891,
+     "move": 6.4637,
+     "other": 0.0,
+     "total": 132.9846
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 23.6016,
+      "vessel": 54.6195,
+      "move": 3.399,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.5301,
+      "vessel": 34.7696,
+      "move": 2.1647,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 254,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.9,
+    "berth_min": 162.5,
+    "a2o_mean_min": 23.8,
+    "b2c_mean_min": 13.35,
+    "n_moved": 18,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 18,
+    "compl": 1.0,
+    "n_jobs": 211
+   },
+   "notransfer": {
+    "total": 133.262,
+    "chan": {
+     "truck": 41.0393,
+     "vessel": 86.5323,
+     "move": 5.6903,
+     "other": 0.0,
+     "total": 133.2619
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 29.8323,
+      "vessel": 71.0168,
+      "move": 3.5247,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.207,
+      "vessel": 15.5155,
+      "move": 2.1656,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 272,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 157.3,
+    "a2o_mean_min": 25.19,
+    "b2c_mean_min": 15.12,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 211
+   },
+   "d_total": 0.277,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 16,
+     "cadence_s": 146.946,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3791.135,
+     "phys_min_completion_s": 3791.135,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 16,
+     "cadence_s": 146.946,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8992.629,
+     "phys_min_completion_s": 8992.629,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0687
+    }
+   ]
+  },
+  {
+   "seed": 36,
+   "seed_A": 904036,
+   "seed_B": 904089,
+   "base": {
+    "total": 140.807,
+    "chan": {
+     "truck": 39.8897,
+     "vessel": 93.7681,
+     "move": 7.1497,
+     "other": 0.0,
+     "total": 140.8075
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 25.8047,
+      "vessel": 62.6873,
+      "move": 3.4792,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.085,
+      "vessel": 31.0808,
+      "move": 2.6205,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 256,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 1.05,
+    "berth_min": 170.5,
+    "a2o_mean_min": 24.13,
+    "b2c_mean_min": 13.76,
+    "n_moved": 21,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 21,
+    "compl": 1.0,
+    "n_jobs": 213
+   },
+   "notransfer": {
+    "total": 147.087,
+    "chan": {
+     "truck": 46.7578,
+     "vessel": 94.0963,
+     "move": 6.2331,
+     "other": 0.0,
+     "total": 147.0872
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 37.9136,
+      "vessel": 71.0244,
+      "move": 3.6626,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.8442,
+      "vessel": 23.0718,
+      "move": 2.5705,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 258,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 171.1,
+    "a2o_mean_min": 25.81,
+    "b2c_mean_min": 15.87,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 213
+   },
+   "d_total": 6.28,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 120.426,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3125.964,
+     "phys_min_completion_s": 3125.964,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 120.426,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8352.393,
+     "phys_min_completion_s": 8352.393,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1106
+    }
+   ]
+  },
+  {
+   "seed": 37,
+   "seed_A": 904037,
+   "seed_B": 904090,
+   "base": {
+    "total": 106.817,
+    "chan": {
+     "truck": 24.2397,
+     "vessel": 77.515,
+     "move": 5.0627,
+     "other": 0.0,
+     "total": 106.8174
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.9767,
+      "vessel": 68.3442,
+      "move": 3.1248,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.263,
+      "vessel": 9.1707,
+      "move": 1.438,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 245,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.5,
+    "berth_min": 140.9,
+    "a2o_mean_min": 20.85,
+    "b2c_mean_min": 10.59,
+    "n_moved": 10,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 10,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "notransfer": {
+    "total": 104.703,
+    "chan": {
+     "truck": 26.3928,
+     "vessel": 73.9125,
+     "move": 4.3977,
+     "other": 0.0,
+     "total": 104.703
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.4508,
+      "vessel": 72.195,
+      "move": 2.9778,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 5.9419,
+      "vessel": 1.7174,
+      "move": 1.4199,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 134.4,
+    "a2o_mean_min": 21.51,
+    "b2c_mean_min": 11.45,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "d_total": -2.114,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 17,
+     "cadence_s": 154.784,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4071.327,
+     "phys_min_completion_s": 4071.327,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 17,
+     "cadence_s": 154.784,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9263.398,
+     "phys_min_completion_s": 9263.398,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0578
+    }
+   ]
+  },
+  {
+   "seed": 38,
+   "seed_A": 904038,
+   "seed_B": 904091,
+   "base": {
+    "total": 126.707,
+    "chan": {
+     "truck": 41.1195,
+     "vessel": 79.0272,
+     "move": 6.5599,
+     "other": 0.0,
+     "total": 126.7066
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 29.5328,
+      "vessel": 58.8643,
+      "move": 3.1296,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.5867,
+      "vessel": 20.1629,
+      "move": 2.0303,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 238,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 1.4,
+    "berth_min": 143.7,
+    "a2o_mean_min": 26.45,
+    "b2c_mean_min": 15.92,
+    "n_moved": 28,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 28,
+    "compl": 1.0,
+    "n_jobs": 200
+   },
+   "notransfer": {
+    "total": 162.553,
+    "chan": {
+     "truck": 57.3644,
+     "vessel": 99.8103,
+     "move": 5.378,
+     "other": 0.0,
+     "total": 162.5527
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 48.1818,
+      "vessel": 85.6737,
+      "move": 3.3025,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.1826,
+      "vessel": 14.1366,
+      "move": 2.0755,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 246,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 181.5,
+    "a2o_mean_min": 31.26,
+    "b2c_mean_min": 21.29,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 200
+   },
+   "d_total": 35.846,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 140.903,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3553.547,
+     "phys_min_completion_s": 3553.547,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 140.903,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8752.794,
+     "phys_min_completion_s": 8752.794,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0753
+    }
+   ]
+  },
+  {
+   "seed": 39,
+   "seed_A": 904039,
+   "seed_B": 904092,
+   "base": {
+    "total": 107.341,
+    "chan": {
+     "truck": 31.5391,
+     "vessel": 69.1127,
+     "move": 6.6895,
+     "other": 0.0,
+     "total": 107.3413
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.1495,
+      "vessel": 56.4916,
+      "move": 3.8261,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.3897,
+      "vessel": 12.6211,
+      "move": 2.4134,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 252,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.45,
+    "berth_min": 125.7,
+    "a2o_mean_min": 23.33,
+    "b2c_mean_min": 13.08,
+    "n_moved": 9,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 9,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "notransfer": {
+    "total": 96.464,
+    "chan": {
+     "truck": 36.9403,
+     "vessel": 53.2783,
+     "move": 6.2449,
+     "other": 0.0,
+     "total": 96.4635
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 28.6016,
+      "vessel": 35.6801,
+      "move": 3.9424,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.3387,
+      "vessel": 17.5983,
+      "move": 2.3025,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 245,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 96.9,
+    "a2o_mean_min": 24.79,
+    "b2c_mean_min": 14.78,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 193
+   },
+   "d_total": -10.877,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 129.327,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3121.246,
+     "phys_min_completion_s": 3121.246,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 129.327,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8328.464,
+     "phys_min_completion_s": 8328.464,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0995
+    }
+   ]
+  },
+  {
+   "seed": 40,
+   "seed_A": 904040,
+   "seed_B": 904093,
+   "base": {
+    "total": 98.319,
+    "chan": {
+     "truck": 27.4478,
+     "vessel": 65.3022,
+     "move": 5.5691,
+     "other": 0.0,
+     "total": 98.3191
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 17.1346,
+      "vessel": 53.515,
+      "move": 3.1336,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.3132,
+      "vessel": 11.7872,
+      "move": 1.8855,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 245,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 118.7,
+    "a2o_mean_min": 21.47,
+    "b2c_mean_min": 11.32,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "notransfer": {
+    "total": 103.138,
+    "chan": {
+     "truck": 26.9983,
+     "vessel": 71.1298,
+     "move": 5.01,
+     "other": 0.0,
+     "total": 103.1381
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.6287,
+      "vessel": 60.1418,
+      "move": 3.2016,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.3696,
+      "vessel": 10.988,
+      "move": 1.8084,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 246,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 129.3,
+    "a2o_mean_min": 21.1,
+    "b2c_mean_min": 11.16,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 204
+   },
+   "d_total": 4.819,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 17,
+     "cadence_s": 148.075,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3957.272,
+     "phys_min_completion_s": 3957.272,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 17,
+     "cadence_s": 148.075,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9148.842,
+     "phys_min_completion_s": 9148.842,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0602
+    }
+   ]
+  },
+  {
+   "seed": 41,
+   "seed_A": 904041,
+   "seed_B": 904094,
+   "base": {
+    "total": 156.97,
+    "chan": {
+     "truck": 42.981,
+     "vessel": 106.7102,
+     "move": 7.279,
+     "other": 0.0,
+     "total": 156.9702
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 26.0194,
+      "vessel": 68.9956,
+      "move": 3.5355,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 16.9616,
+      "vessel": 37.7146,
+      "move": 2.9935,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 257,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.75,
+    "berth_min": 194.0,
+    "a2o_mean_min": 25.36,
+    "b2c_mean_min": 15.1,
+    "n_moved": 15,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 15,
+    "compl": 1.0,
+    "n_jobs": 198
+   },
+   "notransfer": {
+    "total": 166.41,
+    "chan": {
+     "truck": 49.1538,
+     "vessel": 110.6949,
+     "move": 6.5609,
+     "other": 0.0,
+     "total": 166.4096
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 36.5443,
+      "vessel": 83.516,
+      "move": 3.662,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.6095,
+      "vessel": 27.1789,
+      "move": 2.8989,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 246,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 201.3,
+    "a2o_mean_min": 27.1,
+    "b2c_mean_min": 17.16,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 198
+   },
+   "d_total": 9.44,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 12,
+     "cadence_s": 128.297,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 2979.561,
+     "phys_min_completion_s": 2979.561,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 12,
+     "cadence_s": 128.297,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8190.909,
+     "phys_min_completion_s": 8190.909,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1113
+    }
+   ]
+  },
+  {
+   "seed": 42,
+   "seed_A": 904042,
+   "seed_B": 904095,
+   "base": {
+    "total": 85.379,
+    "chan": {
+     "truck": 25.5146,
+     "vessel": 55.4914,
+     "move": 4.3731,
+     "other": 0.0,
+     "total": 85.3791
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.8763,
+      "vessel": 41.3834,
+      "move": 1.8941,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.6382,
+      "vessel": 14.1081,
+      "move": 2.3791,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 243,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.1,
+    "berth_min": 100.9,
+    "a2o_mean_min": 20.4,
+    "b2c_mean_min": 10.4,
+    "n_moved": 2,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 2,
+    "compl": 1.0,
+    "n_jobs": 201
+   },
+   "notransfer": {
+    "total": 85.516,
+    "chan": {
+     "truck": 25.7228,
+     "vessel": 55.4914,
+     "move": 4.302,
+     "other": 0.0,
+     "total": 85.5162
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.32,
+      "vessel": 41.3834,
+      "move": 1.923,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.4028,
+      "vessel": 14.1081,
+      "move": 2.3791,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 242,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 100.9,
+    "a2o_mean_min": 20.47,
+    "b2c_mean_min": 10.49,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 201
+   },
+   "d_total": 0.137,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 168.724,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3970.866,
+     "phys_min_completion_s": 3970.866,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 168.724,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9135.586,
+     "phys_min_completion_s": 9135.586,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0493
+    }
+   ]
+  },
+  {
+   "seed": 43,
+   "seed_A": 904043,
+   "seed_B": 904096,
+   "base": {
+    "total": 147.923,
+    "chan": {
+     "truck": 40.687,
+     "vessel": 100.3936,
+     "move": 6.8421,
+     "other": 0.0,
+     "total": 147.9227
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 26.591,
+      "vessel": 62.6552,
+      "move": 3.705,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 14.096,
+      "vessel": 37.7384,
+      "move": 2.2371,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 265,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.9,
+    "berth_min": 182.5,
+    "a2o_mean_min": 24.24,
+    "b2c_mean_min": 13.87,
+    "n_moved": 18,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 18,
+    "compl": 1.0,
+    "n_jobs": 229
+   },
+   "notransfer": {
+    "total": 150.971,
+    "chan": {
+     "truck": 53.6109,
+     "vessel": 91.474,
+     "move": 5.8861,
+     "other": 0.0,
+     "total": 150.971
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 40.26,
+      "vessel": 67.2163,
+      "move": 3.6647,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.351,
+      "vessel": 24.2577,
+      "move": 2.2214,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 265,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 166.3,
+    "a2o_mean_min": 27.4,
+    "b2c_mean_min": 17.39,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 229
+   },
+   "d_total": 3.048,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 18,
+     "cadence_s": 149.302,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4127.428,
+     "phys_min_completion_s": 4127.428,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 18,
+     "cadence_s": 149.302,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9321.377,
+     "phys_min_completion_s": 9321.377,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0573
+    }
+   ]
+  },
+  {
+   "seed": 44,
+   "seed_A": 904044,
+   "seed_B": 904097,
+   "base": {
+    "total": 75.417,
+    "chan": {
+     "truck": 22.2556,
+     "vessel": 48.4258,
+     "move": 4.7358,
+     "other": 0.0,
+     "total": 75.4172
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 13.9777,
+      "vessel": 41.5227,
+      "move": 2.5576,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.2779,
+      "vessel": 6.903,
+      "move": 1.8782,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 230,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 88.0,
+    "a2o_mean_min": 19.93,
+    "b2c_mean_min": 9.84,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 181
+   },
+   "notransfer": {
+    "total": 72.858,
+    "chan": {
+     "truck": 24.8742,
+     "vessel": 43.5097,
+     "move": 4.474,
+     "other": 0.0,
+     "total": 72.8579
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 16.8412,
+      "vessel": 42.5064,
+      "move": 2.5977,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.033,
+      "vessel": 1.0032,
+      "move": 1.8764,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 236,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 79.1,
+    "a2o_mean_min": 20.78,
+    "b2c_mean_min": 10.78,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 181
+   },
+   "d_total": -2.559,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 110.93,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 2882.086,
+     "phys_min_completion_s": 2882.086,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 110.93,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8110.801,
+     "phys_min_completion_s": 8110.801,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1309
+    }
+   ]
+  },
+  {
+   "seed": 45,
+   "seed_A": 904045,
+   "seed_B": 904098,
+   "base": {
+    "total": 93.195,
+    "chan": {
+     "truck": 26.6573,
+     "vessel": 61.5192,
+     "move": 5.0186,
+     "other": 0.0,
+     "total": 93.1951
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.8637,
+      "vessel": 40.1144,
+      "move": 2.0548,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.7936,
+      "vessel": 21.4048,
+      "move": 2.4138,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 247,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 111.9,
+    "a2o_mean_min": 21.38,
+    "b2c_mean_min": 11.13,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "notransfer": {
+    "total": 91.053,
+    "chan": {
+     "truck": 30.6224,
+     "vessel": 55.903,
+     "move": 4.5276,
+     "other": 0.0,
+     "total": 91.053
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 18.3202,
+      "vessel": 31.877,
+      "move": 2.162,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.3022,
+      "vessel": 24.026,
+      "move": 2.3656,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 255,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 101.6,
+    "a2o_mean_min": 21.95,
+    "b2c_mean_min": 11.93,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 199
+   },
+   "d_total": -2.142,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 144.059,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3456.832,
+     "phys_min_completion_s": 3456.832,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 144.059,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8656.022,
+     "phys_min_completion_s": 8656.022,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0789
+    }
+   ]
+  },
+  {
+   "seed": 46,
+   "seed_A": 904046,
+   "seed_B": 904099,
+   "base": {
+    "total": 102.769,
+    "chan": {
+     "truck": 24.4729,
+     "vessel": 72.8623,
+     "move": 5.4335,
+     "other": 0.0,
+     "total": 102.7687
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.7706,
+      "vessel": 55.4932,
+      "move": 2.8293,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.7023,
+      "vessel": 17.3692,
+      "move": 2.0542,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 239,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 132.5,
+    "a2o_mean_min": 20.61,
+    "b2c_mean_min": 10.38,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 187
+   },
+   "notransfer": {
+    "total": 77.296,
+    "chan": {
+     "truck": 27.5873,
+     "vessel": 44.8866,
+     "move": 4.8218,
+     "other": 0.0,
+     "total": 77.2957
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.776,
+      "vessel": 44.8866,
+      "move": 2.6769,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.8112,
+      "vessel": 0.0,
+      "move": 2.1449,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 236,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 81.6,
+    "a2o_mean_min": 21.64,
+    "b2c_mean_min": 11.67,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 187
+   },
+   "d_total": -25.473,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 12,
+     "cadence_s": 160.937,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3371.249,
+     "phys_min_completion_s": 3371.249,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 12,
+     "cadence_s": 160.937,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8537.052,
+     "phys_min_completion_s": 8537.052,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0651
+    }
+   ]
+  },
+  {
+   "seed": 47,
+   "seed_A": 904047,
+   "seed_B": 904100,
+   "base": {
+    "total": 112.244,
+    "chan": {
+     "truck": 24.7451,
+     "vessel": 81.7761,
+     "move": 5.7227,
+     "other": 0.0,
+     "total": 112.2439
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 15.4114,
+      "vessel": 41.1506,
+      "move": 2.6414,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 9.3337,
+      "vessel": 40.6255,
+      "move": 2.5313,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 236,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.55,
+    "berth_min": 148.7,
+    "a2o_mean_min": 20.74,
+    "b2c_mean_min": 10.38,
+    "n_moved": 11,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 11,
+    "compl": 1.0,
+    "n_jobs": 188
+   },
+   "notransfer": {
+    "total": 115.496,
+    "chan": {
+     "truck": 29.9641,
+     "vessel": 80.4396,
+     "move": 5.092,
+     "other": 0.0,
+     "total": 115.4957
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 20.9735,
+      "vessel": 56.4822,
+      "move": 2.7625,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.9906,
+      "vessel": 23.9574,
+      "move": 2.3295,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 230,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 146.3,
+    "a2o_mean_min": 22.11,
+    "b2c_mean_min": 11.98,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 188
+   },
+   "d_total": 3.252,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 15,
+     "cadence_s": 127.964,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3359.463,
+     "phys_min_completion_s": 3359.463,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 15,
+     "cadence_s": 127.964,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8584.554,
+     "phys_min_completion_s": 8584.554,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0964
+    }
+   ]
+  },
+  {
+   "seed": 48,
+   "seed_A": 904048,
+   "seed_B": 904101,
+   "base": {
+    "total": 86.961,
+    "chan": {
+     "truck": 20.2736,
+     "vessel": 61.4636,
+     "move": 5.2237,
+     "other": 0.0,
+     "total": 86.9609
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 11.6094,
+      "vessel": 41.516,
+      "move": 2.7264,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.6642,
+      "vessel": 19.9476,
+      "move": 2.1974,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 201,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 111.8,
+    "a2o_mean_min": 19.76,
+    "b2c_mean_min": 9.7,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 168
+   },
+   "notransfer": {
+    "total": 77.532,
+    "chan": {
+     "truck": 24.9678,
+     "vessel": 47.6413,
+     "move": 4.9228,
+     "other": 0.0,
+     "total": 77.5319
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 17.2605,
+      "vessel": 38.3252,
+      "move": 2.82,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 7.7073,
+      "vessel": 9.3161,
+      "move": 2.1028,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 201,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 86.6,
+    "a2o_mean_min": 21.24,
+    "b2c_mean_min": 11.36,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 168
+   },
+   "d_total": -9.429,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 13,
+     "cadence_s": 129.453,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3122.895,
+     "phys_min_completion_s": 3122.895,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 13,
+     "cadence_s": 129.453,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8336.691,
+     "phys_min_completion_s": 8336.691,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1033
+    }
+   ]
+  },
+  {
+   "seed": 49,
+   "seed_A": 904049,
+   "seed_B": 904102,
+   "base": {
+    "total": 75.081,
+    "chan": {
+     "truck": 16.275,
+     "vessel": 53.9628,
+     "move": 4.8433,
+     "other": 0.0,
+     "total": 75.0811
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 9.5219,
+      "vessel": 34.5155,
+      "move": 2.6481,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 6.7531,
+      "vessel": 19.4473,
+      "move": 1.8952,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 211,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.3,
+    "berth_min": 98.1,
+    "a2o_mean_min": 18.15,
+    "b2c_mean_min": 8.06,
+    "n_moved": 6,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 6,
+    "compl": 1.0,
+    "n_jobs": 172
+   },
+   "notransfer": {
+    "total": 68.588,
+    "chan": {
+     "truck": 17.3029,
+     "vessel": 46.7365,
+     "move": 4.5482,
+     "other": 0.0,
+     "total": 68.5876
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 11.4303,
+      "vessel": 36.5837,
+      "move": 2.6747,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 5.8726,
+      "vessel": 10.1528,
+      "move": 1.8735,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 206,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 85.0,
+    "a2o_mean_min": 18.34,
+    "b2c_mean_min": 8.4,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 172
+   },
+   "d_total": -6.493,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 111.938,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3007.129,
+     "phys_min_completion_s": 3007.129,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 111.938,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8225.031,
+     "phys_min_completion_s": 8225.031,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.1135
+    }
+   ]
+  },
+  {
+   "seed": 50,
+   "seed_A": 904050,
+   "seed_B": 904103,
+   "base": {
+    "total": 140.306,
+    "chan": {
+     "truck": 31.5862,
+     "vessel": 102.7361,
+     "move": 5.984,
+     "other": 0.0,
+     "total": 140.3063
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 19.4513,
+      "vessel": 62.3485,
+      "move": 2.9834,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 12.1349,
+      "vessel": 40.3876,
+      "move": 2.2005,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 255,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.8,
+    "berth_min": 186.8,
+    "a2o_mean_min": 21.98,
+    "b2c_mean_min": 11.62,
+    "n_moved": 16,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 16,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "notransfer": {
+    "total": 171.43,
+    "chan": {
+     "truck": 41.5734,
+     "vessel": 124.4695,
+     "move": 5.3867,
+     "other": 0.0,
+     "total": 171.4296
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 30.4373,
+      "vessel": 80.1325,
+      "move": 3.1558,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 11.1361,
+      "vessel": 44.3369,
+      "move": 2.2309,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 236,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 226.3,
+    "a2o_mean_min": 25.02,
+    "b2c_mean_min": 15.02,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 203
+   },
+   "d_total": 31.124,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 12,
+     "cadence_s": 142.126,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3145.511,
+     "phys_min_completion_s": 3145.511,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 12,
+     "cadence_s": 142.126,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8345.625,
+     "phys_min_completion_s": 8345.625,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0939
+    }
+   ]
+  },
+  {
+   "seed": 51,
+   "seed_A": 904051,
+   "seed_B": 904104,
+   "base": {
+    "total": 104.292,
+    "chan": {
+     "truck": 27.1128,
+     "vessel": 70.0916,
+     "move": 7.0872,
+     "other": 0.0,
+     "total": 104.2916
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 13.4401,
+      "vessel": 48.4499,
+      "move": 3.7946,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 13.6727,
+      "vessel": 21.6417,
+      "move": 2.9426,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 240,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.35,
+    "berth_min": 127.4,
+    "a2o_mean_min": 22.07,
+    "b2c_mean_min": 11.95,
+    "n_moved": 7,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 7,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "notransfer": {
+    "total": 101.657,
+    "chan": {
+     "truck": 29.3363,
+     "vessel": 65.7111,
+     "move": 6.6096,
+     "other": 0.0,
+     "total": 101.657
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 19.2096,
+      "vessel": 55.0024,
+      "move": 3.8621,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.1267,
+      "vessel": 10.7087,
+      "move": 2.7475,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 253,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 119.5,
+    "a2o_mean_min": 22.88,
+    "b2c_mean_min": 12.94,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "d_total": -2.635,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 18,
+     "cadence_s": 151.926,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 4174.677,
+     "phys_min_completion_s": 4174.677,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 18,
+     "cadence_s": 151.926,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 9359.295,
+     "phys_min_completion_s": 9359.295,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0529
+    }
+   ]
+  },
+  {
+   "seed": 52,
+   "seed_A": 904052,
+   "seed_B": 904105,
+   "base": {
+    "total": 119.646,
+    "chan": {
+     "truck": 25.527,
+     "vessel": 88.9801,
+     "move": 5.1392,
+     "other": 0.0,
+     "total": 119.6463
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.5853,
+      "vessel": 44.8855,
+      "move": 2.0876,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 10.9417,
+      "vessel": 44.0946,
+      "move": 2.6515,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 244,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.4,
+    "berth_min": 161.8,
+    "a2o_mean_min": 20.96,
+    "b2c_mean_min": 10.68,
+    "n_moved": 8,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 8,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "notransfer": {
+    "total": 109.362,
+    "chan": {
+     "truck": 22.8551,
+     "vessel": 81.6198,
+     "move": 4.8867,
+     "other": 0.0,
+     "total": 109.3616
+    },
+    "chan_by_block": {
+     "A": {
+      "truck": 14.3176,
+      "vessel": 46.5022,
+      "move": 2.2828,
+      "other": 0.0
+     },
+     "B": {
+      "truck": 8.5375,
+      "vessel": 35.1176,
+      "move": 2.6039,
+      "other": 0.0
+     }
+    },
+    "policy_exceptions": 0,
+    "decisions": 252,
+    "deadlock_escapes": 0,
+    "backlog": 0,
+    "route_cost": 0.0,
+    "berth_min": 148.4,
+    "a2o_mean_min": 19.52,
+    "b2c_mean_min": 9.38,
+    "n_moved": 0,
+    "n_blocked_vessel": 0,
+    "n_rejected": 0,
+    "n_fired": 0,
+    "compl": 1.0,
+    "n_jobs": 194
+   },
+   "d_total": -10.284,
+   "physics_A": [
+    {
+     "vessel_id": "V-DISC-0",
+     "work": "DISCHARGE",
+     "moves": 14,
+     "cadence_s": 170.625,
+     "planned_start_s": 1440.0,
+     "planned_completion_s": 3828.744,
+     "phys_min_completion_s": 3828.744,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0
+    },
+    {
+     "vessel_id": "V-LOAD-1",
+     "work": "LOAD",
+     "moves": 14,
+     "cadence_s": 170.625,
+     "planned_start_s": 6480.0,
+     "planned_completion_s": 8999.855,
+     "phys_min_completion_s": 8999.855,
+     "structural_min_overrun_s": 0.0,
+     "effective_deadline_mult": 1.0549
+    }
+   ]
+  }
+ ],
+ "channels_notransfer_minus_base": {
+  "truck": {
+   "n": 53,
+   "mean": 3.384,
+   "sd": 4.191,
+   "ci": [
+    2.229,
+    4.539
+   ],
+   "mde80": 1.644,
+   "label": "유의(악화)",
+   "required_n_for_mean": 17,
+   "required_n_for_delta": 21,
+   "equivalent": false,
+   "tost_ci90": [
+    2.42,
+    4.348
+   ],
+   "role": "1차(확증)"
+  },
+  "vessel": {
+   "n": 53,
+   "mean": 0.831,
+   "sd": 13.662,
+   "ci": [
+    -2.935,
+    4.596
+   ],
+   "mde80": 5.358,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
+   "required_n_for_mean": 2554,
+   "required_n_for_delta": 20,
+   "equivalent": true,
+   "tost_ci90": [
+    -2.312,
+    3.973
+   ],
+   "role": "탐색적(보정 없음)"
+  },
+  "move": {
+   "n": 53,
+   "mean": -0.549,
+   "sd": 0.273,
+   "ci": [
+    -0.625,
+    -0.474
+   ],
+   "mde80": 0.107,
+   "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
+   "required_n_for_mean": 5,
+   "required_n_for_delta": 3,
+   "equivalent": true,
+   "tost_ci90": [
+    -0.612,
+    -0.487
+   ],
+   "role": "탐색적(보정 없음)"
+  },
+  "other": {
+   "n": 53,
+   "mean": 0.0,
+   "sd": 0.0,
+   "ci": [
+    0.0,
+    0.0
+   ],
+   "mde80": 0.0,
+   "label": "판정 대상 아님(전 시드 차이 0 — 가중치 0 또는 미측정)",
+   "required_n_for_mean": null,
+   "required_n_for_delta": null,
+   "equivalent": true,
+   "tost_ci90": [
+    0.0,
+    0.0
+   ],
+   "role": "탐색적(보정 없음)"
+  },
+  "total": {
+   "n": 53,
+   "mean": 3.665,
+   "sd": 14.889,
+   "ci": [
+    -0.439,
+    7.769
+   ],
+   "mde80": 5.839,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
+   "required_n_for_mean": 158,
+   "required_n_for_delta": 23,
+   "equivalent": true,
+   "tost_ci90": [
+    0.24,
+    7.09
+   ],
+   "role": "탐색적(보정 없음)"
+  }
+ },
+ "guards": {
+  "ok": true,
+  "failures": []
+ },
+ "deadlock_escapes_total": 5,
+ "moved_base": 11.3
+}

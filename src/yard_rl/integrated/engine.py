@@ -177,6 +177,19 @@ class TerminalSimulator:
         self._eta_armed: set[str] = set()
         # YR-112: 간섭 교착 탈출을 같은 시각에 두 번 열지 않기 위한 표식 (무한루프 방지)
         self._escape_at: float | None = None
+        self._escape_count: int = 0
+        # YR-050 계약(결정 시각 엄격 증가) 준수를 위한 마지막 결정 시각
+        self._last_decision_at: float | None = None
+        # YR-112-b 탈출 시점 **계약 확정 (2026-07-28, 실측 근거)**
+        #   "immediate"(정본) — 교착이 성립하는 **즉시** 결정을 연다.
+        #   "delayed"        — 엔진이 포기하려는 마지막 순간에만 연다(초판·비교군).
+        # 근거: 교착은 "어떤 크레인도 아무것도 못 하고 **정책은 질문조차 받지 못한** 상태"다.
+        # 그 사이의 유휴는 정책의 선택이 아니라 결정의 부재이므로, 시뮬레이터가 만들어낸
+        # 인공 유휴다(대기비용이 그동안 계속 쌓인다). 실측:
+        #   · 기존 판정 대역 32런 — 즉시 모드 발화 **0회**, 런 해시 **전부 동일** (골든 안전)
+        #   · 신규 대역 96런 — 지연 2회 vs 즉시 7회 → 지연은 교착 5건을 "기다려서" 넘긴다
+        # 즉 즉시 모드는 과거 판정을 하나도 바꾸지 않으면서 인공 유휴만 제거한다.
+        self.escape_mode: str = "immediate"
         self._seed_events()
         self._refresh_rates()
 
@@ -280,7 +293,14 @@ class TerminalSimulator:
                 self._pending = idle
                 self._assigned = {}
                 self._eta_armed -= set(idle)   # 결정에 포함 = 이번 wake 의 질문 소진
+                self._last_decision_at = self.clock
                 return TerminalDecision(self.clock, idle)
+            # YR-112 계약 A(즉시): 교착이면 **미래 이벤트를 기다리지 않고** 지금 연다.
+            # 계약 B(지연)는 아래 `_finalize` 직전에서만 연다. 기본값은 escape_mode 로 고정.
+            if self.escape_mode == "immediate":
+                esc = self._try_escape()
+                if esc is not None:
+                    return esc
             wt = self._next_wake_time()
             if wt is not None and wt > self.end + _EPS:   # wake 도 평가창 밖이면 시계 전진 금지
                 wt = None
@@ -301,21 +321,11 @@ class TerminalSimulator:
             if nt is None and wt is None:
                 if raw_nt is None and any(c.state.assigned_job for c in self.fleet.all()):
                     raise RuntimeError("작업 중인데 완료 이벤트 없음 — 엔진 버그")
-                # YR-112: **간섭 교착 탈출**. 여기까지 왔다는 건 "더 볼 이벤트도 wake 도 없다"는
-                # 뜻인데, 남은 작업이 **오직 크레인 간섭으로만** 막혀 있을 수 있다(양쪽 크레인이
-                # 대상 bay 를 사이에 두고 안전간격 안에 서 있는 상태). 그러면 비켜설 기회를
-                # 한 번도 못 받고 런이 끝나 작업이 사라진다 — 실측 seed 902013.
-                # 물리(유휴 크레인 관통 금지, YR-091)는 옳으므로 **결정 기회만** 연다.
-                if (self.clock < self.end - _EPS and self._escape_at != self.clock
-                        and self.interference_deadlock_corridors()):
-                    self._clear_yields()
-                    esc = tuple(c.crane_id for c in self.fleet.all() if c.idle)
-                    if esc:
-                        self._escape_at = self.clock   # 같은 시각 무한 재개방 방지
-                        self._pending = esc
-                        self._assigned = {}
-                        self.event_log.append((self.clock, "DEADLOCK_ESCAPE", ",".join(esc)))
-                        return TerminalDecision(self.clock, esc)
+                # YR-112 계약 B(지연): 마지막 순간에만 연다. immediate 모드면 이미 위에서
+                # 처리됐으므로 여기서는 중복 발화하지 않는다(같은 시각 표식이 막는다).
+                esc = self._try_escape()
+                if esc is not None:
+                    return esc
                 self._finalize()
                 return None
             if wt is not None and (nt is None or wt < nt - _EPS):
@@ -352,6 +362,38 @@ class TerminalSimulator:
             self._eta_armed = set(self.fleet.ids())
             self._clear_yields()
         return fired
+
+    def _try_escape(self) -> "TerminalDecision | None":
+        """YR-112 간섭 교착 탈출 결정 — 조건 충족 시 유휴 크레인 전원에게 결정을 연다.
+
+        물리(유휴 크레인 관통 금지, YR-091)는 옳으므로 **결정 기회만** 연다. 같은 시각
+        재개방은 표식으로 막는다(정책이 계속 WAIT 해도 무한루프가 되지 않는다).
+        """
+        if self.clock >= self.end - _EPS or self._escape_at == self.clock:
+            return None
+        # YR-050 계약 준수: **결정 시각은 엄격히 증가**한다(wake 1회성). 이미 이 시각에
+        # 결정을 열었다면 정책은 이미 답을 했다 — 같은 시각 재질문은 그 계약 위반이다.
+        # (탈출은 다음 시각으로 미뤄진다. 실측상 교착 해소에는 영향이 없다.)
+        if self._last_decision_at is not None and self.clock <= self._last_decision_at + _EPS:
+            return None
+        if not self.interference_deadlock_corridors():
+            return None
+        self._clear_yields()
+        esc = tuple(c.crane_id for c in self.fleet.all() if c.idle)
+        if not esc:
+            return None
+        self._escape_at = self.clock
+        self._last_decision_at = self.clock
+        self._escape_count += 1
+        self._pending = esc
+        self._assigned = {}
+        self.event_log.append((self.clock, "DEADLOCK_ESCAPE", ",".join(esc)))
+        return TerminalDecision(self.clock, esc)
+
+    @property
+    def deadlock_escape_count(self) -> int:
+        """YR-112 발화 횟수 — 실험 arm 마다 저장해 **탈출이 결과에 개입했는지** 감사한다."""
+        return self._escape_count
 
     def interference_deadlock_corridors(self) -> tuple[tuple[float, float], ...]:
         """YR-112 활성 결함 술어 — **후보 생성기와 공유**한다 (eta_opportunity 관습).
