@@ -1,0 +1,86 @@
+{
+  "schema": "yr117-retrospective-v1",
+  "analysis_status": "retrospective_post_hoc_not_confirmatory",
+  "confirmatory": false,
+  "source": {
+    "experiment": "YR-113",
+    "contrast": "NOTRANSFER_MINUS_BASE",
+    "positive_difference_means": "BASE 이송 규칙이 이로움",
+    "original_preregistered_primary": "truck",
+    "original_prereg": "Δ = NOTRANSFER − BASE · 1차 채널 truck · (a) CI 가 0 배제 (b) δ=3.0 초과 여부를 분리 보고. 트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+    "original_prereg_commit": "73ef07bc8f49d877b89e7602cd39537d763c5e5e",
+    "row_source_contract_commit": "942c4136992228292fa17de1f87ac16d60b92ce0",
+    "yr117_analysis_commit": "5f8c48c01d32f7283d277aef118ecb70167e795c",
+    "source_files": [
+      "outputs/reports/yr113_transfer_net_effect/results_select.json",
+      "outputs/reports/yr113_transfer_net_effect/results_confirm.json"
+    ]
+  },
+  "contract_examined": {
+    "metrics": [
+      "total",
+      "a2o_min"
+    ],
+    "decision_rule": "AND",
+    "statistical_rule": "각 지표의 짝지은 95% CI 하한 > 0",
+    "operational_rule": "각 지표의 짝지은 95% CI 하한 > 사전 δ",
+    "delta": {
+      "total": 10.0,
+      "a2o_min": 1.0
+    },
+    "delta_status": "assumed_post_hoc"
+  },
+  "results": {
+    "select": {
+      "n": 53,
+      "total": {
+        "mean": 3.701,
+        "ci95": [
+          -0.402,
+          7.804
+        ],
+        "statistical_pass": false,
+        "source_key": "total"
+      },
+      "a2o_min": {
+        "mean": 0.82,
+        "ci95": [
+          0.472,
+          1.169
+        ],
+        "statistical_pass": true,
+        "source_key": "a2o_mean_min"
+      },
+      "joint_and_pass": false
+    },
+    "confirm": {
+      "n": 106,
+      "total": {
+        "mean": 8.355,
+        "ci95": [
+          5.558,
+          11.151
+        ],
+        "statistical_pass": true,
+        "source_key": "total"
+      },
+      "a2o_min": {
+        "mean": 0.841,
+        "ci95": [
+          0.565,
+          1.117
+        ],
+        "statistical_pass": true,
+        "source_key": "a2o_mean_min"
+      },
+      "joint_and_pass": true
+    },
+    "two_band_joint_replication": false
+  },
+  "interpretation": {
+    "a2o": "두 기존 대역에서 방향과 크기가 비슷한 사후 진단 신호다. 결과 열람 뒤 주지표로 올렸으므로 확증 재현으로 부르지 않는다.",
+    "total": "확증 대역에서만 유의하다. 선택 대역은 0을 포함하므로 공동 AND 계약은 두 대역에서 재현되지 않았다.",
+    "prospective_requirement": "total+A2O 공동 AND를 결과 열람 전에 동결한 신규 독립 대역(YR-115)이 필요하다."
+  },
+  "precision_note": "저장된 YR-113 arm 값은 total이 소수 셋째 자리, A→O가 소수 둘째 자리에서 이미 반올림되어 있다. 이번 재분석은 그 저장값을 다시 반올림하지 않았지만 원래 정밀도를 복원할 수는 없다. 이후 수집은 *_raw 키를 우선 사용한다."
+}

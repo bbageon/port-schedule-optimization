@@ -175,18 +175,26 @@
     "vessel_deadline_achievable": true
    }
   },
-  "prereg": "Δ = NOTRANSFER − BASE · **주판정 = total + a2o_min**(평가계약 1·3순위, 둘 다 주행을 포함하고 시계 시작점 함정이 없다). (a) CI 가 0 배제 (b) δ 초과 여부를 **분리 보고**. 트럭 채널은 진단(부풀림 상한 = 이송건수×route_s/3600).",
+  "prereg": "Δ = NOTRANSFER − BASE · 1차 채널 truck · (a) CI 가 0 배제 (b) δ=3.0 초과 여부를 **분리 보고**. 트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+  "original_prereg": "Δ = NOTRANSFER − BASE · 1차 채널 truck · (a) CI 가 0 배제 (b) δ=3.0 초과 여부를 **분리 보고**. 트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+  "original_prereg_commit": "73ef07bc8f49d877b89e7602cd39537d763c5e5e",
+  "row_source_contract_commit": "942c4136992228292fa17de1f87ac16d60b92ce0",
+  "yr117_analysis_status": "retrospective_post_hoc_not_confirmatory",
+  "yr117_confirmatory": false,
   "delta_interest": {
    "truck": 3.0,
    "vessel": 10.0,
    "move": 1.0,
    "other": 1.0,
+   "total": 10.0
+   },
+  "yr117_posthoc_delta_interest": {
    "total": 10.0,
    "a2o_min": 1.0
   },
   "sd_conf": 0.8,
   "band": "select",
-  "primary_metrics": [
+  "yr117_posthoc_metrics": [
    "total",
    "a2o_min"
   ],
@@ -6152,6 +6160,10 @@
   }
  ],
  "primary": {
+  "analysis_status": "retrospective_post_hoc_not_confirmatory",
+  "confirmatory": false,
+  "decision_rule": "AND",
+  "joint_and_pass": false,
   "contract": [
    "total",
    "a2o_min"
@@ -6174,7 +6186,7 @@
     7.125
    ],
    "unit": "numeraire(트럭대기 1h=1.0)",
-   "role": "1차(계약 1순위)"
+    "role": "YR-117 사후 재분석(확증 아님)"
   },
   "a2o_min": {
    "n": 53,
@@ -6194,7 +6206,7 @@
     1.111
    ],
    "unit": "분(게이트 진입→출문)",
-   "role": "1차(계약 3순위·턴타임 정의)"
+    "role": "YR-117 사후 재분석(확증 아님)"
   }
  },
  "truck_channel_bias_cap": 0.564,

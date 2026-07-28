@@ -3,7 +3,8 @@ import pytest
 
 from yard_rl.contract import COST_TERMS
 from yard_rl.integrated.evalkit import (CHANNELS, GuardReport, channel_split, check_guards,
-                                        paired, paired_by_channel, prereg_power_note)
+                                        judge_primary, paired, paired_by_channel,
+                                        prereg_power_note)
 
 
 def test_channels_partition_cost_terms():
@@ -74,3 +75,85 @@ def test_prereg_power_note_requires_bigger_confirm_band():
                              target_effect=-3.0)
     assert note["required_n_confirm"] == note["required_n_select"] * 2
     assert "확증 대역" in note["rule"]
+
+
+JOINT_METRICS = ("total", "a2o_min")
+JOINT_KEYS = {
+    "total": ("total_raw", "total"),
+    "a2o_min": ("a2o_mean_min_raw", "a2o_mean_min"),
+}
+JOINT_DELTA = {"total": 10.0, "a2o_min": 1.0}
+
+
+def _joint_rows(total: list[float], a2o: list[float]) -> list[dict]:
+    return [{"total_raw": t, "a2o_mean_min_raw": a} for t, a in zip(total, a2o)]
+
+
+def test_joint_primary_is_explicit_and_uses_and_rule():
+    ctrl = _joint_rows([0.0] * 4, [0.0] * 4)
+    only_a2o = _joint_rows([2.0, -2.0, 2.0, -2.0], [1.0] * 4)
+    out = judge_primary(
+        only_a2o, ctrl, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+        delta=JOINT_DELTA,
+    )
+    assert out["contract"]["decision_rule"] == "AND"
+    assert not out["total"]["statistical_pass"]
+    assert out["a2o_min"]["statistical_pass"]
+    assert not out["joint_and_pass"]
+
+    both = _joint_rows([2.0] * 4, [1.0] * 4)
+    out2 = judge_primary(
+        both, ctrl, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+        delta=JOINT_DELTA,
+    )
+    assert out2["joint_and_pass"]
+
+
+def test_joint_primary_requires_both_metrics_and_fails_closed_on_missing_values():
+    complete = _joint_rows([2.0] * 4, [1.0] * 4)
+    with pytest.raises(ValueError, match="모두 명시"):
+        judge_primary(
+            complete, complete, metrics=("total",), metric_keys=JOINT_KEYS,
+            delta=JOINT_DELTA,
+        )
+
+    missing_total = [{"a2o_mean_min": 1.0} for _ in range(4)]
+    with pytest.raises(ValueError, match="total 미수집"):
+        judge_primary(
+            missing_total, complete, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+            delta=JOINT_DELTA,
+        )
+
+    missing_a2o = [{"total": 1.0} for _ in range(4)]
+    with pytest.raises(ValueError, match="a2o_min 미수집"):
+        judge_primary(
+            missing_a2o, complete, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+            delta=JOINT_DELTA,
+        )
+
+
+def test_joint_primary_prefers_unrounded_raw_values_and_rejects_nonfinite():
+    ctrl = [
+        {"total_raw": 0.0, "total": 0.0,
+         "a2o_mean_min_raw": 0.0, "a2o_mean_min": 0.0}
+        for _ in range(4)
+    ]
+    treat = [
+        {"total_raw": 2.004, "total": 2.0,
+         "a2o_mean_min_raw": 1.004, "a2o_mean_min": 1.0}
+        for _ in range(4)
+    ]
+    out = judge_primary(
+        treat, ctrl, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+        delta=JOINT_DELTA,
+    )
+    assert out["total"]["mean"] == pytest.approx(2.004)
+    assert out["a2o_min"]["mean"] == pytest.approx(1.004)
+    assert out["a2o_min"]["source_keys_used"] == ["a2o_mean_min_raw"]
+
+    treat[0]["total_raw"] = float("nan")
+    with pytest.raises(ValueError, match="유한수가 아님"):
+        judge_primary(
+            treat, ctrl, metrics=JOINT_METRICS, metric_keys=JOINT_KEYS,
+            delta=JOINT_DELTA,
+        )

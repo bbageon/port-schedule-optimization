@@ -47,20 +47,10 @@ ALPHA = 0.05          # 양측 유의수준 (CI 95%)
 POWER = 0.80          # MDE·표본수 산출 검정력
 MAX_N = 100_000       # 필요표본수 탐색 상한 (수렴 실패 감지용)
 
-# --- 주판정 지표 계약 (YR-117, 사용자 결정 2026-07-28) --------------------------------
-# 평가계약(2026-07-27 P95 정정 §3)의 계층은 원래 다음과 같다:
-#   1순위 terminal total cost · 2순위 평균 B→C · **3순위 평균 A→O(터미널 턴타임, 최종 KPI)**
-# YR-106 은 검정력을 이유로 **트럭 비용채널**을 1차 판정으로 올렸는데, 이는 계약에서 벗어난
-# 선택이었고 **측정 함정**까지 안고 있었다:
-#   트럭 대기 시계는 `BLOCK_ARRIVAL` 에서 켜진다(engine `truck_arrived`). 그런데 창중 이송은
-#   블록 도착을 route_s 만큼 **늦추므로**, 트럭이 터미널 안에 있는 그 시간이 "대기"로 잡히지
-#   않는다 → 이송에 유리한 쪽으로 부풀 수 있다. 실측 상한 = 이송건수 × route_s / 3600
-#   (YR-113 확증 대역에서 0.60, 측정 이득 3.35 의 18%).
-# **정정**: 주판정을 계약대로 되돌리되 두 개를 **동급**으로 둔다.
-#   · `total`   — 터미널 총비용 (주행비·본선 포함, 계약 1순위)
-#   · `a2o_min` — 평균 A→O 분 (게이트 진입→출문, **주행시간을 그 정의상 포함**, 계약 3순위)
-# 둘 다 시계 시작점 함정이 없다(절대시각 기준). 트럭 채널은 **진단**으로 강등한다.
-PRIMARY_METRICS: tuple[str, ...] = ("total", "a2o_min")
+# --- 공동 주판정 계약 도구 (YR-117, 2026-07-28) -------------------------------------
+# 지표를 모듈 전역값으로 정하면 과거 실험의 사전등록까지 조용히 바뀔 수 있다. 따라서
+# `judge_primary()` 는 지표와 원자료 키를 호출자가 매번 명시하게 한다. YR-117 에서 검토한
+# total+A→O 조합은 **YR-113 결과를 본 뒤 만든 사후 계약**이며, 향후 실험에서만 사전등록할 수 있다.
 DIAGNOSTIC_NOTE_TRUCK = ("트럭 채널은 대기 시계가 블록 도착에서 시작하므로 창중 이송 실험에서 "
                          "이송 쪽으로 부풀 수 있다(상한 = 이송건수×route_s/3600). 진단용.")
 
@@ -221,33 +211,95 @@ def paired_by_channel(rows_treat: list[dict], rows_ctrl: list[dict], *,
 
 
 def judge_primary(rows_treat: list[dict], rows_ctrl: list[dict], *,
-                  delta: dict[str, float], sd_conf: float | None = None,
-                  turntime_key: str = "a2o_mean_min") -> dict:
-    """계약 주판정 — **총비용**과 **평균 A→O(분)** 을 동급으로 낸다 (YR-117).
+                  metrics: tuple[str, ...],
+                  metric_keys: dict[str, tuple[str, ...]],
+                  delta: dict[str, float], sd_conf: float | None = None) -> dict:
+    """호출자가 명시한 지표를 **공동 AND**로 판정한다.
 
-    rows_* 는 arm 별 시드 스냅샷 리스트로, 각 원소는 `chan`(채널 dict)과 `turntime_key`
-    (평균 A→O 분)를 갖는다. 부호는 (처리 − 대조) 그대로.
-
-    A→O 는 **비용이 아니라 분(minute)** 이므로 δ 도 분 단위다 — 단위를 섞지 않으려고
-    채널 판정과 분리해 둔다.
+    `metric_keys` 는 지표별 원자료 키를 우선순위대로 받는다. 예를 들어 A→O 는
+    ``("a2o_mean_min_raw", "a2o_mean_min")`` 로 주면 새 원자료에서는 반올림 전 값을 쓰고,
+    과거 원자료에서는 기존 키로만 후퇴한다. 어느 키도 없거나 값이 유한수가 아니면
+    **판정 불가로 즉시 실패**한다. 부호는 (처리 − 대조) 그대로이며, 양수가 개선인 비교만
+    이 함수의 AND 판정을 사용한다.
     """
+    supported = {"total", "a2o_min"}
+    if not metrics:
+        raise ValueError("공동 주판정 지표가 비어 있음")
+    if len(metrics) != len(set(metrics)):
+        raise ValueError("공동 주판정 지표 중복")
+    unknown = set(metrics) - supported
+    if unknown:
+        raise ValueError(f"지원하지 않는 공동 주판정 지표: {sorted(unknown)}")
+    if set(metrics) != supported:
+        raise ValueError("공동 주판정은 total과 a2o_min을 모두 명시해야 함")
     if len(rows_treat) != len(rows_ctrl):
         raise ValueError("짝짓기 길이 불일치")
-    out: dict = {"contract": list(PRIMARY_METRICS)}
-    d_tot = [t["chan"].get("total", 0.0) - c["chan"].get("total", 0.0)
-             for t, c in zip(rows_treat, rows_ctrl)]
-    out["total"] = {**paired(d_tot, delta_interest=delta.get("total"),
-                             sd_conf=sd_conf).as_dict(),
-                    "unit": "numeraire(트럭대기 1h=1.0)", "role": "1차(계약 1순위)"}
-    pairs = [(t.get(turntime_key), c.get(turntime_key))
-             for t, c in zip(rows_treat, rows_ctrl)]
-    if all(a is not None and b is not None for a, b in pairs):
-        out["a2o_min"] = {**paired([a - b for a, b in pairs],
-                                   delta_interest=delta.get("a2o_min"),
-                                   sd_conf=sd_conf).as_dict(),
-                          "unit": "분(게이트 진입→출문)", "role": "1차(계약 3순위·턴타임 정의)"}
-    else:
-        out["a2o_min"] = {"error": "A→O 미수집 — 주판정 불가", "role": "1차"}
+    if not rows_treat:
+        raise ValueError("공동 주판정 원자료가 비어 있음")
+
+    missing_delta = [metric for metric in metrics if metric not in delta]
+    missing_keys = [metric for metric in metrics if not metric_keys.get(metric)]
+    if missing_delta:
+        raise ValueError(f"δ 미지정 지표: {missing_delta}")
+    if missing_keys:
+        raise ValueError(f"원자료 키 미지정 지표: {missing_keys}")
+
+    def read_value(row: dict, metric: str, arm: str, index: int) -> tuple[float, str]:
+        for key in metric_keys[metric]:
+            if key not in row or row[key] is None:
+                continue
+            try:
+                value = float(row[key])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"{arm}[{index}] {metric}/{key}가 숫자가 아님") from exc
+            if value != value or value in (float("inf"), float("-inf")):
+                raise ValueError(f"{arm}[{index}] {metric}/{key}가 유한수가 아님")
+            return value, key
+        raise ValueError(
+            f"{arm}[{index}] {metric} 미수집 — 필요한 키: {list(metric_keys[metric])}"
+        )
+
+    units = {
+        "total": "numeraire(트럭대기 1h=1.0)",
+        "a2o_min": "분(게이트 진입→출문)",
+    }
+    out: dict = {
+        "contract": {
+            "metrics": list(metrics),
+            "decision_rule": "AND",
+            "statistical_rule": "모든 지표의 짝지은 95% CI 하한 > 0",
+            "operational_rule": "모든 지표의 짝지은 95% CI 하한 > 사전 δ",
+            "positive_difference_means": "개선",
+            "metric_keys": {metric: list(metric_keys[metric]) for metric in metrics},
+        }
+    }
+    statistical_passes: list[bool] = []
+    operational_passes: list[bool] = []
+    for metric in metrics:
+        differences: list[float] = []
+        used_keys: set[str] = set()
+        for i, (treat, ctrl) in enumerate(zip(rows_treat, rows_ctrl)):
+            treat_value, treat_key = read_value(treat, metric, "treat", i)
+            ctrl_value, ctrl_key = read_value(ctrl, metric, "ctrl", i)
+            differences.append(treat_value - ctrl_value)
+            used_keys.update((treat_key, ctrl_key))
+        result = paired(
+            differences, delta_interest=delta[metric], sd_conf=sd_conf
+        ).as_dict()
+        statistical_pass = result["ci"][0] > 0.0
+        operational_pass = result["ci"][0] > delta[metric]
+        result.update({
+            "unit": units[metric],
+            "role": "호출자 지정 공동 주판정 지표",
+            "source_keys_used": sorted(used_keys),
+            "statistical_pass": statistical_pass,
+            "operational_delta_pass": operational_pass,
+        })
+        out[metric] = result
+        statistical_passes.append(statistical_pass)
+        operational_passes.append(operational_pass)
+    out["joint_and_pass"] = all(statistical_passes)
+    out["joint_operational_delta_pass"] = all(operational_passes)
     return out
 
 
