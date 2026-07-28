@@ -21,9 +21,11 @@ from . import yr105_conditional_transfer as y5
 from . import yr105b_transfer_threshold as y105b
 
 OUT = Path("outputs/reports/yr115_transfer_joint_confirm")
-MANIFEST = OUT / "prereg_manifest.json"
-POWER_NOTE = OUT / "power_note.json"
-RESULT = OUT / "results_confirm.json"
+INVALID_MANIFEST_V1 = OUT / "prereg_manifest.json"
+INVALID_POWER_V1 = OUT / "power_note.json"
+MANIFEST = OUT / "prereg_manifest_v2.json"
+POWER_NOTE = OUT / "power_note_v2.json"
+RESULT = OUT / "results_confirm_v2.json"
 
 BASE = 0.10
 NO_TRANSFER = float("inf")
@@ -39,7 +41,7 @@ DIAG_DELTA = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0,
 PILOT_N = 16
 SD_CONF = 0.80
 ENDPOINT_POWER = 0.90
-BAND_START = {"pilot": 970_000, "confirm": 980_000}
+BAND_START = {"pilot": 990_000, "confirm": 1_000_000}
 
 CONTRACT_FILES = (
     "src/yard_rl/experiments/yr115_transfer_joint_confirm.py",
@@ -51,16 +53,14 @@ CONTRACT_FILES = (
     "outputs/reports/yr105b_transfer_threshold/prereg_manifest.json",
     "outputs/reports/yr105b_transfer_threshold/power_note.json",
     "outputs/reports/yr105b_transfer_threshold/results_select.json",
+    "outputs/reports/yr115_transfer_joint_confirm/prereg_manifest.json",
+    "outputs/reports/yr115_transfer_joint_confirm/power_note.json",
     ".claude/docs/dashboard-task-specs/YR-115-transfer-benefit-joint-confirm.md",
     ".claude/docs/strategy-history/2026-07-28-YR-115-이송순효과-공동지표-prereg.md",
 )
 CONTRACT_TREES = (
-    "src/yard_rl/integrated",
-    "src/yard_rl/domain",
-    "src/yard_rl/sim",
-    "src/yard_rl/contract",
-    "src/yard_rl/io",
-    "configs/costs",
+    "src/yard_rl",
+    "configs",
 )
 # 이 테스트 probe는 사전등록 전에 결과를 열어 본 개발 실현이다. YR-108 계약에 따라
 # realization hash뿐 아니라 같은 정수 RNG seed를 반대 블록에서 재사용하는 것도 막는다.
@@ -174,6 +174,9 @@ def _prior_hashes() -> set[str]:
         hashes |= _hashes_from_band(obj)
     select = _require_head_artifact(y105b.SELECT_RESULT)
     hashes |= _hashes_from_band(select["band"]["band"])
+    # v1 pilot은 평균을 열지 않았지만 동결·검열 계약 누락으로 무효다. 재사용하지 않는다.
+    invalid_v1 = _require_head_artifact(INVALID_MANIFEST_V1)
+    hashes |= _hashes_from_band(invalid_v1["pilot_band"])
     for seed in DEVELOPMENT_PROBE_SEEDS:
         for block, cell in (("A", y5.CELL_A), ("B", y5.CELL_B)):
             hashes.add(realization_hash(_generate(block, cell, seed)))
@@ -187,6 +190,7 @@ def _prior_summary(prior: set[str] | None = None) -> dict:
         "digest": _sha256_bytes(
             json.dumps(values, separators=(",", ":")).encode()),
         "development_probe_seeds": list(DEVELOPMENT_PROBE_SEEDS),
+        "invalid_v1_manifest_sha256": _sha256(INVALID_MANIFEST_V1),
     }
 
 
@@ -212,7 +216,7 @@ def build_manifest() -> dict:
     prior = sorted(_prior_hashes())
     pilot, independence = _band("pilot", PILOT_N, exclude=set(prior))
     result = {
-        "schema": "yr115-prereg-v1",
+        "schema": "yr115-prereg-v2",
         "status": "RESULTS_UNSEEN_FROZEN",
         "arms": {"adopted_threshold": BASE, "notransfer_threshold": "inf"},
         "benefit": "NOTRANSFER_MINUS_ADOPTED",
@@ -239,7 +243,7 @@ def build_manifest() -> dict:
 def _manifest() -> dict:
     manifest = _require_head_artifact(MANIFEST)
     if (
-        manifest.get("schema") != "yr115-prereg-v1"
+        manifest.get("schema") != "yr115-prereg-v2"
         or manifest.get("status") != "RESULTS_UNSEEN_FROZEN"
         or manifest.get("arms")
         != {"adopted_threshold": BASE, "notransfer_threshold": "inf"}
@@ -329,6 +333,8 @@ def _guard(rows: list[dict]):
     for index, row in enumerate(rows):
         counts = set()
         expected_a2o = set()
+        completed_a2o = set()
+        censored_a2o = set()
         job_counts = set()
         for arm in ("adopted", "notransfer"):
             try:
@@ -339,6 +345,8 @@ def _guard(rows: list[dict]):
                 rep.failures.append(f"row{index}/{arm}: {exc}")
             counts.add(int(row[arm].get("n_a2o", 0)))
             expected_a2o.add(int(row[arm].get("n_a2o_expected", 0)))
+            completed_a2o.add(int(row[arm].get("n_a2o_completed", -1)))
+            censored_a2o.add(int(row[arm].get("n_a2o_censored", -1)))
             job_counts.add(int(row[arm].get("n_jobs", 0)))
             if abs(row[arm]["total"] - row[arm]["chan"]["total"]) > 0.02:
                 rep.ok = False
@@ -349,7 +357,15 @@ def _guard(rows: list[dict]):
         if expected_a2o == {0} or len(expected_a2o) != 1 or counts != expected_a2o:
             rep.ok = False
             rep.failures.append(
-                f"row{index}: A→O 완료 수 {counts} != gate-in 원장 수 {expected_a2o}")
+                f"row{index}: A→O 표본 수 {counts} != gate-in 원장 수 {expected_a2o}")
+        if (
+            completed_a2o != expected_a2o
+            or censored_a2o != {0}
+        ):
+            rep.ok = False
+            rep.failures.append(
+                f"row{index}: 실제 gate-out 완료 {completed_a2o} / "
+                f"gate-in {expected_a2o} / 검열 {censored_a2o}")
         if job_counts == {0} or len(job_counts) != 1:
             rep.ok = False
             rep.failures.append(f"row{index}: 작업 원장 수 불일치·0 {job_counts}")
@@ -450,7 +466,7 @@ def run_pilot() -> dict:
             profile_id=build_calibrated_profile().terminal_id,
             prereg="평균 봉인; total/A→O SD만 열어 계획효과 3.70/0.82의 n 산출",
         ),
-        "schema": "yr115-power-v2",
+        "schema": "yr115-power-v3",
         "status": "PILOT_GUARDS_PASSED_PLAN_FROZEN",
         "manifest_sha256": _sha256(MANIFEST),
         "source_contract_digest": manifest["source_contract"]["digest"],
@@ -499,7 +515,7 @@ def _classification(joint: dict, guards_ok: bool, power_ok: bool) -> str:
 def _validated_power_note(manifest: dict, power: dict) -> int:
     """pilot 산출물을 믿지 않고 상수·n·대역을 다시 계산해 확증 진입을 결정한다."""
     if (
-        power.get("schema") != "yr115-power-v2"
+        power.get("schema") != "yr115-power-v3"
         or power.get("status") != "PILOT_GUARDS_PASSED_PLAN_FROZEN"
         or power.get("manifest_sha256") != _sha256(MANIFEST)
         or power.get("source_contract_digest") != manifest["source_contract"]["digest"]
@@ -623,7 +639,7 @@ def run_confirm() -> dict:
             profile_id=build_calibrated_profile().terminal_id,
             prereg="B=NOTRANSFER-ADOPTED; total AND A→O 95% CI 하한>0",
         ),
-        "schema": "yr115-confirm-v1",
+        "schema": "yr115-confirm-v2",
         "contract_artifacts": {
             "manifest_sha256": _sha256(MANIFEST),
             "power_note_sha256": _sha256(POWER_NOTE),

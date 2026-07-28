@@ -17,6 +17,9 @@ def test_prior_hashes_include_yr105b_pilot_and_select():
         y115.y105b.POWER_NOTE.read_text(encoding="utf-8"))
         ["frozen_sample_plan"]["n_select"])
     assert y115.y105b.select_hashes(select_n) <= prior
+    invalid = json.loads(
+        y115.INVALID_MANIFEST_V1.read_text(encoding="utf-8"))
+    assert y115._hashes_from_band(invalid["pilot_band"]) <= prior
 
 
 def test_new_pilot_and_confirm_bands_are_disjoint_from_prior():
@@ -43,6 +46,8 @@ def test_source_contract_covers_runtime_trees_and_profile():
     assert "src/yard_rl/io/profile_loader.py" in paths
     assert "src/yard_rl/sim/stack.py" in paths
     assert "src/yard_rl/contract/cost.py" in paths
+    assert "src/yard_rl/envs/direct_job_env.py" in paths
+    assert "src/yard_rl/policies/baselines.py" in paths
     assert "configs/terminals/dgt_armg.yaml" in paths
     assert "src/yard_rl/experiments/yr113_transfer_net_effect.py" in paths
     assert "outputs/reports/yr105b_transfer_threshold/power_note.json" in paths
@@ -55,6 +60,10 @@ def test_pair_contract_has_zero_notransfer_and_full_precision():
     assert row["notransfer"]["a2o_mean_min_raw"] is not None
     assert row["adopted"]["n_a2o"] == row["notransfer"]["n_a2o"]
     assert row["adopted"]["n_a2o_expected"] == row["notransfer"]["n_a2o_expected"]
+    assert row["adopted"]["n_a2o_completed"] == row["adopted"]["n_a2o_expected"]
+    assert row["notransfer"]["n_a2o_completed"] == row["notransfer"]["n_a2o_expected"]
+    assert row["adopted"]["n_a2o_censored"] == 0
+    assert row["notransfer"]["n_a2o_censored"] == 0
     assert row["adopted"]["n_jobs"] == row["notransfer"]["n_jobs"]
 
 
@@ -114,6 +123,7 @@ def _valid_arm(*, moved: int, n_jobs: int = 2) -> dict:
         "compl": 1.0, "backlog": 0, "policy_exceptions": 0,
         "total": 1.0, "total_raw": 1.0,
         "a2o_mean_min_raw": 1.0, "n_a2o": 2, "n_a2o_expected": 2,
+        "n_a2o_completed": 2, "n_a2o_censored": 0,
         "n_jobs": n_jobs,
         "n_moved": moved,
         "chan": {"truck": 1.0, "vessel": 0.0, "move": 0.0,
@@ -142,6 +152,15 @@ def test_guard_requires_transfer_manipulation_and_same_job_ledger():
     assert any("작업 원장 수" in failure for failure in mismatch.failures)
 
 
+def test_guard_rejects_censored_a2o():
+    row = _row()
+    row["adopted"]["n_a2o_completed"] = 1
+    row["adopted"]["n_a2o_censored"] = 1
+    guard = y115._guard([row])
+    assert not guard.ok
+    assert any("실제 gate-out" in failure for failure in guard.failures)
+
+
 def test_failed_pilot_guard_cannot_write_power_note(monkeypatch, tmp_path):
     monkeypatch.setattr(y115, "_require_clean", lambda: None)
     monkeypatch.setattr(y115, "_manifest", lambda: {"pilot_band": {}})
@@ -165,7 +184,7 @@ def _valid_power_note(monkeypatch) -> tuple[dict, dict, int]:
         "pilot_band": {"realization_hashes": {"A": [], "B": []}},
     }
     power = {
-        "schema": "yr115-power-v2",
+        "schema": "yr115-power-v3",
         "status": "PILOT_GUARDS_PASSED_PLAN_FROZEN",
         "manifest_sha256": "manifest",
         "source_contract_digest": "source",

@@ -39,7 +39,8 @@ truck·vessel·move·other·B→C·berth는 진단이다. truck은 블록 도착
 - 시간계약 v2·gate-block 계약·달성 가능한 본선마감·즉시 교착탈출을 공통 적용한다.
 - 추가 이송주행은 total의 move 항과 A→O에 반영한다.
 - ADOPTED의 이송 trace 수와 `n_moved`, NOTRANSFER의 `n_moved=0`을 강제한다.
-- 완주율 1.0·backlog 0·정책 예외 0·A→O 누락 0·채널합 일치를 강제한다.
+- 완주율 1.0·backlog 0·정책 예외 0·채널합 일치를 강제한다.
+- A→O는 실제 gate-in 원장 전부에 실제 gate-out이 있어야 하며 검열 표본은 0이어야 한다.
 - arm별 전체 작업 수와 A→O 완료 수가 같아야 하며 ADOPTED 전체 이송은 1건 이상이어야 한다.
 
 ## 파일럿과 검정력
@@ -69,10 +70,17 @@ manifest commit
   → confirm
 ```
 
-manifest는 절대 seed·실현지문·기열람 비중복, 지표·효과·δ·판정식과 실제 실행에 쓰이는
-integrated/domain/sim/contract/io 전체 추적 tree·비용설정·DGT 프로파일 blob digest를
-고정한다. pilot guard 실패 시 power note 자체를 만들지 않는다. confirm은 power note의
+manifest는 절대 seed·실현지문·기열람 비중복, 지표·효과·δ·판정식과 `src/yard_rl`,
+`configs` 전체 추적 tree의 blob digest를 고정한다. pilot guard 실패 시 power note 자체를
+만들지 않는다. confirm은 power note의
 스키마·guard·상수·필요 n·독립 대역을 다시 계산하며, 직전 산출물이 HEAD와 같을 때만 열린다.
+
+## 무효 v1 파일럿
+
+첫 파일럿 16쌍은 평균을 열지 않았으나, transitive import 일부가 동결 밖에 있었고 미출문
+차량을 `평가종료-A`로 검열해도 A→O guard가 통과하는 결함이 뒤늦게 발견됐다. v1의 n=238은
+확증에 쓰지 않으며 해당 32개 실현도 기열람 집합에 넣는다. v2는 전체 source/config tree와
+실제 gate-out 완료 100%를 강제하고 새로운 파일럿 대역에서 다시 시작한다.
 
 ## 판정
 
