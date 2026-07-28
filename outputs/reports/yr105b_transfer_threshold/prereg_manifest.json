@@ -1,0 +1,145 @@
+{
+ "schema": "yr105b-prereg-v2",
+ "status": "RESULTS_UNSEEN_FROZEN",
+ "question": "tau 0.05/0.20 중 현행 0.10보다 total과 A→O를 함께 낮추는 값이 있는가",
+ "grid": [
+  0.05,
+  0.1,
+  0.2
+ ],
+ "base": 0.1,
+ "co_primary": [
+  "total",
+  "a2o_min"
+ ],
+ "delta_assumed": {
+  "total": 10.0,
+  "a2o_min": 1.0
+ },
+ "pilot_n": 16,
+ "power": {
+  "endpoint_power": 0.9,
+  "sd_upper_confidence": 0.8,
+  "alpha_two_sided": 0.05,
+  "n_select_rule": "max(24, 3 pairs × 2 endpoints의 보수 필요 n)",
+  "n_confirm_rule": "2 * n_select"
+ },
+ "selection_rule": "두 편익 평균이 모두 양수인 후보 중 min(B_total/10, B_a2o/1) 최대; 동률은 0.20, 없으면 NO_CANDIDATE",
+ "confirmation_rule": "B=Metric(0.10)-Metric(winner); total과 A→O의 95% CI 하한이 모두 >0",
+ "historical_hashes": {
+  "count": 510,
+  "digest": "ea1f24536568dfe061d66566086729d621efb190069e5d859f643b9e3a71af77"
+ },
+ "pilot_band": {
+  "family": "yr105b-pilot",
+  "hash_version": "rz1",
+  "seeds": {
+   "A": [
+    920000,
+    920001,
+    920002,
+    920003,
+    920004,
+    920005,
+    920006,
+    920007,
+    920008,
+    920009,
+    920010,
+    920011,
+    920012,
+    920013,
+    920014,
+    920015
+   ],
+   "B": [
+    920016,
+    920017,
+    920018,
+    920019,
+    920020,
+    920021,
+    920022,
+    920023,
+    920024,
+    920025,
+    920026,
+    920027,
+    920028,
+    920029,
+    920030,
+    920031
+   ]
+  },
+  "realization_hashes": {
+   "A": [
+    "rz1:389fef2cc6ff8627",
+    "rz1:2646196adce64fa2",
+    "rz1:464725c9eee26534",
+    "rz1:db7888aaa28ad5d6",
+    "rz1:4ccf86fc11c97d6f",
+    "rz1:044a143455f0d8f3",
+    "rz1:d129bc3ced2444eb",
+    "rz1:88ef3c82a5dbfa63",
+    "rz1:a9cf13667d737017",
+    "rz1:162b0065149ca58d",
+    "rz1:e004efd3457a4594",
+    "rz1:a7dc73097e8f2f65",
+    "rz1:f9fc516cd74c6b61",
+    "rz1:775b2de1d9576b8c",
+    "rz1:f14d9bc8e5ba23af",
+    "rz1:b680ffa34b5c2d3b"
+   ],
+   "B": [
+    "rz1:4d8f77e668dc3310",
+    "rz1:4ba5407d39d9a43c",
+    "rz1:4f8d5d1546296ba2",
+    "rz1:cc259523cc9d22a7",
+    "rz1:20fcc3a4163e6ff7",
+    "rz1:5fb87533a7bc671e",
+    "rz1:4e79799eb900c45d",
+    "rz1:66ab7ac3045e1d94",
+    "rz1:a1034559cb8a56db",
+    "rz1:a2e0f8c587a027c0",
+    "rz1:659bece43a98fb81",
+    "rz1:2dc93eda0f9bc74a",
+    "rz1:e678918efd2574a6",
+    "rz1:7fce1c52d3b16b1a",
+    "rz1:1c8b1355414617d1",
+    "rz1:e5380e9d256d16b0"
+   ]
+  },
+  "digest": "4970bb99eca2164f"
+ },
+ "pilot_independence": {
+  "n_rows": 32,
+  "n_unique": 32,
+  "internal_duplicates": {},
+  "overlap_with": {},
+  "ok": true,
+  "effective_n_upper": 32
+ },
+ "source_contract": {
+  "files": {
+   "src/yard_rl/experiments/yr105b_transfer_threshold.py": "d16cd1f626b42e10a6703be7f1c331f4730ce5ce831cada1caad7a6811b10327",
+   "src/yard_rl/experiments/yr105_conditional_transfer.py": "0fe8580d0593fe43415e6ebe6717e7b13a5ff2b75e5ddbf6499b1737eab6a577",
+   "src/yard_rl/experiments/yr113_transfer_net_effect.py": "d5d376268a9842c687b5ba8c75235bdf0eb220bb9839995c6fbbbebbff73608f",
+   "src/yard_rl/integrated/block_congestion.py": "9896f9e353d952b72faefb05db53c1efdcf46ac88f9171d245a8a0624bff3376",
+   "src/yard_rl/integrated/candidates.py": "3002a5cf19ab3493bc3a4a470dcc67f74e4f33bc65fae06cd3d96f872a2a303c",
+   "src/yard_rl/integrated/engine.py": "14862290ba14f668913f26a93dcb4462d6823250a8704db84db947b4647d86a2",
+   "src/yard_rl/integrated/evalkit.py": "c3482d7506b4982613282cc5be00d5264ebc23ada5b5d261b21b82a99a266fe7",
+   "src/yard_rl/integrated/multiblock.py": "b3a0c8854958f0a72ac2b22eb1f5e72a5281ea2a726fd68f48fa29dce46473d7",
+   "src/yard_rl/integrated/profiles.py": "b4097dfa46f82f829a3cf077b49ea3e1ec3a98cf7029a7c90f545ec97ccf248d",
+   "src/yard_rl/integrated/repro.py": "0ea07f749e7d141fc2841e1a2b7bf03d7f46a30eaa66ca0e92fffb12859e2333",
+   "src/yard_rl/integrated/resolver.py": "f831c018fe08d8281dc459794feb43b29a2739ff95ce64f5ddb0c0cacadc6874",
+   "src/yard_rl/integrated/scenario_gen.py": "083979cba429b53672bea2a1a6664f20553228b930976260779a5bcc37b46dd6",
+   "src/yard_rl/integrated/seedbank.py": "363bd78d9fc8abd31c1342dbd5620c56f4e3093cfd7a28ad6f0adc31b58a8a36",
+   "src/yard_rl/integrated/statfuncs.py": "31a875716a6de63dae80bb513bcca15da4f697709b35191ac665aab1496cfec4",
+   "configs/costs/numeraire_v1.yaml": "cb2298a9044b19fffcd1d850b4b9c9c7b4d30acca24af1f0dec208a283a2a3fe",
+   ".claude/docs/dashboard-task-specs/YR-105-b-transfer-threshold.md": "72b5f35d93a9e2cf653b19d4995ba90d8b063620112ba0cb0946e6a28713bae6",
+   ".claude/docs/strategy-history/2026-07-28-YR-105-b-상대혼잡격차-임계최적화-prereg.md": "ff7cf6bb5653702d3e4bf02a82022c9ad3b162e633b3e9a910acb9feff1229b0"
+  },
+  "digest": "9abdafbb997b7883a897faa9fad7e29ef0acbfa71437ee1694cf188190902988"
+ },
+ "command": "python -m yard_rl.experiments.yr105b_transfer_threshold --stage pilot"
+}
