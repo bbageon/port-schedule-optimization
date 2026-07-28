@@ -35,7 +35,8 @@ import json
 from pathlib import Path
 from statistics import fmean
 
-from ..integrated.evalkit import (CHANNELS, check_guards, paired, paired_by_channel,
+from ..integrated.evalkit import (CHANNELS, DIAGNOSTIC_NOTE_TRUCK, PRIMARY_METRICS,
+                                  check_guards, judge_primary, paired, paired_by_channel,
                                   prereg_power_note, required_n)
 from ..integrated.profiles import build_calibrated_profile
 from ..integrated.repro import repro_stamp, vessel_physics_rows
@@ -44,8 +45,14 @@ from ..integrated.seedbank import assign_band, independence_report
 from . import yr105_conditional_transfer as y5
 
 OUT = Path("outputs/reports/yr113_transfer_net_effect")
-PRIMARY = "truck"
-DELTA = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0, "total": 10.0}
+# YR-117 (사용자 결정 2026-07-28): 주판정을 **계약대로** 되돌린다 —
+#   total(터미널 총비용, 주행비 포함) + a2o_min(평균 A→O 분, 턴타임 정의상 주행 포함).
+# 트럭 채널은 진단으로 강등 (대기 시계가 블록 도착에서 켜져 이송에 유리하게 부풀 수 있다).
+PRIMARY = "truck"                       # 채널 판정에서의 표기용(구 계약 — 이제 진단)
+DELTA = {"truck": 3.0, "vessel": 10.0, "move": 1.0, "other": 1.0, "total": 10.0,
+         # A→O 는 **분** 단위 δ. 1분 = 트럭 1대당 평균 체류시간 1분 단축 —
+         # 운영적으로 의미 있다고 볼 최소선 (assumed, 실측 SLA 부재).
+         "a2o_min": 1.0}
 SD_CONF = 0.80
 BAND_START = {"pilot": 903_000, "select": 904_000, "confirm": 905_000}
 
@@ -127,18 +134,28 @@ def run(band: str, n: int, exclude: set[str] | None = None) -> dict:
     ch = paired_by_channel([r["notransfer"]["chan"] for r in rows],
                            [r["base"]["chan"] for r in rows],
                            delta_interest=DELTA, primary=PRIMARY, sd_conf=SD_CONF)
+    primary = judge_primary([r["notransfer"] for r in rows], [r["base"] for r in rows],
+                            delta=DELTA, sd_conf=SD_CONF)
+    # 진단: 트럭 채널이 시계 시작점 때문에 부풀 수 있는 상한 (이송건수 × route_s / 3600)
+    truck_bias_cap = round(fmean(r["base"]["n_moved"] for r in rows) * 180.0 / 3600.0, 3)
     res = {"repro": repro_stamp(
                experiment="YR-113 창중 이송 자체의 순효과 (BASE vs 이송 0)",
                seeds=spec.seeds, params={"cell_A": y5._params(y5.CELL_A),
                                          "cell_B": y5._params(y5.CELL_B)},
                profile_id=build_calibrated_profile().terminal_id,
-               prereg=f"Δ = NOTRANSFER − BASE · 1차 채널 {PRIMARY} · "
-                      f"(a) CI 가 0 배제 (b) δ={DELTA[PRIMARY]} 초과 여부를 **분리 보고**. "
-                      "트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+               prereg="Δ = NOTRANSFER − BASE · **주판정 = total + a2o_min**(평가계약 1·3순위, "
+                      "둘 다 주행을 포함하고 시계 시작점 함정이 없다). "
+                      "(a) CI 가 0 배제 (b) δ 초과 여부를 **분리 보고**. "
+                      "트럭 채널은 진단(부풀림 상한 = 이송건수×route_s/3600).",
                extra={"delta_interest": DELTA, "sd_conf": SD_CONF, "band": band,
-                      "primary_channel": PRIMARY, "band_spec": spec.freeze_json(),
+                      "primary_metrics": list(PRIMARY_METRICS),
+                      "diagnostic_channel": PRIMARY,
+                      "truck_channel_caveat": DIAGNOSTIC_NOTE_TRUCK,
+                      "band_spec": spec.freeze_json(),
                       "achievable_deadline": y5.ACHIEVABLE_DEADLINE}),
            "verdict_valid": guards.ok, "band": band, "rows": rows,
+           "primary": primary,
+           "truck_channel_bias_cap": truck_bias_cap,
            "channels_notransfer_minus_base": ch,
            "guards": {"ok": guards.ok, "failures": guards.failures[:5]},
            "deadlock_escapes_total": sum(r[a]["deadlock_escapes"] for r in rows
@@ -148,9 +165,18 @@ def run(band: str, n: int, exclude: set[str] | None = None) -> dict:
                                               encoding="utf-8")
     print(f"\n=== YR-113 [{band}] n={n} valid={guards.ok} "
           f"이송(BASE) {res['moved_base']} 탈출 {res['deadlock_escapes_total']}회 ===")
+    print("  --- 주판정 (계약: 총비용 + 평균 A→O) ---")
+    for k in PRIMARY_METRICS:
+        v = primary[k]
+        if "error" in v:
+            print(f"  {k:8s} {v['error']}")
+            continue
+        print(f"  {k:8s} {v['mean']:+8.3f} CI[{v['ci'][0]:+7.2f},{v['ci'][1]:+7.2f}] "
+              f"{v['unit']} · {v['label']}")
+    print(f"  --- 진단 채널 (트럭 부풀림 상한 {truck_bias_cap}) ---")
     for c, v in ch.items():
         print(f"  {c:7s} {v['mean']:+8.3f} CI[{v['ci'][0]:+7.2f},{v['ci'][1]:+7.2f}] "
-              f"[{v.get('role', '-')}] {v['label']}")
+              f"{v['label']}")
     return res
 
 

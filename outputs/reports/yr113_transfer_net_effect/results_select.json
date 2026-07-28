@@ -2,7 +2,7 @@
  "repro": {
   "experiment": "YR-113 창중 이송 자체의 순효과 (BASE vs 이송 0)",
   "code": {
-   "git_head": "71a8456d5a90d5889d1b83633e5fa9fe534d1a9a",
+   "git_head": "942c4136992228292fa17de1f87ac16d60b92ce0",
    "git_dirty": true,
    "python": "3.12.13"
   },
@@ -175,17 +175,23 @@
     "vessel_deadline_achievable": true
    }
   },
-  "prereg": "Δ = NOTRANSFER − BASE · 1차 채널 truck · (a) CI 가 0 배제 (b) δ=3.0 초과 여부를 **분리 보고**. 트럭 이득이 주행비를 넘는지는 total 채널로 따로 본다.",
+  "prereg": "Δ = NOTRANSFER − BASE · **주판정 = total + a2o_min**(평가계약 1·3순위, 둘 다 주행을 포함하고 시계 시작점 함정이 없다). (a) CI 가 0 배제 (b) δ 초과 여부를 **분리 보고**. 트럭 채널은 진단(부풀림 상한 = 이송건수×route_s/3600).",
   "delta_interest": {
    "truck": 3.0,
    "vessel": 10.0,
    "move": 1.0,
    "other": 1.0,
-   "total": 10.0
+   "total": 10.0,
+   "a2o_min": 1.0
   },
   "sd_conf": 0.8,
   "band": "select",
-  "primary_channel": "truck",
+  "primary_metrics": [
+   "total",
+   "a2o_min"
+  ],
+  "diagnostic_channel": "truck",
+  "truck_channel_caveat": "트럭 채널은 대기 시계가 블록 도착에서 시작하므로 창중 이송 실험에서 이송 쪽으로 부풀 수 있다(상한 = 이송건수×route_s/3600). 진단용.",
   "band_spec": {
    "family": "y113-select",
    "hash_version": "rz1",
@@ -460,7 +466,8 @@
     "n_rejected": 0,
     "n_fired": 19,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 109.659,
@@ -498,7 +505,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": Infinity
    },
    "d_total": -6.199,
    "physics_A": [
@@ -566,7 +574,8 @@
     "n_rejected": 0,
     "n_fired": 13,
     "compl": 1.0,
-    "n_jobs": 213
+    "n_jobs": 213,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 139.18,
@@ -604,7 +613,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 213
+    "n_jobs": 213,
+    "gap_threshold": Infinity
    },
    "d_total": 7.647,
    "physics_A": [
@@ -672,7 +682,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 130.795,
@@ -710,7 +721,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": Infinity
    },
    "d_total": 3.788,
    "physics_A": [
@@ -778,7 +790,8 @@
     "n_rejected": 0,
     "n_fired": 8,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 112.717,
@@ -816,7 +829,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": Infinity
    },
    "d_total": -19.46,
    "physics_A": [
@@ -884,7 +898,8 @@
     "n_rejected": 0,
     "n_fired": 10,
     "compl": 1.0,
-    "n_jobs": 195
+    "n_jobs": 195,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 114.551,
@@ -922,7 +937,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 195
+    "n_jobs": 195,
+    "gap_threshold": Infinity
    },
    "d_total": 10.157,
    "physics_A": [
@@ -990,7 +1006,8 @@
     "n_rejected": 0,
     "n_fired": 17,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 137.731,
@@ -1028,7 +1045,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": Infinity
    },
    "d_total": 9.452,
    "physics_A": [
@@ -1096,7 +1114,8 @@
     "n_rejected": 0,
     "n_fired": 5,
     "compl": 1.0,
-    "n_jobs": 197
+    "n_jobs": 197,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 108.831,
@@ -1134,7 +1153,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 197
+    "n_jobs": 197,
+    "gap_threshold": Infinity
    },
    "d_total": -1.135,
    "physics_A": [
@@ -1202,7 +1222,8 @@
     "n_rejected": 0,
     "n_fired": 5,
     "compl": 1.0,
-    "n_jobs": 188
+    "n_jobs": 188,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 125.87,
@@ -1240,7 +1261,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 188
+    "n_jobs": 188,
+    "gap_threshold": Infinity
    },
    "d_total": -7.74,
    "physics_A": [
@@ -1308,7 +1330,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 198
+    "n_jobs": 198,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 136.136,
@@ -1346,7 +1369,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 198
+    "n_jobs": 198,
+    "gap_threshold": Infinity
    },
    "d_total": 14.807,
    "physics_A": [
@@ -1414,7 +1438,8 @@
     "n_rejected": 0,
     "n_fired": 14,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 94.11,
@@ -1452,7 +1477,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": Infinity
    },
    "d_total": -24.071,
    "physics_A": [
@@ -1520,7 +1546,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 178
+    "n_jobs": 178,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 90.255,
@@ -1558,7 +1585,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 178
+    "n_jobs": 178,
+    "gap_threshold": Infinity
    },
    "d_total": 13.841,
    "physics_A": [
@@ -1626,7 +1654,8 @@
     "n_rejected": 0,
     "n_fired": 13,
     "compl": 1.0,
-    "n_jobs": 175
+    "n_jobs": 175,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 102.035,
@@ -1664,7 +1693,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 175
+    "n_jobs": 175,
+    "gap_threshold": Infinity
    },
    "d_total": 24.893,
    "physics_A": [
@@ -1732,7 +1762,8 @@
     "n_rejected": 0,
     "n_fired": 10,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 123.777,
@@ -1770,7 +1801,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": Infinity
    },
    "d_total": 23.599,
    "physics_A": [
@@ -1803,51 +1835,52 @@
    "seed_A": 904013,
    "seed_B": 904066,
    "base": {
-    "total": 115.648,
+    "total": 110.232,
     "chan": {
-     "truck": 21.1997,
-     "vessel": 88.3502,
-     "move": 6.0984,
+     "truck": 24.8299,
+     "vessel": 79.1841,
+     "move": 6.2177,
      "other": 0.0,
-     "total": 115.6483
+     "total": 110.2317
     },
     "chan_by_block": {
      "A": {
-      "truck": 11.8841,
-      "vessel": 52.485,
-      "move": 3.7049,
+      "truck": 13.8712,
+      "vessel": 44.2102,
+      "move": 3.6977,
       "other": 0.0
      },
      "B": {
-      "truck": 9.3156,
-      "vessel": 35.8653,
-      "move": 2.1435,
+      "truck": 10.9587,
+      "vessel": 34.9739,
+      "move": 2.22,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 235,
+    "decisions": 241,
     "deadlock_escapes": 1,
     "backlog": 0,
-    "route_cost": 0.25,
-    "berth_min": 160.6,
-    "a2o_mean_min": 19.42,
-    "b2c_mean_min": 9.27,
-    "n_moved": 5,
+    "route_cost": 0.3,
+    "berth_min": 144.0,
+    "a2o_mean_min": 20.45,
+    "b2c_mean_min": 10.29,
+    "n_moved": 6,
     "n_blocked_vessel": 0,
     "n_rejected": 0,
-    "n_fired": 5,
+    "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 189
+    "n_jobs": 189,
+    "gap_threshold": 0.1
    },
    "notransfer": {
-    "total": 117.817,
+    "total": 114.359,
     "chan": {
-     "truck": 23.6882,
-     "vessel": 88.2414,
-     "move": 5.8876,
+     "truck": 23.5809,
+     "vessel": 84.7786,
+     "move": 5.9993,
      "other": 0.0,
-     "total": 117.8172
+     "total": 114.3588
     },
     "chan_by_block": {
      "A": {
@@ -1857,28 +1890,29 @@
       "other": 0.0
      },
      "B": {
-      "truck": 9.6791,
-      "vessel": 35.5909,
-      "move": 2.1309,
+      "truck": 9.5718,
+      "vessel": 32.1282,
+      "move": 2.2426,
       "other": 0.0
      }
     },
     "policy_exceptions": 0,
-    "decisions": 235,
+    "decisions": 239,
     "deadlock_escapes": 1,
     "backlog": 0,
     "route_cost": 0.0,
-    "berth_min": 160.4,
-    "a2o_mean_min": 20.05,
-    "b2c_mean_min": 10.04,
+    "berth_min": 154.1,
+    "a2o_mean_min": 20.03,
+    "b2c_mean_min": 10.02,
     "n_moved": 0,
     "n_blocked_vessel": 0,
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 189
+    "n_jobs": 189,
+    "gap_threshold": Infinity
    },
-   "d_total": 2.169,
+   "d_total": 4.127,
    "physics_A": [
     {
      "vessel_id": "V-DISC-0",
@@ -1944,7 +1978,8 @@
     "n_rejected": 0,
     "n_fired": 10,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 86.639,
@@ -1982,7 +2017,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": Infinity
    },
    "d_total": 0.344,
    "physics_A": [
@@ -2050,7 +2086,8 @@
     "n_rejected": 0,
     "n_fired": 12,
     "compl": 1.0,
-    "n_jobs": 187
+    "n_jobs": 187,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 88.861,
@@ -2088,7 +2125,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 187
+    "n_jobs": 187,
+    "gap_threshold": Infinity
    },
    "d_total": -16.332,
    "physics_A": [
@@ -2156,7 +2194,8 @@
     "n_rejected": 0,
     "n_fired": 17,
     "compl": 1.0,
-    "n_jobs": 209
+    "n_jobs": 209,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 125.23,
@@ -2194,7 +2233,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 209
+    "n_jobs": 209,
+    "gap_threshold": Infinity
    },
    "d_total": -32.734,
    "physics_A": [
@@ -2262,7 +2302,8 @@
     "n_rejected": 0,
     "n_fired": 5,
     "compl": 1.0,
-    "n_jobs": 182
+    "n_jobs": 182,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 93.796,
@@ -2300,7 +2341,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 182
+    "n_jobs": 182,
+    "gap_threshold": Infinity
    },
    "d_total": -11.084,
    "physics_A": [
@@ -2368,7 +2410,8 @@
     "n_rejected": 0,
     "n_fired": 15,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 108.948,
@@ -2406,7 +2449,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": Infinity
    },
    "d_total": 23.147,
    "physics_A": [
@@ -2474,7 +2518,8 @@
     "n_rejected": 0,
     "n_fired": 3,
     "compl": 1.0,
-    "n_jobs": 166
+    "n_jobs": 166,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 68.192,
@@ -2512,7 +2557,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 166
+    "n_jobs": 166,
+    "gap_threshold": Infinity
    },
    "d_total": 5.036,
    "physics_A": [
@@ -2580,7 +2626,8 @@
     "n_rejected": 0,
     "n_fired": 14,
     "compl": 1.0,
-    "n_jobs": 189
+    "n_jobs": 189,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 150.448,
@@ -2618,7 +2665,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 189
+    "n_jobs": 189,
+    "gap_threshold": Infinity
    },
    "d_total": 14.279,
    "physics_A": [
@@ -2686,7 +2734,8 @@
     "n_rejected": 0,
     "n_fired": 7,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 102.233,
@@ -2724,7 +2773,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": Infinity
    },
    "d_total": -17.083,
    "physics_A": [
@@ -2792,7 +2842,8 @@
     "n_rejected": 0,
     "n_fired": 17,
     "compl": 1.0,
-    "n_jobs": 197
+    "n_jobs": 197,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 146.412,
@@ -2830,7 +2881,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 197
+    "n_jobs": 197,
+    "gap_threshold": Infinity
    },
    "d_total": 14.568,
    "physics_A": [
@@ -2898,7 +2950,8 @@
     "n_rejected": 0,
     "n_fired": 4,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 118.847,
@@ -2936,7 +2989,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": Infinity
    },
    "d_total": 8.215,
    "physics_A": [
@@ -3004,7 +3058,8 @@
     "n_rejected": 0,
     "n_fired": 14,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 142.317,
@@ -3042,7 +3097,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": Infinity
    },
    "d_total": -7.226,
    "physics_A": [
@@ -3110,7 +3166,8 @@
     "n_rejected": 0,
     "n_fired": 16,
     "compl": 1.0,
-    "n_jobs": 212
+    "n_jobs": 212,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 128.369,
@@ -3148,7 +3205,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 212
+    "n_jobs": 212,
+    "gap_threshold": Infinity
    },
    "d_total": -6.169,
    "physics_A": [
@@ -3181,13 +3239,13 @@
    "seed_A": 904026,
    "seed_B": 904079,
    "base": {
-    "total": 106.069,
+    "total": 106.128,
     "chan": {
-     "truck": 30.8601,
+     "truck": 30.9102,
      "vessel": 69.5251,
-     "move": 5.6835,
+     "move": 5.6925,
      "other": 0.0,
-     "total": 106.0687
+     "total": 106.1278
     },
     "chan_by_block": {
      "A": {
@@ -3197,9 +3255,9 @@
       "other": 0.0
      },
      "B": {
-      "truck": 10.2286,
+      "truck": 10.2786,
       "vessel": 19.2405,
-      "move": 2.0187,
+      "move": 2.0277,
       "other": 0.0
      }
     },
@@ -3209,14 +3267,15 @@
     "backlog": 0,
     "route_cost": 0.7,
     "berth_min": 126.4,
-    "a2o_mean_min": 21.34,
-    "b2c_mean_min": 11.0,
+    "a2o_mean_min": 21.36,
+    "b2c_mean_min": 11.02,
     "n_moved": 14,
     "n_blocked_vessel": 0,
     "n_rejected": 0,
     "n_fired": 14,
     "compl": 1.0,
-    "n_jobs": 209
+    "n_jobs": 209,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 123.734,
@@ -3254,9 +3313,10 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 209
+    "n_jobs": 209,
+    "gap_threshold": Infinity
    },
-   "d_total": 17.665,
+   "d_total": 17.606,
    "physics_A": [
     {
      "vessel_id": "V-DISC-0",
@@ -3322,7 +3382,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 127.186,
@@ -3360,7 +3421,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 205
+    "n_jobs": 205,
+    "gap_threshold": Infinity
    },
    "d_total": 11.798,
    "physics_A": [
@@ -3428,7 +3490,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 182
+    "n_jobs": 182,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 91.977,
@@ -3466,7 +3529,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 182
+    "n_jobs": 182,
+    "gap_threshold": Infinity
    },
    "d_total": 22.406,
    "physics_A": [
@@ -3534,7 +3598,8 @@
     "n_rejected": 0,
     "n_fired": 12,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 110.037,
@@ -3572,7 +3637,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": Infinity
    },
    "d_total": 6.231,
    "physics_A": [
@@ -3640,7 +3706,8 @@
     "n_rejected": 0,
     "n_fired": 5,
     "compl": 1.0,
-    "n_jobs": 177
+    "n_jobs": 177,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 76.37,
@@ -3678,7 +3745,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 177
+    "n_jobs": 177,
+    "gap_threshold": Infinity
    },
    "d_total": 4.442,
    "physics_A": [
@@ -3746,7 +3814,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 181
+    "n_jobs": 181,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 77.864,
@@ -3784,7 +3853,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 181
+    "n_jobs": 181,
+    "gap_threshold": Infinity
    },
    "d_total": 7.286,
    "physics_A": [
@@ -3852,7 +3922,8 @@
     "n_rejected": 0,
     "n_fired": 18,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 113.755,
@@ -3890,7 +3961,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": Infinity
    },
    "d_total": 23.113,
    "physics_A": [
@@ -3958,7 +4030,8 @@
     "n_rejected": 0,
     "n_fired": 12,
     "compl": 1.0,
-    "n_jobs": 210
+    "n_jobs": 210,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 127.382,
@@ -3996,7 +4069,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 210
+    "n_jobs": 210,
+    "gap_threshold": Infinity
    },
    "d_total": 23.714,
    "physics_A": [
@@ -4064,7 +4138,8 @@
     "n_rejected": 0,
     "n_fired": 18,
     "compl": 1.0,
-    "n_jobs": 200
+    "n_jobs": 200,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 143.702,
@@ -4102,7 +4177,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 200
+    "n_jobs": 200,
+    "gap_threshold": Infinity
    },
    "d_total": 28.672,
    "physics_A": [
@@ -4170,7 +4246,8 @@
     "n_rejected": 0,
     "n_fired": 18,
     "compl": 1.0,
-    "n_jobs": 211
+    "n_jobs": 211,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 133.262,
@@ -4208,7 +4285,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 211
+    "n_jobs": 211,
+    "gap_threshold": Infinity
    },
    "d_total": 0.277,
    "physics_A": [
@@ -4276,7 +4354,8 @@
     "n_rejected": 0,
     "n_fired": 21,
     "compl": 1.0,
-    "n_jobs": 213
+    "n_jobs": 213,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 147.087,
@@ -4314,7 +4393,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 213
+    "n_jobs": 213,
+    "gap_threshold": Infinity
    },
    "d_total": 6.28,
    "physics_A": [
@@ -4382,7 +4462,8 @@
     "n_rejected": 0,
     "n_fired": 10,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 104.703,
@@ -4420,7 +4501,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": Infinity
    },
    "d_total": -2.114,
    "physics_A": [
@@ -4488,7 +4570,8 @@
     "n_rejected": 0,
     "n_fired": 28,
     "compl": 1.0,
-    "n_jobs": 200
+    "n_jobs": 200,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 162.553,
@@ -4526,7 +4609,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 200
+    "n_jobs": 200,
+    "gap_threshold": Infinity
    },
    "d_total": 35.846,
    "physics_A": [
@@ -4594,7 +4678,8 @@
     "n_rejected": 0,
     "n_fired": 9,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 96.464,
@@ -4632,7 +4717,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 193
+    "n_jobs": 193,
+    "gap_threshold": Infinity
    },
    "d_total": -10.877,
    "physics_A": [
@@ -4700,7 +4786,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 103.138,
@@ -4738,7 +4825,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 204
+    "n_jobs": 204,
+    "gap_threshold": Infinity
    },
    "d_total": 4.819,
    "physics_A": [
@@ -4806,7 +4894,8 @@
     "n_rejected": 0,
     "n_fired": 15,
     "compl": 1.0,
-    "n_jobs": 198
+    "n_jobs": 198,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 166.41,
@@ -4844,7 +4933,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 198
+    "n_jobs": 198,
+    "gap_threshold": Infinity
    },
    "d_total": 9.44,
    "physics_A": [
@@ -4912,7 +5002,8 @@
     "n_rejected": 0,
     "n_fired": 2,
     "compl": 1.0,
-    "n_jobs": 201
+    "n_jobs": 201,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 85.516,
@@ -4950,7 +5041,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 201
+    "n_jobs": 201,
+    "gap_threshold": Infinity
    },
    "d_total": 0.137,
    "physics_A": [
@@ -5018,7 +5110,8 @@
     "n_rejected": 0,
     "n_fired": 18,
     "compl": 1.0,
-    "n_jobs": 229
+    "n_jobs": 229,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 150.971,
@@ -5056,7 +5149,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 229
+    "n_jobs": 229,
+    "gap_threshold": Infinity
    },
    "d_total": 3.048,
    "physics_A": [
@@ -5124,7 +5218,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 181
+    "n_jobs": 181,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 72.858,
@@ -5162,7 +5257,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 181
+    "n_jobs": 181,
+    "gap_threshold": Infinity
    },
    "d_total": -2.559,
    "physics_A": [
@@ -5230,7 +5326,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 91.053,
@@ -5268,7 +5365,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 199
+    "n_jobs": 199,
+    "gap_threshold": Infinity
    },
    "d_total": -2.142,
    "physics_A": [
@@ -5336,7 +5434,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 187
+    "n_jobs": 187,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 77.296,
@@ -5374,7 +5473,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 187
+    "n_jobs": 187,
+    "gap_threshold": Infinity
    },
    "d_total": -25.473,
    "physics_A": [
@@ -5442,7 +5542,8 @@
     "n_rejected": 0,
     "n_fired": 11,
     "compl": 1.0,
-    "n_jobs": 188
+    "n_jobs": 188,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 115.496,
@@ -5480,7 +5581,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 188
+    "n_jobs": 188,
+    "gap_threshold": Infinity
    },
    "d_total": 3.252,
    "physics_A": [
@@ -5548,7 +5650,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 168
+    "n_jobs": 168,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 77.532,
@@ -5586,7 +5689,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 168
+    "n_jobs": 168,
+    "gap_threshold": Infinity
    },
    "d_total": -9.429,
    "physics_A": [
@@ -5654,7 +5758,8 @@
     "n_rejected": 0,
     "n_fired": 6,
     "compl": 1.0,
-    "n_jobs": 172
+    "n_jobs": 172,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 68.588,
@@ -5692,7 +5797,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 172
+    "n_jobs": 172,
+    "gap_threshold": Infinity
    },
    "d_total": -6.493,
    "physics_A": [
@@ -5760,7 +5866,8 @@
     "n_rejected": 0,
     "n_fired": 16,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 171.43,
@@ -5798,7 +5905,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 203
+    "n_jobs": 203,
+    "gap_threshold": Infinity
    },
    "d_total": 31.124,
    "physics_A": [
@@ -5866,7 +5974,8 @@
     "n_rejected": 0,
     "n_fired": 7,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 101.657,
@@ -5904,7 +6013,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": Infinity
    },
    "d_total": -2.635,
    "physics_A": [
@@ -5972,7 +6082,8 @@
     "n_rejected": 0,
     "n_fired": 8,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": 0.1
    },
    "notransfer": {
     "total": 109.362,
@@ -6010,7 +6121,8 @@
     "n_rejected": 0,
     "n_fired": 0,
     "compl": 1.0,
-    "n_jobs": 194
+    "n_jobs": 194,
+    "gap_threshold": Infinity
    },
    "d_total": -10.284,
    "physics_A": [
@@ -6039,52 +6151,99 @@
    ]
   }
  ],
+ "primary": {
+  "contract": [
+   "total",
+   "a2o_min"
+  ],
+  "total": {
+   "n": 53,
+   "mean": 3.701,
+   "sd": 14.886,
+   "ci": [
+    -0.402,
+    7.804
+   ],
+   "mde80": 5.838,
+   "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
+   "required_n_for_mean": 155,
+   "required_n_for_delta": 23,
+   "equivalent": true,
+   "tost_ci90": [
+    0.277,
+    7.125
+   ],
+   "unit": "numeraire(트럭대기 1h=1.0)",
+   "role": "1차(계약 1순위)"
+  },
+  "a2o_min": {
+   "n": 53,
+   "mean": 0.82,
+   "sd": 1.265,
+   "ci": [
+    0.472,
+    1.169
+   ],
+   "mde80": 0.496,
+   "label": "유의(악화)",
+   "required_n_for_mean": 25,
+   "required_n_for_delta": 18,
+   "equivalent": false,
+   "tost_ci90": [
+    0.529,
+    1.111
+   ],
+   "unit": "분(게이트 진입→출문)",
+   "role": "1차(계약 3순위·턴타임 정의)"
+  }
+ },
+ "truck_channel_bias_cap": 0.564,
  "channels_notransfer_minus_base": {
   "truck": {
    "n": 53,
-   "mean": 3.384,
-   "sd": 4.191,
+   "mean": 3.312,
+   "sd": 4.236,
    "ci": [
-    2.229,
-    4.539
+    2.145,
+    4.48
    ],
-   "mde80": 1.644,
+   "mde80": 1.661,
    "label": "유의(악화)",
-   "required_n_for_mean": 17,
+   "required_n_for_mean": 18,
    "required_n_for_delta": 21,
    "equivalent": false,
    "tost_ci90": [
-    2.42,
-    4.348
+    2.338,
+    4.287
    ],
    "role": "1차(확증)"
   },
   "vessel": {
    "n": 53,
-   "mean": 0.831,
-   "sd": 13.662,
+   "mean": 0.938,
+   "sd": 13.677,
    "ci": [
-    -2.935,
-    4.596
+    -2.832,
+    4.708
    ],
-   "mde80": 5.358,
+   "mde80": 5.364,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": 2554,
+   "required_n_for_mean": 2007,
    "required_n_for_delta": 20,
    "equivalent": true,
    "tost_ci90": [
-    -2.312,
-    3.973
+    -2.208,
+    4.084
    ],
    "role": "탐색적(보정 없음)"
   },
   "move": {
    "n": 53,
-   "mean": -0.549,
+   "mean": -0.55,
    "sd": 0.273,
    "ci": [
     -0.625,
-    -0.474
+    -0.475
    ],
    "mde80": 0.107,
    "label": "유의하나 δ 미만(실질 무의미 — |효과| < δ=1.00)",
@@ -6118,20 +6277,20 @@
   },
   "total": {
    "n": 53,
-   "mean": 3.665,
-   "sd": 14.889,
+   "mean": 3.701,
+   "sd": 14.886,
    "ci": [
-    -0.439,
-    7.769
+    -0.402,
+    7.804
    ],
-   "mde80": 5.839,
+   "mde80": 5.838,
    "label": "효과 없음(TOST 통과 — 90% CI ⊂ ±10.00)",
-   "required_n_for_mean": 158,
+   "required_n_for_mean": 155,
    "required_n_for_delta": 23,
    "equivalent": true,
    "tost_ci90": [
-    0.24,
-    7.09
+    0.277,
+    7.125
    ],
    "role": "탐색적(보정 없음)"
   }
