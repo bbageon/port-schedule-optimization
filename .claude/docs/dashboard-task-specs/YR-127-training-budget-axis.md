@@ -1,5 +1,5 @@
 # YR-127 — 학습 예산 단일축: 경사 갱신 횟수 ×20 (YR-125 1단계의 최소 수정 검증)
-> 상태: **in-progress (2026-07-29 착수 — 사전등록 동결 후 학습 중)** · 2세대 계측 위 학습 진단 · spec 등록 2026-07-29
+> 상태: **done (2026-07-29 — ★기각)** · 2세대 계측 위 학습 진단 · spec 등록 2026-07-29
 > 근거: [YR-125 1단계](../../../outputs/reports/yr125_qvalue_diagnosis/report.md) — 12 체크포인트
 > 전부 보정오차(G−Q̂) ≈ 실현수익 전체. 원인 역산 = **총 경사 갱신 ~1,000회**(에피소드당
 > `max(1, len(trans)//64)` ≈ 2~3회 × 500) vs 전파 지평 150+ 결정.
@@ -24,5 +24,19 @@
   축에 내재한 차이로 고지.
 - 후속 옵션(이 실험에 혼입 금지): n-step 수익(Rainbow n=3 관행) · replay ratio 사다리.
 
+## 결과 (2026-07-29 — ★기각, 성공 기준 N1·N2·N3 전부 미달)
+
+- 축 실증: 실수행 갱신 21,960~22,200회/시드 (기존 ~1,100 의 20배, train_meta.json).
+- N1 실패(방향 확증): bias_ratio 0.685/0.692/0.696 — 참조 WAITON 0.991 대비 3/3 일관
+  개선(예측 설명력 1~3%→~31%)이나 동결 임계 0.5 미달.
+- N2 실패: 전략적 WAIT 0.479(WAITON 재평가, YR-119 값과 일치)→0.535 증가, 60% 장악 13.
+- N3 실패(guard): 짝 총비용 +1.46 [−4.74,+7.66] TOST 동등이나 미건전 13 vs 3.
+- 수확: "Q 를 채우면 쏠림이 풀린다" 기각 — 재배치 붕괴(→0.005~0.015)·WAIT 수렴.
+  절대비용 TD 목표 자체가 유휴 선호 (H-B WAIT 과소귀속 vs H-C 목표 불일치는 미판별 —
+  이번 진단 집계가 WAIT/비WAIT 보정 분리를 저장하지 않은 한계).
+- 분기 발동: YR-125 2단계 = 차분 1-step 이식.
+
 ## Evidence
-등록 시점: YR-125 1단계 diagnosis.json · 이후 결과 여기 갱신.
+`3631650`(prereg) · [report](../../../outputs/reports/yr127_training_budget/report.md) ·
+[results](../../../outputs/reports/yr127_training_budget/results.json) ·
+[하네스](../../../src/yard_rl/experiments/yr127_training_budget.py)
