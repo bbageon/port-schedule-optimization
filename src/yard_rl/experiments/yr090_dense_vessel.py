@@ -99,6 +99,15 @@ def graduated_wait_shaping(sim, dt_s: float) -> float:
     return RAMP * tot * (dt_s / 3600.0)
 
 
+# YR-121 opt-in — **선택된** WAIT 크레인의 유휴 시간당 벌점 (numeraire/시간). 기본 0.0 =
+# 기존 학습 바이트 동일. 가격 근거(assumed, 튜닝 아님): "크레인이 의도적으로 노는 1시간 =
+# 트럭 1대가 기다리는 1시간과 같은 값" (truck_wait 기준재 1.0/h 와 동일 앵커).
+# 경계 계약: **열거된 조합에서 고른 WAIT 배정**(부분 WAIT·"실작업 전부 공동 실행불가" 시의
+# 구조적 WAIT 포함)이 대상이다 — 그 안에서도 덜 노는 조합을 고를 여지가 있었기 때문.
+# `assigns` 가 아예 비는 진짜 강제 WAIT(선택지 0)만 제외된다.
+WAIT_TIME_PENALTY = 0.0
+
+
 def collect_episode(cell, seed, net, norm, epsilon, rng, *, dense_vessel: bool):
     """yr088 collect + 점증 트럭비용 + (DENSE arm) 본선 잠재함수 shaping."""
     sim = _sim(cell, seed)
@@ -123,6 +132,9 @@ def collect_episode(cell, seed, net, norm, epsilon, rng, *, dense_vessel: bool):
             gdt = GAMMA ** ((sim.now - pend["t_act"]) / REF_S)
             if dense_vessel:                       # F = γ^Δt·Φ(s′) − Φ(s) — 정책불변
                 pend["r"] += gdt * vessel_potential(sim) - pend["phi"]
+            # YR-121: 선택된 WAIT 의 실제 지속시간(SMDP Δt)에 비례한 벌점 (기본 0 = 무변화)
+            pend["r"] += WAIT_TIME_PENALTY * pend.get("n_wait", 0) \
+                * (sim.now - pend["t_act"]) / 3600.0
             trans.append([pend["rows"], pend["pos"], pend["r"], gdt, rows])
             pend = None
         if not assigns:
@@ -136,7 +148,9 @@ def collect_episode(cell, seed, net, norm, epsilon, rng, *, dense_vessel: bool):
                 pick = rng.randrange(len(assigns))
             n_repo = sum(1 for c in dp.crane_ids
                          if assigns[pick][c].kind == CandidateKind.REPOSITION)
-            pend = {"rows": rows, "pos": pick, "t_act": sim.now,
+            n_wait = sum(1 for c in dp.crane_ids
+                         if assigns[pick][c].kind == CandidateKind.WAIT)
+            pend = {"rows": rows, "pos": pick, "t_act": sim.now, "n_wait": n_wait,
                     "r": REPO_PENALTY * n_repo, "phi": vessel_potential(sim)}
             _apply(sim, assigns[pick])
         dp = sim.run_until_decision()
@@ -151,6 +165,8 @@ def collect_episode(cell, seed, net, norm, epsilon, rng, *, dense_vessel: bool):
         if dense_vessel:
             pend["r"] += vessel_potential(sim) - pend["phi"]
         pend["r"] += UNSERVED * n_unserved
+        pend["r"] += WAIT_TIME_PENALTY * pend.get("n_wait", 0) \
+            * (sim.now - pend["t_act"]) / 3600.0          # YR-121 (종결 구간 동일 규칙)
         trans.append([pend["rows"], pend["pos"], pend["r"], 1.0, None])
     return trans, {"completion": sum(1 for j in jobs if j.status.name == "DONE") / len(jobs)}
 
