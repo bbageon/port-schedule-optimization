@@ -107,6 +107,12 @@ def graduated_wait_shaping(sim, dt_s: float) -> float:
 # `assigns` 가 아예 비는 진짜 강제 WAIT(선택지 0)만 제외된다.
 WAIT_TIME_PENALTY = 0.0
 
+# YR-127 opt-in — 에피소드당 경사 갱신 루프 배수. 기본 1 = 기존 학습 바이트 동일.
+# YR-125 진단: 총 갱신 ~1,000회(에피소드당 max(1, len(trans)//batch) ≈ 2~3회 × 500)는
+# 전파 지평 150+ 결정 대비 절대 부족(전이당 경사 표본 ~0.9회; 통상 관행 ≥4~8회).
+# 갱신 1회의 내용물(배치 표집·스텝·soft 갱신)은 불변 — 횟수만 배수한다.
+UPDATE_MULT = 1
+
 
 def collect_episode(cell, seed, net, norm, epsilon, rng, *, dense_vessel: bool):
     """yr088 collect + 점증 트럭비용 + (DENSE arm) 본선 잠재함수 shaping."""
@@ -239,7 +245,7 @@ def train_one(arm: str, base_seed: int, episodes=500, spc=16, batch=64, lr=5e-4)
             opt = torch.optim.Adam(net.parameters(), lr=lr)
         replay.extend(trans)
         if net is not None and len(replay) >= batch:
-            for _ in range(max(1, len(trans) // batch)):
+            for _ in range(UPDATE_MULT * max(1, len(trans) // batch)):
                 _train_step(net, target, opt, rng.sample(replay, batch))
                 _soft(target, net, 0.005); _soft(ema, net, 0.01)
         if net is not None and ep % 25 == 0:
