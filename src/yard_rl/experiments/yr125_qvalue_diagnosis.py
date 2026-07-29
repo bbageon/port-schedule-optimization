@@ -41,8 +41,8 @@ from ..integrated.joint_distill import JointPairNet
 from ..integrated.repro import repro_stamp
 from . import yr088_joint_rl as y88
 from . import yr090_dense_vessel as y90
-from .yr088_joint_rl import LEVEL, RC as RC_TRAIN, REF_S, REPO_PENALTY, SCALE, UNSERVED, build_rows
-from .yr090_dense_vessel import BASE, CELLS, _sim, graduated_wait_shaping
+from .yr088_joint_rl import LEVEL, RC as RC_TRAIN, REF_S, REPO_PENALTY, UNSERVED, build_rows
+from .yr090_dense_vessel import BASE, CELLS, SCALE, _sim, graduated_wait_shaping
 
 OUT = Path("outputs/reports/yr125_qvalue_diagnosis")
 ARMS = {  # name → (ckpt dir 패턴, forbid_wait, gamma, wait_time_penalty)
@@ -85,20 +85,21 @@ def _diagnose_episode(net, norm, cell, seed, *, forbid, gamma, wait_pen):
         else:
             with torch.no_grad():
                 sc, _ = net(torch.tensor(rows, dtype=torch.float32))
-            q = sc.numpy()
+            q = [float(x) for x in sc]
             wait_mask = [any(a[c].kind == CandidateKind.WAIT for c in dp.crane_ids)
                          for a in assigns]
             serve_ok = any(g.feasible and g.kind == CandidateKind.SERVE
                            for c in dp.crane_ids for g in gen_by[c].items)
-            rec = {"n": len(assigns), "std": float(q.std()) * SCALE,
-                   "range": float(q.max() - q.min()) * SCALE, "serve_ok": serve_ok}
-            full = [float(x) for x, wm in zip(q, wait_mask) if not wm]
-            wait = [float(x) for x, wm in zip(q, wait_mask) if wm]
+            rec = {"n": len(assigns),
+                   "std": (pstdev(q) if len(q) > 1 else 0.0) * SCALE,
+                   "range": (max(q) - min(q)) * SCALE, "serve_ok": serve_ok}
+            full = [x for x, wm in zip(q, wait_mask) if not wm]
+            wait = [x for x, wm in zip(q, wait_mask) if wm]
             if full and wait:
                 rec["gap"] = (min(wait) - min(full)) * SCALE
                 rec["best_is_wait"] = min(wait) < min(full)
             decisions.append(rec)
-            pick = int(q.argmin())
+            pick = q.index(min(q))
             n_wait = sum(1 for c in dp.crane_ids
                          if assigns[pick][c].kind == CandidateKind.WAIT)
             n_repo = sum(1 for c in dp.crane_ids

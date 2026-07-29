@@ -1,0 +1,173 @@
+{
+ "repro": {
+  "experiment": "YR-125 1단계 — Q값 진단 (무학습)",
+  "code": {
+   "git_head": "e59df81854138e4c5ea555b986f10a5999a3433d",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train": [
+    88000,
+    99000,
+    123000
+   ],
+   "eval": [
+    830700,
+    830701,
+    830800,
+    830801,
+    830900,
+    830901,
+    831000,
+    831001
+   ]
+  },
+  "params": {},
+  "prereg": "진단 — 지표 M1/M2/M3 과 해석 규칙(H-A 변별상실 / H-B 체계적 오평가 / H-C 목표충실·목표불일치)을 결과 열람 전 동결. 판정·채택 아님.",
+  "arms": {
+   "WAITOFF": {
+    "forbid": true,
+    "gamma": 0.99,
+    "wait_pen": 0.0
+   },
+   "WAITON": {
+    "forbid": false,
+    "gamma": 0.99,
+    "wait_pen": 0.0
+   },
+   "DURPEN": {
+    "forbid": false,
+    "gamma": 0.99,
+    "wait_pen": 1.0
+   },
+   "GAMMA1": {
+    "forbid": false,
+    "gamma": 1.0,
+    "wait_pen": 0.0
+   }
+  }
+ },
+ "summary": {
+  "WAITOFF": {
+   "n_decisions": 5847,
+   "n_gap_decisions": 0,
+   "M1_gap": null,
+   "M1_best_is_wait_share": null,
+   "M2_q_std_mean": 0.358,
+   "M2_q_range_mean": 0.924,
+   "M3_bias_all": 137.595,
+   "M3_bias_wait_chosen": 117.815,
+   "M3_bias_nonwait": 138.564,
+   "M3_mae": 137.706,
+   "M3_n": {
+    "wait": 273,
+    "nonwait": 5574
+   },
+   "G_scale_mean": 140.29
+  },
+  "WAITON": {
+   "n_decisions": 4534,
+   "n_gap_decisions": 4219,
+   "M1_gap": {
+    "n": 4219,
+    "mean": -0.058,
+    "sd": 0.429,
+    "ci": [
+     -0.07,
+     -0.045
+    ],
+    "mde80": 0.019,
+    "label": "유의(개선)",
+    "required_n_for_mean": 439,
+    "required_n_for_delta": null,
+    "equivalent": null,
+    "tost_ci90": [
+     -0.068,
+     -0.047
+    ]
+   },
+   "M1_best_is_wait_share": 0.6115,
+   "M2_q_std_mean": 0.214,
+   "M2_q_range_mean": 0.647,
+   "M3_bias_all": 215.218,
+   "M3_bias_wait_chosen": 231.564,
+   "M3_bias_nonwait": 186.973,
+   "M3_mae": 215.222,
+   "M3_n": {
+    "wait": 2872,
+    "nonwait": 1662
+   },
+   "G_scale_mean": 217.2
+  },
+  "DURPEN": {
+   "n_decisions": 4923,
+   "n_gap_decisions": 4654,
+   "M1_gap": {
+    "n": 4654,
+    "mean": -0.006,
+    "sd": 0.408,
+    "ci": [
+     -0.018,
+     0.006
+    ],
+    "mde80": 0.017,
+    "label": "미검출(CI 0 포함) — MDE 0.02. 관심효과 δ 미지정이라 '효과 없음' 주장 불가",
+    "required_n_for_mean": 36813,
+    "required_n_for_delta": null,
+    "equivalent": null,
+    "tost_ci90": [
+     -0.016,
+     0.004
+    ]
+   },
+   "M1_best_is_wait_share": 0.5499,
+   "M2_q_std_mean": 0.256,
+   "M2_q_range_mean": 0.767,
+   "M3_bias_all": 169.446,
+   "M3_bias_wait_chosen": 174.121,
+   "M3_bias_nonwait": 163.077,
+   "M3_mae": 169.452,
+   "M3_n": {
+    "wait": 2839,
+    "nonwait": 2084
+   },
+   "G_scale_mean": 171.85
+  },
+  "GAMMA1": {
+   "n_decisions": 4509,
+   "n_gap_decisions": 4199,
+   "M1_gap": {
+    "n": 4199,
+    "mean": -0.126,
+    "sd": 0.42,
+    "ci": [
+     -0.138,
+     -0.113
+    ],
+    "mde80": 0.018,
+    "label": "유의(개선)",
+    "required_n_for_mean": 90,
+    "required_n_for_delta": null,
+    "equivalent": null,
+    "tost_ci90": [
+     -0.136,
+     -0.115
+    ]
+   },
+   "M1_best_is_wait_share": 0.669,
+   "M2_q_std_mean": 0.276,
+   "M2_q_range_mean": 0.835,
+   "M3_bias_all": 215.359,
+   "M3_bias_wait_chosen": 217.393,
+   "M3_bias_nonwait": 210.759,
+   "M3_mae": 215.359,
+   "M3_n": {
+    "wait": 3126,
+    "nonwait": 1383
+   },
+   "G_scale_mean": 217.75
+  }
+ }
+}
