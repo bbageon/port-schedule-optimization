@@ -1,0 +1,115 @@
+{
+ "repro": {
+  "experiment": "YR-128 가치 순위 진단 — Q vs 반사실 C600 순위 (무학습)",
+  "code": {
+   "git_head": "83f2736a43dfdd4f82915f5347d15b25b5747c7c",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train": [
+    88000,
+    99000,
+    123000
+   ],
+   "eval": [
+    830700,
+    830701,
+    830800,
+    830801,
+    830900,
+    830901,
+    831000,
+    831001
+   ]
+  },
+  "params": {},
+  "prereg": "지표 R1 top-1 일치·R2 Spearman·R3 WAIT 방향 혼동표(P(cw|qw)) 와 해석 규칙(H-순위결함 <0.5 / H-실제선호 ≥0.7 / 중간 혼재) 을 결과 열람 전 동결. C600 = 600s 오라클 반사실(YR-107 진단 특권·YR-065 창 한계 고지). 진단 — 판정·채택 아님.",
+  "horizon_s": 600.0,
+  "arms": [
+   "BUDGET20",
+   "WAITON"
+  ]
+ },
+ "summary": {
+  "BUDGET20:88000": {
+   "n_decisions": 1407,
+   "R1_top1_agree": 0.2324,
+   "R2_spearman_mean": 0.1262,
+   "R3_confusion": {
+    "both_wait": 260,
+    "q_only": 673,
+    "c_only": 90,
+    "neither": 319
+   },
+   "R3_p_cw_given_qw": 0.2787,
+   "R3_n_mixed": 1342
+  },
+  "BUDGET20:99000": {
+   "n_decisions": 1430,
+   "R1_top1_agree": 0.2385,
+   "R2_spearman_mean": 0.1551,
+   "R3_confusion": {
+    "both_wait": 307,
+    "q_only": 678,
+    "c_only": 79,
+    "neither": 314
+   },
+   "R3_p_cw_given_qw": 0.3117,
+   "R3_n_mixed": 1378
+  },
+  "BUDGET20:123000": {
+   "n_decisions": 1512,
+   "R1_top1_agree": 0.2229,
+   "R2_spearman_mean": 0.1408,
+   "R3_confusion": {
+    "both_wait": 244,
+    "q_only": 719,
+    "c_only": 87,
+    "neither": 366
+   },
+   "R3_p_cw_given_qw": 0.2534,
+   "R3_n_mixed": 1416
+  },
+  "WAITON:88000": {
+   "n_decisions": 1363,
+   "R1_top1_agree": 0.2715,
+   "R2_spearman_mean": 0.1583,
+   "R3_confusion": {
+    "both_wait": 208,
+    "q_only": 495,
+    "c_only": 128,
+    "neither": 456
+   },
+   "R3_p_cw_given_qw": 0.2959,
+   "R3_n_mixed": 1287
+  },
+  "WAITON:99000": {
+   "n_decisions": 1465,
+   "R1_top1_agree": 0.2102,
+   "R2_spearman_mean": 0.0921,
+   "R3_confusion": {
+    "both_wait": 200,
+    "q_only": 620,
+    "c_only": 130,
+    "neither": 402
+   },
+   "R3_p_cw_given_qw": 0.2439,
+   "R3_n_mixed": 1352
+  },
+  "WAITON:123000": {
+   "n_decisions": 1699,
+   "R1_top1_agree": 0.2649,
+   "R2_spearman_mean": 0.1126,
+   "R3_confusion": {
+    "both_wait": 339,
+    "q_only": 701,
+    "c_only": 150,
+    "neither": 389
+   },
+   "R3_p_cw_given_qw": 0.326,
+   "R3_n_mixed": 1579
+  }
+ }
+}
