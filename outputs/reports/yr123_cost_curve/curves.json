@@ -1,0 +1,113 @@
+{
+ "sim": {
+  "cell": "high-tight",
+  "seed": 830300,
+  "now_s": 215.4476670916337
+ },
+ "curves": {
+  "도착 트럭": {
+   "job": "J-IN-001",
+   "kind": "truck",
+   "basis": "관측 대기 0s·SLA 1800s·w=1.0/1.0 — 창 검열 21385s",
+   "escalation_start_s": null,
+   "points": [
+    {
+     "dt_s": 60.0,
+     "cost": 0.0167,
+     "lo": 0.0167,
+     "hi": 0.0167
+    },
+    {
+     "dt_s": 300.0,
+     "cost": 0.0833,
+     "lo": 0.0833,
+     "hi": 0.0833
+    },
+    {
+     "dt_s": 600.0,
+     "cost": 0.1667,
+     "lo": 0.1667,
+     "hi": 0.1667
+    }
+   ]
+  },
+  "미도착 트럭(ETA)": {
+   "job": "J-IN-006",
+   "kind": "truck_eta",
+   "basis": "미도착(공개 ETA 기반) — 도착 전이라 하한 0",
+   "escalation_start_s": null,
+   "points": [
+    {
+     "dt_s": 60.0,
+     "cost": 0.0167,
+     "lo": 0.0,
+     "hi": 0.0167
+    },
+    {
+     "dt_s": 300.0,
+     "cost": 0.0833,
+     "lo": 0.0,
+     "hi": 0.0833
+    },
+    {
+     "dt_s": 600.0,
+     "cost": 0.1667,
+     "lo": 0.0,
+     "hi": 0.1667
+    }
+   ]
+  },
+  "본선 LOAD": {
+   "job": "J-V-LOAD-1-00",
+   "kind": "vessel_load",
+   "basis": "공급 반사실(paired anchor)·dur=180s assumed·ρ_vessel=33 assumed(민감도 ×⅓~3 보고 의무)",
+   "escalation_start_s": null,
+   "points": [
+    {
+     "dt_s": 60.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    {
+     "dt_s": 300.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    {
+     "dt_s": 600.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    }
+   ]
+  },
+  "본선 DISCHARGE": {
+   "job": "J-V-DISC-0-00",
+   "kind": "vessel_discharge",
+   "basis": "현 비용계약에서 양하 지연의 과금 레버 0 (감사 실측)",
+   "escalation_start_s": null,
+   "points": [
+    {
+     "dt_s": 60.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    {
+     "dt_s": 300.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    {
+     "dt_s": 600.0,
+     "cost": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    }
+   ]
+  }
+ }
+}

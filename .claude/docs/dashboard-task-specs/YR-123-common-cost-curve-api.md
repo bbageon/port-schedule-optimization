@@ -1,6 +1,6 @@
 # YR-123 — 공통 작업비용 계산기 통일 + 지연 한계비용 곡선 API
 
-> 상태: ready · 2세대 · 설계 정정 2026-07-30
+> 상태: **done (2026-07-30 — 곡선 API·테스트 11 완료. quote 배선은 YR-133 이월)** · 2세대
 > 세대 기준: [YR-099 경계](../strategy-history/2026-07-29-아키텍처-세대구분-정정-YR-099경계.md)
 
 ## 현재 사실
@@ -44,3 +44,16 @@ InBurden  = receiver ADD 비용 - receiver NO-ADD 비용
 - YR-100 CALC와 YR-133 source/receiver quote의 실제 연결
 - 대표 작업별 지연 한계비용 곡선과 단위·가정 evidence
 - YR-124 상태표현 C안의 입력 재료
+
+
+## 구현 결과 (2026-07-30)
+
+- [cost_curve.py](../../../src/yard_rl/integrated/cost_curve.py):
+  `delay_cost_curve(sim, job_id, Δt)` → cost·불확실성 대역(lo/hi)·급증 시작 지연.
+  유형별 정의는 전부 **현행 동결 비용계약에서 유도** (새 가격 발명 없음): 트럭 = 대기
+  1.0/h + SLA 초과 2.0/h(급증 시작 = 남은 여유), 미도착 = 하한 0/ETA 결측 fail-closed,
+  본선 LOAD = vessel_cost paired 반사실(κ 대역·ρ 민감도 의무 승계), 양하·기타 = 0 명시.
+- 계약 ⑤ 고정: [tests 11](../../../tests/integrated/test_yr123_cost_curve.py).
+- evidence: [대표 곡선](../../../outputs/reports/yr123_cost_curve/report.md).
+- **산출물 2(quote 실제 연결)는 YR-133 의 몫으로 이월** (7차 피드백 역할 갱신과 정합 —
+  이 모듈은 그 견적의 공용 원료·YR-132 식 개수 보정 용도 금지).
