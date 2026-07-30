@@ -1,0 +1,287 @@
+{
+ "repro": {
+  "experiment": "YR-129 차분 실패 판별 — D̂ 적합도 4축 (무학습)",
+  "code": {
+   "git_head": "8aaa94301aea42b63d6431c7dfd9bb0efaad3ce0",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train_ckpt": [
+    88000,
+    99000,
+    123000
+   ],
+   "train": [
+    830000,
+    830001,
+    830100,
+    830101,
+    830200,
+    830201,
+    830300,
+    830301
+   ],
+   "novel": [
+    830700,
+    830701,
+    830800,
+    830801,
+    830900,
+    830901,
+    831000,
+    831001
+   ]
+  },
+  "params": {},
+  "prereg": "4축(A 훈련분포/B 신규상태/C 미선택 후보/D 종결 잔여) + 판별 규칙 R-미적합(A r<0.5→고정 데이터셋 오프라인 epoch)·R-일반화(B r<0.3 또는 A−0.2 초과 하락→YR-124)·R-커버리지(실행 부호≥0.7·미선택 ρ<0.3→K-후보 학습)·R-표적(전부 양호+운영 실패→종결비용/창)·R-유형(REPO MAE>2×) 을 결과 열람 전 동결. 진단 — 판정·채택 아님.",
+  "horizon_s": 600.0,
+  "bands": {
+   "train": 8,
+   "novel": 8
+  }
+ },
+ "summary": {
+  "88000": {
+   "train": {
+    "executed_fit": {
+     "n": 1682,
+     "pearson_r": 0.2985,
+     "sign_agree": 0.6171,
+     "mae": 3.351,
+     "slope": 8.751
+    },
+    "unchosen_fit": {
+     "n": 19544,
+     "pearson_r": 0.3943,
+     "sign_agree": 0.5385,
+     "mae": 10.567,
+     "slope": 23.5694
+    },
+    "all_fit": {
+     "n": 21226,
+     "pearson_r": 0.3867,
+     "sign_agree": 0.5447,
+     "mae": 9.995,
+     "slope": 22.325
+    },
+    "rank": {
+     "n_decisions": 1987,
+     "top1_agree": 0.2079,
+     "spearman_mean": 0.0791
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.289,
+     "mae_low_resid": 28.975,
+     "mae_high_resid": 0.316,
+     "resid_mean": 58.35
+    }
+   },
+   "novel": {
+    "executed_fit": {
+     "n": 1353,
+     "pearson_r": 0.1746,
+     "sign_agree": 0.5735,
+     "mae": 2.011,
+     "slope": 3.4695
+    },
+    "unchosen_fit": {
+     "n": 18187,
+     "pearson_r": 0.1795,
+     "sign_agree": 0.5265,
+     "mae": 3.785,
+     "slope": 5.8359
+    },
+    "all_fit": {
+     "n": 19540,
+     "pearson_r": 0.1781,
+     "sign_agree": 0.5297,
+     "mae": 3.662,
+     "slope": 5.651
+    },
+    "rank": {
+     "n_decisions": 1644,
+     "top1_agree": 0.2391,
+     "spearman_mean": 0.0939
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.2814,
+     "mae_low_resid": 10.02,
+     "mae_high_resid": 0.383,
+     "resid_mean": 56.93
+    }
+   },
+   "zero_anchor_dhat": {
+    "n": 3890,
+    "mean": -0.293,
+    "mean_abs": 0.613
+   },
+   "by_type_mae": {
+    "has_repo": 0.507,
+    "has_wait": 8.914
+   },
+   "mae_all": 6.959
+  },
+  "99000": {
+   "train": {
+    "executed_fit": {
+     "n": 913,
+     "pearson_r": 0.4535,
+     "sign_agree": 0.5772,
+     "mae": 1.305,
+     "slope": 12.5103
+    },
+    "unchosen_fit": {
+     "n": 16348,
+     "pearson_r": 0.3232,
+     "sign_agree": 0.547,
+     "mae": 1.65,
+     "slope": 12.355
+    },
+    "all_fit": {
+     "n": 17261,
+     "pearson_r": 0.3273,
+     "sign_agree": 0.5486,
+     "mae": 1.632,
+     "slope": 12.1693
+    },
+    "rank": {
+     "n_decisions": 1233,
+     "top1_agree": 0.322,
+     "spearman_mean": 0.2075
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.1556,
+     "mae_low_resid": 4.549,
+     "mae_high_resid": 0.107,
+     "resid_mean": 47.44
+    }
+   },
+   "novel": {
+    "executed_fit": {
+     "n": 921,
+     "pearson_r": 0.4101,
+     "sign_agree": 0.481,
+     "mae": 1.203,
+     "slope": 21.2257
+    },
+    "unchosen_fit": {
+     "n": 13752,
+     "pearson_r": 0.1766,
+     "sign_agree": 0.5385,
+     "mae": 2.012,
+     "slope": 12.2113
+    },
+    "all_fit": {
+     "n": 14673,
+     "pearson_r": 0.1828,
+     "sign_agree": 0.5349,
+     "mae": 1.961,
+     "slope": 12.1866
+    },
+    "rank": {
+     "n_decisions": 1191,
+     "top1_agree": 0.309,
+     "spearman_mean": 0.2241
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.1548,
+     "mae_low_resid": 5.509,
+     "mae_high_resid": 0.115,
+     "resid_mean": 43.55
+    }
+   },
+   "zero_anchor_dhat": {
+    "n": 2666,
+    "mean": 0.053,
+    "mean_abs": 0.076
+   },
+   "by_type_mae": {
+    "has_repo": 0.174,
+    "has_wait": 2.661
+   },
+   "mae_all": 1.783
+  },
+  "123000": {
+   "train": {
+    "executed_fit": {
+     "n": 883,
+     "pearson_r": 0.1438,
+     "sign_agree": 0.4802,
+     "mae": 2.832,
+     "slope": 4.282
+    },
+    "unchosen_fit": {
+     "n": 7737,
+     "pearson_r": 0.2759,
+     "sign_agree": 0.499,
+     "mae": 4.678,
+     "slope": 11.4079
+    },
+    "all_fit": {
+     "n": 8620,
+     "pearson_r": 0.2655,
+     "sign_agree": 0.4971,
+     "mae": 4.489,
+     "slope": 10.7314
+    },
+    "rank": {
+     "n_decisions": 971,
+     "top1_agree": 0.2915,
+     "spearman_mean": -0.0462
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.2857,
+     "mae_low_resid": 12.526,
+     "mae_high_resid": 0.49,
+     "resid_mean": 49.42
+    }
+   },
+   "novel": {
+    "executed_fit": {
+     "n": 913,
+     "pearson_r": 0.2713,
+     "sign_agree": 0.4885,
+     "mae": 2.835,
+     "slope": 7.5042
+    },
+    "unchosen_fit": {
+     "n": 11425,
+     "pearson_r": 0.3084,
+     "sign_agree": 0.4513,
+     "mae": 3.918,
+     "slope": 12.5226
+    },
+    "all_fit": {
+     "n": 12338,
+     "pearson_r": 0.3037,
+     "sign_agree": 0.454,
+     "mae": 3.838,
+     "slope": 12.0132
+    },
+    "rank": {
+     "n_decisions": 1055,
+     "top1_agree": 0.2303,
+     "spearman_mean": -0.0458
+    },
+    "d_axis": {
+     "corr_resid_abs_err": -0.2924,
+     "mae_low_resid": 10.567,
+     "mae_high_resid": 0.559,
+     "resid_mean": 51.11
+    }
+   },
+   "zero_anchor_dhat": {
+    "n": 2361,
+    "mean": 0.323,
+    "mean_abs": 0.401
+   },
+   "by_type_mae": {
+    "has_repo": 1.073,
+    "has_wait": 5.448
+   },
+   "mae_all": 4.105
+  }
+ }
+}
