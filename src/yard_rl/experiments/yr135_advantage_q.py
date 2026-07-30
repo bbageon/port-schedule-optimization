@@ -59,7 +59,10 @@ TRAIN_SEEDS = (88_000, 99_000, 123_000)
 HORIZON_S = 600.0
 BANDS = {"train": [(c, BASE[c] + i) for c in CELLS for i in range(2)],
          "select": [(c, BASE[c] + 700 + i) for c in CELLS for i in range(2)],
-         "judge": [(c, BASE[c] + 1100 + i) for c in CELLS for i in range(2)]}
+         "judge": [(c, BASE[c] + 1100 + i) for c in CELLS for i in range(2)],
+         # 2단계 판정 대역 — 1100 대역은 1단계 판정으로 열람됨(재사용 금지)
+         "judge2": [(c, BASE[c] + 1300 + i) for c in CELLS for i in range(2)]}
+AUX_W, MARGIN, PAIR_EPS = 1.0, 0.01, 0.01   # 2단계 순위 보조손실 (동등 가중 앵커, 동결)
 # 250차원 행의 구획 (build_rows 계약): ctx_a 0:116 · blk_a 116:154 · ctx_b 154:212 · blk_b 212:250
 CTX_A, BLK_A, CTX_B, BLK_B = (0, 116), (116, 154), (154, 212), (212, 250)
 
@@ -270,7 +273,126 @@ def run() -> dict:
     return judge()
 
 
+# ---------------------------------------------------------------- 2단계 (순위 보조손실)
+def train_stage2(ts: int) -> Path:
+    """1단계와 동일 구조·데이터. 유일 추가 = 결정 내 pairwise margin 순위 보조손실.
+
+    loss = Huber(Q, y) + AUX_W × margin_rank (131-b 규약: margin 0.01·잡음쌍 제외 0.01).
+    선택지표 = select 대역 결정 내 ρ (순위가 결핍 능력) — 절대 r 은 병행 기록.
+    """
+    tr, va = _load(ts, "train"), _load(ts, "select")
+    torch.manual_seed(ts)
+    net = JointDuelingNet(tr["X"].shape[1])
+    opt = torch.optim.Adam(net.parameters(), lr=5e-4)
+    g = torch.Generator().manual_seed(ts)
+    pair_by_group = []
+    for ii in tr["groups"]:
+        ps = [(a, b) for a in ii for b in ii
+              if float(tr["y"][a]) + PAIR_EPS < float(tr["y"][b])]
+        pair_by_group.append(ps)
+    best = {"sel": -1.0, "epoch": 0, "state": None, "r": 0.0}
+    n_groups = len(tr["groups"])
+    for ep in range(1, 2001):
+        net.train()
+        perm = torch.randperm(n_groups, generator=g).tolist()
+        for s0 in range(0, n_groups, 16):
+            gi = perm[s0:s0 + 16]
+            gs = [tr["groups"][i] for i in gi]
+            flat = [i for ii in gs for i in ii]
+            pos = {gidx: k for k, gidx in enumerate(flat)}
+            local, pa, pb = [], [], []
+            off = 0
+            for i, ii in zip(gi, gs):
+                local.append(list(range(off, off + len(ii))))
+                off += len(ii)
+                for a, b in pair_by_group[i]:
+                    pa.append(pos[a]); pb.append(pos[b])
+            x = tr["X"][flat]
+            q = net.q_groups(x, local)
+            loss = nn.functional.smooth_l1_loss(q, tr["y"][flat])
+            if pa:
+                loss = loss + AUX_W * nn.functional.margin_ranking_loss(
+                    q[pb], q[pa], torch.ones(len(pa)), margin=MARGIN)
+            opt.zero_grad(); loss.backward()
+            nn.utils.clip_grad_norm_(net.parameters(), 10.0); opt.step()
+        net.eval()
+        with torch.no_grad():
+            pv = net.q_groups(va["X"], va["groups"])
+        m = _rank_eval(pv, va)
+        sel = m["rho"] or -1.0
+        if sel > best["sel"] + 1e-3:
+            best = {"sel": sel, "epoch": ep, "state": copy.deepcopy(net.state_dict()),
+                    "r": _pearson_t(pv, va["y"])}
+        if ep - best["epoch"] >= 100:
+            break
+    net.load_state_dict(best["state"]); net.eval()
+    out = OUT / f"vaq2_s{ts}"
+    out.mkdir(parents=True, exist_ok=True)
+    torch.save({"state": net.state_dict(), "in_dim": net.in_dim, "arm": "VAQ2",
+                "train_seed": ts, "best_epoch": best["epoch"]}, out / "net.pt")
+    print(f"[135-2 s{ts}] best_ep {best['epoch']} select ρ {best['sel']:.4f} "
+          f"(r {best['r']:.4f})", flush=True)
+    return out / "net.pt"
+
+
+def judge_stage2() -> dict:
+    ev = {}
+    for ts in TRAIN_SEEDS:
+        data = _load(ts, "judge2")
+        out_ts = {}
+        for name, ctor, ckp in (
+                ("VAQ2", JointDuelingNet, OUT / f"vaq2_s{ts}" / "net.pt"),
+                ("VAQ1", JointDuelingNet, OUT / f"vaq_s{ts}" / "net.pt"),
+                ("ref_131b", JointPairNet, B131 / f"b_s{ts}" / "net.pt")):
+            ck = torch.load(ckp, map_location="cpu")
+            net = ctor(ck["in_dim"]); net.load_state_dict(ck["state"]); net.eval()
+            with torch.no_grad():
+                if isinstance(net, JointDuelingNet):
+                    p = net.q_groups(data["X"], data["groups"])
+                else:
+                    p, _ = net(data["X"])
+            out_ts[name] = {"r_abs": round(_pearson_t(p, data["y"]), 4),
+                            **_rank_eval(p, data)}
+        ev[ts] = out_ts
+        print(f"[judge2 s{ts}] {json.dumps(ev[ts], ensure_ascii=False)}", flush=True)
+    j1 = all((e["VAQ2"]["rho"] or 0) >= 0.30 and e["VAQ2"]["top1"] >= 0.35
+             for e in ev.values())
+    j2 = all(e["VAQ2"]["r_abs"] >= 0.5 for e in ev.values())
+    j3 = all(e["VAQ2"]["regret_mean"] <= e["ref_131b"]["regret_mean"]
+             for e in ev.values())
+    judgment = {"J1_rank": j1, "J2_abs_fit_kept": j2, "J3_regret_vs_131b": j3,
+                "success": bool(j1 and j2 and j3), "per_seed": ev}
+    res = {"repro": repro_stamp(
+               experiment="YR-135 2단계 — V/A + 결정 내 순위 보조손실 (오프라인)",
+               seeds={"train_ckpt": list(TRAIN_SEEDS),
+                      "judge2": sorted({s for _, s in BANDS['judge2']})},
+               profile_id="calibrated",
+               prereg="유일 추가 = 순위 보조손실(α=1.0 동등 앵커·margin 0.01·eps 0.01). "
+                      "판정 대역 = BASE+1300/1301 신규(1100 열람됨). J1 3/3 ρ≥0.30∧"
+                      "top1≥0.35 · J2 3/3 r≥0.5 유지 · J3 regret ≤ 131-b. 라벨은 v1 "
+                      "비용계약 — 구조 진단(채택 승계 금지, YR-136 재라벨이 채택 경로). "
+                      "진단 — 판정·채택 아님.",
+               extra={"aux_w": AUX_W, "margin": MARGIN, "pair_eps": PAIR_EPS}),
+           "judgment": judgment}
+    (OUT / "results_stage2.json").write_text(
+        json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"J1": j1, "J2": j2, "J3": j3,
+                      "success": judgment["success"]}, ensure_ascii=False))
+    return res
+
+
+def run_stage2() -> dict:
+    OUT.mkdir(parents=True, exist_ok=True)
+    for ts in TRAIN_SEEDS:
+        _label_band(ts, "judge2")
+    for ts in TRAIN_SEEDS:
+        train_stage2(ts)
+    return judge_stage2()
+
+
 if __name__ == "__main__":
-    argparse.ArgumentParser().parse_args()
-    run()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--stage", type=int, default=1, choices=(1, 2))
+    a = ap.parse_args()
+    (run if a.stage == 1 else run_stage2)()
     print("DONE")

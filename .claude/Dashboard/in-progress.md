@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-135 | RL | **공동 Advantage-Q 1단계 — V/A 분리 구조 (BlockQ-v3)** | 🔴 | 2026-07-30 | **7차 피드백·사용자 지시로 v2 마감 후 착수**: 유일 변경 = 점수망 구조 `Q = V(상태) + A(후보) − mean A`. 표적 = 후보별 절대 C600(차분·잔여 없음), SF-SPT = 동등 경쟁자. 라벨 3대역 신규(judge = BASE+1100/1101 미열람). **판정 동결**: J1 3/3 ρ≥0.30∧top1≥0.35 · J2 3/3 r(Q̂,C600)≥0.5 · J3 regret ≤ 131-b 참조. 성공→에피소드 판정 / J1만 미달→2단계 순위 보조손실 / J2 미달→구조 재검 · [spec](../docs/dashboard-task-specs/YR-135-advantage-q.md)·[하네스](../../src/yard_rl/experiments/yr135_advantage_q.py)·[전환 기록](../docs/strategy-history/2026-07-30-BlockQ-v3-AdvantageQ-전환.md) |
+| YR-135 | RL | **공동 Advantage-Q — 1단계 완료(J2 통과)·2단계 순위 보조손실 학습 중 (BlockQ-v3)** | 🔴 | 2026-07-30 | **1단계 판정(구조 진단, v1 계약 라벨)**: **J2 절대 적합 최초 3/3 통과** — r(Q̂,C600) 0.690/0.513/0.611 (신규 대역 BASE+1100/1101, 여정: 1~3%→31%→0.42~0.52→**0.51~0.69**) = V(상태 공통비용)가 분산을 흡수하자 비용 크기 능력 확보. **J1 순위 미달**(ρ 0.288/0.136/−0.037 — 회귀만으론 A 에 순위 안 생김, YR-131 재확인)·J3 혼재(2/3 개선). **동결 분기 발동 → 2단계**: 유일 추가 = 결정 내 pairwise 순위 보조손실(α=1.0 동등 앵커·margin 0.01), 선택지표 = select ρ, **판정 대역 BASE+1300/1301 신규**(1100 열람됨). 판정 = J1 ρ≥0.30∧top1≥0.35 ∧ **J2 r≥0.5 유지**(순위손실이 절대 적합을 파괴하지 않아야 — v3 존재 이유) ∧ J3 regret≤131-b. 성공 시에도 채택은 YR-136 v2 재라벨 후 · [1단계 report](../../outputs/reports/yr135_advantage_q/report_stage1.md)·[spec](../docs/dashboard-task-specs/YR-135-advantage-q.md)·[하네스](../../src/yard_rl/experiments/yr135_advantage_q.py) |
 
 ---
 
