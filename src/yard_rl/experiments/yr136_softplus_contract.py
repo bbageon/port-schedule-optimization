@@ -56,7 +56,8 @@ def _episode_errors(cell: str, seed: int) -> tuple[list, list, int, int]:
         else:
             et.append(o - o_hat)
     for vid, f_hat in pred_v.items():
-        f = getattr(sim.vessels[vid], "actual_completion_s", None)
+        # 사후 정산 전용 truth (GROUND_TRUTH) — 예측에는 미사용, 오차 측정에만 열람
+        f = getattr(getattr(sim.vessels[vid], "truth", None), "actual_completion_s", None)
         if f is None:
             cen_v += 1
         else:
@@ -72,6 +73,7 @@ def run() -> dict:
         et += a; ev += b; cen_t += ct; cen_v += cv
         print(f"[{cell}:{seed}] 트럭 {len(a)}(검열 {ct}) 본선 {len(b)}(검열 {cv})",
               flush=True)
+    assert et and ev, f"오차 표본 부족: 트럭 {len(et)} · 본선 {len(ev)} (검열 {cen_t}/{cen_v})"
     k = math.sqrt(3.0) / math.pi
     fit = {"kappa_t_s": round(k * pstdev(et), 1), "bias_t_s": round(fmean(et), 1),
            "kappa_v_s": round(k * pstdev(ev), 1), "bias_v_s": round(fmean(ev), 1),

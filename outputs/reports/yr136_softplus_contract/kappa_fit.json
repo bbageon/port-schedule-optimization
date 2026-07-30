@@ -1,0 +1,51 @@
+{
+ "repro": {
+  "experiment": "YR-136 0단계 — 예측기 오차 측정 + κ 적합 (softplus v2.1)",
+  "code": {
+   "git_head": "c88bda4347953a4734abdbf178bedebf8c746deb",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "mid-loose": [
+    830000,
+    830001,
+    830002,
+    830003
+   ],
+   "high-loose": [
+    830100,
+    830101,
+    830102,
+    830103
+   ],
+   "mid-tight": [
+    830200,
+    830201,
+    830202,
+    830203
+   ],
+   "high-tight": [
+    830300,
+    830301,
+    830302,
+    830303
+   ]
+  },
+  "params": {},
+  "prereg": "프로토콜 사전 동결(예측 시점·오차 정의·적합식). 적합값은 이 런으로 동결 — 같은 판정런 내 κ·b 조정 금지. 진단·개발 — 판정 아님.",
+  "n_episodes": 16
+ },
+ "kappa_t_s": 438.3,
+ "bias_t_s": 289.6,
+ "kappa_v_s": 1189.2,
+ "bias_v_s": 5363.0,
+ "n_truck": 1114,
+ "n_vessel": 16,
+ "censored_truck": 0,
+ "censored_vessel": 0,
+ "sd_truck_s": 794.9,
+ "sd_vessel_s": 2157.0,
+ "protocol": "SF 정책·4셀×4시드·트럭 첫 WAITING/본선 개시 후 첫 결정·b=mean, κ=(√3/π)·SD — spec v2.1 동결"
+}
