@@ -1,5 +1,5 @@
 # YR-130 — 고정 데이터셋 오프라인 epoch 학습 (YR-129 R-미적합 처방)
-> 상태: **in-progress (2026-07-30 — YR-129 분기표의 동결 처방, 즉시 착수)**
+> 상태: **done (2026-07-30 — ★J1 기각: 갱신 병목 아님, 표본 구성 한계 확정)**
 > 근거: [YR-129 판별](../../../outputs/reports/yr129_diff_fit/report.md) — A 훈련 적합
 > r 0.14~0.45 (3/3 < 0.5)·기울기 4~21 = 회귀 미적합. 처방(외부 3차 피드백) = 표본
 > 재생성 금지, 고정 데이터 train/val 분리·epoch 반복·val 정체 시 종료.
@@ -18,3 +18,17 @@
 
 ## Evidence
 사전동결: (커밋 예정) · 결과: outputs/reports/yr130_offline_epochs/
+
+
+## 결과 (2026-07-30 — ★J1 기각)
+
+- best val r 0.292/0.392/0.302 (< 0.5) 이 epoch 3/5/18 에 정점 → 이후 과적합 하락
+  (train r 0.47~0.68 ↑, val ep100 0.04~0.12 ↓). 갱신·용량은 충분 — **표본 구성이 병목**.
+- J2: 적합 정점 망도 순위 미형성 (top-1 0.16~0.18·ρ ≈0·P(cw|qw) 0.31~0.33).
+- 동결 분기: (a) K-후보 오프라인 순위([YR-131](YR-131-k-candidate-ranking.md) 등록)
+  (b) 기준행동 SF-SPT 교체(재라벨 런 필요 — 기존 meta 에 SF 선택 미기록 정정)
+  (c) YR-124. 사용자 선택 대기.
+
+## Evidence
+`d9ceba1`(prereg) · [report](../../../outputs/reports/yr130_offline_epochs/report.md) ·
+[results](../../../outputs/reports/yr130_offline_epochs/results.json)
