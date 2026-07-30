@@ -1,0 +1,166 @@
+{
+ "repro": {
+  "experiment": "YR-132 종결 잔여 표적 단일축 (D_H = D + λ·Δ잔여, λ=1.0 동결)",
+  "code": {
+   "git_head": "08a8c11cc60fd53e7600c56a2acf6dd55f84b0fa",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train_ckpt": [
+    88000,
+    99000,
+    123000
+   ],
+   "new_band": [
+    830900,
+    830901,
+    831000,
+    831001,
+    831100,
+    831101,
+    831200,
+    831201
+   ]
+  },
+  "params": {},
+  "prereg": "유일 차이 = 표적 D→D_H (λ=1.0 가격앵커·개수 잔여는 진단용 지위). 학습 = 131-b 프로토콜·데이터 rollout 0. 판정 = 새 대역(BASE+900/901, 미열람) 라벨: J1 3/3 ρ_H≥0.30 ∧ top1≥0.35, J2 3/3 regret(132) < regret(131-b) 같은 결정 짝. 성공 시 YR-123 비용가중 잔여로 승계. 진단 — 판정·채택 아님.",
+  "lambda": 1.0,
+  "margin": 0.01,
+  "pair_eps": 0.01
+ },
+ "judgment": {
+  "J1_rank_newband": false,
+  "J2_regret_vs_131b": false,
+  "success": false,
+  "per_seed": {
+   "88000": {
+    "YR132_DH": {
+     "vs_DH": {
+      "top1": 0.3727,
+      "rho": 0.4161,
+      "regret_mean": 0.6705,
+      "n_decisions": 1331
+     },
+     "vs_DH_hi40": {
+      "top1": 0.3814,
+      "rho": 0.4473,
+      "regret_mean": 0.2936,
+      "n_decisions": 548
+     },
+     "vs_D": {
+      "top1": 0.3569,
+      "rho": 0.3666,
+      "regret_mean": 0.4648,
+      "n_decisions": 1331
+     }
+    },
+    "YR131_b": {
+     "vs_DH": {
+      "top1": 0.3088,
+      "rho": 0.3304,
+      "regret_mean": 0.8896,
+      "n_decisions": 1331
+     },
+     "vs_DH_hi40": {
+      "top1": 0.3285,
+      "rho": 0.4176,
+      "regret_mean": 0.3834,
+      "n_decisions": 548
+     },
+     "vs_D": {
+      "top1": 0.3343,
+      "rho": 0.3885,
+      "regret_mean": 0.5953,
+      "n_decisions": 1331
+     }
+    }
+   },
+   "99000": {
+    "YR132_DH": {
+     "vs_DH": {
+      "top1": 0.3957,
+      "rho": 0.3913,
+      "regret_mean": 0.6653,
+      "n_decisions": 1150
+     },
+     "vs_DH_hi40": {
+      "top1": 0.47,
+      "rho": 0.3555,
+      "regret_mean": 0.2875,
+      "n_decisions": 483
+     },
+     "vs_D": {
+      "top1": 0.3687,
+      "rho": 0.2757,
+      "regret_mean": 0.4333,
+      "n_decisions": 1150
+     }
+    },
+    "YR131_b": {
+     "vs_DH": {
+      "top1": 0.3817,
+      "rho": 0.3337,
+      "regret_mean": 0.8234,
+      "n_decisions": 1150
+     },
+     "vs_DH_hi40": {
+      "top1": 0.4803,
+      "rho": 0.3209,
+      "regret_mean": 0.3242,
+      "n_decisions": 483
+     },
+     "vs_D": {
+      "top1": 0.3817,
+      "rho": 0.312,
+      "regret_mean": 0.513,
+      "n_decisions": 1150
+     }
+    }
+   },
+   "123000": {
+    "YR132_DH": {
+     "vs_DH": {
+      "top1": 0.3847,
+      "rho": 0.2976,
+      "regret_mean": 0.8287,
+      "n_decisions": 1110
+     },
+     "vs_DH_hi40": {
+      "top1": 0.3841,
+      "rho": 0.2479,
+      "regret_mean": 0.4087,
+      "n_decisions": 453
+     },
+     "vs_D": {
+      "top1": 0.3658,
+      "rho": 0.2229,
+      "regret_mean": 0.5673,
+      "n_decisions": 1110
+     }
+    },
+    "YR131_b": {
+     "vs_DH": {
+      "top1": 0.3946,
+      "rho": 0.2988,
+      "regret_mean": 0.6708,
+      "n_decisions": 1110
+     },
+     "vs_DH_hi40": {
+      "top1": 0.4172,
+      "rho": 0.2639,
+      "regret_mean": 0.4252,
+      "n_decisions": 453
+     },
+     "vs_D": {
+      "top1": 0.4009,
+      "rho": 0.2699,
+      "regret_mean": 0.3824,
+      "n_decisions": 1110
+     }
+    }
+   }
+  }
+ }
+}
