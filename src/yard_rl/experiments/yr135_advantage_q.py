@@ -390,9 +390,226 @@ def run_stage2() -> dict:
     return judge_stage2()
 
 
+# ---------------------------------------------------------------- 3단계 (YR-136 v2 재라벨)
+# 라벨 = 창(600s) 전후 v2 총비용(J) 변화 — 정렬 조항 그대로: 창 안 실현 + 창끝 잔여
+# 기대비용(예측 Ô/F̂ 에 내재). 진입 전(PLANNED) 트럭은 양쪽 세계 공통 근사로 제외(고지).
+BANDS2 = {"train": [(c, BASE[c] + i) for c in CELLS for i in range(2)],
+          "select": [(c, BASE[c] + 700 + i) for c in CELLS for i in range(2)],
+          "judge3": [(c, BASE[c] + 1500 + i) for c in CELLS for i in range(2)]}
+
+
+def _j_total_v2(sim, kf) -> float:
+    from ..integrated.cost_curve_v2 import (j_truck, j_vessel, predict_gate_out,
+                                            predict_vessel_completion, truck_target_s)
+    tot = 0.0
+    for jid, j in sim.jobs.items():
+        if not getattr(j, "is_external_truck", False):
+            continue
+        a = getattr(j, "actual_gate_in", None)
+        if a is None or j.status.name == "PLANNED":
+            continue
+        o = getattr(j, "actual_gate_out", None)
+        if o is None:
+            o_hat = predict_gate_out(sim, jid)
+            if o_hat is None:
+                continue
+            o = o_hat + kf.bias_t_s
+        tot += j_truck(o, a, truck_target_s(sim, a), kf.kappa_t_s)
+    for v in sim.vessels.values():
+        p = v.plan.planned_completion_s
+        if p is None:
+            continue
+        f = getattr(getattr(v, "truth", None), "actual_completion_s", None)
+        if f is None:
+            f_hat = predict_vessel_completion(sim, v)
+            if f_hat is None:
+                continue
+            f = f_hat + kf.bias_v_s
+        tot += j_vessel(f, p, kf.kappa_v_s)
+    return tot
+
+
+def _episode_labels_v2(net, norm, cell, seed, band, ep_id, kf):
+    sim = _sim(cell, seed)
+    gen = CandidateGenerator()
+    jr = JointRolloutGreedy(RC_TRAIN, horizon_s=1800.0, generator=gen,
+                            forbid_strategic_wait=False)
+    base_pol = ResolverPolicy(ServiceFirstSPTPreference(), "BASE")
+    out = []
+    dp = sim.run_until_decision()
+    k = 0
+    while dp is not None:
+        gen_by = {c: gen.generate(sim, c, LEVEL) for c in dp.crane_ids}
+        rows, assigns = build_rows(sim, dp, gen_by, norm, jr, k)
+        if not assigns:
+            _apply(sim, {c: _wait_of(gen_by[c]) for c in dp.crane_ids})
+        else:
+            with torch.no_grad():
+                sc, _ = net(torch.tensor(rows, dtype=torch.float32))
+            pick = int(torch.argmin(sc))
+            if len(assigns) >= 2:
+                j0 = _j_total_v2(sim, kf)
+                for i, a in enumerate(assigns):
+                    _, scratch = _rollout_cost(sim, a, RC_TRAIN, horizon_s=HORIZON_S,
+                                               base_policy=base_pol, generator=gen)
+                    out.append((rows[i], {
+                        "band": band, "dec": f"{ep_id}:{k}", "exec": i == pick,
+                        "c": _j_total_v2(scratch, kf) - j0,
+                        "has_wait": any(a[c].kind == CandidateKind.WAIT
+                                        for c in dp.crane_ids)}))
+            _apply(sim, assigns[pick])
+        dp = sim.run_until_decision()
+        k += 1
+    return out
+
+
+def _label_band_v2(ts: int, band: str) -> Path:
+    from ..integrated.cost_curve_v2 import KappaFit
+    dst = OUT / f"dataset2_{band}_s{ts}.pt"
+    if dst.exists():
+        return dst
+    kf = KappaFit.load()
+    ck = torch.load(DIFF1 / f"diff1_s{ts}" / "rl_net.pt", map_location="cpu")
+    net = JointPairNet(ck["in_dim"]); net.load_state_dict(ck["state"]); net.eval()
+    norm = StateNorm(refs=ck["norm_refs"])
+    rows_x, metas = [], []
+    _set_forbid_wait(False)
+    try:
+        for cell, seed in BANDS2[band]:
+            lab = _episode_labels_v2(net, norm, cell, seed, band, f"{cell}:{seed}", kf)
+            rows_x += [r for r, _ in lab]
+            metas += [m for _, m in lab]
+            print(f"[label2 {band} s{ts} {cell}:{seed}] {len(lab)} 누적 {len(metas)}",
+                  flush=True)
+    finally:
+        _set_forbid_wait(True)
+    torch.save({"X": torch.tensor(rows_x, dtype=torch.float32), "meta": metas,
+                "scale": SCALE}, dst)
+    return dst
+
+
+def _load2(ts: int, band: str):
+    d = torch.load(OUT / f"dataset2_{band}_s{ts}.pt", map_location="cpu")
+    X, meta = d["X"], d["meta"]
+    y = torch.tensor([m["c"] / SCALE for m in meta], dtype=torch.float32)
+    by: dict[str, list[int]] = {}
+    for i, m in enumerate(meta):
+        by.setdefault(m["dec"], []).append(i)
+    return {"X": X, "y": y, "meta": meta,
+            "groups": [ii for ii in by.values() if len(ii) >= 2]}
+
+
+def train_stage3(ts: int) -> Path:
+    """2단계 프로토콜 그대로(V/A + 순위 보조손실 α=1.0) — 유일 차이 = v2 라벨."""
+    tr, va = _load2(ts, "train"), _load2(ts, "select")
+    torch.manual_seed(ts)
+    net = JointDuelingNet(tr["X"].shape[1])
+    opt = torch.optim.Adam(net.parameters(), lr=5e-4)
+    g = torch.Generator().manual_seed(ts)
+    pair_by_group = [[(a, b) for a in ii for b in ii
+                      if float(tr["y"][a]) + PAIR_EPS < float(tr["y"][b])]
+                     for ii in tr["groups"]]
+    best = {"sel": -1.0, "epoch": 0, "state": None, "r": 0.0}
+    n_groups = len(tr["groups"])
+    for ep in range(1, 2001):
+        net.train()
+        perm = torch.randperm(n_groups, generator=g).tolist()
+        for s0 in range(0, n_groups, 16):
+            gi = perm[s0:s0 + 16]
+            gs = [tr["groups"][i] for i in gi]
+            flat = [i for ii in gs for i in ii]
+            pos = {gidx: kk for kk, gidx in enumerate(flat)}
+            local, pa, pb = [], [], []
+            off = 0
+            for i, ii in zip(gi, gs):
+                local.append(list(range(off, off + len(ii))))
+                off += len(ii)
+                for a, b in pair_by_group[i]:
+                    pa.append(pos[a]); pb.append(pos[b])
+            q = net.q_groups(tr["X"][flat], local)
+            loss = nn.functional.smooth_l1_loss(q, tr["y"][flat])
+            if pa:
+                loss = loss + AUX_W * nn.functional.margin_ranking_loss(
+                    q[pb], q[pa], torch.ones(len(pa)), margin=MARGIN)
+            opt.zero_grad(); loss.backward()
+            nn.utils.clip_grad_norm_(net.parameters(), 10.0); opt.step()
+        net.eval()
+        with torch.no_grad():
+            pv = net.q_groups(va["X"], va["groups"])
+        sel = _rank_eval(pv, va)["rho"] or -1.0
+        if sel > best["sel"] + 1e-3:
+            best = {"sel": sel, "epoch": ep, "state": copy.deepcopy(net.state_dict()),
+                    "r": _pearson_t(pv, va["y"])}
+        if ep - best["epoch"] >= 100:
+            break
+    net.load_state_dict(best["state"]); net.eval()
+    out = OUT / f"vaq3_s{ts}"
+    out.mkdir(parents=True, exist_ok=True)
+    torch.save({"state": net.state_dict(), "in_dim": net.in_dim, "arm": "VAQ3",
+                "train_seed": ts, "best_epoch": best["epoch"]}, out / "net.pt")
+    print(f"[135-3 s{ts}] best_ep {best['epoch']} select ρ {best['sel']:.4f} "
+          f"(r {best['r']:.4f})", flush=True)
+    return out / "net.pt"
+
+
+def judge_stage3() -> dict:
+    ev = {}
+    for ts in TRAIN_SEEDS:
+        data = _load2(ts, "judge3")
+        out_ts = {}
+        for name, ctor, ckp in (
+                ("VAQ3", JointDuelingNet, OUT / f"vaq3_s{ts}" / "net.pt"),
+                ("VAQ2_v1labels", JointDuelingNet, OUT / f"vaq2_s{ts}" / "net.pt"),
+                ("ref_131b", JointPairNet, B131 / f"b_s{ts}" / "net.pt")):
+            ck = torch.load(ckp, map_location="cpu")
+            net = ctor(ck["in_dim"]); net.load_state_dict(ck["state"]); net.eval()
+            with torch.no_grad():
+                if isinstance(net, JointDuelingNet):
+                    p = net.q_groups(data["X"], data["groups"])
+                else:
+                    p, _ = net(data["X"])
+            out_ts[name] = {"r_abs": round(_pearson_t(p, data["y"]), 4),
+                            **_rank_eval(p, data)}
+        ev[ts] = out_ts
+        print(f"[judge3 s{ts}] {json.dumps(ev[ts], ensure_ascii=False)}", flush=True)
+    j1 = all((e["VAQ3"]["rho"] or 0) >= 0.30 and e["VAQ3"]["top1"] >= 0.35
+             for e in ev.values())
+    j2 = all(e["VAQ3"]["r_abs"] >= 0.5 for e in ev.values())
+    j3 = all(e["VAQ3"]["regret_mean"] <= e["ref_131b"]["regret_mean"]
+             for e in ev.values())
+    judgment = {"J1_rank": j1, "J2_abs_fit": j2, "J3_regret_vs_131b": j3,
+                "success": bool(j1 and j2 and j3), "per_seed": ev}
+    res = {"repro": repro_stamp(
+               experiment="YR-135 3단계 — YR-136 v2 라벨(ΔJ 포텐셜) 재평가 (채택 경로)",
+               seeds={"train_ckpt": list(TRAIN_SEEDS),
+                      "judge3": sorted({s for _, s in BANDS2['judge3']})},
+               profile_id="calibrated",
+               prereg="라벨 = 창 전후 v2 총비용 J 변화(실현+창끝 예측 잔여 내재·PLANNED "
+                      "제외 고지). 학습 = 2단계 프로토콜 동일(유일 차이 = 라벨). 판정 대역 "
+                      "BASE+1500/1501 신규. J1 3/3 ρ≥0.30∧top1≥0.35 · J2 3/3 r≥0.5 · "
+                      "J3 regret ≤ 131-b(같은 v2 진실). κ 동결값 사용·조정 금지.",
+               extra={"aux_w": AUX_W, "margin": MARGIN}),
+           "judgment": judgment}
+    (OUT / "results_stage3.json").write_text(
+        json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"J1": j1, "J2": j2, "J3": j3,
+                      "success": judgment["success"]}, ensure_ascii=False))
+    return res
+
+
+def run_stage3() -> dict:
+    OUT.mkdir(parents=True, exist_ok=True)
+    for band in ("train", "select", "judge3"):
+        for ts in TRAIN_SEEDS:
+            _label_band_v2(ts, band)
+    for ts in TRAIN_SEEDS:
+        train_stage3(ts)
+    return judge_stage3()
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", type=int, default=1, choices=(1, 2))
+    ap.add_argument("--stage", type=int, default=1, choices=(1, 2, 3))
     a = ap.parse_args()
-    (run if a.stage == 1 else run_stage2)()
+    {1: run, 2: run_stage2, 3: run_stage3}[a.stage]()
     print("DONE")
