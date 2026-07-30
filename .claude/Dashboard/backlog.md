@@ -3,6 +3,8 @@
 > 미착수·미래 작업. 방향이 자주 바뀌면 재정렬. [index](README.md) · 다음 상태: [ready](ready.md).
 > 순서는 [최종전략 전환 이력](../docs/strategy-history/2026-07-15-YR-034-final-integrated-strategy-pivot.md)과 각 task spec의 의존관계가 기준이다. 과거 Phase/Exp 명칭은 완료 이력에만 남긴다.
 > **평가계약 정정(2026-07-27)**: 아래 과거 서술의 P95·`δ=3분`은 역사적 결과다. 향후 작업은 [P95 보고용 전환 결정](../docs/strategy-history/2026-07-27-P95-평가계약-정정.md)을 따른다.
+> **비용계약 정정(2026-07-30)**: YR-133의 실제 견적 선결은 YR-123 v1 API 존재만이 아니라
+> [YR-136 점증비용 v2](../docs/dashboard-task-specs/YR-136-smooth-cost-contract-v2.md)의 학습·평가 계약 정렬까지다.
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|

@@ -85,6 +85,8 @@ review_due =
 - BlockQ-v2가 후보 **순위**를 구분하고, 판매 문턱에 필요한 비용 크기는 별도로 보정할 것.
 - [YR-123](YR-123-common-cost-curve-api.md): OutRelief·InBurden·TransferCost를 같은
   numeraire·시간창·종결 규칙으로 계산할 공통 비용 API.
+- [YR-136](YR-136-smooth-cost-contract-v2.md): 실제 정책 견적에는 YR-123 v1의
+  계단형·본선 33이 아니라 트럭 `1→2`, 본선 `0→10` 점증곡선 v2를 연결한다.
 - 학습 전에 계산식/짝지은 반사실로 다음 분해가 맞는지 확인할 것.
 
 ```text
