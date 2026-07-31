@@ -26,8 +26,22 @@ OUT = Path("outputs/reports/yr136_softplus_contract")
 FIT_EPS = [(c, BASE[c] + i) for c in CELLS for i in range(4)]
 
 
-def _episode_errors(cell: str, seed: int) -> tuple[list, list, int, int]:
-    sim = _sim(cell, seed)
+def _sim_contract(cell: str, seed: int):
+    """(a) 확정: gate_block_contract=True — 게이트→블록 180~420s 연구계약 물리 (YR-137)."""
+    import dataclasses
+    from . import yr090_dense_vessel as y90
+    prof = y90.build_calibrated_profile()
+    lvl, dm = y90.CELLS[cell]
+    p = dataclasses.replace(y90.calibrated_load_params(lvl, vessel_deadline_mult=dm),
+                            time_contract_v2=True, gate_block_contract=True)
+    s = y90.TerminalSimulator(prof, y90.generate_terminal_scenario(prof, seed, p),
+                              check_invariants=True)
+    s.info_level = LEVEL
+    return s
+
+
+def _episode_errors(cell: str, seed: int, sim_builder=_sim) -> tuple[list, list, int, int]:
+    sim = sim_builder(cell, seed)
     gen = CandidateGenerator()
     pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
     pred_t: dict[str, float] = {}
@@ -202,9 +216,45 @@ def run_compare() -> dict:
     return res
 
 
+def run_contract_fit() -> dict:
+    """YR-137 ②clean 재적합 — 계약 물리(180~420s)·미열람 시드(BASE+2000..2007)·본선 32척.
+
+    산출 = kappa_fit_v2p.json (계약 물리 적합 — 구 물리 적합 kappa_fit.json 은 이력 보존).
+    """
+    OUT.mkdir(parents=True, exist_ok=True)
+    eps = [(c, BASE[c] + 2000 + i) for c in CELLS for i in range(8)]
+    et, ev, cen_t, cen_v = [], [], 0, 0
+    for cell, seed in eps:
+        a, b, ct, cv = _episode_errors(cell, seed, sim_builder=_sim_contract)
+        et += a; ev += b; cen_t += ct; cen_v += cv
+        print(f"[v2p {cell}:{seed}] 트럭 {len(a)}(검열 {ct}) 본선 {len(b)}(검열 {cv})",
+              flush=True)
+    assert et and ev, f"오차 표본 부족: 트럭 {len(et)} · 본선 {len(ev)}"
+    k = math.sqrt(3.0) / math.pi
+    fit = {"kappa_t_s": round(k * pstdev(et), 1), "bias_t_s": round(fmean(et), 1),
+           "kappa_v_s": round(k * pstdev(ev), 1), "bias_v_s": round(fmean(ev), 1),
+           "n_truck": len(et), "n_vessel": len(ev),
+           "censored_truck": cen_t, "censored_vessel": cen_v,
+           "sd_truck_s": round(pstdev(et), 1), "sd_vessel_s": round(pstdev(ev), 1),
+           "protocol": "계약 물리(gate_block_contract)·SF·4셀×8 미열람 시드(BASE+2000..)·"
+                       "b=mean, κ=(√3/π)·SD — YR-137 ② 동결"}
+    res = {"repro": repro_stamp(
+               experiment="YR-137 ② clean 재적합 — 계약 물리·미열람 시드·본선 32척",
+               seeds={c: [BASE[c] + 2000 + i for i in range(8)] for c in CELLS},
+               profile_id="calibrated",
+               prereg="0단계와 동일 프로토콜, 차이 = ①gate_block_contract=True ②미열람 "
+                      "시드 ③본선 표본 32. 적합값 동결 — 판정런 내 조정 금지.",
+               extra={"n_episodes": len(eps)}),
+           **fit}
+    (OUT / "kappa_fit_v2p.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+                                            encoding="utf-8")
+    print(json.dumps(fit, ensure_ascii=False))
+    return res
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", default="0", choices=["0", "compare"])
+    ap.add_argument("--stage", default="0", choices=["0", "0b", "compare"])
     a = ap.parse_args()
-    (run if a.stage == "0" else run_compare)()
+    {"0": run, "0b": run_contract_fit, "compare": run_compare}[a.stage]()
     print("DONE")

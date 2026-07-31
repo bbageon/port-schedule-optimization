@@ -399,33 +399,45 @@ BANDS2 = {"train": [(c, BASE[c] + i) for c in CELLS for i in range(2)],
 
 
 def _j_total_v2(sim, kf) -> float:
-    from ..integrated.cost_curve_v2 import (j_truck, j_vessel, predict_gate_out,
-                                            predict_vessel_completion, truck_target_s)
+    """v2 총비용 J (YR-137 재배선 — 3단계 실행분은 재배선 전 판·git 이력 참조).
+
+    정렬 계약: ①gate-in 은 관측 규칙(과거 실현만 — 미진입 트럭 제외 = 평가 검열과 일치)
+    ②실현(완료)값 = **hard** 초과비용 / 미실현 = softplus 예측 ③본선은 **적하(LOAD)만**
+    과금 — 양하 0 (완료 양하 과금 오류 수정, 10차 피드백)."""
+    from ..integrated.cost_curve_v2 import (VesselWorkType, j_truck, j_truck_realized,
+                                            j_vessel, j_vessel_realized,
+                                            predict_gate_out, predict_vessel_completion,
+                                            truck_target_s)
     tot = 0.0
     for jid, j in sim.jobs.items():
         if not getattr(j, "is_external_truck", False):
             continue
         a = getattr(j, "actual_gate_in", None)
-        if a is None or j.status.name == "PLANNED":
+        if a is None or a > sim.now + 1e-9:      # 관측 규칙: 미진입(미래 gate-in) 제외
             continue
+        d_t = truck_target_s(sim, a)
         o = getattr(j, "actual_gate_out", None)
-        if o is None:
+        if o is not None:
+            tot += j_truck_realized(o, a, d_t)                     # 실현 = hard
+        else:
             o_hat = predict_gate_out(sim, jid)
             if o_hat is None:
                 continue
-            o = o_hat + kf.bias_t_s
-        tot += j_truck(o, a, truck_target_s(sim, a), kf.kappa_t_s)
+            tot += j_truck(o_hat + kf.bias_t_s, a, d_t, kf.kappa_t_s)   # 예측 = softplus
     for v in sim.vessels.values():
+        if v.work_type != VesselWorkType.LOAD:   # 적하만 과금 — 양하 0 (계약)
+            continue
         p = v.plan.planned_completion_s
         if p is None:
             continue
         f = getattr(getattr(v, "truth", None), "actual_completion_s", None)
-        if f is None:
+        if f is not None:
+            tot += j_vessel_realized(f, p)                          # 실현 = hard
+        else:
             f_hat = predict_vessel_completion(sim, v)
             if f_hat is None:
                 continue
-            f = f_hat + kf.bias_v_s
-        tot += j_vessel(f, p, kf.kappa_v_s)
+            tot += j_vessel(f_hat + kf.bias_v_s, p, kf.kappa_v_s)   # 예측 = softplus
     return tot
 
 

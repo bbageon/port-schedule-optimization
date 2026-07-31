@@ -146,10 +146,13 @@ def j_vessel_realized(f_s: float, p_s: float, rho: float = RHO_VESSEL_V2) -> flo
 
 def observed_gate_in(sim, j) -> float | None:
     """A 열람 규칙 (YR-137 정렬): 실현 gate-in 은 **과거(≤ now)일 때만** 관측 가능.
-    미래 gate-in(시나리오 사전 기록)은 미열람 — 공개 ETA 유도(eta − 평균 입문주행)로 대체."""
+    미래는 ①공개 예약(appointment_gate_time — 예약제 1차) ②없으면 ETA 유도로 대체."""
     a = getattr(j, "actual_gate_in", None)
     if a is not None and a <= sim.now + 1e-9:
         return a
+    appt = getattr(j, "appointment_gate_time", None)
+    if appt is not None:
+        return appt
     eta = getattr(j, "provided_eta", None)
     return None if eta is None else eta - GATE_BLOCK_MEAN_S
 
