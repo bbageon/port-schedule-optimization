@@ -1,0 +1,109 @@
+{
+ "repro": {
+  "experiment": "YR-135 3단계 — YR-136 v2 라벨(ΔJ 포텐셜) 재평가 (채택 경로)",
+  "code": {
+   "git_head": "9ffa74eb36ebd65cd68ff951273ed63af568cc76",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train_ckpt": [
+    88000,
+    99000,
+    123000
+   ],
+   "judge3": [
+    831500,
+    831501,
+    831600,
+    831601,
+    831700,
+    831701,
+    831800,
+    831801
+   ]
+  },
+  "params": {},
+  "prereg": "라벨 = 창 전후 v2 총비용 J 변화(실현+창끝 예측 잔여 내재·PLANNED 제외 고지). 학습 = 2단계 프로토콜 동일(유일 차이 = 라벨). 판정 대역 BASE+1500/1501 신규. J1 3/3 ρ≥0.30∧top1≥0.35 · J2 3/3 r≥0.5 · J3 regret ≤ 131-b(같은 v2 진실). κ 동결값 사용·조정 금지.",
+  "aux_w": 1.0,
+  "margin": 0.01
+ },
+ "judgment": {
+  "J1_rank": false,
+  "J2_abs_fit": true,
+  "J3_regret_vs_131b": true,
+  "success": false,
+  "per_seed": {
+   "88000": {
+    "VAQ3": {
+     "r_abs": 0.6809,
+     "top1": 0.3746,
+     "rho": 0.3397,
+     "regret_mean": 0.2292,
+     "n_decisions": 2416
+    },
+    "VAQ2_v1labels": {
+     "r_abs": -0.3926,
+     "top1": 0.4172,
+     "rho": 0.3545,
+     "regret_mean": 0.2389,
+     "n_decisions": 2416
+    },
+    "ref_131b": {
+     "r_abs": -0.114,
+     "top1": 0.3551,
+     "rho": 0.3225,
+     "regret_mean": 0.2614,
+     "n_decisions": 2416
+    }
+   },
+   "99000": {
+    "VAQ3": {
+     "r_abs": 0.6,
+     "top1": 0.3125,
+     "rho": 0.3233,
+     "regret_mean": 0.2236,
+     "n_decisions": 1600
+    },
+    "VAQ2_v1labels": {
+     "r_abs": -0.353,
+     "top1": 0.2313,
+     "rho": 0.2114,
+     "regret_mean": 0.3089,
+     "n_decisions": 1600
+    },
+    "ref_131b": {
+     "r_abs": -0.1834,
+     "top1": 0.2231,
+     "rho": 0.201,
+     "regret_mean": 0.3017,
+     "n_decisions": 1600
+    }
+   },
+   "123000": {
+    "VAQ3": {
+     "r_abs": 0.5845,
+     "top1": 0.4081,
+     "rho": 0.3701,
+     "regret_mean": 0.3368,
+     "n_decisions": 1213
+    },
+    "VAQ2_v1labels": {
+     "r_abs": -0.3009,
+     "top1": 0.3693,
+     "rho": 0.3146,
+     "regret_mean": 0.3589,
+     "n_decisions": 1213
+    },
+    "ref_131b": {
+     "r_abs": 0.0511,
+     "top1": 0.31,
+     "rho": 0.2521,
+     "regret_mean": 0.4346,
+     "n_decisions": 1213
+    }
+   }
+  }
+ }
+}

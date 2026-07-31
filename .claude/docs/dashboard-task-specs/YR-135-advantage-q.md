@@ -55,3 +55,9 @@
 - 분기: 동결 문언 "구조 재검" vs 권고 "YR-136 착수 후 v2 재라벨 재평가" — 사용자 선택.
 - 판정 대역 1100(1단계)·1300(2단계) 열람됨 — 후속 판정은 새 대역 필요.
 - [2단계 report](../../../outputs/reports/yr135_advantage_q/report_stage2.md)
+
+
+## 3단계 결과 (2026-07-31 — YR-136 5단, v2 라벨 재평가)
+
+최초 ρ 3/3·J3 3/3 (regret 참조 전 시드 우위)·J2 유지 — 공식 기각은 s99000 top-1
+0.313(−0.037) 하나. [report](../../../outputs/reports/yr135_advantage_q/report_stage3.md)
