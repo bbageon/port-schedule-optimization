@@ -398,12 +398,14 @@ BANDS2 = {"train": [(c, BASE[c] + i) for c in CELLS for i in range(2)],
           "judge3": [(c, BASE[c] + 1500 + i) for c in CELLS for i in range(2)]}
 
 
-def _j_total_v2(sim, kf) -> float:
+def _j_total_v2(sim, kf, include_vessels: bool = True) -> float:
     """v2 총비용 J (YR-137 재배선 — 3단계 실행분은 재배선 전 판·git 이력 참조).
 
     정렬 계약: ①gate-in 은 관측 규칙(과거 실현만 — 미진입 트럭 제외 = 평가 검열과 일치)
     ②실현(완료)값 = **hard** 초과비용 / 미실현 = softplus 예측 ③본선은 **적하(LOAD)만**
-    과금 — 양하 0 (완료 양하 과금 오류 수정, 10차 피드백)."""
+    과금 — 양하 0 (완료 양하 과금 오류 수정, 10차 피드백).
+    include_vessels=False = 트럭 항만 (11차: v3 라벨은 본선을 paired 항으로 1회만 계상 —
+    창 전후 본선 J 를 함께 남기면 이중계상)."""
     from ..integrated.cost_curve_v2 import (VesselWorkType, j_truck, j_truck_realized,
                                             j_vessel, j_vessel_realized,
                                             predict_gate_out, predict_vessel_completion,
@@ -417,13 +419,21 @@ def _j_total_v2(sim, kf) -> float:
             continue
         d_t = truck_target_s(sim, a)
         o = getattr(j, "actual_gate_out", None)
-        if o is not None:
-            tot += j_truck_realized(o, a, d_t)                     # 실현 = hard
+        if o is not None and o <= sim.now + 1e-9:
+            tot += j_truck_realized(o, a, d_t)                     # 실현(과거) = hard
+        elif getattr(j, "service_end", None) is not None:
+            # 적대검증 minor 정정: 완료됐지만 출문이 창 밖(미래 실현) — actual_gate_out 은
+            # 미래 exit 추첨을 담으므로 미열람. 공개 평균 앵커(300s)로 대체 (잔여 불확실성
+            # σ≈36s < 동점 ε=0.02 — hard 사용 고지).
+            from ..integrated.scenario_gen import GATE_BLOCK_MEAN_S
+            tot += j_truck_realized(j.service_end + GATE_BLOCK_MEAN_S, a, d_t)
         else:
             o_hat = predict_gate_out(sim, jid)
             if o_hat is None:
                 continue
             tot += j_truck(o_hat + kf.bias_t_s, a, d_t, kf.kappa_t_s)   # 예측 = softplus
+    if not include_vessels:
+        return tot
     for v in sim.vessels.values():
         if v.work_type != VesselWorkType.LOAD:   # 적하만 과금 — 양하 0 (계약)
             continue
@@ -619,9 +629,289 @@ def run_stage3() -> dict:
     return judge_stage3()
 
 
+# ================================================================ 4단계 (YR-137 완결판)
+# 라벨 계약 (11차 피드백 동결): 라벨 = ΔJ_truck(정확 600s) + ΔV_paired(본선 1회 계상).
+#  · 정확한 창: 엔진 review_epochs 훅으로 scratch 를 정확히 t0+600 에 동결 — 후보별
+#    창 길이 불일치(620s/680s 학습) 제거.
+#  · 본선: candidate_vessel_delta (paired anchor·선박별 joint 1회·무영향=정확히 0),
+#    v2 인자 = ρ 10·κ = kappa_fit_v2p·중심 보정 = margin. 트럭 항에서 본선 제외(이중계상 0).
+#  · κ 명시 배선: KappaFit.load(KAPPA_V2P_PATH, require_contract_physics=True) — fail-fast.
+#  · 물리 = gate_block_contract=True (새 실현 — 구 대역과 비교 단절, 개발 이력 보존).
+from .yr136_softplus_contract import _sim_contract
+
+BANDS3 = {"train": [(c, BASE[c] + i) for c in CELLS for i in range(2)],
+          "select": [(c, BASE[c] + 700 + i) for c in CELLS for i in range(2)],
+          "judge4": [(c, BASE[c] + 1700 + i) for c in CELLS for i in range(2)]}
+EPS_TIE = 0.02      # 동점 허용 [numeraire] — 트럭 72초 대기 = SLA 4%·주행 σ(60s) 미만 (동결)
+
+
+def _exact_window_rollout(sim, assign, gen, base_pol, t_end: float):
+    """assign 적용 후 base 정책으로 진행, **정확히 t_end 에 동결**한 scratch 반환."""
+    import copy as _copy
+    from ..integrated.engine import ReviewEpoch, TerminalDecision
+    scratch = _copy.deepcopy(sim)
+    scratch.cost.cut()
+    _apply(scratch, assign)
+    scratch.review_epochs = [t_end]
+    while True:
+        out = scratch.run_until_decision()
+        if out is None:
+            break                                    # 평가창 끝 — 전 후보 공통 절대시각
+        if isinstance(out, ReviewEpoch):
+            break                                    # 정확히 t_end
+        gb = {c: gen.generate(scratch, c, scratch.info_level) for c in out.crane_ids}
+        _apply(scratch, base_pol.decide(scratch, out, gb))
+    return scratch
+
+
+def _episode_labels_v3(net, norm, cell, seed, band, ep_id, kf):
+    from ..integrated.vessel_cost import candidate_vessel_delta
+    sim = _sim_contract(cell, seed)
+    gen = CandidateGenerator()
+    jr = JointRolloutGreedy(RC_TRAIN, horizon_s=1800.0, generator=gen,
+                            forbid_strategic_wait=False)
+    base_pol = ResolverPolicy(ServiceFirstSPTPreference(), "BASE")
+    out = []
+    dp = sim.run_until_decision()
+    k = 0
+    while dp is not None:
+        gen_by = {c: gen.generate(sim, c, LEVEL) for c in dp.crane_ids}
+        rows, assigns = build_rows(sim, dp, gen_by, norm, jr, k)
+        if not assigns:
+            _apply(sim, {c: _wait_of(gen_by[c]) for c in dp.crane_ids})
+        else:
+            with torch.no_grad():
+                sc, _ = net(torch.tensor(rows, dtype=torch.float32))
+            pick = int(torch.argmin(sc))
+            if len(assigns) >= 2:
+                j0 = _j_total_v2(sim, kf, include_vessels=False)
+                t_end = sim.now + HORIZON_S
+                for i, a in enumerate(assigns):
+                    scratch = _exact_window_rollout(sim, a, gen, base_pol, t_end)
+                    dj_truck = _j_total_v2(scratch, kf, include_vessels=False) - j0
+                    dv = candidate_vessel_delta(sim, a, kappa_s=kf.kappa_v_s,
+                                                rho=10.0, margin_s=kf.bias_v_s)
+                    out.append((rows[i], {
+                        "band": band, "dec": f"{ep_id}:{k}", "ep": ep_id,
+                        "exec": i == pick, "c": dj_truck + dv,
+                        "has_wait": any(a[c].kind == CandidateKind.WAIT
+                                        for c in dp.crane_ids)}))
+            _apply(sim, assigns[pick])
+        dp = sim.run_until_decision()
+        k += 1
+    return out
+
+
+def _label_band_v3(ts: int, band: str) -> Path:
+    from ..integrated.cost_curve_v2 import KAPPA_V2P_PATH, KappaFit
+    dst = OUT / f"dataset3_{band}_s{ts}.pt"
+    if dst.exists():
+        return dst
+    kf = KappaFit.load(KAPPA_V2P_PATH, require_contract_physics=True)
+    ck = torch.load(DIFF1 / f"diff1_s{ts}" / "rl_net.pt", map_location="cpu")
+    net = JointPairNet(ck["in_dim"]); net.load_state_dict(ck["state"]); net.eval()
+    norm = StateNorm(refs=ck["norm_refs"])
+    rows_x, metas = [], []
+    _set_forbid_wait(False)
+    try:
+        for cell, seed in BANDS3[band]:
+            lab = _episode_labels_v3(net, norm, cell, seed, band, f"{cell}:{seed}", kf)
+            rows_x += [r for r, _ in lab]
+            metas += [m for _, m in lab]
+            print(f"[label3 {band} s{ts} {cell}:{seed}] {len(lab)} 누적 {len(metas)}",
+                  flush=True)
+    finally:
+        _set_forbid_wait(True)
+    torch.save({"X": torch.tensor(rows_x, dtype=torch.float32), "meta": metas,
+                "scale": SCALE, "kappa_src": {"path": kf.src_path, "sha": kf.src_sha}},
+               dst)
+    return dst
+
+
+def _load3(ts: int, band: str):
+    d = torch.load(OUT / f"dataset3_{band}_s{ts}.pt", map_location="cpu")
+    X, meta = d["X"], d["meta"]
+    y = torch.tensor([m["c"] / SCALE for m in meta], dtype=torch.float32)
+    by: dict[str, list[int]] = {}
+    for i, m in enumerate(meta):
+        by.setdefault(m["dec"], []).append(i)
+    return {"X": X, "y": y, "meta": meta,
+            "groups": [ii for ii in by.values() if len(ii) >= 2],
+            "ep_of": [m["ep"] for m in meta]}
+
+
+ARMS4 = {"A": ("single", False), "B": ("single", True),
+         "C": ("va", False), "D": ("va", True), "E_rankonly": ("single", "rank_only")}
+
+
+def train_arm4(ts: int, arm: str) -> Path:
+    """2×2 요인 대조군 (11차): 구조(단일/V·A) × 손실(회귀/회귀+순위) + 참고 E(순위 전용)."""
+    arch, ranked = ARMS4[arm]
+    tr, va = _load3(ts, "train"), _load3(ts, "select")
+    torch.manual_seed(ts)
+    net = JointPairNet(tr["X"].shape[1]) if arch == "single" \
+        else JointDuelingNet(tr["X"].shape[1])
+    opt = torch.optim.Adam(net.parameters(), lr=5e-4)
+    g = torch.Generator().manual_seed(ts)
+    pair_by_group = [[(x, b) for x in ii for b in ii
+                      if float(tr["y"][x]) + PAIR_EPS < float(tr["y"][b])]
+                     for ii in tr["groups"]] if ranked else None
+
+    def fwd(n, X, groups):
+        if isinstance(n, JointDuelingNet):
+            return n.q_groups(X, groups)
+        return n(X)[0]
+
+    best = {"sel": float("-inf"), "epoch": 0, "state": None}
+    n_groups = len(tr["groups"])
+    for ep in range(1, 2001):
+        net.train()
+        perm = torch.randperm(n_groups, generator=g).tolist()
+        for s0 in range(0, n_groups, 16):
+            gi = perm[s0:s0 + 16]
+            gs = [tr["groups"][i] for i in gi]
+            flat = [i for ii in gs for i in ii]
+            pos = {gidx: kk for kk, gidx in enumerate(flat)}
+            local = []
+            off = 0
+            pa, pb = [], []
+            for i, ii in zip(gi, gs):
+                local.append(list(range(off, off + len(ii))))
+                off += len(ii)
+                if ranked:
+                    for x, b in pair_by_group[i]:
+                        pa.append(pos[x]); pb.append(pos[b])
+            if ranked == "rank_only" and not pa:
+                continue                          # 순위 전용: 유효 쌍 없는 배치는 건너뜀
+            q = fwd(net, tr["X"][flat], local)
+            if ranked == "rank_only":
+                loss = AUX_W * nn.functional.margin_ranking_loss(
+                    q[pb], q[pa], torch.ones(len(pa)), margin=MARGIN)
+            else:
+                loss = nn.functional.smooth_l1_loss(q, tr["y"][flat])
+                if ranked and pa:
+                    loss = loss + AUX_W * nn.functional.margin_ranking_loss(
+                        q[pb], q[pa], torch.ones(len(pa)), margin=MARGIN)
+            opt.zero_grad(); loss.backward()
+            nn.utils.clip_grad_norm_(net.parameters(), 10.0); opt.step()
+        net.eval()
+        with torch.no_grad():
+            pv = fwd(net, va["X"], va["groups"])
+        # 적대검증 확정 major 정정: 선택지표가 loss 축과 묶이면 제3의 교락 축이 된다 —
+        # **전 arm 공통** 선택지표 = select 대역 에피소드 평균 후회(J3 과 동일 양, 낮을수록).
+        sel = -_rank_eval4(pv, va)["ep_regret_mean"]
+        if sel > best["sel"] + 1e-3:
+            best = {"sel": sel, "epoch": ep, "state": copy.deepcopy(net.state_dict())}
+        if ep - best["epoch"] >= 100:
+            break
+    net.load_state_dict(best["state"]); net.eval()
+    out = OUT / f"arm4_{arm}_s{ts}"
+    out.mkdir(parents=True, exist_ok=True)
+    torch.save({"state": net.state_dict(), "in_dim": tr["X"].shape[1], "arch": arch,
+                "arm": arm, "train_seed": ts, "best_epoch": best["epoch"]},
+               out / "net.pt")
+    print(f"[137-4 {arm} s{ts}] best_ep {best['epoch']} sel {best['sel']:.4f}", flush=True)
+    return out / "net.pt"
+
+
+def _abs_metrics(pred, y):
+    n = len(y)
+    mae = float((pred - y).abs().mean()) * SCALE
+    my, mp = float(y.mean()), float(pred.mean())
+    vp = float(((pred - mp) ** 2).sum())
+    slope = float(((pred - mp) * (y - my)).sum()) / vp if vp > 0 else 0.0
+    return {"pearson_r": round(_pearson_t(pred, y), 4), "mae": round(mae, 4),
+            "calib_slope": round(slope, 4),
+            "calib_intercept": round((my - slope * mp) * SCALE, 4)}
+
+
+def _rank_eval4(pred, data):
+    """11차 판정 보완: 동점 허용 top-1(선택 실제비용 ≤ 최저+ε) + 에피소드별 평균 후회."""
+    from statistics import pstdev
+    by: dict[str, list[int]] = {}
+    for ii in data["groups"]:
+        by.setdefault(data["ep_of"][ii[0]], []).append(ii)  # noqa — 그룹을 에피소드로 묶음
+    top1e, rhos, ep_regret = [], [], {}
+    for ep_id, groups in by.items():
+        regs = []
+        for ii in groups:
+            dh = [float(pred[i]) for i in ii]
+            dd = [float(data["y"][i]) for i in ii]
+            picked = dd[dh.index(min(dh))]
+            top1e.append(1.0 if picked * SCALE <= min(dd) * SCALE + EPS_TIE else 0.0)
+            regs.append((picked - min(dd)) * SCALE)
+            if len(ii) >= 3:
+                r = _spearman(dh, dd)
+                if r is not None:
+                    rhos.append(r)
+        ep_regret[ep_id] = fmean(regs)
+    er = list(ep_regret.values())
+    return {"top1_eps": round(fmean(top1e), 4),
+            "rho": round(fmean(rhos), 4) if rhos else None,
+            "ep_regret_mean": round(fmean(er), 4),
+            "ep_regret_ci_hw": round(1.96 * (pstdev(er) / max(1, len(er)) ** 0.5), 4)
+            if len(er) > 1 else None, "n_episodes": len(er)}
+
+
+def judge_stage4() -> dict:
+    from statistics import pstdev as _ps  # noqa
+    ev = {}
+    for ts in TRAIN_SEEDS:
+        data = _load3(ts, "judge4")
+        out_ts = {}
+        for arm in ARMS4:
+            ck = torch.load(OUT / f"arm4_{arm}_s{ts}" / "net.pt", map_location="cpu")
+            net = JointPairNet(ck["in_dim"]) if ck["arch"] == "single" \
+                else JointDuelingNet(ck["in_dim"])
+            net.load_state_dict(ck["state"]); net.eval()
+            with torch.no_grad():
+                p = net.q_groups(data["X"], data["groups"]) \
+                    if isinstance(net, JointDuelingNet) else net(data["X"])[0]
+            out_ts[arm] = {**_abs_metrics(p, data["y"]), **_rank_eval4(p, data)}
+        ev[ts] = out_ts
+        print(f"[judge4 s{ts}] {json.dumps(ev[ts], ensure_ascii=False)}", flush=True)
+    d_ = {ts: ev[ts]["D"] for ts in TRAIN_SEEDS}
+    j1 = all((v["rho"] or 0) >= 0.30 and v["top1_eps"] >= 0.35 for v in d_.values())
+    j2 = all(v["pearson_r"] >= 0.5 and 0.5 <= v["calib_slope"] <= 2.0
+             for v in d_.values())
+    j3 = all(ev[ts]["D"]["ep_regret_mean"] < ev[ts]["A"]["ep_regret_mean"]
+             for ts in TRAIN_SEEDS)
+    judgment = {"J1_rank_D": j1, "J2_abs_D": j2, "J3_D_regret_lt_A": j3,
+                "success": bool(j1 and j2 and j3), "per_seed": ev}
+    res = {"repro": repro_stamp(
+               experiment="YR-137 ③④ — 4망 요인 대조군 (계약 물리·v3 라벨·확장 판정)",
+               seeds={"train_ckpt": list(TRAIN_SEEDS),
+                      "judge4": sorted({s for _, s in BANDS3['judge4']})},
+               profile_id="calibrated",
+               prereg="라벨 = ΔJ_truck(정확 600s·review_epoch 동결) + ΔV_paired(1회 계상)·"
+                      "κ = kappa_fit_v2p 명시(require_contract_physics). 2×2 요인 A/B/C/D + "
+                      "참고 E. 판정(D 주 후보): J1 3/3 ρ≥0.30∧top1_eps≥0.35(ε=0.02 — 트럭 "
+                      "72s = SLA 4%·주행 σ 미만 근거 동결) · J2 r≥0.5∧slope∈[0.5,2]"
+                      "(MAE·절편 보고) · J3 에피소드 평균 후회 D<A 3/3(중첩 합산 금지). "
+                      "요인 분해(B·C 대비)는 관찰. 성공 시에만 ⑤ SF-SPT 짝지은 완주 검정.",
+               extra={"eps_tie": EPS_TIE, "aux_w": AUX_W}),
+           "judgment": judgment}
+    (OUT / "results_stage4.json").write_text(
+        json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"J1": j1, "J2": j2, "J3": j3,
+                      "success": judgment["success"]}, ensure_ascii=False))
+    return res
+
+
+def run_stage4() -> dict:
+    OUT.mkdir(parents=True, exist_ok=True)
+    for band in ("train", "select", "judge4"):
+        for ts in TRAIN_SEEDS:
+            _label_band_v3(ts, band)
+    for ts in TRAIN_SEEDS:
+        for arm in ARMS4:
+            train_arm4(ts, arm)
+    return judge_stage4()
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", type=int, default=1, choices=(1, 2, 3))
+    ap.add_argument("--stage", type=int, default=1, choices=(1, 2, 3, 4))
     a = ap.parse_args()
-    {1: run, 2: run_stage2, 3: run_stage3}[a.stage]()
+    {1: run, 2: run_stage2, 3: run_stage3, 4: run_stage4}[a.stage]()
     print("DONE")

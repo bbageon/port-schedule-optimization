@@ -24,7 +24,8 @@ from .vessel_cost import load_supply_state, projected_completion_s
 
 RHO_VESSEL_V2 = 10.0
 # L_T 유도 앵커 (새 상수 발명 없음): 입문 300 + 대기 SLA(프로파일) + 서비스 180 + 출문 300
-KAPPA_PATH = Path("outputs/reports/yr136_softplus_contract/kappa_fit.json")
+KAPPA_PATH = Path("outputs/reports/yr136_softplus_contract/kappa_fit.json")        # 구 물리 (이력)
+KAPPA_V2P_PATH = Path("outputs/reports/yr136_softplus_contract/kappa_fit_v2p.json")  # 계약 물리 (정본)
 
 
 def sp(x: float) -> float:
@@ -45,20 +46,40 @@ def sigma(x: float) -> float:
 
 @dataclass(frozen=True)
 class KappaFit:
-    """0단계 적합 산출물 — 위치(b)·척도(κ) [초]. 동결 후 판정런 내 조정 금지."""
+    """적합 산출물 — 위치(b)·척도(κ) [초]. 동결 후 판정런 내 조정 금지.
+
+    src_path·src_sha 는 어느 파일에서 왔는지의 감사 증거 (11차 피드백: 명시 배선·해시).
+    """
     kappa_t_s: float
     bias_t_s: float
     kappa_v_s: float
     bias_v_s: float
     n_truck: int = 0
     n_vessel: int = 0
+    src_path: str = ""
+    src_sha: str = ""
 
     @classmethod
-    def load(cls, path: Path = KAPPA_PATH) -> "KappaFit":
-        d = json.loads(Path(path).read_text(encoding="utf-8"))
+    def load(cls, path: Path = KAPPA_PATH, *,
+             require_contract_physics: bool = False) -> "KappaFit":
+        """명시 경로 로딩 + 필드·값·물리 검사 — 잘못된 파일이면 즉시 실패 (fail-fast)."""
+        import hashlib
+        raw = Path(path).read_text(encoding="utf-8")
+        d = json.loads(raw)
+        missing = [k for k in ("kappa_t_s", "bias_t_s", "kappa_v_s", "bias_v_s",
+                               "protocol") if k not in d]
+        if missing:
+            raise ValueError(f"{path}: κ 파일 필드 누락 {missing}")
+        if d["kappa_t_s"] <= 0 or d["kappa_v_s"] <= 0:
+            raise ValueError(f"{path}: κ 는 양수여야 함")
+        if require_contract_physics and "계약 물리" not in d["protocol"]:
+            raise ValueError(f"{path}: 계약 물리 적합이 아님 — kappa_fit_v2p 를 명시하라 "
+                             f"(protocol={d['protocol'][:40]}...)")
         return cls(kappa_t_s=d["kappa_t_s"], bias_t_s=d["bias_t_s"],
                    kappa_v_s=d["kappa_v_s"], bias_v_s=d["bias_v_s"],
-                   n_truck=d.get("n_truck", 0), n_vessel=d.get("n_vessel", 0))
+                   n_truck=d.get("n_truck", 0), n_vessel=d.get("n_vessel", 0),
+                   src_path=str(path),
+                   src_sha=hashlib.sha256(raw.encode("utf-8")).hexdigest()[:12])
 
 
 # ---------------------------------------------------------------- 순수 비용 함수
