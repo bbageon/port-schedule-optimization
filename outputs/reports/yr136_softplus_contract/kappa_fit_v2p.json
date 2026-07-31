@@ -1,0 +1,67 @@
+{
+ "repro": {
+  "experiment": "YR-137 ② clean 재적합 — 계약 물리·미열람 시드·본선 32척",
+  "code": {
+   "git_head": "16c090b2155828aedf9c2d8b7941ec435bea7c9d",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "mid-loose": [
+    832000,
+    832001,
+    832002,
+    832003,
+    832004,
+    832005,
+    832006,
+    832007
+   ],
+   "high-loose": [
+    832100,
+    832101,
+    832102,
+    832103,
+    832104,
+    832105,
+    832106,
+    832107
+   ],
+   "mid-tight": [
+    832200,
+    832201,
+    832202,
+    832203,
+    832204,
+    832205,
+    832206,
+    832207
+   ],
+   "high-tight": [
+    832300,
+    832301,
+    832302,
+    832303,
+    832304,
+    832305,
+    832306,
+    832307
+   ]
+  },
+  "params": {},
+  "prereg": "0단계와 동일 프로토콜, 차이 = ①gate_block_contract=True ②미열람 시드 ③본선 표본 32. 적합값 동결 — 판정런 내 조정 금지.",
+  "n_episodes": 32
+ },
+ "kappa_t_s": 383.7,
+ "bias_t_s": 256.1,
+ "kappa_v_s": 919.7,
+ "bias_v_s": 5213.6,
+ "n_truck": 2156,
+ "n_vessel": 32,
+ "censored_truck": 0,
+ "censored_vessel": 0,
+ "sd_truck_s": 695.9,
+ "sd_vessel_s": 1668.1,
+ "protocol": "계약 물리(gate_block_contract)·SF·4셀×8 미열람 시드(BASE+2000..)·b=mean, κ=(√3/π)·SD — YR-137 ② 동결"
+}
