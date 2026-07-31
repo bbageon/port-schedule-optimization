@@ -1,0 +1,211 @@
+{
+ "repro": {
+  "experiment": "YR-137 ③④ — 4망 요인 대조군 (계약 물리·v3 라벨·확장 판정)",
+  "code": {
+   "git_head": "2efc1021db4a1b0a51102465f8e58446d1d09d5e",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train_ckpt": [
+    88000,
+    99000,
+    123000
+   ],
+   "judge4": [
+    831700,
+    831701,
+    831800,
+    831801,
+    831900,
+    831901,
+    832000,
+    832001
+   ]
+  },
+  "params": {},
+  "prereg": "라벨 = ΔJ_truck(정확 600s·review_epoch 동결) + ΔV_paired(1회 계상)·κ = kappa_fit_v2p 명시(require_contract_physics). 2×2 요인 A/B/C/D + 참고 E. 판정(D 주 후보): J1 3/3 ρ≥0.30∧top1_eps≥0.35(ε=0.02 — 트럭 72s = SLA 4%·주행 σ 미만 근거 동결) · J2 r≥0.5∧slope∈[0.5,2](MAE·절편 보고) · J3 에피소드 평균 후회 D<A 3/3(중첩 합산 금지). 요인 분해(B·C 대비)는 관찰. 성공 시에만 ⑤ SF-SPT 짝지은 완주 검정.",
+  "eps_tie": 0.02,
+  "aux_w": 1.0
+ },
+ "judgment": {
+  "J1_rank_D": true,
+  "J2_abs_D": false,
+  "J3_D_regret_lt_A": true,
+  "success": false,
+  "per_seed": {
+   "88000": {
+    "A": {
+     "pearson_r": 0.5046,
+     "mae": 0.9627,
+     "calib_slope": 0.7505,
+     "calib_intercept": 0.0129,
+     "top1_eps": 0.4965,
+     "rho": 0.3842,
+     "ep_regret_mean": 0.1525,
+     "ep_regret_ci_hw": 0.0337,
+     "n_episodes": 8
+    },
+    "B": {
+     "pearson_r": 0.483,
+     "mae": 0.9111,
+     "calib_slope": 0.5603,
+     "calib_intercept": 0.5151,
+     "top1_eps": 0.5317,
+     "rho": 0.4424,
+     "ep_regret_mean": 0.1358,
+     "ep_regret_ci_hw": 0.0436,
+     "n_episodes": 8
+    },
+    "C": {
+     "pearson_r": 0.3132,
+     "mae": 1.0117,
+     "calib_slope": 0.4332,
+     "calib_intercept": 0.84,
+     "top1_eps": 0.4859,
+     "rho": 0.3608,
+     "ep_regret_mean": 0.1569,
+     "ep_regret_ci_hw": 0.028,
+     "n_episodes": 8
+    },
+    "D": {
+     "pearson_r": 0.3676,
+     "mae": 0.9182,
+     "calib_slope": 0.5384,
+     "calib_intercept": 0.6528,
+     "top1_eps": 0.5554,
+     "rho": 0.474,
+     "ep_regret_mean": 0.1271,
+     "ep_regret_ci_hw": 0.0431,
+     "n_episodes": 8
+    },
+    "E_rankonly": {
+     "pearson_r": 0.0652,
+     "mae": 1.0324,
+     "calib_slope": 0.1998,
+     "calib_intercept": 1.219,
+     "top1_eps": 0.5287,
+     "rho": 0.4796,
+     "ep_regret_mean": 0.1311,
+     "ep_regret_ci_hw": 0.0443,
+     "n_episodes": 8
+    }
+   },
+   "99000": {
+    "A": {
+     "pearson_r": 0.7016,
+     "mae": 0.7744,
+     "calib_slope": 0.9343,
+     "calib_intercept": 0.1387,
+     "top1_eps": 0.5347,
+     "rho": 0.3395,
+     "ep_regret_mean": 0.1373,
+     "ep_regret_ci_hw": 0.0397,
+     "n_episodes": 8
+    },
+    "B": {
+     "pearson_r": 0.6905,
+     "mae": 0.7885,
+     "calib_slope": 1.0837,
+     "calib_intercept": 0.1479,
+     "top1_eps": 0.5738,
+     "rho": 0.4397,
+     "ep_regret_mean": 0.1232,
+     "ep_regret_ci_hw": 0.0453,
+     "n_episodes": 8
+    },
+    "C": {
+     "pearson_r": 0.667,
+     "mae": 0.9156,
+     "calib_slope": 0.8494,
+     "calib_intercept": 0.5866,
+     "top1_eps": 0.5455,
+     "rho": 0.4221,
+     "ep_regret_mean": 0.1097,
+     "ep_regret_ci_hw": 0.0374,
+     "n_episodes": 8
+    },
+    "D": {
+     "pearson_r": 0.5866,
+     "mae": 1.0007,
+     "calib_slope": 0.6068,
+     "calib_intercept": 0.3626,
+     "top1_eps": 0.5772,
+     "rho": 0.452,
+     "ep_regret_mean": 0.1113,
+     "ep_regret_ci_hw": 0.0347,
+     "n_episodes": 8
+    },
+    "E_rankonly": {
+     "pearson_r": -0.2795,
+     "mae": 2.5122,
+     "calib_slope": -0.4303,
+     "calib_intercept": 2.7398,
+     "top1_eps": 0.5152,
+     "rho": 0.4011,
+     "ep_regret_mean": 0.1329,
+     "ep_regret_ci_hw": 0.0346,
+     "n_episodes": 8
+    }
+   },
+   "123000": {
+    "A": {
+     "pearson_r": 0.5424,
+     "mae": 0.9148,
+     "calib_slope": 0.8575,
+     "calib_intercept": 0.1274,
+     "top1_eps": 0.5318,
+     "rho": 0.3604,
+     "ep_regret_mean": 0.1513,
+     "ep_regret_ci_hw": 0.0539,
+     "n_episodes": 8
+    },
+    "B": {
+     "pearson_r": 0.5707,
+     "mae": 0.8916,
+     "calib_slope": 1.105,
+     "calib_intercept": -0.254,
+     "top1_eps": 0.6132,
+     "rho": 0.4692,
+     "ep_regret_mean": 0.1216,
+     "ep_regret_ci_hw": 0.0552,
+     "n_episodes": 8
+    },
+    "C": {
+     "pearson_r": 0.5133,
+     "mae": 0.9372,
+     "calib_slope": 0.9645,
+     "calib_intercept": 0.4469,
+     "top1_eps": 0.5931,
+     "rho": 0.4022,
+     "ep_regret_mean": 0.1232,
+     "ep_regret_ci_hw": 0.0617,
+     "n_episodes": 8
+    },
+    "D": {
+     "pearson_r": 0.5013,
+     "mae": 1.0312,
+     "calib_slope": 0.8824,
+     "calib_intercept": -0.1384,
+     "top1_eps": 0.6108,
+     "rho": 0.4866,
+     "ep_regret_mean": 0.1217,
+     "ep_regret_ci_hw": 0.0603,
+     "n_episodes": 8
+    },
+    "E_rankonly": {
+     "pearson_r": 0.09,
+     "mae": 2.1966,
+     "calib_slope": 0.3094,
+     "calib_intercept": 1.7129,
+     "top1_eps": 0.6035,
+     "rho": 0.466,
+     "ep_regret_mean": 0.1283,
+     "ep_regret_ci_hw": 0.0548,
+     "n_episodes": 8
+    }
+   }
+  }
+ }
+}
