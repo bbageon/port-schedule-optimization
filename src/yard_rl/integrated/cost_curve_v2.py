@@ -134,13 +134,33 @@ def predict_vessel_completion(sim, v) -> float | None:
     return None if st is None else projected_completion_s(st)
 
 
+# ---------------------------------------------------------------- 실현 평가 (hard — YR-137 정렬)
+def j_truck_realized(o_s: float, a_s: float, d_target_s: float) -> float:
+    """실현 평가비용 — 예측은 softplus, **실현은 hard 초과비용** (9차 피드백 정렬)."""
+    return (o_s - a_s) / 3600.0 + max(0.0, o_s - d_target_s) / 3600.0
+
+
+def j_vessel_realized(f_s: float, p_s: float, rho: float = RHO_VESSEL_V2) -> float:
+    return rho * max(0.0, f_s - p_s) / 3600.0
+
+
+def observed_gate_in(sim, j) -> float | None:
+    """A 열람 규칙 (YR-137 정렬): 실현 gate-in 은 **과거(≤ now)일 때만** 관측 가능.
+    미래 gate-in(시나리오 사전 기록)은 미열람 — 공개 ETA 유도(eta − 평균 입문주행)로 대체."""
+    a = getattr(j, "actual_gate_in", None)
+    if a is not None and a <= sim.now + 1e-9:
+        return a
+    eta = getattr(j, "provided_eta", None)
+    return None if eta is None else eta - GATE_BLOCK_MEAN_S
+
+
 # ---------------------------------------------------------------- 곡선 API (v1 과 동형)
 def delay_cost_curve_v2(sim, job_id: str, kappa: KappaFit,
                         dts: tuple[float, ...] = DTS_DEFAULT) -> DelayCostCurve:
     """v2.1 곡선 — κ 는 0단계 동결값. 불확실성은 κ 에 내재 (lo=cost=hi)."""
     j = sim.jobs[job_id]
     if getattr(j, "is_external_truck", False):
-        a = getattr(j, "actual_gate_in", None)
+        a = observed_gate_in(sim, j)
         o_hat = predict_gate_out(sim, job_id)
         if a is None or o_hat is None:
             pts = tuple(DelayCostPoint(d, 0.0, 0.0,

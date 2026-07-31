@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-137 | RL | **v2 비용계약 정렬 보완 + clean 재적합 + 맞춤 대조군 (9차 피드백)** | 🔴 | 2026-07-31 | **YR-136 하향의 보완 4묶음**: ①라벨·평가 정렬 — 미래 gate-in 미열람(✓수정: observed_gate_in — PLANNED 80대 사전 기록 누출 실측)·예측 softplus/실현 hard 분리(✓함수 추가)·본선 후보-인과 조건부(paired 반사실 v2 판 — 착수 동결)·검열 일치 ②clean 재적합 — **게이트→블록 실측 161.7~258.3s ≠ 계약 180~420s: (a) 시나리오 정합(전 대역 실현 변경) vs (b) 계약 실측 정정 — 사용자 선택 필요** → 미열람 시드·본선 ≥32척 재적합 ③같은 라벨로 3망 대조군(회귀/순위/V·A+보조) ④확장 판정 등록(동점 top-1·에피소드 후회 CI·총비용·완주·backlog·WAIT/REPO 재퇴화). YR-133 연기 · [spec](../docs/dashboard-task-specs/YR-137-v2-label-alignment.md) |
 
 ---
 
