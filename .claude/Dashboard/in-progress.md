@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-138 | RL | **완주 파일럿 — SF vs B vs D (계약 물리·미열람 12ep)** | 🔴 | 2026-08-01 | **12차 피드백**: s88000 진단 보류 — 대리척도 대신 실제 에피소드 비용 확인. 재학습 없음·YR-137 체크포인트. 1차 = v2 실현 hard 총비용(짝지은 upper95<0), G0 완주·backlog 하드, WAIT/REPO 재퇴화 감시. 지명: 둘 다 개선→B(단순) / D−B 유의→D / 둘 다 아니면 트랙 중단 후보 · [spec](../docs/dashboard-task-specs/YR-138-episode-pilot.md)·[하네스](../../src/yard_rl/experiments/yr138_episode_pilot.py) |
 
 ---
 
