@@ -1,0 +1,2109 @@
+{
+ "repro": {
+  "experiment": "YR-138 완주 파일럿 — SF vs B vs D (계약 물리·미열람 12 에피소드)",
+  "code": {
+   "git_head": "5785ea73479e5f608600b845fb0d03186d596607",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train_ckpt": [
+    88000,
+    99000,
+    123000
+   ],
+   "mid-loose": [
+    832300,
+    832301,
+    832302
+   ],
+   "high-loose": [
+    832400,
+    832401,
+    832402
+   ],
+   "mid-tight": [
+    832500,
+    832501,
+    832502
+   ],
+   "high-tight": [
+    832600,
+    832601,
+    832602
+   ]
+  },
+  "params": {},
+  "prereg": "재학습 없음. 1차 = v2 실현 hard 총비용(짝지은 upper95<0 = 유의 개선)·G0 완주 1.0∧backlog 0 하드. 지명: B·D 모두 개선→B(단순 우선), D−B upper95<0 이면 D, 둘 다 아니면 트랙 중단 후보. WAIT/REPO 장악 재퇴화 감시. 파일럿 — 최종 채택 아님.",
+  "n_eval": 12
+ },
+ "sf": [
+  {
+   "cell": "mid-loose",
+   "seed": 832300,
+   "healthy": true,
+   "v2_total": 27.757,
+   "v1_total": 40.271,
+   "a2o_min": 18.517,
+   "wait_min": 5.25,
+   "berth_over_min": 52.92,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0267,
+    "REPOSITION": 0.2867,
+    "SERVE": 0.6067,
+    "WAIT": 0.08
+   },
+   "repo_share": 0.2867,
+   "n_wait": 12,
+   "strategic_wait_rate": 0.0367,
+   "wait_duration_s": 1440.3,
+   "wait_duration_share": 0.0667
+  },
+  {
+   "cell": "mid-loose",
+   "seed": 832301,
+   "healthy": true,
+   "v2_total": 14.7973,
+   "v1_total": 15.514,
+   "a2o_min": 16.059,
+   "wait_min": 2.46,
+   "berth_over_min": 16.52,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.027,
+    "REPOSITION": 0.2072,
+    "SERVE": 0.6396,
+    "WAIT": 0.1261
+   },
+   "repo_share": 0.2072,
+   "n_wait": 14,
+   "strategic_wait_rate": 0.05,
+   "wait_duration_s": 2582.1,
+   "wait_duration_share": 0.1195
+  },
+  {
+   "cell": "mid-loose",
+   "seed": 832302,
+   "healthy": true,
+   "v2_total": 16.5858,
+   "v1_total": 13.06,
+   "a2o_min": 19.09,
+   "wait_min": 5.77,
+   "berth_over_min": 5.98,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0394,
+    "REPOSITION": 0.1969,
+    "SERVE": 0.6535,
+    "WAIT": 0.1102
+   },
+   "repo_share": 0.1969,
+   "n_wait": 14,
+   "strategic_wait_rate": 0.0714,
+   "wait_duration_s": 9954.4,
+   "wait_duration_share": 0.4609
+  },
+  {
+   "cell": "high-loose",
+   "seed": 832400,
+   "healthy": true,
+   "v2_total": 37.3728,
+   "v1_total": 48.229,
+   "a2o_min": 23.066,
+   "wait_min": 9.09,
+   "berth_over_min": 49.23,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0066,
+    "REPOSITION": 0.2119,
+    "SERVE": 0.702,
+    "WAIT": 0.0795
+   },
+   "repo_share": 0.2119,
+   "n_wait": 12,
+   "strategic_wait_rate": 0.0254,
+   "wait_duration_s": 7357.4,
+   "wait_duration_share": 0.3406
+  },
+  {
+   "cell": "high-loose",
+   "seed": 832401,
+   "healthy": true,
+   "v2_total": 30.6084,
+   "v1_total": 34.664,
+   "a2o_min": 19.777,
+   "wait_min": 6.44,
+   "berth_over_min": 35.52,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0278,
+    "REPOSITION": 0.1736,
+    "SERVE": 0.7361,
+    "WAIT": 0.0625
+   },
+   "repo_share": 0.1736,
+   "n_wait": 9,
+   "strategic_wait_rate": 0.0508,
+   "wait_duration_s": 2096.7,
+   "wait_duration_share": 0.0971
+  },
+  {
+   "cell": "high-loose",
+   "seed": 832402,
+   "healthy": true,
+   "v2_total": 37.6779,
+   "v1_total": 51.246,
+   "a2o_min": 23.143,
+   "wait_min": 9.39,
+   "berth_over_min": 57.3,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0321,
+    "REPOSITION": 0.1538,
+    "SERVE": 0.6474,
+    "WAIT": 0.1667
+   },
+   "repo_share": 0.1538,
+   "n_wait": 26,
+   "strategic_wait_rate": 0.0789,
+   "wait_duration_s": 2886.1,
+   "wait_duration_share": 0.1336
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 832500,
+   "healthy": true,
+   "v2_total": 45.777,
+   "v1_total": 95.492,
+   "a2o_min": 22.507,
+   "wait_min": 8.66,
+   "berth_over_min": 142.27,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0263,
+    "REPOSITION": 0.2039,
+    "SERVE": 0.6513,
+    "WAIT": 0.1184
+   },
+   "repo_share": 0.2039,
+   "n_wait": 18,
+   "strategic_wait_rate": 0.0593,
+   "wait_duration_s": 2368.1,
+   "wait_duration_share": 0.1096
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 832501,
+   "healthy": true,
+   "v2_total": 47.1736,
+   "v1_total": 91.431,
+   "a2o_min": 25.157,
+   "wait_min": 11.53,
+   "berth_over_min": 128.31,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0142,
+    "REPOSITION": 0.234,
+    "SERVE": 0.6241,
+    "WAIT": 0.1277
+   },
+   "repo_share": 0.234,
+   "n_wait": 18,
+   "strategic_wait_rate": 0.0396,
+   "wait_duration_s": 8529.3,
+   "wait_duration_share": 0.3949
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 832502,
+   "healthy": true,
+   "v2_total": 25.6203,
+   "v1_total": 51.82,
+   "a2o_min": 16.66,
+   "wait_min": 2.96,
+   "berth_over_min": 79.56,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.032,
+    "REPOSITION": 0.28,
+    "SERVE": 0.608,
+    "WAIT": 0.08
+   },
+   "repo_share": 0.28,
+   "n_wait": 10,
+   "strategic_wait_rate": 0.0575,
+   "wait_duration_s": 980.3,
+   "wait_duration_share": 0.0454
+  },
+  {
+   "cell": "high-tight",
+   "seed": 832600,
+   "healthy": true,
+   "v2_total": 42.8758,
+   "v1_total": 86.176,
+   "a2o_min": 22.118,
+   "wait_min": 8.31,
+   "berth_over_min": 125.89,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0329,
+    "REPOSITION": 0.2237,
+    "SERVE": 0.6579,
+    "WAIT": 0.0855
+   },
+   "repo_share": 0.2237,
+   "n_wait": 13,
+   "strategic_wait_rate": 0.0,
+   "wait_duration_s": 1305.5,
+   "wait_duration_share": 0.0604
+  },
+  {
+   "cell": "high-tight",
+   "seed": 832601,
+   "healthy": true,
+   "v2_total": 45.3535,
+   "v1_total": 75.682,
+   "a2o_min": 23.95,
+   "wait_min": 10.36,
+   "berth_over_min": 95.14,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.028,
+    "REPOSITION": 0.1678,
+    "SERVE": 0.7622,
+    "WAIT": 0.042
+   },
+   "repo_share": 0.1678,
+   "n_wait": 6,
+   "strategic_wait_rate": 0.0088,
+   "wait_duration_s": 483.7,
+   "wait_duration_share": 0.0224
+  },
+  {
+   "cell": "high-tight",
+   "seed": 832602,
+   "healthy": true,
+   "v2_total": 72.2157,
+   "v1_total": 132.821,
+   "a2o_min": 29.233,
+   "wait_min": 15.33,
+   "berth_over_min": 178.36,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0305,
+    "REPOSITION": 0.1646,
+    "SERVE": 0.7195,
+    "WAIT": 0.0854
+   },
+   "repo_share": 0.1646,
+   "n_wait": 14,
+   "strategic_wait_rate": 0.0472,
+   "wait_duration_s": 7053.6,
+   "wait_duration_share": 0.3266
+  }
+ ],
+ "arms": {
+  "B:88000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": true,
+    "v2_total": 33.7208,
+    "v1_total": 36.607,
+    "a2o_min": 24.546,
+    "wait_min": 11.5,
+    "berth_over_min": 25.88,
+    "compl": 0.989010989010989,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0144,
+     "REPOSITION": 0.4598,
+     "SERVE": 0.2586,
+     "WAIT": 0.2672
+    },
+    "repo_share": 0.4598,
+    "n_wait": 93,
+    "strategic_wait_rate": 0.2508,
+    "wait_duration_s": 19509.3,
+    "wait_duration_share": 0.9032
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": true,
+    "v2_total": 13.2974,
+    "v1_total": 8.008,
+    "a2o_min": 17.089,
+    "wait_min": 3.46,
+    "berth_over_min": 0.0,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.3876,
+     "SERVE": 0.3397,
+     "WAIT": 0.2727
+    },
+    "repo_share": 0.3876,
+    "n_wait": 57,
+    "strategic_wait_rate": 0.2649,
+    "wait_duration_s": 14303.3,
+    "wait_duration_share": 0.6622
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": true,
+    "v2_total": 22.0921,
+    "v1_total": 17.295,
+    "a2o_min": 23.397,
+    "wait_min": 10.16,
+    "berth_over_min": 1.0,
+    "compl": 0.9879518072289156,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0034,
+     "REPOSITION": 0.411,
+     "SERVE": 0.2808,
+     "WAIT": 0.3048
+    },
+    "repo_share": 0.411,
+    "n_wait": 89,
+    "strategic_wait_rate": 0.2974,
+    "wait_duration_s": 20164.2,
+    "wait_duration_share": 0.9335
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": true,
+    "v2_total": 86.526,
+    "v1_total": 142.266,
+    "a2o_min": 37.602,
+    "wait_min": 24.17,
+    "berth_over_min": 166.92,
+    "compl": 0.9245283018867925,
+    "backlog": 8,
+    "shares": {
+     "PRE_REHANDLE": 0.0049,
+     "REPOSITION": 0.0837,
+     "SERVE": 0.4828,
+     "WAIT": 0.4286
+    },
+    "repo_share": 0.0837,
+    "n_wait": 87,
+    "strategic_wait_rate": 0.4091,
+    "wait_duration_s": 19109.7,
+    "wait_duration_share": 0.8847
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 73.3416,
+    "v1_total": 127.507,
+    "a2o_min": 27.985,
+    "wait_min": 14.8,
+    "berth_over_min": 165.53,
+    "compl": 0.9528301886792453,
+    "backlog": 5,
+    "shares": {
+     "PRE_REHANDLE": 0.0093,
+     "REPOSITION": 0.4174,
+     "SERVE": 0.3146,
+     "WAIT": 0.2586
+    },
+    "repo_share": 0.4174,
+    "n_wait": 83,
+    "strategic_wait_rate": 0.2483,
+    "wait_duration_s": 12887.3,
+    "wait_duration_share": 0.5966
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": false,
+    "v2_total": 60.902,
+    "v1_total": 122.363,
+    "a2o_min": 22.628,
+    "wait_min": 8.87,
+    "berth_over_min": 181.28,
+    "compl": 0.9900990099009901,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0146,
+     "REPOSITION": 0.5687,
+     "SERVE": 0.2083,
+     "WAIT": 0.2083
+    },
+    "repo_share": 0.5687,
+    "n_wait": 100,
+    "strategic_wait_rate": 0.1978,
+    "wait_duration_s": 14863.2,
+    "wait_duration_share": 0.6881
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": true,
+    "v2_total": 141.0432,
+    "v1_total": 234.398,
+    "a2o_min": 62.44,
+    "wait_min": 50.44,
+    "berth_over_min": 252.0,
+    "compl": 0.7474747474747475,
+    "backlog": 25,
+    "shares": {
+     "REPOSITION": 0.2054,
+     "SERVE": 0.2492,
+     "WAIT": 0.5455
+    },
+    "repo_share": 0.2054,
+    "n_wait": 162,
+    "strategic_wait_rate": 0.5,
+    "wait_duration_s": 25930.9,
+    "wait_duration_share": 1.2005
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": true,
+    "v2_total": 93.916,
+    "v1_total": 185.683,
+    "a2o_min": 36.247,
+    "wait_min": 23.71,
+    "berth_over_min": 252.0,
+    "compl": 0.9090909090909091,
+    "backlog": 8,
+    "shares": {
+     "PRE_REHANDLE": 0.0107,
+     "REPOSITION": 0.3238,
+     "SERVE": 0.2847,
+     "WAIT": 0.3808
+    },
+    "repo_share": 0.3238,
+    "n_wait": 107,
+    "strategic_wait_rate": 0.3977,
+    "wait_duration_s": 22046.9,
+    "wait_duration_share": 1.0207
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": false,
+    "v2_total": 31.8647,
+    "v1_total": 57.448,
+    "a2o_min": 22.774,
+    "wait_min": 9.23,
+    "berth_over_min": 74.92,
+    "compl": 0.9868421052631579,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0077,
+     "REPOSITION": 0.6144,
+     "SERVE": 0.1928,
+     "WAIT": 0.1851
+    },
+    "repo_share": 0.6144,
+    "n_wait": 72,
+    "strategic_wait_rate": 0.1689,
+    "wait_duration_s": 11541.6,
+    "wait_duration_share": 0.5343
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": true,
+    "v2_total": 75.4948,
+    "v1_total": 167.527,
+    "a2o_min": 29.632,
+    "wait_min": 15.94,
+    "berth_over_min": 252.0,
+    "compl": 0.92,
+    "backlog": 8,
+    "shares": {
+     "PRE_REHANDLE": 0.0089,
+     "REPOSITION": 0.2411,
+     "SERVE": 0.4107,
+     "WAIT": 0.3393
+    },
+    "repo_share": 0.2411,
+    "n_wait": 76,
+    "strategic_wait_rate": 0.3317,
+    "wait_duration_s": 19472.5,
+    "wait_duration_share": 0.9015
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": true,
+    "v2_total": 115.5939,
+    "v1_total": 206.126,
+    "a2o_min": 47.254,
+    "wait_min": 34.12,
+    "berth_over_min": 252.0,
+    "compl": 0.908256880733945,
+    "backlog": 10,
+    "shares": {
+     "REPOSITION": 0.1328,
+     "SERVE": 0.3653,
+     "WAIT": 0.5018
+    },
+    "repo_share": 0.1328,
+    "n_wait": 136,
+    "strategic_wait_rate": 0.473,
+    "wait_duration_s": 20869.9,
+    "wait_duration_share": 0.9662
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 155.6432,
+    "v1_total": 244.708,
+    "a2o_min": 57.702,
+    "wait_min": 44.99,
+    "berth_over_min": 252.0,
+    "compl": 0.8389830508474576,
+    "backlog": 19,
+    "shares": {
+     "PRE_REHANDLE": 0.0036,
+     "REPOSITION": 0.0616,
+     "SERVE": 0.3587,
+     "WAIT": 0.5761
+    },
+    "repo_share": 0.0616,
+    "n_wait": 159,
+    "strategic_wait_rate": 0.5643,
+    "wait_duration_s": 20849.1,
+    "wait_duration_share": 0.9652
+   }
+  ],
+  "B:99000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": true,
+    "v2_total": 31.7394,
+    "v1_total": 30.118,
+    "a2o_min": 24.865,
+    "wait_min": 11.4,
+    "berth_over_min": 14.75,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.2597,
+     "SERVE": 0.5909,
+     "WAIT": 0.1494
+    },
+    "repo_share": 0.2597,
+    "n_wait": 23,
+    "strategic_wait_rate": 0.0826,
+    "wait_duration_s": 10932.5,
+    "wait_duration_share": 0.5061
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": true,
+    "v2_total": 12.3934,
+    "v1_total": 6.797,
+    "a2o_min": 16.461,
+    "wait_min": 2.85,
+    "berth_over_min": 0.0,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0075,
+     "REPOSITION": 0.2105,
+     "SERVE": 0.5338,
+     "WAIT": 0.2481
+    },
+    "repo_share": 0.2105,
+    "n_wait": 33,
+    "strategic_wait_rate": 0.1887,
+    "wait_duration_s": 4920.1,
+    "wait_duration_share": 0.2278
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": true,
+    "v2_total": 20.4689,
+    "v1_total": 17.326,
+    "a2o_min": 23.058,
+    "wait_min": 9.3,
+    "berth_over_min": 4.26,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.5253,
+     "SERVE": 0.3825,
+     "WAIT": 0.0922
+    },
+    "repo_share": 0.5253,
+    "n_wait": 20,
+    "strategic_wait_rate": 0.0309,
+    "wait_duration_s": 3047.2,
+    "wait_duration_share": 0.1411
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": true,
+    "v2_total": 49.8491,
+    "v1_total": 65.426,
+    "a2o_min": 28.46,
+    "wait_min": 14.6,
+    "berth_over_min": 60.29,
+    "compl": 0.9905660377358491,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.005,
+     "REPOSITION": 0.2525,
+     "SERVE": 0.5198,
+     "WAIT": 0.2228
+    },
+    "repo_share": 0.2525,
+    "n_wait": 45,
+    "strategic_wait_rate": 0.1525,
+    "wait_duration_s": 16179.4,
+    "wait_duration_share": 0.749
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 32.2374,
+    "v1_total": 32.958,
+    "a2o_min": 21.159,
+    "wait_min": 7.7,
+    "berth_over_min": 26.74,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.1447,
+     "SERVE": 0.6974,
+     "WAIT": 0.1579
+    },
+    "repo_share": 0.1447,
+    "n_wait": 24,
+    "strategic_wait_rate": 0.0714,
+    "wait_duration_s": 10684.6,
+    "wait_duration_share": 0.4947
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": true,
+    "v2_total": 66.2415,
+    "v1_total": 127.974,
+    "a2o_min": 25.816,
+    "wait_min": 12.01,
+    "berth_over_min": 181.28,
+    "compl": 0.9801980198019802,
+    "backlog": 2,
+    "shares": {
+     "REPOSITION": 0.5157,
+     "SERVE": 0.3449,
+     "WAIT": 0.1394
+    },
+    "repo_share": 0.5157,
+    "n_wait": 40,
+    "strategic_wait_rate": 0.0726,
+    "wait_duration_s": 9339.0,
+    "wait_duration_share": 0.4324
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": true,
+    "v2_total": 52.8353,
+    "v1_total": 99.016,
+    "a2o_min": 27.283,
+    "wait_min": 13.34,
+    "berth_over_min": 132.38,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0055,
+     "REPOSITION": 0.2459,
+     "SERVE": 0.541,
+     "WAIT": 0.2077
+    },
+    "repo_share": 0.2459,
+    "n_wait": 38,
+    "strategic_wait_rate": 0.0946,
+    "wait_duration_s": 10833.7,
+    "wait_duration_share": 0.5016
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": true,
+    "v2_total": 51.1835,
+    "v1_total": 104.799,
+    "a2o_min": 23.246,
+    "wait_min": 9.66,
+    "berth_over_min": 152.44,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0085,
+     "REPOSITION": 0.453,
+     "SERVE": 0.3761,
+     "WAIT": 0.1624
+    },
+    "repo_share": 0.453,
+    "n_wait": 38,
+    "strategic_wait_rate": 0.1165,
+    "wait_duration_s": 5415.0,
+    "wait_duration_share": 0.2507
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": true,
+    "v2_total": 23.3624,
+    "v1_total": 38.747,
+    "a2o_min": 19.498,
+    "wait_min": 5.64,
+    "berth_over_min": 51.43,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.1439,
+     "SERVE": 0.5758,
+     "WAIT": 0.2803
+    },
+    "repo_share": 0.1439,
+    "n_wait": 37,
+    "strategic_wait_rate": 0.1782,
+    "wait_duration_s": 7789.9,
+    "wait_duration_share": 0.3606
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": true,
+    "v2_total": 58.9776,
+    "v1_total": 109.588,
+    "a2o_min": 30.106,
+    "wait_min": 16.22,
+    "berth_over_min": 143.26,
+    "compl": 0.99,
+    "backlog": 1,
+    "shares": {
+     "REPOSITION": 0.1453,
+     "SERVE": 0.5756,
+     "WAIT": 0.2791
+    },
+    "repo_share": 0.1453,
+    "n_wait": 48,
+    "strategic_wait_rate": 0.1765,
+    "wait_duration_s": 16599.0,
+    "wait_duration_share": 0.7685
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": true,
+    "v2_total": 87.3868,
+    "v1_total": 178.128,
+    "a2o_min": 30.97,
+    "wait_min": 17.49,
+    "berth_over_min": 252.0,
+    "compl": 0.981651376146789,
+    "backlog": 2,
+    "shares": {
+     "REPOSITION": 0.2991,
+     "SERVE": 0.5,
+     "WAIT": 0.2009
+    },
+    "repo_share": 0.2991,
+    "n_wait": 43,
+    "strategic_wait_rate": 0.1613,
+    "wait_duration_s": 9978.2,
+    "wait_duration_share": 0.462
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 80.8259,
+    "v1_total": 139.847,
+    "a2o_min": 32.116,
+    "wait_min": 18.15,
+    "berth_over_min": 174.34,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.0598,
+     "SERVE": 0.6413,
+     "WAIT": 0.2989
+    },
+    "repo_share": 0.0598,
+    "n_wait": 55,
+    "strategic_wait_rate": 0.1879,
+    "wait_duration_s": 4747.0,
+    "wait_duration_share": 0.2198
+   }
+  ],
+  "B:123000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": false,
+    "v2_total": 35.5853,
+    "v1_total": 55.03,
+    "a2o_min": 21.809,
+    "wait_min": 8.44,
+    "berth_over_min": 68.62,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.6319,
+     "SERVE": 0.2791,
+     "WAIT": 0.089
+    },
+    "repo_share": 0.6319,
+    "n_wait": 29,
+    "strategic_wait_rate": 0.068,
+    "wait_duration_s": 9752.7,
+    "wait_duration_share": 0.4515
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": true,
+    "v2_total": 23.5424,
+    "v1_total": 21.791,
+    "a2o_min": 24.328,
+    "wait_min": 10.92,
+    "berth_over_min": 8.24,
+    "compl": 0.9859154929577465,
+    "backlog": 1,
+    "shares": {
+     "REPOSITION": 0.502,
+     "SERVE": 0.2745,
+     "WAIT": 0.2235
+    },
+    "repo_share": 0.502,
+    "n_wait": 57,
+    "strategic_wait_rate": 0.2044,
+    "wait_duration_s": 21653.9,
+    "wait_duration_share": 1.0025
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": false,
+    "v2_total": 27.6997,
+    "v1_total": 29.073,
+    "a2o_min": 26.524,
+    "wait_min": 13.16,
+    "berth_over_min": 13.88,
+    "compl": 0.9879518072289156,
+    "backlog": 1,
+    "shares": {
+     "REPOSITION": 0.6095,
+     "SERVE": 0.1256,
+     "WAIT": 0.2649
+    },
+    "repo_share": 0.6095,
+    "n_wait": 173,
+    "strategic_wait_rate": 0.2666,
+    "wait_duration_s": 18329.3,
+    "wait_duration_share": 0.8486
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": false,
+    "v2_total": 79.5078,
+    "v1_total": 136.509,
+    "a2o_min": 33.08,
+    "wait_min": 19.21,
+    "berth_over_min": 166.92,
+    "compl": 0.9811320754716981,
+    "backlog": 2,
+    "shares": {
+     "REPOSITION": 0.5649,
+     "SERVE": 0.1708,
+     "WAIT": 0.2644
+    },
+    "repo_share": 0.5649,
+    "n_wait": 161,
+    "strategic_wait_rate": 0.2653,
+    "wait_duration_s": 15265.4,
+    "wait_duration_share": 0.7067
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 44.4863,
+    "v1_total": 60.801,
+    "a2o_min": 23.224,
+    "wait_min": 9.85,
+    "berth_over_min": 66.33,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.3358,
+     "SERVE": 0.3955,
+     "WAIT": 0.2687
+    },
+    "repo_share": 0.3358,
+    "n_wait": 72,
+    "strategic_wait_rate": 0.2689,
+    "wait_duration_s": 4145.8,
+    "wait_duration_share": 0.1919
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": false,
+    "v2_total": 69.1638,
+    "v1_total": 130.922,
+    "a2o_min": 27.428,
+    "wait_min": 13.66,
+    "berth_over_min": 181.28,
+    "compl": 0.9603960396039604,
+    "backlog": 4,
+    "shares": {
+     "REPOSITION": 0.6909,
+     "SERVE": 0.1909,
+     "WAIT": 0.1181
+    },
+    "repo_share": 0.6909,
+    "n_wait": 60,
+    "strategic_wait_rate": 0.0926,
+    "wait_duration_s": 16408.7,
+    "wait_duration_share": 0.7597
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": true,
+    "v2_total": 79.1737,
+    "v1_total": 170.96,
+    "a2o_min": 29.714,
+    "wait_min": 15.8,
+    "berth_over_min": 252.0,
+    "compl": 0.9696969696969697,
+    "backlog": 3,
+    "shares": {
+     "REPOSITION": 0.3816,
+     "SERVE": 0.3158,
+     "WAIT": 0.3026
+    },
+    "repo_share": 0.3816,
+    "n_wait": 92,
+    "strategic_wait_rate": 0.2982,
+    "wait_duration_s": 17658.5,
+    "wait_duration_share": 0.8175
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": true,
+    "v2_total": 79.7178,
+    "v1_total": 171.675,
+    "a2o_min": 29.5,
+    "wait_min": 16.18,
+    "berth_over_min": 252.0,
+    "compl": 0.9659090909090909,
+    "backlog": 3,
+    "shares": {
+     "REPOSITION": 0.5731,
+     "SERVE": 0.2485,
+     "WAIT": 0.1784
+    },
+    "repo_share": 0.5731,
+    "n_wait": 61,
+    "strategic_wait_rate": 0.1587,
+    "wait_duration_s": 19346.2,
+    "wait_duration_share": 0.8957
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": false,
+    "v2_total": 44.3606,
+    "v1_total": 86.133,
+    "a2o_min": 26.402,
+    "wait_min": 12.53,
+    "berth_over_min": 114.34,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.7981,
+     "SERVE": 0.0821,
+     "WAIT": 0.1199
+    },
+    "repo_share": 0.7981,
+    "n_wait": 111,
+    "strategic_wait_rate": 0.1133,
+    "wait_duration_s": 3212.3,
+    "wait_duration_share": 0.1487
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": false,
+    "v2_total": 87.0673,
+    "v1_total": 179.736,
+    "a2o_min": 34.042,
+    "wait_min": 20.66,
+    "berth_over_min": 252.0,
+    "compl": 0.93,
+    "backlog": 7,
+    "shares": {
+     "REPOSITION": 0.6427,
+     "SERVE": 0.1174,
+     "WAIT": 0.2399
+    },
+    "repo_share": 0.6427,
+    "n_wait": 190,
+    "strategic_wait_rate": 0.2415,
+    "wait_duration_s": 19112.0,
+    "wait_duration_share": 0.8848
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": true,
+    "v2_total": 87.3669,
+    "v1_total": 178.262,
+    "a2o_min": 30.29,
+    "wait_min": 16.88,
+    "berth_over_min": 252.0,
+    "compl": 0.981651376146789,
+    "backlog": 2,
+    "shares": {
+     "PRE_REHANDLE": 0.003,
+     "REPOSITION": 0.521,
+     "SERVE": 0.3204,
+     "WAIT": 0.1557
+    },
+    "repo_share": 0.521,
+    "n_wait": 52,
+    "strategic_wait_rate": 0.1543,
+    "wait_duration_s": 14907.8,
+    "wait_duration_share": 0.6902
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 118.4222,
+    "v1_total": 207.336,
+    "a2o_min": 42.161,
+    "wait_min": 28.61,
+    "berth_over_min": 252.0,
+    "compl": 0.9576271186440678,
+    "backlog": 5,
+    "shares": {
+     "REPOSITION": 0.3377,
+     "SERVE": 0.3742,
+     "WAIT": 0.2881
+    },
+    "repo_share": 0.3377,
+    "n_wait": 87,
+    "strategic_wait_rate": 0.2889,
+    "wait_duration_s": 14925.0,
+    "wait_duration_share": 0.691
+   }
+  ],
+  "D:88000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": false,
+    "v2_total": 56.0958,
+    "v1_total": 117.551,
+    "a2o_min": 22.673,
+    "wait_min": 9.55,
+    "berth_over_min": 177.24,
+    "compl": 0.978021978021978,
+    "backlog": 2,
+    "shares": {
+     "PRE_REHANDLE": 0.0048,
+     "REPOSITION": 0.6986,
+     "SERVE": 0.2129,
+     "WAIT": 0.0837
+    },
+    "repo_share": 0.6986,
+    "n_wait": 35,
+    "strategic_wait_rate": 0.0594,
+    "wait_duration_s": 17434.2,
+    "wait_duration_share": 0.8071
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": false,
+    "v2_total": 27.4185,
+    "v1_total": 23.172,
+    "a2o_min": 27.565,
+    "wait_min": 14.81,
+    "berth_over_min": 0.0,
+    "compl": 0.9577464788732394,
+    "backlog": 3,
+    "shares": {
+     "PRE_REHANDLE": 0.0041,
+     "REPOSITION": 0.4783,
+     "SERVE": 0.1408,
+     "WAIT": 0.3768
+    },
+    "repo_share": 0.4783,
+    "n_wait": 182,
+    "strategic_wait_rate": 0.3804,
+    "wait_duration_s": 21135.0,
+    "wait_duration_share": 0.9785
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": false,
+    "v2_total": 32.6966,
+    "v1_total": 30.907,
+    "a2o_min": 29.558,
+    "wait_min": 16.68,
+    "berth_over_min": 6.21,
+    "compl": 0.963855421686747,
+    "backlog": 3,
+    "shares": {
+     "REPOSITION": 0.5938,
+     "SERVE": 0.1471,
+     "WAIT": 0.2592
+    },
+    "repo_share": 0.5938,
+    "n_wait": 141,
+    "strategic_wait_rate": 0.2543,
+    "wait_duration_s": 19409.6,
+    "wait_duration_share": 0.8986
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": true,
+    "v2_total": 90.6221,
+    "v1_total": 146.48,
+    "a2o_min": 38.622,
+    "wait_min": 25.71,
+    "berth_over_min": 166.92,
+    "compl": 0.8773584905660378,
+    "backlog": 13,
+    "shares": {
+     "PRE_REHANDLE": 0.0093,
+     "REPOSITION": 0.0833,
+     "SERVE": 0.4306,
+     "WAIT": 0.4769
+    },
+    "repo_share": 0.0833,
+    "n_wait": 103,
+    "strategic_wait_rate": 0.4874,
+    "wait_duration_s": 20902.9,
+    "wait_duration_share": 0.9677
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 41.1083,
+    "v1_total": 51.995,
+    "a2o_min": 23.172,
+    "wait_min": 9.81,
+    "berth_over_min": 51.68,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0095,
+     "REPOSITION": 0.4335,
+     "SERVE": 0.3354,
+     "WAIT": 0.2215
+    },
+    "repo_share": 0.4335,
+    "n_wait": 70,
+    "strategic_wait_rate": 0.1973,
+    "wait_duration_s": 4220.6,
+    "wait_duration_share": 0.1954
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": true,
+    "v2_total": 74.0381,
+    "v1_total": 135.555,
+    "a2o_min": 29.832,
+    "wait_min": 16.54,
+    "berth_over_min": 181.28,
+    "compl": 0.9306930693069307,
+    "backlog": 7,
+    "shares": {
+     "PRE_REHANDLE": 0.0149,
+     "REPOSITION": 0.1832,
+     "SERVE": 0.4653,
+     "WAIT": 0.3366
+    },
+    "repo_share": 0.1832,
+    "n_wait": 68,
+    "strategic_wait_rate": 0.2393,
+    "wait_duration_s": 19205.2,
+    "wait_duration_share": 0.8891
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": true,
+    "v2_total": 90.1447,
+    "v1_total": 181.652,
+    "a2o_min": 35.869,
+    "wait_min": 22.37,
+    "berth_over_min": 252.0,
+    "compl": 0.9494949494949495,
+    "backlog": 5,
+    "shares": {
+     "PRE_REHANDLE": 0.0041,
+     "REPOSITION": 0.1598,
+     "SERVE": 0.3852,
+     "WAIT": 0.4508
+    },
+    "repo_share": 0.1598,
+    "n_wait": 110,
+    "strategic_wait_rate": 0.4093,
+    "wait_duration_s": 20531.2,
+    "wait_duration_share": 0.9505
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": true,
+    "v2_total": 100.9075,
+    "v1_total": 193.005,
+    "a2o_min": 42.922,
+    "wait_min": 29.48,
+    "berth_over_min": 252.0,
+    "compl": 0.9772727272727273,
+    "backlog": 2,
+    "shares": {
+     "PRE_REHANDLE": 0.003,
+     "REPOSITION": 0.4329,
+     "SERVE": 0.2622,
+     "WAIT": 0.3018
+    },
+    "repo_share": 0.4329,
+    "n_wait": 99,
+    "strategic_wait_rate": 0.302,
+    "wait_duration_s": 18887.8,
+    "wait_duration_share": 0.8744
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": false,
+    "v2_total": 39.2096,
+    "v1_total": 89.764,
+    "a2o_min": 20.057,
+    "wait_min": 6.4,
+    "berth_over_min": 138.67,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0075,
+     "REPOSITION": 0.7593,
+     "SERVE": 0.1418,
+     "WAIT": 0.0914
+    },
+    "repo_share": 0.7593,
+    "n_wait": 49,
+    "strategic_wait_rate": 0.0851,
+    "wait_duration_s": 6827.2,
+    "wait_duration_share": 0.3161
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": true,
+    "v2_total": 47.7926,
+    "v1_total": 86.415,
+    "a2o_min": 27.091,
+    "wait_min": 13.16,
+    "berth_over_min": 112.68,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.4708,
+     "SERVE": 0.3247,
+     "WAIT": 0.2045
+    },
+    "repo_share": 0.4708,
+    "n_wait": 63,
+    "strategic_wait_rate": 0.1897,
+    "wait_duration_s": 3706.0,
+    "wait_duration_share": 0.1716
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": true,
+    "v2_total": 92.5335,
+    "v1_total": 183.029,
+    "a2o_min": 33.733,
+    "wait_min": 20.77,
+    "berth_over_min": 252.0,
+    "compl": 0.9357798165137615,
+    "backlog": 7,
+    "shares": {
+     "PRE_REHANDLE": 0.0183,
+     "REPOSITION": 0.1416,
+     "SERVE": 0.4658,
+     "WAIT": 0.3744
+    },
+    "repo_share": 0.1416,
+    "n_wait": 82,
+    "strategic_wait_rate": 0.3568,
+    "wait_duration_s": 19591.8,
+    "wait_duration_share": 0.907
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 98.1161,
+    "v1_total": 170.196,
+    "a2o_min": 36.62,
+    "wait_min": 22.86,
+    "berth_over_min": 208.46,
+    "compl": 0.9915254237288136,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0045,
+     "REPOSITION": 0.095,
+     "SERVE": 0.5294,
+     "WAIT": 0.371
+    },
+    "repo_share": 0.095,
+    "n_wait": 82,
+    "strategic_wait_rate": 0.375,
+    "wait_duration_s": 14415.4,
+    "wait_duration_share": 0.6674
+   }
+  ],
+  "D:99000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": true,
+    "v2_total": 28.9391,
+    "v1_total": 31.056,
+    "a2o_min": 22.387,
+    "wait_min": 9.21,
+    "berth_over_min": 25.37,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0325,
+     "REPOSITION": 0.1558,
+     "SERVE": 0.5909,
+     "WAIT": 0.2208
+    },
+    "repo_share": 0.1558,
+    "n_wait": 34,
+    "strategic_wait_rate": 0.1628,
+    "wait_duration_s": 4484.6,
+    "wait_duration_share": 0.2076
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": true,
+    "v2_total": 12.689,
+    "v1_total": 7.051,
+    "a2o_min": 16.835,
+    "wait_min": 3.41,
+    "berth_over_min": 0.0,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0391,
+     "REPOSITION": 0.1875,
+     "SERVE": 0.5547,
+     "WAIT": 0.2188
+    },
+    "repo_share": 0.1875,
+    "n_wait": 28,
+    "strategic_wait_rate": 0.1961,
+    "wait_duration_s": 11833.7,
+    "wait_duration_share": 0.5479
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": false,
+    "v2_total": 20.4855,
+    "v1_total": 17.014,
+    "a2o_min": 23.077,
+    "wait_min": 9.68,
+    "berth_over_min": 3.41,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0156,
+     "REPOSITION": 0.4089,
+     "SERVE": 0.2161,
+     "WAIT": 0.3594
+    },
+    "repo_share": 0.4089,
+    "n_wait": 138,
+    "strategic_wait_rate": 0.3669,
+    "wait_duration_s": 3660.4,
+    "wait_duration_share": 0.1695
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": true,
+    "v2_total": 46.3337,
+    "v1_total": 48.897,
+    "a2o_min": 29.35,
+    "wait_min": 15.43,
+    "berth_over_min": 26.9,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0298,
+     "REPOSITION": 0.0714,
+     "SERVE": 0.631,
+     "WAIT": 0.2679
+    },
+    "repo_share": 0.0714,
+    "n_wait": 45,
+    "strategic_wait_rate": 0.2222,
+    "wait_duration_s": 10812.9,
+    "wait_duration_share": 0.5006
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 33.8716,
+    "v1_total": 33.268,
+    "a2o_min": 22.823,
+    "wait_min": 9.38,
+    "berth_over_min": 22.42,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0118,
+     "REPOSITION": 0.1716,
+     "SERVE": 0.6272,
+     "WAIT": 0.1893
+    },
+    "repo_share": 0.1716,
+    "n_wait": 32,
+    "strategic_wait_rate": 0.1497,
+    "wait_duration_s": 3252.1,
+    "wait_duration_share": 0.1506
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": true,
+    "v2_total": 46.3843,
+    "v1_total": 64.953,
+    "a2o_min": 26.306,
+    "wait_min": 12.49,
+    "berth_over_min": 69.8,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.037,
+     "REPOSITION": 0.1728,
+     "SERVE": 0.6235,
+     "WAIT": 0.1667
+    },
+    "repo_share": 0.1728,
+    "n_wait": 27,
+    "strategic_wait_rate": 0.1032,
+    "wait_duration_s": 9735.3,
+    "wait_duration_share": 0.4507
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": true,
+    "v2_total": 48.4211,
+    "v1_total": 97.212,
+    "a2o_min": 23.992,
+    "wait_min": 10.25,
+    "berth_over_min": 138.45,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0164,
+     "REPOSITION": 0.5658,
+     "SERVE": 0.3257,
+     "WAIT": 0.0921
+    },
+    "repo_share": 0.5658,
+    "n_wait": 28,
+    "strategic_wait_rate": 0.0655,
+    "wait_duration_s": 3173.6,
+    "wait_duration_share": 0.1469
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": true,
+    "v2_total": 51.8997,
+    "v1_total": 103.427,
+    "a2o_min": 24.942,
+    "wait_min": 11.56,
+    "berth_over_min": 147.11,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0357,
+     "REPOSITION": 0.25,
+     "SERVE": 0.5238,
+     "WAIT": 0.1905
+    },
+    "repo_share": 0.25,
+    "n_wait": 32,
+    "strategic_wait_rate": 0.1679,
+    "wait_duration_s": 9731.6,
+    "wait_duration_share": 0.4505
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": true,
+    "v2_total": 27.6846,
+    "v1_total": 55.632,
+    "a2o_min": 17.988,
+    "wait_min": 4.45,
+    "berth_over_min": 83.82,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0259,
+     "REPOSITION": 0.4249,
+     "SERVE": 0.3938,
+     "WAIT": 0.1554
+    },
+    "repo_share": 0.4249,
+    "n_wait": 30,
+    "strategic_wait_rate": 0.1218,
+    "wait_duration_s": 6176.1,
+    "wait_duration_share": 0.2859
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": true,
+    "v2_total": 43.9506,
+    "v1_total": 86.466,
+    "a2o_min": 23.103,
+    "wait_min": 9.2,
+    "berth_over_min": 123.25,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0267,
+     "REPOSITION": 0.1333,
+     "SERVE": 0.6667,
+     "WAIT": 0.1733
+    },
+    "repo_share": 0.1333,
+    "n_wait": 26,
+    "strategic_wait_rate": 0.0976,
+    "wait_duration_s": 10593.2,
+    "wait_duration_share": 0.4904
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": true,
+    "v2_total": 56.7375,
+    "v1_total": 88.332,
+    "a2o_min": 30.166,
+    "wait_min": 16.42,
+    "berth_over_min": 96.23,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0076,
+     "REPOSITION": 0.5,
+     "SERVE": 0.4129,
+     "WAIT": 0.0795
+    },
+    "repo_share": 0.5,
+    "n_wait": 21,
+    "strategic_wait_rate": 0.0375,
+    "wait_duration_s": 9152.1,
+    "wait_duration_share": 0.4237
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 81.1242,
+    "v1_total": 139.992,
+    "a2o_min": 32.047,
+    "wait_min": 18.29,
+    "berth_over_min": 173.35,
+    "compl": 0.9915254237288136,
+    "backlog": 1,
+    "shares": {
+     "PRE_REHANDLE": 0.0172,
+     "REPOSITION": 0.1379,
+     "SERVE": 0.6724,
+     "WAIT": 0.1724
+    },
+    "repo_share": 0.1379,
+    "n_wait": 30,
+    "strategic_wait_rate": 0.1111,
+    "wait_duration_s": 13366.9,
+    "wait_duration_share": 0.6188
+   }
+  ],
+  "D:123000": [
+   {
+    "cell": "mid-loose",
+    "seed": 832300,
+    "healthy": true,
+    "v2_total": 30.9197,
+    "v1_total": 34.228,
+    "a2o_min": 23.092,
+    "wait_min": 9.76,
+    "berth_over_min": 27.95,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.4309,
+     "SERVE": 0.484,
+     "WAIT": 0.0851
+    },
+    "repo_share": 0.4309,
+    "n_wait": 16,
+    "strategic_wait_rate": 0.027,
+    "wait_duration_s": 1936.2,
+    "wait_duration_share": 0.0896
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832301,
+    "healthy": true,
+    "v2_total": 14.3788,
+    "v1_total": 9.753,
+    "a2o_min": 18.492,
+    "wait_min": 4.74,
+    "berth_over_min": 0.0,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.4866,
+     "SERVE": 0.3797,
+     "WAIT": 0.1337
+    },
+    "repo_share": 0.4866,
+    "n_wait": 25,
+    "strategic_wait_rate": 0.092,
+    "wait_duration_s": 3409.1,
+    "wait_duration_share": 0.1578
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 832302,
+    "healthy": false,
+    "v2_total": 26.8765,
+    "v1_total": 28.76,
+    "a2o_min": 24.661,
+    "wait_min": 11.42,
+    "berth_over_min": 15.57,
+    "compl": 0.9879518072289156,
+    "backlog": 1,
+    "shares": {
+     "REPOSITION": 0.8224,
+     "SERVE": 0.1349,
+     "WAIT": 0.0428
+    },
+    "repo_share": 0.8224,
+    "n_wait": 26,
+    "strategic_wait_rate": 0.0358,
+    "wait_duration_s": 17196.4,
+    "wait_duration_share": 0.7961
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832400,
+    "healthy": true,
+    "v2_total": 82.4362,
+    "v1_total": 138.859,
+    "a2o_min": 34.523,
+    "wait_min": 20.97,
+    "berth_over_min": 166.92,
+    "compl": 0.9716981132075472,
+    "backlog": 3,
+    "shares": {
+     "REPOSITION": 0.4444,
+     "SERVE": 0.2934,
+     "WAIT": 0.2621
+    },
+    "repo_share": 0.4444,
+    "n_wait": 92,
+    "strategic_wait_rate": 0.2538,
+    "wait_duration_s": 15746.2,
+    "wait_duration_share": 0.729
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832401,
+    "healthy": true,
+    "v2_total": 37.1287,
+    "v1_total": 36.406,
+    "a2o_min": 22.975,
+    "wait_min": 9.64,
+    "berth_over_min": 22.43,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.3817,
+     "SERVE": 0.4398,
+     "WAIT": 0.1784
+    },
+    "repo_share": 0.3817,
+    "n_wait": 43,
+    "strategic_wait_rate": 0.1722,
+    "wait_duration_s": 3109.0,
+    "wait_duration_share": 0.1439
+   },
+   {
+    "cell": "high-loose",
+    "seed": 832402,
+    "healthy": true,
+    "v2_total": 48.8246,
+    "v1_total": 70.501,
+    "a2o_min": 25.963,
+    "wait_min": 12.15,
+    "berth_over_min": 77.3,
+    "compl": 0.9900990099009901,
+    "backlog": 1,
+    "shares": {
+     "REPOSITION": 0.2712,
+     "SERVE": 0.565,
+     "WAIT": 0.1638
+    },
+    "repo_share": 0.2712,
+    "n_wait": 29,
+    "strategic_wait_rate": 0.0534,
+    "wait_duration_s": 14556.1,
+    "wait_duration_share": 0.6739
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832500,
+    "healthy": false,
+    "v2_total": 65.3025,
+    "v1_total": 129.64,
+    "a2o_min": 28.669,
+    "wait_min": 14.7,
+    "berth_over_min": 178.0,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.6108,
+     "SERVE": 0.2676,
+     "WAIT": 0.1216
+    },
+    "repo_share": 0.6108,
+    "n_wait": 45,
+    "strategic_wait_rate": 0.1032,
+    "wait_duration_s": 9347.3,
+    "wait_duration_share": 0.4327
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832501,
+    "healthy": false,
+    "v2_total": 87.022,
+    "v1_total": 179.26,
+    "a2o_min": 33.142,
+    "wait_min": 20.1,
+    "berth_over_min": 252.0,
+    "compl": 0.9545454545454546,
+    "backlog": 4,
+    "shares": {
+     "REPOSITION": 0.5923,
+     "SERVE": 0.2154,
+     "WAIT": 0.1923
+    },
+    "repo_share": 0.5923,
+    "n_wait": 75,
+    "strategic_wait_rate": 0.1667,
+    "wait_duration_s": 19164.3,
+    "wait_duration_share": 0.8872
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 832502,
+    "healthy": false,
+    "v2_total": 37.1286,
+    "v1_total": 70.064,
+    "a2o_min": 23.654,
+    "wait_min": 9.93,
+    "berth_over_min": 93.82,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "REPOSITION": 0.7108,
+     "SERVE": 0.1228,
+     "WAIT": 0.1664
+    },
+    "repo_share": 0.7108,
+    "n_wait": 103,
+    "strategic_wait_rate": 0.1622,
+    "wait_duration_s": 2663.5,
+    "wait_duration_share": 0.1233
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832600,
+    "healthy": false,
+    "v2_total": 85.1302,
+    "v1_total": 177.991,
+    "a2o_min": 32.565,
+    "wait_min": 19.02,
+    "berth_over_min": 252.0,
+    "compl": 0.94,
+    "backlog": 6,
+    "shares": {
+     "REPOSITION": 0.7323,
+     "SERVE": 0.1623,
+     "WAIT": 0.1054
+    },
+    "repo_share": 0.7323,
+    "n_wait": 61,
+    "strategic_wait_rate": 0.0789,
+    "wait_duration_s": 18028.6,
+    "wait_duration_share": 0.8347
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832601,
+    "healthy": false,
+    "v2_total": 88.7474,
+    "v1_total": 179.449,
+    "a2o_min": 30.435,
+    "wait_min": 17.19,
+    "berth_over_min": 252.0,
+    "compl": 0.9724770642201835,
+    "backlog": 3,
+    "shares": {
+     "PRE_REHANDLE": 0.0027,
+     "REPOSITION": 0.6243,
+     "SERVE": 0.2865,
+     "WAIT": 0.0865
+    },
+    "repo_share": 0.6243,
+    "n_wait": 32,
+    "strategic_wait_rate": 0.0756,
+    "wait_duration_s": 9508.7,
+    "wait_duration_share": 0.4402
+   },
+   {
+    "cell": "high-tight",
+    "seed": 832602,
+    "healthy": true,
+    "v2_total": 113.7715,
+    "v1_total": 202.55,
+    "a2o_min": 38.395,
+    "wait_min": 25.13,
+    "berth_over_min": 252.0,
+    "compl": 0.9576271186440678,
+    "backlog": 5,
+    "shares": {
+     "REPOSITION": 0.4116,
+     "SERVE": 0.4079,
+     "WAIT": 0.1805
+    },
+    "repo_share": 0.4116,
+    "n_wait": 50,
+    "strategic_wait_rate": 0.1829,
+    "wait_duration_s": 15078.5,
+    "wait_duration_share": 0.6981
+   }
+  ]
+ },
+ "judgment": {
+  "per_arm": {
+   "B": {
+    "d_v2_vs_sf": {
+     "n": 36,
+     "mean": 25.433,
+     "sd": 24.262,
+     "ci": [
+      17.224,
+      33.642
+     ],
+     "mde80": 11.654,
+     "label": "유의(악화)",
+     "required_n_for_mean": 10,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      18.601,
+      32.265
+     ]
+    },
+    "d_v1_vs_sf": {
+     "n": 36,
+     "mean": 47.769,
+     "sd": 46.642,
+     "ci": [
+      31.987,
+      63.55
+     ],
+     "mde80": 22.405,
+     "label": "유의(악화)",
+     "required_n_for_mean": 10,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      34.635,
+      60.903
+     ]
+    },
+    "d_a2o_vs_sf": {
+     "n": 36,
+     "mean": 7.861,
+     "sd": 8.116,
+     "ci": [
+      5.115,
+      10.607
+     ],
+     "mde80": 3.899,
+     "label": "유의(악화)",
+     "required_n_for_mean": 11,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      5.576,
+      10.147
+     ]
+    },
+    "compl_min": 0.7474747474747475,
+    "backlog_max": 25,
+    "unhealthy": 8,
+    "wait_dom": 0,
+    "repo_dom": 6,
+    "strategic_wait_mean": 0.2233
+   },
+   "D": {
+    "d_v2_vs_sf": {
+     "n": 36,
+     "mean": 18.762,
+     "sd": 17.745,
+     "ci": [
+      12.758,
+      24.766
+     ],
+     "mde80": 8.524,
+     "label": "유의(악화)",
+     "required_n_for_mean": 10,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      13.765,
+      23.759
+     ]
+    },
+    "d_v1_vs_sf": {
+     "n": 36,
+     "mean": 34.202,
+     "sd": 40.111,
+     "ci": [
+      20.63,
+      47.774
+     ],
+     "mde80": 19.268,
+     "label": "유의(악화)",
+     "required_n_for_mean": 13,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      22.907,
+      45.497
+     ]
+    },
+    "d_a2o_vs_sf": {
+     "n": 36,
+     "mean": 6.096,
+     "sd": 4.26,
+     "ci": [
+      4.655,
+      7.538
+     ],
+     "mde80": 2.046,
+     "label": "유의(악화)",
+     "required_n_for_mean": 6,
+     "required_n_for_delta": null,
+     "equivalent": null,
+     "tost_ci90": [
+      4.897,
+      7.296
+     ]
+    },
+    "compl_min": 0.8773584905660378,
+    "backlog_max": 13,
+    "unhealthy": 11,
+    "wait_dom": 0,
+    "repo_dom": 7,
+    "strategic_wait_mean": 0.1817
+   }
+  },
+  "d_D_minus_B_v2": {
+   "n": 36,
+   "mean": -6.671,
+   "sd": 17.13,
+   "ci": [
+    -12.467,
+    -0.875
+   ],
+   "mde80": 8.228,
+   "label": "유의(개선)",
+   "required_n_for_mean": 54,
+   "required_n_for_delta": null,
+   "equivalent": null,
+   "tost_ci90": [
+    -11.495,
+    -1.847
+   ]
+  },
+  "G0": {
+   "B": false,
+   "D": false
+  },
+  "improved_vs_sf": {
+   "B": false,
+   "D": false
+  },
+  "nominee": "NONE — 오프라인 순위 개선이 운영성과로 미연결 (정책 트랙 중단 후보)"
+ }
+}
