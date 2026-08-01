@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-139 | RL | **BlockQ-v4-A — 중앙 공동후보 PPO (학습방식 단일축)** | 🔴 | 2026-08-01 | **13차 피드백**: v3 종결(분포 이동) → v4 = 자기 궤적 + 실비용 직접 최적화. Actor(공동후보 softmax·mask 선제거)+Critic(V 174차원), 보상 = −ΔΦ·**등식 테스트(Σ 구간비용 = 평가 총비용)**·γ=1·GAE λ0.95·clip 0.2(표준 앵커)·최종 정책 사용(선택 누출 제거). 60 iter × 8 ep × 3 초기화. 판정: 완주 100%∧backlog 0 ∧ ≥2/3 초기화 비용 감소 방향 ∧ 장악 0 — **신호 없으면 PPO 트랙도 중단**. YR-133·124 보류 · [spec](../docs/dashboard-task-specs/YR-139-blockq-v4-ppo.md)·[전환 기록](../docs/strategy-history/2026-08-01-BlockQ-v4-PPO-전환.md) |
 
 ---
 
