@@ -148,23 +148,61 @@ def run_episode(actor, critic, norm, cell: str, seed: int, rng: random.Random,
 
 
 def _gae(trans):
-    """γ=1·GAE(λ) — returns(총비용 정합)·advantage."""
+    """γ=1·GAE(λ) — **전 항 /SCALE 단위 통일** (YR-140 정정: 구판은 원 단위 보상과
+    1/20 단위 가치를 혼합해 advantage 가 단위 불일치였다 — 14차 피드백 확정 결함).
+
+    반환 adv·ret 은 둘 다 scaled 단위 — 가치 손실에 추가 /SCALE 금지."""
     n = len(trans)
     adv, ret = [0.0] * n, [0.0] * n
     running_ret, running_adv, next_v = 0.0, 0.0, 0.0
     for i in range(n - 1, -1, -1):
-        r, v = trans[i][4], trans[i][3]
-        running_ret = r + running_ret
+        r_s, v = trans[i][4] / SCALE, trans[i][3]     # 보상도 가치와 같은 단위로
+        running_ret = r_s + running_ret
         ret[i] = running_ret
-        delta = r + next_v - v
+        delta = r_s + next_v - v
         running_adv = delta + LAM * running_adv
         adv[i] = running_adv
         next_v = v
     return adv, ret
 
 
-def train_one(ts: int) -> Path:
-    out = OUT / f"ppo_s{ts}"
+def ppo_update(actor, critic, opt, batch, rng) -> None:
+    """PPO clipped 갱신 (4 epoch·minibatch 64) — 단위 계약: batch 의 adv·ret 은 scaled.
+
+    분리 이유(YR-140): '비용 낮은 행동으로 1회 학습 → 그 행동 확률 증가' 단위 테스트가
+    이 함수를 직접 검증한다."""
+    advs = torch.tensor([b[3] for b in batch], dtype=torch.float32)
+    advs = (advs - advs.mean()) / (advs.std() + 1e-6)
+    rets = torch.tensor([b[4] for b in batch], dtype=torch.float32)   # 이미 scaled
+    idx_all = list(range(len(batch)))
+    for _ in range(4):
+        rng.shuffle(idx_all)
+        for s0 in range(0, len(idx_all), 64):
+            mb = idx_all[s0:s0 + 64]
+            loss_pi, loss_v, ent = 0.0, 0.0, 0.0
+            for i in mb:
+                rows, act, logp_old, _a, _r = batch[i]
+                x = torch.tensor(rows, dtype=torch.float32)
+                logits, _ = actor(x)
+                dist = Categorical(logits=-logits)
+                logp = dist.log_prob(torch.tensor(act))
+                ratio = torch.exp(logp - logp_old)
+                a_i = advs[i]
+                loss_pi = loss_pi - torch.min(
+                    ratio * a_i, torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * a_i)
+                v = critic(torch.tensor([_state_vec(rows[0])], dtype=torch.float32))[0]
+                loss_v = loss_v + (v - rets[i]) ** 2
+                ent = ent + dist.entropy()
+            nmb = len(mb)
+            loss = loss_pi / nmb + 0.5 * loss_v / nmb - ENT * ent / nmb
+            opt.zero_grad(); loss.backward()
+            nn.utils.clip_grad_norm_(list(actor.parameters())
+                                     + list(critic.parameters()), 1.0)
+            opt.step()
+
+
+def train_one(ts: int, out_root: Path = OUT) -> Path:
+    out = out_root / f"ppo_s{ts}"
     out.mkdir(parents=True, exist_ok=True)
     ck0 = torch.load(Path("outputs/reports/yr125_diff_credit") / f"diff1_s{ts}"
                      / "rl_net.pt", map_location="cpu")
@@ -189,35 +227,7 @@ def train_one(ts: int) -> Path:
                     batch.append((rows, act, logp, a_, r_))
         if not batch:
             continue
-        advs = torch.tensor([b[3] for b in batch], dtype=torch.float32)
-        advs = (advs - advs.mean()) / (advs.std() + 1e-6)
-        rets = torch.tensor([b[4] for b in batch], dtype=torch.float32) / SCALE
-        idx_all = list(range(len(batch)))
-        for _ in range(4):                                        # PPO epochs
-            rng.shuffle(idx_all)
-            for s0 in range(0, len(idx_all), 64):
-                mb = idx_all[s0:s0 + 64]
-                loss_pi, loss_v, ent = 0.0, 0.0, 0.0
-                for i in mb:
-                    rows, act, logp_old, _a, _r = batch[i]
-                    x = torch.tensor(rows, dtype=torch.float32)
-                    logits, _ = actor(x)
-                    dist = Categorical(logits=-logits)
-                    logp = dist.log_prob(torch.tensor(act))
-                    ratio = torch.exp(logp - logp_old)
-                    a_i = advs[i]
-                    # 표준 PPO clipped surrogate — r=−비용 이므로 A 는 이미 보상 기준
-                    loss_pi = loss_pi - torch.min(
-                        ratio * a_i, torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * a_i)
-                    v = critic(torch.tensor([_state_vec(rows[0])], dtype=torch.float32))[0]
-                    loss_v = loss_v + (v - rets[i]) ** 2
-                    ent = ent + dist.entropy()
-                nmb = len(mb)
-                loss = loss_pi / nmb + 0.5 * loss_v / nmb - ENT * ent / nmb
-                opt.zero_grad(); loss.backward()
-                nn.utils.clip_grad_norm_(list(actor.parameters())
-                                         + list(critic.parameters()), 1.0)
-                opt.step()
+        ppo_update(actor, critic, opt, batch, rng)
         curve.append({"iter": it, "mean_total": round(fmean(totals), 3)})
         if it % 5 == 0 or it == 1:
             print(f"[ppo s{ts} it{it}] mean v2 total {fmean(totals):.2f}", flush=True)
@@ -229,16 +239,16 @@ def train_one(ts: int) -> Path:
     return out / "net.pt"
 
 
-def evaluate() -> dict:
+def evaluate(out_root: Path = OUT, offset: int = 2600) -> dict:
     from .yr138_episode_pilot import _episode
     from . import yr088_joint_rl as y88
-    eval_eps = [(c, BASE[c] + 2600 + i) for c in CELLS for i in range(3)]
+    eval_eps = [(c, BASE[c] + offset + i) for c in CELLS for i in range(3)]
     print(f"[eval] SF {len(eval_eps)}", flush=True)
     sf = [_episode(c, s, lambda: ResolverPolicy(ServiceFirstSPTPreference(), "SF"))
           for c, s in eval_eps]
     rows = {}
     for ts in TRAIN_SEEDS:
-        ck = torch.load(OUT / f"ppo_s{ts}" / "net.pt", map_location="cpu")
+        ck = torch.load(out_root / f"ppo_s{ts}" / "net.pt", map_location="cpu")
         actor = JointPairNet(250); actor.load_state_dict(ck["actor"]); actor.eval()
         ck0 = torch.load(Path("outputs/reports/yr125_diff_credit") / f"diff1_s{ts}"
                          / "rl_net.pt", map_location="cpu")
@@ -269,7 +279,7 @@ def evaluate() -> dict:
     res = {"repro": repro_stamp(
                experiment="YR-139 v4-A 중앙 공동후보 PPO — 판정 (미열람 2600 대역)",
                seeds={"train": list(TRAIN_SEEDS),
-                      **{c: [BASE[c] + 2600 + i for i in range(3)] for c in CELLS}},
+                      **{c: [BASE[c] + offset + i for i in range(3)] for c in CELLS}},
                profile_id="calibrated",
                prereg="유일 변경 = 학습방식(PPO). 보상 등식(Σ 구간비용 = 평가 총비용) "
                       "테스트 고정. 판정: 완주 100%∧backlog 0 ∧ ≥2/3 초기화 v2 총비용 "
@@ -277,7 +287,7 @@ def evaluate() -> dict:
                extra={"iters": N_ITER, "eps_per_iter": EPS_PER_ITER,
                       "clip": CLIP, "lam": LAM}),
            "sf": sf, "arms": {str(k): v for k, v in rows.items()}, "judgment": judgment}
-    (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+    (out_root / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
                                       encoding="utf-8")
     print(json.dumps(judgment, ensure_ascii=False))
     return res
@@ -287,9 +297,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--train", type=int, default=0)
     ap.add_argument("--eval", action="store_true")
+    ap.add_argument("--outdir", default=str(OUT))
+    ap.add_argument("--eval-offset", type=int, default=2600)
     a = ap.parse_args()
+    root = Path(a.outdir)
+    root.mkdir(parents=True, exist_ok=True)
     if a.train:
-        train_one(a.train)
+        train_one(a.train, out_root=root)
     if a.eval:
-        evaluate()
+        evaluate(out_root=root, offset=a.eval_offset)
     print("DONE")
