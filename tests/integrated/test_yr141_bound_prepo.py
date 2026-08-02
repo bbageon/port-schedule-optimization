@@ -60,19 +60,28 @@ def test_determinism(sim):
 
 
 def test_execution_history_blocks_reissue(sim):
-    """YR-142: 실행 이력에 오른 결속 작업은 재발행이 규칙으로 차단된다."""
+    """YR-142: PREPO_ONE_SHOT=True 에서만 실행 이력의 결속 작업 재발행이 차단된다."""
     ids = _repo_ids(sim, bound=True)
     prepo = [(c, j, tb) for c, j, tb in ids if j.startswith("PREPO:")]
     if not prepo:
         pytest.skip("결속 후보 없음")
-    target_jid = prepo[0][1].split(":")[1]
+    target_jid = cand_mod.prepo_bound_jid(prepo[0][1])
     saved = getattr(sim, "_prepo_history", None)
+    prev_flag = cand_mod.PREPO_ONE_SHOT
     try:
         sim._prepo_history = {target_jid}
-        after = _repo_ids(sim, bound=True)
-        assert all(j.split(":")[1] != target_jid
-                   for _, j, _ in after if j.startswith("PREPO:"))
+        cand_mod.PREPO_ONE_SHOT = False          # 축 분리: 꺼져 있으면 차단 없음 (B1 보호)
+        off = _repo_ids(sim, bound=True)
+        assert any(cand_mod.prepo_bound_jid(j) == target_jid for _, j, _ in off)
+        cand_mod.PREPO_ONE_SHOT = True           # 켜면 차단 + 계수
+        on = _repo_ids(sim, bound=True)
+        assert all(cand_mod.prepo_bound_jid(j) != target_jid
+                   for _, j, _ in on if j.startswith("PREPO:"))
+        assert getattr(sim, "_prepo_blocked", 0) > 0
     finally:
+        cand_mod.PREPO_ONE_SHOT = prev_flag
+        if hasattr(sim, "_prepo_blocked"):
+            del sim._prepo_blocked
         if saved is None:
             del sim._prepo_history
         else:

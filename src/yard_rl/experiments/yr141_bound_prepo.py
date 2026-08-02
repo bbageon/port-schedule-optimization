@@ -47,52 +47,64 @@ EVAL_EPS = [(c, BASE[c] + 3200 + i) for c in CELLS for i in range(3)]
 
 
 class _PrepoRecorder(_Recorder):
-    """판정 ⑦ 계수 — 실행된 PREPO 의 결속 작업별 횟수·만료(도착) 후 실행."""
+    """판정 ⑦ 계수 + 텔레메트리 — 발행/실행/만료 후 실행. one-shot 이력 기록은
+    PREPO_ONE_SHOT 플래그가 켜진 경우에만 한다 (YR-141 재현·B1 대조 보호, 18차 감사)."""
 
     def __init__(self, inner):
         super().__init__(inner)
         self.prepo_exec: dict[str, int] = {}
+        self.prepo_offered = 0
         self.expired_exec = 0
 
     def decide(self, sim, dp, gen_by):
         assign = super().decide(sim, dp, gen_by)
         for c in dp.crane_ids:
+            for g in gen_by[c].items:
+                if g.job_ref is not None and \
+                        cand_mod.prepo_bound_jid(g.job_ref.job_id or "") is not None:
+                    self.prepo_offered += 1
+        for c in dp.crane_ids:
             ref = getattr(assign[c], "job_ref", None)
-            jid_full = getattr(ref, "job_id", "") or ""
-            if jid_full.startswith("PREPO:"):
-                jid = jid_full.split(":")[1]
+            jid = cand_mod.prepo_bound_jid(getattr(ref, "job_id", "") or "")
+            if jid is not None:
                 self.prepo_exec[jid] = self.prepo_exec.get(jid, 0) + 1
                 j = sim.jobs.get(jid)
                 if j is None or j.status.name != "PLANNED":
                     self.expired_exec += 1          # 도착·소멸 후 실행 = 만료 위반
-                if not hasattr(sim, "_prepo_history"):   # YR-142: 재발행 금지 강제 기록
-                    sim._prepo_history = set()
-                sim._prepo_history.add(jid)
+                if cand_mod.PREPO_ONE_SHOT:          # YR-142: one-shot 이력 기록
+                    if not hasattr(sim, "_prepo_history"):
+                        sim._prepo_history = set()
+                    sim._prepo_history.add(jid)
         return assign
 
 
-def _episode(cell, seed, mk_policy, bound: bool) -> dict:
-    prev = cand_mod.BOUND_REPO
-    cand_mod.BOUND_REPO = bound
+def _episode(cell, seed, mk_policy, bound: bool, one_shot: bool = False) -> dict:
+    prev_b, prev_o = cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT
+    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = bound, one_shot
     try:
         sim = _sim_contract(cell, seed)
         rec = _PrepoRecorder(mk_policy())
         r = run_joint_episode(sim, rec, RC_EVAL, generator=CandidateGenerator())
     finally:
-        cand_mod.BOUND_REPO = prev
+        cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = prev_b, prev_o
     healthy = True
     try:
         assert_healthy_action_mix(r["_mix"], label=f"{cell}/s{seed}")
     except ActionMixError:
         healthy = False
     d = r["_mix"].as_dict()
+    # 원자료는 원정밀도 저장 — 반올림은 보고 출력 전용 (17차 감사)
     return {"cell": cell, "seed": seed, "healthy": healthy,
-            "v2_total": _v2_hard_total(sim), "v1_total": round(r["total_cost"], 3),
-            "a2o_min": _a2o_mean_min(sim), "berth_over_min": round(r["berth_overrun_min"], 2),
+            "v2_total": _v2_hard_total(sim), "v1_total": r["total_cost"],
+            "a2o_min": _a2o_mean_min(sim), "berth_over_min": r["berth_overrun_min"],
             "compl": r["completion_rate"], "backlog": r["backlog"],
             "shares": d["shares"],
             "prepo_repeat": sum(1 for v in rec.prepo_exec.values() if v >= 2),
-            "prepo_expired": rec.expired_exec}
+            "prepo_expired": rec.expired_exec,
+            "prepo_offered": rec.prepo_offered,
+            "prepo_exec_total": sum(rec.prepo_exec.values()),
+            "prepo_blocked": getattr(sim, "_prepo_blocked", 0),
+            "prepo_dup_removed": getattr(sim, "_prepo_dup_removed", 0)}
 
 
 def _mk_ppo(root: Path, ts: int):

@@ -136,6 +136,14 @@ def _feasible_joint(sim, assign) -> bool:
     toks = [g.job_ref.token for g in assign.values() if g.job_ref and g.job_ref.token]
     if len(toks) != len(set(toks)):
         return False
+    # YR-142(18차 감사): 결속 PREPO 는 token=None 이라 위 검사를 건너뛴다 — 같은 결속
+    # 작업을 두 크레인이 한 공동결정에서 동시에 고르는 조합은 의미상 중복이므로 제외.
+    from .candidates import prepo_bound_jid
+    bjids = [b for b in (prepo_bound_jid(g.job_ref.job_id) for g in assign.values()
+                         if g.job_ref) if b is not None]
+    if len(bjids) != len(set(bjids)):
+        sim._prepo_dup_removed = getattr(sim, "_prepo_dup_removed", 0) + 1
+        return False
     proj = sim.dry_run_commit({c: g.job_ref for c, g in assign.items()})
     work = {c for c, g in assign.items() if g.job_ref is not None}
     return set(proj.plans) == work

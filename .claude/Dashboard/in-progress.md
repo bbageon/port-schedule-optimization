@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-142 | RL | v4-B-2: PREPOSITION 재발행 금지 강제 (실행 이력 기반 — J7 계약 구현 완결·동일 7항) | P0 | 2026-08-02 | [spec](../docs/dashboard-task-specs/YR-142-prepo-reissue-enforce.md) · **평가 보류(17차 감사)**: 시드 대역 충돌(→BASE+4000)·원정밀도 판정·건전성 가드·동일결정 중복 제외·파싱·텔레메트리 보정 후 재학습·평가. 학습 3초기화 완료(체크포인트 보존, 결과 미열람) |
+| YR-142 | RL | v4-B-2: PREPOSITION 재발행 금지 강제 (실행 이력 기반 — J7 계약 구현 완결·동일 7항) | P0 | 2026-08-02 | [spec](../docs/dashboard-task-specs/YR-142-prepo-reissue-enforce.md) · **정정 v2 동결(17·18차 감사)**: 축 분리(BOUND⊥ONE_SHOT)·4군(SF/A/B1/B2)·시드뱅크 대역(910000~910011, 산술 대역 폐기)·원정밀도 판정·건전성/노출 가드·중복 결속 조합 제외(probe: 목록 변경 실측 → B1·B2 재학습 필수). 결과 미열람 |
 
 ---
 

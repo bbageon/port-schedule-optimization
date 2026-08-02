@@ -85,6 +85,20 @@ def iter_pre_rehandle_jobs(sim, crane_id: str, level):
 # 잔여 위반은 판정 ⑦(반복·만료 후 이동 = 0)이 계수한다 — 스펙 고지.
 BOUND_REPO = False
 
+# YR-142 opt-in — one-shot 재발행 금지 (기본 False = 기존 동작 불변). True 면 실행 이력
+# (sim._prepo_history)에 오른 결속 작업의 PREPO 후보 발행을 생성기가 차단하고, 차단 횟수를
+# sim._prepo_blocked 에 계수한다. BOUND_REPO(결속 발행 여부)와 **독립 축** — B1(결속·반복
+# 허용) / B2(결속·one-shot) 대조를 위해 분리 (18차 감사 2026-08-02).
+PREPO_ONE_SHOT = False
+
+
+def prepo_bound_jid(job_id):
+    """PREPO:<jid>:<bay> → 결속 작업 id. 다중 블록 'A:작업' 처럼 jid 에 콜론이 있어도
+    안전하도록 양끝에서 뗀다 (split(':')[1] 금지 — 18차 감사). PREPO 아니면 None."""
+    if not job_id or not job_id.startswith("PREPO:"):
+        return None
+    return job_id[len("PREPO:"):].rsplit(":", 1)[0]
+
 
 def iter_eta_reposition_jobs(sim, crane_id: str, level):
     """(jid, bay, eta) — provided_eta 주도 위치조정의 **작업 결속** 원천 (결정론)."""
@@ -327,10 +341,12 @@ class CandidateGenerator:
         if BOUND_REPO:
             # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
             bound = []
-            hist = getattr(sim, "_prepo_history", None)   # YR-142: 실행 이력 기반 재발행 금지
+            hist = (getattr(sim, "_prepo_history", None)  # YR-142: one-shot 재발행 금지
+                    if PREPO_ONE_SHOT else None)
             for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
                 if hist and jid in hist:
-                    continue                    # 같은 작업 반복 이동 = 규칙으로 강제 차단
+                    sim._prepo_blocked = getattr(sim, "_prepo_blocked", 0) + 1
+                    continue                    # 실행된 작업의 재발행 = 규칙으로 차단
                 if abs(bay - yc.state.position_bay) <= 1.0:
                     continue                    # 목표 근접 = 후보 소멸 (반복 이동 1차 억제)
                 bound.append((jid, bay))

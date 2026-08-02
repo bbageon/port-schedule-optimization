@@ -34,6 +34,7 @@ from torch.distributions import Categorical
 
 from ..integrated.baselines import (JointRolloutGreedy, ResolverPolicy,
                                     ServiceFirstSPTPreference, _apply, _wait_of)
+from ..integrated import candidates as cand_mod
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_curve_v2 import j_truck_realized, j_vessel_realized
 from ..integrated.encoding import StateNorm
@@ -128,13 +129,14 @@ def run_episode(actor, critic, norm, cell: str, seed: int, rng: random.Random,
                 val = float(critic(torch.tensor([_state_vec(rows[0])],
                                                 dtype=torch.float32))[0])
             pend = [rows, act, logp, val, 0.0]
-            for c in dp.crane_ids:              # YR-142: 실행된 PREPO 결속 작업 기록
-                ref = getattr(assigns[act][c], "job_ref", None)
-                jid_full = getattr(ref, "job_id", "") or ""
-                if jid_full.startswith("PREPO:"):
-                    if not hasattr(sim, "_prepo_history"):
-                        sim._prepo_history = set()
-                    sim._prepo_history.add(jid_full.split(":")[1])
+            if cand_mod.PREPO_ONE_SHOT:
+                for c in dp.crane_ids:          # YR-142: 실행된 PREPO 결속 작업 기록 (one-shot)
+                    ref = getattr(assigns[act][c], "job_ref", None)
+                    jid = cand_mod.prepo_bound_jid(getattr(ref, "job_id", "") or "")
+                    if jid is not None:
+                        if not hasattr(sim, "_prepo_history"):
+                            sim._prepo_history = set()
+                        sim._prepo_history.add(jid)
             _apply(sim, assigns[act])
         dp = sim.run_until_decision()
         k += 1
