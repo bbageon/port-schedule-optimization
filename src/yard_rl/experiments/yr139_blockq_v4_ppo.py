@@ -276,16 +276,25 @@ def evaluate(out_root: Path = OUT, offset: int = 2600) -> dict:
     dom0 = all(v["wait_dom"] == 0 and v["repo_dom"] == 0 for v in per_seed.values())
     judgment = {"G0_all": g0, "n_improve_direction": n_improve, "dom_zero": dom0,
                 "success": bool(g0 and n_improve >= 2 and dom0), "per_seed": per_seed}
+    # 시나리오 실현 지문 박제 (15차 피드백 — 산술 대역값만으로는 실현 독립성 증빙 불가)
+    from ..integrated.seedbank import realization_hash
+    fingerprints = {}
+    for c, sd in eval_eps:
+        try:
+            fingerprints[f"{c}:{sd}"] = realization_hash(_sim_contract(c, sd).scenario)
+        except Exception as e:                                    # 지문 실패는 명시 기록
+            fingerprints[f"{c}:{sd}"] = f"ERR:{e}"
     res = {"repro": repro_stamp(
-               experiment="YR-139 v4-A 중앙 공동후보 PPO — 판정 (미열람 2600 대역)",
+               experiment=f"v4 중앙 공동후보 PPO — 판정 (미열람 BASE+{offset} 대역)",
                seeds={"train": list(TRAIN_SEEDS),
                       **{c: [BASE[c] + offset + i for i in range(3)] for c in CELLS}},
                profile_id="calibrated",
-               prereg="유일 변경 = 학습방식(PPO). 보상 등식(Σ 구간비용 = 평가 총비용) "
-                      "테스트 고정. 판정: 완주 100%∧backlog 0 ∧ ≥2/3 초기화 v2 총비용 "
-                      "짝 평균 < 0 ∧ WAIT·REPO 장악 0. 신호 없으면 PPO 트랙 중단.",
+               prereg="유일 변경 = 학습방식(PPO)·보상 등식 테스트 고정. 판정: 완주 100%∧"
+                      f"backlog 0 ∧ ≥2/3 초기화 v2 총비용 짝 평균 < 0 ∧ 장악 0. "
+                      f"평가 대역 = BASE+{offset} (실현 지문 동봉).",
                extra={"iters": N_ITER, "eps_per_iter": EPS_PER_ITER,
                       "clip": CLIP, "lam": LAM}),
+           "band_fingerprints": fingerprints,
            "sf": sf, "arms": {str(k): v for k, v in rows.items()}, "judgment": judgment}
     (out_root / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
                                       encoding="utf-8")
