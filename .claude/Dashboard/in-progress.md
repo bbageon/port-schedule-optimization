@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-140 | RL | **v4-A-fix — PPO 단위 계약 정정 + 신규 시드 재실행** | 🔴 | 2026-08-02 | **14차 피드백**: GAE 단위 혼합(원 단위 r + 1/20 V) 확정 — 실험 성립 조건 수리(튜닝 아님)가 조항 A/B 보다 선행. 수정 = 단위 통일 하나, 단위 테스트 2건(가치 완전 예측 → advantage 0 / 2행동 학습 방향) + 등식 3 = 5 통과. 평가 = 신규 미열람 BASE+2900..2902, 판정 동일. 분기: REPO 장악 재현 시에만 v4-B(구속적 PREPOSITION) 1회 → 실패 시 트랙 중단 확정 · [spec](../docs/dashboard-task-specs/YR-140-ppo-unit-fix.md)·[하네스](../../src/yard_rl/experiments/yr139_blockq_v4_ppo.py) |
 
 ---
 
