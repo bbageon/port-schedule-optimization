@@ -1,111 +1,159 @@
-# YR-133 — Block Q 발의 판매·양방향 견적
+# YR-133 — Block Q 재배정 발의(SELL 별칭)·수신부담 견적·중앙 원자 확정
 
-> 상태: backlog · 등록/설계 정정 2026-07-30
-> 근거: [BlockQ-v2 로드맵](../strategy-history/2026-07-30-BlockQ-v2-로드맵-10단사다리.md)
+> 상태: backlog · 실환경 계약 정정 2026-08-02
+> 선결: 단일 블록 실행정책 YR-142·143 판정, YR-123·136 공통 비용계약
+> 근거: [상세 결정이력](../strategy-history/2026-08-02-YR-133-판매수용-실환경-설계와-YR-143-무재배치-채택계약.md)
 
-## 목적
+## 목적과 권한 경계
 
-외부 TOS가 최초 배정한 작업은 해당 블록의 Block Q가 직접 받는다. 이후 재배정 가능한
-미적재 작업에 한해, 원소유 Block Q가 “이 작업이 빠지면 내 비용이 얼마나 줄어드는가”를
-계산해 판매를 발의한다. TransferResolver는 발의된 작업만 수신 블록들에 조회하고,
-터미널 전체 비용이 줄 때만 원자적으로 재배정한다.
-
-## 정책 소유권과 행동 공간
-
-SELL은 **Block Q가 소유하는 행동**이다. 다만 크레인 물리 행동과 같은 평면 후보목록
-`CandidateKind`에 넣지는 않는다. 같은 Block Q 안에서 결정 시점별 행동집합을 분리한다.
-
-1. **ExecutionHead — 크레인 실행 결정시점**
-   - 블록 안 공동 실행후보를 평가한다.
-   - `SERVE·PRE_REHANDLE·REPOSITION·구조적 WAIT`와 기존 내부 안전 resolver를 사용한다.
-2. **SellProposal/OutReliefHead — 작업목록 검토시점**
-   - `NO_PROPOSAL` 또는 `PROPOSE_SELL(job, OutRelief, version, TTL)`을 고른다.
-   - SELL의 실행 의미는 “견적을 붙여 TransferResolver에 발의”이며 곧바로 이송하는 것이 아니다.
-3. **InBurdenQuoteHead — 수신 조회시점**
-   - 수신 후보 Block Q가 `InBurden(job)`을 같은 비용 단위로 응답한다.
-
-실행과 판매는 같은 시각에 함께 가능할 수 있다. 둘을 한 목록에 섞으면 “지금 작업할지,
-다른 미래 작업을 팔지”라는 거짓 양자택일이 생기므로 분리한다. 소유 주체는 하나지만
-`decision_kind`에 따라 행동집합이 달라지는 event-conditioned subpolicy다.
-
-## 판매 판정
+외부 TOS(터미널 운영 시스템)는 작업 생성·최초 블록 배정·허용 블록을 담당하며 연구가
+대체하지 않는다. TOS가 작업을 최초 블록의 Block Policy에 직접 전달한 뒤, 아직 물리적으로
+고정되지 않은 작업만 다음 구조로 재배정한다.
 
 ```text
-OutRelief = J_source(KEEP j) - J_source(REMOVE j)
-InBurden  = J_receiver(ADD j) - J_receiver(NO ADD)
-NetGain   = OutRelief - InBurden - TransferCost
+외부 TOS ──최초 배정──> 원소유 Block Policy
+                            │ 재배정 발의 + 빠졌을 때 절감액
+                            ▼
+                    TransferResolver
+                      │          ▲
+          수용부담 조회│          │수용불가/추가비용 견적
+                      ▼          │
+                  수신 Block Policy
+                            │
+               KEEP 또는 TOS/ECS 승인 뒤 A→B 원자 확정
 ```
 
-`NetGain > 0`인 최선 수신처가 있으면 `TRANSFER(A→B)`, 없으면 `KEEP`이다. 용량·소유권·
-version·잠금·원자성은 기존 `MultiBlockTerminal`의 prepare→validate→commit/rollback으로
-재검사한다. 실패하거나 수신자가 없으면 작업은 원블록에 남는다.
+- `tos_assigned_block_id`는 이력으로 보존하고 `execution_block_id`만 바꾼다.
+- 실제 TOS/ECS(장비 제어 시스템)가 재배정 API·ACK를 제공하지 않으면 자동 확정하지 않고
+  shadow 추천으로만 평가한다.
+- 단일 블록 실행순서 정책의 성능을 먼저 확정한 뒤 본 작업을 연다. 실행정책과 재배정정책을
+  동시에 바꾸지 않는다.
 
-작업 종류와 스케줄 정보는 원인 정보로 사용할 수 있다. 다만 “본선이면 항상 우선” 같은
-유형 고정 규칙은 두지 않고, 작업별 한계비용과 실행 가능성으로 비교한다.
+## 판매·구매라는 말의 정확한 의미
 
-## 갱신 시점 계약 — 이벤트 + 타이머
+`SELL`과 `BUY`는 설명용 시장 비유다. 실행 계약은 다음처럼 고정한다.
 
-운송 이벤트는 생길 수도, 한동안 없을 수도 있으므로 다음 혼합 계약을 목표로 한다.
+1. **원소유 Block Policy**
+   - `NO_OFFER` 또는 `OFFER_TRANSFER(job, OutRelief, version, expires_at)` 중 하나를 낸다.
+   - 발의해도 작업을 자기 대기열에서 지우지 않으며 commit 전까지 유일한 owner다.
+2. **수신 Block Policy**
+   - 자유롭게 사는 행동을 하지 않는다.
+   - Resolver가 조회한 작업에 `NO_BID(reason)` 또는
+     `QUOTE_IN_BURDEN(feasible, InBurden, uncertainty, version, expires_at)`만 응답한다.
+3. **TransferResolver**
+   - 모든 응답을 비교해 `KEEP` 또는 구체적인 `TRANSFER(job, A→B)`를 결정한다.
+   - PPO·DQN·QMIX가 아니라 결정론적 제약검사·매칭·트랜잭션 계층이다.
+
+첫 구현의 source top-1 발의는 계산량을 제한하는 MVP다. 터미널 전체 최적 재배정이라고
+주장하지 않는다. source 절감액 2등 작업이 receiver 부담까지 합치면 더 좋을 수 있기 때문이다.
+
+## 실행정책과 재배정정책 분리
+
+- **ExecutionHead**: 현재 PPO가 한 블록 안 두 크레인의 공동 실행순서를 고른다.
+- **TransferHead**: 작업목록 검토 사건에서만 재배정 발의를 만든다.
+- **ReceiveQuoteHead**: 외부 조회를 받았을 때만 수용부담을 계산한다.
+
+SELL을 `SERVE·PRE_REHANDLE·PREPOSITION`과 같은 크레인 후보목록에 넣지 않는다. 작업을
+지금 처리하는 것과 다른 미래 작업을 재배정하는 것은 동시에 가능하며 서로 다른 결정이다.
+
+## 최초 자격과 판매 창
+
+| 작업 | 최초 판정 | 이유 |
+|---|---|---|
+| 반입 `GATE_IN/STORE` | **1차 대상** | 실제 gate-in 뒤 블록 도착·경로지시 전 3~7분 창에 목적지 변경 가능 |
+| 본선 양하 `VESSEL_DISCHARGE/STORE` | **2차 대상** | STS 인계 뒤, YT 목적지·배차가 잠기기 전 별도 사건 필요 |
+| 지정 트럭 반출 | 제외 | 지정 컨테이너가 이미 특정 블록에 있음 |
+| 본선 적하 | 제외 | 적하 대상이 이미 특정 블록에 있음 |
+| 재조작·이미 적재된 컨테이너 | 제외 | 블록 간 물리 이송이 되어 연구 질문이 달라짐 |
+| 미지정 공컨 반출 | 제외 | 재고·선사 조건을 다루는 상위 TOS 문제 |
+
+반입은 `actual_gate_in ≤ now < route/block_instruction_lock`에서만 허용한다. 양하는 나중에
+`handover_ready ≤ now < YT_DISPATCHED`로 따로 검증한다. 이미 YT가 출발했거나 블록 도착·
+slot/YC hard reservation이 생겼으면 fail-closed로 KEEP한다.
+
+추가 자격은 다음을 모두 만족해야 한다.
+
+- current owner·assignment version 일치, 열린 transaction 없음, 첫 PoC 이전횟수 ≤1.
+- TOS가 준 `allowed_execution_blocks` 안의 receiver만 조회한다. 연구가 허용범위를 넓히지 않는다.
+- receiver에 규격·높이·용량상 호환 slot과 YC 작업 가능성이 있다.
+- ETA·소유권·허용블록 등 필수정보가 결측이면 KEEP한다.
+- 냉동·위험물·중량·선사·세관 규칙은 YR-095에서 실제 자료로 추가한다. 그전에는 최소
+  물리 타당성 환경이라는 주장만 허용한다.
+
+## 견적 상태와 계산
+
+각 Block Policy는 같은 인코더로 다음 정보를 본다.
+
+- 블록: 현재·예상 queue, 평균·최장 대기, YC 잔여부하·고장, 장치율, 호환 slot 여유,
+  본선 flow/slack, 예정 유입량.
+- 작업: flow, 규격, 공개 ETA와 불확실성, 예상 블록 도착, deadline, 잠금까지 남은 시간,
+  owner/version/이전횟수.
+- 수신 가상상태: 해당 작업을 더했을 때의 도착시각·경로시간·예상 부하.
+
+미래 실제 도착, 미통지 고장·계획변경은 보지 않는다.
 
 ```text
-review_due =
-    material_event
-    OR (now - last_review_time >= T_refresh)
+OutRelief(A,j) = J_A(KEEP j) - J_A(REMOVE j)
+InBurden(B,j)  = J_B(ADD j) - J_B(NO ADD)
+TransferCost   = route(origin→B) - route(origin→A) + 실제로 모델링된 변경비용
+NetGain        = OutRelief - InBurden - TransferCost
 ```
 
-- **이벤트 즉시 검토**: 실제 게이트 진입, 공개 ETA의 유의한 갱신, 본선 계획 변경,
-  장비 고장·복구, 작업 완료·블록 도착·이송 완료처럼 견적 또는 자격이 달라지는 사건.
-- **타이머 보완 검토**: 사건이 없어도 `T_refresh`가 지나면 합성 `ReviewEpoch`를 예약한다.
-  타이머는 재평가 기회만 열며 판매나 이송을 강제하지 않는다.
-- 상태·작업 version이 그대로면 `NO_PROPOSAL`로 빠르게 종료하고, 같은 작업의 반복 발의를
-  막는 cooldown/TTL을 둔다.
-- 첫 구현은 epoch당 `NO_PROPOSAL` 또는 **최대 1건**만 발의·확정한다. 확정 뒤 상태를
-  갱신해 다시 견적한다. 작업 전체의 KEEP/SELL 이진 조합은 후속 상호작용 검증 전 금지한다.
-- 같은 시각에는 물리 이벤트와 이미 열려야 할 크레인 결정/wake를 먼저 소진한 뒤 review를
-  연다. review가 정상 작업 결정을 선점해 크레인을 놀리는 과거 결함을 재발시키지 않는다.
-- 실제 블록 도착 또는 잠금 이후에는 판매 창을 닫는다.
+`J`는 YR-136 v2의 같은 시간·비용 단위를 쓰며 혼잡점수를 비용에 다시 더하지 않는다.
+반입의 origin은 gate, 양하의 origin은 quay handover다. 아직 A에 도착하지 않은 컨테이너를
+A→B로 옮기는 비용으로 잘못 계산하지 않는다. 초기 판정은 계산식·짝지은 반사실로 견적의
+부호와 보정을 검증하며, 상금이 확인된 뒤에만 QuoteNet 학습을 검토한다.
 
-`T_refresh`는 결과를 보고 바꾸지 않고 사전등록한다. 견적기가 먼저 검증된 뒤
-`EVENT_ONLY`와 `EVENT+TIMER`를 **별도 단일축**으로 비교해 타이머의 순효과를 확인한다.
+## 검토 시점
 
-## 최초 범위와 현재 구현 갭
+1차 실험은 **이벤트 전용**으로 단순하게 시작한다.
 
-- 최초 범위는 현재 엔진이 실제로 지원하는 **미적재 `GATE_IN` 반입 작업**이다.
-- `VESSEL_DISCHARGE`(본선 양하)는 gate-in 사건이 없으므로 안벽 인계/ETA 갱신 트리거를
-  별도로 정의한 뒤 확장하며, 첫 결과에 섞지 않는다.
-- 현재 `ReviewEpoch`는 `time`만 가지며, `MultiBlockTerminal`은 실제 gate-in 시각만
-  전 블록에 예약한다. 중앙 `review_fn`이 혼잡도 차이로 이송 여부를 직접 정한다.
-- 목표 구현은 `ReviewEpoch(time, reason, affected_jobs, state_version)`과 합성 타이머,
-  Block Q의 두 견적 head, 결정론적 `TransferResolver`를 추가하고 기존 원자 집행을 재사용한다.
-- 현재 코드에는 독립 `TransferResolver` 클래스가 없고 `MultiBlockTerminal`이 집행 계약만
-  담당한다. 문서의 Resolver는 위 판정 서비스를 새로 구현할 목표 이름이다.
+- 실제 gate-in, 양하 handover-ready, 유의한 ETA·계획 갱신, 장비 down/up,
+  owner·capacity 변화가 있을 때만 검토한다.
+- 같은 시각의 정상 YC 결정과 물리 사건을 먼저 처리한 뒤 transfer review를 연다.
+- 상태 변화가 없거나 계산이 운영 latency budget을 넘으면 KEEP한다.
+- 견적기가 통과한 뒤에만 `T_refresh` 타이머를 별도 단일축으로 추가한다.
 
-## 선결
-
-- BlockQ-v2가 후보 **순위**를 구분하고, 판매 문턱에 필요한 비용 크기는 별도로 보정할 것.
-- [YR-123](YR-123-common-cost-curve-api.md): OutRelief·InBurden·TransferCost를 같은
-  numeraire·시간창·종결 규칙으로 계산할 공통 비용 API.
-- [YR-136](YR-136-smooth-cost-contract-v2.md): 실제 정책 견적에는 YR-123 v1의
-  계단형·본선 33이 아니라 트럭 `1→2`, 본선 `0→10` 점증곡선 v2를 연결한다.
-- 학습 전에 계산식/짝지은 반사실로 다음 분해가 맞는지 확인할 것.
+## 원자 확정과 rollback
 
 ```text
-분해오차 = 실제 터미널 Δ비용 - (-OutRelief + InBurden + TransferCost)
+OFFERED → QUOTED → PREPARED → VALIDATED → TOS/ECS ACK → COMMITTED
+                         └─ stale/NACK/timeout/오류 → KEEP + 전체 rollback
 ```
+
+1. source owner를 유지한 채 receiver slot·route/YT를 임시예약한다.
+2. job/source/receiver/route version과 quote TTL을 다시 검사한다.
+3. TOS/ECS에 재배정을 요청하고 ACK와 새 version을 확인한다.
+4. owner·양쪽 queue·arrival event·route·전역 A→O 시간장부를 한 transaction으로 바꾼다.
+5. 실패하면 임시예약과 event를 복원하고 원 owner에 작업을 남긴다.
+
+`txn_id`는 멱등이어야 하며 낡은 arrival event는 `(job_id, version)` 불일치로 무효화한다.
+epoch당 최대 1건만 확정하고 다건 matching은 후속 단계로 분리한다.
+
+## 현재 구현과 갭
+
+- `MultiBlockTerminal`에는 shared clock, canonical job, owner/version, 용량예약,
+  prepare/validate/commit/rollback의 기반이 있다.
+- 현재 `review_fn`은 중앙 혼잡도 규칙으로 직접 이송하며 독립 TransferResolver와
+  source/receiver quote head는 없다.
+- 현재 자격은 반입·gate-in 중심의 근사이며 TOS ACK, allowed-block mask, route/YT lock,
+  quote TTL·불확실성, 양하 handover 사건은 미구현이다.
+- 따라서 현재 PPO는 내부 실행순서만 정하며 **판매·수용 견적은 아직 수행하지 않는다**.
 
 ## 검증 게이트
 
-1. **시간·원자성**: 기능 OFF 골든 불변, 결정시각 엄격 증가, review의 실행결정 선점 0,
-   owner 공백·중복 0, 실패 시 KEEP.
-2. **견적 타당성**: source/receiver 각각 부호 일치·보정오차·선택 후 regret을 새 대역에서
-   측정한다.
-3. **분해 타당성**: 위 분해오차가 사전 허용범위 안인지 확인한다.
-4. **운영효과**: 현행 중앙 혼잡도 규칙(0.10) 대비 터미널 총비용과 평균 A→O를 공동 판정한다.
-5. **갱신 방식**: 견적기 통과 후 EVENT_ONLY 대비 EVENT+TIMER의 추가 이득과 계산량을
-   단일축으로 검정한다.
+1. **G0 원자성**: owner 정확히 1, orphan/중복 event 0, stale 명령 0, 모든 실패지점 rollback,
+   A→O 장부 연속, 정상 YC 결정 선점 0, 결정론.
+2. **G1 견적**: 직접 KEEP/TRANSFER 반사실 대비 OutRelief·InBurden·NetGain 부호·순위·
+   보정오차. 실패하면 학습 quote 금지.
+3. **G2 효과**: no-transfer / 현 혼잡규칙 / 계산 quote resolver를 신규 paired seed로 비교.
+   반입-only와 양하-only를 분리하고 완주·backlog·안전을 hard guard로 둔다.
+4. **G3 갱신**: event-only 통과 뒤 timer 추가 이득과 계산량을 단일축 검증한다.
+5. **G4 학습**: 계산 quote의 상금과 라벨 품질이 확인된 뒤에만 공유 QuoteNet을 검토한다.
 
 P95(트럭 100대 중 오래 걸린 5대의 시간)는 보고용 진단이며 채택 veto로 쓰지 않는다.
 
 ## Evidence
 
-등록 시점은 설계 계약만 동결했다. 구현·실험 결과는 착수 후 별도 evidence로 갱신한다.
+2026-08-02에는 실환경 설계 계약만 정정했다. 구현·실험 결과는 착수 후 별도 evidence로
+갱신하며, 자동 commit은 실제 TOS/ECS 인터페이스가 확인되기 전 주장하지 않는다.
