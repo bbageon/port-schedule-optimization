@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-141 | RL | **v4-B — 구속적 PREPOSITION 단일축 (확장 판정 7항)** | 🔴 | 2026-08-02 | **15차 확장 기준으로 동결**: 목표 = 재배치 감소만이 아니라 **트럭 이득 보존 + 본선·이동 손실 방지**. 유일 변경 = BOUND_REPO(결속 PREPO:<jid>:<bay>·근접 소멸·만료 내재·탈출 분리 — opt-in, 회귀 39 테스트 통과). 비교군 SF/v4-A(재사용)/v4-B(신규 학습), 미열람 3200 대역+실현 지문. 판정 J1 완주 ∧ J2 장악0 ∧ J3 vs SF ≥2/3 ∧ J4 B−A v2 ≤0 ∧ J5 본선 비열등 ∧ J6 v1 비열등 ∧ J7 반복·만료 이동 0. 성공 → 잠금평가 · [spec](../docs/dashboard-task-specs/YR-141-bound-preposition.md)·[하네스](../../src/yard_rl/experiments/yr141_bound_prepo.py) |
 
 ---
 

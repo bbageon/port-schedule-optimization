@@ -1,0 +1,1715 @@
+{
+ "repro": {
+  "experiment": "YR-141 v4-B 구속적 PREPOSITION — 3군 판정 (미열람 BASE+3200)",
+  "code": {
+   "git_head": "481a495b7ff3d742e63b432a5fe2f8753f5683f0",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train": [
+    88000,
+    99000,
+    123000
+   ],
+   "mid-loose": [
+    833200,
+    833201,
+    833202
+   ],
+   "high-loose": [
+    833300,
+    833301,
+    833302
+   ],
+   "mid-tight": [
+    833400,
+    833401,
+    833402
+   ],
+   "high-tight": [
+    833500,
+    833501,
+    833502
+   ]
+  },
+  "params": {},
+  "prereg": "유일 변경 = BOUND_REPO(결속·근접 소멸·만료 내재·탈출 분리). 판정 7항: J1 완주·backlog / J2 장악 0 / J3 vs SF ≥2/3 / J4 B−A v2 ≤0 ≥2/3 / J5 본선 비열등 ≥2/3 / J6 v1 비열등 ≥2/3 / J7 반복·만료 후 이동 0. 실현 지문 동봉.",
+  "n_eval": 12
+ },
+ "band_fingerprints": {
+  "mid-loose:833200": "rz1:099e492155c95041",
+  "mid-loose:833201": "rz1:5d0fb6eb8cfcf321",
+  "mid-loose:833202": "rz1:4189b6ed2cff3ac8",
+  "high-loose:833300": "rz1:06faeee1e0a41cb5",
+  "high-loose:833301": "rz1:4f2c91861a87bf0c",
+  "high-loose:833302": "rz1:30e304e5ce7fdc14",
+  "mid-tight:833400": "rz1:ca52a4394902d889",
+  "mid-tight:833401": "rz1:83060a0d2448b95b",
+  "mid-tight:833402": "rz1:d85f6a414b7b2f32",
+  "high-tight:833500": "rz1:d64c2224079d2072",
+  "high-tight:833501": "rz1:63b4b79c88cc3ea6",
+  "high-tight:833502": "rz1:508f49081e0cf479"
+ },
+ "sf": [
+  {
+   "cell": "mid-loose",
+   "seed": 833200,
+   "healthy": true,
+   "v2_total": 21.4708,
+   "v1_total": 22.702,
+   "a2o_min": 18.096,
+   "berth_over_min": 22.06,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0385,
+    "REPOSITION": 0.2923,
+    "SERVE": 0.6308,
+    "WAIT": 0.0385
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "mid-loose",
+   "seed": 833201,
+   "healthy": true,
+   "v2_total": 21.3983,
+   "v1_total": 21.404,
+   "a2o_min": 18.947,
+   "berth_over_min": 19.37,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0147,
+    "REPOSITION": 0.2206,
+    "SERVE": 0.6691,
+    "WAIT": 0.0956
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "mid-loose",
+   "seed": 833202,
+   "healthy": true,
+   "v2_total": 27.0823,
+   "v1_total": 35.552,
+   "a2o_min": 18.728,
+   "berth_over_min": 43.32,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0152,
+    "REPOSITION": 0.2121,
+    "SERVE": 0.7045,
+    "WAIT": 0.0682
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-loose",
+   "seed": 833300,
+   "healthy": true,
+   "v2_total": 49.7015,
+   "v1_total": 75.601,
+   "a2o_min": 22.854,
+   "berth_over_min": 96.23,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0552,
+    "REPOSITION": 0.1517,
+    "SERVE": 0.7517,
+    "WAIT": 0.0414
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-loose",
+   "seed": 833301,
+   "healthy": true,
+   "v2_total": 64.0783,
+   "v1_total": 108.698,
+   "a2o_min": 26.651,
+   "berth_over_min": 140.05,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0291,
+    "REPOSITION": 0.2035,
+    "SERVE": 0.6337,
+    "WAIT": 0.1337
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-loose",
+   "seed": 833302,
+   "healthy": true,
+   "v2_total": 43.0546,
+   "v1_total": 55.782,
+   "a2o_min": 24.336,
+   "berth_over_min": 60.23,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0245,
+    "REPOSITION": 0.1656,
+    "SERVE": 0.6933,
+    "WAIT": 0.1166
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 833400,
+   "healthy": true,
+   "v2_total": 37.5665,
+   "v1_total": 72.388,
+   "a2o_min": 23.587,
+   "berth_over_min": 99.49,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0465,
+    "REPOSITION": 0.2326,
+    "SERVE": 0.6512,
+    "WAIT": 0.0698
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 833401,
+   "healthy": true,
+   "v2_total": 35.9409,
+   "v1_total": 71.11,
+   "a2o_min": 19.535,
+   "berth_over_min": 105.75,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0213,
+    "REPOSITION": 0.2624,
+    "SERVE": 0.6667,
+    "WAIT": 0.0496
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "mid-tight",
+   "seed": 833402,
+   "healthy": true,
+   "v2_total": 24.5655,
+   "v1_total": 48.899,
+   "a2o_min": 17.941,
+   "berth_over_min": 72.87,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0286,
+    "REPOSITION": 0.3071,
+    "SERVE": 0.6,
+    "WAIT": 0.0643
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-tight",
+   "seed": 833500,
+   "healthy": true,
+   "v2_total": 52.0655,
+   "v1_total": 104.171,
+   "a2o_min": 26.86,
+   "berth_over_min": 146.37,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0261,
+    "REPOSITION": 0.2418,
+    "SERVE": 0.6471,
+    "WAIT": 0.085
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-tight",
+   "seed": 833501,
+   "healthy": true,
+   "v2_total": 85.5671,
+   "v1_total": 155.161,
+   "a2o_min": 33.026,
+   "berth_over_min": 200.12,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0105,
+    "REPOSITION": 0.1047,
+    "SERVE": 0.6911,
+    "WAIT": 0.1937
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  },
+  {
+   "cell": "high-tight",
+   "seed": 833502,
+   "healthy": true,
+   "v2_total": 45.122,
+   "v1_total": 88.917,
+   "a2o_min": 21.874,
+   "berth_over_min": 127.64,
+   "compl": 1.0,
+   "backlog": 0,
+   "shares": {
+    "PRE_REHANDLE": 0.0268,
+    "REPOSITION": 0.1544,
+    "SERVE": 0.7181,
+    "WAIT": 0.1007
+   },
+   "prepo_repeat": 0,
+   "prepo_expired": 0
+  }
+ ],
+ "arms": {
+  "A:88000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": true,
+    "v2_total": 21.7948,
+    "v1_total": 25.842,
+    "a2o_min": 17.412,
+    "berth_over_min": 29.23,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0859,
+     "REPOSITION": 0.25,
+     "SERVE": 0.6406,
+     "WAIT": 0.0234
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": false,
+    "v2_total": 23.8652,
+    "v1_total": 37.0,
+    "a2o_min": 16.364,
+    "berth_over_min": 51.64,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0251,
+     "REPOSITION": 0.6552,
+     "SERVE": 0.2853,
+     "WAIT": 0.0345
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 23.8453,
+    "v1_total": 28.792,
+    "a2o_min": 17.261,
+    "berth_over_min": 34.33,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0388,
+     "REPOSITION": 0.1783,
+     "SERVE": 0.7209,
+     "WAIT": 0.062
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 47.69,
+    "v1_total": 75.929,
+    "a2o_min": 22.019,
+    "berth_over_min": 101.33,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0676,
+     "REPOSITION": 0.1014,
+     "SERVE": 0.7365,
+     "WAIT": 0.0946
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 60.0097,
+    "v1_total": 94.954,
+    "a2o_min": 25.593,
+    "berth_over_min": 115.03,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.08,
+     "REPOSITION": 0.12,
+     "SERVE": 0.7267,
+     "WAIT": 0.0733
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 28.3896,
+    "v1_total": 30.802,
+    "a2o_min": 17.23,
+    "berth_over_min": 34.22,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0755,
+     "REPOSITION": 0.1635,
+     "SERVE": 0.7107,
+     "WAIT": 0.0503
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 39.9238,
+    "v1_total": 90.57,
+    "a2o_min": 19.508,
+    "berth_over_min": 141.48,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0746,
+     "REPOSITION": 0.2761,
+     "SERVE": 0.6269,
+     "WAIT": 0.0224
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": true,
+    "v2_total": 36.8142,
+    "v1_total": 81.781,
+    "a2o_min": 16.892,
+    "berth_over_min": 129.75,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0448,
+     "REPOSITION": 0.4428,
+     "SERVE": 0.4677,
+     "WAIT": 0.0448
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": false,
+    "v2_total": 33.8345,
+    "v1_total": 84.822,
+    "a2o_min": 16.089,
+    "berth_over_min": 138.59,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0156,
+     "REPOSITION": 0.7977,
+     "SERVE": 0.1634,
+     "WAIT": 0.0233
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 46.8238,
+    "v1_total": 97.735,
+    "a2o_min": 23.117,
+    "berth_over_min": 143.65,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0548,
+     "REPOSITION": 0.1712,
+     "SERVE": 0.6781,
+     "WAIT": 0.0959
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 84.8139,
+    "v1_total": 148.479,
+    "a2o_min": 32.967,
+    "berth_over_min": 184.75,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.023,
+     "REPOSITION": 0.069,
+     "SERVE": 0.7586,
+     "WAIT": 0.1494
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": true,
+    "v2_total": 45.8307,
+    "v1_total": 92.665,
+    "a2o_min": 21.521,
+    "berth_over_min": 135.15,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0405,
+     "REPOSITION": 0.2948,
+     "SERVE": 0.6185,
+     "WAIT": 0.0462
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   }
+  ],
+  "A:99000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": true,
+    "v2_total": 26.8673,
+    "v1_total": 40.402,
+    "a2o_min": 17.987,
+    "berth_over_min": 52.87,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0583,
+     "REPOSITION": 0.4806,
+     "SERVE": 0.3981,
+     "WAIT": 0.0631
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": true,
+    "v2_total": 19.8619,
+    "v1_total": 19.922,
+    "a2o_min": 17.992,
+    "berth_over_min": 18.85,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0357,
+     "REPOSITION": 0.5223,
+     "SERVE": 0.4062,
+     "WAIT": 0.0357
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 21.8669,
+    "v1_total": 21.96,
+    "a2o_min": 17.266,
+    "berth_over_min": 20.72,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0511,
+     "REPOSITION": 0.3807,
+     "SERVE": 0.5284,
+     "WAIT": 0.0398
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 43.3522,
+    "v1_total": 63.04,
+    "a2o_min": 20.654,
+    "berth_over_min": 79.99,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.1218,
+     "REPOSITION": 0.1218,
+     "SERVE": 0.6987,
+     "WAIT": 0.0577
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 48.7255,
+    "v1_total": 80.743,
+    "a2o_min": 20.391,
+    "berth_over_min": 108.75,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0761,
+     "REPOSITION": 0.3198,
+     "SERVE": 0.5533,
+     "WAIT": 0.0508
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 40.2454,
+    "v1_total": 52.486,
+    "a2o_min": 21.56,
+    "berth_over_min": 57.91,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0625,
+     "REPOSITION": 0.175,
+     "SERVE": 0.7063,
+     "WAIT": 0.0563
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 41.2593,
+    "v1_total": 89.655,
+    "a2o_min": 21.126,
+    "berth_over_min": 135.05,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0941,
+     "REPOSITION": 0.3588,
+     "SERVE": 0.4941,
+     "WAIT": 0.0529
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": true,
+    "v2_total": 37.4464,
+    "v1_total": 77.965,
+    "a2o_min": 18.207,
+    "berth_over_min": 119.22,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0818,
+     "REPOSITION": 0.2704,
+     "SERVE": 0.5912,
+     "WAIT": 0.0566
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": true,
+    "v2_total": 24.7408,
+    "v1_total": 50.29,
+    "a2o_min": 17.152,
+    "berth_over_min": 75.04,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0446,
+     "REPOSITION": 0.5446,
+     "SERVE": 0.375,
+     "WAIT": 0.0357
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 48.7446,
+    "v1_total": 94.748,
+    "a2o_min": 25.33,
+    "berth_over_min": 130.01,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0968,
+     "REPOSITION": 0.1677,
+     "SERVE": 0.6387,
+     "WAIT": 0.0968
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 97.5009,
+    "v1_total": 160.128,
+    "a2o_min": 37.556,
+    "berth_over_min": 180.57,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0312,
+     "REPOSITION": 0.1354,
+     "SERVE": 0.6875,
+     "WAIT": 0.1458
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": true,
+    "v2_total": 46.0057,
+    "v1_total": 94.333,
+    "a2o_min": 20.843,
+    "berth_over_min": 138.21,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0271,
+     "REPOSITION": 0.5898,
+     "SERVE": 0.3627,
+     "WAIT": 0.0203
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   }
+  ],
+  "A:123000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": false,
+    "v2_total": 24.3473,
+    "v1_total": 35.826,
+    "a2o_min": 16.845,
+    "berth_over_min": 47.35,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.04,
+     "REPOSITION": 0.66,
+     "SERVE": 0.2733,
+     "WAIT": 0.0267
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": false,
+    "v2_total": 22.3687,
+    "v1_total": 33.158,
+    "a2o_min": 16.512,
+    "berth_over_min": 43.4,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0191,
+     "REPOSITION": 0.7958,
+     "SERVE": 0.1737,
+     "WAIT": 0.0115
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 25.2481,
+    "v1_total": 33.623,
+    "a2o_min": 17.319,
+    "berth_over_min": 41.97,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0204,
+     "REPOSITION": 0.4592,
+     "SERVE": 0.4745,
+     "WAIT": 0.0459
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 39.9101,
+    "v1_total": 49.292,
+    "a2o_min": 21.393,
+    "berth_over_min": 53.23,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.071,
+     "REPOSITION": 0.129,
+     "SERVE": 0.7032,
+     "WAIT": 0.0968
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 55.0278,
+    "v1_total": 93.92,
+    "a2o_min": 23.004,
+    "berth_over_min": 125.8,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0248,
+     "REPOSITION": 0.4504,
+     "SERVE": 0.4504,
+     "WAIT": 0.0744
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 35.0327,
+    "v1_total": 49.016,
+    "a2o_min": 18.472,
+    "berth_over_min": 63.52,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0769,
+     "REPOSITION": 0.1834,
+     "SERVE": 0.6686,
+     "WAIT": 0.071
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 45.6469,
+    "v1_total": 99.392,
+    "a2o_min": 23.503,
+    "berth_over_min": 148.23,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0386,
+     "REPOSITION": 0.5024,
+     "SERVE": 0.4058,
+     "WAIT": 0.0531
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": true,
+    "v2_total": 39.4213,
+    "v1_total": 86.423,
+    "a2o_min": 18.235,
+    "berth_over_min": 134.14,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0282,
+     "REPOSITION": 0.5726,
+     "SERVE": 0.379,
+     "WAIT": 0.0202
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": false,
+    "v2_total": 26.1079,
+    "v1_total": 58.307,
+    "a2o_min": 16.271,
+    "berth_over_min": 91.28,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0351,
+     "REPOSITION": 0.6677,
+     "SERVE": 0.2684,
+     "WAIT": 0.0288
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 48.7616,
+    "v1_total": 104.604,
+    "a2o_min": 23.135,
+    "berth_over_min": 156.85,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0455,
+     "REPOSITION": 0.2841,
+     "SERVE": 0.5625,
+     "WAIT": 0.108
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 76.1919,
+    "v1_total": 131.118,
+    "a2o_min": 30.57,
+    "berth_over_min": 162.46,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0166,
+     "REPOSITION": 0.1271,
+     "SERVE": 0.7293,
+     "WAIT": 0.1271
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": true,
+    "v2_total": 46.0264,
+    "v1_total": 99.096,
+    "a2o_min": 19.748,
+    "berth_over_min": 151.96,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0309,
+     "REPOSITION": 0.2407,
+     "SERVE": 0.6605,
+     "WAIT": 0.0679
+    },
+    "prepo_repeat": 0,
+    "prepo_expired": 0
+   }
+  ],
+  "B:88000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": true,
+    "v2_total": 19.7974,
+    "v1_total": 20.112,
+    "a2o_min": 17.135,
+    "berth_over_min": 19.4,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.088,
+     "REPOSITION": 0.2,
+     "SERVE": 0.656,
+     "WAIT": 0.056
+    },
+    "prepo_repeat": 8,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": true,
+    "v2_total": 19.4677,
+    "v1_total": 21.927,
+    "a2o_min": 16.606,
+    "berth_over_min": 25.47,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0395,
+     "REPOSITION": 0.2961,
+     "SERVE": 0.5987,
+     "WAIT": 0.0658
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 26.76,
+    "v1_total": 35.349,
+    "a2o_min": 18.384,
+    "berth_over_min": 42.95,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0455,
+     "REPOSITION": 0.2045,
+     "SERVE": 0.7045,
+     "WAIT": 0.0455
+    },
+    "prepo_repeat": 8,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 39.0516,
+    "v1_total": 50.851,
+    "a2o_min": 20.552,
+    "berth_over_min": 59.62,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0816,
+     "REPOSITION": 0.102,
+     "SERVE": 0.7415,
+     "WAIT": 0.0748
+    },
+    "prepo_repeat": 5,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 51.9984,
+    "v1_total": 87.613,
+    "a2o_min": 22.118,
+    "berth_over_min": 118.23,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0671,
+     "REPOSITION": 0.1544,
+     "SERVE": 0.7315,
+     "WAIT": 0.047
+    },
+    "prepo_repeat": 7,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 39.766,
+    "v1_total": 54.97,
+    "a2o_min": 20.928,
+    "berth_over_min": 66.62,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0331,
+     "REPOSITION": 0.1192,
+     "SERVE": 0.7483,
+     "WAIT": 0.0993
+    },
+    "prepo_repeat": 4,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 42.0527,
+    "v1_total": 94.463,
+    "a2o_min": 20.85,
+    "berth_over_min": 146.06,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.1094,
+     "REPOSITION": 0.2109,
+     "SERVE": 0.6562,
+     "WAIT": 0.0234
+    },
+    "prepo_repeat": 7,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": false,
+    "v2_total": 40.3333,
+    "v1_total": 91.334,
+    "a2o_min": 17.721,
+    "berth_over_min": 144.13,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0252,
+     "REPOSITION": 0.653,
+     "SERVE": 0.2965,
+     "WAIT": 0.0252
+    },
+    "prepo_repeat": 12,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": true,
+    "v2_total": 24.4645,
+    "v1_total": 53.955,
+    "a2o_min": 15.267,
+    "berth_over_min": 86.54,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0809,
+     "REPOSITION": 0.2279,
+     "SERVE": 0.6176,
+     "WAIT": 0.0735
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 44.6961,
+    "v1_total": 96.963,
+    "a2o_min": 21.423,
+    "berth_over_min": 146.87,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0588,
+     "REPOSITION": 0.2706,
+     "SERVE": 0.5824,
+     "WAIT": 0.0882
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 82.8551,
+    "v1_total": 140.651,
+    "a2o_min": 32.958,
+    "berth_over_min": 168.6,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.024,
+     "REPOSITION": 0.0898,
+     "SERVE": 0.7904,
+     "WAIT": 0.0958
+    },
+    "prepo_repeat": 5,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": true,
+    "v2_total": 37.6712,
+    "v1_total": 75.131,
+    "a2o_min": 18.488,
+    "berth_over_min": 111.78,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0537,
+     "REPOSITION": 0.1477,
+     "SERVE": 0.7181,
+     "WAIT": 0.0805
+    },
+    "prepo_repeat": 5,
+    "prepo_expired": 0
+   }
+  ],
+  "B:99000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": false,
+    "v2_total": 24.0677,
+    "v1_total": 32.352,
+    "a2o_min": 18.179,
+    "berth_over_min": 38.26,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0379,
+     "REPOSITION": 0.6098,
+     "SERVE": 0.3106,
+     "WAIT": 0.0417
+    },
+    "prepo_repeat": 16,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": false,
+    "v2_total": 22.4462,
+    "v1_total": 31.145,
+    "a2o_min": 16.988,
+    "berth_over_min": 39.69,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0196,
+     "REPOSITION": 0.6438,
+     "SERVE": 0.2974,
+     "WAIT": 0.0392
+    },
+    "prepo_repeat": 20,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 24.809,
+    "v1_total": 29.102,
+    "a2o_min": 18.396,
+    "berth_over_min": 30.85,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0155,
+     "REPOSITION": 0.4663,
+     "SERVE": 0.4819,
+     "WAIT": 0.0363
+    },
+    "prepo_repeat": 10,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 45.6646,
+    "v1_total": 71.429,
+    "a2o_min": 20.531,
+    "berth_over_min": 95.36,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0187,
+     "REPOSITION": 0.5581,
+     "SERVE": 0.4082,
+     "WAIT": 0.015
+    },
+    "prepo_repeat": 12,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 53.6121,
+    "v1_total": 91.947,
+    "a2o_min": 21.918,
+    "berth_over_min": 123.99,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0476,
+     "REPOSITION": 0.381,
+     "SERVE": 0.519,
+     "WAIT": 0.0524
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 41.0365,
+    "v1_total": 56.181,
+    "a2o_min": 21.55,
+    "berth_over_min": 65.82,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0202,
+     "REPOSITION": 0.4534,
+     "SERVE": 0.4575,
+     "WAIT": 0.0688
+    },
+    "prepo_repeat": 8,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 49.7069,
+    "v1_total": 107.863,
+    "a2o_min": 24.76,
+    "berth_over_min": 159.48,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0288,
+     "REPOSITION": 0.5885,
+     "SERVE": 0.3457,
+     "WAIT": 0.037
+    },
+    "prepo_repeat": 15,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": true,
+    "v2_total": 33.5747,
+    "v1_total": 68.469,
+    "a2o_min": 17.831,
+    "berth_over_min": 104.46,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0497,
+     "REPOSITION": 0.2857,
+     "SERVE": 0.5839,
+     "WAIT": 0.0807
+    },
+    "prepo_repeat": 8,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": false,
+    "v2_total": 27.6878,
+    "v1_total": 64.101,
+    "a2o_min": 15.921,
+    "berth_over_min": 102.58,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0136,
+     "REPOSITION": 0.7795,
+     "SERVE": 0.1909,
+     "WAIT": 0.0159
+    },
+    "prepo_repeat": 19,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 48.2136,
+    "v1_total": 103.025,
+    "a2o_min": 22.763,
+    "berth_over_min": 151.63,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.019,
+     "REPOSITION": 0.5779,
+     "SERVE": 0.3764,
+     "WAIT": 0.0266
+    },
+    "prepo_repeat": 16,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 77.0713,
+    "v1_total": 135.802,
+    "a2o_min": 30.323,
+    "berth_over_min": 172.76,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0383,
+     "REPOSITION": 0.2344,
+     "SERVE": 0.6316,
+     "WAIT": 0.0957
+    },
+    "prepo_repeat": 6,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": false,
+    "v2_total": 41.8375,
+    "v1_total": 88.668,
+    "a2o_min": 19.103,
+    "berth_over_min": 133.58,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0241,
+     "REPOSITION": 0.6355,
+     "SERVE": 0.3223,
+     "WAIT": 0.0181
+    },
+    "prepo_repeat": 11,
+    "prepo_expired": 0
+   }
+  ],
+  "B:123000": [
+   {
+    "cell": "mid-loose",
+    "seed": 833200,
+    "healthy": true,
+    "v2_total": 21.5058,
+    "v1_total": 26.121,
+    "a2o_min": 17.063,
+    "berth_over_min": 30.07,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0396,
+     "REPOSITION": 0.5771,
+     "SERVE": 0.3612,
+     "WAIT": 0.022
+    },
+    "prepo_repeat": 11,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833201,
+    "healthy": false,
+    "v2_total": 18.7697,
+    "v1_total": 20.188,
+    "a2o_min": 16.719,
+    "berth_over_min": 20.37,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0144,
+     "REPOSITION": 0.7548,
+     "SERVE": 0.2188,
+     "WAIT": 0.012
+    },
+    "prepo_repeat": 18,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-loose",
+    "seed": 833202,
+    "healthy": true,
+    "v2_total": 24.1718,
+    "v1_total": 28.493,
+    "a2o_min": 18.016,
+    "berth_over_min": 30.59,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0167,
+     "REPOSITION": 0.5649,
+     "SERVE": 0.3891,
+     "WAIT": 0.0293
+    },
+    "prepo_repeat": 14,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833300,
+    "healthy": true,
+    "v2_total": 41.8157,
+    "v1_total": 54.34,
+    "a2o_min": 21.443,
+    "berth_over_min": 60.97,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.071,
+     "REPOSITION": 0.1806,
+     "SERVE": 0.7032,
+     "WAIT": 0.0452
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833301,
+    "healthy": true,
+    "v2_total": 61.0995,
+    "v1_total": 100.435,
+    "a2o_min": 25.358,
+    "berth_over_min": 127.11,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0798,
+     "REPOSITION": 0.184,
+     "SERVE": 0.6687,
+     "WAIT": 0.0675
+    },
+    "prepo_repeat": 8,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-loose",
+    "seed": 833302,
+    "healthy": true,
+    "v2_total": 40.1372,
+    "v1_total": 49.559,
+    "a2o_min": 22.423,
+    "berth_over_min": 50.1,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0256,
+     "REPOSITION": 0.5847,
+     "SERVE": 0.361,
+     "WAIT": 0.0288
+    },
+    "prepo_repeat": 12,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833400,
+    "healthy": true,
+    "v2_total": 38.746,
+    "v1_total": 79.296,
+    "a2o_min": 22.36,
+    "berth_over_min": 114.29,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0929,
+     "REPOSITION": 0.2357,
+     "SERVE": 0.6,
+     "WAIT": 0.0714
+    },
+    "prepo_repeat": 10,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833401,
+    "healthy": true,
+    "v2_total": 34.4568,
+    "v1_total": 70.409,
+    "a2o_min": 18.024,
+    "berth_over_min": 107.38,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0667,
+     "REPOSITION": 0.1481,
+     "SERVE": 0.6963,
+     "WAIT": 0.0889
+    },
+    "prepo_repeat": 4,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "mid-tight",
+    "seed": 833402,
+    "healthy": false,
+    "v2_total": 33.4599,
+    "v1_total": 82.765,
+    "a2o_min": 16.055,
+    "berth_over_min": 136.49,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.042,
+     "REPOSITION": 0.6069,
+     "SERVE": 0.3206,
+     "WAIT": 0.0305
+    },
+    "prepo_repeat": 11,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833500,
+    "healthy": true,
+    "v2_total": 45.3786,
+    "v1_total": 93.72,
+    "a2o_min": 22.782,
+    "berth_over_min": 136.84,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0743,
+     "REPOSITION": 0.2162,
+     "SERVE": 0.6689,
+     "WAIT": 0.0405
+    },
+    "prepo_repeat": 9,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833501,
+    "healthy": true,
+    "v2_total": 88.1664,
+    "v1_total": 144.416,
+    "a2o_min": 35.374,
+    "berth_over_min": 164.11,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0248,
+     "REPOSITION": 0.0683,
+     "SERVE": 0.8199,
+     "WAIT": 0.087
+    },
+    "prepo_repeat": 2,
+    "prepo_expired": 0
+   },
+   {
+    "cell": "high-tight",
+    "seed": 833502,
+    "healthy": true,
+    "v2_total": 42.3311,
+    "v1_total": 83.312,
+    "a2o_min": 21.039,
+    "berth_over_min": 120.43,
+    "compl": 1.0,
+    "backlog": 0,
+    "shares": {
+     "PRE_REHANDLE": 0.0355,
+     "REPOSITION": 0.1418,
+     "SERVE": 0.7589,
+     "WAIT": 0.0638
+    },
+    "prepo_repeat": 4,
+    "prepo_expired": 0
+   }
+  ]
+ },
+ "judgment": {
+  "J1": true,
+  "J2": false,
+  "J3": true,
+  "J4": true,
+  "J5": true,
+  "J6": true,
+  "J7": false,
+  "success": false,
+  "per_seed": {
+   "88000": {
+    "B_vs_SF_v2": -3.225,
+    "B_minus_A_v2": -2.06,
+    "B_minus_A_berth": -8.57,
+    "B_minus_A_v1": -5.504,
+    "compl_min": 1.0,
+    "backlog_max": 0,
+    "repo_dom": 1,
+    "repo_share_mean": 0.223,
+    "prepo_repeat": 88,
+    "prepo_expired": 0
+   },
+   "99000": {
+    "B_vs_SF_v2": -1.49,
+    "B_minus_A_v2": -0.574,
+    "B_minus_A_berth": 8.44,
+    "B_minus_A_v1": 2.868,
+    "compl_min": 1.0,
+    "backlog_max": 0,
+    "repo_dom": 4,
+    "repo_share_mean": 0.518,
+    "prepo_repeat": 150,
+    "prepo_expired": 0
+   },
+   "123000": {
+    "B_vs_SF_v2": -1.465,
+    "B_minus_A_v2": 0.496,
+    "B_minus_A_berth": -10.12,
+    "B_minus_A_v1": -3.393,
+    "compl_min": 1.0,
+    "backlog_max": 0,
+    "repo_dom": 2,
+    "repo_share_mean": 0.355,
+    "prepo_repeat": 112,
+    "prepo_expired": 0
+   }
+  }
+ }
+}
