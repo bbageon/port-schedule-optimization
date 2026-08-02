@@ -79,12 +79,15 @@ def iter_pre_rehandle_jobs(sim, crane_id: str, level):
         yield j, c
 
 
-def iter_eta_reposition_bays(sim, crane_id: str, level):
-    """외부트럭 **provided_eta 주도** REPOSITION 목표 bay (clamp 적용) — 결정론(job_id 순).
+# YR-141 opt-in — 구속적 PREPOSITION (기본 False = 기존 바이트 동일). True 면 위치조정
+# 후보가 **결속 작업**을 지니고(PREPO:<jid>:<bay>), 목표 근접 시 소멸·ETA 만료 내재.
+# 교착 탈출 REPO 는 안전기능으로 불변 분리. 반복 이동은 근접 소멸이 1차 억제하고
+# 잔여 위반은 판정 ⑦(반복·만료 후 이동 = 0)이 계수한다 — 스펙 고지.
+BOUND_REPO = False
 
-    내부작업 release_time 주도 bay 는 포함하지 않는다 — 그 축은 정보수준과 무관해 결정 시점
-    개방(YR-050)에 쓰면 낮은 정보수준의 거동·golden 이 바뀐다.
-    """
+
+def iter_eta_reposition_jobs(sim, crane_id: str, level):
+    """(jid, bay, eta) — provided_eta 주도 위치조정의 **작업 결속** 원천 (결정론)."""
     if level != InformationLevel.PRE_ADVICE:
         return
     spec = sim.fleet.spec(crane_id)
@@ -96,14 +99,24 @@ def iter_eta_reposition_bays(sim, crane_id: str, level):
         if j.status == JobStatus.DONE or not j.is_external_truck:
             continue
         if j.status == JobStatus.WAITING:
-            continue                      # 이미 도착 → SERVE 몫
+            continue                      # 이미 도착 → SERVE 몫 (만료 내재)
         eta = _visible_eta_of(j, level)
         if eta is None or eta <= now or eta - now > horizon:
             continue
         bay = _future_bay_of(sim, j, spec, yc)
         if bay is None:
             continue
-        yield float(min(max(bay, spec.service_bay_min), spec.service_bay_max))
+        yield jid, float(min(max(bay, spec.service_bay_min), spec.service_bay_max)), eta
+
+
+def iter_eta_reposition_bays(sim, crane_id: str, level):
+    """외부트럭 **provided_eta 주도** REPOSITION 목표 bay (clamp 적용) — 결정론(job_id 순).
+
+    내부작업 release_time 주도 bay 는 포함하지 않는다 — 그 축은 정보수준과 무관해 결정 시점
+    개방(YR-050)에 쓰면 낮은 정보수준의 거동·golden 이 바뀐다.
+    """
+    for _jid, bay, _eta in iter_eta_reposition_jobs(sim, crane_id, level):
+        yield bay
 
 
 def eta_opportunity(sim, crane_id: str, level) -> bool:
@@ -311,7 +324,27 @@ class CandidateGenerator:
         yc = sim.fleet.get(cid)
         out = []
         escape_targets = self._escape_bays(sim, cid)
-        targets = set(self._future_target_bays(sim, cid, now, level)) | escape_targets
+        if BOUND_REPO:
+            # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
+            bound = []
+            for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
+                if abs(bay - yc.state.position_bay) <= 1.0:
+                    continue                    # 목표 근접 = 후보 소멸 (반복 이동 1차 억제)
+                bound.append((jid, bay))
+            for jid, tb in sorted(bound):
+                ref = JobRef(job_id=f"PREPO:{jid}:{int(tb)}", token=None,
+                             kind=CandidateKind.REPOSITION, target_container=None,
+                             lane_id=None, eligible_crane_ids=(cid,), is_vessel=False,
+                             is_external=False, reposition_target_bay=tb)
+                plan = sim._plan(cid, ref)
+                if plan is None:
+                    continue
+                reason = self._committed_reason(sim, plan)
+                out.append(GenCandidate(0, CandidateKind.REPOSITION, ref, plan, False,
+                                        reason is None, reason, -1000.0 + tb))
+            targets = escape_targets            # 탈출(안전기능)은 불변 분리
+        else:
+            targets = set(self._future_target_bays(sim, cid, now, level)) | escape_targets
         for tb in sorted(targets):
             # 일반 선제 위치조정은 1 bay 이하의 미세이동을 버리지만, 교착 탈출은
             # **정확히 1 bay**만 비켜도 통로가 열릴 수 있다(YR-116: 16→15).
