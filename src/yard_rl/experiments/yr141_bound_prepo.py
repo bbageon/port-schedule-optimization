@@ -103,7 +103,10 @@ def _episode(cell, seed, mk_policy, bound: bool, one_shot: bool = False) -> dict
             "prepo_expired": rec.expired_exec,
             "prepo_offered": rec.prepo_offered,
             "prepo_exec_total": sum(rec.prepo_exec.values()),
-            "prepo_blocked": getattr(sim, "_prepo_blocked", 0),
+            # 차단 = (결정시점·크레인·작업) 고유 삼족 계수 (19차 감사)
+            "prepo_blocked": len(getattr(sim, "_prepo_blocked", ()) or ()),
+            "prepo_blocked_jobs": len({t[2] for t in getattr(sim, "_prepo_blocked", ())
+                                       } if getattr(sim, "_prepo_blocked", None) else set()),
             "prepo_dup_removed": getattr(sim, "_prepo_dup_removed", 0)}
 
 

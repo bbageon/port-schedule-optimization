@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-145 | RL | 결속 PREPOSITION 상태 게이트 완결 (PLANNED 한정) + 신규 대역 재판정 | P0 | 2026-08-02 | [spec](../docs/dashboard-task-specs/YR-145-prepo-status-gate.md) · 19차 반영: 원정밀도·고유 차단 삼족·J7 차단>0. 대역 910012~23 동결(`35fbe6f2`). B1·B2 재학습 예정. 결과 미열람 |
 
 ---
 

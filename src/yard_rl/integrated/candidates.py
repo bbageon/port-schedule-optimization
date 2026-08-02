@@ -110,10 +110,12 @@ def iter_eta_reposition_jobs(sim, crane_id: str, level):
     now = sim.now
     for jid in sorted(sim.jobs):
         j = sim.jobs[jid]
-        if j.status == JobStatus.DONE or not j.is_external_truck:
+        if not j.is_external_truck:
             continue
-        if j.status == JobStatus.WAITING:
-            continue                      # 이미 도착 → SERVE 몫 (만료 내재)
+        if j.status != JobStatus.PLANNED:
+            continue                      # 미도착(PLANNED)만 — 도착·배정·진행·완료 전부
+                                          # 소멸. YR-145: 예측 ETA 가 미래여도 조기 도착해
+                                          # RUNNING 인 작업에 발행되던 구멍 봉쇄 (YR-142 기각 원인)
         eta = _visible_eta_of(j, level)
         if eta is None or eta <= now or eta - now > horizon:
             continue
@@ -345,7 +347,10 @@ class CandidateGenerator:
                     if PREPO_ONE_SHOT else None)
             for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
                 if hist and jid in hist:
-                    sim._prepo_blocked = getattr(sim, "_prepo_blocked", 0) + 1
+                    bl = getattr(sim, "_prepo_blocked", None)   # 고유 (시점·크레인·작업)
+                    if bl is None:                              # 삼족 집합 — 19차 감사
+                        bl = sim._prepo_blocked = set()
+                    bl.add((float(sim.now), cid, jid))
                     continue                    # 실행된 작업의 재발행 = 규칙으로 차단
                 if abs(bay - yc.state.position_bay) <= 1.0:
                     continue                    # 목표 근접 = 후보 소멸 (반복 이동 1차 억제)

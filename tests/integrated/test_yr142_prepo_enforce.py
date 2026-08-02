@@ -36,6 +36,30 @@ def test_feasible_joint_rejects_same_bound_job():
     assert getattr(sim, "_prepo_dup_removed", 0) == 1
 
 
+def test_status_gate_planned_only():
+    """YR-145: 조기 도착·배정·진행(RUNNING) 작업은 결속 발행 원천에서 소멸한다."""
+    from yard_rl.domain.enums import JobStatus
+    from yard_rl.experiments.yr088_joint_rl import LEVEL
+    from yard_rl.experiments.yr090_dense_vessel import BASE
+    from yard_rl.experiments.yr136_softplus_contract import _sim_contract
+    from yard_rl.integrated.candidates import iter_eta_reposition_jobs
+
+    sim = _sim_contract("high-tight", BASE["high-tight"])
+    cid = sim.profile.cranes[0].crane_id
+    yielded = [jid for jid, _b, _e in iter_eta_reposition_jobs(sim, cid, LEVEL)]
+    if not yielded:
+        pytest.skip("이 시점 결속 원천 없음")
+    target = sim.jobs[yielded[0]]
+    saved = target.status
+    try:
+        for st in (JobStatus.ASSIGNED, JobStatus.RUNNING, JobStatus.WAITING):
+            target.status = st
+            after = [jid for jid, _b, _e in iter_eta_reposition_jobs(sim, cid, LEVEL)]
+            assert target.job_id not in after, st
+    finally:
+        target.status = saved
+
+
 def test_band_file_frozen_integrity():
     p = Path("outputs/reports/yr142_prepo_enforce/band.json")
     if not p.exists():

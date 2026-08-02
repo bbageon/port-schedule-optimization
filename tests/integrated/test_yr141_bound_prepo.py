@@ -77,7 +77,9 @@ def test_execution_history_blocks_reissue(sim):
         on = _repo_ids(sim, bound=True)
         assert all(cand_mod.prepo_bound_jid(j) != target_jid
                    for _, j, _ in on if j.startswith("PREPO:"))
-        assert getattr(sim, "_prepo_blocked", 0) > 0
+        blocked = getattr(sim, "_prepo_blocked", set())
+        assert len(blocked) > 0                  # (시점·크레인·작업) 고유 삼족 (19차)
+        assert all(len(t) == 3 for t in blocked)
     finally:
         cand_mod.PREPO_ONE_SHOT = prev_flag
         if hasattr(sim, "_prepo_blocked"):
