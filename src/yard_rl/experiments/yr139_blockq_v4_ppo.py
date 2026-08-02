@@ -128,6 +128,13 @@ def run_episode(actor, critic, norm, cell: str, seed: int, rng: random.Random,
                 val = float(critic(torch.tensor([_state_vec(rows[0])],
                                                 dtype=torch.float32))[0])
             pend = [rows, act, logp, val, 0.0]
+            for c in dp.crane_ids:              # YR-142: 실행된 PREPO 결속 작업 기록
+                ref = getattr(assigns[act][c], "job_ref", None)
+                jid_full = getattr(ref, "job_id", "") or ""
+                if jid_full.startswith("PREPO:"):
+                    if not hasattr(sim, "_prepo_history"):
+                        sim._prepo_history = set()
+                    sim._prepo_history.add(jid_full.split(":")[1])
             _apply(sim, assigns[act])
         dp = sim.run_until_decision()
         k += 1

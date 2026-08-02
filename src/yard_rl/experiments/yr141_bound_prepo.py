@@ -65,6 +65,9 @@ class _PrepoRecorder(_Recorder):
                 j = sim.jobs.get(jid)
                 if j is None or j.status.name != "PLANNED":
                     self.expired_exec += 1          # 도착·소멸 후 실행 = 만료 위반
+                if not hasattr(sim, "_prepo_history"):   # YR-142: 재발행 금지 강제 기록
+                    sim._prepo_history = set()
+                sim._prepo_history.add(jid)
         return assign
 
 
@@ -105,28 +108,31 @@ def _mk_ppo(root: Path, ts: int):
     return mk
 
 
-def train(ts: int):
+def train(ts: int, out_root: Path = OUT):
     prev = cand_mod.BOUND_REPO
     cand_mod.BOUND_REPO = True
     try:
-        return train_one(ts, out_root=OUT)
+        return train_one(ts, out_root=out_root)
     finally:
         cand_mod.BOUND_REPO = prev
 
 
-def evaluate() -> dict:
-    OUT.mkdir(parents=True, exist_ok=True)
+def evaluate(out_root: Path = OUT, offset: int = 3200,
+             b_root: Path | None = None) -> dict:
+    out_root.mkdir(parents=True, exist_ok=True)
+    b_root = out_root if b_root is None else b_root
+    eval_eps = [(c, BASE[c] + offset + i) for c in CELLS for i in range(3)]
     fingerprints = {f"{c}:{s}": realization_hash(_sim_contract(c, s).scenario)
-                    for c, s in EVAL_EPS}
-    print(f"[eval] SF {len(EVAL_EPS)}", flush=True)
+                    for c, s in eval_eps}
+    print(f"[eval] SF {len(eval_eps)}", flush=True)
     sf = [_episode(c, s, lambda: ResolverPolicy(ServiceFirstSPTPreference(), "SF"),
-                   bound=False) for c, s in EVAL_EPS]
+                   bound=False) for c, s in eval_eps]
     rows: dict[str, list[dict]] = {}
-    for arm, root, bound in (("A", OUT140, False), ("B", OUT, True)):
+    for arm, root, bound in (("A", OUT140, False), ("B", b_root, True)):
         for ts in TRAIN_SEEDS:
             print(f"[eval] {arm}:{ts}", flush=True)
             mk = _mk_ppo(root, ts)
-            rows[f"{arm}:{ts}"] = [_episode(c, s, mk, bound=bound) for c, s in EVAL_EPS]
+            rows[f"{arm}:{ts}"] = [_episode(c, s, mk, bound=bound) for c, s in eval_eps]
     per_seed = {}
     for ts in TRAIN_SEEDS:
         A, B = rows[f"A:{ts}"], rows[f"B:{ts}"]
@@ -157,9 +163,9 @@ def evaluate() -> dict:
     j["success"] = all(j.values())
     judgment = {**j, "per_seed": per_seed}
     res = {"repro": repro_stamp(
-               experiment="YR-141 v4-B 구속적 PREPOSITION — 3군 판정 (미열람 BASE+3200)",
+               experiment=f"v4-B 구속적 PREPOSITION — 3군 판정 (미열람 BASE+{offset})",
                seeds={"train": list(TRAIN_SEEDS),
-                      **{c: [BASE[c] + 3200 + i for i in range(3)] for c in CELLS}},
+                      **{c: [BASE[c] + offset + i for i in range(3)] for c in CELLS}},
                profile_id="calibrated",
                prereg="유일 변경 = BOUND_REPO(결속·근접 소멸·만료 내재·탈출 분리). 판정 "
                       "7항: J1 완주·backlog / J2 장악 0 / J3 vs SF ≥2/3 / J4 B−A v2 ≤0 "
@@ -168,7 +174,7 @@ def evaluate() -> dict:
                extra={"n_eval": len(EVAL_EPS)}),
            "band_fingerprints": fingerprints,
            "sf": sf, "arms": rows, "judgment": judgment}
-    (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+    (out_root / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
                                       encoding="utf-8")
     print(json.dumps(j, ensure_ascii=False))
     return res
@@ -178,9 +184,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--train", type=int, default=0)
     ap.add_argument("--eval", action="store_true")
+    ap.add_argument("--outdir", default=str(OUT))
+    ap.add_argument("--eval-offset", type=int, default=3200)
     a = ap.parse_args()
+    root = Path(a.outdir)
+    root.mkdir(parents=True, exist_ok=True)
     if a.train:
-        train(a.train)
+        train(a.train, out_root=root)
     if a.eval:
-        evaluate()
+        evaluate(out_root=root, offset=a.eval_offset)
     print("DONE")

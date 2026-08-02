@@ -327,7 +327,10 @@ class CandidateGenerator:
         if BOUND_REPO:
             # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
             bound = []
+            hist = getattr(sim, "_prepo_history", None)   # YR-142: 실행 이력 기반 재발행 금지
             for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
+                if hist and jid in hist:
+                    continue                    # 같은 작업 반복 이동 = 규칙으로 강제 차단
                 if abs(bay - yc.state.position_bay) <= 1.0:
                     continue                    # 목표 근접 = 후보 소멸 (반복 이동 1차 억제)
                 bound.append((jid, bay))

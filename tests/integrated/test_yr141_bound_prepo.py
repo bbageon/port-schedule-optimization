@@ -57,3 +57,23 @@ def test_flag_on_no_unbound_normal_repo(sim):
 
 def test_determinism(sim):
     assert _repo_ids(sim, bound=True) == _repo_ids(sim, bound=True)
+
+
+def test_execution_history_blocks_reissue(sim):
+    """YR-142: 실행 이력에 오른 결속 작업은 재발행이 규칙으로 차단된다."""
+    ids = _repo_ids(sim, bound=True)
+    prepo = [(c, j, tb) for c, j, tb in ids if j.startswith("PREPO:")]
+    if not prepo:
+        pytest.skip("결속 후보 없음")
+    target_jid = prepo[0][1].split(":")[1]
+    saved = getattr(sim, "_prepo_history", None)
+    try:
+        sim._prepo_history = {target_jid}
+        after = _repo_ids(sim, bound=True)
+        assert all(j.split(":")[1] != target_jid
+                   for _, j, _ in after if j.startswith("PREPO:"))
+    finally:
+        if saved is None:
+            del sim._prepo_history
+        else:
+            sim._prepo_history = saved
