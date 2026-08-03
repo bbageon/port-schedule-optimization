@@ -102,6 +102,10 @@ PREPO_ONE_SHOT = False
 WAIT_MODE = "WAIT"
 DEFER_T_MAX = 600.0     # 사전등록 동결 (YR-147 2단계) — 튜닝 금지
 
+# YR-143 opt-in — C0(전략적 위치조정 없음): True 면 결속·비결속 능동 위치조정을 전부
+# 미발행하고 교착 탈출(안전기능)만 유지. 기본 False = 기존 동작 불변.
+SAFETY_ONLY = False
+
 
 def prepo_bound_jid(job_id):
     """PREPO:<jid>:<bay> → 결속 작업 id. 다중 블록 'A:작업' 처럼 jid 에 콜론이 있어도
@@ -354,7 +358,9 @@ class CandidateGenerator:
         yc = sim.fleet.get(cid)
         out = []
         escape_targets = self._escape_bays(sim, cid)
-        if BOUND_REPO:
+        if SAFETY_ONLY:
+            targets = escape_targets            # YR-143 C0 — 능동 위치조정 미발행
+        elif BOUND_REPO:
             # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
             bound = []
             hist = (getattr(sim, "_prepo_history", None)  # YR-142: one-shot 재발행 금지

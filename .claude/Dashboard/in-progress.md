@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-143 | Exp | 전략적 YC 위치조정 없음(C0) vs 결속 PREPOSITION(C1) — 분산 파일럿 단계 | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-143-no-reposition-control.md) · 착수 사전등록 동결: 공통 R 계약·SAFETY_ONLY 구현(테스트 3)·δ 가정값(v2 1.0/본선 3.0분/v1 2.0)·파일럿 4쌍(211000~214000)×16판(910056+)·표본식 동결. **파일럿 = 분산만 봉인(평균 선택 금지)** → 확증 표본 산정 후 확증 사전등록. 결과 미열람 |
 
 ---
 

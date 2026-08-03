@@ -254,16 +254,25 @@ def ppo_update_rank(actor, critic, opt, batch, rng, rank_batch, log):
             opt.step()
 
 
-def train_one_v3(ts: int, mode: str) -> Path:
-    """3단계 학습 — mode 'b'(보조손실 없음) | 'r'(보조 순위손실). 그 외 전부 동일."""
+def train_one_v3(ts: int, mode: str, *, out_base: Path | None = None,
+                 norm_ts: int | None = None, safety_only: bool = False,
+                 bound: bool = True) -> Path:
+    """3단계 학습 — mode 'b'(보조손실 없음) | 'r'(보조 순위손실). 그 외 전부 동일.
+
+    YR-143 재사용 파라미터(기본값 = YR-147 동작 불변): out_base(출력 루트),
+    norm_ts(정규화 참조 초기화 — norm_refs 는 3초기화 동일 검증 d3082288),
+    safety_only(C0 — 능동 위치조정 미발행), bound(결속 발행)."""
     assert mode in ("b", "r")
-    out = OUT / f"train_{mode}" / f"ppo_s{ts}"
+    out = (out_base or (OUT / f"train_{mode}")) / f"ppo_s{ts}"
     out.mkdir(parents=True, exist_ok=True)
-    prev = cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT, cand_mod.WAIT_MODE
-    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = True, True
+    prev = (cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT, cand_mod.WAIT_MODE,
+            cand_mod.SAFETY_ONLY)
+    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = bound, True
     cand_mod.WAIT_MODE = "DEFER_ALL"
+    cand_mod.SAFETY_ONLY = safety_only
     try:
-        ck0 = torch.load(Path("outputs/reports/yr125_diff_credit") / f"diff1_s{ts}"
+        ck0 = torch.load(Path("outputs/reports/yr125_diff_credit")
+                         / f"diff1_s{norm_ts if norm_ts else ts}"
                          / "rl_net.pt", map_location="cpu")
         norm = StateNorm(refs=ck0["norm_refs"])
         torch.manual_seed(ts)
@@ -310,7 +319,8 @@ def train_one_v3(ts: int, mode: str) -> Path:
              "curve": curve}, ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"[{mode} s{ts}] 완료 labels={counters['labeled']}", flush=True)
     finally:
-        (cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT, cand_mod.WAIT_MODE) = prev
+        (cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT, cand_mod.WAIT_MODE,
+         cand_mod.SAFETY_ONLY) = prev
     return out / "net.pt"
 
 
