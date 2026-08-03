@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-147 | RL | WAIT-WAIT 정책 최적화 — 유한 DEFER 뒤 반사실 순위학습 | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · 1단계 기준선·2단계 파일럿 완료(`2369af8`·`ed7b02a`). **22차 감사 정정**: B는 재개방을 보장했지만 A의 기존 미완주 6판 해소 뒤 B:99000 신규 4판이 생겨 선택 오류가 남음. C≡B는 환경 발견이 아니라 기존 `FORBID_WAIT`와의 **중복 구현**이며 C 원자료 분모도 미정정 → C 종료·계측 산출물 정정 필요. 3단계 전 `완주→backlog→비용` 반사실 라벨·정책독립 후보선정·체크포인트 hash/재실행 명령을 보정한 뒤 **B vs B+순위손실** 단일축 사전등록 |
+| YR-147 | RL | WAIT-WAIT 정책 최적화 — 유한 DEFER 뒤 반사실 순위학습 | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · 1·2단계 완료. 선결 보정(`23d873b`): C 원자료·B=C hash·`완주→backlog→비용` 라벨·정책독립 K≤4 후보를 확인했다. **3단계 R 구현·학습·판정은 미실행**이며, 실행 전 손실 단위·별도 난수·전용 테스트·라벨 노출·최소검출효과(MDE)·시나리오 신뢰구간·B/R 가드를 잠근다. |
 
 ---
 
