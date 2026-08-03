@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-147 | RL | WAIT-WAIT 정책 최적화 — 1단계 기준 측정 (하드 마스크 없음·유한 DEFER 는 2단계) | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · **1단계 기준선 완료 (★21차 정정 반영)**: 공동결정 중 진행 가능 전원대기 발생률 17.4/7.5/2.7%(합산 9.53%)·엄격 D_wait<0 33/53/13%·표본 비대표(high-tight 0)·깊은 정지 8건=2에피소드(해결 주장은 가설) — 진단 단계이며 성능 개선 아님. 다음 = 2단계 **A/B/C 3군 분해**(무기한 WAIT/전량 유한 DEFER/trigger 조건부 발행 — B−A·C−B 효과 분리) 사전등록 |
+| YR-147 | RL | WAIT-WAIT 정책 최적화 — 1단계 기준 측정 (하드 마스크 없음·유한 DEFER 는 2단계) | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · 1단계 기준선(21차 정정) 완료 → **2단계 구현·학습·파일럿 완료**: 유한 DEFER(T_MAX 600s·wake 재개방) 동결 `2369af8`. 파일럿 발견 — ①**C≡B 바이트 동일**(trigger 부재 상태가 분포에서 공허 — C 축 재정의 필요) ②B 재개방 작동(A 미완주 6판→해당 초기화 0)·단 B:99000 신규 4판 = **순위 실패 잔존** ③층화 D_wait 양수 75~81%. 다음 = **3단계 반사실 순위 신호** 설계·사전등록 (판정 표본 동결 동반) |
 
 ---
 
