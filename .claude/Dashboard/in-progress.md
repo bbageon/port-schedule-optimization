@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-146 | Sim | 배포용 교착 탈출 안전장치 — 발동 3조건 한정·4군 OFF/ON 분리 검증 | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-146-escape-safety-completion.md) · 24차 협소화 반영(재개방 부재/무진전 반복/간섭 탈출만 발동·개입률 허용치 사전 동결). 검증 = YR-143 확증 체크포인트 재사용(재학습 없음)·C0/C1×OFF/ON 4군·신규 대역. 결과 미열람 |
 
 ---
 

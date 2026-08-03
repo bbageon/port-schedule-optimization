@@ -1,0 +1,262 @@
+"""YR-146 — 배포용 교착 탈출 안전장치 (발동 3조건 한정·OFF/ON 분리 검증, 동결).
+
+■ 발동 (24차 협소화 — 정상적 기다림 불간섭):
+  ①재개방 부재: 전원 대기 선택인데 미래 재검토(사건·wake·defer 만료) 전무 → 정책 평가
+    최선 진행으로 대체  ②무진전 반복: 재개방 후 상태 변화(실사건·완료 수) 없이 다시
+    전원 대기 → 동일 대체  ③간섭 교착: 진행 후보 전무 ∧ 간섭 술어 참 → 최소 escape 확정.
+■ 검증 4군 (재학습 없음 — YR-143 확증 체크포인트 재사용): C0/C1 × OFF/ON,
+  신규 대역 16판(셀 4)·초기화 8쌍. guard 이득을 학습 성과로 합산 금지.
+■ 성공(동결): ON 양군 완주 100%·backlog 0 ∧ 개입률 ≤ 1%(공동결정 대비) ∧
+  ON−OFF v2 악화 ≤ δ_v2 1.0 (양군). 불필요 개입(OFF 완주판에서의 개입)은 분리 보고.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from pathlib import Path
+from statistics import fmean
+
+import torch
+
+from ..integrated import candidates as cand_mod
+from ..integrated.baselines import JointRolloutGreedy
+from ..integrated.candidates import CandidateGenerator
+from ..integrated.encoding import StateNorm
+from ..integrated.joint_distill import JointPairNet
+from ..integrated.seedbank import (BandSpec, assign_band, independence_report,
+                                   realization_hash)
+from . import yr088_joint_rl as y88
+from .yr090_dense_vessel import CELLS
+from .yr100_candidate_eval import RC_EVAL
+from .yr136_softplus_contract import _sim_contract
+from .yr141_bound_prepo import _PrepoRecorder
+from .yr143_no_repo import ARM_FLAGS, NORM_TS, CONFIRM_TS
+from .yr143_no_repo import OUT as OUT143
+
+OUT = Path("outputs/reports/yr146_deploy_guard")
+BAND_PATH = OUT / "band.json"
+BAND_START, BAND_N = 910_300, 4   # 910200 은 smoke 로 1판 열람 — 대역에서 제외(커서 이동)
+CAP_RATE = 0.01                     # 개입률 허용치 (공동결정 대비 — 사전 동결)
+DELTA_V2 = 1.0                      # ON−OFF v2 악화 상한 (YR-143 δ 승계)
+PROG = ("SERVE", "PRE_REHANDLE")
+
+
+class DeployGuard:
+    """정책 래퍼 — 발동 3조건에서만 개입. 그 외 결정은 그대로 통과."""
+
+    def __init__(self, inner, actor, norm, jr):
+        self.inner, self.actor, self.norm, self.jr = inner, actor, norm, jr
+        self.stats = {"dec": 0, "joint": 0, "iv_reopen": 0, "iv_stagnant": 0,
+                      "iv_escape": 0}
+        self._last = None
+
+    @staticmethod
+    def _real_events(sim):
+        return sum(1 for e in sim.event_log if e[1] not in ("DEFER_WAKE", "ETA_WAKE"))
+
+    @staticmethod
+    def _done(sim):
+        return sum(1 for j in sim.jobs.values() if j.status.name == "DONE")
+
+    def decide(self, sim, dp, gen_by):
+        assign = self.inner.decide(sim, dp, gen_by)
+        self.stats["dec"] += 1
+        if len(dp.crane_ids) >= 2:
+            self.stats["joint"] += 1
+        if not all(g.kind.name == "WAIT" for g in assign.values()):
+            self._last = None
+            return assign
+        rows, assigns = y88.build_rows(sim, dp, gen_by, self.norm, self.jr, 0)
+        if not assigns:
+            return assign                                   # 구조적 대기 — 불간섭
+        prog = [i for i, a in enumerate(assigns)
+                if any(a[c].kind.name in PROG for c in a)]
+        esc = [i for i, a in enumerate(assigns)
+               if any(a[c].kind.name == "REPOSITION" and a[c].job_ref is not None
+                      and a[c].job_ref.job_id.startswith("REPO:") for c in a)]
+        raw_nt = sim.queue.peek_time()
+        wake = sim._next_wake_time()
+        no_reopen = ((raw_nt is None or raw_nt > sim.end)
+                     and wake is None
+                     and all(getattr(g, "defer_until", None) is None
+                             for g in assign.values()))
+        snap = (self._done(sim), self._real_events(sim))
+        stagnant = self._last is not None and self._last == snap
+        chosen, case = None, None
+        if prog and (no_reopen or stagnant):
+            with torch.no_grad():
+                cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
+            chosen = min(prog, key=lambda i: float(cost[i]))
+            case = "iv_reopen" if no_reopen else "iv_stagnant"
+        elif not prog and esc and sim.interference_deadlock_corridors():
+            with torch.no_grad():
+                cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
+            chosen = min(esc, key=lambda i: float(cost[i]))
+            case = "iv_escape"
+        if chosen is None:
+            self._last = snap
+            return assign
+        self.stats[case] += 1
+        self._last = None
+        return assigns[chosen]
+
+
+def _collect_hashes() -> set[str]:
+    import re
+    pat = re.compile(r"rz1:[0-9a-f]{16}")
+    got: set[str] = set()
+    for p in Path("outputs/reports").rglob("*.json"):
+        if OUT in p.parents:
+            continue
+        try:
+            got |= set(pat.findall(p.read_text(encoding="utf-8", errors="ignore")))
+        except OSError:
+            continue
+    return got
+
+
+def make_band():
+    exclude = _collect_hashes()
+    band = assign_band(family="yr146-validate", cells={c: None for c in CELLS},
+                       n=BAND_N,
+                       generate=lambda key, _p, seed: _sim_contract(key, seed).scenario,
+                       exclude=exclude, start_seed=BAND_START)
+    rep = independence_report(band, forbidden={"past-recorded": exclude})
+    assert rep["ok"], rep
+    head = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                          capture_output=True, text=True).stdout.strip()
+    OUT.mkdir(parents=True, exist_ok=True)
+    BAND_PATH.write_text(json.dumps(
+        {**band.freeze_json(), "independence": rep, "n_excluded_hashes": len(exclude),
+         "created_commit": head}, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"[band] {sum(len(v) for v in band.seeds.values())} seeds frozen")
+
+
+def _episode_guard(cell, seed, arm, ts, guard_on: bool):
+    from ..integrated.baselines import (ActionMixError, assert_healthy_action_mix,
+                                        run_joint_episode)
+    from .yr138_episode_pilot import _v2_hard_total
+    f = ARM_FLAGS[arm]
+    prev = (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY, cand_mod.BOUND_REPO,
+            cand_mod.PREPO_ONE_SHOT)
+    cand_mod.WAIT_MODE = "DEFER_ALL"
+    cand_mod.SAFETY_ONLY = f["safety_only"]
+    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = f["bound"], True
+    try:
+        ck = torch.load(OUT143 / "confirm" / arm / f"ppo_s{ts}" / "net.pt",
+                        map_location="cpu")
+        actor = JointPairNet(250); actor.load_state_dict(ck["actor"]); actor.eval()
+        ck0 = torch.load(Path("outputs/reports/yr125_diff_credit")
+                         / f"diff1_s{NORM_TS}" / "rl_net.pt", map_location="cpu")
+        norm = StateNorm(refs=ck0["norm_refs"])
+        y88.FORBID_WAIT = True
+        policy = y88.RLPolicy(actor, norm, name=f"{arm}:{ts}")
+        guard = None
+        if guard_on:
+            jr = JointRolloutGreedy(RC_EVAL, horizon_s=1800.0,
+                                    generator=CandidateGenerator(),
+                                    forbid_strategic_wait=True)
+            policy = guard = DeployGuard(policy, actor, norm, jr)
+        sim = _sim_contract(cell, seed)
+        rec = _PrepoRecorder(policy)
+        r = run_joint_episode(sim, rec, RC_EVAL, generator=CandidateGenerator())
+        healthy = True
+        try:
+            assert_healthy_action_mix(r["_mix"], label=f"{cell}/s{seed}")
+        except ActionMixError:
+            healthy = False
+        out = {"cell": cell, "seed": seed, "compl": r["completion_rate"],
+               "backlog": r["backlog"], "healthy": healthy,
+               "v2_total": _v2_hard_total(sim), "v1_total": r["total_cost"],
+               "berth_over_min": r["berth_overrun_min"]}
+        if guard is not None:
+            out["guard"] = dict(guard.stats)
+        return out
+    finally:
+        (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY, cand_mod.BOUND_REPO,
+         cand_mod.PREPO_ONE_SHOT) = prev
+
+
+def validate() -> dict:
+    from ..integrated.repro import repro_stamp
+    d = json.loads(BAND_PATH.read_text(encoding="utf-8"))
+    band = BandSpec(family=d["family"], seeds=d["seeds"], hashes=d["realization_hashes"])
+    for cell, ss in band.seeds.items():
+        for s, h in zip(ss, band.hashes[cell]):
+            assert realization_hash(_sim_contract(cell, s).scenario) == h, f"{cell}:{s}"
+    eval_eps = [(c, s) for c in CELLS for s in band.seeds[c]]
+    rows = {}
+    for arm in ("c0", "c1"):
+        for on in (False, True):
+            key = f"{arm}:{'on' if on else 'off'}"
+            print(f"[validate] {key}", flush=True)
+            rows[key] = {ts: [_episode_guard(c, s, arm, ts, on) for c, s in eval_eps]
+                         for ts in CONFIRM_TS}
+    summ = {}
+    for key, by_ts in rows.items():
+        eps = [e for ts in CONFIRM_TS for e in by_ts[ts]]
+        s = {"n": len(eps), "compl_min": min(e["compl"] for e in eps),
+             "n_incomplete": sum(1 for e in eps if e["compl"] < 1.0),
+             "backlog_max": max(e["backlog"] for e in eps),
+             "healthy_all": all(e["healthy"] for e in eps),
+             "v2_mean": fmean(e["v2_total"] for e in eps),
+             "berth_mean": fmean(e["berth_over_min"] for e in eps)}
+        if ":on" in key:
+            g = [e["guard"] for e in eps]
+            joint = sum(x["joint"] for x in g)
+            iv = sum(x["iv_reopen"] + x["iv_stagnant"] + x["iv_escape"] for x in g)
+            s.update({"joint_dec": joint, "interventions": iv,
+                      "iv_rate": iv / joint if joint else 0.0,
+                      "iv_by_case": {k: sum(x[k] for x in g)
+                                     for k in ("iv_reopen", "iv_stagnant", "iv_escape")}})
+        summ[key] = s
+    # 불필요 개입 — OFF 완주판에서의 ON 개입 (에피소드 짝)
+    needless = {}
+    for arm in ("c0", "c1"):
+        cnt = 0
+        for ts in CONFIRM_TS:
+            for j, e_off in enumerate(rows[f"{arm}:off"][ts]):
+                e_on = rows[f"{arm}:on"][ts][j]
+                g = e_on["guard"]
+                if e_off["compl"] >= 1.0 and (g["iv_reopen"] + g["iv_stagnant"]
+                                              + g["iv_escape"]) > 0:
+                    cnt += 1
+        needless[arm] = cnt
+    j = {}
+    for arm in ("c0", "c1"):
+        on, off = summ[f"{arm}:on"], summ[f"{arm}:off"]
+        j[arm] = {"on_completion_all": on["compl_min"] >= 1.0 and on["backlog_max"] == 0,
+                  "iv_rate_ok": on["iv_rate"] <= CAP_RATE,
+                  "cost_ok": (on["v2_mean"] - off["v2_mean"]) <= DELTA_V2,
+                  "on_minus_off_v2": on["v2_mean"] - off["v2_mean"]}
+    j["success"] = all(v["on_completion_all"] and v["iv_rate_ok"] and v["cost_ok"]
+                       for v in j.values() if isinstance(v, dict))
+    res = {"repro": repro_stamp(
+               experiment="YR-146 배포 안전장치 — 4군 OFF/ON 분리 검증",
+               seeds={"train": list(CONFIRM_TS), **{c: band.seeds[c] for c in CELLS}},
+               profile_id="calibrated",
+               prereg="발동 3조건 한정·개입률 ≤1%·ON−OFF v2 악화 ≤1.0·ON 완주 전판·"
+                      "재학습 없음(YR-143 확증 ckpt)·guard 이득 학습 성과 합산 금지",
+               extra={"band_digest": d["digest"], "cap_rate": CAP_RATE}),
+           "summary": summ, "needless_interventions": needless, "judgment": j,
+           "arms": rows}
+    (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+                                      encoding="utf-8")
+    print(json.dumps({"judgment": j, "needless": needless,
+                      **{k: {kk: (round(vv, 4) if isinstance(vv, float) else vv)
+                             for kk, vv in s.items() if kk != "iv_by_case"}
+                         for k, s in summ.items()}}, ensure_ascii=False))
+    return res
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--make-band", action="store_true")
+    ap.add_argument("--validate", action="store_true")
+    a = ap.parse_args()
+    if a.make_band:
+        make_band()
+    if a.validate:
+        validate()
+    print("DONE")
