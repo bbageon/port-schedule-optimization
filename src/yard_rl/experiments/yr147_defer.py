@@ -314,6 +314,173 @@ def train_one_v3(ts: int, mode: str) -> Path:
     return out / "net.pt"
 
 
+# ------------------------------------------------------------------ 3단계 판정
+BAND3_PATH = OUT / "band3.json"
+BAND3_START, BAND3_CEIL, BAND3_N = 910_024, 920_000, 8   # 셀별 8 = 32 시나리오 (MDE 동결)
+
+
+def _collect_hashes_excluding_out() -> set[str]:
+    import re
+    pat = re.compile(r"rz1:[0-9a-f]{16}")
+    got: set[str] = set()
+    for p in Path("outputs/reports").rglob("*.json"):
+        if OUT in p.parents:
+            continue
+        try:
+            got |= set(pat.findall(p.read_text(encoding="utf-8", errors="ignore")))
+        except OSError:
+            continue
+    return got
+
+
+def make_band3():
+    from ..integrated.seedbank import assign_band, independence_report
+    import subprocess
+    exclude = _collect_hashes_excluding_out()
+    band = assign_band(family="yr147-judgment", cells={c: None for c in CELLS},
+                       n=BAND3_N,
+                       generate=lambda key, _p, seed: _sim_contract(key, seed).scenario,
+                       exclude=exclude, start_seed=BAND3_START)
+    for ss in band.seeds.values():
+        for s in ss:
+            assert BAND3_START <= s < BAND3_CEIL, f"대역 정수 이탈: {s}"
+    rep = independence_report(band, forbidden={"past-recorded": exclude})
+    assert rep["ok"], rep
+    head = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                          capture_output=True, text=True).stdout.strip()
+    OUT.mkdir(parents=True, exist_ok=True)
+    BAND3_PATH.write_text(json.dumps(
+        {**band.freeze_json(), "independence": rep, "n_excluded_hashes": len(exclude),
+         "created_commit": head}, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"[band3] {sum(len(v) for v in band.seeds.values())} seeds frozen")
+    return band
+
+
+def _load_band3():
+    from ..integrated.seedbank import BandSpec, independence_report, realization_hash
+    d = json.loads(BAND3_PATH.read_text(encoding="utf-8"))
+    band = BandSpec(family=d["family"], seeds=d["seeds"], hashes=d["realization_hashes"])
+    for cell, ss in band.seeds.items():
+        for s, h in zip(ss, band.hashes[cell]):
+            assert BAND3_START <= s < BAND3_CEIL
+            assert realization_hash(_sim_contract(cell, s).scenario) == h, f"{cell}:{s}"
+    rep = independence_report(band, forbidden={"past-recorded":
+                                               _collect_hashes_excluding_out()})
+    assert rep["ok"], rep
+    return band
+
+
+def _episode3(cell, seed, mk_policy, *, bound, one_shot, wait_mode):
+    from .yr141_bound_prepo import _episode
+    prev = cand_mod.WAIT_MODE
+    cand_mod.WAIT_MODE = wait_mode
+    try:
+        return _episode(cell, seed, mk_policy, bound=bound, one_shot=one_shot)
+    finally:
+        cand_mod.WAIT_MODE = prev
+
+
+def _load3(root, ts):
+    ck = torch.load(root / f"ppo_s{ts}" / "net.pt", map_location="cpu")
+    actor = JointPairNet(250); actor.load_state_dict(ck["actor"]); actor.eval()
+    ck0 = torch.load(Path("outputs/reports/yr125_diff_credit") / f"diff1_s{ts}"
+                     / "rl_net.pt", map_location="cpu")
+    norm = StateNorm(refs=ck0["norm_refs"])
+
+    def mk():
+        y88.FORBID_WAIT = True
+        return y88.RLPolicy(actor, norm, name=f"{root.name}:{ts}")
+    return mk
+
+
+def evaluate3() -> dict:
+    from statistics import stdev
+    from ..integrated.baselines import ResolverPolicy, ServiceFirstSPTPreference
+    from ..integrated.repro import repro_stamp
+    band = _load_band3()
+    eval_eps = [(c, s) for c in CELLS for s in band.seeds[c]]
+    ts_list = (88_000, 99_000, 123_000)
+    print(f"[eval3] SF {len(eval_eps)}", flush=True)
+    sf = [_episode3(c, s, lambda: ResolverPolicy(ServiceFirstSPTPreference(), "SF"),
+                    bound=False, one_shot=False, wait_mode="WAIT") for c, s in eval_eps]
+    cfg = {"A": (OUT145 / "b2", "WAIT"), "B": (OUT / "train_b", "DEFER_ALL"),
+           "R": (OUT / "train_r", "DEFER_ALL")}
+    rows, ckpt_sha = {}, {}
+    for arm, (root, wm) in cfg.items():
+        for ts in ts_list:
+            print(f"[eval3] {arm}:{ts}", flush=True)
+            ckpt_sha[f"{arm}:{ts}"] = hashlib.sha256(
+                (root / f"ppo_s{ts}" / "net.pt").read_bytes()).hexdigest()
+            mk = _load3(root, ts)
+            rows[f"{arm}:{ts}"] = [_episode3(c, s, mk, bound=True, one_shot=True,
+                                             wait_mode=wm) for c, s in eval_eps]
+    # 시나리오(3초기화 평균) 독립 단위 (23차) — R−B v2
+    scen_diff = []
+    for j, (c, s) in enumerate(eval_eps):
+        r_m = fmean(rows[f"R:{ts}"][j]["v2_total"] for ts in ts_list)
+        b_m = fmean(rows[f"B:{ts}"][j]["v2_total"] for ts in ts_list)
+        scen_diff.append({"cell": c, "seed": s, "diff": r_m - b_m})
+    diffs = [d["diff"] for d in scen_diff]
+    n = len(diffs)
+    mean_d = fmean(diffs)
+    sd_d = stdev(diffs)
+    ci_hw = 1.696 * sd_d / (n ** 0.5)          # t(0.95, df=31) 단측
+    per_init_dir = {ts: fmean(rows[f"R:{ts}"][j]["v2_total"]
+                              - rows[f"B:{ts}"][j]["v2_total"]
+                              for j in range(n)) for ts in ts_list}
+    guards = {}
+    for arm in ("B", "R"):
+        eps = [e for ts in ts_list for e in rows[f"{arm}:{ts}"]]
+        guards[arm] = {"compl_min": min(e["compl"] for e in eps),
+                       "backlog_max": max(e["backlog"] for e in eps),
+                       "healthy_all": all(e["healthy"] for e in eps),
+                       "repo_dom": sum(1 for e in eps
+                                       if e["shares"].get("REPOSITION", 0) > 0.60)}
+    exposure = {}
+    for ts in ts_list:
+        m = json.loads((OUT / "train_r" / f"ppo_s{ts}" / "train_meta.json")
+                       .read_text(encoding="utf-8"))
+        exposure[ts] = {"labeled": m["counters"]["labeled"],
+                        "ok": m["exposure_ok"],
+                        "prog_pref": m["counters"]["prog_pref"],
+                        "wait_pref": m["counters"]["wait_pref"],
+                        "ties": m["counters"]["ties"]}
+    j = {"guards_B": all([guards["B"]["compl_min"] >= 1.0,
+                          guards["B"]["backlog_max"] == 0,
+                          guards["B"]["healthy_all"], guards["B"]["repo_dom"] == 0]),
+         "guards_R": all([guards["R"]["compl_min"] >= 1.0,
+                          guards["R"]["backlog_max"] == 0,
+                          guards["R"]["healthy_all"], guards["R"]["repo_dom"] == 0]),
+         "dir_2of3": sum(1 for v in per_init_dir.values() if v < 0) >= 2,
+         "mean_neg": mean_d < 0,
+         "ci_upper_neg": (mean_d + ci_hw) < 0,
+         "exposure_ok_all": all(e["ok"] for e in exposure.values())}
+    j["success"] = all([j["guards_B"], j["guards_R"], j["dir_2of3"],
+                        j["mean_neg"], j["ci_upper_neg"]])
+    if not j["exposure_ok_all"]:
+        j["tag"] = "조작 노출 부족"
+    res = {"repro": repro_stamp(
+               experiment="YR-147 3단계 — B(유한 DEFER) vs R(B+반사실 순위손실)",
+               seeds={"train": list(ts_list), **{c: band.seeds[c] for c in CELLS}},
+               profile_id="calibrated",
+               prereg="23차 계약 — 시나리오(3초기화 평균) 32단위·통과 = 방향 ≥2/3 ∧ "
+                      "평균<0 ∧ CI 상한<0 ∧ 양군 하드가드. λ=0.1·동점폭 0.1·훈련 대역 "
+                      "BASE+16..31·최소 노출 30.",
+               extra={"band_digest": json.loads(BAND3_PATH.read_text(
+                          encoding="utf-8"))["digest"],
+                      "ckpt_sha256": ckpt_sha}),
+           "judgment": {**j, "mean_R_minus_B": mean_d, "ci_halfwidth": ci_hw,
+                        "sd_scen": sd_d, "per_init_dir": per_init_dir,
+                        "n_scenarios": n},
+           "guards": guards, "exposure": exposure, "scen_diff": scen_diff,
+           "sf": sf, "arms": rows}
+    (OUT / "results3.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+                                       encoding="utf-8")
+    print(json.dumps({k: v for k, v in j.items()}, ensure_ascii=False))
+    print(f"mean R−B = {mean_d:.4f} ± {ci_hw:.4f} (단측 CI 상한 {mean_d + ci_hw:.4f})")
+    return res
+
+
 # ------------------------------------------------------------------ 2단계 계측 (파일럿)
 def _load(arm: str, ts: int):
     ck = torch.load(ARM_ROOT[arm] / f"ppo_s{ts}" / "net.pt", map_location="cpu")
@@ -462,8 +629,14 @@ if __name__ == "__main__":
     ap.add_argument("--train", type=int, default=0)
     ap.add_argument("--train3", type=int, default=0, help="3단계 학습 (arm b|r)")
     ap.add_argument("--measure", type=int, default=0)
-    ap.add_argument("--arm", choices=("a", "b", "c", "r"), required=True)
+    ap.add_argument("--make-band3", action="store_true")
+    ap.add_argument("--eval3", action="store_true")
+    ap.add_argument("--arm", choices=("a", "b", "c", "r"), default=None)
     a = ap.parse_args()
+    if a.make_band3:
+        make_band3()
+    if a.eval3:
+        evaluate3()
     if a.train:
         assert a.arm in ("b", "c"), "A 는 YR-145 체크포인트 재사용 — 학습 없음"
         train(a.train, a.arm)
