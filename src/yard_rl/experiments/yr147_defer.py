@@ -46,6 +46,43 @@ def train(ts: int, arm: str):
         (cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT, cand_mod.WAIT_MODE) = prev
 
 
+# ------------------------------------------------------------------ 3단계 라벨 (22차 계약)
+def select_progress_combos(assigns, prog_idx, rng, k_max=4):
+    """정책독립 후보선정 (22차 — PPO 점수 top-K 금지): 전부 ≤k_max 면 전부.
+    초과 시 ①총 계획시간 최소(SF-SPT 근사·결정론) ②행동유형 서명 층화 ③무작위 잔여."""
+    if len(prog_idx) <= k_max:
+        return list(prog_idx)
+    def plan_dur(i):
+        a = assigns[i]
+        return sum((c.plan.duration_s if getattr(c, "plan", None) is not None
+                    else 0.0) for c in a.values())
+    chosen = [min(prog_idx, key=plan_dur)]
+    sigs = {tuple(sorted(assigns[chosen[0]][c].kind.name for c in assigns[chosen[0]]))}
+    for i in sorted(prog_idx):
+        if len(chosen) >= k_max:
+            break
+        sig = tuple(sorted(assigns[i][c].kind.name for c in assigns[i]))
+        if sig not in sigs and i not in chosen:
+            chosen.append(i); sigs.add(sig)
+    rest = [i for i in prog_idx if i not in chosen]
+    while len(chosen) < k_max and rest:
+        chosen.append(rest.pop(rng.randrange(len(rest))))
+    return chosen
+
+
+def lex_label(sim, dp, assigns, idx_list, policy):
+    """공동행동별 (미완 비율, backlog, v2 비용) — 사전식 비교용 (완주→backlog→비용 우선,
+    22차 ④: 비용 최솟값 선행 금지). 반사실 미래는 라벨 전용 — 정책 관측 진입 금지."""
+    out = {}
+    for i in idx_list:
+        s2 = copy.deepcopy(sim)
+        _record_prepo(s2, dp, assigns[i])
+        _apply(s2, assigns[i])
+        r = _continue_to_end(s2, policy, CandidateGenerator())
+        out[i] = (round(1.0 - r["compl"], 6), r["backlog"], r["phi"])
+    return out
+
+
 # ------------------------------------------------------------------ 2단계 계측 (파일럿)
 def _load(arm: str, ts: int):
     ck = torch.load(ARM_ROOT[arm] / f"ppo_s{ts}" / "net.pt", map_location="cpu")

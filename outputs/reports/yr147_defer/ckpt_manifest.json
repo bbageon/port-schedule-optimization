@@ -1,0 +1,32 @@
+{
+ "created": "2026-08-03",
+ "prereg_commits": {"2단계": "2369af8", "파일럿 박제": "ed7b02a"},
+ "note": "22차 감사 ⑥ — 체크포인트는 untracked 이므로 sha256 전문과 재실행 명령을 여기 박제. C 는 중복 구현군으로 종료(B 와 바이트 동일 — FORBID_WAIT 의 전략 WAIT 제외와 무trigger 제외가 같은 조건으로 귀결).",
+ "checkpoints_sha256": {
+  "A = yr145_status_gate/b2 (무기한 WAIT·YR-145 판정판)": {
+   "88000": "3588ed914b1dfbb8bbea64c50c8899e55c7c3a512fb2ee131fa3ff90318713c3",
+   "99000": "526904c17fcfa89bba63a8e4a1236e9ec081e3042cf8115371ac7ae55c78d11a",
+   "123000": "6b55a9fc504b1c6f9a940856270978b587dd092467f010ccb52c44c674b43658"
+  },
+  "B = yr147_defer/b (유한 DEFER)": {
+   "88000": "ca1d601b55c4f9334251f124a919836e06d6d5df05b4cda42c73ac884c3c2c28",
+   "99000": "3927d52562b49776c249bc8143c165298a4d2938483d7ff05d1844f74fe2ed35",
+   "123000": "cbf69be0cd8c112ccca7ecd9f22fa168773f62157c45d09634435116dcd5114b"
+  },
+  "C = yr147_defer/c (종료 — B 와 바이트 동일)": {
+   "88000": "ca1d601b55c4f9334251f124a919836e06d6d5df05b4cda42c73ac884c3c2c28",
+   "99000": "3927d52562b49776c249bc8143c165298a4d2938483d7ff05d1844f74fe2ed35",
+   "123000": "cbf69be0cd8c112ccca7ecd9f22fa168773f62157c45d09634435116dcd5114b"
+  },
+  "참고 v4-A = yr140_ppo_unitfix": {
+   "88000": "4bab938826dd7aeeb9616e0991c63754c5b72195258f2d0012d4ba850f7706cc",
+   "99000": "1d5a90a4d5d6c4d8554c7102de0440f43f11186c78022b0bc1b0977509fa16f5",
+   "123000": "c047ca76c6daf365ee8354c1bba1570d0dc678bf6706c540ff3aa5af080de01e"
+  }
+ },
+ "rerun_commands_wsl": {
+  "학습 B": "cd /mnt/c/Users/geonu/Desktop/port_reinforcement && OMP_NUM_THREADS=2 PYTHONPATH=src ~/.venvs/yard-rl/bin/python -m yard_rl.experiments.yr147_defer --train <ts> --arm b",
+  "계측": "… -m yard_rl.experiments.yr147_defer --measure <ts> --arm <a|b|c>",
+  "결정론": "같은 커밋·같은 시드에서 바이트 동일 재현 (torch.manual_seed(ts) — yr139 train_one)"
+ }
+}
