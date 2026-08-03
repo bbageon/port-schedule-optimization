@@ -175,6 +175,8 @@ class TerminalSimulator:
         # REPO 88% 실측)이 생긴다. 거절한 크레인은 다음 wake 까지 선제 전용 결정을 안 연다.
         # SERVE 주도 결정에서는 PRE 후보가 기존(YR-048)대로 계속 발행된다.
         self._eta_armed: set[str] = set()
+        # YR-147 opt-in — 유한 DEFER 만료·trigger 재개방 예약 (기본 미사용 = 골든 불변)
+        self._defer_wakes: list[float] = []
         # YR-112: 간섭 교착 탈출을 같은 시각에 두 번 열지 않기 위한 표식 (무한루프 방지)
         self._escape_at: float | None = None
         self._escape_count: int = 0
@@ -334,13 +336,25 @@ class TerminalSimulator:
             self._process_next_event()
 
     # ------------------------------------------------------ ETA wake (YR-050)
+    def schedule_defer_wake(self, t: float) -> None:
+        """YR-147: 유한 DEFER 의 만료·trigger 시각 재개방 예약 (opt-in).
+
+        기존 WAIT 계약(무기한)에서는 아무도 호출하지 않아 골든 불변. 과거·평가창 밖
+        시각은 무시(창 밖 시계 전진 금지 계약과 정합)."""
+        if t > self.clock + _EPS and t <= self.end + _EPS:
+            from bisect import insort
+            insort(self._defer_wakes, t)
+
     def _next_wake_time(self) -> float | None:
-        """미소비 wake 의 최소 시각 — PRE_ADVICE 외 정보수준에서는 항상 None(완전 비활성)."""
+        """미소비 wake 의 최소 시각 — ETA wake 는 PRE_ADVICE 한정, DEFER wake 는
+        정보수준 무관(opt-in 예약이 있을 때만 존재)."""
+        dw = self._defer_wakes[0] if self._defer_wakes else None
         if self.info_level != InformationLevel.PRE_ADVICE:
-            return None
+            return dw
         if self._wake_idx >= len(self._eta_wakes):
-            return None
-        return self._eta_wakes[self._wake_idx][0]
+            return dw
+        et = self._eta_wakes[self._wake_idx][0]
+        return et if dw is None else min(et, dw)
 
     def _consume_due_wakes(self) -> bool:
         """현재 시각 도래 wake 를 전부 소비 — 전 크레인 arm + yield 해제로 결정 평가를 연다.
@@ -348,16 +362,20 @@ class TerminalSimulator:
         wake 는 1회성(같은 시각 무한 WAIT 재결정 없음). arm 은 크레인이 결정에 한 번
         포함되면 소진 — 그 사이 바쁜 크레인은 armed 를 유지해 놓친 wake 를 유휴화 시점에
         받는다. 소비는 event_log 에 남아 PRE_ADVICE 의 event_stream_hash 에 가시화된다.
+        DEFER wake(YR-147)는 같은 소비 계약을 따르며 예약이 없으면 완전 무비용.
         """
-        if self.info_level != InformationLevel.PRE_ADVICE:
-            return False
         fired = False
-        while (self._wake_idx < len(self._eta_wakes)
-               and self._eta_wakes[self._wake_idx][0] <= self.clock + _EPS):
-            _, jid = self._eta_wakes[self._wake_idx]
-            self._wake_idx += 1
-            self.event_log.append((self.clock, "ETA_WAKE", jid))
+        while self._defer_wakes and self._defer_wakes[0] <= self.clock + _EPS:
+            self._defer_wakes.pop(0)
+            self.event_log.append((self.clock, "DEFER_WAKE", ""))
             fired = True
+        if self.info_level == InformationLevel.PRE_ADVICE:
+            while (self._wake_idx < len(self._eta_wakes)
+                   and self._eta_wakes[self._wake_idx][0] <= self.clock + _EPS):
+                _, jid = self._eta_wakes[self._wake_idx]
+                self._wake_idx += 1
+                self.event_log.append((self.clock, "ETA_WAKE", jid))
+                fired = True
         if fired:
             self._eta_armed = set(self.fleet.ids())
             self._clear_yields()

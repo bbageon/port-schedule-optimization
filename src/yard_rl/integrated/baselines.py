@@ -149,10 +149,20 @@ def _feasible_joint(sim, assign) -> bool:
     return set(proj.plans) == work
 
 
+def _untriggered_defer(g) -> bool:
+    """YR-147 C: 관측 trigger 없는 유한 DEFER — 전략 선택지에서 제외 대상 (구조 fallback 전용)."""
+    return (g.kind == CandidateKind.WAIT
+            and getattr(g, "defer_until", None) is not None
+            and getattr(g, "defer_trigger", None) is None)
+
+
 def _apply(sim, assign) -> None:
     for c in sorted(assign):
         g = assign[c]
         if g.kind == CandidateKind.WAIT:
+            du = getattr(g, "defer_until", None)
+            if du is not None:
+                sim.schedule_defer_wake(du)      # YR-147: 유한 DEFER 재개방 예약
             sim.assign(c, CraneAssignment(c, CandidateKind.WAIT))
         else:
             sim.assign(c, CraneAssignment(c, g.kind, g.job_ref))
@@ -285,6 +295,14 @@ class JointRolloutGreedy:
 
     def _admissible_combos(self, sim, dp, gen_by) -> list:
         combos = list(self._combos(dp, gen_by))
+        from . import candidates as _cand
+        if _cand.WAIT_MODE == "DEFER_TRIGGER":
+            # YR-147 C: trigger 없는 DEFER 포함 조합은 전략 선택지에서 제외 — 단 그런
+            # 조합밖에 실행가능한 것이 없으면 전체 유지 (구조적 fallback 보존,
+            # forbid_strategic_wait 와 동일 패턴).
+            trig = [c for c in combos if not any(_untriggered_defer(g) for g in c)]
+            if any(_feasible_joint(sim, dict(zip(dp.crane_ids, c))) for c in trig):
+                combos = trig
         if not self.forbid_strategic_wait:
             return combos
         full = [c for c in combos
