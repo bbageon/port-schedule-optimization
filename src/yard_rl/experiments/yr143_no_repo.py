@@ -240,6 +240,8 @@ def confirm() -> dict:
 
     def classify(scale):
         dl = {m: DELTA[m] * scale for m in DELTA}
+        if not guards["c0"]["ok"] and not guards["c1"]["ok"]:
+            return "BOTH_GUARD_FAIL(미확정 — 완주 견고성 선결)"   # 24차 사각 수리
         if not guards["c0"]["ok"]:
             return "C0_GUARD_FAIL(C1 유지)"
         if not guards["c1"]["ok"]:
