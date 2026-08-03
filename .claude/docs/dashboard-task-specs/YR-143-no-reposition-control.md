@@ -1,7 +1,8 @@
 # YR-143 — 전략적 YC 위치조정 없음 대조군: PREPOSITION 존재 가치 검증
 
 > 상태: backlog · 채택계약 정정 2026-08-02
-> 선결: **YR-145 완료 후** (YR-142 는 기각 종결 — C1 정의는 YR-145 판정판을 따름, 19차)
+> 선결: **YR-147 WAIT-WAIT 정책 최적화 완료 후** (C0/C1 모두 동일 DEFER 계약 사용)
+> 후속: YR-146 배포용 진행성 안전장치 → YR-133 판매·수용 견적
 > 근거: [상세 결정이력](../strategy-history/2026-08-02-YR-133-판매수용-실환경-설계와-YR-143-무재배치-채택계약.md)
 
 ## 질문
@@ -10,7 +11,7 @@
 `PREPOSITION`까지 있어야 실제 비용이 줄어드는가이다. 다음 두 정책만 비교한다.
 
 - **C0 `NO_PROACTIVE_POSITIONING`**: `SERVE + PRE_REHANDLE`; 전략적 YC 선제 위치조정 없음.
-- **C1 `BOUND_PREPOSITION`**: C0 + YR-142에서 판정된 작업 결속 PREPOSITION.
+- **C1 `BOUND_PREPOSITION`**: C0 + YR-145의 `PLANNED` 한정 작업 결속 PREPOSITION.
 
 “무-재배치”는 설명용 별칭이다. 두 arm 모두 컨테이너 선재조작과 교착 탈출 이동은
 유지하므로 정확한 뜻은 **전략적 빈 크레인 위치조정 없음**이다.
@@ -20,7 +21,7 @@
 - 위치조정 mode는 `UNBOUND / BOUND_PREPO / SAFETY_ONLY`로 구분한다.
 - C0는 `SAFETY_ONLY`, C1은 `BOUND_PREPO + SAFETY_ONLY`다.
 - 두 arm의 차이는 PREPOSITION 유무 하나뿐이다. 학습예산·PPO·상태·보상·후보순서·
-  초기 가중치·시나리오 순서를 같게 맞춘다.
+  초기 가중치·시나리오 순서·YR-147 DEFER 계약을 같게 맞춘다.
 - C0의 능동 REPOSITION 후보·실행은 0이어야 한다.
 - C1의 자유 REPOSITION은 0이고, PREPOSITION은 `job_id·target_bay·ETA version·expiry`에
   결속되어야 한다.
@@ -29,16 +30,18 @@ YR-142의 평생 1회 금지 구현이 그대로 C1이면 실패 결론은 “�
 없음”까지만 허용한다. lifecycle-safe C1이 확인되지 않으면 PREPOSITION 일반의 무가치를
 주장하지 않는다.
 
-## 교착 탈출은 공통 안전기능
+## 연구 판정의 교착 계약과 후속 안전기능
 
-- 진행 작업 0, feasible SERVE 0, dispatchable job 존재, 거절 이유가 크레인 간섭뿐일 때만
-  `purpose=DEADLOCK_ESCAPE` 후보를 연다.
-- 정상 상태에서는 발화 0이어야 하며 일반 REPOSITION 통계와 분리 저장한다.
-- 정책이 WAIT로 탈출을 회피하지 못하도록 안전층이 최소 실행 가능한 escape를 확정한다.
-- 동일시각 재결정·무한루프·비통과·최소간격·예약 계약은 기존과 동일하다.
+- YR-143 성능 판정에서는 `WAIT+WAIT` 하드 마스크·강제 대체를 끈다. YR-147에서 배운
+  DEFER/진행 선택이 두 arm에서 동일하게 작동해야 한다.
+- 기존 물리 충돌·비통과·최소간격 resolver는 유지한다. 정책이 종단 정지를 만들면 숨기지
+  않고 hard guard 실패로 판정한다.
+- 정상 상태의 교착 escape 후보와 계수는 두 arm에서 같고 일반 PREPOSITION 통계와 분리한다.
+- C0/C1 정책 비교가 끝난 뒤 YR-146이 두 arm 공통 배포 안전층을 guard OFF/ON으로 별도
+  검증한다. 강제 escape 이득을 PREPOSITION 또는 PPO 성능으로 합산하지 않는다.
 
-필수 테스트: 알려진 교착 seed에서 C0/C1 모두 완주, 정상 seed escape 0, C0 일반 위치조정 0,
-C1 비결속 위치조정 0, unresolved deadlock 0.
+필수 테스트: 신규 교착 seed에서 C0/C1 모두 완주, 정상 seed 불필요 escape 0, C0 일반
+위치조정 0, C1 비결속 위치조정 0, unresolved deadlock 0.
 
 ## 판정 방향
 
@@ -96,5 +99,6 @@ L_m = mean(Δ_m) - t(0.95) × SE_m
 ## Evidence
 
 2026-08-02에는 “C1이 유의하게 개선되지 않으면 제거” 문구를 철회하고, C0의 사전 정의
-비열등성 또는 우월성이 확인될 때만 제거하는 계약으로 정정했다. 구현·수치는 YR-142 종료 후
-별도 사전등록과 evidence에 기록한다.
+비열등성 또는 우월성이 확인될 때만 제거하는 계약으로 정정했다. 2026-08-03에는 사용자
+결정에 따라 `WAIT+WAIT` 강제 금지보다 YR-147 정책 최적화를 선행하고, YR-146 배포
+안전장치는 본 비교 뒤로 분리했다.
