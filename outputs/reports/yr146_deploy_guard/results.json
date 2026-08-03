@@ -1,0 +1,7110 @@
+{
+ "repro": {
+  "experiment": "YR-146 배포 안전장치 — 4군 OFF/ON 분리 검증",
+  "code": {
+   "git_head": "9f8eb651e74409930ffc0a69546570335f6b24a6",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "train": [
+    221000,
+    222000,
+    223000,
+    224000,
+    225000,
+    226000,
+    227000,
+    228000
+   ],
+   "mid-loose": [
+    910300,
+    910301,
+    910302,
+    910303
+   ],
+   "high-loose": [
+    910304,
+    910305,
+    910306,
+    910307
+   ],
+   "mid-tight": [
+    910308,
+    910309,
+    910310,
+    910311
+   ],
+   "high-tight": [
+    910312,
+    910313,
+    910314,
+    910315
+   ]
+  },
+  "params": {},
+  "prereg": "발동 3조건 한정·개입률 ≤1%·ON−OFF v2 악화 ≤1.0·ON 완주 전판·재학습 없음(YR-143 확증 ckpt)·guard 이득 학습 성과 합산 금지",
+  "band_digest": "e1c27754b2ccd4ed",
+  "cap_rate": 0.01
+ },
+ "summary": {
+  "c0:off": {
+   "n": 128,
+   "compl_min": 0.9666666666666667,
+   "n_incomplete": 4,
+   "backlog_max": 4,
+   "healthy_all": true,
+   "v2_mean": 38.72202578125,
+   "berth_mean": 94.06006468416217
+  },
+  "c0:on": {
+   "n": 128,
+   "compl_min": 1.0,
+   "n_incomplete": 0,
+   "backlog_max": 0,
+   "healthy_all": true,
+   "v2_mean": 38.38134609375,
+   "berth_mean": 92.3016338008103,
+   "joint_dec": 2966,
+   "interventions": 64,
+   "iv_rate": 0.02157788267026298,
+   "iv_by_case": {
+    "iv_reopen": 0,
+    "iv_stagnant": 64,
+    "iv_escape": 0
+   }
+  },
+  "c1:off": {
+   "n": 128,
+   "compl_min": 0.9666666666666667,
+   "n_incomplete": 3,
+   "backlog_max": 4,
+   "healthy_all": true,
+   "v2_mean": 39.8831171875,
+   "berth_mean": 94.90416582099992
+  },
+  "c1:on": {
+   "n": 128,
+   "compl_min": 1.0,
+   "n_incomplete": 0,
+   "backlog_max": 0,
+   "healthy_all": true,
+   "v2_mean": 39.45497265625,
+   "berth_mean": 93.00722447071507,
+   "joint_dec": 3039,
+   "interventions": 31,
+   "iv_rate": 0.010200723922342876,
+   "iv_by_case": {
+    "iv_reopen": 0,
+    "iv_stagnant": 31,
+    "iv_escape": 0
+   }
+  }
+ },
+ "needless_interventions": {
+  "c0": 34,
+  "c1": 18
+ },
+ "judgment": {
+  "c0": {
+   "on_completion_all": true,
+   "iv_rate_ok": false,
+   "cost_ok": true,
+   "on_minus_off_v2": -0.3406796874999998
+  },
+  "c1": {
+   "on_completion_all": true,
+   "iv_rate_ok": false,
+   "cost_ok": true,
+   "on_minus_off_v2": -0.4281445312499983
+  },
+  "success": false
+ },
+ "arms": {
+  "c0:off": {
+   "221000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.8064,
+     "v1_total": 41.625682,
+     "berth_over_min": 57.12147927709717
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.6326,
+     "v1_total": 33.832779,
+     "berth_over_min": 49.54570341735613
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 18.5004,
+     "v1_total": 20.642358000000005,
+     "berth_over_min": 21.81124589050102
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1607,
+     "v1_total": 33.91132600000001,
+     "berth_over_min": 44.60636045677126
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.5166,
+     "v1_total": 68.835172,
+     "berth_over_min": 90.19225465608318
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 77.7216,
+     "v1_total": 123.975731,
+     "berth_over_min": 147.23949438438322
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.461,
+     "v1_total": 41.924773,
+     "berth_over_min": 55.90084803236271
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6489,
+     "v1_total": 21.270966999999995,
+     "berth_over_min": 20.121127250010158
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.9575,
+     "v1_total": 66.647386,
+     "berth_over_min": 99.14185376056449
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.8091,
+     "v1_total": 78.54882500000002,
+     "berth_over_min": 124.99666088564997
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3421,
+     "v1_total": 72.330375,
+     "berth_over_min": 108.02507974755584
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.6997,
+     "v1_total": 48.652295,
+     "berth_over_min": 77.06936457789433
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 63.208,
+     "v1_total": 114.50607000000001,
+     "berth_over_min": 155.99978229222708
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.2636,
+     "v1_total": 93.93477900000002,
+     "berth_over_min": 135.62703449401673
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 76.5827,
+     "v1_total": 133.946271,
+     "berth_over_min": 166.99855444105606
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.9607,
+     "v1_total": 107.225772,
+     "berth_over_min": 156.12940340979986
+    }
+   ],
+   "222000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.1013,
+     "v1_total": 20.013107999999992,
+     "berth_over_min": 15.448112418859607
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.2224,
+     "v1_total": 40.613692,
+     "berth_over_min": 60.23241454435074
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1034,
+     "v1_total": 40.248905,
+     "berth_over_min": 55.5189855765035
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.8305,
+     "v1_total": 38.93431100000001,
+     "berth_over_min": 52.57672542294452
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.5503,
+     "v1_total": 56.93065099999999,
+     "berth_over_min": 60.699925242171595
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 0.975,
+     "backlog": 3,
+     "healthy": true,
+     "v2_total": 79.3459,
+     "v1_total": 138.44480400000003,
+     "berth_over_min": 181.80565833229625
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.5987,
+     "v1_total": 46.383893,
+     "berth_over_min": 62.001388664073964
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1663,
+     "v1_total": 23.520598,
+     "berth_over_min": 24.531807800274205
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 38.0947,
+     "v1_total": 84.27398000000001,
+     "berth_over_min": 131.65890711005625
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.7596,
+     "v1_total": 79.608523,
+     "berth_over_min": 128.30834347070459
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.8968,
+     "v1_total": 66.37725499999999,
+     "berth_over_min": 102.06272618096685
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.4096,
+     "v1_total": 47.45991199999999,
+     "berth_over_min": 74.40753826882668
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.9752,
+     "v1_total": 100.44497700000001,
+     "berth_over_min": 144.25566219423757
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.7072,
+     "v1_total": 88.737323,
+     "berth_over_min": 129.2014075563235
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 64.4249,
+     "v1_total": 123.28009099999998,
+     "berth_over_min": 172.716668441933
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.4431,
+     "v1_total": 114.39632,
+     "berth_over_min": 165.20566696298664
+    }
+   ],
+   "223000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.2059,
+     "v1_total": 23.252790999999995,
+     "berth_over_min": 23.59177142269109
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.7413,
+     "v1_total": 35.68563000000001,
+     "berth_over_min": 51.28742412289469
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 17.8294,
+     "v1_total": 17.42560200000001,
+     "berth_over_min": 15.155840398802441
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6542,
+     "v1_total": 27.087967999999996,
+     "berth_over_min": 28.195647588606636
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 41.6854,
+     "v1_total": 55.336617,
+     "berth_over_min": 59.688536023007146
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 75.2528,
+     "v1_total": 117.73826400000002,
+     "berth_over_min": 137.37519859939275
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2122,
+     "v1_total": 42.345026000000004,
+     "berth_over_min": 55.210495722100525
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.7329,
+     "v1_total": 32.743877999999995,
+     "berth_over_min": 39.13044459301552
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.2819,
+     "v1_total": 77.57991700000001,
+     "berth_over_min": 122.12826894137524
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.8088,
+     "v1_total": 72.90355399999999,
+     "berth_over_min": 113.5894907616752
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.6219,
+     "v1_total": 71.200853,
+     "berth_over_min": 106.97833006684063
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.8442,
+     "v1_total": 44.664821999999994,
+     "berth_over_min": 68.76001905009699
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 51.7653,
+     "v1_total": 92.545948,
+     "berth_over_min": 129.77843516623952
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 45.1143,
+     "v1_total": 91.07296399999998,
+     "berth_over_min": 139.4632537306624
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.4398,
+     "v1_total": 114.583865,
+     "berth_over_min": 166.45837658641597
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 52.3995,
+     "v1_total": 82.23631200000001,
+     "berth_over_min": 98.74321564451536
+    }
+   ],
+   "224000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.9387,
+     "v1_total": 43.476704,
+     "berth_over_min": 58.88788548905768
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.8807,
+     "v1_total": 42.961661,
+     "berth_over_min": 64.61182880174562
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.108,
+     "v1_total": 28.539287,
+     "berth_over_min": 35.20997101614936
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.8431,
+     "v1_total": 31.053542999999994,
+     "berth_over_min": 37.68477888751416
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.2124,
+     "v1_total": 61.54710300000001,
+     "berth_over_min": 74.88425590445249
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 0.9666666666666667,
+     "backlog": 4,
+     "healthy": true,
+     "v2_total": 73.9275,
+     "v1_total": 132.31088699999998,
+     "berth_over_min": 181.80565833229625
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.1994,
+     "v1_total": 46.361762999999996,
+     "berth_over_min": 60.0998786872884
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.4719,
+     "v1_total": 27.257057999999994,
+     "berth_over_min": 25.38915022493123
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.5919,
+     "v1_total": 81.652137,
+     "berth_over_min": 129.41837594887178
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7711,
+     "v1_total": 79.02971999999998,
+     "berth_over_min": 122.78738799166722
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.3054,
+     "v1_total": 70.69233200000001,
+     "berth_over_min": 108.55413113034135
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.0522,
+     "v1_total": 49.02460399999999,
+     "berth_over_min": 76.6532796905272
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.3313,
+     "v1_total": 98.561039,
+     "berth_over_min": 138.18246002065445
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 48.5701,
+     "v1_total": 97.19113899999999,
+     "berth_over_min": 146.10110218239475
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 0.9722222222222222,
+     "backlog": 3,
+     "healthy": true,
+     "v2_total": 69.7809,
+     "v1_total": 158.280907,
+     "berth_over_min": 252.00000000000003
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.5568,
+     "v1_total": 89.98925799999999,
+     "berth_over_min": 116.56155680816825
+    }
+   ],
+   "225000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.3172,
+     "v1_total": 35.13219,
+     "berth_over_min": 44.40207474325304
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.3791,
+     "v1_total": 22.736357,
+     "berth_over_min": 29.176729373659814
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1425,
+     "v1_total": 36.492720000000006,
+     "berth_over_min": 44.71735503092468
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.8098,
+     "v1_total": 56.20745600000001,
+     "berth_over_min": 81.9847511159033
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 39.6316,
+     "v1_total": 54.801467,
+     "berth_over_min": 63.45093438163306
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 74.2921,
+     "v1_total": 117.428652,
+     "berth_over_min": 139.24622432285244
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.633,
+     "v1_total": 48.380599999999994,
+     "berth_over_min": 64.48122191387772
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.1049,
+     "v1_total": 30.91579099999999,
+     "berth_over_min": 30.530458960831613
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2699,
+     "v1_total": 69.24789599999997,
+     "berth_over_min": 108.01022025503434
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7439,
+     "v1_total": 81.017632,
+     "berth_over_min": 129.21282148590538
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4327,
+     "v1_total": 76.26584000000001,
+     "berth_over_min": 118.19570360799132
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.1514,
+     "v1_total": 46.55634399999999,
+     "berth_over_min": 73.0452109065862
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.3626,
+     "v1_total": 98.93186499999999,
+     "berth_over_min": 141.71747699648512
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.1339,
+     "v1_total": 81.174734,
+     "berth_over_min": 116.45469567791355
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 66.3789,
+     "v1_total": 124.29845900000001,
+     "berth_over_min": 169.6112037417668
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 73.0277,
+     "v1_total": 129.378664,
+     "berth_over_min": 167.75911488660884
+    }
+   ],
+   "226000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3378,
+     "v1_total": 22.10294499999999,
+     "berth_over_min": 20.306321050015626
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2749,
+     "v1_total": 36.678793000000006,
+     "berth_over_min": 55.09351521458881
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.7566,
+     "v1_total": 25.577886,
+     "berth_over_min": 28.36293515666269
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6921,
+     "v1_total": 31.595641999999994,
+     "berth_over_min": 39.815033828418805
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.2431,
+     "v1_total": 69.11561900000001,
+     "berth_over_min": 88.4003818194385
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.7034,
+     "v1_total": 119.74948800000001,
+     "berth_over_min": 153.2148776927288
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2783,
+     "v1_total": 45.28862600000001,
+     "berth_over_min": 60.307631992580745
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.7724,
+     "v1_total": 20.546148,
+     "berth_over_min": 12.12961803285119
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.7937,
+     "v1_total": 82.449922,
+     "berth_over_min": 129.90271944524687
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3999,
+     "v1_total": 79.22039499999998,
+     "berth_over_min": 125.39210046724396
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.1584,
+     "v1_total": 75.791908,
+     "berth_over_min": 120.65079720019354
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.0576,
+     "v1_total": 48.01796699999999,
+     "berth_over_min": 74.77534518481993
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.7005,
+     "v1_total": 100.65652299999999,
+     "berth_over_min": 140.18968438166667
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 48.8857,
+     "v1_total": 87.512939,
+     "berth_over_min": 119.54104783795805
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.9208,
+     "v1_total": 111.10293499999999,
+     "berth_over_min": 166.7977405335278
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.9833,
+     "v1_total": 109.16766500000001,
+     "berth_over_min": 152.3521010021942
+    }
+   ],
+   "227000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.5279,
+     "v1_total": 17.137373999999994,
+     "berth_over_min": 12.459570477536364
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 17.9392,
+     "v1_total": 16.976123000000005,
+     "berth_over_min": 18.02320173088965
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 18.2653,
+     "v1_total": 14.981729000000003,
+     "berth_over_min": 7.330720426129301
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1493,
+     "v1_total": 31.620119999999993,
+     "berth_over_min": 38.388948954712
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.8105,
+     "v1_total": 74.859015,
+     "berth_over_min": 96.62148291594683
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 72.9421,
+     "v1_total": 117.853733,
+     "berth_over_min": 143.7114360274788
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.4965,
+     "v1_total": 34.809027,
+     "berth_over_min": 42.73636527374201
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.5553,
+     "v1_total": 39.32688,
+     "berth_over_min": 43.336180544484186
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.4572,
+     "v1_total": 65.52879899999999,
+     "berth_over_min": 103.4659294006251
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2573,
+     "v1_total": 72.63618500000001,
+     "berth_over_min": 114.3277020821731
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.6856,
+     "v1_total": 65.484256,
+     "berth_over_min": 100.62435677247012
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.878,
+     "v1_total": 48.30916299999999,
+     "berth_over_min": 75.479261212917
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.8855,
+     "v1_total": 106.170175,
+     "berth_over_min": 145.9611634713768
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.1167,
+     "v1_total": 95.52230899999999,
+     "berth_over_min": 140.8373950964145
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 67.5713,
+     "v1_total": 128.662686,
+     "berth_over_min": 178.77594512107714
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.6318,
+     "v1_total": 113.83251200000001,
+     "berth_over_min": 162.96022075307218
+    }
+   ],
+   "228000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.9343,
+     "v1_total": 43.553171,
+     "berth_over_min": 59.094552155724344
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.8316,
+     "v1_total": 46.03328799999999,
+     "berth_over_min": 72.77089968297166
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.6133,
+     "v1_total": 39.557551000000004,
+     "berth_over_min": 51.60346561691046
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6483,
+     "v1_total": 34.035955,
+     "berth_over_min": 46.27419251296542
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.2083,
+     "v1_total": 60.952015,
+     "berth_over_min": 72.48997287416681
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 0.9833333333333333,
+     "backlog": 2,
+     "healthy": true,
+     "v2_total": 85.5334,
+     "v1_total": 145.294799,
+     "berth_over_min": 181.80565833229625
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.5864,
+     "v1_total": 46.38848300000001,
+     "berth_over_min": 59.02521185923369
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.4071,
+     "v1_total": 25.323979,
+     "berth_over_min": 25.866205474786632
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.8539,
+     "v1_total": 83.20608700000001,
+     "berth_over_min": 132.17062371387817
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2118,
+     "v1_total": 72.33759500000001,
+     "berth_over_min": 113.79615742834189
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.5115,
+     "v1_total": 69.154363,
+     "berth_over_min": 104.4521778474752
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.7512,
+     "v1_total": 46.493573000000005,
+     "berth_over_min": 73.99002797752497
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.1707,
+     "v1_total": 93.932688,
+     "berth_over_min": 129.85926691965267
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.0599,
+     "v1_total": 88.781818,
+     "berth_over_min": 131.22290680545171
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.8672,
+     "v1_total": 117.51849200000001,
+     "berth_over_min": 173.51928335525375
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.2585,
+     "v1_total": 87.26168700000001,
+     "berth_over_min": 121.95511381848436
+    }
+   ]
+  },
+  "c0:on": {
+   "221000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.8064,
+     "v1_total": 41.625682,
+     "berth_over_min": 57.12147927709717,
+     "guard": {
+      "dec": 122,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.14,
+     "v1_total": 24.904487999999994,
+     "berth_over_min": 32.826057823486344,
+     "guard": {
+      "dec": 122,
+      "joint": 32,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 18.5004,
+     "v1_total": 20.642358000000005,
+     "berth_over_min": 21.81124589050102,
+     "guard": {
+      "dec": 120,
+      "joint": 31,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.314,
+     "v1_total": 36.84152299999998,
+     "berth_over_min": 46.37273579208086,
+     "guard": {
+      "dec": 148,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.4788,
+     "v1_total": 68.802803,
+     "berth_over_min": 90.19225465608318,
+     "guard": {
+      "dec": 148,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 3,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 77.7216,
+     "v1_total": 123.975731,
+     "berth_over_min": 147.23949438438322,
+     "guard": {
+      "dec": 158,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.3639,
+     "v1_total": 34.897552000000005,
+     "berth_over_min": 43.17494764922094,
+     "guard": {
+      "dec": 140,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6489,
+     "v1_total": 21.270966999999995,
+     "berth_over_min": 20.121127250010158,
+     "guard": {
+      "dec": 135,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.751,
+     "v1_total": 77.840141,
+     "berth_over_min": 121.33375704619932,
+     "guard": {
+      "dec": 122,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.8091,
+     "v1_total": 78.54882500000002,
+     "berth_over_min": 124.99666088564997,
+     "guard": {
+      "dec": 127,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.1983,
+     "v1_total": 70.711486,
+     "berth_over_min": 110.65154376976403,
+     "guard": {
+      "dec": 114,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.6108,
+     "v1_total": 48.56073000000001,
+     "berth_over_min": 77.06936457789433,
+     "guard": {
+      "dec": 104,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 63.208,
+     "v1_total": 114.50607000000001,
+     "berth_over_min": 155.99978229222708,
+     "guard": {
+      "dec": 150,
+      "joint": 15,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.2636,
+     "v1_total": 93.93477900000002,
+     "berth_over_min": 135.62703449401673,
+     "guard": {
+      "dec": 148,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 76.5827,
+     "v1_total": 133.946271,
+     "berth_over_min": 166.99855444105606,
+     "guard": {
+      "dec": 162,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.9607,
+     "v1_total": 107.225772,
+     "berth_over_min": 156.12940340979986,
+     "guard": {
+      "dec": 136,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "222000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.1013,
+     "v1_total": 20.013107999999992,
+     "berth_over_min": 15.448112418859607,
+     "guard": {
+      "dec": 123,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.0367,
+     "v1_total": 31.704509,
+     "berth_over_min": 45.48346868773412,
+     "guard": {
+      "dec": 124,
+      "joint": 42,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.2797,
+     "v1_total": 37.550295,
+     "berth_over_min": 50.62556156823348,
+     "guard": {
+      "dec": 131,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.8317,
+     "v1_total": 35.900496,
+     "berth_over_min": 47.263130397656795,
+     "guard": {
+      "dec": 142,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.1196,
+     "v1_total": 74.1844,
+     "berth_over_min": 95.9862023813798,
+     "guard": {
+      "dec": 154,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 3,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 72.9208,
+     "v1_total": 117.50297800000001,
+     "berth_over_min": 143.25536941676188,
+     "guard": {
+      "dec": 157,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.5987,
+     "v1_total": 46.383893,
+     "berth_over_min": 62.001388664073964,
+     "guard": {
+      "dec": 135,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1663,
+     "v1_total": 23.520598,
+     "berth_over_min": 24.531807800274205,
+     "guard": {
+      "dec": 144,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 38.0947,
+     "v1_total": 84.27398000000001,
+     "berth_over_min": 131.65890711005625,
+     "guard": {
+      "dec": 123,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.7596,
+     "v1_total": 79.608523,
+     "berth_over_min": 128.30834347070459,
+     "guard": {
+      "dec": 129,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.8968,
+     "v1_total": 66.37725499999999,
+     "berth_over_min": 102.06272618096685,
+     "guard": {
+      "dec": 120,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.4096,
+     "v1_total": 47.45991199999999,
+     "berth_over_min": 74.40753826882668,
+     "guard": {
+      "dec": 107,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.9752,
+     "v1_total": 100.44497700000001,
+     "berth_over_min": 144.25566219423757,
+     "guard": {
+      "dec": 150,
+      "joint": 14,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.7072,
+     "v1_total": 88.737323,
+     "berth_over_min": 129.2014075563235,
+     "guard": {
+      "dec": 147,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 64.4249,
+     "v1_total": 123.28009099999998,
+     "berth_over_min": 172.716668441933,
+     "guard": {
+      "dec": 142,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.4431,
+     "v1_total": 114.39632,
+     "berth_over_min": 165.20566696298664,
+     "guard": {
+      "dec": 145,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "223000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.2059,
+     "v1_total": 23.252790999999995,
+     "berth_over_min": 23.59177142269109,
+     "guard": {
+      "dec": 126,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 17.6345,
+     "v1_total": 16.943258999999994,
+     "berth_over_min": 18.61615945028822,
+     "guard": {
+      "dec": 120,
+      "joint": 38,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 17.8294,
+     "v1_total": 17.42560200000001,
+     "berth_over_min": 15.155840398802441,
+     "guard": {
+      "dec": 122,
+      "joint": 30,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6542,
+     "v1_total": 27.087967999999996,
+     "berth_over_min": 28.195647588606636,
+     "guard": {
+      "dec": 151,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 41.6477,
+     "v1_total": 55.304247000000004,
+     "berth_over_min": 59.688536023007146,
+     "guard": {
+      "dec": 157,
+      "joint": 14,
+      "iv_reopen": 0,
+      "iv_stagnant": 3,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 75.2528,
+     "v1_total": 117.73826400000002,
+     "berth_over_min": 137.37519859939275,
+     "guard": {
+      "dec": 163,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2122,
+     "v1_total": 42.345026000000004,
+     "berth_over_min": 55.210495722100525,
+     "guard": {
+      "dec": 143,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.7329,
+     "v1_total": 32.743877999999995,
+     "berth_over_min": 39.13044459301552,
+     "guard": {
+      "dec": 141,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.2819,
+     "v1_total": 77.57991700000001,
+     "berth_over_min": 122.12826894137524,
+     "guard": {
+      "dec": 121,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.8531,
+     "v1_total": 64.977568,
+     "berth_over_min": 98.0076788204236,
+     "guard": {
+      "dec": 125,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.1539,
+     "v1_total": 75.19726500000002,
+     "berth_over_min": 119.46224949277664,
+     "guard": {
+      "dec": 124,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.7828,
+     "v1_total": 44.61430699999998,
+     "berth_over_min": 68.76001905009699,
+     "guard": {
+      "dec": 101,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 51.7653,
+     "v1_total": 92.545948,
+     "berth_over_min": 129.77843516623952,
+     "guard": {
+      "dec": 148,
+      "joint": 12,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 45.1143,
+     "v1_total": 91.07296399999998,
+     "berth_over_min": 139.4632537306624,
+     "guard": {
+      "dec": 160,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.4398,
+     "v1_total": 114.583865,
+     "berth_over_min": 166.45837658641597,
+     "guard": {
+      "dec": 149,
+      "joint": 14,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 52.3995,
+     "v1_total": 82.23631200000001,
+     "berth_over_min": 98.74321564451536,
+     "guard": {
+      "dec": 141,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "224000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.9387,
+     "v1_total": 43.476704,
+     "berth_over_min": 58.88788548905768,
+     "guard": {
+      "dec": 134,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2168,
+     "v1_total": 36.39575599999999,
+     "berth_over_min": 54.081440130276405,
+     "guard": {
+      "dec": 116,
+      "joint": 37,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.108,
+     "v1_total": 28.539287,
+     "berth_over_min": 35.20997101614936,
+     "guard": {
+      "dec": 124,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.8431,
+     "v1_total": 31.053542999999994,
+     "berth_over_min": 37.68477888751416,
+     "guard": {
+      "dec": 147,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 41.5644,
+     "v1_total": 55.20078199999999,
+     "berth_over_min": 58.87409947216426,
+     "guard": {
+      "dec": 153,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 67.5692,
+     "v1_total": 111.850189,
+     "berth_over_min": 143.65590421880535,
+     "guard": {
+      "dec": 155,
+      "joint": 30,
+      "iv_reopen": 0,
+      "iv_stagnant": 4,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.1994,
+     "v1_total": 46.361762999999996,
+     "berth_over_min": 60.0998786872884,
+     "guard": {
+      "dec": 148,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.0855,
+     "v1_total": 25.691084999999998,
+     "berth_over_min": 22.20825043258592,
+     "guard": {
+      "dec": 136,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.1911,
+     "v1_total": 72.10206699999999,
+     "berth_over_min": 110.3462491257436,
+     "guard": {
+      "dec": 120,
+      "joint": 31,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7711,
+     "v1_total": 79.02971999999998,
+     "berth_over_min": 122.78738799166722,
+     "guard": {
+      "dec": 129,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.3054,
+     "v1_total": 70.69233200000001,
+     "berth_over_min": 108.55413113034135,
+     "guard": {
+      "dec": 114,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9909,
+     "v1_total": 48.974088999999985,
+     "berth_over_min": 76.6532796905272,
+     "guard": {
+      "dec": 103,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.3313,
+     "v1_total": 98.561039,
+     "berth_over_min": 138.18246002065445,
+     "guard": {
+      "dec": 154,
+      "joint": 12,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 48.5701,
+     "v1_total": 97.19113899999999,
+     "berth_over_min": 146.10110218239475,
+     "guard": {
+      "dec": 158,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.9333,
+     "v1_total": 126.116184,
+     "berth_over_min": 192.9141403286678,
+     "guard": {
+      "dec": 139,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.5568,
+     "v1_total": 89.98925799999999,
+     "berth_over_min": 116.56155680816825,
+     "guard": {
+      "dec": 144,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "225000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.3172,
+     "v1_total": 35.13219,
+     "berth_over_min": 44.40207474325304,
+     "guard": {
+      "dec": 118,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.3791,
+     "v1_total": 22.736357,
+     "berth_over_min": 29.176729373659814,
+     "guard": {
+      "dec": 124,
+      "joint": 35,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1425,
+     "v1_total": 36.492720000000006,
+     "berth_over_min": 44.71735503092468,
+     "guard": {
+      "dec": 119,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.8098,
+     "v1_total": 56.20745600000001,
+     "berth_over_min": 81.9847511159033,
+     "guard": {
+      "dec": 147,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 39.6316,
+     "v1_total": 54.801467,
+     "berth_over_min": 63.45093438163306,
+     "guard": {
+      "dec": 149,
+      "joint": 12,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 74.2921,
+     "v1_total": 117.428652,
+     "berth_over_min": 139.24622432285244,
+     "guard": {
+      "dec": 152,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.633,
+     "v1_total": 48.380599999999994,
+     "berth_over_min": 64.48122191387772,
+     "guard": {
+      "dec": 143,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.1049,
+     "v1_total": 30.91579099999999,
+     "berth_over_min": 30.530458960831613,
+     "guard": {
+      "dec": 142,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2699,
+     "v1_total": 69.24789599999997,
+     "berth_over_min": 108.01022025503434,
+     "guard": {
+      "dec": 115,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7439,
+     "v1_total": 81.017632,
+     "berth_over_min": 129.21282148590538,
+     "guard": {
+      "dec": 121,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4327,
+     "v1_total": 76.26584000000001,
+     "berth_over_min": 118.19570360799132,
+     "guard": {
+      "dec": 116,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.1514,
+     "v1_total": 46.55634399999999,
+     "berth_over_min": 73.0452109065862,
+     "guard": {
+      "dec": 97,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.3626,
+     "v1_total": 98.93186499999999,
+     "berth_over_min": 141.71747699648512,
+     "guard": {
+      "dec": 144,
+      "joint": 10,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.1339,
+     "v1_total": 81.174734,
+     "berth_over_min": 116.45469567791355,
+     "guard": {
+      "dec": 152,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 66.3789,
+     "v1_total": 124.29845900000001,
+     "berth_over_min": 169.6112037417668,
+     "guard": {
+      "dec": 150,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 73.0277,
+     "v1_total": 129.378664,
+     "berth_over_min": 167.75911488660884,
+     "guard": {
+      "dec": 169,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "226000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3378,
+     "v1_total": 22.10294499999999,
+     "berth_over_min": 20.306321050015626,
+     "guard": {
+      "dec": 118,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2731,
+     "v1_total": 36.67701100000001,
+     "berth_over_min": 55.09351521458881,
+     "guard": {
+      "dec": 120,
+      "joint": 37,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.7566,
+     "v1_total": 25.577886,
+     "berth_over_min": 28.36293515666269,
+     "guard": {
+      "dec": 122,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.6921,
+     "v1_total": 31.595641999999994,
+     "berth_over_min": 39.815033828418805,
+     "guard": {
+      "dec": 142,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.2057,
+     "v1_total": 69.07819800000001,
+     "berth_over_min": 88.4003818194385,
+     "guard": {
+      "dec": 152,
+      "joint": 15,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.7034,
+     "v1_total": 119.74948800000001,
+     "berth_over_min": 153.2148776927288,
+     "guard": {
+      "dec": 157,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2783,
+     "v1_total": 45.28862600000001,
+     "berth_over_min": 60.307631992580745,
+     "guard": {
+      "dec": 148,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.7724,
+     "v1_total": 20.546148,
+     "berth_over_min": 12.12961803285119,
+     "guard": {
+      "dec": 137,
+      "joint": 33,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.7937,
+     "v1_total": 82.449922,
+     "berth_over_min": 129.90271944524687,
+     "guard": {
+      "dec": 124,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3999,
+     "v1_total": 79.22039499999998,
+     "berth_over_min": 125.39210046724396,
+     "guard": {
+      "dec": 135,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.1584,
+     "v1_total": 75.791908,
+     "berth_over_min": 120.65079720019354,
+     "guard": {
+      "dec": 107,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9558,
+     "v1_total": 47.92696499999999,
+     "berth_over_min": 74.77534518481993,
+     "guard": {
+      "dec": 110,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.7005,
+     "v1_total": 100.65652299999999,
+     "berth_over_min": 140.18968438166667,
+     "guard": {
+      "dec": 139,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 48.8857,
+     "v1_total": 87.512939,
+     "berth_over_min": 119.54104783795805,
+     "guard": {
+      "dec": 150,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.9208,
+     "v1_total": 111.10293499999999,
+     "berth_over_min": 166.7977405335278,
+     "guard": {
+      "dec": 138,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.9833,
+     "v1_total": 109.16766500000001,
+     "berth_over_min": 152.3521010021942,
+     "guard": {
+      "dec": 137,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "227000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.5279,
+     "v1_total": 17.137373999999994,
+     "berth_over_min": 12.459570477536364,
+     "guard": {
+      "dec": 122,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 17.9392,
+     "v1_total": 16.976123000000005,
+     "berth_over_min": 18.02320173088965,
+     "guard": {
+      "dec": 127,
+      "joint": 33,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.5598,
+     "v1_total": 25.535929,
+     "berth_over_min": 28.689486422656167,
+     "guard": {
+      "dec": 120,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.1493,
+     "v1_total": 31.620119999999993,
+     "berth_over_min": 38.388948954712,
+     "guard": {
+      "dec": 153,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.7727,
+     "v1_total": 74.82664299999999,
+     "berth_over_min": 96.62148291594683,
+     "guard": {
+      "dec": 154,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 3,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 72.9421,
+     "v1_total": 117.853733,
+     "berth_over_min": 143.7114360274788,
+     "guard": {
+      "dec": 164,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.4965,
+     "v1_total": 34.809027,
+     "berth_over_min": 42.73636527374201,
+     "guard": {
+      "dec": 136,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.5553,
+     "v1_total": 39.32688,
+     "berth_over_min": 43.336180544484186,
+     "guard": {
+      "dec": 140,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.4572,
+     "v1_total": 65.52879899999999,
+     "berth_over_min": 103.4659294006251,
+     "guard": {
+      "dec": 123,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2573,
+     "v1_total": 72.63618500000001,
+     "berth_over_min": 114.3277020821731,
+     "guard": {
+      "dec": 123,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.6856,
+     "v1_total": 65.484256,
+     "berth_over_min": 100.62435677247012,
+     "guard": {
+      "dec": 121,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.8764,
+     "v1_total": 48.30761499999999,
+     "berth_over_min": 75.479261212917,
+     "guard": {
+      "dec": 102,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.8855,
+     "v1_total": 106.170175,
+     "berth_over_min": 145.9611634713768,
+     "guard": {
+      "dec": 146,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.1167,
+     "v1_total": 95.52230899999999,
+     "berth_over_min": 140.8373950964145,
+     "guard": {
+      "dec": 162,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 67.5713,
+     "v1_total": 128.662686,
+     "berth_over_min": 178.77594512107714,
+     "guard": {
+      "dec": 149,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.6318,
+     "v1_total": 113.83251200000001,
+     "berth_over_min": 162.96022075307218,
+     "guard": {
+      "dec": 148,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "228000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.9343,
+     "v1_total": 43.553171,
+     "berth_over_min": 59.094552155724344,
+     "guard": {
+      "dec": 142,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.5338,
+     "v1_total": 41.215847,
+     "berth_over_min": 63.466540438088124,
+     "guard": {
+      "dec": 131,
+      "joint": 48,
+      "iv_reopen": 0,
+      "iv_stagnant": 4,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.8816,
+     "v1_total": 40.250918000000006,
+     "berth_over_min": 52.71005666613992,
+     "guard": {
+      "dec": 132,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.8547,
+     "v1_total": 40.44590900000002,
+     "berth_over_min": 57.4600766259623,
+     "guard": {
+      "dec": 136,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.2083,
+     "v1_total": 60.952015,
+     "berth_over_min": 72.48997287416681,
+     "guard": {
+      "dec": 157,
+      "joint": 14,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 79.4336,
+     "v1_total": 125.444469,
+     "berth_over_min": 145.20707937505514,
+     "guard": {
+      "dec": 163,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 3,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.6011,
+     "v1_total": 46.423031,
+     "berth_over_min": 59.07687852590037,
+     "guard": {
+      "dec": 152,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.3691,
+     "v1_total": 25.285966000000002,
+     "berth_over_min": 25.866205474786632,
+     "guard": {
+      "dec": 140,
+      "joint": 30,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.8539,
+     "v1_total": 83.20608700000001,
+     "berth_over_min": 132.17062371387817,
+     "guard": {
+      "dec": 120,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2118,
+     "v1_total": 72.33759500000001,
+     "berth_over_min": 113.79615742834189,
+     "guard": {
+      "dec": 129,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.5115,
+     "v1_total": 69.154363,
+     "berth_over_min": 104.4521778474752,
+     "guard": {
+      "dec": 115,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.7496,
+     "v1_total": 46.492025,
+     "berth_over_min": 73.99002797752497,
+     "guard": {
+      "dec": 101,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.1707,
+     "v1_total": 93.932688,
+     "berth_over_min": 129.85926691965267,
+     "guard": {
+      "dec": 148,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.0599,
+     "v1_total": 88.781818,
+     "berth_over_min": 131.22290680545171,
+     "guard": {
+      "dec": 144,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.8672,
+     "v1_total": 117.51849200000001,
+     "berth_over_min": 173.51928335525375,
+     "guard": {
+      "dec": 144,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.2585,
+     "v1_total": 87.26168700000001,
+     "berth_over_min": 121.95511381848436,
+     "guard": {
+      "dec": 148,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ]
+  },
+  "c1:off": {
+   "221000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.2481,
+     "v1_total": 35.937347,
+     "berth_over_min": 48.99297495051872
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.127,
+     "v1_total": 35.503755,
+     "berth_over_min": 51.99143507410348
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.1976,
+     "v1_total": 21.523711000000006,
+     "berth_over_min": 21.823718051718274
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.6568,
+     "v1_total": 37.17264600000001,
+     "berth_over_min": 48.039484747173965
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.8463,
+     "v1_total": 68.75335199999999,
+     "berth_over_min": 86.78151220336919
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 68.0455,
+     "v1_total": 109.778515,
+     "berth_over_min": 136.97621446110514
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7618,
+     "v1_total": 48.095279000000005,
+     "berth_over_min": 63.06156588101548
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.798,
+     "v1_total": 37.707885000000005,
+     "berth_over_min": 45.947845354042634
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2293,
+     "v1_total": 63.35578500000001,
+     "berth_over_min": 92.52324236517258
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.4139,
+     "v1_total": 73.705073,
+     "berth_over_min": 116.09263981138116
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.0563,
+     "v1_total": 79.20926200000001,
+     "berth_over_min": 121.80088100326708
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9764,
+     "v1_total": 50.40285399999999,
+     "berth_over_min": 80.87962484465639
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.6038,
+     "v1_total": 106.38256800000002,
+     "berth_over_min": 152.37933476480836
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 50.1289,
+     "v1_total": 91.071194,
+     "berth_over_min": 125.8439318575745
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 60.1397,
+     "v1_total": 115.43751500000002,
+     "berth_over_min": 163.7183702900584
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 52.6457,
+     "v1_total": 86.68704199999999,
+     "berth_over_min": 110.87465685766922
+    }
+   ],
+   "222000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.1561,
+     "v1_total": 36.649111,
+     "berth_over_min": 45.13507834943951
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.0203,
+     "v1_total": 40.879585,
+     "berth_over_min": 60.66235644366122
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.3822,
+     "v1_total": 24.930224,
+     "berth_over_min": 27.475395933858575
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.0573,
+     "v1_total": 31.588112999999996,
+     "berth_over_min": 36.1373101835917
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.0631,
+     "v1_total": 60.862128,
+     "berth_over_min": 71.03510475453407
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 84.1163,
+     "v1_total": 132.313644,
+     "berth_over_min": 151.37513266993557
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4424,
+     "v1_total": 47.928304,
+     "berth_over_min": 63.37855129915803
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.0493,
+     "v1_total": 39.849562,
+     "berth_over_min": 42.68801962494399
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2253,
+     "v1_total": 68.196459,
+     "berth_over_min": 107.27441048493016
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.8769,
+     "v1_total": 81.290762,
+     "berth_over_min": 127.26325675413449
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4975,
+     "v1_total": 76.108867,
+     "berth_over_min": 117.5503281509755
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3671,
+     "v1_total": 54.82197299999999,
+     "berth_over_min": 88.75187971207255
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.8341,
+     "v1_total": 102.78229400000002,
+     "berth_over_min": 142.5912512746974
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.3406,
+     "v1_total": 100.60653400000001,
+     "berth_over_min": 136.17955159990325
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 66.573,
+     "v1_total": 127.42248600000002,
+     "berth_over_min": 177.73841978779046
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.4684,
+     "v1_total": 90.82546999999998,
+     "berth_over_min": 116.8556538059143
+    }
+   ],
+   "223000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.7979,
+     "v1_total": 44.93273000000001,
+     "berth_over_min": 60.107601210203875
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2434,
+     "v1_total": 34.98703899999999,
+     "berth_over_min": 50.01296685289323
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.1478,
+     "v1_total": 25.033745999999994,
+     "berth_over_min": 28.435449382266142
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.9279,
+     "v1_total": 26.261085000000005,
+     "berth_over_min": 29.822539312310923
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.9346,
+     "v1_total": 71.753965,
+     "berth_over_min": 88.04512134159977
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 80.5517,
+     "v1_total": 126.83724000000001,
+     "berth_over_min": 147.79110654822762
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2773,
+     "v1_total": 41.04807400000001,
+     "berth_over_min": 50.52949822997404
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.4696,
+     "v1_total": 35.16550900000001,
+     "berth_over_min": 39.70218603092641
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 37.1857,
+     "v1_total": 83.524638,
+     "berth_over_min": 132.3603379068925
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.9248,
+     "v1_total": 73.62018299999998,
+     "berth_over_min": 114.57415110042457
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.0685,
+     "v1_total": 66.71265600000001,
+     "berth_over_min": 103.02921208871297
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.913,
+     "v1_total": 45.68721899999999,
+     "berth_over_min": 70.9840586903806
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.6796,
+     "v1_total": 97.86549399999998,
+     "berth_over_min": 135.26127282355677
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.4958,
+     "v1_total": 90.81698900000002,
+     "berth_over_min": 134.3310987173845
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.909,
+     "v1_total": 115.640736,
+     "berth_over_min": 168.06330539891044
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.4135,
+     "v1_total": 103.20748900000001,
+     "berth_over_min": 137.75734531812876
+    }
+   ],
+   "224000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.194,
+     "v1_total": 31.016481000000002,
+     "berth_over_min": 38.855227079501155
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.1211,
+     "v1_total": 33.101273,
+     "berth_over_min": 48.33415182396217
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.7771,
+     "v1_total": 25.131746,
+     "berth_over_min": 29.44914957719002
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.4905,
+     "v1_total": 36.831908999999996,
+     "berth_over_min": 48.39611884903034
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 45.6323,
+     "v1_total": 71.6791,
+     "berth_over_min": 92.37122363228598
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 70.6723,
+     "v1_total": 118.81783800000001,
+     "berth_over_min": 153.4492537592154
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2809,
+     "v1_total": 36.867965,
+     "berth_over_min": 40.464443045305806
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.6916,
+     "v1_total": 28.873619,
+     "berth_over_min": 26.366942191287276
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.9231,
+     "v1_total": 65.015136,
+     "berth_over_min": 100.66320218853052
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3171,
+     "v1_total": 74.20415100000001,
+     "berth_over_min": 113.02552686907693
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.1109,
+     "v1_total": 71.93421299999999,
+     "berth_over_min": 113.32150152262302
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9996,
+     "v1_total": 49.811953,
+     "berth_over_min": 79.08814123216534
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 60.1908,
+     "v1_total": 104.98814300000002,
+     "berth_over_min": 139.38809281201702
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.0739,
+     "v1_total": 94.33216200000001,
+     "berth_over_min": 137.00501135063996
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 57.2489,
+     "v1_total": 111.96250400000001,
+     "berth_over_min": 162.73578796594117
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.2487,
+     "v1_total": 90.45370400000002,
+     "berth_over_min": 118.82239269734164
+    }
+   ],
+   "225000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.6437,
+     "v1_total": 40.64943199999999,
+     "berth_over_min": 51.87264423508298
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.8581,
+     "v1_total": 37.55002300000001,
+     "berth_over_min": 55.39631018922391
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.7161,
+     "v1_total": 27.554138999999992,
+     "berth_over_min": 33.55152537204901
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.0021,
+     "v1_total": 39.54555599999998,
+     "berth_over_min": 51.87854654132431
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.2955,
+     "v1_total": 69.064038,
+     "berth_over_min": 91.97416286436795
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 93.4361,
+     "v1_total": 149.09431800000002,
+     "berth_over_min": 169.7316036407002
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.0958,
+     "v1_total": 51.526664999999994,
+     "berth_over_min": 70.82261344026635
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.7569,
+     "v1_total": 30.130948000000004,
+     "berth_over_min": 28.554882583962446
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.2319,
+     "v1_total": 75.95686300000001,
+     "berth_over_min": 117.35717162806446
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.5574,
+     "v1_total": 73.37778999999999,
+     "berth_over_min": 115.58810504469993
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.5587,
+     "v1_total": 73.417658,
+     "berth_over_min": 113.61649254185762
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.3001,
+     "v1_total": 47.431479,
+     "berth_over_min": 74.58652454449029
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.1679,
+     "v1_total": 108.12960899999999,
+     "berth_over_min": 150.49790995924394
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 47.1818,
+     "v1_total": 89.683361,
+     "berth_over_min": 130.17362293590682
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.2136,
+     "v1_total": 114.32143200000002,
+     "berth_over_min": 165.7161033765515
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.7097,
+     "v1_total": 96.935486,
+     "berth_over_min": 129.4038395835172
+    }
+   ],
+   "226000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.0435,
+     "v1_total": 32.947762000000004,
+     "berth_over_min": 38.466195990864826
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.4765,
+     "v1_total": 38.957892,
+     "berth_over_min": 57.11016771238725
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.6546,
+     "v1_total": 25.792864999999995,
+     "berth_over_min": 25.742492809179506
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.9955,
+     "v1_total": 44.0265,
+     "berth_over_min": 57.256524340728966
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.2999,
+     "v1_total": 82.45872899999999,
+     "berth_over_min": 99.51884253238556
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 0.9666666666666667,
+     "backlog": 4,
+     "healthy": true,
+     "v2_total": 76.0278,
+     "v1_total": 134.431308,
+     "berth_over_min": 181.80565833229625
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 37.6817,
+     "v1_total": 56.403769000000004,
+     "berth_over_min": 73.97784096500246
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.7192,
+     "v1_total": 34.390357,
+     "berth_over_min": 39.89388042927349
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.9597,
+     "v1_total": 78.084811,
+     "berth_over_min": 120.60075240711937
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.756,
+     "v1_total": 81.776975,
+     "berth_over_min": 126.17153598561858
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.1313,
+     "v1_total": 71.953749,
+     "berth_over_min": 108.24400748578667
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.4199,
+     "v1_total": 50.424378999999995,
+     "berth_over_min": 79.62746514180832
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.8662,
+     "v1_total": 102.71977400000002,
+     "berth_over_min": 141.9164729960275
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 50.0525,
+     "v1_total": 94.82014700000002,
+     "berth_over_min": 135.13470690780986
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 76.0647,
+     "v1_total": 145.654698,
+     "berth_over_min": 199.61276982465864
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.8507,
+     "v1_total": 115.186712,
+     "berth_over_min": 165.70350142496105
+    }
+   ],
+   "227000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.3148,
+     "v1_total": 25.345314999999996,
+     "berth_over_min": 22.776569084793937
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.6791,
+     "v1_total": 36.23141,
+     "berth_over_min": 52.27745222910189
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3367,
+     "v1_total": 25.495683,
+     "berth_over_min": 23.16349844477942
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.9526,
+     "v1_total": 40.12432700000002,
+     "berth_over_min": 44.0189181622872
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.1876,
+     "v1_total": 56.322057000000015,
+     "berth_over_min": 60.71373425441431
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 0.9666666666666667,
+     "backlog": 4,
+     "healthy": true,
+     "v2_total": 87.3139,
+     "v1_total": 146.011298,
+     "berth_over_min": 181.80565833229625
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.0665,
+     "v1_total": 52.18755,
+     "berth_over_min": 67.43701029939372
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.353,
+     "v1_total": 36.92562,
+     "berth_over_min": 44.5571654946493
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.104,
+     "v1_total": 71.023766,
+     "berth_over_min": 101.77994142372212
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.0537,
+     "v1_total": 79.49379299999998,
+     "berth_over_min": 124.45417927001299
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.1124,
+     "v1_total": 70.569516,
+     "berth_over_min": 101.00188674399637
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2521,
+     "v1_total": 57.163236999999995,
+     "berth_over_min": 92.06652454229528
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.3182,
+     "v1_total": 98.778543,
+     "berth_over_min": 138.73301151964267
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 51.2234,
+     "v1_total": 93.62475099999999,
+     "berth_over_min": 129.5379377978443
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 0.9814814814814815,
+     "backlog": 2,
+     "healthy": true,
+     "v2_total": 71.3821,
+     "v1_total": 160.245177,
+     "berth_over_min": 252.00000000000003
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.1852,
+     "v1_total": 95.26868799999997,
+     "berth_over_min": 123.1773168044765
+    }
+   ],
+   "228000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.891,
+     "v1_total": 34.050160000000005,
+     "berth_over_min": 36.6304398465007
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.5779,
+     "v1_total": 52.73127,
+     "berth_over_min": 82.23940175598703
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.6328,
+     "v1_total": 18.352476000000003,
+     "berth_over_min": 11.733757962623924
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9062,
+     "v1_total": 15.616976999999999,
+     "berth_over_min": 6.965684776561496
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.2149,
+     "v1_total": 63.99867400000002,
+     "berth_over_min": 75.96638890226389
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 78.0638,
+     "v1_total": 125.693185,
+     "berth_over_min": 152.4244971841948
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.9711,
+     "v1_total": 44.112077,
+     "berth_over_min": 54.04153137219067
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3631,
+     "v1_total": 39.82336300000001,
+     "berth_over_min": 44.39140882957712
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.9175,
+     "v1_total": 66.018478,
+     "berth_over_min": 100.02129787763967
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.6261,
+     "v1_total": 83.581743,
+     "berth_over_min": 131.0622887825412
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.4455,
+     "v1_total": 71.600839,
+     "berth_over_min": 108.58743760153729
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.6395,
+     "v1_total": 56.277898,
+     "berth_over_min": 88.86021304540587
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.9498,
+     "v1_total": 105.888693,
+     "berth_over_min": 142.219432146673
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.5516,
+     "v1_total": 85.700523,
+     "berth_over_min": 112.3427337277332
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.168,
+     "v1_total": 115.407286,
+     "berth_over_min": 166.44353267529306
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.3019,
+     "v1_total": 125.038521,
+     "berth_over_min": 160.43494953426097
+    }
+   ]
+  },
+  "c1:on": {
+   "221000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.2481,
+     "v1_total": 35.937347,
+     "berth_over_min": 48.99297495051872,
+     "guard": {
+      "dec": 148,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.127,
+     "v1_total": 35.503755,
+     "berth_over_min": 51.99143507410348,
+     "guard": {
+      "dec": 138,
+      "joint": 37,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.1976,
+     "v1_total": 21.523711000000006,
+     "berth_over_min": 21.823718051718274,
+     "guard": {
+      "dec": 133,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.6568,
+     "v1_total": 37.17264600000001,
+     "berth_over_min": 48.039484747173965,
+     "guard": {
+      "dec": 137,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.8463,
+     "v1_total": 68.75335199999999,
+     "berth_over_min": 86.78151220336919,
+     "guard": {
+      "dec": 177,
+      "joint": 15,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 68.0455,
+     "v1_total": 109.778515,
+     "berth_over_min": 136.97621446110514,
+     "guard": {
+      "dec": 162,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.7618,
+     "v1_total": 48.095279000000005,
+     "berth_over_min": 63.06156588101548,
+     "guard": {
+      "dec": 166,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.798,
+     "v1_total": 37.707885000000005,
+     "berth_over_min": 45.947845354042634,
+     "guard": {
+      "dec": 158,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.2293,
+     "v1_total": 63.35578500000001,
+     "berth_over_min": 92.52324236517258,
+     "guard": {
+      "dec": 137,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.4139,
+     "v1_total": 73.705073,
+     "berth_over_min": 116.09263981138116,
+     "guard": {
+      "dec": 136,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.0563,
+     "v1_total": 79.20926200000001,
+     "berth_over_min": 121.80088100326708,
+     "guard": {
+      "dec": 123,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9372,
+     "v1_total": 50.363562,
+     "berth_over_min": 80.87962484465639,
+     "guard": {
+      "dec": 115,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.6038,
+     "v1_total": 106.38256800000002,
+     "berth_over_min": 152.37933476480836,
+     "guard": {
+      "dec": 162,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 50.1289,
+     "v1_total": 91.071194,
+     "berth_over_min": 125.8439318575745,
+     "guard": {
+      "dec": 165,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 60.1397,
+     "v1_total": 115.43751500000002,
+     "berth_over_min": 163.7183702900584,
+     "guard": {
+      "dec": 149,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 52.6457,
+     "v1_total": 86.68704199999999,
+     "berth_over_min": 110.87465685766922,
+     "guard": {
+      "dec": 146,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "222000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.1561,
+     "v1_total": 36.649111,
+     "berth_over_min": 45.13507834943951,
+     "guard": {
+      "dec": 136,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.0203,
+     "v1_total": 40.879585,
+     "berth_over_min": 60.66235644366122,
+     "guard": {
+      "dec": 145,
+      "joint": 39,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.3822,
+     "v1_total": 24.930224,
+     "berth_over_min": 27.475395933858575,
+     "guard": {
+      "dec": 137,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.0573,
+     "v1_total": 31.588112999999996,
+     "berth_over_min": 36.1373101835917,
+     "guard": {
+      "dec": 146,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.0631,
+     "v1_total": 60.862128,
+     "berth_over_min": 71.03510475453407,
+     "guard": {
+      "dec": 168,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 84.1163,
+     "v1_total": 132.313644,
+     "berth_over_min": 151.37513266993557,
+     "guard": {
+      "dec": 171,
+      "joint": 31,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4424,
+     "v1_total": 47.928304,
+     "berth_over_min": 63.37855129915803,
+     "guard": {
+      "dec": 158,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.8964,
+     "v1_total": 27.144158,
+     "berth_over_min": 31.74020134356127,
+     "guard": {
+      "dec": 151,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2253,
+     "v1_total": 68.196459,
+     "berth_over_min": 107.27441048493016,
+     "guard": {
+      "dec": 144,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.8769,
+     "v1_total": 81.290762,
+     "berth_over_min": 127.26325675413449,
+     "guard": {
+      "dec": 136,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.4975,
+     "v1_total": 76.108867,
+     "berth_over_min": 117.5503281509755,
+     "guard": {
+      "dec": 125,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3671,
+     "v1_total": 54.82197299999999,
+     "berth_over_min": 88.75187971207255,
+     "guard": {
+      "dec": 112,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.8341,
+     "v1_total": 102.78229400000002,
+     "berth_over_min": 142.5912512746974,
+     "guard": {
+      "dec": 164,
+      "joint": 14,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.3406,
+     "v1_total": 100.60653400000001,
+     "berth_over_min": 136.17955159990325,
+     "guard": {
+      "dec": 162,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 66.573,
+     "v1_total": 127.42248600000002,
+     "berth_over_min": 177.73841978779046,
+     "guard": {
+      "dec": 155,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.4684,
+     "v1_total": 90.82546999999998,
+     "berth_over_min": 116.8556538059143,
+     "guard": {
+      "dec": 148,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "223000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.7979,
+     "v1_total": 44.93273000000001,
+     "berth_over_min": 60.107601210203875,
+     "guard": {
+      "dec": 136,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.2434,
+     "v1_total": 34.98703899999999,
+     "berth_over_min": 50.01296685289323,
+     "guard": {
+      "dec": 139,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.1478,
+     "v1_total": 25.033745999999994,
+     "berth_over_min": 28.435449382266142,
+     "guard": {
+      "dec": 141,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.9279,
+     "v1_total": 26.261085000000005,
+     "berth_over_min": 29.822539312310923,
+     "guard": {
+      "dec": 153,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.9346,
+     "v1_total": 71.753965,
+     "berth_over_min": 88.04512134159977,
+     "guard": {
+      "dec": 166,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 80.5517,
+     "v1_total": 126.83724000000001,
+     "berth_over_min": 147.79110654822762,
+     "guard": {
+      "dec": 166,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2773,
+     "v1_total": 41.04807400000001,
+     "berth_over_min": 50.52949822997404,
+     "guard": {
+      "dec": 155,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.4696,
+     "v1_total": 35.16550900000001,
+     "berth_over_min": 39.70218603092641,
+     "guard": {
+      "dec": 150,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 37.1857,
+     "v1_total": 83.524638,
+     "berth_over_min": 132.3603379068925,
+     "guard": {
+      "dec": 135,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.9248,
+     "v1_total": 73.62018299999998,
+     "berth_over_min": 114.57415110042457,
+     "guard": {
+      "dec": 138,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.0685,
+     "v1_total": 66.71265600000001,
+     "berth_over_min": 103.02921208871297,
+     "guard": {
+      "dec": 118,
+      "joint": 30,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.913,
+     "v1_total": 45.68721899999999,
+     "berth_over_min": 70.9840586903806,
+     "guard": {
+      "dec": 112,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.6796,
+     "v1_total": 97.86549399999998,
+     "berth_over_min": 135.26127282355677,
+     "guard": {
+      "dec": 150,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 46.4958,
+     "v1_total": 90.81698900000002,
+     "berth_over_min": 134.3310987173845,
+     "guard": {
+      "dec": 157,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.909,
+     "v1_total": 115.640736,
+     "berth_over_min": 168.06330539891044,
+     "guard": {
+      "dec": 157,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.4135,
+     "v1_total": 103.20748900000001,
+     "berth_over_min": 137.75734531812876,
+     "guard": {
+      "dec": 159,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "224000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.194,
+     "v1_total": 31.016481000000002,
+     "berth_over_min": 38.855227079501155,
+     "guard": {
+      "dec": 125,
+      "joint": 15,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.1211,
+     "v1_total": 33.101273,
+     "berth_over_min": 48.33415182396217,
+     "guard": {
+      "dec": 130,
+      "joint": 32,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.7771,
+     "v1_total": 25.131746,
+     "berth_over_min": 29.44914957719002,
+     "guard": {
+      "dec": 136,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.4905,
+     "v1_total": 36.831908999999996,
+     "berth_over_min": 48.39611884903034,
+     "guard": {
+      "dec": 151,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 45.6323,
+     "v1_total": 71.6791,
+     "berth_over_min": 92.37122363228598,
+     "guard": {
+      "dec": 164,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 70.6723,
+     "v1_total": 118.81783800000001,
+     "berth_over_min": 153.4492537592154,
+     "guard": {
+      "dec": 170,
+      "joint": 31,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.2809,
+     "v1_total": 36.867965,
+     "berth_over_min": 40.464443045305806,
+     "guard": {
+      "dec": 151,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.6916,
+     "v1_total": 28.873619,
+     "berth_over_min": 26.366942191287276,
+     "guard": {
+      "dec": 149,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.9231,
+     "v1_total": 65.015136,
+     "berth_over_min": 100.66320218853052,
+     "guard": {
+      "dec": 123,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.3171,
+     "v1_total": 74.20415100000001,
+     "berth_over_min": 113.02552686907693,
+     "guard": {
+      "dec": 138,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.1109,
+     "v1_total": 71.93421299999999,
+     "berth_over_min": 113.32150152262302,
+     "guard": {
+      "dec": 127,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.8489,
+     "v1_total": 49.668521000000005,
+     "berth_over_min": 79.08814123216534,
+     "guard": {
+      "dec": 111,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 60.1908,
+     "v1_total": 104.98814300000002,
+     "berth_over_min": 139.38809281201702,
+     "guard": {
+      "dec": 139,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.0739,
+     "v1_total": 94.33216200000001,
+     "berth_over_min": 137.00501135063996,
+     "guard": {
+      "dec": 149,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 57.2489,
+     "v1_total": 111.96250400000001,
+     "berth_over_min": 162.73578796594117,
+     "guard": {
+      "dec": 145,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.2487,
+     "v1_total": 90.45370400000002,
+     "berth_over_min": 118.82239269734164,
+     "guard": {
+      "dec": 148,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "225000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.6437,
+     "v1_total": 40.64943199999999,
+     "berth_over_min": 51.87264423508298,
+     "guard": {
+      "dec": 144,
+      "joint": 13,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.8581,
+     "v1_total": 37.55002300000001,
+     "berth_over_min": 55.39631018922391,
+     "guard": {
+      "dec": 142,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.7161,
+     "v1_total": 27.554138999999992,
+     "berth_over_min": 33.55152537204901,
+     "guard": {
+      "dec": 136,
+      "joint": 16,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.0021,
+     "v1_total": 39.54555599999998,
+     "berth_over_min": 51.87854654132431,
+     "guard": {
+      "dec": 158,
+      "joint": 35,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 43.2955,
+     "v1_total": 69.064038,
+     "berth_over_min": 91.97416286436795,
+     "guard": {
+      "dec": 171,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 93.4361,
+     "v1_total": 149.09431800000002,
+     "berth_over_min": 169.7316036407002,
+     "guard": {
+      "dec": 187,
+      "joint": 34,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.0958,
+     "v1_total": 51.526664999999994,
+     "berth_over_min": 70.82261344026635,
+     "guard": {
+      "dec": 176,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.7569,
+     "v1_total": 30.130948000000004,
+     "berth_over_min": 28.554882583962446,
+     "guard": {
+      "dec": 155,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.2319,
+     "v1_total": 75.95686300000001,
+     "berth_over_min": 117.35717162806446,
+     "guard": {
+      "dec": 136,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.5574,
+     "v1_total": 73.37778999999999,
+     "berth_over_min": 115.58810504469993,
+     "guard": {
+      "dec": 154,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.5587,
+     "v1_total": 73.417658,
+     "berth_over_min": 113.61649254185762,
+     "guard": {
+      "dec": 127,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.3001,
+     "v1_total": 47.431479,
+     "berth_over_min": 74.58652454449029,
+     "guard": {
+      "dec": 112,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.1679,
+     "v1_total": 108.12960899999999,
+     "berth_over_min": 150.49790995924394,
+     "guard": {
+      "dec": 166,
+      "joint": 12,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 47.1818,
+     "v1_total": 89.683361,
+     "berth_over_min": 130.17362293590682,
+     "guard": {
+      "dec": 157,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 58.2136,
+     "v1_total": 114.32143200000002,
+     "berth_over_min": 165.7161033765515,
+     "guard": {
+      "dec": 162,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 55.7097,
+     "v1_total": 96.935486,
+     "berth_over_min": 129.4038395835172,
+     "guard": {
+      "dec": 166,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "226000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 26.0435,
+     "v1_total": 32.947762000000004,
+     "berth_over_min": 38.466195990864826,
+     "guard": {
+      "dec": 148,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.4765,
+     "v1_total": 38.957892,
+     "berth_over_min": 57.11016771238725,
+     "guard": {
+      "dec": 144,
+      "joint": 41,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.4828,
+     "v1_total": 38.435391,
+     "berth_over_min": 51.26306156823348,
+     "guard": {
+      "dec": 149,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.9955,
+     "v1_total": 44.0265,
+     "berth_over_min": 57.256524340728966,
+     "guard": {
+      "dec": 159,
+      "joint": 29,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 53.2999,
+     "v1_total": 82.45872899999999,
+     "berth_over_min": 99.51884253238556,
+     "guard": {
+      "dec": 166,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.2762,
+     "v1_total": 119.27452000000002,
+     "berth_over_min": 153.29609334343192,
+     "guard": {
+      "dec": 185,
+      "joint": 40,
+      "iv_reopen": 0,
+      "iv_stagnant": 4,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 37.6817,
+     "v1_total": 56.403769000000004,
+     "berth_over_min": 73.97784096500246,
+     "guard": {
+      "dec": 171,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.9221,
+     "v1_total": 36.698544999999996,
+     "berth_over_min": 37.73911157896694,
+     "guard": {
+      "dec": 152,
+      "joint": 34,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.6431,
+     "v1_total": 65.62307899999999,
+     "berth_over_min": 96.53582763161224,
+     "guard": {
+      "dec": 150,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.5845,
+     "v1_total": 51.205284000000006,
+     "berth_over_min": 72.92478328433256,
+     "guard": {
+      "dec": 141,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 33.1313,
+     "v1_total": 71.953749,
+     "berth_over_min": 108.24400748578667,
+     "guard": {
+      "dec": 127,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 21.3806,
+     "v1_total": 50.385087000000006,
+     "berth_over_min": 79.62746514180832,
+     "guard": {
+      "dec": 123,
+      "joint": 32,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.8662,
+     "v1_total": 102.71977400000002,
+     "berth_over_min": 141.9164729960275,
+     "guard": {
+      "dec": 173,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 50.0525,
+     "v1_total": 94.82014700000002,
+     "berth_over_min": 135.13470690780986,
+     "guard": {
+      "dec": 165,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.0647,
+     "v1_total": 129.154698,
+     "berth_over_min": 169.61276982465859,
+     "guard": {
+      "dec": 162,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.8507,
+     "v1_total": 115.186712,
+     "berth_over_min": 165.70350142496105,
+     "guard": {
+      "dec": 160,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "227000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 24.3148,
+     "v1_total": 25.345314999999996,
+     "berth_over_min": 22.776569084793937,
+     "guard": {
+      "dec": 144,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 28.7096,
+     "v1_total": 50.713592000000006,
+     "berth_over_min": 76.30072680823415,
+     "guard": {
+      "dec": 148,
+      "joint": 47,
+      "iv_reopen": 0,
+      "iv_stagnant": 4,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.3367,
+     "v1_total": 25.495683,
+     "berth_over_min": 23.16349844477942,
+     "guard": {
+      "dec": 144,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.9734,
+     "v1_total": 36.92696400000003,
+     "berth_over_min": 44.0189181622872,
+     "guard": {
+      "dec": 163,
+      "joint": 31,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 42.1876,
+     "v1_total": 56.322057000000015,
+     "berth_over_min": 60.71373425441431,
+     "guard": {
+      "dec": 155,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 79.7377,
+     "v1_total": 126.48337699999999,
+     "berth_over_min": 149.60407650149196,
+     "guard": {
+      "dec": 161,
+      "joint": 30,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 36.0665,
+     "v1_total": 52.18755,
+     "berth_over_min": 67.43701029939372,
+     "guard": {
+      "dec": 171,
+      "joint": 28,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 30.353,
+     "v1_total": 36.92562,
+     "berth_over_min": 44.5571654946493,
+     "guard": {
+      "dec": 152,
+      "joint": 27,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.9062,
+     "v1_total": 67.07795,
+     "berth_over_min": 100.03486319894564,
+     "guard": {
+      "dec": 144,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.0537,
+     "v1_total": 79.49379299999998,
+     "berth_over_min": 124.45417927001299,
+     "guard": {
+      "dec": 153,
+      "joint": 25,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 34.1124,
+     "v1_total": 70.569516,
+     "berth_over_min": 101.00188674399637,
+     "guard": {
+      "dec": 127,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 22.541,
+     "v1_total": 54.95749700000001,
+     "berth_over_min": 88.18629701730879,
+     "guard": {
+      "dec": 118,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 2,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 54.3182,
+     "v1_total": 98.778543,
+     "berth_over_min": 138.73301151964267,
+     "guard": {
+      "dec": 181,
+      "joint": 15,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 51.2234,
+     "v1_total": 93.62475099999999,
+     "berth_over_min": 129.5379377978443,
+     "guard": {
+      "dec": 165,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.4882,
+     "v1_total": 121.205344,
+     "berth_over_min": 180.63679278416356,
+     "guard": {
+      "dec": 162,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 56.1852,
+     "v1_total": 95.26868799999997,
+     "berth_over_min": 123.1773168044765,
+     "guard": {
+      "dec": 162,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ],
+   "228000": [
+    {
+     "cell": "mid-loose",
+     "seed": 910300,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 27.891,
+     "v1_total": 34.050160000000005,
+     "berth_over_min": 36.6304398465007,
+     "guard": {
+      "dec": 143,
+      "joint": 23,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910301,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 25.4626,
+     "v1_total": 42.883993000000004,
+     "berth_over_min": 64.63065756004926,
+     "guard": {
+      "dec": 140,
+      "joint": 39,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910302,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 19.6328,
+     "v1_total": 18.352476000000003,
+     "berth_over_min": 11.733757962623924,
+     "guard": {
+      "dec": 138,
+      "joint": 19,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-loose",
+     "seed": 910303,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 20.9062,
+     "v1_total": 15.616976999999999,
+     "berth_over_min": 6.965684776561496,
+     "guard": {
+      "dec": 158,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910304,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 44.2149,
+     "v1_total": 63.99867400000002,
+     "berth_over_min": 75.96638890226389,
+     "guard": {
+      "dec": 164,
+      "joint": 20,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910305,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 78.0638,
+     "v1_total": 125.693185,
+     "berth_over_min": 152.4244971841948,
+     "guard": {
+      "dec": 185,
+      "joint": 37,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910306,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.9711,
+     "v1_total": 44.112077,
+     "berth_over_min": 54.04153137219067,
+     "guard": {
+      "dec": 163,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-loose",
+     "seed": 910307,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 29.5073,
+     "v1_total": 30.480006,
+     "berth_over_min": 30.328864133245435,
+     "guard": {
+      "dec": 151,
+      "joint": 32,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910308,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 31.0243,
+     "v1_total": 64.14405599999999,
+     "berth_over_min": 97.48125832234625,
+     "guard": {
+      "dec": 155,
+      "joint": 24,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910309,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 35.6063,
+     "v1_total": 83.562379,
+     "berth_over_min": 131.03520544920787,
+     "guard": {
+      "dec": 134,
+      "joint": 26,
+      "iv_reopen": 0,
+      "iv_stagnant": 1,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910310,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 32.4455,
+     "v1_total": 71.600839,
+     "berth_over_min": 108.58743760153729,
+     "guard": {
+      "dec": 120,
+      "joint": 22,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "mid-tight",
+     "seed": 910311,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 23.6395,
+     "v1_total": 56.277898,
+     "berth_over_min": 88.86021304540587,
+     "guard": {
+      "dec": 127,
+      "joint": 32,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910312,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.9498,
+     "v1_total": 105.888693,
+     "berth_over_min": 142.219432146673,
+     "guard": {
+      "dec": 168,
+      "joint": 17,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910313,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 49.5516,
+     "v1_total": 85.700523,
+     "berth_over_min": 112.3427337277332,
+     "guard": {
+      "dec": 182,
+      "joint": 21,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910314,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 59.168,
+     "v1_total": 115.407286,
+     "berth_over_min": 166.44353267529306,
+     "guard": {
+      "dec": 155,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    },
+    {
+     "cell": "high-tight",
+     "seed": 910315,
+     "compl": 1.0,
+     "backlog": 0,
+     "healthy": true,
+     "v2_total": 71.3019,
+     "v1_total": 125.038521,
+     "berth_over_min": 160.43494953426097,
+     "guard": {
+      "dec": 165,
+      "joint": 18,
+      "iv_reopen": 0,
+      "iv_stagnant": 0,
+      "iv_escape": 0
+     }
+    }
+   ]
+  }
+ }
+}
