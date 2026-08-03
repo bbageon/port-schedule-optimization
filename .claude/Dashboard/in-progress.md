@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-147 | RL | WAIT-WAIT 정책 최적화 — 1단계 기준 측정 (하드 마스크 없음·유한 DEFER 는 2단계) | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · **1단계 기준선 완료**: 회피 가능 전원대기율 17.4%/7.5%/2.7%·D_wait 실현 −0.50~+1.14(양수 37~60% — 일괄 마스크 금지 확증·구분 학습 표적 실재)·깊은 정지 상태 계급 발견(8/30 양쪽 강제 모두 완주 깨짐). 다음 = 2단계 DEFER_UNTIL 단일축 설계·사전등록 |
+| YR-147 | RL | WAIT-WAIT 정책 최적화 — 1단계 기준 측정 (하드 마스크 없음·유한 DEFER 는 2단계) | P0 | 2026-08-03 | [spec](../docs/dashboard-task-specs/YR-147-wait-wait-policy-optimization.md) · **1단계 기준선 완료 (★21차 정정 반영)**: 공동결정 중 진행 가능 전원대기 발생률 17.4/7.5/2.7%(합산 9.53%)·엄격 D_wait<0 33/53/13%·표본 비대표(high-tight 0)·깊은 정지 8건=2에피소드(해결 주장은 가설) — 진단 단계이며 성능 개선 아님. 다음 = 2단계 **A/B/C 3군 분해**(무기한 WAIT/전량 유한 DEFER/trigger 조건부 발행 — B−A·C−B 효과 분리) 사전등록 |
 
 ---
 
