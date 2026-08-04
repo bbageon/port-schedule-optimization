@@ -52,6 +52,7 @@ def test_guard_passthrough_when_no_intervention():
     off = _episode_guard(cell, seed, arm, ts, guard_on=False)
     on = _episode_guard(cell, seed, arm, ts, guard_on=True)
     g = on.pop("guard")
+    on.pop("guard_permits", None)                 # 원장(기록 전용)은 비교 제외
     assert g["dec"] > 0
     if sum(g[k] for k in IV_KEYS) == 0:
         assert on == off

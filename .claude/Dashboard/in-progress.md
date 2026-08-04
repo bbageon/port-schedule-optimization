@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-148 | Exp | C0+guard vs C1+guard — 배포 구성 전체 효과 재판정 | P0 | 2026-08-04 | [spec](../docs/dashboard-task-specs/YR-148-guard-on-rejudgment.md) · 26차 3고정 동결: 명칭(순수 효과 금지)·다중방향 부트스트랩(B=10k·POWER_FAIL 규칙)·허가증 원장 전량 저장. 44판(910500+)·8쌍 재사용·재학습 없음. 결과 미열람 |
 
 ---
 

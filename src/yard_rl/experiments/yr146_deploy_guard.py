@@ -117,8 +117,17 @@ class DeployGuard:
             else False,
             has_escape=bool(esc), deadline_pressure=deadline_pressure,
             triggered=bool(triggered), prev_untriggered_same_snap=prev_same)
-        self.permits.append({"t": float(sim.now), "snap": list(snap),
-                             "triggered": triggered, "case": case})
+        rec = {"t": float(sim.now), "snap": list(snap),
+               "triggered": triggered, "case": case}
+        if case != "ALLOW":                     # 26차: 개입 정당성 감사 가능 원장
+            last_ev = sim.event_log[-1] if sim.event_log else None
+            rec["wake_src"] = (list(last_ev) if last_ev
+                              and abs(last_ev[0] - sim.now) < 1e-6 else None)
+            rec["orig"] = {c: [assign[c].kind.name,
+                               getattr(assign[c].job_ref, "job_id", None)
+                               if assign[c].job_ref else None]
+                           for c in sorted(assign)}
+        self.permits.append(rec)
         if case == "ALLOW":
             if triggered:
                 self.stats["allow_future_trigger"] += 1
@@ -133,7 +142,11 @@ class DeployGuard:
             cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
         self.stats[case.lower()] += 1
         self._prev = None
-        return assigns[min(pool, key=lambda i: float(cost[i]))]
+        best = assigns[min(pool, key=lambda i: float(cost[i]))]
+        rec["repl"] = {c: [best[c].kind.name,
+                           getattr(best[c].job_ref, "job_id", None)
+                           if best[c].job_ref else None] for c in sorted(best)}
+        return best
 
 
 def _collect_hashes() -> set[str]:
@@ -206,6 +219,7 @@ def _episode_guard(cell, seed, arm, ts, guard_on: bool):
                "berth_over_min": r["berth_overrun_min"]}
         if guard is not None:
             out["guard"] = dict(guard.stats)
+            out["guard_permits"] = list(guard.permits)   # 26차: 감사 가능 원장
         return out
     finally:
         (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY, cand_mod.BOUND_REPO,
