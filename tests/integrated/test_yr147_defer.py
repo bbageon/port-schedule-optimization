@@ -38,7 +38,7 @@ def test_mode_b_finite_defer(sim):
         now = sim.now
         assert g.defer_until is not None
         assert now < g.defer_until <= now + cand_mod.DEFER_T_MAX + 1e-6
-        t, k = CandidateGenerator()._defer_trigger_time(sim, now, LEVEL)
+        t, k, _jid = CandidateGenerator()._defer_trigger_time(sim, now, LEVEL)
         if t is not None:
             assert g.defer_until == pytest.approx(min(t, now + cand_mod.DEFER_T_MAX))
             assert g.defer_trigger == k

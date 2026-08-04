@@ -35,29 +35,54 @@ from .yr143_no_repo import ARM_FLAGS, NORM_TS, CONFIRM_TS
 from .yr143_no_repo import OUT as OUT143
 
 OUT = Path("outputs/reports/yr146_deploy_guard")
-BAND_PATH = OUT / "band.json"
-BAND_START, BAND_N = 910_300, 4   # 910200 은 smoke 로 1판 열람 — 대역에서 제외(커서 이동)
+# 2차(허가증 v2) 대역 — 1차 band.json(910300대)·smoke 910200 은 열람 편입, 커서 이동.
+BAND_PATH = OUT / "band2.json"
+BAND_START, BAND_N = 910_400, 4
 CAP_RATE = 0.01                     # 개입률 허용치 (공동결정 대비 — 사전 동결)
 DELTA_V2 = 1.0                      # ON−OFF v2 악화 상한 (YR-143 δ 승계)
 PROG = ("SERVE", "PRE_REHANDLE")
 
 
+IV_KEYS = ("iv_no_target", "iv_deadline", "iv_escape")
+
+
+def classify_wait(*, has_progress: bool, interference: bool, has_escape: bool,
+                  deadline_pressure: bool, triggered: bool,
+                  prev_untriggered_same_snap: bool) -> str:
+    """대기 허가증 판정 (25차 동결 — 우선순위 g→f→e, 그 외 허용).
+
+    triggered(관측 trigger 존재)는 생성 계약상 항상 미래 시각 — (a)600초 점검 재대기·
+    (b)ETA 갱신 모두 여기로 허용된다. (c)실제 사건 도래는 스냅샷 변화로 반복 조건이
+    풀려 허용된다."""
+    if not has_progress:
+        return "IV_ESCAPE" if (interference and has_escape) else "ALLOW"
+    if deadline_pressure:
+        return "IV_DEADLINE"
+    if not triggered and prev_untriggered_same_snap:
+        return "IV_NO_TARGET"
+    return "ALLOW"
+
+
 class DeployGuard:
-    """정책 래퍼 — 발동 3조건에서만 개입. 그 외 결정은 그대로 통과."""
+    """정책 래퍼 v2 — 대기 허가증 (25차): 무엇을 기다리는지 기록하고, 기다릴 대상이
+    있는 대기는 불간섭. 개입은 (e)무대상 반복·(f)마감 압박·(g)간섭 탈출뿐."""
 
     def __init__(self, inner, actor, norm, jr):
         self.inner, self.actor, self.norm, self.jr = inner, actor, norm, jr
-        self.stats = {"dec": 0, "joint": 0, "iv_reopen": 0, "iv_stagnant": 0,
-                      "iv_escape": 0}
-        self._last = None
+        self.stats = {"dec": 0, "joint": 0, "iv_no_target": 0, "iv_deadline": 0,
+                      "iv_escape": 0, "allow_future_trigger": 0,
+                      "allow_state_change": 0, "allow_first_untrig": 0}
+        self.permits = []                     # 허가증 원장 — 원자료 (25차 해석 한계 해소)
+        self._prev = None                     # (untriggered, snap)
 
     @staticmethod
-    def _real_events(sim):
-        return sum(1 for e in sim.event_log if e[1] not in ("DEFER_WAKE", "ETA_WAKE"))
-
-    @staticmethod
-    def _done(sim):
-        return sum(1 for j in sim.jobs.values() if j.status.name == "DONE")
+    def _snap(sim, gen_by):
+        """진행 관련 상태 — (완료 수, 실행 가능 실작업 후보 수). 전체 사건 수 아님
+        (무관 이벤트가 반복 카운터를 오초기화하지 않게 — 25차 필수 테스트 ④)."""
+        done = sum(1 for j in sim.jobs.values() if j.status.name == "DONE")
+        n_work = sum(1 for c in gen_by.values() for g in c.items
+                     if g.kind.name in PROG and g.feasible)
+        return (done, n_work)
 
     def decide(self, sim, dp, gen_by):
         assign = self.inner.decide(sim, dp, gen_by)
@@ -65,41 +90,50 @@ class DeployGuard:
         if len(dp.crane_ids) >= 2:
             self.stats["joint"] += 1
         if not all(g.kind.name == "WAIT" for g in assign.values()):
-            self._last = None
+            self._prev = None
             return assign
         rows, assigns = y88.build_rows(sim, dp, gen_by, self.norm, self.jr, 0)
         if not assigns:
             return assign                                   # 구조적 대기 — 불간섭
+        # 대체 후보 = 위치조정 미포함 진행 조합만 (C0/C1 공통 행동 — 효과 교락 방지)
         prog = [i for i, a in enumerate(assigns)
-                if any(a[c].kind.name in PROG for c in a)]
+                if any(a[c].kind.name in PROG for c in a)
+                and all(a[c].kind.name != "REPOSITION" for c in a)]
         esc = [i for i, a in enumerate(assigns)
                if any(a[c].kind.name == "REPOSITION" and a[c].job_ref is not None
                       and a[c].job_ref.job_id.startswith("REPO:") for c in a)]
-        raw_nt = sim.queue.peek_time()
-        wake = sim._next_wake_time()
-        no_reopen = ((raw_nt is None or raw_nt > sim.end)
-                     and wake is None
-                     and all(getattr(g, "defer_until", None) is None
-                             for g in assign.values()))
-        snap = (self._done(sim), self._real_events(sim))
-        stagnant = self._last is not None and self._last == snap
-        chosen, case = None, None
-        if prog and (no_reopen or stagnant):
-            with torch.no_grad():
-                cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
-            chosen = min(prog, key=lambda i: float(cost[i]))
-            case = "iv_reopen" if no_reopen else "iv_stagnant"
-        elif not prog and esc and sim.interference_deadlock_corridors():
-            with torch.no_grad():
-                cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
-            chosen = min(esc, key=lambda i: float(cost[i]))
-            case = "iv_escape"
-        if chosen is None:
-            self._last = snap
+        triggered = [(g.defer_trigger, float(g.defer_until),
+                      getattr(g, "defer_trigger_jid", None))
+                     for g in assign.values()
+                     if getattr(g, "defer_trigger", None) is not None]
+        snap = self._snap(sim, gen_by)
+        pending = any(j.status.name != "DONE" for j in sim.jobs.values())
+        deadline_pressure = pending and (sim.end - sim.now) < cand_mod.DEFER_T_MAX
+        prev_same = (self._prev is not None and self._prev[0]
+                     and self._prev[1] == snap)
+        case = classify_wait(
+            has_progress=bool(prog),
+            interference=bool(sim.interference_deadlock_corridors()) if not prog
+            else False,
+            has_escape=bool(esc), deadline_pressure=deadline_pressure,
+            triggered=bool(triggered), prev_untriggered_same_snap=prev_same)
+        self.permits.append({"t": float(sim.now), "snap": list(snap),
+                             "triggered": triggered, "case": case})
+        if case == "ALLOW":
+            if triggered:
+                self.stats["allow_future_trigger"] += 1
+            elif self._prev is not None and self._prev[0] and self._prev[1] != snap:
+                self.stats["allow_state_change"] += 1
+            else:
+                self.stats["allow_first_untrig"] += 1
+            self._prev = (not triggered, snap)
             return assign
-        self.stats[case] += 1
-        self._last = None
-        return assigns[chosen]
+        pool = esc if case == "IV_ESCAPE" else prog
+        with torch.no_grad():
+            cost, _ = self.actor(torch.tensor(rows, dtype=torch.float32))
+        self.stats[case.lower()] += 1
+        self._prev = None
+        return assigns[min(pool, key=lambda i: float(cost[i]))]
 
 
 def _collect_hashes() -> set[str]:
@@ -205,13 +239,16 @@ def validate() -> dict:
         if ":on" in key:
             g = [e["guard"] for e in eps]
             joint = sum(x["joint"] for x in g)
-            iv = sum(x["iv_reopen"] + x["iv_stagnant"] + x["iv_escape"] for x in g)
+            iv = sum(sum(x[k] for k in IV_KEYS) for x in g)
             s.update({"joint_dec": joint, "interventions": iv,
                       "iv_rate": iv / joint if joint else 0.0,
-                      "iv_by_case": {k: sum(x[k] for x in g)
-                                     for k in ("iv_reopen", "iv_stagnant", "iv_escape")}})
+                      "iv_by_case": {k: sum(x[k] for x in g) for k in IV_KEYS},
+                      "allow_by_cause": {k: sum(x[k] for x in g)
+                                         for k in ("allow_future_trigger",
+                                                   "allow_state_change",
+                                                   "allow_first_untrig")}})
         summ[key] = s
-    # 불필요 개입 — OFF 완주판에서의 ON 개입 (에피소드 짝)
+    # OFF-완주 판 개입 (★25차 명칭 — 안전장치 없이도 완주했던 판에서의 개입)
     needless = {}
     for arm in ("c0", "c1"):
         cnt = 0
@@ -219,8 +256,7 @@ def validate() -> dict:
             for j, e_off in enumerate(rows[f"{arm}:off"][ts]):
                 e_on = rows[f"{arm}:on"][ts][j]
                 g = e_on["guard"]
-                if e_off["compl"] >= 1.0 and (g["iv_reopen"] + g["iv_stagnant"]
-                                              + g["iv_escape"]) > 0:
+                if e_off["compl"] >= 1.0 and sum(g[k] for k in IV_KEYS) > 0:
                     cnt += 1
         needless[arm] = cnt
     j = {}
@@ -233,16 +269,17 @@ def validate() -> dict:
     j["success"] = all(v["on_completion_all"] and v["iv_rate_ok"] and v["cost_ok"]
                        for v in j.values() if isinstance(v, dict))
     res = {"repro": repro_stamp(
-               experiment="YR-146 배포 안전장치 — 4군 OFF/ON 분리 검증",
+               experiment="YR-146 배포 안전장치 2차 — 대기 허가증 v2 · 4군 OFF/ON",
                seeds={"train": list(CONFIRM_TS), **{c: band.seeds[c] for c in CELLS}},
                profile_id="calibrated",
-               prereg="발동 3조건 한정·개입률 ≤1%·ON−OFF v2 악화 ≤1.0·ON 완주 전판·"
-                      "재학습 없음(YR-143 확증 ckpt)·guard 이득 학습 성과 합산 금지",
+               prereg="허가증 v2(25차): 관측 trigger 있는 대기 불간섭·개입 = 무대상 "
+                      "반복/마감 압박/간섭 탈출·대체 = 위치조정 미포함 공통 조합·"
+                      "개입률 ≤1% 유지·ON−OFF v2 악화 ≤1.0·ON 완주 전판·재학습 없음",
                extra={"band_digest": d["digest"], "cap_rate": CAP_RATE}),
-           "summary": summ, "needless_interventions": needless, "judgment": j,
+           "summary": summ, "off_complete_interventions": needless, "judgment": j,
            "arms": rows}
-    (OUT / "results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
-                                      encoding="utf-8")
+    (OUT / "results2.json").write_text(json.dumps(res, ensure_ascii=False, indent=1),
+                                       encoding="utf-8")
     print(json.dumps({"judgment": j, "needless": needless,
                       **{k: {kk: (round(vv, 4) if isinstance(vv, float) else vv)
                              for kk, vv in s.items() if kk != "iv_by_case"}

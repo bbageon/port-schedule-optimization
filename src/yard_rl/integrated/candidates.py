@@ -215,6 +215,7 @@ class GenCandidate:
     # YR-147 DEFER (WAIT 전용·기본 None = 기존 불변). features·net 진입 금지 — 상태 불변.
     defer_until: float | None = None  # 재개방 보장 시각 (엔진 wake 예약)
     defer_trigger: str | None = None  # "ETA"|"RELEASE"|None(관측 trigger 없음)
+    defer_trigger_jid: str | None = None  # 기다리는 대상 작업 (YR-146 허가증 — 기록 전용)
 
 
 @dataclass(frozen=True)
@@ -408,11 +409,12 @@ class CandidateGenerator:
         return out
 
     def _defer_trigger_time(self, sim, now, level):
-        """가장 이른 관측 가능 미래 사건 (공개 정보만) — (시각, 종류) 또는 (None, None).
+        """가장 이른 관측 가능 미래 사건 (공개 정보만) — (시각, 종류, 대상 작업) 또는
+        (None, None, None). YR-146 허가증: 대상 작업 id 를 함께 반환(기록 전용).
 
         외부트럭 provided_eta(정보수준 가시성 규칙 재사용)·내부작업 release_time 만 본다.
         실현(actual_*) 미래시각은 절대 읽지 않는다 (YR-147 비누출 계약)."""
-        best_t, best_k = None, None
+        best_t, best_k, best_j = None, None, None
         for jid in sorted(sim.jobs):
             j = sim.jobs[jid]
             if j.status != JobStatus.PLANNED:
@@ -422,18 +424,19 @@ class CandidateGenerator:
             else:
                 t, k = getattr(j, "release_time", None), "RELEASE"
             if t is not None and t > now and (best_t is None or t < best_t):
-                best_t, best_k = t, k
-        return best_t, best_k
+                best_t, best_k, best_j = t, k, jid
+        return best_t, best_k, best_j
 
     def _wait(self, sim=None, now=None, level=None) -> GenCandidate:
         base = GenCandidate(0, CandidateKind.WAIT, None, None, False, True, None,
                             float("-inf"))
         if WAIT_MODE == "WAIT" or sim is None:      # A(현행) 또는 busy/양보 구조 경로
             return base
-        t, k = self._defer_trigger_time(sim, now, level)
+        t, k, jid = self._defer_trigger_time(sim, now, level)
         expiry = now + DEFER_T_MAX
         if t is not None:
-            return replace(base, defer_until=min(t, expiry), defer_trigger=k)
+            return replace(base, defer_until=min(t, expiry), defer_trigger=k,
+                           defer_trigger_jid=jid)
         # 관측 trigger 없음 — B: 전략 허용 유한 대기 / C: 구조적 fallback 전용(조합 제외)
         return replace(base, defer_until=expiry, defer_trigger=None)
 
