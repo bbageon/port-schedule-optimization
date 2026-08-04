@@ -90,7 +90,7 @@ def run_arm(seeds: dict[str, int], *, arm: str, tag: str) -> dict:
 
     resolver = TransferQuoteResolver(
         kf, travel_fn=travel_fn, vessel_slack_fn=vessel_slack_min_s,
-        gain_margin=(float("inf") if arm == "keep" else 0.5))
+        gain_margin=(float("inf") if arm == "keep" else None))   # None = κ_T 1σ 유도(정정)
 
     chan = {k: 0.0 for k in CHANNELS}
 

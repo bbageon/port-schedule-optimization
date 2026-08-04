@@ -18,7 +18,11 @@ from .cost_curve_v2 import (GATE_BLOCK_MEAN_S, SVC_REF_S, KappaFit, j_truck,
                             observed_gate_in, predict_gate_out, truck_target_s)
 
 ROUTE_S_DEFAULT = 180.0
-GAIN_MARGIN_DEFAULT = 0.5          # yr099 GAIN_MARGIN 승계 (churn 방지)
+# ★정정(2026-08-04, 1차 파일럿 원장): yr099 승계값 0.5 는 "에피소드 전체 비용 차" 단위
+# 맥락이라 "작업 1건 예측 비용"(중앙 0.36~0.40) 견적에서는 구조적 발화 불가.
+# 정정 도출 = κ_T 예측오차 1σ (383.7s ≈ 0.107 비용단위) — 예측오차 이내 이득 무시
+# (churn 방지 목적 동일·파일럿 원장 수치에 맞춘 값 아님). gain_margin=None 이면 κ 유도.
+GAIN_MARGIN_DEFAULT = None
 VESSEL_SLACK_MIN_DEFAULT = 0.0     # yr105 본선 보호 경계 승계 (의미 경계·튜닝 아님)
 
 
@@ -83,14 +87,16 @@ class TransferQuoteResolver:
 
     def __init__(self, kf: KappaFit, *, travel_fn, vessel_slack_fn=None,
                  route_s: float = ROUTE_S_DEFAULT,
-                 gain_margin: float = GAIN_MARGIN_DEFAULT,
+                 gain_margin: float | None = GAIN_MARGIN_DEFAULT,
                  vessel_slack_min: float = VESSEL_SLACK_MIN_DEFAULT,
                  max_transfers: int = 1):
         self.kf = kf
         self.travel_fn = travel_fn                  # (src, jid) -> travel_s (하네스 결정론 rng)
         self.vessel_slack_fn = vessel_slack_fn      # (sim) -> float | None (본선 가드)
         self.route_s = route_s
-        self.gain_margin = gain_margin
+        # None = κ_T 1σ 유도 (예측오차 이내 이득 무시 — 정정 도출, 상수 튜닝 아님)
+        self.gain_margin = (kf.kappa_t_s / 3600.0 if gain_margin is None
+                            else gain_margin)
         self.vessel_slack_min = vessel_slack_min
         self.max_transfers = max_transfers
         self.ledger: list[dict] = []                # 견적 원장 (감사 가능·epoch 전용 quote)
