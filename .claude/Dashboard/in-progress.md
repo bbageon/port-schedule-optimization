@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-133 | RL | 블록 간 판매 발의·수신부담 견적·결정론 확정 — 1차(반입·event-only·1건/epoch) | P0 | 2026-08-04 | [spec](../docs/dashboard-task-specs/YR-133-blockq-sell-quote.md) · 1차 사전등록 동결 `648d0c9`(top-1 OFFER·최소 InBurden·NetGain 결정론 확정·epoch 1건·이송≤1·quote epoch 전용·fail-closed·본선 가드·κ 동결·견적 원장). 기반 조사로 재사용(원자 이송 API·브리지 테스트 22종)/신규 갭 확정. 파일럿 8쌍(906000+) — 기능 가드 판정(효과 확증은 후속 단일축). 결과 미열람 |
 
 ---
 
