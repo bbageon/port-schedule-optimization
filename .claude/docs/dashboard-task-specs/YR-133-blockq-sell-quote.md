@@ -1,3 +1,31 @@
+# YR-133 — 1차 착수 사전등록 (2026-08-04 동결 · 기반 조사 반영)
+
+## 1차 범위 (동결 — event-only·반입·1건/epoch)
+- **재사용**: MultiBlockTerminal 원자 이송(prepare/validate/commit/rollback·txn 멱등·
+  용량/규격 fail-closed·전역 원장·G0 불변식·계약 테스트 22종)·yr105 러너(SF 실행정책·
+  gate-in 정확 시각 review epoch·비용 채널 분해)·κ 동결(kappa_fit_v2p).
+- **유일 변경**: review 규칙 = 혼잡 격차 → **견적 프로토콜**:
+  ① source: 그 epoch gate-in 재배정 가능 후보 중 **top-1 OFFER**(OutRelief 최대,
+    tie 는 작업 id 사전순) — OutRelief = v2 예측 KEEP 비용 j_truck(Ô_src+bias, A, D_T, κ_T)
+  ② receiver(허용 블록 = 타 블록 전부·최소 InBurden·tie 블록명순): **InBurden** =
+    가상 도착(A+이동+우회) 기준 수신 블록 큐 proxy 로 Ô_dst 계산한 j_truck — 공개 정보만
+    (predict_gate_out 미도착 분기 로직 재사용·실현 미열람)
+  ③ **TransferQuoteResolver(결정론)**: NetGain = OutRelief − InBurden − route/3600 −
+    GAIN_MARGIN(0.5 승계) > 0 ∧ 본선 가드(소스 LOAD 최소 slack ≥ 0) → try_transfer
+    **epoch당 최대 1건**. 예측 결측 = KEEP(fail-closed). quote 는 발행 epoch 전용
+    (이월 금지 — 만료 원천 차단)·**이송/작업 ≤ 1회 mask**(transfer_count 필터 신설).
+  ④ 견적 원장 전량 저장(t·작업·OutRelief·InBurden·NetGain·결정·version — 감사 가능).
+- **명시 한계(1차)**: InBurden 에 수신 블록 기존 작업 지연 영향·본선 항 미포함(가드로
+  대체 — 후속 축), 양하·타이머 재검토·TOS/ECS ACK·N>2 후속, 실행정책은 SF(학습 정책의
+  다중블록 이식은 별도 축).
+- **비교(파일럿 8쌍·판정 아님)**: QUOTE vs KEEP(gain_margin=∞ — 계산 경로 동일·확정만
+  차단, yr113 패턴). 신규 대역 y133-pilot(커서 906000 — 900k 이송 계열·910k 판정 계열
+  회피), 지표 = terminal total(route 포함)·A→O(보고). **1차 성공 = 기능 가드 전부**:
+  완주·불변식·정책 예외 0·epoch 1건 제한·mask·만료 위반 0·KEEP arm 이송 0.
+  효과 확증(δ·표본·혼합 통계)은 후속 단일축.
+- **승계 함정 3**: review 는 결정·wake 소진 뒤(기준선 24~32% 부풀림)·time_ledger
+  포인터 이관·provided_eta 동반 시프트 — 전부 기존 코드가 처리(불변).
+
 # YR-133 — Block Q 재배정 발의(SELL 별칭)·수신부담 견적·중앙 원자 확정
 
 > 상태: backlog · 실환경 계약 정정 2026-08-02
