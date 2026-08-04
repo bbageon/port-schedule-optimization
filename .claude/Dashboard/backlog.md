@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-149 | RL | **견적 정밀화(수신 파급) → 이송 효과 확증** | 🔴 | YR-133 1차 경고 신호(예측-실현 괴리 sd 9.4)의 후속 — ①원장 14건 사후 대조 ②InBurden 에 수신 기존 작업 지연 항 ③분산 재봉인·표본 산정·확증. "이송 이득" 주장은 확증 전 금지 · [spec](../docs/dashboard-task-specs/YR-149-quote-refine-confirm.md) |
 | YR-134 | Exp | **다음 공동행동 shadow 이중계산 — 작업시작 예측 vs 완료시 실제상태** | 🟠 | **사용자 결정(2026-07-30): 정책 성능 검증 전 제약 추가 금지.** 현재 공동작업 시작 때 다음 완료사건 뒤 예상 `crane_ids`의 공동후보 top-K를 계산하되 별도 진단 로그에만 저장하고, 완료 때 기존 Block Q가 최신 상태에서 자유롭게 다시 선택한다. shadow ON/OFF의 본 실험 행동·비용·난수상태는 동일해야 한다. 실제 정책 선택은 최적 정답이 아니므로 정책선택·C600 참고최선의 top-K 포함률과 선택 후 손실을 분리 측정한다. 통과 뒤에만 soft cache를 별도 단일축으로 등록하며 예약·자동실행은 후순위 · [spec](../docs/dashboard-task-specs/YR-134-next-action-shadow.md) · [결정이력](../docs/strategy-history/2026-07-30-YR-134-다음작업-shadow-이중계산-사용자결정.md) **backlog 유지(7차 피드백)**: 새 공동 Advantage-Q 정책 확정까지 |
  **실환경 계약 정정(2026-08-02)**: TOS 최초배정은 각 Block Policy로 직접 들어가며, source는 `NO_OFFER/top-1 OFFER+OutRelief`, receiver는 BUY가 아니라 `NO_BID/InBurden`만 응답한다. 결정론적 TransferResolver만 KEEP/TRANSFER를 확정하고 TOS/ECS ACK 전 owner는 source에 유지. 1차=`actual gate-in→route/block lock` 반입·event-only·1건/epoch, 양하와 timer는 각각 후속 단일축. 선결=YR-147 정책 최적화→YR-143 행동공간→YR-146 배포 안전 + YR-123·136 비용계약 · [spec](../docs/dashboard-task-specs/YR-133-blockq-sell-quote.md) |
 | YR-126 | Infra | **1세대 Archive 완료분 태스크 스펙 소급 작성** | 🟡 | spec 필수 규칙(2026-07-29, AGENTS.md) 소급분 — 2세대·활성 row 는 당일 전량 작성 완료, 1세대 Archive(YR-016~078 대 다수)가 잔여. evidence 보고서가 이미 상세하므로 각 spec 은 15줄 내 요약+링크로 일괄 생성 |
