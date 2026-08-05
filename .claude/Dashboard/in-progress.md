@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-149 | RL | 견적·평가 정렬 → 파급 원인 진단 → 이송 효과 확증 (1단계 착수) | P0 | 2026-08-05 | [spec](../docs/dashboard-task-specs/YR-149-quote-refine-confirm.md) · 범위 정정(2026-08-05) 반영: TOS 연동 제외·0.107 = 기능 보정값. 선결 정렬(최대 NetGain 선택·version 직접 검사) 구현 후 **1단계 = 결정시점 반사실 진단**(YR-133 14건을 사슬 한계효과 리플레이 — 같은 시드·같은 travel, j건 실행 vs j−1건 실행) 동결·실행. 결과 미열람 |
 
 ---
 

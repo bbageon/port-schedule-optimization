@@ -103,10 +103,11 @@ class TransferQuoteResolver:
         self.n_transferred = 0
 
     def review(self, mbt, t: float) -> None:
-        fired = False                               # epoch당 최대 1건
+        """★YR-149 선결 정렬: 소스 이름순 첫 양수가 아니라 **같은 epoch 허용 제안 전체
+        중 최대 NetGain 1건**을 고르고, commit 직전 quote 발행 version 과 현재 version
+        일치를 직접 검사한다 (불일치 = KEEP_STALE_VERSION)."""
+        proposals = []                              # (net, offer, quote, travel)
         for src in sorted(mbt.blocks):
-            if fired:
-                break
             src_sim = mbt.blocks[src]
             # 본선 가드 — 소스 LOAD 최소 slack 이 경계 미만이면 이 블록 발의 금지
             if self.vessel_slack_fn is not None:
@@ -151,7 +152,6 @@ class TransferQuoteResolver:
             if not quotes:
                 continue
             quote, travel = min(quotes, key=lambda q: (q[0].in_burden, q[0].dst))
-            # ③ 결정론 확정 — NetGain > 0 이면 원자 이송 (그 외 전부 KEEP)
             net = (offer.out_relief - quote.in_burden
                    - self.route_s / 3600.0 - self.gain_margin)
             rec = {"t": t, "src": src, "dst": quote.dst, "job_id": offer.job_id,
@@ -160,10 +160,23 @@ class TransferQuoteResolver:
             if net <= 0.0:
                 self.ledger.append({**rec, "decision": "KEEP"})
                 continue
+            proposals.append((net, offer, quote, travel, rec))
+        if not proposals:
+            return
+        # ③ 결정론 확정 — 전 제안 중 최대 NetGain 1건 (tie: 작업 id 사전순)
+        proposals.sort(key=lambda p: (-p[0], p[1].job_id))
+        for i, (net, offer, quote, travel, rec) in enumerate(proposals):
+            if i > 0:                               # epoch당 최대 1건 — 잔여는 KEEP 기록
+                self.ledger.append({**rec, "decision": "KEEP_NOT_SELECTED"})
+                continue
+            cur_ver = mbt.ledger.records[offer.job_id].version
+            if cur_ver != offer.version:            # quote 발행 vs 확정 version 직접 검사
+                self.ledger.append({**rec, "decision": "KEEP_STALE_VERSION",
+                                    "version_at_commit": cur_ver})
+                continue
             ok = mbt.try_transfer(offer.job_id, quote.dst,
                                   route_s=self.route_s, travel_s=travel)
             self.ledger.append({**rec,
                                 "decision": "TRANSFER" if ok else "KEEP_TXN_FAIL"})
             if ok:
                 self.n_transferred += 1
-                fired = True
