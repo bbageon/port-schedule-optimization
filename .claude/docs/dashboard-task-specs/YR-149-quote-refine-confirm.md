@@ -12,8 +12,9 @@
 - 실제 TOS/ECS API, ACK/NACK, route lock 동기화, 운영 배포 가능성은 구현·평가하지 않는다.
 - `TransferResolver`가 설정된 허용 블록 안에서 시뮬레이터 owner·queue·event·시간장부를
   원자 변경하는 연구 추상만 사용한다.
-- 1차 효과 주장은 SF-SPT 실행정책·2블록·반입 조건으로 한정한다. 채택 PPO 정책과의 결합은
-  견적 원리가 확증된 뒤 별도 통합축에서만 검토한다.
+- 1차 효과 주장은 SF-SPT 실행정책·2블록·반입 조건으로 한정한다. **후속 사용자 결정**으로
+  계산견적 우월 자체는 PPO SELL의 선결에서 제외했다. YR-149는 정보시점·5셀 데이터·Q 기준선을
+  고정하고, PPO 성능은 YR-151에서 KEEP·동일시점 Q30과 별도 판정한다.
 
 ## 선결 정렬 — 결과 열람 전 고정
 
@@ -107,26 +108,40 @@ NetGain        = OutRelief - InBurden - TransferCost - uncertainty_margin
   동일하게 둔다.
 - **사용자 부하 5셀(2026-08-05)**: 4시간 유입·2시간 배출, 블록당 2YC를 고정하고
   `A/B=50/50·75/50·100/50·125/50·150/50`으로 소스 A의 유입만 단계 상승시킨다.
-  트럭 수는 `gaussian=False`로 정확히 고정하고, 본선 2척×15 move·장치율 0.30·도착 피크·
-  물리·비용계약은 모두 동일하게 둔다. **A/B의 본선 일정·마감도 같은 동결 template**을
+  숫자는 블록별 4시간 유입 작업 수이며 터미널 합계는 `100·125·150·175·200`이다.
+  트럭 수는 `gaussian=False`로 정확히 고정하고, 블록별 본선 process 2개×15 move
+  (두 블록 합계 4 process·60 move)·장치율 0.30·도착 피크·물리·비용계약은 모두 동일하게
+  둔다. **A/B의 본선 일정·마감도 같은 동결 template**을
   사용해 트럭 부하 외 차이를 없앤다. 150대 master trace의 결정론적 층화 부분집합으로
   50/75/100/125를 만들어, 같은 정수 seed만 쓰고 RNG 흐름이 달라지는 가짜 pairing을 금지한다.
-- 부하 이름은 입력 셀일 뿐 실제 혼잡 판정이 아니다: `L50 기준`, `L75 바쁨`, `M100 고부하`,
-  `H125 포화`, `X150 초과부하`. 실제 상태는 raw queue·평균대기·YC 부하·장치율·backlog로 보고한다.
+- **정책 비교 전 데이터 자격시험을 반드시 실행한다**: A150에서 A50/75/100/125의 job-id
+  중첩, B50의 작업·ETA·실현값 5셀 byte 동일, 정책군별 roster 동일을 직접 검사한다. 현
+  realization hash만 믿지 않고 초기 container layout, 본선 start/planned completion/ETD/moves/
+  cadence/physical-minimum, deadline·fill·flow비율을 포함한 config digest를 각각 assert한다.
+  시간가중 `A≤t<O` WIP,
+  queue 평균/최대, 평균 A→O, YC busy율, 처리량, 4h/6h backlog, drain-to-empty를 원자료로 남긴다.
+- 부하 이름은 입력 셀일 뿐 실제 혼잡 판정이 아니다. 결과 뒤 `CLEAR`(4h·6h backlog 0),
+  `BUSY`(4h backlog>0·6h backlog 0), `OVERLOADED`(6h backlog>0 또는 사전 drain cap 초과)로
+  기계 분류한다. 즉 50·75·100·125·150이라는 숫자만으로 양호·보통·혼잡을 미리 선언하지 않는다.
 - 기능 가드와 함께 실제로 서로 다른 결정을 충분히 냈는지 `NO_EXPOSURE`를 검사한다.
-- 파일럿 분산으로 운영상 최소 의미 절감폭 `δ`와 필요한 확증 표본 수를 결과 전에 동결한다.
+- 운영상 최소 의미 절감폭 `δ`는 결과 전에 비용계약에서 정하고, 파일럿은 분산·최소검출효과
+  (MDE)·필요 확증 표본 수만 계산한다.
 
 ### 4. 독립 확증
 
 - 파일럿과 겹치지 않는 신규 시드뱅크를 사용하고 top-up은 금지한다.
 - 표본 단위는 에피소드 seed 쌍, 주판정은 v2 실현 총비용의 짝지은 차이다.
-- 각 부하 셀은 합쳐 평균내지 않고 별도 신뢰구간을 낸다. raw 총비용과 함께 작업당 비용,
+- 같은 master seed의 5셀을 한 cluster로 함께 재표집하고 5셀 동시 신뢰구간 또는 다중검정
+  보정을 쓴다. 각 부하 셀은 합쳐 평균내지 않는다. raw 총비용과 함께 작업당 비용,
   A→O, 본선 척당 비용, 처리량/YC시간, 이송·route 비용을 보고한다.
-- 완주 100%, backlog 0, 정책 예외 0, epoch당 이송 1건, 작업당 1회, owner·version·rollback
-  연속성, route 비용 포함, 미래정보 미열람을 하드 가드로 둔다.
+- 모든 셀에서 미완·backlog를 누락하지 않는 장부, 정책 예외 0, epoch당 이송 1건, 작업당 1회,
+  owner·version·rollback 연속성, route 비용 포함, 미래정보 미열람을 하드 가드로 둔다.
+  비용판정 가능 셀에만 완주 100%·최종 backlog 0을 추가 요구한다.
 - 트럭 평균 A→O와 본선 초과는 사전 허용손실 안이어야 한다. P95는 보고만 한다.
-- X150에서 모든 arm이 미완이면 정책 열세가 아니라 **현재 2YC 용량 초과 셀**로 분류하고,
-  비용 우월 주장을 금지한 채 처리량·backlog·drain-to-empty만 비교한다.
+- 어느 셀이든 후보만 미완이면 후보 기각, KEEP만 미완이면 완주 우위만 주장하고 비용 비교는
+  보류, 모두 미완이면 **현재 2YC 용량 초과 셀**로 분류해 처리량·backlog·drain-to-empty만 본다.
+- YR-149는 SF-SPT 위 계산견적 기준선과 데이터 자격을 검증한다. PPO SELL 성능 주장은
+  [YR-151](YR-151-block-ppo-sell-head.md)에서만 한다.
 
 ## 허용 주장과 금지 주장
 
@@ -139,3 +154,4 @@ NetGain        = OutRelief - InBurden - TransferCost - uncertainty_margin
 - YR-133: `648d0c9`(동결)·`b9b8fd9`(기능 보정)·`76c62d1`(판정)
 - [보고서](../../../outputs/reports/yr133_sell_quote/report_pilot.md) ·
   [TOS 연동 제외 결정](../strategy-history/2026-08-05-YR-133-TOS-연동-범위-제외-사용자결정.md)
+- [PPO SELL·5부하 데이터 사용자 결정](../strategy-history/2026-08-05-YR-149-151-PPO-SELL-혼잡5셀-사용자결정.md)

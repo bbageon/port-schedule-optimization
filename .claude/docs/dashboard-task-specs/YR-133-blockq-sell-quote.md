@@ -189,8 +189,8 @@ epoch당 최대 1건만 확정하고 다건 matching은 후속 단계로 분리�
 3. **G2 효과**: no-transfer / 현 혼잡규칙 / 계산 quote resolver를 신규 paired seed로 비교.
    반입-only와 양하-only를 분리하고 완주·backlog·안전을 hard guard로 둔다.
 4. **G3 갱신**: event-only 통과 뒤 timer 추가 이득과 계산량을 단일축 검증한다.
-5. **G4 학습**: 계산 quote의 상금과 라벨 품질이 확인된 뒤에만 공유 QuoteNet을 검토한다.
-
+5. **G4 학습(후속 YR-151로 개정)**: PPO SELL head를 별도 실험하되 YR-149 정보시점·5셀
+   데이터 자격을 먼저 고정하고 KEEP·계산견적을 모두 대조한다.
 P95(트럭 100대 중 오래 걸린 5대의 시간)는 보고용 진단이며 채택 veto로 쓰지 않는다.
 
 ## Evidence
