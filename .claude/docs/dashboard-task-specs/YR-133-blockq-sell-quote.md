@@ -1,9 +1,9 @@
 # YR-133 — 1차 착수 사전등록 (2026-08-04 동결 · 기반 조사 반영)
 
+> **2026-08-05 범위 정정**: 실제 TOS/ECS 연동은 연구에서 제외하며, 원자 확정은 이후부터 시뮬레이터 내부 트랜잭션만 뜻한다.
+
 ## 1차 범위 (동결 — event-only·반입·1건/epoch)
-- **재사용**: MultiBlockTerminal 원자 이송(prepare/validate/commit/rollback·txn 멱등·
-  용량/규격 fail-closed·전역 원장·G0 불변식·계약 테스트 22종)·yr105 러너(SF 실행정책·
-  gate-in 정확 시각 review epoch·비용 채널 분해)·κ 동결(kappa_fit_v2p).
+- **재사용**: MultiBlockTerminal 원자 이송(prepare/validate/commit/rollback·txn 멱등·용량/규격 fail-closed·전역 원장·G0 불변식·계약 테스트 22종)·yr105 러너(SF 실행정책·gate-in 정확 시각 review epoch·비용 채널 분해)·κ 동결(kappa_fit_v2p).
 - **유일 변경**: review 규칙 = 혼잡 격차 → **견적 프로토콜**:
   ① source: 그 epoch gate-in 재배정 가능 후보 중 **top-1 OFFER**(OutRelief 최대,
     tie 는 작업 id 사전순) — OutRelief = v2 예측 KEEP 비용 j_truck(Ô_src+bias, A, D_T, κ_T)
@@ -15,9 +15,7 @@
     **epoch당 최대 1건**. 예측 결측 = KEEP(fail-closed). quote 는 발행 epoch 전용
     (이월 금지 — 만료 원천 차단)·**이송/작업 ≤ 1회 mask**(transfer_count 필터 신설).
   ④ 견적 원장 전량 저장(t·작업·OutRelief·InBurden·NetGain·결정·version — 감사 가능).
-- **명시 한계(1차)**: InBurden 에 수신 블록 기존 작업 지연 영향·본선 항 미포함(가드로
-  대체 — 후속 축), 양하·타이머 재검토·TOS/ECS ACK·N>2 후속, 실행정책은 SF(학습 정책의
-  다중블록 이식은 별도 축).
+- **명시 한계(1차)**: InBurden의 수신 기존 작업 지연·본선 항 미포함(후속 축), 양하·타이머·N>2 후속, 실제 TOS/ECS 연동은 범위 밖, 실행정책은 SF(학습 정책 이식은 별도 축).
 - **비교(파일럿 8쌍·판정 아님)**: QUOTE vs KEEP(gain_margin=∞ — 계산 경로 동일·확정만
   차단, yr113 패턴). 신규 대역 y133-pilot(커서 906000 — 900k 이송 계열·910k 판정 계열
   회피), 지표 = terminal total(route 포함)·A→O(보고). **1차 성공 = 기능 가드 전부**:
@@ -37,21 +35,22 @@
   (예측오차 이내 이득 무시 = churn 방지 목적 동일 — 파일럿 원장 수치에 맞춘 값 아님).
   원장 열람 후 정정이므로 재실행은 **보정 파일럿**으로 표기(1차 산출물 pilot_v1.json
   박제 보존). 그 외 계약 전부 불변.
+- **후속 감사 정정(2026-08-05)**: 0.5와 작업 견적은 같은 정규화 비용단위지만 추정 대상·규모가 달랐다. `κ_T=383.7초`도 실제 잔차 1σ(695.9초)가 아니므로 0.107은 기능 보정값이며 최적 여유폭 주장은 금지한다.
 
 # YR-133 — Block Q 재배정 발의(SELL 별칭)·수신부담 견적·중앙 원자 확정
 
-> 상태: backlog · 실환경 계약 정정 2026-08-02
+> 상태: **done — 시뮬레이터 기능 통과·비용효과 미확증** · 범위 정정 2026-08-05
 > 선결: YR-147 정책 최적화 → YR-143 행동공간 → YR-146 배포 안전, YR-123·136 공통 비용계약
 > 근거: [상세 결정이력](../strategy-history/2026-08-02-YR-133-판매수용-실환경-설계와-YR-143-무재배치-채택계약.md)
 
 ## 목적과 권한 경계
 
-외부 TOS(터미널 운영 시스템)는 작업 생성·최초 블록 배정·허용 블록을 담당하며 연구가
-대체하지 않는다. TOS가 작업을 최초 블록의 Block Policy에 직접 전달한 뒤, 아직 물리적으로
-고정되지 않은 작업만 다음 구조로 재배정한다.
+연구 입력에는 외부 TOS(터미널 운영 시스템)가 작업 생성·최초 블록 배정·허용 블록을 이미
+정한 스냅샷이 주어진다고 가정한다. 연구는 TOS와 실시간 통신하지 않으며, 그 입력 중 아직
+물리적으로 고정되지 않은 작업만 다음 구조로 재배정한다.
 
 ```text
-외부 TOS ──최초 배정──> 원소유 Block Policy
+외부 최초배정 스냅샷 ──> 원소유 Block Policy
                             │ 재배정 발의 + 빠졌을 때 절감액
                             ▼
                     TransferResolver
@@ -60,12 +59,14 @@
                       ▼          │
                   수신 Block Policy
                             │
-               KEEP 또는 TOS/ECS 승인 뒤 A→B 원자 확정
+               KEEP 또는 시뮬레이터 내부 A→B 원자 확정
 ```
 
 - `tos_assigned_block_id`는 이력으로 보존하고 `execution_block_id`만 바꾼다.
-- 실제 TOS/ECS(장비 제어 시스템)가 재배정 API·ACK를 제공하지 않으면 자동 확정하지 않고
-  shadow 추천으로만 평가한다.
+- 외부 TOS는 최초 배정이 이미 끝났다는 입력 배경으로만 둔다. 실제 API·ACK/NACK·상태
+  동기화와 현장 배포 가능성은 구현·평가하지 않는다.
+- 실험 설정의 허용 블록 안에서 `TransferResolver`가 owner·queue·event·시간장부를 직접
+  원자 변경한다. 이는 연구용 시뮬레이터 추상이며 실제 TOS 제어 주장이 아니다.
 - 단일 블록 실행순서 정책의 성능을 먼저 확정한 뒤 본 작업을 연다. 실행정책과 재배정정책을
   동시에 바꾸지 않는다.
 
@@ -114,7 +115,7 @@ slot/YC hard reservation이 생겼으면 fail-closed로 KEEP한다.
 추가 자격은 다음을 모두 만족해야 한다.
 
 - current owner·assignment version 일치, 열린 transaction 없음, 첫 PoC 이전횟수 ≤1.
-- TOS가 준 `allowed_execution_blocks` 안의 receiver만 조회한다. 연구가 허용범위를 넓히지 않는다.
+- 시나리오 설정의 `allowed_execution_blocks` 안의 receiver만 조회한다. 결측이면 KEEP한다.
 - receiver에 규격·높이·용량상 호환 slot과 YC 작업 가능성이 있다.
 - ETA·소유권·허용블록 등 필수정보가 결측이면 KEEP한다.
 - 냉동·위험물·중량·선사·세관 규칙은 YR-095에서 실제 자료로 추가한다. 그전에는 최소
@@ -154,18 +155,17 @@ A→B로 옮기는 비용으로 잘못 계산하지 않는다. 초기 판정은 
 - 상태 변화가 없거나 계산이 운영 latency budget을 넘으면 KEEP한다.
 - 견적기가 통과한 뒤에만 `T_refresh` 타이머를 별도 단일축으로 추가한다.
 
-## 원자 확정과 rollback
+## 시뮬레이터 원자 확정과 rollback
 
 ```text
-OFFERED → QUOTED → PREPARED → VALIDATED → TOS/ECS ACK → COMMITTED
-                         └─ stale/NACK/timeout/오류 → KEEP + 전체 rollback
+OFFERED → QUOTED → PREPARED → VALIDATED → COMMITTED
+                         └─ stale/용량변경/오류 → KEEP + 전체 rollback
 ```
 
 1. source owner를 유지한 채 receiver slot·route/YT를 임시예약한다.
 2. job/source/receiver/route version과 quote TTL을 다시 검사한다.
-3. TOS/ECS에 재배정을 요청하고 ACK와 새 version을 확인한다.
-4. owner·양쪽 queue·arrival event·route·전역 A→O 시간장부를 한 transaction으로 바꾼다.
-5. 실패하면 임시예약과 event를 복원하고 원 owner에 작업을 남긴다.
+3. owner·양쪽 queue·arrival event·route·전역 A→O 시간장부를 한 transaction으로 바꾼다.
+4. 실패하면 임시예약과 event를 복원하고 원 owner에 작업을 남긴다.
 
 `txn_id`는 멱등이어야 하며 낡은 arrival event는 `(job_id, version)` 불일치로 무효화한다.
 epoch당 최대 1건만 확정하고 다건 matching은 후속 단계로 분리한다.
@@ -174,11 +174,11 @@ epoch당 최대 1건만 확정하고 다건 matching은 후속 단계로 분리�
 
 - `MultiBlockTerminal`에는 shared clock, canonical job, owner/version, 용량예약,
   prepare/validate/commit/rollback의 기반이 있다.
-- 현재 `review_fn`은 중앙 혼잡도 규칙으로 직접 이송하며 독립 TransferResolver와
-  source/receiver quote head는 없다.
-- 현재 자격은 반입·gate-in 중심의 근사이며 TOS ACK, allowed-block mask, route/YT lock,
-  quote TTL·불확실성, 양하 handover 사건은 미구현이다.
-- 따라서 현재 PPO는 내부 실행순서만 정하며 **판매·수용 견적은 아직 수행하지 않는다**.
+- YR-133 1차에서 독립 `TransferQuoteResolver`와 source/receiver 계산 견적이 발화했고
+  14건의 시뮬레이터 이송이 완료됐다. 비용효과는 미확증이다.
+- 현재 자격은 반입·실제 gate-in 중심의 근사이며 설정 기반 allowed-block mask,
+  quote TTL·불확실성, 양하 handover 사건은 후속 범위다.
+- 1차 실행정책은 SF-SPT 규칙이다. 채택 PPO 정책과의 결합 성능은 아직 검증하지 않았다.
 
 ## 검증 게이트
 
@@ -195,5 +195,6 @@ P95(트럭 100대 중 오래 걸린 5대의 시간)는 보고용 진단이며 �
 
 ## Evidence
 
-2026-08-02에는 실환경 설계 계약만 정정했다. 구현·실험 결과는 착수 후 별도 evidence로
-갱신하며, 자동 commit은 실제 TOS/ECS 인터페이스가 확인되기 전 주장하지 않는다.
+2026-08-04 기능 파일럿은 `648d0c9`→`b9b8fd9`→`76c62d1`에 박제했다. 허용 결론은
+“2블록·반입·SF 조건에서 견적과 시뮬레이터 원자 이송 경로가 발화했다”까지다. 2026-08-05
+사용자 결정으로 실제 TOS 연동은 범위에서 제외했고, 후속 비용효과 검증은 YR-149가 맡는다.
