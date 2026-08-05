@@ -1,7 +1,10 @@
 # YR-151 — Block PPO SELL TransferHead
 
 - **Epic**: RL / **Priority**: 🔴 / **등록일**: 2026-08-05
-- **상태**: **ready** (2026-08-05 — YR-149 5부하 데이터 자격 통과로 선결 해소, board 정합)
+- **상태**: **in-progress** (2026-08-06 — 0A 착수·게이트 인가 `allowed=true`)
+  - **0A 완료**: 계약 8종 전 항 통과(20/20 셀·깨끗한 커밋 실행) — 판정 `ae6005b` ·
+    [report](../../../outputs/reports/yr151_pre_gate_0a/report.md)
+  - 다음: YR-150 지속 유입 환경 구축 → **0B**(신호 재검사·학습 GO/STOP)
 - **3대 게이트 단계 계약**: `0A=reliability`, `0B=performance` — 각 단계 착수 전 YR-153
   `authorize-next`를 따로 통과하며 두 축 동시 보정 금지
 - **사용자 결정**: 중앙 계산기가 먼저 판매작업을 고르는 구조를 기준선으로 남기되,
