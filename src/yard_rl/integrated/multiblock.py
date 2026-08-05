@@ -263,6 +263,73 @@ class MultiBlockTerminal:
         self._open_txn.add(txn.txn_id)
         return txn
 
+    def prepare_pre_gate_transfer(self, job_id: str, dst: str, *, travel_s: float,
+                                  route_delta_s: float = 0.0,
+                                  max_transfers: int = 1) -> TransferTxn:
+        """YR-151 0A — **게이트 진입 전** 원자 재배정 준비 (기존 prepare_transfer 의 대칭).
+
+        기존 경로는 `a_gate_in <= now` (이미 게이트를 통과)만 허용한다. 여기서는 반대로
+        **아직 게이트에 들어오지 않은** 작업만 허용한다. 트럭은 여전히 같은 시각에 게이트로
+        들어오므로 **A(actual_gate_in)는 바뀌지 않고** 목적지만 바뀐다 — 따라서 블록 도착은
+        `A + (게이트→새 블록 주행)` 이고, A→O 장부의 A 는 값 그대로 블록 장부만 옮겨간다.
+
+        `route_delta_s` = (게이트→새 블록) − (게이트→기존 블록) **예측** 주행시간 차이.
+        기존 블록 간 물리운반 180s 가 아니다(spec). 예측 도착 필드는 이 값만큼 이동한다.
+        """
+        rec = self.ledger.records.get(job_id)
+        if rec is None:
+            raise TransferError(f"{job_id}: 미등록")
+        if dst not in self.blocks or dst == rec.owner:
+            raise TransferError(f"{job_id}: 수신 블록 부적격 {dst}")
+        if not rec.reassignable:
+            raise TransferError(f"{job_id}: lock/자격 위반")
+        # ★0A 계약 구멍 정정: 이송 상한을 **엔진에서** 강제한다. 구판은 후보 생성기 mask 에만
+        # 있어 생성기를 우회하면 같은 작업이 여러 번 옮겨질 수 있었다(기존 post-gate 경로도
+        # 동일 — 그쪽은 골든 보호를 위해 건드리지 않고 PRE_GATE 만 fail-closed 로 둔다).
+        if rec.transfer_count >= max_transfers:
+            raise TransferError(f"{job_id}: 이송 상한 초과 ({rec.transfer_count})")
+        src_sim = self.blocks[rec.owner]
+        j = src_sim.jobs.get(job_id)
+        if j is None or j.status != JobStatus.PLANNED:
+            raise TransferError(f"{job_id}: 소스 상태 위반")
+        # ★기존 경로와 정반대 창: 아직 게이트 진입 전이어야 한다.
+        if rec.a_gate_in is not None and rec.a_gate_in <= self.now + 1e-6:
+            raise TransferError(f"{job_id}: 이미 gate-in (PRE_GATE 창 밖)")
+        if rec.a_gate_in is None:
+            raise TransferError(f"{job_id}: gate-in 결측 — 장부 이관 불가")
+        if (src_sim.time_ledger is None) != (self.blocks[dst].time_ledger is None):
+            raise TransferError(f"{job_id}: 블록 간 time_ledger 비대칭 (장부 유실 위험)")
+        if self.free_slots(dst) <= self.capacity_margin:
+            raise TransferError(f"{dst}: 용량 부족 (free={self.free_slots(dst)})")
+        arr = rec.a_gate_in + travel_s          # 게이트에서 새 블록으로 직행 (재라우팅 아님)
+        if arr <= self.blocks[dst].clock + 1e-9 or arr > self.blocks[dst].end:
+            raise TransferError(f"{job_id}: 도착시각 무효 {arr:.1f}")
+        self._reserved_inbound[dst] += 1
+        self._txn_seq += 1
+        txn = TransferTxn(job_id=job_id, src=rec.owner, dst=dst, seen_version=rec.version,
+                          new_arrival_s=arr, prepared_at_s=self.now,
+                          route_s=route_delta_s, txn_id=self._txn_seq)
+        self._open_txn.add(txn.txn_id)
+        return txn
+
+    def try_pre_gate_transfer(self, job_id: str, dst: str, *, travel_s: float,
+                              route_delta_s: float = 0.0) -> bool:
+        """prepare_pre_gate→validate→commit, 어느 단계든 실패하면 rollback 후 KEEP."""
+        txn = None
+        try:
+            txn = self.prepare_pre_gate_transfer(job_id, dst, travel_s=travel_s,
+                                                 route_delta_s=route_delta_s)
+            self.commit(txn)
+            return True
+        except TransferError:
+            if txn is not None:
+                self.rollback(txn)
+            return False
+        except BaseException:
+            if txn is not None:
+                self.rollback(txn)
+            raise
+
     def validate(self, txn: TransferTxn) -> None:
         rec = self.ledger.records[txn.job_id]
         if rec.version != txn.seen_version or rec.owner != txn.src:
