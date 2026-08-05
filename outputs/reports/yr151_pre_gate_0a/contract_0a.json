@@ -1,0 +1,751 @@
+{
+ "stage": "0A",
+ "runtime": {
+  "commit": "87d5688e1cf3cc25323b698ca464d6e3f558c349",
+  "git_dirty": false,
+  "remote_ref": "origin/master",
+  "remote_head": "87d5688e1cf3cc25323b698ca464d6e3f558c349",
+  "prereg_file": ".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md",
+  "prereg_sha256": "729b6313190f6faa2adf7d4127f6318291f19b8e85f7399a1d142a988ff5f749",
+  "band_file": "outputs/reports/yr149_load_cells/band.json",
+  "band_sha256": "dfe4f1ba92473c47acdee256685bf4d50c6e9f370a4cbf46fae31c4de581cc74",
+  "params": {
+   "WINDOW_S": 1800.0,
+   "MAX_TRANSFERS": 1,
+   "TRAVEL_S": 300.0,
+   "ROUTE_DELTA_S": 0.0,
+   "CELL_SIZES": [
+    50,
+    75,
+    100,
+    125,
+    150
+   ]
+  },
+  "seeds": {
+   "A": [
+    907000,
+    907001,
+    907002,
+    907003
+   ],
+   "B": [
+    907004,
+    907005,
+    907006,
+    907007
+   ]
+  }
+ },
+ "verdict": {
+  "contract_all_pass": true,
+  "n_cells": 20,
+  "n_cells_exercised": 20,
+  "note": "계약 검사 전용 — 성능·학습 판정 없음. 후보 수는 보고 전용이며 적다는 이유로 학습을 중단하지 않는다(0B 권한)."
+ },
+ "summary": {
+  "C1_window_and_pre_gate": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C2_no_future_leak": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C3_atomic_commit": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C4_gate_in_invariant": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C5_transfer_cap": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C6_stale_rejected": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C7_rollback_restore": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  },
+  "C8_ledger_registration": {
+   "checked": 20,
+   "pass": 20,
+   "all_pass": true
+  }
+ },
+ "cells": [
+  {
+   "cell": "A50",
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "n_candidates": {
+    "A": 1,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-002"
+  },
+  {
+   "cell": "A75",
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "n_candidates": {
+    "A": 2,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 73,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-002"
+  },
+  {
+   "cell": "A100",
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "n_candidates": {
+    "A": 3,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 98,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-002"
+  },
+  {
+   "cell": "A125",
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "n_candidates": {
+    "A": 4,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 122,
+     "identical": true,
+     "n_before": 4,
+     "n_after": 4
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-002"
+  },
+  {
+   "cell": "A150",
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "n_candidates": {
+    "A": 5,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 146,
+     "identical": true,
+     "n_before": 5,
+     "n_after": 5
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-002"
+  },
+  {
+   "cell": "A50",
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "n_candidates": {
+    "A": 2,
+    "B": 0
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    },
+    "B": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 0,
+     "n_after": 0
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-003"
+  },
+  {
+   "cell": "A75",
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "n_candidates": {
+    "A": 3,
+    "B": 0
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 75,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 0,
+     "n_after": 0
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-003"
+  },
+  {
+   "cell": "A100",
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "n_candidates": {
+    "A": 4,
+    "B": 0
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 100,
+     "identical": true,
+     "n_before": 4,
+     "n_after": 4
+    },
+    "B": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 0,
+     "n_after": 0
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-003"
+  },
+  {
+   "cell": "A125",
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "n_candidates": {
+    "A": 5,
+    "B": 0
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 125,
+     "identical": true,
+     "n_before": 5,
+     "n_after": 5
+    },
+    "B": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 0,
+     "n_after": 0
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-003"
+  },
+  {
+   "cell": "A150",
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "n_candidates": {
+    "A": 5,
+    "B": 0
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 150,
+     "identical": true,
+     "n_before": 5,
+     "n_after": 5
+    },
+    "B": {
+     "n_perturbed": 48,
+     "identical": true,
+     "n_before": 0,
+     "n_after": 0
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-003"
+  },
+  {
+   "cell": "A50",
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "n_candidates": {
+    "A": 2,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-000"
+  },
+  {
+   "cell": "A75",
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "n_candidates": {
+    "A": 2,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 74,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-000"
+  },
+  {
+   "cell": "A100",
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "n_candidates": {
+    "A": 3,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 99,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-000"
+  },
+  {
+   "cell": "A125",
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "n_candidates": {
+    "A": 3,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 123,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-000"
+  },
+  {
+   "cell": "A150",
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "n_candidates": {
+    "A": 3,
+    "B": 1
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 148,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 1,
+     "n_after": 1
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-000"
+  },
+  {
+   "cell": "A50",
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "n_candidates": {
+    "A": 2,
+    "B": 2
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 49,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    },
+    "B": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-001"
+  },
+  {
+   "cell": "A75",
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "n_candidates": {
+    "A": 3,
+    "B": 2
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 74,
+     "identical": true,
+     "n_before": 3,
+     "n_after": 3
+    },
+    "B": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-001"
+  },
+  {
+   "cell": "A100",
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "n_candidates": {
+    "A": 4,
+    "B": 2
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 99,
+     "identical": true,
+     "n_before": 4,
+     "n_after": 4
+    },
+    "B": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-001"
+  },
+  {
+   "cell": "A125",
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "n_candidates": {
+    "A": 5,
+    "B": 2
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 124,
+     "identical": true,
+     "n_before": 5,
+     "n_after": 5
+    },
+    "B": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-001"
+  },
+  {
+   "cell": "A150",
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "n_candidates": {
+    "A": 6,
+    "B": 2
+   },
+   "C1_window_and_pre_gate": true,
+   "C2_no_future_leak": true,
+   "leak_probe": {
+    "A": {
+     "n_perturbed": 149,
+     "identical": true,
+     "n_before": 6,
+     "n_after": 6
+    },
+    "B": {
+     "n_perturbed": 50,
+     "identical": true,
+     "n_before": 2,
+     "n_after": 2
+    }
+   },
+   "C6_stale_rejected": true,
+   "C7_rollback_restore": true,
+   "C3_atomic_commit": true,
+   "C4_gate_in_invariant": true,
+   "route_cost_s": 0.0,
+   "C5_transfer_cap": true,
+   "C8_ledger_registration": true,
+   "transferred_job": "A:J-IN-001"
+  }
+ ],
+ "self_sha256": "4862ae718b9f9edc8df73a7212796acd98d1977d34ab6e1f773f8a60d0153639"
+}
