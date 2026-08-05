@@ -478,7 +478,7 @@
   "dominant": "source",
   "stable": true
  },
- "secondary(이송 1건 평균)": {
+ "secondary_A(에피소드 평균의 평균·매크로)": {
   "summary": {
    "source": {
     "mean": 0.3507780813391349,
@@ -499,7 +499,32 @@
    "vessel": 6
   },
   "dominant": "vessel",
-  "stable": true
+  "stable": true,
+  "caveat": "이송 1건짜리 에피소드가 과대 가중된다 — '이송 1건 평균'이 아니다"
  },
- "note": "이 표본은 두 집계 모두 열람됨 — 보정축은 여기서 확정하지 않는다."
+ "secondary_B(이송 1건 단위·micro pooled)": {
+  "summary": {
+   "source": {
+    "mean": 0.5667665110212615,
+    "median": 0.41465208072848503
+   },
+   "receiver": {
+    "mean": 0.011362701616949434,
+    "median": -0.12142085864932906
+   },
+   "vessel": {
+    "mean": 0.045693797993854035,
+    "median": -0.16557154929607432
+   }
+  },
+  "loo_wins": {
+   "source": 8,
+   "receiver": 0,
+   "vessel": 0
+  },
+  "dominant": "source",
+  "stable": true,
+  "note": "LOO 는 에피소드 단위(결정은 독립 표본이 아님)"
+ },
+ "note": "이 표본은 전 집계가 열람됨 — 보정축은 여기서 확정하지 않는다."
 }

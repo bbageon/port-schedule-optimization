@@ -356,14 +356,13 @@ def diagnose_aligned() -> dict:
                             **{f"mean_{key}": fmean(r[key] for r in ep_rows)
                                for key in ("resid_source", "resid_receiver",
                                            "resid_vessel", "d_v2_total")}})
-    # ★28차 집계 계약(동결): **에피소드 누적합 = 주판정**(터미널 총비용과 같은 단위),
-    # 이송 1건 평균 = 보조 교정지표. 축 확정은 이 표본이 아니라 미열람 5셀 자료에서 한다.
-    axes_sum = {"source": [e["mean_resid_source"] * e["n"] for e in per_episode],
-                "receiver": [e["mean_resid_receiver"] * e["n"] for e in per_episode],
-                "vessel": [e["mean_resid_vessel"] * e["n"] for e in per_episode]}
-    axes_mean = {"source": [e["mean_resid_source"] for e in per_episode],
-                 "receiver": [e["mean_resid_receiver"] for e in per_episode],
-                 "vessel": [e["mean_resid_vessel"] for e in per_episode]}
+    # ★28차 집계 계약(동결): **에피소드 누적합 = 주판정**(터미널 총비용과 같은 단위).
+    # ★31차 정정: 구판이 "이송 1건 평균"이라 부른 것은 실제로 **에피소드 평균을 다시 평균**한
+    # 매크로 집계였다(이송 1건짜리 에피소드가 과대 가중). 진짜 이송 1건 단위 평균(micro =
+    # 전 결정 pooled)을 별도로 산출한다. 축 확정은 이 표본이 아니라 미열람 자료에서 한다.
+    AX = ("source", "receiver", "vessel")
+    axes_sum = {k: [e[f"mean_resid_{k}"] * e["n"] for e in per_episode] for k in AX}
+    axes_epmean = {k: [e[f"mean_resid_{k}"] for e in per_episode] for k in AX}
 
     def _agg(ax):
         s = {k: {"mean": fmean(v), "median": median(v)} for k, v in ax.items()}
@@ -376,8 +375,23 @@ def diagnose_aligned() -> dict:
             wins[max(sub, key=lambda k: abs(fmean(sub[k])))] += 1
         return s, dom, wins, wins[dom] > n / 2
 
-    summary, dominant, loo_wins, stable = _agg(axes_sum)          # 주판정
-    summary_sec, dom_sec, loo_sec, stable_sec = _agg(axes_mean)   # 보조
+    def _agg_micro(rows, pairs):
+        """이송 1건 단위(pooled) — LOO 는 에피소드 단위로 떨군다(결정은 독립 표본 아님)."""
+        s = {k: {"mean": fmean(r[f"resid_{k}"] for r in rows),
+                 "median": median([r[f"resid_{k}"] for r in rows])} for k in AX}
+        dom = max(s, key=lambda k: abs(s[k]["mean"]))
+        wins = {k: 0 for k in AX}
+        for p in pairs:
+            sub = [r for r in rows if r["pair"] != p]
+            if not sub:
+                continue
+            wins[max(AX, key=lambda k: abs(fmean(r[f"resid_{k}"] for r in sub)))] += 1
+        return s, dom, wins, wins[dom] > len(pairs) / 2
+
+    summary, dominant, loo_wins, stable = _agg(axes_sum)                # 주판정
+    s_ep, dom_ep, loo_ep, stable_ep = _agg(axes_epmean)                 # 보조 A (매크로)
+    pairs_seen = [e["pair"] for e in per_episode]
+    s_mi, dom_mi, loo_mi, stable_mi = _agg_micro(per_decision, pairs_seen)  # 보조 B (micro)
     n_ep = len(per_episode)
     res = {"protocol": "27차 정정 재실행 + 28차 집계 계약(누적합 주판정·1건 평균 보조)·"
                        "전 replay backlog·예외 assert. 축 확정은 미열람 5셀 자료에서 수행",
@@ -386,9 +400,15 @@ def diagnose_aligned() -> dict:
            "per_episode": per_episode,
            "primary(에피소드 누적합)": {"summary": summary, "loo_wins": loo_wins,
                                         "dominant": dominant, "stable": stable},
-           "secondary(이송 1건 평균)": {"summary": summary_sec, "loo_wins": loo_sec,
-                                        "dominant": dom_sec, "stable": stable_sec},
-           "note": "이 표본은 두 집계 모두 열람됨 — 보정축은 여기서 확정하지 않는다."}
+           "secondary_A(에피소드 평균의 평균·매크로)": {
+               "summary": s_ep, "loo_wins": loo_ep, "dominant": dom_ep,
+               "stable": stable_ep,
+               "caveat": "이송 1건짜리 에피소드가 과대 가중된다 — '이송 1건 평균'이 아니다"},
+           "secondary_B(이송 1건 단위·micro pooled)": {
+               "summary": s_mi, "loo_wins": loo_mi, "dominant": dom_mi,
+               "stable": stable_mi,
+               "note": "LOO 는 에피소드 단위(결정은 독립 표본이 아님)"},
+           "note": "이 표본은 전 집계가 열람됨 — 보정축은 여기서 확정하지 않는다."}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "diag_aligned.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -396,7 +416,10 @@ def diagnose_aligned() -> dict:
                                         "loo": loo_wins,
                                         **{k: round(v["mean"], 4)
                                            for k, v in summary.items()}},
-                      "보조_1건평균": {"dominant": dom_sec, "loo": loo_sec}},
+                      "보조A_매크로": {"dominant": dom_ep, "loo": loo_ep,
+                                       **{k: round(v["mean"], 4) for k, v in s_ep.items()}},
+                      "보조B_micro": {"dominant": dom_mi, "loo": loo_mi,
+                                      **{k: round(v["mean"], 4) for k, v in s_mi.items()}}},
                      ensure_ascii=False))
     return res
 
