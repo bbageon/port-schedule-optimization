@@ -1,6 +1,6 @@
 # YR-153 — 연구 진행 3대 게이트 하네스
 
-**상태**: in-progress
+**상태**: **done (2026-08-05 — 구현·적대감사 통과, commit `88352ef`)**
 
 ## 사용자 요구
 
@@ -56,3 +56,6 @@
 - [쉬운 설명 보고서](../../../outputs/reports/yr153_research_gates/report.md)
 - 구현: `src/yard_rl/experiments/gate_harness.py`
 - 테스트: `tests/integrated/test_yr153_research_gate.py`
+- 구현·원자료 commit: `88352ef` (origin/master push 확인)
+- 검증: targeted 48 passed, 독립 적대감사 critical/major 0
+- gate 파일 sha256: `9935624b5f71951af03fc42667c7df05d8a07c3d46ec7288f5ea9bb354351620`

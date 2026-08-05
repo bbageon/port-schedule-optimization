@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-153 | Infra | **연구 진행 3대 게이트 하네스 — 성능·증거정합·시드현실성 미통과 시 관련 보정만 허용** | 🔴 | 2026-08-05 | [spec](../docs/dashboard-task-specs/YR-153-research-progress-gates.md) · 원정밀도 판정·2단계 증거감사·주장범위 차단 구현 중 |
 
 ---
 
