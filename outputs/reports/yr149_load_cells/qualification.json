@@ -1,0 +1,1577 @@
+{
+ "repro": {
+  "experiment": "YR-149 5부하 셀 데이터 자격시험 (SF-SPT·이송 없음)",
+  "code": {
+   "git_head": "e1f591e9d3f8b86e1d78cbda091d3fd4db43aaed",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": "calibrated",
+  "seeds": {
+   "A_master": [
+    907000,
+    907001,
+    907002,
+    907003
+   ],
+   "B": [
+    907004,
+    907005,
+    907006,
+    907007
+   ]
+  },
+  "params": {},
+  "prereg": "A150 master 중첩추출(150→125→100→75→50)·A/B 동결 template·하드 검사 8종·용량상태 기계 분류. 부하 이름은 입력값일 뿐 혼잡 판정이 아니다.",
+  "band_digest": "362de71def0df40f",
+  "cell_sizes": [
+   50,
+   75,
+   100,
+   125,
+   150
+  ]
+ },
+ "hard_checks": {
+  "nested_subset": true,
+  "kept_job_fields_identical": true,
+  "b_cell_identical": true,
+  "a_layout_identical": true,
+  "a_vessel_identical": true,
+  "exact_sizes": true,
+  "policy_exceptions_zero": true,
+  "ledger_identity": true,
+  "all_pass": true
+ },
+ "per_pair_checks": [
+  {
+   "pair": 0,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "nested_subset": true,
+   "kept_job_fields_identical": true,
+   "b_cell_identical_across_cells": true,
+   "a_layout_identical": true,
+   "a_vessel_identical": true,
+   "exact_sizes": true,
+   "flow_ratio_by_cell": {
+    "50": 0.64,
+    "75": 0.64,
+    "100": 0.64,
+    "125": 0.648,
+    "150": 0.6533
+   },
+   "a_master_hash": "rz1:76f40140065b208a",
+   "b_hash": "rz1:e209bfe71c296e4d"
+  },
+  {
+   "pair": 1,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "nested_subset": true,
+   "kept_job_fields_identical": true,
+   "b_cell_identical_across_cells": true,
+   "a_layout_identical": true,
+   "a_vessel_identical": true,
+   "exact_sizes": true,
+   "flow_ratio_by_cell": {
+    "50": 0.64,
+    "75": 0.64,
+    "100": 0.65,
+    "125": 0.656,
+    "150": 0.66
+   },
+   "a_master_hash": "rz1:d53a3a6219aa7ac8",
+   "b_hash": "rz1:f338744b68e8cfa0"
+  },
+  {
+   "pair": 2,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "nested_subset": true,
+   "kept_job_fields_identical": true,
+   "b_cell_identical_across_cells": true,
+   "a_layout_identical": true,
+   "a_vessel_identical": true,
+   "exact_sizes": true,
+   "flow_ratio_by_cell": {
+    "50": 0.6,
+    "75": 0.6,
+    "100": 0.6,
+    "125": 0.6,
+    "150": 0.6
+   },
+   "a_master_hash": "rz1:737f8d98ce386459",
+   "b_hash": "rz1:975239e074f58196"
+  },
+  {
+   "pair": 3,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "nested_subset": true,
+   "kept_job_fields_identical": true,
+   "b_cell_identical_across_cells": true,
+   "a_layout_identical": true,
+   "a_vessel_identical": true,
+   "exact_sizes": true,
+   "flow_ratio_by_cell": {
+    "50": 0.6,
+    "75": 0.6,
+    "100": 0.6,
+    "125": 0.6,
+    "150": 0.6
+   },
+   "a_master_hash": "rz1:fc46ece1b31a1508",
+   "b_hash": "rz1:9b3d3dc697f417b9"
+  }
+ ],
+ "by_cell": {
+  "A50": {
+   "capacity_states": [
+    "BUSY",
+    "BUSY",
+    "BUSY",
+    "BUSY"
+   ],
+   "capacity_state_consensus": "BUSY",
+   "wip_time_weighted": 5.415745034776359,
+   "queue_max_at_decisions": 8,
+   "a2o_mean_min": 19.49668212519489,
+   "yc_busy_frac": 0.42676490134321354,
+   "yc_busy_frac_by_block": {
+    "A": 0.4328352177234107,
+    "B": 0.42069458496301626
+   },
+   "wip_by_block": {
+    "A": 2.8026004895593997,
+    "B": 2.6131445452169593
+   },
+   "a2o_mean_min_by_block": {
+    "A": 20.17872352482768,
+    "B": 18.8146407255621
+   },
+   "throughput_per_h": 26.666666666666668,
+   "backlog_4h": [
+    5,
+    2,
+    2,
+    2
+   ],
+   "backlog_6h": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "drain_to_empty_h": [
+    4.394,
+    4.363,
+    4.255,
+    4.214
+   ],
+   "v2_total": 44.096275
+  },
+  "A75": {
+   "capacity_states": [
+    "BUSY",
+    "BUSY",
+    "BUSY",
+    "BUSY"
+   ],
+   "capacity_state_consensus": "BUSY",
+   "wip_time_weighted": 7.459913266549188,
+   "queue_max_at_decisions": 11,
+   "a2o_mean_min": 21.48455020766167,
+   "yc_busy_frac": 0.4905344123607565,
+   "yc_busy_frac_by_block": {
+    "A": 0.5603742397584968,
+    "B": 0.42069458496301626
+   },
+   "wip_by_block": {
+    "A": 4.8467687213322295,
+    "B": 2.613144545216959
+   },
+   "a2o_mean_min_by_block": {
+    "A": 23.264489862394715,
+    "B": 18.8146407255621
+   },
+   "throughput_per_h": 30.833333333333332,
+   "backlog_4h": [
+    9,
+    4,
+    8,
+    5
+   ],
+   "backlog_6h": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "drain_to_empty_h": [
+    4.375,
+    4.372,
+    4.38,
+    4.396
+   ],
+   "v2_total": 64.9381
+  },
+  "A100": {
+   "capacity_states": [
+    "BUSY",
+    "BUSY",
+    "BUSY",
+    "BUSY"
+   ],
+   "capacity_state_consensus": "BUSY",
+   "wip_time_weighted": 11.67406550405466,
+   "queue_max_at_decisions": 17,
+   "a2o_mean_min": 28.017757209731172,
+   "yc_busy_frac": 0.5620854401418602,
+   "yc_busy_frac_by_block": {
+    "A": 0.7034762953207041,
+    "B": 0.42069458496301626
+   },
+   "wip_by_block": {
+    "A": 9.0609209588377,
+    "B": 2.613144545216959
+   },
+   "a2o_mean_min_by_block": {
+    "A": 32.61931545181571,
+    "B": 18.8146407255621
+   },
+   "throughput_per_h": 35.0,
+   "backlog_4h": [
+    26,
+    19,
+    23,
+    21
+   ],
+   "backlog_6h": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "drain_to_empty_h": [
+    4.871,
+    4.849,
+    4.924,
+    5.021
+   ],
+   "v2_total": 103.49645000000001
+  },
+  "A125": {
+   "capacity_states": [
+    "BUSY",
+    "BUSY",
+    "BUSY",
+    "BUSY"
+   ],
+   "capacity_state_consensus": "BUSY",
+   "wip_time_weighted": 17.450835373414456,
+   "queue_max_at_decisions": 28,
+   "a2o_mean_min": 35.898861339595456,
+   "yc_busy_frac": 0.6297787788686677,
+   "yc_busy_frac_by_block": {
+    "A": 0.8388629727743193,
+    "B": 0.42069458496301626
+   },
+   "wip_by_block": {
+    "A": 14.837690828197498,
+    "B": 2.613144545216959
+   },
+   "a2o_mean_min_by_block": {
+    "A": 42.7325495852088,
+    "B": 18.8146407255621
+   },
+   "throughput_per_h": 39.166666666666664,
+   "backlog_4h": [
+    38,
+    41,
+    35,
+    32
+   ],
+   "backlog_6h": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "drain_to_empty_h": [
+    5.166,
+    5.479,
+    5.06,
+    5.339
+   ],
+   "v2_total": 158.9655
+  },
+  "A150": {
+   "capacity_states": [
+    "OVERLOADED",
+    "OVERLOADED",
+    "OVERLOADED",
+    "OVERLOADED"
+   ],
+   "capacity_state_consensus": "OVERLOADED",
+   "wip_time_weighted": 26.30835024597167,
+   "queue_max_at_decisions": 42,
+   "a2o_mean_min": 47.359760909281924,
+   "yc_busy_frac": 0.6698085553637632,
+   "yc_busy_frac_by_block": {
+    "A": 0.9189225257645101,
+    "B": 0.42069458496301626
+   },
+   "wip_by_block": {
+    "A": 23.695205700754713,
+    "B": 2.613144545216959
+   },
+   "a2o_mean_min_by_block": {
+    "A": 56.092145417490556,
+    "B": 18.8146407255621
+   },
+   "throughput_per_h": 41.875,
+   "backlog_4h": [
+    58,
+    56,
+    53,
+    49
+   ],
+   "backlog_6h": [
+    6,
+    15,
+    6,
+    8
+   ],
+   "drain_to_empty_h": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "v2_total": 246.342925
+  }
+ },
+ "runs": [
+  {
+   "cell": "A50/B50",
+   "m": 50,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 5.529059633453684,
+   "block_occupancy_time_weighted": 2.7123585586106875,
+   "queue_max_at_decisions": 8,
+   "queue_max_by_block": {
+    "A": 8,
+    "B": 5
+   },
+   "a2o_mean_min": 19.90461468043326,
+   "a2o_mean_min_by_block": {
+    "A": 21.719485053086736,
+    "B": 18.089744307779778
+   },
+   "wip_by_block": {
+    "A": 3.016595146262047,
+    "B": 2.5124644871916373
+   },
+   "n_a2o_samples": 100,
+   "n_ext_registered": 100,
+   "yc_busy_frac": 0.432475109643288,
+   "yc_busy_frac_by_block": {
+    "A": 0.44809583200298003,
+    "B": 0.416854387283596
+   },
+   "throughput_per_h": 26.666666666666668,
+   "backlog_4h": 5,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15817.308269755587,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 206,
+   "v2_total": 44.9316,
+   "config": {
+    "A": {
+     "layout": "8bee2de650567d99",
+     "vessels": "5603f9ff00df3156",
+     "ext_jobs": "b282ca807d205197",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.64,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "bca6fd9c1878c4af",
+     "vessels": "50830b3a5981faf1",
+     "ext_jobs": "eefe5dc82f036eba",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.68,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 0
+  },
+  {
+   "cell": "A75/B50",
+   "m": 75,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 7.570104308618239,
+   "block_occupancy_time_weighted": 4.053757287157755,
+   "queue_max_at_decisions": 10,
+   "queue_max_by_block": {
+    "A": 10,
+    "B": 5
+   },
+   "a2o_mean_min": 21.801900408820533,
+   "a2o_mean_min_by_block": {
+    "A": 24.2766711428477,
+    "B": 18.089744307779778
+   },
+   "wip_by_block": {
+    "A": 5.057639821426602,
+    "B": 2.512464487191637
+   },
+   "n_a2o_samples": 125,
+   "n_ext_registered": 125,
+   "yc_busy_frac": 0.5026195837989572,
+   "yc_busy_frac_by_block": {
+    "A": 0.5883847803143183,
+    "B": 0.416854387283596
+   },
+   "throughput_per_h": 30.833333333333332,
+   "backlog_4h": 9,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15750.66211438763,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 238,
+   "v2_total": 68.2474,
+   "config": {
+    "A": {
+     "layout": "8bee2de650567d99",
+     "vessels": "5603f9ff00df3156",
+     "ext_jobs": "18889282faeea26d",
+     "n_external": 75,
+     "flow_ratio_gate_out": 0.64,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "bca6fd9c1878c4af",
+     "vessels": "50830b3a5981faf1",
+     "ext_jobs": "eefe5dc82f036eba",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.68,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 0
+  },
+  {
+   "cell": "A100/B50",
+   "m": 100,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 11.901388671787446,
+   "block_occupancy_time_weighted": 7.704940875394469,
+   "queue_max_at_decisions": 17,
+   "queue_max_by_block": {
+    "A": 17,
+    "B": 5
+   },
+   "a2o_mean_min": 28.563332812289865,
+   "a2o_mean_min_by_block": {
+    "A": 33.80012706454491,
+    "B": 18.089744307779778
+   },
+   "wip_by_block": {
+    "A": 9.38892418459581,
+    "B": 2.512464487191637
+   },
+   "n_a2o_samples": 150,
+   "n_ext_registered": 150,
+   "yc_busy_frac": 0.5767006821386762,
+   "yc_busy_frac_by_block": {
+    "A": 0.7365469769937565,
+    "B": 0.416854387283596
+   },
+   "throughput_per_h": 35.0,
+   "backlog_4h": 26,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 17537.3725299818,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 280,
+   "v2_total": 105.6724,
+   "config": {
+    "A": {
+     "layout": "8bee2de650567d99",
+     "vessels": "5603f9ff00df3156",
+     "ext_jobs": "e23c7a424e184bf5",
+     "n_external": 100,
+     "flow_ratio_gate_out": 0.64,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "bca6fd9c1878c4af",
+     "vessels": "50830b3a5981faf1",
+     "ext_jobs": "eefe5dc82f036eba",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.68,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 0
+  },
+  {
+   "cell": "A125/B50",
+   "m": 125,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 17.04550969055392,
+   "block_occupancy_time_weighted": 12.16095596026372,
+   "queue_max_at_decisions": 27,
+   "queue_max_by_block": {
+    "A": 27,
+    "B": 5
+   },
+   "a2o_mean_min": 35.06504850628234,
+   "a2o_mean_min_by_block": {
+    "A": 41.85517018568336,
+    "B": 18.089744307779778
+   },
+   "wip_by_block": {
+    "A": 14.533045203362285,
+    "B": 2.512464487191637
+   },
+   "n_a2o_samples": 175,
+   "n_ext_registered": 175,
+   "yc_busy_frac": 0.6355983785210022,
+   "yc_busy_frac_by_block": {
+    "A": 0.8543423697584085,
+    "B": 0.416854387283596
+   },
+   "throughput_per_h": 39.166666666666664,
+   "backlog_4h": 38,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 18597.8085706033,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 288,
+   "v2_total": 153.332,
+   "config": {
+    "A": {
+     "layout": "8bee2de650567d99",
+     "vessels": "5603f9ff00df3156",
+     "ext_jobs": "609b732e4f2dcb3f",
+     "n_external": 125,
+     "flow_ratio_gate_out": 0.648,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "bca6fd9c1878c4af",
+     "vessels": "50830b3a5981faf1",
+     "ext_jobs": "eefe5dc82f036eba",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.68,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 0
+  },
+  {
+   "cell": "A150/B50",
+   "m": 150,
+   "a_seed": 907000,
+   "b_seed": 907004,
+   "capacity_state": "OVERLOADED",
+   "wip_time_weighted": 27.255590185345252,
+   "block_occupancy_time_weighted": 21.686331297175357,
+   "queue_max_at_decisions": 42,
+   "queue_max_by_block": {
+    "A": 42,
+    "B": 5
+   },
+   "a2o_mean_min": 49.07220108012016,
+   "a2o_mean_min_by_block": {
+    "A": 58.15895640338623,
+    "B": 18.089744307779778
+   },
+   "wip_by_block": {
+    "A": 24.743125698153616,
+    "B": 2.512464487191636
+   },
+   "n_a2o_samples": 200,
+   "n_ext_registered": 200,
+   "yc_busy_frac": 0.6897686227295304,
+   "yc_busy_frac_by_block": {
+    "A": 0.962682858175465,
+    "B": 0.416854387283596
+   },
+   "throughput_per_h": 42.333333333333336,
+   "backlog_4h": 58,
+   "backlog_6h": 6,
+   "drain_to_empty_s": null,
+   "completion_rate": 0.9769230769230769,
+   "policy_exceptions": 0,
+   "decisions": 315,
+   "v2_total": 260.5878,
+   "config": {
+    "A": {
+     "layout": "8bee2de650567d99",
+     "vessels": "5603f9ff00df3156",
+     "ext_jobs": "b9c4b7787ea2cd6b",
+     "n_external": 150,
+     "flow_ratio_gate_out": 0.6533,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "bca6fd9c1878c4af",
+     "vessels": "50830b3a5981faf1",
+     "ext_jobs": "eefe5dc82f036eba",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.68,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 0
+  },
+  {
+   "cell": "A50/B50",
+   "m": 50,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 5.647345558698215,
+   "block_occupancy_time_weighted": 2.855066244374841,
+   "queue_max_at_decisions": 7,
+   "queue_max_by_block": {
+    "A": 7,
+    "B": 4
+   },
+   "a2o_mean_min": 20.33044401131357,
+   "a2o_mean_min_by_block": {
+    "A": 22.249222598414608,
+    "B": 18.41166542421253
+   },
+   "wip_by_block": {
+    "A": 3.0901698053353615,
+    "B": 2.557175753362854
+   },
+   "n_a2o_samples": 100,
+   "n_ext_registered": 100,
+   "yc_busy_frac": 0.4453722805360438,
+   "yc_busy_frac_by_block": {
+    "A": 0.4628384019795659,
+    "B": 0.4279061590925216
+   },
+   "throughput_per_h": 26.666666666666668,
+   "backlog_4h": 2,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15705.063932870986,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 200,
+   "v2_total": 49.8596,
+   "config": {
+    "A": {
+     "layout": "904ddcabf845bba4",
+     "vessels": "07cdcf01dca6d3b9",
+     "ext_jobs": "8dcb7a57e099f891",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.64,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "dff1aea156553358",
+     "vessels": "c8208e7a4b3b78bc",
+     "ext_jobs": "dda29ebdac5ffbcf",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.58,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 1
+  },
+  {
+   "cell": "A75/B50",
+   "m": 75,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 7.210080505723728,
+   "block_occupancy_time_weighted": 3.7333600189298535,
+   "queue_max_at_decisions": 9,
+   "queue_max_by_block": {
+    "A": 9,
+    "B": 4
+   },
+   "a2o_mean_min": 20.76503185648435,
+   "a2o_mean_min_by_block": {
+    "A": 22.33394281133222,
+    "B": 18.41166542421253
+   },
+   "wip_by_block": {
+    "A": 4.652904752360875,
+    "B": 2.557175753362854
+   },
+   "n_a2o_samples": 125,
+   "n_ext_registered": 125,
+   "yc_busy_frac": 0.49729721867461346,
+   "yc_busy_frac_by_block": {
+    "A": 0.5666882782567052,
+    "B": 0.4279061590925216
+   },
+   "throughput_per_h": 30.833333333333332,
+   "backlog_4h": 4,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15740.929526796086,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 230,
+   "v2_total": 60.964800000000004,
+   "config": {
+    "A": {
+     "layout": "904ddcabf845bba4",
+     "vessels": "07cdcf01dca6d3b9",
+     "ext_jobs": "6a17d2c0d564ebb1",
+     "n_external": 75,
+     "flow_ratio_gate_out": 0.64,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "dff1aea156553358",
+     "vessels": "c8208e7a4b3b78bc",
+     "ext_jobs": "dda29ebdac5ffbcf",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.58,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 1
+  },
+  {
+   "cell": "A100/B50",
+   "m": 100,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 11.100882357728961,
+   "block_occupancy_time_weighted": 6.933031777403479,
+   "queue_max_at_decisions": 17,
+   "queue_max_by_block": {
+    "A": 17,
+    "B": 4
+   },
+   "a2o_mean_min": 26.64211765854948,
+   "a2o_mean_min_by_block": {
+    "A": 30.75734377571796,
+    "B": 18.41166542421253
+   },
+   "wip_by_block": {
+    "A": 8.543706604366106,
+    "B": 2.557175753362854
+   },
+   "n_a2o_samples": 150,
+   "n_ext_registered": 150,
+   "yc_busy_frac": 0.5691544445996525,
+   "yc_busy_frac_by_block": {
+    "A": 0.7104027301067833,
+    "B": 0.4279061590925216
+   },
+   "throughput_per_h": 35.0,
+   "backlog_4h": 19,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 17454.771727318177,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 247,
+   "v2_total": 96.6846,
+   "config": {
+    "A": {
+     "layout": "904ddcabf845bba4",
+     "vessels": "07cdcf01dca6d3b9",
+     "ext_jobs": "9b87a3d90e695d9b",
+     "n_external": 100,
+     "flow_ratio_gate_out": 0.65,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "dff1aea156553358",
+     "vessels": "c8208e7a4b3b78bc",
+     "ext_jobs": "dda29ebdac5ffbcf",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.58,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 1
+  },
+  {
+   "cell": "A125/B50",
+   "m": 125,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 19.671257315270672,
+   "block_occupancy_time_weighted": 14.797119126018051,
+   "queue_max_at_decisions": 28,
+   "queue_max_by_block": {
+    "A": 28,
+    "B": 4
+   },
+   "a2o_mean_min": 40.46658647712831,
+   "a2o_mean_min_by_block": {
+    "A": 49.28855489829461,
+    "B": 18.41166542421253
+   },
+   "wip_by_block": {
+    "A": 17.11408156190782,
+    "B": 2.557175753362854
+   },
+   "n_a2o_samples": 175,
+   "n_ext_registered": 175,
+   "yc_busy_frac": 0.6499105930493473,
+   "yc_busy_frac_by_block": {
+    "A": 0.871915027006173,
+    "B": 0.4279061590925216
+   },
+   "throughput_per_h": 39.166666666666664,
+   "backlog_4h": 41,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 19725.71122339149,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 285,
+   "v2_total": 187.9681,
+   "config": {
+    "A": {
+     "layout": "904ddcabf845bba4",
+     "vessels": "07cdcf01dca6d3b9",
+     "ext_jobs": "d167bdf8b85eb4e4",
+     "n_external": 125,
+     "flow_ratio_gate_out": 0.656,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "dff1aea156553358",
+     "vessels": "c8208e7a4b3b78bc",
+     "ext_jobs": "dda29ebdac5ffbcf",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.58,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 1
+  },
+  {
+   "cell": "A150/B50",
+   "m": 150,
+   "a_seed": 907001,
+   "b_seed": 907005,
+   "capacity_state": "OVERLOADED",
+   "wip_time_weighted": 28.19273347665885,
+   "block_occupancy_time_weighted": 22.675266814018087,
+   "queue_max_at_decisions": 40,
+   "queue_max_by_block": {
+    "A": 40,
+    "B": 4
+   },
+   "a2o_mean_min": 50.74692025798596,
+   "a2o_mean_min_by_block": {
+    "A": 59.635446591299264,
+    "B": 18.41166542421253
+   },
+   "wip_by_block": {
+    "A": 25.635557723296,
+    "B": 2.557175753362854
+   },
+   "n_a2o_samples": 200,
+   "n_ext_registered": 200,
+   "yc_busy_frac": 0.672725697770328,
+   "yc_busy_frac_by_block": {
+    "A": 0.9175452364481343,
+    "B": 0.4279061590925216
+   },
+   "throughput_per_h": 40.833333333333336,
+   "backlog_4h": 56,
+   "backlog_6h": 15,
+   "drain_to_empty_s": null,
+   "completion_rate": 0.9423076923076923,
+   "policy_exceptions": 0,
+   "decisions": 287,
+   "v2_total": 270.0895,
+   "config": {
+    "A": {
+     "layout": "904ddcabf845bba4",
+     "vessels": "07cdcf01dca6d3b9",
+     "ext_jobs": "a887311b5b0d90f8",
+     "n_external": 150,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "dff1aea156553358",
+     "vessels": "c8208e7a4b3b78bc",
+     "ext_jobs": "dda29ebdac5ffbcf",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.58,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 1
+  },
+  {
+   "cell": "A50/B50",
+   "m": 50,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 5.04919194693238,
+   "block_occupancy_time_weighted": 2.230445640561321,
+   "queue_max_at_decisions": 7,
+   "queue_max_by_block": {
+    "A": 4,
+    "B": 7
+   },
+   "a2o_mean_min": 18.177091008956573,
+   "a2o_mean_min_by_block": {
+    "A": 17.593947458332256,
+    "B": 18.7602345595809
+   },
+   "wip_by_block": {
+    "A": 2.4436038136572553,
+    "B": 2.6055881332751243
+   },
+   "n_a2o_samples": 100,
+   "n_ext_registered": 100,
+   "yc_busy_frac": 0.4115710009578546,
+   "yc_busy_frac_by_block": {
+    "A": 0.40647493170852855,
+    "B": 0.41666707020718047
+   },
+   "throughput_per_h": 26.666666666666668,
+   "backlog_4h": 2,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15316.226907651957,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 202,
+   "v2_total": 38.922,
+   "config": {
+    "A": {
+     "layout": "179a747a5905f8a9",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "f9b5176287ae7036",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "8bccc912f3092e07",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "dcb6c59ef7053340",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 2
+  },
+  {
+   "cell": "A75/B50",
+   "m": 75,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 7.29619153911376,
+   "block_occupancy_time_weighted": 3.8095903149196393,
+   "queue_max_at_decisions": 10,
+   "queue_max_by_block": {
+    "A": 10,
+    "B": 7
+   },
+   "a2o_mean_min": 21.01303163264764,
+   "a2o_mean_min_by_block": {
+    "A": 22.514896348025463,
+    "B": 18.7602345595809
+   },
+   "wip_by_block": {
+    "A": 4.690603405838636,
+    "B": 2.6055881332751234
+   },
+   "n_a2o_samples": 125,
+   "n_ext_registered": 125,
+   "yc_busy_frac": 0.4785995625354762,
+   "yc_busy_frac_by_block": {
+    "A": 0.5405320548637719,
+    "B": 0.41666707020718047
+   },
+   "throughput_per_h": 30.833333333333332,
+   "backlog_4h": 8,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15768.242055914025,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 228,
+   "v2_total": 64.2935,
+   "config": {
+    "A": {
+     "layout": "179a747a5905f8a9",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "aa76530dc37e67c4",
+     "n_external": 75,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "8bccc912f3092e07",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "dcb6c59ef7053340",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 2
+  },
+  {
+   "cell": "A100/B50",
+   "m": 100,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 11.331732577292776,
+   "block_occupancy_time_weighted": 7.134155696839254,
+   "queue_max_at_decisions": 17,
+   "queue_max_by_block": {
+    "A": 17,
+    "B": 7
+   },
+   "a2o_mean_min": 27.196158185502668,
+   "a2o_mean_min_by_block": {
+    "A": 31.41411999846355,
+    "B": 18.7602345595809
+   },
+   "wip_by_block": {
+    "A": 8.726144444017653,
+    "B": 2.6055881332751234
+   },
+   "n_a2o_samples": 150,
+   "n_ext_registered": 150,
+   "yc_busy_frac": 0.545821813582021,
+   "yc_busy_frac_by_block": {
+    "A": 0.6749765569568614,
+    "B": 0.41666707020718047
+   },
+   "throughput_per_h": 35.0,
+   "backlog_4h": 23,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 17725.99673740394,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 271,
+   "v2_total": 102.8236,
+   "config": {
+    "A": {
+     "layout": "179a747a5905f8a9",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "3020d7a33a9d1a0e",
+     "n_external": 100,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "8bccc912f3092e07",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "dcb6c59ef7053340",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 2
+  },
+  {
+   "cell": "A125/B50",
+   "m": 125,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 15.163866648459082,
+   "block_occupancy_time_weighted": 10.292494730761195,
+   "queue_max_at_decisions": 24,
+   "queue_max_by_block": {
+    "A": 24,
+    "B": 7
+   },
+   "a2o_mean_min": 31.19423996254437,
+   "a2o_mean_min_by_block": {
+    "A": 36.16784212372976,
+    "B": 18.7602345595809
+   },
+   "wip_by_block": {
+    "A": 12.558278515183957,
+    "B": 2.6055881332751234
+   },
+   "n_a2o_samples": 175,
+   "n_ext_registered": 175,
+   "yc_busy_frac": 0.6193819610738617,
+   "yc_busy_frac_by_block": {
+    "A": 0.8220968519405428,
+    "B": 0.41666707020718047
+   },
+   "throughput_per_h": 39.166666666666664,
+   "backlog_4h": 35,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 18214.544378423,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 284,
+   "v2_total": 135.8614,
+   "config": {
+    "A": {
+     "layout": "179a747a5905f8a9",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "0b66280458243cc6",
+     "n_external": 125,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "8bccc912f3092e07",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "dcb6c59ef7053340",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 2
+  },
+  {
+   "cell": "A150/B50",
+   "m": 150,
+   "a_seed": 907002,
+   "b_seed": 907006,
+   "capacity_state": "OVERLOADED",
+   "wip_time_weighted": 25.194320285792788,
+   "block_occupancy_time_weighted": 19.659659117887674,
+   "queue_max_at_decisions": 41,
+   "queue_max_by_block": {
+    "A": 41,
+    "B": 7
+   },
+   "a2o_mean_min": 45.34977651442704,
+   "a2o_mean_min_by_block": {
+    "A": 54.21295716604242,
+    "B": 18.7602345595809
+   },
+   "wip_by_block": {
+    "A": 22.588732152517665,
+    "B": 2.6055881332751234
+   },
+   "n_a2o_samples": 200,
+   "n_ext_registered": 200,
+   "yc_busy_frac": 0.6631003152937424,
+   "yc_busy_frac_by_block": {
+    "A": 0.9095335603803042,
+    "B": 0.41666707020718047
+   },
+   "throughput_per_h": 42.333333333333336,
+   "backlog_4h": 53,
+   "backlog_6h": 6,
+   "drain_to_empty_s": null,
+   "completion_rate": 0.9769230769230769,
+   "policy_exceptions": 0,
+   "decisions": 299,
+   "v2_total": 232.5839,
+   "config": {
+    "A": {
+     "layout": "179a747a5905f8a9",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "a8eb2ed7a096d768",
+     "n_external": 150,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "8bccc912f3092e07",
+     "vessels": "b04f8d5f9e880575",
+     "ext_jobs": "dcb6c59ef7053340",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 2
+  },
+  {
+   "cell": "A50/B50",
+   "m": 50,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 5.437383000021158,
+   "block_occupancy_time_weighted": 2.6623147898296264,
+   "queue_max_at_decisions": 6,
+   "queue_max_by_block": {
+    "A": 6,
+    "B": 6
+   },
+   "a2o_mean_min": 19.57457880007616,
+   "a2o_mean_min_by_block": {
+    "A": 19.152238989477134,
+    "B": 19.996918610675188
+   },
+   "wip_by_block": {
+    "A": 2.6600331929829353,
+    "B": 2.777349807038222
+   },
+   "n_a2o_samples": 100,
+   "n_ext_registered": 100,
+   "yc_busy_frac": 0.41764121423566775,
+   "yc_busy_frac_by_block": {
+    "A": 0.4139317052025685,
+    "B": 0.42135072326876694
+   },
+   "throughput_per_h": 26.666666666666668,
+   "backlog_4h": 2,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15171.065530515967,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 202,
+   "v2_total": 42.6719,
+   "config": {
+    "A": {
+     "layout": "d1ff8fc10286c27f",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "2c736252a180c25a",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "97c99b03b0a7c5a2",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "32b86c663681d12c",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 3
+  },
+  {
+   "cell": "A75/B50",
+   "m": 75,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 7.763276712741027,
+   "block_occupancy_time_weighted": 4.301928407094104,
+   "queue_max_at_decisions": 11,
+   "queue_max_by_block": {
+    "A": 11,
+    "B": 6
+   },
+   "a2o_mean_min": 22.358236932694165,
+   "a2o_mean_min_by_block": {
+    "A": 23.93244914737348,
+    "B": 19.996918610675188
+   },
+   "wip_by_block": {
+    "A": 4.985926905702805,
+    "B": 2.7773498070382217
+   },
+   "n_a2o_samples": 125,
+   "n_ext_registered": 125,
+   "yc_busy_frac": 0.48362128443397917,
+   "yc_busy_frac_by_block": {
+    "A": 0.5458918455991915,
+    "B": 0.42135072326876694
+   },
+   "throughput_per_h": 30.833333333333332,
+   "backlog_4h": 5,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 15825.787452713836,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 227,
+   "v2_total": 66.2467,
+   "config": {
+    "A": {
+     "layout": "d1ff8fc10286c27f",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "937db336bcef800e",
+     "n_external": 75,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "97c99b03b0a7c5a2",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "32b86c663681d12c",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 3
+  },
+  {
+   "cell": "A100/B50",
+   "m": 100,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 12.362258409409455,
+   "block_occupancy_time_weighted": 8.183596185352096,
+   "queue_max_at_decisions": 16,
+   "queue_max_by_block": {
+    "A": 16,
+    "B": 6
+   },
+   "a2o_mean_min": 29.66942018258268,
+   "a2o_mean_min_by_block": {
+    "A": 34.50567096853643,
+    "B": 19.996918610675188
+   },
+   "wip_by_block": {
+    "A": 9.58490860237123,
+    "B": 2.7773498070382217
+   },
+   "n_a2o_samples": 150,
+   "n_ext_registered": 150,
+   "yc_busy_frac": 0.5566648202470912,
+   "yc_busy_frac_by_block": {
+    "A": 0.6919789172254154,
+    "B": 0.42135072326876694
+   },
+   "throughput_per_h": 35.0,
+   "backlog_4h": 21,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 18077.23042198418,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 263,
+   "v2_total": 108.80520000000001,
+   "config": {
+    "A": {
+     "layout": "d1ff8fc10286c27f",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "a49f34839fdd64f9",
+     "n_external": 100,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "97c99b03b0a7c5a2",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "32b86c663681d12c",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 3
+  },
+  {
+   "cell": "A125/B50",
+   "m": 125,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "capacity_state": "BUSY",
+   "wip_time_weighted": 17.922707839374155,
+   "block_occupancy_time_weighted": 13.036820670921253,
+   "queue_max_at_decisions": 27,
+   "queue_max_by_block": {
+    "A": 27,
+    "B": 6
+   },
+   "a2o_mean_min": 36.86957041242682,
+   "a2o_mean_min_by_block": {
+    "A": 43.61863113312747,
+    "B": 19.996918610675188
+   },
+   "wip_by_block": {
+    "A": 15.145358032335931,
+    "B": 2.7773498070382217
+   },
+   "n_a2o_samples": 175,
+   "n_ext_registered": 175,
+   "yc_busy_frac": 0.6142241828304599,
+   "yc_busy_frac_by_block": {
+    "A": 0.8070976423921529,
+    "B": 0.42135072326876694
+   },
+   "throughput_per_h": 39.166666666666664,
+   "backlog_4h": 32,
+   "backlog_6h": 0,
+   "drain_to_empty_s": 19219.23545041128,
+   "completion_rate": 1.0,
+   "policy_exceptions": 0,
+   "decisions": 277,
+   "v2_total": 158.7005,
+   "config": {
+    "A": {
+     "layout": "d1ff8fc10286c27f",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "e18739f78101db56",
+     "n_external": 125,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "97c99b03b0a7c5a2",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "32b86c663681d12c",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 3
+  },
+  {
+   "cell": "A150/B50",
+   "m": 150,
+   "a_seed": 907003,
+   "b_seed": 907007,
+   "capacity_state": "OVERLOADED",
+   "wip_time_weighted": 24.59075703608979,
+   "block_occupancy_time_weighted": 19.015679437105703,
+   "queue_max_at_decisions": 35,
+   "queue_max_by_block": {
+    "A": 35,
+    "B": 6
+   },
+   "a2o_mean_min": 44.27014578459454,
+   "a2o_mean_min_by_block": {
+    "A": 52.36122150923431,
+    "B": 19.996918610675188
+   },
+   "wip_by_block": {
+    "A": 21.81340722905157,
+    "B": 2.777349807038222
+   },
+   "n_a2o_samples": 200,
+   "n_ext_registered": 200,
+   "yc_busy_frac": 0.6536395856614517,
+   "yc_busy_frac_by_block": {
+    "A": 0.8859284480541366,
+    "B": 0.42135072326876694
+   },
+   "throughput_per_h": 42.0,
+   "backlog_4h": 49,
+   "backlog_6h": 8,
+   "drain_to_empty_s": null,
+   "completion_rate": 0.9692307692307692,
+   "policy_exceptions": 0,
+   "decisions": 288,
+   "v2_total": 222.1105,
+   "config": {
+    "A": {
+     "layout": "d1ff8fc10286c27f",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "7082339ef756756d",
+     "n_external": 150,
+     "flow_ratio_gate_out": 0.6,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    },
+    "B": {
+     "layout": "97c99b03b0a7c5a2",
+     "vessels": "c55f560301c7143b",
+     "ext_jobs": "32b86c663681d12c",
+     "n_external": 50,
+     "flow_ratio_gate_out": 0.66,
+     "n_vessel_jobs": 30,
+     "horizon_s": 14400.0,
+     "drain_window_s": 7200.0
+    }
+   },
+   "pair": 3
+  }
+ ]
+}

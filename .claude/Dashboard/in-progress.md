@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-149 | RL | 견적·평가 정렬 + 5부하 데이터 자격시험 → 이송 효과 기준선 | 🔴 | 2026-08-05 | [spec](../docs/dashboard-task-specs/YR-149-quote-refine-confirm.md) · 28차 검산으로 본선 자동 보정은 철회. 3·4단계 전에 `A/B=50/50·75/50·100/50·125/50·150/50`(터미널 합계 100~200)의 정확한 입력·nested trace·실현 queue/WIP/YC부하·4h/6h backlog·용량상태를 시험한다. 본 row는 SF+계산견적 기준선이며 PPO SELL 성능은 후속 **YR-151** · **5셀 자격시험 동결 `3844f8b`**(집계 계약·전 replay assert·A150 중첩추출 생성기·A/B 동결 template·하드검사 8종·계약 테스트 8 통과·대역 907000+) — 자격시험 실행 중, 결과 미열람 |
 
 ---
 

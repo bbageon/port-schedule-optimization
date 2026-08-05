@@ -77,16 +77,21 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
     mbt = MultiBlockTerminal({"A": _sim_from(a_scn), "B": _sim_from(b_scn)})
     pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
     gens: dict[int, CandidateGenerator] = {}
-    st = {"exc": 0, "dec": 0, "busy_s": 0.0, "qmax": 0}
+    st = {"exc": 0, "dec": 0, "qmax": 0}
+    busy_s = {"A": 0.0, "B": 0.0}                    # 블록별 (터미널 평균은 B 여유에 희석)
+    qmax_b = {"A": 0, "B": 0}
     horizon = a_scn.horizon_s
     snap4h: dict[int, int] = {}
     _bid = {id(s): b for b, s in mbt.blocks.items()}
 
     def policy(sim, dp):
+        b = _bid[id(sim)]
         g = gens.setdefault(id(sim), CandidateGenerator())
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
         st["dec"] += 1
-        st["qmax"] = max(st["qmax"], sim.kpis.waiting_count())
+        q = sim.kpis.waiting_count()
+        st["qmax"] = max(st["qmax"], q)
+        qmax_b[b] = max(qmax_b[b], q)
         if sim.now >= horizon and id(sim) not in snap4h:
             snap4h[id(sim)] = sim.unfinished_backlog()
         try:
@@ -98,19 +103,25 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
         for c in dp.crane_ids:                       # YC 가동시간 = 확정 plan 소요 합
             p = getattr(assign[c], "plan", None)
             if p is not None:
-                st["busy_s"] += float(p.duration_s)
+                busy_s[b] += float(p.duration_s)
         _apply(sim, assign)
 
     res = mbt.run(policy, None, lambda sim, t0, t1, raw: 0.0)
     mbt.check_invariants()
     end = float(res["end"])
     n_cranes = sum(len(s.profile.cranes) for s in mbt.blocks.values())
+    nc_b = {b: len(s.profile.cranes) for b, s in mbt.blocks.items()}
     recs = list(mbt.ledger.records.values())
     a2o = mbt.ledger.a_to_o_samples_s(end)
+    a2o_b = {b: [r.o_gate_out - r.a_gate_in for r in recs
+                 if r.owner == b and r.a_gate_in is not None
+                 and r.o_gate_out is not None] for b in ("A", "B")}
     o_all = [r.o_gate_out for r in recs if r.o_gate_out is not None]
     n_ext_reg = sum(1 for r in recs if r.a_gate_in is not None)
     term_area = sum(s.time_ledger.terminal_area_s for s in mbt.blocks.values()
                     if s.time_ledger)
+    term_area_b = {b: (s.time_ledger.terminal_area_s if s.time_ledger else 0.0)
+                   for b, s in mbt.blocks.items()}
     block_area = sum(s.time_ledger.block_area_s for s in mbt.blocks.values()
                      if s.time_ledger)
     done = sum(1 for s in mbt.blocks.values()
@@ -126,9 +137,14 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
             "wip_time_weighted": term_area / end,
             "block_occupancy_time_weighted": block_area / end,
             "queue_max_at_decisions": st["qmax"],
+            "queue_max_by_block": dict(qmax_b),
             "a2o_mean_min": (fmean(a2o) / 60.0) if a2o else None,
+            "a2o_mean_min_by_block": {b: (fmean(v) / 60.0 if v else None)
+                                      for b, v in a2o_b.items()},
+            "wip_by_block": {b: term_area_b[b] / end for b in term_area_b},
             "n_a2o_samples": len(a2o), "n_ext_registered": n_ext_reg,
-            "yc_busy_frac": st["busy_s"] / (n_cranes * end),
+            "yc_busy_frac": sum(busy_s.values()) / (n_cranes * end),
+            "yc_busy_frac_by_block": {b: busy_s[b] / (nc_b[b] * end) for b in busy_s},
             "throughput_per_h": done / (end / 3600.0),
             "backlog_4h": backlog_4h, "backlog_6h": backlog_6h,
             "drain_to_empty_s": (max(o_all) if complete_all and o_all else None),
@@ -201,6 +217,15 @@ def qualify() -> dict:
             "a2o_mean_min": fmean(r["a2o_mean_min"] for r in sub
                                   if r["a2o_mean_min"] is not None),
             "yc_busy_frac": fmean(r["yc_busy_frac"] for r in sub),
+            "yc_busy_frac_by_block": {
+                b: fmean(r["yc_busy_frac_by_block"][b] for r in sub)
+                for b in ("A", "B")},
+            "wip_by_block": {b: fmean(r["wip_by_block"][b] for r in sub)
+                             for b in ("A", "B")},
+            "a2o_mean_min_by_block": {
+                b: fmean(r["a2o_mean_min_by_block"][b] for r in sub
+                         if r["a2o_mean_min_by_block"][b] is not None)
+                for b in ("A", "B")},
             "throughput_per_h": fmean(r["throughput_per_h"] for r in sub),
             "backlog_4h": [r["backlog_4h"] for r in sub],
             "backlog_6h": [r["backlog_6h"] for r in sub],
@@ -224,8 +249,10 @@ def qualify() -> dict:
     print(json.dumps({"hard": hard,
                       **{k: {"state": v["capacity_state_consensus"],
                              "wip": round(v["wip_time_weighted"], 2),
-                             "busy": round(v["yc_busy_frac"], 3),
-                             "a2o_min": round(v["a2o_mean_min"], 1),
+                             "busy_A": round(v["yc_busy_frac_by_block"]["A"], 3),
+                             "busy_B": round(v["yc_busy_frac_by_block"]["B"], 3),
+                             "a2o_A": round(v["a2o_mean_min_by_block"]["A"], 1),
+                             "a2o_B": round(v["a2o_mean_min_by_block"]["B"], 1),
                              "tph": round(v["throughput_per_h"], 1),
                              "bl4": v["backlog_4h"], "bl6": v["backlog_6h"]}
                          for k, v in by_cell.items()}}, ensure_ascii=False))
