@@ -283,12 +283,18 @@ def judge_primary(rows_treat: list[dict], rows_ctrl: list[dict], *,
             ctrl_value, ctrl_key = read_value(ctrl, metric, "ctrl", i)
             differences.append(treat_value - ctrl_value)
             used_keys.update((treat_key, ctrl_key))
-        result = paired(
+        # 판정은 반올림 전 원정밀도를 사용한다. `as_dict()`의 3자리 반올림값으로
+        # 경계 판정을 하면 +0.0004 같은 실제 개선이 0.000으로 바뀌어 결과가 뒤집힌다.
+        raw_result = paired(
             differences, delta_interest=delta[metric], sd_conf=sd_conf
-        ).as_dict()
-        statistical_pass = result["ci"][0] > 0.0
-        operational_pass = result["ci"][0] > delta[metric]
+        )
+        statistical_pass = raw_result.ci_lo > 0.0
+        operational_pass = raw_result.ci_lo > delta[metric]
+        result = raw_result.as_dict()
         result.update({
+            "mean_raw": raw_result.mean,
+            "ci_raw": [raw_result.ci_lo, raw_result.ci_hi],
+            "mde80_raw": raw_result.mde80,
             "unit": units[metric],
             "role": "호출자 지정 공동 주판정 지표",
             "source_keys_used": sorted(used_keys),

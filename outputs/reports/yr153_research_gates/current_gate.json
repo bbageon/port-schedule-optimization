@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-08-05",
+  "performance": {
+    "status": "INCONCLUSIVE",
+    "summary": "현재 배포 정책의 지속 유입 환경 SF-SPT 대비 터미널 총비용 개선은 아직 잠금평가되지 않음",
+    "evidence": {
+      "known": "YR-148은 사전 이동 없음이 있음보다 우월함을 확인",
+      "missing": "지속 유입·본선 포함·신규 시드에서 현재 최종 정책 대 SF-SPT 비교"
+    }
+  },
+  "reliability": {
+    "status": "FAIL",
+    "summary": "YR-149의 Dashboard·spec·경로·origin commit은 일치하지만 실행 스탬프가 clean 재현 계약을 위반",
+    "evidence": {
+      "task": "YR-149",
+      "dashboard_post_commit_audit": "PASS",
+      "board_matches": ["done.md"],
+      "evidence_commits": ["3844f8b", "7bb20c1", "0e9492a", "90d0805"],
+      "remote_ref": "origin/master",
+      "dashboard_audit_artifact": "outputs/reports/yr153_research_gates/yr149_dashboard_audit.json",
+      "evidence_file_commit_link": "PASS",
+      "qualification_hard_checks": "8/8",
+      "runtime_git_dirty": true,
+      "runtime_params": {},
+      "runtime_prereg": "설명 문자열이며 재현 가능한 파일 경로가 아님",
+      "corrective_fix": "evalkit 경계 판정을 표시용 반올림값에서 원정밀도로 교체"
+    }
+  },
+  "scenario_validity": {
+    "status": "INCONCLUSIVE",
+    "summary": "유한 물량 회복 시드는 내부 계약을 통과했으나 지속 유입 정상상태와 실제 운영 이력 대조는 미완",
+    "evidence": {
+      "finite_recovery_cells": "qualified",
+      "continuous_operation": "not_yet_implemented_and_qualified",
+      "operational_trace_level_2_or_3": "unavailable",
+      "allowed_claim_scope": "LITERATURE_CALIBRATED_SIMULATION_METHOD_ONLY"
+    }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["performance", "reliability", "scenario_validity"],
+  "currently_authorized": "YR-151 0A: reliability 단일축",
+  "conditional_sequence": [
+    "reliability PASS 후 YR-150: scenario_validity 단일축",
+    "scenario_validity PASS 후 YR-151 0B: performance 단일축"
+  ],
+  "forbidden_next_scope": "위 미확정과 무관한 새 상태·보상·행동·가설 추가"
+}

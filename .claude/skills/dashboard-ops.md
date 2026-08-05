@@ -10,9 +10,10 @@
 
 ## 작업 착수 (pull)
 
-1. `ready.md` 의 row 를 `in-progress.md` 로 **이동**한다 (잘라내기 — 복사 금지) + 착수일 기록.
-2. WIP 는 한 번에 1개 권장. 예외는 `⏸ 외부 대기` row 뿐 — 그 외 in-progress 2개면 하나는 거짓이다.
-3. Agent 작업이 끝나고 사용자/외부 응답만 남으면 Note 에 `⏸ 외부 대기` 를 명시한다.
+1. 연구 작업은 [research-gates](research-gates.md)의 `authorize-next`를 먼저 실행한다. 종료코드 2면 pull 금지.
+2. `ready.md` 의 row 를 `in-progress.md` 로 **이동**한다 (잘라내기 — 복사 금지) + 착수일 기록.
+3. WIP 는 한 번에 1개 권장. 예외는 `⏸ 외부 대기` row 뿐 — 그 외 in-progress 2개면 하나는 거짓이다.
+4. Agent 작업이 끝나고 사용자/외부 응답만 남으면 Note 에 `⏸ 외부 대기` 를 명시한다.
 
 ## 작업 종료 (commit + push)
 

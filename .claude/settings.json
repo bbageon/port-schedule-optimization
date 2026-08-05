@@ -7,7 +7,7 @@
           {
             "type": "command",
             "shell": "bash",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"[Project Board] 작업 시작 전: .claude/Dashboard/ (상태별 파일 분리) 를 읽어라. ready.md 에서 착수 항목을 in-progress.md 로 이동(pull). 종료 시 검증→범위가 명확한 commit→done evidence 갱신→origin push 성공 확인까지 수행하라. upstream 이 없으면 git push -u origin HEAD. index=README.md. board 운영 절차: .claude/skills/dashboard-ops.md, 설계문서 요약: .claude/docs/.\"}}'",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"[Project Board] 작업 시작 전: .claude/Dashboard/ (상태별 파일 분리) 를 읽어라. ready.md 에서 착수 항목을 in-progress.md 로 이동(pull). 연구 단계 전 성능·Dashboard↔코드↔증거 정합·시드 현실성 3대 게이트를 확인하고, 미통과 시 해당 보정만 수행하라(.claude/skills/research-gates.md). 종료 시 검증→범위가 명확한 commit→done evidence 갱신→origin push 성공 확인까지 수행하라. upstream 이 없으면 git push -u origin HEAD. index=README.md. board 운영 절차: .claude/skills/dashboard-ops.md, 설계문서 요약: .claude/docs/.\"}}'",
             "statusMessage": "Project board reminder"
           }
         ]
@@ -20,7 +20,7 @@
           {
             "type": "command",
             "shell": "bash",
-            "command": "cat | grep -q 'git commit' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"[Project Board] commit 후 해당 row 를 done.md 로 이동하고 commit 해시/링크를 Evidence 에 박제하라. Evidence 변경도 commit 한 뒤 origin 으로 push 하고 성공을 확인하라. upstream 이 없으면 git push -u origin HEAD, 있으면 git push. push 실패 상태를 완료로 보고하지 말고 새 후속 작업은 backlog.md 에 추가하라.\"}}' || true",
+            "command": "cat | grep -q 'git commit' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"[Project Board] commit 후 해당 row 를 done.md 로 이동하고 commit 해시/링크를 Evidence 에 박제하라. research-gates 절차의 audit-dashboard로 row·spec·evidence 정합을 읽기 전용 감사하라. Evidence 변경도 commit 한 뒤 origin 으로 push 하고 성공을 확인하라. upstream 이 없으면 git push -u origin HEAD, 있으면 git push. push 실패 상태를 완료로 보고하지 말고 새 후속 작업은 backlog.md 에 추가하라.\"}}' || true",
             "statusMessage": "Project board update reminder"
           }
         ]
