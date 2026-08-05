@@ -91,6 +91,10 @@ def run_replay(seeds: dict[str, int], tag: str, actions: list[dict], limit: int)
     res = mbt.run(policy, resolver.review, cost_fn)
     mbt.check_invariants()
     assert resolver.done == limit, f"리플레이 미발화: {resolver.done}/{limit}"
+    # ★29차 정정: legacy 경로에도 동일 하드 검사 (구판은 정렬 경로에만 있었다)
+    _bl = sum(s.unfinished_backlog() for s in mbt.blocks.values())
+    assert exc["n"] == 0, f"{tag}: 정책 예외 {exc['n']}"
+    assert _bl == 0, f"{tag}: backlog {_bl}"
     route_cost = res["route_cost_s"] / 3600.0
     return {"total_v1": float(res["terminal_total"] + route_cost),
             "v2_total": sum(_v2_hard_total(s) for s in mbt.blocks.values()),

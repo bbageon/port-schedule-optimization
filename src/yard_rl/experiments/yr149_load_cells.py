@@ -37,6 +37,22 @@ BAND_PATH = OUT / "band.json"
 BAND_START, N_PAIRS = 907_000, 4
 
 
+def backlog_at(sim, t: float) -> int:
+    """★29차 정정 — **정확히 시각 t** 의 미완 작업 수 (사후 재구성·런에 개입 없음).
+
+    구판은 t 이후 첫 정책 결정 시점에 쟀다(최대 약 14분 지연). `unfinished_backlog()` 와
+    같은 정의(DONE·CANCELLED 외 전부)를 완료시각 기준으로 t 로 되돌린다."""
+    n = 0
+    for j in sim.jobs.values():
+        if j.status.name == "CANCELLED":
+            continue
+        done_by_t = (j.status.name == "DONE" and j.service_end is not None
+                     and j.service_end <= t + 1e-9)
+        if not done_by_t:
+            n += 1
+    return n
+
+
 def _sim_from(scn) -> TerminalSimulator:
     s = TerminalSimulator(build_calibrated_profile(), scn, check_invariants=True)
     s.info_level = LEVEL
@@ -81,7 +97,6 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
     busy_s = {"A": 0.0, "B": 0.0}                    # 블록별 (터미널 평균은 B 여유에 희석)
     qmax_b = {"A": 0, "B": 0}
     horizon = a_scn.horizon_s
-    snap4h: dict[int, int] = {}
     _bid = {id(s): b for b, s in mbt.blocks.items()}
 
     def policy(sim, dp):
@@ -92,8 +107,6 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
         q = sim.kpis.waiting_count()
         st["qmax"] = max(st["qmax"], q)
         qmax_b[b] = max(qmax_b[b], q)
-        if sim.now >= horizon and id(sim) not in snap4h:
-            snap4h[id(sim)] = sim.unfinished_backlog()
         try:
             assign = pol.decide(sim, dp, gb)
         except Exception:
@@ -128,7 +141,7 @@ def run_cell(a_seed: int, b_seed: int, m: int) -> dict:
                for j in s.jobs.values() if j.status.name == "DONE")
     n_jobs = sum(len(s.jobs) for s in mbt.blocks.values())
     backlog_6h = sum(s.unfinished_backlog() for s in mbt.blocks.values())
-    backlog_4h = sum(snap4h.values()) if snap4h else None
+    backlog_4h = sum(backlog_at(s, horizon) for s in mbt.blocks.values())
     complete_all = len(o_all) == n_ext_reg and backlog_6h == 0
     state = ("OVERLOADED" if backlog_6h > 0
              else "BUSY" if (backlog_4h or 0) > 0 else "CLEAR")
