@@ -165,10 +165,228 @@ def diagnose() -> dict:
     return res
 
 
+# ---------------------------------------------------------- 1단계 정정 재실행 (27차 동결)
+# 계약 불일치 정정: ①달성 가능 본선 마감 켬 ②전 축 v2 실현비용 분해 ③이동비용 v2 총비용
+# 포함(route/3600 명시 가산) ④각 런 완주·backlog·정책 예외 저장+하드 검사 ⑤구 14건은
+# 개발 이력 보존 — **정렬 환경 새 표본**(신규 대역 906100+)으로 축 재선정.
+# 판정(동결): 지배 축 = |에피소드 묶음 평균 v2 잔차| 최대 ∧ **leave-one-out 과반 1위**
+# 일 때만 "안정 1위" → 2단계 진행. 아니면 불안정 보고·2단계 보류.
+import dataclasses
+
+from ..integrated import TerminalSimulator
+from ..integrated.cost_curve_v2 import (KAPPA_V2P_PATH, KappaFit, j_truck_realized,
+                                        j_vessel_realized)
+from ..integrated.profiles import build_calibrated_profile
+from ..integrated.scenario_gen import calibrated_load_params, generate_terminal_scenario
+from ..integrated.seedbank import assign_band, independence_report
+from ..integrated.transfer_quote import TransferQuoteResolver
+from ..integrated.vessel import VesselWorkType
+from .yr105_conditional_transfer import vessel_slack_min_s
+from .yr138_episode_pilot import SLA_ANCHOR
+
+BAND2_PATH = OUT / "band_aligned.json"
+BAND2_START, BAND2_N = 906_100, 8
+
+
+def _sim_aligned(cell, seed):
+    prof = build_calibrated_profile()
+    params = dataclasses.replace(
+        calibrated_load_params(cell[0], vessel_deadline_mult=cell[1]),
+        time_contract_v2=True, gate_block_contract=True,
+        vessel_deadline_achievable=True)          # ★27차: 달성 가능 마감
+    s = TerminalSimulator(prof, generate_terminal_scenario(prof, seed, params),
+                          check_invariants=True)
+    s.info_level = LEVEL
+    return s
+
+
+def _gen_aligned(key, cell, seed):
+    prof = build_calibrated_profile()
+    params = dataclasses.replace(
+        calibrated_load_params(cell[0], vessel_deadline_mult=cell[1]),
+        time_contract_v2=True, gate_block_contract=True,
+        vessel_deadline_achievable=True)
+    return generate_terminal_scenario(prof, seed, params)
+
+
+def make_band_aligned():
+    import re
+    pat = re.compile(r"rz1:[0-9a-f]{16}")
+    exclude: set[str] = set()
+    for p in Path("outputs/reports").rglob("*.json"):
+        if OUT in p.parents:
+            continue
+        try:
+            exclude |= set(pat.findall(p.read_text(encoding="utf-8", errors="ignore")))
+        except OSError:
+            continue
+    band = assign_band(family="y149-aligned", cells=_CELLS, n=BAND2_N,
+                       generate=_gen_aligned, exclude=exclude, start_seed=BAND2_START)
+    rep = independence_report(band, forbidden={"past-recorded": exclude})
+    assert rep["ok"], rep
+    OUT.mkdir(parents=True, exist_ok=True)
+    BAND2_PATH.write_text(json.dumps(
+        {**band.freeze_json(), "independence": rep, "n_excluded_hashes": len(exclude)},
+        ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"[band] aligned {sum(len(v) for v in band.seeds.values())} seeds frozen")
+
+
+def _v2_split(sim) -> tuple[float, float]:
+    """블록 v2 실현 hard — (트럭 항, 본선 항) 분리 (yr138._v2_hard_total 의 분해판)."""
+    sla = float(sim.profile.long_wait_sla_s)
+    l_t = SLA_ANCHOR[0] + sla + SLA_ANCHOR[1] + SLA_ANCHOR[2]
+    truck = 0.0
+    tl = getattr(sim, "time_ledger", None)
+    if tl is not None:
+        for r in tl.records.values():
+            a = getattr(r, "gate_in", None)
+            if a is None:
+                continue
+            o = getattr(r, "gate_out", None)
+            truck += j_truck_realized(o if o is not None else float(sim.end), a, a + l_t)
+    vessel = 0.0
+    for v in sim.vessels.values():
+        if v.work_type != VesselWorkType.LOAD:
+            continue
+        p = v.plan.planned_completion_s
+        if p is None:
+            continue
+        f = getattr(getattr(v, "truth", None), "actual_completion_s", None)
+        vessel += j_vessel_realized(f if f is not None else float(sim.end), p)
+    return truck, vessel
+
+
+def _mbt_aligned(seeds):
+    return MultiBlockTerminal({"A": _sim_aligned(_CELLS["A"], seeds["A"]),
+                               "B": _sim_aligned(_CELLS["B"], seeds["B"])})
+
+
+def _run_core(mbt, review_fn, tag: str) -> dict:
+    pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
+    gens: dict[int, CandidateGenerator] = {}
+    exc = {"n": 0}
+
+    def policy(sim, dp):
+        g = gens.setdefault(id(sim), CandidateGenerator())
+        gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
+        try:
+            _apply(sim, pol.decide(sim, dp, gb))
+        except Exception:
+            exc["n"] += 1
+            _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+
+    res = mbt.run(policy, review_fn, lambda sim, t0, t1, raw: 0.0)
+    mbt.check_invariants()
+    route = res["route_cost_s"] / 3600.0
+    split = {b: _v2_split(s) for b, s in mbt.blocks.items()}
+    v2_total = sum(t + v for t, v in split.values()) + route      # ★이동비용 v2 포함
+    return {"v2_total": v2_total, "route": route,
+            "v2_truck_by_block": {b: s[0] for b, s in split.items()},
+            "v2_vessel_by_block": {b: s[1] for b, s in split.items()},
+            "backlog": sum(s.unfinished_backlog() for s in mbt.blocks.values()),
+            "policy_exceptions": exc["n"]}
+
+
+def _travel_fn_for(tag):
+    def travel_fn(src, jid):
+        rng = random.Random(f"y149:{tag}:{src}:{jid}")
+        return trunc_normal(rng, GATE_BLOCK_MEAN_S,
+                            GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,
+                            lo=GATE_BLOCK_MIN_S, hi=GATE_BLOCK_MAX_S)
+    return travel_fn
+
+
+def diagnose_aligned() -> dict:
+    band = json.loads(BAND2_PATH.read_text(encoding="utf-8"))
+    pairs = list(zip(band["seeds"]["A"], band["seeds"]["B"]))
+    kf = KappaFit.load(KAPPA_V2P_PATH, require_contract_physics=True)
+    per_decision, per_episode, dev_runs = [], [], []
+    for i, (sa, sb) in enumerate(pairs):
+        seeds = {"A": sa, "B": sb}
+        tag = f"a{i}"
+        # ① 정렬 환경 견적 파일럿(새 표본 생성 — 현행 resolver: 최대 NetGain·version 검사)
+        resolver = TransferQuoteResolver(kf, travel_fn=_travel_fn_for(tag),
+                                         vessel_slack_fn=vessel_slack_min_s)
+        base = _run_core(_mbt_aligned(seeds), resolver.review, tag)
+        assert base["policy_exceptions"] == 0, "정책 예외 — 하드 검사 위반"
+        actions = sorted((r for r in resolver.ledger if r["decision"] == "TRANSFER"),
+                         key=lambda r: r["t"])
+        dev_runs.append({"pair": i, "n_transfers": len(actions), **base})
+        if not actions:
+            continue
+        print(f"[diag2] pair{i} n={len(actions)}", flush=True)
+        # ② 사슬 리플레이 j=0..n (v2 분해·하드 검사)
+        runs = []
+        for j in range(len(actions) + 1):
+            rr = ReplayResolver(actions, j, _travel_fn_for(tag))
+            out = _run_core(_mbt_aligned(seeds), rr.review, tag)
+            assert rr.done == j and out["policy_exceptions"] == 0
+            runs.append(out)
+        ep_rows = []
+        for k, a in enumerate(actions, start=1):
+            prev, cur = runs[k - 1], runs[k]
+            d_src = (cur["v2_truck_by_block"][a["src"]]
+                     - prev["v2_truck_by_block"][a["src"]])
+            d_dst = (cur["v2_truck_by_block"][a["dst"]]
+                     - prev["v2_truck_by_block"][a["dst"]])
+            d_vsl = sum(cur["v2_vessel_by_block"][b] - prev["v2_vessel_by_block"][b]
+                        for b in ("A", "B"))
+            d_route = cur["route"] - prev["route"]
+            row = {"pair": i, "k": k, "job_id": a["job_id"], "t": a["t"],
+                   "pred_net_gain": a["net_gain"], "pred_out_relief": a["out_relief"],
+                   "pred_in_burden": a["in_burden"],
+                   "d_v2_total": cur["v2_total"] - prev["v2_total"],
+                   "resid_source": d_src + a["out_relief"],
+                   "resid_receiver": d_dst - a["in_burden"],
+                   "resid_vessel": d_vsl,
+                   "resid_move": d_route - ROUTE_S / 3600.0,
+                   "backlog_after": cur["backlog"]}
+            ep_rows.append(row)
+            per_decision.append(row)
+        per_episode.append({"pair": i, "n": len(actions),
+                            **{f"mean_{key}": fmean(r[key] for r in ep_rows)
+                               for key in ("resid_source", "resid_receiver",
+                                           "resid_vessel", "d_v2_total")}})
+    axes = {"source": [e["mean_resid_source"] for e in per_episode],
+            "receiver": [e["mean_resid_receiver"] for e in per_episode],
+            "vessel": [e["mean_resid_vessel"] for e in per_episode]}
+    summary = {k: {"mean": fmean(v), "median": median(v)} for k, v in axes.items()}
+    dominant = max(summary, key=lambda k: abs(summary[k]["mean"]))
+    n_ep = len(per_episode)
+    loo_wins = {k: 0 for k in axes}
+    for drop in range(n_ep):
+        sub = {k: [v for idx, v in enumerate(vals) if idx != drop]
+               for k, vals in axes.items()}
+        w = max(sub, key=lambda k: abs(fmean(sub[k])))
+        loo_wins[w] += 1
+    stable = loo_wins[dominant] > n_ep / 2
+    res = {"protocol": "27차 정정 재실행 — 달성 가능 마감·v2 분해·route 포함·하드 검사·"
+                       "새 표본(906100+)·LOO 안정성",
+           "n_decisions": len(per_decision), "n_episodes": n_ep,
+           "dev_runs": dev_runs, "per_decision": per_decision,
+           "per_episode": per_episode, "axis_summary": summary,
+           "loo_wins": loo_wins,
+           "dominant_axis": dominant,
+           "stable_first(2단계 진행 조건)": stable}
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "diag_aligned.json").write_text(
+        json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({"dominant": dominant, "stable": stable, "loo": loo_wins,
+                      **{k: round(v["mean"], 4) for k, v in summary.items()}},
+                     ensure_ascii=False))
+    return res
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--diag", action="store_true")
+    ap.add_argument("--make-band-aligned", action="store_true")
+    ap.add_argument("--diag-aligned", action="store_true")
     a = ap.parse_args()
     if a.diag:
         diagnose()
+    if a.make_band_aligned:
+        make_band_aligned()
+    if a.diag_aligned:
+        diagnose_aligned()
     print("DONE")
