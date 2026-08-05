@@ -1,5 +1,5 @@
 {
- "protocol": "27차 정정 재실행 — 달성 가능 마감·v2 분해·route 포함·하드 검사·새 표본(906100+)·LOO 안정성",
+ "protocol": "27차 정정 재실행 + 28차 집계 계약(누적합 주판정·1건 평균 보조)·전 replay backlog·예외 assert. 축 확정은 미열람 5셀 자료에서 수행",
  "n_decisions": 17,
  "n_episodes": 8,
  "dev_runs": [
@@ -455,25 +455,51 @@
    "mean_d_v2_total": -3.9507761751077055
   }
  ],
- "axis_summary": {
-  "source": {
-   "mean": 0.3507780813391349,
-   "median": 0.423050142199396
+ "primary(에피소드 누적합)": {
+  "summary": {
+   "source": {
+    "mean": 1.2043788359201808,
+    "median": 0.5091868666961423
+   },
+   "receiver": {
+    "mean": 0.024145740936017554,
+    "median": -0.2529394370998651
+   },
+   "vessel": {
+    "mean": 0.09709932073693983,
+    "median": -0.501528224297731
+   }
   },
-  "receiver": {
-   "mean": 0.19892682669971973,
-   "median": -0.21687904233111635
+  "loo_wins": {
+   "source": 8,
+   "receiver": 0,
+   "vessel": 0
   },
-  "vessel": {
-   "mean": -0.6145725698404326,
-   "median": -0.2921569994728841
-  }
+  "dominant": "source",
+  "stable": true
  },
- "loo_wins": {
-  "source": 1,
-  "receiver": 1,
-  "vessel": 6
+ "secondary(이송 1건 평균)": {
+  "summary": {
+   "source": {
+    "mean": 0.3507780813391349,
+    "median": 0.423050142199396
+   },
+   "receiver": {
+    "mean": 0.19892682669971973,
+    "median": -0.21687904233111635
+   },
+   "vessel": {
+    "mean": -0.6145725698404326,
+    "median": -0.2921569994728841
+   }
+  },
+  "loo_wins": {
+   "source": 1,
+   "receiver": 1,
+   "vessel": 6
+  },
+  "dominant": "vessel",
+  "stable": true
  },
- "dominant_axis": "vessel",
- "stable_first(2단계 진행 조건)": true
+ "note": "이 표본은 두 집계 모두 열람됨 — 보정축은 여기서 확정하지 않는다."
 }
