@@ -277,6 +277,11 @@ def _run_core(mbt, review_fn, tag: str) -> dict:
 
     res = mbt.run(policy, review_fn, lambda sim, t0, t1, raw: 0.0)
     mbt.check_invariants()
+    # ★28차 정정: 모든 replay 경로에서 backlog·정책예외를 **assert** (구판은 저장만 했다 —
+    # "하드 검사 통과" 표현이 성립하지 않았음).
+    bl = sum(s.unfinished_backlog() for s in mbt.blocks.values())
+    assert exc["n"] == 0, f"{tag}: 정책 예외 {exc['n']}"
+    assert bl == 0, f"{tag}: backlog {bl}"
     route = res["route_cost_s"] / 3600.0
     split = {b: _v2_split(s) for b, s in mbt.blocks.items()}
     v2_total = sum(t + v for t, v in split.values()) + route      # ★이동비용 v2 포함
@@ -347,32 +352,47 @@ def diagnose_aligned() -> dict:
                             **{f"mean_{key}": fmean(r[key] for r in ep_rows)
                                for key in ("resid_source", "resid_receiver",
                                            "resid_vessel", "d_v2_total")}})
-    axes = {"source": [e["mean_resid_source"] for e in per_episode],
-            "receiver": [e["mean_resid_receiver"] for e in per_episode],
-            "vessel": [e["mean_resid_vessel"] for e in per_episode]}
-    summary = {k: {"mean": fmean(v), "median": median(v)} for k, v in axes.items()}
-    dominant = max(summary, key=lambda k: abs(summary[k]["mean"]))
+    # ★28차 집계 계약(동결): **에피소드 누적합 = 주판정**(터미널 총비용과 같은 단위),
+    # 이송 1건 평균 = 보조 교정지표. 축 확정은 이 표본이 아니라 미열람 5셀 자료에서 한다.
+    axes_sum = {"source": [e["mean_resid_source"] * e["n"] for e in per_episode],
+                "receiver": [e["mean_resid_receiver"] * e["n"] for e in per_episode],
+                "vessel": [e["mean_resid_vessel"] * e["n"] for e in per_episode]}
+    axes_mean = {"source": [e["mean_resid_source"] for e in per_episode],
+                 "receiver": [e["mean_resid_receiver"] for e in per_episode],
+                 "vessel": [e["mean_resid_vessel"] for e in per_episode]}
+
+    def _agg(ax):
+        s = {k: {"mean": fmean(v), "median": median(v)} for k, v in ax.items()}
+        dom = max(s, key=lambda k: abs(s[k]["mean"]))
+        n = len(next(iter(ax.values())))
+        wins = {k: 0 for k in ax}
+        for drop in range(n):
+            sub = {k: [v for i, v in enumerate(vals) if i != drop]
+                   for k, vals in ax.items()}
+            wins[max(sub, key=lambda k: abs(fmean(sub[k])))] += 1
+        return s, dom, wins, wins[dom] > n / 2
+
+    summary, dominant, loo_wins, stable = _agg(axes_sum)          # 주판정
+    summary_sec, dom_sec, loo_sec, stable_sec = _agg(axes_mean)   # 보조
     n_ep = len(per_episode)
-    loo_wins = {k: 0 for k in axes}
-    for drop in range(n_ep):
-        sub = {k: [v for idx, v in enumerate(vals) if idx != drop]
-               for k, vals in axes.items()}
-        w = max(sub, key=lambda k: abs(fmean(sub[k])))
-        loo_wins[w] += 1
-    stable = loo_wins[dominant] > n_ep / 2
-    res = {"protocol": "27차 정정 재실행 — 달성 가능 마감·v2 분해·route 포함·하드 검사·"
-                       "새 표본(906100+)·LOO 안정성",
+    res = {"protocol": "27차 정정 재실행 + 28차 집계 계약(누적합 주판정·1건 평균 보조)·"
+                       "전 replay backlog·예외 assert. 축 확정은 미열람 5셀 자료에서 수행",
            "n_decisions": len(per_decision), "n_episodes": n_ep,
            "dev_runs": dev_runs, "per_decision": per_decision,
-           "per_episode": per_episode, "axis_summary": summary,
-           "loo_wins": loo_wins,
-           "dominant_axis": dominant,
-           "stable_first(2단계 진행 조건)": stable}
+           "per_episode": per_episode,
+           "primary(에피소드 누적합)": {"summary": summary, "loo_wins": loo_wins,
+                                        "dominant": dominant, "stable": stable},
+           "secondary(이송 1건 평균)": {"summary": summary_sec, "loo_wins": loo_sec,
+                                        "dominant": dom_sec, "stable": stable_sec},
+           "note": "이 표본은 두 집계 모두 열람됨 — 보정축은 여기서 확정하지 않는다."}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "diag_aligned.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps({"dominant": dominant, "stable": stable, "loo": loo_wins,
-                      **{k: round(v["mean"], 4) for k, v in summary.items()}},
+    print(json.dumps({"주판정_누적합": {"dominant": dominant, "stable": stable,
+                                        "loo": loo_wins,
+                                        **{k: round(v["mean"], 4)
+                                           for k, v in summary.items()}},
+                      "보조_1건평균": {"dominant": dom_sec, "loo": loo_sec}},
                      ensure_ascii=False))
     return res
 
