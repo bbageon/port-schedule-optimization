@@ -28,6 +28,7 @@ from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_curve_v2 import KappaFit
 from ..integrated.load_cells import generate_block
 from ..integrated.multiblock import MultiBlockTerminal, TransferError
+from ..integrated.repro import code_dirty
 from ..integrated.transfer_quote import TransferQuoteResolver
 from ..integrated.yard_layout import terminal_layout
 from .yr088_joint_rl import LEVEL
@@ -321,7 +322,8 @@ def run() -> dict:
     verdict = {"contract_all_pass": all(flags.values()), "flags": flags,
                "note": "0단계 계약 검사 전용 — 성능·학습 판정 없음. 어떤 수치도 "
                        "비용 개선 근거로 쓰지 않는다(현실성 PASS 뒤 별도 인가)."}
-    dirty = bool(_git("status", "--porcelain", "--untracked-files=no"))
+    # ★미추적 신규 파일까지 본다 (2026-08-06 정정 — 아래 주석 참조).
+    dirty = bool(code_dirty())
     res = {"stage": "0", "task": "YR-150",
            "runtime": {"commit": _git("rev-parse", "HEAD"), "git_dirty": dirty,
                        "remote_ref": "origin/master",

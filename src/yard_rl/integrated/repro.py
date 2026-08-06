@@ -29,8 +29,30 @@ def git_head(short: bool = False) -> str | None:
         return None
 
 
+def code_dirty(paths: tuple[str, ...] = ("src", "tests")) -> bool | None:
+    """**실행 코드**가 커밋에 다 들어있는지 — `git_dirty()` 로는 잡히지 않는 구멍을 막는다.
+
+    `git_dirty()` 는 `--untracked-files=no` 라서 **새로 만든 파일을 깨끗하다고 본다**.
+    새 실험은 대부분 새 파일이므로, 구현을 커밋하지 않고 판정을 돌려도
+    `git_dirty=false` 가 찍혀 재현 사슬이 조용히 끊긴다(2026-08-06 YR-150 1단계 실측).
+    여기서는 `src`·`tests` 아래의 **수정분과 미추적 신규 파일을 모두** 본다
+    (판정과 무관한 `outputs/` 산출물 잡음은 범위에서 제외).
+    """
+    try:
+        out = subprocess.run(["git", "status", "--porcelain", "--", *paths],
+                             capture_output=True, text=True, timeout=15)
+        if out.returncode != 0:
+            return None
+        return bool(out.stdout.strip())
+    except Exception:
+        return None
+
+
 def git_dirty() -> bool | None:
-    """추적 파일에 커밋 안 된 변경이 있는지 — 판정런이 '커밋된 코드'인지 구분한다."""
+    """추적 파일에 커밋 안 된 변경이 있는지 — 판정런이 '커밋된 코드'인지 구분한다.
+
+    **주의**: 미추적 신규 파일은 잡지 못한다. 실행 코드 완전성은 `code_dirty()` 를 쓴다.
+    """
     try:
         out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"],
                              capture_output=True, text=True, timeout=15)
