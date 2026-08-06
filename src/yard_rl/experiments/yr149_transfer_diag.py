@@ -49,7 +49,8 @@ class ReplayResolver:
         for a in self.actions:
             if abs(a["t"] - t) <= 1e-6:
                 ok = mbt.try_transfer(a["job_id"], a["dst"], route_s=ROUTE_S,
-                                      travel_s=self.travel_fn(a["src"], a["job_id"]))
+                                      travel_s=self.travel_fn(a["src"], a["dst"],
+                                                              a["job_id"]))
                 assert ok, f"리플레이 이송 실패 — 재현 위반: {a}"
                 self.done += 1
 
@@ -70,8 +71,8 @@ def run_replay(seeds: dict[str, int], tag: str, actions: list[dict], limit: int)
             exc["n"] += 1
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
-    def travel_fn(src, jid):                      # 원 파일럿과 동일 키 → travel 정확 재현
-        rng = random.Random(f"y133:{tag}:{src}:{jid}")
+    def travel_fn(src, dst, jid):                 # 원 파일럿과 동일 키 → travel 정확 재현
+        rng = random.Random(f"y133:{tag}:{src}:{jid}")   # dst 무시 = 2블록 골든 보존
         return trunc_normal(rng, GATE_BLOCK_MEAN_S,
                             GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,
                             lo=GATE_BLOCK_MIN_S, hi=GATE_BLOCK_MAX_S)
@@ -297,7 +298,7 @@ def _run_core(mbt, review_fn, tag: str) -> dict:
 
 
 def _travel_fn_for(tag):
-    def travel_fn(src, jid):
+    def travel_fn(src, dst, jid):                 # dst 무시 = 2블록 골든 보존
         rng = random.Random(f"y149:{tag}:{src}:{jid}")
         return trunc_normal(rng, GATE_BLOCK_MEAN_S,
                             GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,

@@ -82,7 +82,9 @@ def run_arm(seeds: dict[str, int], *, arm: str, tag: str) -> dict:
             stats["policy_exceptions"] += 1
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
-    def travel_fn(src, jid):
+    def travel_fn(src, dst, jid):
+        # 2블록 골든 재현: dst 를 **의도적으로 무시**하고 난수 키도 구판 그대로 둔다.
+        # 목적지별 주행(YR-150 0단계 route matrix)은 N블록 하네스에서만 쓴다.
         rng = random.Random(f"y133:{tag}:{src}:{jid}")
         return trunc_normal(rng, GATE_BLOCK_MEAN_S,
                             GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,

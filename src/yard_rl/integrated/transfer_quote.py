@@ -9,6 +9,14 @@
   → MultiBlockTerminal.try_transfer, **epoch당 최대 1건**. 실패·결측·가드 = KEEP.
 - quote 는 발행 epoch 전용(이월 금지 — 만료 원천 차단). **이송/작업 ≤ max_transfers**.
 - 견적 원장 전량 기록(감사 가능). 결정론: 블록·후보 정렬 순회, 무작위는 travel_fn 주입.
+
+★YR-150 0단계 N블록 확장 (2026-08-06)
+- `travel_fn(src, dst, jid)` — **목적지를 받는다**. 구판 `(src, jid)` 는 어느 블록으로
+  보내든 주행이 같아 목적지 선택의 물리적 대가가 0 이었다.
+- `route_fn(src, dst)` — 목적지별 우회비용. None 이면 상수 `route_s`(2블록 구계약).
+- `terminal_epoch_cap` — `1`(기본) 은 2블록 기능계약 그대로. `None` 이면 N블록 matching:
+  **소스당 1건**·작업당 이송 상한을 지키며 한 epoch 에 여러 소스가 동시에 성사될 수 있고,
+  수신 블록 용량은 엔진(`free_slots`·미도착 예약)이 강제한다.
 """
 from __future__ import annotations
 
@@ -86,14 +94,23 @@ class TransferQuoteResolver:
     """결정론 블록 간 확정자 — MultiBlockTerminal.run 의 review_fn 으로 주입."""
 
     def __init__(self, kf: KappaFit, *, travel_fn, vessel_slack_fn=None,
-                 route_s: float = ROUTE_S_DEFAULT,
+                 route_s: float = ROUTE_S_DEFAULT, route_fn=None,
                  gain_margin: float | None = GAIN_MARGIN_DEFAULT,
                  vessel_slack_min: float = VESSEL_SLACK_MIN_DEFAULT,
-                 max_transfers: int = 1):
+                 max_transfers: int = 1,
+                 terminal_epoch_cap: int | None = 1):
         self.kf = kf
-        self.travel_fn = travel_fn                  # (src, jid) -> travel_s (하네스 결정론 rng)
+        # ★YR-150 0단계: **목적지를 받는다**. 구판 `(src, jid)` 는 어느 블록으로 보내든
+        # 주행이 같아 목적지 선택의 물리적 대가가 0 이었다. 2블록 골든 재현은 dst 를
+        # 무시하는 travel_fn 을 주입해 그대로 유지한다(하네스 쪽 책임).
+        self.travel_fn = travel_fn                  # (src, dst, jid) -> travel_s
         self.vessel_slack_fn = vessel_slack_fn      # (sim) -> float | None (본선 가드)
         self.route_s = route_s
+        # route_fn(src, dst) -> float. None 이면 상수 route_s (2블록 구계약).
+        self.route_fn = route_fn
+        # 터미널 전체 epoch당 확정 상한. 1 = 2블록 기능계약(구판 그대로), None = N블록
+        # matching(소스당 1건·작업당 이송 상한·수신 용량은 엔진이 강제).
+        self.terminal_epoch_cap = terminal_epoch_cap
         # None = κ_T 1σ 유도 (예측오차 이내 이득 무시 — 정정 도출, 상수 튜닝 아님)
         self.gain_margin = (kf.kappa_t_s / 3600.0 if gain_margin is None
                             else gain_margin)
@@ -139,35 +156,56 @@ class TransferQuoteResolver:
             # ② receiver 견적 — 허용 블록 = 타 블록 전부, 최소 InBurden (tie 블록명순)
             quotes = []
             for dst in sorted(b for b in mbt.blocks if b != src):
-                travel = self.travel_fn(src, offer.job_id)
+                travel = self.travel_fn(src, dst, offer.job_id)
+                route = self.route_s if self.route_fn is None else self.route_fn(src, dst)
                 burden = predict_move_cost(src_sim, mbt.blocks[dst], offer.job_id,
                                            self.kf, travel_s=travel,
-                                           route_s=self.route_s)
+                                           route_s=route)
                 if burden is None:
                     self.ledger.append({"t": t, "src": src, "dst": dst,
                                         "job_id": offer.job_id, "decision": "NO_BID"})
                     continue
                 quotes.append((ReceiveQuote(offer.job_id, dst, burden,
-                                            offer.version, t), travel))
+                                            offer.version, t), travel, route))
             if not quotes:
                 continue
-            quote, travel = min(quotes, key=lambda q: (q[0].in_burden, q[0].dst))
+            # ★목적지 선택은 **부담 + 그 목적지까지의 주행**으로 고른다. 구판은 route 가
+            # 목적지와 무관한 상수라 순위에 영향이 없었다(비교 결과는 동일하게 유지된다).
+            quote, travel, route = min(
+                quotes, key=lambda q: (q[0].in_burden + q[2] / 3600.0, q[0].dst))
             net = (offer.out_relief - quote.in_burden
-                   - self.route_s / 3600.0 - self.gain_margin)
+                   - route / 3600.0 - self.gain_margin)
             rec = {"t": t, "src": src, "dst": quote.dst, "job_id": offer.job_id,
                    "out_relief": offer.out_relief, "in_burden": quote.in_burden,
+                   "route_s": route, "travel_s": travel,
+                   # 후보 **전량** 기록 — 어느 목적지를 왜 골랐는지 사후에 검증 가능해야 한다
+                   # (spec 엔진 선결 3: 목적지별 route 비용을 원장에 남긴다).
+                   "bids": [{"dst": q.dst, "in_burden": q.in_burden,
+                             "route_s": r, "travel_s": tr} for q, tr, r in quotes],
                    "net_gain": net, "version": offer.version}
             if net <= 0.0:
                 self.ledger.append({**rec, "decision": "KEEP"})
                 continue
-            proposals.append((net, offer, quote, travel, rec))
+            proposals.append((net, offer, quote, travel, route, rec))
         if not proposals:
             return
-        # ③ 결정론 확정 — 전 제안 중 최대 NetGain 1건 (tie: 작업 id 사전순)
+        # ③ 결정론 확정 — NetGain 내림차순 (tie: 작업 id 사전순)
+        #
+        #   terminal_epoch_cap = 1  : 2블록 기능계약 그대로. 구판과 **완전히 같게**
+        #       "앞에서부터 cap 건만 시도"한다 — 첫 건이 stale/txn 실패로 무산돼도
+        #       뒤 제안을 대신 올리지 않는다(구판 행동 보존이 목적).
+        #   terminal_epoch_cap = None : N블록 matching. 소스당 1건·작업당 1회만 확정하고
+        #       수신 블록 용량은 엔진(`free_slots`·예약)이 강제한다. 여러 소스가 같은
+        #       epoch 에 동시에 성사될 수 있다.
         proposals.sort(key=lambda p: (-p[0], p[1].job_id))
-        for i, (net, offer, quote, travel, rec) in enumerate(proposals):
-            if i > 0:                               # epoch당 최대 1건 — 잔여는 KEEP 기록
+        used_src: set[str] = set()
+        used_job: set[str] = set()
+        for i, (net, offer, quote, travel, route, rec) in enumerate(proposals):
+            if self.terminal_epoch_cap is not None and i >= self.terminal_epoch_cap:
                 self.ledger.append({**rec, "decision": "KEEP_NOT_SELECTED"})
+                continue
+            if offer.src in used_src or offer.job_id in used_job:
+                self.ledger.append({**rec, "decision": "KEEP_SOURCE_USED"})
                 continue
             cur_ver = mbt.ledger.records[offer.job_id].version
             if cur_ver != offer.version:            # quote 발행 vs 확정 version 직접 검사
@@ -175,8 +213,10 @@ class TransferQuoteResolver:
                                     "version_at_commit": cur_ver})
                 continue
             ok = mbt.try_transfer(offer.job_id, quote.dst,
-                                  route_s=self.route_s, travel_s=travel)
+                                  route_s=route, travel_s=travel)
             self.ledger.append({**rec,
                                 "decision": "TRANSFER" if ok else "KEEP_TXN_FAIL"})
             if ok:
                 self.n_transferred += 1
+                used_src.add(offer.src)
+                used_job.add(offer.job_id)
