@@ -1,10 +1,12 @@
 # YR-151 — Block PPO SELL TransferHead
 
 - **Epic**: RL / **Priority**: 🔴 / **등록일**: 2026-08-05
-- **상태**: **in-progress** (2026-08-06 — 0A 착수·게이트 인가 `allowed=true`)
+- **상태**: **ready** (2026-08-06 — **0A 종료**, 0B 는 YR-150 선결로 대기)
   - **0A 완료**: 계약 8종 전 항 통과(20/20 셀·깨끗한 커밋 실행) — 판정 `ae6005b` ·
     [report](../../../outputs/reports/yr151_pre_gate_0a/report.md)
-  - 다음: YR-150 지속 유입 환경 구축 → **0B**(신호 재검사·학습 GO/STOP)
+  - **0A 를 하네스에 보고 → 신뢰성 게이트 FAIL → PASS**(YR-153 `current_gate.json`).
+    닫힌 3사유 = `runtime_git_dirty` · 빈 `runtime_params` · 사전등록이 파일 경로가 아님
+  - 다음: YR-150 지속 유입 환경 구축(scenario_validity 단일축) → **0B**(신호 재검사·학습 GO/STOP)
 - **3대 게이트 단계 계약**: `0A=reliability`, `0B=performance` — 각 단계 착수 전 YR-153
   `authorize-next`를 따로 통과하며 두 축 동시 보정 금지
 - **사용자 결정**: 중앙 계산기가 먼저 판매작업을 고르는 구조를 기준선으로 남기되,
