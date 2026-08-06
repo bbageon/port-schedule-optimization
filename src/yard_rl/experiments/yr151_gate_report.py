@@ -8,8 +8,12 @@
   judge_claim_alignment   report.md 에 사람이 옮겨적은 수치 ↔ 원자료 계산값
   → combine_reliability   위 셋을 신뢰성 게이트 하나로 결합
 
-성능·현실성 축은 이번 보정 범위가 아니므로 저장된 판정을 **그대로 승계**한다
+성능 축은 이번 보정 범위가 아니므로 저장된 판정을 **그대로 승계**한다
 (단일축 보정 원칙 — 인가받지 않은 축을 같이 올리지 않는다).
+
+현실성 축은 `--scenario-from` 으로 **실제 제출 판정**을 받으면 그것으로 갱신한다.
+승계값(INCONCLUSIVE)을 남겨 두면 실측 FAIL 을 미확정으로 약하게 적는 셈이 되기 때문이며,
+더 엄한 쪽으로 기록을 맞추는 것이지 완화가 아니다.
 """
 from __future__ import annotations
 
@@ -18,7 +22,8 @@ import hashlib
 import json
 from pathlib import Path
 
-from .gate_harness import (ResearchGateReport, audit_dashboard, combine_reliability,
+from .gate_harness import (GateOutcome, GateStatus, ResearchGateReport, audit_dashboard,
+                           combine_reliability,
                            judge_claim_alignment, judge_runtime_evidence, report_from_dict)
 
 ROOT = Path(".")
@@ -62,7 +67,8 @@ def raw_values(data: dict) -> dict[str, float]:
 
 
 def build(generated_at: str, board_commit: str,
-          board_state: str = BOARD_STATE_DEFAULT) -> dict:
+          board_state: str = BOARD_STATE_DEFAULT,
+          scenario_from: str | None = None) -> dict:
     commits = (*EVIDENCE_COMMITS, board_commit)
     data = json.loads(CONTRACT.read_text(encoding="utf-8"))
     rt = data["runtime"]
@@ -83,7 +89,20 @@ def build(generated_at: str, board_commit: str,
     reliability = combine_reliability(runtime, dashboard, alignment)
 
     prior = report_from_dict(json.loads(GATE.read_text(encoding="utf-8")))
-    report = ResearchGateReport(prior.performance, reliability, prior.scenario_validity)
+    # 현실성 축: **실제 제출 판정이 있으면 그것을 쓴다.** 승계값(INCONCLUSIVE)을 그대로
+    # 두면 FAIL 을 미확정으로 약하게 적는 셈이 된다 — 완화가 아니라 정확한 기록이 목적이다.
+    scenario = prior.scenario_validity
+    if scenario_from:
+        raw = json.loads(Path(scenario_from).read_text(encoding="utf-8"))
+        sub = raw["scenario_gate"]["outcome"]
+        scenario = GateOutcome(
+            "scenario_validity", GateStatus(sub["status"]), sub["summary"],
+            tuple(sub["reasons"]),
+            {**sub["evidence"], "submitted_by": scenario_from,
+             "submission_commit": raw["runtime"]["commit"],
+             "anchor_registry_sha256": raw["scenario_gate"]["anchor_registry_sha256"],
+             "anchors_unavailable": raw["scenario_gate"]["anchors_unavailable"]})
+    report = ResearchGateReport(prior.performance, reliability, scenario)
 
     out = report.as_dict()
     out["generated_at"] = generated_at
@@ -115,9 +134,11 @@ def main() -> None:
     ap.add_argument("--board-commit", required=True, help="현재 board·spec 상태의 commit")
     ap.add_argument("--board-state", default=BOARD_STATE_DEFAULT,
                     help="YR-151 row 가 있는 Dashboard 상태 파일 이름")
+    ap.add_argument("--scenario-from", default=None,
+                    help="현실성 축을 실제 제출 판정으로 갱신할 결과 JSON 경로")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args()
-    out = build(a.generated_at, a.board_commit, a.board_state)
+    out = build(a.generated_at, a.board_commit, a.board_state, a.scenario_from)
     if a.write:
         GATE.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: {"status": v["status"], "reasons": v["reasons"]}
