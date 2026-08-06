@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| — | — | *(비어 있음 — 다음 착수 후보는 YR-150 21블록 터미널 전체 환경)* | — | — | YR-151의 A/B 2블록 0A는 기술계약만 종료. 다음은 YR-153 `authorize-next --target scenario_validity` 통과 후 **N=3 계약회귀 → N=21 지속 유입 자격시험**이며, 0B 성능·학습 판정은 그 뒤다. |
+| YR-150 | Exp | **21블록 터미널 전체 지속 유입 자격시험 — 0단계 N블록 엔진 계약(N=3)** | 🔴 | 2026-08-06 | [spec](../docs/dashboard-task-specs/YR-150-continuous-inflow-steady-state.md) · 게이트 인가 `allowed=true`(REMEDIATION·target=`scenario_validity`, gate `cd6f373`). **현재 범위는 0단계뿐** — 다수 수신처 선택·**목적지별 비영 route**·동시 offer matching·rollback 을 N=3 에서 검사한다. **금지**: 성능 비교·정책 군 비교·21블록 본시험(1단계는 0단계 통과 뒤 같은 row 에서 연다) |
 
 ---
 

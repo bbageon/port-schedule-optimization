@@ -1,7 +1,9 @@
 # YR-150 — 21블록 터미널 전체 지속 유입 정상상태 시험
 
 - **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-05 / **재정의**: 2026-08-06(터미널 전체 부하·21블록)
-- **상태**: ready — YR-151 0A 완료, 다음 `scenario_validity` 보정 작업
+- **상태**: **in-progress** (2026-08-06 착수 — 0단계 N블록 엔진 계약, N=3)
+  - 게이트 인가 `allowed=true` (REMEDIATION · target=`scenario_validity` · gate `cd6f373`)
+  - **현재 범위는 0단계뿐** — 1단계(21블록 자격 파일럿)는 0단계 통과 뒤 같은 row 에서 연다
 - **3대 게이트 보정 대상**: `scenario_validity` 하나 — 착수 전 YR-153 `authorize-next` 통과 필수
 - **★재정의 3회**
   - (1차) **고정 재공량(WIP 제어) 폐기** — 터미널 안 트럭 수를 일정하게 유지하면 빨리
