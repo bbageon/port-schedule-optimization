@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-150 | Exp | **21블록 터미널 전체 지속 유입 자격시험 — 0단계 통과, 다음 1단계 파일럿** | 🔴 | 2026-08-06 | [spec](../docs/dashboard-task-specs/YR-150-continuous-inflow-steady-state.md) · 게이트 인가 `allowed=true`(REMEDIATION·target=`scenario_validity`, gate `cd6f373`). **0단계 완료(`5be10ad`)**: N=3 계약 9종 전 항 통과 — 목적지별 주행 matrix **비영**(110·220초, 구판은 180초 상수)·최소(부담+주행) 목적지 선택 69/69·**동시 확정 2 epoch**(터미널 1건 상한 아님)·소스당 1건·용량 fail-closed·rollback 복원·결정론·게이트 진입 전 재배정 주행 차이 **±110/±220초(0 아님)**. 앵커 보존(평균 300초·범위 190~410초). 골든 보존(전체 회귀 742 통과, 1 실패는 기존 YR-111 동일 수치) · [report](../../outputs/reports/yr150_nblock_contract/report.md). **0단계는 현실성 게이트를 닫지 않는다** — 다음은 **1단계 21블록 자격 파일럿**(터미널 master stream 을 배분벡터 `p` 로 21블록 배분·관측시간 종료·5~10분 스냅샷·상태 사후분류). **금지**: 성능 비교·정책 군 비교 |
+| YR-150 | Exp | **H-21 수평 공유형 21블록 지속 유입 자격 — 0단계 통과, 다음 1단계** | 🔴 | 2026-08-06 | [spec](../docs/dashboard-task-specs/YR-150-continuous-inflow-steady-state.md) · 게이트 인가 `allowed=true`(REMEDIATION·target=`scenario_validity`, gate `cd6f373`). **0단계 실행 기준 `5be10ad` → 판정·evidence `f37414d`**: N=3 계약 9종 전 항 통과 — 목적지별 주행 matrix 비영(110·220초)·최소(부담+주행) 목적지 69/69·동시 확정 2 epoch(**강제 발화 계약검사, 자연 성능 아님**)·소스당 1건·용량 fail-closed·rollback·결정론·PRE_GATE 주행 차이 ±110/±220초. 판정 당시 전체 회귀 742 통과/기존 실패 1건, **현재 HEAD 직접 재검증 753 통과·4 skip/동일 YR-111 실패 1건** · [report](../../outputs/reports/yr150_nblock_contract/report.md). 다음은 **H-21 21블록 자격 파일럿**(terminal master stream·관측시간 종료·스냅샷·사후 상태분류). 현재 route는 1차원 합성이고 실제 수평 터미널 재현이 아니다. V-21 역할분리형은 YR-083 후 별도 자격·성능으로 분리한다. **금지**: 이 단계의 성능·정책 비교 |
 
 ---
 

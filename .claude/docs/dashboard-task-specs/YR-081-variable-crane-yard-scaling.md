@@ -2,9 +2,9 @@
 
 - **Epic**: RL / **Priority**: ⚪ / **등록일**: 2026-07-20
 - **사용자 범위 정정**: 2026-07-26
-- **2026-08-06 순서 정정**: YR-150 본 성능시험에 필요한 **동질 2YC×21블록 subset**
-  (N블록 공용시계·원장·목적지별 route·terminal-wide 입력)은 `scenario_validity` 보정으로
-  앞당긴다. 가변 크레인·이질 블록·실제 터미널 구조 일반화는 본 YR-081에 그대로 남긴다.
+- **2026-08-06 순서 정정**: **H-21 동질 공유형**의 N블록 공용시계·원장·route·terminal-wide
+  입력은 YR-150으로, **V-21 육·해측 역할분리형**의 mask·LSTP/WSTP·AGV 흐름은 YR-083으로
+  앞당긴다. 가변 크레인 수·블록별 이질성·두 구조 밖 실제 터미널 일반화만 본 row에 남긴다.
 - **결정 원본**: [TOS 배정 후 반입 재배정·중앙 resolver](../strategy-history/2026-07-26-YR-081-배정후-반입재배정-중앙-resolver-사용자확정.md)
 - **세부 구현**: [YR-099](YR-099-post-tos-inbound-transfer-resolver.md)
 
@@ -72,6 +72,8 @@ BlockQ OutRelief/InBurden → deterministic TransferResolver
 ### D. 터미널 구조군
 
 - YR-082의 구조군을 별도 환경으로 유지하고 평균 하나로 합치지 않는다.
+- 연구 본환경은 먼저 H-21과 V-21을 같은 21블록·동일 master stream으로 통제한다. 구조별
+  별도 정책이 자기 구조의 규칙을 이긴 뒤에만 공유 가중치 일반화를 별도 축으로 연다.
 - DGT는 육측·해측 역할과 AGV/FMS, BNCT·BCT는 S/C 이동·인계,
   북항은 혼합장비·블록 간 이동 가능성부터 별도 모델링한다.
 - 공개 Level 0~1 자료는 stress 조건일 뿐 실제 터미널 일반화 증거가 아니다.
