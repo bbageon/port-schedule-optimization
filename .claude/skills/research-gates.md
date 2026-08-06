@@ -55,6 +55,14 @@ python -m yard_rl.experiments.gate_harness audit-dashboard `
 - 실행 시점 코드가 실제 존재하는 clean commit이며 절대 시드·빈 값이 아닌 전체 설정이 완전
 - 사전등록 파일과 artifact가 존재하며 계산한 sha256이 기록값과 일치
 
+**★board row 를 옮기면 저장된 신뢰성 PASS 가 무효가 된다** (2026-08-06 실측). `authorize-next`
+는 저장 JSON 의 `PASS` 를 그대로 믿지 않고 `revalidate_pass_evidence()` 로 다시 계산하는데,
+그 안의 `audit_dashboard` 는 판정 당시의 board 상태 파일 이름(`expected_state`)에 고정돼 있다.
+row 를 `ready → backlog` 로 옮기는 정당한 재정리만으로도 `저장된 dashboard PASS 재계산 실패`
+가 나서 다음 작업이 막힌다. **조치는 임계 완화가 아니라 게이트 보고 재실행**이다 —
+새 board 상태·commit 으로 `yr151_gate_report.py --board-state <상태> --board-commit <commit>`
+를 다시 돌려 evidence 를 현재 진실에 맞춘 뒤 commit·push 한다.
+
 ## 3. 현실성 판정
 
 내부타당성 필수 항목:

@@ -26,10 +26,12 @@ CONTRACT = Path("outputs/reports/yr151_pre_gate_0a/contract_0a.json")
 REPORT_MD = Path("outputs/reports/yr151_pre_gate_0a/report.md")
 GATE = Path("outputs/reports/yr153_research_gates/current_gate.json")
 SPEC = Path(".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
-# 구현 동결 · 판정 · spec 정합 · 0A 종료 board 이동(BOARD_COMMIT 은 실행 시 인자로 덮어씀)
+# 구현 동결 · 판정 · spec 정합 · board 이동(BOARD_COMMIT 은 실행 시 인자로 덮어씀)
 EVIDENCE_COMMITS = ["87d5688", "ae6005b", "0e6727c"]
-BOARD_STATE = "ready"       # 0A 종료 후 YR-151 은 ready 로 복귀(0B 는 YR-150 선결)
 REMOTE_REF = "origin/master"
+# board 상태는 실행 시 인자로 받는다 — 저장된 신뢰성 PASS 는 board 상태에 고정되므로
+# YR-151 row 가 이동하면(ready→backlog 등) 이 보고를 반드시 다시 돌려야 재계산이 통과한다.
+BOARD_STATE_DEFAULT = "backlog"     # 2026-08-06 사용자 정정: 0B 는 YR-150 선결 대기
 
 # report.md 본문에 사람이 옮겨적은 수치 — 원자료와 기계 대조할 대상.
 # (표 "계약 8종 (20/20 셀 통과)" · "후보 수: 셀별 1~6건(20셀)")
@@ -59,7 +61,8 @@ def raw_values(data: dict) -> dict[str, float]:
     return out
 
 
-def build(generated_at: str, board_commit: str) -> dict:
+def build(generated_at: str, board_commit: str,
+          board_state: str = BOARD_STATE_DEFAULT) -> dict:
     commits = (*EVIDENCE_COMMITS, board_commit)
     data = json.loads(CONTRACT.read_text(encoding="utf-8"))
     rt = data["runtime"]
@@ -73,7 +76,7 @@ def build(generated_at: str, board_commit: str) -> dict:
 
     runtime = judge_runtime_evidence(stamp, artifact_hashes=hashes, root=ROOT)
     dashboard = audit_dashboard(
-        ROOT, task_id="YR-151", expected_state=BOARD_STATE, spec_path=SPEC,
+        ROOT, task_id="YR-151", expected_state=board_state, spec_path=SPEC,
         evidence_paths=(CONTRACT, REPORT_MD), evidence_commits=commits,
         remote_ref=REMOTE_REF)
     alignment = judge_claim_alignment(REPORTED, raw_values(data))
@@ -109,10 +112,12 @@ def build(generated_at: str, board_commit: str) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--generated-at", required=True)
-    ap.add_argument("--board-commit", required=True, help="0A 종료 board·spec 이동 commit")
+    ap.add_argument("--board-commit", required=True, help="현재 board·spec 상태의 commit")
+    ap.add_argument("--board-state", default=BOARD_STATE_DEFAULT,
+                    help="YR-151 row 가 있는 Dashboard 상태 파일 이름")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args()
-    out = build(a.generated_at, a.board_commit)
+    out = build(a.generated_at, a.board_commit, a.board_state)
     if a.write:
         GATE.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: {"status": v["status"], "reasons": v["reasons"]}

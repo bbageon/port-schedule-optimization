@@ -23,6 +23,13 @@ board·spec·증거 대조(`audit_dashboard`) **통과**, 보고 수치 ↔ 원�
 위 세 실패 사유는 각각 clean commit(`87d5688`, `git_dirty=false`), 구체 설정값
 (창 1800초·이송 상한 1·주행 300초·route delta 0·셀 5종), 사전등록 **파일 경로+sha256** 으로 닫혔다.
 
+**재발행(2026-08-06 후반)**: 사용자가 board 를 21블록 계약으로 재정리하며 YR-151 row 가
+`ready → backlog` 로 이동하자, 저장돼 있던 신뢰성 PASS 가 `authorize-next` 재계산에서
+**`저장된 dashboard PASS 재계산 실패`** 로 막혔다. 저장 JSON 의 PASS 를 그대로 믿지 않고
+판정 당시 board 상태에 고정해 다시 계산하는 fail-closed 설계가 의도대로 작동한 것이다.
+임계를 낮추지 않고 **같은 검사를 새 board 상태(`backlog`)·새 commit(`24f3fc8`)으로 재실행**해
+PASS 를 다시 받았다. 절차는 `research-gates.md` §2 에 박제.
+
 정직 기록 하나: 0A 원자료의 `self_sha256` 은 그 필드를 써넣기 **전** 파일의 해시라
 자기검증이 되지 않는다(기록 `4862ae71…` vs 실제 파일 `c287a9d5…`). 게이트에는 실제
 커밋된 파일 해시를 고정했고, 스탬프 규약 자체는 후속 정정 대상으로 남긴다.
