@@ -1,0 +1,41 @@
+{
+  "schema": "yard_rl.external_anchor.v1",
+  "title": "외부 앵커 등록부 v1 — 시뮬레이션 범위를 문헌·공개자료 범위와 대조하기 위한 근거",
+  "rule": "저장소에 추적된 파일에서 실제로 확인되는 범위만 넣는다. 확인되지 않는 지표는 비워 두고 게이트가 '미수집'으로 실패하게 둔다 — 통과를 위해 범위를 지어내지 않는다.",
+  "anchors": {
+    "gate_to_block_time": {
+      "metric": "gate_to_block_time",
+      "unit": "s",
+      "observed_range": [120.0, 300.0],
+      "status": "literature",
+      "source": {
+        "title": "DGT ARMG 프로파일 v2 (문헌 보정) — operations.gate_travel_estimate_s 주석",
+        "locator": "configs/terminals/dgt_armg.yaml : operations.gate_travel_estimate_s (\"게이트→블록 순주행 2~5분 문헌 → 중앙값 3.5분\")",
+        "evidence_grade": "📚 문헌",
+        "note": "같은 저장소의 hjnc_armg.yaml 도 공개정보 수준에서 수치 동일(YR-022 수렴)."
+      },
+      "conflict": {
+        "with": "YR-103 게이트→블록 시간계약 (scenario_gen.GATE_BLOCK_MIN_S/MAX_S = 180~420s, 중심 300s)",
+        "note": "저장소 안에 두 값이 공존한다 — 문헌 2~5분(중앙 210초) vs 사용자 계약 3~7분(중심 300초). YR-150 배치는 후자를 앵커로 삼아 190~410초를 만들었으므로 전자의 범위를 벗어난다. 어느 쪽을 정본으로 둘지는 별도 결정 사항이며, 그 전까지 이 앵커는 위반으로 남긴다."
+      }
+    }
+  },
+  "unavailable": {
+    "initial_yard_occupancy": {
+      "why": "추적 자료의 장치율은 `.claude/docs/YR-002-HJNC-DGT-요구정보.md` 에서 ❓(보도 개략치뿐)로 표기돼 있어 관측범위로 쓸 수 없다. 현재 시뮬 값 0.30 은 assumed 이다.",
+      "needs": "블록 점유율 시계열 또는 공개 장치율 통계(Level 2 이상)"
+    },
+    "truck_arrival_rate": {
+      "why": "공개 확인값은 연간 처리량(TEU/년)뿐이고, `configs/terminals/busan/manifest.yaml` 이 '연간 처리능력을 블록별 도착률로 환산'하는 것을 명시적으로 금지한다.",
+      "needs": "게이트 시간대별 반출입 실적(VBS/게이트 로그, Level 3)"
+    },
+    "crane_service_time": {
+      "why": "야드크레인 속도(갠트리·트롤리·호이스트)는 문헌값이 있으나 '1작업 서비스시간'의 관측범위는 없다. 시뮬 값은 그 속도에서 엔진이 유도한 결과이므로 앵커로 자기참조가 된다.",
+      "needs": "작업 단위 서비스시간 실측 분포(Level 3)"
+    },
+    "vessel_workload": {
+      "why": "본선 1척당 계획 move 수·STS 간격의 관측범위를 담은 추적 자료가 없다.",
+      "needs": "선석별 작업량·STS 생산성 실적(Level 3)"
+    }
+  }
+}

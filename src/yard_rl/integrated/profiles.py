@@ -80,3 +80,24 @@ def build_hjnc_approx_profile(single_yaml: str | Path = HJNC_SINGLE_YAML
         decision_horizon_s=single.decision_horizon_s,
         gate_travel_estimate_s=single.gate_travel_estimate_s,
     )
+
+
+def build_h21_profile() -> IntegratedProfile:
+    """H-21 **수평 공유형** 합성 구조 프로파일 — 이송차종이 YT 다 (YR-150 정합).
+
+    **왜 별도 빌더인가**: Dashboard 는 H-21 을 "두 YC 가 트럭·본선을 공유하고 **YT** 로
+    운송하는 구조"로 정의하는데, `build_calibrated_profile()` 은 DGT 근사에서 온
+    **AGV** fleet 을 돌려준다. 자격 파일럿이 그것을 그대로 써서 **코드와 구조 정의가
+    어긋나 있었다**(외부 감사 지적 2026-08-06).
+
+    현재 YT·AGV 의 역학 수치는 동일(3대·180초)이라 결과는 바뀌지 않지만, 라벨이 어긋난
+    채로 성능시험에 들어가면 "무엇을 실험했는가"가 흐려진다. 그래서 **수치는 그대로 두고
+    이송차종만 YT 로 맞춘 중립 이름 프로파일**을 둔다.
+
+    특정 터미널 이름을 쓰지 않는다 — H-21 은 합성 구조이지 HJNC 재현이 아니다.
+    """
+    base = build_calibrated_profile()
+    return replace(base, terminal_id="H21-SHARED-YT",
+                   transfer=TransferFleetSpec("YT1", "YT",
+                                              n_units=base.transfer.n_units,
+                                              move_time_s=base.transfer.move_time_s))
