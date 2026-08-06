@@ -1,0 +1,191 @@
+{
+ "stage": "0",
+ "task": "YR-150",
+ "runtime": {
+  "commit": "5be10adfed3fa4f80c3a97c74cd745483f39840f",
+  "git_dirty": false,
+  "remote_ref": "origin/master",
+  "remote_head": "5be10adfed3fa4f80c3a97c74cd745483f39840f",
+  "prereg_file": ".claude/docs/dashboard-task-specs/YR-150-continuous-inflow-steady-state.md",
+  "prereg_sha256": "47d58ad1f952286e81b86cfbc4cc6fcd63e559d66463be4c469b6967fa35e8bf",
+  "params": {
+   "SUB_IDS": [
+    "Y01",
+    "Y11",
+    "Y21"
+   ],
+   "N_EXTERNAL": 50,
+   "layout": {
+    "ids": [
+     "Y01",
+     "Y11",
+     "Y21"
+    ],
+    "positions_m": [
+     950.0,
+     1500.0,
+     2050.0
+    ],
+    "speed_mps": 5.0,
+    "gate_to_block_s": {
+     "Y01": 190.0,
+     "Y11": 300.0,
+     "Y21": 410.0
+    },
+    "gate_time_range_s": [
+     190.0,
+     410.0
+    ],
+    "mean_gate_time_s": 300.0,
+    "anchor_mean_s": 300.0,
+    "anchor_support_s": [
+     180.0,
+     420.0
+    ],
+    "synthetic": "단일 야드축 등간격 합성 배치 — 실제 터미널 좌표 아님"
+   },
+   "terminal_blocks": 21,
+   "terminal_epoch_cap": null
+  },
+  "seeds": {
+   "blocks": [
+    5100100,
+    5100200,
+    5100300
+   ]
+  }
+ },
+ "verdict": {
+  "contract_all_pass": true,
+  "flags": {
+   "N1": true,
+   "N2": true,
+   "N3": true,
+   "N4": true,
+   "N5": true,
+   "N6": true,
+   "N7": true,
+   "N8": true,
+   "N9": true
+  },
+  "note": "0단계 계약 검사 전용 — 성능·학습 판정 없음. 어떤 수치도 비용 개선 근거로 쓰지 않는다(현실성 PASS 뒤 별도 인가)."
+ },
+ "checks": {
+  "N1_route_matrix": {
+   "nonzero_offdiagonal": true,
+   "zero_diagonal": true,
+   "symmetric": true,
+   "triangle_inequality": true,
+   "gate_time_within_support": true,
+   "full_terminal_mean_is_anchor": true,
+   "gate_to_block_s": {
+    "Y01": 190.0,
+    "Y11": 300.0,
+    "Y21": 410.0
+   },
+   "block_to_block_s": {
+    "Y01": {
+     "Y01": 0.0,
+     "Y11": 110.0,
+     "Y21": 220.0
+    },
+    "Y11": {
+     "Y01": 110.0,
+     "Y11": 0.0,
+     "Y21": 110.0
+    },
+    "Y21": {
+     "Y01": 220.0,
+     "Y11": 110.0,
+     "Y21": 0.0
+    }
+   },
+   "max_pair_gap_s": 220.0
+  },
+  "N2_multi_receiver": {
+   "n_receiver_candidates_per_decision": 2,
+   "n_decisions_with_quote": 69,
+   "n_decisions_with_multiple_bids": 69,
+   "n_decisions_with_differing_route": 40,
+   "route_matches_layout": true,
+   "chose_min_burden_plus_route": true,
+   "distinct_route_values_s": [
+    110.0,
+    220.0
+   ],
+   "n_transferred": 7,
+   "policy_exceptions": 0,
+   "route_cost_ledger_s": 770.0,
+   "cost_not_computed": "0단계는 cost_fn 을 붙이지 않는다 — 비용 수치 없음(의도)",
+   "decisions": {
+    "KEEP": 62,
+    "TRANSFER": 7
+   }
+  },
+  "N3N4_simultaneous": {
+   "exercised": true,
+   "aligned_gate_in_s": 6226.794,
+   "n_aligned_jobs": 3,
+   "n_epochs_with_transfer": 66,
+   "max_sources_in_one_epoch": 2,
+   "simultaneous_multi_source": true,
+   "simultaneous_epochs": {
+    "0.0": [
+     "Y11",
+     "Y21"
+    ],
+    "6226.794": [
+     "Y01",
+     "Y21"
+    ]
+   },
+   "one_offer_per_source_per_epoch": true,
+   "job_transfer_cap_respected": true,
+   "n_transferred": 68,
+   "policy_exceptions": 0
+  },
+  "N5N6N8_capacity_atomicity": {
+   "exercised": true,
+   "job": "Y01:J-IN-002",
+   "src": "Y01",
+   "dst": "Y11",
+   "capacity_fail_closed": true,
+   "rollback_restored": true,
+   "closed_txn_rejected": true,
+   "committed": true,
+   "invariants": true,
+   "owner_after": "Y11",
+   "origin_preserved": true,
+   "ledger_registration_preserved": true,
+   "second_transfer_rejected": true
+  },
+  "N9_pre_gate_route_delta": {
+   "deltas_s": {
+    "Y01->Y11": 110.0,
+    "Y01->Y21": 220.0,
+    "Y11->Y01": -110.0,
+    "Y11->Y21": 110.0,
+    "Y21->Y01": -220.0,
+    "Y21->Y11": -110.0
+   },
+   "any_nonzero": true,
+   "has_negative": true,
+   "antisymmetric": true
+  },
+  "N7_determinism": {
+   "identical": true,
+   "runs": [
+    {
+     "route_cost_s": 770.0,
+     "n": 7,
+     "digest": "10e2611f2d005019"
+    },
+    {
+     "route_cost_s": 770.0,
+     "n": 7,
+     "digest": "10e2611f2d005019"
+    }
+   ]
+  }
+ }
+}
