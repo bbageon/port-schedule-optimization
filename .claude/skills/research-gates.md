@@ -63,6 +63,11 @@ row 를 `ready → backlog` 로 옮기는 정당한 재정리만으로도 `저�
 새 board 상태·commit 으로 `yr151_gate_report.py --board-state <상태> --board-commit <commit>`
 를 다시 돌려 evidence 를 현재 진실에 맞춘 뒤 commit·push 한다.
 
+**순서가 중요하다 — 게이트 재발행 커밋에는 board 파일을 담지 않는다.** 같이 담으면 그
+커밋 이후 board 가 또 달라져 재계산이 다시 실패하는 순환에 빠진다(2026-08-06 실측 3회).
+①board·spec 변경을 먼저 commit·push → ②그 commit 을 `--board-commit` 으로 게이트 재발행
+→ ③**게이트 JSON 만** 담은 commit·push. 이 구조 결함 자체는 YR-156 에서 고친다.
+
 ## 3. 현실성 판정
 
 내부타당성 필수 항목:
