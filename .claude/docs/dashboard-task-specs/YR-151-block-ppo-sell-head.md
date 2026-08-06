@@ -1,12 +1,12 @@
 # YR-151 — Block PPO SELL TransferHead
 
 - **Epic**: RL / **Priority**: 🔴 / **등록일**: 2026-08-05
-- **상태**: **ready** (2026-08-06 — **0A 종료**, 0B 는 YR-150 선결로 대기)
+- **상태**: **backlog** (2026-08-06 — **0A 종료**, 0B 는 YR-150 현실성 PASS 선결로 대기)
   - **0A 완료**: 계약 8종 전 항 통과(20/20 셀·깨끗한 커밋 실행) — 판정 `ae6005b` ·
     [report](../../../outputs/reports/yr151_pre_gate_0a/report.md)
   - **0A 를 하네스에 보고 → 신뢰성 게이트 FAIL → PASS**(YR-153 `current_gate.json`).
     닫힌 3사유 = `runtime_git_dirty` · 빈 `runtime_params` · 사전등록이 파일 경로가 아님
-  - 다음: YR-150 지속 유입 환경 구축(scenario_validity 단일축) → **0B**(신호 재검사·학습 GO/STOP)
+  - 다음: YR-150 **21블록 터미널 전체** 지속 유입 환경 구축 → **0B**(신호 재검사·학습 GO/STOP)
 - **3대 게이트 단계 계약**: `0A=reliability`, `0B=performance` — 각 단계 착수 전 YR-153
   `authorize-next`를 따로 통과하며 두 축 동시 보정 금지
 - **사용자 결정**: 중앙 계산기가 먼저 판매작업을 고르는 구조를 기준선으로 남기되,
@@ -14,8 +14,8 @@
 
 ## 연구 질문
 
-“현재 블록의 미래 부하와 작업 ETA를 본 Block PPO가 어떤 반입 작업을 내보낼지 학습하면,
-계산식 기반 발의와 이송 없는 정책보다 터미널 v2 총비용을 더 낮출 수 있는가?”
+“21블록 중 각 source Block PPO가 미래 부하와 ETA로 어떤 반입 작업을 내보낼지 학습하고,
+Resolver가 여러 수신 블록 중 목적지를 고르면 계산식 발의와 이송 없음보다 터미널 비용이 낮아지는가?”
 
 `SELL`은 판매 요청이며 실제 이전 명령이 아니다. PPO가 목적지나 소유권을 직접 바꾸지 않는다.
 
@@ -36,8 +36,9 @@
 3. `SELL`을 `SERVE/PRE_REHANDLE/DEFER` 크레인 행동 목록에 넣지 않는다.
 4. receiver 수용부담식·allowed-block 검사·Resolver의 최종 선택권은 고정한다. 단 현 엔진은
    gate-in 전 이송을 거절하므로 0단계에서 **PRE_GATE 원자 transaction**을 별도 구현한다.
-5. `BUY` 학습행동은 만들지 않는다. 첫 실험에서 실행 PPO 동시 미세조정, receiver 학습,
-   양하 확대, 다건 matching을 금지한다.
+5. `BUY` 학습행동은 만들지 않는다. 실행 PPO 동시 미세조정·receiver 학습·양하 확대는 금지한다.
+   각 source는 1건만 발의하되 N블록 Resolver는 job 중복·receiver 용량을 지키며 복수 source를
+   결정론적으로 matching한다. 2블록의 터미널 전체 1건 상한은 본 성능계약으로 승계하지 않는다.
 6. 실제 TOS API·승인·현장 명령은 범위 밖이다. TOS 최초배정이 주어진 합성 입력만 쓴다.
 
 ## SELL 대상과 30분 ETA 창
@@ -54,8 +55,8 @@
   ETA 변경은 owner를 자동 rollback하지 않으며 작업당 1회 이전 상한을 유지한다.
 - 한 source는 epoch당 `KEEP` 또는 작업 1건 `OFFER_SELL(job, version, expires_at)`만 낸다.
 
-PRE_GATE 이송비용은 기존 블록 A→B 물리운반 180초가 아니라 `gate→새 블록`과
-`gate→기존 블록`의 예측 주행시간 차이다. 실제 실현 주행시간은 평가 장부에만 쓴다.
+PRE_GATE 이송비용은 `gate→새 블록`과 `gate→기존 블록`의 예측 주행시간 차이다. N블록에서는
+반드시 `route(src,dst,job)`로 계산한다. 0A의 전 블록 300초·차이 0은 기술검사 한계이며 성능에 쓰지 않는다.
 
 현재 YR-133/149의 actual gate-in 3~7분 review는 계산 기준선·이력으로 보존한다. YR-151의
 30분 PRE_ADVICE 창은 0단계에서 후보 노출·정보누출·결정시점을 먼저 검증한 뒤 학습한다.
@@ -65,8 +66,8 @@ PRE_GATE 이송비용은 기존 블록 A→B 물리운반 180초가 아니라 `g
 - **Actor 입력**: source 블록의 현재 queue·평균대기·YC 잔여부하·장치율·본선 여유,
   향후 30분 예정 유입, 후보 작업의 공개 ETA·flow·규격·현재 owner/version.
 - **Actor 출력**: 동적 후보 `KEEP + OFFER(job_1..K)`의 masked categorical 확률.
-- **Critic 입력**: 결정시점의 양 블록 공개상태·receiver 현재 수용가능 요약을 학습 중에만
-  본다. resolver 결과는 다음 transition·보상일 뿐 현재 critic 입력에 미리 넣지 않는다.
+- **Critic 입력**: 결정시점의 source와 **실행 가능한 모든 receiver의 순열불변 요약**을 학습
+  중에만 본다. resolver 결과는 다음 transition·보상일 뿐 현재 critic 입력에 미리 넣지 않는다.
   실행 actor는 source의 공개정보만 본다(중앙학습·분산실행).
 - **보상**: route 비용과 미완 장부를 포함한 YR-136 v2 실제 증분비용의 음수다. 혼잡점수를
   별도 보상으로 다시 더하지 않는다.
@@ -82,8 +83,8 @@ PRE_GATE 이송비용은 기존 블록 A→B 물리운반 180초가 아니라 `g
 
 | 단계 | 환경 | 무엇을 | GO/STOP 권한 |
 |---|---|---|---|
-| **0A 기술 계약 검사** | YR-149 5셀(유한 물량) | 후보 생성·30분 결정창·미래정보 누출 0·**PRE_GATE 원자 재배정** 만 확인 | **없음**(계약 검사 전용) |
-| **YR-150** | 지속 유입 본 환경 구축 | 반복 스냅샷·구간 집계·backlog 기울기·본선 지속 유입 | — |
+| **0A 기술 계약 검사** | YR-149 A/B(유한 물량) | 2블록 후보·30분 창·누출 0·원자 재배정 확인 | **완료**, 성능권한 없음 |
+| **YR-150** | 21블록 터미널 전체 지속 유입 | N=3 계약회귀→N=21·반복 스냅샷·상태분류 | — |
 | **0B 신호 재검사** | **지속 유입** | 실제 SELL 상금(KEEP 대비 반사실)·**공개정보로 이득 부호 구분 가능성**·결정 **순간**의 수신 블록 여유 | **여기서만 학습 GO/STOP** |
 
 - 0A 에서 계약이 깨지면(누출·원자성 위반) 중단한다. 그러나 **"후보가 적다·상금이 작다"는
@@ -96,7 +97,8 @@ PRE_GATE 이송비용은 기존 블록 A→B 물리운반 180초가 아니라 `g
 
 ### 0. 데이터·결정창 자격
 
-- YR-149의 A/B 5셀 master trace를 사용하되 train/dev/test seedbank를 분리한다.
+- YR-149 A/B trace는 완료된 0A 기술검사에만 쓴다. 0B는 YR-150의 터미널 master stream과
+  21블록 최초배정 벡터를 쓰며 train/dev/test seedbank를 분리한다.
 - 셀별 후보 수, 다후보 epoch, ETA 오차, 양·음 반사실 이득의 수와 분포를 기록한다.
 - `prepare_pre_gate_transfer→validate→commit/rollback`을 구현해 owner 정확히 1,
   `execution_block_id`·미래 arrival event·전역 A→O 장부·route 비용의 원자성을 검사한다.
@@ -133,16 +135,18 @@ PRE_GATE 이송비용은 기존 블록 A→B 물리운반 180초가 아니라 `g
 YR-149의 actual gate-in 계산견적은 연결 참고군일 뿐 주 대조군이 아니다. Q30과 S는 결정시점,
 후보, 공개정보, PRE_GATE transaction, receiver/Resolver가 같고 source 선택기만 다르다.
 
-### 3. 부하 5셀 확증 (★30차 — 지속 유입 구조에서)
+### 3. 터미널 전체 부하 5셀 확증 (★사용자 정정 — 21블록에서)
 
 - 부하 셀 `50·75·100·125·150` 을 쓰되, **지속 유입 정상상태 구조(YR-150)** 에서 판정한다.
-  거기서 이 숫자는 **총량이 아니라 4시간당 도착 강도**다.
+  이 숫자는 **21블록 전체를 합한 4시간당 외부트럭 도착량**이며 블록별 물량이 아니다.
 - YR-149 5셀(유한 물량 회복 구조)은 **0A 계약 검사·참고**용이며 지속 운영 성능의 확증
   환경이 아니다.
 - 셀을 합쳐 하나의 평균으로 판정하지 않는다. 학습 초기화×master scenario를 함께 반영한
   계층형 신뢰구간과 셀 동시검정을 쓴다.
 - 주지표는 YR-150 평가계약(시간당 누적 v2 비용·시간가중 재공량·backlog 기울기·A→O·
   본선 시간당 지연비용)을 따르고, 처리량은 안정성 조건으로만 쓴다.
+- 모든 21블록은 source/receiver가 될 수 있어야 하며 터미널 합계와 블록별 도착−완료·WIP 편차를
+  함께 보고한다. N=2 결과로 terminal-wide SELL 성능을 주장하지 않는다.
 
 ## 판정 게이트
 
@@ -176,3 +180,4 @@ YR-149의 actual gate-in 계산견적은 연결 참고군일 뿐 주 대조군�
 - [YR-148 채택 실행 구성](YR-148-guard-on-rejudgment.md)
 - [YR-149 5부하 데이터·견적 기준](YR-149-quote-refine-confirm.md)
 - [YR-150 지속 유입 정상상태 — 본 성능시험 환경](YR-150-continuous-inflow-steady-state.md)
+- [터미널 전체 21블록 사용자 결정](../strategy-history/2026-08-06-YR-150-151-터미널전체-21블록-사용자결정.md)

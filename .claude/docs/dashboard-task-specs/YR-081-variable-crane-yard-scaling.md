@@ -2,6 +2,9 @@
 
 - **Epic**: RL / **Priority**: ⚪ / **등록일**: 2026-07-20
 - **사용자 범위 정정**: 2026-07-26
+- **2026-08-06 순서 정정**: YR-150 본 성능시험에 필요한 **동질 2YC×21블록 subset**
+  (N블록 공용시계·원장·목적지별 route·terminal-wide 입력)은 `scenario_validity` 보정으로
+  앞당긴다. 가변 크레인·이질 블록·실제 터미널 구조 일반화는 본 YR-081에 그대로 남긴다.
 - **결정 원본**: [TOS 배정 후 반입 재배정·중앙 resolver](../strategy-history/2026-07-26-YR-081-배정후-반입재배정-중앙-resolver-사용자확정.md)
 - **세부 구현**: [YR-099](YR-099-post-tos-inbound-transfer-resolver.md)
 

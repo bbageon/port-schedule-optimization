@@ -8,7 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| — | — | *(비어 있음 — YR-151 0A 종료 2026-08-06, 다음 착수 후보는 YR-150)* | — | — | YR-151 은 0A 종료 후 [ready](ready.md) 로 복귀(0B 는 YR-150 선결). 다음 착수 전 YR-153 `authorize-next --target scenario_validity` 통과 필요 |
+| — | — | *(비어 있음 — 다음 착수 후보는 YR-150 21블록 터미널 전체 환경)* | — | — | YR-151의 A/B 2블록 0A는 기술계약만 종료. 다음은 YR-153 `authorize-next --target scenario_validity` 통과 후 **N=3 계약회귀 → N=21 지속 유입 자격시험**이며, 0B 성능·학습 판정은 그 뒤다. |
 
 ---
 
