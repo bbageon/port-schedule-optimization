@@ -193,16 +193,8 @@ C 원인·원자료·라벨 계약을 정정했으므로 원문 수치만 이력
 - 정상 대기 보존: 실제 짝지은 비용상 대기가 유리한 상태에서의 선택 정확도를 별도 보고한다.
 - WAIT 감소가 PREPOSITION/REPOSITION 장악으로 이동하는지 반드시 함께 검사한다.
 
-## 범위 밖
+## 범위 밖 · 참조
 
-정책 성능 검증 전에 `WAIT+WAIT` 금지, resolver 강제 대체, 엔진 강제 탈출을 성능 arm에
-넣지 않는다. PPO는 확률 정책이므로 운영상 0건 보장은 별도 YR-146이 담당하며, 그 결과를
-YR-147의 학습 성과로 합산하지 않는다. 이는 YR-052/119의 자유 WAIT 재개가 아니라,
-사유·만료·재검토시각을 가진 새 DEFER 행동의 최초 검증이다.
+정책 성능 검증 전에 `WAIT+WAIT` 금지, resolver 강제 대체, 엔진 강제 탈출을 성능 arm에 넣지 않는다. PPO는 확률 정책이므로 운영상 0건 보장은 별도 YR-146이 담당하며, 그 결과를 YR-147의 학습 성과로 합산하지 않는다. 이는 YR-052/119의 자유 WAIT 재개가 아니라, 사유·만료·재검토시각을 가진 새 DEFER 행동의 최초 검증이다.
 
-## 참조
-
-- YR-145: [report](../../../outputs/reports/yr145_status_gate/report.md) ·
-  [results](../../../outputs/reports/yr145_status_gate/results.json) · prereg `98b33e5`.
-- 관련 이력: YR-050(결정시각), YR-052/119(자유 WAIT 퇴화), YR-128(가치 순위 오류),
-  [BlockQ 사다리](../strategy-history/2026-07-30-BlockQ-v2-로드맵-10단사다리.md).
+참조 — YR-145: [report](../../../outputs/reports/yr145_status_gate/report.md) · [results](../../../outputs/reports/yr145_status_gate/results.json) · prereg `98b33e5`. 관련 이력: YR-050(결정시각), YR-052/119(자유 WAIT 퇴화), YR-128(가치 순위 오류), [BlockQ 사다리](../strategy-history/2026-07-30-BlockQ-v2-로드맵-10단사다리.md).

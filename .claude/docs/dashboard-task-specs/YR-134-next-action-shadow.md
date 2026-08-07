@@ -1,4 +1,5 @@
 # YR-134 — 다음 작업 shadow 이중계산 검증
+- **상태**: **backlog** (2026-08-07 중간점검 — board backlog.md 와 정합)
 
 > 상태: backlog · 등록 2026-07-30
 > 상세 결정: [사용자 결정 기록](../strategy-history/2026-07-30-YR-134-다음작업-shadow-이중계산-사용자결정.md)
