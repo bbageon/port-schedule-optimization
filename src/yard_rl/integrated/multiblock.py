@@ -43,6 +43,10 @@ class JobRecord:
     c_job_done: float | None = None
     o_gate_out: float | None = None
     locked: bool = False              # block-in/배정 이후 = 재배정 금지
+    # YR-161 시간 판매(재예약) — 진입 전 이연 이력. 비용 원점은 job.appointment_gate_time
+    # (최초 통지 시각)이 보존하므로 이연이 장부에서 시간을 지우지 못한다.
+    entry_deferrals: int = 0
+    entry_deferred_s: float = 0.0
 
     @property
     def reassignable(self) -> bool:
@@ -285,6 +289,83 @@ class MultiBlockTerminal:
             tl._n_inside += 1
         self.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
                                        flow=job.flow.value, a_gate_in=gate_in_s))
+
+    # -------------------------------------------------- 시간 판매 (YR-161 — 진입 전 재예약)
+    def defer_admitted_entry(self, job_id: str, delta_s: float, *,
+                             max_deferrals: int = 1) -> None:
+        """아직 게이트에 들어오지 않은 트럭의 진입 시각을 delta 만큼 미룬다.
+
+        사용자 시나리오(2026-08-08): 블록이 혼잡하면 기사에게 "다른 시간을 예약해서
+        들어와 주세요"라고 요청하고, 본 연구에서는 **전원 수락 가정**이다. 공간을 못
+        바꾸는 반출(GATE_OUT)의 판매 축이며, 반입도 기술적으로는 가능하다(정책이 제한).
+
+        **비용 은닉 금지 계약**: `job.appointment_gate_time`(최초 통지 시각)은 건드리지
+        않는다 — 이연으로 생기는 기사 외부 대기(new A − 최초 통지)는 비용 계산이 이 원점
+        으로 잡아낸다. 이연 이력은 원장(`entry_deferrals`/`entry_deferred_s`)에 남는다.
+
+        수술은 이송 commit() 과 동일 계약: 사건 제거·재등록, 시간 장부 _a_sorted 치환
+        (포인터 보정 포함), version 증가. 검사 실패 시 아무것도 바꾸지 않는다.
+        """
+        rec = self.ledger.records.get(job_id)
+        if rec is None:
+            raise TransferError(f"{job_id}: 미등록")
+        if delta_s <= 0:
+            raise TransferError(f"{job_id}: 이연량은 양수여야 함 ({delta_s})")
+        if rec.entry_deferrals >= max_deferrals:
+            raise TransferError(f"{job_id}: 이연 상한 초과 ({rec.entry_deferrals})")
+        if rec.a_gate_in is None or rec.a_gate_in <= self.now + 1e-6:
+            raise TransferError(f"{job_id}: 이미 gate-in — 진입 전에만 재예약 가능")
+        sim = self.blocks[rec.owner]
+        j = sim.jobs.get(job_id)
+        if j is None or j.status != JobStatus.PLANNED:
+            raise TransferError(f"{job_id}: 상태 위반 (PLANNED 아님)")
+        old_a = rec.a_gate_in
+        new_a = old_a + delta_s
+        new_arr = j.actual_block_arrival + delta_s
+        if new_arr > sim.end:
+            raise TransferError(f"{job_id}: 이연 도착 {new_arr:.1f}가 관측창 밖")
+        # --- 변경 구간 (이하 실패하지 않는 연산만) ---
+        import bisect
+        import heapq as _hq
+        from .events import EventKind
+        sim.queue._heap = [e for e in sim.queue._heap
+                           if not (e.kind_name == "BLOCK_ARRIVAL" and e.payload == job_id)]
+        _hq.heapify(sim.queue._heap)
+        sim.queue.push(new_arr, EventKind.BLOCK_ARRIVAL, job_id)
+        j.actual_gate_in = new_a
+        j.actual_block_arrival = new_arr
+        # 공개 예측도 함께 이동 — walk-in 예측 = 통지 gate-in + 기대 주행 (실현 미참조 유지)
+        for f in ("estimated_block_arrival", "provided_eta"):
+            v = getattr(j, f, None)
+            if v is not None:
+                setattr(j, f, v + delta_s)
+        tl = sim.time_ledger
+        if tl is not None:
+            tl.records[job_id].gate_in = new_a
+            i = bisect.bisect_left(tl._a_sorted, old_a)
+            # old_a 는 미래(> 소비 지점)이므로 통상 i ≥ _a_idx — commit() 과 같은 보정 유지
+            if i < len(tl._a_sorted) and tl._a_sorted[i] == old_a:
+                del tl._a_sorted[i]
+                if i < tl._a_idx:
+                    tl._a_idx -= 1
+                    tl._n_inside -= 1
+            k = bisect.bisect_left(tl._a_sorted, new_a)
+            tl._a_sorted.insert(k, new_a)
+            if k < tl._a_idx:
+                tl._a_idx += 1
+                tl._n_inside += 1
+        rec.a_gate_in = new_a
+        rec.version += 1
+        rec.entry_deferrals += 1
+        rec.entry_deferred_s += delta_s
+
+    def try_defer_admitted_entry(self, job_id: str, delta_s: float, *,
+                                 max_deferrals: int = 1) -> bool:
+        try:
+            self.defer_admitted_entry(job_id, delta_s, max_deferrals=max_deferrals)
+            return True
+        except TransferError:
+            return False
 
     # -------------------------------------------------- 2단계 transaction (계약 ⑤)
     def prepare_transfer(self, job_id: str, dst: str, *, route_s: float,

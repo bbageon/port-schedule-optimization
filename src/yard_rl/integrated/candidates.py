@@ -269,9 +269,18 @@ class CandidateGenerator:
     def _serve(self, sim, cid, now) -> list[GenCandidate]:
         yc = sim.fleet.get(cid)
         spec = sim.fleet.spec(cid)
+        # YR-161 opt-in — 적하 시간 판매(embargo). 기본 빈 dict = 기존 바이트 동일.
+        # 정책이 sim._load_embargo[jid] = until_t 로 설정하면 그 시각 전에는 해당
+        # 적하(VESSEL_LOAD) 작업을 SERVE 후보에서 뺀다. **비용은 숨겨지지 않는다** —
+        # 적하 지연은 본선 버퍼 고갈 → 본선 지연 비용으로 장부에 그대로 잡힌다
+        # (반출 이연과 달리 자기-계상 구조라 원점 보존이 따로 필요 없다).
+        embargo = getattr(sim, "_load_embargo", None) or {}
         out = []
         for jid in sorted(sim.jobs):
             j = sim.jobs[jid]
+            if (embargo and j.flow == JobFlow.VESSEL_LOAD
+                    and embargo.get(jid, -1.0) > now):
+                continue
             if not sim._dispatchable(j, cid):
                 continue
             ref = sim._jobref(j, spec, yc)
