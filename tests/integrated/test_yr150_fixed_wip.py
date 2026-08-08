@@ -160,3 +160,33 @@ def test_extra_review_epochs_default_is_byte_identical():
                             "B": _sim_from(make_b_cell(6_310_001))},
                            extra_review_epochs=(60.0, 120.0))
     assert 60.0 in c.blocks["A"].review_epochs and 120.0 in c.blocks["A"].review_epochs
+
+
+# ------------------------------------------------------------------ 본선 재보정 (2026-08-08)
+def test_vessel_workload_within_derived_anchor(built):
+    """계획 본선 작업률이 유도 앵커(145~170 moves/h) 안 — 12 process × 120 moves."""
+    obs = ObservationContract()
+    planned = 0.0
+    n_load = n_dis = 0
+    for s in built["scenarios"].values():
+        for v in s.vessels:
+            planned += min(v.plan.total_moves,
+                           max(0.0, (obs.observe_s - v.plan.planned_start_s)
+                               / v.plan.sts_move_interval_s))
+            if v.work_type.value == "LOAD":
+                n_load += 1
+            else:
+                n_dis += 1
+    rate = planned / (obs.observe_s / 3600.0)
+    assert 145.0 <= rate <= 170.0
+    # 블록당 1 process 여도 양하/적하가 모두 존재해야 한다 (offset 정정)
+    assert n_load >= 4 and n_dis >= 4 and n_load + n_dis == 12
+
+
+def test_vessel_type_offset_default_is_byte_identical():
+    """vessel_type_offset 기본값 0 은 기존 생성과 바이트 동일해야 한다(골든 보존)."""
+    from yard_rl.integrated.load_cells import generate_block
+    a = generate_block(6_320_000, 50)
+    b = generate_block(6_320_000, 50)
+    assert [v.work_type for v in a.vessels] == [v.work_type for v in b.vessels]
+    assert a.vessels and a.vessels[0].work_type.value == "DISCHARGE"  # v=0·offset 0

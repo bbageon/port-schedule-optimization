@@ -1,7 +1,7 @@
 {
   "schema": "yard_rl.external_anchor.v1",
   "title": "외부 앵커 등록부 v1 — 시뮬레이션 범위를 문헌·공개자료 범위와 대조하기 위한 근거",
-  "rule": "저장소에 추적된 파일에서 실제로 확인되는 범위만 넣는다. 확인되지 않는 지표는 비워 두고 게이트가 '미수집'으로 실패하게 둔다 — 통과를 위해 범위를 지어내지 않는다.",
+  "rule": "저장소에 추적된 파일 또는 명시 인용된 공개자료로 확인되는 범위만 넣는다. 확인되지 않는 지표는 비워 두고 게이트가 '미수집'으로 실패하게 둔다 — 통과를 위해 범위를 지어내지 않는다.",
   "anchors": {
     "gate_to_block_time": {
       "metric": "gate_to_block_time",
@@ -16,8 +16,30 @@
       },
       "conflict": {
         "with": "YR-103 게이트→블록 시간계약 (scenario_gen.GATE_BLOCK_MIN_S/MAX_S = 180~420s, 중심 300s)",
-        "note": "저장소 안에 두 값이 공존한다 — 문헌 2~5분(중앙 210초) vs 사용자 계약 3~7분(중심 300초). YR-150 배치는 후자를 앵커로 삼아 190~410초를 만들었으므로 전자의 범위를 벗어난다. 어느 쪽을 정본으로 둘지는 별도 결정 사항이며, 그 전까지 이 앵커는 위반으로 남긴다."
+        "note": "저장소 안에 두 값이 공존한다 — 문헌 2~5분(중앙 210초) vs 사용자 계약 3~7분(중심 300초). YR-150 배치는 후자를 앵커로 삼아 190~410초를 만들었으므로 전자의 범위를 벗어난다. 어느 쪽을 정본으로 둘지는 별도 결정 사항이며(YR-158), 그 전까지 이 앵커는 위반으로 남긴다."
       }
+    },
+    "vessel_workload": {
+      "metric": "vessel_workload",
+      "unit": "moves/h",
+      "observed_range": [145.0, 170.0],
+      "status": "derived",
+      "definition": "터미널 전체의 본선(STS) 작업률 — 관측창 중 계획 본선 moves 를 시간으로 나눈 값",
+      "derivation": {
+        "chain": "HJNC 연간 처리량 2,310,000 TEU(저장소 manifest confirmed) ÷ 8,760h = 264 TEU/h ÷ TEU/van 환산 1.6~1.8(문헌 가정) = 146~165 moves/h. 교차검증: 부산항 선석생산성 99.2 moves/h × 동시 접안 1.5~1.7척(척당 평균 5,000 TEU·하역 1.3일에서 유도) = 149~169 moves/h — 두 독립 경로가 수렴하여 범위를 [145,170] 으로 동결(2026-08-08, 결과 미열람 상태에서).",
+        "assumed_terms": [
+          "TEU/van 환산계수 1.6~1.8 (문헌 일반치 — 실측 아님)",
+          "동시 접안 척수 1.5~1.7 은 척당 물량·하역시간 보도값에서 유도"
+        ],
+        "per_vessel_context": "실제 척당 평균 양적하 ≈5,000 TEU ≈ 3,000 moves·하역 1.3일 — 4~5시간 관측창에 들어갈 수 없다. 따라서 시뮬 VesselProcess 는 '척'이 아니라 '창중 진행 중인 STS 작업 스트림 1개'(cadence 144s = 25 moves/h)를 표현하며, 실제 선박 1척(≈97~99 moves/h) ≈ 스트림 3~4개에 해당한다. process 물량 120 moves 는 스트림이 관측창을 꽉 채울 때의 절단 상한((18,000−900)s ÷ 144s)이다."
+      },
+      "source": {
+        "title": "HJNC 처리량(저장소 manifest) + 부산항 선석생산성·척당 물량 공개 보도",
+        "locator": "configs/terminals/busan/manifest.yaml : terminals.HJNC.throughput_teu_yr (confirmed 2,310,000) · KSG 해운 보도(부산항 선석생산성 99.2 moves/h, https://www.ksg.co.kr/news/main_newsView.jsp?pNum=115426) · 부산일보 2023-09 (척당 평균 5,000TEU·하역 1.3일, https://www.busan.com/view/busan/view.php?code=2023090318110621154)",
+        "evidence_grade": "derived — confirmed 처리량 + 언론 보도 유도값 (실측 운영로그 아님)",
+        "retrieved": "2026-08-08"
+      },
+      "note": "게이트 제출 시 simulated_range 는 시나리오의 계획 작업률(결정론)로 계산한다. derived 등급이므로 Level 3 운영로그 확보 전에는 '문헌·공개자료 보정' 주장 범위를 넘지 못한다."
     }
   },
   "unavailable": {
@@ -26,16 +48,16 @@
       "needs": "블록 점유율 시계열 또는 공개 장치율 통계(Level 2 이상)"
     },
     "truck_arrival_rate": {
-      "why": "공개 확인값은 연간 처리량(TEU/년)뿐이고, `configs/terminals/busan/manifest.yaml` 이 '연간 처리능력을 블록별 도착률로 환산'하는 것을 명시적으로 금지한다.",
+      "why": "공개 확인값은 연간 처리량(TEU/년)뿐이고, `configs/terminals/busan/manifest.yaml` 이 '연간 처리능력을 블록별 도착률로 환산'하는 것을 명시적으로 금지한다. (고정 WIP 전환 후에는 도착률이 내생값이라 이 지표의 뜻 자체를 재정의해야 한다 — YR-158)",
       "needs": "게이트 시간대별 반출입 실적(VBS/게이트 로그, Level 3)"
     },
     "crane_service_time": {
-      "why": "야드크레인 속도(갠트리·트롤리·호이스트)는 문헌값이 있으나 '1작업 서비스시간'의 관측범위는 없다. 시뮬 값은 그 속도에서 엔진이 유도한 결과이므로 앵커로 자기참조가 된다.",
+      "why": "야드크레인 속도(갠트리·트롤리·호이스트)는 문헌값이 있으나 '1작업 서비스시간'의 관측범위는 없다. 시뮬 값은 그 속도에서 엔진이 유도한 결과이므로 앵커로 쓰면 자기참조가 된다.",
       "needs": "작업 단위 서비스시간 실측 분포(Level 3)"
-    },
-    "vessel_workload": {
-      "why": "본선 1척당 계획 move 수·STS 간격의 관측범위를 담은 추적 자료가 없다.",
-      "needs": "선석별 작업량·STS 생산성 실적(Level 3)"
     }
-  }
+  },
+  "changelog": [
+    "2026-08-06 v1 — gate_to_block_time 1종 등록, 4종 미수집 명시",
+    "2026-08-08 — vessel_workload 를 미수집에서 derived 앵커로 승격: 사용자 지적(척당 15건은 터무니없음)에 따라 조사·유도. 15건의 기원은 2블록 시절 값(n_vessels=2×15)의 무비판 승계였다. 동시에 본선 파라미터를 12 process × 120 moves 로 재보정하고 블록당 1 process 구성에서 전 블록이 양하만 갖던 결함(vessel_type_offset)을 정정."
+  ]
 }

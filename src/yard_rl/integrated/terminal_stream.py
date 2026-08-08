@@ -89,8 +89,22 @@ class TerminalStreamParams:
     gate_out_share: float = 0.6
     size_mix_ft40: float = 0.7
     fill_ratio: float = 0.30
-    vessels_total: int = 6                      # 터미널 전체 본선 process 수
-    vessel_moves: int = 15
+    # ★본선 물량 재보정 (2026-08-08 — 척당 15건은 2블록 시절 값의 무비판 승계였다).
+    #
+    # 유도 사슬 (근거: configs/anchors/external_anchors_v1.json vessel_workload):
+    #   HJNC 연간 처리량 2,310,000 TEU(manifest confirmed) ÷ 8,760h = 264 TEU/h
+    #   ÷ TEU/van 1.6~1.8(문헌 가정) = 터미널 전체 본선 작업률 **146~165 moves/h**.
+    #   교차검증: 선석생산성 99.2 moves/h(KSG) × 동시 접안 1.5~1.7척(척당 5,000TEU·
+    #   1.3일, 부산일보) = 149~169 moves/h ✓ 수렴.
+    # 엔진 대응: VesselProcess 1개 = STS 크레인 1기의 작업 스트림(cadence 144s = 25/h).
+    #   실제 선박 1척(≈97 moves/h) ≈ 3~4 스트림 ✓. 목표 작업률 ÷ 25 ≈ 6 개의 상시
+    #   스트림이 필요하고, 시작을 관측창에 분산하면(창 절단) **12 process × 120 moves**
+    #   가 계획 작업률 ≈160 moves/h 를 만든다(관측범위 145~170 안).
+    # 척당 실물량(≈3,000 moves·1.3일)은 4~5시간 관측창에 들어갈 수 없으므로, 창중
+    # 모형은 "그 시간 동안 진행 중인 스트림"만 표현한다 — process 물량 120 =
+    # 스트림 1개가 관측창을 꽉 채울 때의 절단 상한((18,000−900)s ÷ 144s).
+    vessels_total: int = 12                     # 터미널 전체 본선 process(STS 스트림) 수
+    vessel_moves: int = 120
     eta_error_s: float = 300.0
     appt_window_s: float = 3_600.0
     appt_adherence_sigma_s: float = 600.0
@@ -124,8 +138,12 @@ def allocate(p: dict[str, float], n: int) -> dict[str, int]:
 # ------------------------------------------------------------------ 블록 배경
 def _background(profile: IntegratedProfile, seed: int, bid: str,
                 obs: ObservationContract, params: TerminalStreamParams,
-                n_vessels: int) -> TerminalScenario:
-    """블록의 **배경**(초기 적재·본선)만 만든다 — 외부트럭은 master stream 이 준다."""
+                n_vessels: int, *, vessel_type_offset: int = 0) -> TerminalScenario:
+    """블록의 **배경**(초기 적재·본선)만 만든다 — 외부트럭은 master stream 이 준다.
+
+    vessel_type_offset: 블록당 1 process 구성에서 전 블록이 양하만 갖는 결함을 막는다
+    (2026-08-08 정정) — 블록 index 를 넣어 터미널 전체로 양하/적하를 교대시킨다.
+    """
     gp = TerminalGenParams(
         n_external=1,                    # 최소 1 — 아래에서 제거한다(배경만 쓴다)
         gate_out_share=0.0,              # 배경 트럭은 반출 대상을 소비하지 않게
@@ -135,7 +153,7 @@ def _background(profile: IntegratedProfile, seed: int, bid: str,
         sts_move_interval_s=params.sts_move_interval_s,
         gaussian=False,                  # 블록별 변주는 seed 로만 — 물량은 계약값 고정
         time_contract_v2=True, gate_block_contract=True,
-        vessel_deadline_achievable=True)
+        vessel_deadline_achievable=True, vessel_type_offset=vessel_type_offset)
     scn = generate_terminal_scenario(profile, seed, gp)
     keep = [j for j in scn.jobs if not j.is_external_truck]
     return dataclasses.replace(scn, jobs=keep, drain_window_s=0.0,
@@ -185,7 +203,8 @@ def build_terminal(profile: IntegratedProfile, seed: int, *,
     k = 0
     for b in layout.ids:
         bg = _background(profile, seed + 1000 * (layout.ids.index(b) + 1), b, obs,
-                         params, per_block_vessels[b])
+                         params, per_block_vessels[b],
+                         vessel_type_offset=layout.ids.index(b) % 2)
         if bg.vessels:
             # 이 블록 본선들의 시작을 터미널 순번 k 기준 위치로 옮긴다.
             target = obs.observe_s * (0.05 + 0.9 * k / max(1, params.vessels_total))
@@ -325,7 +344,8 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     k = 0
     for b in layout.ids:
         bg = _background(profile, seed + 1000 * (layout.ids.index(b) + 1), b, obs,
-                         params, per_block_vessels[b])
+                         params, per_block_vessels[b],
+                         vessel_type_offset=layout.ids.index(b) % 2)
         if bg.vessels:
             target = obs.observe_s * (0.05 + 0.9 * k / max(1, params.vessels_total))
             bg = _shift_vessels(bg, target - bg.vessels[0].plan.planned_start_s)

@@ -79,6 +79,9 @@ class TerminalGenParams:
     # 남는 것을 실측했다(고load·852000). 이제 `phys_min_completion_s` 로 **YC→YT→STS
     # 전체 사슬**을 반영한다(STS 단독 하한을 포함하므로 구 클램프를 포섭).
     vessel_deadline_achievable: bool = False
+    # YR-150 (2026-08-08): 본선 작업종류 교대의 시작 위상 — 블록당 1 process 구성에서
+    # 블록 index 를 넣어 터미널 전체로 양하/적하를 교대시킨다. 기본 0 = 기존 바이트 동일.
+    vessel_type_offset: int = 0
 
     def __post_init__(self) -> None:
         if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
@@ -380,7 +383,10 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
         start = params.horizon_s * (0.1 + 0.7 * v / max(1, params.n_vessels))
         cadence = params.sts_move_interval_s     # 평균조건 가우시안 추출값 (YR-043)
         n_moves = params.vessel_moves
-        work = (VesselWorkType.DISCHARGE if v % 2 == 0 else VesselWorkType.LOAD)
+        # YR-150 정정(2026-08-08): 블록당 n_vessels=1 로 만들면 v=0 뿐이라 전 블록이
+        # 양하(DISCHARGE)만 갖게 된다 — offset 으로 블록 간 교대를 살린다(기본 0 = 바이트 동일).
+        work = (VesselWorkType.DISCHARGE
+                if (v + params.vessel_type_offset) % 2 == 0 else VesselWorkType.LOAD)
         vid = f"V-{work.value[:4]}-{v}"
         dmult = params.vessel_deadline_mult
         # YR-080 단계3: 1박스=1야드작업 **전량 정합** — STS move 수 == 본선연계 야드 job 수.

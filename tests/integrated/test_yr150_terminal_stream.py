@@ -192,6 +192,11 @@ def test_anchor_registry_only_records_sourced_ranges():
     assert len(rec["observed_range"]) == 2
     assert rec["source"]["title"].strip() and rec["source"]["locator"].strip()
     assert Path(rec["source"]["locator"].split(" :")[0]).is_file()
-    # 근거 없는 지표는 지어내지 않고 사유를 남긴다
+    # 근거 없는 지표는 지어내지 않고 사유를 남긴다.
+    # (2026-08-08: vessel_workload 는 조사·유도로 anchors 에 승격 — 유도 사슬 필수)
     assert set(reg["unavailable"]) == {"initial_yard_occupancy", "truck_arrival_rate",
-                                       "crane_service_time", "vessel_workload"}
+                                       "crane_service_time"}
+    vw = reg["anchors"]["vessel_workload"]
+    assert vw["status"] == "derived" and vw["unit"] == "moves/h"
+    assert "derivation" in vw and vw["derivation"]["chain"]
+    assert "manifest.yaml" in vw["source"]["locator"]      # 저장소 추적 확인값 인용
