@@ -193,10 +193,5 @@ warm-up  →  [ 측정 구간: 트럭·본선 계속 유입 · 5~10분마다 상
 
 ## 참조
 
-- [지속 유입 전환 결정](../strategy-history/2026-08-05-지속유입-정상상태-시험-전환-사용자결정.md)
-- [터미널 전체 21블록 정정](../strategy-history/2026-08-06-YR-150-151-터미널전체-21블록-사용자결정.md)
-- [H-21/V-21 두 합성 구조 고정](../strategy-history/2026-08-06-H21-V21-두-합성구조-고정.md)
-- [YR-149 유한 물량 회복 시험](YR-149-quote-refine-confirm.md) ·
-  [자격 보고서](../../../outputs/reports/yr149_load_cells/report.md)
-- [YR-151 PPO SELL](YR-151-block-ppo-sell-head.md) ·
-  [5셀 생성기](../../../src/yard_rl/integrated/load_cells.py)
+- 결정 이력: [지속 유입 전환](../strategy-history/2026-08-05-지속유입-정상상태-시험-전환-사용자결정.md) · [21블록 정정](../strategy-history/2026-08-06-YR-150-151-터미널전체-21블록-사용자결정.md) · [H-21/V-21 고정](../strategy-history/2026-08-06-H21-V21-두-합성구조-고정.md) · [고정 WIP 4차](../strategy-history/2026-08-08-YR-150-고정WIP-4차재정의-사용자결정.md)
+- [YR-149 유한 물량 회복 시험](YR-149-quote-refine-confirm.md) · [자격 보고서](../../../outputs/reports/yr149_load_cells/report.md) · [YR-151 PPO SELL](YR-151-block-ppo-sell-head.md) · [앵커 등록부](../../../configs/anchors/external_anchors_v1.json)
