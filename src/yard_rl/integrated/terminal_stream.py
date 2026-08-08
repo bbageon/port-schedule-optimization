@@ -10,16 +10,20 @@
    측정구간 끝까지 유입이 이어지고 **관측시간에서 그대로 종료**한다(미완도 장부에 남긴다).
 3. **게이트→블록 주행이 목적지에 따라 다르다**(YR-150 0단계 `yard_layout`).
 
-■ 부하 L 의 뜻 — **고정 유입량**이지 고정 재공량이 아니다
-`L ∈ {50,75,100,125,150}` 은 **21블록 전체 합계의 4시간당 명목 예약 도착량**이다. 블록별
-물량이 아니고 혼잡등급 이름도 아니다. 관측창이 4시간보다 길면 같은 **도착률**로 늘린다.
+■ 부하 L 의 뜻 — ★4차 재정의(사용자 결정 2026-08-08): **고정 재공량(WIP)**
+`L ∈ {50,75,100,125,150}` 은 **터미널(21블록 합계) 안에 유지하는 외부트럭 대수**다.
+초기 채움 뒤 트럭이 나갈 때마다 대기 pool 에서 새 트럭을 투입해 내부 대수를 L 로 유지한다
+(`build_fixed_wip` + `WipAdmissionController`). 유지는 투입주기(기본 60초) 단위 근사다.
 
-  · 채택 = **고정 유입량**: 4시간 동안 총 L 대가 도착한다. 터미널 안 대수는 **결과로 측정**.
-  · 폐기 = 고정 재공량(WIP): 터미널 안에 항상 L 대가 있도록 보충하는 방식. 빨리 처리하는
-    정책일수록 트럭을 더 받아 **정책별 입력량이 달라지므로** 공정 비교가 깨진다.
-
-여기서 만드는 것은 **예약(appointment) 시각**이고, 실제 gate-in 은 예약 준수오차만큼
-어긋난다 — 그래서 측정창 안 실제 진입 수는 L 과 정확히 같지 않다.
+  · 이전 계약(고정 유입량 — 4시간당 총 L 대 도착)은 `build_terminal` 로 **보조 보존**된다.
+    1~3차 재정의 시절의 주 계약이었고, 도착률 고정 진단·회귀 테스트가 이를 쓴다.
+  · **알려진 한계(계약에 박제)**: 고정 WIP 에서는 빨리 처리하는 정책일수록 트럭을 더 받아
+    **정책별 처리 물량이 달라진다**. 따라서 성능 비교는 "같은 재공량에서 처리량과 시간당
+    비용"의 공동 판정이어야 하며, 에피소드 총비용 단독 비교는 금지다.
+  · 고정 WIP 모드는 **walk-in** 이다 — 예약·준수오차 개념이 없고, 투입 시각이 곧 gate-in
+    이다. 예측 블록도착 = gate-in + 기대 주행(실현 잔여편차 미참조 — 누출 0).
+  · lead(사전 통지) 0 이면 투입 즉시 gate-in 이므로 **PRE_GATE 창이 없다** — 블록 간
+    재배정(SELL) 연구 단계(0B)에서는 lead>0 설계가 선행돼야 한다(정직 고지).
 
 ■ 축소 가정 (정직 기록)
 같은 블록으로 가는 트럭들 사이의 잔여 주행편차 σ 를 5초로 둔다. 기존 계약은 게이트→블록
@@ -262,3 +266,213 @@ def build_terminal(profile: IntegratedProfile, seed: int, *,
             "n_total": n_total, "observation": obs.as_dict(),
             "layout": layout.as_dict(),
             "vessels_per_block": per_block_vessels}
+
+
+# ================================================================== 고정 WIP (4차 재정의)
+WIP_ADMISSION_PERIOD_S = 60.0   # 투입 검토 주기 — 유지 근사 단위 (동결)
+WIP_FILL_SPAN_S = 600.0         # 초기 채움을 펼치는 구간 (동시 진입 폭주 방지)
+WIP_POOL_FACTOR = 30            # 대기 pool 크기 = L × factor (소진 시 결과에 명시 실패)
+
+
+def _clamp_travel(base: float, resid: float) -> float:
+    return min(GATE_BLOCK_MAX_S, max(GATE_BLOCK_MIN_S, base + resid))
+
+
+def _job_from_entry(e: dict, gate_in_s: float) -> Job:
+    """pool/채움 항목 → Job. walk-in — 예측 도착 = gate-in + 기대 주행(누출 0)."""
+    arr = gate_in_s + e["travel_s"]
+    est = gate_in_s + e["travel_base_s"]
+    if e["flow"] == "GATE_OUT":
+        j = Job(job_id=e["job_id"], flow=JobFlow.GATE_OUT, release_time=0.0,
+                actual_gate_in=gate_in_s, actual_block_arrival=arr, provided_eta=est,
+                target_container=e["target"])
+    else:
+        j = Job(job_id=e["job_id"], flow=JobFlow.GATE_IN, release_time=0.0,
+                actual_gate_in=gate_in_s, actual_block_arrival=arr, provided_eta=est,
+                inbound_size=(ContainerSize.FT40 if e["size_ft40"]
+                              else ContainerSize.FT20),
+                inbound_load=LoadStatus.FULL)
+    for key, val in (("estimated_block_arrival", est),
+                     ("appointment_gate_time", gate_in_s),
+                     ("exit_travel_s", e["exit_travel_s"])):
+        setattr(j, key, val)
+    return j
+
+
+def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
+                    wip_target: int,
+                    obs: ObservationContract | None = None,
+                    layout: YardLayout | None = None,
+                    params: TerminalStreamParams | None = None,
+                    pool_factor: int = WIP_POOL_FACTOR) -> dict:
+    """고정 재공량 계약의 시나리오 묶음 — 초기 채움 L 대 + 교체 투입용 대기 pool.
+
+    · 초기 채움: `p` 배분으로 L 대를 [0, WIP_FILL_SPAN_S] 에 펼쳐 사전 배치(장부 활성화 겸).
+    · 대기 pool: 속성(블록·flow·규격·반출대상·주행·출문)을 **전부 사전 추첨**한 항목열.
+      런타임에는 투입 시각만 정해지고 무작위를 소비하지 않는다(결정론).
+    · pool 의 반출 대상은 블록 초기 적재의 미사용 컨테이너에서 **중복 없이** 예약한다.
+    """
+    obs = obs or ObservationContract()
+    layout = layout or terminal_layout()
+    params = params or TerminalStreamParams(load_4h=wip_target)
+    if wip_target < len(layout.ids):
+        raise ValueError(f"WIP 목표 {wip_target}가 블록 수 {len(layout.ids)}보다 작다")
+
+    # ① 배경(초기 적재·본선) — build_terminal 과 같은 방식으로 생성·분산
+    per_block_vessels = allocate({b: 1.0 / len(layout.ids) for b in layout.ids},
+                                 params.vessels_total)
+    scns: dict[str, TerminalScenario] = {}
+    k = 0
+    for b in layout.ids:
+        bg = _background(profile, seed + 1000 * (layout.ids.index(b) + 1), b, obs,
+                         params, per_block_vessels[b])
+        if bg.vessels:
+            target = obs.observe_s * (0.05 + 0.9 * k / max(1, params.vessels_total))
+            bg = _shift_vessels(bg, target - bg.vessels[0].plan.planned_start_s)
+            k += len(bg.vessels)
+        scns[b] = bg
+
+    # ② 반출 대상 후보 (배경 본선 사용분 제외) — 초기 채움과 pool 이 순서대로 소비
+    free: dict[str, list[str]] = {}
+    for b, scn in scns.items():
+        used = {j.target_container for j in scn.jobs if j.target_container}
+        cand = sorted(set(scn.containers) - used)
+        random.Random(f"h21w:tgt:{seed}:{b}").shuffle(cand)
+        free[b] = cand
+
+    p = distribution_vector(layout, params)
+    mix_rng = random.Random(f"h21w:mix:{seed}")
+    exit_rng = random.Random(f"h21w:exit:{seed}")
+    resid_rng = random.Random(f"h21w:resid:{seed}")
+
+    def draw(bid: str, jid: str) -> dict:
+        """트럭 1대 속성 사전 추첨 — 투입 시각과 무관하게 고정된다."""
+        sr = params.resid_travel_sigma_s
+        resid = (max(-2 * sr, min(2 * sr, resid_rng.gauss(0.0, sr))) if sr > 0 else 0.0)
+        out = mix_rng.random() < params.gate_out_share and bool(free[bid])
+        return {"job_id": jid, "block": bid,
+                "flow": "GATE_OUT" if out else "GATE_IN",
+                "target": free[bid].pop() if out else None,
+                "size_ft40": mix_rng.random() < params.size_mix_ft40,
+                "travel_s": _clamp_travel(layout.gate_to_block_s(bid), resid),
+                "travel_base_s": layout.gate_to_block_s(bid),
+                "exit_travel_s": trunc_normal(exit_rng, params.exit_travel_mu_s,
+                                              0.12, lo=60.0)}
+
+    # ③ 초기 채움 — p 배분 L 대를 [0, FILL_SPAN] 에 균등 배치 (전 블록 장부 활성화)
+    counts = allocate(p, wip_target)
+    slots = [b for b in layout.ids for _ in range(counts[b])]
+    random.Random(f"h21w:fill:{seed}").shuffle(slots)
+    fill_ledger = []
+    fill_jobs: dict[str, list[Job]] = {b: [] for b in layout.ids}
+    for i, bid in enumerate(slots):
+        e = draw(bid, f"{bid}:F-{i:05d}")
+        gate_in = WIP_FILL_SPAN_S * i / max(1, wip_target)
+        fill_jobs[bid].append(_job_from_entry(e, gate_in))
+        fill_ledger.append({"job_id": e["job_id"], "block": bid, "flow": e["flow"],
+                            "gate_in_s": round(gate_in, 3),
+                            "travel_s": round(e["travel_s"], 3)})
+
+    # ④ 교체 pool — 블록 배분 비율을 그대로 따르는 사전 순서열
+    pool_counts = allocate(p, wip_target * pool_factor)
+    pool_slots = [b for b in layout.ids for _ in range(pool_counts[b])]
+    random.Random(f"h21w:pool:{seed}").shuffle(pool_slots)
+    pool = [draw(bid, f"{bid}:W-{i:05d}") for i, bid in enumerate(pool_slots)]
+
+    for b in layout.ids:
+        scns[b] = dataclasses.replace(
+            scns[b], jobs=scns[b].jobs + fill_jobs[b],
+            meta={**scns[b].meta, "h21_block": b, "h21_wip_target": wip_target,
+                  "h21_mode": "fixed_wip", "observation": obs.as_dict()})
+    return {"scenarios": scns, "pool": pool, "fill": fill_ledger, "p": p,
+            "counts": counts, "wip_target": wip_target,
+            "observation": obs.as_dict(), "layout": layout.as_dict(),
+            "vessels_per_block": per_block_vessels, "mode": "fixed_wip",
+            "fairness_note": "고정 WIP: 정책별 유입량이 달라진다 — 성능은 처리량과 "
+                             "시간당 비용의 공동 판정만 허용(에피소드 총비용 단독 금지)"}
+
+
+def admission_epochs(obs: ObservationContract,
+                     period_s: float = WIP_ADMISSION_PERIOD_S) -> tuple[float, ...]:
+    """투입 검토 시각열 — 0 부터 관측 종료까지 등간격."""
+    n = int(obs.observe_s // period_s)
+    return tuple(i * period_s for i in range(n + 1))
+
+
+class WipAdmissionController:
+    """review epoch 마다 터미널 내부 대수를 세고 부족분만큼 pool 에서 투입한다.
+
+    · 내부 = 시간 장부의 A ≤ t < O (외부트럭만). lead>0 이면 투입 확정·미진입(pipeline)
+      도 목표에 포함해 과잉 투입을 막는다.
+    · 투입 불가 항목(용량·대상 부재·창 밖)은 **재시도 없이 건너뛰고 전량 기록**한다
+      (조용한 누락 금지 — 결정론 유지).
+    · pool 소진은 실패로 숨기지 않고 원장에 남긴다.
+    """
+
+    def __init__(self, pool: list[dict], *, wip_target: int,
+                 lead_s: float = 0.0, max_tries_per_epoch: int = 200,
+                 end_s: float | None = None):
+        self.pool = pool
+        self.wip_target = wip_target
+        self.lead_s = lead_s
+        self.max_tries = max_tries_per_epoch
+        # 관측 종료 — 도착이 창을 벗어날 투입은 처음부터 하지 않는다(꼬리 pool 낭비 방지).
+        # 따라서 **마지막 GATE_BLOCK_MAX_S(7분) 동안은 WIP 가 자연 감소**한다 — 유지 판정은
+        # 이 꼬리를 제외한 구간에서 한다(하네스 계약).
+        self.end_s = end_s
+        self.cursor = 0
+        self.n_admitted = 0
+        self.ledger: list[dict] = []
+        self.exhausted_at: float | None = None
+        self._tail_stopped = False
+
+    @staticmethod
+    def wip_now(mbt, t: float) -> tuple[int, int]:
+        """(내부, pipeline) — 시간 장부 기준 A≤t<O 와 투입확정·미진입."""
+        inside = pipeline = 0
+        for sim in mbt.blocks.values():
+            tl = getattr(sim, "time_ledger", None)
+            if tl is None:
+                continue
+            for r in tl.records.values():
+                if r.gate_in > t + 1e-9:
+                    pipeline += 1
+                elif r.gate_out is None or r.gate_out > t:
+                    inside += 1
+        return inside, pipeline
+
+    def review(self, mbt, t: float) -> None:
+        from .multiblock import TransferError
+        if self.end_s is not None and t + self.lead_s + GATE_BLOCK_MAX_S > self.end_s:
+            if not self._tail_stopped:
+                self._tail_stopped = True
+                self.ledger.append({"t": t, "event": "TAIL_STOP",
+                                    "note": "도착이 관측창을 벗어날 투입 중단"})
+            return
+        inside, pipeline = self.wip_now(mbt, t)
+        deficit = self.wip_target - inside - pipeline
+        admitted = tries = 0
+        while admitted < deficit and tries < self.max_tries:
+            if self.cursor >= len(self.pool):
+                if self.exhausted_at is None:
+                    self.exhausted_at = t
+                    self.ledger.append({"t": t, "event": "POOL_EXHAUSTED"})
+                break
+            e = self.pool[self.cursor]
+            self.cursor += 1
+            tries += 1
+            job = _job_from_entry(e, t + self.lead_s)
+            try:
+                mbt.admit_external_job(e["block"], job, gate_in_s=t + self.lead_s,
+                                       travel_s=e["travel_s"])
+                admitted += 1
+                self.n_admitted += 1
+                self.ledger.append({"t": t, "event": "ADMIT", "job_id": e["job_id"],
+                                    "block": e["block"], "flow": e["flow"]})
+            except TransferError as ex:
+                self.ledger.append({"t": t, "event": "SKIP", "job_id": e["job_id"],
+                                    "block": e["block"], "reason": str(ex)})
+        if deficit > 0 or admitted:
+            self.ledger.append({"t": t, "event": "EPOCH", "inside": inside,
+                                "pipeline": pipeline, "deficit": deficit,
+                                "admitted": admitted})

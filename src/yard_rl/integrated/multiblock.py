@@ -115,10 +115,13 @@ class MultiBlockTerminal:
     """공용 시계로 N개 블록 sim 을 구동하고, 반입 재배정을 원자적으로 확정한다."""
 
     def __init__(self, blocks: dict[str, object], *,
-                 capacity_margin: int = CAPACITY_MARGIN) -> None:
+                 capacity_margin: int = CAPACITY_MARGIN,
+                 extra_review_epochs: tuple[float, ...] = ()) -> None:
         self.blocks = dict(blocks)
         self.ledger = TerminalLedger()
         self.capacity_margin = capacity_margin
+        # YR-150 4차 재정의(고정 WIP): 주기적 투입 검토 시각. 기본 () = 기존 바이트 동일.
+        self._extra_epochs = tuple(float(t) for t in extra_review_epochs)
         self._reserved_inbound: dict[str, int] = {b: 0 for b in self.blocks}
         self._open_txn: set[int] = set()        # 살아있는 예약의 txn_id (rollback 멱등)
         self._txn_seq: int = 0                  # 게이트 D: 트랜잭션 고유 id 발급기
@@ -154,6 +157,7 @@ class MultiBlockTerminal:
                 # 구 `0 < a`는 t=0 작업을 영구 누락해 임계별 후보집합을 왜곡했다(YR-116).
                 if a is not None and j.flow == JobFlow.GATE_IN and 0.0 <= a <= end:
                     ts.add(round(a, 6))
+        ts.update(round(t, 6) for t in self._extra_epochs if t >= 0.0)
         eps = sorted(ts)
         for sim in self.blocks.values():
             sim.review_epochs = [t for t in eps if t <= sim.end]
@@ -230,6 +234,57 @@ class MultiBlockTerminal:
                       if j.status == JobStatus.PLANNED and j.flow in
                       (JobFlow.GATE_IN, JobFlow.VESSEL_DISCHARGE))
         return phys - used - pending - self._reserved_inbound[bid]
+
+    # -------------------------------------------------- 고정 WIP 투입 (YR-150 4차 재정의)
+    def admit_external_job(self, bid: str, job, *, gate_in_s: float,
+                           travel_s: float) -> None:
+        """대기 pool 의 외부트럭 1대를 **런 중에** 블록에 투입한다 (사용자 결정 2026-08-08).
+
+        고정 재공량(WIP) 계약: 터미널 안 트럭 수를 목표치로 유지하려면 트럭이 나갈 때
+        새 트럭이 들어와야 하므로, 도착을 사전 동결하는 기존 계약으로는 표현할 수 없다.
+        투입은 **review epoch(전 블록 동일 시각 park) 에서만** 호출한다 — 블록 시계가
+        서로 앞서 있는 동안 투입하면 사건 순서가 깨진다.
+
+        수술 내용은 이송 commit() 의 수신측과 동일 계약이다: 사건 push · 시간 장부
+        삽입(_a_sorted 포인터 보정 포함) · 전역 원장 등록. 검사 단계에서 실패하면
+        아무것도 바꾸지 않는다(fail-closed).
+        """
+        jid = job.job_id
+        if jid in self.ledger.records:
+            raise TransferError(f"{jid}: 이미 등록된 작업")
+        if bid not in self.blocks:
+            raise TransferError(f"{jid}: 블록 없음 {bid}")
+        sim = self.blocks[bid]
+        if sim.time_ledger is None:
+            raise TransferError(f"{bid}: time_ledger 없음 — 고정 WIP 는 v2 장부 필수")
+        if getattr(job, "exit_travel_s", None) is None:
+            raise TransferError(f"{jid}: exit_travel_s 결측 — v2 장부 계약 위반")
+        arr = gate_in_s + travel_s
+        if gate_in_s < sim.clock - 1e-9 or arr <= sim.clock + 1e-9 or arr > sim.end:
+            raise TransferError(f"{jid}: 투입시각 무효 gate_in={gate_in_s:.1f} arr={arr:.1f}")
+        if job.flow == JobFlow.GATE_IN and self.free_slots(bid) <= self.capacity_margin:
+            raise TransferError(f"{bid}: 용량 부족 (free={self.free_slots(bid)})")
+        if job.flow == JobFlow.GATE_OUT:
+            tgt = job.target_container
+            if tgt is None or tgt not in sim.stacks.containers:
+                raise TransferError(f"{jid}: 반출 대상 부재 {tgt}")
+        # --- 변경 구간: 이하 실패하지 않는 연산만 (원자성) ---
+        job.actual_gate_in = gate_in_s
+        job.actual_block_arrival = arr
+        sim.jobs[jid] = job
+        from .events import EventKind
+        sim.queue.push(arr, EventKind.BLOCK_ARRIVAL, jid)
+        import bisect
+        from .time_contract import TruckTimes
+        tl = sim.time_ledger
+        tl.records[jid] = TruckTimes(gate_in=gate_in_s)
+        i = bisect.bisect_left(tl._a_sorted, gate_in_s)
+        tl._a_sorted.insert(i, gate_in_s)
+        if i < tl._a_idx:                    # commit() major-3 과 동일한 포인터 보정
+            tl._a_idx += 1
+            tl._n_inside += 1
+        self.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
+                                       flow=job.flow.value, a_gate_in=gate_in_s))
 
     # -------------------------------------------------- 2단계 transaction (계약 ⑤)
     def prepare_transfer(self, job_id: str, dst: str, *, route_s: float,

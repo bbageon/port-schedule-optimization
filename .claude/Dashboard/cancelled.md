@@ -9,6 +9,7 @@
 | YR-032 | RL | 계열 2 미래정보 잔차 Δ-net 별도 단계정책 | 2026-07-15 | [spec](../docs/dashboard-task-specs/YR-032-future-info-residual-rl.md) · ETA/포지셔닝/선재조작을 별도 정책으로 나누지 않고 YR-014의 동일 통합정책 ablation으로 흡수 |
 | YR-026 | RL | 트럭-only 비용계수 민감도 | 2026-07-15 | 최종 Q 목표가 터미널 Total Cost로 확대되어 [YR-038](../docs/dashboard-task-specs/YR-038-total-terminal-cost.md)의 정규화·가중치 민감도로 흡수. 기존 YR-025 negative 근거는 Done에 보존 |
 | YR-040 | Exp | 단일 야드 다중 test band 평가 | 2026-07-15 | 단일 야드 트랙 종료 ([결론서](../docs/strategy-history/2026-07-15-single-yard-track-closure.md)) — "greedy near-optimal" 결론이 이미 2-band(220k +0.035 / 240k +0.111)+최적선택 하한으로 확정. 다중 band 는 win-claim 방어용이었으나 win 을 추구하지 않으므로 불필요 |
+| YR-159 | Exp | **포화 스트레스 시험 분리 — ★폐기(2026-08-08)** | ⚪ | **YR-150 4차 재정의(고정 WIP 전환)로 전제 소멸** — 본 성능시험 자체가 고정 재공량 계약이 되어 "고정 WIP 는 별도 시험"이라는 분리 사유가 사라졌다. 공정성 한계는 YR-150 판정 계약(처리량+시간당 비용 공동 판정·총비용 단독 금지)으로 흡수. 유입량 모드는 build_terminal 로 보조 보존 · [spec](../docs/dashboard-task-specs/YR-159-saturation-stress-separate.md) · [결정](../docs/strategy-history/2026-08-08-YR-150-고정WIP-4차재정의-사용자결정.md) |
 
 ---
 
