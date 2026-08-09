@@ -52,17 +52,15 @@ H-21을 먼저 별도 학습·판정한다. V-21은 YR-083의 육·해측 역할
 
 ## SELL 대상과 30분 ETA 창
 
-- 대상은 아직 실제 gate-in 사건이 발생하지 않은 `PRE_ADVICE/PLANNED` 반입 작업이다.
-- 공개된 예상 블록도착시각이 `0 < ETA_block-now <= 1,800초`일 때만 후보가 된다.
-- 실제 미래 gate-in/block-in/O, 미통지 고장·계획변경은 actor 입력과 resolver 견적에서 금지한다.
-- 검토 사건은 ①ETA가 30분 창에 들어오는 시각 ②공개 ETA 갱신 ③작업 완료·장비상태·소유권·
-  용량 변화다. 단순 초단위 반복계산은 하지 않는다.
-- offer는 그 review epoch 안에서만 유효하다. Resolver가 수락하면 gate-in 전에
-  `execution_block_id`·owner/version·미래 arrival route를 즉시 원자 변경하고,
-  `tos_assigned_block_id`는 이력으로 보존한다. 이후 gate-in은 확정 블록으로 들어온다.
-- 결정 중 ETA version이 바뀌거나 gate-in이 먼저 발생하면 낡은 offer는 KEEP한다. commit 뒤
-  ETA 변경은 owner를 자동 rollback하지 않으며 작업당 1회 이전 상한을 유지한다.
-- 한 source는 epoch당 `KEEP` 또는 작업 1건 `OFFER_SELL(job, version, expires_at)`만 낸다.
+- 대상 = 아직 gate-in 사건이 없는 `PRE_ADVICE/PLANNED` 작업, 공개 예상 블록도착이
+  `0 < ETA−now ≤ 1,800초`일 때만. 실현 미래값·미통지 고장·계획변경은 actor 입력과
+  resolver 견적에서 금지.
+- 검토 사건 = ①창 진입 시각 ②공개 ETA 갱신 ③작업 완료·장비·소유권·용량 변화 —
+  단순 초단위 반복계산 금지(현 구현은 60초 격자 근사).
+- offer 는 그 epoch 전용(이월 금지). 수락 시 gate-in 전에 owner/version·미래 arrival
+  route 를 원자 변경하고 최초배정은 이력 보존. 결정 중 version 변경·선행 gate-in 이면
+  KEEP, commit 뒤 ETA 변경은 자동 rollback 없음, 작업당 이전 1회 상한.
+- 한 source 는 epoch 당 KEEP 또는 작업 1건 OFFER 만 낸다.
 
 PRE_GATE 이송비용은 `gate→새 블록`과 `gate→기존 블록`의 예측 주행시간 차이다. N블록에서는
 반드시 `route(src,dst,job)`로 계산한다. 0A의 전 블록 300초·차이 0은 기술검사 한계이며 성능에 쓰지 않는다.
