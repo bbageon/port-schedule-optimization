@@ -481,6 +481,18 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                              "시간당 비용의 공동 판정만 허용(에피소드 총비용 단독 금지)"}
 
 
+def hotspot_rotation(layout: YardLayout, seed: int, n: int = 4) -> tuple[str, ...]:
+    """YR-157 — hotspot 블록 시드 추첨 (사용자 확정 2026-08-09: 몰아주기 주축 6셀).
+
+    특정 블록이 늘 hotspot 이 되는 운을 제거한다(본선 배치 독립화와 같은 원리).
+    전용 난수열(`h21w:hspot`)이라 본선(vsel)·트럭 열과 독립 — hotspot 이 본선 블록과
+    겹칠 수 있고 그것이 자연스러운 표본이다(겹침 배제는 인공 규칙).
+    """
+    if not (1 <= n <= len(layout.ids)):
+        raise ValueError(f"hotspot 수 {n}는 1~{len(layout.ids)} 여야 한다")
+    return tuple(sorted(random.Random(f"h21w:hspot:{seed}").sample(layout.ids, n)))
+
+
 def admission_epochs(obs: ObservationContract,
                      period_s: float = WIP_ADMISSION_PERIOD_S) -> tuple[float, ...]:
     """투입 검토 시각열 — 0 부터 관측 종료까지 등간격."""

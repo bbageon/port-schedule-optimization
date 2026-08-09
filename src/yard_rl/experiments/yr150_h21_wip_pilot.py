@@ -87,12 +87,18 @@ def _rows(mbt) -> list[dict]:
     return rows
 
 
-def run_cell(wip: int, obs: ObservationContract) -> dict:
+def run_cell(wip: int, obs: ObservationContract, *,
+             params=None, seed: int | None = None,
+             background_seed: int | None = None) -> dict:
+    """자격 1셀 — params/seed 를 받으면 YR-157 hotspot 셀 등 변형 계약도 같은 검사로
+    자격을 본다(기본값 = YR-150 균등 계약, 기존 호출 불변)."""
     prof = build_h21_profile()
     layout = terminal_layout()
     # ★배경 공통 시드(부채 3): 전 부하 셀이 같은 본선 배치·초기 적재를 공유한다.
-    built = build_fixed_wip(prof, SEED + wip, wip_target=wip, obs=obs, layout=layout,
-                            background_seed=SEED)
+    built = build_fixed_wip(prof, SEED + wip if seed is None else seed,
+                            wip_target=wip, obs=obs, layout=layout, params=params,
+                            background_seed=(SEED if background_seed is None
+                                             else background_seed))
     mbt, ctrl, exc = _run(built, obs)
     try:
         mbt.check_invariants()
@@ -119,9 +125,11 @@ def run_cell(wip: int, obs: ObservationContract) -> dict:
     maintained = bool(held) and all(lo <= h <= hi for h in held)
     inside_hold = [s["wip"] for s in snaps if hold_lo <= s["t"] <= hold_hi]
 
-    # W3 결정론 — 재구성 대조
-    again = build_fixed_wip(prof, SEED + wip, wip_target=wip, obs=obs, layout=layout,
-                            background_seed=SEED)
+    # W3 결정론 — 재구성 대조 (변형 셀도 같은 인자로 재구성)
+    again = build_fixed_wip(prof, SEED + wip if seed is None else seed,
+                            wip_target=wip, obs=obs, layout=layout, params=params,
+                            background_seed=(SEED if background_seed is None
+                                             else background_seed))
     deterministic = again["pool"] == built["pool"] and again["fill"] == built["fill"]
 
     # W9(★32차 재정의) — 실제 투입분(채움 + 투입된 pool 접두)만 계상 + 작업별 원장.

@@ -10,7 +10,7 @@ import pytest
 from yard_rl.integrated.profiles import build_h21_profile
 from yard_rl.integrated.terminal_stream import (ObservationContract,
                                                 TerminalStreamParams,
-                                                build_fixed_wip,
+                                                build_fixed_wip, hotspot_rotation,
                                                 vessel_placement)
 from yard_rl.integrated.yard_layout import terminal_layout
 
@@ -76,6 +76,27 @@ def test_more_processes_than_blocks_rejected():
     with pytest.raises(ValueError):
         vessel_placement(LAYOUT, SEED,
                          TerminalStreamParams(load_4h=63, vessels_total=22), OBS)
+
+
+# ------------------------------------------------------------------ YR-157 hotspot 추첨
+def test_hotspot_rotation_contract():
+    """4곳·중복 없음·결정론·시드 가변 — 본선 추첨과 독립 스트림."""
+    hs = hotspot_rotation(LAYOUT, SEED, 4)
+    assert len(hs) == 4 == len(set(hs)) and set(hs) <= set(LAYOUT.ids)
+    assert hs == hotspot_rotation(LAYOUT, SEED, 4)
+    assert any(hotspot_rotation(LAYOUT, SEED + d, 4) != hs for d in (1, 2, 3))
+    with pytest.raises(ValueError):
+        hotspot_rotation(LAYOUT, SEED, 22)
+
+
+def test_hotspot_weight_concentrates_allocation():
+    """가중 5배면 hotspot 블록의 배정 대수가 일반 블록보다 확실히 많아야 한다."""
+    hs = hotspot_rotation(LAYOUT, SEED, 4)
+    params = TerminalStreamParams(load_4h=63, hotspot_blocks=hs, hotspot_weight=5.0)
+    b = build_fixed_wip(build_h21_profile(), SEED, wip_target=63, params=params)
+    counts = b["counts"]
+    assert min(counts[x] for x in hs) > max(v for k, v in counts.items()
+                                            if k not in hs)
 
 
 # ------------------------------------------------------------------ 생성기 통합 (중량 1회)
