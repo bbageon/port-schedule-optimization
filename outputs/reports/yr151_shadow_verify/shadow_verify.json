@@ -1,0 +1,38 @@
+{
+ "task": "YR-151-shadow-verify",
+ "cell": "w5.0-L100",
+ "runtime": {
+  "commit": "0808f4515c5e01c0a63220d30dbc270e4182a584",
+  "git_dirty": false,
+  "prereg_file": ".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md",
+  "prereg_sha256": "3b0200e37fdd72dcce7c6a5108df9de04f7a09606c02aa7c80447c9b466bdfed",
+  "exec_head_hash": "4d20e7b9a6e8f2ee6f7e6fc063d999697ff4ec189da2ad85e0bc7e1d4ff0d3e0",
+  "seeds": {
+   "cell": 6650100,
+   "background": 6600000,
+   "net_init": 7000000
+  },
+  "observation": {
+   "warmup_s": 1800.0,
+   "measure_s": 7200.0,
+   "snapshot_s": 300.0,
+   "observe_s": 9000.0,
+   "end_rule": "관측시간에서 종료 — 미완 작업도 장부에 남긴다"
+  }
+ },
+ "verdict": {
+  "shadow_verify_all_pass": true,
+  "checks": {
+   "S1_env_invariant_rows_identical": true,
+   "S2_wiring_flows": true,
+   "S3_shadow_deterministic": true,
+   "S4_exec_config_frozen": true,
+   "no_exec_exceptions": true
+  },
+  "n_rows": 343,
+  "n_trail": 2090,
+  "n_would_commit": 886,
+  "n_resolver_entries": 1369,
+  "note": "배선 계약 검증 — 성능 주장 없음. TransferHead 미학습 초기화. 관측창 단축(계약 검사라 창 길이 무관)."
+ }
+}

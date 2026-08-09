@@ -139,12 +139,14 @@ H 통과가 V 통과를 대신하지 않는다.
 
 ### 1. shadow 배선·계약 검증
 
-- **★감사 정정(2026-08-09) → 구현 완료(같은 날)**: shadow 는 **resolver 관통
-  dry-run** — `UnifiedSellOrchestrator(dry_run=True)` 가 수집→비용 저울→matching→
-  용량 검사를 실제로 흘리고 **원자 확정만 생략**(would-commit 원장). shadow 정책↔
-  dry_run 짝은 생성자가 강제(즉시-KEEP 구판 폐기). 환경 무변이·기록·live 대비
-  테스트 3종 통과. 잔여 검증: 미래정보 0·실행 hash·확률 등식·결정론 — shadow 가
-  본 실행·난수열을 바꾸면 실패. 이 단계 정책경사 학습 금지(on-policy 계약).
+- **★감사 정정 → 구현 → 실측 검증 통과(2026-08-09, 트리 `0808f45`·dirty=false)**:
+  shadow = **resolver 관통 dry-run**(`dry_run=True` — 수집→저울→matching→용량 관통·
+  원자 확정만 생략·would-commit 원장·짝 생성자 강제). 실측(`yr151_shadow_verify`,
+  w5-L100·채택 PPO 실행): **S1 본 실행 불변** — 기준 런 대비 343개 작업 시간 장부
+  전수 일치 · S2 배선 흐름(trail 2,090·would-commit 886·critic 입력 비영) · S3
+  결정론 · S4 실행 동결 해시 불변 · 예외 0 —
+  [검증 JSON](../../../outputs/reports/yr151_shadow_verify/shadow_verify.json).
+  이 단계 정책경사 학습 금지(on-policy 계약).
 
 ### 2. on-policy 학습과 live 단일축 비교
 
