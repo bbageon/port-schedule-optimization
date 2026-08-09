@@ -4,10 +4,16 @@
   환경: 고정 WIP 21블록(H-21 YT) + 사전 통지 lead=1800s (판매 창) + 60초 검토 격자
   결정: 각 블록 PPO(공유 가중치 1벌) — [KEEP, 후보1..K] 계획 진단, B-(b)
   집행: UnifiedSellOrchestrator — 축 저울(공간 20곳 ∪ 시간 +Δ)·비용 통화·순열 불변
-  보상: (i) 실현 전역 증분 — r_k = −(Φ(t_{k+1}) − Φ(t_k)),
+  보상: (i) 실현 전역 증분 — Φ 를 **행동 직전**에 기록하고(감사 치명 2 정정 —
+        구판은 판매 확정 뒤에 기록해 판매의 즉시 비용이 자기 보상에서 빠졌다)
+        r_k = −(Φ(t_{k+1}⁻) − Φ(t_k⁻)), 마지막은 관측 종료 시점 Φ_final 로 닫는다.
         Φ = Σ블록 검열 v2 실현비용 + route/3600 + 기사 외부 대기/3600
         (떠넘긴 비용 자동 포함 = 이기적 판매 + 가격 청구 동치. 학습 잣대 ≡ 평가 잣대)
-  갱신: PPO clip 0.2 · γ=1 · GAE λ=0.95 · lr 3e-4 (yr139 동결 앵커 승계 — 튜닝 아님)
+  갱신: PPO clip 0.2 · γ=1 · lr 3e-4 (yr139 앵커 승계). advantage = **MC 총수익 −
+        critic 기준선**(= GAE λ=1) — 감사 치명 3 정정: 구 문서의 "GAE λ=0.95" 는
+        코드에 없던 주장이라 삭제. λ<1 GAE·관측종료 bootstrap 은 잔여 설계
+        (검열 Φ 가 종료 시점 미완 비용을 부분 반영하나 종료 후 파급은 미포함 —
+        0B 사전등록 전 결정 필요).
 
 ■ lead 해석 가정 (0B 사전등록 동결 대상 — 아직 사용자 미확정)
   "확약 총량(내부 + 통지 pipeline) = L" 해석을 기본으로 한다. 물리적 내부 대수는
@@ -50,7 +56,8 @@ from .yr149_load_cells import _sim_from
 OUT = Path("outputs/reports/yr151_transfer_ppo")
 KAPPA = Path("outputs/reports/yr136_softplus_contract/kappa_fit_v2p.json")
 WIP_TARGET = 100                 # 학습 기본 셀 (사전등록에서 동결)
-CLIP, LR, ENT, LAM, GAMMA = 0.2, 3e-4, 0.01, 0.95, 1.0     # yr139 앵커 승계
+CLIP, LR, ENT, GAMMA = 0.2, 3e-4, 0.01, 1.0     # yr139 앵커 승계
+# advantage = MC 총수익 − critic 기준선 (= GAE λ=1). λ<1 은 도입하지 않았다(감사 정정).
 N_ITER, EPS_PER_ITER = 40, 4
 TRAIN_SEEDS = (7_100_000, 7_200_000, 7_300_000)
 
@@ -128,28 +135,32 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
             exc["n"] += 1
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
-    mbt.run(exec_policy, review_fn=_Chain(ctrl, orch, rec).review)
-    return {"phi": rec.samples, "sell_ledger": orch.ledger,
+    # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
+    #   판매 확정 순서. 판매의 즉시 비용(주행·이연)은 다음 구간에 잡혀 자기 보상에 귀속된다.
+    mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
+    phi_final = phi_terminal(mbt, obs.observe_s)          # 관측 종료 시점 — 구간의 끝
+    return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
             "n_space": orch.n_space, "n_time": orch.n_time,
             "policy_exceptions": exc["n"], "admitted": ctrl.n_admitted}
 
 
 # ------------------------------------------------------------------ 전이 조립
-def build_batch(trail: list[dict], phi: list[tuple[float, float]]) -> list[dict]:
-    """결정별 (보상 이후 합 R, advantage 원료) 조립 — γ=1 전역 보상.
+def build_batch(trail: list[dict], phi: list[tuple[float, float]],
+                phi_final: float) -> list[dict]:
+    """결정별 (총수익 R, advantage 원료) 조립 — γ=1 전역 보상.
 
-    epoch 격자 Φ 에서 결정 시각 t 이후의 총 증분 −(Φ(end) − Φ(t)) 을 그 결정의
-    reward-to-go 로 쓴다(γ=1 — 전 궤적 credit). advantage = R − V(s).
+    Φ 표본은 **행동 직전** 값이므로(치명 2 정합), 결정 시각 t_k 의 reward-to-go =
+    −(Φ_final − Φ(t_k⁻)) 는 그 결정의 즉시 비용부터 관측 종료까지를 포함한다.
+    advantage = R − V(s) (MC − critic 기준선 = GAE λ=1. λ<1·bootstrap 은 잔여).
     """
     if not phi:
         return []
     times = [p[0] for p in phi]
     values = [p[1] for p in phi]
-    phi_end = values[-1]
     out = []
     for tr in trail:
         idx = max(i for i, tt in enumerate(times) if tt <= tr["t"] + 1e-9)
-        r2go = -(phi_end - values[idx])
+        r2go = -(phi_final - values[idx])
         out.append({**tr, "ret": r2go, "adv": r2go - tr["value"]})
     return out
 
@@ -184,10 +195,11 @@ def ppo_update(actor: TransferActor, critic: TransferCritic,
 def train_one(ts: int, *, out_root: Path = OUT) -> Path:
     """초기화 1개 학습 — shadow 아님(on-policy). 실행은 디버깅 국면 후 판정 절차로만."""
     kf = load_kf()
+    # ★재현성 정정(감사): 시드를 신경망 생성 **전**에 고정 — 초기 가중치까지 시드 귀속.
+    torch.manual_seed(ts)
     actor, critic = TransferActor(), TransferCritic()
     opt_a = torch.optim.Adam(actor.parameters(), lr=LR)
     opt_c = torch.optim.Adam(critic.parameters(), lr=LR)
-    torch.manual_seed(ts)
     hist = []
     for it in range(N_ITER):
         batch_all: list[dict] = []
@@ -195,23 +207,27 @@ def train_one(ts: int, *, out_root: Path = OUT) -> Path:
             policy = PpoSellPolicy(actor, critic, mode="live", sample=True,
                                    seed=ts + it * 100 + e)
             ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf)
-            # critic 입력을 trail 에 보강(수집 시점 상태 — 학습 전용 중앙 관측)
-            for tr in policy.trail:
-                tr["critic_in"] = torch.zeros(14)      # 골격: 수집기 통합 시 교체(잔여)
-            batch_all += build_batch(policy.trail, ep["phi"])
+            # critic 입력은 결정 시점에 policy.trail["critic_in"] 으로 저장됨(치명 1 정정)
+            batch_all += build_batch(policy.trail, ep["phi"], ep["phi_final"])
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
         hist.append({"iter": it, **stats})
+    # ★저장 순서 정정(감사 치명 4): 재현 스탬프를 **먼저** 만들고(실패하면 아무 파일도
+    #   안 남음) → 스탬프 포함 train.json → net.pt. 구판은 net.pt 를 먼저 쓰고
+    #   repro_stamp(experiment= 누락)에서 TypeError — 재현 증거 없는 반쪽 산출물이 남았다.
+    stamp = repro_stamp(
+        experiment="YR-151 TransferHead PPO (골격 — 판정 실행은 shadow·0B 관문 뒤에만)",
+        seeds={"train": [ts]},
+        params={"WIP_TARGET": WIP_TARGET, "N_ITER": N_ITER,
+                "LEAD_S": ANNOUNCE_LEAD_S,
+                "anchors": "yr139 승계(clip/lr/ent/γ) · advantage = MC−V(λ=1)"},
+        prereg=".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
     out = out_root / f"ppo_s{ts}"
     out.mkdir(parents=True, exist_ok=True)
+    (out / "train.json").write_text(json.dumps(
+        {"history": hist, "code_dirty": bool(code_dirty()), "stamp": stamp},
+        ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     torch.save({"actor": actor.state_dict(), "critic": critic.state_dict()},
                out / "net.pt")
-    (out / "train.json").write_text(json.dumps(
-        {"history": hist, "code_dirty": bool(code_dirty()),
-         "stamp": repro_stamp(seeds={"train": [ts]},
-                              params={"WIP_TARGET": WIP_TARGET, "N_ITER": N_ITER,
-                                      "LEAD_S": ANNOUNCE_LEAD_S,
-                                      "anchors": "yr139 승계(clip/lr/ent/lam/γ)"})},
-        ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     return out
 
 

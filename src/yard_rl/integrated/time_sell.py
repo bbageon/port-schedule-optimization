@@ -37,6 +37,21 @@ DEFER_DELTA_S = 900.0         # 1회 이연량 기본값 15분 (사전등록 동
 MAX_ENTRY_DEFERRALS = 1       # 작업당 이연 상한 (이송 1회 상한과 대칭·엔진 fail-closed)
 
 
+def notified_gate_in(job) -> float | None:
+    """정책·resolver 가 읽어도 되는 **공개 통지 진입시각** (정보경계 정정 — 감사 치명 6).
+
+    실현 `actual_gate_in` 을 직접 읽으면, 예약 준수오차가 도입되는 순간 미래정보 누출이
+    된다(현 walk-in 에서는 둘이 우연히 같아 문제가 숨었다). 공개값의 유일한 원천은
+    ①통지/재예약 시각(`notified_gate_in_s` — 투입·이연 때 갱신) ②없으면 최초 예약
+    (`appointment_gate_time`)이다. 정책 경로는 반드시 이 접근자만 쓴다.
+    """
+    v = getattr(job, "notified_gate_in_s", None)
+    if v is not None:
+        return float(v)
+    v = getattr(job, "appointment_gate_time", None)
+    return None if v is None else float(v)
+
+
 # ------------------------------------------------------------------ 후보
 def iter_time_sell_candidates(mbt, src: str, *, horizon_s: float = DEFER_WINDOW_S,
                               max_deferrals: int = MAX_ENTRY_DEFERRALS
@@ -56,9 +71,10 @@ def iter_time_sell_candidates(mbt, src: str, *, horizon_s: float = DEFER_WINDOW_
             continue
         if rec.flow != "GATE_OUT" or rec.entry_deferrals >= max_deferrals:
             continue
-        if rec.a_gate_in is None or rec.a_gate_in <= now + 1e-6:
-            continue                                   # 이미 진입 — 창 밖
         j = sim.jobs[jid]
+        gi = notified_gate_in(j)                       # 공개 통지 시각만 (누출 금지)
+        if gi is None or gi <= now + 1e-6:
+            continue                                   # 이미 진입 — 창 밖
         if j.status != JobStatus.PLANNED:
             continue
         eta = getattr(j, "estimated_block_arrival", None) or getattr(j, "provided_eta", None)

@@ -95,8 +95,10 @@ matrix 를 제공하고 `travel_fn(src,dst,job)`·`route_fn(src,dst)` 배선이 
 
 ## PPO 구성
 
-- **Actor 입력**: source 블록의 현재 queue·평균대기·YC 잔여부하·장치율·본선 여유,
-  향후 30분 예정 유입, 후보 작업의 공개 ETA·flow·규격·현재 owner/version.
+- **Actor 입력 (구현 정합 2026-08-09)**: 블록 계획 7(내부 대수·통지 pipeline·크레인
+  잔여부하·장치율·본선 여유·향후 30분 통지 유입·후보 수) + 후보 6(공개 ETA 잔여·flow·
+  규격·통지 진입까지 잔여·이송/이연 이력) — **공개 통지 시각 접근자만 사용**(실현
+  gate-in 미열람). 구 명세의 평균대기·version 특징은 미구현(확장 후보로만 보존).
 - **Actor 출력**: 동적 후보 `KEEP + OFFER(job_1..K)`의 masked categorical 확률.
 - **Critic 입력**: 결정시점의 source와 **실행 가능한 모든 receiver의 순열불변 요약**을 학습
   중에만 본다. resolver 결과는 다음 transition·보상일 뿐 현재 critic 입력에 미리 넣지 않는다.

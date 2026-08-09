@@ -86,10 +86,32 @@ class CalcGreedy:
 
 
 def block_pipeline(mbt, bid: str, t: float) -> int:
-    """블록으로 오기로 **통지된**(미진입) 트럭 수 — 공개 정보. 이송되면 owner 가 옮겨간다."""
-    return sum(1 for rec in mbt.ledger.records.values()
-               if rec.owner == bid and rec.a_gate_in is not None
-               and rec.a_gate_in > t + 1e-9)
+    """블록으로 오기로 **통지된**(미진입) 트럭 수 — 공개 정보. 이송되면 owner 가 옮겨간다.
+
+    정보경계 정정(감사 치명 6): 실현 `a_gate_in` 대신 **공개 통지 시각**을 읽는다 —
+    준수오차 도입 시 누출 방지. 통지값이 없는 구작업만 원장값으로 fallback.
+    """
+    from .time_sell import notified_gate_in
+    n = 0
+    for jid, rec in mbt.ledger.records.items():
+        if rec.owner != bid:
+            continue
+        sim = mbt.blocks.get(bid)
+        j = sim.jobs.get(jid) if sim is not None else None
+        gi = notified_gate_in(j) if j is not None else rec.a_gate_in
+        if gi is not None and gi > t + 1e-9:
+            n += 1
+    return n
+
+
+def on_grid(t: float, grid_s: float = 60.0) -> bool:
+    """60초 격자 시각인가 — 판매·투입 검토를 격자에서만 열기 위한 가드 (감사 치명 5).
+
+    엔진 review epoch 은 격자 + 모든 gate-in 시각의 합집합이라, 가드 없이 쓰면 검토
+    주기가 60초 계약을 벗어난다(실측: 300초 창에서 6회가 아니라 13회).
+    """
+    r = t % grid_s
+    return r < 1e-6 or grid_s - r < 1e-6
 
 
 # ------------------------------------------------------------------ 중앙 matching
@@ -261,7 +283,8 @@ class UnifiedSellOrchestrator:
     """
 
     def __init__(self, policy, layout: YardLayout, kf, *,
-                 window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S):
+                 window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S,
+                 grid_s: float = 60.0, allow_keep_coord: bool = True):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
@@ -270,6 +293,8 @@ class UnifiedSellOrchestrator:
         self.kf = kf
         self.window_s = window_s
         self.defer_delta_s = defer_delta_s
+        self.grid_s = grid_s                 # 60초 계약 — 격자 밖 epoch 에서는 닫음
+        self.allow_keep_coord = allow_keep_coord   # 현 좌표 유지 ΔJ=0 (0B 동결 대상)
         self.ledger: list[dict] = []
         self.n_space = 0
         self.n_time = 0
@@ -294,20 +319,29 @@ class UnifiedSellOrchestrator:
 
     # ---- ② 축 저울: 제안 1건의 대안 좌표별 순비용 (가상 상태 q 위에서)
     def _coord_costs(self, mbt, src: str, jid: str, flow: str, t: float,
-                     q: dict) -> list[tuple[float, str]]:
+                     q: dict, vcap: dict) -> list[tuple[float, str]]:
         from .sell_gain import cost_given_queue
-        rec = mbt.ledger.records[jid]
+        from .time_sell import notified_gate_in
         j = mbt.blocks[src].jobs[jid]
+        gi = notified_gate_in(j)                       # 공개 통지 시각 (누출 금지 — 감사 6)
         eta = getattr(j, "estimated_block_arrival", None) or j.provided_eta
-        relief = cost_given_queue(mbt.blocks[src], gate_in_s=rec.a_gate_in,
+        relief = cost_given_queue(mbt.blocks[src], gate_in_s=gi,
                                   eta_s=eta, queue=q[src], kf=self.kf)
         out: list[tuple[float, str]] = []
-        if flow == "GATE_IN":                          # 공간 대안 20곳
+        if self.allow_keep_coord:
+            # 현 좌표 유지 ΔJ=0 — 모든 대안이 손해면 resolver 가 KEEP 을 고른다
+            # (감사 구조 지적: 나쁜 SELL 강제 배정 방지. S vs Q30 오염 소지가 있어
+            #  0B 사전등록에서 이 플래그를 동결해야 한다 — 양군 동일 적용이 조건).
+            out.append((0.0, "KEEP"))
+        if flow == "GATE_IN":                          # 공간 대안 — 용량은 matching 에서 검사
             for dst in mbt.blocks:
                 if dst == src:
                     continue
+                # 감사 구조 지적: matching 단계에서 용량을 본다 — 가상 배정분 포함
+                if mbt.free_slots(dst) - vcap.get(dst, 0) <= mbt.capacity_margin:
+                    continue
                 delta = self.layout.pre_gate_route_delta_s(src, dst)
-                add = cost_given_queue(mbt.blocks[dst], gate_in_s=rec.a_gate_in,
+                add = cost_given_queue(mbt.blocks[dst], gate_in_s=gi,
                                        eta_s=eta + delta, queue=q[dst], kf=self.kf)
                 out.append((add + delta / 3600.0 - relief, dst))
         # 시간 대안 (+Δ) — 반입·반출 공통. 이연 중 대기열 배수는 결정론 proxy.
@@ -316,36 +350,46 @@ class UnifiedSellOrchestrator:
         n_cranes = max(1, len(sim.profile.cranes))
         from .block_congestion import SVC_REF_S
         q_late = max(0.0, q[src] - d * n_cranes / SVC_REF_S)
-        add_t = cost_given_queue(sim, gate_in_s=rec.a_gate_in + d, eta_s=eta + d,
+        add_t = cost_given_queue(sim, gate_in_s=gi + d, eta_s=eta + d,
                                  queue=q_late, kf=self.kf)
         out.append((add_t + d / 3600.0 - relief, "TIME"))   # 외부 대기 = 동일 단가
         return out
 
     def review(self, mbt, t: float) -> None:
+        if not on_grid(t, self.grid_s):
+            return                     # 60초 계약 — gate-in 시각 epoch 에서는 열지 않는다
         offers = self._collect(mbt, t)
         if not offers:
             return
         # ---- ② 중앙 matching: 전역 한계비용 최소 (제안 × 좌표) 쌍 반복 선택
         q = {b: float(block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t))
              for b in mbt.blocks}
+        vcap: dict[str, int] = {}                          # 가상 배정 수 (용량 검사용)
         remaining = list(offers)
         assignment: list[tuple[str, str, str, str]] = []    # (src, jid, flow, coord)
         while remaining:
             best = None
             for idx, (src, jid, flow) in enumerate(remaining):
-                for cost, coord in self._coord_costs(mbt, src, jid, flow, t, q):
+                for cost, coord in self._coord_costs(mbt, src, jid, flow, t, q, vcap):
                     key = (cost, jid, coord)
                     if best is None or key < best[0]:
                         best = (key, idx, coord)
+            if best is None:
+                break
             _, idx, coord = best
             src, jid, flow = remaining.pop(idx)
             assignment.append((src, jid, flow, coord))
-            if coord != "TIME":                       # 공간: 가상 상태 이동
+            if coord not in ("TIME", "KEEP"):             # 공간: 가상 상태 이동
                 q[coord] += 1.0
                 q[src] = max(0.0, q[src] - 1.0)
+                vcap[coord] = vcap.get(coord, 0) + 1
             # 시간: 블록 간 이동 없음 — 가상 상태 불변(이연 배수는 좌표 비용에 반영)
         # ---- ③ 원자 확정
         for src, jid, flow, coord in assignment:
+            if coord == "KEEP":
+                self.ledger.append({"t": t, "axis": "KEEP", "src": src, "job_id": jid,
+                                    "flow": flow, "decision": "RESOLVER_KEEP"})
+                continue
             if coord == "TIME":
                 ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
                                    max_deferrals=MAX_ENTRY_DEFERRALS)

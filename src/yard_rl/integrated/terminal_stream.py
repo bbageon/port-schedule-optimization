@@ -313,6 +313,7 @@ def _job_from_entry(e: dict, gate_in_s: float) -> Job:
                 inbound_load=LoadStatus.FULL)
     for key, val in (("estimated_block_arrival", est),
                      ("appointment_gate_time", gate_in_s),
+                     ("notified_gate_in_s", gate_in_s),   # 공개 통지 시각 — 정책이 읽는 값
                      ("exit_travel_s", e["exit_travel_s"])):
         setattr(j, key, val)
     return j

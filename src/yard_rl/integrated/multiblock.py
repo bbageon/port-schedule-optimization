@@ -324,6 +324,12 @@ class MultiBlockTerminal:
         new_arr = j.actual_block_arrival + delta_s
         if new_arr > sim.end:
             raise TransferError(f"{job_id}: 이연 도착 {new_arr:.1f}가 관측창 밖")
+        # ★원자성 정정(외부 감사 치명 7, 2026-08-09): 실패 가능한 조회를 **전부 검사
+        # 단계로** 끌어올린다 — 구판은 사건·작업시각을 바꾼 뒤 장부를 조회해, 장부 항목이
+        # 없으면 KeyError 로 부분 변경이 남았다(원상복구 불가).
+        tl = sim.time_ledger
+        if tl is not None and job_id not in tl.records:
+            raise TransferError(f"{job_id}: 시간 장부 항목 없음 — 이연 불가(fail-closed)")
         # --- 변경 구간 (이하 실패하지 않는 연산만) ---
         import bisect
         import heapq as _hq
@@ -334,12 +340,12 @@ class MultiBlockTerminal:
         sim.queue.push(new_arr, EventKind.BLOCK_ARRIVAL, job_id)
         j.actual_gate_in = new_a
         j.actual_block_arrival = new_arr
+        j.notified_gate_in_s = new_a       # 공개 재예약 시각 — 정책이 읽는 유일한 진입시각
         # 공개 예측도 함께 이동 — walk-in 예측 = 통지 gate-in + 기대 주행 (실현 미참조 유지)
         for f in ("estimated_block_arrival", "provided_eta"):
             v = getattr(j, f, None)
             if v is not None:
                 setattr(j, f, v + delta_s)
-        tl = sim.time_ledger
         if tl is not None:
             tl.records[job_id].gate_in = new_a
             i = bisect.bisect_left(tl._a_sorted, old_a)

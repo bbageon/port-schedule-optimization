@@ -7,9 +7,10 @@ PPO 의 판단 = **"이 작업을 포함한 현 계획이 나쁘다"**. 행동 K
 작업이 나쁜 게 아니라 맥락(계획) 속에서 나쁘다 — 볼록 비용의 직접 귀결.
 
 ■ 구조 확정 (B-(b))
-  · PPO 는 **축(공간/시간)을 모른다** — "무엇을 덜어낼지"만. 어느 좌표(어느 블록/어느
-    시각)로 옮길지는 resolver 가 순이득 저울로 정한다. 따라서 **가중치는 1벌**
-    (축별 분리 불요 — 축 귀속은 resolver 원장이 사후 분해).
+  · PPO 는 **작업 종류(flow)는 특징으로 알지만, 좌표(목적지 블록·시각)를 직접 선택하지
+    않는다** — "무엇을 덜어낼지"만. 좌표는 resolver 가 순이득 저울로 정한다. 따라서
+    **가중치는 1벌**(축별 분리 불요 — 축 귀속은 resolver 원장이 사후 분해).
+    (감사 정정 2026-08-09: 구 표현 "축을 모른다"는 is_out 입력과 충돌 — 위가 정확한 문장)
   · 공유 가중치 1벌을 21블록이 각자 자기 공개 정보로 실행(중앙학습·분산실행).
     경험 21배·일반 규칙 학습·동일 정책 배포가 근거.
   · 기존 크레인 PPO(JointPairNet — 동적 후보 행 점수화)와 같은 검증된 패턴.
@@ -55,20 +56,29 @@ def block_features(mbt, src: str, t: float, n_cands: int) -> list[float]:
     slack_vals = [v.slack_s(t) for v in sim.vessels.values()
                   if v.plan.planned_completion_s is not None and not v.done]
     vessel_slack = min([s for s in slack_vals if s is not None] + [2.0 * 3600.0])
-    announced_30 = sum(1 for rec in mbt.ledger.records.values()
-                       if rec.owner == src and rec.a_gate_in is not None
-                       and t < rec.a_gate_in <= t + 1800.0)
+    # 정보경계(감사 치명 6): 실현 a_gate_in 대신 **공개 통지 시각**만 읽는다.
+    from .time_sell import notified_gate_in
+    announced_30 = 0
+    for jid, rec in mbt.ledger.records.items():
+        if rec.owner != src:
+            continue
+        jj = sim.jobs.get(jid)
+        gi = notified_gate_in(jj) if jj is not None else None
+        if gi is not None and t < gi <= t + 1800.0:
+            announced_30 += 1
     return [inside / 10.0, pipeline / 10.0, crane_backlog / 3600.0, occupancy,
             max(-2.0, min(2.0, vessel_slack / 3600.0)), announced_30 / 10.0,
             n_cands / 6.0]
 
 
 def candidate_features(mbt, src: str, jid: str, t: float) -> list[float]:
-    """후보 6차원 — 창 내 잔여시간(멈춤 문제의 시계)·이력 포함."""
+    """후보 6차원 — 창 내 잔여시간(멈춤 문제의 시계)·이력 포함. 공개 정보만(감사 6)."""
+    from .time_sell import notified_gate_in
     rec = mbt.ledger.records[jid]
     j = mbt.blocks[src].jobs[jid]
     eta = getattr(j, "estimated_block_arrival", None) or j.provided_eta or t
-    gate_remain = (rec.a_gate_in - t) if rec.a_gate_in is not None else 0.0
+    gi = notified_gate_in(j)                       # 공개 통지 시각 (실현값 미열람)
+    gate_remain = (gi - t) if gi is not None else 0.0
     is_out = 1.0 if rec.flow == "GATE_OUT" else 0.0
     size40 = 1.0 if str(getattr(j, "inbound_size", "")).endswith("40") else 0.0
     return [max(0.0, min(1.0, (eta - t) / 1800.0)), is_out, size40,
@@ -138,6 +148,9 @@ class PpoSellPolicy:
         if not cands:
             return None
         rows = build_rows(mbt, src, cands, t)
+        # ★감사 치명 1 정정: critic 입력을 **결정 시점에 저장**한다 — 구판은 학습 직전
+        # zeros 로 덮어써 critic 이 항상 0 상태만 학습했다(가치학습·advantage 무효).
+        ci = critic_input(mbt, src, t, len(cands))
         with torch.no_grad():
             logits = self.actor(rows)
             dist = Categorical(logits=logits)
@@ -146,10 +159,9 @@ class PpoSellPolicy:
             else:
                 a = int(torch.argmax(logits).item())
             logp = float(dist.log_prob(torch.tensor(a)).item())
-            v = (float(self.critic(critic_input(mbt, src, t, len(cands))).item())
-                 if self.critic is not None else 0.0)
+            v = float(self.critic(ci).item()) if self.critic is not None else 0.0
         pick = None if a == 0 else cands[a - 1][0]
-        self.trail.append({"t": t, "src": src, "rows": rows, "action": a,
-                           "logp": logp, "value": v, "n_cands": len(cands),
-                           "picked": pick})
+        self.trail.append({"t": t, "src": src, "rows": rows, "critic_in": ci,
+                           "action": a, "logp": logp, "value": v,
+                           "n_cands": len(cands), "picked": pick})
         return None if self.mode == "shadow" else pick
