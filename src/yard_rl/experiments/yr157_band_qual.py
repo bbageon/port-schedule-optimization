@@ -32,23 +32,29 @@ SEED = 6_600_000                          # YR-157 전용 시드 대역 (미사�
 WEIGHTS = (1.0, 3.0, 5.0)                 # 집중도 축 (동결)
 LOADS = (100, 150)                        # 유지 대수 축 (동결 — 현실 정합 대역)
 N_HOTSPOT = 4                             # hotspot 블록 수 (동결)
+# 완료 조건 2항 — 셀당 **독립 시드 3개** (동결: rep 마다 배경·hotspot·트럭 열 전부
+# +REP_STRIDE 로 이동한 새 표본. rep 0 = 최초 자격 런과 동일 시드 — 결정론 재현).
+REPS = 3
+REP_STRIDE = 1_000_000
 
 
-def cell_seed(w: float, load: int) -> int:
-    return SEED + int(w * 10) * 1000 + load
+def cell_seed(w: float, load: int, rep: int = 0) -> int:
+    return SEED + rep * REP_STRIDE + int(w * 10) * 1000 + load
 
 
-def run_one(w: float, load: int, obs: ObservationContract) -> dict:
+def run_one(w: float, load: int, obs: ObservationContract, rep: int = 0) -> dict:
     layout = terminal_layout()
-    seed = cell_seed(w, load)
+    seed = cell_seed(w, load, rep)
     hs: tuple[str, ...] = ()
     if w > 1.0:
         hs = hotspot_rotation(layout, seed, N_HOTSPOT)
     params = TerminalStreamParams(load_4h=load, hotspot_blocks=hs, hotspot_weight=w)
-    cell = run_cell(load, obs, params=params, seed=seed, background_seed=SEED)
+    cell = run_cell(load, obs, params=params, seed=seed,
+                    background_seed=SEED + rep * REP_STRIDE)
     # hotspot 사후 관측(판정 아님) — 몰린 블록의 최대 내부 대수(집중이 실제 생겼는가).
     cell.update({
         "hotspot_weight": w, "hotspot_blocks": list(hs), "cell_seed": seed,
+        "rep": rep,
         "hotspot_wip_peak": {
             b: max(s["wip_by_block"].get(b, 0) for s in cell["snapshots"])
             for b in hs},
@@ -56,9 +62,39 @@ def run_one(w: float, load: int, obs: ObservationContract) -> dict:
     return cell
 
 
+def run_rep(rep: int) -> Path:
+    """rep 1개(6셀)만 실행해 부분 파일로 저장 — 병렬 실행용."""
+    obs = ObservationContract()
+    cells = [run_one(w, load, obs, rep) for w in WEIGHTS for load in LOADS]
+    OUT.mkdir(parents=True, exist_ok=True)
+    p = OUT / f"band_qual_rep{rep}.json"
+    p.write_text(json.dumps({"rep": rep, "cells": cells}, ensure_ascii=False,
+                            indent=1), encoding="utf-8")
+    print(json.dumps({"rep": rep,
+                      "states": {f"w{c['hotspot_weight']}-L{c['wip_target']}":
+                                 c["classification"]["state"] for c in cells}},
+                     ensure_ascii=False))
+    return p
+
+
+def merge_reps() -> dict:
+    """rep 0~2 부분 파일을 합산 판정 — 완료 조건 2항(셀당 ≥3 독립 시드) 증거."""
+    obs = ObservationContract()
+    cells = []
+    for rep in range(REPS):
+        part = json.loads((OUT / f"band_qual_rep{rep}.json").read_text(
+            encoding="utf-8"))
+        cells += part["cells"]
+    return _judge(cells, obs, design="hotspot-primary-6cell-x3seeds")
+
+
 def run() -> dict:
     obs = ObservationContract()
     cells = [run_one(w, load, obs) for w in WEIGHTS for load in LOADS]
+    return _judge(cells, obs, design="hotspot-primary-6cell")
+
+
+def _judge(cells: list[dict], obs: ObservationContract, *, design: str) -> dict:
     checks = {
         "W1_wip_maintained": all(c["wip_maintained_pm5pct"] for c in cells),
         "W2_ledger_conserved": all(c["ledger_conserved"] for c in cells),
@@ -76,26 +112,32 @@ def run() -> dict:
         "W9_flow_fallback_zero": all(c["flow_fallbacks_used"] == 0 for c in cells),
         "no_policy_exceptions": all(c["policy_exceptions"] == 0 for c in cells),
     }
+    per_cell_states: dict[str, list[str]] = {}
+    for c in cells:
+        per_cell_states.setdefault(
+            f"w{c['hotspot_weight']}-L{c['wip_target']}", []).append(
+            c["classification"]["state"])
     verdict = {
         "qualification_all_pass": all(checks.values()),
         "checks": checks,
-        "states": {f"w{c['hotspot_weight']}-L{c['wip_target']}":
-                   c["classification"]["state"] for c in cells},
-        "note": "YR-157 6셀 자격 — 성능 주장 없음. 상태 분류는 사후 관찰이며 판정 "
+        "states_by_cell": per_cell_states,     # 셀별 rep 상태열 — 재현성 관찰
+        "anchor_note": "hotspot 셀(w>1)의 국소 도착률은 현실 평균 블록의 3~4배 — "
+                       "피크 국면 재현으로 주장 한정(앵커 밖 셀 명시, 완료 조건 2항)",
+        "note": "YR-157 자격 — 성능 주장 없음. 상태 분류는 사후 관찰이며 판정 "
                 "임계가 아니다. 성능은 처리량+시간당 비용 공동 판정만 허용.",
     }
     dirty = bool(code_dirty())
-    res = {"task": "YR-157", "structure": "H-21", "design": "hotspot-primary-6cell",
+    res = {"task": "YR-157", "structure": "H-21", "design": design,
            "runtime": {"commit": _git("rev-parse", "HEAD"), "git_dirty": dirty,
                        "remote_ref": "origin/master",
                        "remote_head": _git("rev-parse", "origin/master"),
                        "prereg_file": str(PREREG),
                        "prereg_sha256": _sha256(PREREG) if PREREG.exists() else None,
                        "params": {"WEIGHTS": list(WEIGHTS), "LOADS": list(LOADS),
-                                  "N_HOTSPOT": N_HOTSPOT,
+                                  "N_HOTSPOT": N_HOTSPOT, "REPS": REPS,
+                                  "REP_STRIDE": REP_STRIDE,
                                   "observation": obs.as_dict()},
-                       "seeds": {"cells": [cell_seed(w, l)
-                                           for w in WEIGHTS for l in LOADS],
+                       "seeds": {"cells": sorted({c["cell_seed"] for c in cells}),
                                  "background": SEED}},
            "verdict": verdict, "cells": cells}
     OUT.mkdir(parents=True, exist_ok=True)
@@ -109,9 +151,15 @@ def run() -> dict:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", action="store_true")
+    ap.add_argument("--rep", type=int, default=None, help="rep 1개(6셀)만 실행")
+    ap.add_argument("--merge", action="store_true", help="rep 0~2 합산 판정")
     ap.add_argument("--smoke", action="store_true")
     a = ap.parse_args()
-    if a.smoke:
+    if a.rep is not None:
+        run_rep(a.rep)
+    elif a.merge:
+        merge_reps()
+    elif a.smoke:
         obs = ObservationContract(warmup_s=1800.0, measure_s=7200.0, snapshot_s=300.0)
         c = run_one(5.0, 100, obs)
         print(json.dumps({k: v for k, v in c.items()
