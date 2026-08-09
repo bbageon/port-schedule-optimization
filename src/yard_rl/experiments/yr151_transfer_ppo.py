@@ -19,11 +19,15 @@
   "확약 총량(내부 + 통지 pipeline) = L" 해석을 기본으로 한다. 물리적 내부 대수는
   진행 중 통지분만큼 L 보다 작다. 대안(L 상향)은 config 교체로 가능.
 
-■ 미구현 정직 고지
-  · ExecutionHead 는 계약상 채택 PPO(C0+대기허가증) 체크포인트 동결이어야 하나,
-    이 골격은 **규칙(SF-SPT)** 을 자리에 두고 hash 검사 자리만 마련했다 — 체크포인트
-    배선은 YR-160(채택 구성 단일 정의)과 함께 잔여 작업이다.
-  · 이 파일은 실행하지 않았다(빌드 우선 지시) — 판정은 shadow → 0B 관문 뒤에만.
+■ ExecutionHead = 채택 실행 PPO (2026-08-09 연결 — 사용자 지시)
+  기본값이 **채택 구성 그대로**다: YR-143 confirm C0 체크포인트(JointPairNet 250) +
+  YR-125 StateNorm + 대기 허가증(DeployGuard) + C0 후보 플래그(SAFETY_ONLY·DEFER_ALL·
+  one-shot). 가중치는 **동결**(requires_grad=False)이고 매 iteration 전후 해시를 비교해
+  불변을 검사한다. TransferHead 만 별도 optimizer 로 학습한다 — 연구 질문이
+  "채택 실행 PPO **위에** SELL 을 얹으면 비용이 더 주는가"이므로, SF-SPT 로 돌리면
+  다른 질문("SF 운영에서 SELL 이 유효한가")이 된다. SF 는 배선 디버그 전용 opt-in.
+■ 미구현 정직 고지: 이 파일은 실행하지 않았다(빌드 우선) — 판정은 shadow → 0B 뒤에만.
+  대기 허가증 rollout 이 블록 21개 × 결정마다 돌므로 실행 비용이 크다(실측 미확인).
 """
 from __future__ import annotations
 
@@ -35,10 +39,13 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from ..integrated.baselines import (ResolverPolicy, ServiceFirstSPTPreference, _apply,
-                                    _wait_of)
+from ..integrated import candidates as cand_mod
+from ..integrated.baselines import (JointRolloutGreedy, ResolverPolicy,
+                                    ServiceFirstSPTPreference, _apply, _wait_of)
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.cost_curve_v2 import KappaFit
+from ..integrated.encoding import StateNorm
+from ..integrated.joint_distill import JointPairNet
 from ..integrated.multiblock import MultiBlockTerminal
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty, repro_stamp
@@ -49,12 +56,20 @@ from ..integrated.terminal_stream import (ObservationContract,
 from ..integrated.time_sell import deferral_ledger
 from ..integrated.transfer_head import (PpoSellPolicy, TransferActor, TransferCritic)
 from ..integrated.yard_layout import terminal_layout
-from .yr088_joint_rl import LEVEL
+from . import yr088_joint_rl as y88
+from .yr088_joint_rl import LEVEL, RLPolicy
+from .yr100_candidate_eval import RC_EVAL
 from .yr139_blockq_v4_ppo import phi_v2
+from .yr143_no_repo import ARM_FLAGS, CONFIRM_TS, NORM_TS
+from .yr146_deploy_guard import DeployGuard
 from .yr149_load_cells import _sim_from
 
 OUT = Path("outputs/reports/yr151_transfer_ppo")
 KAPPA = Path("outputs/reports/yr136_softplus_contract/kappa_fit_v2p.json")
+# 채택 실행 정책 (YR-148 판정 그대로): YR-143 confirm C0 + YR-125 정규화 통계.
+EXEC_CKPT_DIR = Path("outputs/reports/yr143_no_repo/confirm/c0")
+NORM_CKPT = Path("outputs/reports/yr125_diff_credit") / f"diff1_s{NORM_TS}" / "rl_net.pt"
+EXEC_TS_DEFAULT = CONFIRM_TS[0]          # 221000 — 사전등록에서 초기화 선택을 동결한다
 WIP_TARGET = 100                 # 학습 기본 셀 (사전등록에서 동결)
 CLIP, LR, ENT, GAMMA = 0.2, 3e-4, 0.01, 1.0     # yr139 앵커 승계
 # advantage = MC 총수익 − critic 기준선 (= GAE λ=1). λ<1 은 도입하지 않았다(감사 정정).
@@ -66,6 +81,62 @@ def load_kf() -> KappaFit:
     d = json.loads(KAPPA.read_text(encoding="utf-8"))
     return KappaFit(**{k: v for k, v in d.items()
                        if k in KappaFit.__dataclass_fields__})
+
+
+# ------------------------------------------------------------------ 채택 실행 정책 연결
+def actor_state_hash(net) -> str:
+    """가중치 불변 검사용 해시 — 같은 런 안에서 전/후 비교 목적(재현 스탬프에 기록)."""
+    import hashlib
+    import io as _io
+    buf = _io.BytesIO()
+    torch.save({k: v.detach().cpu() for k, v in sorted(net.state_dict().items())}, buf)
+    return hashlib.sha256(buf.getvalue()).hexdigest()
+
+
+def load_adopted_execution_head(ts: int = EXEC_TS_DEFAULT):
+    """채택 실행 PPO 를 **동결 로딩** — YR-146/148 판정 경로와 동일한 조립.
+
+    JointPairNet(250) actor(YR-143 confirm C0) + StateNorm(YR-125). 가중치는
+    requires_grad=False 로 동결하고, 불변 검사는 actor_state_hash 로 한다.
+    체크포인트가 없으면 fail-closed — SF 로 조용히 대체하지 않는다.
+    """
+    ckpt = EXEC_CKPT_DIR / f"ppo_s{ts}" / "net.pt"
+    if not ckpt.is_file():
+        raise FileNotFoundError(
+            f"채택 실행 체크포인트 없음: {ckpt} — SF 로 조용히 대체하지 않는다"
+            " (배선 디버그는 exec_head='sf' 를 명시적으로)")
+    ck = torch.load(ckpt, map_location="cpu")
+    actor = JointPairNet(250)
+    actor.load_state_dict(ck["actor"])
+    actor.eval()
+    for p in actor.parameters():
+        p.requires_grad_(False)                    # 동결 — TransferHead 만 학습
+    ck0 = torch.load(NORM_CKPT, map_location="cpu")
+    norm = StateNorm(refs=ck0["norm_refs"])
+    return actor, norm
+
+
+class AdoptedExecFleet:
+    """블록별 실행 정책 인스턴스(가중치 공유·동결) — C0 + 대기 허가증.
+
+    DeployGuard 는 허가증 원장 등 상태를 갖므로 **블록마다 별도 인스턴스**를 만들되
+    actor·norm 은 한 벌을 공유한다(21블록 동일 정책 배포 구조 그대로).
+    """
+
+    def __init__(self, actor, norm):
+        self.actor, self.norm = actor, norm
+        self._by_sim: dict[int, DeployGuard] = {}
+
+    def get(self, sim) -> DeployGuard:
+        g = self._by_sim.get(id(sim))
+        if g is None:
+            inner = RLPolicy(self.actor, self.norm, name="exec:c0")
+            jr = JointRolloutGreedy(RC_EVAL, horizon_s=1800.0,
+                                    generator=CandidateGenerator(),
+                                    forbid_strategic_wait=True)
+            g = DeployGuard(inner, self.actor, self.norm, jr)
+            self._by_sim[id(sim)] = g
+        return g
 
 
 # ------------------------------------------------------------------ Φ (전역·검열)
@@ -107,8 +178,15 @@ class _Chain:
 # ------------------------------------------------------------------ 에피소드
 def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                 wip: int = WIP_TARGET,
-                obs: ObservationContract | None = None) -> dict:
-    """고정 WIP + lead 통지 환경에서 1 에피소드 — 정책 trail 과 구간 Φ 를 수집."""
+                obs: ObservationContract | None = None,
+                exec_head: str = "adopted",
+                exec_fleet: "AdoptedExecFleet | None" = None) -> dict:
+    """고정 WIP + lead 통지 환경에서 1 에피소드 — 정책 trail 과 구간 Φ 를 수집.
+
+    exec_head:
+      "adopted" (기본) — 채택 실행 PPO(C0+대기 허가증) 동결본. 연구 질문의 전제.
+      "sf"              — 배선 디버그 전용(명시 opt-in). 이 결과로 성능 주장 금지.
+    """
     obs = obs or ObservationContract()
     layout = terminal_layout()
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=wip, obs=obs,
@@ -120,24 +198,47 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
     orch = UnifiedSellOrchestrator(policy, layout, kf)
     rec = PhiRecorder()
 
-    # ExecutionHead 자리 — 계약상 채택 PPO 동결 체크포인트(hash 검사 포함)가 들어와야
-    # 하나, 배선 미구현이라 규칙(SF-SPT)을 둔다(잔여 작업 — YR-160 과 함께).
-    pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
     gens: dict[int, CandidateGenerator] = {}
     exc = {"n": 0}
+    if exec_head == "adopted":
+        if exec_fleet is None:
+            exec_fleet = AdoptedExecFleet(*load_adopted_execution_head())
 
-    def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
-        gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
-        try:
-            _apply(sim, pol.decide(sim, dp, gb))
-        except Exception:
-            exc["n"] += 1
-            _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+        def exec_policy(sim, dp):
+            g = gens.setdefault(id(sim), CandidateGenerator())
+            gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
+            try:
+                _apply(sim, exec_fleet.get(sim).decide(sim, dp, gb))
+            except Exception:
+                exc["n"] += 1
+                _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+    else:                                       # "sf" — 배선 디버그 전용
+        pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
 
-    # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
-    #   판매 확정 순서. 판매의 즉시 비용(주행·이연)은 다음 구간에 잡혀 자기 보상에 귀속된다.
-    mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
+        def exec_policy(sim, dp):
+            g = gens.setdefault(id(sim), CandidateGenerator())
+            gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
+            try:
+                _apply(sim, pol.decide(sim, dp, gb))
+            except Exception:
+                exc["n"] += 1
+                _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+
+    # 채택 구성의 후보 플래그 (C0 + 유한 DEFER + one-shot) — YR-146 판정 경로와 동일.
+    # 전역 monkey-patch 라 반드시 원상복구한다 (구조 결함 자체는 YR-160 이 고친다).
+    f = ARM_FLAGS["c0"]
+    prev = (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY,
+            cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT)
+    cand_mod.WAIT_MODE = "DEFER_ALL"
+    cand_mod.SAFETY_ONLY = f["safety_only"]
+    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = f["bound"], True
+    try:
+        # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
+        #   판매 확정 순서. 판매의 즉시 비용은 다음 구간에 잡혀 자기 보상에 귀속된다.
+        mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
+    finally:
+        (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY,
+         cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT) = prev
     phi_final = phi_terminal(mbt, obs.observe_s)          # 관측 종료 시점 — 구간의 끝
     return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
             "n_space": orch.n_space, "n_time": orch.n_time,
@@ -192,7 +293,8 @@ def ppo_update(actor: TransferActor, critic: TransferCritic,
     return stats
 
 
-def train_one(ts: int, *, out_root: Path = OUT) -> Path:
+def train_one(ts: int, *, out_root: Path = OUT,
+              exec_ts: int = EXEC_TS_DEFAULT) -> Path:
     """초기화 1개 학습 — shadow 아님(on-policy). 실행은 디버깅 국면 후 판정 절차로만."""
     kf = load_kf()
     # ★재현성 정정(감사): 시드를 신경망 생성 **전**에 고정 — 초기 가중치까지 시드 귀속.
@@ -200,25 +302,33 @@ def train_one(ts: int, *, out_root: Path = OUT) -> Path:
     actor, critic = TransferActor(), TransferCritic()
     opt_a = torch.optim.Adam(actor.parameters(), lr=LR)
     opt_c = torch.optim.Adam(critic.parameters(), lr=LR)
+    # 채택 실행 정책 — 동결 로딩 1회, 매 iteration 뒤 hash 불변 검사 (계약 가드).
+    exec_actor, exec_norm = load_adopted_execution_head(exec_ts)
+    exec_hash0 = actor_state_hash(exec_actor)
     hist = []
     for it in range(N_ITER):
         batch_all: list[dict] = []
         for e in range(EPS_PER_ITER):
             policy = PpoSellPolicy(actor, critic, mode="live", sample=True,
                                    seed=ts + it * 100 + e)
-            ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf)
+            ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf,
+                             exec_fleet=AdoptedExecFleet(exec_actor, exec_norm))
             # critic 입력은 결정 시점에 policy.trail["critic_in"] 으로 저장됨(치명 1 정정)
             batch_all += build_batch(policy.trail, ep["phi"], ep["phi_final"])
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
+        if actor_state_hash(exec_actor) != exec_hash0:      # 실행 head 불변 — 매 iter 검사
+            raise RuntimeError("ExecutionHead 가중치가 변했다 — 학습 분리 계약 위반")
         hist.append({"iter": it, **stats})
     # ★저장 순서 정정(감사 치명 4): 재현 스탬프를 **먼저** 만들고(실패하면 아무 파일도
     #   안 남음) → 스탬프 포함 train.json → net.pt. 구판은 net.pt 를 먼저 쓰고
     #   repro_stamp(experiment= 누락)에서 TypeError — 재현 증거 없는 반쪽 산출물이 남았다.
     stamp = repro_stamp(
         experiment="YR-151 TransferHead PPO (골격 — 판정 실행은 shadow·0B 관문 뒤에만)",
-        seeds={"train": [ts]},
+        seeds={"train": [ts], "exec_head": [exec_ts]},
         params={"WIP_TARGET": WIP_TARGET, "N_ITER": N_ITER,
                 "LEAD_S": ANNOUNCE_LEAD_S,
+                "exec_head": f"adopted C0+guard (yr143 confirm ppo_s{exec_ts})",
+                "exec_head_hash": exec_hash0,
                 "anchors": "yr139 승계(clip/lr/ent/γ) · advantage = MC−V(λ=1)"},
         prereg=".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
     out = out_root / f"ppo_s{ts}"
