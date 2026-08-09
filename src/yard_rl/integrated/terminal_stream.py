@@ -364,7 +364,8 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                     obs: ObservationContract | None = None,
                     layout: YardLayout | None = None,
                     params: TerminalStreamParams | None = None,
-                    pool_factor: int = WIP_POOL_FACTOR) -> dict:
+                    pool_factor: int = WIP_POOL_FACTOR,
+                    background_seed: int | None = None) -> dict:
     """고정 재공량 계약의 시나리오 묶음 — 초기 채움 L 대 + 교체 투입용 대기 pool.
 
     · 초기 채움: `p` 배분으로 L 대를 [0, WIP_FILL_SPAN_S] 에 펼쳐 사전 배치(장부 활성화 겸).
@@ -372,20 +373,24 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
       런타임에는 투입 시각만 정해지고 무작위를 소비하지 않는다(결정론).
     · pool 의 반출 대상은 블록 초기 적재의 미사용 컨테이너에서 **중복 없이** 예약한다.
     · 본선 배치는 `vessel_placement`(블록·슬롯·종류 독립 추첨 — 감사 정정 2026-08-09).
+    · background_seed(★32차 감사): 배경(초기 적재·본선 배치·반출대상 순서)의 시드를
+      트럭 시드와 분리한다 — 부하 L 셀들이 **같은 배경**을 공유해야 L 효과가 배경
+      변주와 교락하지 않는다. None 이면 기존과 동일하게 seed 를 그대로 쓴다.
     """
     obs = obs or ObservationContract()
     layout = layout or terminal_layout()
     params = params or TerminalStreamParams(load_4h=wip_target)
     if wip_target < len(layout.ids):
         raise ValueError(f"WIP 목표 {wip_target}가 블록 수 {len(layout.ids)}보다 작다")
+    bseed = seed if background_seed is None else background_seed
 
     # ① 배경(초기 적재·본선) — 배치 세 축은 vessel_placement 가 독립 추첨한다.
-    placement = vessel_placement(layout, seed, params, obs)
+    placement = vessel_placement(layout, bseed, params, obs)
     per_block_vessels = {b: (1 if b in placement else 0) for b in layout.ids}
     scns: dict[str, TerminalScenario] = {}
     for b in layout.ids:
         pl = placement.get(b)
-        bg = _background(profile, seed + 1000 * (layout.ids.index(b) + 1), b, obs,
+        bg = _background(profile, bseed + 1000 * (layout.ids.index(b) + 1), b, obs,
                          params, per_block_vessels[b],
                          vessel_type_offset=(pl["type_offset"] if pl else 0))
         if bg.vessels:
@@ -397,7 +402,7 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     for b, scn in scns.items():
         used = {j.target_container for j in scn.jobs if j.target_container}
         cand = sorted(set(scn.containers) - used)
-        random.Random(f"h21w:tgt:{seed}:{b}").shuffle(cand)
+        random.Random(f"h21w:tgt:{bseed}:{b}").shuffle(cand)
         free[b] = cand
 
     p = distribution_vector(layout, params)
@@ -444,7 +449,11 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
         e = draw(bid, f"{bid}:F-{i:05d}")
         gate_in = WIP_FILL_SPAN_S * i / max(1, wip_target)
         fill_jobs[bid].append(_job_from_entry(e, gate_in))
+        # 32차 감사(부채 2): fill 도 requested/realized 를 원장에 남긴다 — 공식 자격
+        # 결과가 "실제 투입된 작업"의 fallback 을 작업 단위로 복기할 수 있어야 한다.
         fill_ledger.append({"job_id": e["job_id"], "block": bid, "flow": e["flow"],
+                            "requested_flow": e["requested_flow"],
+                            "fallback_reason": e["fallback_reason"],
                             "gate_in_s": round(gate_in, 3),
                             "travel_s": round(e["travel_s"], 3)})
 
@@ -493,11 +502,16 @@ class WipAdmissionController:
 
     def __init__(self, pool: list[dict], *, wip_target: int,
                  lead_s: float = 0.0, max_tries_per_epoch: int = 200,
-                 end_s: float | None = None):
+                 end_s: float | None = None,
+                 period_s: float = WIP_ADMISSION_PERIOD_S):
         self.pool = pool
         self.wip_target = wip_target
         self.lead_s = lead_s
         self.max_tries = max_tries_per_epoch
+        # 32차 감사(부채 4): 격자 가드 주기를 인스턴스가 보유 — admission_epochs 와
+        # 컨트롤러가 **같은 period 를 받아야** 한다(기본값이 같은 단일 상수라 기본
+        # 구성은 자동 일치. 한쪽만 바꾸는 것은 계약 위반).
+        self.period_s = period_s
         # 관측 종료 — 도착이 창을 벗어날 투입은 처음부터 하지 않는다(꼬리 pool 낭비 방지).
         # 따라서 **마지막 GATE_BLOCK_MAX_S(7분) 동안은 WIP 가 자연 감소**한다 — 유지 판정은
         # 이 꼬리를 제외한 구간에서 한다(하네스 계약).
@@ -525,10 +539,10 @@ class WipAdmissionController:
 
     def review(self, mbt, t: float) -> None:
         from .multiblock import TransferError
-        # ★60초 격자 가드(감사 2026-08-09): 엔진 review epoch 은 격자+gate-in 합집합이라
-        # 가드 없이는 투입 판단이 60초 주기 계약을 벗어난다(판매 검토와 같은 결함 —
+        # ★격자 가드(감사 2026-08-09): 엔진 review epoch 은 격자+gate-in 합집합이라
+        # 가드 없이는 투입 판단이 주기 계약을 벗어난다(판매 검토와 같은 결함 —
         # 치명 5 의 투입 쪽 잔여). 격자 밖 호출은 전부 무시한다.
-        if not on_grid(t, WIP_ADMISSION_PERIOD_S):
+        if not on_grid(t, self.period_s):
             return
         if self.end_s is not None and t + self.lead_s + GATE_BLOCK_MAX_S > self.end_s:
             if not self._tail_stopped:
@@ -559,7 +573,8 @@ class WipAdmissionController:
             except TransferError as ex:
                 self.ledger.append({"t": t, "event": "SKIP", "job_id": e["job_id"],
                                     "block": e["block"], "reason": str(ex)})
-        if deficit > 0 or admitted:
-            self.ledger.append({"t": t, "event": "EPOCH", "inside": inside,
-                                "pipeline": pipeline, "deficit": deficit,
-                                "admitted": admitted})
+        # 32차 감사: EPOCH 은 **모든 격자 시각**에 기록한다 — 유지 판정(W1)의 관측
+        # 대상이 "내부+확약(pipeline)=L" 계약량이므로 조용한 epoch 도 증거여야 한다.
+        self.ledger.append({"t": t, "event": "EPOCH", "inside": inside,
+                            "pipeline": pipeline, "deficit": deficit,
+                            "admitted": admitted})

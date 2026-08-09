@@ -123,3 +123,25 @@ def test_flow_fallback_detected_when_inventory_starved():
     flipped = [e for e in b["pool"] if e["fallback_reason"] == "no_free_target"]
     assert flipped and all(e["requested_flow"] == "GATE_OUT"
                            and e["flow"] == "GATE_IN" for e in flipped)
+
+
+def test_fill_ledger_carries_fallback_fields(built):
+    """32차 부채 2: 채움 원장에도 requested/realized/reason 이 남아야 한다."""
+    for e in built["fill"]:
+        assert "requested_flow" in e and "fallback_reason" in e
+
+
+def test_background_seed_shared_across_load_cells():
+    """32차 부채 3: background_seed 고정 시 부하 셀들이 같은 배경(본선 배치·초기 적재·
+    반출대상 순서)을 공유하고, 트럭 pool 만 셀 시드에 따라 달라져야 한다."""
+    a = build_fixed_wip(build_h21_profile(), SEED + 50, wip_target=63,
+                        background_seed=SEED)
+    b = build_fixed_wip(build_h21_profile(), SEED + 75, wip_target=63,
+                        background_seed=SEED)
+    assert a["vessel_placement"] == b["vessel_placement"]
+    for blk in a["scenarios"]:
+        sa, sb = a["scenarios"][blk], b["scenarios"][blk]
+        assert sa.containers == sb.containers                  # 초기 적재 동일
+        assert [v.plan.planned_start_s for v in sa.vessels] == \
+               [v.plan.planned_start_s for v in sb.vessels]    # 본선 동일
+    assert a["pool"] != b["pool"]                              # 트럭 열은 셀별 상이

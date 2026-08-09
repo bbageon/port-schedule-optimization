@@ -195,6 +195,26 @@ def test_admission_grid_includes_t0():
     assert ctrl.n_admitted == 1
 
 
+def test_admission_period_is_instance_owned():
+    """32차 부채 4: 격자 주기는 컨트롤러 인스턴스 소유 — period_s=30 이면 t=30 도 격자."""
+    pool = [_entry("A", f"A:W-P{i}") for i in range(4)]
+    ctrl = WipAdmissionController(pool, wip_target=2, period_s=30.0)
+    mbt = _NullMbt()
+    ctrl.review(mbt, 30.0)                      # 60초 격자 밖·30초 격자 위
+    assert ctrl.n_admitted == 2
+    ctrl.review(mbt, 45.0)                      # 30초 격자 밖
+    assert ctrl.n_admitted == 2
+
+
+def test_epoch_logged_even_when_quiet():
+    """32차: 부족분 0 인 조용한 격자 epoch 도 EPOCH 원장에 남아야 한다(W1 관측 대상)."""
+    ctrl = WipAdmissionController([], wip_target=0)
+    mbt = _NullMbt()
+    ctrl.review(mbt, 120.0)
+    epochs = [e for e in ctrl.ledger if e["event"] == "EPOCH"]
+    assert len(epochs) == 1 and epochs[0]["deficit"] == 0
+
+
 # ------------------------------------------------------------------ 본선 재보정 (2026-08-08)
 def test_vessel_workload_within_derived_anchor(built):
     """계획 본선 작업률이 유도 앵커(145~170 moves/h) 안 — 12 process × 120 moves."""
