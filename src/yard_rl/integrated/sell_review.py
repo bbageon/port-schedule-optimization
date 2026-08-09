@@ -242,3 +242,129 @@ class CompositeReview:
     def review(self, mbt, t: float) -> None:
         for r in self.reviews:
             r.review(mbt, t) if hasattr(r, "review") else r(mbt, t)
+
+
+# ================================================================== B-(b) 통합 (2026-08-09)
+class UnifiedSellOrchestrator:
+    """★확정 구조 B-(b): PPO = 계획 진단("무엇을 덜어낼까") · resolver = 좌표 선택.
+
+    ① 동결 수집 — 블록마다 반입(공간 자격)·반출(시간 자격) 후보의 **합집합**을 정책에
+       주고 KEEP/OFFER 1건을 받는다(commit 0건 — 전 블록 같은 스냅샷).
+    ② 중앙 matching — 제안마다 대안 좌표를 **한 저울(비용 통화)** 에 올린다:
+         반입 제안: {다른 블록 20곳(공간)} ∪ {+Δ 이연(시간)}
+         반출 제안: {+Δ 이연(시간)}  (공간 불가 — 컨테이너 위치 고정)
+       전역 한계비용 최소 쌍 반복 선택·가상 상태 갱신·볼록 재계산·순열 불변.
+    ③ 원자 확정 — 공간은 pre_gate 이송, 시간은 재예약. 실패 건만 KEEP.
+
+    비용 통화(kf)가 **필수**다 — 축을 한 저울에 올리려면 단일 통화가 전제이므로
+    proxy(대수) 모드를 허용하지 않는다(fail-fast).
+    """
+
+    def __init__(self, policy, layout: YardLayout, kf, *,
+                 window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S):
+        if kf is None:
+            raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
+                             "축 비교는 단일 통화 위에서만 성립한다")
+        self.policy = policy
+        self.layout = layout
+        self.kf = kf
+        self.window_s = window_s
+        self.defer_delta_s = defer_delta_s
+        self.ledger: list[dict] = []
+        self.n_space = 0
+        self.n_time = 0
+
+    # ---- ① 동결 수집
+    def _collect(self, mbt, t: float) -> list[tuple[str, str, str]]:
+        offers = []                                   # (src, jid, flow)
+        for src in sorted(mbt.blocks):
+            space = iter_pre_gate_candidates(mbt, src, horizon_s=self.window_s,
+                                             max_transfers=MAX_TRANSFERS)
+            time_ = iter_time_sell_candidates(mbt, src, horizon_s=self.window_s,
+                                              max_deferrals=MAX_ENTRY_DEFERRALS)
+            cands = ([(jid, eta, "GATE_IN") for jid, eta in space]
+                     + [(jid, eta, "GATE_OUT") for jid, eta in time_])
+            if not cands:
+                continue
+            pick = self.policy.decide(mbt, src, cands, t)
+            if pick is not None:
+                flow = next(f for j, _, f in cands if j == pick)
+                offers.append((src, pick, flow))
+        return offers
+
+    # ---- ② 축 저울: 제안 1건의 대안 좌표별 순비용 (가상 상태 q 위에서)
+    def _coord_costs(self, mbt, src: str, jid: str, flow: str, t: float,
+                     q: dict) -> list[tuple[float, str]]:
+        from .sell_gain import cost_given_queue
+        rec = mbt.ledger.records[jid]
+        j = mbt.blocks[src].jobs[jid]
+        eta = getattr(j, "estimated_block_arrival", None) or j.provided_eta
+        relief = cost_given_queue(mbt.blocks[src], gate_in_s=rec.a_gate_in,
+                                  eta_s=eta, queue=q[src], kf=self.kf)
+        out: list[tuple[float, str]] = []
+        if flow == "GATE_IN":                          # 공간 대안 20곳
+            for dst in mbt.blocks:
+                if dst == src:
+                    continue
+                delta = self.layout.pre_gate_route_delta_s(src, dst)
+                add = cost_given_queue(mbt.blocks[dst], gate_in_s=rec.a_gate_in,
+                                       eta_s=eta + delta, queue=q[dst], kf=self.kf)
+                out.append((add + delta / 3600.0 - relief, dst))
+        # 시간 대안 (+Δ) — 반입·반출 공통. 이연 중 대기열 배수는 결정론 proxy.
+        d = self.defer_delta_s
+        sim = mbt.blocks[src]
+        n_cranes = max(1, len(sim.profile.cranes))
+        from .block_congestion import SVC_REF_S
+        q_late = max(0.0, q[src] - d * n_cranes / SVC_REF_S)
+        add_t = cost_given_queue(sim, gate_in_s=rec.a_gate_in + d, eta_s=eta + d,
+                                 queue=q_late, kf=self.kf)
+        out.append((add_t + d / 3600.0 - relief, "TIME"))   # 외부 대기 = 동일 단가
+        return out
+
+    def review(self, mbt, t: float) -> None:
+        offers = self._collect(mbt, t)
+        if not offers:
+            return
+        # ---- ② 중앙 matching: 전역 한계비용 최소 (제안 × 좌표) 쌍 반복 선택
+        q = {b: float(block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t))
+             for b in mbt.blocks}
+        remaining = list(offers)
+        assignment: list[tuple[str, str, str, str]] = []    # (src, jid, flow, coord)
+        while remaining:
+            best = None
+            for idx, (src, jid, flow) in enumerate(remaining):
+                for cost, coord in self._coord_costs(mbt, src, jid, flow, t, q):
+                    key = (cost, jid, coord)
+                    if best is None or key < best[0]:
+                        best = (key, idx, coord)
+            _, idx, coord = best
+            src, jid, flow = remaining.pop(idx)
+            assignment.append((src, jid, flow, coord))
+            if coord != "TIME":                       # 공간: 가상 상태 이동
+                q[coord] += 1.0
+                q[src] = max(0.0, q[src] - 1.0)
+            # 시간: 블록 간 이동 없음 — 가상 상태 불변(이연 배수는 좌표 비용에 반영)
+        # ---- ③ 원자 확정
+        for src, jid, flow, coord in assignment:
+            if coord == "TIME":
+                ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
+                                   max_deferrals=MAX_ENTRY_DEFERRALS)
+                self.ledger.append({"t": t, "axis": "TIME", "src": src, "job_id": jid,
+                                    "flow": flow,
+                                    "decision": "DEFER" if ok else "KEEP_TXN_FAIL"})
+                self.n_time += 1 if ok else 0
+            else:
+                ok = mbt.try_pre_gate_transfer(
+                    jid, coord, travel_s=self.layout.gate_to_block_s(coord),
+                    route_delta_s=self.layout.pre_gate_route_delta_s(src, coord))
+                self.ledger.append({"t": t, "axis": "SPACE", "src": src, "job_id": jid,
+                                    "flow": flow, "dst": coord if ok else None,
+                                    "decision": "SELL" if ok else "KEEP_TXN_FAIL"})
+                self.n_space += 1 if ok else 0
+
+
+class KeepAllUnified:
+    """기준선 K (통합 인터페이스) — 아무것도 덜어내지 않는다."""
+
+    def decide(self, mbt, src: str, cands: list, t: float) -> str | None:
+        return None
