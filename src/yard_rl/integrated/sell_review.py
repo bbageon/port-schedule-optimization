@@ -104,14 +104,10 @@ def block_pipeline(mbt, bid: str, t: float) -> int:
     return n
 
 
-def on_grid(t: float, grid_s: float = 60.0) -> bool:
-    """60초 격자 시각인가 — 판매·투입 검토를 격자에서만 열기 위한 가드 (감사 치명 5).
-
-    엔진 review epoch 은 격자 + 모든 gate-in 시각의 합집합이라, 가드 없이 쓰면 검토
-    주기가 60초 계약을 벗어난다(실측: 300초 창에서 6회가 아니라 13회).
-    """
-    r = t % grid_s
-    return r < 1e-6 or grid_s - r < 1e-6
+# 60초 격자 가드(감사 치명 5) — 공용 유틸로 이동(time_grid.py, 2026-08-09 감사:
+# 투입 계층도 같은 가드가 필요한데 생성기가 판매 계층에 의존하면 안 된다).
+# 기존 import 경로(sell_review.on_grid) 호환을 위해 재노출한다.
+from .time_grid import on_grid  # noqa: E402  (재노출 — 기존 사용처 호환)
 
 
 # ------------------------------------------------------------------ 중앙 matching

@@ -43,6 +43,7 @@ from .profile import IntegratedProfile
 from .scenario import TerminalScenario
 from .scenario_gen import (GATE_BLOCK_MAX_S, GATE_BLOCK_MIN_S, TerminalGenParams,
                            generate_terminal_scenario, trunc_normal)
+from .time_grid import on_grid
 from .yard_layout import YardLayout, terminal_layout
 
 LOAD_WINDOW_S = 14_400.0        # L 의 기준 창 = 4시간 (부하 정의의 분모)
@@ -479,7 +480,9 @@ def admission_epochs(obs: ObservationContract,
 
 
 class WipAdmissionController:
-    """review epoch 마다 터미널 내부 대수를 세고 부족분만큼 pool 에서 투입한다.
+    """**60초 격자** review epoch 마다 내부 대수를 세고 부족분만큼 pool 에서 투입한다.
+
+    격자 밖 호출(gate-in 유발 epoch)은 무시한다 — on_grid 가드 (감사 2026-08-09).
 
     · 내부 = 시간 장부의 A ≤ t < O (외부트럭만). lead>0 이면 투입 확정·미진입(pipeline)
       도 목표에 포함해 과잉 투입을 막는다.
@@ -522,6 +525,11 @@ class WipAdmissionController:
 
     def review(self, mbt, t: float) -> None:
         from .multiblock import TransferError
+        # ★60초 격자 가드(감사 2026-08-09): 엔진 review epoch 은 격자+gate-in 합집합이라
+        # 가드 없이는 투입 판단이 60초 주기 계약을 벗어난다(판매 검토와 같은 결함 —
+        # 치명 5 의 투입 쪽 잔여). 격자 밖 호출은 전부 무시한다.
+        if not on_grid(t, WIP_ADMISSION_PERIOD_S):
+            return
         if self.end_s is not None and t + self.lead_s + GATE_BLOCK_MAX_S > self.end_s:
             if not self._tail_stopped:
                 self._tail_stopped = True

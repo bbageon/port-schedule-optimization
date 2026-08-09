@@ -162,6 +162,39 @@ def test_extra_review_epochs_default_is_byte_identical():
     assert 60.0 in c.blocks["A"].review_epochs and 120.0 in c.blocks["A"].review_epochs
 
 
+# ------------------------------------------------------------------ 투입 60초 격자 (감사 2026-08-09)
+class _NullMbt:
+    """장부 없는 빈 터미널 대역 — wip_now=0 이라 deficit=목표가 되는 최소 구성."""
+
+    def __init__(self):
+        self.blocks: dict = {}
+        self.admitted: list[str] = []
+
+    def admit_external_job(self, bid, job, *, gate_in_s, travel_s):
+        self.admitted.append(job.job_id)
+
+
+def test_admission_ignores_off_grid_epochs():
+    """gate-in 유발 epoch(격자 밖)에서는 투입 판단 자체가 없어야 한다 — 60초 계약."""
+    pool = [_entry("A", f"A:W-G{i}") for i in range(10)]
+    ctrl = WipAdmissionController(pool, wip_target=3)
+    mbt = _NullMbt()
+    ctrl.review(mbt, 61.7)                      # 격자 밖 — 아무 일도 없어야 함
+    ctrl.review(mbt, 179.3)
+    assert ctrl.n_admitted == 0 and ctrl.ledger == [] and mbt.admitted == []
+    ctrl.review(mbt, 120.0)                     # 격자 위 — 정상 투입
+    assert ctrl.n_admitted == 3 and len(mbt.admitted) == 3
+
+
+def test_admission_grid_includes_t0():
+    """t=0 은 격자 위 — 초기 투입 동작이 보존돼야 한다."""
+    pool = [_entry("A", "A:W-T0")]
+    ctrl = WipAdmissionController(pool, wip_target=1)
+    mbt = _NullMbt()
+    ctrl.review(mbt, 0.0)
+    assert ctrl.n_admitted == 1
+
+
 # ------------------------------------------------------------------ 본선 재보정 (2026-08-08)
 def test_vessel_workload_within_derived_anchor(built):
     """계획 본선 작업률이 유도 앵커(145~170 moves/h) 안 — 12 process × 120 moves."""
