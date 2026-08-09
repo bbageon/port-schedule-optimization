@@ -94,44 +94,78 @@ def block_pipeline(mbt, bid: str, t: float) -> int:
 
 # ------------------------------------------------------------------ 중앙 matching
 class PreGateResolver:
-    """공간 판매의 **중앙 일괄 matching** — 전 블록 제안을 모아 한 번에 배정한다.
+    """공간 판매의 **중앙 동시 matching** — 전 블록 제안을 모아 한 번에 배정한다.
 
-    ★재설계(사용자 지적 2026-08-09): 구판은 블록별로 결정 즉시 확정해서 **블록 이름
-    순서가 결과에 영향**을 줬다(앞 블록의 확정을 뒤 블록이 관측 — epoch 안 정보 비대칭).
-    기존 post-gate 계산 resolver(transfer_quote)가 이미 "수집→정렬→일괄 matching"인데
-    새 계층이 그 패턴을 어긴 구현 결함이었다. 이제:
+    ★재설계 2회(사용자 지적 2026-08-09):
+    1차 결함 — 블록별 결정 즉시 확정: 이름 순서가 결과에 영향(정보 비대칭). → 동결 수집.
+    2차 결함 — matching 내부의 "혼잡 소스 우선" 줄 세우기: 비용 구조 **밖의** 순서
+    규칙이라 결과가 그 규칙에 좌우됐다(사실상 순차 배정). → **전역 한계비용 최소 쌍
+    반복 선택**으로 교체: 매 반복에서 남은 (제안 × 수신처) 전 조합 중 비용이 가장 싼
+    쌍을 고른다. 외부 우선순위 규칙이 없고, **결과는 제안 목록의 순서와 무관**하다
+    (순열 불변 — 검증 부채 테스트 항목). 부하 비용이 볼록(대수 증가)이므로 이 반복
+    선택은 "총 한계비용 최소 배정"과 일치하는 표준 구조다.
 
-      ① 동결 관측 위에서 전 제안 수집(결정 단계 commit 0건)
-      ② 우선순위 = **혼잡 필요 기반**(소스 부하 내림차순 → 작업 id) — 이름 순서 아님
-      ③ 가상 원장(내부+통지 pipeline)을 갱신하며 수신 배정 — 같은 epoch 안 정합
-      ④ 엔진 원자 확정(fail-closed) — stale·용량·상한은 엔진이 최종 검증
+    절차: ① 동결 관측 1회(가상 원장 = 내부 + 통지 pipeline) ② 가상 원장 위에서
+    **순수 matching 완성**(엔진 미접촉) ③ 완성된 배정을 엔진 원자 확정(fail-closed —
+    stale·용량·상한 최종 검증, 실패 건만 KEEP).
 
-    부담 근사는 공개 관측값(내부 대수 + 통지 pipeline)만 쓴다 — 실현 미래값 미열람.
+    ★비용 통화 matching(사용자 지적 2026-08-09 — "대수 +1/−1 만으로는 안 된다"):
+    kf(비용계약 적합)를 주면 matching 기준이 **비용 단위**가 된다. 배정 때 가상
+    대기열 상태를 +1/−1 갱신하고, 다음 반복의 비용을 그 상태에서 **재계산**한다 —
+    비용은 더하고 빼는 장부가 아니라 혼잡 상태의 **볼록 함수**라서, 같은 1대라도
+    붐비는 블록에 얹으면 한계비용이 더 크게 뛴다(대수 비교는 이를 놓친다).
+    kf 없이 쓰면 (대수, 주행) proxy 로 동작한다(배선 확인용 — 성능 판정 금지).
     """
 
-    def __init__(self, layout: YardLayout):
+    def __init__(self, layout: YardLayout, kf=None):
         self.layout = layout
+        self.kf = kf
+
+    def _pair_key(self, mbt, src: str, jid: str, dst: str, q: dict):
+        """(제안, 수신처) 쌍의 한계비용 key — kf 있으면 비용 단위, 없으면 대수 proxy."""
+        delta = self.layout.pre_gate_route_delta_s(src, dst)
+        if self.kf is None:
+            return (q[dst], delta, jid, dst)
+        from .sell_gain import cost_given_queue
+        rec = mbt.ledger.records[jid]
+        j = mbt.blocks[src].jobs[jid]
+        eta = getattr(j, "estimated_block_arrival", None) or j.provided_eta
+        # 이 트럭을 dst 에 얹는 한계비용 − src 에서 덜어지는 한계비용 (둘 다 가상 상태)
+        add = cost_given_queue(mbt.blocks[dst], gate_in_s=rec.a_gate_in,
+                               eta_s=eta + delta, queue=q[dst], kf=self.kf)
+        relief = cost_given_queue(mbt.blocks[src], gate_in_s=rec.a_gate_in,
+                                  eta_s=eta, queue=q[src], kf=self.kf)
+        net_cost = add + delta / 3600.0 - relief      # 작을수록(음수일수록) 좋은 배정
+        return (net_cost, jid, dst)
 
     def match_all(self, mbt, t: float,
                   offers: list[tuple[str, str]]) -> list[dict]:
-        # 동결 관측 1회 — 이후 배정은 이 가상 원장 위에서만 갱신된다
-        load = {b: block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t)
-                for b in mbt.blocks}
-        order = sorted(offers, key=lambda o: (-load[o[0]], o[1]))
+        # ── ① 동결 관측 1회 — matching 은 이 가상 대기열 상태 위에서만 진행된다
+        q = {b: float(block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t))
+             for b in mbt.blocks}
+        # ── ② 순수 matching: 전역 한계비용 최소 쌍을 반복 선택 (엔진 미접촉·순열 불변)
+        remaining = list(offers)
+        assignment: list[tuple[str, str, str]] = []          # (src, jid, dst)
+        while remaining:
+            best = None                     # (key, idx, dst)
+            for idx, (src, jid) in enumerate(remaining):
+                for dst in mbt.blocks:
+                    if dst == src:
+                        continue
+                    key = self._pair_key(mbt, src, jid, dst, q)
+                    if best is None or key < best[0]:
+                        best = (key, idx, dst)
+            _, idx, dst = best
+            src, jid = remaining.pop(idx)
+            assignment.append((src, jid, dst))
+            q[dst] += 1.0                   # 상태 갱신 — 비용은 다음 반복에서 재계산된다
+            q[src] = max(0.0, q[src] - 1.0)
+        # ── ③ 완성된 배정을 원자 확정 — 실패 건만 KEEP (엔진 fail-closed)
         results = []
-        for src, jid in order:
-            best = None
-            for dst in sorted(b for b in mbt.blocks if b != src):
-                key = (load[dst], self.layout.pre_gate_route_delta_s(src, dst), dst)
-                if best is None or key < best[0]:
-                    best = (key, dst)
-            dst = best[1]
+        for src, jid, dst in assignment:
             ok = mbt.try_pre_gate_transfer(
                 jid, dst, travel_s=self.layout.gate_to_block_s(dst),
                 route_delta_s=self.layout.pre_gate_route_delta_s(src, dst))
-            if ok:
-                load[dst] += 1              # 가상 반영 — 다음 배정이 같은 epoch 안 정합
-                load[src] -= 1
             results.append({"src": src, "job_id": jid,
                             "dst": dst if ok else None, "committed": ok})
         return results
@@ -141,11 +175,11 @@ class PreGateResolver:
 class SellReviewOrchestrator:
     """epoch 마다 블록별로 공간(반입)·시간(반출) 판매를 검토·실행하고 전량 기록한다."""
 
-    def __init__(self, policy, layout: YardLayout, *,
+    def __init__(self, policy, layout: YardLayout, *, kf=None,
                  enable_space: bool = True, enable_time: bool = True,
                  window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S):
         self.policy = policy
-        self.resolver = PreGateResolver(layout)
+        self.resolver = PreGateResolver(layout, kf=kf)   # kf = 비용 통화 matching (권장)
         self.enable_space = enable_space
         self.enable_time = enable_time
         self.window_s = window_s

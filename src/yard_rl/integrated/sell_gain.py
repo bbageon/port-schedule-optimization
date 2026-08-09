@@ -56,19 +56,29 @@ def public_queue_at(mbt, bid: str, at_s: float) -> float:
     return max(0.0, inside + announced - drain)
 
 
+def cost_given_queue(sim, *, gate_in_s: float, eta_s: float, queue: float,
+                     kf: KappaFit) -> float:
+    """대기열 상태를 **인자로 받아** v2 예상 비용을 계산한다 (볼록 j_truck 환산).
+
+    matching 의 가상 원장이 상태(+1/−1)를 갱신하면 비용은 이 함수로 **재계산**된다 —
+    비용은 더하고 빼는 장부가 아니라 혼잡 상태의 볼록 함수이므로, 같은 트럭 1대라도
+    붐비는 블록에 얹으면 한계비용이 더 크게 뛴다(그 차이가 판매 이득의 원천).
+    """
+    n_cranes = max(1, len(sim.profile.cranes))
+    wait_pred = max(0.0, queue) * SVC_REF_S / n_cranes
+    o_hat = eta_s + wait_pred + SVC_REF_S + GATE_BLOCK_MEAN_S
+    return j_truck(o_hat + kf.bias_t_s, gate_in_s, truck_target_s(sim, gate_in_s),
+                   kf.kappa_t_s)
+
+
 def expected_cost(mbt, bid: str, *, gate_in_s: float, eta_s: float,
                   kf: KappaFit) -> float:
     """공개정보 기준, 이 트럭이 (블록 bid, 도착 eta)로 갈 때의 v2 예상 비용.
 
     transfer_quote.predict_move_cost 와 같은 큐 proxy 골격 — 볼록 비용 j_truck 로 환산.
     """
-    sim = mbt.blocks[bid]
-    q = public_queue_at(mbt, bid, eta_s)
-    n_cranes = max(1, len(sim.profile.cranes))
-    wait_pred = q * SVC_REF_S / n_cranes
-    o_hat = eta_s + wait_pred + SVC_REF_S + GATE_BLOCK_MEAN_S
-    return j_truck(o_hat + kf.bias_t_s, gate_in_s, truck_target_s(sim, gate_in_s),
-                   kf.kappa_t_s)
+    return cost_given_queue(mbt.blocks[bid], gate_in_s=gate_in_s, eta_s=eta_s,
+                            queue=public_queue_at(mbt, bid, eta_s), kf=kf)
 
 
 # ------------------------------------------------------------------ 통일 순이득
