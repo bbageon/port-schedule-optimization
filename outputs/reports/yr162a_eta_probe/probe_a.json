@@ -1,0 +1,37 @@
+{
+ "task": "YR-162A",
+ "cell": "w5.0-L100",
+ "sigma_s": 600.0,
+ "runtime": {
+  "commit": "e478eacda3753406015230c33657f60652f8e99b",
+  "git_dirty": false,
+  "prereg_file": ".claude/docs/dashboard-task-specs/YR-162-eta-error-probe.md",
+  "prereg_sha256": "f8443e0de71feaa2b92c1c73f0021903a08526a9eca74cafbf43d60c375a1fa3",
+  "seeds": {
+   "cell": 6650100,
+   "background": 6600000
+  }
+ },
+ "verdict": {
+  "probe_all_pass": true,
+  "checks": {
+   "A1_error_present": true,
+   "A2_no_leak_public_prediction": true,
+   "A3_defense_txn_reject_fired": true,
+   "A4_deterministic": true,
+   "A5_invariants_and_ledger": true,
+   "no_exec_policy_exceptions": true
+  },
+  "n_admitted": 517,
+  "n_diverged_gt1s": 516,
+  "eps_abs_mean_s": 474.2,
+  "resolver_decisions": {
+   "SPACE:SELL": 266,
+   "KEEP:RESOLVER_KEEP": 2304,
+   "TIME:DEFER": 159,
+   "TIME:KEEP_TXN_FAIL": 40
+  },
+  "n_skips": 12,
+  "note": "A = 방어 발화·정합만 판정. 결론 안정성(GO/STOP 유지)은 YR-162B(0B 후). 성능 주장 없음 — OfferFirst 는 막대 probe."
+ }
+}
