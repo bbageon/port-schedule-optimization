@@ -23,7 +23,11 @@
 - **hotspot 시드 추첨**: `hotspot_rotation`(전용 난수열 h21w:hspot) — 특정 블록 운
   제거. 본선 배치(vsel)와 독립 스트림·겹침 허용(배제는 인공 규칙). 배경은 전 셀 공통.
 - **자격 = YR-150 W1~W9 그대로** (`yr157_band_qual` 6셀·시드 6,600,000 대역).
-  상태 분류는 사후 관찰이며 판정 임계 아님. 성능 주장 없음. 사전등록 (결과를 본 뒤 임계를 옮기지 않기 위한 분리)
+  상태 분류는 사후 관찰이며 판정 임계 아님. 성능 주장 없음.
+- **★자격 결과(2026-08-09, 트리 `9f7b3bb`·dirty=false)**: 전항 PASS + 세 구간 전부
+  관측 — CLEAR 2셀 / BUSY 3셀(w3-L150·w5-L100·w5-L150, 혼잡비 1.57~1.76) /
+  OVERLOADED 1셀(w1-L150 — 사후 관찰). hotspot 내부 최대 20대(집중 실현).
+  [자격 JSON](../../../outputs/reports/yr157_band_qual/band_qual.json) 사전등록 (결과를 본 뒤 임계를 옮기지 않기 위한 분리)
 
 - **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-06 / **상태**: **backlog**
 - **3대 게이트 보정 대상**: `scenario_validity` 하나 — 착수 시 YR-153 `authorize-next` 통과 필수
