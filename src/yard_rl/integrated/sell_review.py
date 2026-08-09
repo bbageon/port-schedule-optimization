@@ -371,7 +371,9 @@ class UnifiedSellOrchestrator:
              for b in mbt.blocks}
         vcap: dict[str, int] = {}                          # 가상 배정 수 (용량 검사용)
         remaining = list(offers)
-        assignment: list[tuple[str, str, str, str]] = []    # (src, jid, flow, coord)
+        # (src, jid, flow, coord, delta_j) — delta_j = 선택 좌표의 계산 순비용(음수 =
+        # 이득). 0B 신호 판정의 원료라 원장에 함께 박제한다(기록 확장 — 행동 불변).
+        assignment: list[tuple[str, str, str, str, float]] = []
         while remaining:
             best = None
             for idx, (src, jid, flow) in enumerate(remaining):
@@ -381,19 +383,20 @@ class UnifiedSellOrchestrator:
                         best = (key, idx, coord)
             if best is None:
                 break
-            _, idx, coord = best
+            (cost, _, _), idx, coord = best
             src, jid, flow = remaining.pop(idx)
-            assignment.append((src, jid, flow, coord))
+            assignment.append((src, jid, flow, coord, cost))
             if coord not in ("TIME", "KEEP"):             # 공간: 가상 상태 이동
                 q[coord] += 1.0
                 q[src] = max(0.0, q[src] - 1.0)
                 vcap[coord] = vcap.get(coord, 0) + 1
             # 시간: 블록 간 이동 없음 — 가상 상태 불변(이연 배수는 좌표 비용에 반영)
         # ---- ③ 원자 확정
-        for src, jid, flow, coord in assignment:
+        for src, jid, flow, coord, dj in assignment:
             if coord == "KEEP":
                 self.ledger.append({"t": t, "axis": "KEEP", "src": src, "job_id": jid,
-                                    "flow": flow, "decision": "RESOLVER_KEEP"})
+                                    "flow": flow, "decision": "RESOLVER_KEEP",
+                                    "delta_j": round(dj, 6)})
                 continue
             if self.dry_run:
                 # shadow dry-run — 견적·matching·용량 검사를 전부 통과한 would-commit
@@ -402,14 +405,16 @@ class UnifiedSellOrchestrator:
                                     "axis": "TIME" if coord == "TIME" else "SPACE",
                                     "src": src, "job_id": jid, "flow": flow,
                                     "dst": None if coord == "TIME" else coord,
-                                    "decision": "DRY_WOULD_COMMIT"})
+                                    "decision": "DRY_WOULD_COMMIT",
+                                    "delta_j": round(dj, 6)})
                 continue
             if coord == "TIME":
                 ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
                                    max_deferrals=MAX_ENTRY_DEFERRALS)
                 self.ledger.append({"t": t, "axis": "TIME", "src": src, "job_id": jid,
                                     "flow": flow,
-                                    "decision": "DEFER" if ok else "KEEP_TXN_FAIL"})
+                                    "decision": "DEFER" if ok else "KEEP_TXN_FAIL",
+                                    "delta_j": round(dj, 6)})
                 self.n_time += 1 if ok else 0
             else:
                 ok = mbt.try_pre_gate_transfer(
@@ -417,7 +422,8 @@ class UnifiedSellOrchestrator:
                     route_delta_s=self.layout.pre_gate_route_delta_s(src, coord))
                 self.ledger.append({"t": t, "axis": "SPACE", "src": src, "job_id": jid,
                                     "flow": flow, "dst": coord if ok else None,
-                                    "decision": "SELL" if ok else "KEEP_TXN_FAIL"})
+                                    "decision": "SELL" if ok else "KEEP_TXN_FAIL",
+                                    "delta_j": round(dj, 6)})
                 self.n_space += 1 if ok else 0
 
 
