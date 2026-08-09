@@ -9,6 +9,8 @@
   W4 본선 분산 / W5 블록별 스냅샷 / W6 프로파일 = H-21 YT
   W7 내부타당성: 사건순서·정보경계(walk-in 예측 누출 0)·물리 불변식·달성가능 본선마감
   W8 pool 미소진 (소진은 자격 실패)
+  W9 flow fallback 0 (감사 2026-08-09) — 반출 추첨이 재고 부족으로 반입 전환된 건이
+     하나라도 있으면 자격 실패(계획 혼합비 60:40 이 조용히 틀어진 시드는 부적격)
 ■ **공정성 한계 (계약 박제)**: 고정 WIP 는 빨리 처리하는 정책일수록 트럭을 더 받아
   **정책별 처리 물량이 달라진다**. 성능 판정은 "같은 재공량에서 처리량 + 시간당 비용"
   공동 판정만 허용하며 에피소드 총비용 단독 비교는 금지다.
@@ -151,6 +153,8 @@ def run_cell(wip: int, obs: ObservationContract) -> dict:
                                 for e in skips})[:5],
         "throughput_per_h": round(len(fin) / (obs.measure_s / 3600.0), 2),
         "vessel_starts_s": vessel_starts, "vessel_blocks": vessel_blocks,
+        "vessel_placement": built["vessel_placement"],   # 배치 원장 (감사 2026-08-09)
+        "flow_fallbacks_total": built["flow_fallbacks_total"],
         "internal_checks": {"event_time_order": order,
                             "information_boundary": leak_free,
                             "physical_constraints": invariants,
@@ -181,6 +185,7 @@ def run() -> dict:
         "W7_internal_checks_pass": all(all(c["internal_checks"].values())
                                        for c in cells),
         "W8_pool_not_exhausted": all(c["pool_exhausted_at"] is None for c in cells),
+        "W9_flow_fallback_zero": all(c["flow_fallbacks_total"] == 0 for c in cells),
         "no_policy_exceptions": all(c["policy_exceptions"] == 0 for c in cells),
     }
     verdict = {

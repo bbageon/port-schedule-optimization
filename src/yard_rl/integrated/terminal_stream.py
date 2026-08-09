@@ -99,7 +99,8 @@ class TerminalStreamParams:
     # 엔진 대응: VesselProcess 1개 = STS 크레인 1기의 작업 스트림(cadence 144s = 25/h).
     #   실제 선박 1척(≈97 moves/h) ≈ 3~4 스트림 ✓. 목표 작업률 ÷ 25 ≈ 6 개의 상시
     #   스트림이 필요하고, 시작을 관측창에 분산하면(창 절단) **12 process × 120 moves**
-    #   가 계획 작업률 ≈160 moves/h 를 만든다(관측범위 145~170 안).
+    #   가 계획 작업률 ≈150 moves/h 를 만든다(관측범위 145~170 안 — 시작 슬롯을
+    #   5%~95% 로 정정한 2026-08-09 이후 값. 구판 5%~87.5% 는 ≈161).
     # 척당 실물량(≈3,000 moves·1.3일)은 4~5시간 관측창에 들어갈 수 없으므로, 창중
     # 모형은 "그 시간 동안 진행 중인 스트림"만 표현한다 — process 물량 120 =
     # 스트림 1개가 관측창을 꽉 채울 때의 절단 상한((18,000−900)s ÷ 144s).
@@ -293,6 +294,44 @@ WIP_FILL_SPAN_S = 600.0         # 초기 채움을 펼치는 구간 (동시 진�
 WIP_POOL_FACTOR = 30            # 대기 pool 크기 = L × factor (소진 시 결과에 명시 실패)
 
 
+def vessel_placement(layout: YardLayout, seed: int, params: TerminalStreamParams,
+                     obs: ObservationContract) -> dict[str, dict]:
+    """본선 process 의 (블록, 시작슬롯, 작업종류) **독립 추첨** — ★감사 정정 2026-08-09.
+
+    구판(균등 allocate + 순번 슬롯)은 본선을 이름순 앞 12블록(Y01~Y12)에만 두고 시작
+    시각도 블록 순서와 단조 상관이라, "뒷번호 블록 = 본선 없음·게이트 근접 = 이른 본선"
+    이라는 인공 상관이 시드 구조에 새겨졌다 — 판매 정책이 배치 지름길("본선 없는 먼
+    블록으로 밀기")을 학습해도 부하 평탄화와 구분이 안 된다. 세 축을 **서로 다른 전용
+    난수열**로 독립 배정해 상관을 제거한다:
+      · 블록 선택  `h21w:vsel`  — len(layout) 곳 중 vessels_total 곳 완전 추첨(중복 없음)
+      · 시작 슬롯  `h21w:vslot` — 관측창 5%~95% 를 (n−1) 등분한 n 개 슬롯의 시드 순열.
+        구판 분모 n 은 실제 5%~87.5% 로 문서(5%~95%)와 어긋났다 — 분모 n−1 로 계약 정정
+        (계획 본선 작업률 ≈161→≈150 moves/h, 유도 앵커 145~170 안 유지).
+      · 작업 종류  `h21w:vtype` — 양하 ⌈n/2⌉ / 적하 ⌊n/2⌋ 셔플(offset 0=양하·1=적하).
+    반환: {블록: {slot_k, start_s, type_offset, work}} — 원장·자격 보고에 그대로 저장.
+    """
+    n = params.vessels_total
+    if n == 0:
+        return {}
+    if n > len(layout.ids):
+        raise ValueError(f"본선 process {n}개가 블록 수 {len(layout.ids)}를 넘는다 — "
+                         "블록당 1 스트림 계약(초과 배치는 별도 등록)")
+    blocks = sorted(random.Random(f"h21w:vsel:{seed}").sample(layout.ids, n))
+    slots = list(range(n))
+    random.Random(f"h21w:vslot:{seed}").shuffle(slots)
+    offsets = [0] * ((n + 1) // 2) + [1] * (n // 2)
+    random.Random(f"h21w:vtype:{seed}").shuffle(offsets)
+    placement: dict[str, dict] = {}
+    for i, b in enumerate(blocks):
+        k = slots[i]
+        placement[b] = {
+            "slot_k": k,
+            "start_s": obs.observe_s * (0.05 + 0.90 * (k / max(1, n - 1))),
+            "type_offset": offsets[i],
+            "work": "DISCHARGE" if offsets[i] == 0 else "LOAD"}
+    return placement
+
+
 def _clamp_travel(base: float, resid: float) -> float:
     return min(GATE_BLOCK_MAX_S, max(GATE_BLOCK_MIN_S, base + resid))
 
@@ -331,6 +370,7 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     · 대기 pool: 속성(블록·flow·규격·반출대상·주행·출문)을 **전부 사전 추첨**한 항목열.
       런타임에는 투입 시각만 정해지고 무작위를 소비하지 않는다(결정론).
     · pool 의 반출 대상은 블록 초기 적재의 미사용 컨테이너에서 **중복 없이** 예약한다.
+    · 본선 배치는 `vessel_placement`(블록·슬롯·종류 독립 추첨 — 감사 정정 2026-08-09).
     """
     obs = obs or ObservationContract()
     layout = layout or terminal_layout()
@@ -338,19 +378,17 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     if wip_target < len(layout.ids):
         raise ValueError(f"WIP 목표 {wip_target}가 블록 수 {len(layout.ids)}보다 작다")
 
-    # ① 배경(초기 적재·본선) — build_terminal 과 같은 방식으로 생성·분산
-    per_block_vessels = allocate({b: 1.0 / len(layout.ids) for b in layout.ids},
-                                 params.vessels_total)
+    # ① 배경(초기 적재·본선) — 배치 세 축은 vessel_placement 가 독립 추첨한다.
+    placement = vessel_placement(layout, seed, params, obs)
+    per_block_vessels = {b: (1 if b in placement else 0) for b in layout.ids}
     scns: dict[str, TerminalScenario] = {}
-    k = 0
     for b in layout.ids:
+        pl = placement.get(b)
         bg = _background(profile, seed + 1000 * (layout.ids.index(b) + 1), b, obs,
                          params, per_block_vessels[b],
-                         vessel_type_offset=layout.ids.index(b) % 2)
+                         vessel_type_offset=(pl["type_offset"] if pl else 0))
         if bg.vessels:
-            target = obs.observe_s * (0.05 + 0.9 * k / max(1, params.vessels_total))
-            bg = _shift_vessels(bg, target - bg.vessels[0].plan.planned_start_s)
-            k += len(bg.vessels)
+            bg = _shift_vessels(bg, pl["start_s"] - bg.vessels[0].plan.planned_start_s)
         scns[b] = bg
 
     # ② 반출 대상 후보 (배경 본선 사용분 제외) — 초기 채움과 pool 이 순서대로 소비
@@ -362,19 +400,34 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
         free[b] = cand
 
     p = distribution_vector(layout, params)
-    mix_rng = random.Random(f"h21w:mix:{seed}")
+    # ★난수열 분리(감사 2026-08-09): flow 와 규격이 한 스트림(mix)을 나눠 쓰면 한 축의
+    # 소비가 다른 축을 밀어낸다 — 축별 전용 스트림으로 분리(구 h21w:mix 폐기).
+    flow_rng = random.Random(f"h21w:flow:{seed}")
+    size_rng = random.Random(f"h21w:size:{seed}")
     exit_rng = random.Random(f"h21w:exit:{seed}")
     resid_rng = random.Random(f"h21w:resid:{seed}")
+    flow_fallbacks: dict[str, int] = {b: 0 for b in layout.ids}
 
     def draw(bid: str, jid: str) -> dict:
-        """트럭 1대 속성 사전 추첨 — 투입 시각과 무관하게 고정된다."""
+        """트럭 1대 속성 사전 추첨 — 투입 시각과 무관하게 고정된다.
+
+        ★fallback 원장(감사 2026-08-09): 반출을 원했는데(추첨) 블록 반출 재고가 없어
+        반입으로 바뀐 건은 requested/realized 를 나눠 기록한다 — 조용한 혼합비 드리프트
+        금지. 공식 자격시험(yr150_h21_wip_pilot W9)은 fallback 0 을 요구한다.
+        """
         sr = params.resid_travel_sigma_s
         resid = (max(-2 * sr, min(2 * sr, resid_rng.gauss(0.0, sr))) if sr > 0 else 0.0)
-        out = mix_rng.random() < params.gate_out_share and bool(free[bid])
+        want_out = flow_rng.random() < params.gate_out_share
+        out = want_out and bool(free[bid])
+        if want_out and not out:
+            flow_fallbacks[bid] += 1
         return {"job_id": jid, "block": bid,
                 "flow": "GATE_OUT" if out else "GATE_IN",
+                "requested_flow": "GATE_OUT" if want_out else "GATE_IN",
+                "fallback_reason": ("no_free_target" if (want_out and not out)
+                                    else None),
                 "target": free[bid].pop() if out else None,
-                "size_ft40": mix_rng.random() < params.size_mix_ft40,
+                "size_ft40": size_rng.random() < params.size_mix_ft40,
                 "travel_s": _clamp_travel(layout.gate_to_block_s(bid), resid),
                 "travel_base_s": layout.gate_to_block_s(bid),
                 "exit_travel_s": trunc_normal(exit_rng, params.exit_travel_mu_s,
@@ -408,7 +461,12 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     return {"scenarios": scns, "pool": pool, "fill": fill_ledger, "p": p,
             "counts": counts, "wip_target": wip_target,
             "observation": obs.as_dict(), "layout": layout.as_dict(),
-            "vessels_per_block": per_block_vessels, "mode": "fixed_wip",
+            "vessels_per_block": per_block_vessels,
+            "vessel_placement": {b: {**pl, "start_s": round(pl["start_s"], 3)}
+                                 for b, pl in placement.items()},
+            "flow_fallbacks": flow_fallbacks,
+            "flow_fallbacks_total": sum(flow_fallbacks.values()),
+            "mode": "fixed_wip",
             "fairness_note": "고정 WIP: 정책별 유입량이 달라진다 — 성능은 처리량과 "
                              "시간당 비용의 공동 판정만 허용(에피소드 총비용 단독 금지)"}
 
