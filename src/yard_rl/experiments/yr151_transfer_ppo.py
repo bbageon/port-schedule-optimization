@@ -232,7 +232,10 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                              extra_review_epochs=admission_epochs(obs))
     ctrl = WipAdmissionController(built["pool"], wip_target=wip,
                                   lead_s=ANNOUNCE_LEAD_S, end_s=obs.observe_s)
-    orch = UnifiedSellOrchestrator(policy, layout, kf)
+    # shadow 정책이면 dry_run resolver 와 짝을 맞춘다(생성자 강제 계약 — 감사 재정의).
+    orch = UnifiedSellOrchestrator(policy, layout, kf,
+                                   dry_run=(getattr(policy, "mode", None)
+                                            == "shadow"))
     rec = PhiRecorder()
 
     gens: dict[int, CandidateGenerator] = {}
