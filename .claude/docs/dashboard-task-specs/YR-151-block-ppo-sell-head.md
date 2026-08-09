@@ -147,18 +147,11 @@ H 통과가 V 통과를 대신하지 않는다.
 
 - 별도 train seedbank에서는 TransferHead의 실제 OFFER/KEEP가 같은 resolver를 거쳐 환경상태를
   바꾸며, 그 자기 궤적으로 PPO rollout을 수집한다. Q/K 궤적으로 S를 학습하지 않는다.
-- 학습이 끝난 체크포인트를 고정한 뒤 미열람 평가 seedbank에서 아래 세 군을 비교한다.
-
-실행 PPO·receiver·resolver·seed·물리는 모두 같고 source 발의 방식만 다르다.
-
-| 군 | source 발의 | 뜻 |
-|---|---|---|
-| K | 항상 KEEP | 이송 없는 절대 기준 |
-| Q30 | S와 같은 30분 epoch·후보·정보의 계산 견적 | 결정론 기준선 |
-| S | PPO TransferHead | 학습 SELL 정책 |
-
-YR-149의 actual gate-in 계산견적은 연결 참고군일 뿐 주 대조군이 아니다. Q30과 S는 결정시점,
-후보, 공개정보, PRE_GATE transaction, receiver/Resolver가 같고 source 선택기만 다르다.
+- 학습 종료 체크포인트를 고정한 뒤 미열람 평가 seedbank 에서 **K(항상 KEEP) / Q30(같은
+  30분 epoch·후보·정보의 계산 견적) / S(PPO TransferHead)** 를 비교한다. 실행 PPO·
+  receiver·resolver·seed·물리는 모두 같고 **source 발의 방식만** 다르다(결정시점·후보·
+  공개정보·PRE_GATE transaction 동일). YR-149 actual gate-in 계산견적은 참고군일 뿐
+  주 대조군이 아니다.
 
 ### 3. 터미널 전체 부하 5셀 확증 (★사용자 정정 — 21블록에서)
 
