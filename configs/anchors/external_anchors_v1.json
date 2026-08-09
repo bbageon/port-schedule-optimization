@@ -6,17 +6,31 @@
     "gate_to_block_time": {
       "metric": "gate_to_block_time",
       "unit": "s",
-      "observed_range": [120.0, 300.0],
-      "status": "literature",
+      "observed_range": [180.0, 420.0],
+      "status": "decision",
       "source": {
-        "title": "DGT ARMG 프로파일 v2 (문헌 보정) — operations.gate_travel_estimate_s 주석",
-        "locator": "configs/terminals/dgt_armg.yaml : operations.gate_travel_estimate_s (\"게이트→블록 순주행 2~5분 문헌 → 중앙값 3.5분\")",
-        "evidence_grade": "📚 문헌",
-        "note": "같은 저장소의 hjnc_armg.yaml 도 공개정보 수준에서 수치 동일(YR-022 수렴)."
+        "title": "★사용자 운영 계약 결정 (2026-08-09) — 통상 30km/h 주행·게이트인→장치장 5분(중심 300s)·지원 3~7분",
+        "locator": ".claude/docs/strategy-history/2026-08-09-YR-158-주행시간-정본-사용자결정.md",
+        "evidence_grade": "🤝 사용자 결정 (실측 아님 — 운영 계약. Level 3 게이트 로그 확보 시 실측으로 교체)",
+        "note": "시뮬 190~410s ⊂ [180,420] — 위반 해소. 명목 속도 30km/h 와 시간 5분의 함의 거리(2.5km)는 1차원 합성 좌표(0.95~2.05km·유효속도 18km/h)와 다르나, 합성 route 는 물리 거리 재현이 아니라 시간 계약의 매개변수다 — 시간이 정본."
       },
-      "conflict": {
-        "with": "YR-103 게이트→블록 시간계약 (scenario_gen.GATE_BLOCK_MIN_S/MAX_S = 180~420s, 중심 300s)",
-        "note": "저장소 안에 두 값이 공존한다 — 문헌 2~5분(중앙 210초) vs 사용자 계약 3~7분(중심 300초). YR-150 배치는 후자를 앵커로 삼아 190~410초를 만들었으므로 전자의 범위를 벗어난다. 어느 쪽을 정본으로 둘지는 별도 결정 사항이며(YR-158), 그 전까지 이 앵커는 위반으로 남긴다."
+      "history": {
+        "superseded_range": [120.0, 300.0],
+        "superseded_status": "literature",
+        "note": "★발견(2026-08-09): 구 '문헌 2~5분(중앙 210s)'은 추적 결과 직접 실측 문헌이 아니라 PNIT·HPNT 공개 실시간 턴타임(반입 9~22분)에서 '총 체류 ~10분과 앞뒤가 맞으려면 순주행 2~5분'이라고 역산한 내부 추론이었다(YR-002-터미널선정-결정자료.md 7항). 문헌 등급 표기는 과대였고, 사용자 결정(턴타임 평균 15분 기준)으로 충돌 해소."
+      }
+    },
+    "truck_turn_time": {
+      "metric": "truck_turn_time",
+      "unit": "s",
+      "observed_range": [540.0, 1980.0],
+      "status": "decision+public",
+      "definition": "외부트럭 게이트인→게이트아웃 총 체류시간. 사용자 결정 평균 = 900s(15분)",
+      "source": {
+        "title": "사용자 결정 평균 15분(2026-08-09) + PNIT·HPNT 공개 실시간 턴타임(반입 9~22분·반출 19~33분)",
+        "locator": ".claude/docs/strategy-history/2026-08-09-YR-158-주행시간-정본-사용자결정.md · .claude/docs/YR-002-터미널선정-결정자료.md (5항 turn time 실측 대조군)",
+        "evidence_grade": "🤝 결정(평균) + 📰 공개 실시간(범위 — 보도 수준·저장소 추적 문서)",
+        "note": "분해 정합: 진입 주행 5분 + 대기·크레인 서비스 ≈5분 + 반출 주행 5분 = 15분. 시뮬 대조(참고·판정 아님): 자유흐름 A→O 779.6s(13.0분)·WIP 60 부하 평균 1065s(17.8분) — 평균 15분을 사이에 두고 부하에 따라 걸침, 공개 대역 [9,33]분 안."
       }
     },
     "vessel_workload": {
@@ -58,6 +72,7 @@
   },
   "changelog": [
     "2026-08-06 v1 — gate_to_block_time 1종 등록, 4종 미수집 명시",
-    "2026-08-08 — vessel_workload 를 미수집에서 derived 앵커로 승격: 사용자 지적(척당 15건은 터무니없음)에 따라 조사·유도. 15건의 기원은 2블록 시절 값(n_vessels=2×15)의 무비판 승계였다. 동시에 본선 파라미터를 12 process × 120 moves 로 재보정하고 블록당 1 process 구성에서 전 블록이 양하만 갖던 결함(vessel_type_offset)을 정정."
+    "2026-08-08 — vessel_workload 를 미수집에서 derived 앵커로 승격: 사용자 지적(척당 15건은 터무니없음)에 따라 조사·유도. 15건의 기원은 2블록 시절 값(n_vessels=2×15)의 무비판 승계였다. 동시에 본선 파라미터를 12 process × 120 moves 로 재보정하고 블록당 1 process 구성에서 전 블록이 양하만 갖던 결함(vessel_type_offset)을 정정.",
+    "2026-08-09 — ★YR-158 정본 결정(사용자): gate_to_block_time = 중심 300s(게이트인→장치장 5분)·지원 [180,420]·명목 30km/h — 시뮬 190~410 위반 해소. 구 문헌 대역 [120,300]은 턴타임 역산 추론으로 판명(문헌 등급 과대 — history 에 박제). truck_turn_time 신규 등록(평균 900s 결정 + 공개 대역 [540,1980])."
   ]
 }
