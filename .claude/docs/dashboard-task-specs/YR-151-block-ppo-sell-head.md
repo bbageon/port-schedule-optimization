@@ -196,8 +196,4 @@ YR-149의 actual gate-in 계산견적은 연결 참고군일 뿐 주 대조군�
 
 ## 선결·참조
 
-- [YR-133 원자 이송·견적 기능](YR-133-blockq-sell-quote.md)
-- [YR-148 채택 실행 구성](YR-148-guard-on-rejudgment.md)
-- [YR-149 5부하 데이터·견적 기준](YR-149-quote-refine-confirm.md)
-- [YR-150 지속 유입 정상상태 — 본 성능시험 환경](YR-150-continuous-inflow-steady-state.md)
-- [터미널 전체 21블록 사용자 결정](../strategy-history/2026-08-06-YR-150-151-터미널전체-21블록-사용자결정.md)
+- [YR-133 원자 이송·견적](YR-133-blockq-sell-quote.md) · [YR-148 채택 실행 구성](YR-148-guard-on-rejudgment.md) · [YR-149 5부하 자격](YR-149-quote-refine-confirm.md) · [YR-150 본 성능환경](YR-150-continuous-inflow-steady-state.md) · [21블록 사용자 결정](../strategy-history/2026-08-06-YR-150-151-터미널전체-21블록-사용자결정.md)
