@@ -25,13 +25,8 @@ H-21을 먼저 별도 학습·판정한다. V-21은 YR-083의 육·해측 역할
 `SELL`은 판매 요청이며 실제 이전 명령이 아니다. PPO가 목적지나 소유권을 직접 바꾸지 않는다.
 
 ```text
-외부 TOS 최초배정 스냅샷 ──> 각 Block PPO
-                                  ├─ ExecutionHead: 블록 안 YC 실행순서
-                                  └─ TransferHead: KEEP / OFFER_SELL(job)
-                                                       │
-                          receiver 부담 계산 <── TransferResolver
-                                                       │
-                                   KEEP 또는 시뮬레이터 내부 원자 재배정
+TOS 최초배정 ─> Block PPO { ExecutionHead: YC 실행순서 / TransferHead: KEEP·OFFER }
+                 └ OFFER ─> TransferResolver(수신 부담 비교) ─> KEEP 또는 원자 재배정
 ```
 
 ## 권한·단일축 계약
@@ -92,6 +87,13 @@ matrix 를 제공하고 `travel_fn(src,dst,job)`·`route_fn(src,dst)` 배선이 
 - **lead 가정(0B 사전등록 동결 대상 — 미확정)**: 사전 통지 lead=1800s(판매 창), WIP
   해석은 "확약 총량(내부+통지)=L" 기본 — 대안(L 상향)은 config 교체.
 - 60초 검토는 **격자 근사**다(계약의 사건 기반 검토를 최대 60초 지연으로 포착).
+- **★감사 반영(2026-08-09 2차)**: 실행 head 는 `adopted`/`sf` 외 값 즉시 거절·채택 모드
+  예외는 WAIT 로 숨기지 않고 즉시 실격. 초기화 선정 = **기계 규칙**(CONFIRM_TS 첫 항
+  221000·성능 미열람) + **판정런은 3개 초기화(221k/222k/223k) 민감도 보고 필수**.
+  실행 **구성 전체 해시** 봉인(가중치+ckpt 파일+플래그+가드 — 매 iter 불변 검사).
+  행동 일치 테스트 통과(판정 경로 vs 새 경로 결정 궤적 동일 — 2/2). **Q30 동결본은
+  shadow·0B 신호 확인 후에** 구현한다(신호가 없으면 비교 기준만 정교해지고 무익 —
+  감사 순서 수용, 구 계획 "Q30 먼저" 철회).
 
 ## PPO 구성
 
@@ -100,11 +102,14 @@ matrix 를 제공하고 `travel_fn(src,dst,job)`·`route_fn(src,dst)` 배선이 
   규격·통지 진입까지 잔여·이송/이연 이력) — **공개 통지 시각 접근자만 사용**(실현
   gate-in 미열람). 구 명세의 평균대기·version 특징은 미구현(확장 후보로만 보존).
 - **Actor 출력**: 동적 후보 `KEEP + OFFER(job_1..K)`의 masked categorical 확률.
-- **Critic 입력**: 결정시점의 source와 **실행 가능한 모든 receiver의 순열불변 요약**을 학습
-  중에만 본다. resolver 결과는 다음 transition·보상일 뿐 현재 critic 입력에 미리 넣지 않는다.
-  실행 actor는 source의 공개정보만 본다(중앙학습·분산실행).
-- **보상**: route 비용과 미완 장부를 포함한 YR-136 v2 실제 증분비용의 음수다. 혼잡점수를
-  별도 보상으로 다시 더하지 않는다.
+- **Critic 입력**: source 요약 + **수신 시장 요약**(수신별 부하·소스로부터의 주행 차이·
+  용량 여유의 평균/최소 pooling — 순열불변, 2026-08-09 강화) + 전역(총 내부·진행률).
+  학습 중에만 본다 — 실행 actor 는 source 공개정보만(중앙학습·분산실행). resolver 결과는
+  다음 transition·보상일 뿐 현재 critic 입력에 미리 넣지 않는다.
+- **보상**: route 비용·미완 장부·기사 외부 대기를 포함한 v2 실제 증분비용의 음수 +
+  **관측종료 bootstrap**(V(s_end) — 관측 밖으로 미뤄진 비용 계상, 마감 꼼수 방지).
+  혼잡점수를 별도 보상으로 더하지 않는다. 공동 transition(전 블록 결정·OFFER·resolver
+  결과·구간 Φ·종료 플래그)을 epoch 단위 한 묶음으로 기록한다.
 - **학습 분리**: ExecutionHead hash 불변을 매 epoch 검사하고 TransferHead gradient가 실행
   head·encoder 고정영역으로 새지 않게 테스트한다.
 
@@ -134,11 +139,9 @@ H 통과가 V 통과를 대신하지 않는다.
 
 ### 1. shadow 배선·계약 검증
 
-- TransferHead 결정을 원장에만 기록하고 실제 commit은 계산 기준선이 담당한다.
-- 미래정보 0, action mask, version/TTL, 실행 PPO hash, 확률·log-prob·GAE 등식과 결정론을
-  테스트한다. shadow가 본 실행·난수열을 바꾸면 실패다.
-- 실행되지 않은 shadow 행동으로 PPO를 갱신하면 on-policy 계약 위반이므로 이 단계에서는
-  정책경사 학습을 금지한다. 후보·상태·행동·후속비용 원장만 검증한다.
+- TransferHead 결정을 원장에만 기록(실제 commit 없음 — `mode="shadow"` 는 항상 KEEP).
+  미래정보 0·mask·version/TTL·실행 hash·확률 등식·결정론을 검증하고, shadow 가 본
+  실행·난수열을 바꾸면 실패다. 이 단계 정책경사 학습 금지(on-policy 계약).
 
 ### 2. on-policy 학습과 live 단일축 비교
 

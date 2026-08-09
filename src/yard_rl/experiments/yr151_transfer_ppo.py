@@ -39,7 +39,7 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from ..integrated import candidates as cand_mod
+
 from ..integrated.baselines import (JointRolloutGreedy, ResolverPolicy,
                                     ServiceFirstSPTPreference, _apply, _wait_of)
 from ..integrated.candidates import CandidateGenerator
@@ -69,7 +69,11 @@ KAPPA = Path("outputs/reports/yr136_softplus_contract/kappa_fit_v2p.json")
 # 채택 실행 정책 (YR-148 판정 그대로): YR-143 confirm C0 + YR-125 정규화 통계.
 EXEC_CKPT_DIR = Path("outputs/reports/yr143_no_repo/confirm/c0")
 NORM_CKPT = Path("outputs/reports/yr125_diff_credit") / f"diff1_s{NORM_TS}" / "rl_net.pt"
-EXEC_TS_DEFAULT = CONFIRM_TS[0]          # 221000 — 사전등록에서 초기화 선택을 동결한다
+# ★초기화 선택 규칙 동결(감사 2026-08-09): 성능을 열람하지 않는 **기계 규칙** —
+#   기본 = CONFIRM_TS 오름차순 첫 항. "운 좋은 모델 고르기"를 막기 위해 **판정런은
+#   아래 3개 초기화 전부**에서 실행 초기화 민감도를 보고해야 한다(YR-118 불안정 사례).
+EXEC_TS_DEFAULT = CONFIRM_TS[0]                      # 221000 — 기계 규칙(첫 항)
+EXEC_TS_JUDGE = tuple(CONFIRM_TS[:3])                # 판정 시 필수 3개 (221k·222k·223k)
 WIP_TARGET = 100                 # 학습 기본 셀 (사전등록에서 동결)
 CLIP, LR, ENT, GAMMA = 0.2, 3e-4, 0.01, 1.0     # yr139 앵커 승계
 # advantage = MC 총수익 − critic 기준선 (= GAE λ=1). λ<1 은 도입하지 않았다(감사 정정).
@@ -91,6 +95,35 @@ def actor_state_hash(net) -> str:
     buf = _io.BytesIO()
     torch.save({k: v.detach().cpu() for k, v in sorted(net.state_dict().items())}, buf)
     return hashlib.sha256(buf.getvalue()).hexdigest()
+
+
+def _file_sha256(p: Path) -> str:
+    import hashlib
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def exec_config_hash(actor, exec_ts: int) -> str:
+    """실행 **구성 전체**의 봉인 해시 (감사 2026-08-09 — 가중치만으로는 부족).
+
+    같은 actor 라도 정규화 통계·후보 플래그·안전장치 설정이 다르면 전혀 다른 정책이다.
+    가중치 상태 + 두 체크포인트 파일 + 채택 구성 플래그 + 대기 허가증/rollout 설정을
+    한 해시로 봉인하고, 학습 중 불변을 검사한다.
+    """
+    import hashlib
+    import json as _json
+    from ..integrated.policy_config import ADOPTED_C0_GUARD
+    h = hashlib.sha256()
+    h.update(actor_state_hash(actor).encode())
+    h.update(_file_sha256(EXEC_CKPT_DIR / f"ppo_s{exec_ts}" / "net.pt").encode())
+    h.update(_file_sha256(NORM_CKPT).encode())
+    h.update(_json.dumps({
+        "flags": ADOPTED_C0_GUARD.as_dict(),
+        "guard": "permit_v2(yr146)",
+        "rollout": {"rc": "RC_EVAL", "horizon_s": 1800.0,
+                    "forbid_strategic_wait": True},
+        "exec_ckpt": str(EXEC_CKPT_DIR / f"ppo_s{exec_ts}" / "net.pt"),
+        "norm_ckpt": str(NORM_CKPT)}, sort_keys=True).encode())
+    return h.hexdigest()
 
 
 def load_adopted_execution_head(ts: int = EXEC_TS_DEFAULT):
@@ -125,6 +158,7 @@ class AdoptedExecFleet:
 
     def __init__(self, actor, norm):
         self.actor, self.norm = actor, norm
+        y88.FORBID_WAIT = True          # 판정 경로(YR-146)와 동일한 명시 설정
         self._by_sim: dict[int, DeployGuard] = {}
 
     def get(self, sim) -> DeployGuard:
@@ -187,6 +221,9 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
       "adopted" (기본) — 채택 실행 PPO(C0+대기 허가증) 동결본. 연구 질문의 전제.
       "sf"              — 배선 디버그 전용(명시 opt-in). 이 결과로 성능 주장 금지.
     """
+    # ★감사(2026-08-09): 허용값 외는 즉시 거절 — 오타로 SF 가 몰래 돌지 못하게.
+    if exec_head not in ("adopted", "sf"):
+        raise ValueError(f"exec_head 는 'adopted'|'sf' 만 허용: {exec_head!r}")
     obs = obs or ObservationContract()
     layout = terminal_layout()
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=wip, obs=obs,
@@ -207,12 +244,10 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
         def exec_policy(sim, dp):
             g = gens.setdefault(id(sim), CandidateGenerator())
             gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
-            try:
-                _apply(sim, exec_fleet.get(sim).decide(sim, dp, gb))
-            except Exception:
-                exc["n"] += 1
-                _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
-    else:                                       # "sf" — 배선 디버그 전용
+            # ★감사: 채택 정책의 예외는 **즉시 실격**(전파) — WAIT 로 숨기면 오염된
+            #   데이터로 SELL 을 학습하게 된다(fallback 은 sf 디버그 모드에만 허용).
+            _apply(sim, exec_fleet.get(sim).decide(sim, dp, gb))
+    else:                                       # "sf" — 배선 디버그 전용 (성능 주장 금지)
         pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
 
         def exec_policy(sim, dp):
@@ -224,35 +259,70 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                 exc["n"] += 1
                 _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
-    # 채택 구성의 후보 플래그 (C0 + 유한 DEFER + one-shot) — YR-146 판정 경로와 동일.
-    # 전역 monkey-patch 라 반드시 원상복구한다 (구조 결함 자체는 YR-160 이 고친다).
-    f = ARM_FLAGS["c0"]
-    prev = (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY,
-            cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT)
-    cand_mod.WAIT_MODE = "DEFER_ALL"
-    cand_mod.SAFETY_ONLY = f["safety_only"]
-    cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT = f["bound"], True
-    try:
+    # 채택 구성 플래그 — 불변 객체 + 원자 적용/복구 (YR-160 부분 이행 계층).
+    from ..integrated.policy_config import ADOPTED_C0_GUARD, applied
+    assert ARM_FLAGS["c0"] == {"safety_only": ADOPTED_C0_GUARD.safety_only,
+                               "bound": ADOPTED_C0_GUARD.bound_repo}, \
+        "채택 구성 정의가 YR-143 ARM_FLAGS 와 어긋남"
+    with applied(ADOPTED_C0_GUARD):
         # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
         #   판매 확정 순서. 판매의 즉시 비용은 다음 구간에 잡혀 자기 보상에 귀속된다.
         mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
-    finally:
-        (cand_mod.WAIT_MODE, cand_mod.SAFETY_ONLY,
-         cand_mod.BOUND_REPO, cand_mod.PREPO_ONE_SHOT) = prev
     phi_final = phi_terminal(mbt, obs.observe_s)          # 관측 종료 시점 — 구간의 끝
+    # ★종료 bootstrap 원료: 종료 시점의 블록별 critic 입력 (관측 밖 비용의 추정 근거)
+    from ..integrated.transfer_head import critic_input
+    end_inputs = {b: critic_input(mbt, b, obs.observe_s, 0, layout=layout)
+                  for b in mbt.blocks}
     return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
+            "end_inputs": end_inputs,
+            "joint": build_joint_transitions(policy.trail, orch.ledger, rec.samples,
+                                             phi_final, obs.observe_s),
             "n_space": orch.n_space, "n_time": orch.n_time,
             "policy_exceptions": exc["n"], "admitted": ctrl.n_admitted}
 
 
 # ------------------------------------------------------------------ 전이 조립
+def build_joint_transitions(trail: list[dict], sell_ledger: list[dict],
+                            phi: list[tuple[float, float]], phi_final: float,
+                            obs_end: float) -> list[dict]:
+    """★공동 transition (감사 2026-08-09) — epoch 단위 하나의 공동 결과로 저장.
+
+    21블록 제안은 같은 시각 중앙 resolver 에서 함께 처리되므로, 블록별 결정을 따로
+    저장하면 "왜 이 결과가 나왔는지"를 복기할 수 없다(내 수만 적은 기보). epoch 마다
+    ①동시 활성 블록·전체 결정 ②전체 OFFER ③resolver 수락·목적지·실패 사유
+    ④구간 Φ(다음 상태의 비용 원료) ⑤종료 플래그를 한 묶음으로 남긴다.
+    """
+    phi_map = {round(t, 6): v for t, v in phi}
+    dec_by_t: dict[float, list[dict]] = {}
+    for tr in trail:
+        dec_by_t.setdefault(round(tr["t"], 6), []).append(
+            {"src": tr["src"], "action": tr["action"], "picked": tr["picked"],
+             "n_cands": tr["n_cands"], "value": tr["value"]})
+    led_by_t: dict[float, list[dict]] = {}
+    for e in sell_ledger:
+        led_by_t.setdefault(round(e["t"], 6), []).append(
+            {k: v for k, v in e.items() if k != "t"})
+    epochs = sorted(set(dec_by_t) | set(led_by_t))
+    times = sorted(phi_map)
+    out = []
+    for i, t in enumerate(epochs):
+        nxt = [tt for tt in times if tt > t + 1e-9]
+        out.append({"t": t, "phi_pre": phi_map.get(t),
+                    "phi_next": phi_map[nxt[0]] if nxt else phi_final,
+                    "decisions": dec_by_t.get(t, []),
+                    "resolver": led_by_t.get(t, []),
+                    "done": not nxt or (nxt and nxt[0] >= obs_end - 1e-6)})
+    return out
+
+
 def build_batch(trail: list[dict], phi: list[tuple[float, float]],
-                phi_final: float) -> list[dict]:
-    """결정별 (총수익 R, advantage 원료) 조립 — γ=1 전역 보상.
+                phi_final: float, v_end: dict | None = None) -> list[dict]:
+    """결정별 (총수익 R, advantage 원료) 조립 — γ=1 전역 보상 + 종료 bootstrap.
 
     Φ 표본은 **행동 직전** 값이므로(치명 2 정합), 결정 시각 t_k 의 reward-to-go =
-    −(Φ_final − Φ(t_k⁻)) 는 그 결정의 즉시 비용부터 관측 종료까지를 포함한다.
-    advantage = R − V(s) (MC − critic 기준선 = GAE λ=1. λ<1·bootstrap 은 잔여).
+    −(Φ_final − Φ(t_k⁻)) + V(s_end) — 마지막 항이 **관측 종료 bootstrap**(감사):
+    관측 밖으로 미뤄진 비용을 critic 추정으로 계상해 "마감 직전 미루면 공짜" 꼼수를
+    막는다. advantage = R − V(s). (λ<1 GAE 는 여전히 잔여 — MC+bootstrap 구조.)
     """
     if not phi:
         return []
@@ -261,7 +331,8 @@ def build_batch(trail: list[dict], phi: list[tuple[float, float]],
     out = []
     for tr in trail:
         idx = max(i for i, tt in enumerate(times) if tt <= tr["t"] + 1e-9)
-        r2go = -(phi_final - values[idx])
+        boot = float(v_end.get(tr["src"], 0.0)) if v_end else 0.0
+        r2go = -(phi_final - values[idx]) + boot
         out.append({**tr, "ret": r2go, "adv": r2go - tr["value"]})
     return out
 
@@ -302,22 +373,25 @@ def train_one(ts: int, *, out_root: Path = OUT,
     actor, critic = TransferActor(), TransferCritic()
     opt_a = torch.optim.Adam(actor.parameters(), lr=LR)
     opt_c = torch.optim.Adam(critic.parameters(), lr=LR)
-    # 채택 실행 정책 — 동결 로딩 1회, 매 iteration 뒤 hash 불변 검사 (계약 가드).
+    # 채택 실행 정책 — 동결 로딩 1회, 매 iteration 뒤 **구성 전체 해시** 불변 검사.
     exec_actor, exec_norm = load_adopted_execution_head(exec_ts)
-    exec_hash0 = actor_state_hash(exec_actor)
+    exec_hash0 = exec_config_hash(exec_actor, exec_ts)      # 가중치+ckpt파일+플래그+가드
     hist = []
     for it in range(N_ITER):
         batch_all: list[dict] = []
         for e in range(EPS_PER_ITER):
             policy = PpoSellPolicy(actor, critic, mode="live", sample=True,
-                                   seed=ts + it * 100 + e)
+                                   seed=ts + it * 100 + e, layout=terminal_layout())
             ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf,
                              exec_fleet=AdoptedExecFleet(exec_actor, exec_norm))
             # critic 입력은 결정 시점에 policy.trail["critic_in"] 으로 저장됨(치명 1 정정)
-            batch_all += build_batch(policy.trail, ep["phi"], ep["phi_final"])
+            with torch.no_grad():                            # 종료 bootstrap (감사)
+                v_end = {b: float(critic(x).item())
+                         for b, x in ep["end_inputs"].items()}
+            batch_all += build_batch(policy.trail, ep["phi"], ep["phi_final"], v_end)
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
-        if actor_state_hash(exec_actor) != exec_hash0:      # 실행 head 불변 — 매 iter 검사
-            raise RuntimeError("ExecutionHead 가중치가 변했다 — 학습 분리 계약 위반")
+        if exec_config_hash(exec_actor, exec_ts) != exec_hash0:   # 구성 전체 불변
+            raise RuntimeError("실행 구성(가중치·플래그·가드)이 변했다 — 계약 위반")
         hist.append({"iter": it, **stats})
     # ★저장 순서 정정(감사 치명 4): 재현 스탬프를 **먼저** 만들고(실패하면 아무 파일도
     #   안 남음) → 스탬프 포함 train.json → net.pt. 구판은 net.pt 를 먼저 쓰고

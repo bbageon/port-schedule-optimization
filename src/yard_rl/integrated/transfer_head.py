@@ -40,6 +40,7 @@ from .sell_review import block_inside, block_pipeline
 
 ROW_DIM = 14                  # 블록 7 + KEEP 플래그 1 + 후보 6
 BLOCK_DIM = 7
+CRITIC_DIM = 15               # 소스 7 + 수신 시장 요약 6 + 전역 2 (★감사 강화판)
 HID = 64
 
 
@@ -95,12 +96,39 @@ def build_rows(mbt, src: str, cands: list, t: float) -> torch.Tensor:
     return torch.tensor(rows, dtype=torch.float32)
 
 
-def critic_input(mbt, src: str, t: float, n_cands: int) -> torch.Tensor:
-    """중앙학습 전용 — source 요약 + **전 블록 순열불변 요약**(평균 pooling)."""
+def critic_input(mbt, src: str, t: float, n_cands: int,
+                 layout=None) -> torch.Tensor:
+    """중앙학습 전용 — 소스 요약 + **수신 시장 요약** + 전역 (★감사 강화 2026-08-09).
+
+    구판(전 블록 단순 평균)은 "빈 블록이 **가까이** 있는가"와 "수신처 **여유**가 실제로
+    있는가"를 구분하지 못해 기준선(V)이 흐렸다. 수신별 (부하, 소스로부터의 주행 차이,
+    용량 여유)를 평균·최소로 pooling(순열불변)해 resolver 가 만들 시장 상황을 critic 이
+    설명할 수 있게 한다. layout 없이(2블록 테스트 등) 쓰면 주행 특징은 0.
+    """
+    from .sell_review import block_inside, block_pipeline
     bf = block_features(mbt, src, t, n_cands)
-    allf = [block_features(mbt, b, t, 0) for b in mbt.blocks]
-    pooled = [sum(col) / len(allf) for col in zip(*allf)]
-    return torch.tensor(bf + pooled, dtype=torch.float32)
+    qs, routes, heads = [], [], []
+    for dst in mbt.blocks:
+        if dst == src:
+            continue
+        qs.append(float(block_inside(mbt.blocks[dst], t)
+                        + block_pipeline(mbt, dst, t)))
+        heads.append(float(mbt.free_slots(dst)))
+        r = 0.0
+        if layout is not None:
+            try:
+                r = layout.pre_gate_route_delta_s(src, dst)
+            except KeyError:
+                r = 0.0
+        routes.append(r)
+    n = max(1, len(qs))
+    recv = [sum(qs) / n / 10.0, (min(qs) if qs else 0.0) / 10.0,
+            sum(routes) / n / 600.0, (min(routes) if routes else 0.0) / 600.0,
+            sum(heads) / n / 1000.0, (min(heads) if heads else 0.0) / 1000.0]
+    end = max(s.end for s in mbt.blocks.values())
+    total_inside = sum(block_inside(s, t) for s in mbt.blocks.values())
+    glob = [total_inside / 100.0, min(1.0, t / max(1.0, end))]
+    return torch.tensor(bf + recv + glob, dtype=torch.float32)
 
 
 # ------------------------------------------------------------------ 신경망 (공유 1벌)
@@ -115,7 +143,7 @@ class TransferActor(nn.Module):
 
 
 class TransferCritic(nn.Module):
-    def __init__(self, in_dim: int = BLOCK_DIM * 2, hid: int = HID):
+    def __init__(self, in_dim: int = CRITIC_DIM, hid: int = HID):
         super().__init__()
         self.v = nn.Sequential(nn.Linear(in_dim, hid), nn.ReLU(),
                                nn.Linear(hid, hid), nn.ReLU(), nn.Linear(hid, 1))
@@ -135,12 +163,14 @@ class PpoSellPolicy:
     """
 
     def __init__(self, actor: TransferActor, critic: TransferCritic | None = None,
-                 *, mode: str = "live", sample: bool = True, seed: int = 0):
+                 *, mode: str = "live", sample: bool = True, seed: int = 0,
+                 layout=None):
         assert mode in ("live", "shadow")
         self.actor = actor
         self.critic = critic
         self.mode = mode
         self.sample = sample
+        self.layout = layout                 # critic 수신 시장 요약의 주행 특징용
         self.gen = torch.Generator().manual_seed(seed)
         self.trail: list[dict] = []
 
@@ -150,7 +180,7 @@ class PpoSellPolicy:
         rows = build_rows(mbt, src, cands, t)
         # ★감사 치명 1 정정: critic 입력을 **결정 시점에 저장**한다 — 구판은 학습 직전
         # zeros 로 덮어써 critic 이 항상 0 상태만 학습했다(가치학습·advantage 무효).
-        ci = critic_input(mbt, src, t, len(cands))
+        ci = critic_input(mbt, src, t, len(cands), layout=self.layout)
         with torch.no_grad():
             logits = self.actor(rows)
             dist = Categorical(logits=logits)
