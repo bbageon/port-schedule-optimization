@@ -42,12 +42,20 @@ def cell_seed(w: float, load: int, rep: int = 0) -> int:
     return SEED + rep * REP_STRIDE + int(w * 10) * 1000 + load
 
 
+def hotspot_seed(w: float, rep: int = 0) -> int:
+    """hotspot 추첨 시드 — ★33차 감사 pairing 정정(2026-08-09): **L 을 포함하지
+    않는다**. 같은 (집중도 w, 반복 rep)에서 L100/L150 이 같은 배경(기존 부채 3
+    정정)과 **같은 hotspot 블록**을 공유해야 "부하만 바꾼 비교" 계약이 성립한다.
+    구판은 셀 시드(L 포함)로 추첨해 L 을 바꾸면 hotspot 도 바뀌었다(교락)."""
+    return SEED + rep * REP_STRIDE + int(w * 10) * 1000
+
+
 def run_one(w: float, load: int, obs: ObservationContract, rep: int = 0) -> dict:
     layout = terminal_layout()
     seed = cell_seed(w, load, rep)
     hs: tuple[str, ...] = ()
     if w > 1.0:
-        hs = hotspot_rotation(layout, seed, N_HOTSPOT)
+        hs = hotspot_rotation(layout, hotspot_seed(w, rep), N_HOTSPOT)
     params = TerminalStreamParams(load_4h=load, hotspot_blocks=hs, hotspot_weight=w)
     cell = run_cell(load, obs, params=params, seed=seed,
                     background_seed=SEED + rep * REP_STRIDE)
