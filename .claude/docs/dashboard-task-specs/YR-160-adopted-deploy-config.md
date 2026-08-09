@@ -1,10 +1,11 @@
 # YR-160 — 채택 배포 구성을 코드에 **하나로** 정의 (전역 플래그 monkey-patch 제거)
 
 - **Epic**: Infra / **Priority**: 🔴 / **등록일**: 2026-08-07 / **상태**: **backlog — 부분 이행**
-- **부분 이행(2026-08-09)**: `integrated/policy_config.py` 에 ①불변 `ExecPolicyConfig`
-  (frozen dataclass) + `ADOPTED_C0_GUARD`/`LEGACY_DEFAULT` 이름 상수 ②원자적 적용/복구
-  `applied()`(예외에도 원상복구) 가 들어갔고 YR-151 학습 루프가 이를 쓴다. **본체 잔여**:
-  아래 2(전역 제거·생성기 주입)·3(골든 회귀)·4(스탬프 박제)·5(fail-closed 강제).
+- **부분 이행(2026-08-09)**: ①불변 `ExecPolicyConfig` + 이름 상수 + 원자 `applied()`
+  (`policy_config.py` — YR-151 학습 루프 사용 중) ②**생성기 주입 배선** —
+  `CandidateGenerator(config=)` 가 주입 config 를 전역보다 우선해 읽음(미주입 None 은
+  과도기 전역 경로 — 기존 실험 골든 불변, 행동일치 테스트 보존 확인). **본체 잔여**:
+  실험 10여 곳 재배선·전역 경로 제거(아래 2 후반)·3(골든 회귀)·4(스탬프)·5(fail-closed).
 - **3대 게이트 보정 대상**: `reliability` 하나 — 착수 시 YR-153 `authorize-next` 통과 필수
 - **발견 경위**: 2026-08-07 중간점검(대시보드↔코드 정합)
 

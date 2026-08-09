@@ -215,6 +215,49 @@ def test_epoch_logged_even_when_quiet():
     assert len(epochs) == 1 and epochs[0]["deficit"] == 0
 
 
+# ------------------------------------------------------------------ YR-162A 준수오차 주입
+class _CatchMbt(_NullMbt):
+    """admit 호출의 (job, gate_in_s) 를 포획 — 통지/실현 분리 검증용."""
+
+    def __init__(self):
+        super().__init__()
+        self.jobs = []
+
+    def admit_external_job(self, bid, job, *, gate_in_s, travel_s):
+        self.jobs.append((job, gate_in_s))
+
+
+def test_adherence_sigma_splits_notified_and_realized():
+    """σ>0: 실현 gate-in ≠ 통지, 공개값(통지·예측)은 통지 기반 그대로(누출 0)."""
+    pool = [_entry("A", f"A:W-E{i}") for i in range(8)]
+    ctrl = WipAdmissionController(pool, wip_target=8, lead_s=1800.0,
+                                  adherence_sigma_s=600.0)
+    mbt = _CatchMbt()
+    ctrl.review(mbt, 60.0)
+    assert mbt.jobs
+    diverged = 0
+    for job, realized in mbt.jobs:
+        assert job.notified_gate_in_s == 1860.0            # 통지 = t + lead 불변
+        assert job.actual_gate_in == realized              # 실현 = 주입 결과
+        assert realized >= 60.0                            # 투입 결정보다 앞설 수 없음
+        assert abs(realized - 1860.0) <= 2 * 600.0 + 1e-9  # ±2σ 절단
+        expect_est = 1860.0 + 300.0                        # 예측 = 통지 + 기대 주행
+        assert job.estimated_block_arrival == pytest.approx(expect_est)
+        if abs(realized - 1860.0) > 1e-9:
+            diverged += 1
+    assert diverged >= 1                                   # 오차가 실제로 주입됨
+
+
+def test_adherence_sigma_zero_is_identity():
+    """σ=0(기본): 실현 = 통지 — 기존 완전 예측 경로와 동일(골든 불변)."""
+    pool = [_entry("A", "A:W-Z0")]
+    ctrl = WipAdmissionController(pool, wip_target=1, lead_s=1800.0)
+    mbt = _CatchMbt()
+    ctrl.review(mbt, 60.0)
+    job, realized = mbt.jobs[0]
+    assert realized == 1860.0 == job.actual_gate_in == job.notified_gate_in_s
+
+
 # ------------------------------------------------------------------ 본선 재보정 (2026-08-08)
 def test_vessel_workload_within_derived_anchor(built):
     """계획 본선 작업률이 유도 앵커(145~170 moves/h) 안 — 12 process × 120 moves."""

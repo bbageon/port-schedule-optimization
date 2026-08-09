@@ -337,17 +337,24 @@ def _clamp_travel(base: float, resid: float) -> float:
     return min(GATE_BLOCK_MAX_S, max(GATE_BLOCK_MIN_S, base + resid))
 
 
-def _job_from_entry(e: dict, gate_in_s: float) -> Job:
-    """pool/채움 항목 → Job. walk-in — 예측 도착 = gate-in + 기대 주행(누출 0)."""
-    arr = gate_in_s + e["travel_s"]
-    est = gate_in_s + e["travel_base_s"]
+def _job_from_entry(e: dict, gate_in_s: float, *,
+                    realized_gate_in_s: float | None = None) -> Job:
+    """pool/채움 항목 → Job. 예측 도착 = **통지** gate-in + 기대 주행(누출 0).
+
+    realized_gate_in_s (YR-162A): 준수오차 주입 시 실현 게이트인이 통지와 달라진다 —
+    공개값(통지·예측·예약)은 **통지 기반 그대로**, 실현(actual_*)만 어긋난다.
+    None(기본) = 오차 0 — 기존 완전 예측 조건과 바이트 동일(골든 불변).
+    """
+    realized = gate_in_s if realized_gate_in_s is None else realized_gate_in_s
+    arr = realized + e["travel_s"]
+    est = gate_in_s + e["travel_base_s"]          # 공개 예측 — 통지 기반(실현 미참조)
     if e["flow"] == "GATE_OUT":
         j = Job(job_id=e["job_id"], flow=JobFlow.GATE_OUT, release_time=0.0,
-                actual_gate_in=gate_in_s, actual_block_arrival=arr, provided_eta=est,
+                actual_gate_in=realized, actual_block_arrival=arr, provided_eta=est,
                 target_container=e["target"])
     else:
         j = Job(job_id=e["job_id"], flow=JobFlow.GATE_IN, release_time=0.0,
-                actual_gate_in=gate_in_s, actual_block_arrival=arr, provided_eta=est,
+                actual_gate_in=realized, actual_block_arrival=arr, provided_eta=est,
                 inbound_size=(ContainerSize.FT40 if e["size_ft40"]
                               else ContainerSize.FT20),
                 inbound_load=LoadStatus.FULL)
@@ -515,11 +522,16 @@ class WipAdmissionController:
     def __init__(self, pool: list[dict], *, wip_target: int,
                  lead_s: float = 0.0, max_tries_per_epoch: int = 200,
                  end_s: float | None = None,
-                 period_s: float = WIP_ADMISSION_PERIOD_S):
+                 period_s: float = WIP_ADMISSION_PERIOD_S,
+                 adherence_sigma_s: float = 0.0):
         self.pool = pool
         self.wip_target = wip_target
         self.lead_s = lead_s
         self.max_tries = max_tries_per_epoch
+        # YR-162A — 예약 준수오차 σ: 실현 게이트인 = 통지 + ε(±2σ 절단·작업별 전용
+        # 난수열 h21w:adh:{job_id} — 실행 순서 무관 결정론). 공개값(통지·예측)은 통지
+        # 기반 그대로(정보경계 불변). 기본 0 = 완전 예측(골든 불변).
+        self.adherence_sigma_s = adherence_sigma_s
         # 32차 감사(부채 4): 격자 가드 주기를 인스턴스가 보유 — admission_epochs 와
         # 컨트롤러가 **같은 period 를 받아야** 한다(기본값이 같은 단일 상수라 기본
         # 구성은 자동 일치. 한쪽만 바꾸는 것은 계약 위반).
@@ -574,14 +586,22 @@ class WipAdmissionController:
             e = self.pool[self.cursor]
             self.cursor += 1
             tries += 1
-            job = _job_from_entry(e, t + self.lead_s)
+            notified = t + self.lead_s
+            realized = notified
+            if self.adherence_sigma_s > 0:
+                sr = self.adherence_sigma_s
+                eps = max(-2 * sr, min(2 * sr, random.Random(
+                    f"h21w:adh:{e['job_id']}").gauss(0.0, sr)))
+                realized = max(t, notified + eps)   # 실현이 투입 결정을 앞설 수 없다
+            job = _job_from_entry(e, notified, realized_gate_in_s=realized)
             try:
-                mbt.admit_external_job(e["block"], job, gate_in_s=t + self.lead_s,
+                mbt.admit_external_job(e["block"], job, gate_in_s=realized,
                                        travel_s=e["travel_s"])
                 admitted += 1
                 self.n_admitted += 1
                 self.ledger.append({"t": t, "event": "ADMIT", "job_id": e["job_id"],
-                                    "block": e["block"], "flow": e["flow"]})
+                                    "block": e["block"], "flow": e["flow"],
+                                    "eps_s": round(realized - notified, 3)})
             except TransferError as ex:
                 self.ledger.append({"t": t, "event": "SKIP", "job_id": e["job_id"],
                                     "block": e["block"], "reason": str(ex)})

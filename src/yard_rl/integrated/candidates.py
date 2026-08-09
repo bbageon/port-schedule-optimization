@@ -227,9 +227,15 @@ class GeneratedCandidates:
 class CandidateGenerator:
     def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
                  pre_rehandle_min_window_s: float = 600.0,
-                 block_pre_rehandle: bool = False, vessel_prep: bool = False):
+                 block_pre_rehandle: bool = False, vessel_prep: bool = False,
+                 config=None):
         self.k_max = k_max
         self.mandatory_wait_frac = mandatory_wait_frac
+        # YR-160 본체 1단계(2026-08-09): 행동 정의 플래그를 **주입**받는다 —
+        # `policy_config.ExecPolicyConfig`(duck-typing: wait_mode·safety_only·
+        # bound_repo·prepo_one_shot). None(기본)이면 과도기로 모듈 전역을 읽는다
+        # (기존 실험 골든 불변). 성능 하네스는 명시 주입이 규약이다.
+        self.config = config
         # YR-088 "본선판 ETA" (opt-in, 기본 off=골든 바이트 동일). ON 이면 다가올 적하(반출)
         # 대상의 blocker 를 미리 정리하는 PRE_REHANDLE 후보를 스케줄(release_time) 기반으로 발행
         # — 트럭 PRE_REHANDLE 의 본선판(선제 준비). 정책/rollout 이 미리 준비할 선택지를 얻는다.
@@ -355,17 +361,26 @@ class CandidateGenerator:
                     out.add(t)
         return out
 
+    def _flags(self) -> tuple:
+        """(wait_mode, safety_only, bound_repo, prepo_one_shot) — 주입 우선, 없으면
+        모듈 전역(과도기 — YR-160 본체 완결 시 전역 경로 제거)."""
+        c = self.config
+        if c is not None:
+            return (c.wait_mode, c.safety_only, c.bound_repo, c.prepo_one_shot)
+        return (WAIT_MODE, SAFETY_ONLY, BOUND_REPO, PREPO_ONE_SHOT)
+
     def _reposition(self, sim, cid, now, level) -> list[GenCandidate]:
         yc = sim.fleet.get(cid)
         out = []
         escape_targets = self._escape_bays(sim, cid)
-        if SAFETY_ONLY:
+        _, safety_only, bound_repo, prepo_one_shot = self._flags()
+        if safety_only:
             targets = escape_targets            # YR-143 C0 — 능동 위치조정 미발행
-        elif BOUND_REPO:
+        elif bound_repo:
             # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
             bound = []
             hist = (getattr(sim, "_prepo_history", None)  # YR-142: one-shot 재발행 금지
-                    if PREPO_ONE_SHOT else None)
+                    if prepo_one_shot else None)
             for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
                 if hist and jid in hist:
                     bl = getattr(sim, "_prepo_blocked", None)   # 고유 (시점·크레인·작업)
@@ -430,7 +445,8 @@ class CandidateGenerator:
     def _wait(self, sim=None, now=None, level=None) -> GenCandidate:
         base = GenCandidate(0, CandidateKind.WAIT, None, None, False, True, None,
                             float("-inf"))
-        if WAIT_MODE == "WAIT" or sim is None:      # A(현행) 또는 busy/양보 구조 경로
+        wait_mode = self._flags()[0]
+        if wait_mode == "WAIT" or sim is None:      # A(현행) 또는 busy/양보 구조 경로
             return base
         t, k, jid = self._defer_trigger_time(sim, now, level)
         expiry = now + DEFER_T_MAX

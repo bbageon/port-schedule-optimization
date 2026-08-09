@@ -139,12 +139,12 @@ H 통과가 V 통과를 대신하지 않는다.
 
 ### 1. shadow 배선·계약 검증
 
-- **★감사 정정(2026-08-09)**: 즉시-KEEP 반환(현행 `mode="shadow"`)은 resolver 를 안
-  거쳐 견적·matching·version 검사가 검증되지 않는다 — shadow 는 **resolver 관통
-  dry-run**(SELL 의도가 수집→비용 저울→matching→용량 검사까지 흐르되 **commit 만
-  생략**·would-commit 원장 기록)으로 구현한다. 미래정보 0·mask·version/TTL·실행 hash·
-  확률 등식·결정론을 검증하고, shadow 가 본 실행·난수열을 바꾸면 실패다. 이 단계
-  정책경사 학습 금지(on-policy 계약).
+- **★감사 정정(2026-08-09) → 구현 완료(같은 날)**: shadow 는 **resolver 관통
+  dry-run** — `UnifiedSellOrchestrator(dry_run=True)` 가 수집→비용 저울→matching→
+  용량 검사를 실제로 흘리고 **원자 확정만 생략**(would-commit 원장). shadow 정책↔
+  dry_run 짝은 생성자가 강제(즉시-KEEP 구판 폐기). 환경 무변이·기록·live 대비
+  테스트 3종 통과. 잔여 검증: 미래정보 0·실행 hash·확률 등식·결정론 — shadow 가
+  본 실행·난수열을 바꾸면 실패. 이 단계 정책경사 학습 금지(on-policy 계약).
 
 ### 2. on-policy 학습과 live 단일축 비교
 

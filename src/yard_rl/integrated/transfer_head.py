@@ -157,8 +157,11 @@ class PpoSellPolicy:
     """UnifiedSellOrchestrator 에 꽂히는 학습 정책 — decide() 1건/epoch/블록.
 
     mode:
-      "live"   — 선택을 실제로 내놓는다(on-policy 학습·평가)
-      "shadow" — 계산만 하고 **항상 KEEP 반환**(원장 기록 전용 — 정책경사 학습 금지 단계)
+      "live"   — 선택이 실제로 확정된다(on-policy 학습·평가)
+      "shadow" — ★감사 재정의(2026-08-09): 선택을 **반환하되** dry_run resolver 와만
+                 결합된다(orchestrator 생성자가 짝을 강제) — 제안이 견적·matching·
+                 용량 검사까지 실제로 흐르고 **원자 확정만 생략**(would-commit 원장).
+                 구판 "항상 KEEP 반환"은 resolver 검증 불가라 폐기.
     trail 에 (행, 선택, log-prob, V) 전이를 쌓아 학습 루프가 소비한다.
     """
 
@@ -194,4 +197,6 @@ class PpoSellPolicy:
         self.trail.append({"t": t, "src": src, "rows": rows, "critic_in": ci,
                            "action": a, "logp": logp, "value": v,
                            "n_cands": len(cands), "picked": pick})
-        return None if self.mode == "shadow" else pick
+        # shadow 도 pick 을 반환한다 — 확정 생략은 dry_run resolver 의 몫(짝은
+        # orchestrator 생성자가 강제). 구판 즉시-None 은 resolver 검증 불가(감사).
+        return pick

@@ -280,10 +280,18 @@ class UnifiedSellOrchestrator:
 
     def __init__(self, policy, layout: YardLayout, kf, *,
                  window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S,
-                 grid_s: float = 60.0, allow_keep_coord: bool = True):
+                 grid_s: float = 60.0, allow_keep_coord: bool = True,
+                 dry_run: bool = False):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
+        # ★shadow 재정의(감사 2026-08-09): 즉시-KEEP 반환은 resolver 를 안 거쳐 견적·
+        # matching·version 검사가 검증되지 않는다 — shadow 정책은 **dry_run resolver**
+        # 와만 짝지을 수 있다(수집→저울→matching→용량까지 실제로 흐르고 원자 확정만
+        # 생략). 짝이 어긋나면 조용히 다른 실험이 되므로 생성자에서 즉시 실격.
+        if getattr(policy, "mode", None) == "shadow" and not dry_run:
+            raise ValueError("shadow 정책은 dry_run=True resolver 와만 결합 가능 — "
+                             "아니면 shadow 제안이 실제 commit 되어 환경을 오염시킨다")
         self.policy = policy
         self.layout = layout
         self.kf = kf
@@ -291,6 +299,7 @@ class UnifiedSellOrchestrator:
         self.defer_delta_s = defer_delta_s
         self.grid_s = grid_s                 # 60초 계약 — 격자 밖 epoch 에서는 닫음
         self.allow_keep_coord = allow_keep_coord   # 현 좌표 유지 ΔJ=0 (0B 동결 대상)
+        self.dry_run = dry_run
         self.ledger: list[dict] = []
         self.n_space = 0
         self.n_time = 0
@@ -385,6 +394,15 @@ class UnifiedSellOrchestrator:
             if coord == "KEEP":
                 self.ledger.append({"t": t, "axis": "KEEP", "src": src, "job_id": jid,
                                     "flow": flow, "decision": "RESOLVER_KEEP"})
+                continue
+            if self.dry_run:
+                # shadow dry-run — 견적·matching·용량 검사를 전부 통과한 would-commit
+                # 을 기록만 하고 확정을 생략한다(소유권·시간 장부·난수열 불변).
+                self.ledger.append({"t": t,
+                                    "axis": "TIME" if coord == "TIME" else "SPACE",
+                                    "src": src, "job_id": jid, "flow": flow,
+                                    "dst": None if coord == "TIME" else coord,
+                                    "decision": "DRY_WOULD_COMMIT"})
                 continue
             if coord == "TIME":
                 ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
