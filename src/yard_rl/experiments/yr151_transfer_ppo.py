@@ -74,7 +74,12 @@ NORM_CKPT = Path("outputs/reports/yr125_diff_credit") / f"diff1_s{NORM_TS}" / "r
 #   아래 3개 초기화 전부**에서 실행 초기화 민감도를 보고해야 한다(YR-118 불안정 사례).
 EXEC_TS_DEFAULT = CONFIRM_TS[0]                      # 221000 — 기계 규칙(첫 항)
 EXEC_TS_JUDGE = tuple(CONFIRM_TS[:3])                # 판정 시 필수 3개 (221k·222k·223k)
-WIP_TARGET = 100                 # 학습 기본 셀 (사전등록에서 동결)
+# ★무대 동결(33차 ④, pairing 정정 재자격 ff020ae 정본): 학습·판정 무대 =
+#   **w3-L150** (hotspot 3배·4블록 시드 추첨·유일한 BUSY×3 안정 셀).
+#   구판 균등·L100 은 CLEAR 무대라 신호가 없는 경기장이었다(감사 지적).
+WIP_TARGET = 150
+STAGE_HOTSPOT_W = 3.0
+STAGE_N_HOTSPOT = 4
 CLIP, LR, ENT, GAMMA = 0.2, 3e-4, 0.01, 1.0     # yr139 앵커 승계
 # advantage = MC 총수익 − critic 기준선 (= GAE λ=1). λ<1 은 도입하지 않았다(감사 정정).
 N_ITER, EPS_PER_ITER = 40, 4
@@ -226,8 +231,15 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
         raise ValueError(f"exec_head 는 'adopted'|'sf' 만 허용: {exec_head!r}")
     obs = obs or ObservationContract()
     layout = terminal_layout()
+    # ★무대 배선(33차 ④): 자격받은 w3 hotspot 무대에서만 돈다 — 균등 무대는 CLEAR
+    # (신호 없는 경기장)라 학습·판정에 쓰지 않는다.
+    from ..integrated.terminal_stream import (TerminalStreamParams,
+                                              hotspot_rotation)
+    hs = hotspot_rotation(layout, seed, STAGE_N_HOTSPOT)
+    params = TerminalStreamParams(load_4h=wip, hotspot_blocks=hs,
+                                  hotspot_weight=STAGE_HOTSPOT_W)
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=wip, obs=obs,
-                            layout=layout)
+                            layout=layout, params=params)
     mbt = MultiBlockTerminal({b: _sim_from(s) for b, s in built["scenarios"].items()},
                              extra_review_epochs=admission_epochs(obs))
     ctrl = WipAdmissionController(built["pool"], wip_target=wip,
@@ -271,6 +283,14 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
         # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
         #   판매 확정 순서. 판매의 즉시 비용은 다음 구간에 잡혀 자기 보상에 귀속된다.
         mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
+    # ★장부 보존 즉시 실격(33차 ④): 등록 = 채움 + 투입 이 깨지면 그 에피소드 데이터
+    #   전체가 오염 — WARN 이 아니라 예외로 실격시킨다.
+    n_rows = sum(len(getattr(s, "time_ledger").records)
+                 for s in mbt.blocks.values()
+                 if getattr(s, "time_ledger", None) is not None)
+    if n_rows != len(built["fill"]) + ctrl.n_admitted:
+        raise RuntimeError(f"장부 불일치 — 등록 {n_rows} ≠ 채움 {len(built['fill'])} "
+                           f"+ 투입 {ctrl.n_admitted} (에피소드 실격)")
     phi_final = phi_terminal(mbt, obs.observe_s)          # 관측 종료 시점 — 구간의 끝
     # ★종료 bootstrap 원료: 종료 시점의 블록별 critic 입력 (관측 밖 비용의 추정 근거)
     from ..integrated.transfer_head import critic_input
@@ -318,25 +338,37 @@ def build_joint_transitions(trail: list[dict], sell_ledger: list[dict],
     return out
 
 
-def build_batch(trail: list[dict], phi: list[tuple[float, float]],
+def build_batch(trail: list[dict], joint: list[dict],
                 phi_final: float, v_end: dict | None = None) -> list[dict]:
-    """결정별 (총수익 R, advantage 원료) 조립 — γ=1 전역 보상 + 종료 bootstrap.
+    """결정별 (총수익 R, advantage 원료) 조립 — ★공동 기록(joint)이 원료다(33차 ④).
 
-    Φ 표본은 **행동 직전** 값이므로(치명 2 정합), 결정 시각 t_k 의 reward-to-go =
-    −(Φ_final − Φ(t_k⁻)) + V(s_end) — 마지막 항이 **관측 종료 bootstrap**(감사):
-    관측 밖으로 미뤄진 비용을 critic 추정으로 계상해 "마감 직전 미루면 공짜" 꼼수를
-    막는다. advantage = R − V(s). (λ<1 GAE 는 여전히 잔여 — MC+bootstrap 구조.)
+    구판은 개별 trail + Φ 표본만 써서 "공동 기록이 학습에 미연결"이라는 감사 지적
+    대상이었다. 정정: 결정 시점 Φ 는 그 epoch 의 공동 기록 phi_pre 에서 읽고,
+    resolver 결과(축·좌표·계산 순비용·확정/거부)를 결정에 join 해 배치에 박제한다 —
+    학습 표본 하나하나가 "그때 전 블록이 무엇을 냈고 resolver 가 어떻게 처리했나"로
+    복기 가능해진다. reward-to-go = −(Φ_final − Φ(t_k⁻)) + V(s_end) bootstrap.
+    advantage = R − V(s). (λ<1 GAE 는 여전히 잔여 — MC+bootstrap 구조.)
+    joint 에 결정 epoch 이 없으면 즉시 실격(조용한 누락 금지).
     """
-    if not phi:
-        return []
-    times = [p[0] for p in phi]
-    values = [p[1] for p in phi]
+    by_t = {round(j["t"], 6): j for j in joint}
     out = []
     for tr in trail:
-        idx = max(i for i, tt in enumerate(times) if tt <= tr["t"] + 1e-9)
+        ep = by_t.get(round(tr["t"], 6))
+        if ep is None or ep.get("phi_pre") is None:
+            raise RuntimeError(f"공동 기록에 결정 epoch t={tr['t']} 의 Φ 가 없음 — "
+                               "배치 조립 실격(조용한 누락 금지)")
+        res = None
+        if tr["picked"] is not None:
+            for r in ep["resolver"]:
+                if (r.get("job_id") == tr["picked"]
+                        and r.get("src") == tr["src"]):
+                    res = {k: r[k] for k in
+                           ("axis", "decision", "delta_j", "dst") if k in r}
+                    break
         boot = float(v_end.get(tr["src"], 0.0)) if v_end else 0.0
-        r2go = -(phi_final - values[idx]) + boot
-        out.append({**tr, "ret": r2go, "adv": r2go - tr["value"]})
+        r2go = -(phi_final - ep["phi_pre"]) + boot
+        out.append({**tr, "ret": r2go, "adv": r2go - tr["value"],
+                    "resolver": res})
     return out
 
 
@@ -391,7 +423,8 @@ def train_one(ts: int, *, out_root: Path = OUT,
             with torch.no_grad():                            # 종료 bootstrap (감사)
                 v_end = {b: float(critic(x).item())
                          for b, x in ep["end_inputs"].items()}
-            batch_all += build_batch(policy.trail, ep["phi"], ep["phi_final"], v_end)
+            batch_all += build_batch(policy.trail, ep["joint"], ep["phi_final"],
+                                     v_end)
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
         if exec_config_hash(exec_actor, exec_ts) != exec_hash0:   # 구성 전체 불변
             raise RuntimeError("실행 구성(가중치·플래그·가드)이 변했다 — 계약 위반")
