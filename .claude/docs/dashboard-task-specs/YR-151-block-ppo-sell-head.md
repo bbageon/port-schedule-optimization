@@ -143,9 +143,7 @@ H 통과가 V 통과를 대신하지 않는다.
   **resolver 관통 dry-run**(수집→저울→matching→용량 관통·원자 확정만 생략·would-commit
   원장·짝 생성자 강제). 실측(w5-L100·채택 PPO): **S1 본 실행 불변**(기준 런 대비 343개
   작업 시간 장부 전수 일치)·S2 흐름(trail 2,090·would-commit 886·critic 입력 비영)·
-  S3 결정론·S4 실행 해시 불변·예외 0 —
-  [검증 JSON](../../../outputs/reports/yr151_shadow_verify/shadow_verify.json).
-  이 단계 정책경사 학습 금지(on-policy 계약).
+  S3 결정론·S4 실행 해시 불변·예외 0 — [검증 JSON](../../../outputs/reports/yr151_shadow_verify/shadow_verify.json). 이 단계 정책경사 학습 금지(on-policy 계약).
 
 ### 2. on-policy 학습과 live 단일축 비교
 
