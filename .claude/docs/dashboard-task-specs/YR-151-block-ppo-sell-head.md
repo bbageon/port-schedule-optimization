@@ -1,6 +1,8 @@
 # YR-151 — Block PPO SELL TransferHead
 
 - **Epic**: RL / **Priority**: 🔴 / **등록일**: 2026-08-05
+- **3대 게이트 보정 대상**: `performance` 하나 — 0B(반사실) 착수 전 YR-153
+  `authorize-next` 통과 필수 (신뢰성·현실성 PASS 후 유일 미해결 축, 2026-08-10)
 - **상태**: **backlog** (2026-08-06 — **0A 종료**, 0B-H 는 YR-150 H-21 현실성 PASS 선결)
   - **0A 완료**: 계약 8종 전 항 통과(20/20 셀·깨끗한 커밋 실행) — 판정 `ae6005b` ·
     [report](../../../outputs/reports/yr151_pre_gate_0a/report.md)
