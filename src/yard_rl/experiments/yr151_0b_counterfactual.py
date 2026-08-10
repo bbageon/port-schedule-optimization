@@ -19,7 +19,7 @@ import torch
 from ..integrated.baselines import _apply, _wait_of
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.multiblock import MultiBlockTerminal
-from ..integrated.policy_config import ADOPTED_C0_GUARD, applied
+from ..integrated.policy_config import ADOPTED_C0_GUARD
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty
 from ..integrated.sell_review import (ANNOUNCE_LEAD_S, UnifiedSellOrchestrator)
@@ -70,14 +70,18 @@ def _env(rep: int):
 
 
 def _run(rep: int, review_extra=None):
-    """공통 러너 — 채택 PPO 실행 + 60초 투입 + (옵션) 추가 review 훅."""
+    """공통 러너 — 채택 PPO 실행 + 60초 투입 + (옵션) 추가 review 훅.
+
+    YR-160 본체 API: 전역 없음 — config 를 fleet·generator 에 명시 주입한다.
+    """
     obs, layout, built, mbt, ctrl = _env(rep)
     exec_actor, exec_norm = load_adopted_execution_head()
-    fleet = AdoptedExecFleet(exec_actor, exec_norm)
+    fleet = AdoptedExecFleet(exec_actor, exec_norm, config=ADOPTED_C0_GUARD)
     gens: dict[int, CandidateGenerator] = {}
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
+        g = gens.setdefault(id(sim),
+                            CandidateGenerator(config=ADOPTED_C0_GUARD))
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
         _apply(sim, fleet.get(sim).decide(sim, dp, gb))   # 예외 = 즉시 실격(전파)
 
@@ -86,8 +90,7 @@ def _run(rep: int, review_extra=None):
         if review_extra is not None:
             review_extra(mbt_, t)
 
-    with applied(ADOPTED_C0_GUARD):
-        mbt.run(exec_policy, review_fn=review)
+    mbt.run(exec_policy, review_fn=review)
     n_rows = sum(len(getattr(s, "time_ledger").records)
                  for s in mbt.blocks.values()
                  if getattr(s, "time_ledger", None) is not None)
@@ -109,11 +112,12 @@ def smoke(rep: int) -> Path:
                         sample=True, seed=NET_INIT + rep, layout=layout)
     orch = UnifiedSellOrchestrator(pol, layout, load_kf(), dry_run=True)
     exec_actor, exec_norm = load_adopted_execution_head()
-    fleet = AdoptedExecFleet(exec_actor, exec_norm)
+    fleet = AdoptedExecFleet(exec_actor, exec_norm, config=ADOPTED_C0_GUARD)
     gens: dict[int, CandidateGenerator] = {}
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
+        g = gens.setdefault(id(sim),
+                            CandidateGenerator(config=ADOPTED_C0_GUARD))
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
         _apply(sim, fleet.get(sim).decide(sim, dp, gb))
 
@@ -121,8 +125,7 @@ def smoke(rep: int) -> Path:
         ctrl.review(mbt_, t)
         orch.review(mbt_, t)
 
-    with applied(ADOPTED_C0_GUARD):
-        mbt.run(exec_policy, review_fn=review)
+    mbt.run(exec_policy, review_fn=review)
     wc = [{"t": e["t"], "src": e["src"], "job_id": e["job_id"], "axis": e["axis"],
            "dst": e.get("dst"), "delta_j": e["delta_j"]}
           for e in orch.ledger if e["decision"] == "DRY_WOULD_COMMIT"]

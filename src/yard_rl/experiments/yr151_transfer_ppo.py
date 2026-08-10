@@ -47,6 +47,8 @@ from ..integrated.cost_curve_v2 import KappaFit
 from ..integrated.encoding import StateNorm
 from ..integrated.joint_distill import JointPairNet
 from ..integrated.multiblock import MultiBlockTerminal
+from ..integrated.policy_config import (ADOPTED_C0_GUARD, ExecPolicyConfig,
+                                        LEGACY_DEFAULT)
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty, repro_stamp
 from ..integrated.sell_review import (ANNOUNCE_LEAD_S, UnifiedSellOrchestrator)
@@ -56,7 +58,6 @@ from ..integrated.terminal_stream import (ObservationContract,
 from ..integrated.time_sell import deferral_ledger
 from ..integrated.transfer_head import (PpoSellPolicy, TransferActor, TransferCritic)
 from ..integrated.yard_layout import terminal_layout
-from . import yr088_joint_rl as y88
 from .yr088_joint_rl import LEVEL, RLPolicy
 from .yr100_candidate_eval import RC_EVAL
 from .yr139_blockq_v4_ppo import phi_v2
@@ -108,7 +109,8 @@ def _file_sha256(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def exec_config_hash(actor, exec_ts: int) -> str:
+def exec_config_hash(actor, exec_ts: int,
+                     config: ExecPolicyConfig = ADOPTED_C0_GUARD) -> str:
     """실행 **구성 전체**의 봉인 해시 (감사 2026-08-09 — 가중치만으로는 부족).
 
     같은 actor 라도 정규화 통계·후보 플래그·안전장치 설정이 다르면 전혀 다른 정책이다.
@@ -117,13 +119,12 @@ def exec_config_hash(actor, exec_ts: int) -> str:
     """
     import hashlib
     import json as _json
-    from ..integrated.policy_config import ADOPTED_C0_GUARD
     h = hashlib.sha256()
     h.update(actor_state_hash(actor).encode())
     h.update(_file_sha256(EXEC_CKPT_DIR / f"ppo_s{exec_ts}" / "net.pt").encode())
     h.update(_file_sha256(NORM_CKPT).encode())
     h.update(_json.dumps({
-        "flags": ADOPTED_C0_GUARD.as_dict(),
+        "policy_config": config.as_dict(),
         "guard": "permit_v2(yr146)",
         "rollout": {"rc": "RC_EVAL", "horizon_s": 1800.0,
                     "forbid_strategic_wait": True},
@@ -162,9 +163,10 @@ class AdoptedExecFleet:
     actor·norm 은 한 벌을 공유한다(21블록 동일 정책 배포 구조 그대로).
     """
 
-    def __init__(self, actor, norm):
-        self.actor, self.norm = actor, norm
-        y88.FORBID_WAIT = True          # 판정 경로(YR-146)와 동일한 명시 설정
+    def __init__(self, actor, norm, *, config: ExecPolicyConfig):
+        if config.name != ADOPTED_C0_GUARD.name:
+            raise ValueError("adopted execution fleet requires ADOPTED_C0_GUARD")
+        self.actor, self.norm, self.config = actor, norm, config
         self._by_sim: dict[int, DeployGuard] = {}
 
     def get(self, sim) -> DeployGuard:
@@ -172,8 +174,9 @@ class AdoptedExecFleet:
         if g is None:
             inner = RLPolicy(self.actor, self.norm, name="exec:c0")
             jr = JointRolloutGreedy(RC_EVAL, horizon_s=1800.0,
-                                    generator=CandidateGenerator(),
-                                    forbid_strategic_wait=True)
+                                    generator=CandidateGenerator(config=self.config),
+                                    forbid_strategic_wait=
+                                    self.config.forbid_strategic_wait)
             g = DeployGuard(inner, self.actor, self.norm, jr)
             self._by_sim[id(sim)] = g
         return g
@@ -220,7 +223,8 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                 wip: int = WIP_TARGET,
                 obs: ObservationContract | None = None,
                 exec_head: str = "adopted",
-                exec_fleet: "AdoptedExecFleet | None" = None) -> dict:
+                exec_fleet: "AdoptedExecFleet | None" = None,
+                exec_config: ExecPolicyConfig | None = None) -> dict:
     """고정 WIP + lead 통지 환경에서 1 에피소드 — 정책 trail 과 구간 Φ 를 수집.
 
     exec_head:
@@ -230,6 +234,13 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
     # ★감사(2026-08-09): 허용값 외는 즉시 거절 — 오타로 SF 가 몰래 돌지 못하게.
     if exec_head not in ("adopted", "sf"):
         raise ValueError(f"exec_head 는 'adopted'|'sf' 만 허용: {exec_head!r}")
+    if exec_head == "adopted":
+        if exec_config is None:
+            raise ValueError("adopted execution requires explicit exec_config")
+        if exec_config != ADOPTED_C0_GUARD:
+            raise ValueError("performance harness requires ADOPTED_C0_GUARD")
+    else:
+        exec_config = LEGACY_DEFAULT
     obs = obs or ObservationContract()
     layout = terminal_layout()
     # ★무대 배선(33차 ④): 자격받은 w3 hotspot 무대에서만 돈다 — 균등 무대는 CLEAR
@@ -256,10 +267,13 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
     exc = {"n": 0}
     if exec_head == "adopted":
         if exec_fleet is None:
-            exec_fleet = AdoptedExecFleet(*load_adopted_execution_head())
+            exec_fleet = AdoptedExecFleet(
+                *load_adopted_execution_head(), config=exec_config)
+        elif exec_fleet.config != exec_config:
+            raise ValueError("exec_fleet and exec_config do not match")
 
         def exec_policy(sim, dp):
-            g = gens.setdefault(id(sim), CandidateGenerator())
+            g = gens.setdefault(id(sim), CandidateGenerator(config=exec_config))
             gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
             # ★감사: 채택 정책의 예외는 **즉시 실격**(전파) — WAIT 로 숨기면 오염된
             #   데이터로 SELL 을 학습하게 된다(fallback 은 sf 디버그 모드에만 허용).
@@ -268,7 +282,7 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
         pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
 
         def exec_policy(sim, dp):
-            g = gens.setdefault(id(sim), CandidateGenerator())
+            g = gens.setdefault(id(sim), CandidateGenerator(config=exec_config))
             gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
             try:
                 _apply(sim, pol.decide(sim, dp, gb))
@@ -276,15 +290,12 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                 exc["n"] += 1
                 _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
-    # 채택 구성 플래그 — 불변 객체 + 원자 적용/복구 (YR-160 부분 이행 계층).
-    from ..integrated.policy_config import ADOPTED_C0_GUARD, applied
     assert ARM_FLAGS["c0"] == {"safety_only": ADOPTED_C0_GUARD.safety_only,
                                "bound": ADOPTED_C0_GUARD.bound_repo}, \
         "채택 구성 정의가 YR-143 ARM_FLAGS 와 어긋남"
-    with applied(ADOPTED_C0_GUARD):
-        # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
-        #   판매 확정 순서. 판매의 즉시 비용은 다음 구간에 잡혀 자기 보상에 귀속된다.
-        mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
+    # ★Φ 는 **행동 직전** 기록(감사 치명 2): 투입(비용 무영향·통지 미래) → Φ 기록 →
+    #   판매 확정 순서. 판매의 즉시 비용은 다음 구간에 잡혀 자기 보상에 귀속된다.
+    mbt.run(exec_policy, review_fn=_Chain(ctrl, rec, orch).review)
     # ★장부 보존 즉시 실격(33차 ④): 등록 = 채움 + 투입 이 깨지면 그 에피소드 데이터
     #   전체가 오염 — WARN 이 아니라 예외로 실격시킨다.
     n_rows = sum(len(getattr(s, "time_ledger").records)
@@ -299,6 +310,7 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
     end_inputs = {b: critic_input(mbt, b, obs.observe_s, 0, layout=layout)
                   for b in mbt.blocks}
     return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
+            "exec_policy_config": exec_config.as_dict(),
             "end_inputs": end_inputs,
             "joint": build_joint_transitions(policy.trail, orch.ledger, rec.samples,
                                              phi_final, obs.observe_s),
@@ -412,7 +424,8 @@ def train_one(ts: int, *, out_root: Path = OUT,
     opt_c = torch.optim.Adam(critic.parameters(), lr=LR)
     # 채택 실행 정책 — 동결 로딩 1회, 매 iteration 뒤 **구성 전체 해시** 불변 검사.
     exec_actor, exec_norm = load_adopted_execution_head(exec_ts)
-    exec_hash0 = exec_config_hash(exec_actor, exec_ts)      # 가중치+ckpt파일+플래그+가드
+    exec_config = ADOPTED_C0_GUARD
+    exec_hash0 = exec_config_hash(exec_actor, exec_ts, exec_config)
     hist = []
     for it in range(N_ITER):
         batch_all: list[dict] = []
@@ -420,7 +433,9 @@ def train_one(ts: int, *, out_root: Path = OUT,
             policy = PpoSellPolicy(actor, critic, mode="live", sample=True,
                                    seed=ts + it * 100 + e, layout=terminal_layout())
             ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf,
-                             exec_fleet=AdoptedExecFleet(exec_actor, exec_norm))
+                             exec_fleet=AdoptedExecFleet(
+                                 exec_actor, exec_norm, config=exec_config),
+                             exec_config=exec_config)
             # critic 입력은 결정 시점에 policy.trail["critic_in"] 으로 저장됨(치명 1 정정)
             with torch.no_grad():                            # 종료 bootstrap (감사)
                 v_end = {b: float(critic(x).item())
@@ -428,7 +443,7 @@ def train_one(ts: int, *, out_root: Path = OUT,
             batch_all += build_batch(policy.trail, ep["joint"], ep["phi_final"],
                                      v_end)
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
-        if exec_config_hash(exec_actor, exec_ts) != exec_hash0:   # 구성 전체 불변
+        if exec_config_hash(exec_actor, exec_ts, exec_config) != exec_hash0:
             raise RuntimeError("실행 구성(가중치·플래그·가드)이 변했다 — 계약 위반")
         hist.append({"iter": it, **stats})
     # ★저장 순서 정정(감사 치명 4): 재현 스탬프를 **먼저** 만들고(실패하면 아무 파일도
@@ -441,6 +456,7 @@ def train_one(ts: int, *, out_root: Path = OUT,
                 "LEAD_S": ANNOUNCE_LEAD_S,
                 "exec_head": f"adopted C0+guard (yr143 confirm ppo_s{exec_ts})",
                 "exec_head_hash": exec_hash0,
+                "exec_policy_config": exec_config.as_dict(),
                 "anchors": "yr139 승계(clip/lr/ent/γ) · advantage = MC−V(λ=1)"},
         prereg=".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
     out = out_root / f"ppo_s{ts}"

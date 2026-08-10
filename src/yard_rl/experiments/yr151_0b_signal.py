@@ -18,7 +18,7 @@ import torch
 from ..integrated.baselines import _apply, _wait_of
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.multiblock import MultiBlockTerminal
-from ..integrated.policy_config import ADOPTED_C0_GUARD, applied
+from ..integrated.policy_config import ADOPTED_C0_GUARD
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty
 from ..integrated.sell_review import (ANNOUNCE_LEAD_S, UnifiedSellOrchestrator)
@@ -95,13 +95,14 @@ def run_idx(idx: int) -> Path:
                            sample=True, seed=NET_INIT + idx, layout=layout)
     orch = UnifiedSellOrchestrator(policy, layout, load_kf(), dry_run=True)
     exec_actor, exec_norm = load_adopted_execution_head()
-    h0 = exec_config_hash(exec_actor, 221_000)
-    fleet = AdoptedExecFleet(exec_actor, exec_norm)
+    h0 = exec_config_hash(exec_actor, 221_000, ADOPTED_C0_GUARD)
+    fleet = AdoptedExecFleet(exec_actor, exec_norm, config=ADOPTED_C0_GUARD)
     gens: dict[int, CandidateGenerator] = {}
     exc = {"n": 0}
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
+        g = gens.setdefault(
+            id(sim), CandidateGenerator(config=ADOPTED_C0_GUARD))
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
         try:
             _apply(sim, fleet.get(sim).decide(sim, dp, gb))
@@ -113,9 +114,8 @@ def run_idx(idx: int) -> Path:
         ctrl.review(mbt_, t)
         orch.review(mbt_, t)
 
-    with applied(ADOPTED_C0_GUARD):
-        mbt.run(exec_policy, review_fn=review)
-    if exec_config_hash(exec_actor, 221_000) != h0:
+    mbt.run(exec_policy, review_fn=review)
+    if exec_config_hash(exec_actor, 221_000, ADOPTED_C0_GUARD) != h0:
         raise RuntimeError("실행 구성 변조 — 계약 위반")
 
     # 특징 join: 결정 (t, src, picked) → 선택 행의 소스 혼잡 특징(내부/10+통근중/10)

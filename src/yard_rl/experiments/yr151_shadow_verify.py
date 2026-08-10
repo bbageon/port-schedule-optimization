@@ -22,7 +22,7 @@ import torch
 
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.multiblock import MultiBlockTerminal
-from ..integrated.policy_config import ADOPTED_C0_GUARD, applied
+from ..integrated.policy_config import ADOPTED_C0_GUARD
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty
 from ..integrated.sell_review import (ANNOUNCE_LEAD_S, UnifiedSellOrchestrator)
@@ -34,7 +34,7 @@ from ..integrated.terminal_stream import (ObservationContract,
 from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
                                         TransferCritic)
 from ..integrated.yard_layout import terminal_layout
-from ..integrated.baselines import _apply, _wait_of
+from ..integrated.baselines import _apply
 from .yr088_joint_rl import LEVEL
 from .yr149_load_cells import _sim_from
 from .yr150_h21_pilot import _git, _sha256
@@ -69,26 +69,22 @@ def _episode(with_shadow: bool, exec_actor, exec_norm):
                                sample=True, seed=7_000_000, layout=layout)
         orch = UnifiedSellOrchestrator(policy, layout, load_kf(), dry_run=True)
 
-    fleet = AdoptedExecFleet(exec_actor, exec_norm)
+    fleet = AdoptedExecFleet(exec_actor, exec_norm, config=ADOPTED_C0_GUARD)
     gens: dict[int, CandidateGenerator] = {}
     exc = {"n": 0}
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
+        g = gens.setdefault(
+            id(sim), CandidateGenerator(config=ADOPTED_C0_GUARD))
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
-        try:
-            _apply(sim, fleet.get(sim).decide(sim, dp, gb))
-        except Exception:
-            exc["n"] += 1
-            _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+        _apply(sim, fleet.get(sim).decide(sim, dp, gb))
 
     def review(mbt_, t):
         ctrl.review(mbt_, t)
         if orch is not None:
             orch.review(mbt_, t)
 
-    with applied(ADOPTED_C0_GUARD):
-        mbt.run(exec_policy, review_fn=review)
+    mbt.run(exec_policy, review_fn=review)
 
     rows = {}
     for b, sim in mbt.blocks.items():
@@ -103,7 +99,7 @@ def _episode(with_shadow: bool, exec_actor, exec_norm):
 
 def run() -> dict:
     exec_actor, exec_norm = load_adopted_execution_head()
-    h0 = exec_config_hash(exec_actor, 221_000)
+    h0 = exec_config_hash(exec_actor, 221_000, ADOPTED_C0_GUARD)
 
     base = _episode(False, exec_actor, exec_norm)
     sh1 = _episode(True, exec_actor, exec_norm)
@@ -117,7 +113,7 @@ def run() -> dict:
     acts1 = [(tr["t"], tr["src"], tr["action"]) for tr in trail]
     acts2 = [(tr["t"], tr["src"], tr["action"]) for tr in sh2["policy"].trail]
     s3 = acts1 == acts2 and sh1["orch"].ledger == sh2["orch"].ledger
-    s4 = exec_config_hash(exec_actor, 221_000) == h0
+    s4 = exec_config_hash(exec_actor, 221_000, ADOPTED_C0_GUARD) == h0
 
     checks = {"S1_env_invariant_rows_identical": s1,
               "S2_wiring_flows": s2,
@@ -136,6 +132,7 @@ def run() -> dict:
                        "prereg_file": str(PREREG),
                        "prereg_sha256": _sha256(PREREG) if PREREG.exists() else None,
                        "exec_head_hash": h0,
+                       "exec_policy_config": ADOPTED_C0_GUARD.as_dict(),
                        "seeds": {"cell": pair_seed(W, 0),
                                  "background": BAND_SEED, "net_init": 7_000_000},
                        "observation": OBS.as_dict()},
