@@ -136,7 +136,7 @@ def run() -> dict:
                        "prereg_file": str(PREREG),
                        "prereg_sha256": _sha256(PREREG) if PREREG.exists() else None,
                        "exec_head_hash": h0,
-                       "seeds": {"cell": cell_seed(W, LOAD),
+                       "seeds": {"cell": pair_seed(W, 0),
                                  "background": BAND_SEED, "net_init": 7_000_000},
                        "observation": OBS.as_dict()},
            "verdict": verdict}
