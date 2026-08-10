@@ -57,10 +57,16 @@ def dev_seed(rep: int) -> int:
     return pair_seed(W, 0) + DEV_BASE + rep * 1_000_000
 
 
+GATE = Path("outputs/reports/yr153_research_gates/current_gate.json")
+
+
 def _stamp() -> dict:
-    """★35차 감사 — 산출물마다 코드 커밋·dirty 를 박제해 버전 혼입을 차단한다."""
+    """★35·36차 감사 — 산출물마다 코드 커밋·dirty 에 더해 **사전등록·공식 게이트
+    해시**까지 박제해 판정 근거 사슬이 개별 결과에 연결되게 한다."""
     return {"code_commit": _git("rev-parse", "HEAD"),
-            "code_dirty": bool(code_dirty())}
+            "code_dirty": bool(code_dirty()),
+            "prereg_sha256": _sha256(PREREG) if PREREG.exists() else None,
+            "gate_sha256": _sha256(GATE) if GATE.exists() else None}
 
 
 def _env(rep: int):
@@ -89,10 +95,15 @@ def _state_digest(mbt, ctrl) -> str:
                          job.actual_block_arrival, job.estimated_block_arrival,
                          job.provided_eta, str(job.flow)))
         cranes = []
-        for cid in sorted(sim.fleet.ids):
-            yc = sim.fleet.get(cid)
-            cranes.append((cid, str(yc.state.status), yc.state.position_bay,
-                           getattr(yc.state, "current_job_id", None)))
+        # 36차 정정: fleet.ids 는 메서드가 아니라 접근 불가 — 확립된 패턴
+        # (profile.cranes 순회 + fleet.get)로 교체. 필드는 getattr 로 안전 접근.
+        for c in sim.profile.cranes:
+            yc = sim.fleet.get(c.crane_id)
+            st = yc.state
+            cranes.append((c.crane_id, str(getattr(st, "status", "")),
+                           getattr(st, "position_bay", None),
+                           getattr(st, "available_at", None),
+                           getattr(st, "current_job_id", None)))
         blocks.append((bid, sim.clock, jobs, cranes))
     owners = [(jid, rec.owner, rec.version, rec.transfer_count)
               for jid, rec in sorted(mbt.ledger.records.items())]
@@ -332,7 +343,9 @@ def verdict() -> dict:
                or not p.get("wip_contract_base", False)
                or not p.get("wip_contract_treat", False))]
     ok = [p for p in pairs if p not in bad]
-    # 하드 가드: 처리량 감소 표본은 이득 판정에서 실패로 계수(이득값을 0 이하 취급)
+    # 처리량 가드(36차 명칭 명확화): 사전등록 문언 그대로 **"실패로 계수"** —
+    # 표본 실격(제외)이 아니라 이득 기여를 0 이하로 강제해 런 합산에 불리하게
+    # 반영한다. 실격(제외+bad 계수)은 집행불가·상태불일치·장부/계약량 위반뿐.
     eff = [{**p, "g_eff": (-1e-9 if p in bad else
                             (p["gain_realized"] if p["throughput_ok"]
                              else min(0.0, p["gain_realized"]) - 1e-9))}
