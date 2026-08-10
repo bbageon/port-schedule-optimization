@@ -206,6 +206,12 @@ def run_cell(wip: int, obs: ObservationContract, *,
     }
 
 
+def _exec_flags() -> dict:
+    """YR-160 — 현재 실행 플래그 스냅샷 (결과 JSON 박제용)."""
+    from ..integrated.policy_config import current
+    return current().as_dict()
+
+
 def run() -> dict:
     obs = ObservationContract()
     cells = [run_cell(w, obs) for w in WIP_LEVELS]
@@ -244,6 +250,9 @@ def run() -> dict:
                        "params": {"WIP_LEVELS": list(WIP_LEVELS),
                                   "WIP_TOL_FRAC": WIP_TOL_FRAC,
                                   "ANNOUNCE_LEAD_S": ANNOUNCE_LEAD_S,
+                                  # YR-160: 실행 플래그 스냅샷 박제 — 어떤 행동
+                                  # 정의로 돌았는지 결과만 봐도 알 수 있게.
+                                  "exec_flags": _exec_flags(),
                                   "wip_contract": "내부 + 진입 확약 예고 = L (32차)",
                                   "background_seed": SEED,
                                   "observation": obs.as_dict(),
