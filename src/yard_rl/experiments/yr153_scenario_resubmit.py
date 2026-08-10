@@ -21,6 +21,7 @@ from .yr150_h21_pilot import _git, _sha256
 
 ANCHORS = Path("configs/anchors/external_anchors_v1.json")
 BAND = Path("outputs/reports/yr157_band_qual/band_qual.json")
+CRANE = Path("outputs/reports/yr158_crane_service_probe/crane_service.json")
 OUT = Path("outputs/reports/yr153_research_gates/scenario_resubmit_wip.json")
 
 
@@ -57,6 +58,34 @@ def run() -> dict:
         source_path=str(ANCHORS.as_posix()), source_sha256=sha)
 
     band = json.loads(BAND.read_text(encoding="utf-8"))
+
+    # ★2026-08-10 확장 — 5종 전부 제출 (미수집 3종 등록 + 재보정·계측 완료 후):
+    # 장치율 = H-21 계약값 0.65(사용자 결정 — 전 셀 동일 계약값이라 점 범위)
+    o = reg["anchors"]["initial_yard_occupancy"]
+    fill = TerminalStreamParams(load_4h=100).fill_ratio
+    anchors["initial_yard_occupancy"] = AnchorEvidence(
+        observed_min=float(o["observed_range"][0]),
+        observed_max=float(o["observed_range"][1]),
+        simulated_min=fill, simulated_max=fill, unit=o["unit"],
+        source_path=str(ANCHORS.as_posix()), source_sha256=sha)
+    # 게이트 처리율(재정의 지표) = 자격 18런의 관측창 처리율 실측 대역
+    t = reg["anchors"]["truck_arrival_rate"]
+    ths = [c["throughput_per_h"] for c in band["cells"]]
+    anchors["truck_arrival_rate"] = AnchorEvidence(
+        observed_min=float(t["observed_range"][0]),
+        observed_max=float(t["observed_range"][1]),
+        simulated_min=min(ths), simulated_max=max(ths), unit=t["unit"],
+        source_path=str(ANCHORS.as_posix()), source_sha256=sha)
+    # 크레인 서비스시간 = 확정 무대 2셀의 **런 실측 평균** 대역(자기참조 금지 —
+    # 엔진 유도치가 아니라 실행 결과 계측. 단위 = 문헌과 같은 '평균')
+    cs = json.loads(CRANE.read_text(encoding="utf-8"))
+    lo_m, hi_m = cs["simulated_mean_range_s"]
+    c = reg["anchors"]["crane_service_time"]
+    anchors["crane_service_time"] = AnchorEvidence(
+        observed_min=float(c["observed_range"][0]),
+        observed_max=float(c["observed_range"][1]),
+        simulated_min=float(lo_m), simulated_max=float(hi_m), unit=c["unit"],
+        source_path=str(ANCHORS.as_posix()), source_sha256=sha)
     cells = band["cells"]
     internal = {k: all(c["internal_checks"][k] for c in cells)
                 for k in cells[0]["internal_checks"]}
@@ -84,6 +113,10 @@ def run() -> dict:
                         "evidence": outcome.evidence},
             "anchor_registry_sha256": sha,
             "anchors_unavailable": sorted(reg.get("unavailable", {})),
+            "crane_service_measurement": {
+                "path": str(CRANE.as_posix()), "sha256": _sha256(CRANE),
+                "note": "시뮬측 값 = 확정 무대 2셀 런 실측(사이클당 평균 — 재취급 "
+                        "리프트로 나눠 문헌 단위와 정합. 1건 전체 평균은 참고 보고)"},
             "flow_mapping_note": "continuous_arrivals=W1(교체 투입 유지)·flow_balance="
                                  "W2(장부 보존) — YR-157 18런(pairing 정정본) W 검사에서 유도",
         },

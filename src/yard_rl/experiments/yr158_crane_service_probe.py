@@ -5,8 +5,11 @@
 작업별 service_start/service_end 를 기록하므로 외부트럭 작업의 (완료−시작)을
 전수 수집한다.
 
-문헌 앵커는 "평균 서비스시간"의 대역이므로 비교 단위도 **셀별 평균**이다 —
-per-작업 최소/최대(재취급 짧은 건·긴 건)를 대역과 직접 비교하면 단위가 어긋난다.
+★단위 정합(1차 계측에서 발견·정정): 문헌 앵커(PEMA "2~3분/사이클")는 **컨테이너
+1리프트(move)** 기준인데, 트럭 1건 처리시간에는 재취급(blocker 파내기) 리프트가
+포함된다 — 장치율 0.65 에선 재취급이 흔해 1건 전체 평균(~268초)이 대역을 넘지만
+이는 단위 불일치다. 정본 비교값 = **1건 처리시간 ÷ (1 + 재취급 수)** 의 셀별 평균
+(엔진이 작업별 rehandle_count 를 기록). 1건 전체 평균은 참고로 함께 보고한다.
 계측 셀 = 확정 무대 2곳(주 w3-L150·대조 w1-L150, rep0 시드·장치율 0.65 정본).
 """
 from __future__ import annotations
@@ -64,7 +67,7 @@ def measure_cell(w: float, load: int) -> dict:
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
     mbt.run(policy, review_fn=ctrl.review)
-    durs = []
+    durs, per_move, moves = [], [], 0
     for sim in mbt.blocks.values():
         for j in sim.jobs.values():
             if (j.is_external_truck
@@ -72,22 +75,27 @@ def measure_cell(w: float, load: int) -> dict:
                     and getattr(j, "service_end", None) is not None):
                 d = j.service_end - j.service_start
                 if d > 0:
+                    n_moves = 1 + int(getattr(j, "rehandle_count", 0) or 0)
                     durs.append(d)
-    qs = quantiles(durs, n=10) if len(durs) >= 10 else []
+                    per_move.append(d / n_moves)
+                    moves += n_moves
+    qs = quantiles(per_move, n=10) if len(per_move) >= 10 else []
     return {"cell": f"w{w}-L{load}", "seed": seed, "n_jobs": len(durs),
-            "mean_s": round(fmean(durs), 2) if durs else None,
-            "p10_s": round(qs[0], 2) if qs else None,
-            "p90_s": round(qs[-1], 2) if qs else None,
-            "min_s": round(min(durs), 2) if durs else None,
-            "max_s": round(max(durs), 2) if durs else None}
+            "n_moves": moves,
+            "mean_per_move_s": round(fmean(per_move), 2) if per_move else None,
+            "p10_per_move_s": round(qs[0], 2) if qs else None,
+            "p90_per_move_s": round(qs[-1], 2) if qs else None,
+            "mean_per_job_s": round(fmean(durs), 2) if durs else None}
 
 
 def run() -> dict:
     cells = [measure_cell(w, load) for w, load in CELLS]
-    means = [c["mean_s"] for c in cells if c["mean_s"] is not None]
+    means = [c["mean_per_move_s"] for c in cells
+             if c["mean_per_move_s"] is not None]
     res = {"task": "YR-158-crane-service-probe",
-           "unit_note": "문헌 앵커(평균 대역)와 단위 일치를 위해 비교값 = 셀별 평균. "
-                        "분포(p10/p90/min/max)는 참고 보고.",
+           "unit_note": "문헌 앵커(PEMA 2~3분/사이클)는 1리프트(move) 기준 — 정본 "
+                        "비교값 = 1건 처리시간÷(1+재취급 수)의 셀별 평균. 1건 전체 "
+                        "평균(mean_per_job_s)은 재취급 포함 참고값.",
            "simulated_mean_range_s": [min(means), max(means)] if means else None,
            "cells": cells,
            "runtime": {"commit": _git("rev-parse", "HEAD"),

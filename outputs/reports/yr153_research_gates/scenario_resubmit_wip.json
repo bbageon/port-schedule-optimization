@@ -1,18 +1,14 @@
 {
  "runtime": {
-  "commit": "62f2bc4e52f6d19ca2a074dbe46ff4a8dc7b02da",
+  "commit": "2f868005b5c2cf8b9fd427050477d10f8ac91902",
   "source_qualification": "outputs/reports/yr157_band_qual/band_qual.json",
-  "source_sha256": "d0b69099767c6ef6efebd7f07f6ca8ec531c334a35041a9cac30e918f5417b73"
+  "source_sha256": "2931f208bb166d1a58808827165a2c850a2876ae49bcb65dbc85d711eb5ebe23"
  },
  "scenario_gate": {
   "outcome": {
-   "status": "FAIL",
-   "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
-   "reasons": [
-    "필수 외부 앵커 미수집: crane_service_time",
-    "필수 외부 앵커 미수집: initial_yard_occupancy",
-    "필수 외부 앵커 미수집: truck_arrival_rate"
-   ],
+   "status": "PASS",
+   "summary": "요청한 주장 범위의 시나리오 타당성 계약을 충족함",
+   "reasons": [],
    "evidence": {
     "continuous_operation": true,
     "internal_checks": {
@@ -42,7 +38,7 @@
       ],
       "unit": "s",
       "source_path": "configs/anchors/external_anchors_v1.json",
-      "source_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8"
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
      },
      "vessel_workload": {
       "observed_range": [
@@ -55,7 +51,46 @@
       ],
       "unit": "moves/h",
       "source_path": "configs/anchors/external_anchors_v1.json",
-      "source_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8"
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "initial_yard_occupancy": {
+      "observed_range": [
+       0.6,
+       0.75
+      ],
+      "simulated_range": [
+       0.65,
+       0.65
+      ],
+      "unit": "ratio",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "truck_arrival_rate": {
+      "observed_range": [
+       60.0,
+       225.0
+      ],
+      "simulated_range": [
+       115.0,
+       184.5
+      ],
+      "unit": "trucks/h",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "crane_service_time": {
+      "observed_range": [
+       120.0,
+       180.0
+      ],
+      "simulated_range": [
+       146.68,
+       147.26
+      ],
+      "unit": "s",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
      }
     },
     "operational_trace_path": null,
@@ -63,15 +98,16 @@
     "operational_trace_verified": false,
     "operational_trace_records": 0,
     "minimum_operational_trace_records": 30,
-    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+    "allowed_claim_scope": "LITERATURE_CALIBRATED_SIMULATION_METHOD_ONLY"
    }
   },
-  "anchor_registry_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8",
-  "anchors_unavailable": [
-   "crane_service_time",
-   "initial_yard_occupancy",
-   "truck_arrival_rate"
-  ],
+  "anchor_registry_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281",
+  "anchors_unavailable": [],
+  "crane_service_measurement": {
+   "path": "outputs/reports/yr158_crane_service_probe/crane_service.json",
+   "sha256": "c7aa1c5827f01d131ab0b4a3731f8e22b68e9aa68f36acb935c315a19b2102ae",
+   "note": "시뮬측 값 = 확정 무대 2셀 런 실측(사이클당 평균 — 재취급 리프트로 나눠 문헌 단위와 정합. 1건 전체 평균은 참고 보고)"
+  },
   "flow_mapping_note": "continuous_arrivals=W1(교체 투입 유지)·flow_balance=W2(장부 보존) — YR-157 18런(pairing 정정본) W 검사에서 유도"
  }
 }

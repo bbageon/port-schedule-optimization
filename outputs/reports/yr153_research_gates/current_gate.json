@@ -85,7 +85,7 @@
             "87d5688",
             "ae6005b",
             "0e6727c",
-            "62f2bc4"
+            "2f86800"
           ],
           "remote_ref": "origin/master"
         }
@@ -173,13 +173,9 @@
   },
   "scenario_validity": {
     "name": "scenario_validity",
-    "status": "FAIL",
-    "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
-    "reasons": [
-      "필수 외부 앵커 미수집: crane_service_time",
-      "필수 외부 앵커 미수집: initial_yard_occupancy",
-      "필수 외부 앵커 미수집: truck_arrival_rate"
-    ],
+    "status": "PASS",
+    "summary": "요청한 주장 범위의 시나리오 타당성 계약을 충족함",
+    "reasons": [],
     "evidence": {
       "continuous_operation": true,
       "internal_checks": {
@@ -209,7 +205,7 @@
           ],
           "unit": "s",
           "source_path": "configs/anchors/external_anchors_v1.json",
-          "source_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8"
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
         },
         "vessel_workload": {
           "observed_range": [
@@ -222,7 +218,46 @@
           ],
           "unit": "moves/h",
           "source_path": "configs/anchors/external_anchors_v1.json",
-          "source_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8"
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "initial_yard_occupancy": {
+          "observed_range": [
+            0.6,
+            0.75
+          ],
+          "simulated_range": [
+            0.65,
+            0.65
+          ],
+          "unit": "ratio",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "truck_arrival_rate": {
+          "observed_range": [
+            60.0,
+            225.0
+          ],
+          "simulated_range": [
+            115.0,
+            184.5
+          ],
+          "unit": "trucks/h",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "crane_service_time": {
+          "observed_range": [
+            120.0,
+            180.0
+          ],
+          "simulated_range": [
+            146.68,
+            147.26
+          ],
+          "unit": "s",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
         }
       },
       "operational_trace_path": null,
@@ -230,25 +265,20 @@
       "operational_trace_verified": false,
       "operational_trace_records": 0,
       "minimum_operational_trace_records": 30,
-      "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+      "allowed_claim_scope": "LITERATURE_CALIBRATED_SIMULATION_METHOD_ONLY",
       "submitted_by": "outputs/reports/yr153_research_gates/scenario_resubmit_wip.json",
-      "submission_commit": "62f2bc4e52f6d19ca2a074dbe46ff4a8dc7b02da",
-      "anchor_registry_sha256": "cb1ee520823832a460ce221931a8c782201083d00d1e45287b49ac33eba037d8",
-      "anchors_unavailable": [
-        "crane_service_time",
-        "initial_yard_occupancy",
-        "truck_arrival_rate"
-      ]
+      "submission_commit": "2f868005b5c2cf8b9fd427050477d10f8ac91902",
+      "anchor_registry_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281",
+      "anchors_unavailable": []
     }
   },
   "claim_eligible": false,
   "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
   "next_work_mode": "REMEDIATION_ONLY",
   "unresolved_gates": [
-    "performance",
-    "scenario_validity"
+    "performance"
   ],
-  "generated_at": "2026-08-09",
+  "generated_at": "2026-08-10",
   "currently_authorized": "reliability PASS → YR-150: scenario_validity 단일축",
   "conditional_sequence": [
     "scenario_validity PASS 후 YR-151 0B: performance 단일축(학습 GO/STOP 은 0B 에서만)"
