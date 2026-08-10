@@ -57,6 +57,12 @@ def dev_seed(rep: int) -> int:
     return pair_seed(W, 0) + DEV_BASE + rep * 1_000_000
 
 
+def _stamp() -> dict:
+    """★35차 감사 — 산출물마다 코드 커밋·dirty 를 박제해 버전 혼입을 차단한다."""
+    return {"code_commit": _git("rev-parse", "HEAD"),
+            "code_dirty": bool(code_dirty())}
+
+
 def _env(rep: int):
     obs = ObservationContract()
     layout = terminal_layout()
@@ -126,9 +132,13 @@ def _run(rep: int, review_extra=None):
     if n_rows != len(built["fill"]) + ctrl.n_admitted:
         raise RuntimeError("장부 불일치 — 런 실격")
     mbt.check_invariants()
+    # ★35차 감사: 처리량 = **측정창 안** 완료만 계수(warm-up 완료분 혼입 금지) —
+    # 처리량 하드 가드의 원료라 창 밖 완료가 섞이면 가드가 오염된다.
     done = sum(1 for s in mbt.blocks.values()
                if getattr(s, "time_ledger", None) is not None
-               for r in s.time_ledger.records.values() if r.gate_out is not None)
+               for r in s.time_ledger.records.values()
+               if r.gate_out is not None
+               and obs.warmup_s <= r.gate_out < obs.observe_s)
     hold_lo = max(obs.warmup_s, WIP_FILL_SPAN_S)
     hold_hi = obs.observe_s - (ANNOUNCE_LEAD_S + GATE_BLOCK_MAX_S)
     held = [e["inside"] + e["pipeline"] + e["admitted"]
@@ -169,8 +179,8 @@ def smoke(rep: int) -> Path:
           for e in orch.ledger if e["decision"] == "DRY_WOULD_COMMIT"]
     OUT.mkdir(parents=True, exist_ok=True)
     p = OUT / f"smoke_rep{rep}.json"
-    p.write_text(json.dumps({"rep": rep, "would": wc}, ensure_ascii=False,
-                            indent=1), encoding="utf-8")
+    p.write_text(json.dumps({"rep": rep, "stamp": _stamp(), "would": wc},
+                            ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps({"rep": rep, "n_would": len(wc)}, ensure_ascii=False))
     return p
 
@@ -206,7 +216,9 @@ def sample() -> Path:
     if len(samples) != DEV_REPS * PER_RUN:
         raise RuntimeError("counterfactual manifest must contain exactly 40 samples")
     p = OUT / "samples.json"
-    p.write_text(json.dumps({"n": len(samples), "samples": samples},
+    smoke_sha = {r: _sha256(OUT / f"smoke_rep{r}.json") for r in range(DEV_REPS)}
+    p.write_text(json.dumps({"n": len(samples), "stamp": _stamp(),
+                             "smoke_sha256": smoke_sha, "samples": samples},
                             ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps({"n_samples": len(samples)}, ensure_ascii=False))
     return p
@@ -255,7 +267,9 @@ def pair(idx: int) -> Path:
            "throughput_base": base["n_done"], "throughput_treat": tr["n_done"],
            "throughput_ok": tr["n_done"] >= base["n_done"],
            "wip_contract_base": base["wip_contract_ok"],
-           "wip_contract_treat": tr["wip_contract_ok"]}
+           "wip_contract_treat": tr["wip_contract_ok"],
+           "stamp": _stamp(),
+           "samples_sha256": _sha256(OUT / "samples.json")}
     p = OUT / f"pair_{idx:02d}.json"
     p.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(res, ensure_ascii=False))
@@ -288,11 +302,21 @@ def verdict() -> dict:
     manifest = json.loads((OUT / "samples.json").read_text(encoding="utf-8"))
     if manifest.get("n") != DEV_REPS * PER_RUN:
         raise RuntimeError("invalid counterfactual sample manifest")
-    pairs_by_idx = {
-        i: json.loads((OUT / f"pair_{i:02d}.json").read_text(encoding="utf-8"))
-        for i in range(DEV_REPS * PER_RUN)
-        if (OUT / f"pair_{i:02d}.json").exists()
-    }
+    # ★35차 감사 — 혼입 차단: 표본 파일 해시·코드 커밋이 다른 pair 결과는 유효
+    # 표본으로 인정하지 않는다(누락과 동일하게 실패로 계수 — 조용한 제외 금지).
+    cur_samples_sha = _sha256(OUT / "samples.json")
+    pairs_by_idx = {}
+    stale = []
+    for i in range(DEV_REPS * PER_RUN):
+        fp = OUT / f"pair_{i:02d}.json"
+        if not fp.exists():
+            continue
+        d = json.loads(fp.read_text(encoding="utf-8"))
+        if (d.get("samples_sha256") != cur_samples_sha
+                or d.get("stamp", {}).get("code_dirty") is not False):
+            stale.append(i)
+            continue
+        pairs_by_idx[i] = d
     pairs = []
     for i, s in enumerate(manifest["samples"]):
         p = pairs_by_idx.get(i)
@@ -329,6 +353,8 @@ def verdict() -> dict:
          "run_sums": {str(k): round(vv, 4) for k, vv in run_sums.items()},
          "run_rhos": {str(k): round(vv, 4) for k, vv in rhos.items()},
          "n_pairs": len(pairs), "n_invalid_or_unexecuted": len(bad),
+         "n_stale_version_rejected": len(stale),
+         "samples_sha256": cur_samples_sha,
          "n_throughput_fail": sum(1 for p in ok if not p["throughput_ok"]),
          "median_gain_all": round(median([p["gain_realized"] for p in ok]), 6)
                             if ok else None,

@@ -34,29 +34,29 @@ def _trace(policy_builder) -> list[tuple]:
     from yard_rl.integrated.baselines import run_joint_episode
     from yard_rl.integrated.candidates import CandidateGenerator
     from yard_rl.integrated.load_cells import make_a_cell
-    from yard_rl.integrated.policy_config import ADOPTED_C0_GUARD, applied
+    from yard_rl.integrated.policy_config import ADOPTED_C0_GUARD
 
-    with applied(ADOPTED_C0_GUARD):
-        sim = _sim_from(make_a_cell(SEED, 50))
-        sim.info_level = LEVEL
-        pol = policy_builder(sim)
-        rec: list[tuple] = []
+    sim = _sim_from(make_a_cell(SEED, 50))
+    sim.info_level = LEVEL
+    pol = policy_builder(sim)
+    rec: list[tuple] = []
 
-        class Tracer:
-            name = "trace"
+    class Tracer:
+        name = "trace"
 
-            def decide(self, sim_, dp, gb):
-                a = pol.decide(sim_, dp, gb)
-                rec.append(_sig(a))
-                return a
+        def decide(self, sim_, dp, gb):
+            a = pol.decide(sim_, dp, gb)
+            rec.append(_sig(a))
+            return a
 
-        run_joint_episode(sim, Tracer(), RC_EVAL, generator=CandidateGenerator())
+    run_joint_episode(
+        sim, Tracer(), RC_EVAL,
+        generator=CandidateGenerator(config=ADOPTED_C0_GUARD))
     return rec
 
 
 def test_fleet_matches_judgment_assembly():
     """동일 시드·동일 상태에서 두 조립 경로의 결정 궤적이 완전히 같아야 한다."""
-    from yard_rl.experiments import yr088_joint_rl as y88
     from yard_rl.experiments.yr088_joint_rl import RLPolicy
     from yard_rl.experiments.yr100_candidate_eval import RC_EVAL
     from yard_rl.experiments.yr146_deploy_guard import DeployGuard
@@ -64,17 +64,18 @@ def test_fleet_matches_judgment_assembly():
                                                        load_adopted_execution_head)
     from yard_rl.integrated.baselines import JointRolloutGreedy
     from yard_rl.integrated.candidates import CandidateGenerator
+    from yard_rl.integrated.policy_config import ADOPTED_C0_GUARD
 
     actor, norm = load_adopted_execution_head()
 
     def old_assembly(sim):                    # YR-146 판정 경로 그대로
-        y88.FORBID_WAIT = True
         jr = JointRolloutGreedy(RC_EVAL, horizon_s=1800.0,
-                                generator=CandidateGenerator(),
+                                generator=CandidateGenerator(
+                                    config=ADOPTED_C0_GUARD),
                                 forbid_strategic_wait=True)
         return DeployGuard(RLPolicy(actor, norm, name="exec:c0"), actor, norm, jr)
 
-    fleet = AdoptedExecFleet(actor, norm)
+    fleet = AdoptedExecFleet(actor, norm, config=ADOPTED_C0_GUARD)
 
     trace_old = _trace(old_assembly)
     trace_new = _trace(lambda sim: fleet.get(sim))
@@ -92,3 +93,12 @@ def test_invalid_exec_head_rejected():
     pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live", seed=0)
     with pytest.raises(ValueError):
         run_episode(1, pol, load_kf(), exec_head="adotped")   # 오타 재현
+
+
+def test_adopted_exec_config_must_be_explicit():
+    from yard_rl.experiments.yr151_transfer_ppo import load_kf, run_episode
+    from yard_rl.integrated.transfer_head import (PpoSellPolicy, TransferActor,
+                                                  TransferCritic)
+    pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live", seed=0)
+    with pytest.raises(ValueError, match="explicit exec_config"):
+        run_episode(1, pol, load_kf(), exec_head="adopted")

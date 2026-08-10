@@ -295,8 +295,9 @@ class JointRolloutGreedy:
 
     def _admissible_combos(self, sim, dp, gen_by) -> list:
         combos = list(self._combos(dp, gen_by))
-        from . import candidates as _cand
-        if _cand.WAIT_MODE == "DEFER_TRIGGER":
+        from .policy_config import LEGACY_DEFAULT
+        cfg = getattr(self.generator, "config", LEGACY_DEFAULT)
+        if cfg.wait_mode == "DEFER_TRIGGER":
             # YR-147 C: trigger 없는 DEFER 포함 조합은 전략 선택지에서 제외 — 단 그런
             # 조합밖에 실행가능한 것이 없으면 전체 유지 (구조적 fallback 보존,
             # forbid_strategic_wait 와 동일 패턴).
