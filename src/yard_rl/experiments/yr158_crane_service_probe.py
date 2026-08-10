@@ -22,12 +22,13 @@ from statistics import fmean, quantiles
 from ..integrated.terminal_stream import ObservationContract
 from .yr150_h21_pilot import _git, _sha256
 from .yr150_h21_wip_pilot import run_cell
-from .yr157_band_qual import (N_HOTSPOT, WEIGHTS, cell_seed, hotspot_seed)
+from .yr157_band_qual import (N_HOTSPOT, WEIGHTS, hotspot_seed, pair_seed)
 from ..integrated.terminal_stream import (TerminalStreamParams, hotspot_rotation)
 from ..integrated.yard_layout import terminal_layout
 
 OUT = Path("outputs/reports/yr158_crane_service_probe")
-CELLS = ((3.0, 150), (1.0, 150))          # 확정 무대: 주 w3-L150 · 대조 w1-L150
+CELLS = ((3.0, 100), (1.0, 150))    # ★최종 확정 무대: 주 w3-L100 · 대조 w1-L150
+MASTER = 150                        # 중첩 명단 계약
 
 
 def measure_cell(w: float, load: int) -> dict:
@@ -46,11 +47,12 @@ def measure_cell(w: float, load: int) -> dict:
 
     obs = ObservationContract()
     layout = terminal_layout()
-    seed = cell_seed(w, load)
+    seed = pair_seed(w, 0)
     hs = hotspot_rotation(layout, hotspot_seed(w), N_HOTSPOT) if w > 1.0 else ()
     params = TerminalStreamParams(load_4h=load, hotspot_blocks=hs, hotspot_weight=w)
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=load, obs=obs,
-                            layout=layout, params=params, background_seed=BAND_SEED)
+                            layout=layout, params=params, background_seed=BAND_SEED,
+                            master_load=MASTER)
     mbt = MultiBlockTerminal({b: _sim_from(s) for b, s in built["scenarios"].items()},
                              extra_review_epochs=admission_epochs(obs))
     ctrl = WipAdmissionController(built["pool"], wip_target=load,

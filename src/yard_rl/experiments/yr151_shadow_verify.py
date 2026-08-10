@@ -40,22 +40,24 @@ from .yr149_load_cells import _sim_from
 from .yr150_h21_pilot import _git, _sha256
 from .yr151_transfer_ppo import (AdoptedExecFleet, exec_config_hash,
                                  load_adopted_execution_head, load_kf)
-from .yr157_band_qual import N_HOTSPOT, SEED as BAND_SEED, cell_seed
+from .yr157_band_qual import (N_HOTSPOT, SEED as BAND_SEED, hotspot_seed,
+                              pair_seed)
 
 OUT = Path("outputs/reports/yr151_shadow_verify")
 PREREG = Path(".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
-W, LOAD = 5.0, 100                       # YR-157 확정 안정 BUSY 무대
+W, LOAD = 3.0, 100          # ★최종 확정 주 무대(2026-08-10·짝 체계·장치율 0.65)
+MASTER = 150                # 중첩 명단 계약
 OBS = ObservationContract(warmup_s=1_800.0, measure_s=7_200.0, snapshot_s=300.0)
 
 
 def _episode(with_shadow: bool, exec_actor, exec_norm):
     layout = terminal_layout()
-    seed = cell_seed(W, LOAD)
-    hs = hotspot_rotation(layout, seed, N_HOTSPOT)
+    seed = pair_seed(W, 0)
+    hs = hotspot_rotation(layout, hotspot_seed(W, 0), N_HOTSPOT)
     params = TerminalStreamParams(load_4h=LOAD, hotspot_blocks=hs, hotspot_weight=W)
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=LOAD, obs=OBS,
                             layout=layout, params=params,
-                            background_seed=BAND_SEED)
+                            background_seed=BAND_SEED, master_load=MASTER)
     mbt = MultiBlockTerminal({b: _sim_from(s) for b, s in built["scenarios"].items()},
                              extra_review_epochs=admission_epochs(OBS))
     ctrl = WipAdmissionController(built["pool"], wip_target=LOAD,

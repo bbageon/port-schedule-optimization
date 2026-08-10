@@ -74,12 +74,13 @@ NORM_CKPT = Path("outputs/reports/yr125_diff_credit") / f"diff1_s{NORM_TS}" / "r
 #   아래 3개 초기화 전부**에서 실행 초기화 민감도를 보고해야 한다(YR-118 불안정 사례).
 EXEC_TS_DEFAULT = CONFIRM_TS[0]                      # 221000 — 기계 규칙(첫 항)
 EXEC_TS_JUDGE = tuple(CONFIRM_TS[:3])                # 판정 시 필수 3개 (221k·222k·223k)
-# ★무대 동결(33차 ④, pairing 정정 재자격 ff020ae 정본): 학습·판정 무대 =
-#   **w3-L150** (hotspot 3배·4블록 시드 추첨·유일한 BUSY×3 안정 셀).
-#   구판 균등·L100 은 CLEAR 무대라 신호가 없는 경기장이었다(감사 지적).
-WIP_TARGET = 150
+# ★무대 동결(사용자 재확정 2026-08-10 — 짝 체계 정본 2d56772): 학습·판정 주 무대 =
+#   **w3-L100** (hotspot 3배·4블록 시드 추첨·유일한 BUSY×3 안정 셀. 대조 축은
+#   w1-L150 — 최종 비교에서만). 트럭 명단은 master 150 중첩 계약과 동일 생성.
+WIP_TARGET = 100
 STAGE_HOTSPOT_W = 3.0
 STAGE_N_HOTSPOT = 4
+STAGE_MASTER_LOAD = 150
 CLIP, LR, ENT, GAMMA = 0.2, 3e-4, 0.01, 1.0     # yr139 앵커 승계
 # advantage = MC 총수익 − critic 기준선 (= GAE λ=1). λ<1 은 도입하지 않았다(감사 정정).
 N_ITER, EPS_PER_ITER = 40, 4
@@ -239,7 +240,8 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
     params = TerminalStreamParams(load_4h=wip, hotspot_blocks=hs,
                                   hotspot_weight=STAGE_HOTSPOT_W)
     built = build_fixed_wip(build_h21_profile(), seed, wip_target=wip, obs=obs,
-                            layout=layout, params=params)
+                            layout=layout, params=params,
+                            master_load=max(wip, STAGE_MASTER_LOAD))
     mbt = MultiBlockTerminal({b: _sim_from(s) for b, s in built["scenarios"].items()},
                              extra_review_epochs=admission_epochs(obs))
     ctrl = WipAdmissionController(built["pool"], wip_target=wip,
