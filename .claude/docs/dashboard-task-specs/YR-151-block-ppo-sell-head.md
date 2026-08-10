@@ -9,8 +9,7 @@
   - **0A 를 하네스에 보고 → 신뢰성 게이트 FAIL → PASS**(YR-153 `current_gate.json`).
     닫힌 3사유 = `runtime_git_dirty` · 빈 `runtime_params` · 사전등록이 파일 경로가 아님
   - 다음: YR-150 **H-21 21블록** 지속 유입 환경 구축 → **0B-H**(신호·학습 GO/STOP)
-- **3대 게이트 단계 계약**: `0A=reliability`, `0B=performance` — 각 단계 착수 전 YR-153
-  `authorize-next`를 따로 통과하며 두 축 동시 보정 금지
+- **단계 계약**: `0A=reliability`·`0B=performance` — 단계별 별도 인가·두 축 동시 보정 금지
 - **사용자 결정**: 중앙 계산기가 먼저 판매작업을 고르는 구조를 기준선으로 남기되,
   원소유 블록 PPO가 `KEEP/SELL`을 직접 학습하는 정책을 구현한다.
 
