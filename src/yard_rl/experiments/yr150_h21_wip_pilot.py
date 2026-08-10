@@ -89,7 +89,8 @@ def _rows(mbt) -> list[dict]:
 
 def run_cell(wip: int, obs: ObservationContract, *,
              params=None, seed: int | None = None,
-             background_seed: int | None = None) -> dict:
+             background_seed: int | None = None,
+             master_load: int | None = None) -> dict:
     """자격 1셀 — params/seed 를 받으면 YR-157 hotspot 셀 등 변형 계약도 같은 검사로
     자격을 본다(기본값 = YR-150 균등 계약, 기존 호출 불변)."""
     prof = build_h21_profile()
@@ -98,7 +99,8 @@ def run_cell(wip: int, obs: ObservationContract, *,
     built = build_fixed_wip(prof, SEED + wip if seed is None else seed,
                             wip_target=wip, obs=obs, layout=layout, params=params,
                             background_seed=(SEED if background_seed is None
-                                             else background_seed))
+                                             else background_seed),
+                            master_load=master_load)
     mbt, ctrl, exc = _run(built, obs)
     try:
         mbt.check_invariants()
@@ -129,7 +131,8 @@ def run_cell(wip: int, obs: ObservationContract, *,
     again = build_fixed_wip(prof, SEED + wip if seed is None else seed,
                             wip_target=wip, obs=obs, layout=layout, params=params,
                             background_seed=(SEED if background_seed is None
-                                             else background_seed))
+                                             else background_seed),
+                            master_load=master_load)
     deterministic = again["pool"] == built["pool"] and again["fill"] == built["fill"]
 
     # W9(★32차 재정의) — 실제 투입분(채움 + 투입된 pool 접두)만 계상 + 작업별 원장.

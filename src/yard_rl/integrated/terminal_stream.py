@@ -377,7 +377,8 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                     layout: YardLayout | None = None,
                     params: TerminalStreamParams | None = None,
                     pool_factor: int = WIP_POOL_FACTOR,
-                    background_seed: int | None = None) -> dict:
+                    background_seed: int | None = None,
+                    master_load: int | None = None) -> dict:
     """고정 재공량 계약의 시나리오 묶음 — 초기 채움 L 대 + 교체 투입용 대기 pool.
 
     · 초기 채움: `p` 배분으로 L 대를 [0, WIP_FILL_SPAN_S] 에 펼쳐 사전 배치(장부 활성화 겸).
@@ -388,6 +389,12 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     · background_seed(★32차 감사): 배경(초기 적재·본선 배치·반출대상 순서)의 시드를
       트럭 시드와 분리한다 — 부하 L 셀들이 **같은 배경**을 공유해야 L 효과가 배경
       변주와 교락하지 않는다. None 이면 기존과 동일하게 seed 를 그대로 쓴다.
+    · master_load(★34차 감사 — 완전한 짝 비교): 트럭 명단(채움+pool 속성열)을
+      master_load 기준으로 한 번 추첨하고 **앞부분만 잘라** 쓴다 — 같은 (seed,
+      master) 에서 L100 은 L150 세계의 접두(같은 트럭·같은 순서)가 되어 "트럭 수만
+      바꾼 비교"가 성립한다. 구판(L 별 재추첨)은 트럭 구성까지 달라져 인과 주장
+      불가(감사 지적). None = 기존 동작(골든 불변). 채움 투입 간격은 L 계약값
+      (WIP_FILL_SPAN/L)을 따른다 — 명단이 정본, 간격은 계약.
     """
     obs = obs or ObservationContract()
     layout = layout or terminal_layout()
@@ -451,14 +458,18 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                 "exit_travel_s": trunc_normal(exit_rng, params.exit_travel_mu_s,
                                               0.12, lo=60.0)}
 
-    # ③ 초기 채움 — p 배분 L 대를 [0, FILL_SPAN] 에 균등 배치 (전 블록 장부 활성화)
-    counts = allocate(p, wip_target)
+    # ③ 초기 채움 — ★34차: master 명단(속성열)을 뽑고 앞 wip_target 대만 쓴다.
+    m = wip_target if master_load is None else master_load
+    if m < wip_target:
+        raise ValueError(f"master_load {m} < wip_target {wip_target}")
+    counts = allocate(p, m)
     slots = [b for b in layout.ids for _ in range(counts[b])]
     random.Random(f"h21w:fill:{seed}").shuffle(slots)
+    master_fill = [draw(bid, f"{bid}:F-{i:05d}") for i, bid in enumerate(slots)]
     fill_ledger = []
     fill_jobs: dict[str, list[Job]] = {b: [] for b in layout.ids}
-    for i, bid in enumerate(slots):
-        e = draw(bid, f"{bid}:F-{i:05d}")
+    for i, e in enumerate(master_fill[:wip_target]):
+        bid = e["block"]
         gate_in = WIP_FILL_SPAN_S * i / max(1, wip_target)
         fill_jobs[bid].append(_job_from_entry(e, gate_in))
         # 32차 감사(부채 2): fill 도 requested/realized 를 원장에 남긴다 — 공식 자격
@@ -469,11 +480,12 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                             "gate_in_s": round(gate_in, 3),
                             "travel_s": round(e["travel_s"], 3)})
 
-    # ④ 교체 pool — 블록 배분 비율을 그대로 따르는 사전 순서열
-    pool_counts = allocate(p, wip_target * pool_factor)
+    # ④ 교체 pool — master 순서열의 접두 (블록 배분 비율은 master 기준)
+    pool_counts = allocate(p, m * pool_factor)
     pool_slots = [b for b in layout.ids for _ in range(pool_counts[b])]
     random.Random(f"h21w:pool:{seed}").shuffle(pool_slots)
-    pool = [draw(bid, f"{bid}:W-{i:05d}") for i, bid in enumerate(pool_slots)]
+    master_pool = [draw(bid, f"{bid}:W-{i:05d}") for i, bid in enumerate(pool_slots)]
+    pool = master_pool[:wip_target * pool_factor]
 
     for b in layout.ids:
         scns[b] = dataclasses.replace(
@@ -488,6 +500,7 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
                                  for b, pl in placement.items()},
             "flow_fallbacks": flow_fallbacks,
             "flow_fallbacks_total": sum(flow_fallbacks.values()),
+            "master_load": m,
             "mode": "fixed_wip",
             "fairness_note": "고정 WIP: 정책별 유입량이 달라진다 — 성능은 처리량과 "
                              "시간당 비용의 공동 판정만 허용(에피소드 총비용 단독 금지)"}

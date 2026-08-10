@@ -152,6 +152,25 @@ def test_fill_ledger_carries_fallback_fields(built):
         assert "requested_flow" in e and "fallback_reason" in e
 
 
+def test_master_load_nesting_makes_true_pairs():
+    """34차 감사: master_load 를 주면 L100 트럭 명단이 L150 명단의 **접두**가 된다 —
+    같은 세계에서 트럭 수만 다른 비교(속성 동일·순서 동일, 채움 투입 간격만 L 계약)."""
+    kw = dict(obs=OBS, background_seed=SEED, master_load=150)
+    a = build_fixed_wip(build_h21_profile(), SEED + 7, wip_target=100, **kw)
+    b = build_fixed_wip(build_h21_profile(), SEED + 7, wip_target=150, **kw)
+    strip = lambda e: {k: v for k, v in e.items() if k != "gate_in_s"}
+    assert [strip(e) for e in a["fill"]] == [strip(e) for e in b["fill"][:100]]
+    assert a["pool"] == b["pool"][:100 * 30]
+    assert a["master_load"] == b["master_load"] == 150
+
+
+def test_master_load_none_is_identity():
+    """master_load=None(기본)은 기존 생성과 동일해야 한다(골든 불변)."""
+    a = build_fixed_wip(build_h21_profile(), SEED, wip_target=63)
+    b = build_fixed_wip(build_h21_profile(), SEED, wip_target=63, master_load=63)
+    assert a["fill"] == b["fill"] and a["pool"] == b["pool"]
+
+
 def test_background_seed_shared_across_load_cells():
     """32차 부채 3: background_seed 고정 시 부하 셀들이 같은 배경(본선 배치·초기 적재·
     반출대상 순서)을 공유하고, 트럭 pool 만 셀 시드에 따라 달라져야 한다."""

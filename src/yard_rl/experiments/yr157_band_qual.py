@@ -50,15 +50,23 @@ def hotspot_seed(w: float, rep: int = 0) -> int:
     return SEED + rep * REP_STRIDE + int(w * 10) * 1000
 
 
+def pair_seed(w: float, rep: int = 0) -> int:
+    """★34차 감사 — 완전한 짝: 트럭 명단(채움+pool 속성열)의 추첨 시드도 **L 무관**.
+    build_fixed_wip(master_load=max(LOADS)) 와 결합하면 L100 명단 = L150 명단의
+    접두가 되어 "같은 세계에서 트럭 수만 다른 비교"가 성립한다."""
+    return SEED + rep * REP_STRIDE + int(w * 10) * 1000
+
+
 def run_one(w: float, load: int, obs: ObservationContract, rep: int = 0) -> dict:
     layout = terminal_layout()
-    seed = cell_seed(w, load, rep)
+    seed = pair_seed(w, rep)             # ★34차: 트럭 명단 시드 L 무관 (완전한 짝)
     hs: tuple[str, ...] = ()
     if w > 1.0:
         hs = hotspot_rotation(layout, hotspot_seed(w, rep), N_HOTSPOT)
     params = TerminalStreamParams(load_4h=load, hotspot_blocks=hs, hotspot_weight=w)
     cell = run_cell(load, obs, params=params, seed=seed,
-                    background_seed=SEED + rep * REP_STRIDE)
+                    background_seed=SEED + rep * REP_STRIDE,
+                    master_load=max(LOADS))
     # hotspot 사후 관측(판정 아님) — 몰린 블록의 최대 내부 대수(집중이 실제 생겼는가).
     cell.update({
         "hotspot_weight": w, "hotspot_blocks": list(hs), "cell_seed": seed,
