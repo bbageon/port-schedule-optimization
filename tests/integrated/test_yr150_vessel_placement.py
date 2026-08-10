@@ -154,14 +154,15 @@ def test_fill_ledger_carries_fallback_fields(built):
 
 def test_master_load_nesting_makes_true_pairs():
     """34차 감사: master_load 를 주면 L100 트럭 명단이 L150 명단의 **접두**가 된다 —
-    같은 세계에서 트럭 수만 다른 비교(속성 동일·순서 동일, 채움 투입 간격만 L 계약)."""
+    같은 세계에서 트럭 수만 다른 비교(속성·순서·공통 작업 시각 동일)."""
     kw = dict(obs=OBS, background_seed=SEED, master_load=150)
     a = build_fixed_wip(build_h21_profile(), SEED + 7, wip_target=100, **kw)
     b = build_fixed_wip(build_h21_profile(), SEED + 7, wip_target=150, **kw)
-    strip = lambda e: {k: v for k, v in e.items() if k != "gate_in_s"}
-    assert [strip(e) for e in a["fill"]] == [strip(e) for e in b["fill"][:100]]
+    assert a["fill"] == b["fill"][:100]
     assert a["pool"] == b["pool"][:100 * 30]
     assert a["master_load"] == b["master_load"] == 150
+    assert sum(a["counts"].values()) == 100
+    assert sum(b["counts"].values()) == 150
 
 
 def test_master_load_none_is_identity():

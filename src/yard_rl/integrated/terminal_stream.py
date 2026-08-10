@@ -462,15 +462,21 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
     m = wip_target if master_load is None else master_load
     if m < wip_target:
         raise ValueError(f"master_load {m} < wip_target {wip_target}")
-    counts = allocate(p, m)
-    slots = [b for b in layout.ids for _ in range(counts[b])]
+    master_counts = allocate(p, m)
+    slots = [b for b in layout.ids for _ in range(master_counts[b])]
     random.Random(f"h21w:fill:{seed}").shuffle(slots)
     master_fill = [draw(bid, f"{bid}:F-{i:05d}") for i, bid in enumerate(slots)]
     fill_ledger = []
     fill_jobs: dict[str, list[Job]] = {b: [] for b in layout.ids}
-    for i, e in enumerate(master_fill[:wip_target]):
+    used_fill = master_fill[:wip_target]
+    counts = {b: 0 for b in layout.ids}
+    for i, e in enumerate(used_fill):
         bid = e["block"]
-        gate_in = WIP_FILL_SPAN_S * i / max(1, wip_target)
+        # The common prefix must keep the same event time across load cells.
+        # Dividing by wip_target made 99/100 shared jobs occur at different
+        # times in L100 and L150, invalidating the paired comparison.
+        gate_in = WIP_FILL_SPAN_S * i / max(1, m)
+        counts[bid] += 1
         fill_jobs[bid].append(_job_from_entry(e, gate_in))
         # 32차 감사(부채 2): fill 도 requested/realized 를 원장에 남긴다 — 공식 자격
         # 결과가 "실제 투입된 작업"의 fallback 을 작업 단위로 복기할 수 있어야 한다.
@@ -493,7 +499,8 @@ def build_fixed_wip(profile: IntegratedProfile, seed: int, *,
             meta={**scns[b].meta, "h21_block": b, "h21_wip_target": wip_target,
                   "h21_mode": "fixed_wip", "observation": obs.as_dict()})
     return {"scenarios": scns, "pool": pool, "fill": fill_ledger, "p": p,
-            "counts": counts, "wip_target": wip_target,
+            "counts": counts, "master_counts": master_counts,
+            "wip_target": wip_target,
             "observation": obs.as_dict(), "layout": layout.as_dict(),
             "vessels_per_block": per_block_vessels,
             "vessel_placement": {b: {**pl, "start_s": round(pl["start_s"], 3)}

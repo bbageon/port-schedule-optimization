@@ -21,7 +21,9 @@ from statistics import fmean
 
 from ..integrated.repro import code_dirty
 from ..integrated.terminal_stream import (ObservationContract,
-                                          TerminalStreamParams, hotspot_rotation)
+                                          TerminalStreamParams, build_fixed_wip,
+                                          hotspot_rotation)
+from ..integrated.profiles import build_h21_profile
 from ..integrated.yard_layout import terminal_layout
 from .yr150_h21_pilot import _git, _sha256
 from .yr150_h21_wip_pilot import run_cell
@@ -111,6 +113,41 @@ def run() -> dict:
 
 
 def _judge(cells: list[dict], obs: ObservationContract, *, design: str) -> dict:
+    # 공식 자격 판정 안에서 짝 계약을 재검산한다. 단위 테스트만 통과하고
+    # 실제 evidence가 다른 시각의 세계를 쓰는 사각을 막는다.
+    layout = terminal_layout()
+    n_reps = REPS if len(cells) > len(WEIGHTS) * len(LOADS) else 1
+    paired = []
+    for rep in range(n_reps):
+        for w in WEIGHTS:
+            hs = () if w <= 1.0 else hotspot_rotation(
+                layout, hotspot_seed(w, rep), N_HOTSPOT)
+            shared = {
+                "obs": obs,
+                "layout": layout,
+                "background_seed": SEED + rep * REP_STRIDE,
+                "master_load": max(LOADS),
+            }
+            low = build_fixed_wip(
+                build_h21_profile(), pair_seed(w, rep),
+                wip_target=min(LOADS),
+                params=TerminalStreamParams(
+                    load_4h=min(LOADS), hotspot_blocks=hs, hotspot_weight=w),
+                **shared,
+            )
+            high = build_fixed_wip(
+                build_h21_profile(), pair_seed(w, rep),
+                wip_target=max(LOADS),
+                params=TerminalStreamParams(
+                    load_4h=max(LOADS), hotspot_blocks=hs, hotspot_weight=w),
+                **shared,
+            )
+            paired.append(
+                low["fill"] == high["fill"][:min(LOADS)]
+                and low["pool"] == high["pool"][:min(LOADS) * 30]
+                and sum(low["counts"].values()) == min(LOADS)
+                and sum(high["counts"].values()) == max(LOADS)
+            )
     checks = {
         "W1_wip_maintained": all(c["wip_maintained_pm5pct"] for c in cells),
         "W2_ledger_conserved": all(c["ledger_conserved"] for c in cells),
@@ -126,6 +163,7 @@ def _judge(cells: list[dict], obs: ObservationContract, *, design: str) -> dict:
                                        for c in cells),
         "W8_pool_not_exhausted": all(c["pool_exhausted_at"] is None for c in cells),
         "W9_flow_fallback_zero": all(c["flow_fallbacks_used"] == 0 for c in cells),
+        "W10_master_pairing_exact": bool(paired) and all(paired),
         "no_policy_exceptions": all(c["policy_exceptions"] == 0 for c in cells),
     }
     per_cell_states: dict[str, list[str]] = {}
