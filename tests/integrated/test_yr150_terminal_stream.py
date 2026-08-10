@@ -192,10 +192,13 @@ def test_anchor_registry_only_records_sourced_ranges():
     assert len(rec["observed_range"]) == 2
     assert rec["source"]["title"].strip() and rec["source"]["locator"].strip()
     assert Path(rec["source"]["locator"].split(" :")[0]).is_file()
-    # 근거 없는 지표는 지어내지 않고 사유를 남긴다.
-    # (2026-08-08: vessel_workload 는 조사·유도로 anchors 에 승격 — 유도 사슬 필수)
-    assert set(reg["unavailable"]) == {"initial_yard_occupancy", "truck_arrival_rate",
-                                       "crane_service_time"}
+    # 2026-08-09 조사로 미수집 3종 전부 등록 — unavailable 은 소진 상태가 계약이고,
+    # 등록된 앵커는 출처·대역이 필수다(지어내기 금지 원칙은 source 필드로 검사).
+    assert reg["unavailable"] == {}
+    for name in ("initial_yard_occupancy", "truck_arrival_rate",
+                 "crane_service_time"):
+        a = reg["anchors"][name]
+        assert len(a["observed_range"]) == 2 and a["source"]["locator"].strip()
     vw = reg["anchors"]["vessel_workload"]
     assert vw["status"] == "derived" and vw["unit"] == "moves/h"
     assert "derivation" in vw and vw["derivation"]["chain"]

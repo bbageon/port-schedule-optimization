@@ -89,7 +89,12 @@ class TerminalStreamParams:
     hotspot_weight: float = 3.0
     gate_out_share: float = 0.6
     size_mix_ft40: float = 0.7
-    fill_ratio: float = 0.30
+    # ★장치율 재보정(사용자 결정 2026-08-10): 0.30 → 0.65 — 부산항 평시 관측·문헌
+    # 대역 [0.60, 0.75] 의 중심값(앵커 등록부 initial_yard_occupancy). 구 0.30 은
+    # 문헌 최저 실측(52%)보다 낮은 assumed 값이었다. 주의: 구세대 경로
+    # (scenario_gen.TerminalGenParams 기본 0.30)는 골든 보존을 위해 불변 — 이 값은
+    # H-21 지속유입 계약 전용이며 변경 시 전면 재자격 필요.
+    fill_ratio: float = 0.65
     # ★본선 물량 재보정 (2026-08-08 — 척당 15건은 2블록 시절 값의 무비판 승계였다).
     #
     # 유도 사슬 (근거: configs/anchors/external_anchors_v1.json vessel_workload):
