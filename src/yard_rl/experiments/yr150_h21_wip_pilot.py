@@ -31,6 +31,7 @@ from ..integrated.baselines import (ResolverPolicy, ServiceFirstSPTPreference, _
                                     _wait_of)
 from ..integrated.candidates import CandidateGenerator
 from ..integrated.multiblock import MultiBlockTerminal
+from ..integrated.policy_config import LEGACY_DEFAULT
 from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty
 from ..integrated.scenario_gen import GATE_BLOCK_MAX_S
@@ -62,7 +63,7 @@ def _run(built: dict, obs: ObservationContract):
     exc = {"n": 0, "decisions": 0}
 
     def policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator())
+        g = gens.setdefault(id(sim), CandidateGenerator(config=LEGACY_DEFAULT))
         gb = {c: g.generate(sim, c, LEVEL) for c in dp.crane_ids}
         exc["decisions"] += 1
         try:
@@ -208,8 +209,8 @@ def run_cell(wip: int, obs: ObservationContract, *,
 
 def _exec_flags() -> dict:
     """YR-160 — 현재 실행 플래그 스냅샷 (결과 JSON 박제용)."""
-    from ..integrated.policy_config import current
-    return current().as_dict()
+    from ..integrated.policy_config import LEGACY_DEFAULT
+    return LEGACY_DEFAULT.as_dict()
 
 
 def run() -> dict:

@@ -10,6 +10,7 @@ job_id 사전순) = 표본 40 · 짝 런 = (전 KEEP) vs (그 제안 1건만 집
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from statistics import median
@@ -26,8 +27,10 @@ from ..integrated.sell_review import (ANNOUNCE_LEAD_S, UnifiedSellOrchestrator)
 from ..integrated.terminal_stream import (ObservationContract,
                                           TerminalStreamParams,
                                           WipAdmissionController,
-                                          admission_epochs, build_fixed_wip,
+                                          WIP_FILL_SPAN_S, admission_epochs,
+                                          build_fixed_wip,
                                           hotspot_rotation)
+from ..integrated.scenario_gen import GATE_BLOCK_MAX_S
 from ..integrated.time_sell import try_time_sell
 from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
                                         TransferCritic)
@@ -47,6 +50,7 @@ W, LOAD, MASTER = 3.0, 100, 150          # 동결 — 주 무대(짝 체계 정�
 DEV_BASE, DEV_REPS = 10_000_000, 5       # 동결 — 개발 대역
 NET_INIT = 7_000_000                     # 동결 — 미학습 초기화
 PER_RUN, RHO_MIN, MAX_BAD = 8, 0.3, 10   # 동결 — 런당 표본·구분력 임계·무효 상한
+WIP_TOL_FRAC = 0.05
 
 
 def dev_seed(rep: int) -> int:
@@ -69,6 +73,31 @@ def _env(rep: int):
     return obs, layout, built, mbt, ctrl
 
 
+def _state_digest(mbt, ctrl) -> str:
+    """Hash the observable/physical state immediately before a paired action."""
+    blocks = []
+    for bid, sim in sorted(mbt.blocks.items()):
+        jobs = []
+        for jid, job in sorted(sim.jobs.items()):
+            jobs.append((jid, str(job.status), job.actual_gate_in,
+                         job.actual_block_arrival, job.estimated_block_arrival,
+                         job.provided_eta, str(job.flow)))
+        cranes = []
+        for cid in sorted(sim.fleet.ids):
+            yc = sim.fleet.get(cid)
+            cranes.append((cid, str(yc.state.status), yc.state.position_bay,
+                           getattr(yc.state, "current_job_id", None)))
+        blocks.append((bid, sim.clock, jobs, cranes))
+    owners = [(jid, rec.owner, rec.version, rec.transfer_count)
+              for jid, rec in sorted(mbt.ledger.records.items())]
+    payload = {"now": mbt.now, "blocks": blocks, "owners": owners,
+               "admission": {"cursor": ctrl.cursor,
+                             "n_admitted": ctrl.n_admitted}}
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                     default=str).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
 def _run(rep: int, review_extra=None):
     """공통 러너 — 채택 PPO 실행 + 60초 투입 + (옵션) 추가 review 훅.
 
@@ -88,7 +117,7 @@ def _run(rep: int, review_extra=None):
     def review(mbt_, t):
         ctrl.review(mbt_, t)
         if review_extra is not None:
-            review_extra(mbt_, t)
+            review_extra(mbt_, t, ctrl)
 
     mbt.run(exec_policy, review_fn=review)
     n_rows = sum(len(getattr(s, "time_ledger").records)
@@ -100,7 +129,16 @@ def _run(rep: int, review_extra=None):
     done = sum(1 for s in mbt.blocks.values()
                if getattr(s, "time_ledger", None) is not None
                for r in s.time_ledger.records.values() if r.gate_out is not None)
+    hold_lo = max(obs.warmup_s, WIP_FILL_SPAN_S)
+    hold_hi = obs.observe_s - (ANNOUNCE_LEAD_S + GATE_BLOCK_MAX_S)
+    held = [e["inside"] + e["pipeline"] + e["admitted"]
+            for e in ctrl.ledger
+            if e["event"] == "EPOCH" and hold_lo <= e["t"] <= hold_hi]
+    wip_ok = bool(held) and all(
+        LOAD * (1.0 - WIP_TOL_FRAC) <= value <= LOAD * (1.0 + WIP_TOL_FRAC)
+        for value in held)
     return {"phi": phi_terminal(mbt, obs.observe_s), "n_done": done,
+            "wip_contract_ok": wip_ok,
             "mbt": mbt, "layout": layout, "obs": obs}
 
 
@@ -143,14 +181,30 @@ def sample() -> Path:
     for rep in range(DEV_REPS):
         wc = json.loads((OUT / f"smoke_rep{rep}.json").read_text(
             encoding="utf-8"))["would"]
-        wc = sorted(wc, key=lambda e: (-(-e["delta_j"]), e["job_id"]))
-        wc = sorted(wc, key=lambda e: e["delta_j"])          # 이득 큰 순(ΔJ 오름)
+        # Repeated reviews can quote the same coordinate more than once.  A
+        # counterfactual sample is one exact decision coordinate, not a job ID.
+        unique = {}
+        for e in wc:
+            key = (round(e["t"], 6), e["src"], e["job_id"], e["axis"], e.get("dst"))
+            unique.setdefault(key, e)
+        wc = sorted(unique.values(), key=lambda e: (e["delta_j"], e["job_id"],
+                                                     e["t"], str(e.get("dst"))))
         n = len(wc)
+        if n < PER_RUN:
+            raise RuntimeError(f"rep {rep}: unique proposals {n} < {PER_RUN}")
+        selected = []
         for q in range(4):
             seg = wc[q * n // 4:(q + 1) * n // 4]
+            if len(seg) < 2:
+                raise RuntimeError(f"rep {rep}: quartile {q} has <2 proposals")
             seg = sorted(seg, key=lambda e: e["job_id"])[:2]
             for e in seg:
-                samples.append({**e, "rep": rep, "quartile": q})
+                selected.append({**e, "rep": rep, "quartile": q})
+        if len(selected) != PER_RUN:
+            raise RuntimeError(f"rep {rep}: selected {len(selected)} != {PER_RUN}")
+        samples.extend(selected)
+    if len(samples) != DEV_REPS * PER_RUN:
+        raise RuntimeError("counterfactual manifest must contain exactly 40 samples")
     p = OUT / "samples.json"
     p.write_text(json.dumps({"n": len(samples), "samples": samples},
                             ensure_ascii=False, indent=1), encoding="utf-8")
@@ -162,13 +216,28 @@ def pair(idx: int) -> Path:
     """표본 1건의 반사실 짝 — 기준(전 KEEP) vs 처치(그 1건만 집행)."""
     s = json.loads((OUT / "samples.json").read_text(encoding="utf-8"))["samples"][idx]
     rep, t_star, jid = s["rep"], s["t"], s["job_id"]
-    base = _run(rep)                                        # 기준 세계
+    base_state = {}
 
-    state = {"tried": False, "ok": False}
+    def capture_base(mbt_, t, ctrl):
+        if "digest" not in base_state and abs(t - t_star) < 1e-6:
+            base_state["digest"] = _state_digest(mbt_, ctrl)
 
-    def treat(mbt_, t):
+    base = _run(rep, review_extra=capture_base)             # 기준 세계
+    if "digest" not in base_state:
+        raise RuntimeError("paired decision epoch missing in KEEP world")
+
+    state = {"tried": False, "ok": False, "equal": False}
+
+    def treat(mbt_, t, ctrl):
         if not state["tried"] and abs(t - t_star) < 1e-6:
             state["tried"] = True
+            digest = _state_digest(mbt_, ctrl)
+            state["equal"] = digest == base_state["digest"]
+            if not state["equal"]:
+                raise RuntimeError("paired worlds differ before treatment")
+            rec = mbt_.ledger.records.get(jid)
+            if rec is None or rec.owner != s["src"]:
+                raise RuntimeError("proposal owner/source changed before treatment")
             layout = terminal_layout()
             if s["axis"] == "TIME":
                 state["ok"] = bool(try_time_sell(mbt_, jid, delta_s=900.0,
@@ -181,9 +250,12 @@ def pair(idx: int) -> Path:
     tr = _run(rep, review_extra=treat)                      # 처치 세계
     res = {"idx": idx, "rep": rep, "axis": s["axis"], "quartile": s["quartile"],
            "delta_j": s["delta_j"], "executed": state["ok"],
+           "paired_state_equal": state["equal"],
            "gain_realized": round(base["phi"] - tr["phi"], 6),
            "throughput_base": base["n_done"], "throughput_treat": tr["n_done"],
-           "throughput_ok": tr["n_done"] >= base["n_done"]}
+           "throughput_ok": tr["n_done"] >= base["n_done"],
+           "wip_contract_base": base["wip_contract_ok"],
+           "wip_contract_treat": tr["wip_contract_ok"]}
     p = OUT / f"pair_{idx:02d}.json"
     p.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(res, ensure_ascii=False))
@@ -213,14 +285,34 @@ def _spearman(xs, ys):
 
 
 def verdict() -> dict:
-    pairs = [json.loads((OUT / f"pair_{i:02d}.json").read_text(encoding="utf-8"))
-             for i in range(40) if (OUT / f"pair_{i:02d}.json").exists()]
-    bad = [p for p in pairs if not p["executed"]]
-    ok = [p for p in pairs if p["executed"]]
+    manifest = json.loads((OUT / "samples.json").read_text(encoding="utf-8"))
+    if manifest.get("n") != DEV_REPS * PER_RUN:
+        raise RuntimeError("invalid counterfactual sample manifest")
+    pairs_by_idx = {
+        i: json.loads((OUT / f"pair_{i:02d}.json").read_text(encoding="utf-8"))
+        for i in range(DEV_REPS * PER_RUN)
+        if (OUT / f"pair_{i:02d}.json").exists()
+    }
+    pairs = []
+    for i, s in enumerate(manifest["samples"]):
+        p = pairs_by_idx.get(i)
+        if p is None:
+            p = {"idx": i, "rep": s["rep"], "axis": s["axis"],
+                 "quartile": s["quartile"], "delta_j": s["delta_j"],
+                 "executed": False, "paired_state_equal": False,
+                 "gain_realized": 0.0, "throughput_ok": False,
+                 "wip_contract_base": False, "wip_contract_treat": False}
+        pairs.append(p)
+    bad = [p for p in pairs
+           if (not p["executed"] or not p.get("paired_state_equal", False)
+               or not p.get("wip_contract_base", False)
+               or not p.get("wip_contract_treat", False))]
+    ok = [p for p in pairs if p not in bad]
     # 하드 가드: 처리량 감소 표본은 이득 판정에서 실패로 계수(이득값을 0 이하 취급)
-    eff = [{**p, "g_eff": (p["gain_realized"] if p["throughput_ok"]
-                           else min(0.0, p["gain_realized"]) - 1e-9)}
-           for p in ok]
+    eff = [{**p, "g_eff": (-1e-9 if p in bad else
+                            (p["gain_realized"] if p["throughput_ok"]
+                             else min(0.0, p["gain_realized"]) - 1e-9))}
+           for p in pairs]
     by_rep = {}
     for p in eff:
         by_rep.setdefault(p["rep"], []).append(p)
@@ -236,7 +328,7 @@ def verdict() -> dict:
          "axis2_median_run_rho": round(med_rho, 4), "rho_min": RHO_MIN,
          "run_sums": {str(k): round(vv, 4) for k, vv in run_sums.items()},
          "run_rhos": {str(k): round(vv, 4) for k, vv in rhos.items()},
-         "n_pairs": len(pairs), "n_not_executed": len(bad),
+         "n_pairs": len(pairs), "n_invalid_or_unexecuted": len(bad),
          "n_throughput_fail": sum(1 for p in ok if not p["throughput_ok"]),
          "median_gain_all": round(median([p["gain_realized"] for p in ok]), 6)
                             if ok else None,
