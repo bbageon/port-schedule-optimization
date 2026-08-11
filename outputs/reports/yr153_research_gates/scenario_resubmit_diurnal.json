@@ -1,0 +1,122 @@
+{
+ "runtime": {
+  "commit": "ec3399ea07288c0aea11879611a58086bf53dc69",
+  "contract": "diurnal_24h",
+  "source_qualification": "outputs/reports/yr167_diurnal_qual/diurnal_qual.json",
+  "source_qualification_sha256": "daebf31d38ca61941ff89459b11cbed367d8ba21b484533d30013be6167f928c",
+  "source_observation": "outputs/reports/yr168_observe/observe.json",
+  "source_observation_sha256": "08a0f38bfc68a146a2d9ec431abd07483373ebc340b4d61a772855d070cddd54",
+  "prereg": ".claude/docs/strategy-history/2026-08-11-24시간-이중피크-상수-유도-사전등록.md",
+  "prereg_sha256": "20bf45fe6a01c0f82622909b604a4c3b583e073abba3555c0b0a2801218fe7b9"
+ },
+ "scenario_gate": {
+  "outcome": {
+   "status": "PASS",
+   "summary": "요청한 주장 범위의 시나리오 타당성 계약을 충족함",
+   "reasons": [],
+   "evidence": {
+    "continuous_operation": true,
+    "internal_checks": {
+     "event_time_order": true,
+     "record_chain_complete": true,
+     "information_boundary": true,
+     "no_truth_leak": true,
+     "policy_declares_no_future_info": true,
+     "ownership_conservation": true,
+     "physical_constraints": true,
+     "achievable_vessel_deadline": true,
+     "ledger_conservation": true,
+     "deterministic_replay": true
+    },
+    "flow_checks": {
+     "continuous_arrivals": true,
+     "warmup_excluded": true,
+     "fixed_measurement_window": true,
+     "load_state_classified": true,
+     "flow_balance_consistent_with_classification": true
+    },
+    "anchors": {
+     "gate_to_block_time": {
+      "observed_range": [
+       180.0,
+       420.0
+      ],
+      "simulated_range": [
+       190.0,
+       410.0
+      ],
+      "unit": "s",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "vessel_workload": {
+      "observed_range": [
+       145.0,
+       170.0
+      ],
+      "simulated_range": [
+       148.0,
+       148.2
+      ],
+      "unit": "moves/h",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "initial_yard_occupancy": {
+      "observed_range": [
+       0.6,
+       0.75
+      ],
+      "simulated_range": [
+       0.65,
+       0.65
+      ],
+      "unit": "ratio",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "truck_arrival_rate": {
+      "observed_range": [
+       60.0,
+       225.0
+      ],
+      "simulated_range": [
+       161.6,
+       161.6
+      ],
+      "unit": "trucks/h",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     },
+     "crane_service_time": {
+      "observed_range": [
+       120.0,
+       180.0
+      ],
+      "simulated_range": [
+       139.3,
+       140.0
+      ],
+      "unit": "s",
+      "source_path": "configs/anchors/external_anchors_v1.json",
+      "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+     }
+    },
+    "operational_trace_path": null,
+    "operational_trace_sha256": null,
+    "operational_trace_verified": false,
+    "operational_trace_records": 0,
+    "minimum_operational_trace_records": 30,
+    "allowed_claim_scope": "LITERATURE_CALIBRATED_SIMULATION_METHOD_ONLY"
+   }
+  },
+  "anchor_registry_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281",
+  "anchors_unavailable": [],
+  "instantaneous_arrival_range_per_h": [
+   22,
+   460
+  ],
+  "arrival_anchor_note": "truck_arrival_rate 앵커는 원장 정의상 '24h 평균 환산(피크 아님)'이라 평균 처리율로 대조했다. 순간 시간대별 도착은 설계상 앵커 상단을 넘으며(야간 22 ~ 피크 461대/h), 그 근거는 앵커가 아니라 사전등록 §A 의 주야 이중 피크 문헌이다 — 앵커 통과로 피크 현실성을 주장하지 않는다.",
+  "flow_mapping_note": "continuous_arrivals=W1'(명단 준수·계획=투입=등록=3,600)·flow_balance=W8'(재고 보존 항등식). 4차의 W1(재공량 유지)·W2 매핑을 5차 계약 검사로 교체했다."
+ }
+}

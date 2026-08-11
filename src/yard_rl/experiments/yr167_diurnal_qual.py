@@ -101,10 +101,19 @@ def run_cell(rep: int) -> dict:
 
     mbt.run(policy, review_fn=review)
     try:
-        mbt.check_invariants()
+        mbt.check_invariants()          # 소유권·개수 보존 (터미널 전역 원장)
         invariants = True
     except Exception:
         invariants = False
+    # **물리 제약** — 엔진 자체 검사(단 적재 초과·컨테이너 분실·통로/순서 위반).
+    # 런 중 자동 호출되므로 위반 시 셀이 죽지만, "통과했다"를 증거로 남기려면
+    # 종료 상태에서 명시적으로 한 번 더 부른다 (게이트 internal_checks 계약 항목).
+    physical = True
+    for _sim in mbt.blocks.values():
+        try:
+            _sim.check_invariants()
+        except Exception:
+            physical = False
 
     # ---- 장부 수집 ----
     rows = []
@@ -296,6 +305,7 @@ def run_cell(rep: int) -> dict:
                         "information_boundary_missing_n": leak_missing,
                         "estimate_equals_truth_n": leak_exact,
                         "ownership_conservation": invariants,
+                        "physical_constraints": physical,
                         "achievable_vessel_deadline": achievable},
         "W2_area_error_s": round(area_err, 9),
         "W8p_no_stock_exhaustion": w8, "W8p_conservation": cons,
