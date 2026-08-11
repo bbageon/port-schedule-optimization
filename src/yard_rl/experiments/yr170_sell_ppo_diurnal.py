@@ -50,7 +50,8 @@ TRAIN_SEEDS = (8_400_000, 8_500_000, 8_600_000)   # 자격·관찰·파일럿 �
 
 def run_episode_diurnal(seed: int, policy, kf, *,
                         obs=None, exec_head: str = "adopted",
-                        exec_fleet=None, exec_config=None) -> dict:
+                        exec_fleet=None, exec_config=None,
+                        _return_mbt: bool = False) -> dict:
     """5차 계약 1 에피소드 — 4차 `run_episode` 와 **반환 형태 동일**(학습 루프 공유).
 
     무대만 다르다: 도착 명단 사전 확정 + 개방 루프 투입 + 24시간 이중 피크.
@@ -122,7 +123,9 @@ def run_episode_diurnal(seed: int, policy, kf, *,
     from ..integrated.transfer_head import critic_input
     end_inputs = {b: critic_input(mbt, b, obs.observe_s, 0, layout=layout)
                   for b in mbt.blocks}
-    return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
+    res_mbt = {"_mbt": mbt} if _return_mbt else {}   # 진단 전용(비용 분해)
+    return {**res_mbt,
+            "phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,
             "exec_policy_config": exec_config.as_dict(),
             "end_inputs": end_inputs,
             "joint": build_joint_transitions(policy.trail, orch.ledger, rec.samples,
