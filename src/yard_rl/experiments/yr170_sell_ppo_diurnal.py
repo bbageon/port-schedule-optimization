@@ -130,6 +130,30 @@ def run_episode_diurnal(seed: int, policy, kf, *,
             "policy_exceptions": exc["n"], "admitted": ann.n_admitted}
 
 
+class KeepAllTrail:
+    """기준선 K — 아무것도 팔지 않는다. 학습 루프와 같은 인터페이스(trail 보유)."""
+
+    mode = "live"
+
+    def __init__(self):
+        self.trail: list[dict] = []
+
+    def decide(self, mbt, src: str, cands: list, t: float) -> str | None:
+        return None
+
+
+def baseline(seed: int, *, exec_head: str = "adopted") -> dict:
+    """전건 KEEP 의 Φ — 학습 결과를 읽을 기준점(성능 판정 아님, 참조값)."""
+    from .yr151_transfer_ppo import load_kf
+    ep = run_episode_diurnal(
+        seed, KeepAllTrail(), load_kf(), exec_head=exec_head,
+        exec_config=(ADOPTED_C0_GUARD if exec_head == "adopted" else None))
+    return {"seed": seed, "exec_head": exec_head,
+            "phi_final": round(ep["phi_final"], 4),
+            "n_space": ep["n_space"], "n_time": ep["n_time"],
+            "admitted": ep["admitted"]}
+
+
 def train(ts: int, *, n_iter: int, eps_per_iter: int) -> Path:
     return train_one(ts, out_root=OUT, episode_fn=run_episode_diurnal,
                      n_iter=n_iter, eps_per_iter=eps_per_iter,
@@ -144,8 +168,16 @@ if __name__ == "__main__":
     ap.add_argument("--eps-per-iter", type=int, default=4)
     ap.add_argument("--smoke", action="store_true",
                     help="에피소드 1회만 돌려 배선 확인 (학습 없음)")
+    ap.add_argument("--baseline", action="store_true",
+                    help="전건 KEEP 기준선 Φ (참조값 — 판정 아님)")
     a = ap.parse_args()
-    if a.smoke:
+    if a.baseline:
+        r = baseline(TRAIN_SEEDS[a.seed_idx])
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / f"baseline_s{r['seed']}.json").write_text(
+            json.dumps(r, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(json.dumps(r, ensure_ascii=False))
+    elif a.smoke:
         import torch
         from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
                                                 TransferCritic)
