@@ -46,6 +46,11 @@ from .yr151_transfer_ppo import (EXEC_TS_DEFAULT as EXEC_TS,
 OUT = Path("outputs/reports/yr170_sell_ppo_diurnal")
 SPEC = ".claude/docs/dashboard-task-specs/YR-170-sell-ppo-diurnal.md"
 TRAIN_SEEDS = (8_400_000, 8_500_000, 8_600_000)   # 자격·관찰·파일럿 대역과 교집합 0
+# ★yr139 앵커 복원 (YR-170 진단 2026-08-12) — 셋 다 "선언돼 있었으나 승계에서
+#   떨어진" 항목이다. 새 가설이 아니라 복원이다.
+RET_SCALE = 1000.0     # 24h Φ≈2,300~3,000 → 수익 목표를 [−3, 0] 으로
+MINIBATCH = 512        # 전배치 1 step → iteration 당 수백 step
+GRAD_CLIP = 1.0        # yr139 에 있던 기울기 상한
 
 
 def run_episode_diurnal(seed: int, policy, kf, *,
@@ -203,6 +208,7 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
     from .yr151_transfer_ppo import (CLIP, ENT, LR, build_batch,
                                      exec_config_hash, load_adopted_execution_head,
                                      ppo_update)
+    # 앵커 복원값은 스탬프에 남긴다(무엇으로 돌렸는지 산출물만 보고 알 수 있게)
     torch.set_num_threads(1)
     torch.manual_seed(ts)
     actor, critic = TransferActor(), TransferCritic()
@@ -224,8 +230,11 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
         for ep in eps:
             with torch.no_grad():
                 v_end = {b: float(critic(x).item()) for b, x in ep["end_inputs"].items()}
-            batch_all += build_batch(ep["trail"], ep["joint"], ep["phi_final"], v_end)
-        stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
+            batch_all += build_batch(ep["trail"], ep["joint"], ep["phi_final"],
+                                     v_end, ret_scale=RET_SCALE)
+        stats = ppo_update(actor, critic, opt_a, opt_c, batch_all,
+                           minibatch=MINIBATCH, seed=ts + it,
+                           grad_clip=GRAD_CLIP)
         if exec_config_hash(exec_actor, EXEC_TS, ADOPTED_C0_GUARD) != exec_hash0:
             raise RuntimeError("실행 구성이 변했다 — 계약 위반")
         hist.append({"iter": it, **stats,
@@ -248,7 +257,10 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
                 "exec_head": f"adopted C0+guard (yr143 confirm ppo_s{EXEC_TS})",
                 "exec_head_hash": exec_hash0,
                 "exec_policy_config": ADOPTED_C0_GUARD.as_dict(),
-                "parallel": "ProcessPoolExecutor(에피소드 병렬 — 같은 정책 스냅샷)"},
+                "parallel": "ProcessPoolExecutor(에피소드 병렬 — 같은 정책 스냅샷)",
+                "RET_SCALE": RET_SCALE, "MINIBATCH": MINIBATCH,
+                "GRAD_CLIP": GRAD_CLIP,
+                "anchor_restored": "yr139 규약 복원 — 수익 정규화·미니배치·기울기 상한"},
         prereg=SPEC)
     (out / "train.json").write_text(json.dumps(
         {"history": hist, "in_progress": False, "code_dirty": bool(code_dirty()),

@@ -353,7 +353,8 @@ def build_joint_transitions(trail: list[dict], sell_ledger: list[dict],
 
 
 def build_batch(trail: list[dict], joint: list[dict],
-                phi_final: float, v_end: dict | None = None) -> list[dict]:
+                phi_final: float, v_end: dict | None = None,
+                ret_scale: float = 1.0) -> list[dict]:
     """결정별 (총수익 R, advantage 원료) 조립 — ★공동 기록(joint)이 원료다(33차 ④).
 
     구판은 개별 trail + Φ 표본만 써서 "공동 기록이 학습에 미연결"이라는 감사 지적
@@ -380,7 +381,10 @@ def build_batch(trail: list[dict], joint: list[dict],
                            ("axis", "decision", "delta_j", "dst") if k in r}
                     break
         boot = float(v_end.get(tr["src"], 0.0)) if v_end else 0.0
-        r2go = -(phi_final - ep["phi_pre"]) + boot
+        # ★yr139 앵커 복원(YR-170 진단): 원 단위 수익(24h Φ≈2,900)을 그대로
+        #   목표로 쓰면 critic 이 1/1,200 지점에서 멈춘다. 고정 SCALE 로 나눠
+        #   목표를 O(1) 로 만든다. boot(critic 출력)은 이미 정규화 공간이다.
+        r2go = -(phi_final - ep["phi_pre"]) / ret_scale + boot
         out.append({**tr, "ret": r2go, "adv": r2go - tr["value"],
                     "resolver": res})
     return out
@@ -388,28 +392,54 @@ def build_batch(trail: list[dict], joint: list[dict],
 
 # ------------------------------------------------------------------ PPO 갱신
 def ppo_update(actor: TransferActor, critic: TransferCritic,
-               opt_a, opt_c, batch: list[dict], *, epochs: int = 4) -> dict:
+               opt_a, opt_c, batch: list[dict], *, epochs: int = 4,
+               minibatch: int | None = None, seed: int = 0,
+               grad_clip: float | None = None) -> dict:
+    """minibatch=None 이면 기존 동작(전배치 1 step) — 4차 호출부 불변.
+
+    ★YR-170 진단: 전배치 1 step 은 표본 60,879 개로 파라미터를 epoch 당 1회만
+    움직인다(iteration 당 4회). 의미 있는 하강에 약 1,000 step 이 필요하므로
+    40 iteration(160 step)으로는 학습이 나타날 수 없다. yr139 앵커(미니배치
+    64+셔플·grad clip)를 복원한다.
+    """
     if not batch:
         return {"n": 0}
     advs = torch.tensor([b["adv"] for b in batch], dtype=torch.float32)
     adv_n = (advs - advs.mean()) / (advs.std() + 1e-6)
-    stats = {"n": len(batch), "pi_loss": 0.0, "v_loss": 0.0}
+    stats = {"n": len(batch), "pi_loss": 0.0, "v_loss": 0.0, "n_steps": 0}
+    mb = len(batch) if minibatch is None else max(1, int(minibatch))
+    g = torch.Generator().manual_seed(seed)
     for _ in range(epochs):
-        pi_loss = torch.tensor(0.0)
-        v_loss = torch.tensor(0.0)
-        for b, a_n in zip(batch, adv_n):
-            logits = actor(b["rows"])
-            dist = Categorical(logits=logits)
-            logp = dist.log_prob(torch.tensor(b["action"]))
-            ratio = torch.exp(logp - b["logp"])
-            pi_loss = pi_loss - torch.min(
-                ratio * a_n, torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * a_n)
-            pi_loss = pi_loss - ENT * dist.entropy()
-            v_loss = v_loss + (critic(b["critic_in"]) - b["ret"]) ** 2
-        opt_a.zero_grad(); (pi_loss / len(batch)).backward(); opt_a.step()
-        opt_c.zero_grad(); (v_loss / len(batch)).backward(); opt_c.step()
-        stats["pi_loss"] = float(pi_loss.item() / len(batch))
-        stats["v_loss"] = float(v_loss.item() / len(batch))
+        order = (torch.randperm(len(batch), generator=g).tolist()
+                 if minibatch is not None else list(range(len(batch))))
+        ep_pi = ep_v = 0.0
+        for start in range(0, len(order), mb):
+            idx = order[start:start + mb]
+            pi_loss = torch.tensor(0.0)
+            v_loss = torch.tensor(0.0)
+            for i in idx:
+                b, a_n = batch[i], adv_n[i]
+                logits = actor(b["rows"])
+                dist = Categorical(logits=logits)
+                logp = dist.log_prob(torch.tensor(b["action"]))
+                ratio = torch.exp(logp - b["logp"])
+                pi_loss = pi_loss - torch.min(
+                    ratio * a_n, torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * a_n)
+                pi_loss = pi_loss - ENT * dist.entropy()
+                v_loss = v_loss + (critic(b["critic_in"]) - b["ret"]) ** 2
+            n_i = len(idx)
+            opt_a.zero_grad(); (pi_loss / n_i).backward()
+            if grad_clip:
+                torch.nn.utils.clip_grad_norm_(actor.parameters(), grad_clip)
+            opt_a.step()
+            opt_c.zero_grad(); (v_loss / n_i).backward()
+            if grad_clip:
+                torch.nn.utils.clip_grad_norm_(critic.parameters(), grad_clip)
+            opt_c.step()
+            stats["n_steps"] += 1
+            ep_pi += float(pi_loss.item()); ep_v += float(v_loss.item())
+        stats["pi_loss"] = ep_pi / len(batch)
+        stats["v_loss"] = ep_v / len(batch)
     return stats
 
 
