@@ -145,7 +145,8 @@ def allocate(p: dict[str, float], n: int) -> dict[str, int]:
 # ------------------------------------------------------------------ 블록 배경
 def _background(profile: IntegratedProfile, seed: int, bid: str,
                 obs: ObservationContract, params: TerminalStreamParams,
-                n_vessels: int, *, vessel_type_offset: int = 0) -> TerminalScenario:
+                n_vessels: int, *, vessel_type_offset: int = 0,
+                drain_s: float = 0.0) -> TerminalScenario:
     """블록의 **배경**(초기 적재·본선)만 만든다 — 외부트럭은 master stream 이 준다.
 
     vessel_type_offset: 블록당 1 process 구성에서 전 블록이 양하만 갖는 결함을 막는다
@@ -163,7 +164,7 @@ def _background(profile: IntegratedProfile, seed: int, bid: str,
         vessel_deadline_achievable=True, vessel_type_offset=vessel_type_offset)
     scn = generate_terminal_scenario(profile, seed, gp)
     keep = [j for j in scn.jobs if not j.is_external_truck]
-    return dataclasses.replace(scn, jobs=keep, drain_window_s=0.0,
+    return dataclasses.replace(scn, jobs=keep, drain_window_s=drain_s,
                                scenario_id=f"H21-{bid}-s{seed}")
 
 
@@ -364,7 +365,10 @@ WIP_FILL_SPAN_S = 600.0         # 초기 채움을 펼치는 구간 (동시 진�
 WIP_POOL_FACTOR = 30            # 대기 pool 크기 = L × factor (소진 시 결과에 명시 실패)
 
 
-DIURNAL_VESSEL_STREAMS = 30      # 하루 총 본선 스트림 (동시 활성 6 — 사전등록 §C1)
+DIURNAL_VESSEL_STREAMS = 30
+DIURNAL_DRAIN_S = 7_200.0        # 배수 2h — 하루 끝 도착분까지 전건 투입·완료 자리
+DIURNAL_VESSEL_HOURS = 4.8       # 스트림 1개 지속(사전등록 C1: 120 moves × 144초)
+DIURNAL_VESSEL_CONCURRENCY = 6   # 사전등록 C1 설계값 c — 25 moves/h × 6 = 150 moves/h      # 하루 총 본선 스트림 (동시 활성 6 — 사전등록 §C1)
 
 
 def vessel_schedule_24h(layout: YardLayout, seed: int,
@@ -651,6 +655,7 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
                   params: TerminalStreamParams | None = None,
                   day_total: int = DIURNAL_DAY_TOTAL,
                   n_streams: int = DIURNAL_VESSEL_STREAMS,
+                  drain_s: float = DIURNAL_DRAIN_S,
                   background_seed: int | None = None) -> dict:
     """5차 계약 — **도착 명단 사전 확정** + 24시간 배경(초기 적재·본선 30스트림 교대).
 
@@ -659,6 +664,10 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
       스케줄러가 그 시각에 엔진으로 투입한다(피드백 없음 = 개방 루프).
     · 초기 채움(fill) 개념이 없다 — 야간 저부하에서 시작해 명단대로 채워진다.
     · 배경 시드 분리(background_seed): 여러 셀이 같은 배경을 공유하게 한다.
+    · **배수 구간 drain_s** (39차 감사): 엔진은 `블록도착 > sim.end` 인 투입을 거부한다.
+      하루 끝(24h 직전) 게이트인 트럭까지 **한 대도 빠짐없이** 투입하려면 시뮬레이션
+      지평이 도착일보다 길어야 한다. 측정창은 그대로 [warmup, observe_s) 이고 배수
+      구간은 **측정 대상이 아니다** — 늦게 온 트럭이 장부에 남아 완료될 자리일 뿐이다.
     """
     obs = obs or OBS_24H
     layout = layout or terminal_layout()
@@ -675,7 +684,8 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
         rows = sorted(per_block.get(b, []), key=lambda r: r["start_s"])
         bg = _background(profile, bseed + 1000 * (layout.ids.index(b) + 1), b, obs,
                          params, len(rows),
-                         vessel_type_offset=(rows[0]["type_offset"] if rows else 0))
+                         vessel_type_offset=(rows[0]["type_offset"] if rows else 0),
+                         drain_s=drain_s)
         if rows:
             bg = _retime_vessels(bg, [r["start_s"] for r in rows])
         scns[b] = bg
@@ -726,6 +736,7 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
             "h21_day_total": day_total, "observation": obs.as_dict()})
     return {"scenarios": scns, "schedule": schedule, "p": p, "counts": counts,
             "vessel_schedule": sched, "day_total": day_total,
+            "drain_s": drain_s, "sim_end_s": obs.observe_s + drain_s,
             "flow_fallbacks": fallbacks,
             "flow_fallbacks_total": sum(fallbacks.values()),
             "observation": obs.as_dict(), "layout": layout.as_dict(),

@@ -57,8 +57,15 @@ def backlog_at(sim, t: float) -> int:
     return n
 
 
-def _sim_from(scn) -> TerminalSimulator:
-    s = TerminalSimulator(build_calibrated_profile(), scn, check_invariants=True)
+def _sim_from(scn, profile=None) -> TerminalSimulator:
+    """시나리오로 시뮬레이터를 만든다.
+
+    profile 미지정 시 기존 보정 프로파일(AGV) — 기존 호출부는 바이트 동일.
+    **시나리오를 생성할 때 쓴 프로파일과 같은 것을 넘겨야 한다**(39차 감사): H-21 로
+    생성한 시나리오를 AGV 프로파일로 돌리면 코드↔대시보드 정합 증명이 실패한다.
+    """
+    s = TerminalSimulator(profile or build_calibrated_profile(), scn,
+                          check_invariants=True)
     s.info_level = LEVEL
     return s
 
