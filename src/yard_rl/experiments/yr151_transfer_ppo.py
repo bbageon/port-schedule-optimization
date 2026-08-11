@@ -414,8 +414,19 @@ def ppo_update(actor: TransferActor, critic: TransferCritic,
 
 
 def train_one(ts: int, *, out_root: Path = OUT,
-              exec_ts: int = EXEC_TS_DEFAULT) -> Path:
-    """초기화 1개 학습 — shadow 아님(on-policy). 실행은 디버깅 국면 후 판정 절차로만."""
+              exec_ts: int = EXEC_TS_DEFAULT,
+              episode_fn=None, n_iter: int | None = None,
+              eps_per_iter: int | None = None,
+              experiment: str | None = None, prereg: str | None = None) -> Path:
+    """초기화 1개 학습 — shadow 아님(on-policy). 실행은 디버깅 국면 후 판정 절차로만.
+
+    episode_fn: 에피소드 생성기 주입 (기본 = 4차 고정 WIP `run_episode`).
+      5차 계약(24시간 이중 피크)은 `yr170_sell_ppo_diurnal.run_episode_diurnal` 을
+      넘긴다 — 학습 루프·보상·PPO 갱신은 **그대로 공유**하고 무대만 바꾼다.
+    """
+    episode_fn = episode_fn or run_episode
+    n_iter = N_ITER if n_iter is None else n_iter
+    eps_per_iter = EPS_PER_ITER if eps_per_iter is None else eps_per_iter
     kf = load_kf()
     # ★재현성 정정(감사): 시드를 신경망 생성 **전**에 고정 — 초기 가중치까지 시드 귀속.
     torch.manual_seed(ts)
@@ -427,12 +438,12 @@ def train_one(ts: int, *, out_root: Path = OUT,
     exec_config = ADOPTED_C0_GUARD
     exec_hash0 = exec_config_hash(exec_actor, exec_ts, exec_config)
     hist = []
-    for it in range(N_ITER):
+    for it in range(n_iter):
         batch_all: list[dict] = []
-        for e in range(EPS_PER_ITER):
+        for e in range(eps_per_iter):
             policy = PpoSellPolicy(actor, critic, mode="live", sample=True,
                                    seed=ts + it * 100 + e, layout=terminal_layout())
-            ep = run_episode(ts + it * EPS_PER_ITER + e, policy, kf,
+            ep = episode_fn(ts + it * eps_per_iter + e, policy, kf,
                              exec_fleet=AdoptedExecFleet(
                                  exec_actor, exec_norm, config=exec_config),
                              exec_config=exec_config)
@@ -450,15 +461,17 @@ def train_one(ts: int, *, out_root: Path = OUT,
     #   안 남음) → 스탬프 포함 train.json → net.pt. 구판은 net.pt 를 먼저 쓰고
     #   repro_stamp(experiment= 누락)에서 TypeError — 재현 증거 없는 반쪽 산출물이 남았다.
     stamp = repro_stamp(
-        experiment="YR-151 TransferHead PPO (골격 — 판정 실행은 shadow·0B 관문 뒤에만)",
+        experiment=(experiment or "YR-151 TransferHead PPO (골격 — 판정 실행은 shadow·0B 관문 뒤에만)"),
         seeds={"train": [ts], "exec_head": [exec_ts]},
-        params={"WIP_TARGET": WIP_TARGET, "N_ITER": N_ITER,
+        params={"WIP_TARGET": WIP_TARGET, "N_ITER": n_iter,
+                "EPS_PER_ITER": eps_per_iter,
+                "episode_fn": getattr(episode_fn, "__name__", str(episode_fn)),
                 "LEAD_S": ANNOUNCE_LEAD_S,
                 "exec_head": f"adopted C0+guard (yr143 confirm ppo_s{exec_ts})",
                 "exec_head_hash": exec_hash0,
                 "exec_policy_config": exec_config.as_dict(),
                 "anchors": "yr139 승계(clip/lr/ent/γ) · advantage = MC−V(λ=1)"},
-        prereg=".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md")
+        prereg=(prereg or ".claude/docs/dashboard-task-specs/YR-151-block-ppo-sell-head.md"))
     out = out_root / f"ppo_s{ts}"
     out.mkdir(parents=True, exist_ok=True)
     (out / "train.json").write_text(json.dumps(
