@@ -1,0 +1,75 @@
+{
+ "rep": 2,
+ "seed": 8100002,
+ "mode": "observe_only_all_keep",
+ "n_frames": 265,
+ "sale_candidates": {
+  "total_frames_with_any": 263,
+  "mean_per_frame": 26.25,
+  "max_per_frame": 92,
+  "mean_blocks_with_candidate": 10.58,
+  "max_blocks_with_candidate": 21
+ },
+ "queue_gap_all_blocks": {
+  "mean": 5.96,
+  "median": 3,
+  "max": 18
+ },
+ "opportunity_gap": {
+  "definition": "후보 보유 블록의 최대 대기열 − 전체 블록 최소 대기열",
+  "mean": 5.45,
+  "max": 18,
+  "share_ge_3": 0.4755,
+  "share_ge_5": 0.3887,
+  "share_ge_10": 0.3057
+ },
+ "peak_band": {
+  "hours": [
+   11,
+   16
+  ],
+  "n_frames": 60,
+  "mean_gap": 13.15,
+  "max_gap": 18,
+  "share_gap_ge_3": 1.0,
+  "share_gap_ge_5": 1.0,
+  "share_gap_ge_10": 0.9167
+ },
+ "night_band": {
+  "hours": [
+   2,
+   8
+  ],
+  "n_frames": 72,
+  "mean_gap": 0.24,
+  "max_gap": 2,
+  "share_gap_ge_3": 0.0,
+  "share_gap_ge_5": 0.0,
+  "share_gap_ge_10": 0.0
+ },
+ "crane_service_s": {
+  "n": 7200,
+  "mean": 139.9,
+  "min": 89.8,
+  "max": 240.2,
+  "note": "사이클당 = 작업 소요 ÷ (1+재취급) — 문헌 단위(YR-158 정의)"
+ },
+ "gate_throughput_per_h": 161.6,
+ "snapshot_summary": {
+  "n_rows": 5565,
+  "n_times": 265,
+  "complete": true,
+  "block_stock_min": 747,
+  "block_stock_max": 1059,
+  "block_free_min": 373,
+  "block_wip_max": 24,
+  "block_wip_mean": 4.16,
+  "block_queue_max": 18,
+  "block_queue_mean": 2.28,
+  "block_backlog_max": 103,
+  "block_backlog_mean": 15.17,
+  "terminal_wip_max": 274,
+  "terminal_wip_mean": 87.38,
+  "degenerate": false
+ }
+}
