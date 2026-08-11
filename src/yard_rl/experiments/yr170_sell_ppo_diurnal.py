@@ -38,7 +38,8 @@ from ..integrated.terminal_stream import (DIURNAL_DAY_TOTAL, OBS_24H,
 from ..integrated.yard_layout import terminal_layout
 from .yr088_joint_rl import LEVEL
 from .yr149_load_cells import _sim_from
-from .yr151_transfer_ppo import (AdoptedExecFleet, PhiRecorder, _Chain,
+from .yr151_transfer_ppo import (EXEC_TS_DEFAULT as EXEC_TS,
+                                 AdoptedExecFleet, PhiRecorder, _Chain,
                                  build_joint_transitions, load_adopted_execution_head,
                                  phi_terminal, train_one)
 
@@ -154,6 +155,105 @@ def baseline(seed: int, *, exec_head: str = "adopted") -> dict:
             "admitted": ep["admitted"]}
 
 
+def _episode_worker(args) -> dict:
+    """자식 프로세스 1개 = 에피소드 1개. 같은 iteration 은 **같은 가중치**를 쓴다
+    (on-policy 계약 유지 — 병렬은 순서만 바꾸고 정책 스냅샷은 동일)."""
+    import torch
+    import torch.multiprocessing as _mp
+    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
+                                            TransferCritic)
+    from .yr151_transfer_ppo import load_kf
+    torch.set_num_threads(1)                      # 프로세스 다중 실행 시 스레드 경합 방지
+    # 텐서를 프로세스 경계로 넘길 때 기본(file_descriptor) 방식은 fd 를 소진해
+    # 'Too many open files' 로 죽는다(실측 2026-08-11). file_system 으로 고정.
+    _mp.set_sharing_strategy("file_system")
+    seed, sd_a, sd_c, pol_seed = args
+    actor, critic = TransferActor(), TransferCritic()
+    actor.load_state_dict(sd_a)
+    critic.load_state_dict(sd_c)
+    pol = PpoSellPolicy(actor, critic, mode="live", sample=True,
+                        seed=pol_seed, layout=terminal_layout())
+    ep = run_episode_diurnal(seed, pol, load_kf(), exec_config=ADOPTED_C0_GUARD)
+    # 텐서는 detach().clone() 으로 공유메모리에서 떼어 보낸다(fd 누수 방지)
+    trail = [{k: (v.detach().clone() if hasattr(v, "detach") else v)
+              for k, v in tr.items()} for tr in pol.trail]
+    end_inputs = {b: x.detach().clone() for b, x in ep["end_inputs"].items()}
+    return {"trail": trail, "joint": ep["joint"], "phi_final": ep["phi_final"],
+            "end_inputs": end_inputs, "n_space": ep["n_space"],
+            "n_time": ep["n_time"]}
+
+
+def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
+                   out_root: Path = OUT) -> Path:
+    """학습 루프 — iteration 안의 에피소드를 **프로세스 병렬**로 돌린다.
+
+    에피소드 1회가 약 10분이라 순차로는 시드당 27시간이다. 한 iteration 의
+    에피소드들은 같은 정책 스냅샷을 쓰므로 병렬 실행이 on-policy 계약을 깨지 않는다.
+    갱신·보상·재현 스탬프는 yr151 의 함수를 그대로 쓴다(잣대 불변).
+    """
+    import torch
+    import torch.multiprocessing as _mp
+    from concurrent.futures import ProcessPoolExecutor
+    _mp.set_sharing_strategy("file_system")
+    from ..integrated.repro import code_dirty, repro_stamp
+    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from .yr151_transfer_ppo import (CLIP, ENT, LR, build_batch,
+                                     exec_config_hash, load_adopted_execution_head,
+                                     ppo_update)
+    torch.set_num_threads(1)
+    torch.manual_seed(ts)
+    actor, critic = TransferActor(), TransferCritic()
+    opt_a = torch.optim.Adam(actor.parameters(), lr=LR)
+    opt_c = torch.optim.Adam(critic.parameters(), lr=LR)
+    exec_actor, _ = load_adopted_execution_head()
+    exec_hash0 = exec_config_hash(exec_actor, EXEC_TS, ADOPTED_C0_GUARD)
+    out = out_root / f"ppo_s{ts}"
+    out.mkdir(parents=True, exist_ok=True)
+    hist: list[dict] = []
+    for it in range(n_iter):
+        sd_a = {k: v.detach().cpu() for k, v in actor.state_dict().items()}
+        sd_c = {k: v.detach().cpu() for k, v in critic.state_dict().items()}
+        jobs = [(ts + it * eps_per_iter + e, sd_a, sd_c, ts + it * 100 + e)
+                for e in range(eps_per_iter)]
+        with ProcessPoolExecutor(max_workers=eps_per_iter) as pool:
+            eps = list(pool.map(_episode_worker, jobs))
+        batch_all: list[dict] = []
+        for ep in eps:
+            with torch.no_grad():
+                v_end = {b: float(critic(x).item()) for b, x in ep["end_inputs"].items()}
+            batch_all += build_batch(ep["trail"], ep["joint"], ep["phi_final"], v_end)
+        stats = ppo_update(actor, critic, opt_a, opt_c, batch_all)
+        if exec_config_hash(exec_actor, EXEC_TS, ADOPTED_C0_GUARD) != exec_hash0:
+            raise RuntimeError("실행 구성이 변했다 — 계약 위반")
+        hist.append({"iter": it, **stats,
+                     "phi_final_mean": sum(e["phi_final"] for e in eps) / len(eps),
+                     "n_space_mean": sum(e["n_space"] for e in eps) / len(eps),
+                     "n_time_mean": sum(e["n_time"] for e in eps) / len(eps),
+                     "n_batch": len(batch_all)})
+        # ★진행 중 관측 가능하게 매 iteration 저장(구판은 종료 후 1회 — 장시간 런에서
+        #   무슨 일이 일어나는지 볼 수 없었다). 최종 스탬프는 종료 시 덮어쓴다.
+        (out / "train.json").write_text(json.dumps(
+            {"history": hist, "in_progress": True, "n_iter_target": n_iter},
+            ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+        torch.save({"actor": actor.state_dict(), "critic": critic.state_dict()},
+                   out / "net.pt")
+    stamp = repro_stamp(
+        experiment="YR-170 판매 PPO — 5차 계약 24시간 이중 피크 무대(병렬 학습)",
+        seeds={"train": [ts], "exec_head": [EXEC_TS]},
+        params={"N_ITER": n_iter, "EPS_PER_ITER": eps_per_iter,
+                "LEAD_S": ANNOUNCE_LEAD_S, "stage": "diurnal_24h",
+                "exec_head": f"adopted C0+guard (yr143 confirm ppo_s{EXEC_TS})",
+                "exec_head_hash": exec_hash0,
+                "exec_policy_config": ADOPTED_C0_GUARD.as_dict(),
+                "parallel": "ProcessPoolExecutor(에피소드 병렬 — 같은 정책 스냅샷)"},
+        prereg=SPEC)
+    (out / "train.json").write_text(json.dumps(
+        {"history": hist, "in_progress": False, "code_dirty": bool(code_dirty()),
+         "stamp": stamp}, ensure_ascii=False, indent=1, default=str),
+        encoding="utf-8")
+    return out
+
+
 def train(ts: int, *, n_iter: int, eps_per_iter: int) -> Path:
     return train_one(ts, out_root=OUT, episode_fn=run_episode_diurnal,
                      n_iter=n_iter, eps_per_iter=eps_per_iter,
@@ -168,6 +268,8 @@ if __name__ == "__main__":
     ap.add_argument("--eps-per-iter", type=int, default=4)
     ap.add_argument("--smoke", action="store_true",
                     help="에피소드 1회만 돌려 배선 확인 (학습 없음)")
+    ap.add_argument("--parallel", action="store_true",
+                    help="iteration 안 에피소드를 프로세스 병렬로")
     ap.add_argument("--baseline", action="store_true",
                     help="전건 KEEP 기준선 Φ (참조값 — 판정 아님)")
     a = ap.parse_args()
@@ -195,7 +297,8 @@ if __name__ == "__main__":
                           "admitted": ep["admitted"],
                           "n_decisions": len(pol.trail)}, ensure_ascii=False))
     else:
-        p = train(TRAIN_SEEDS[a.seed_idx], n_iter=a.n_iter,
-                  eps_per_iter=a.eps_per_iter)
+        fn = train_parallel if a.parallel else train
+        p = fn(TRAIN_SEEDS[a.seed_idx], n_iter=a.n_iter,
+               eps_per_iter=a.eps_per_iter)
         print(json.dumps({"out": str(p)}, ensure_ascii=False))
     print("DONE")
