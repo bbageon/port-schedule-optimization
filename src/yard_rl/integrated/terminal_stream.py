@@ -364,6 +364,57 @@ WIP_FILL_SPAN_S = 600.0         # 초기 채움을 펼치는 구간 (동시 진�
 WIP_POOL_FACTOR = 30            # 대기 pool 크기 = L × factor (소진 시 결과에 명시 실패)
 
 
+DIURNAL_VESSEL_STREAMS = 30      # 하루 총 본선 스트림 (동시 활성 6 — 사전등록 §C1)
+
+
+def vessel_schedule_24h(layout: YardLayout, seed: int,
+                        params: TerminalStreamParams,
+                        obs: ObservationContract,
+                        n_streams: int = DIURNAL_VESSEL_STREAMS) -> list[dict]:
+    """24시간 본선 스트림 교대 배치 (사전등록 §C1) — 30개를 창 전체에 균등 분산.
+
+    시작 시각을 [0, 창−스트림길이] 에 등간격으로 놓고 **시작 순서대로** 블록을
+    돌려 배정한다 → 같은 블록의 두 스트림은 21칸(≈13.9h) 떨어져 **겹치지 않는다**
+    (스트림 길이 4.8h). 블록 순서만 시드 셔플(특정 블록 운 제거), 양하/적하는 교대.
+    """
+    dur = params.vessel_moves * params.sts_move_interval_s
+    span = max(0.0, obs.observe_s - dur)
+    starts = sorted(span * i / max(1, n_streams - 1) for i in range(n_streams))
+    blocks = list(layout.ids)
+    random.Random(f"h21d:vblk:{seed}").shuffle(blocks)
+    return [{"block": blocks[i % len(blocks)], "start_s": s,
+             "work": "DISCHARGE" if i % 2 == 0 else "LOAD",
+             "type_offset": i % 2}
+            for i, s in enumerate(starts)]
+
+
+def _retime_vessels(scn: TerminalScenario, starts: list[float]) -> TerminalScenario:
+    """블록 시나리오의 본선 시작 시각을 지정값으로 옮긴다 — 계획·ETD·물리하한과
+    **본선 연계 야드 작업의 release_time 까지** 함께 이동(desync 방지)."""
+    if not scn.vessels:
+        return scn
+    deltas: dict[str, float] = {}
+    out_v = []
+    for v, s in zip(scn.vessels, sorted(starts)):
+        p = v.plan
+        d = s - p.planned_start_s
+        deltas[v.vessel_id] = d
+        out_v.append(dataclasses.replace(v, plan=dataclasses.replace(
+            p, planned_start_s=s,
+            planned_completion_s=(None if p.planned_completion_s is None
+                                  else p.planned_completion_s + d),
+            etd_s=None if p.etd_s is None else p.etd_s + d,
+            phys_min_completion_s=(None if p.phys_min_completion_s is None
+                                   else p.phys_min_completion_s + d))))
+    out_j = []
+    for j in scn.jobs:
+        d = deltas.get(getattr(j, "vessel_id", None))
+        if d:
+            j = dataclasses.replace(j, release_time=j.release_time + d)
+        out_j.append(j)
+    return dataclasses.replace(scn, vessels=out_v, jobs=out_j)
+
+
 def vessel_placement(layout: YardLayout, seed: int, params: TerminalStreamParams,
                      obs: ObservationContract) -> dict[str, dict]:
     """본선 process 의 (블록, 시작슬롯, 작업종류) **독립 추첨** — ★감사 정정 2026-08-09.
@@ -587,6 +638,147 @@ def hotspot_rotation(layout: YardLayout, seed: int, n: int = 4) -> tuple[str, ..
     if not (1 <= n <= len(layout.ids)):
         raise ValueError(f"hotspot 수 {n}는 1~{len(layout.ids)} 여야 한다")
     return tuple(sorted(random.Random(f"h21w:hspot:{seed}").sample(layout.ids, n)))
+
+
+# ================================================== 5차 계약 빌더 (도착률·24시간)
+OBS_24H = ObservationContract(warmup_s=7_200.0, measure_s=79_200.0,
+                              snapshot_s=300.0)     # 사전등록 §E (워밍업 2h + 측정 22h)
+
+
+def build_diurnal(profile: IntegratedProfile, seed: int, *,
+                  obs: ObservationContract | None = None,
+                  layout: YardLayout | None = None,
+                  params: TerminalStreamParams | None = None,
+                  day_total: int = DIURNAL_DAY_TOTAL,
+                  n_streams: int = DIURNAL_VESSEL_STREAMS,
+                  background_seed: int | None = None) -> dict:
+    """5차 계약 — **도착 명단 사전 확정** + 24시간 배경(초기 적재·본선 30스트림 교대).
+
+    · 트럭: `diurnal_arrivals` 로 하루 3,600대의 **도착 시각**을 확정하고 블록·flow·
+      규격·주행을 사전 추첨한다(런타임 무작위 소비 0). 통지 시각 = 도착 − lead 이며
+      스케줄러가 그 시각에 엔진으로 투입한다(피드백 없음 = 개방 루프).
+    · 초기 채움(fill) 개념이 없다 — 야간 저부하에서 시작해 명단대로 채워진다.
+    · 배경 시드 분리(background_seed): 여러 셀이 같은 배경을 공유하게 한다.
+    """
+    obs = obs or OBS_24H
+    layout = layout or terminal_layout()
+    params = params or TerminalStreamParams(load_4h=day_total)
+    bseed = seed if background_seed is None else background_seed
+
+    # ① 배경 — 본선 교대 배치(블록별 개수만큼 생성 후 지정 시각으로 이동)
+    sched = vessel_schedule_24h(layout, bseed, params, obs, n_streams)
+    per_block: dict[str, list[dict]] = {}
+    for s in sched:
+        per_block.setdefault(s["block"], []).append(s)
+    scns: dict[str, TerminalScenario] = {}
+    for b in layout.ids:
+        rows = sorted(per_block.get(b, []), key=lambda r: r["start_s"])
+        bg = _background(profile, bseed + 1000 * (layout.ids.index(b) + 1), b, obs,
+                         params, len(rows),
+                         vessel_type_offset=(rows[0]["type_offset"] if rows else 0))
+        if rows:
+            bg = _retime_vessels(bg, [r["start_s"] for r in rows])
+        scns[b] = bg
+
+    # ② 반출 대상 후보 (배경 본선 사용분 제외)
+    free: dict[str, list[str]] = {}
+    for b, scn in scns.items():
+        used = {j.target_container for j in scn.jobs if j.target_container}
+        cand = sorted(set(scn.containers) - used)
+        random.Random(f"h21d:tgt:{bseed}:{b}").shuffle(cand)
+        free[b] = cand
+
+    # ③ 트럭 명단 — 도착 시각(이중 피크) × 블록 배분 × 속성 사전 추첨
+    p = distribution_vector(layout, params)
+    times = diurnal_arrivals(seed, day_s=obs.observe_s, total=day_total)
+    counts = allocate(p, day_total)
+    slots = [b for b in layout.ids for _ in range(counts[b])]
+    random.Random(f"h21d:assign:{seed}").shuffle(slots)
+    flow_rng = random.Random(f"h21d:flow:{seed}")
+    size_rng = random.Random(f"h21d:size:{seed}")
+    exit_rng = random.Random(f"h21d:exit:{seed}")
+    resid_rng = random.Random(f"h21d:resid:{seed}")
+    fallbacks = {b: 0 for b in layout.ids}
+    schedule = []
+    for i, (t, bid) in enumerate(zip(times, slots)):
+        sr = params.resid_travel_sigma_s
+        resid = (max(-2 * sr, min(2 * sr, resid_rng.gauss(0.0, sr))) if sr > 0 else 0.0)
+        want_out = flow_rng.random() < params.gate_out_share
+        out = want_out and bool(free[bid])
+        if want_out and not out:
+            fallbacks[bid] += 1
+        schedule.append({
+            "job_id": f"{bid}:D-{i:05d}", "block": bid,
+            "arrival_s": round(t, 3),
+            "flow": "GATE_OUT" if out else "GATE_IN",
+            "requested_flow": "GATE_OUT" if want_out else "GATE_IN",
+            "fallback_reason": ("no_free_target" if (want_out and not out) else None),
+            "target": free[bid].pop() if out else None,
+            "size_ft40": size_rng.random() < params.size_mix_ft40,
+            "travel_s": _clamp_travel(layout.gate_to_block_s(bid), resid),
+            "travel_base_s": layout.gate_to_block_s(bid),
+            "exit_travel_s": trunc_normal(exit_rng, params.exit_travel_mu_s,
+                                          0.12, lo=60.0)})
+
+    for b in layout.ids:
+        scns[b] = dataclasses.replace(scns[b], meta={
+            **scns[b].meta, "h21_block": b, "h21_mode": "diurnal_24h",
+            "h21_day_total": day_total, "observation": obs.as_dict()})
+    return {"scenarios": scns, "schedule": schedule, "p": p, "counts": counts,
+            "vessel_schedule": sched, "day_total": day_total,
+            "flow_fallbacks": fallbacks,
+            "flow_fallbacks_total": sum(fallbacks.values()),
+            "observation": obs.as_dict(), "layout": layout.as_dict(),
+            "mode": "diurnal_24h",
+            "fairness_note": "도착률 계약: 전 정책이 동일 명단·동일 시각을 받는다 — "
+                             "이득은 재공량·대기 감소로 나타난다(처리량은 동일)"}
+
+
+class ScheduledAnnouncer:
+    """명단대로 투입하는 개방 루프 스케줄러 (5차 계약) — 전역 계수를 보지 않는다.
+
+    통지 시각 = 도착 − lead 에 엔진으로 투입하고, 엔진 안에서 도착 시각에 gate-in 이
+    실현된다. 피드백이 없으므로 **정책이 무엇을 하든 같은 트럭이 같은 시각에** 온다.
+    """
+
+    def __init__(self, schedule: list[dict], *, lead_s: float,
+                 end_s: float | None = None,
+                 period_s: float = WIP_ADMISSION_PERIOD_S):
+        self.lead_s = lead_s
+        self.period_s = period_s
+        self.end_s = end_s
+        self.by_epoch: dict[float, list[dict]] = {}
+        for e in schedule:
+            notify = max(0.0, e["arrival_s"] - lead_s)
+            slot = round((notify // period_s) * period_s, 6)
+            self.by_epoch.setdefault(slot, []).append(e)
+        self.n_admitted = 0
+        self.cursor = 0
+        self.ledger: list[dict] = []
+
+    def review(self, mbt, t: float) -> None:
+        from .multiblock import TransferError
+        if not on_grid(t, self.period_s):
+            return
+        for e in self.by_epoch.get(round(t, 6), []):
+            arr = e["arrival_s"]
+            if self.end_s is not None and arr + e["travel_s"] > self.end_s:
+                self.ledger.append({"t": t, "event": "SKIP_TAIL",
+                                    "job_id": e["job_id"]})
+                continue
+            job = _job_from_entry(e, arr)
+            try:
+                mbt.admit_external_job(e["block"], job, gate_in_s=arr,
+                                       travel_s=e["travel_s"])
+                self.n_admitted += 1
+                self.cursor += 1
+                self.ledger.append({"t": t, "event": "ADMIT",
+                                    "job_id": e["job_id"], "block": e["block"],
+                                    "flow": e["flow"], "arrival_s": arr})
+            except TransferError as ex:
+                self.ledger.append({"t": t, "event": "SKIP",
+                                    "job_id": e["job_id"], "reason": str(ex)})
+        self.ledger.append({"t": t, "event": "EPOCH"})
 
 
 def admission_epochs(obs: ObservationContract,
