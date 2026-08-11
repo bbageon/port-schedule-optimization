@@ -25,6 +25,7 @@ from ..integrated.profiles import build_h21_profile
 from ..integrated.repro import code_dirty
 from ..integrated.sell_review import ANNOUNCE_LEAD_S
 from ..integrated.terminal_stream import (OBS_24H, ObservationContract,
+                                          ensure_time_ledger,
                                           ScheduledAnnouncer, admission_epochs,
                                           build_diurnal, diurnal_rate)
 from ..integrated.yard_layout import terminal_layout
@@ -55,8 +56,11 @@ def run_cell(rep: int) -> dict:
     layout = terminal_layout()
     built = build_diurnal(prof, SEED + rep, obs=obs, layout=layout,
                           background_seed=SEED)
-    mbt = MultiBlockTerminal({b: _sim_from(s) for b, s in built["scenarios"].items()},
-                             extra_review_epochs=admission_epochs(obs))
+    # 5차 계약: 초기 트럭 0 → v2 장부를 런너에서 활성화(엔진 골든 경로 불변)
+    mbt = MultiBlockTerminal(
+        {b: ensure_time_ledger(_sim_from(s))
+         for b, s in built["scenarios"].items()},
+        extra_review_epochs=admission_epochs(obs))
     ann = ScheduledAnnouncer(built["schedule"], lead_s=ANNOUNCE_LEAD_S,
                              end_s=obs.observe_s)
     pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
@@ -176,8 +180,10 @@ def run_cell(rep: int) -> dict:
     }
 
 
-def run() -> dict:
-    cells = [run_cell(r) for r in range(REPS)]
+def run(cells: list[dict] | None = None) -> dict:
+    """cells 가 주어지면 병렬 셀 산출물을 합산(재실행 없음), 아니면 순차 실행."""
+    from_files = cells is not None
+    cells = cells if from_files else [run_cell(r) for r in range(REPS)]
     checks = {
         "W1p_schedule_honored": all(c["W1p_schedule_honored"] for c in cells),
         "W2_ledger_conserved": all(c["W2_ledger_conserved"] for c in cells),
@@ -205,7 +211,11 @@ def run() -> dict:
                        "prereg_file": str(PREREG),
                        "prereg_sha256": _sha256(PREREG) if PREREG.exists() else None,
                        "observation": OBS_24H.as_dict(),
-                       "seeds": [SEED + r for r in range(REPS)]},
+                       "seeds": [SEED + r for r in range(REPS)],
+                       "cells_from_files": from_files,
+                       "cell_sha256": ({f"cell_rep{r}.json":
+                                        _sha256(OUT / f"cell_rep{r}.json")
+                                        for r in range(REPS)} if from_files else None)},
            "verdict": verdict, "cells": cells}
     OUT.mkdir(parents=True, exist_ok=True)
     p = OUT / "diurnal_qual.json"
@@ -219,7 +229,14 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--rep", type=int, default=None)
     ap.add_argument("--run", action="store_true")
+    ap.add_argument("--summarize", action="store_true",
+                    help="병렬로 산출된 cell_rep*.json 을 합산(재실행 없음)")
     a = ap.parse_args()
+    if a.summarize:
+        run([json.loads((OUT / f"cell_rep{r}.json").read_text(encoding="utf-8"))
+             for r in range(REPS)])
+        print("DONE")
+        raise SystemExit(0)
     if a.rep is not None:
         c = run_cell(a.rep)
         OUT.mkdir(parents=True, exist_ok=True)

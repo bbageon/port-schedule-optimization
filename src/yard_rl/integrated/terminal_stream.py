@@ -734,6 +734,19 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
                              "이득은 재공량·대기 감소로 나타난다(처리량은 동일)"}
 
 
+def ensure_time_ledger(sim):
+    """5차 계약 전용 — 초기 트럭이 0인 sim 에 v2 시간 장부를 켠다.
+
+    엔진은 "시나리오에 v2 외부트럭이 있을 때만" 장부를 활성화한다(골든 보존 규칙).
+    도착률 계약은 초기 채움이 없어 그 조건에 걸리지 않으므로, **엔진을 고치지 않고**
+    런너 쪽에서 빈 장부를 붙인다(등록은 투입 시 admit_external_job 이 수행).
+    """
+    from .time_contract import TimeLedger
+    if getattr(sim, "time_ledger", None) is None:
+        sim.time_ledger = TimeLedger(sla_s=sim.profile.long_wait_sla_s)
+    return sim
+
+
 class ScheduledAnnouncer:
     """명단대로 투입하는 개방 루프 스케줄러 (5차 계약) — 전역 계수를 보지 않는다.
 
