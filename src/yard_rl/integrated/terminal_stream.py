@@ -192,6 +192,70 @@ def _master_arrivals(seed: int, n: int, obs: ObservationContract) -> list[float]
     return [obs.observe_s * (i + rng.random()) / n for i in range(n)]
 
 
+# ================================================== 5차 계약: 24시간 이중 피크 (2026-08-11)
+# 사전등록 동결본: .claude/docs/strategy-history/
+#   2026-08-11-24시간-이중피크-상수-유도-사전등록.md  (§A — 결과 열람 전 확정)
+DIURNAL_PEAKS = ((11.0, 1.0, 1.0), (15.0, 2.0, 2.0))   # (중심 h, σ h, 질량 가중)
+DIURNAL_NIGHT_FRAC = 0.15        # 야간 저점 ÷ 일평균 (설계 파라미터 — 한계 박제)
+DIURNAL_DAY_TOTAL = 3_600        # 하루 총 도착 대수 (평균 150대/h)
+DIURNAL_DAY_S = 86_400.0
+
+
+def diurnal_rate(t_s: float, *, day_s: float = DIURNAL_DAY_S,
+                 total: int = DIURNAL_DAY_TOTAL,
+                 night_frac: float = DIURNAL_NIGHT_FRAC,
+                 peaks=DIURNAL_PEAKS) -> float:
+    """시각 t 의 도착률 λ(t) [대/초] — 야간 상수 + 이중 정규 봉우리 (사전등록 §A3).
+
+    형상만 정의하고 총량은 아래에서 정규화한다. 두 봉우리 높이는 (질량 ∝ 창 폭)
+    규칙 때문에 자동으로 같아진다(A₁φ(0)/σ₁ = A₂φ(0)/σ₂ when A₂/A₁ = σ₂/σ₁).
+    """
+    import math
+    mean_h = total / (day_s / 3600.0)          # 대/시간 평균
+    b = night_frac * mean_h                    # 야간 저점 [대/h]
+    w_sum = sum(w for _, _, w in peaks)
+    peak_mass = total - b * (day_s / 3600.0)   # 봉우리에 남는 총 대수
+    h = t_s / 3600.0
+    lam_h = b
+    for mu, sig, w in peaks:
+        a = peak_mass * (w / w_sum)            # 이 봉우리의 총 대수
+        lam_h += a * math.exp(-0.5 * ((h - mu) / sig) ** 2) / (sig * math.sqrt(2 * math.pi))
+    return lam_h / 3600.0                      # 대/초
+
+
+def diurnal_arrivals(seed: int, *, day_s: float = DIURNAL_DAY_S,
+                     total: int = DIURNAL_DAY_TOTAL,
+                     night_frac: float = DIURNAL_NIGHT_FRAC,
+                     peaks=DIURNAL_PEAKS, grid_s: float = 60.0) -> list[float]:
+    """λ(t) 의 역CDF 로 도착 시각 n=total 개 생성 — 층화균등·결정론(사전등록 §A6).
+
+    격자(60초) 위에서 누적분포를 만들고 선형보간으로 역사상한다. 시드는 층화 칸 안의
+    위치만 흔든다(형상은 시드 무관 — 같은 곡선, 다른 표본).
+    """
+    n_grid = int(day_s // grid_s)
+    edges = [i * grid_s for i in range(n_grid + 1)]
+    cum = [0.0]
+    for i in range(n_grid):                     # 사다리꼴 적분
+        lo, hi = edges[i], edges[i + 1]
+        cum.append(cum[-1] + 0.5 * (diurnal_rate(lo, day_s=day_s, total=total,
+                                                 night_frac=night_frac, peaks=peaks)
+                                    + diurnal_rate(hi, day_s=day_s, total=total,
+                                                   night_frac=night_frac, peaks=peaks))
+                   * grid_s)
+    tot = cum[-1]
+    rng = random.Random(f"h21d:arr:{seed}")
+    out, j = [], 0
+    for i in range(total):
+        q = tot * (i + rng.random()) / total    # 층화균등 분위
+        while j + 1 < len(cum) and cum[j + 1] < q:
+            j += 1
+        span = cum[j + 1] - cum[j] if j + 1 < len(cum) else 1.0
+        frac = 0.0 if span <= 0 else (q - cum[j]) / span
+        out.append(min(day_s - 1e-6, edges[j] + frac * grid_s))
+    out.sort()
+    return out
+
+
 def build_terminal(profile: IntegratedProfile, seed: int, *,
                    params: TerminalStreamParams,
                    obs: ObservationContract | None = None,
