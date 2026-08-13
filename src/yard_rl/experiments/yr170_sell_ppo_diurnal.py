@@ -50,6 +50,7 @@ SPEC = ".claude/docs/dashboard-task-specs/YR-170-sell-ppo-diurnal.md"
 # 시드 6 × 에피소드 4 = 24 동시 실행이 코어를 다 쓴다.
 TRAIN_SEEDS = (8_400_000, 8_500_000, 8_600_000,
                8_700_000, 8_800_000, 8_900_000)   # 자격·관찰·파일럿과 교집합 0
+SPACE_ONLY = True      # 시간 판매 축 차단 (YR-171 로 계약 교체 전까지)
 # ★yr139 앵커 복원 (YR-170 진단 2026-08-12) — 셋 다 "선언돼 있었으나 승계에서
 #   떨어진" 항목이다. 새 가설이 아니라 복원이다.
 RET_SCALE = 1000.0     # 24h Φ≈2,300~3,000 → 수익 목표를 [−3, 0] 으로
@@ -150,6 +151,28 @@ def run_episode_diurnal(seed: int, policy, kf, *,
             "policy_exceptions": exc["n"], "admitted": ann.n_admitted}
 
 
+class SpaceOnly:
+    """정책이 **반입(GATE_IN)만 지명**하게 감싼다 — 시간 판매 축 차단.
+
+    축 분리 진단(2026-08-13): 시간 판매는 현 계약(고정 +15분)에서 1건당 +14.28분
+    **구조적 손해**다(기사 외부 대기가 내부와 같은 단가 → 순이득 = 절약분 − 15분,
+    고정 이연은 혼잡 첨두를 고를 수 없다). 그 축을 켠 채 학습시키는 것은 정책에게
+    불가능한 것을 배우라고 하는 셈이라, 계약을 고치기 전(YR-171)까지 끈다.
+    """
+
+    def __init__(self, inner):
+        self.inner = inner
+        self.mode = getattr(inner, "mode", "live")
+
+    @property
+    def trail(self):
+        return self.inner.trail
+
+    def decide(self, mbt, src: str, cands: list, t: float) -> str | None:
+        c = [x for x in cands if x[2] == "GATE_IN"]
+        return self.inner.decide(mbt, src, c, t) if c else None
+
+
 class KeepAllTrail:
     """기준선 K — 아무것도 팔지 않는다. 학습 루프와 같은 인터페이스(trail 보유)."""
 
@@ -192,7 +215,8 @@ def _episode_worker(args) -> dict:
     critic.load_state_dict(sd_c)
     pol = PpoSellPolicy(actor, critic, mode="live", sample=True,
                         seed=pol_seed, layout=terminal_layout())
-    ep = run_episode_diurnal(seed, pol, load_kf(), exec_config=ADOPTED_C0_GUARD)
+    ep = run_episode_diurnal(seed, SpaceOnly(pol) if SPACE_ONLY else pol,
+                             load_kf(), exec_config=ADOPTED_C0_GUARD)
     # 텐서는 detach().clone() 으로 공유메모리에서 떼어 보낸다(fd 누수 방지)
     trail = [{k: (v.detach().clone() if hasattr(v, "detach") else v)
               for k, v in tr.items()} for tr in pol.trail]
@@ -275,7 +299,9 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
                 "GRAD_CLIP": GRAD_CLIP,
                 "anchor_restored": "yr139 규약 복원 — 수익 정규화·미니배치·기울기 상한",
                 "USE_END_BOOTSTRAP": USE_END_BOOTSTRAP,
-                "bootstrap_note": "γ=1 자기참조 발산 제거 — 순수 MC"},
+                "bootstrap_note": "γ=1 자기참조 발산 제거 — 순수 MC",
+                "SPACE_ONLY": SPACE_ONLY,
+                "axis_note": "시간 판매 축 차단(1건당 +14.28분 구조적 손해)"},
         prereg=SPEC)
     (out / "train.json").write_text(json.dumps(
         {"history": hist, "in_progress": False, "code_dirty": bool(code_dirty()),
