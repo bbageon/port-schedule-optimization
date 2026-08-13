@@ -51,6 +51,13 @@ TRAIN_SEEDS = (8_400_000, 8_500_000, 8_600_000)   # 자격·관찰·파일럿 �
 RET_SCALE = 1000.0     # 24h Φ≈2,300~3,000 → 수익 목표를 [−3, 0] 으로
 MINIBATCH = 512        # 전배치 1 step → iteration 당 수백 step
 GRAD_CLIP = 1.0        # yr139 에 있던 기울기 상한
+# ★자기참조 제거 (YR-170 발산 진단 2026-08-12): 목표식이
+#   r2go = −(Φ_final − Φ_pre)/SCALE + V(s_end) 라 critic 이 **자기 출력을 목표에
+#   더한다**. γ=1 이라 수축이 없어 V↑ → 목표↑ → V↑ 의 되먹임이 발산한다
+#   (실측: v_loss 0.09 → 2,700만, critic 출력 −29,087). 정규화 전에는 boot 가
+#   목표의 0.06% 라 잠복해 있었다. 24시간 에피소드는 사실상 완결이고 검열 비용은
+#   Φ 가 이미 반영하므로 종료 bootstrap 을 쓰지 않는다(순수 MC).
+USE_END_BOOTSTRAP = False
 
 
 def run_episode_diurnal(seed: int, policy, kf, *,
@@ -228,10 +235,12 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
             eps = list(pool.map(_episode_worker, jobs))
         batch_all: list[dict] = []
         for ep in eps:
-            with torch.no_grad():
-                v_end = {b: float(critic(x).item()) for b, x in ep["end_inputs"].items()}
-            batch_all += build_batch(ep["trail"], ep["joint"], ep["phi_final"],
-                                     v_end, ret_scale=RET_SCALE)
+            with torch.no_grad():          # 기록용 — 사용 여부는 아래 플래그
+                v_end = {b: float(critic(x).item())
+                         for b, x in ep["end_inputs"].items()}
+            batch_all += build_batch(
+                ep["trail"], ep["joint"], ep["phi_final"],
+                v_end if USE_END_BOOTSTRAP else None, ret_scale=RET_SCALE)
         stats = ppo_update(actor, critic, opt_a, opt_c, batch_all,
                            minibatch=MINIBATCH, seed=ts + it,
                            grad_clip=GRAD_CLIP)
@@ -260,7 +269,9 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
                 "parallel": "ProcessPoolExecutor(에피소드 병렬 — 같은 정책 스냅샷)",
                 "RET_SCALE": RET_SCALE, "MINIBATCH": MINIBATCH,
                 "GRAD_CLIP": GRAD_CLIP,
-                "anchor_restored": "yr139 규약 복원 — 수익 정규화·미니배치·기울기 상한"},
+                "anchor_restored": "yr139 규약 복원 — 수익 정규화·미니배치·기울기 상한",
+                "USE_END_BOOTSTRAP": USE_END_BOOTSTRAP,
+                "bootstrap_note": "γ=1 자기참조 발산 제거 — 순수 MC"},
         prereg=SPEC)
     (out / "train.json").write_text(json.dumps(
         {"history": hist, "in_progress": False, "code_dirty": bool(code_dirty()),
