@@ -68,7 +68,8 @@ USE_END_BOOTSTRAP = False
 def run_episode_diurnal(seed: int, policy, kf, *,
                         obs=None, exec_head: str = "adopted",
                         exec_fleet=None, exec_config=None,
-                        _return_mbt: bool = False) -> dict:
+                        _return_mbt: bool = False,
+                        _extra_review=None) -> dict:
     """5차 계약 1 에피소드 — 4차 `run_episode` 와 **반환 형태 동일**(학습 루프 공유).
 
     무대만 다르다: 도착 명단 사전 확정 + 개방 루프 투입 + 24시간 이중 피크.
@@ -125,7 +126,11 @@ def run_episode_diurnal(seed: int, policy, kf, *,
                 _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
 
     # Φ 는 **행동 직전** 기록: 투입 → Φ → 판매 (4차 계약과 같은 순서 계약)
-    mbt.run(exec_policy, review_fn=_Chain(ann, rec, orch).review)
+    # _extra_review 는 **관측 전용** 훅(데이터 적재 등) — 판매 확정 전에 상황을
+    # 찍어야 하므로 Φ 기록 뒤·판매 앞에 끼운다. 결정에 개입하지 않는다.
+    parts = ([ann, rec, _Wrap(_extra_review), orch] if _extra_review
+             else [ann, rec, orch])
+    mbt.run(exec_policy, review_fn=_Chain(*parts).review)
 
     # 장부 보존 — 5차 계약판(채움 개념 없음): 등록 = 투입, 누락 0
     n_rows = sum(len(s.time_ledger.records) for s in mbt.blocks.values()
@@ -171,6 +176,13 @@ class SpaceOnly:
     def decide(self, mbt, src: str, cands: list, t: float) -> str | None:
         c = [x for x in cands if x[2] == "GATE_IN"]
         return self.inner.decide(mbt, src, c, t) if c else None
+
+
+class _Wrap:
+    """콜러블을 _Chain 이 요구하는 .review 인터페이스로 감싼다."""
+
+    def __init__(self, fn):
+        self.review = fn
 
 
 class KeepAllTrail:
