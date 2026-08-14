@@ -62,29 +62,54 @@ class BlockPhiRecorder:
         self.by_t[round(t, 6)] = {b: phi_v2(sim, t) for b, sim in mbt.blocks.items()}
 
 
-def _route_charge(layout, ledger, src: str, after_t: float) -> float:
-    """블록 src 가 after_t 이후 확정한 공간 판매의 주행 추가분(비용시간)."""
-    tot = 0.0
+def _route_index(layout, ledger) -> dict:
+    """블록별 **접미합** 색인 — 결정마다 원장을 다시 훑지 않게 한다.
+
+    구판은 결정 1건마다 원장 전체를 순회해 O(결정수 × 원장크기)였다
+    (약 15,000 × 15,000 = 2.25억 회). 여기서는 블록별로 한 번 정렬하고
+    뒤에서부터 누적해, 조회를 이분탐색 1회로 만든다.
+    """
+    from bisect import bisect_left
+    by_src: dict[str, list[tuple[float, float]]] = {}
     for e in ledger:
         if (e.get("decision") == "SELL" and e.get("axis") == "SPACE"
-                and e.get("src") == src and e["t"] >= after_t - 1e-9
                 and e.get("dst")):
-            tot += max(0.0, layout.gate_to_block_s(e["dst"])
-                       - layout.gate_to_block_s(src)) / 3600.0
-    return tot
+            src = e["src"]
+            c = max(0.0, layout.gate_to_block_s(e["dst"])
+                    - layout.gate_to_block_s(src)) / 3600.0
+            by_src.setdefault(src, []).append((e["t"], c))
+    idx = {}
+    for src, rows in by_src.items():
+        rows.sort()
+        ts = [t for t, _ in rows]
+        suf = [0.0] * (len(rows) + 1)
+        for i in range(len(rows) - 1, -1, -1):
+            suf[i] = suf[i + 1] + rows[i][1]
+        idx[src] = (ts, suf, bisect_left)
+    return idx
+
+
+def _route_charge(idx: dict, src: str, after_t: float) -> float:
+    """블록 src 가 after_t 이후 확정한 공간 판매의 주행 추가분(비용시간)."""
+    got = idx.get(src)
+    if got is None:
+        return 0.0
+    ts, suf, bisect_left = got
+    return suf[bisect_left(ts, after_t - 1e-9)]
 
 
 def build_batch_block(trail: list[dict], phi_by_t: dict, phi_final: dict,
                       ledger: list[dict], layout, *,
                       ret_scale: float = RET_SCALE) -> list[dict]:
     """결정별 (총수익 R, advantage) — **그 블록 자신의** 이후 비용으로 채점한다."""
+    idx = _route_index(layout, ledger)
     out = []
     for tr in trail:
         b = tr["src"]
         pre = phi_by_t.get(round(tr["t"], 6))
         if pre is None or b not in pre:
             raise RuntimeError(f"블록 φ 기록에 epoch t={tr['t']} 없음 — 배치 실격")
-        cost = (phi_final[b] - pre[b]) + _route_charge(layout, ledger, b, tr["t"])
+        cost = (phi_final[b] - pre[b]) + _route_charge(idx, b, tr["t"])
         r2go = -cost / ret_scale
         out.append({**tr, "ret": r2go, "adv": r2go - tr["value"], "resolver": None})
     return out
