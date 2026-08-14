@@ -18,6 +18,9 @@ YR-168 에서 잡음이 효과의 80배라 표본 부족으로 실패했다. 여
   · `B_dst` 수신 부담 = 그 트럭이 dst 에서 실제로 쓴 비용
       + **그 트럭이 크레인을 점유하는 동안 dst 에서 기다린 다른 트럭 수 × 점유 시간**
     (뒤에 줄 선 트럭들이 그만큼 밀린다 — 견적식이 놓치던 외부효과가 이 항이다)
+      + **그동안 본선이 밀린 몫**(`_vessel_pressure`, 10배 가중 — 44차 피드백).
+    본선 작업 자체는 판매 대상이 아니지만, 트럭을 받은 결과 본선이 늦어지는 비용은
+    반드시 수신 부담에 들어가야 한다. 빠지면 받는 쪽을 크게 과소평가한다.
   · `R_src` 소스 절감 = 그 트럭이 src 에 **남았더라면** 점유했을 시간 × 그 시각 src 에서
     기다리던 트럭 수 + 그 트럭 자신이 src 에서 겪었을 비용
     ※ "남았더라면"은 관측되지 않으므로 **실현 서비스 시간을 그대로 대입**한다(가정).
@@ -26,8 +29,14 @@ YR-168 에서 잡음이 효과의 80배라 표본 부족으로 실패했다. 여
   · `ΔC_route` 주행 추가 = (게이트→dst) − (게이트→src), 실측
   · `ΔC_driver` 기사 시간변경 = 이연분(외부 대기), 실측
 
-**대칭성**: 양쪽 모두 "점유 시간 × 그때 대기 중이던 트럭 수" 라는 같은 형태다.
-한쪽만 정밀하게 재면 편향이 생기므로 일부러 같은 근사를 쓴다.
+**대칭성**: 양쪽 모두 "점유 시간 × 그때 대기 중이던 트럭 수 (+ 본선이 밀린 몫)" 라는
+같은 형태다. 한쪽만 정밀하게 재면 편향이 생기므로 일부러 같은 근사를 쓴다.
+
+■ 시간 이연(TIME)도 같은 규칙으로 잰다
+    D_i = (원래 시각의 혼잡 완화) − (미룬 시각에 새로 만든 혼잡) − 기사 외부 대기
+미룬 트럭은 **사라지지 않고 15분 뒤에 온다**. 완화만 세고 그때의 부담을 빼지 않으면
+이연은 항상 이득으로 보인다 — 혼잡을 옮겼을 뿐인데도. 두 시각 모두 트럭 대기 수와
+본선 압력을 같은 식으로 재서 그 편향을 없앤다.
 
 ■ 눈금 (앞선 실패 재발 방지)
 거래 손익은 자연스럽게 O(1)(대략 −3~+3)이라 **나누지 않는다**(RET_SCALE = 1.0).
@@ -80,6 +89,43 @@ def _waiting_at(records, t: float) -> int:
     return n
 
 
+def _vessel_pressure(sim, t: float, occupy_s: float) -> float:
+    """그 트럭이 크레인을 점유한 동안 **본선이 밀린 비용**(비용시간).
+
+    44차 피드백: "트럭을 받은 결과 본선이 늦어지는 비용은 반드시 BUY 부담에 포함해야
+    한다." 본선 지연은 비용식에서 **10배 가중**(RHO_VESSEL_V2)이라 누락하면 수신 부담을
+    크게 과소평가한다 — 관측된 "받는 쪽 부담 과소평가"의 유력한 원인이다.
+
+    계산: 그 시각 그 블록에 **대기 중인 본선 연계 작업**이 있고, 그 블록의 적하 본선이
+    **실제로 마감을 넘겼다면**, 크레인을 트럭에 쓴 시간만큼 본선이 밀린 것으로 본다.
+      · 본선은 한 줄기라 대기 작업 수를 곱하지 않는다 — 남은 작업 전체가 같이 밀린다.
+      · 마감 여유가 남아 끝난 본선은 밀려도 비용이 0 이므로 세지 않는다(비용식과 정합).
+    ※ 근사다 — 정확히는 그 점유가 없었을 때의 완료 시각을 알아야 하지만 미관측이다.
+    """
+    from ..integrated.vessel import VesselWorkType
+    late = False
+    for v in sim.vessels.values():
+        if v.work_type != VesselWorkType.LOAD:
+            continue
+        p = v.plan.planned_completion_s
+        f = getattr(getattr(v, "truth", None), "actual_completion_s", None)
+        if p is not None and f is not None and f > p:
+            late = True
+            break
+    if not late:
+        return 0.0
+    pending = any(
+        j.is_vessel_linked and j.status.name != "DONE" and j.release_time <= t
+        or (j.is_vessel_linked and j.status.name == "DONE"
+            and j.service_end is not None and j.service_end > t
+            and j.release_time <= t)
+        for j in sim.jobs.values())
+    if not pending:
+        return 0.0
+    from ..integrated.cost_curve_v2 import RHO_VESSEL_V2
+    return RHO_VESSEL_V2 * occupy_s / 3600.0
+
+
 def _truck_cost(r, l_t: float) -> float:
     """그 트럭 자신의 실현 비용(비용시간) — 체류 + 43분 초과 벌금."""
     if r.gate_in is None or r.gate_out is None:
@@ -106,12 +152,15 @@ def realized_credit(mbt, txns: list[dict], layout, *, l_t: float) -> dict:
         own = _truck_cost(rec, l_t)
 
         if tx["axis"] == "SPACE" and dst:
-            # 수신 부담 = 자기 비용 + 점유 동안 dst 에서 밀린 트럭들
+            # 수신 부담 = 자기 비용 + 뒤 트럭들이 밀린 몫 + **본선이 밀린 몫**
             blocked_dst = _waiting_at(ledgers[dst], rec.service_start)
-            b_dst = own + blocked_dst * occupy / 3600.0
+            b_dst = (own + blocked_dst * occupy / 3600.0
+                     + _vessel_pressure(mbt.blocks[dst], rec.service_start, occupy))
             # 소스 절감 = 남았더라면 점유했을 시간 × 그때 src 대기 수 + 자기 비용
+            #            + 남았더라면 src 본선을 밀었을 몫 (양쪽 대칭)
             blocked_src = _waiting_at(ledgers[src], rec.service_start)
-            r_src = own + blocked_src * occupy / 3600.0
+            r_src = (own + blocked_src * occupy / 3600.0
+                     + _vessel_pressure(mbt.blocks[src], rec.service_start, occupy))
             route = max(0.0, layout.gate_to_block_s(dst)
                         - layout.gate_to_block_s(src)) / 3600.0
             out[tx["txn"]] = r_src - b_dst - route
@@ -124,9 +173,15 @@ def realized_credit(mbt, txns: list[dict], layout, *, l_t: float) -> dict:
                 out[tx["txn"]] = 0.0
                 continue
             defer_s = max(0.0, rec.gate_in - orig)
-            # 원래 시각에 그 블록에서 기다리던 트럭 수 — 그만큼 덜 밀렸다
-            relief = _waiting_at(ledgers[src], orig) * occupy / 3600.0
-            out[tx["txn"]] = relief - defer_s / 3600.0
+            # 원래 시각에 그 블록에서 기다리던 트럭 수 — 그만큼 덜 밀렸다.
+            # 본선도 마찬가지로 그 시각에 안 와서 덜 밀렸다(10배 가중).
+            relief = (_waiting_at(ledgers[src], orig) * occupy / 3600.0
+                      + _vessel_pressure(mbt.blocks[src], orig, occupy))
+            # 그러나 **미룬 시각에는 실제로 왔다** — 그때 밀린 몫은 새로 생긴 부담이다.
+            # 이 항이 없으면 이연은 항상 이득으로 보인다(혼잡을 옮겼을 뿐인데도).
+            burden = (_waiting_at(ledgers[src], rec.service_start) * occupy / 3600.0
+                      + _vessel_pressure(mbt.blocks[src], rec.service_start, occupy))
+            out[tx["txn"]] = relief - burden - defer_s / 3600.0
     return out
 
 
