@@ -1,0 +1,145 @@
+{
+ "experiment": "YR-171-A 선행 실측 — 48칸 계획표의 미래 가시성",
+ "kind": "observation_only",
+ "seed": 9000000,
+ "announce_lead_s": 1800.0,
+ "slot_s": 1800.0,
+ "n_slots": 48,
+ "lead_in_slots": 1.0,
+ "probe_rows": [
+  {
+   "t": 14400.0,
+   "hour": 4.0,
+   "cur_slot": 8,
+   "future_slots_per_block": 39,
+   "future_slots_with_trucks": 3,
+   "future_slots_total": 819,
+   "share_nonempty": 0.0037,
+   "per_block_min": 0,
+   "per_block_max": 1
+  },
+  {
+   "t": 28800.0,
+   "hour": 8.0,
+   "cur_slot": 16,
+   "future_slots_per_block": 31,
+   "future_slots_with_trucks": 3,
+   "future_slots_total": 651,
+   "share_nonempty": 0.0046,
+   "per_block_min": 0,
+   "per_block_max": 1
+  },
+  {
+   "t": 39600.0,
+   "hour": 11.0,
+   "cur_slot": 22,
+   "future_slots_per_block": 25,
+   "future_slots_with_trucks": 20,
+   "future_slots_total": 525,
+   "share_nonempty": 0.0381,
+   "per_block_min": 0,
+   "per_block_max": 1
+  },
+  {
+   "t": 54000.0,
+   "hour": 15.0,
+   "cur_slot": 30,
+   "future_slots_per_block": 17,
+   "future_slots_with_trucks": 20,
+   "future_slots_total": 357,
+   "share_nonempty": 0.056,
+   "per_block_min": 0,
+   "per_block_max": 1
+  },
+  {
+   "t": 72000.0,
+   "hour": 20.0,
+   "cur_slot": 40,
+   "future_slots_per_block": 7,
+   "future_slots_with_trucks": 3,
+   "future_slots_total": 147,
+   "share_nonempty": 0.0204,
+   "per_block_min": 0,
+   "per_block_max": 1
+  }
+ ],
+ "truth_slots_with_trucks": 48,
+ "truth_per_slot": [
+  11,
+  11,
+  11,
+  12,
+  11,
+  11,
+  12,
+  11,
+  11,
+  11,
+  12,
+  11,
+  11,
+  12,
+  11,
+  13,
+  17,
+  30,
+  59,
+  112,
+  176,
+  228,
+  242,
+  218,
+  184,
+  165,
+  167,
+  183,
+  201,
+  213,
+  213,
+  201,
+  178,
+  149,
+  120,
+  91,
+  66,
+  46,
+  33,
+  24,
+  17,
+  15,
+  13,
+  11,
+  12,
+  11,
+  12,
+  11
+ ],
+ "note": "share_nonempty = 미래 슬롯 중 통지된 트럭이 하나라도 있는 칸의 비율. 사후 정답은 비교 전용이며 계획표 생성 경로에 넣지 않는다.",
+ "code_dirty": true,
+ "stamp": {
+  "experiment": "YR-171-A 선행 실측 — 48칸 계획표의 미래 가시성",
+  "code": {
+   "git_head": "5ae4731c59beafd363b01ff404683f43c8312d6a",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "episode": [
+    9000000
+   ]
+  },
+  "params": {
+   "probe_hours": {
+    "repr": "[4.0, 8.0, 11.0, 15.0, 20.0]"
+   },
+   "ANNOUNCE_LEAD_S": {
+    "repr": "1800.0"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-171-time-sale-slot-contract.md"
+ }
+}
