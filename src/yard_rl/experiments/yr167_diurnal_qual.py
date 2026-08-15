@@ -47,6 +47,9 @@ from .yr167_observers import (SnapshotCollector, cancelled_external, run_digest,
                               vessel_realized)
 
 OUT = Path("outputs/reports/yr167_diurnal_qual")
+# 구 계약(30분 통지) 자격 증거의 **고정** 경로. `OUT` 은 --day-plan-public 에서
+# 재바인딩되므로, W12 의 digest 대조는 반드시 이 상수를 봐야 한다.
+BASE_OUT = Path("outputs/reports/yr167_diurnal_qual")
 PREREG = Path(".claude/docs/strategy-history/"
               "2026-08-11-24시간-이중피크-상수-유도-사전등록.md")
 SEED = 8_100_000                 # 5차 자격 전용 시드 대역
@@ -394,7 +397,7 @@ def run(cells: list[dict] | None = None, repeat: dict | None = None,
             for d in w12)
         checks["W12_day_plan_no_self_reschedule"] = all(
             d.get("no_self_reschedule") and d.get("version_zero") for d in w12)
-        base = OUT / "diurnal_qual.json"
+        base = BASE_OUT / "diurnal_qual.json"
         same = None
         if base.exists():
             old_cells = json.loads(base.read_text(encoding="utf-8"))["cells"]
