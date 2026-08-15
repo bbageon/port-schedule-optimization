@@ -1,0 +1,115 @@
+{
+ "experiment": "YR-171-A 계약 전환 확인",
+ "kind": "regression+observation",
+ "day": 9000000,
+ "regression_old_contract": [
+  {
+   "arm": "K",
+   "day": 9000000,
+   "expected": {
+    "phi_final": 2475.2478,
+    "n_space": 0,
+    "n_time": 0,
+    "admitted": 3600
+   },
+   "got": {
+    "phi_final": 2475.2478,
+    "n_space": 0,
+    "n_time": 0,
+    "admitted": 3600
+   },
+   "identical": true
+  },
+  {
+   "arm": "P9_s8400000",
+   "day": 9000000,
+   "expected": {
+    "phi_final": 2453.0323,
+    "n_space": 218,
+    "n_time": 350,
+    "admitted": 3600
+   },
+   "got": {
+    "phi_final": 2453.0323,
+    "n_space": 218,
+    "n_time": 350,
+    "admitted": 3600
+   },
+   "identical": true
+  }
+ ],
+ "all_identical": true,
+ "visibility_new_contract": [
+  {
+   "hour": 4.0,
+   "cur_slot": 8,
+   "future_slots_with_trucks": 623,
+   "future_slots_total": 819,
+   "share_nonempty": 0.7607,
+   "plan_version": 0
+  },
+  {
+   "hour": 8.0,
+   "cur_slot": 16,
+   "future_slots_with_trucks": 548,
+   "future_slots_total": 651,
+   "share_nonempty": 0.8418,
+   "plan_version": 0
+  },
+  {
+   "hour": 11.0,
+   "cur_slot": 22,
+   "future_slots_with_trucks": 433,
+   "future_slots_total": 525,
+   "share_nonempty": 0.8248,
+   "plan_version": 0
+  },
+  {
+   "hour": 15.0,
+   "cur_slot": 30,
+   "future_slots_with_trucks": 265,
+   "future_slots_total": 357,
+   "share_nonempty": 0.7423,
+   "plan_version": 0
+  },
+  {
+   "hour": 20.0,
+   "cur_slot": 40,
+   "future_slots_with_trucks": 75,
+   "future_slots_total": 147,
+   "share_nonempty": 0.5102,
+   "plan_version": 0
+  }
+ ],
+ "new_contract_keep_episode": {
+  "phi_final": 2475.2777,
+  "n_space": 0,
+  "n_time": 0,
+  "admitted": 3600
+ },
+ "note": "성능 주장 없음(171-A 사다리 규약). 회귀는 구 계약 보존, 가시성은 정보가 열렸는지만 본다.",
+ "code_dirty": true,
+ "stamp": {
+  "experiment": "YR-171-A 계약 전환 확인",
+  "code": {
+   "git_head": "5850094e34cb6c5c5f90016b15e05c9f983bb1c9",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "day": [
+    9000000
+   ]
+  },
+  "params": {
+   "probe_hours": {
+    "repr": "[4.0, 8.0, 11.0, 15.0, 20.0]"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-171-time-sale-slot-contract.md"
+ }
+}

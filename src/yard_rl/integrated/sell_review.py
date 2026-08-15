@@ -244,7 +244,7 @@ class SellReviewOrchestrator:
         # ── ③ 시간: 동결 결정 집행 (블록 내 재예약 — 블록 간 경합 없음)
         for src, jid in time_picks:
             ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
-                               max_deferrals=MAX_ENTRY_DEFERRALS)
+                               max_deferrals=MAX_ENTRY_DEFERRALS, t=t)
             self.ledger.append({"t": t, "axis": "TIME", "src": src, "job_id": jid,
                                 "decision": "DEFER" if ok else "KEEP_TXN_FAIL"})
             if ok:
@@ -410,7 +410,7 @@ class UnifiedSellOrchestrator:
                 continue
             if coord == "TIME":
                 ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
-                                   max_deferrals=MAX_ENTRY_DEFERRALS)
+                                   max_deferrals=MAX_ENTRY_DEFERRALS, t=t)
                 self.ledger.append({"t": t, "axis": "TIME", "src": src, "job_id": jid,
                                     "flow": flow,
                                     "decision": "DEFER" if ok else "KEEP_TXN_FAIL",

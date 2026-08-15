@@ -85,9 +85,30 @@ def iter_time_sell_candidates(mbt, src: str, *, horizon_s: float = DEFER_WINDOW_
 
 
 def try_time_sell(mbt, job_id: str, *, delta_s: float = DEFER_DELTA_S,
-                  max_deferrals: int = MAX_ENTRY_DEFERRALS) -> bool:
-    """재예약 요청 1건 실행 — 전원 수락 가정이므로 요청 = 확정. 실패는 KEEP."""
-    return mbt.try_defer_admitted_entry(job_id, delta_s, max_deferrals=max_deferrals)
+                  max_deferrals: int = MAX_ENTRY_DEFERRALS,
+                  t: float | None = None) -> bool:
+    """재예약 요청 1건 실행 — 전원 수락 가정이므로 요청 = 확정. 실패는 KEEP.
+
+    ★YR-171-A: 공개 예약 장부(`day_plan`)가 붙어 있으면 **장부를 먼저 검사**하고
+    엔진 확정 뒤에 장부를 갱신한다(버전 상승). 순서가 중요하다 — 엔진이 먼저 확정한
+    뒤 장부가 거부하면 둘이 어긋난 채로 남는다. 하루 격자를 넘기는 재예약은
+    **거부**한다(명세: 날짜 변경 금지) — 거부는 KEEP 과 같다.
+    """
+    from .day_plan import get as _day_plan_get
+    plan = _day_plan_get(mbt)
+    new_t = None
+    if plan is not None:
+        from .slot_plan import DAY_S
+        cur = plan.gate_in(job_id)
+        if cur is None:
+            return False
+        new_t = cur + delta_s
+        if not (0.0 <= new_t < DAY_S):
+            return False                  # 날짜 넘김 — 재예약 불가
+    ok = mbt.try_defer_admitted_entry(job_id, delta_s, max_deferrals=max_deferrals)
+    if ok and plan is not None:
+        plan.reschedule(job_id, new_t, t=t)
+    return ok
 
 
 # ------------------------------------------------------------------ 감사

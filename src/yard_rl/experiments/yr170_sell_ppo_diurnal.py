@@ -68,6 +68,7 @@ USE_END_BOOTSTRAP = False
 def run_episode_diurnal(seed: int, policy, kf, *,
                         obs=None, exec_head: str = "adopted",
                         exec_fleet=None, exec_config=None,
+                        day_plan_public: bool = False,
                         _return_mbt: bool = False,
                         _extra_review=None) -> dict:
     """5차 계약 1 에피소드 — 4차 `run_episode` 와 **반환 형태 동일**(학습 루프 공유).
@@ -94,6 +95,11 @@ def run_episode_diurnal(seed: int, policy, kf, *,
         {b: ensure_time_ledger(_sim_from(s, prof))
          for b, s in built["scenarios"].items()},
         extra_review_epochs=admission_epochs(obs))
+    # ★YR-171-A 정보 계약 — **명시적 opt-in**. 기본값 False 는 현 계약(30분 통지)을
+    # 바이트 동일하게 보존한다: YR-174 판정 결과가 조용히 바뀌면 안 된다.
+    if day_plan_public:
+        from ..integrated.day_plan import attach as _attach_day_plan
+        _attach_day_plan(mbt, built["schedule"])
     ann = ScheduledAnnouncer(built["schedule"], lead_s=ANNOUNCE_LEAD_S,
                              end_s=built["sim_end_s"])
     orch = UnifiedSellOrchestrator(policy, layout, kf,

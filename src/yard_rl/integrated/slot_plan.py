@@ -149,6 +149,19 @@ def _scan_ledger(mbt, blocks) -> dict[str, dict]:
         if i is None:
             continue
         acc[rec.owner]["in" if rec.flow == "GATE_IN" else "out"][i] += 1.0
+
+    # ★YR-171-A 정보 계약 — 공개 예약 장부가 붙어 있으면 반입/반출 칸은 **장부가 정본**.
+    # 통지된 것만 세는 위 경로는 미래 칸이 0.4~5.6% 만 채워진다(yr171_horizon_probe).
+    # 장부는 하루 명단 전체를 담으므로 "안 보이는 것"과 "한가한 것"이 구분된다.
+    # 수락 이송(recv)은 **현재 관측**이라 장부가 아니라 원장에서 그대로 온다.
+    from .day_plan import get as _day_plan_get
+    plan = _day_plan_get(mbt)
+    if plan is not None:
+        hist = plan.slot_hist()
+        for b in acc:
+            h = hist.get(b)
+            acc[b]["in"] = h["in"] if h else [0.0] * N_SLOTS
+            acc[b]["out"] = h["out"] if h else [0.0] * N_SLOTS
     return acc
 
 
