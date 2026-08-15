@@ -65,7 +65,30 @@ def planned_hourly_peak(obs: ObservationContract, total: int) -> float:
     return max(hourly)
 
 
-def run_cell(rep: int) -> dict:
+def _w12_day_plan(plan, schedule: list[dict]) -> dict:
+    """공개 예약 장부가 **명단에서 왔고 실현에 반응하지 않았는가**.
+
+    장부를 안 붙인 구 계약 런에서는 `attached=False` 로만 남긴다(판정 제외).
+    """
+    if plan is None:
+        return {"attached": False}
+    mismatch = sum(1 for e in schedule
+                   if plan.gate_in(e["job_id"]) != float(e["arrival_s"]))
+    return {"attached": True,
+            "n_jobs": plan.n_jobs,
+            "n_schedule": len(schedule),
+            "count_matches": plan.n_jobs == len(schedule),
+            # SF 자격런은 판매를 하지 않는다 — 장부가 스스로 움직이면 결함이다
+            "n_reschedules": len(plan.reschedules),
+            "no_self_reschedule": len(plan.reschedules) == 0,
+            # 재예약이 0이므로 장부 = 명단이어야 한다(실현 진입이 아니라 예약에서 옴)
+            "gate_in_mismatch_n": mismatch,
+            "matches_schedule": mismatch == 0,
+            "plan_version": plan.plan_version,
+            "version_zero": plan.plan_version == 0}
+
+
+def run_cell(rep: int, *, day_plan_public: bool = False) -> dict:
     obs = OBS_24H
     prof = build_h21_profile()
     layout = terminal_layout()
@@ -79,6 +102,12 @@ def run_cell(rep: int) -> dict:
         {b: ensure_time_ledger(_sim_from(s, prof))
          for b, s in built["scenarios"].items()},
         extra_review_epochs=admission_epochs(obs))
+    # ★YR-171-A 재자격 — 하루 공개 예약 장부. 정보 계약이 바뀌므로 자격을 다시 받는다.
+    # 장부는 **읽기 전용**이라 엔진에 영향이 없어야 한다: W12 가 그것을 판정한다.
+    day_plan = None
+    if day_plan_public:
+        from ..integrated.day_plan import attach as _attach_day_plan
+        day_plan = _attach_day_plan(mbt, built["schedule"])
     ann = ScheduledAnnouncer(built["schedule"], lead_s=ANNOUNCE_LEAD_S,
                              end_s=built["sim_end_s"])
     snap = SnapshotCollector(obs.snapshot_times())
@@ -314,6 +343,11 @@ def run_cell(rep: int) -> dict:
         "peak_observed": peak_obs, "peak_planned": round(peak_plan, 1),
         "policy_exceptions": exc["n"],
         "run_digest": run_digest(mbt),
+        # ---- W12 (YR-171-A 신규) — 공개 예약 장부의 정보 경계 ----
+        # ①장부가 명단과 정확히 일치하는가(실현값이 아니라 예약에서 왔는가)
+        # ②SF 자격런은 판매를 하지 않으므로 재예약이 0이어야 한다(장부 무개입 증명)
+        # ③엔진 영향 없음은 `run_digest` 를 구 계약 자격런과 대조해 판정한다(합산 단계)
+        "W12_day_plan": _w12_day_plan(day_plan, built["schedule"]),
         # 부수 관측 (판정 아님)
         "obs_denominator": "측정창 [2h,24h) 안에 게이트인한 트럭 중 완료분(도착 코호트)",
         "obs_n_cohort": len(coh), "obs_n_sample": len(stay),
@@ -338,8 +372,10 @@ CHECKS = ("W1p_schedule_honored", "W2_ledger_conserved", "W3_deterministic_build
           "W8p_no_stock_exhaustion", "W9_flow_fallback_zero", "W11_peak_reached")
 
 
-def run(cells: list[dict] | None = None, repeat: dict | None = None) -> dict:
+def run(cells: list[dict] | None = None, repeat: dict | None = None,
+        *, out_dir: Path | None = None, day_plan_public: bool = False) -> dict:
     """cells 가 주어지면 병렬 셀 산출물을 합산(재실행 없음), 아니면 순차 실행."""
+    out_dir = out_dir or OUT
     from_files = cells is not None
     cells = cells if from_files else [run_cell(r) for r in range(REPS)]
     checks = {k: all(c[k] for c in cells) for k in CHECKS}
@@ -347,6 +383,26 @@ def run(cells: list[dict] | None = None, repeat: dict | None = None) -> dict:
         all(v for k, v in c["W7_internal"].items() if isinstance(v, bool))
         for c in cells)
     checks["no_policy_exceptions"] = all(c["policy_exceptions"] == 0 for c in cells)
+    # ---- W12 (YR-171-A) — 공개 예약 장부의 정보 경계 ----
+    # ①장부 = 명단(실현이 아니라 예약에서 옴) ②자격런은 판매가 없으므로 재예약 0
+    # ③**엔진 무영향** — 구 계약 자격런의 run_digest 와 셀별로 완전 일치해야 한다.
+    #   이것이 "읽기 전용 정보 채널"의 유일한 실측 증명이다.
+    if day_plan_public:
+        w12 = [c.get("W12_day_plan", {"attached": False}) for c in cells]
+        checks["W12_day_plan_matches_schedule"] = all(
+            d.get("attached") and d.get("matches_schedule") and d.get("count_matches")
+            for d in w12)
+        checks["W12_day_plan_no_self_reschedule"] = all(
+            d.get("no_self_reschedule") and d.get("version_zero") for d in w12)
+        base = OUT / "diurnal_qual.json"
+        same = None
+        if base.exists():
+            old_cells = json.loads(base.read_text(encoding="utf-8"))["cells"]
+            if len(old_cells) == len(cells):
+                same = all(o["run_digest"] == n["run_digest"]
+                           for o, n in zip(old_cells, cells))
+        checks["W12_engine_unaffected"] = bool(same)
+        checks["W12_engine_unaffected_checked"] = same is not None
     # W3 런 결정론 — 같은 시드 반복 셀의 digest 대조 (없으면 미판정)
     det_run = None
     if repeat is not None:
@@ -364,7 +420,9 @@ def run(cells: list[dict] | None = None, repeat: dict | None = None) -> dict:
         "note": "5차 계약 자격 — 성능 주장 없음. 벌금 구간 도달률·체류 곡선은 "
                 "부수 관측이며 판정 임계가 아니다. 측정창은 실행 24h 중 22h.",
     }
-    res = {"task": "YR-167", "contract": "diurnal_24h",
+    res = {"task": "YR-167",
+           "contract": ("diurnal_24h+day_plan_public" if day_plan_public
+                        else "diurnal_24h"),
            "runtime": {"commit": _git("rev-parse", "HEAD"),
                        "git_dirty": bool(code_dirty()),
                        "prereg_file": str(PREREG),
@@ -373,13 +431,14 @@ def run(cells: list[dict] | None = None, repeat: dict | None = None) -> dict:
                        "seeds": [SEED + r for r in range(REPS)],
                        "cells_from_files": from_files,
                        "cell_sha256": ({f"cell_rep{r}.json":
-                                        _sha256(OUT / f"cell_rep{r}.json")
+                                        _sha256(out_dir / f"cell_rep{r}.json")
                                         for r in range(REPS)} if from_files else None)},
            "verdict": verdict, "cells": cells}
-    OUT.mkdir(parents=True, exist_ok=True)
-    p = OUT / "diurnal_qual.json"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    p = out_dir / "diurnal_qual.json"
     p.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
-    (OUT / "diurnal_qual.json.sha256").write_text(_sha256(p) + "\n", encoding="utf-8")
+    (out_dir / "diurnal_qual.json.sha256").write_text(_sha256(p) + "\n",
+                                                      encoding="utf-8")
     print(json.dumps({"verdict": verdict}, ensure_ascii=False))
     return res
 
@@ -391,15 +450,23 @@ if __name__ == "__main__":
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--summarize", action="store_true",
                     help="병렬로 산출된 cell_rep*.json 을 합산(재실행 없음)")
+    ap.add_argument("--day-plan-public", action="store_true",
+                    help="YR-171-A 재자격 — 하루 공개 예약 장부를 붙여 자격을 다시 받는다. "
+                         "산출은 별도 디렉터리(구 계약 자격 증거를 덮지 않는다).")
     a = ap.parse_args()
+    if a.day_plan_public:
+        # 정보 계약이 다르면 자격 증거도 분리 보관한다 — 나중에 어느 계약의 자격인지
+        # 구분할 수 없으면 둘 다 못 쓴다.
+        OUT = Path(str(OUT) + "_public")
     if a.summarize:
         rp = OUT / "cell_rep0_repeat.json"
         run([json.loads((OUT / f"cell_rep{r}.json").read_text(encoding="utf-8"))
              for r in range(REPS)],
             repeat=(json.loads(rp.read_text(encoding="utf-8"))
-                    if rp.exists() else None))
+                    if rp.exists() else None),
+            out_dir=OUT, day_plan_public=a.day_plan_public)
     elif a.rep is not None:
-        c = run_cell(a.rep)
+        c = run_cell(a.rep, day_plan_public=a.day_plan_public)
         OUT.mkdir(parents=True, exist_ok=True)
         suffix = f"_{a.tag}" if a.tag else ""
         (OUT / f"cell_rep{a.rep}{suffix}.json").write_text(
