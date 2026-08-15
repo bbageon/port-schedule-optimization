@@ -281,7 +281,8 @@ class UnifiedSellOrchestrator:
     def __init__(self, policy, layout: YardLayout, kf, *,
                  window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S,
                  grid_s: float = 60.0, allow_keep_coord: bool = True,
-                 dry_run: bool = False):
+                 dry_run: bool = False,
+                 time_slots: bool = False, buy_net=None):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
@@ -297,6 +298,12 @@ class UnifiedSellOrchestrator:
         self.kf = kf
         self.window_s = window_s
         self.defer_delta_s = defer_delta_s
+        # ★YR-171-C 시간 좌표 계약. 기본 False = 고정 +15분 한 칸(구 계약 보존).
+        # True 면 오늘의 30분 슬롯 48칸에서 고른다 — 하루 공개 예약 장부가 붙어 있어야
+        # 미래 칸이 비어 보이지 않는다(YR-171-A). 붙지 않았으면 즉시 실격.
+        self.time_slots = bool(time_slots)
+        self.buy_net = buy_net               # None = 결정론 계산식으로 견적
+        self._plan_cache = None              # (t, order, index, plans) — epoch 공유
         self.grid_s = grid_s                 # 60초 계약 — 격자 밖 epoch 에서는 닫음
         self.allow_keep_coord = allow_keep_coord   # 현 좌표 유지 ΔJ=0 (0B 동결 대상)
         self.dry_run = dry_run
@@ -323,6 +330,18 @@ class UnifiedSellOrchestrator:
         return offers
 
     # ---- ② 축 저울: 제안 1건의 대안 좌표별 순비용 (가상 상태 q 위에서)
+    def _require_day_plan(self, mbt) -> None:
+        """48칸 모드는 하루 공개 예약 장부가 **필수**다 — 없으면 즉시 실격.
+
+        장부 없이 48칸을 열면 미래 칸이 0.4~5.6% 만 채워져(yr171_horizon_probe)
+        "먼 슬롯일수록 한가하다"를 배운다. 조용히 나쁜 실험이 되므로 fail-closed.
+        """
+        from .day_plan import get as _day_plan_get
+        if _day_plan_get(mbt) is None:
+            raise ValueError(
+                "time_slots=True 는 day_plan(하루 공개 예약 장부)이 필수 — "
+                "장부 없이 48칸을 열면 미래 칸이 비어 보여 먼 슬롯을 무조건 고른다")
+
     def _coord_costs(self, mbt, src: str, jid: str, flow: str, t: float,
                      q: dict, vcap: dict) -> list[tuple[float, str]]:
         from .sell_gain import cost_given_queue
@@ -349,20 +368,63 @@ class UnifiedSellOrchestrator:
                 add = cost_given_queue(mbt.blocks[dst], gate_in_s=gi,
                                        eta_s=eta + delta, queue=q[dst], kf=self.kf)
                 out.append((add + delta / 3600.0 - relief, dst))
-        # 시간 대안 (+Δ) — 반입·반출 공통. 이연 중 대기열 배수는 결정론 proxy.
-        d = self.defer_delta_s
+        # 시간 대안 — 반입·반출 공통. 이연 중 대기열 배수는 결정론 proxy.
         sim = mbt.blocks[src]
         n_cranes = max(1, len(sim.profile.cranes))
         from .block_congestion import SVC_REF_S
-        q_late = max(0.0, q[src] - d * n_cranes / SVC_REF_S)
-        add_t = cost_given_queue(sim, gate_in_s=gi + d, eta_s=eta + d,
-                                 queue=q_late, kf=self.kf)
-        out.append((add_t + d / 3600.0 - relief, "TIME"))   # 외부 대기 = 동일 단가
+        if not self.time_slots:
+            # 구 계약: 고정 +Δ 한 칸 (YR-171 이전)
+            d = self.defer_delta_s
+            q_late = max(0.0, q[src] - d * n_cranes / SVC_REF_S)
+            add_t = cost_given_queue(sim, gate_in_s=gi + d, eta_s=eta + d,
+                                     queue=q_late, kf=self.kf)
+            out.append((add_t + d / 3600.0 - relief, "TIME"))  # 외부 대기 = 동일 단가
+            return out
+        # ★YR-171-C: 오늘의 30분 슬롯 중에서 고른다. 좌표 = "TIME@k" (절대 칸 번호).
+        # 값은 BUY 견적망이 있으면 그 예측을, 없으면 같은 결정론 proxy 를 쓴다.
+        from .slot_plan import N_SLOTS, SLOT_S
+        cur = int(gi // SLOT_S)
+        quotes = self._buy_quotes(mbt, src, jid, t) if self.buy_net else None
+        for k in range(cur + 1, N_SLOTS):
+            d = k * SLOT_S - gi                     # 그 칸 시작으로 재예약
+            if d <= 0.0:
+                continue
+            if quotes is not None:
+                add_t = float(quotes[k])
+            else:
+                q_late = max(0.0, q[src] - d * n_cranes / SVC_REF_S)
+                add_t = cost_given_queue(sim, gate_in_s=gi + d, eta_s=eta + d,
+                                         queue=q_late, kf=self.kf)
+            out.append((add_t + d / 3600.0 - relief, f"TIME@{k}"))
         return out
+
+    def _buy_quotes(self, mbt, src: str, jid: str, t: float):
+        """BUY 견적망으로 (이 작업, src 블록, 48칸) 예상 부담을 한 번에 받는다.
+
+        시간 판매는 **블록이 그대로**이므로 src 행만 쓴다. 계획표는 epoch 마다 한 번만
+        만들어 `_plan_cache` 로 공유한다 — 블록마다 다시 만들면 비용이 폭발한다.
+        """
+        import torch
+        from .buy_estimator import job_feature_batch
+        cache = self._plan_cache
+        if cache is None or cache[0] != t:
+            from .slot_plan import terminal_slot_plan
+            plan = terminal_slot_plan(mbt, t)
+            order = sorted(plan)
+            cache = (t, order, {b: i for i, b in enumerate(order)},
+                     torch.tensor([plan[b] for b in order], dtype=torch.float32))
+            self._plan_cache = cache
+        _t, _order, bidx, plans = cache
+        with torch.no_grad():
+            jobs = job_feature_batch(mbt, [(src, jid)], t)
+            out = self.buy_net(plans, jobs)          # (1, B, 48)
+        return out[0, bidx[src]].tolist()
 
     def review(self, mbt, t: float) -> None:
         if not on_grid(t, self.grid_s):
             return                     # 60초 계약 — gate-in 시각 epoch 에서는 열지 않는다
+        if self.time_slots:
+            self._require_day_plan(mbt)
         offers = self._collect(mbt, t)
         if not offers:
             return
@@ -386,7 +448,8 @@ class UnifiedSellOrchestrator:
             (cost, _, _), idx, coord = best
             src, jid, flow = remaining.pop(idx)
             assignment.append((src, jid, flow, coord, cost))
-            if coord not in ("TIME", "KEEP"):             # 공간: 가상 상태 이동
+            # 시간 좌표는 "TIME"(구 계약) 또는 "TIME@k"(48칸) — 블록이 안 바뀐다
+            if coord not in ("TIME", "KEEP") and not coord.startswith("TIME@"):
                 q[coord] += 1.0
                 q[src] = max(0.0, q[src] - 1.0)
                 vcap[coord] = vcap.get(coord, 0) + 1
@@ -401,18 +464,31 @@ class UnifiedSellOrchestrator:
             if self.dry_run:
                 # shadow dry-run — 견적·matching·용량 검사를 전부 통과한 would-commit
                 # 을 기록만 하고 확정을 생략한다(소유권·시간 장부·난수열 불변).
+                is_time = coord == "TIME" or coord.startswith("TIME@")
                 self.ledger.append({"t": t,
-                                    "axis": "TIME" if coord == "TIME" else "SPACE",
+                                    "axis": "TIME" if is_time else "SPACE",
                                     "src": src, "job_id": jid, "flow": flow,
-                                    "dst": None if coord == "TIME" else coord,
+                                    "dst": None if is_time else coord,
                                     "decision": "DRY_WOULD_COMMIT",
                                     "delta_j": round(dj, 6)})
                 continue
-            if coord == "TIME":
-                ok = try_time_sell(mbt, jid, delta_s=self.defer_delta_s,
-                                   max_deferrals=MAX_ENTRY_DEFERRALS, t=t)
+            if coord == "TIME" or coord.startswith("TIME@"):
+                if coord == "TIME":
+                    delta = self.defer_delta_s
+                    slot = None
+                else:
+                    # "TIME@k" — k 번 칸 시작으로 재예약. 이연량은 지금 예약에서 유도.
+                    from .slot_plan import SLOT_S
+                    from .time_sell import notified_gate_in
+                    slot = int(coord.split("@", 1)[1])
+                    gi_now = notified_gate_in(mbt.blocks[src].jobs[jid])
+                    delta = slot * SLOT_S - gi_now
+                ok = (delta > 0.0) and try_time_sell(
+                    mbt, jid, delta_s=delta,
+                    max_deferrals=MAX_ENTRY_DEFERRALS, t=t)
                 self.ledger.append({"t": t, "axis": "TIME", "src": src, "job_id": jid,
-                                    "flow": flow,
+                                    "flow": flow, "slot": slot,
+                                    "defer_s": round(delta, 3),
                                     "decision": "DEFER" if ok else "KEEP_TXN_FAIL",
                                     "delta_j": round(dj, 6)})
                 self.n_time += 1 if ok else 0
