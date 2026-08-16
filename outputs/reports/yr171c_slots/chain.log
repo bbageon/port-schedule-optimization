@@ -1,0 +1,43 @@
+CHAIN_START 2026-08-15 07:21:16 iter=10 eps=4 seeds=2
+07:21:16 STEP1 건너뜀 — 정답지가 이미 있다
+07:21:16 STEP2 건너뜀 — BUY 견적망이 이미 있다
+07:21:16 STEP3 3팔 동시 학습 × 2 시드 (동시 에피소드 24)
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+{"out": "outputs/reports/yr171c_slots/slots48_s8400000"}
+DONE
+{"out": "outputs/reports/yr171c_slots/slots48_s8500000"}
+DONE
+{"out": "outputs/reports/yr171c_slots/fixed15_s8500000"}
+DONE
+{"out": "outputs/reports/yr171c_slots/fixed15_s8400000"}
+DONE
+{"out": "outputs/reports/yr171c_slots/slots48_buy_s8500000"}
+DONE
+{"out": "outputs/reports/yr171c_slots/slots48_buy_s8400000"}
+DONE
+11:53:26   학습 완료 (6/6)
+11:53:26 STEP4 평가 (같은 날 짝지어, 전건 KEEP 기준)
+/mnt/c/Users/geonu/Desktop/port_reinforcement/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+                 K Φ   2392.98  vs_KEEP    +0.00 ±   0.00 (t=None)  공간    0.0 시간    0.0  쓴 칸  0.0
+   fixed15:8400000 Φ   2325.04  vs_KEEP   -67.94 ±  18.24 (t=-3.72)  공간  224.8 시간  329.0  쓴 칸  0.0
+   fixed15:8500000 Φ   2314.05  vs_KEEP   -78.93 ±  14.72 (t=-5.36)  공간  256.8 시간  395.0  쓴 칸  0.0
+   slots48:8400000 Φ   2359.24  vs_KEEP   -33.73 ±  33.88 (t=-1.0)  공간  141.8 시간  104.5  쓴 칸 19.3
+   slots48:8500000 Φ   2345.86  vs_KEEP   -47.12 ±  30.84 (t=-1.53)  공간  198.8 시간  141.5  쓴 칸 22.0
+slots48_buy:8400000 Φ   2223.79  vs_KEEP  -169.19 ±  32.94 (t=-5.14)  공간  941.3 시간  196.5  쓴 칸 19.7
+slots48_buy:8500000 Φ   2210.37  vs_KEEP  -182.60 ±  31.51 (t=-5.79)  공간  861.3 시간  174.5  쓴 칸 18.0
+POOLED [{"arm": "fixed15", "n_seeds": 2, "vs_keep_mean": -73.44, "n_better": 2}, {"arm": "slots48", "n_seeds": 2, "vs_keep_mean": -40.42, "n_better": 2}, {"arm": "slots48_buy", "n_seeds": 2, "vs_keep_mean": -175.89, "n_better": 2}]
+대비: {"slots48_minus_fixed15": 33.02, "buy_minus_calc": -135.47, "note": "음수 = 그 축을 바꿔서 좋아졌다. 두 축을 한 번에 바꾼 결과로 원인을 주장하지 않는다(사다리 규약)."}
+DONE outputs/reports/yr171c_slots/eval_slots.json
+12:26:14 CHAIN_END
