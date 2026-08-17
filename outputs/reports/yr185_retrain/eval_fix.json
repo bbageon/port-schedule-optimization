@@ -1,0 +1,141 @@
+{
+ "experiment": "YR-185 ②③ 교정본 평가 (YR-171-C 와 같은 규약)",
+ "kind": "diagnostic",
+ "eval_days": [
+  9200000,
+  9201000,
+  9202000,
+  9203000,
+  9204000,
+  9205000
+ ],
+ "note": "음수 = 안 팔기보다 좋다. argmax·결정론·같은 날 짝지어.",
+ "fix_vs_keep": {
+  "mean": -129.15,
+  "se": 17.8,
+  "t": -7.25,
+  "n_neg": 6,
+  "n": 6
+ },
+ "control_vs_keep": {
+  "mean": -73.43,
+  "se": 14.81,
+  "t": -4.96,
+  "n_neg": 6,
+  "n": 6
+ },
+ "fix_minus_control": {
+  "mean": -55.72,
+  "se": 17.25,
+  "t": -3.23,
+  "n_neg": 6,
+  "n": 6
+ },
+ "greedy_vs_keep": -170.05,
+ "rows": [
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9200000,
+   "phi_final": 2341.0653,
+   "n_space": 288,
+   "n_time": 267,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  },
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9201000,
+   "phi_final": 2321.945,
+   "n_space": 301,
+   "n_time": 249,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  },
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9202000,
+   "phi_final": 2196.6178,
+   "n_space": 235,
+   "n_time": 156,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  },
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9203000,
+   "phi_final": 2209.1701,
+   "n_space": 259,
+   "n_time": 198,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  },
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9204000,
+   "phi_final": 2223.4937,
+   "n_space": 257,
+   "n_time": 185,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  },
+  {
+   "name": "fix",
+   "arm": "fixed15",
+   "day": 9205000,
+   "phi_final": 2290.665,
+   "n_space": 275,
+   "n_time": 213,
+   "n_slots_used": 0,
+   "defer_mean_s": 900.0,
+   "defer_max_s": 900.0,
+   "admitted": 3600
+  }
+ ],
+ "code_dirty": false,
+ "stamp": {
+  "experiment": "YR-185 ②③ 교정본 평가",
+  "code": {
+   "git_head": "79d4b8b796705544ccc915bcccb93a82f4aceb1c",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "eval_days": [
+    9200000,
+    9201000,
+    9202000,
+    9203000,
+    9204000,
+    9205000
+   ]
+  },
+  "params": {
+   "ckpt": {
+    "repr": "'outputs/reports/yr185_retrain/net.pt'"
+   },
+   "sample": {
+    "repr": "False"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-185-training-setup-audit.md"
+ }
+}
