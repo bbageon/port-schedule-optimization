@@ -159,9 +159,11 @@ def run() -> dict:
            "verdict": verdict, "summary": summary, "cells": rows}
     OUT.mkdir(parents=True, exist_ok=True)
     p = OUT / "contract_0a.json"
-    p.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
-    res["self_sha256"] = _sha256(p)
-    p.write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
+    # ★YR-155 — 자기 해시를 파일 **안**에 적지 않는다. 적는 순간 내용이 바뀌어
+    # 기록값이 덧쓰기 전 파일의 해시가 되고, 검증하는 쪽이 쓸 수 없다
+    # (2026-08-06 실측: 기록 4862ae71… vs 실제 c287a9d5…). sidecar 로 분리한다.
+    from ..integrated.repro import write_result
+    write_result(p, res)
     print(json.dumps({"verdict": verdict, "dirty": dirty,
                       "summary": {k: v["all_pass"] for k, v in summary.items()},
                       "n_candidates_A": [r["n_candidates"]["A"] for r in rows]},

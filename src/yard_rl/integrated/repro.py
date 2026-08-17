@@ -12,9 +12,59 @@
 from __future__ import annotations
 
 import dataclasses
+import hashlib
+import json
+from pathlib import Path
 import subprocess
 import sys
 from typing import Any
+
+
+
+# ------------------------------------------------------------------ 결과 저장
+SIDECAR_SUFFIX = ".sha256"
+
+
+def write_result(path: str | Path, payload: Any, *, indent: int = 1) -> str:
+    """결과 JSON 을 쓰고 **sidecar 에 해시를 남긴다** (YR-155).
+
+    ■ 왜 파일 안에 자기 해시를 적으면 안 되나
+      적는 순간 내용이 바뀌므로 기록값은 **덧쓰기 전 파일의 해시**가 된다.
+      검증하는 쪽이 쓸 수 없는 값이다 (2026-08-06 YR-151 0A 실측:
+      기록 `4862ae71…` vs 실제 `c287a9d5…`). 원리상 자기검증은 불가능하다.
+
+    ■ 규약
+      `<result>.json` 을 먼저 확정해 쓰고, 그 파일의 해시를
+      `<result>.json.sha256` 에 별도로 남긴다. 검증은
+      `sha256(<result>.json) == <result>.json.sha256` 로 성립한다.
+
+    반환값은 기록한 sha256 이다.
+    """
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(payload, ensure_ascii=False, indent=indent,
+                            default=str), encoding="utf-8")
+    digest = sha256_file(p)
+    p.with_name(p.name + SIDECAR_SUFFIX).write_text(digest + "\n",
+                                                    encoding="utf-8")
+    return digest
+
+
+def sha256_file(path: str | Path) -> str:
+    h = hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def verify_result(path: str | Path) -> bool | None:
+    """sidecar 로 결과 파일을 검증한다. sidecar 가 없으면 None (구 산출물)."""
+    p = Path(path)
+    side = p.with_name(p.name + SIDECAR_SUFFIX)
+    if not p.is_file() or not side.is_file():
+        return None
+    return side.read_text(encoding="utf-8").strip() == sha256_file(p)
 
 
 def git_head(short: bool = False) -> str | None:

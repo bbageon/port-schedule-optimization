@@ -1,9 +1,25 @@
 # YR-155 — 재현 스탬프의 자기 해시 규약 정정 (sidecar 분리)
 
-- **Epic**: Infra / **Priority**: 🟡 / **등록일**: 2026-08-06 / **상태**: **backlog**
+- **Epic**: Infra / **Priority**: 🟡 / **등록일**: 2026-08-06 / **상태**: done
 - **3대 게이트 보정 대상**: `reliability` 하나 — 착수 시 YR-153 `authorize-next` 통과 필수
 - **발견 경위**: YR-151 0A 를 게이트 하네스에 보고하는 과정에서 확인 —
   [gate report](../../../outputs/reports/yr153_research_gates/report.md)
+
+## ★결과 (2026-08-17) — 완료
+
+`repro.py` 에 공유 헬퍼 3종 신설: `write_result()`·`sha256_file()`·`verify_result()`.
+개별 실험이 각자 구현하지 않게 **공유 헬퍼로** 둬 재발을 막는다.
+
+| | |
+|---|---|
+| 새 규약 | `<result>.json` 확정 후 `<result>.json.sha256` sidecar |
+| 자기검증 | **성립함** — sidecar 값 == 실제 파일 해시 |
+| 변조 탐지 | 한 글자 추가 → `False` |
+| 구 산출물 | sidecar 없음 → `None`(미상), 위반 아님 |
+
+과거 `self_sha256` 필드는 **지우지 않고** 뜻풀이(`convention_since`·
+`sidecar_verified`)만 덧붙였다 — 그 값이 무엇이었는지 남아야 과거 판정을
+읽을 수 있다. 시험 36/36(신규 5 + 기존 31).
 
 ## 무엇이 문제인가
 

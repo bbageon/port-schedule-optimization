@@ -68,6 +68,12 @@ def raw_values(data: dict) -> dict[str, float]:
     return out
 
 
+def _sidecar_state():
+    """원자료에 sidecar 가 붙어 있으면 검증 결과, 없으면 None (구 산출물)."""
+    from ..integrated.repro import verify_result
+    return verify_result(CONTRACT)
+
+
 def build(generated_at: str, board_commit: str,
           board_state: str = BOARD_STATE_DEFAULT,
           scenario_from: str | None = None) -> dict:
@@ -113,8 +119,13 @@ def build(generated_at: str, board_commit: str,
         "task": "YR-151 0A",
         "contract_all_pass": data["verdict"]["contract_all_pass"],
         "artifact_sha256": hashes,
+        # ★YR-155(2026-08-17) 로 규약이 바뀌었다 — 새 산출물은 sidecar
+        # `<result>.json.sha256` 를 쓴다. 아래 필드는 **구 산출물의 이력**이며
+        # 지우지 않는다(그 값이 무엇이었는지 남겨야 과거 판정을 읽을 수 있다).
         "self_sha256_is_pre_write": {
             "recorded": data.get("self_sha256"), "actual_file": hashes[CONTRACT.as_posix()],
+            "convention_since": "YR-155 — 새 산출물은 <result>.json.sha256 sidecar",
+            "sidecar_verified": _sidecar_state(),
             "note": "원자료의 self_sha256 은 그 필드를 덧쓰기 전 파일의 해시다 — "
                     "자기검증 불가. 게이트는 실제 파일 해시로 고정한다(후속 정정 대상)."},
         "prior_fail_reasons_closed": {
