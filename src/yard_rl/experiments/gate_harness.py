@@ -918,6 +918,53 @@ def _revalidate_performance_pass(evidence: Mapping[str, object]) -> bool:
         return False
 
 
+# ★YR-178 (2026-08-17) — 안내 칸을 판정에서 **유도**한다.
+#   구판은 세 칸이 전부 고정 문자열이었고 `currently_authorized` 는 reliability
+#   하나만 보고 갈렸다. scenario_validity 가 FAIL 이던 2026-08-06~09 시절 문구가
+#   남아, 그 축이 PASS 로 바뀐 뒤에도 "scenario_validity 를 보정하라"고 계속
+#   안내했다(2026-08-17 실측 — 같은 JSON 안에서 conditional_sequence 와 모순).
+#   이 칸은 "다음에 무엇을 해도 되는가"를 알려주는 자리라, 틀리면 헛일을 시키거나
+#   더 나쁘게는 게이트 안내를 통째로 무시하는 습관을 만든다.
+GATE_DEPENDENCY_ORDER = ("reliability", "scenario_validity", "performance")
+"""축 의존 순서 — 믿을 수 없는 실행에서 현실성을 재고, 현실성 없는 무대에서
+성능을 재는 것은 무의미하다. 미해소 축 중 **가장 앞선 것**이 허가 축이다."""
+
+_AXIS_WORK = {
+    "reliability": "재현·증거 정합 보정",
+    "scenario_validity": "무대 현실성 보정",
+    "performance": "규칙 기준선 대비 성능 판정",
+}
+
+
+def derive_next_scope(report: "ResearchGateReport") -> dict:
+    """세 축 판정에서 '지금 허가된 작업'을 유도한다 (문자열 상수 없음)."""
+    by_name = {"performance": report.performance,
+               "reliability": report.reliability,
+               "scenario_validity": report.scenario_validity}
+    unresolved = [n for n in GATE_DEPENDENCY_ORDER
+                  if by_name[n].status is not GateStatus.PASS]
+    if not unresolved:
+        return {
+            "currently_authorized": "전 축 PASS → 확증·잠금평가",
+            "conditional_sequence": [],
+            "unresolved_gates": [],
+            "forbidden_next_scope":
+                "확증 범위 밖의 새 상태·보상·행동·가설 추가",
+        }
+    head = unresolved[0]
+    return {
+        "currently_authorized":
+            f"{head} 단일축 — {_AXIS_WORK[head]}"
+            f" (미해소: {', '.join(unresolved)})",
+        "conditional_sequence": [
+            f"{prev} PASS 후 → {nxt} 단일축 — {_AXIS_WORK[nxt]}"
+            for prev, nxt in zip(unresolved, unresolved[1:])],
+        "unresolved_gates": unresolved,
+        "forbidden_next_scope":
+            "위 미확정과 무관한 새 상태·보상·행동·가설 추가",
+    }
+
+
 def revalidate_pass_evidence(
     report: ResearchGateReport,
     *,

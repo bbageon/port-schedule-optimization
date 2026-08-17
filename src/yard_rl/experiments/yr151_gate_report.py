@@ -24,7 +24,8 @@ from pathlib import Path
 
 from .gate_harness import (GateOutcome, GateStatus, ResearchGateReport, audit_dashboard,
                            combine_reliability,
-                           judge_claim_alignment, judge_referenced_weights,
+                           derive_next_scope, judge_claim_alignment,
+                           judge_referenced_weights,
                            judge_runtime_evidence, report_from_dict)
 
 ROOT = Path(".")
@@ -121,12 +122,10 @@ def build(generated_at: str, board_commit: str,
             "runtime_params": rt["params"],
             "runtime_prereg": f"{rt['prereg_file']} (sha256 {str(rt['prereg_sha256'])[:12]}…)"},
         "carried_over_note": "YR-149 의 신뢰성 FAIL 3사유를 0A 산출물이 직접 닫음"})
-    out["currently_authorized"] = (
-        "reliability PASS → YR-150: scenario_validity 단일축"
-        if reliability.status.value == "PASS" else "YR-151 0A: reliability 단일축(미해소)")
-    out["conditional_sequence"] = [
-        "scenario_validity PASS 후 YR-151 0B: performance 단일축(학습 GO/STOP 은 0B 에서만)"]
-    out["forbidden_next_scope"] = "위 미확정과 무관한 새 상태·보상·행동·가설 추가"
+    # ★YR-178 — 안내 세 칸을 판정에서 유도한다(문자열 상수 제거).
+    #   구판은 reliability 하나만 보고 갈려서, scenario_validity 가 PASS 로
+    #   바뀐 뒤에도 "그 축을 보정하라"고 계속 안내했다.
+    out.update(derive_next_scope(report_from_dict(out)))
     return out
 
 
