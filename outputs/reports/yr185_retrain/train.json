@@ -1,5 +1,9 @@
 {
+ "experiment": "YR-185 ②③ 보상 희소·critic 붕괴 교정 후 재학습",
+ "kind": "diagnostic",
+ "note": "성능 판정 아님 — 곡선이 안 팔기 기준선을 넘는지만 본다.",
  "arm": "fixed15",
+ "train_seed": 8400000,
  "zero_keep": 0.15,
  "history": [
   {
@@ -44,7 +48,438 @@
     "value_rms": 0.044897,
     "ratio": 7.61
    }
+  },
+  {
+   "iter": 1,
+   "n": 19831,
+   "pi_loss": -0.5286438079075315,
+   "v_loss": 0.09939352557492157,
+   "n_steps": 156,
+   "phi_final_mean": 2965.677390062934,
+   "n_space_mean": 970.25,
+   "n_time_mean": 2635.25,
+   "credit_sum_mean": -493.022,
+   "resample": {
+    "n_in": 61457,
+    "n_out": 19831,
+    "n_zero_in": 49044,
+    "n_zero_out": 7418,
+    "zero_share_in": 0.798,
+    "zero_share_out": 0.3741,
+    "nonzero_share_out": 0.6259,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 61457,
+    "n_nonzero": 12413,
+    "nonzero_share": 0.202,
+    "ret_rms": 0.197533,
+    "ret_min": -3.0639,
+    "ret_max": 4.8582,
+    "ret_std": 0.194909,
+    "value_rms": 0.121119,
+    "ratio": 1.63
+   },
+   "scale_after": {
+    "n": 19831,
+    "n_nonzero": 12413,
+    "nonzero_share": 0.6259,
+    "ret_rms": 0.347738,
+    "ret_min": -3.0639,
+    "ret_max": 4.8582,
+    "ret_std": 0.333216,
+    "value_rms": 0.141631,
+    "ratio": 2.46
+   }
+  },
+  {
+   "iter": 2,
+   "n": 19639,
+   "pi_loss": -0.5983716287889222,
+   "v_loss": 0.09559995335700756,
+   "n_steps": 156,
+   "phi_final_mean": 2965.040264474918,
+   "n_space_mean": 973.75,
+   "n_time_mean": 2513.5,
+   "credit_sum_mean": -468.40930000000003,
+   "resample": {
+    "n_in": 63265,
+    "n_out": 19639,
+    "n_zero_in": 51298,
+    "n_zero_out": 7672,
+    "zero_share_in": 0.8108,
+    "zero_share_out": 0.3907,
+    "nonzero_share_out": 0.6093,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 63265,
+    "n_nonzero": 11967,
+    "nonzero_share": 0.1892,
+    "ret_rms": 0.190607,
+    "ret_min": -3.2014,
+    "ret_max": 2.9916,
+    "ret_std": 0.188293,
+    "value_rms": 0.110523,
+    "ratio": 1.72
+   },
+   "scale_after": {
+    "n": 19639,
+    "n_nonzero": 11967,
+    "nonzero_share": 0.6093,
+    "ret_rms": 0.342107,
+    "ret_min": -3.2014,
+    "ret_max": 2.9916,
+    "ret_std": 0.328535,
+    "value_rms": 0.127055,
+    "ratio": 2.69
+   }
+  },
+  {
+   "iter": 3,
+   "n": 19295,
+   "pi_loss": -0.49501013556858764,
+   "v_loss": 0.08901271449373496,
+   "n_steps": 152,
+   "phi_final_mean": 2832.84227324204,
+   "n_space_mean": 992.0,
+   "n_time_mean": 2298.75,
+   "credit_sum_mean": -353.783575,
+   "resample": {
+    "n_in": 64298,
+    "n_out": 19295,
+    "n_zero_in": 53161,
+    "n_zero_out": 8158,
+    "zero_share_in": 0.8268,
+    "zero_share_out": 0.4228,
+    "nonzero_share_out": 0.5772,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 64298,
+    "n_nonzero": 11137,
+    "nonzero_share": 0.1732,
+    "ret_rms": 0.175857,
+    "ret_min": -4.2817,
+    "ret_max": 2.4827,
+    "ret_std": 0.174475,
+    "value_rms": 0.12258,
+    "ratio": 1.43
+   },
+   "scale_after": {
+    "n": 19295,
+    "n_nonzero": 11137,
+    "nonzero_share": 0.5772,
+    "ret_rms": 0.321023,
+    "ret_min": -4.2817,
+    "ret_max": 2.4827,
+    "ret_std": 0.312533,
+    "value_rms": 0.137551,
+    "ratio": 2.33
+   }
+  },
+  {
+   "iter": 4,
+   "n": 18159,
+   "pi_loss": -0.6097525833947482,
+   "v_loss": 0.08399199819740755,
+   "n_steps": 144,
+   "phi_final_mean": 2865.536062666334,
+   "n_space_mean": 995.25,
+   "n_time_mean": 2028.5,
+   "credit_sum_mean": -288.4011,
+   "resample": {
+    "n_in": 64300,
+    "n_out": 18159,
+    "n_zero_in": 54231,
+    "n_zero_out": 8090,
+    "zero_share_in": 0.8434,
+    "zero_share_out": 0.4455,
+    "nonzero_share_out": 0.5545,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 64300,
+    "n_nonzero": 10069,
+    "nonzero_share": 0.1566,
+    "ret_rms": 0.164866,
+    "ret_min": -3.0375,
+    "ret_max": 3.0277,
+    "ret_std": 0.163887,
+    "value_rms": 0.093783,
+    "ratio": 1.76
+   },
+   "scale_after": {
+    "n": 18159,
+    "n_nonzero": 10069,
+    "nonzero_share": 0.5545,
+    "ret_rms": 0.310234,
+    "ret_min": -3.0375,
+    "ret_max": 3.0277,
+    "ret_std": 0.30366,
+    "value_rms": 0.103171,
+    "ratio": 3.01
+   }
+  },
+  {
+   "iter": 5,
+   "n": 17312,
+   "pi_loss": -0.46787673840901767,
+   "v_loss": 0.07662274943261843,
+   "n_steps": 136,
+   "phi_final_mean": 2626.8133933626323,
+   "n_space_mean": 1045.0,
+   "n_time_mean": 1718.25,
+   "credit_sum_mean": -175.10907500000002,
+   "resample": {
+    "n_in": 65198,
+    "n_out": 17312,
+    "n_zero_in": 56364,
+    "n_zero_out": 8478,
+    "zero_share_in": 0.8645,
+    "zero_share_out": 0.4897,
+    "nonzero_share_out": 0.5103,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 65198,
+    "n_nonzero": 8834,
+    "nonzero_share": 0.1355,
+    "ret_rms": 0.148894,
+    "ret_min": -2.7026,
+    "ret_max": 3.5157,
+    "ret_std": 0.148506,
+    "value_rms": 0.092043,
+    "ratio": 1.62
+   },
+   "scale_after": {
+    "n": 17312,
+    "n_nonzero": 8834,
+    "nonzero_share": 0.5103,
+    "ret_rms": 0.288948,
+    "ret_min": -2.7026,
+    "ret_max": 3.5157,
+    "ret_std": 0.286101,
+    "value_rms": 0.097714,
+    "ratio": 2.96
+   }
+  },
+  {
+   "iter": 6,
+   "n": 16435,
+   "pi_loss": -0.5244210787808818,
+   "v_loss": 0.0698322512148215,
+   "n_steps": 132,
+   "phi_final_mean": 2551.529135768787,
+   "n_space_mean": 1045.75,
+   "n_time_mean": 1412.5,
+   "credit_sum_mean": -136.48465,
+   "resample": {
+    "n_in": 65291,
+    "n_out": 16435,
+    "n_zero_in": 57403,
+    "n_zero_out": 8547,
+    "zero_share_in": 0.8792,
+    "zero_share_out": 0.52,
+    "nonzero_share_out": 0.48,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 65291,
+    "n_nonzero": 7888,
+    "nonzero_share": 0.1208,
+    "ret_rms": 0.136784,
+    "ret_min": -2.6975,
+    "ret_max": 2.0086,
+    "ret_std": 0.136529,
+    "value_rms": 0.060416,
+    "ratio": 2.26
+   },
+   "scale_after": {
+    "n": 16435,
+    "n_nonzero": 7888,
+    "nonzero_share": 0.48,
+    "ret_rms": 0.272633,
+    "ret_min": -2.6975,
+    "ret_max": 2.0086,
+    "ret_std": 0.270602,
+    "value_rms": 0.065903,
+    "ratio": 4.14
+   }
+  },
+  {
+   "iter": 7,
+   "n": 16029,
+   "pi_loss": -0.32964017090894704,
+   "v_loss": 0.0653857170988865,
+   "n_steps": 128,
+   "phi_final_mean": 2559.348976303103,
+   "n_space_mean": 1018.25,
+   "n_time_mean": 1270.75,
+   "credit_sum_mean": -54.708925,
+   "resample": {
+    "n_in": 66680,
+    "n_out": 16029,
+    "n_zero_in": 59552,
+    "n_zero_out": 8901,
+    "zero_share_in": 0.8931,
+    "zero_share_out": 0.5553,
+    "nonzero_share_out": 0.4447,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 66680,
+    "n_nonzero": 7128,
+    "nonzero_share": 0.1069,
+    "ret_rms": 0.129086,
+    "ret_min": -2.8541,
+    "ret_max": 1.9224,
+    "ret_std": 0.129044,
+    "value_rms": 0.054245,
+    "ratio": 2.38
+   },
+   "scale_after": {
+    "n": 16029,
+    "n_nonzero": 7128,
+    "nonzero_share": 0.4447,
+    "ret_rms": 0.263283,
+    "ret_min": -2.8541,
+    "ret_max": 1.9224,
+    "ret_std": 0.262929,
+    "value_rms": 0.059436,
+    "ratio": 4.43
+   }
+  },
+  {
+   "iter": 8,
+   "n": 15749,
+   "pi_loss": -0.3576544811857474,
+   "v_loss": 0.06417611001203821,
+   "n_steps": 124,
+   "phi_final_mean": 2512.892402718019,
+   "n_space_mean": 1001.5,
+   "n_time_mean": 1139.75,
+   "credit_sum_mean": -50.39315,
+   "resample": {
+    "n_in": 66548,
+    "n_out": 15749,
+    "n_zero_in": 59863,
+    "n_zero_out": 9064,
+    "zero_share_in": 0.8995,
+    "zero_share_out": 0.5755,
+    "nonzero_share_out": 0.4245,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 66548,
+    "n_nonzero": 6685,
+    "nonzero_share": 0.1005,
+    "ret_rms": 0.126925,
+    "ret_min": -3.0464,
+    "ret_max": 2.7145,
+    "ret_std": 0.126889,
+    "value_rms": 0.053421,
+    "ratio": 2.38
+   },
+   "scale_after": {
+    "n": 15749,
+    "n_nonzero": 6685,
+    "nonzero_share": 0.4245,
+    "ret_rms": 0.260908,
+    "ret_min": -3.0464,
+    "ret_max": 2.7145,
+    "ret_std": 0.260594,
+    "value_rms": 0.061995,
+    "ratio": 4.21
+   }
+  },
+  {
+   "iter": 9,
+   "n": 15281,
+   "pi_loss": -0.22834833176470998,
+   "v_loss": 0.052130161128378955,
+   "n_steps": 120,
+   "phi_final_mean": 2498.807036438316,
+   "n_space_mean": 982.0,
+   "n_time_mean": 1002.5,
+   "credit_sum_mean": -14.972925,
+   "resample": {
+    "n_in": 67509,
+    "n_out": 15281,
+    "n_zero_in": 61475,
+    "n_zero_out": 9247,
+    "zero_share_in": 0.9106,
+    "zero_share_out": 0.6051,
+    "nonzero_share_out": 0.3949,
+    "keep": 0.15
+   },
+   "scale_before": {
+    "n": 67509,
+    "n_nonzero": 6034,
+    "nonzero_share": 0.0894,
+    "ret_rms": 0.111294,
+    "ret_min": -1.6247,
+    "ret_max": 2.1721,
+    "ret_std": 0.111291,
+    "value_rms": 0.056909,
+    "ratio": 1.96
+   },
+   "scale_after": {
+    "n": 15281,
+    "n_nonzero": 6034,
+    "nonzero_share": 0.3949,
+    "ret_rms": 0.233926,
+    "ret_min": -1.6247,
+    "ret_max": 2.1721,
+    "ret_std": 0.233893,
+    "value_rms": 0.060576,
+    "ratio": 3.86
+   }
   }
  ],
- "in_progress": true
+ "in_progress": false,
+ "control": "YR-171-C fixed15 s8400000 (같은 시드·회차·무대)",
+ "changed_axis": "표본 구성만 — 0 보상 하위표집 + 1/p 가중",
+ "code_dirty": false,
+ "stamp": {
+  "experiment": "YR-185 ②③ 재학습",
+  "code": {
+   "git_head": "d478692f978190e86f6bd9594f95a092876b4884",
+   "git_dirty": true,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "train": [
+    8400000
+   ]
+  },
+  "params": {
+   "arm": {
+    "repr": "'fixed15'"
+   },
+   "N_ITER": {
+    "repr": "10"
+   },
+   "EPS_PER_ITER": {
+    "repr": "4"
+   },
+   "ZERO_KEEP": {
+    "repr": "0.15"
+   },
+   "RET_SCALE": {
+    "repr": "1.0"
+   },
+   "MINIBATCH": {
+    "repr": "512"
+   },
+   "GRAD_CLIP": {
+    "repr": "1.0"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-185-training-setup-audit.md"
+ }
 }
