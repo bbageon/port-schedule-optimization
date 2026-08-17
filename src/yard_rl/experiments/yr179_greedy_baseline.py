@@ -41,6 +41,9 @@ class GreedyOfferPolicy:
     def __init__(self, kf, layout):
         from ..integrated.sell_gain import UnifiedNetGain
         self.rule = UnifiedNetGain(kf, layout)      # 문턱 기본값 = κ_T 1σ
+        # 학습 루프와 같은 인터페이스(`KeepAllTrail` 과 동일 계약). 규칙은 학습하지
+        # 않으므로 신경망 입력(rows·critic_in·logp)은 없고, 복기용 필드만 남긴다.
+        self.trail: list[dict] = []
 
     def decide(self, mbt, src: str, cands: list, t: float):
         n0 = len(self.rule.ledger)
@@ -57,9 +60,13 @@ class GreedyOfferPolicy:
                 picks.append((self.rule.ledger[-1]["net_gain"], p))
         # 규칙의 자체 원장은 버린다 — 실제 집행 기록은 resolver 가 남긴다(중복 방지).
         del self.rule.ledger[n0:]
-        if not picks:
-            return None
-        return max(picks, key=lambda x: x[0])[1]
+        pick = max(picks, key=lambda x: x[0])[1] if picks else None
+        # action 은 PPO 와 같은 뜻 — 0 = KEEP, 1+i = i 번째 후보 OFFER.
+        a = 0 if pick is None else 1 + next(
+            i for i, (j, _, _) in enumerate(cands) if j == pick)
+        self.trail.append({"t": t, "src": src, "action": a, "picked": pick,
+                           "n_cands": len(cands), "value": 0.0})
+        return pick
 
 
 def _worker(args) -> dict:
