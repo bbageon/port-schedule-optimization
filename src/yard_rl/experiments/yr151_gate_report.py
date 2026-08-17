@@ -24,7 +24,8 @@ from pathlib import Path
 
 from .gate_harness import (GateOutcome, GateStatus, ResearchGateReport, audit_dashboard,
                            combine_reliability,
-                           judge_claim_alignment, judge_runtime_evidence, report_from_dict)
+                           judge_claim_alignment, judge_referenced_weights,
+                           judge_runtime_evidence, report_from_dict)
 
 ROOT = Path(".")
 CONTRACT = Path("outputs/reports/yr151_pre_gate_0a/contract_0a.json")
@@ -86,7 +87,8 @@ def build(generated_at: str, board_commit: str,
         evidence_paths=(CONTRACT, REPORT_MD), evidence_commits=commits,
         remote_ref=REMOTE_REF)
     alignment = judge_claim_alignment(REPORTED, raw_values(data))
-    reliability = combine_reliability(runtime, dashboard, alignment)
+    weights = judge_referenced_weights(ROOT)   # ★YR-182 — 오늘의 사각지대
+    reliability = combine_reliability(runtime, dashboard, alignment, weights)
 
     prior = report_from_dict(json.loads(GATE.read_text(encoding="utf-8")))
     # 현실성 축: **실제 제출 판정이 있으면 그것을 쓴다.** 승계값(INCONCLUSIVE)을 그대로

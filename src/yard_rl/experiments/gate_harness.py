@@ -594,13 +594,73 @@ def judge_scenario_validity(
     )
 
 
+def judge_referenced_weights(root: str | Path = ".") -> GateOutcome:
+    """**코드가 여는 가중치가 버전관리에 있나** (YR-182, 2026-08-17 신설).
+
+    이 검사가 없어서 오늘 실제로 막혔다 — 모든 평가가 쓰는 채택 크레인 정책
+    체크포인트가 추적되지 않아 다른 작업트리에서 실행이 즉시 실패했다. 그런데
+    `runtime`·`dashboard` 는 commit 의 원격 반영만 보므로 **PASS 를 줬다**.
+
+    방법: `src/` 안의 `outputs/reports/...` 경로 리터럴을 모아 그 아래 디스크에
+    실재하는 `.pt` 중 **추적되지 않은 것**을 센다. 학습 데이터셋(`dataset_*.pt`)은
+    시드에서 재생성되는 파생물이라 제외한다(YR-182 원장 §policy).
+    """
+    repo = Path(root).resolve()
+    src = repo / "src"
+    if not src.is_dir():
+        return GateOutcome("referenced_weights", GateStatus.INCONCLUSIVE,
+                           "src 디렉터리를 찾지 못함", ("src 없음",))
+    text = "\n".join(f.read_text(encoding="utf-8", errors="ignore")
+                     for f in src.rglob("*.py"))
+    dirs = {m.split("/")[2] for m in
+            re.findall(r"outputs/reports/[A-Za-z0-9_\-/]+", text)}
+    # 추적 목록을 **한 번에** 받아 집합으로 대조한다. 파일명에 `[ddqn]` 처럼
+    # 대괄호가 들어가면 pathspec 이 glob 으로 해석해 오탐이 난다(2026-08-17 실측:
+    # 추적 중인 125개가 전부 미추적으로 잡혔다).
+    listed = subprocess.run(["git", "ls-files", "-z", "--", "outputs/reports"],
+                            cwd=repo, capture_output=True, text=True)
+    if listed.returncode != 0:
+        return GateOutcome("referenced_weights", GateStatus.INCONCLUSIVE,
+                           "git ls-files 실패", ("추적 목록을 읽지 못함",))
+    tracked = {p for p in listed.stdout.split("\0") if p}
+    missing, checked = [], 0
+    for d in sorted(dirs):
+        base = repo / "outputs" / "reports" / d
+        if not base.is_dir():
+            continue
+        for f in sorted(base.rglob("*.pt")):
+            if f.name.startswith("dataset"):
+                continue          # 재생성 가능한 파생 데이터 — 원장으로만 관리
+            checked += 1
+            rel = f.relative_to(repo).as_posix()
+            if rel not in tracked:
+                missing.append(rel)
+    if missing:
+        head = ", ".join(missing[:5]) + (" …" if len(missing) > 5 else "")
+        return GateOutcome(
+            "referenced_weights", GateStatus.FAIL,
+            "코드가 여는 가중치 중 추적되지 않은 것이 있음 — 다른 환경에서 재현 불가",
+            (f"미추적 가중치 {len(missing)}개: {head}",),
+            {"n_checked": checked, "n_missing": len(missing), "missing": missing})
+    return GateOutcome(
+        "referenced_weights", GateStatus.PASS,
+        "코드가 여는 가중치가 모두 추적됨", (),
+        {"n_checked": checked, "n_missing": 0})
+
+
 def combine_reliability(
     runtime: GateOutcome,
     dashboard: GateOutcome,
     claim_alignment: GateOutcome,
+    weights: GateOutcome | None = None,
 ) -> GateOutcome:
-    """실행 스탬프와 commit 뒤 감사를 하나의 신뢰성 게이트로 묶는다."""
-    outcomes = (runtime, dashboard, claim_alignment)
+    """실행 스탬프와 commit 뒤 감사를 하나의 신뢰성 게이트로 묶는다.
+
+    ★YR-182(2026-08-17): `weights` 축 추가 — 코드가 여는 가중치가 버전관리에
+    있는지. 기본값 None 은 기존 호출부를 바이트 불변으로 둔다.
+    """
+    outcomes = tuple(x for x in (runtime, dashboard, claim_alignment, weights)
+                     if x is not None)
     if any(item.status is GateStatus.FAIL for item in outcomes):
         status = GateStatus.FAIL
     elif any(item.status is GateStatus.INCONCLUSIVE for item in outcomes):
@@ -616,6 +676,7 @@ def combine_reliability(
             "runtime": runtime.as_dict(),
             "dashboard": dashboard.as_dict(),
             "claim_alignment": claim_alignment.as_dict(),
+            **({"referenced_weights": weights.as_dict()} if weights else {}),
         },
     )
 
