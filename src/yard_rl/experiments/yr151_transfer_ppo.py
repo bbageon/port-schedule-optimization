@@ -419,14 +419,24 @@ def ppo_update(actor: TransferActor, critic: TransferCritic,
             v_loss = torch.tensor(0.0)
             for i in idx:
                 b, a_n = batch[i], adv_n[i]
+                # ★YR-185 ②③ — 표본 가중. **정책과 가치에 다른 가중을 쓴다.**
+                #  · 정책(w): 0 보상을 하위표집했으면 1/p 로 되돌려 **기대 기울기를
+                #    보존**한다. 정책경사는 편향되면 안 된다.
+                #  · 가치(wv=1): 되돌리지 **않는다**. 되돌리면 목표 분포가 원래대로
+                #    복원돼 "항상 0"이 다시 MSE 최적해가 되고 critic 붕괴가 그대로다
+                #    (③의 목적이 소멸). 기준선은 **행동에 의존하지만 않으면** 편향돼도
+                #    유효하므로, 목표 분포를 일부러 재조정해 조건수를 개선한다.
+                # 기본값 1.0 → 기존 호출부 바이트 불변.
+                w = float(b.get("w", 1.0))
+                wv = float(b.get("wv", 1.0))
                 logits = actor(b["rows"])
                 dist = Categorical(logits=logits)
                 logp = dist.log_prob(torch.tensor(b["action"]))
                 ratio = torch.exp(logp - b["logp"])
-                pi_loss = pi_loss - torch.min(
+                pi_loss = pi_loss - w * torch.min(
                     ratio * a_n, torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * a_n)
-                pi_loss = pi_loss - ENT * dist.entropy()
-                v_loss = v_loss + (critic(b["critic_in"]) - b["ret"]) ** 2
+                pi_loss = pi_loss - w * ENT * dist.entropy()
+                v_loss = v_loss + wv * (critic(b["critic_in"]) - b["ret"]) ** 2
             n_i = len(idx)
             opt_a.zero_grad(); (pi_loss / n_i).backward()
             if grad_clip:
