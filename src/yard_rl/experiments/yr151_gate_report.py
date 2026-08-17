@@ -85,7 +85,7 @@ def build(generated_at: str, board_commit: str,
     dashboard = audit_dashboard(
         ROOT, task_id="YR-151", expected_state=board_state, spec_path=SPEC,
         evidence_paths=(CONTRACT, REPORT_MD), evidence_commits=commits,
-        remote_ref=REMOTE_REF)
+        remote_ref=REMOTE_REF, pin_commit=board_commit)   # ★YR-156
     alignment = judge_claim_alignment(REPORTED, raw_values(data))
     weights = judge_referenced_weights(ROOT)   # ★YR-182 — 오늘의 사각지대
     reliability = combine_reliability(runtime, dashboard, alignment, weights)

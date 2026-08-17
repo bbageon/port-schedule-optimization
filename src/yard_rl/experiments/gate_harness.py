@@ -320,6 +320,17 @@ def _git_ok(root: Path, args: Sequence[str]) -> bool:
     return proc.returncode == 0
 
 
+def _show_at(repo: Path, commit: str, relative: str) -> str | None:
+    """그 commit 시점의 파일 내용. 없으면 None (YR-156)."""
+    try:
+        proc = subprocess.run(["git", "show", f"{commit}:{relative}"],
+                              cwd=repo, capture_output=True, text=True,
+                              encoding="utf-8", timeout=15)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return proc.stdout if proc.returncode == 0 else None
+
+
 def audit_dashboard(
     root: str | Path,
     *,
@@ -330,30 +341,57 @@ def audit_dashboard(
     evidence_commits: Iterable[str] = (),
     remote_ref: str | None = None,
     require_final_evidence: bool = True,
+    pin_commit: str | None = None,
 ) -> GateOutcome:
-    """commit 뒤 Dashboard↔spec↔증거를 읽기 전용으로 감사한다."""
+    """commit 뒤 Dashboard↔spec↔증거를 읽기 전용으로 감사한다.
+
+    ★YR-156 (2026-08-17): `pin_commit` 을 주면 board·spec 을 **그 commit 시점
+    내용**으로 읽는다. 판정이 근거로 삼아야 할 것은 판정 당시의 board 이고,
+    그 뒤 목록을 정리했다고 실험이 달라지지 않는다. 구판은 현재 디스크 파일을
+    읽고 "지정 commit 이후 한 글자도 안 바뀌었을 것"까지 요구해서,
+    판정과 무관한 정당한 편집(row 를 ready→backlog 이동 등)만으로 과거 PASS 가
+    무효가 됐다(2026-08-06 실측 2회·2026-08-17 재발). 이후 변경은 실패가 아니라
+    `drift` 로 기록한다. `pin_commit=None` 이면 구 동작 그대로다.
+    """
     repo = Path(root).resolve()
     evidence_path_list = tuple(evidence_paths)
     dashboard = repo / ".claude" / "Dashboard"
     reasons: list[str] = []
     matches: list[str] = []
+    drift: list[str] = []
     row_pattern = re.compile(rf"^\|\s*{re.escape(task_id)}\s*\|", re.MULTILINE)
     for name in _BOARD_FILES:
-        path = dashboard / name
-        if not path.exists():
-            reasons.append(f"Dashboard 상태 파일 없음: {name}")
-            continue
-        count = len(row_pattern.findall(path.read_text(encoding="utf-8")))
-        matches.extend([name] * count)
+        rel = f".claude/Dashboard/{name}"
+        if pin_commit is not None:
+            text = _show_at(repo, pin_commit, rel)
+            if text is None:
+                reasons.append(f"{pin_commit} 시점에 Dashboard 상태 파일 없음: {name}")
+                continue
+        else:
+            path = dashboard / name
+            if not path.exists():
+                reasons.append(f"Dashboard 상태 파일 없음: {name}")
+                continue
+            text = path.read_text(encoding="utf-8")
+        matches.extend([name] * len(row_pattern.findall(text)))
     expected_file = f"{expected_state}.md"
     if matches != [expected_file]:
         reasons.append(f"Dashboard row는 {expected_file}에 정확히 1개여야 함: {matches}")
 
-    spec = repo / spec_path
-    if not spec.exists():
-        reasons.append(f"spec 없음: {spec_path}")
+    spec_rel = Path(spec_path).as_posix()
+    if pin_commit is not None:
+        text = _show_at(repo, pin_commit, spec_rel)
+        if text is None:
+            reasons.append(f"{pin_commit} 시점에 spec 없음: {spec_path}")
+            text = ""
     else:
-        text = spec.read_text(encoding="utf-8")
+        spec = repo / spec_path
+        if not spec.exists():
+            reasons.append(f"spec 없음: {spec_path}")
+            text = ""
+        else:
+            text = spec.read_text(encoding="utf-8")
+    if text:
         state_pattern = re.compile(
             rf"\*\*상태\*\*\s*:\s*(?:\*\*)?{re.escape(expected_state)}\b",
             re.IGNORECASE,
@@ -387,13 +425,20 @@ def audit_dashboard(
         if not path.is_file():
             continue
         linked = False
+        changed_only = False
         for commit in commits:
             exists_at_commit = _git_ok(repo, ["cat-file", "-e", f"{commit}:{relative}"])
-            unchanged = _git_ok(repo, ["diff", "--quiet", commit, "--", relative])
-            if exists_at_commit and unchanged:
+            if not exists_at_commit:
+                continue
+            if _git_ok(repo, ["diff", "--quiet", commit, "--", relative]):
                 linked = True
                 break
-        if commits and not linked:
+            changed_only = True
+        # ★YR-156: 지정 commit 에 **존재**하면 근거로 충분하다. 그 뒤 파일이
+        # 바뀐 것은 실패가 아니라 drift 다 — 판정은 그 시점 내용을 본다.
+        if commits and not linked and changed_only and pin_commit is not None:
+            drift.append(relative)
+        elif commits and not linked:
             reasons.append(f"현재 감사 대상 파일이 지정 commit 어느 것에도 포함되지 않음: {evidence_path}")
 
     status = GateStatus.FAIL if reasons else GateStatus.PASS
@@ -411,6 +456,9 @@ def audit_dashboard(
             "control_paths": [str(path) for path in control_paths],
             "evidence_commits": list(commits),
             "remote_ref": remote_ref,
+            "pin_commit": pin_commit,
+            # ★YR-156 — 판정 이후 바뀐 감사 대상 파일. 실패가 아니라 기록이다.
+            "drift": drift,
         },
     )
 
@@ -903,6 +951,9 @@ def revalidate_pass_evidence(
                 evidence_paths=dashboard["evidence_paths"],
                 evidence_commits=dashboard["evidence_commits"],
                 remote_ref=str(dashboard["remote_ref"]),
+                # ★YR-156 — 저장된 판정과 **같은 시점**으로 다시 계산한다.
+                # 없으면(구 판정) None 이라 구 동작 그대로다.
+                pin_commit=dashboard.get("pin_commit"),
             )
         except (KeyError, TypeError):
             return False, "저장된 dashboard PASS evidence 형식 오류"
