@@ -1,0 +1,194 @@
+{
+ "experiment": "YR-179 규칙 기반 판매 기준선",
+ "eval_days": [
+  9200000,
+  9201000,
+  9202000,
+  9203000,
+  9204000,
+  9205000
+ ],
+ "note": "vs_keep 음수 = 안 팔기보다 좋다. 같은 날 짝지어 비교.",
+ "frozen": {
+  "gain_margin": "코드 기본값(κ_T 1σ 유도) — 조정 금지",
+  "action_space": "fixed15 와 동일(고정 +15분 한 칸)",
+  "resolver": "학습 팔과 동일 — OFFER 만 규칙으로 교체"
+ },
+ "summary": [
+  {
+   "arm": "K",
+   "n_days": 6,
+   "phi_mean": 2392.98,
+   "vs_keep_mean": 0.0,
+   "vs_keep_se": 0.0,
+   "vs_keep_t": null,
+   "n_better_than_keep": 0,
+   "n_space_mean": 0.0,
+   "n_time_mean": 0.0
+  },
+  {
+   "arm": "greedy",
+   "n_days": 6,
+   "phi_mean": 2222.93,
+   "vs_keep_mean": -170.05,
+   "vs_keep_se": 33.52,
+   "vs_keep_t": -5.07,
+   "n_better_than_keep": 6,
+   "n_space_mean": 690.7,
+   "n_time_mean": 256.8
+  }
+ ],
+ "contrast_vs_learned": {
+  "note": "학습(fixed15, 2시드 날별평균) − 규칙(greedy). 음수 = 학습이 규칙보다 좋다.",
+  "n_days": 6,
+  "learned_vs_keep": -73.43,
+  "greedy_vs_keep": -170.05,
+  "learned_minus_greedy": 96.61,
+  "se": 31.85,
+  "t": 3.03,
+  "n_days_learned_better": 1,
+  "keep_reproduced": true
+ },
+ "rows": [
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9200000,
+   "phi_final": 2406.41,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9201000,
+   "phi_final": 2410.9268,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9202000,
+   "phi_final": 2328.3477,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9203000,
+   "phi_final": 2387.9771,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9204000,
+   "phi_final": 2381.072,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "K",
+   "arm": "K",
+   "day": 9205000,
+   "phi_final": 2443.1191,
+   "n_space": 0,
+   "n_time": 0,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9200000,
+   "phi_final": 2381.42,
+   "n_space": 666,
+   "n_time": 286,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9201000,
+   "phi_final": 2273.5838,
+   "n_space": 690,
+   "n_time": 262,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9202000,
+   "phi_final": 2145.5859,
+   "n_space": 722,
+   "n_time": 254,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9203000,
+   "phi_final": 2202.4591,
+   "n_space": 684,
+   "n_time": 287,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9204000,
+   "phi_final": 2134.7323,
+   "n_space": 702,
+   "n_time": 221,
+   "admitted": 3600
+  },
+  {
+   "name": "greedy",
+   "arm": "greedy",
+   "day": 9205000,
+   "phi_final": 2199.7797,
+   "n_space": 680,
+   "n_time": 231,
+   "admitted": 3600
+  }
+ ],
+ "code_dirty": false,
+ "stamp": {
+  "experiment": "YR-179 규칙 기반 판매 기준선",
+  "code": {
+   "git_head": "39e6d7e5fb4d8804899173a1746d99eb9ca8588f",
+   "git_dirty": false,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "eval_days": [
+    9200000,
+    9201000,
+    9202000,
+    9203000,
+    9204000,
+    9205000
+   ]
+  },
+  "params": {
+   "day_plan_public": {
+    "repr": "True"
+   },
+   "time_slots": {
+    "repr": "False"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-179-greedy-sell-baseline.md"
+ }
+}
