@@ -73,6 +73,78 @@ BNCT TOS(Oracle `HITOPS3_TSS_OPR`/`HITOPS3_VBS_OPR`) 중계 서버의 **프로�
 **확인만 하면 되는 것**: `conLocFilter` 정규화 후 **블록이 몇 개인가**(21 아니면
 무대 규모 재검토) · `inOutReserveTime` 이 구간인가 한 점인가.
 
+## ★A단계 설계 확정 (2026-08-18 사용자 결정 — **착수는 보류**)
+
+**A/B 2단계로 나눈다.**
+
+| 단계 | 무엇 | 조건 |
+|---|---|---|
+| **A** | **스키마만** 실제 규격에 맞춘다 — 필드를 쪼개고 이름·타입을 바꾸되 **값은 지금처럼 합성** | 데이터 없어도 가능 |
+| B | 값을 **실측 분포**로 교체 | 데이터 수령 후 |
+
+A 를 먼저 하는 이유는 데이터가 왔을 때 **바로 꽂기 위해서**다. 지금 해두면
+나중에 매핑 작업이 없다.
+
+### 착수 조건 (둘 중 하나 남음)
+
+| | 상태 |
+|---|---|
+| 실제 블록 개수 = 21 | ✅ **사용자 확인 2026-08-18** (아래 주의) |
+| [[YR-183]] 판정 완료 | ⏳ **대기** — 필드가 늘면 시나리오 해시가 바뀌어 골든이 깨진다 |
+
+> **주의**: 개수 21 은 확인됐으나 **블록 목록·대응 관계**(실제 `conLoc` 정규화
+> 결과 ↔ 우리 `Y01…Y21`)는 데이터 수령 시 대조해야 한다. 개수가 같아도
+> **거리·배치가 다르면** `layout.gate_to_block_s()` 가 어긋난다.
+
+### 목표 스키마 (11필드 → 13필드)
+
+```python
+{"doc_key": jid,                  # docKey/pinNo — 블록명 제거(Y08:D-… 는 합성 산물)
+ # ── 블록: 1개 → 3개 + 사유
+ "block_assigned": bid,           # conLoc          최초 배정
+ "block_worked":   bid,           # moveLoc         실제 작업
+ "block_previous": None,          # previousConLoc  변경 이력
+ "swap_reason":    None,          # conSwapReason   ★새 필드
+ # ── 시각: 1개 → 2개  (최우선)
+ "reserved_s":     …,             # inOutReserveTime  예약 (정책 가시)
+ "gate_in_s":      …,             # gateInTime        실현 (정책 비가시)
+ # ── 유지 (정의·타입만 변경)
+ "flow":       "GATE_IN"|"GATE_OUT",   # inOut (I/O)
+ "target":     conNo,                  # 반입도 값 있음 → 60% → 100%
+ "size_class": ("40","GP","42G1"),     # 불리언 → 범주형 (CNTR_SIZ·CNTR_TYP·ISO_TYP)
+ "travel_s":      …,              # gateInTime→blockInTime      (실측 파생)
+ "travel_base_s": …,              # 위 값의 블록별 집계          (정의 변경)
+ "exit_travel_s": …}              # jobDoneTime→gateOutTime     (실측 파생)
+ # ── 삭제: requested_flow · fallback_reason (합성 생성기 인공물)
+```
+
+### 변경 5종
+
+| 성격 | 대상 | 왜 |
+|---|---|---|
+| **쪼개기** | `arrival_s` → `reserved_s`+`gate_in_s` | **최우선.** 둘의 차 = **예약 준수 오차**. 지금 σ=600초 가정을 실측으로 대체 |
+| 쪼개기 | `block` → 배정/실제/이전 + 사유 | 재배치가 실제로 일어나는지·왜 |
+| **삭제** | `requested_flow` · `fallback_reason` | 실제 오더에 없는 개념. 반입/반출은 화주가 정한다 |
+| 타입 | `size_ft40`(bool) → `size_class`(범주) | 실제는 ISO 4자리. 냉동·탱크·오픈탑이 작업시간이 다르다 |
+| 정의 | `travel_s`·`travel_base_s`·`exit_travel_s` | 이름 유지, **출처만 난수 → 실측** |
+| 채움 | `target` 60% → 100% | 반입 트럭도 특정 컨테이너를 싣고 온다 |
+
+### 추가 권고 7필드 (지금 없는데 실제로는 있는 것)
+
+`blockInSeq`(**큐 위치 — 작업시작 시각 결손의 우회로**) · `expWaitingMin` ·
+`blcWaitingCarCount` · `restrictedEntryDateTime` · `rehandleCount` ·
+`upperCount` · `dispatchGroup`
+
+**`blockInSeq` 가 특히 중요하다** — 작업 시작 시각이 없어 대기·작업을 못
+나누는 것이 유일한 결손인데, 몇 번째로 들어왔는지를 알면 **블록 큐를 사후
+재구성**할 수 있다.
+
+### A단계에서 하지 않는 것
+
+- 값을 바꾸는 것(그건 B다). A 는 **그릇만** 바꾼다.
+- 골든 회귀를 완화하는 것 — 해시가 바뀌는 것은 **예상된 변경**이므로 골든을
+  재생성하되, 그 전에 YR-183 판정을 끝낸다.
+
 ## RL 개선과의 관계 — 주의
 
 "터미널에 정보가 더 있으니 RL 상태에 넣자"는 **지금 하지 않는다**
