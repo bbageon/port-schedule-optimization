@@ -146,20 +146,15 @@ on-policy(쓰고 버림) → **off-policy 재생 버퍼**. 40 에피소드 = 10�
 **사전등록**: `.claude/docs/strategy-history/2026-08-18-YR-189-Q전환-사전등록.md`
 (주판정 = **규칙 대비** · 모드 = **argmin 결정론** — YR-185 가 실패한 두 지점을 명시 고정)
 
-### 만든 것
+### 만든 것 / 바꾼 것
 
 | 파일 | 무엇 |
 |---|---|
-| `src/yard_rl/integrated/sell_q.py` | Q 망 · 좌표 특징 · **정책과 배정기가 공유하는 채점기** |
-| `src/yard_rl/experiments/yr189_q_train.py` | 학습 (off-policy 재생 · 후버 회귀) |
-| `src/yard_rl/experiments/yr189_q_eval.py` | 평가 (3팔 × 16일 짝비교 · 사전등록 집행) |
-
-### 바꾼 것 (구 계약은 기본값으로 보존)
-
-| 파일 | 무엇 |
-|---|---|
-| `sell_review.py` | `q_scorer=None` 인자 · `_coord_costs_q` 분기 · **대기열 스냅샷을 수집 전으로** 이동 · 확정된 행을 `q_rows` 에 박제 |
-| `yr170_sell_ppo_diurnal.py` | `q_scorer` 통과 · `q_rows` 반환 |
+| `integrated/sell_q.py` (신설) | Q 망 · 좌표 특징 · **정책과 배정기가 공유하는 채점기** |
+| `experiments/yr189_q_train.py` (신설) | 학습 (off-policy 재생 · 후버 회귀) |
+| `experiments/yr189_q_eval.py` (신설) | 평가 (3팔 × 16일 짝비교 · 사전등록 집행) |
+| `integrated/sell_review.py` | `q_scorer=None` 인자 · `_coord_costs_q` 분기 · **대기열 스냅샷을 수집 전으로** 이동 · 확정된 행을 `q_rows` 에 박제 |
+| `experiments/yr170_sell_ppo_diurnal.py` | `q_scorer` 통과 · `q_rows` 반환 |
 
 `q_scorer=None` 이면 한 줄도 다르게 돌지 않는다 — 구 실험 재현성 보존.
 `q_scorer` 와 `buy_net` 동시 지정은 **생성자에서 실격**시킨다(견적 자가 둘이 되면
