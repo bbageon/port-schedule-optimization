@@ -1,6 +1,6 @@
 # YR-171 — **24시간 공통창 BUY 견적 + 블록×시간 최적화** (YR-161 대체)
 
-- **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-13 / **상태**: ready
+- **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-13 / **상태**: done
 - **3대 게이트 보정 대상**: 171-A=`scenario_validity`, 171-B/C=`performance` — 정보계약과
   견적 메커니즘을 한 판정에 섞지 않는다.
 - **1줄**: source는 작업만 OFFER하고, receiver는 같은 24시간 공개계획에서 수용 전후 비용을

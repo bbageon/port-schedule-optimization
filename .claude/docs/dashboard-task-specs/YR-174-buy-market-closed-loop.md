@@ -1,6 +1,6 @@
 # YR-174 — BUY 견적망 + 폐쇄형 학습 구조 (43차 설계안 이행)
 
-- **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-14 / **상태**: in-progress
+- **Epic**: Exp / **Priority**: 🔴 / **등록일**: 2026-08-14 / **상태**: done
 - **3대 게이트 보정 대상**: `performance` 하나 (인가 allowed=true·c113f12).
   단 **정보 계약이 바뀌면**(24시간 공개) `scenario_validity` 재자격이 선행 — YR-171-A.
 - **1줄**: BUY 견적망이 수신 부담을 예측하고, Resolver 가 손해 거래를 집행 전에 막고,
