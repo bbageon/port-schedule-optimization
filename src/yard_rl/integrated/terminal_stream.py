@@ -43,6 +43,7 @@ from .profile import IntegratedProfile
 from .scenario import TerminalScenario
 from .scenario_gen import (GATE_BLOCK_MAX_S, GATE_BLOCK_MIN_S, TerminalGenParams,
                            generate_terminal_scenario, trunc_normal)
+from .order_schema import attach as attach_bnct
 from .time_grid import on_grid
 from .yard_layout import YardLayout, terminal_layout
 
@@ -729,6 +730,8 @@ def build_diurnal(profile: IntegratedProfile, seed: int, *,
             "travel_base_s": layout.gate_to_block_s(bid),
             "exit_travel_s": trunc_normal(exit_rng, params.exit_travel_mu_s,
                                           0.12, lo=60.0)})
+        # ★YR-187 A단계 — BNCT 실규격 필드를 **더한다**(구 키 보존·값 불변).
+        attach_bnct(schedule[-1])
 
     for b in layout.ids:
         scns[b] = dataclasses.replace(scns[b], meta={
