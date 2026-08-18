@@ -282,7 +282,7 @@ class UnifiedSellOrchestrator:
                  window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S,
                  grid_s: float = 60.0, allow_keep_coord: bool = True,
                  dry_run: bool = False,
-                 time_slots: bool = False, buy_net=None):
+                 time_slots: bool = False, buy_net=None, q_scorer=None):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
@@ -303,6 +303,16 @@ class UnifiedSellOrchestrator:
         # 미래 칸이 비어 보이지 않는다(YR-171-A). 붙지 않았으면 즉시 실격.
         self.time_slots = bool(time_slots)
         self.buy_net = buy_net               # None = 결정론 계산식으로 견적
+        # ★YR-189: 좌표 채점을 **정책과 같은 Q 망**으로 한다. None 이면 구 계약
+        # (`cost_given_queue` 계산식). 자가 하나뿐이어야 YR-175(부호)·YR-177(기준
+        # 불일치)이 구조적으로 재발 불가다.
+        self.q_scorer = q_scorer
+        if q_scorer is not None and buy_net is not None:
+            raise ValueError("q_scorer 와 buy_net 은 동시에 쓸 수 없다 — "
+                             "견적 자가 둘이 되어 YR-177(기준 불일치)이 되살아난다")
+        self.q_rows: list[dict] = []         # 학습 표본 원료 (확정된 행만)
+        self._n_cands: dict = {}             # src → 그 epoch 의 후보 수
+        self._rows_epoch: dict = {}          # (src, jid, coord) → 행 (선택 시점 상태)
         self._plan_cache = None              # (t, order, index, plans) — epoch 공유
         self.grid_s = grid_s                 # 60초 계약 — 격자 밖 epoch 에서는 닫음
         self.allow_keep_coord = allow_keep_coord   # 현 좌표 유지 ΔJ=0 (0B 동결 대상)
@@ -323,6 +333,7 @@ class UnifiedSellOrchestrator:
                      + [(jid, eta, "GATE_OUT") for jid, eta in time_])
             if not cands:
                 continue
+            self._n_cands[src] = len(cands)     # Q 행의 블록 특징이 참조
             pick = self.policy.decide(mbt, src, cands, t)
             if pick is not None:
                 flow = next(f for j, _, f in cands if j == pick)
@@ -344,6 +355,8 @@ class UnifiedSellOrchestrator:
 
     def _coord_costs(self, mbt, src: str, jid: str, flow: str, t: float,
                      q: dict, vcap: dict) -> list[tuple[float, str]]:
+        if self.q_scorer is not None:
+            return self._coord_costs_q(mbt, src, jid, flow, t, q, vcap)
         from .sell_gain import cost_given_queue
         from .time_sell import notified_gate_in
         j = mbt.blocks[src].jobs[jid]
@@ -398,6 +411,28 @@ class UnifiedSellOrchestrator:
             out.append((add_t + d / 3600.0 - relief, f"TIME@{k}"))
         return out
 
+    def _coord_costs_q(self, mbt, src: str, jid: str, flow: str, t: float,
+                       q: dict, vcap: dict) -> list[tuple[float, str]]:
+        """★YR-189 — 좌표 순비용을 **정책과 같은 Q 망**으로 낸다.
+
+        구 계약과 반환 형식이 같아 매칭·용량·원자 확정은 한 줄도 바뀌지 않는다.
+        바뀌는 것은 숫자의 출처뿐이다: 계산식 두 개 → 학습된 망 하나.
+        KEEP 은 `KEEP_Q = 0.0` 고정 — "아무것도 안 함"의 비용은 정의상 0이다.
+        """
+        from .sell_q import KEEP_Q
+        coords, qs, rows = self.q_scorer.score(
+            mbt, src, jid, flow, t, q, vcap, mbt.capacity_margin,
+            n_cands=self._n_cands.get(src, 1))
+        out: list[tuple[float, str]] = []
+        if self.allow_keep_coord:
+            out.append((KEEP_Q, "KEEP"))
+        for i, c in enumerate(coords):
+            out.append((float(qs[i].item()), c))
+            # 선택 시점의 가상 상태에서 만든 행을 남긴다 — 학습 표본이 "그때
+            # 무엇을 보고 골랐나"와 정확히 일치해야 라벨이 그 행에 붙는다.
+            self._rows_epoch[(src, jid, c)] = rows[i]
+        return out
+
     def _buy_quotes(self, mbt, src: str, jid: str, t: float):
         """BUY 견적망으로 (이 작업, src 블록, 48칸) 예상 부담을 한 번에 받는다.
 
@@ -425,13 +460,20 @@ class UnifiedSellOrchestrator:
             return                     # 60초 계약 — gate-in 시각 epoch 에서는 열지 않는다
         if self.time_slots:
             self._require_day_plan(mbt)
+        # ★YR-189: 대기열 스냅샷을 **수집 전에** 만든다. 확정은 매칭 뒤에만 일어나므로
+        # 같은 epoch 안에서 값은 동일하다(행동 불변). 정책이 배정기와 **같은 상태**를
+        # 보고 채점해야 자가 하나가 된다.
+        q = {b: float(block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t))
+             for b in mbt.blocks}
+        vcap: dict[str, int] = {}                          # 가상 배정 수 (용량 검사용)
+        self._rows_epoch = {}
+        bind = getattr(self.policy, "bind_epoch", None)
+        if bind is not None:
+            bind(q, vcap, mbt.capacity_margin)
         offers = self._collect(mbt, t)
         if not offers:
             return
         # ---- ② 중앙 matching: 전역 한계비용 최소 (제안 × 좌표) 쌍 반복 선택
-        q = {b: float(block_inside(mbt.blocks[b], t) + block_pipeline(mbt, b, t))
-             for b in mbt.blocks}
-        vcap: dict[str, int] = {}                          # 가상 배정 수 (용량 검사용)
         remaining = list(offers)
         # (src, jid, flow, coord, delta_j) — delta_j = 선택 좌표의 계산 순비용(음수 =
         # 이득). 0B 신호 판정의 원료라 원장에 함께 박제한다(기록 확장 — 행동 불변).
@@ -456,6 +498,13 @@ class UnifiedSellOrchestrator:
             # 시간: 블록 간 이동 없음 — 가상 상태 불변(이연 배수는 좌표 비용에 반영)
         # ---- ③ 원자 확정
         for src, jid, flow, coord, dj in assignment:
+            # ★YR-189 학습 표본 — **고른 행 하나**만 남긴다. KEEP 은 상수 0 이므로
+            # 행이 없다(= 학습하지 않는다). 구 PPO 가 표본의 91% 를 보상 0 으로
+            # 채우던 문제가 여기서 구조적으로 사라진다.
+            row = self._rows_epoch.get((src, jid, coord))
+            if row is not None:
+                self.q_rows.append({"t": t, "src": src, "job_id": jid,
+                                    "coord": coord, "row": row})
             if coord == "KEEP":
                 self.ledger.append({"t": t, "axis": "KEEP", "src": src, "job_id": jid,
                                     "flow": flow, "decision": "RESOLVER_KEEP",
