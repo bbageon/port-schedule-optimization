@@ -69,7 +69,24 @@ cd "$R" && source ~/.venvs/yard-rl/bin/activate && export PYTHONPATH=src
 
 **⚠️ 이 상태로 `pytest` 를 돌리면 안 된다** — `GIT_DIR` 가 테스트의 임시
 저장소까지 덮어써 게이트 시험 3건이 거짓 실패한다(2026-08-17 실측).
-**테스트는 Windows 에서** 돌린다.
+
+**★정정 (2026-08-18 실측)**: 구 문장 "테스트는 Windows 에서"는 **틀렸다** —
+Windows 에는 torch 가 없어 `tests/integrated/` 가 **수집 단계에서 19건 오류**로
+전부 죽는다. 올바른 규칙은 다음 표다.
+
+| 무엇 | 어디서 | `GIT_DIR` |
+|---|---|---|
+| **pytest** | **WSL** | **주지 않는다** (거짓 실패의 원인) |
+| **학습·평가 실행** | WSL | **준다** (아래) |
+
+`GIT_DIR` 를 안 주고 학습을 돌리면 `code_dirty()` 가 `False` 가 아니라
+**`None`** 을 반환한다. 하드 가드 "실행 트리 `code_dirty == False`" 가
+**조용히 검증 불가**가 된다 — 사전등록 가드가 있는 판정에서는 치명적이다.
+실행 전에 한 줄로 확인한다:
+
+```bash
+PYTHONPATH=src python -c "from yard_rl.integrated.repro import code_dirty, git_head; print(code_dirty(), git_head())"   # False <sha> 여야 한다. None 이면 GIT_DIR 누락
+```
 
 ## 5. 실행 전 필수 (오늘 하루에 다 겪은 것들)
 
@@ -77,6 +94,16 @@ cd "$R" && source ~/.venvs/yard-rl/bin/activate && export PYTHONPATH=src
    찍어 확인한다. dirty 로 돌리면 그 수치를 만든 코드가 복원되지 않는다(YR-181).
 2. **배선을 실행 전에 검증한다.** 정책이 요구하는 속성·의존 파일·통계 함수를
    미리 두드려 본다. 에피소드 끝에서 터지면 13분을 날린다(YR-179 실측).
+   · **정책은 `trail` 을 반드시 가져야 한다** — `run_episode_diurnal` 이 마지막
+     줄에서 `build_joint_transitions(policy.trail, …)` 을 부른다. `KeepAllUnified`
+     처럼 `trail` 이 없는 클래스를 쓰면 **9분을 다 돌고 마지막 줄에서** 터진다
+     (2026-08-18 실측). 기준선은 `KeepAllTrail` 을 쓴다.
+   · **긴 판정 스크립트는 짧은 관측창으로 먼저 돌린다** —
+     `ObservationContract(warmup_s=3600, measure_s=7200)` 이면 한 판이 몇 분이다.
+     판정 대역이 **아닌** 시드로 돌려 대역을 태우지 않는다.
+   · **목표 눈금을 실행 전에 잰다.** 회귀 목표의 평균·범위를 스모크에서 찍어
+     보고, 학습률 × 스텝수로 그 거리를 갈 수 있는지 계산한다. 못 가면 고정
+     상수로 나눠 O(1) 로 만든다(YR-170 은 이걸 안 해서 16시간을 멈춘 채 돌았다).
 3. **판정 기준을 사전등록하고 커밋한 뒤** 실행한다. 판정축은 **규칙 대비**로
    잡고 **모드(argmax/추첨)를 명시**한다 — 둘 다 YR-185 에서 실패한 지점이다.
 4. **병렬 설계는 코어와 메모리를 함께 계산한다** (2026-08-18 실측 사고).
