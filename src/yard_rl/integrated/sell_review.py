@@ -283,7 +283,9 @@ class UnifiedSellOrchestrator:
                  grid_s: float = 60.0, allow_keep_coord: bool = True,
                  dry_run: bool = False,
                  time_slots: bool = False, buy_net=None, q_scorer=None,
-                 sell_margin: float = 0.0, reuse_handoff: bool = False):
+                 sell_margin: float = 0.0, reuse_handoff: bool = False,
+                 margin_space: float | None = None,
+                 margin_time: float | None = None):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
@@ -321,6 +323,12 @@ class UnifiedSellOrchestrator:
         #   m=0.085 에서 공간 판매가 통째로 0 이 됐다). 호출부가 나눠서 준다.
         # 기본 0.0 = 구 동작(YR-189 재현).
         self.sell_margin = float(sell_margin)
+        # ★YR-200 축별 여유. 반입은 목적지 20곳+시간 1 = **21개 중** 고르고, 반출은
+        # 시간 **1개뿐**이라 선택 편향 구조가 다르다. 같은 여유를 걸면 손해축(시간)을
+        # 막으려다 이득축(공간)까지 깎인다 — YR-195 실측(공간 678→415, −39%).
+        # None 이면 `sell_margin` 을 두 축에 그대로 — YR-195 재현(수학적으로 동일).
+        self.margin_space = float(sell_margin if margin_space is None else margin_space)
+        self.margin_time = float(sell_margin if margin_time is None else margin_time)
         # ★채점 넘겨받기 — **검증 실패. 쓰지 말 것.**
         #   "배정은 목적지를 더 붐비게만 만드니 최선 좌표가 안 바뀐 제안은 argmin
         #   도 안 바뀐다"를 가정했으나, 신경망이 목적지 부하에 단조가 아니라
@@ -461,11 +469,15 @@ class UnifiedSellOrchestrator:
         coords, qs, rows = cached
         out: list[tuple[float, str]] = []
         if self.allow_keep_coord:
-            # KEEP 의 값 = −여유. 좌표가 이만큼 이겨야 판다(구 계약은 여유 0).
-            out.append((KEEP_Q - self.sell_margin, "KEEP"))
+            out.append((KEEP_Q, "KEEP"))
         best_v, best_c = None, None
         for i, c in enumerate(coords):
-            v = float(qs[i].item())
+            # ★YR-200: 여유를 KEEP 에서 내리지 않고 **좌표마다 올린다**.
+            # 한 축만 있는 제안에서는 둘이 수학적으로 같지만(전부 +m 평행이동),
+            # 반입 제안은 공간 20개와 시간 1개가 **한 목록에서 겨루므로** 축별로
+            # 다른 여유를 주려면 좌표 쪽에 걸어야 한다.
+            m = self.margin_time if str(c).startswith("TIME") else self.margin_space
+            v = float(qs[i].item()) + m
             out.append((v, c))
             if best_v is None or v < best_v:
                 best_v, best_c = v, c
