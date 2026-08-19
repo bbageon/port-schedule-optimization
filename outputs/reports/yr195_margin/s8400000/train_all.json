@@ -1,6 +1,10 @@
 {
- "train_seed": 8400000,
+ "experiment": "YR-195 문턱 — 학습(1회)",
+ "prereg": ".claude/docs/strategy-history/2026-08-19-YR-195-문턱-사전등록.md",
+ "spec": ".claude/docs/dashboard-task-specs/YR-195-decision-threshold.md",
+ "kind": "training",
  "arm": "fixed15",
+ "train_seed": 8400000,
  "history": [
   {
    "iter": 0,
@@ -323,5 +327,71 @@
    "credit_sum_mean": -543.291525
   }
  ],
- "in_progress": false
+ "changed_axis": "①1관문 문턱 제거 (문턱 m 은 평가에서만. ③ 채점 넘겨받기는 폐기)",
+ "code_dirty": false,
+ "stamp": {
+  "experiment": "YR-195 문턱 학습",
+  "code": {
+   "git_head": "087cafc6503894c4ea1b26f1a969b6b4555cd258",
+   "git_dirty": null,
+   "python": "3.12.13"
+  },
+  "profile_id": null,
+  "seeds": {
+   "train": [
+    8400000
+   ]
+  },
+  "params": {
+   "arm": {
+    "repr": "'fixed15'"
+   },
+   "N_ITER": {
+    "repr": "16"
+   },
+   "EPS_PER_ITER": {
+    "repr": "4"
+   },
+   "LR": {
+    "repr": "0.0003"
+   },
+   "EXPLORE": {
+    "repr": "0.15"
+   },
+   "EXPLORE_SIGMA": {
+    "repr": "0.2"
+   },
+   "BUFFER_MAX": {
+    "repr": "150000"
+   },
+   "STEPS_PER_ITER": {
+    "repr": "600"
+   },
+   "Q_SCALE": {
+    "repr": "20.0"
+   },
+   "MINIBATCH": {
+    "repr": "256"
+   },
+   "HUBER_BETA": {
+    "repr": "1.0"
+   },
+   "GRAD_CLIP": {
+    "repr": "1.0"
+   },
+   "train_sell_margin": {
+    "repr": "0.0"
+   },
+   "defer_decision": {
+    "repr": "True"
+   },
+   "reuse_handoff": {
+    "repr": "False"
+   },
+   "observation": {
+    "repr": "{'warmup_s': 7200.0, 'measure_s': 79200.0, 'snapshot_s': 300.0, 'observe_s': 86400.0, 'end_rule': '관측시간에서 종료 — 미완 작업도 장부에 남긴다'}"
+   }
+  },
+  "prereg": ".claude/docs/strategy-history/2026-08-19-YR-195-문턱-사전등록.md"
+ }
 }
