@@ -71,6 +71,8 @@ def run_episode_diurnal(seed: int, policy, kf, *,
                         day_plan_public: bool = False,
                         time_slots: bool = False, buy_net=None, q_scorer=None,
                         sell_margin: float = 0.0, reuse_handoff: bool = False,
+                        margin_space: float | None = None,
+                        margin_time: float | None = None,
                         _return_mbt: bool = False,
                         _extra_review=None) -> dict:
     """5차 계약 1 에피소드 — 4차 `run_episode` 와 **반환 형태 동일**(학습 루프 공유).
@@ -108,6 +110,8 @@ def run_episode_diurnal(seed: int, policy, kf, *,
                                    time_slots=time_slots, buy_net=buy_net,
                                    q_scorer=q_scorer, sell_margin=sell_margin,
                                    reuse_handoff=reuse_handoff,
+                                   margin_space=margin_space,
+                                   margin_time=margin_time,
                                    dry_run=(getattr(policy, "mode", None) == "shadow"))
     rec = PhiRecorder()
 
