@@ -72,6 +72,9 @@
 
 | YR-201 | RL | **진짜 반사실 보상으로 교체 — 만들어놓고 안 쓰는 것** | 🟠 | **선행: [[YR-200]].** `integrated/sell_credit.py` 에 `D_i = C(offer 빼고 재매칭) − C(전체 매칭)` 이 구현돼 있는데 **import 하는 곳이 없다.** 학습은 더 거친 분해식(`realized_credit`)을 쓴다. 차이 = **'i 가 없으면 그 자리를 다른 offer 가 대신 쓴다'** — 지금 식은 자기 공로를 과대평가한다. **'이겼어도 했을 변경'** 이라 정당(사용자 제안 검토 2026-08-19). 학습 재실행 필요(약 3시간). [spec](../docs/dashboard-task-specs/YR-201-true-counterfactual-credit.md) |
 | YR-202 | RL | **보상에 미래 비용(`C_future`) 넣기 — 위험 큼** | 🟠 | **선행: [[YR-201]].** 지금 보상의 '미래'는 그 거래 시점의 동시 외부효과뿐이고, **그 배치가 나중에 만들 재취급·혼잡·반출 비용은 없다**(사용자가 결과 전에 지적). ★**넣기 전에 [[YR-199]] 잡음 하한을 먼저 잰다**(20분·학습 불필요) — 라벨이 시끄러워지면 목적함수는 정확해져도 **학습이 더 어려워진다**. [[YR-061]] TD 신용 희석 재발 위험도. 권장 후보 = 재취급 예상 수(가장 국소적). [spec](../docs/dashboard-task-specs/YR-202-future-cost-term.md) |
+| YR-203 | RL | **최초 통지 1회·동시유입 배치 재배정 계약** | 🟠 | **현재 performance 게이트 해소 전 착수 금지.** 실제 재이송 1회 상한만으로는 KEEP 작업의 60초 재검토와 블록당 제안 1건이 남는다. 공개 ETA가 창에 처음 들어온 epoch에서 신규 작업 전부를 한 배치로 공동 배정하고 KEEP 포함 즉시 잠근다. 배정만 바꾸고 ExecutionHead는 고정한다. [spec](../docs/dashboard-task-specs/YR-203-one-shot-batch-reallocation.md) |
+| YR-204 | RL | **학습 전용 장기 반사실 rollout 교사** | 🟠 | **선행: [[YR-202]]·[[YR-203]].** 실제 batch와 거래 1건만 KEEP/REJECT한 세계를 같은 snapshot·난수로 `H`까지 굴려 장기 비용 차이 라벨을 만든다. 이 rollout은 학습자료 생성 전용이며 평가·운영 호출은 0회다. 잡음·표본·벽시계 자격 실패 시 `POWER_FAIL`로 종료한다. [spec](../docs/dashboard-task-specs/YR-204-training-counterfactual-teacher.md) |
+| YR-205 | RL | **Seller·Buyer 장기비용 학생모델과 운영 추론** | 🟠 | **선행: [[YR-204]] 라벨 자격 통과.** 운영 때 미래 시뮬레이션 없이 Seller relief·Buyer burden 예측과 중앙 Resolver로 즉시 배정한다. pair target 하나로 두 항이 자동 식별되지는 않으므로 component 원장 항등식이 통과할 때만 Seller/Buyer 의미를 주장하고, 같은 데이터의 joint-score와 잠금 비교한다. [spec](../docs/dashboard-task-specs/YR-205-seller-buyer-student.md) |
 
 ---
 
