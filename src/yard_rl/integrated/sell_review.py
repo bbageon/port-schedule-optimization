@@ -282,7 +282,8 @@ class UnifiedSellOrchestrator:
                  window_s: float = WINDOW_S, defer_delta_s: float = DEFER_DELTA_S,
                  grid_s: float = 60.0, allow_keep_coord: bool = True,
                  dry_run: bool = False,
-                 time_slots: bool = False, buy_net=None, q_scorer=None):
+                 time_slots: bool = False, buy_net=None, q_scorer=None,
+                 sell_margin: float = 0.0, reuse_handoff: bool = False):
         if kf is None:
             raise ValueError("UnifiedSellOrchestrator 는 비용 통화(kf)가 필수 — "
                              "축 비교는 단일 통화 위에서만 성립한다")
@@ -310,8 +311,29 @@ class UnifiedSellOrchestrator:
         if q_scorer is not None and buy_net is not None:
             raise ValueError("q_scorer 와 buy_net 은 동시에 쓸 수 없다 — "
                              "견적 자가 둘이 되어 YR-177(기준 불일치)이 되살아난다")
+        # ★YR-195 안전 여유. KEEP 의 값을 0 → **−sell_margin** 으로 내린다.
+        # 좌표가 KEEP 을 이 폭만큼 이겨야 팔린다. 규칙의 `gain_margin`(κ_T 1σ)에
+        # 대응하며, 근거는 실측 선택 편향(YR-189 관측 8: −0.1694 비용시간)이다.
+        #
+        # ★단위 주의 — 이 값은 **Q 망 출력과 같은 눈금**이다(비용시간 아님).
+        #   학습이 목표를 `Q_SCALE` 로 나눠 쓰므로 원단위 여유를 그대로 넣으면
+        #   20배 과한 문턱이 된다(2026-08-19 배선 검증에서 실제로 잡혔다 —
+        #   m=0.085 에서 공간 판매가 통째로 0 이 됐다). 호출부가 나눠서 준다.
+        # 기본 0.0 = 구 동작(YR-189 재현).
+        self.sell_margin = float(sell_margin)
+        # ★채점 넘겨받기 — **검증 실패. 쓰지 말 것.**
+        #   "배정은 목적지를 더 붐비게만 만드니 최선 좌표가 안 바뀐 제안은 argmin
+        #   도 안 바뀐다"를 가정했으나, 신경망이 목적지 부하에 단조가 아니라
+        #   **배정 기록 2,477/3,797 이 어긋났다**(2026-08-19 실측). 게다가 속도
+        #   이득도 **1.00배**였다 — 계산의 대부분은 1관문에 있고 배정기 몫은 작다.
+        #   인자는 남겨 두되(재현·재검토용) 기본 False 이며 실험에 쓰지 않는다.
+        self.reuse_handoff = bool(reuse_handoff)
         self.q_rows: list[dict] = []         # 학습 표본 원료 (확정된 행만)
         self._n_cands: dict = {}             # src → 그 epoch 의 후보 수
+        self._cached: dict = {}              # src → (좌표들, Q, 행) 현재 유효분
+        self._best_coord: dict = {}          # src → 지금 최선 좌표
+        self._dst_seq: dict = {}             # 목적지 → 이 epoch 배정 횟수
+        self._scored_seq: dict = {}          # src → 최선 좌표를 잴 때의 그 횟수
         self._rows_epoch: dict = {}          # (src, jid, coord) → 행 (선택 시점 상태)
         self._plan_cache = None              # (t, order, index, plans) — epoch 공유
         self.grid_s = grid_s                 # 60초 계약 — 격자 밖 epoch 에서는 닫음
@@ -420,17 +442,38 @@ class UnifiedSellOrchestrator:
         KEEP 은 `KEEP_Q = 0.0` 고정 — "아무것도 안 함"의 비용은 정의상 0이다.
         """
         from .sell_q import KEEP_Q
-        coords, qs, rows = self.q_scorer.score(
-            mbt, src, jid, flow, t, q, vcap, mbt.capacity_margin,
-            n_cands=self._n_cands.get(src, 1))
+        cached = self._cached.get(src) if self.reuse_handoff else None
+        if cached is None and self.reuse_handoff:
+            ho = getattr(self.policy, "handoff", None)
+            cached = ho(src) if ho is not None else None
+        # ★더티 판정 — **자기 최선 좌표가 배정을 받았을 때만** 다시 잰다.
+        # 다른 목적지가 붐벼져도 argmin 은 안 바뀐다(배정은 목적지를 더 붐비게만
+        # 만들므로 값이 오르기만 한다). 등가성은 실측으로 검증한다.
+        bc = self._best_coord.get(src)
+        stale = (bc is not None
+                 and self._dst_seq.get(bc, 0) != self._scored_seq.get(src, 0))
+        if cached is None or stale or not self.reuse_handoff:
+            cached = self.q_scorer.score(
+                mbt, src, jid, flow, t, q, vcap, mbt.capacity_margin,
+                n_cands=self._n_cands.get(src, 1))
+            if self.reuse_handoff:
+                self._cached[src] = cached
+        coords, qs, rows = cached
         out: list[tuple[float, str]] = []
         if self.allow_keep_coord:
-            out.append((KEEP_Q, "KEEP"))
+            # KEEP 의 값 = −여유. 좌표가 이만큼 이겨야 판다(구 계약은 여유 0).
+            out.append((KEEP_Q - self.sell_margin, "KEEP"))
+        best_v, best_c = None, None
         for i, c in enumerate(coords):
-            out.append((float(qs[i].item()), c))
+            v = float(qs[i].item())
+            out.append((v, c))
+            if best_v is None or v < best_v:
+                best_v, best_c = v, c
             # 선택 시점의 가상 상태에서 만든 행을 남긴다 — 학습 표본이 "그때
             # 무엇을 보고 골랐나"와 정확히 일치해야 라벨이 그 행에 붙는다.
             self._rows_epoch[(src, jid, c)] = rows[i]
+        self._best_coord[src] = best_c
+        self._scored_seq[src] = self._dst_seq.get(best_c, 0)
         return out
 
     def _buy_quotes(self, mbt, src: str, jid: str, t: float):
@@ -467,6 +510,10 @@ class UnifiedSellOrchestrator:
              for b in mbt.blocks}
         vcap: dict[str, int] = {}                          # 가상 배정 수 (용량 검사용)
         self._rows_epoch = {}
+        self._cached = {}
+        self._best_coord = {}
+        self._dst_seq = {}
+        self._scored_seq = {}
         bind = getattr(self.policy, "bind_epoch", None)
         if bind is not None:
             bind(q, vcap, mbt.capacity_margin)
@@ -495,6 +542,8 @@ class UnifiedSellOrchestrator:
                 q[coord] += 1.0
                 q[src] = max(0.0, q[src] - 1.0)
                 vcap[coord] = vcap.get(coord, 0) + 1
+                # ★이 목적지를 최선으로 꼽던 제안만 다음 회차에 다시 잰다.
+                self._dst_seq[coord] = self._dst_seq.get(coord, 0) + 1
             # 시간: 블록 간 이동 없음 — 가상 상태 불변(이연 배수는 좌표 비용에 반영)
         # ---- ③ 원자 확정
         for src, jid, flow, coord, dj in assignment:

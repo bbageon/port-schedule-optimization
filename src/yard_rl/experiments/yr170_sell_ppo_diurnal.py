@@ -70,6 +70,7 @@ def run_episode_diurnal(seed: int, policy, kf, *,
                         exec_fleet=None, exec_config=None,
                         day_plan_public: bool = False,
                         time_slots: bool = False, buy_net=None, q_scorer=None,
+                        sell_margin: float = 0.0, reuse_handoff: bool = False,
                         _return_mbt: bool = False,
                         _extra_review=None) -> dict:
     """5차 계약 1 에피소드 — 4차 `run_episode` 와 **반환 형태 동일**(학습 루프 공유).
@@ -105,7 +106,8 @@ def run_episode_diurnal(seed: int, policy, kf, *,
                              end_s=built["sim_end_s"])
     orch = UnifiedSellOrchestrator(policy, layout, kf,
                                    time_slots=time_slots, buy_net=buy_net,
-                                   q_scorer=q_scorer,
+                                   q_scorer=q_scorer, sell_margin=sell_margin,
+                                   reuse_handoff=reuse_handoff,
                                    dry_run=(getattr(policy, "mode", None) == "shadow"))
     rec = PhiRecorder()
 

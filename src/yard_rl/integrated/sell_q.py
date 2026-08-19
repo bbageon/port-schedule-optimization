@@ -223,12 +223,17 @@ class QSellPolicy:
     """
 
     def __init__(self, scorer: QCoordScorer, *, explore: float = 0.0,
-                 seed: int = 0):
+                 seed: int = 0, defer_decision: bool = False):
         self.scorer = scorer
         self.explore = float(explore)
         self.gen = torch.Generator().manual_seed(seed)
         self.mode = "live"
+        # ★YR-195: True 면 블록은 **판단하지 않는다** — "내 후보 중 뭐가 제일
+        # 부담인가"만 답하고, 팔지 말지는 배정기가 정한다(문턱을 한 곳으로 모은다).
+        # 기본 False 는 YR-189 동작 그대로 — 그 판정의 재현성을 지킨다.
+        self.defer_decision = bool(defer_decision)
         self.trail: list[dict] = []
+        self._handoff: dict = {}          # src → (좌표들, Q, 행) — 배정기가 재사용
         self._q: dict = {}
         self._vcap: dict = {}
         self._margin: float = 0.0
@@ -236,6 +241,7 @@ class QSellPolicy:
     def bind_epoch(self, q: dict, vcap: dict, capacity_margin: float) -> None:
         """배정기가 epoch 시작에 실제 상태를 넘긴다 — 정책은 가상 상태를 보지 않는다."""
         self._q, self._vcap, self._margin = q, vcap, capacity_margin
+        self._handoff = {}
 
     def _rand(self) -> float:
         return float(torch.rand(1, generator=self.gen).item())
@@ -243,14 +249,19 @@ class QSellPolicy:
     def decide(self, mbt, src: str, cands: list, t: float) -> str | None:
         if not cands:
             return None
-        best_jid, best_q, seen = None, KEEP_Q, []
+        # ★YR-195: 문턱을 넘겨줄 때는 **무조건 최악 하나를 지목**한다(inf 에서 시작).
+        # 구 동작은 0 에서 시작해 "0보다 싼 게 있어야만" 제안했다 — 그 판단이
+        # 배정기와 중복이었고(실측 판단 거부 0.9%), 문턱이 두 곳에 흩어졌다.
+        best_jid, best_q = None, (float("inf") if self.defer_decision else KEEP_Q)
+        seen, scored = [], {}
         for jid, _eta, flow in cands:
-            _cs, qs, _rows = self.scorer.score(mbt, src, jid, flow, t, self._q,
-                                               self._vcap, self._margin, len(cands))
+            cs, qs, rows = self.scorer.score(mbt, src, jid, flow, t, self._q,
+                                             self._vcap, self._margin, len(cands))
             if qs.numel() == 0:
                 continue
             v = float(qs.min().item())
             seen.append((jid, v))
+            scored[jid] = (cs, qs, rows)
             if v < best_q:
                 best_jid, best_q = jid, v
         if self.explore > 0.0 and seen and self._rand() < self.explore:
@@ -260,8 +271,15 @@ class QSellPolicy:
             best_jid, best_q = seen[i]
         # `action`·`value` 는 구 공동기록(`build_joint_transitions`)이 요구하는 키다.
         # 뜻은 바뀌었다 — value 는 기준선(critic)이 아니라 **예상 비용**이다.
+        # ★채점 결과를 배정기에 넘긴다 — 같은 망으로 같은 행을 다시 재는 낭비를
+        # 없앤다(실측: 배정기 재채점의 99.1% 가 결론을 바꾸지 못했다).
+        self._handoff[src] = scored.get(best_jid) if best_jid is not None else None
         self.trail.append({"t": t, "src": src, "n_cands": len(cands),
                            "picked": best_jid, "q": round(best_q, 6),
                            "action": 0 if best_jid is None else 1,
                            "value": round(best_q, 6), "scanned": len(seen)})
         return best_jid
+
+    def handoff(self, src: str):
+        """배정기가 가져가는 (좌표들, Q, 행). 없으면 None → 배정기가 직접 잰다."""
+        return self._handoff.get(src)
