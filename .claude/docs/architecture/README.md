@@ -119,14 +119,15 @@ PYTHONPATH=src python .claude/docs/architecture/verify_architecture.py
 `_target` 접미 키는 **아직 안 한 작업**으로 분류돼 "진행중"으로 표시된다 —
 불일치(❌)와 미완(⏳)을 구분하기 위해서다.
 
-**2026-08-20 기준**: 계약 29개 · 일치 23 · **불일치 0** · 미배선 0 · **진행중 9**.
-진행중 9개가 곧 **v3 리팩토링 잔여량**이다.
+**2026-08-20 기준**: 계약 30개 · 일치 23 · **불일치 0** · 미배선 0 · **진행중 10**.
+진행중 10개가 곧 **v3 리팩토링 잔여량**이다.
 
 | ⏳ 진행중 | 지금 → 목표 | 단계 |
 |---|---|---|
 | `lifecycle_stages_target` | 4 → 5 (`copinoNoticeTime` 없음) | 1 |
 | `order_fields_target` | 17 → 6 | 1 |
 | `record_fields_target` | 5 → 7 (`record_swap()` 미호출) | 1 |
+| `load_levels_target` | 1 → 3 (3,500·5,000·7,500) | **0** |
 | `lead_time_dist_target` | 0 → 1 | 2 |
 | `policy_has_clock_target` · `policy_waiting_def_target` | 0 → 1 | 3 |
 | `block_dim_target` | 7 → 9 | 3 |

@@ -81,8 +81,9 @@ def _getters():
         # 01 오더 스키마 (축 ①)
         "order_fields_target": _order_field_count,
         "record_fields_target": _record_field_count,
-        # 02 무대 (축 ①) — 통지 리드타임이 분포인가
+        # 02 무대 (축 ①)
         "lead_time_dist_target": _lead_time_is_dist,
+        "load_levels_target": _load_level_count,
         # 03 결정층 (축 ③④)
         "seller_buyer_target": lambda: int(hasattr(Q, "SellerNet")
                                            and hasattr(Q, "BuyerNet")),
@@ -105,6 +106,17 @@ def _has_clock() -> bool:
     """정책 블록 특징에 시각이 들어갔는가."""
     f = _block_features_src()
     return "t /" in f or "t/" in f or "clock" in f
+
+
+def _load_level_count() -> int:
+    """실험이 도는 하루 물량 수준의 수 — 목표 3 (3,500·5,000·7,500).
+
+    사용자 결정 2026-08-20: 셋 다 실제로 발생할 수 있는 오더 건수이므로 **셋 전부**
+    에서 판정하고 전부 통과해야 한다. 지금은 단일 상수라 1 이다.
+    """
+    from yard_rl.integrated import terminal_stream as TS
+    levels = getattr(TS, "DIURNAL_LOAD_LEVELS", None)
+    return len(levels) if levels else 1
 
 
 def _lead_time_is_dist() -> int:
