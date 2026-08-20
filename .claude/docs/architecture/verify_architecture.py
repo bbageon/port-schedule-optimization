@@ -63,6 +63,7 @@ def _getters():
         "rho_vessel": lambda: RHO_VESSEL_V2,
         "gate_nearest_s": lambda: round(l.gate_to_block_s(l.ids[0])),
         "gate_farthest_s": lambda: round(l.gate_to_block_s(l.ids[-1])),
+        "quay_axis_s": _quay_axis_s,
         # 03 결정층
         "announce_lead_s": lambda: R.ANNOUNCE_LEAD_S,
         "window_s": lambda: R.WINDOW_S,
@@ -110,6 +111,21 @@ def _has_clock() -> bool:
     """정책 블록 특징에 시각이 들어갔는가."""
     f = _block_features_src()
     return "t /" in f or "t/" in f or "clock" in f
+
+
+def _quay_axis_s() -> int:
+    """게이트↔안벽 축 전체(초) — 안벽을 축 반대 끝에 대칭으로 둔 값.
+
+    `190 + 410 = 600` 으로 **기존 레이아웃에서 유도**되므로 새 자유변수가 아니다.
+    코드에 `quay_to_block_s` 가 생기면 그 값을 쓰고, 없으면 유도값을 돌려준다
+    (지금은 안벽 개념이 없어 유도값 = 목표값이므로 ✅ 로 잡힌다).
+    """
+    from yard_rl.integrated.yard_layout import terminal_layout
+    lay = terminal_layout()
+    q = getattr(lay, "quay_to_block_s", None)
+    if q is not None:
+        return round(q(lay.ids[0]) + lay.gate_to_block_s(lay.ids[0]))
+    return round(lay.gate_to_block_s(lay.ids[0]) + lay.gate_to_block_s(lay.ids[-1]))
 
 
 def _load_level_count() -> int:
