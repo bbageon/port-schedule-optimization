@@ -88,18 +88,18 @@ def _order_field_count():
                       layout=terminal_layout(),
                       params=TerminalStreamParams(load_4h=DIURNAL_DAY_TOTAL),
                       background_seed=1)
-    RECORD = {"blockInTime", "serviceStartTime", "jobDoneTime", "gateOutTime",
-              "prevConLoc", "moveLoc", "conSwapReason",
+    RECORD = {"gateInTime", "blockInTime", "serviceStartTime", "jobDoneTime",
+              "gateOutTime", "prevConLoc", "conSwapReason",
               "block_previous", "block_worked", "swap_reason"}
     return len([k for k in b["schedule"][0] if k not in RECORD])
 
 
 def _record_field_count():
-    """기록 필드 수 — 확정 후 8(gateIn·blockIn·serviceStart·jobDone·gateOut
-    + prevConLoc·moveLoc·conSwapReason)이 목표."""
+    """기록 필드 수 — 확정 후 7(gateIn·blockIn·serviceStart·jobDone·gateOut
+    + prevConLoc·conSwapReason)이 목표. moveLoc 은 두지 않는다(2026-08-20)."""
     from yard_rl.integrated.time_contract import TruckTimes
     import dataclasses
-    return len(dataclasses.fields(TruckTimes)) + 3
+    return len(dataclasses.fields(TruckTimes)) + 2
 
 
 def _parse_contracts():
