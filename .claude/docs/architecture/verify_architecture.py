@@ -71,7 +71,35 @@ def _getters():
         "keep_q": lambda: Q.KEEP_Q,
         "sell_q_params": lambda: sum(x.numel() for x in SellQNet().parameters()),
         "crane_net_params": crane_params,
+        # 01 오더 스키마 — **목표값**. 확정 작업이 끝나면 일치해야 한다.
+        "order_fields_target": _order_field_count,
+        "record_fields_target": _record_field_count,
     }
+
+
+def _order_field_count():
+    """스케줄 항목의 키 수 — 확정 후 6(오더)이 목표."""
+    from yard_rl.integrated.profiles import build_h21_profile
+    from yard_rl.integrated.terminal_stream import (DIURNAL_DAY_TOTAL, OBS_24H,
+                                                    TerminalStreamParams,
+                                                    build_diurnal)
+    from yard_rl.integrated.yard_layout import terminal_layout
+    b = build_diurnal(build_h21_profile(), 1, obs=OBS_24H,
+                      layout=terminal_layout(),
+                      params=TerminalStreamParams(load_4h=DIURNAL_DAY_TOTAL),
+                      background_seed=1)
+    RECORD = {"blockInTime", "serviceStartTime", "jobDoneTime", "gateOutTime",
+              "prevConLoc", "moveLoc", "conSwapReason",
+              "block_previous", "block_worked", "swap_reason"}
+    return len([k for k in b["schedule"][0] if k not in RECORD])
+
+
+def _record_field_count():
+    """기록 필드 수 — 확정 후 8(gateIn·blockIn·serviceStart·jobDone·gateOut
+    + prevConLoc·moveLoc·conSwapReason)이 목표."""
+    from yard_rl.integrated.time_contract import TruckTimes
+    import dataclasses
+    return len(dataclasses.fields(TruckTimes)) + 3
 
 
 def _parse_contracts():
@@ -93,6 +121,7 @@ def main() -> int:
     contracts = _parse_contracts()
     getters = _getters()
 
+    todo = []
     for (doc, key), want in sorted(contracts.items()):
         f = getters.get(key)
         if f is None:
@@ -100,7 +129,12 @@ def main() -> int:
             continue
         got = f()
         line = f"{key:<20} 문서 {want!r:>10} · 코드 {got!r:>10}   ({doc})"
-        (ok if got == want else bad).append(line)
+        if key.endswith("_target"):
+            # ★목표값 — 아직 안 한 작업이지 불일치가 아니다.
+            (ok if got == want else todo).append(
+                line + ("" if got == want else "   ← 미완"))
+        else:
+            (ok if got == want else bad).append(line)
 
     # ── ② 정보 경계 (값이 아니라 규칙)
     LEAK = ("actual_gate_in", "actual_block_arrival", "actual_completion_s")
@@ -127,7 +161,8 @@ def main() -> int:
     note.append(f"[진행] 구 키 소비처 {n_old}곳 (스키마 확정 후 0 이 목표)")
 
     print("═" * 68)
-    print(f"  계약 {len(contracts)}개  ·  일치 {len(ok)}  불일치 {len(bad)}  미배선 {len(miss)}")
+    print(f"  계약 {len(contracts)}개  ·  일치 {len(ok)}  불일치 {len(bad)}  "
+          f"미배선 {len(miss)}  진행중 {len(todo)}")
     print("═" * 68)
     for s in ok:
         print("  ✅", s)
@@ -135,6 +170,11 @@ def main() -> int:
         print("  ❌", s)
     for s in miss:
         print("  ⚠️ ", s)
+    if todo:
+        print()
+        print("  ── 목표값 (아직 안 한 작업 · 불일치 아님)")
+        for s in todo:
+            print("  ⏳", s)
     print()
     for s in note:
         print("  •", s)
