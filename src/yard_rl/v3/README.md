@@ -30,7 +30,7 @@ v3 를 짤 때는 **그 둘을 참조하지 않으면** 규칙을 지킨 것이�
 
 | 폴더 | 축 | 무엇 | 설계 문서 |
 |---|---|---|---|
-| `schema/` | ① 데이터 | 오더 6필드 · 시나리오 파라미터 · 실행 기록 | [01](../../../.claude/docs/architecture/01-오더-스키마.md) |
+| `schema/` | ① 데이터 | 오더 6필드 · 실행 기록(터미널 전송 이벤트) | [01](../../../.claude/docs/architecture/01-오더-스키마.md) |
 | `reward/` | ② 보상 | 반사실 교사 (H=1시간) · 원화 환산 | [04b](../../../.claude/docs/architecture/04b-학습-잣대.md) |
 | `actors/` | ③ 구조 | Seller · Buyer · 배정기 | [03](../../../.claude/docs/architecture/03-결정층.md) |
 | `features/` | ④ 정보 | 시각 · 실제 대기 대수 · 크레인 예측 | [05](../../../.claude/docs/architecture/05-정보경계.md) |
