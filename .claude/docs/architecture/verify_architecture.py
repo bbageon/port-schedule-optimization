@@ -76,6 +76,8 @@ def _getters():
         "sell_q_params": lambda: sum(x.numel() for x in SellQNet().parameters()),
         "crane_net_params": crane_params,
         # ── v3 목표값 (`_target`) — 아직 안 한 작업이지 불일치가 아니다.
+        # 00 라이프사이클 — 다섯 단계가 다 표현되는가
+        "lifecycle_stages_target": _lifecycle_stage_count,
         # 01 오더 스키마 (축 ①)
         "order_fields_target": _order_field_count,
         "record_fields_target": _record_field_count,
@@ -124,6 +126,30 @@ def _policy_waiting_def() -> int:
     """정책이 '줄 선 대수'를 보는가 (0=inside 총 대수로 대체)."""
     f = _block_features_src()
     return int("waiting" in f or "queued" in f)
+
+
+def _lifecycle_stage_count() -> int:
+    """라이프사이클 다섯 단계 중 **코드에 시각 필드가 있는** 것의 수.
+
+    코피노 수신 → 게이트 진입 → 블록 진입 → 작업 완료 → 게이트 아웃 (사용자 확정
+    2026-08-20). `service_start` 는 터미널이 전송하지 않으므로 단계가 아니다.
+    현재 4 — `copinoNoticeTime` 이 없어 리드타임 축이 성립하지 않는다.
+    """
+    import dataclasses
+
+    from yard_rl.integrated import order_schema as OS
+    from yard_rl.integrated.time_contract import TruckTimes
+    tt = {f.name for f in dataclasses.fields(TruckTimes)}
+    src = (SRC / "integrated/order_schema.py").read_text(encoding="utf-8")
+    have = {
+        "copinoNotice": ("copino" in src or "notice_s" in src),
+        "gateIn": "gate_in" in tt,
+        "blockIn": "block_arrival" in tt,
+        "jobDone": "job_done" in tt,
+        "gateOut": "gate_out" in tt,
+    }
+    del OS
+    return sum(1 for v in have.values() if v)
 
 
 def _order_field_count():
