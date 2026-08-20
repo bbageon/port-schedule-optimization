@@ -1,6 +1,7 @@
 # YR-205 — Seller·Buyer 독립 actor와 운영 추론
 
 - **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-08-19 / **상태**: backlog
+- **아키텍처 분류**: ★v3 정책 4/4 — 독립 Seller·Buyer 운영 학생
 - **3대 게이트 보정 대상**: `performance`
 - **선행**: [[YR-204]]가 `POWER_FAIL` 없이 장기 반사실 교사 라벨 자격 통과
 - **1줄**: Seller actor는 `KEEP/SELL`, Buyer actor는 `REJECT/BUY`를 각각 선택하고,
