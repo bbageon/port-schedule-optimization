@@ -91,6 +91,7 @@ def _getters():
         # 04 비용과 보상 (축 ②) — 원화 네 항
         "cost_terms_target": _cost_term_count,
         "krw_truck_hour_target": _krw_truck_hour,
+        "vessel_classes_target": _vessel_class_count,
         # 04b 학습 잣대 — 반사실 지평
         "counterfactual_h_s_target": _counterfactual_h_s,
         # 05 정보 경계 (축 ④)
@@ -155,6 +156,19 @@ def _krw_truck_hour() -> int:
         if v is not None:
             return int(v)
     return 0
+
+
+def _vessel_class_count() -> int:
+    """본선 선급 수 — 목표 3 (50k/100k/150k GT · 2.99원/GT·시간).
+
+    현행은 전 본선이 동등하고 rho 가 10.0 단일값이라 1 이다.
+    """
+    from yard_rl.integrated import vessel as V
+    for name in ("VESSEL_CLASSES", "GT_CLASSES"):
+        v = getattr(V, name, None)
+        if v is not None:
+            return len(v)
+    return 1
 
 
 def _counterfactual_h_s() -> float:
