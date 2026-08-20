@@ -1,32 +1,29 @@
-"""YR-151 — TransferHead: 블록 판매 PPO (계획 진단 head, 설계 확정 2026-08-09).
+"""v1 — PPO 확률 정책 (구 `integrated/transfer_head.py` 의 세대 전용분).
 
-■ 의미 규정 (사용자 확정)
-PPO 의 판단 = **"이 작업을 포함한 현 계획이 나쁘다"**. 행동 K+1 은 계획 변형 K+1개다:
-  KEEP     = 현 계획(지금 안고 있는 작업 구성) 유지가 최선
-  OFFER(j) = 현 계획에서 j 를 덜어낸 계획이 (실비용을 치르고도) 더 낫다
-작업이 나쁜 게 아니라 맥락(계획) 속에서 나쁘다 — 볼록 비용의 직접 귀결.
+■ 세대 위치
+  v1 = "이 트럭을 내놓을 확률"을 배우는 정책. 규칙 대비 **+97.94** 로 졌고
+  critic 붕괴·보상 0 이 91% 라는 진단을 남겼다. → v2 는 확률 대신 **비용**을 배운다.
 
-■ 구조 확정 (B-(b))
-  · PPO 는 **작업 종류(flow)는 특징으로 알지만, 좌표(목적지 블록·시각)를 직접 선택하지
-    않는다** — "무엇을 덜어낼지"만. 좌표는 resolver 가 순이득 저울로 정한다. 따라서
-    **가중치는 1벌**(축별 분리 불요 — 축 귀속은 resolver 원장이 사후 분해).
-    (감사 정정 2026-08-09: 구 표현 "축을 모른다"는 is_out 입력과 충돌 — 위가 정확한 문장)
-  · 공유 가중치 1벌을 21블록이 각자 자기 공개 정보로 실행(중앙학습·분산실행).
-    경험 21배·일반 규칙 학습·동일 정책 배포가 근거.
-  · 기존 크레인 PPO(JointPairNet — 동적 후보 행 점수화)와 같은 검증된 패턴.
+■ 의미 규정 (사용자 확정 2026-08-09)
+  PPO 의 판단 = **"이 작업을 포함한 현 계획이 나쁘다"**. 행동 K+1 은 계획 변형 K+1개다.
+    KEEP     = 현 계획 유지가 최선
+    OFFER(j) = j 를 덜어낸 계획이 (실비용을 치르고도) 더 낫다
+  작업이 나쁜 게 아니라 맥락(계획) 속에서 나쁘다 — 볼록 비용의 직접 귀결.
 
-■ 보상 (확정: (i) 실현 전역 증분)
-r = −(결정 구간의 터미널 전체 실현 v2 증분비용 — 수신 부담·주행·기사 외부 대기 포함).
-전역이므로 떠넘긴 비용도 계산서에 자동 포함(= 이기적 판매 + 가격 청구와 동치).
-Σ 구간보상 = −(에피소드 총비용) 검열 등식 승계 — 학습 잣대 ≡ 평가 잣대.
+  · PPO 는 **작업 종류는 특징으로 알지만 좌표(목적지·시각)를 직접 고르지 않는다.**
+    좌표는 resolver 가 순이득 저울로 정한다 → 가중치는 1벌.
+  · 공유 가중치 1벌을 21블록이 각자 공개 정보로 실행(중앙학습·분산실행).
 
-■ KEEP 의 근거
-명시 공식이 아니라 학습된 가치(그 뒤 벌어진 일 전부 반영) + 비가역성 비대칭(SELL 은
-1회 잠금·KEEP 은 60초 뒤 재고). 신호 존재는 0B 가 실측(NO_LEARNABLE_SIGNAL 관문).
+■ 보상
+  r = −(결정 구간의 터미널 전체 실현 v2 증분비용). 전역이라 떠넘긴 비용도 자동 포함.
+  Σ 구간보상 = −(에피소드 총비용) 검열 등식 승계 — 학습 잣대 ≡ 평가 잣대.
 
-■ 계약 가드: ExecutionHead 동결·hash 불변(학습 루프에서 검사) / 별도 파라미터·optimizer
-(드문 판매 신호 보존) / 입력은 공개 정보만(실현 미래값·타 블록 내부 금지).
-■ 테스트 유예 (빌드 우선 지시) — 특징 스케일은 assumed 상수(사전등록 동결 대상).
+■ 계약 가드
+  ExecutionHead 동결·hash 불변 / 별도 파라미터·optimizer / 입력은 공개 정보만.
+
+■ 특징은 공용이다
+  `block_features` · `candidate_features` 는 `v1/features.py` 에 있다.
+  v2 도 같은 식을 쓰지만 **사본을 따로 갖는다** — 세대를 얼리기 위한 의도된 중복이다.
 """
 from __future__ import annotations
 
@@ -34,57 +31,14 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
+from .features import BLOCK_DIM, block_features, candidate_features
 
-from .sell_review import block_inside, block_pipeline
-
+__all__ = ["ROW_DIM", "CRITIC_DIM", "HID", "BLOCK_DIM", "build_rows", "critic_input",
+           "TransferActor", "TransferCritic", "PpoSellPolicy"]
 
 ROW_DIM = 14                  # 블록 7 + KEEP 플래그 1 + 후보 6
-BLOCK_DIM = 7
 CRITIC_DIM = 15               # 소스 7 + 수신 시장 요약 6 + 전역 2 (★감사 강화판)
 HID = 64
-
-
-# ------------------------------------------------------------------ 특징 (전부 공개 정보)
-def block_features(mbt, src: str, t: float, n_cands: int) -> list[float]:
-    """블록 계획 요약 7차원 — "작업을 품은 계획"을 평가하기 위한 맥락."""
-    sim = mbt.blocks[src]
-    inside = block_inside(sim, t)
-    pipeline = block_pipeline(mbt, src, t)
-    crane_backlog = sum(max(0.0, sim.fleet.get(c.crane_id).state.available_at - t)
-                        for c in sim.profile.cranes)
-    g = sim.profile.block
-    occupancy = len(sim.stacks.containers) / max(1, g.bay_count * g.row_count * g.tier_max)
-    slack_vals = [v.slack_s(t) for v in sim.vessels.values()
-                  if v.plan.planned_completion_s is not None and not v.done]
-    vessel_slack = min([s for s in slack_vals if s is not None] + [2.0 * 3600.0])
-    # 정보경계(감사 치명 6): 실현 a_gate_in 대신 **공개 통지 시각**만 읽는다.
-    from .time_sell import notified_gate_in
-    announced_30 = 0
-    for jid, rec in mbt.ledger.records.items():
-        if rec.owner != src:
-            continue
-        jj = sim.jobs.get(jid)
-        gi = notified_gate_in(jj) if jj is not None else None
-        if gi is not None and t < gi <= t + 1800.0:
-            announced_30 += 1
-    return [inside / 10.0, pipeline / 10.0, crane_backlog / 3600.0, occupancy,
-            max(-2.0, min(2.0, vessel_slack / 3600.0)), announced_30 / 10.0,
-            n_cands / 6.0]
-
-
-def candidate_features(mbt, src: str, jid: str, t: float) -> list[float]:
-    """후보 6차원 — 창 내 잔여시간(멈춤 문제의 시계)·이력 포함. 공개 정보만(감사 6)."""
-    from .time_sell import notified_gate_in
-    rec = mbt.ledger.records[jid]
-    j = mbt.blocks[src].jobs[jid]
-    eta = getattr(j, "estimated_block_arrival", None) or j.provided_eta or t
-    gi = notified_gate_in(j)                       # 공개 통지 시각 (실현값 미열람)
-    gate_remain = (gi - t) if gi is not None else 0.0
-    is_out = 1.0 if rec.flow == "GATE_OUT" else 0.0
-    size40 = 1.0 if str(getattr(j, "inbound_size", "")).endswith("40") else 0.0
-    return [max(0.0, min(1.0, (eta - t) / 1800.0)), is_out, size40,
-            max(0.0, min(1.0, gate_remain / 1800.0)),
-            float(rec.transfer_count), float(rec.entry_deferrals)]
 
 
 def build_rows(mbt, src: str, cands: list, t: float) -> torch.Tensor:
@@ -129,7 +83,6 @@ def critic_input(mbt, src: str, t: float, n_cands: int,
     total_inside = sum(block_inside(s, t) for s in mbt.blocks.values())
     glob = [total_inside / 100.0, min(1.0, t / max(1.0, end))]
     return torch.tensor(bf + recv + glob, dtype=torch.float32)
-
 
 # ------------------------------------------------------------------ 신경망 (공유 1벌)
 class TransferActor(nn.Module):

@@ -31,8 +31,7 @@ def _worker(args) -> dict:
     import torch
     import torch.multiprocessing as _mp
     from ..integrated.policy_config import ADOPTED_C0_GUARD
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     from ..integrated.yard_layout import terminal_layout
     from .yr151_transfer_ppo import load_kf
     from .yr170_sell_ppo_diurnal import KeepAllTrail, run_episode_diurnal

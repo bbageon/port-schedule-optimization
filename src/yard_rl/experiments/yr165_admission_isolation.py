@@ -32,8 +32,7 @@ from ..integrated.terminal_stream import (WIP_ADMISSION_PERIOD_S,
                                           _job_from_entry, admission_epochs,
                                           build_fixed_wip, hotspot_rotation)
 from ..integrated.time_grid import on_grid
-from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                        TransferCritic)
+from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
 from ..integrated.yard_layout import terminal_layout
 from .yr088_joint_rl import LEVEL
 from .yr149_load_cells import _sim_from

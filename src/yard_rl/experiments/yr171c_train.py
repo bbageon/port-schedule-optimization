@@ -53,8 +53,7 @@ def _worker(args) -> dict:
     import torch
     import torch.multiprocessing as _mp
     from ..integrated.policy_config import ADOPTED_C0_GUARD
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     from ..integrated.yard_layout import terminal_layout
     from .yr139_blockq_v4_ppo import SLA_ANCHOR_S
     from .yr151_transfer_ppo import load_kf
@@ -104,7 +103,7 @@ def train(ts: int, arm: str, *, n_iter: int, eps_per_iter: int) -> Path:
     from concurrent.futures import ProcessPoolExecutor
     from ..integrated.repro import code_dirty, repro_stamp
     from ..integrated.terminal_stream import OBS_24H
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr151_transfer_ppo import LR, ppo_update
     from .yr170_sell_ppo_diurnal import GRAD_CLIP, MINIBATCH
     from .yr174_txn_reward import RET_SCALE, assert_scale_sane
@@ -177,7 +176,7 @@ if __name__ == "__main__":
     from .yr170_sell_ppo_diurnal import TRAIN_SEEDS
     if a.smoke:
         import torch
-        from ..integrated.transfer_head import TransferActor, TransferCritic
+        from ..v1.ppo_policy import TransferActor, TransferCritic
         torch.manual_seed(0)
         r = _worker((TRAIN_SEEDS[a.seed_idx], TransferActor().state_dict(),
                      TransferCritic().state_dict(), 0, a.arm))

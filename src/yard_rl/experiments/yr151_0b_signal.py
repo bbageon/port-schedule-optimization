@@ -27,8 +27,7 @@ from ..integrated.terminal_stream import (ObservationContract,
                                           WipAdmissionController,
                                           admission_epochs, build_fixed_wip,
                                           hotspot_rotation)
-from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                        TransferCritic)
+from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
 from ..integrated.yard_layout import terminal_layout
 from .yr088_joint_rl import LEVEL
 from .yr149_load_cells import _sim_from

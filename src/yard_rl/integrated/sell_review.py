@@ -110,6 +110,13 @@ def block_pipeline(mbt, bid: str, t: float) -> int:
 from .time_grid import on_grid  # noqa: E402  (재노출 — 기존 사용처 호환)
 
 
+#: KEEP(안 팔기)의 고정 기준점 — 배정기의 눈금 원점.
+#: "아무것도 안 함"의 비용은 정의상 0이다. 다른 좌표의 비용을 여기에 상대적으로 잰다.
+#: 세대 정책도 같은 값을 쓰지만 **자기 사본을 갖는다**(예: `v2/features.py`) —
+#: 세대를 얼리기 위한 의도된 중복이다(사용자 지시 2026-08-20).
+KEEP_Q = 0.0
+
+
 # ------------------------------------------------------------------ 중앙 matching
 class PreGateResolver:
     """공간 판매의 **중앙 동시 matching** — 전 블록 제안을 모아 한 번에 배정한다.
@@ -449,7 +456,6 @@ class UnifiedSellOrchestrator:
         바뀌는 것은 숫자의 출처뿐이다: 계산식 두 개 → 학습된 망 하나.
         KEEP 은 `KEEP_Q = 0.0` 고정 — "아무것도 안 함"의 비용은 정의상 0이다.
         """
-        from .sell_q import KEEP_Q
         cached = self._cached.get(src) if self.reuse_handoff else None
         if cached is None and self.reuse_handoff:
             ho = getattr(self.policy, "handoff", None)

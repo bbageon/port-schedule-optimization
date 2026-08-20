@@ -43,8 +43,7 @@ def _worker(args) -> dict:
     torch.set_num_threads(1)
     _mp.set_sharing_strategy("file_system")
     from ..integrated.policy_config import ADOPTED_C0_GUARD
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     from ..integrated.yard_layout import terminal_layout
     from .yr151_transfer_ppo import load_kf
     from .yr170_sell_ppo_diurnal import KeepAllTrail, run_episode_diurnal

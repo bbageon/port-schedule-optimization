@@ -145,7 +145,7 @@ on-policy(쓰고 버림) → **off-policy 재생 버퍼**. 40 에피소드 = 10�
 
 | 파일 | 무엇 |
 |---|---|
-| `integrated/sell_q.py` (신설) | Q 망 · 좌표 특징 · **정책과 배정기가 공유하는 채점기** |
+| `v2/sell_q.py` (신설 · 2026-08-20 세대 분리로 `integrated/` 에서 이동) | Q 망 · 좌표 특징 · **정책과 배정기가 공유하는 채점기** |
 | `experiments/yr189_q_train.py` (신설) | 학습 (off-policy 재생 · 후버 회귀) |
 | `experiments/yr189_q_eval.py` (신설) | 평가 (3팔 × 16일 짝비교 · 사전등록 집행) |
 | `integrated/sell_review.py` | `q_scorer=None` 인자 · `_coord_costs_q` 분기 · **대기열 스냅샷을 수집 전으로** 이동 · 확정된 행을 `q_rows` 에 박제 |

@@ -111,7 +111,7 @@
 PYTHONPATH=src python .claude/docs/architecture/verify_architecture.py
 ```
 
-각 문서의 ```contract 블록이 **목표값**이고 스크립트가 코드와 대조한다.
+각 문서의 `contract` 블록이 **목표값**이고 스크립트가 코드와 대조한다.
 `_target` 접미 키는 **아직 안 한 작업**으로 분류돼 "진행중"으로 표시된다 —
 불일치(❌)와 미완(⏳)을 구분하기 위해서다.
 

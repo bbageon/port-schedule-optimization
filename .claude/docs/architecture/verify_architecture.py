@@ -38,10 +38,11 @@ SRC = ROOT / "src" / "yard_rl"
 
 # ── 계약 키 → 코드에서 읽는 법 ------------------------------------------------
 def _getters():
-    from yard_rl.integrated import sell_q as Q, sell_review as R, time_sell as T
+    from yard_rl.integrated import sell_review as R, time_sell as T
+    from yard_rl.v2 import sell_q as Q
     from yard_rl.integrated.cost_curve_v2 import RHO_VESSEL_V2
     from yard_rl.integrated.profiles import build_h21_profile
-    from yard_rl.integrated.sell_q import SellQNet
+    from yard_rl.v2.sell_q import SellQNet
     from yard_rl.integrated.terminal_stream import DIURNAL_DAY_TOTAL, OBS_24H
     from yard_rl.integrated.yard_layout import terminal_layout
     p, l = build_h21_profile(), terminal_layout()
@@ -94,9 +95,20 @@ def _getters():
 
 
 def _block_features_src() -> str:
-    th = (SRC / "integrated/transfer_head.py").read_text(encoding="utf-8")
-    m = re.search(r"return \[inside / 10\.0.*?\]", th, re.S)
-    return m.group(0) if m else ""
+    """★현행 세대의 블록 특징 정의를 읽는다.
+
+    세대마다 자기 사본을 갖는다(사용자 지시 2026-08-20 — v1 은 v1 것만). 계약은
+    **지금 개발 중인 세대**를 겨냥하므로 v3 가 생기면 그쪽을, 아직이면 v2 를 본다.
+    v1 은 끝난 세대라 여기서 보지 않는다.
+    """
+    for rel in ("v3/features/block.py", "v2/features.py"):
+        f = SRC / rel
+        if not f.exists():
+            continue
+        m = re.search(r"return \[inside / 10\.0.*?\]", f.read_text(encoding="utf-8"), re.S)
+        if m:
+            return m.group(0)
+    return ""
 
 
 def _has_clock() -> bool:
@@ -194,8 +206,10 @@ def main() -> int:
 
     # ── ② 정보 경계 (값이 아니라 규칙)
     LEAK = ("actual_gate_in", "actual_block_arrival", "actual_completion_s")
-    for f in ("integrated/transfer_head.py", "integrated/sell_q.py",
-              "integrated/sell_gain.py"):
+    leak_files = ["v1/features.py", "v1/ppo_policy.py", "v2/features.py",
+                  "v2/sell_q.py", "integrated/sell_gain.py"]
+    leak_files += [p.relative_to(SRC).as_posix() for p in sorted((SRC / "v3").rglob("*.py"))]
+    for f in leak_files:
         body = "\n".join(ln for ln in (SRC / f).read_text(encoding="utf-8").splitlines()
                          if not ln.lstrip().startswith("#"))
         hit = [k for k in LEAK if k in body]

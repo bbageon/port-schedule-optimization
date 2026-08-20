@@ -80,7 +80,7 @@ def train() -> Path:
     from concurrent.futures import ThreadPoolExecutor
     from ..integrated.repro import code_dirty, repro_stamp, write_result
     from ..integrated.terminal_stream import OBS_24H
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr170_sell_ppo_diurnal import GRAD_CLIP, MINIBATCH
     from .yr185_retrain import ZERO_KEEP
     _mp.set_sharing_strategy("file_system")

@@ -61,8 +61,7 @@ def _episode(day: int, *, public: bool, ckpt: str | None, probe=None) -> dict:
     # 회귀 대조는 **같은 조건**에서 해야 의미가 있다.
     torch.set_num_threads(1)
     from ..integrated.policy_config import ADOPTED_C0_GUARD
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     from ..integrated.yard_layout import terminal_layout
     from .yr151_transfer_ppo import load_kf
     from .yr170_sell_ppo_diurnal import KeepAllTrail, run_episode_diurnal

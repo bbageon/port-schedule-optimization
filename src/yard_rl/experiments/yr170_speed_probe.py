@@ -31,8 +31,7 @@ def _episode(exec_head: str, sell: bool) -> dict:
     """exec_head: 'adopted'|'sf' · sell: 판매 정책 사용 여부"""
     if sell:
         import torch
-        from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                TransferCritic)
+        from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
         from ..integrated.yard_layout import terminal_layout
         torch.manual_seed(0)
         pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live",
@@ -83,7 +82,7 @@ def profile_episode(exec_head: str = "adopted", top: int = 30) -> dict:
 def update_cost(n_samples: int = 60_879) -> dict:
     """PPO 갱신 — 현재(표본 1개씩) vs 묶음 처리의 비용 비교(합성 표본)."""
     import torch
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     torch.manual_seed(0)
     actor, critic = TransferActor(), TransferCritic()
     n = min(n_samples, 4096)                       # 측정용 축소 후 선형 환산

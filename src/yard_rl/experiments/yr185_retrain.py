@@ -82,7 +82,7 @@ def train() -> Path:
     from concurrent.futures import ProcessPoolExecutor
     from ..integrated.repro import code_dirty, repro_stamp
     from ..integrated.terminal_stream import OBS_24H
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr151_transfer_ppo import LR, ppo_update
     from .yr170_sell_ppo_diurnal import GRAD_CLIP, MINIBATCH
     from .yr171c_train import _worker

@@ -45,12 +45,12 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from .transfer_head import BLOCK_DIM, block_features, candidate_features
+from .features import BLOCK_DIM, KEEP_Q, block_features, candidate_features
 
 COORD_DIM = 8
 Q_ROW_DIM = BLOCK_DIM + 6 + COORD_DIM        # 7 + 6 + 8 = 21
 HID = 64
-KEEP_Q = 0.0                                  # ★고정 기준점 — 학습하지 않는다
+# KEEP_Q 는 `v2/features.py` 에 있다 (배정기는 자기 사본을 따로 갖는다).
 
 
 # ------------------------------------------------------------------ 좌표 특징
@@ -157,7 +157,7 @@ class QCoordScorer:
     def coords(self, mbt, src: str, jid: str, flow: str, t: float,
                q: dict, vcap: dict, capacity_margin: float) -> list[tuple[str, list[float]]]:
         from .block_congestion import SVC_REF_S
-        from .time_sell import notified_gate_in
+        from ..integrated.time_sell import notified_gate_in
         j = mbt.blocks[src].jobs[jid]
         gi = notified_gate_in(j)                 # 공개 통지 시각만 (실현값 금지)
         src_load = float(q[src])

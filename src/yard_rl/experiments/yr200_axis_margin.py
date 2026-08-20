@@ -78,7 +78,7 @@ def _worker(args) -> dict:
     elif arm == "greedy":
         pol = GreedyOfferPolicy(kf, layout)
     else:
-        from ..integrated.sell_q import QCoordScorer, QSellPolicy, SellQNet
+        from ..v2.sell_q import QCoordScorer, QSellPolicy, SellQNet
         from ..integrated.time_sell import DEFER_DELTA_S
         ms_h, mt_h = COMBOS[arm]                       # 비용시간
         ms, mt = ms_h / Q_SCALE, mt_h / Q_SCALE        # ★망 출력 눈금으로 변환

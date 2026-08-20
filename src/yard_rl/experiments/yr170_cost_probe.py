@@ -91,8 +91,7 @@ def probe(seed: int, *, policy_kind: str) -> dict:
         pol = KeepAllTrail()
     else:
         import torch
-        from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                TransferCritic)
+        from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
         from ..integrated.yard_layout import terminal_layout
         ck = torch.load(TRAIN_OUT / f"ppo_s{seed}" / "net.pt", map_location="cpu")
         a, c = TransferActor(), TransferCritic()

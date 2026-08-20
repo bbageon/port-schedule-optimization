@@ -164,8 +164,7 @@ def run_episode_block(seed: int, policy, kf) -> dict:
 def _worker(args) -> dict:
     import torch
     import torch.multiprocessing as _mp
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     torch.set_num_threads(1)
     _mp.set_sharing_strategy("file_system")
     seed, sd_a, sd_c, pol_seed = args
@@ -190,7 +189,7 @@ def train(ts: int, *, n_iter: int, eps_per_iter: int) -> Path:
     from concurrent.futures import ProcessPoolExecutor
     from statistics import pstdev
     from ..integrated.repro import code_dirty, repro_stamp
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr151_transfer_ppo import LR, ppo_update
     _mp.set_sharing_strategy("file_system")
     torch.set_num_threads(1)

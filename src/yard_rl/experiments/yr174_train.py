@@ -45,8 +45,7 @@ def _worker(args) -> dict:
     """에피소드 1개 + 거래별 보상 부착까지 자식 프로세스에서 끝낸다."""
     import torch
     import torch.multiprocessing as _mp
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     torch.set_num_threads(1)
     _mp.set_sharing_strategy("file_system")
     seed, sd_a, sd_c, pol_seed = args
@@ -78,7 +77,7 @@ def train(ts: int, *, n_iter: int, eps_per_iter: int) -> Path:
     import torch.multiprocessing as _mp
     from concurrent.futures import ProcessPoolExecutor
     from ..integrated.repro import code_dirty, repro_stamp
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr151_transfer_ppo import LR, ppo_update
     _mp.set_sharing_strategy("file_system")
     torch.set_num_threads(1)
@@ -149,7 +148,7 @@ if __name__ == "__main__":
     if a.smoke:
         import torch
         torch.manual_seed(0)
-        from ..integrated.transfer_head import (TransferActor, TransferCritic)
+        from ..v1.ppo_policy import TransferActor, TransferCritic
         sd_a = TransferActor().state_dict()
         sd_c = TransferCritic().state_dict()
         r = _worker((TRAIN_SEEDS[a.seed_idx], sd_a, sd_c, 0))

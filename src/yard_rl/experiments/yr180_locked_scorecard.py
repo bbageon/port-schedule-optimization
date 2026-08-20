@@ -58,8 +58,7 @@ def _worker(args) -> dict:
     elif arm in ("R_S", "A_S"):
         pol = GreedyOfferPolicy(kf, layout)        # 규칙 판매
     else:                                          # A_P — 학습 판매
-        from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                TransferCritic)
+        from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
         a, c = TransferActor(), TransferCritic()
         st = torch.load(LEARNED_CKPT, map_location="cpu", weights_only=True)
         a.load_state_dict(st["actor"])

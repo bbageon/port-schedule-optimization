@@ -157,7 +157,7 @@ def run_episode_diurnal(seed: int, policy, kf, *,
             f"계획 {len(built['schedule'])} / 누락 {n_skip} (에피소드 실격)")
 
     phi_final = phi_terminal(mbt, obs.observe_s)
-    from ..integrated.transfer_head import critic_input
+    from ..v1.ppo_policy import critic_input
     end_inputs = {b: critic_input(mbt, b, obs.observe_s, 0, layout=layout)
                   for b in mbt.blocks}
     res_mbt = {"_mbt": mbt} if _return_mbt else {}   # 진단 전용(비용 분해)
@@ -230,8 +230,7 @@ def _episode_worker(args) -> dict:
     (on-policy 계약 유지 — 병렬은 순서만 바꾸고 정책 스냅샷은 동일)."""
     import torch
     import torch.multiprocessing as _mp
-    from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                            TransferCritic)
+    from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     from .yr151_transfer_ppo import load_kf
     torch.set_num_threads(1)                      # 프로세스 다중 실행 시 스레드 경합 방지
     # 텐서를 프로세스 경계로 넘길 때 기본(file_descriptor) 방식은 fd 를 소진해
@@ -267,7 +266,7 @@ def train_parallel(ts: int, *, n_iter: int, eps_per_iter: int,
     from concurrent.futures import ProcessPoolExecutor
     _mp.set_sharing_strategy("file_system")
     from ..integrated.repro import code_dirty, repro_stamp
-    from ..integrated.transfer_head import TransferActor, TransferCritic
+    from ..v1.ppo_policy import TransferActor, TransferCritic
     from .yr151_transfer_ppo import (CLIP, ENT, LR, build_batch,
                                      exec_config_hash, load_adopted_execution_head,
                                      ppo_update)
@@ -365,8 +364,7 @@ if __name__ == "__main__":
         print(json.dumps(r, ensure_ascii=False))
     elif a.smoke:
         import torch
-        from ..integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                TransferCritic)
+        from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
         from .yr151_transfer_ppo import load_kf
         torch.manual_seed(0)
         pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live",

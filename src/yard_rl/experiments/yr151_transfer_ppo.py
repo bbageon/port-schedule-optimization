@@ -56,7 +56,7 @@ from ..integrated.terminal_stream import (ObservationContract,
                                           WipAdmissionController, admission_epochs,
                                           build_fixed_wip)
 from ..integrated.time_sell import deferral_ledger
-from ..integrated.transfer_head import (PpoSellPolicy, TransferActor, TransferCritic)
+from ..v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
 from ..integrated.yard_layout import terminal_layout
 from .yr088_joint_rl import LEVEL, RLPolicy
 from .yr100_candidate_eval import RC_EVAL
@@ -306,7 +306,7 @@ def run_episode(seed: int, policy: PpoSellPolicy, kf: KappaFit, *,
                            f"+ 투입 {ctrl.n_admitted} (에피소드 실격)")
     phi_final = phi_terminal(mbt, obs.observe_s)          # 관측 종료 시점 — 구간의 끝
     # ★종료 bootstrap 원료: 종료 시점의 블록별 critic 입력 (관측 밖 비용의 추정 근거)
-    from ..integrated.transfer_head import critic_input
+    from ..v1.ppo_policy import critic_input
     end_inputs = {b: critic_input(mbt, b, obs.observe_s, 0, layout=layout)
                   for b in mbt.blocks}
     return {"phi": rec.samples, "phi_final": phi_final, "sell_ledger": orch.ledger,

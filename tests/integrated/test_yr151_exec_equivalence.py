@@ -88,8 +88,7 @@ def test_fleet_matches_judgment_assembly():
 def test_invalid_exec_head_rejected():
     """'adopted'/'sf' 외 값은 즉시 거절 — 오타로 SF 가 몰래 돌지 못하게 (감사)."""
     from yard_rl.experiments.yr151_transfer_ppo import load_kf, run_episode
-    from yard_rl.integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                  TransferCritic)
+    from yard_rl.v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live", seed=0)
     with pytest.raises(ValueError):
         run_episode(1, pol, load_kf(), exec_head="adotped")   # 오타 재현
@@ -97,8 +96,7 @@ def test_invalid_exec_head_rejected():
 
 def test_adopted_exec_config_must_be_explicit():
     from yard_rl.experiments.yr151_transfer_ppo import load_kf, run_episode
-    from yard_rl.integrated.transfer_head import (PpoSellPolicy, TransferActor,
-                                                  TransferCritic)
+    from yard_rl.v1.ppo_policy import PpoSellPolicy, TransferActor, TransferCritic
     pol = PpoSellPolicy(TransferActor(), TransferCritic(), mode="live", seed=0)
     with pytest.raises(ValueError, match="explicit exec_config"):
         run_episode(1, pol, load_kf(), exec_head="adopted")

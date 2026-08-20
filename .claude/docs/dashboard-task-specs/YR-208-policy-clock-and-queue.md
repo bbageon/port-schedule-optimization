@@ -61,10 +61,10 @@
 
 ```bash
 PYTHONPATH=src python -c "
-from yard_rl.integrated import sell_q as Q
+from yard_rl.v2 import sell_q as Q
 print('BLOCK_DIM', Q.BLOCK_DIM, '(목표 9)', 'Q_ROW_DIM', Q.Q_ROW_DIM)"
 
-grep -n "return \[inside" -A 3 src/yard_rl/integrated/transfer_head.py
+grep -n "return \[inside" -A 3 src/yard_rl/v3/features/block.py  # (없으면 v2/features.py 가 현행)
 
 # 아키텍처 계약 대조 — policy_has_clock_target / policy_waiting_def_target
 PYTHONPATH=src python .claude/docs/architecture/verify_architecture.py

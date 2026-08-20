@@ -60,7 +60,7 @@ def _worker(args) -> dict:
     import torch
     import torch.multiprocessing as _mp
     from ..integrated.policy_config import ADOPTED_C0_GUARD
-    from ..integrated.sell_q import QCoordScorer, QSellPolicy, SellQNet
+    from ..v2.sell_q import QCoordScorer, QSellPolicy, SellQNet
     from ..integrated.time_sell import DEFER_DELTA_S
     from ..integrated.yard_layout import terminal_layout
     from .yr139_blockq_v4_ppo import SLA_ANCHOR_S
@@ -144,7 +144,7 @@ def train(ts: int, *, n_iter: int = N_ITER, eps_per_iter: int = EPS_PER_ITER,
     import torch.multiprocessing as _mp
     from concurrent.futures import ProcessPoolExecutor
     from ..integrated.repro import code_dirty, repro_stamp, write_result
-    from ..integrated.sell_q import Q_ROW_DIM, SellQNet
+    from ..v2.sell_q import Q_ROW_DIM, SellQNet
     from ..integrated.terminal_stream import OBS_24H
     _mp.set_sharing_strategy("file_system")
     torch.set_num_threads(1)
