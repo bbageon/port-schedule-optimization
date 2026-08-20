@@ -2,7 +2,8 @@
 
 - **Epic**: RL / **Priority**: 🟠 / **등록일**: 2026-08-19 / **상태**: backlog
 - **3대 게이트 보정 대상**: `performance`
-- **선행**: [[YR-202]] 라벨 잡음 판정 + [[YR-203]] 일회성 배치 계약
+- **선행**: [[YR-202]] 라벨 잡음 판정 + [[YR-203]] 일회성 배치 계약 +
+  [[YR-207]] 원화 환산 terminal cost 잠금
 - **1줄**: 같은 상태에서 Seller만 `KEEP`, Buyer만 `REJECT`한 세계를 각각 미래 `H`까지
   굴려 두 독립 actor의 비용 라벨을 만들되, rollout은 **학습자료 생성 때만** 사용한다.
 
@@ -60,17 +61,18 @@ spec 이 "`H` 는 결과를 보기 전 물리 근거로 동결"이라 열어둔 
 
 ## 비용 정본 — 하나만 둔다
 
-새 SELL 보너스나 BUY 사적 비용을 만들지 않는다. 두 세계 모두 잠금평가가 쓰는 동일한
-`TerminalCostConfig`와 구간 `terminal total cost`를 사용한다.
+새 SELL 보너스나 BUY 사적 비용을 만들지 않는다. 두 세계 모두 [[YR-207]]에서 잠근
+`TERMINAL-COST-KRW-EQ-2026-SAFE-FREIGHT-V1`과 구간 `terminal total cost`를 사용한다.
 
 ```text
 J_H(W) = Σ_[t,t+H] C_terminal(interval | W)
 ```
 
-구현 전 `cost_id`, 13개 항의 scale·weight, 설정 hash를 동결한다. 트럭대기·장기대기,
-크레인 주행·공차, 재취급, 본선지연과 이송 때문에 기존 장부에 생긴 비용을 그대로 세고,
-별도 `SELL/BUY/WAIT` 상수 벌점은 더하지 않는다. 이송비를 terminal 장부와 actor 식에
-동시에 넣는 것도 금지한다. 기다리는 동안 대기·지연이 늘면 그 구간 비용으로 자동 청구된다.
+`cost_id`, 13개 항의 scale·weight, 설정 hash는 YR-207 산출물을 그대로 재사용한다.
+트럭 항은 `A→O` 턴타임이고 `B→C`는 진단만 하며 두 항을 더하지 않는다. 크레인 주행·공차,
+재취급, 본선지연과 이송 때문에 같은 장부에 생긴 비용을 세고, 별도 `SELL/BUY/WAIT` 상수
+벌점은 더하지 않는다. 이송비를 terminal 장부와 actor 식에 동시에 넣는 것도 금지한다.
+기다리는 동안 턴타임·지연이 늘면 그 구간 비용으로 자동 청구된다.
 
 ## actor별 반사실 비용
 
