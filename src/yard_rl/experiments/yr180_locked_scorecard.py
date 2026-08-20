@@ -18,6 +18,8 @@
 """
 from __future__ import annotations
 
+from ..integrated.terminal_stream import DIURNAL_DAY_TOTAL
+
 import argparse
 import json
 from pathlib import Path
@@ -135,7 +137,7 @@ def run() -> Path:
 
     # ---- 하드 가드 (사전등록 ⑥) — 위반 시 실격, 완화하지 않는다
     guards = {
-        "admitted_all_3600": all(r["admitted"] == 3600 for r in rows),
+        "admitted_all_3600": all(r["admitted"] == DIURNAL_DAY_TOTAL for r in rows),
         "no_policy_exception": all(r["policy_exceptions"] == 0 for r in rows),
         "code_clean": not code_dirty(),
         "all_cells_present": all(len(by[a]) == len(days) for a in ARMS)}

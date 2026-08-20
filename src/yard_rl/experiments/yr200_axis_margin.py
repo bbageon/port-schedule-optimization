@@ -29,6 +29,8 @@
 """
 from __future__ import annotations
 
+from ..integrated.terminal_stream import DIURNAL_DAY_TOTAL
+
 import argparse
 import json
 from pathlib import Path
@@ -153,7 +155,7 @@ def run(*, workers: int = 16) -> Path:
     for r in rows:
         by[r["arm"]][r["day"]] = r
     guards = {
-        "all_admitted_3600": all(r["admitted"] == 3600 for r in rows),
+        "all_admitted_3600": all(r["admitted"] == DIURNAL_DAY_TOTAL for r in rows),
         "no_policy_exceptions": all(r["policy_exceptions"] == 0 for r in rows),
         "code_dirty": bool(code_dirty()),
         "all_cells_present": all(len(by[a]) == len(days) for a in arms),

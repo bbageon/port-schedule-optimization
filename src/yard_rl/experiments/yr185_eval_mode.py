@@ -18,6 +18,8 @@
 """
 from __future__ import annotations
 
+from ..integrated.terminal_stream import DIURNAL_DAY_TOTAL
+
 import argparse
 import json
 from pathlib import Path
@@ -140,7 +142,7 @@ def run() -> Path:
                       "sample_seeds_fixed_before_run": True,
                       "baselines_cited_not_rerun": ["K", "greedy"]},
            "summary": summary, "rows": rows,
-           "admitted_all_3600": all(r["admitted"] == 3600 for r in rows),
+           "admitted_all_3600": all(r["admitted"] == DIURNAL_DAY_TOTAL for r in rows),
            "code_dirty": bool(code_dirty()),
            "stamp": repro_stamp(experiment="YR-185 ① 평가 모드 진단",
                                 seeds={"eval_days": days,
@@ -159,7 +161,7 @@ if __name__ == "__main__":
     argparse.ArgumentParser().parse_args()
     p = run()
     d = json.loads(p.read_text(encoding="utf-8"))
-    print(f"투입 3600 전건: {d['admitted_all_3600']}  "
+    print(f"투입 {DIURNAL_DAY_TOTAL} 전건: {d['admitted_all_3600']}  "
           f"규칙 판매 기준 {d['greedy_vs_keep_mean']:+.2f}")
     print()
     print(f"{'팔':13s} {'최선(기존)':>14s} {'추첨(신규)':>14s} "

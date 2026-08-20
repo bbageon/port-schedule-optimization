@@ -1,7 +1,7 @@
 """v3 판정 진입점 — 학생만 돈다.
 
 ■ 하드가드 (위반 시 그 셀 실격)
-  1. 투입 = 3,600 전건 (`admitted == 3600`)
+  1. 투입 = 전건 (`admitted == DIURNAL_DAY_TOTAL` — 2026-08-20 기준 7,500)
   2. `policy_exceptions == 0`
   3. 실행 트리 `code_dirty == False`  ← WSL 에서 GIT_DIR 없으면 None 이 되어
                                         가드가 조용히 무력화된다. 실행 전 확인.

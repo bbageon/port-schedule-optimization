@@ -18,21 +18,30 @@ def _hourly(ts):
 
 def test_total_and_window():
     ts = diurnal_arrivals(11)
-    assert len(ts) == DIURNAL_DAY_TOTAL == 3600
+    assert len(ts) == DIURNAL_DAY_TOTAL == 7500
     assert 0.0 <= ts[0] and ts[-1] < DIURNAL_DAY_S
     assert ts == sorted(ts)
 
 
-def test_night_floor_matches_frozen_value():
-    """야간 저점(하루 최소) = 일평균의 15% = 22.5대/h (동결값).
+#: 동결된 것은 **형상**(일평균 대비 비율)이지 절대 대수가 아니다.
+#: 하루 총량을 3,600 → 7,500 으로 바꿔도(2026-08-20) 곡선 모양은 그대로다.
+AVG_PER_H = DIURNAL_DAY_TOTAL / 24.0
+NIGHT_FRAC = 0.15                 # 야간 저점 ÷ 일평균
+PEAK_RATIO = 488.7 / 150.0        # 순간 최대 λ ÷ 일평균 (A7 정정본에서 유도)
+HOUR_PEAK_FRAC = 461.2 / 3600.0   # 시간대별 최대(적분) ÷ 하루 총량
+
+
+def test_night_floor_matches_frozen_shape():
+    """야간 저점 = 일평균의 15% (동결된 것은 **비율**).
 
     특정 시각의 λ 는 저점 + 봉우리 꼬리라서 새벽(2~4시)에서만 저점과 일치한다
-    (예: 22시는 오후 봉우리 3.5σ 꼬리가 남아 23.4대/h) — 계약은 **최소값**이다.
+    (22시는 오후 봉우리 3.5σ 꼬리가 남는다) — 계약은 **최소값**이다.
     """
+    want = AVG_PER_H * NIGHT_FRAC
     grid = [diurnal_rate(x * 60) * 3600 for x in range(24 * 60)]
-    assert min(grid) == pytest.approx(22.5, abs=0.05)
+    assert min(grid) == pytest.approx(want, rel=0.005)
     for h in (2, 3, 4):
-        assert diurnal_rate(h * 3600) * 3600 == pytest.approx(22.5, abs=0.05)
+        assert diurnal_rate(h * 3600) * 3600 == pytest.approx(want, rel=0.005)
 
 
 def test_peak_windows_are_morning_and_afternoon():
@@ -46,19 +55,23 @@ def test_peak_windows_are_morning_and_afternoon():
 
 
 def test_instantaneous_peak_matches_corrected_derivation():
-    """순간 최대 λ = 488.7대/h @ 11.15시 (A7 정정본)."""
+    """순간 최대 λ = 일평균의 3.258배 @ 11.15시 (A7 정정본).
+
+    ★피크가 크레인 능력을 넘는지는 여기서 안 본다 — 무대 성질이라
+    `.claude/docs/architecture/02-무대.md` §2-1 에 적었다(7,500대에서 121%).
+    """
     grid = [(x / 60.0, diurnal_rate(x * 60) * 3600) for x in range(24 * 60)]
     hh, lam = max(grid, key=lambda p: p[1])
-    assert lam == pytest.approx(488.7, abs=1.0)
+    assert lam == pytest.approx(AVG_PER_H * PEAK_RATIO, rel=0.005)
     assert hh == pytest.approx(11.15, abs=0.1)
 
 
 def test_planned_hourly_peak_is_w11_reference():
-    """계획 시간대별 최대(적분) = 461.2대 — W11 비교 기준."""
+    """계획 시간대별 최대(적분) = 하루 총량의 12.81% — W11 비교 기준."""
     hourly = [sum(diurnal_rate((h + i / 60) * 3600) * 60 for i in range(60))
               for h in range(24)]
-    assert max(hourly) == pytest.approx(461.2, abs=1.0)
-    assert sum(hourly) == pytest.approx(3600.0, abs=1.0)
+    assert max(hourly) == pytest.approx(DIURNAL_DAY_TOTAL * HOUR_PEAK_FRAC, rel=0.005)
+    assert sum(hourly) == pytest.approx(float(DIURNAL_DAY_TOTAL), rel=0.005)
 
 
 def test_deterministic_and_seed_varies_sample_not_shape():
