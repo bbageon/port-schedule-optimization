@@ -88,7 +88,10 @@ def _getters():
         "seller_buyer_target": lambda: int(hasattr(Q, "SellerNet")
                                            and hasattr(Q, "BuyerNet")),
         "block_dim_target": lambda: Q.BLOCK_DIM,
-        # 04 비용과 보상 (축 ②) — 반사실 지평
+        # 04 비용과 보상 (축 ②) — 원화 네 항
+        "cost_terms_target": _cost_term_count,
+        "krw_truck_hour_target": _krw_truck_hour,
+        # 04b 학습 잣대 — 반사실 지평
         "counterfactual_h_s_target": _counterfactual_h_s,
         # 05 정보 경계 (축 ④)
         "policy_has_clock_target": lambda: int(_has_clock()),
@@ -123,6 +126,35 @@ def _lead_time_is_dist() -> int:
     """통지 리드타임이 트럭마다 다른가 (0=30분 고정)."""
     from yard_rl.integrated import terminal_stream as TS
     return int(hasattr(TS, "sample_lead_s") or hasattr(TS, "LEAD_TIME_DIST"))
+
+
+def _cost_term_count() -> int:
+    """Φ 를 이루는 비용 항의 수 — 목표 4 (대기·YC 이동·재취급·본선).
+
+    현행은 트럭·본선 둘뿐이다. YC 추가 이동과 재취급은 비용항이 없다
+    (엔진에 동작은 있으나 Φ 에 안 들어간다).
+    """
+    src = (SRC / "integrated/cost_curve_v2.py").read_text(encoding="utf-8")
+    have = [
+        "j_truck" in src,                       # 대기
+        any(k in src for k in ("c_move", "yc_move", "crane_move")),
+        "rehandle" in src,                      # 재취급
+        "j_vessel" in src or "RHO_VESSEL" in src,
+    ]
+    return sum(1 for h in have if h)
+
+
+def _krw_truck_hour() -> int:
+    """트럭 시간가치(원/트럭·시간) — 목표 40,000 (2026 안전운임 고시).
+
+    현행은 비용시간 단위라 원화 상수가 없다 → 0.
+    """
+    from yard_rl.integrated import cost_curve_v2 as C
+    for name in ("KRW_TRUCK_HOUR", "V_TRUCK_KRW_H", "TRUCK_KRW_PER_HOUR"):
+        v = getattr(C, name, None)
+        if v is not None:
+            return int(v)
+    return 0
 
 
 def _counterfactual_h_s() -> float:
