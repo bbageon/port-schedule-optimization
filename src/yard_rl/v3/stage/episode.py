@@ -20,7 +20,6 @@
 """
 from __future__ import annotations
 
-import random
 from dataclasses import dataclass, field
 
 import torch
@@ -82,6 +81,7 @@ class EpisodeResult:
     rollout_worlds: int = 0
     decisions: int = 0
     missed_labels: int = 0
+    slot_mode: str = "HORIZON"
 
     def as_dict(self) -> dict:
         d = {"phi_krw": self.phi_krw, "admitted": self.admitted,
@@ -90,7 +90,7 @@ class EpisodeResult:
              "n_space": self.n_space, "n_time": self.n_time,
              "txn_failed": self.txn_failed, "n_decisions": self.decisions,
              "n_labels": len(self.labels), "rollout_worlds": self.rollout_worlds,
-             "missed_labels": self.missed_labels}
+             "missed_labels": self.missed_labels, "slot_mode": self.slot_mode}
         d.update(self.breakdown)
         return d
 
@@ -99,7 +99,7 @@ class _Ctx:
     """분기 세계를 다시 조립하는 재료. 망은 **공유**하고 나머지만 새로 만든다."""
 
     def __init__(self, *, seller_net, buyer_net, layout, announcer, arm, grid_s,
-                 window_s, explore, seed, episode_end_s):
+                 window_s, explore, seed, episode_end_s, cf_horizon_s):
         self.seller_net, self.buyer_net = seller_net, buyer_net
         self.layout, self.announcer = layout, announcer
         self.arm, self.grid_s, self.window_s = arm, grid_s, window_s
@@ -109,11 +109,13 @@ class _Ctx:
         #: 여기에 t+H 를 주면 분기 세계의 Seller 가 먼 이연 칸을 못 보고 다른 좌표를
         #: 고른다(2026-08-22 불변식이 잡았다).
         self.episode_end_s = float(episode_end_s)
+        #: 이연 칸을 묶는 지평 ([[YR-216]]). None = 옛 동작.
+        self.cf_horizon_s = cf_horizon_s
 
     def make_market(self, mbt, *, decided=()):
-        rng = random.Random(self.seed)
-        seller = Seller(self.seller_net, self.layout, explore=self.explore, rng=rng)
-        buyer = Buyer(self.buyer_net, explore=self.explore, rng=rng)
+        seller = Seller(self.seller_net, self.layout, explore=self.explore,
+                        seed=self.seed)
+        buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
         m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
         m.decided = set(decided)
         return m
@@ -121,7 +123,8 @@ class _Ctx:
     def make_bridge(self, market, *, orders, records, on_decision):
         return MarketBridge(market, self.layout, orders=orders, records=records,
                             end_s=self.episode_end_s, arm=self.arm,
-                            grid_s=self.grid_s, on_decision=on_decision)
+                            grid_s=self.grid_s, cf_horizon_s=self.cf_horizon_s,
+                            on_decision=on_decision)
 
     def make_exec_policy(self):
         return _sf_spt_policy()[0]
@@ -229,8 +232,15 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 lead_mode: str = "DIST", window_s: float = 1800.0,
                 explore: float = 0.0, horizon_s: float = 3600.0,
                 budget: RolloutBudget | None = None,
-                obs=None) -> EpisodeResult:
-    """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용)."""
+                slot_mode: str = "HORIZON", obs=None) -> EpisodeResult:
+    """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
+
+    `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
+      · `"HORIZON"` : 반사실 창 안에 남는 칸만 (기본)
+      · `"LEGACY"`  : 15·30·60·120분 고정 — **전후 비교 전용**
+    """
+    if slot_mode not in ("HORIZON", "LEGACY"):
+        raise ValueError(f"slot_mode 는 HORIZON|LEGACY — {slot_mode!r}")
     if arm not in ARMS:
         raise NotImplementedError(
             f"재배치 팔 {arm!r} 은 아직 구현 전이다 — {TODO_ARMS} 는 YR-211. "
@@ -260,10 +270,11 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     b_net = buyer_net if buyer_net is not None else BuyerNet()
     ctx = _Ctx(seller_net=s_net, buyer_net=b_net, layout=layout, announcer=ann,
                arm=arm, grid_s=EPOCH_S, window_s=window_s, explore=explore,
-               seed=seed, episode_end_s=obs.observe_s)
+               seed=seed, episode_end_s=obs.observe_s,
+               cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None))
     market = ctx.make_market(mbt)
 
-    res = EpisodeResult()
+    res = EpisodeResult(slot_mode=slot_mode)
     pending: list[dict] = []
     tape = _CounterTape()
     roll = SnapshotRollout(ctx, horizon_s=horizon_s) if budget else None
@@ -312,9 +323,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
 
     on_decision.wants_epoch = wants_epoch
 
-    bridge = MarketBridge(market, layout, orders=orders, records=records,
-                          end_s=obs.observe_s, arm=arm, grid_s=EPOCH_S,
-                          on_decision=(on_decision if budget else None))
+    bridge = ctx.make_bridge(market, orders=orders, records=records,
+                             on_decision=(on_decision if budget else None))
     exec_policy, exc = _sf_spt_policy()
 
     def review(m, t):

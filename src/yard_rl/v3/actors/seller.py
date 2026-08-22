@@ -19,6 +19,7 @@ import torch
 
 from ..features.block import block_features, inside_count
 from ..features.candidate import (candidate_features, seller_action_features)
+from .explore import draw, pick
 from .nets import SellerNet, from_scaled
 from .offer import KEEP, SELL, SPACE, TIME, Coord, Offer
 
@@ -27,11 +28,13 @@ class Seller:
     """블록 하나의 매도 행위자. 가중치는 21블록이 **1벌을 공유**한다."""
 
     def __init__(self, net: SellerNet, layout, *, explore: float = 0.0,
-                 rng=None):
+                 seed: int = 0):
         self.net = net
         self.layout = layout
         self.explore = float(explore)
-        self.rng = rng
+        #: 탐색 난수는 **좌표로 뽑는다**(`explore.py`) — 순차 난수를 쓰면 분기
+        #: 세계가 실제 궤적과 다른 탐색을 해 동일성 불변식이 깨진다.
+        self.seed = int(seed)
         self.trail: list[dict] = []
         #: 반사실 분기용 **1회성 강제 행동** — {docKey: "KEEP"|"SELL"}.
         #: 교사가 "이 행위자가 반대로 했다면" 세계를 만들 때만 채운다. 평소엔 비어 있다.
@@ -104,9 +107,9 @@ class Seller:
         else:
             idx = int(torch.argmin(cost).item())
 
-        if forced is None and self.explore > 0.0 and self.rng is not None:
-            if self.rng.random() < self.explore:
-                idx = self.rng.randrange(len(meta))
+        if forced is None and self.explore > 0.0:
+            if draw(self.seed, doc_key, t, "sell:on") < self.explore:
+                idx = pick(self.seed, doc_key, t, "sell:which", len(meta))
 
         chosen = meta[idx]
         self.trail.append({

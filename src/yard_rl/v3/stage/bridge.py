@@ -42,6 +42,7 @@ class MarketBridge:
     def __init__(self, market, layout, *, orders, records, end_s: float,
                  arm: str = "RL", grid_s: float = EPOCH_S,
                  slot_capacity: dict[int, int] | None = None,
+                 cf_horizon_s: float | None = None,
                  on_decision=None):
         self.market = market
         self.layout = layout
@@ -51,6 +52,10 @@ class MarketBridge:
         self.arm = arm
         self.grid_s = float(grid_s)
         self.slot_capacity = dict(slot_capacity or {})
+        #: 이연 칸을 반사실 창 안으로 묶는 지평([[YR-216]]). None = 옛 동작(비교용).
+        self.cf_horizon_s = None if cf_horizon_s is None else float(cf_horizon_s)
+        self.slot_steps = (self.SLOT_STEPS_LEGACY if cf_horizon_s is None
+                           else self.SLOT_STEPS_HORIZON)
         self.on_decision = on_decision      # 교사 훅 — 없으면 라벨을 안 만든다
         self.traded_edges = 0
         self.txn_failed = 0
@@ -93,18 +98,38 @@ class MarketBridge:
         rec.stamp(stage, float(value))
 
     # ------------------------------------------------------------------ 시간 좌표
-    def _time_slots(self, doc_key: str, t: float):
-        """이연 후보 칸 — 15분 격자로 4칸. 값 판단이 아니라 **실현 가능성 필터**다.
+    #: 이연 격자 — 15분 배수. 어느 칸이 좋은지는 Seller 가 고른다(03 §5).
+    SLOT_GRID_S = 900.0
+    #: 창 안으로 묶을 때는 **격자도 창에 맞춘다** — 15·30·45·60분.
+    #: 옛 격자(15·30·60·120)를 그대로 두고 자르면 후보가 둘로 줄어 선택지가 빈약해진다.
+    SLOT_STEPS_HORIZON = (1, 2, 3, 4)
+    SLOT_STEPS_LEGACY = (1, 2, 4, 8)
 
-        어느 칸이 좋은지는 Seller 가 고른다(03 §5 — 고정 +15분이 아니다).
+    def _time_slots(self, doc_key: str, t: float):
+        """이연 후보 칸. 값 판단이 아니라 **실현 가능성 필터**다.
+
+        ★[[YR-216]] — `cf_horizon_s` 가 있으면 **새 도착이 반사실 창 안에 남는
+        칸만** 낸다:
+
+            reserve + defer ≤ t + H
+
+        창 밖으로 미루면 그 결정의 효과가 채점 창에서 안 보여 **라벨이 정확히 0**
+        이 되고, 학습은 "그 행동은 무의미" 로 배운다(2026-08-22 실측 — 거래가
+        성립했는데 Φ 가 factual 과 원 단위까지 같았다).
+
+        고정 목록이 아니라 **오더마다 다르다.** 도착이 임박할수록 미룰 수 있는
+        폭이 준다 — 물리적으로도 그게 맞다.
         """
         o = self.orders[doc_key]
+        cap = None if self.cf_horizon_s is None else t + self.cf_horizon_s
         out = []
-        for k in (1, 2, 4, 8):
-            defer = 900.0 * k
+        for k in self.slot_steps:
+            defer = self.SLOT_GRID_S * k
             start = o.in_out_reserve_s + defer
             if start >= self.end_s:
                 break
+            if cap is not None and start > cap + 1e-9:
+                break                          # ★창 밖 — 채점할 수 없는 칸
             out.append((k, start, defer))
         return out
 

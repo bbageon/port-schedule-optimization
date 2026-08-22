@@ -27,6 +27,7 @@ import torch
 from ..features.block import block_features
 from ..features.candidate import (BUYER_OFFER_DIM, buyer_offer_features,
                                   candidate_features)
+from .explore import draw
 from .nets import BuyerNet, from_scaled
 from .offer import BUY, REJECT, SPACE, Offer, Response
 
@@ -34,10 +35,11 @@ from .offer import BUY, REJECT, SPACE, Offer, Response
 class Buyer:
     """수신 측 행위자. 공간이면 블록, 시간이면 슬롯이 이 역할을 맡는다."""
 
-    def __init__(self, net: BuyerNet, *, explore: float = 0.0, rng=None):
+    def __init__(self, net: BuyerNet, *, explore: float = 0.0, seed: int = 0):
         self.net = net
         self.explore = float(explore)
-        self.rng = rng
+        #: Seller 와 같은 이유로 좌표 기반이다 — `explore.py` 참조.
+        self.seed = int(seed)
         self.trail: list[dict] = []
         #: 반사실 분기용 **1회성 강제 응답** — {docKey: "BUY"|"REJECT"}.
         self.force_once: dict[str, str] = {}
@@ -83,9 +85,9 @@ class Buyer:
             action = forced                    # 반사실: 반대로 응답했다면
         else:
             action = BUY if phi_buy <= phi_reject else REJECT
-            if (self.explore > 0.0 and self.rng is not None
-                    and self.rng.random() < self.explore):
-                action = BUY if self.rng.random() < 0.5 else REJECT
+            dk = offer.doc_key
+            if self.explore > 0.0 and draw(self.seed, dk, t, "buy:on") < self.explore:
+                action = BUY if draw(self.seed, dk, t, "buy:which") < 0.5 else REJECT
 
         self.trail.append({
             "t": t, "doc_key": offer.doc_key, "buyer": offer.buyer_id,

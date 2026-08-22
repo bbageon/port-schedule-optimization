@@ -16,6 +16,7 @@
 """
 
 from .buyer import Buyer
+from .explore import draw as explore_draw, pick as explore_pick
 from .market import EpochResult, Market
 from .nets import PHI_SCALE, BuyerNet, SellerNet, from_scaled, to_scaled
 from .offer import (BUY, KEEP, REJECT, RESOLVER_KEEP, SELL, SPACE, TIME, Coord,
@@ -26,4 +27,5 @@ from .seller import Seller
 __all__ = ["Seller", "Buyer", "Resolver", "Market", "SellerNet", "BuyerNet",
            "Offer", "Response", "Coord", "Trade", "ResolveResult",
            "EpochResult", "KEEP", "SELL", "BUY", "REJECT", "SPACE", "TIME",
-           "RESOLVER_KEEP", "PHI_SCALE", "to_scaled", "from_scaled"]
+           "RESOLVER_KEEP", "PHI_SCALE", "to_scaled", "from_scaled",
+           "explore_draw", "explore_pick"]
