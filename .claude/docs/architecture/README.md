@@ -127,23 +127,25 @@ PYTHONPATH=src python .claude/docs/architecture/verify_architecture.py
 `_target` 접미 키는 **아직 안 한 작업**으로 분류돼 "진행중"으로 표시된다 —
 불일치(❌)와 미완(⏳)을 구분하기 위해서다.
 
-**2026-08-20 기준**: 계약 35개 · 일치 24 · **불일치 0** · 미배선 0 · **진행중 14**.
-진행중 14개가 곧 **v3 리팩토링 잔여량**이다.
+**2026-08-22 기준**: 계약 36개 · 일치 44 · **불일치 0** · 미배선 0 · **진행중 0**
+([[YR-214]] · 커밋 `3ae27cb`). 8-20 의 진행중 14개가 전부 닫혔다.
 
-| ⏳ 진행중 | 지금 → 목표 | 단계 |
+| 무엇이 닫혔나 | 8-20 → 8-22 | 어디에 |
 |---|---|---|
-| `lifecycle_stages_target` | 4 → 5 (`copinoNoticeTime` 없음) | 1 |
-| `order_fields_target` | 17 → 6 | 1 |
-| `record_fields_target` | 5 → 7 (`record_swap()` 미호출) | 1 |
-| `load_levels_target` | 1 → 3 (3,500·5,000·7,500) | **0** |
-| `lead_time_dist_target` | 0 → 1 | 2 |
-| `policy_has_clock_target` · `policy_waiting_def_target` | 0 → 1 | 3 |
-| `block_dim_target` | 7 → 9 | 3 |
-| `cost_terms_target` | 2 → 4 (YC 이동·재취급이 없다) | 6 |
-| `krw_truck_hour_target` | 0 → 40,000 (원/트럭·시간) | 6 |
-| `vessel_classes_target` | 1 → 3 (50k·100k·150k GT) | **0** |
-| `counterfactual_h_s_target` | 0 → 3600 | 7 |
-| `seller_buyer_target` | 0 → 1 | 8 |
+| `lifecycle_stages_target` | 4 → **5** | `v3/schema/lifecycle.py` |
+| `order_fields_target` · `record_fields_target` | 17/5 → **6/7** | `v3/schema/{order,record}.py` |
+| `load_levels_target` | 1 → **3** (3,500·5,000·7,500) | `integrated/terminal_stream.py` |
+| `lead_time_dist_target` | 0 → **1** (중앙 1.27h·음수 14.1%) | 〃 `sample_lead_s` |
+| `policy_has_clock_target` · `policy_waiting_def_target` | 0 → **1** | `v3/features/block.py` |
+| `block_dim_target` | 7 → **9** | 〃 |
+| `cost_terms_target` · `krw_truck_hour_target` | 2/0 → **4/40,000** | `v3/reward/{krw,phi}.py` |
+| `vessel_classes_target` | 1 → **3** | `integrated/vessel.py` + `v3/reward/krw.py` |
+| `counterfactual_h_s_target` | 0 → **3600** | `v3/__init__.py` · `reward/counterfactual.py` |
+| `seller_buyer_target` | 0 → **1** (각자 망) | `v3/actors/{seller,buyer,nets}.py` |
+| `eval_cells_total` (신규) | — → **528** | `v3/eval/run.py` |
+
+⚠️ **계약 0 은 "설계대로 짜였다" 는 뜻이지 "잘 돈다" 는 뜻이 아니다.** 성능 판정은
+한 번도 안 했고, `Market` 은 아직 엔진 루프에 안 붙어 있다 → [[YR-215]].
 
 **값은 문서에 한 벌만 둔다.** 스크립트에 박아두면 복사본이 셋이 되어 문서만
 낡아도 아무도 못 잡는다.
