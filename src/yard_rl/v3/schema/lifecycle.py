@@ -130,8 +130,13 @@ def censored_turn_time_s(rec, end_s: float) -> float | None:
     """미완료 검열 턴타임 — 끝에 남은 트럭이 비용을 피하지 못하게 한다.
 
     완료차는 `O − A`, 미완료차는 `T − A`. 게이트인조차 없으면 아직 무대 밖이라 None.
+
+    ★`end_s` 는 **창의 오른쪽 끝**이다. `T` 뒤에 나간 트럭은 그 시점엔 아직 안
+    나갔으므로 `T` 로 자른다 — 자르지 않으면 창 밖 시간까지 창 안 비용으로 들어와
+    한 시간짜리 창의 Φ 가 하루치가 된다(2026-08-22 동일성 불변식이 잡았다).
+    아직 게이트에 안 온 트럭(`A > T`)은 `max(0, ·)` 이 0 으로 만든다.
     """
     if rec.gate_in_s is None:
         return None
-    end = rec.gate_out_s if rec.gate_out_s is not None else end_s
+    end = end_s if rec.gate_out_s is None else min(rec.gate_out_s, end_s)
     return max(0.0, end - rec.gate_in_s)

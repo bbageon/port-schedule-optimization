@@ -51,18 +51,28 @@ class PhiBreakdown:
 
 
 def terminal_cost_krw(records, *, end_s: float,
-                      vessel_idle: dict[str, tuple[float, float]] | None = None
-                      ) -> PhiBreakdown:
+                      vessel_idle: dict[str, tuple[float, float]] | None = None,
+                      yc_extra_move_s: float = 0.0,
+                      rehandles: int = 0) -> PhiBreakdown:
     """Φ 를 네 항으로 계산한다.
 
-    `records`      : {doc_key: ExecutionRecord}
-    `end_s`        : 평가 종료 시각 — 미완료 트럭을 여기서 **검열**한다
-    `vessel_idle`  : {vessel_id: (GT, 선박 유휴 초)} — 창 안의 유휴만 넘긴다
+    `records`         : {doc_key: ExecutionRecord}
+    `end_s`           : 평가 종료 시각 — 미완료 트럭을 여기서 **검열**한다
+    `vessel_idle`     : {vessel_id: (GT, 선박 유휴 초)}
+    `yc_extra_move_s` : 터미널 전체의 YC **빈 주행** 시간(초)
+    `rehandles`       : 터미널 전체의 재조작 횟수
+
+    ★항2·항3·항4 는 **기록이 아니라 터미널 누적 계수기**에서 온다 (2026-08-22).
+      기록에서 합산하면 창을 못 자른다 — 트럭 대기(항1)는 기록에 A·O 시각이 남아
+      `end_s` 로 검열되지만, "지금까지 재조작 몇 번" 은 시각이 없어 과거 시점 값을
+      되짚을 수 없다. 그래서 호출부가 **그 시점의 계수기 값**을 넣어 준다.
+      `rec.rehandles`·`rec.yc_extra_move_s` 는 오더별 진단으로 남지만 Φ 에 더하지
+      않는다 — 더하면 같은 사실이 두 번 들어간다(04 §1-4 이중 계상 금지).
 
     **미완료 검열**: 완료차는 `O−A`, 미완료차는 `T−A`. 그래야 에피소드 끝에 남은
     트럭이 비용을 피하지 못한다.
     """
-    wait = move = rehab = 0.0
+    wait = 0.0
     n = censored = 0
     tt_sum = 0.0
     over = 0
@@ -71,19 +81,23 @@ def terminal_cost_krw(records, *, end_s: float,
         tt = censored_turn_time_s(rec, end_s)
         if tt is None:
             continue                       # 아직 게이트도 안 지났다 = 무대 밖
+        wait += truck_wait_krw(tt)
+        # ── 아래는 **진단 열**이라 Φ 에 안 들어간다. 창 기준으로 센다.
+        if rec.gate_in_s > end_s:
+            continue                       # 창 뒤에 올 트럭 — 이 창의 표본이 아니다
         n += 1
         tt_sum += tt
-        if rec.gate_out_s is None:
-            censored += 1
+        if rec.gate_out_s is None or rec.gate_out_s > end_s:
+            censored += 1                  # 창 끝에 아직 안 나갔다
         if tt > 3600.0:
             over += 1
-        wait += truck_wait_krw(tt)
-        move += yc_move_krw(rec.yc_extra_move_s)
-        rehab += rehandle_krw(rec.rehandles)
 
     vessel = 0.0
     for gt, idle_s in (vessel_idle or {}).values():
         vessel += vessel_idle_krw(gt, idle_s)
+
+    move = yc_move_krw(float(yc_extra_move_s))
+    rehab = rehandle_krw(int(rehandles))
 
     return PhiBreakdown(
         wait=wait, move=move, rehandle=rehab, vessel=vessel,

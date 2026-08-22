@@ -171,7 +171,11 @@ def _quay_axis_s() -> int:
     코드에 `quay_to_block_s` 가 생기면 그 값을 쓰고, 없으면 유도값을 돌려준다
     (지금은 안벽 개념이 없어 유도값 = 목표값이므로 ✅ 로 잡힌다).
     """
-    from yard_rl.integrated.yard_layout import terminal_layout
+    # ★무대도 v3 사본을 본다 (사용자 지시 2026-08-22 — v3 는 밖을 임포트하지 않는다)
+    if _has_v3():
+        from yard_rl.v3.world.integrated.yard_layout import terminal_layout
+    else:
+        from yard_rl.integrated.yard_layout import terminal_layout
     lay = terminal_layout()
     q = getattr(lay, "quay_to_block_s", None)
     if q is not None:
@@ -185,7 +189,7 @@ def _load_level_count() -> int:
     사용자 결정 2026-08-20: 셋 다 실제로 발생할 수 있는 오더 건수이므로 **셋 전부**
     에서 판정하고 전부 통과해야 한다. 지금은 단일 상수라 1 이다.
     """
-    from yard_rl.integrated import terminal_stream as TS
+    from yard_rl.v3.world.integrated import terminal_stream as TS
     levels = getattr(TS, "DIURNAL_LOAD_LEVELS", None)
     if not levels:
         return 1
@@ -199,7 +203,7 @@ def _load_level_count() -> int:
 
 def _lead_time_is_dist() -> int:
     """통지 리드타임이 트럭마다 다른가 (0=30분 고정)."""
-    from yard_rl.integrated import terminal_stream as TS
+    from yard_rl.v3.world.integrated import terminal_stream as TS
     if not (hasattr(TS, "sample_lead_s") and hasattr(TS, "LEAD_TIME_DIST")):
         return 0
     # ★상수 하나로는 분포가 아니다 — 분위가 실제로 다른 값을 내는지 본다.
@@ -249,7 +253,7 @@ def _vessel_class_count() -> int:
 
     현행은 전 본선이 동등하고 rho 가 10.0 단일값이라 1 이다.
     """
-    from yard_rl.integrated import vessel as V
+    from yard_rl.v3.world.integrated import vessel as V
     stage = getattr(V, "VESSEL_CLASSES", None) or getattr(V, "GT_CLASSES", None)
     if not stage:
         return 1
@@ -399,7 +403,11 @@ def main() -> int:
         # 교사는 **일부러** 미래를 굴리는 쪽이라 여기서 잡으면 오탐이다.
         files += ["v3/actors/seller.py", "v3/actors/buyer.py",
                   "v3/actors/nets.py", "v3/features/block.py",
-                  "v3/features/candidate.py"]
+                  "v3/features/candidate.py",
+                  # ★무대 결합부 — 엔진 장부에는 미래가 이미 적혀 있어 여기가
+                  #   가장 새기 쉽다([[YR-215]]).
+                  "v3/stage/bridge.py", "v3/stage/orders.py",
+                  "v3/stage/episode.py"]
     for f in files:
         body = "\n".join(ln for ln in (SRC / f).read_text(encoding="utf-8").splitlines()
                          if not ln.lstrip().startswith("#"))
@@ -423,10 +431,11 @@ def main() -> int:
                 f"v2 {'고침' if 'rehandle' in v2_cc else '그대로(정상)'} · "
                 f"v3 {'✅ 고침' if 'rehandle' in v3_cc else '★아직'}")
     note.append(f"[세대] 목표값 배선 대상 — {'v3' if _has_v3() else 'v2(integrated)'}")
+    # ★v3 세계 사본은 세지 않는다 — 원본과 같은 파일이라 두 번 세면 수치가 부푼다.
     n_old = sum(len(re.findall(r'\["(job_id|block|arrival_s)"\]',
                                f.read_text(encoding="utf-8", errors="ignore")))
-                for f in SRC.rglob("*.py"))
-    note.append(f"[진행] 구 키 소비처 {n_old}곳 (스키마 확정 후 0 이 목표)")
+                for f in SRC.rglob("*.py") if "v3/world/" not in f.as_posix())
+    note.append(f"[진행] 구 키 소비처 {n_old}곳 (스키마 확정 후 0 이 목표 · 사본 제외)")
 
     print("═" * 68)
     print(f"  계약 {len(contracts)}개  ·  일치 {len(ok)}  불일치 {len(bad)}  "

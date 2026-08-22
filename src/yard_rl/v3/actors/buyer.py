@@ -39,6 +39,8 @@ class Buyer:
         self.explore = float(explore)
         self.rng = rng
         self.trail: list[dict] = []
+        #: 반사실 분기용 **1회성 강제 응답** — {docKey: "BUY"|"REJECT"}.
+        self.force_once: dict[str, str] = {}
 
     def respond(self, mbt, offer: Offer, *, order, rec, t: float,
                 records, orders, end_s: float,
@@ -51,7 +53,8 @@ class Buyer:
         is_time = offer.coord.kind != SPACE
 
         if slot_capacity_left is not None and slot_capacity_left <= 0:
-            return Response(offer=offer, action=REJECT)
+            self.force_once.pop(offer.doc_key, None)
+            return Response(offer=offer, action=REJECT)   # 용량 = 물리, 강제보다 세다
 
         # 공간이면 목적지 블록의 눈으로, 시간이면 출발 블록의 눈으로 본다
         # (시간 이연은 블록이 안 바뀌므로 그 블록이 곧 수신 측이다).
@@ -75,9 +78,14 @@ class Buyer:
                                          dtype=torch.float32))
         phi_buy, phi_reject = float(cost[0].item()), float(cost[1].item())
 
-        action = BUY if phi_buy <= phi_reject else REJECT
-        if self.explore > 0.0 and self.rng is not None and self.rng.random() < self.explore:
-            action = BUY if self.rng.random() < 0.5 else REJECT
+        forced = self.force_once.pop(offer.doc_key, None)
+        if forced in (BUY, REJECT):
+            action = forced                    # 반사실: 반대로 응답했다면
+        else:
+            action = BUY if phi_buy <= phi_reject else REJECT
+            if (self.explore > 0.0 and self.rng is not None
+                    and self.rng.random() < self.explore):
+                action = BUY if self.rng.random() < 0.5 else REJECT
 
         self.trail.append({
             "t": t, "doc_key": offer.doc_key, "buyer": offer.buyer_id,

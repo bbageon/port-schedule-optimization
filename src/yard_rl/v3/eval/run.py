@@ -28,7 +28,10 @@ LOAD_LEVELS = (3_500, 5_000, 7_500)
 #: 배차 축
 DISPATCHERS = ("SF_SPT", "ROLLOUT_GREEDY", "FROZEN_NET")
 
-#: 재배치 팔 — 고전 배차 규칙을 재배치 축으로 번역한 것 + 학습 팔
+#: 재배치 팔 — 고전 배차 규칙을 재배치 축으로 번역한 것 + 학습 팔.
+#: ⚠️ **설계상의 목록**이다. 지금 무대에 꽂혀 실제로 도는 팔은
+#: `stage.ARMS`(= `NO_REALLOC`·`RL`) 뿐이고 나머지는 [[YR-211]] 이다 —
+#: 안 만든 팔은 조용히 대체되지 않고 `NotImplementedError` 로 즉시 실패한다.
 REALLOC_ARMS = ("NO_REALLOC", "FCFS", "SPT", "LEAST_SLACK", "NEAREST",
                 "NETGAIN", "RL")
 
@@ -84,7 +87,18 @@ def plan_cells(*, days: int = 16) -> list[tuple[int, str, str, int]]:
     return cells
 
 
-def run_cell(episode_fn, *, load: int, dispatcher: str, arm: str, day: int,
+def default_episode_fn(*, load: int, dispatcher: str, arm: str, seed: int, **kw):
+    """무대에 실제로 꽂힌 v3 에피소드 ([[YR-215]]).
+
+    지연 임포트다 — `eval` 이 `stage` 를 껴안으면 판정만 쓰려는 쪽까지 엔진을
+    끌어오게 된다.
+    """
+    from ..stage.episode import run_episode
+    return run_episode(load=load, dispatcher=dispatcher, arm=arm, seed=seed,
+                       **kw).as_dict()
+
+
+def run_cell(episode_fn=None, *, load: int, dispatcher: str, arm: str, day: int,
              seed: int, code_dirty, expected_admitted: int | None = None
              ) -> CellResult:
     """한 셀을 굴리고 하드가드까지 붙여 돌려준다.
@@ -94,7 +108,8 @@ def run_cell(episode_fn, *, load: int, dispatcher: str, arm: str, day: int,
     """
     # ★교사 누출 금지 — 판정 구간에서 rollout 이 한 번이라도 불리면 실격이다.
     reset_rollout_calls()
-    ep = episode_fn(load=load, dispatcher=dispatcher, arm=arm, seed=seed)
+    ep = (episode_fn or default_episode_fn)(
+        load=load, dispatcher=dispatcher, arm=arm, seed=seed)
     calls = rollout_calls()
 
     admitted = int(ep.get("admitted", 0))

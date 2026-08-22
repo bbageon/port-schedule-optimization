@@ -33,6 +33,9 @@ class Seller:
         self.explore = float(explore)
         self.rng = rng
         self.trail: list[dict] = []
+        #: 반사실 분기용 **1회성 강제 행동** — {docKey: "KEEP"|"SELL"}.
+        #: 교사가 "이 행위자가 반대로 했다면" 세계를 만들 때만 채운다. 평소엔 비어 있다.
+        self.force_once: dict[str, str] = {}
 
     # ------------------------------------------------------------------ 후보 좌표
     def _space_coords(self, mbt, src: str, quay_of) -> list[Coord]:
@@ -61,6 +64,10 @@ class Seller:
         """KEEP 이면 `None`, SELL 이면 방송할 `Offer` 를 돌려준다."""
         if rec.gate_in_s is not None:
             return None                        # 게이트를 지났다 = 자격 없음
+
+        forced = self.force_once.pop(doc_key, None)
+        if forced == KEEP:
+            return None                        # 반사실: 안 팔았다면
 
         bf = block_features(mbt, src, t, n_cands=n_cands, records=records,
                             orders=orders, end_s=end_s)
@@ -91,9 +98,13 @@ class Seller:
         x = torch.tensor(rows, dtype=torch.float32)
         with torch.no_grad():
             cost = self.net(x)
-        idx = int(torch.argmin(cost).item())
+        if forced == SELL and len(meta) > 1:
+            # 반사실: 팔았다면 — KEEP(0번 행)을 빼고 **가장 싼 좌표**를 고른다.
+            idx = 1 + int(torch.argmin(cost[1:]).item())
+        else:
+            idx = int(torch.argmin(cost).item())
 
-        if self.explore > 0.0 and self.rng is not None:
+        if forced is None and self.explore > 0.0 and self.rng is not None:
             if self.rng.random() < self.explore:
                 idx = self.rng.randrange(len(meta))
 
