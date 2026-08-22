@@ -15,4 +15,8 @@
 ■ 설계 문서: `.claude/docs/architecture/06-학습과-판정.md` §1-1
 """
 
-__all__: list[str] = []
+from .fit import FitReport, StudentTrainer, explore_sigma
+from .labels import LabelCollector, LabelSet, Sample
+
+__all__ = ["StudentTrainer", "FitReport", "explore_sigma", "LabelCollector",
+           "LabelSet", "Sample"]

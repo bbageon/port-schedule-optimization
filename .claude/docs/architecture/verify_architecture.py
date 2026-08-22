@@ -77,18 +77,21 @@ def _getters():
         "sell_q_params": lambda: sum(x.numel() for x in SellQNet().parameters()),
         "crane_net_params": crane_params,
         # ── v3 목표값 (`_target`) — 아직 안 한 작업이지 불일치가 아니다.
+        # ★2026-08-22: v3 패키지가 생겨 배선을 `yard_rl.v3` 로 옮겼다. v2(`integrated`)
+        #   는 애초에 이 목표를 만족할 의무가 없다 — 재야 할 것은 **v3 가 문서를
+        #   따라왔는가** 다. 다만 **무대 축**(리드 분포·부하 3수준·선급 물리)은 세대
+        #   공용이라 `integrated` 를 계속 본다. v3 는 무대를 복제하지 않는다.
         # 00 라이프사이클 — 다섯 단계가 다 표현되는가
         "lifecycle_stages_target": _lifecycle_stage_count,
         # 01 오더 스키마 (축 ①)
         "order_fields_target": _order_field_count,
         "record_fields_target": _record_field_count,
-        # 02 무대 (축 ①)
+        # 02 무대 (축 ①) — 무대는 공용이라 `integrated` 를 본다
         "lead_time_dist_target": _lead_time_is_dist,
         "load_levels_target": _load_level_count,
         # 03 결정층 (축 ③④)
-        "seller_buyer_target": lambda: int(hasattr(Q, "SellerNet")
-                                           and hasattr(Q, "BuyerNet")),
-        "block_dim_target": lambda: Q.BLOCK_DIM,
+        "seller_buyer_target": _seller_buyer_independent,
+        "block_dim_target": _v3_block_dim,
         # 04 비용과 보상 (축 ②) — 원화 네 항
         "cost_terms_target": _cost_term_count,
         "krw_truck_hour_target": _krw_truck_hour,
@@ -98,10 +101,27 @@ def _getters():
         # 05 정보 경계 (축 ④)
         "policy_has_clock_target": lambda: int(_has_clock()),
         "policy_waiting_def_target": _policy_waiting_def,
+        # 06b 대조군 — 부분요인 셀 수
+        "eval_cells_total": _eval_cells_total,
     }
 
 
+V3 = SRC / "v3"
+
+
+def _has_v3() -> bool:
+    """v3 패키지가 생겼는가. 없으면 게터는 v2 를 본다(이행기 호환)."""
+    return (V3 / "__init__.py").exists()
+
+
 def _block_features_src() -> str:
+    """정책이 블록을 어떻게 보는지 — **그 세대의** 특징 함수 본문.
+
+    v3 가 있으면 v3 것을 읽는다. v2 의 `transfer_head` 는 v3 목표를 만족할 의무가
+    없으므로 그걸로 v3 를 채점하면 영원히 ⏳ 로 남는다.
+    """
+    if _has_v3():
+        return (V3 / "features/block.py").read_text(encoding="utf-8")
     th = (SRC / "integrated/transfer_head.py").read_text(encoding="utf-8")
     m = re.search(r"return \[inside / 10\.0.*?\]", th, re.S)
     return m.group(0) if m else ""
@@ -111,6 +131,37 @@ def _has_clock() -> bool:
     """정책 블록 특징에 시각이 들어갔는가."""
     f = _block_features_src()
     return "t /" in f or "t/" in f or "clock" in f
+
+
+def _seller_buyer_independent() -> int:
+    """Seller 와 Buyer 가 **각자 망을 갖고 독립 판단**하는가.
+
+    망을 공유하면 "독립 행위자" 가 아니라 이름만 둘인 하나다 — 03 §1.
+    """
+    if not _has_v3():
+        return 0
+    try:
+        from yard_rl.v3.actors import Buyer, BuyerNet, Seller, SellerNet
+    except Exception:
+        return 0
+    return int(SellerNet is not BuyerNet and Seller is not Buyer)
+
+
+def _v3_block_dim() -> int:
+    """정책이 블록에서 읽는 특징 수 — 목표 9 (v2 의 7 + 시각 + 줄 선 대수)."""
+    if not _has_v3():
+        from yard_rl.integrated import sell_q as Q2
+        return Q2.BLOCK_DIM
+    from yard_rl.v3.features import BLOCK_DIM
+    return int(BLOCK_DIM)
+
+
+def _eval_cells_total() -> int:
+    """부분요인 판정 셀 수 — 겹침을 뺀 **고유** 런이다."""
+    if not _has_v3():
+        return 0
+    from yard_rl.v3.eval import plan_cells
+    return len(plan_cells())
 
 
 def _quay_axis_s() -> int:
@@ -136,13 +187,24 @@ def _load_level_count() -> int:
     """
     from yard_rl.integrated import terminal_stream as TS
     levels = getattr(TS, "DIURNAL_LOAD_LEVELS", None)
-    return len(levels) if levels else 1
+    if not levels:
+        return 1
+    if _has_v3():
+        # ★무대가 선언한 수준과 **판정이 실제로 도는 수준**이 같아야 한다.
+        from yard_rl.v3.eval import LOAD_LEVELS
+        if tuple(LOAD_LEVELS) != tuple(levels):
+            return 0
+    return len(levels)
 
 
 def _lead_time_is_dist() -> int:
     """통지 리드타임이 트럭마다 다른가 (0=30분 고정)."""
     from yard_rl.integrated import terminal_stream as TS
-    return int(hasattr(TS, "sample_lead_s") or hasattr(TS, "LEAD_TIME_DIST"))
+    if not (hasattr(TS, "sample_lead_s") and hasattr(TS, "LEAD_TIME_DIST")):
+        return 0
+    # ★상수 하나로는 분포가 아니다 — 분위가 실제로 다른 값을 내는지 본다.
+    lo, mid, hi = (TS.sample_lead_s(q) for q in (0.25, 0.50, 0.75))
+    return int(lo < mid < hi)
 
 
 def _cost_term_count() -> int:
@@ -151,12 +213,17 @@ def _cost_term_count() -> int:
     현행은 트럭·본선 둘뿐이다. YC 추가 이동과 재취급은 비용항이 없다
     (엔진에 동작은 있으나 Φ 에 안 들어간다).
     """
-    src = (SRC / "integrated/cost_curve_v2.py").read_text(encoding="utf-8")
+    if _has_v3():
+        src = ((V3 / "reward/krw.py").read_text(encoding="utf-8")
+               + (V3 / "reward/phi.py").read_text(encoding="utf-8"))
+    else:
+        src = (SRC / "integrated/cost_curve_v2.py").read_text(encoding="utf-8")
     have = [
-        "j_truck" in src,                       # 대기
-        any(k in src for k in ("c_move", "yc_move", "crane_move")),
-        "rehandle" in src,                      # 재취급
-        "j_vessel" in src or "RHO_VESSEL" in src,
+        any(k in src for k in ("truck_wait_krw", "c_wait", "j_truck")),
+        any(k in src for k in ("yc_move_krw", "c_move", "crane_move")),
+        any(k in src for k in ("rehandle_krw", "c_rehandle", "rehandle")),
+        any(k in src for k in ("vessel_idle_krw", "c_vessel", "j_vessel",
+                               "RHO_VESSEL")),
     ]
     return sum(1 for h in have if h)
 
@@ -166,6 +233,9 @@ def _krw_truck_hour() -> int:
 
     현행은 비용시간 단위라 원화 상수가 없다 → 0.
     """
+    if _has_v3():
+        from yard_rl.v3.reward import KRW_TRUCK_HOUR
+        return int(KRW_TRUCK_HOUR)
     from yard_rl.integrated import cost_curve_v2 as C
     for name in ("KRW_TRUCK_HOUR", "V_TRUCK_KRW_H", "TRUCK_KRW_PER_HOUR"):
         v = getattr(C, name, None)
@@ -180,15 +250,23 @@ def _vessel_class_count() -> int:
     현행은 전 본선이 동등하고 rho 가 10.0 단일값이라 1 이다.
     """
     from yard_rl.integrated import vessel as V
-    for name in ("VESSEL_CLASSES", "GT_CLASSES"):
-        v = getattr(V, name, None)
-        if v is not None:
-            return len(v)
-    return 1
+    stage = getattr(V, "VESSEL_CLASSES", None) or getattr(V, "GT_CLASSES", None)
+    if not stage:
+        return 1
+    if not _has_v3():
+        return len(stage)
+    # ★무대(물리)와 보상(원화)이 **같은 표**를 봐야 한다. 어긋나면 0 = 실패.
+    from yard_rl.v3.reward import VESSEL_CLASSES as krw
+    if tuple((c.name, c.gt, c.teu) for c in stage) != tuple(krw):
+        return 0
+    return len(stage)
 
 
 def _counterfactual_h_s() -> float:
     """반사실 rollout 지평(초). 미구현이면 0."""
+    if _has_v3():
+        import yard_rl.v3 as V3P
+        return float(getattr(V3P, "CF_HORIZON_S", 0.0))
     try:
         from yard_rl.experiments import yr204_counterfactual as CF  # type: ignore
     except Exception:
@@ -211,7 +289,14 @@ def _lifecycle_stage_count() -> int:
     """
     import dataclasses
 
-    from yard_rl.integrated import order_schema as OS
+    if _has_v3():
+        from yard_rl.v3.schema import ExecutionRecord, Order, Stage
+        from yard_rl.v3.schema.lifecycle import STAGE_FIELD
+        owners = {f.name for f in dataclasses.fields(Order)}
+        owners |= {f.name for f in dataclasses.fields(ExecutionRecord)}
+        # 단계마다 **시각을 담을 필드가 실제로 있는가**. 이름만 세지 않는다.
+        return sum(1 for st in Stage if STAGE_FIELD.get(st) in owners)
+
     from yard_rl.integrated.time_contract import TruckTimes
     tt = {f.name for f in dataclasses.fields(TruckTimes)}
     src = (SRC / "integrated/order_schema.py").read_text(encoding="utf-8")
@@ -222,12 +307,17 @@ def _lifecycle_stage_count() -> int:
         "jobDone": "job_done" in tt,
         "gateOut": "gate_out" in tt,
     }
-    del OS
     return sum(1 for v in have.values() if v)
 
 
 def _order_field_count():
     """스케줄 항목의 키 수 — 확정 후 6(오더)이 목표."""
+    if _has_v3():
+        import dataclasses
+
+        from yard_rl.v3.schema import Order
+        return len(dataclasses.fields(Order))
+
     from yard_rl.integrated.profiles import build_h21_profile
     from yard_rl.integrated.terminal_stream import (DIURNAL_DAY_TOTAL, OBS_24H,
                                                     TerminalStreamParams,
@@ -251,6 +341,14 @@ def _record_field_count():
     있고 호출부가 없으면 기록이 남지 않으므로 "있다"고 셀 수 없다.
     """
     import dataclasses
+
+    if _has_v3():
+        from yard_rl.v3.schema import ExecutionRecord, TRANSMITTED_FIELDS
+        have = {f.name for f in dataclasses.fields(ExecutionRecord)}
+        n = sum(1 for name in TRANSMITTED_FIELDS if name in have)
+        callers = sum(f.read_text(encoding="utf-8", errors="ignore").count("record_swap(")
+                      for f in V3.rglob("*.py") if f.name != "record.py")
+        return n if callers else n - 2      # 호출부가 없으면 교체 2 는 못 센다
 
     from yard_rl.integrated.time_contract import TruckTimes
     callers = sum(f.read_text(encoding="utf-8", errors="ignore").count("record_swap(")
@@ -294,8 +392,15 @@ def main() -> int:
 
     # ── ② 정보 경계 (값이 아니라 규칙)
     LEAK = ("actual_gate_in", "actual_block_arrival", "actual_completion_s")
-    for f in ("integrated/transfer_head.py", "integrated/sell_q.py",
-              "integrated/sell_gain.py"):
+    files = ["integrated/transfer_head.py", "integrated/sell_q.py",
+             "integrated/sell_gain.py"]
+    if _has_v3():
+        # v3 정책 경로 — 학생(Seller·Buyer)과 그 입력. 교사(counterfactual)는 뺀다:
+        # 교사는 **일부러** 미래를 굴리는 쪽이라 여기서 잡으면 오탐이다.
+        files += ["v3/actors/seller.py", "v3/actors/buyer.py",
+                  "v3/actors/nets.py", "v3/features/block.py",
+                  "v3/features/candidate.py"]
+    for f in files:
         body = "\n".join(ln for ln in (SRC / f).read_text(encoding="utf-8").splitlines()
                          if not ln.lstrip().startswith("#"))
         hit = [k for k in LEAK if k in body]
@@ -303,11 +408,21 @@ def main() -> int:
             f"{'정보경계':<20} {f} — {'★누출 ' + str(hit) if hit else '깨끗'}")
 
     # ── ③ 문서가 "결함"이라 적은 것이 아직 그대로인가
+    # ★결함은 **세대별로** 읽는다. v2 에 남아 있는 것이 정상이고(그 세대는 그렇게
+    #   판정됐다), v3 에서 고쳐졌는지가 관심사다. 둘 다 그대로면 아직 안 한 일이다.
+    v2_head = (SRC / "integrated/transfer_head.py").read_text(encoding="utf-8")
+    m = re.search(r"return \[inside / 10\.0.*?\]", v2_head, re.S)
+    v2_body = m.group(0) if m else ""          # ★특징 함수 본문만 — 파일 전체는 오탐
+    v2_clock = "t /" in v2_body or "clock" in v2_body
     note.append(f"[결함] 정책 특징에 시각 없음 — "
-                f"{'★고쳐짐 → 문서 갱신 필요' if _has_clock() else '그대로'}")
-    cc = (SRC / "integrated/cost_curve_v2.py").read_text(encoding="utf-8")
+                f"v2 {'고침' if v2_clock else '그대로(정상)'} · "
+                f"v3 {'✅ 고침' if _has_clock() else '★아직'}")
+    v2_cc = (SRC / "integrated/cost_curve_v2.py").read_text(encoding="utf-8")
+    v3_cc = (V3 / "reward/krw.py").read_text(encoding="utf-8") if _has_v3() else ""
     note.append(f"[결함] 재조작 비용항 없음 — "
-                f"{'★고쳐짐 → 문서 갱신 필요' if 'rehandle' in cc else '그대로'}")
+                f"v2 {'고침' if 'rehandle' in v2_cc else '그대로(정상)'} · "
+                f"v3 {'✅ 고침' if 'rehandle' in v3_cc else '★아직'}")
+    note.append(f"[세대] 목표값 배선 대상 — {'v3' if _has_v3() else 'v2(integrated)'}")
     n_old = sum(len(re.findall(r'\["(job_id|block|arrival_s)"\]',
                                f.read_text(encoding="utf-8", errors="ignore")))
                 for f in SRC.rglob("*.py"))

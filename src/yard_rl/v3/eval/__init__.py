@@ -16,4 +16,12 @@
 ■ 설계 문서: `.claude/docs/architecture/06-학습과-판정.md` §2·§3
 """
 
-__all__: list[str] = []
+from .guards import (DIAGNOSTIC_BAND, USED_BANDS, GuardReport, check_bands,
+                     check_cell, check_matrix)
+from .run import (DISPATCHERS, GENERALITY_ARMS, LOAD_LEVELS, MAIN_DISPATCHER,
+                  REALLOC_ARMS, CellResult, paired_gap, plan_cells, run_cell)
+
+__all__ = ["check_cell", "check_bands", "check_matrix", "GuardReport",
+           "USED_BANDS", "DIAGNOSTIC_BAND", "plan_cells", "run_cell",
+           "paired_gap", "CellResult", "LOAD_LEVELS", "DISPATCHERS",
+           "REALLOC_ARMS", "MAIN_DISPATCHER", "GENERALITY_ARMS"]

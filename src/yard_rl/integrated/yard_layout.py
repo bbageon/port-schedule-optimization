@@ -86,6 +86,38 @@ class YardLayout:
         """블록 → 블록 주행시간 (대칭·삼각부등식 성립 — 단일축 거리)."""
         return abs(self.position_m(a) - self.position_m(b)) / self.speed_mps
 
+    # ------------------------------------------------------------------ 안벽 (v3)
+    def quay_axis_s(self) -> float:
+        """게이트↔안벽 축 전체 시간 — **기존 배치에서 유도**된다(새 자유변수 아님).
+
+        안벽을 축 **반대 끝에 대칭으로** 둔다(수평 배치 · 사용자 결정 2026-08-20):
+
+            게이트 ─ Y01 ─ … ─ Y21 ─ 안벽
+              190s ↑            ↑ 410s     게이트 기준
+              410s ↑            ↑ 190s     안벽 기준
+
+        `축 = 가장 가까운 블록 + 가장 먼 블록` 이라 21블록 무대에서 190+410 = 600초다.
+        → `.claude/docs/architecture/02-무대.md` §1 (계약 `quay_axis_s = 600`)
+        """
+        lo, hi = self.gate_time_range_s()
+        return lo + hi
+
+    def quay_to_block_s(self, bid: str) -> float:
+        """안벽 → 블록 주행시간. 게이트 거리의 **역순**이다.
+
+        트럭에 좋은 블록과 본선에 좋은 블록이 정확히 반대가 되어, 재배치가 진짜
+        trade-off 를 다루게 된다.
+        """
+        return self.quay_axis_s() - self.gate_to_block_s(bid)
+
+    def yt_round_trip_s(self, bid: str) -> float:
+        """그 블록에 붙은 YT 스트림의 왕복 시간 = 안벽 거리 × 2.
+
+        구 `move_time_s = 180초` 상수는 우리 레이아웃 **편도**(190~410초)보다 짧아
+        모순이었다. 블록별로 380~820초가 되고, 평균이 정확히 600초다.
+        → `.claude/docs/architecture/02b-본선.md` §4"""
+        return 2.0 * self.quay_to_block_s(bid)
+
     def gate_time_range_s(self) -> tuple[float, float]:
         times = [p / self.speed_mps for p in self.positions_m]
         return (min(times), max(times))
