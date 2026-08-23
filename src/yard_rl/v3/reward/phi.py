@@ -34,6 +34,12 @@ class PhiBreakdown:
     n_censored: int = 0
     mean_turn_time_s: float = 0.0
     over_ratio: float = 0.0          # 턴타임이 1시간을 넘은 트럭의 비율
+    #: 턴타임 분위 — **반사실 지평 H 를 정하는 근거**다([[YR-217]]).
+    #: 평균만 보면 꼬리를 놓친다: 라벨이 생기려면 트럭이 창 안에서 **나가야** 하므로
+    #: 덮어야 하는 것은 평균이 아니라 상위 분위다.
+    p50_turn_time_s: float = 0.0
+    p90_turn_time_s: float = 0.0
+    p99_turn_time_s: float = 0.0
 
     @property
     def total(self) -> float:
@@ -47,6 +53,9 @@ class PhiBreakdown:
             "n_trucks": self.n_trucks, "n_censored": self.n_censored,
             "mean_turn_time_s": self.mean_turn_time_s,
             "over_ratio": self.over_ratio,
+            "p50_turn_time_s": self.p50_turn_time_s,
+            "p90_turn_time_s": self.p90_turn_time_s,
+            "p99_turn_time_s": self.p99_turn_time_s,
         }
 
 
@@ -76,6 +85,7 @@ def terminal_cost_krw(records, *, end_s: float,
     n = censored = 0
     tt_sum = 0.0
     over = 0
+    samples: list[float] = []
 
     for rec in records.values():
         tt = censored_turn_time_s(rec, end_s)
@@ -87,6 +97,7 @@ def terminal_cost_krw(records, *, end_s: float,
             continue                       # 창 뒤에 올 트럭 — 이 창의 표본이 아니다
         n += 1
         tt_sum += tt
+        samples.append(tt)
         if rec.gate_out_s is None or rec.gate_out_s > end_s:
             censored += 1                  # 창 끝에 아직 안 나갔다
         if tt > 3600.0:
@@ -99,9 +110,18 @@ def terminal_cost_krw(records, *, end_s: float,
     move = yc_move_krw(float(yc_extra_move_s))
     rehab = rehandle_krw(int(rehandles))
 
+    samples.sort()
+
+    def q(p: float) -> float:
+        if not samples:
+            return 0.0
+        return samples[min(len(samples) - 1, int(p * len(samples)))]
+
     return PhiBreakdown(
         wait=wait, move=move, rehandle=rehab, vessel=vessel,
         n_trucks=n, n_censored=censored,
         mean_turn_time_s=(tt_sum / n if n else 0.0),
         over_ratio=(over / n if n else 0.0),
+        p50_turn_time_s=q(0.50), p90_turn_time_s=q(0.90),
+        p99_turn_time_s=q(0.99),
     )

@@ -22,8 +22,25 @@ from dataclasses import dataclass, field
 from ..reward.counterfactual import reset_rollout_calls, rollout_calls
 from .guards import GuardReport, check_cell
 
-#: 부하 축 — 계약(`load_levels_target = 3`)
+#: 부하 축 — 계약(`load_levels_target = 3`). **판정은 셋 다** 돈다.
 LOAD_LEVELS = (3_500, 5_000, 7_500)
+
+#: ★학습에 쓰는 부하 (사용자 결정 2026-08-23 · [[YR-217]])
+#:
+#: 7,500 은 턴타임 상위 10% 가 **263.9분**이라 반사실 창(3시간=180분)으로 못 덮는다 —
+#: 창 안에서 못 나간 트럭은 무슨 결정을 하든 창 안 비용이 같아 **라벨이 0** 이 된다.
+#: 덮으려면 H ≥ 5시간이고 그건 회차당 5시간 넘는 계산이라 감당이 안 된다.
+#:
+#: 그래서 **학습은 두 수준, 판정은 세 수준**이다. 7,500 판정은 자동으로
+#: **"배운 적 없는 조건에서도 되는가"** 라는 일반화 시험이 된다 — 통과하면 더 강한
+#: 주장이지만, 실패했을 때 "정책이 나쁜가 / 안 배운 조건이라 그런가" 를 못 가른다.
+#: 그 한계는 판정 기록에 **반드시 명시**한다.
+TRAIN_LOADS = (3_500, 5_000)
+EVAL_LOADS = LOAD_LEVELS
+
+#: 검토 창 스윕 축 (사용자 결정 2026-08-23 · [[YR-190]])
+#: 4시간·24시간은 뺐다 — 필요한 H 가 각각 5시간·25시간이라 계산이 감당 안 된다.
+WINDOW_SWEEP_S = (1_800.0, 3_600.0, 7_200.0)
 
 #: 배차 축
 DISPATCHERS = ("SF_SPT", "ROLLOUT_GREEDY", "FROZEN_NET")

@@ -18,12 +18,13 @@
 
 from .guards import (DIAGNOSTIC_BAND, USED_BANDS, GuardReport, check_bands,
                      check_cell, check_matrix)
-from .run import (DISPATCHERS, GENERALITY_ARMS, LOAD_LEVELS, MAIN_DISPATCHER,
-                  REALLOC_ARMS, CellResult, default_episode_fn, paired_gap,
-                  plan_cells, run_cell)
+from .run import (DISPATCHERS, EVAL_LOADS, GENERALITY_ARMS, LOAD_LEVELS,
+                  MAIN_DISPATCHER, REALLOC_ARMS, TRAIN_LOADS, WINDOW_SWEEP_S,
+                  CellResult, default_episode_fn, paired_gap, plan_cells,
+                  run_cell)
 
 __all__ = ["check_cell", "check_bands", "check_matrix", "GuardReport",
            "USED_BANDS", "DIAGNOSTIC_BAND", "plan_cells", "run_cell",
            "paired_gap", "CellResult", "LOAD_LEVELS", "DISPATCHERS",
            "REALLOC_ARMS", "MAIN_DISPATCHER", "GENERALITY_ARMS",
-           "default_episode_fn"]
+           "default_episode_fn", "TRAIN_LOADS", "EVAL_LOADS", "WINDOW_SWEEP_S"]

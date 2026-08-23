@@ -52,7 +52,9 @@ def _sim_from(scn, profile):
     sim = TerminalSimulator(profile, scn, check_invariants=True)
     sim.info_level = INFO_LEVEL
     return sim
-from ..actors import Buyer, BuyerNet, Market, Resolver, Seller, SellerNet
+from .. import CF_HORIZON_S
+from ..actors import (Buyer, BuyerNet, Market, Resolver, Seller,
+                      SellerNet)
 from ..reward.phi import terminal_cost_krw
 from .bridge import MarketBridge
 from .orders import EPOCH_S, V3Announcer, build_stage, orders_from_schedule
@@ -230,7 +232,7 @@ class _CounterTape:
 def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 seed: int, seller_net=None, buyer_net=None,
                 lead_mode: str = "DIST", window_s: float = 1800.0,
-                explore: float = 0.0, horizon_s: float = 3600.0,
+                explore: float = 0.0, horizon_s: float = CF_HORIZON_S,
                 budget: RolloutBudget | None = None,
                 slot_mode: str = "HORIZON", obs=None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
