@@ -143,7 +143,7 @@ def run_training(*, iters: int = 20, out_dir: str | Path = "outputs/v3/train",
                  time_budget_s: float | None = None,
                  seed_base: int = DIAGNOSTIC_BASE + 600,
                  loads: tuple[int, ...] = TRAIN_LOADS,
-                 log=print) -> TrainState:
+                 workers: int = 1, log=print) -> TrainState:
     """회차를 돌린다. **표본 0 이면 즉시 멈춘다**(06 하드가드).
 
     `time_budget_s` 를 주면 시간으로도 끊는다 — 회차 수를 **결과 보고 늘리면
@@ -165,7 +165,8 @@ def run_training(*, iters: int = 20, out_dir: str | Path = "outputs/v3/train",
 
         budget = RolloutBudget(max_labels=labels_per_iter, identity_checks=0)
         ep = run_episode(load=load, arm="RL", seed=seed, budget=budget,
-                         explore=eps, seller_net=s_net, buyer_net=b_net)
+                         explore=eps, seller_net=s_net, buyer_net=b_net,
+                         workers=workers)
         # 같은 시드 안 팔기 — 짝 격차의 기준선(교사 없이 돌아 싸다)
         base = run_episode(load=load, arm="NO_REALLOC", seed=seed)
 

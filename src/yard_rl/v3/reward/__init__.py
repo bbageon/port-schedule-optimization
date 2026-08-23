@@ -17,7 +17,8 @@
 """
 
 from .counterfactual import (ActorLabel, CounterfactualTeacher, TeacherResult,
-                             reset_rollout_calls, rollout_calls)
+                             add_rollout_calls, reset_rollout_calls,
+                             rollout_calls)
 from .krw import (COST_TERMS, KRW_OVERTIME_START_S, KRW_TRUCK_HOUR,
                   VESSEL_CLASSES, VESSEL_STS_STREAMS, rehandle_krw,
                   truck_wait_krw, vessel_idle_krw, vessel_krw_per_hour,
@@ -26,7 +27,8 @@ from .phi import PhiBreakdown, terminal_cost_krw
 
 __all__ = ["terminal_cost_krw", "PhiBreakdown", "CounterfactualTeacher",
            "ActorLabel", "TeacherResult", "rollout_calls",
-           "reset_rollout_calls", "KRW_TRUCK_HOUR", "KRW_OVERTIME_START_S",
+           "reset_rollout_calls", "add_rollout_calls",
+           "KRW_TRUCK_HOUR", "KRW_OVERTIME_START_S",
            "COST_TERMS", "VESSEL_CLASSES", "VESSEL_STS_STREAMS",
            "truck_wait_krw", "yc_move_krw", "rehandle_krw", "vessel_idle_krw",
            "vessel_krw_per_hour", "vessel_rho"]

@@ -55,6 +55,17 @@ def _count_rollout() -> None:
     _ROLLOUT_CALLS += 1
 
 
+def add_rollout_calls(n: int) -> None:
+    """★다른 프로세스에서 굴린 몫을 여기 더한다 ([[YR-219]]).
+
+    반사실을 프로세스 풀로 나누면 작업자의 계수기는 그 프로세스 안에만 남는다.
+    판정 하드가드(`rollout_calls_during_eval == 0`)가 부모에서 검사되므로,
+    작업자가 굴린 세계 수를 **부모가 되받아 더해야** 가드가 살아 있다.
+    """
+    global _ROLLOUT_CALLS
+    _ROLLOUT_CALLS += int(n)
+
+
 @dataclass
 class ActorLabel:
     """행위자 하나의 이진 반사실 라벨.

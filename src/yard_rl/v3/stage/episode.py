@@ -55,9 +55,11 @@ def _sim_from(scn, profile):
 from .. import CF_HORIZON_S
 from ..actors import (Buyer, BuyerNet, Market, Resolver, Seller,
                       SellerNet)
+from ..reward.counterfactual import add_rollout_calls
 from ..reward.phi import terminal_cost_krw
 from .bridge import MarketBridge
 from .orders import EPOCH_S, V3Announcer, build_stage, orders_from_schedule
+from .branchpool import BranchJob, BranchPool, default_workers
 from .rollout import RolloutBudget, SnapshotRollout
 from .vessels import structural_idle_krw
 
@@ -257,12 +259,17 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 lead_mode: str = "DIST", window_s: float = 1800.0,
                 explore: float = 0.0, horizon_s: float = CF_HORIZON_S,
                 budget: RolloutBudget | None = None,
-                slot_mode: str = "HORIZON", obs=None) -> EpisodeResult:
+                slot_mode: str = "HORIZON", workers: int = 1,
+                obs=None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
       · `"HORIZON"` : 반사실 창 안에 남는 칸만 (기본)
       · `"LEGACY"`  : 15·30·60·120분 고정 — **전후 비교 전용**
+
+    `workers` — 반사실 세계를 몇 프로세스에 나눌까 ([[YR-219]]). 1 이면 같은
+    프로세스에서 순차로 돈다. 결과는 **같아야** 한다(세계가 서로 독립이고 탐색이
+    좌표 기반이라 순서에 안 의존한다) — `tests/v3/test_branch_pool.py` 가 검사한다.
     """
     if slot_mode not in ("HORIZON", "LEGACY"):
         raise ValueError(f"slot_mode 는 HORIZON|LEGACY — {slot_mode!r}")
@@ -303,7 +310,11 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     res = EpisodeResult(slot_mode=slot_mode)
     pending: list[dict] = []
     tape = _CounterTape(built.get("block_vessel", {}))
-    roll = SnapshotRollout(ctx, horizon_s=horizon_s) if budget else None
+    #: (t, docKey) → 그 결정의 판매·구매 기록. 작업자에게는 안 보낸다(무겁고 불필요).
+    job_meta: dict[tuple, dict] = {}
+    pool = (BranchPool(ctx, horizon_s=horizon_s,
+                       workers=(default_workers() if workers < 0 else workers))
+            if budget else None)
     if budget is not None and budget.stride <= 0:
         # 하루에 고르게 흩는다 — 앞부분만 뽑으면 새벽 표본만 남는다.
         budget.stride = max(1, load // max(1, budget.max_labels))
@@ -311,39 +322,26 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     def on_decision(m, t, *, seller_entry, buyer_entry, applied, pre=None):
         # ★계수기는 **모든 결정**에서 돈다. 라벨을 만든 것만 세면 `stride` 가
         #   영원히 다시 안 맞아 첫 한 건만 뽑힌다(2026-08-22 실측: 3,018 중 1건).
-        if roll is None:
+        if pool is None:
             return
-        want = budget.take()
-        if not want:
+        if not budget.take():
             return
         if pre is None:
             res.missed_labels += 1        # peek 이 헛짚었다 — 있으면 안 되는 일
             return
         dk = seller_entry["doc_key"]
-        # ★분기는 **결정 전 스냅샷**에서 출발한다 — `m` 은 이미 거래가 확정된 뒤다.
-        def br(**kw):
-            return roll.branch(pre["mbt"], t, orders=pre["orders"],
-                               records=pre["records"], decided=pre["decided"],
-                               doc_key=dk, **kw)
-
-        # ★세계 셋 — factual 도 굴린다. 절단(t+H 에서 세상이 끝남)을 셋이 똑같이
-        #   겪어야 차이에서 절단분이 상쇄된다 (실측·근거는 rollout.py 머리).
-        fact = br()
         s_alt = "KEEP" if seller_entry["action"] != "KEEP" else "SELL"
-        alt = br(force_seller=(dk, s_alt))
-        row = {"doc_key": dk, "t": t, "horizon_s": horizon_s, "worlds": 2,
-               "seller": seller_entry, "seller_alt": s_alt,
-               "seller_alt_coord": alt.seller_coord,   # 대안이 고른 좌표 (행 되찾기용)
-               "phi_factual": fact.phi_krw,
-               "phi_seller_alt": alt.phi_krw}
-        if buyer_entry is not None:
-            b_alt = "REJECT" if buyer_entry["action"] == "BUY" else "BUY"
-            row["buyer"] = buyer_entry
-            row["buyer_alt"] = b_alt
-            row["phi_buyer_alt"] = br(force_buyer=(dk, b_alt)).phi_krw
-            row["worlds"] = 3
-        row["_factual_branch"] = fact
-        pending.append(row)
+        b_alt = (None if buyer_entry is None else
+                 ("REJECT" if buyer_entry["action"] == "BUY" else "BUY"))
+        # ★분기는 **결정 전 스냅샷**에서 출발한다 — `m` 은 이미 거래가 확정된 뒤다.
+        #   여기서는 **맡기기만** 하고 굴리지 않는다: 세계들이 서로 독립이라
+        #   에피소드가 도는 동안 다른 프로세스에서 굴러도 결과가 같다([[YR-219]]).
+        job_meta[(round(t, 6), dk)] = {"seller": seller_entry, "buyer": buyer_entry,
+                                       "seller_alt": s_alt, "buyer_alt": b_alt}
+        pool.submit(BranchJob(doc_key=dk, t=t, mbt=pre["mbt"],
+                              orders=pre["orders"], records=pre["records"],
+                              decided=pre["decided"],
+                              seller_alt=s_alt, buyer_alt=b_alt))
 
     def wants_epoch(n_elig: int) -> bool:
         """복제하기 **전에** 이 epoch 을 라벨링할지 정한다(bridge 가 묻는다)."""
@@ -353,6 +351,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
 
     bridge = ctx.make_bridge(market, orders=orders, records=records,
                              on_decision=(on_decision if budget else None))
+    if pool is not None:
+        pool.__enter__()
     exec_policy, exc = _sf_spt_policy()
 
     def review(m, t):
@@ -361,7 +361,30 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
         if budget is not None:
             tape.snap(m, t)                # ★계수기를 지나갈 때 찍는다(진단용)
 
-    mbt.run(exec_policy, review_fn=review)
+    try:
+        mbt.run(exec_policy, review_fn=review)
+        if pool is not None:
+            # ★작업자가 굴린 몫을 부모 계수기에 되받는다 — 안 그러면 판정 가드가
+            #   "교사 호출 0" 을 잘못 통과시킨다.
+            for r in pool.results():
+                meta = job_meta[(round(r["t"], 6), r["doc_key"])]
+                row = {"doc_key": r["doc_key"], "t": r["t"],
+                       "horizon_s": horizon_s, "worlds": r["worlds"],
+                       "seller": meta["seller"], "seller_alt": meta["seller_alt"],
+                       "seller_alt_coord": r["seller_alt_coord"],
+                       "phi_factual": r["phi_factual"],
+                       "phi_seller_alt": r["phi_seller_alt"],
+                       "_factual_branch": r["factual"]}
+                if "phi_buyer_alt" in r:
+                    row["buyer"] = meta["buyer"]
+                    row["buyer_alt"] = meta["buyer_alt"]
+                    row["phi_buyer_alt"] = r["phi_buyer_alt"]
+                pending.append(row)
+            if pool.workers > 1:
+                add_rollout_calls(pool.n_worlds)
+    finally:
+        if pool is not None:
+            pool.close()
 
     # ── 사건을 끝까지 흡수 (마지막 epoch 이후 완료분)
     bridge._sync(mbt, obs.observe_s)
@@ -379,7 +402,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     res.policy_exceptions = exc["n"]
     res.n_space, res.n_time = bridge.n_space, bridge.n_time
     res.txn_failed = bridge.txn_failed
-    res.rollout_worlds = roll.n_worlds if roll else 0
+    res.rollout_worlds = pool.n_worlds if pool else 0
     # 진단 — 구조적 본선 유휴(접이안·검역 등). Φ 에는 안 들어간다(vessels.py 참조).
     res.breakdown["c_vessel_structural"] = structural_idle_krw(built, obs.observe_s)
     res.breakdown["n_vessels"] = len(built.get("fleet", []))

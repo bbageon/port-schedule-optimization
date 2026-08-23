@@ -22,6 +22,7 @@
   아직 안 일어난 게이트인을 읽는다.
 """
 
+from .branchpool import BranchJob, BranchPool, default_workers
 from .bridge import MarketBridge, epoch_on_grid
 from .episode import ARMS, EpisodeResult, run_episode
 from .orders import V3Announcer, build_stage, orders_from_schedule
@@ -36,4 +37,4 @@ __all__ = ["MarketBridge", "epoch_on_grid", "build_stage", "orders_from_schedule
            "run_episode", "EpisodeResult", "ARMS",
            "DailyVessel", "sample_day_vessels", "plan_streams",
            "build_diurnal_v3", "fleet_summary", "structural_idle_krw",
-           "DAY_FLEET"]
+           "DAY_FLEET", "BranchPool", "BranchJob", "default_workers"]
