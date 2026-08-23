@@ -27,8 +27,13 @@ from .episode import ARMS, EpisodeResult, run_episode
 from .orders import V3Announcer, build_stage, orders_from_schedule
 from .rollout import (BranchResult, RolloutBudget, SnapshotRollout,
                       identity_check)
+from .vessels import (DAY_FLEET, DailyVessel, build_diurnal_v3, fleet_summary,
+                      plan_streams, sample_day_vessels, structural_idle_krw)
 
 __all__ = ["MarketBridge", "epoch_on_grid", "build_stage", "orders_from_schedule",
            "V3Announcer", "SnapshotRollout", "identity_check", "RolloutBudget",
            "BranchResult",
-           "run_episode", "EpisodeResult", "ARMS"]
+           "run_episode", "EpisodeResult", "ARMS",
+           "DailyVessel", "sample_day_vessels", "plan_streams",
+           "build_diurnal_v3", "fleet_summary", "structural_idle_krw",
+           "DAY_FLEET"]

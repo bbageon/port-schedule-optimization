@@ -18,11 +18,13 @@ from __future__ import annotations
 import random
 
 from ..world.integrated.multiblock import TransferError
-from ..world.integrated.terminal_stream import (OBS_24H, TerminalStreamParams,
-                                           _job_from_entry, build_diurnal,
-                                           on_grid, sample_lead_s)
-from ..world.integrated.yard_layout import terminal_layout
 from ..schema import ExecutionRecord, Order
+from ..world.integrated.multiblock import TransferError as _TE  # noqa: F401
+from ..world.integrated.terminal_stream import (OBS_24H, TerminalStreamParams,
+                                                _job_from_entry, on_grid,
+                                                sample_lead_s)
+from ..world.integrated.yard_layout import terminal_layout
+from .vessels import build_diurnal_v3
 
 #: 투입 검토 격자(초) — 엔진의 review epoch 격자와 같아야 한다.
 EPOCH_S = 60.0
@@ -44,9 +46,9 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         raise ValueError(f"lead_mode 는 DIST|FIXED — {lead_mode!r}")
     obs = obs or OBS_24H
     layout = layout or terminal_layout()
-    built = build_diurnal(profile, seed, obs=obs, layout=layout,
-                          params=TerminalStreamParams(load_4h=load),
-                          day_total=load, background_seed=seed)
+    built = build_diurnal_v3(profile, seed, load=load, obs=obs, layout=layout,
+                             params=TerminalStreamParams(load_4h=load),
+                             background_seed=seed)
 
     rng = random.Random(f"v3:lead:{seed}:{load}:{lead_mode}")
     for e in built["schedule"]:

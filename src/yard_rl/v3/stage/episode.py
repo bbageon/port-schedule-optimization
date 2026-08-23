@@ -59,6 +59,7 @@ from ..reward.phi import terminal_cost_krw
 from .bridge import MarketBridge
 from .orders import EPOCH_S, V3Announcer, build_stage, orders_from_schedule
 from .rollout import RolloutBudget, SnapshotRollout
+from .vessels import structural_idle_krw
 
 #: 구현된 재배치 팔. 나머지는 [[YR-211]].
 ARMS = ("NO_REALLOC", "RL")
@@ -131,9 +132,11 @@ class _Ctx:
     def make_exec_policy(self):
         return _sf_spt_policy()[0]
 
-    @staticmethod
-    def vessel_idle(mbt, end_s: float) -> dict:
-        return vessel_idle_of(mbt, end_s)
+    #: 무대가 준 블록→스트림 표 (어느 블록이 어느 배의 몇 번 STS 인가)
+    block_vessel: dict = {}
+
+    def vessel_idle(self, mbt, end_s: float) -> dict:
+        return vessel_idle_of(mbt, end_s, self.block_vessel)
 
     @staticmethod
     def yc_extra_move_s(mbt) -> float:
@@ -183,22 +186,38 @@ def rehandles_of(mbt) -> int:
                for sim in mbt.blocks.values())
 
 
-def vessel_idle_of(mbt, end_s: float) -> dict:
-    """항 4 의 원료 — {선박: (GT, 유휴 초)}.
+def vessel_idle_of(mbt, end_s: float, block_vessel: dict | None = None) -> dict:
+    """항 4 의 원료 — {선박: (GT, 유휴 초)}. **배 단위**로 묶는다 ([[YR-212]]).
 
-    ⚠️ **잠정**: 무대가 아직 선급을 배정하지 않는다([[YR-212]]). 지금은 기항 물량으로
-    선급을 되짚는다 — 물량 범위가 선급을 정하므로(02b §1) 역추정이 성립한다.
-    YR-212 가 선급을 무대에 박으면 이 되짚기는 지운다.
+    ★스트림 유휴를 그대로 더하면 안 된다. 대형선은 STS 6대라 스트림이 여섯 개이고,
+    각 스트림이 1시간씩 막히면 합은 6시간이지만 **배가 6시간 논 게 아니다** —
+    처리 능력을 6 스트림·시간만큼 잃은 것이고, 그만큼 접안이 길어진다:
+
+        배 유휴 ≈ Σ(스트림 막힌 시간) ÷ STS 대수
+
+    선박 비용은 **배 1척·1시간** 단위(2.99원/GT·시간)라 이렇게 환산해야 맞는다.
+
+    `block_vessel` 은 무대가 준 블록→스트림 표다(어느 블록이 어느 배의 몇 번 STS 인지).
+    없으면 기항 물량으로 선급을 되짚는다 — 사본 분기 세계처럼 표를 못 넘기는 자리용
+    대비책이고, 정상 경로에서는 표가 온다.
     """
-    out = {}
+    per_ship: dict[str, list[float]] = {}
+    gt_of: dict[str, float] = {}
+    sts_of: dict[str, int] = {}
     for bid, sim in sorted(mbt.blocks.items()):
         for vid, v in sorted(getattr(sim, "vessels", {}).items()):
-            moves = int(v.plan.total_moves)
-            cls = min(VESSEL_CLASSES,
-                      key=lambda c: abs(sum(c.moves_range()) / 2.0 - moves))
-            idle = float(getattr(v, "sts_wait_accum_s", 0.0))
-            out[f"{bid}:{vid}"] = (float(cls.gt), idle)
-    return out
+            row = (block_vessel or {}).get(bid)
+            if row is not None:
+                key, gt, sts = row["vessel_id"], float(row["gt"]), int(row["sts"])
+            else:
+                moves = int(v.plan.total_moves)
+                cls = min(VESSEL_CLASSES,
+                          key=lambda c: abs(sum(c.moves_range()) / 2.0 - moves))
+                key, gt, sts = f"{bid}:{vid}", float(cls.gt), 1
+            per_ship.setdefault(key, []).append(
+                float(getattr(v, "sts_wait_accum_s", 0.0)))
+            gt_of[key], sts_of[key] = gt, sts
+    return {k: (gt_of[k], sum(w) / max(1, sts_of[k])) for k, w in per_ship.items()}
 
 
 class _CounterTape:
@@ -213,12 +232,16 @@ class _CounterTape:
     동일성 불변식이 항상 어긋난다(창 길이가 다른 값을 비교하게 된다).
     """
 
-    def __init__(self):
+    def __init__(self, block_vessel: dict | None = None):
         self.at: dict[float, tuple[dict, float, int]] = {}
+        self.block_vessel = dict(block_vessel or {})
+
+    def __init_block_vessel__(self, bv):        # 무대 표를 물려받는다
+        self.block_vessel = bv
 
     def snap(self, mbt, t: float) -> None:
-        self.at[round(t, 6)] = (vessel_idle_of(mbt, t), yc_empty_travel_s(mbt),
-                                rehandles_of(mbt))
+        self.at[round(t, 6)] = (vessel_idle_of(mbt, t, self.block_vessel),
+                                yc_empty_travel_s(mbt), rehandles_of(mbt))
 
     def read(self, t: float) -> tuple[dict, float, int]:
         """`t` 이하의 가장 늦은 기록. 창 끝이 격자 밖이면 직전 격자를 쓴다."""
@@ -274,11 +297,12 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                arm=arm, grid_s=EPOCH_S, window_s=window_s, explore=explore,
                seed=seed, episode_end_s=obs.observe_s,
                cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None))
+    ctx.block_vessel = built.get("block_vessel", {})
     market = ctx.make_market(mbt)
 
     res = EpisodeResult(slot_mode=slot_mode)
     pending: list[dict] = []
-    tape = _CounterTape()
+    tape = _CounterTape(built.get("block_vessel", {}))
     roll = SnapshotRollout(ctx, horizon_s=horizon_s) if budget else None
     if budget is not None and budget.stride <= 0:
         # 하루에 고르게 흩는다 — 앞부분만 뽑으면 새벽 표본만 남는다.
@@ -342,7 +366,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     tape.snap(mbt, obs.observe_s)
 
     phi = terminal_cost_krw(records, end_s=obs.observe_s,
-                            vessel_idle=vessel_idle_of(mbt, obs.observe_s),
+                            vessel_idle=vessel_idle_of(
+                                mbt, obs.observe_s, built.get("block_vessel", {})),
                             yc_extra_move_s=yc_empty_travel_s(mbt),
                             rehandles=rehandles_of(mbt))
     res.phi_krw = phi.total
@@ -353,6 +378,10 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     res.n_space, res.n_time = bridge.n_space, bridge.n_time
     res.txn_failed = bridge.txn_failed
     res.rollout_worlds = roll.n_worlds if roll else 0
+    # 진단 — 구조적 본선 유휴(접이안·검역 등). Φ 에는 안 들어간다(vessels.py 참조).
+    res.breakdown["c_vessel_structural"] = structural_idle_krw(built, obs.observe_s)
+    res.breakdown["n_vessels"] = len(built.get("fleet", []))
+    res.breakdown["n_vessel_streams"] = len(built.get("vessel_schedule", []))
     res.decisions = len(market.seller.trail)     # 교사 유무와 무관하게 센다
 
     # ── 동일성 불변식 — factual 가지가 실제 궤적과 **같은 결정**을 냈는가
