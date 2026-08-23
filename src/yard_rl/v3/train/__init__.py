@@ -17,6 +17,10 @@
 
 from .fit import FitReport, StudentTrainer, explore_sigma
 from .labels import LabelCollector, LabelSet, Sample
+from .loop import (DIAGNOSTIC_BASE, EXPLORE_END, EXPLORE_START, IterReport,
+                   LABELS_PER_ITER, TrainState, explore_at, run_training)
 
 __all__ = ["StudentTrainer", "FitReport", "explore_sigma", "LabelCollector",
-           "LabelSet", "Sample"]
+           "LabelSet", "Sample",
+           "run_training", "TrainState", "IterReport", "explore_at",
+           "LABELS_PER_ITER", "EXPLORE_START", "EXPLORE_END", "DIAGNOSTIC_BASE"]

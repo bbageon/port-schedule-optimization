@@ -116,6 +116,9 @@ class Seller:
             "t": t, "doc_key": doc_key, "src": src,
             "action": KEEP if chosen is None else SELL,
             "coord": None if chosen is None else chosen.key(),
+            # ★후보 좌표 목록 — 반사실 대안 세계가 고른 좌표를 **행 번호로** 되찾는 데 쓴다.
+            #   교사는 굴린 두 행에만 라벨을 붙이므로(04b §3) 어느 행인지 알아야 한다.
+            "coord_keys": [None if c is None else c.key() for c in meta],
             "rows": x, "picked": idx,
             "predicted_phi": from_scaled(float(cost[idx].item())),
         })

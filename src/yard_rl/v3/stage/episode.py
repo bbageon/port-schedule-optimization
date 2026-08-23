@@ -330,10 +330,12 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
         #   겪어야 차이에서 절단분이 상쇄된다 (실측·근거는 rollout.py 머리).
         fact = br()
         s_alt = "KEEP" if seller_entry["action"] != "KEEP" else "SELL"
+        alt = br(force_seller=(dk, s_alt))
         row = {"doc_key": dk, "t": t, "horizon_s": horizon_s, "worlds": 2,
                "seller": seller_entry, "seller_alt": s_alt,
+               "seller_alt_coord": alt.seller_coord,   # 대안이 고른 좌표 (행 되찾기용)
                "phi_factual": fact.phi_krw,
-               "phi_seller_alt": br(force_seller=(dk, s_alt)).phi_krw}
+               "phi_seller_alt": alt.phi_krw}
         if buyer_entry is not None:
             b_alt = "REJECT" if buyer_entry["action"] == "BUY" else "BUY"
             row["buyer"] = buyer_entry
