@@ -133,11 +133,23 @@ class SnapshotRollout:
         self.n_worlds = 0
 
     def branch(self, mbt, t: float, *, orders, records, decided, doc_key: str,
-               force_seller=None, force_buyer=None) -> BranchResult:
+               force_seller=None, force_buyer=None,
+               freeze_after: bool = False) -> BranchResult:
         """`t` 에서 갈라 H 만큼 굴리고 **그 창의 Φ(원화)** 와 결정을 돌려준다.
 
         `force_seller` / `force_buyer` = (docKey, 행동). 분기 직후 첫 결정에서만
         먹고 그 뒤로는 정책이 평소대로 판단한다 — "상대를 가정하지 않는다"(04b §3).
+
+        `freeze_after` — ★분기 epoch **이후의 재배치를 얼린다** ([[YR-221]]).
+
+            창 3시간 안에는 결정이 **약 375건** 들어간다. 그중 강제한 것은 1건이고
+            나머지는 두 세계에서 서로 다르게 내려진다 — 안 팔면 그 블록이 더 붐비고,
+            붐비면 다음 트럭이 다른 선택을 하고, 그게 또 다음을 바꾼다.
+            그래서 지금 라벨은 *"이 결정 하나의 가치"* 가 아니라
+            *"이 결정 + 그 뒤 3시간 동안 정책이 하는 모든 일"* 의 차이다.
+
+            이 플래그를 켜면 t 이후 시장을 안 연다 — **그 결정 하나의 순효과**만
+            남는다. 둘을 비교하면 라벨이 얼마나 하류에 오염됐는지 잴 수 있다.
         """
         _count_rollout()
         self.n_worlds += 1
@@ -166,6 +178,8 @@ class SnapshotRollout:
             bridge2.review(m, tt)
 
         bridge2.review(snap, t)          # ★분기 epoch 을 손으로 연다 (머리 참조)
+        if freeze_after:
+            bridge2.arm = "NO_REALLOC"   # 이후 시장을 안 연다 (사건 수집은 계속)
         snap.run(self.ctx.make_exec_policy(), review_fn=review)
 
         phi = terminal_cost_krw(r2, end_s=end,

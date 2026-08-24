@@ -66,6 +66,23 @@ class StudentTrainer:
         idx = torch.randint(0, x.shape[0], (min(n, x.shape[0]),), generator=g)
         return x[idx], y[idx]
 
+    def evaluate(self, labels) -> tuple[float, float]:
+        """**학습에 안 쓴 표본**의 손실 — 진짜 오차는 이쪽이다.
+
+        학습 손실은 망이 이미 본 점에 대한 오차라, 파라미터가 표본보다 많으면
+        (5,761 vs 수십) 얼마든지 작아진다. argmin 이 실전에서 마주하는 것은
+        **처음 보는 상황**이므로 그쪽 오차를 봐야 한다.
+        """
+        out = []
+        for which, net in (("SELLER", self.seller_net), ("BUYER", self.buyer_net)):
+            x, y = labels.tensors(which)
+            if x.numel() == 0:
+                out.append(0.0)
+                continue
+            with torch.no_grad():
+                out.append(float(self.loss_fn(net(x), y).item()))
+        return out[0], out[1]
+
     def fit(self, labels, *, seed: int = 0) -> FitReport:
         """한 회차 분 라벨로 두 망을 갱신한다.
 

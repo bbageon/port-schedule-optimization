@@ -75,6 +75,13 @@ class IterReport:
     n_time: int = 0
     seller_loss: float = 0.0
     buyer_loss: float = 0.0
+    #: ★검증 손실 — **학습에 안 쓴 표본**에서의 오차.
+    #: 학습 손실만 보면 과적합을 못 본다: 망 5,761 파라미터에 표본 80개면
+    #: 본 것은 거의 완벽히 맞히면서 처음 보는 상황에서는 크게 틀릴 수 있다.
+    #: argmin 이 실전에서 쓰는 것은 **처음 보는 상황**이므로 이쪽이 진짜 오차다.
+    val_seller_loss: float = 0.0
+    val_buyer_loss: float = 0.0
+    n_val: int = 0
     worlds: int = 0
 
     def line(self) -> str:
@@ -83,7 +90,8 @@ class IterReport:
                 f"(판매 {self.n_seller:>3}·구매 {self.n_buyer:>3}·0비율 "
                 f"{self.zero_label_ratio:>5.1%}) · 거래 {self.traded_edges:>4} "
                 f"· 격차 {self.gap:>+14,.0f} ({self.gap_ratio:>+6.2%}) "
-                f"· 손실 {self.seller_loss:.5f}/{self.buyer_loss:.5f}")
+                f"· 손실 {self.seller_loss:.5f}/{self.buyer_loss:.5f}"
+                f" · 검증 {self.val_seller_loss:.5f}/{self.val_buyer_loss:.5f}")
 
 
 @dataclass
@@ -138,12 +146,34 @@ def _collect(labels: list[dict]) -> tuple[LabelCollector, int]:
     return col, zero
 
 
+def _split_by_decision(ls, val_frac: float):
+    """라벨을 학습/검증으로 가른다 — **결정 단위**로.
+
+    같은 결정의 두 행(사실·대안)은 서로의 답을 담고 있다(중심화라 부호만 반대).
+    행 단위로 자르면 검증 답을 학습에서 본 셈이 되어 과적합이 안 잡힌다.
+    """
+    from .labels import LabelSet
+
+    keys = sorted({s.doc_key for s in ls.seller})
+    n_val = max(1, int(round(len(keys) * val_frac))) if keys else 0
+    stride = max(1, len(keys) // max(1, n_val))
+    val_keys = set(keys[::stride][:n_val])
+    tr, va = LabelSet(), LabelSet()
+    for s in ls.seller:
+        (va if s.doc_key in val_keys else tr).seller.append(s)
+    for s in ls.buyer:
+        (va if s.doc_key in val_keys else tr).buyer.append(s)
+    tr.worlds = va.worlds = ls.worlds
+    return tr, va
+
+
 def run_training(*, iters: int = 20, out_dir: str | Path = "outputs/v3/train",
                  labels_per_iter: int = LABELS_PER_ITER,
                  time_budget_s: float | None = None,
                  seed_base: int = DIAGNOSTIC_BASE + 600,
                  loads: tuple[int, ...] = TRAIN_LOADS,
-                 workers: int = 1, log=print) -> TrainState:
+                 workers: int = 1, val_frac: float = 0.2,
+                 log=print) -> TrainState:
     """회차를 돌린다. **표본 0 이면 즉시 멈춘다**(06 하드가드).
 
     `time_budget_s` 를 주면 시간으로도 끊는다 — 회차 수를 **결과 보고 늘리면
@@ -193,9 +223,15 @@ def run_training(*, iters: int = 20, out_dir: str | Path = "outputs/v3/train",
         # ★스텝 수를 표본에 맞춘다. v2 는 150,000 버퍼에 600 스텝이었는데, 여기 표본은
         #   회차당 수십 건이다(라벨에 유효기간이 있어 버퍼가 없다 — 04b §3).
         #   600 스텝을 그대로 쓰면 같은 몇 줄을 수백 번 되먹여 그 회차 라벨에 과적합한다.
-        st.trainer.steps_per_iter = max(50, min(600, 4 * len(ls.seller)))
-        fit = st.trainer.fit(ls, seed=seed)
+        # ★표본을 학습/검증으로 가른다. 회차 안에서 **결정 단위**로 잘라야
+        #   같은 결정의 두 행(사실·대안)이 양쪽에 흩어지지 않는다 — 흩어지면
+        #   검증 표본의 답을 학습에서 이미 본 셈이 되어 과적합을 못 잡는다.
+        tr_ls, va_ls = _split_by_decision(ls, val_frac)
+        st.trainer.steps_per_iter = max(50, min(600, 4 * len(tr_ls.seller)))
+        fit = st.trainer.fit(tr_ls, seed=seed)
         rep.seller_loss, rep.buyer_loss = fit.seller_loss, fit.buyer_loss
+        rep.val_seller_loss, rep.val_buyer_loss = st.trainer.evaluate(va_ls)
+        rep.n_val = len(va_ls.seller)
         rep.secs = time.time() - t0
         st.history.append(rep)
         st.save(out, it)
