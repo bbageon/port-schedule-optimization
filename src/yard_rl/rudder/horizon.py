@@ -61,3 +61,45 @@ def sweep_at(*, load: int, seed: int, t0: float, seller_net=None, buyer_net=None
         if on_row is not None:
             on_row(row)
     return out
+
+
+# ------------------------------------------------------------------ 병렬 실행
+_CTX = {}
+
+
+def _init_worker(ckpt_path, horizons, obs):
+    import torch
+    from .collect import load_nets
+    torch.set_num_threads(1)
+    s, b = load_nets(ckpt_path)
+    _CTX.update(seller=s, buyer=b, horizons=horizons, obs=obs)
+
+
+def _run_one(arg):
+    load, seed, t0 = arg
+    return sweep_at(load=load, seed=seed, t0=t0, seller_net=_CTX["seller"],
+                    buyer_net=_CTX["buyer"], horizons=_CTX["horizons"],
+                    obs=_CTX["obs"])
+
+
+def sweep_many(*, loads, seeds, t0s, ckpt_path=None, horizons=HORIZONS_S,
+               obs=None, workers: int = 8, on_sweep=None) -> list:
+    """(부하 × 날 × t0) 을 프로세스에 나눈다. 하나가 스냅샷 하나를 재사용한다."""
+    from concurrent.futures import ProcessPoolExecutor
+    jobs = [(int(l), int(s), float(t)) for l in loads for s in seeds for t in t0s]
+    out = []
+    if workers <= 1:
+        _init_worker(ckpt_path, horizons, obs)
+        for j in jobs:
+            r = _run_one(j)
+            out += r
+            if on_sweep is not None:
+                on_sweep(r)
+        return out
+    with ProcessPoolExecutor(max_workers=workers, initializer=_init_worker,
+                             initargs=(ckpt_path, horizons, obs)) as ex:
+        for r in ex.map(_run_one, jobs):
+            out += r
+            if on_sweep is not None:
+                on_sweep(r)
+    return out
