@@ -24,13 +24,16 @@ from . import train as T
 from .runner import intervene, snapshot_at
 
 #: 사전등록 기본 설정 — 착수 시 동결한다.
+#: ★창 하나가 날 하나보다 비싸다 (실측 2026-08-24: 하루 169초 · 창 짝 약 159초).
+#: 그래서 **날을 늘리고 창을 줄이는** 쪽이 같은 값에 표본이 덜 겹친다 —
+#: 한 날에서 뽑은 창들은 서로 겹치지만 다른 날은 완전히 독립이다.
 PRESET = {
     "loads": (3_500, 5_000),
-    "seeds": tuple(9_900_900 + i for i in range(8)),   # 비판정 대역 · 날 8개
-    "n_windows": 13,                                    # 날마다 창 13개 → 208 궤적
+    "seeds": tuple(9_900_900 + i for i in range(16)),  # 비판정 대역 · 날 16개
+    "n_windows": 4,                                     # 날마다 창 4개 → 128 궤적
     "horizon_s": CF_HORIZON_S,                          # 3시간
     "explore": 0.0,
-    "val_frac": 0.25,                                   # 날 8개 중 2일이 검증
+    "val_frac": 0.25,                                   # 날 16개 중 4일이 검증
     "epochs": 400,
     "hidden": 32,
     "init_seeds": (0, 1, 2),                            # 관문 C
