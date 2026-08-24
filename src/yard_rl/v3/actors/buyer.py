@@ -28,7 +28,7 @@ from ..features.block import block_features
 from ..features.candidate import (BUYER_OFFER_DIM, buyer_offer_features,
                                   candidate_features)
 from .explore import draw
-from .nets import BuyerNet, from_scaled
+from .nets import BuyerNet, from_advantage
 from .offer import BUY, REJECT, SPACE, Offer, Response
 
 
@@ -92,8 +92,9 @@ class Buyer:
         self.trail.append({
             "t": t, "doc_key": offer.doc_key, "buyer": offer.buyer_id,
             "action": action, "row_buy": row_buy, "row_reject": row_reject,
-            "phi_buy": from_scaled(phi_buy), "phi_reject": from_scaled(phi_reject),
+            "adv_buy": from_advantage(phi_buy),
+            "adv_reject": from_advantage(phi_reject),
         })
         return Response(offer=offer, action=action,
-                        predicted_phi=from_scaled(
+                        predicted_phi=from_advantage(
                             phi_buy if action == BUY else phi_reject))

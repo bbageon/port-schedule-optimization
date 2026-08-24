@@ -20,7 +20,7 @@ import torch
 from ..features.block import block_features, inside_count
 from ..features.candidate import (candidate_features, seller_action_features)
 from .explore import draw, pick
-from .nets import SellerNet, from_scaled
+from .nets import SellerNet, from_advantage
 from .offer import KEEP, SELL, SPACE, TIME, Coord, Offer
 
 
@@ -120,7 +120,8 @@ class Seller:
             #   교사는 굴린 두 행에만 라벨을 붙이므로(04b §3) 어느 행인지 알아야 한다.
             "coord_keys": [None if c is None else c.key() for c in meta],
             "rows": x, "picked": idx,
-            "predicted_phi": from_scaled(float(cost[idx].item())),
+            # 망 출력은 **기준선 대비 차이**다([[YR-220]]) — 절대 Φ 가 아니다.
+            "predicted_adv": from_advantage(float(cost[idx].item())),
         })
         if chosen is None:
             return None

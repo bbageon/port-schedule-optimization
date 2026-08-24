@@ -7,6 +7,12 @@
   관측**이라 안 상했기에 가능했다 — 반사실 라벨은 **회차마다 다시 만든다.**
   그래서 버퍼가 아니라 **회차 단위 수집기**다.
 
+■ ★목표는 **그 결정의 기준선 대비 차이**다 ([[YR-220]])
+  누적 Φ 를 그대로 목표로 주면 두 세계가 공유하는 과거가 목표의 99.9% 를 차지해
+  행동 효과가 망 잔차에 묻힌다([[YR-218]] 실패: 잔차가 신호의 43~94배).
+  그 결정에서 굴린 세계들의 **평균을 빼고** 가르친다 — argmin 은 결정 안에서만
+  비교하므로 상수를 빼도 **선택이 안 바뀐다.**
+
 ■ 두 학생의 라벨을 더하지 않는다
   각자 "내가 행동을 바꿨다면" 을 재므로 겹치는 몫이 양쪽에 다 들어간다.
   Φ 에는 일어난 일만 한 번 기록한다(합치면 이중 계상).
@@ -17,7 +23,7 @@ from dataclasses import dataclass, field
 
 import torch
 
-from ..actors.nets import to_scaled
+from ..actors.nets import to_advantage
 
 
 @dataclass
@@ -65,14 +71,15 @@ class LabelCollector:
                    phi_alt: float, alt_index: int | None = None) -> None:
         rows = trail_entry["rows"]
         picked = int(trail_entry["picked"])
+        base = 0.5 * (float(phi_factual) + float(phi_alt))   # ★그 결정의 기준선
         self.out.seller.append(Sample(
             row=[float(v) for v in rows[picked]],
-            target_scaled=to_scaled(phi_factual),
+            target_scaled=to_advantage(phi_factual, base),
             doc_key=trail_entry["doc_key"], action=trail_entry["action"]))
         if alt_index is not None and 0 <= alt_index < len(rows) and alt_index != picked:
             self.out.seller.append(Sample(
                 row=[float(v) for v in rows[alt_index]],
-                target_scaled=to_scaled(phi_alt),
+                target_scaled=to_advantage(phi_alt, base),
                 doc_key=trail_entry["doc_key"], action="ALT"))
 
     def add_buyer(self, trail_entry: dict, *, phi_factual: float,
@@ -80,11 +87,12 @@ class LabelCollector:
         chose_buy = trail_entry["action"] == "BUY"
         fact_row = trail_entry["row_buy"] if chose_buy else trail_entry["row_reject"]
         alt_row = trail_entry["row_reject"] if chose_buy else trail_entry["row_buy"]
+        base = 0.5 * (float(phi_factual) + float(phi_alt))   # ★판매와 같은 규약
         self.out.buyer.append(Sample(
-            row=list(fact_row), target_scaled=to_scaled(phi_factual),
+            row=list(fact_row), target_scaled=to_advantage(phi_factual, base),
             doc_key=trail_entry["doc_key"], action=trail_entry["action"]))
         self.out.buyer.append(Sample(
-            row=list(alt_row), target_scaled=to_scaled(phi_alt),
+            row=list(alt_row), target_scaled=to_advantage(phi_alt, base),
             doc_key=trail_entry["doc_key"], action="ALT"))
 
     def note_worlds(self, n: int) -> None:
