@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import torch
 
-from ..features.block import block_features, inside_count
+from ..features.block import announced_around, block_features, inside_count
 from ..features.candidate import (candidate_features, seller_action_features)
 from .explore import draw, pick
 from .nets import SellerNet, from_advantage
@@ -82,19 +82,31 @@ class Seller:
             coords += self._space_coords(mbt, src, quay_of)
         coords += self._time_coords(time_slots)
 
+        # ★도착 압력 ([[YR-230]]) — 이 행동을 고르면 트럭이 **언제·어디로** 가나.
+        #   그 시각·그 블록에 이미 몇 대가 통지돼 있는지 센다. 셋을 같은 잣대로
+        #   재야 KEEP·SPACE·TIME 을 견줄 수 있다.
+        eta = float(order.in_out_reserve_s)
         rows, meta = [], []
         for c in coords:
             if c is None:
-                af = seller_action_features(kind=KEEP)
+                af = seller_action_features(
+                    kind=KEEP,
+                    arrival_pressure=float(announced_around(mbt, src, eta, orders)))
             elif c.kind == SPACE:
                 af = seller_action_features(
                     kind=SPACE,
                     dst_load=float(inside_count(mbt, c.block, t, records)),
                     dst_free=float(mbt.free_slots(c.block)),
                     route_delta_s=c.route_delta_s,
-                    dst_quay_s=(quay_of(c.block) if quay_of else 0.0))
+                    dst_quay_s=(quay_of(c.block) if quay_of else 0.0),
+                    # 시각은 그대로, 블록만 바뀐다
+                    arrival_pressure=float(announced_around(mbt, c.block, eta, orders)))
             else:
-                af = seller_action_features(kind=TIME, defer_s=c.defer_s)
+                af = seller_action_features(
+                    kind=TIME, defer_s=c.defer_s,
+                    # 블록은 그대로, 시각이 밀린다 — ★여기가 오전 문제의 급소다
+                    arrival_pressure=float(
+                        announced_around(mbt, src, eta + c.defer_s, orders)))
             rows.append(bf + cf + af)
             meta.append(c)
 

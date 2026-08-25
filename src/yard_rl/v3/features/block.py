@@ -94,6 +94,39 @@ def announced_soon(mbt, bid: str, t: float, orders) -> int:
     return n
 
 
+#: ★도착 시각 주변을 보는 반폭 (초) — [[YR-230]]. 앞뒤 30분 = 창 1시간.
+#: `_ANNOUNCE_HORIZON_S` 와 같은 눈금으로 맞춘다. **동결 대상**이다.
+_ARRIVAL_HALF_W_S = 1800.0
+
+
+def announced_around(mbt, bid: str, center_s: float, orders,
+                     half_w: float = _ARRIVAL_HALF_W_S) -> int:
+    """`center_s ± half_w` 에 그 블록으로 **통지된** 물량 — 공개 정보만.
+
+    ■ 왜 필요한가 ([[YR-230]])
+      `announced_soon` 은 **지금부터 30분**만 센다. 그래서 오전 8시에 트럭을
+      2시간 뒤로 미룰 때, 정책은 **미룬 그 시각(10시)이 얼마나 붐빌지를 못 본다**.
+
+      실측([[YR-227]]·[[YR-231]]): 오전 7~11시 창의 이연은 거래 1건당
+      **+147,779원 손해**(하루끝 기준)인데 라벨은 −2,192원 **이득**이라 말했다.
+      원인이 둘인데(라벨 부호·정보 부재) 이 함수가 둘째를 막는다.
+
+    ■ 정보 경계를 지킨다
+      `in_out_reserve_s` 는 **통지된 예정**이지 실현 게이트인이 아니다.
+      `announced_soon` 과 같은 출처라 새로 열리는 정보가 없다.
+    """
+    sim = mbt.blocks[bid]
+    lo, hi = float(center_s) - half_w, float(center_s) + half_w
+    n = 0
+    for jid in sim.jobs:
+        o = orders.get(jid)
+        if o is None or o.con_loc != bid:
+            continue
+        if lo <= o.in_out_reserve_s <= hi:
+            n += 1
+    return n
+
+
 def block_features(mbt, bid: str, t: float, *, n_cands: int,
                    records, orders, end_s: float) -> list[float]:
     """블록 요약 9차원 — 전부 공개 정보.

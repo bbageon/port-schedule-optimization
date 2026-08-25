@@ -21,7 +21,7 @@ from __future__ import annotations
 CANDIDATE_DIM = 6
 
 #: Seller 행동 특징 차원 — KEEP / 공간(블록) / 시간(슬롯) 을 한 벌로 표현
-SELLER_ACTION_DIM = 8
+SELLER_ACTION_DIM = 9
 
 #: Buyer 가 offer 에서 읽는 특징 차원
 BUYER_OFFER_DIM = 4
@@ -55,8 +55,17 @@ def candidate_features(order, rec, t: float, *, transfer_count: int,
 def seller_action_features(*, kind: str, dst_load: float = 0.0,
                            dst_free: float = 0.0, route_delta_s: float = 0.0,
                            defer_s: float = 0.0, dst_quay_s: float = 0.0,
+                           arrival_pressure: float = 0.0,
                            slot_load: float = 0.0) -> list[float]:
-    """Seller 행동 8차원 — `KEEP` / `SPACE(블록 b)` / `TIME(슬롯 k)`.
+    """Seller 행동 9차원 — `KEEP` / `SPACE(블록 b)` / `TIME(슬롯 k)`.
+
+    ★`arrival_pressure` ([[YR-230]]) — **이 행동을 고르면 트럭이 도착할 시각·블록에
+    이미 몇 대가 예약돼 있나.** 이게 없으면 정책은 *"몇 분 미루나"* 만 알 뿐
+    **미룬 곳이 붐빌지를 모른다.** 세 행동 모두에 값이 있어야 서로 견줄 수 있다:
+
+        KEEP    예정대로 도착 → `in_out_reserve_s` 시각·현재 블록
+        SPACE   시각은 그대로 → `in_out_reserve_s` 시각·**목적 블록**
+        TIME    블록은 그대로 → `in_out_reserve_s + defer_s` 시각·현재 블록
 
     `dst_quay_s` 는 목적지 블록의 **안벽까지 거리**다. 본선 스트림이 붙은 블록은
     YT 왕복이 길어 처리율이 깎이므로, 목적지 선택에 이 값이 필요하다
@@ -73,6 +82,7 @@ def seller_action_features(*, kind: str, dst_load: float = 0.0,
         route_delta_s / _ROUTE_REF_S,
         defer_s / _DEFER_REF_S,
         dst_quay_s / _ROUTE_REF_S,
+        arrival_pressure / 10.0,          # ★[[YR-230]] — 도착 시각·블록의 예약 밀도
     ]
 
 
