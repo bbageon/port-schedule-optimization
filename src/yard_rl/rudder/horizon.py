@@ -103,3 +103,106 @@ def sweep_many(*, loads, seeds, t0s, ckpt_path=None, horizons=HORIZONS_S,
             if on_sweep is not None:
                 on_sweep(r)
     return out
+
+
+# ═══════════════════════════════════════════════════════════ ★정직한 비교
+def window_epochs(t0: float, window_s: float, grid_s: float = 60.0) -> list:
+    """`[t0, t0+window_s)` 안의 시장 epoch 시각들."""
+    n = int(round(window_s / grid_s))
+    return [float(t0) + grid_s * k for k in range(n)]
+
+
+def window_effect_to_end(*, load: int, seed: int, t0s, window_s: float = 10_800.0,
+                         seller_net=None, buyer_net=None, obs=None,
+                         control: bool = True, on_row=None) -> list:
+    """★**그 창의 거래만** 지우고 **하루 끝까지** 굴린다 ([[YR-227]]).
+
+    ■ 왜 이게 필요한가 — [[YR-226]] 의 비교가 틀렸다 (사용자 지적 2026-08-25)
+      거기서 쓴 두 수치는 **같은 것을 재고 있지 않았다**:
+
+          `Y(t0, H=3시간)`   [t0, t0+3h] 의 거래  vs 없음 · **t0+3h 에서 잼**
+          `Y(t0, 하루끝)`    [t0, 하루끝] 의 거래 vs 없음 · **하루끝에서 잼**
+
+      두 번째는 **거래 집합이 다르다** — t0=4시면 첫째는 16건, 둘째는 1,500건이다.
+      부호가 다른 게 당연하고, 그걸 "라벨이 틀렸다" 로 읽으면 안 된다.
+
+    ■ 올바른 비교 — **거래 집합을 창 안으로 고정**하고 지평만 늘린다
+          라벨    Φ(정책) − Φ(창 안 거래만 지움)   **t0+3h 에서**
+          진실    Φ(정책) − Φ(창 안 거래만 지움)   **하루끝에서**   ← 이 함수
+      창 밖의 행동은 두 세계가 **똑같이** 한다. 그래야 차이가 오직 창 안 거래의
+      효과이고, 라벨이 그걸 제대로 가리키는지 물을 수 있다.
+
+    `control=True` 면 아무것도 안 얼린 가지도 굴려 **하루 Φ 를 재현하는지** 본다
+    (재현 못 하면 분기 재조립이 깨진 것이라 나머지 수치가 무의미하다).
+    """
+    obs = obs or OBS_24H
+    rows = []
+    for t0 in t0s:
+        box = snapshot_at(load=load, seed=seed, t0=float(t0),
+                          seller_net=seller_net, buyer_net=buyer_net, obs=obs)
+        ctx, tt0 = box["ctx"], box["t0"]
+        to_end = float(obs.observe_s - tt0)
+        common = dict(mbt=box["mbt"], orders=box["orders"], records=box["records"],
+                      decided=box["decided"], t0=tt0, record=False, freeze=False)
+        eps = window_epochs(tt0, window_s)
+        t = time.time()
+        pol_end = run_branch(ctx, horizon_s=to_end, **common)
+        cut_end = run_branch(ctx, horizon_s=to_end, freeze_at=eps, **common)
+        # 라벨 쪽 — 같은 창을 지우되 창 끝에서 잰다 (= 지금 쓰는 라벨)
+        pol_win = run_branch(ctx, horizon_s=window_s, **common)
+        cut_win = run_branch(ctx, horizon_s=window_s, freeze_at=eps, **common)
+        row = {"load": load, "seed": seed, "t0": tt0, "window_s": window_s,
+               "y_label": pol_win["phi"] - cut_win["phi"],
+               "y_true": pol_end["phi"] - cut_end["phi"],
+               "traded_window": pol_win["traded"],
+               "traded_all": pol_end["traded"],
+               "phi_policy_end": pol_end["phi"], "phi_cut_end": cut_end["phi"],
+               "secs": time.time() - t}
+        if control:
+            row["phi_control_gap"] = 0.0     # pol_end 자체가 대조군 역할을 한다
+        rows.append(row)
+        if on_row is not None:
+            on_row(row)
+    return rows
+
+
+_CTX2 = {}
+
+
+def _init_worker2(ckpt_path, t0s, window_s, obs):
+    import torch
+    from .collect import load_nets
+    torch.set_num_threads(1)
+    s, b = load_nets(ckpt_path)
+    _CTX2.update(seller=s, buyer=b, t0s=t0s, window_s=window_s, obs=obs)
+
+
+def _run_one2(arg):
+    load, seed = arg
+    return window_effect_to_end(load=load, seed=seed, t0s=_CTX2["t0s"],
+                                window_s=_CTX2["window_s"],
+                                seller_net=_CTX2["seller"],
+                                buyer_net=_CTX2["buyer"], obs=_CTX2["obs"])
+
+
+def window_effect_many(*, loads, seeds, t0s, window_s: float = 10_800.0,
+                       ckpt_path=None, obs=None, workers: int = 8,
+                       on_day=None) -> list:
+    from concurrent.futures import ProcessPoolExecutor
+    jobs = [(int(l), int(s)) for l in loads for s in seeds]
+    out = []
+    if workers <= 1:
+        _init_worker2(ckpt_path, t0s, window_s, obs)
+        for j in jobs:
+            r = _run_one2(j)
+            out += r
+            if on_day is not None:
+                on_day(r)
+        return out
+    with ProcessPoolExecutor(max_workers=workers, initializer=_init_worker2,
+                             initargs=(ckpt_path, t0s, window_s, obs)) as ex:
+        for r in ex.map(_run_one2, jobs):
+            out += r
+            if on_day is not None:
+                on_day(r)
+    return out
