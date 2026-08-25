@@ -36,6 +36,7 @@ from ..world.integrated.profiles import build_h21_profile
 from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
                                                 ensure_time_ledger)
 from ..world.integrated.vessel import VESSEL_CLASSES
+from ..actors.classical import ClassicalMarket
 from ..world.integrated.yard_layout import terminal_layout
 
 #: 정책에 공개되는 차량 정보 시점 — 사전 반출입정보 + 제공 ETA.
@@ -64,8 +65,11 @@ from .rollout import RolloutBudget, SnapshotRollout
 from .vessels import structural_idle_krw
 
 #: 구현된 재배치 팔. 나머지는 [[YR-211]].
-ARMS = ("NO_REALLOC", "RL")
-TODO_ARMS = ("FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
+#: 고전 규칙 팔 ([[YR-211]] · `actors/classical.py`) — **주판정 축**이다.
+#: [06 §3] 동결 규약: 주판정 = 규칙 대비, 안 팔기 대비는 판별력 0([[YR-185]]).
+RULE_ARMS = ("FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
+ARMS = ("NO_REALLOC", "RL") + RULE_ARMS
+TODO_ARMS = ()
 
 #: 배차 축 — 지금은 규칙 `SF-SPT` 만. 계획법·얼린 망은 [[YR-213]].
 DISPATCHERS_READY = ("SF_SPT",)
@@ -118,10 +122,14 @@ class _Ctx:
         self.cf_horizon_s = cf_horizon_s
 
     def make_market(self, mbt, *, decided=()):
-        seller = Seller(self.seller_net, self.layout, explore=self.explore,
-                        seed=self.seed)
-        buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
-        m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
+        if self.arm in RULE_ARMS:
+            # ★고전 팔 — 학습 망이 아니라 규칙이 고른다. 자리는 같다([[YR-211]]).
+            m = ClassicalMarket(self.arm, self.layout, window_s=self.window_s)
+        else:
+            seller = Seller(self.seller_net, self.layout, explore=self.explore,
+                            seed=self.seed)
+            buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
+            m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
         m.decided = set(decided)
         return m
 
