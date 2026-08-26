@@ -105,7 +105,12 @@ class MarketBridge:
     SLOT_STEPS_HORIZON = (1, 2, 3, 4)
     SLOT_STEPS_LEGACY = (1, 2, 4, 8)
 
+    #: ★[[YR-232]] 진단 — True 면 이연 후보를 아예 안 낸다(공간 전용 RL).
+    no_time = False
+
     def _time_slots(self, doc_key: str, t: float):
+        if self.no_time:
+            return ()
         """이연 후보 칸. 값 판단이 아니라 **실현 가능성 필터**다.
 
         ★[[YR-216]] — `cf_horizon_s` 가 있으면 **새 도착이 반사실 창 안에 남는

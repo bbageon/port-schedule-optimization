@@ -39,6 +39,9 @@ class Seller:
         #: 반사실 분기용 **1회성 강제 행동** — {docKey: "KEEP"|"SELL"}.
         #: 교사가 "이 행위자가 반대로 했다면" 세계를 만들 때만 채운다. 평소엔 비어 있다.
         self.force_once: dict[str, str] = {}
+        #: ★[[YR-232]] 진단 — True 면 **공간 후보를 안 만든다**(시간 전용 RL).
+        #: 고전 팔이 공간만 하므로 반대편도 재야 두 메커니즘의 몫이 갈린다.
+        self.no_space = False
 
     # ------------------------------------------------------------------ 후보 좌표
     def _space_coords(self, mbt, src: str, quay_of) -> list[Coord]:
@@ -78,7 +81,7 @@ class Seller:
                                 defer_count=defer_count)
 
         coords: list[Coord | None] = [None]     # None = KEEP
-        if order.is_inbound:
+        if order.is_inbound and not self.no_space:
             coords += self._space_coords(mbt, src, quay_of)
         coords += self._time_coords(time_slots)
 

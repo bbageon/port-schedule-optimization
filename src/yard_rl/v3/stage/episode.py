@@ -36,7 +36,7 @@ from ..world.integrated.profiles import build_h21_profile
 from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
                                                 ensure_time_ledger)
 from ..world.integrated.vessel import VESSEL_CLASSES
-from ..actors.classical import ClassicalMarket
+from ..actors.classical import TRIGGER_TOP_K, ClassicalMarket
 from ..world.integrated.yard_layout import terminal_layout
 
 #: 정책에 공개되는 차량 정보 시점 — 사전 반출입정보 + 제공 ETA.
@@ -68,7 +68,14 @@ from .vessels import structural_idle_krw
 #: 고전 규칙 팔 ([[YR-211]] · `actors/classical.py`) — **주판정 축**이다.
 #: [06 §3] 동결 규약: 주판정 = 규칙 대비, 안 팔기 대비는 판별력 0([[YR-185]]).
 RULE_ARMS = ("FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
-ARMS = ("NO_REALLOC", "RL") + RULE_ARMS
+#: ★진단 팔 ([[YR-232]]) — 학습 망은 그대로 쓰되 **시간 이연 후보를 안 만든다**.
+#: 고전 팔이 공간 이동만 하므로, RL 의 우세가 *"구조가 좋아서"* 인지
+#: *"고를 게 많아서"* 인지 가르는 데 쓴다.
+#: ⚠️ 공간 전용으로 **학습한** 정책이 아니라 **평가에서 제한한** 것이다 —
+#:    "TIME 을 빼면 얼마나 잃나" 를 재는 진단이지 공정한 재학습이 아니다.
+RL_SPACE = "RL_SPACE"      # 공간만 — 고전 팔과 같은 행동 폭
+RL_TIME = "RL_TIME"        # 시간만 — 반대편. 둘을 합쳐야 두 몫이 갈린다
+ARMS = ("NO_REALLOC", "RL", RL_SPACE, RL_TIME) + RULE_ARMS
 TODO_ARMS = ()
 
 #: 배차 축 — 지금은 규칙 `SF-SPT` 만. 계획법·얼린 망은 [[YR-213]].
@@ -122,22 +129,32 @@ class _Ctx:
         self.cf_horizon_s = cf_horizon_s
 
     def make_market(self, mbt, *, decided=()):
+        if self.arm in (RL_SPACE, RL_TIME):
+            self._no_time = (self.arm == RL_SPACE)
+            self._no_space = (self.arm == RL_TIME)
+            self.arm = "RL"          # 시장은 RL 과 같다 — 후보만 막는다
         if self.arm in RULE_ARMS:
             # ★고전 팔 — 학습 망이 아니라 규칙이 고른다. 자리는 같다([[YR-211]]).
-            m = ClassicalMarket(self.arm, self.layout, window_s=self.window_s)
+            m = ClassicalMarket(self.arm, self.layout, window_s=self.window_s,
+                                trigger_top_k=getattr(self, "trigger_top_k",
+                                                      TRIGGER_TOP_K))
         else:
             seller = Seller(self.seller_net, self.layout, explore=self.explore,
                             seed=self.seed)
+            seller.no_space = getattr(self, "_no_space", False)
             buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
             m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
         m.decided = set(decided)
         return m
 
     def make_bridge(self, market, *, orders, records, on_decision):
-        return MarketBridge(market, self.layout, orders=orders, records=records,
-                            end_s=self.episode_end_s, arm=self.arm,
-                            grid_s=self.grid_s, cf_horizon_s=self.cf_horizon_s,
-                            on_decision=on_decision)
+        b = MarketBridge(market, self.layout, orders=orders, records=records,
+                         end_s=self.episode_end_s, arm=self.arm,
+                         grid_s=self.grid_s, cf_horizon_s=self.cf_horizon_s,
+                         on_decision=on_decision)
+        if getattr(self, "_no_time", False):
+            b.no_time = True         # ★[[YR-232]] 진단 — 이연 후보를 안 낸다
+        return b
 
     def make_exec_policy(self):
         return _sf_spt_policy()[0]
@@ -268,6 +285,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 explore: float = 0.0, horizon_s: float = CF_HORIZON_S,
                 budget: RolloutBudget | None = None,
                 slot_mode: str = "HORIZON", workers: int = 1,
+                trigger_top_k: float | None = None,
                 obs=None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
@@ -313,6 +331,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                seed=seed, episode_end_s=obs.observe_s,
                cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None))
     ctx.block_vessel = built.get("block_vessel", {})
+    if trigger_top_k is not None:
+        ctx.trigger_top_k = float(trigger_top_k)   # ★[[YR-232]] 민감도 스윕용
     market = ctx.make_market(mbt)
 
     res = EpisodeResult(slot_mode=slot_mode)
