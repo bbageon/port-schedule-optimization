@@ -57,6 +57,11 @@ class MarketBridge:
         self.slot_steps = (self.SLOT_STEPS_LEGACY if cf_horizon_s is None
                            else self.SLOT_STEPS_HORIZON)
         self.on_decision = on_decision      # 교사 훅 — 없으면 라벨을 안 만든다
+        #: ★분기 세계에 넘길 **기록 묶음**을 고르는 훅 ([[YR-239]]).
+        #: 기본(None)은 전부 넘긴다 — 하루 무대에서는 수천 건이라 문제가 없다.
+        #: 30일 무대는 20만 건이 쌓이므로 그대로 복제하면 스냅샷 하나가 몇 초가 된다.
+        #: 라벨은 사실·대안의 **차이**라, 창 밖 트럭은 양쪽에서 똑같이 빠져 상쇄된다.
+        self.branch_records = None          # callable(t) -> dict
         self.traded_edges = 0
         self.txn_failed = 0
         self.n_space = 0
@@ -100,9 +105,21 @@ class MarketBridge:
     # ------------------------------------------------------------------ 시간 좌표
     #: 이연 격자 — 15분 배수. 어느 칸이 좋은지는 Seller 가 고른다(03 §5).
     SLOT_GRID_S = 900.0
-    #: 창 안으로 묶을 때는 **격자도 창에 맞춘다** — 15·30·45·60분.
-    #: 옛 격자(15·30·60·120)를 그대로 두고 자르면 후보가 둘로 줄어 선택지가 빈약해진다.
-    SLOT_STEPS_HORIZON = (1, 2, 3, 4)
+    #: ★[[YR-235]] A7 (2026-08-26) — 격자를 **H=3시간에 맞춘다**: 15~120분(8칸).
+    #:
+    #: 옛 값 (1,2,3,4) = 최대 60분은 **H 가 1시간이던 시절**의 잔재였다.
+    #: [[YR-217]] 이 H 를 3시간으로 올렸는데 격자는 안 따라갔다.
+    #:
+    #: 실측 근거 (2026-08-26):
+    #:   · 정책이 **최대치(60분)를 82~97% 선택** — 천장에 붙어 있었다
+    #:   · 구조상 시야 t+119분 (검토창 29분 + 이연 60분 + 도착압력 ±30분)
+    #:     → 채점받는 3시간의 **66%** 만 보고 있었다
+    #:   · 창에 들어가는 칸은 **10~11개**인데 4개만 썼다
+    #:
+    #: 왜 150분이 아니라 120분인가 — **통지가 안 온다**:
+    #:   t+ 90분 도착의 45% · t+120분의 38% · t+180분의 **21%** 만 통지돼 있다.
+    #:   그 너머는 칸을 줘도 눈뜬장님이라 120분에서 끊는다.
+    SLOT_STEPS_HORIZON = (1, 2, 3, 4, 5, 6, 7, 8)
     SLOT_STEPS_LEGACY = (1, 2, 4, 8)
 
     #: ★[[YR-232]] 진단 — True 면 이연 후보를 아예 안 낸다(공간 전용 RL).
@@ -154,8 +171,10 @@ class MarketBridge:
         #   증상은 강제한 세계와 안 한 세계의 Φ 가 **똑같이** 나오는 것이었다.
         pre = None
         if self.on_decision is not None and self._wants_snapshot(mbt, t):
+            src = (self.records if self.branch_records is None
+                   else self.branch_records(t))
             pre = {"mbt": copy.deepcopy(mbt),
-                   "records": copy.deepcopy(self.records),
+                   "records": copy.deepcopy(src),
                    "orders": dict(self.orders),
                    "decided": set(self.market.decided)}
 

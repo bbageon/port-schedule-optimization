@@ -37,11 +37,13 @@ from dataclasses import dataclass, field
 import torch
 
 from ..v3.actors.offer import BUY, REJECT, SPACE
-from ..v3.features import BLOCK_DIM, BUYER_ROW_DIM, CANDIDATE_DIM
+from ..v3.features import BLOCK_DIM_BUYER, BUYER_ROW_DIM, CANDIDATE_DIM
 from ..v3.features.block import announced_around
 
-#: Buyer 행에서 `slot_load` 가 앉는 칸 번호 (블록 9 + 후보 6 + offer 4 의 마지막)
-SLOT_LOAD_IDX = BLOCK_DIM + CANDIDATE_DIM + 3
+#: Buyer 행에서 `slot_load` 가 앉는 칸 번호.
+#: 2026-08-26 갱신 — Buyer 블록 8칸([[YR-235]] A8: 후보수 제외) + 후보 3칸(죽은 칸 제거)
+#: + offer 의 네 번째 칸(`is_time`·`route_delta`·`src_load`·**`slot_load`**).
+SLOT_LOAD_IDX = BLOCK_DIM_BUYER + CANDIDATE_DIM + 3
 #: 칸 폭 15분의 절반 — "그 칸" 을 도착 시각 ±7.5분으로 읽는다
 SLOT_HALF_W_S = 450.0
 #: Buyer 특징의 대수 눈금 (`buyer_offer_features` 가 `/10.0` 한다)

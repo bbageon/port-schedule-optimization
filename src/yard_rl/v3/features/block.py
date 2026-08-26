@@ -19,7 +19,8 @@
 from __future__ import annotations
 
 #: 블록 요약 차원 — 계약(`block_dim_target = 9`)
-BLOCK_DIM = 9
+BLOCK_DIM = 9              # Seller 용 (후보수 포함)
+BLOCK_DIM_BUYER = 8        # Buyer 용 — 후보수 없음 ([[YR-235]])
 
 _ANNOUNCE_HORIZON_S = 1800.0     # "곧 올 통지분" 을 세는 창 (특징용 상수)
 
@@ -133,22 +134,27 @@ def announced_around(mbt, bid: str, center_s: float, orders,
     return n
 
 
-def block_features(mbt, bid: str, t: float, *, n_cands: int,
+def block_features(mbt, bid: str, t: float, *, n_cands: int | None,
                    records, orders, end_s: float) -> list[float]:
-    """블록 요약 9차원 — 전부 공개 정보.
+    """블록 요약 — 전부 공개 정보. v2 의 7 + **시각** + **줄 선 대수** ([[YR-208]]).
 
-    v2 의 7 + **시각** + **줄 선 대수** ([[YR-208]]).
+    ★`n_cands=None` 이면 **후보수 칸을 뺀 8차원**을 낸다 (Buyer 용 · [[YR-235]]).
+      Seller 의 `n_cands` 는 *터미널 전체 자격자 수*라 Buyer 에게는 대응물이 없다 —
+      전체를 주면 정보 경계를 넘고(03 §정보경계), 자기가 받은 offer 수를 주면
+      대부분 1 이라 **또 죽은 칸**이 된다. 그래서 **뺀다.**
     """
     sim = mbt.blocks[bid]
-    return [
+    out = [
         inside_count(mbt, bid, t, records) / 10.0,
         pipeline_count(mbt, bid, t, records) / 10.0,
         _crane_backlog_s(sim, t) / 3600.0,
         _occupancy(sim),
         max(-2.0, min(2.0, _vessel_slack_s(sim, t) / 3600.0)),
         announced_soon(mbt, bid, t, orders) / 10.0,
-        n_cands / 6.0,
         # ── v3 신규 ─────────────────────────────────────────────
         min(1.0, t / max(1.0, end_s)),                       # ⑧ 지금 몇 시인가
         waiting_count(mbt, bid, t, records) / 10.0,          # ⑨ 실제 줄 선 대수
     ]
+    if n_cands is not None:
+        out.insert(6, n_cands / 6.0)                         # ⑦ Seller 만
+    return out

@@ -241,17 +241,23 @@ def run_day_phi(*, load: int, seed: int, seller_net=None, buyer_net=None,
     bridge = ctx.make_bridge(market, orders=orders, records=records,
                              on_decision=None)
     exec_policy, exc = _sf_spt_policy()
+    # ★[[YR-235]] A2 (2026-08-26) — v3 와 **같은 창**을 재야 한다.
+    #   시뮬은 배수 2시간을 더 돌지만 Φ 항2/3/4 는 관측창까지만 센다. 여기서
+    #   계수기를 찍어 두지 않으면 rudder 만 26시간을 세어 동일성이 깨진다.
+    from ..v3.stage.episode import _CounterTape
+    tape = _CounterTape(getattr(ctx, "block_vessel", {}))
 
     def review(m, t):
         ctx.announcer.review(m, t)
         bridge.review(m, t)
+        if t <= obs.observe_s:
+            tape.snap(m, t)
 
     mbt.run(exec_policy, review_fn=review)
     bridge._sync(mbt, obs.observe_s)
-    phi = terminal_cost_krw(records, end_s=obs.observe_s,
-                            vessel_idle=ctx.vessel_idle(mbt, obs.observe_s),
-                            yc_extra_move_s=ctx.yc_extra_move_s(mbt),
-                            rehandles=ctx.rehandles(mbt))
+    v_idle, yc_s, reh = tape.read(obs.observe_s)
+    phi = terminal_cost_krw(records, end_s=obs.observe_s, vessel_idle=v_idle,
+                            yc_extra_move_s=yc_s, rehandles=reh)
     return {"phi_krw": float(phi.total), "traded_edges": bridge.traded_edges,
             "decisions": len(market.seller.trail), "admitted": ctx.announcer.n_admitted,
             "n_space": bridge.n_space, "n_time": bridge.n_time,

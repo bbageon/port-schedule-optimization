@@ -45,7 +45,7 @@ class Seller:
         self.no_space = False
 
     # ------------------------------------------------------------------ 후보 좌표
-    def _space_coords(self, mbt, src: str, quay_of) -> list[Coord]:
+    def _space_coords(self, mbt, src: str) -> list[Coord]:
         out = []
         for dst in sorted(b for b in mbt.blocks if b != src):
             if mbt.free_slots(dst) <= 0:
@@ -78,12 +78,11 @@ class Seller:
 
         bf = block_features(mbt, src, t, n_cands=n_cands, records=records,
                             orders=orders, end_s=end_s)
-        cf = candidate_features(order, rec, t, transfer_count=transfer_count,
-                                defer_count=defer_count)
+        cf = candidate_features(order, rec, t)
 
         coords: list[Coord | None] = [None]     # None = KEEP
         if order.is_inbound and not self.no_space:
-            coords += self._space_coords(mbt, src, quay_of)
+            coords += self._space_coords(mbt, src)
         coords += self._time_coords(time_slots)
 
         # ★도착 압력 ([[YR-230]]) — 이 행동을 고르면 트럭이 **언제·어디로** 가나.

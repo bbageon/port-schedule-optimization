@@ -15,6 +15,7 @@
 """
 from __future__ import annotations
 
+import dataclasses
 import random
 
 from ..world.integrated.multiblock import TransferError
@@ -31,7 +32,7 @@ EPOCH_S = 60.0
 
 
 def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
-                lead_mode: str = "DIST") -> dict:
+                lead_mode: str = "DIST", fill_ratio: float | None = None) -> dict:
     """하루치 무대를 세운다. `lead_mode` 가 통지 리드타임 축을 가른다.
 
     | `lead_mode` | 뜻 |
@@ -46,9 +47,15 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         raise ValueError(f"lead_mode 는 DIST|FIXED — {lead_mode!r}")
     obs = obs or OBS_24H
     layout = layout or terminal_layout()
+    prm = TerminalStreamParams(load_4h=load)
+    if fill_ratio is not None:
+        # ★초기 장치율을 낮춘다 — 30일 무대 전용 ([[YR-239]]).
+        #   하루 무대는 0.65(=블록당 936/1440)로 충분하다. 30일은 다르다:
+        #   양하 스트림 하나가 블록에 **하루 386상자**를 쌓으므로 936 → 1,322(92%) 가
+        #   되고, 그 블록이 이튿날도 양하면 **슬롯이 없어 양하가 멈춘다**(실측).
+        prm = dataclasses.replace(prm, fill_ratio=float(fill_ratio))
     built = build_diurnal_v3(profile, seed, load=load, obs=obs, layout=layout,
-                             params=TerminalStreamParams(load_4h=load),
-                             background_seed=seed)
+                             params=prm, background_seed=seed)
 
     rng = random.Random(f"v3:lead:{seed}:{load}:{lead_mode}")
     for e in built["schedule"]:
@@ -94,9 +101,13 @@ class V3Announcer:
     """
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
-                 period_s: float = EPOCH_S):
+                 period_s: float = EPOCH_S, retarget=None):
         self.period_s = float(period_s)
         self.end_s = end_s
+        #: ★반출 대상을 **투입 시각에** 다시 고르는 훅 ([[YR-239]]). None = 명단 그대로.
+        #: 30일 무대에서는 필수다 — 아래 `review` 머리말 참조.
+        self.retarget = retarget
+        self.n_retargeted = 0
         self.by_epoch: dict[float, list[dict]] = {}
         for e in schedule:
             notice = max(0.0, e["arrival_s"] - e["lead_s"])
@@ -114,6 +125,23 @@ class V3Announcer:
         """
         c = V3Announcer.__new__(V3Announcer)
         c.period_s, c.end_s, c.by_epoch = self.period_s, self.end_s, self.by_epoch
+        c.retarget, c.n_retargeted = self.retarget, 0
+        c.n_admitted, c.n_skipped, c.skips = 0, 0, []
+        return c
+
+    def window(self, lo: float, hi: float) -> "V3Announcer":
+        """★그 구간의 명단만 담은 사본 — **작업자에게 보낼 짐을 줄인다** ([[YR-239]]).
+
+        30일 무대는 명단이 20만 건이라 `_Ctx` 를 그대로 절이면(pickle) 작업자 하나당
+        수십 MB 다. 반사실 분기는 `[t, t+H]` 밖의 도착을 **볼 일이 없으므로**
+        그날 것만 잘라 보낸다.
+
+        ⚠️ 자른 구간 밖에서 이 사본을 쓰면 트럭이 안 온다 — **분기 전용**이다.
+        """
+        c = V3Announcer.__new__(V3Announcer)
+        c.period_s, c.end_s = self.period_s, self.end_s
+        c.by_epoch = {k: v for k, v in self.by_epoch.items() if lo <= k <= hi}
+        c.retarget, c.n_retargeted = self.retarget, 0
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         return c
 
@@ -126,6 +154,24 @@ class V3Announcer:
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": "TAIL"})
                 continue
+            if self.retarget is not None and e["flow"] == "GATE_OUT":
+                # ★반출 대상을 **투입 시각에** 다시 고른다 ([[YR-239]]).
+                #   하루 무대는 대상을 무대 세울 때 정해도 된다 — 그 상자가 t=0 야드에
+                #   있고 하루 안에 아무도 안 건드리기 때문이다. 30일은 다르다:
+                #     · 컨테이너 이름이 **날마다 겹친다**(`C0123` 이 매일 다시 나온다)
+                #     · 초기 적재는 유한한데 반출은 30일 동안 계속된다
+                #   ⇒ 5일차 트럭이 찍은 상자를 2일차 트럭이 이미 가져가 버린다.
+                #   그러면 `admit_external_job` 이 "반출 대상 부재" 로 거절하고
+                #   **트럭이 조용히 사라진다**(부하가 저절로 줄어든다).
+                tgt = self.retarget(mbt, e["block"], e)
+                if tgt is None:
+                    self.n_skipped += 1
+                    self.skips.append({"t": t, "job_id": e["job_id"],
+                                       "reason": "NO_TARGET"})
+                    continue
+                if tgt != e.get("target"):
+                    e = {**e, "target": tgt}       # ★원본을 안 건드린다 — 분기와 공유한다
+                    self.n_retargeted += 1
             job = _job_from_entry(e, arr)
             try:
                 mbt.admit_external_job(e["block"], job, gate_in_s=arr,

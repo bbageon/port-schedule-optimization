@@ -159,7 +159,14 @@ def plan_streams(vessels: list[DailyVessel], layout: YardLayout, seed: int, *,
                          "stream": k, "moves": per,
                          "cadence_s": 3600.0 / STREAM_MOVES_PER_H,
                          "start_s": start,
-                         "work": "DISCHARGE" if (len(rows) + k) % 2 == 0 else "LOAD",
+                         # ★스트림 번호로 양하/적하를 가른다 — **`type_offset` 과 같은 식**.
+                         #   한 배가 STS 를 2~6대 붙이고 일부는 내리고 일부는 싣는다(실제가 그렇다).
+                         #   ⚠️ 2026-08-26 정정: 전에는 `(len(rows) + k) % 2` 였는데 두 값이
+                         #   함께 1씩 늘어 합이 **항상 짝수**였다 → 전 스트림이 양하.
+                         #   하루 무대는 이 칸을 안 읽고 `type_offset` 만 봐서 안 드러났지만,
+                         #   30일 무대([[YR-239]])는 이 칸으로 배를 붙이므로 야드가 하루
+                         #   **+5,000상자**씩 부풀었다 (실측: 19,656 → 24,828).
+                         "work": "DISCHARGE" if k % 2 == 0 else "LOAD",
                          "type_offset": k % 2})
     # ★엔진의 '블록당 1 스트림' 계약(≤21). 정상상태로 뽑으면 동시 접안이 흔들려
     #   드물게 넘친다 — **늦게 온 배부터** 통째로 뺀다(스트림만 잘라내면 그 배의

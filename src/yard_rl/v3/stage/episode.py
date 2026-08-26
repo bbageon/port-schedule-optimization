@@ -301,8 +301,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
         raise ValueError(f"slot_mode 는 HORIZON|LEGACY — {slot_mode!r}")
     if arm not in ARMS:
         raise NotImplementedError(
-            f"재배치 팔 {arm!r} 은 아직 구현 전이다 — {TODO_ARMS} 는 YR-211. "
-            f"지금 쓸 수 있는 팔: {ARMS}")
+            f"알 수 없는 재배치 팔 {arm!r} — 오타가 다른 팔 행세를 하면 "
+            f"대조표 전체가 거짓이 된다. 쓸 수 있는 팔: {ARMS}")
     if dispatcher not in DISPATCHERS_READY:
         raise NotImplementedError(
             f"배차 {dispatcher!r} 은 아직 구현 전이다 — 계획법·얼린 망은 YR-213. "
@@ -386,8 +386,13 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
     def review(m, t):
         ann.review(m, t)
         bridge.review(m, t)
-        if budget is not None:
-            tape.snap(m, t)                # ★계수기를 지나갈 때 찍는다(진단용)
+        # ★[[YR-235]] A2 (2026-08-26) — **항상** 찍는다.
+        #   전에는 교사가 있을 때만 찍어서, 판정 경로의 최종 Φ 가 시뮬이 끝난 뒤
+        #   (관측창 + 배수 2시간)의 계수기를 읽었다. 항1 은 관측창에서 검열되는데
+        #   항2/3/4 만 2시간을 더 세는 **창 불일치**였다 (실측 +1.0%).
+        #   관측창 뒤에는 안 찍는다 — 찍으면 그 값이 창끝 값을 덮는다.
+        if t <= obs.observe_s:
+            tape.snap(m, t)
 
     try:
         mbt.run(exec_policy, review_fn=review)
@@ -416,13 +421,13 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
 
     # ── 사건을 끝까지 흡수 (마지막 epoch 이후 완료분)
     bridge._sync(mbt, obs.observe_s)
-    tape.snap(mbt, obs.observe_s)
 
-    phi = terminal_cost_krw(records, end_s=obs.observe_s,
-                            vessel_idle=vessel_idle_of(
-                                mbt, obs.observe_s, built.get("block_vessel", {})),
-                            yc_extra_move_s=yc_empty_travel_s(mbt),
-                            rehandles=rehandles_of(mbt))
+    # ★[[YR-235]] A2 — 네 항이 **같은 창**을 재게 한다.
+    #   항1 은 `end_s` 로 검열되고, 항2/3/4 는 **관측창을 지나갈 때 찍어 둔**
+    #   계수기를 읽는다. 시뮬은 배수 2시간을 더 돌지만 그건 안 센다.
+    v_idle, yc_s, reh = tape.read(obs.observe_s)
+    phi = terminal_cost_krw(records, end_s=obs.observe_s, vessel_idle=v_idle,
+                            yc_extra_move_s=yc_s, rehandles=reh)
     res.phi_krw = phi.total
     res.breakdown = phi.as_dict()
     res.admitted = ann.n_admitted

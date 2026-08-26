@@ -16,14 +16,14 @@
 ■ 설계 문서: `.claude/docs/architecture/05-정보경계.md`
 """
 
-from .block import (BLOCK_DIM, announced_around, block_features,
+from .block import (BLOCK_DIM, BLOCK_DIM_BUYER, announced_around, block_features,
                     inside_count, pipeline_count,
                     waiting_count)
 from .candidate import (BUYER_OFFER_DIM, BUYER_ROW_DIM, CANDIDATE_DIM,
                         SELLER_ACTION_DIM, SELLER_ROW_DIM, buyer_offer_features,
                         candidate_features, seller_action_features)
 
-__all__ = ["BLOCK_DIM", "CANDIDATE_DIM", "SELLER_ACTION_DIM", "BUYER_OFFER_DIM",
+__all__ = ["BLOCK_DIM", "BLOCK_DIM_BUYER", "CANDIDATE_DIM", "SELLER_ACTION_DIM", "BUYER_OFFER_DIM",
            "SELLER_ROW_DIM", "BUYER_ROW_DIM", "block_features",
            "candidate_features", "seller_action_features",
            "buyer_offer_features", "waiting_count", "inside_count",

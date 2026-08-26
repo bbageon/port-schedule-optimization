@@ -24,7 +24,8 @@ from __future__ import annotations
 
 import torch
 
-from ..features.block import block_features
+from ..features.block import (_ARRIVAL_HALF_W_S, announced_around,
+                              block_features)
 from ..features.candidate import (BUYER_OFFER_DIM, buyer_offer_features,
                                   candidate_features)
 from .explore import draw
@@ -64,13 +65,19 @@ class Buyer:
         if own is None or own not in mbt.blocks:
             return Response(offer=offer, action=REJECT)
 
-        bf = block_features(mbt, own, t, n_cands=1, records=records,
-                            orders=orders, end_s=end_s)
-        cf = candidate_features(order, rec, t, transfer_count=0, defer_count=0)
+        bf = block_features(mbt, own, t, n_cands=None, records=records,
+                            orders=orders, end_s=end_s)   # ★후보수 없음
+        cf = candidate_features(order, rec, t)
+        # ★[[YR-235]] A8 — Seller 와 **같은 잣대로 같은 시각**을 본다.
+        #   시간 이연이면 도착이 밀리고, 공간 이동이면 시각은 그대로 블록만 바뀐다.
+        arrive_s = order.in_out_reserve_s + (offer.coord.defer_s if is_time else 0.0)
+        pressure = float(announced_around(mbt, own, arrive_s, orders,
+                                          half_w=_ARRIVAL_HALF_W_S))
         of = buyer_offer_features(is_time=is_time,
                                   route_delta_s=offer.coord.route_delta_s,
                                   src_load=offer.src_load,
-                                  slot_load=offer.slot_load)
+                                  slot_load=offer.slot_load,
+                                  arrival_pressure=pressure)
 
         row_buy = bf + cf + of
         row_reject = bf + cf + [0.0] * BUYER_OFFER_DIM
