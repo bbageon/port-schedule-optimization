@@ -87,7 +87,8 @@ def check_bands(seeds) -> list[str]:
     return bad
 
 
-def check_matrix(cells, *, loads=(3_500, 5_000, 7_500), arms=(), days=16) -> list[str]:
+def check_matrix(cells, *, loads=(3_500, 5_000, 7_500, 12_500, 15_000),
+                 arms=(), days=16) -> list[str]:
     """전 셀 존재 — **부하 3 × 팔 × 날**. 한 부하라도 비면 판정 미성립."""
     missing = []
     have = {(c["load"], c["arm"], c["day"]) for c in cells}

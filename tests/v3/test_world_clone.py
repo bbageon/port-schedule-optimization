@@ -26,6 +26,20 @@ EXTENDED = {
 }
 
 
+#: ★v3 가 **일부러 갈아 끼운** 원본 줄 — 지운 게 아니라 바꿨다는 선언이다.
+#: 여기에 없는 줄이 사라지면 시험이 잡는다(사고성 유실 방지).
+#: 왜 필요한가: v3/world 는 **사본**이라 여기를 고쳐도 v1·v2 동작은 안 갈린다.
+#: 그래도 무엇이 갈렸는지는 한눈에 보여야 하므로 **선언을 강제**한다.
+OVERRIDDEN: dict[str, set[str]] = {
+    # 6차 도착 곡선 (2026-08-26 · 야간 38% · 봉우리 셋)
+    # 이력: .claude/docs/strategy-history/2026-08-26-도착곡선-6차계약-야간38.md
+    "integrated/terminal_stream.py": {
+        "DIURNAL_PEAKS = ((11.0, 1.0, 1.0), (15.0, 2.0, 2.0))   # (중심 h, σ h, 질량 가중)",
+        "DIURNAL_NIGHT_FRAC = 0.15        # 야간 저점 ÷ 일평균 (설계 파라미터 — 한계 박제)",
+    },
+}
+
+
 def _rel(p: pathlib.Path) -> str:
     return p.relative_to(WORLD).as_posix()
 
@@ -67,14 +81,36 @@ def test_extended_files_only_append(rel):
     orig = (SRC / rel).read_text(encoding="utf-8")
     clone = (WORLD / rel).read_text(encoding="utf-8")
     assert len(clone) > len(orig), f"{rel}: 확장 파일인데 원본보다 짧다"
-    # 원본의 모든 줄이 사본에 **순서대로** 남아 있어야 한다.
+    over = OVERRIDDEN.get(rel, set())
+    # 원본의 모든 줄이 사본에 **순서대로** 남아 있어야 한다 —
+    # 단, `OVERRIDDEN` 에 선언한 줄은 갈아 끼운 것이라 없어도 된다.
     it = iter(clone.splitlines())
     for ln in orig.splitlines():
+        if ln in over:
+            continue
         for got in it:
             if got == ln:
                 break
         else:
-            pytest.fail(f"{rel}: 원본 줄이 사라졌다 — {ln[:60]!r}")
+            pytest.fail(
+                f"{rel}: 원본 줄이 사라졌다 — {ln[:60]!r} · "
+                f"일부러 바꾼 것이면 OVERRIDDEN 에 선언하라.")
+
+
+@pytest.mark.parametrize("rel", sorted(OVERRIDDEN))
+def test_overrides_are_real(rel):
+    """★선언한 줄이 **정말 사라졌는가** — 목록이 썩지 않게 한다.
+
+    갈아 끼운 줄을 나중에 되돌려 놓고 선언만 남으면, 다음 사람이 *"여기는 바뀐
+    곳"* 이라고 잘못 읽는다.
+    """
+    clone = set((WORLD / rel).read_text(encoding="utf-8").splitlines())
+    orig = set((SRC / rel).read_text(encoding="utf-8").splitlines())
+    for ln in OVERRIDDEN[rel]:
+        assert ln in orig, f"{rel}: 원본에 없는 줄을 선언했다 — {ln[:60]!r}"
+        assert ln not in clone, (
+            f"{rel}: 선언했는데 사본에 그대로 있다 — {ln[:60]!r}. "
+            f"되돌렸으면 OVERRIDDEN 에서 빼라.")
 
 
 def test_v3_imports_nothing_outside_v3():
