@@ -17,7 +17,8 @@ from __future__ import annotations
 
 import torch
 
-from ..features.block import announced_around, block_features, inside_count
+from ..features.block import (SLOT_HALF_W_S, announced_around,
+                              block_features, inside_count)
 from ..features.candidate import (candidate_features, seller_action_features)
 from .explore import draw, pick
 from .nets import SellerNet, from_advantage
@@ -140,5 +141,17 @@ class Seller:
         })
         if chosen is None:
             return None
+        # slot_load 를 채운다 (2026-08-26). 필드/자리/주석은 처음부터 있었는데
+        # 아무도 안 채워 Buyer 가 늘 0 을 봤다 — 죽은 배선이었다.
+        # 실측: 시간 offer 의 99.0%(부하 12,500)에서 값이 살아나고
+        # Buyer 결정의 9.3% 가 바뀐다. 혼잡할수록 커진다(4.3/8.1/9.3%).
+        # 특징을 늘리는 것이 아니라 있는 칸을 잇는 것이라
+        # '한 번에 한 축'(설계원칙 2)에 걸리지 않는다.
+        slot_load = 0.0
+        if chosen.kind == TIME:
+            slot_load = float(announced_around(
+                mbt, src, order.in_out_reserve_s + chosen.defer_s, orders,
+                half_w=SLOT_HALF_W_S))
         return Offer(doc_key=doc_key, src_block=src, coord=chosen,
-                     src_load=float(inside_count(mbt, src, t, records)))
+                     src_load=float(inside_count(mbt, src, t, records)),
+                     slot_load=slot_load)

@@ -99,6 +99,12 @@ def announced_soon(mbt, bid: str, t: float, orders) -> int:
 _ARRIVAL_HALF_W_S = 1800.0
 
 
+#: 이연 칸 폭(15분)의 절반 — Offer.slot_load 가 그 칸을 읽는 반폭.
+#: _ARRIVAL_HALF_W_S(±30분, 넓은 혼잡)와 다른 값이다:
+#: 이쪽은 그 15분 칸에 이미 몇 대가 예약됐나를 본다.
+SLOT_HALF_W_S = 450.0
+
+
 def announced_around(mbt, bid: str, center_s: float, orders,
                      half_w: float = _ARRIVAL_HALF_W_S) -> int:
     """`center_s ± half_w` 에 그 블록으로 **통지된** 물량 — 공개 정보만.
