@@ -463,3 +463,60 @@ def test_eligibility_index_matches_the_old_full_scan():
         assert got == want, f"t={t}: 색인 {got[:3]} vs 전량 {want[:3]}"
         seen += len(got)
     assert seen > 100, f"자격자가 너무 적어 시험이 헐겁다 — {seen}건"
+
+
+# ────────────────── ★분기 세계가 본 세계와 **같은 정책**인가 (2026-08-27 사고)
+def test_branch_worlds_get_the_same_exploration_rate():
+    """★분기 세계의 ε 가 본 세계와 같아야 한다.
+
+    분기 세계는 `ctx.make_market` 으로 **새로** 만들어진다. 그래서 본 세계 객체에만
+    ε 를 걸면 분기가 ε=0 으로 굴러가고, "사실" 가지가 실제 궤적을 재현하지 못한다:
+
+        본 세계   ε 0.50 → 하루 거래 487건
+        분기 세계 ε 0.00 → 3시간 거래 1건   (비례로는 60건)
+
+    그러면 두 갈래가 똑같아져 **라벨이 0** 이 된다 — 실측 0일차 55건 중 51건.
+
+    ⚠️ 동일성 불변식만으로는 못 잡는다. `actors/explore.py` 머리말대로
+    *"탐색을 끄면 안 터지지만, 그건 문제가 없어서가 아니라 난수를 안 뽑아서다."*
+    그래서 ε 일치 자체를 여기서 못 박는다.
+    """
+    from yard_rl.v3.stage.month_run import run_month
+
+    seen = []
+    days = _short_days(1, load=120)
+
+    def spy(rep):
+        seen.append(rep)
+
+    # 하루만 · 라벨 1건 — ε 가 ctx 까지 가는지만 본다
+    res = run_month(seed=SEED, days=days, arm="RL", labels_per_day=1,
+                    workers=1, explore_of_day=lambda d: 0.37, on_day=spy)
+    assert seen and seen[0].explore == pytest.approx(0.37)
+
+
+def test_ctx_explore_is_what_branches_read():
+    """★`_Ctx.make_market` 이 읽는 값이 곧 분기의 ε 다 — 배선을 못 박는다."""
+    from yard_rl.v3.stage.episode import _Ctx
+
+    ctx = _Ctx(seller_net=None, buyer_net=None, layout=None, announcer=None,
+               arm="RL", grid_s=60.0, window_s=1800.0, explore=0.0, seed=1,
+               episode_end_s=86400.0, cf_horizon_s=10800.0)
+    assert ctx.explore == 0.0
+    ctx.explore = 0.5                      # 무대가 날마다 갱신하는 자리
+    assert ctx.explore == 0.5, "ctx.explore 를 못 바꾸면 분기가 ε 를 못 받는다"
+
+
+def test_identity_check_costs_no_extra_world():
+    """동일성 검사는 **이미 굴린** 사실 가지를 대조만 한다 — 세계를 더 안 쓴다."""
+    from yard_rl.v3.stage.rollout import BranchResult, identity_check
+
+    fact = BranchResult(phi_krw=1.0, seller_action="SELL", seller_coord="TIME@3",
+                        buyer_action="BUY")
+    ok = identity_check(factual=fact, phi_read=1.0,
+                        seller_entry={"action": "SELL", "coord": "TIME@3"},
+                        buyer_entry={"action": "BUY"})
+    bad = identity_check(factual=fact, phi_read=1.0,
+                         seller_entry={"action": "KEEP", "coord": None},
+                         buyer_entry=None)
+    assert ok["ok"] is True and bad["ok"] is False

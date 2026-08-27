@@ -53,7 +53,7 @@ from .month import (DAY_S, N_DAYS, build_month, ledger_load, make_retarget,
 from .branchpool import BranchJob, BranchPool, default_workers
 from .month_engine import MonthTerminal, inject_vessel
 from .orders import EPOCH_S, V3Announcer, orders_from_schedule
-from .rollout import RolloutBudget
+from .rollout import RolloutBudget, identity_check
 
 #: 계수기를 얼마나 자주 찍나. 날 경계는 **항상** 따로 찍는다.
 #: 60초마다 찍으면 30일 = 43,200번 × 21블록이라 그 자체가 벽이 된다.
@@ -96,6 +96,11 @@ class DayReport:
     explore: float = 0.0
     n_labels: int = 0
     worlds: int = 0
+    #: ★동일성 불변식 — 분기의 **사실** 가지가 실제 궤적과 같은 결정을 냈는가.
+    #: 깨지면 그날 라벨은 **다른 정책의 값**이라 학습에 쓰면 안 된다.
+    identity_ok: int = 0
+    identity_bad: int = 0
+    identity_first_bad: dict = field(default_factory=dict)
     fit: dict = field(default_factory=dict)
 
     def as_dict(self) -> dict:
@@ -192,7 +197,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               slot_mode: str = "HORIZON", trigger_top_k: float | None = None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
-              branch_days: int = 1) -> MonthResult:
+              branch_days: int = 1, identity_checks: int = 4) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -319,14 +324,31 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
              "dec": 0, "skip": 0, "retgt": 0}
 
     def open_teacher(d) -> float:
-        """그날의 표본 예산·작업자 풀·ε 를 새로 연다. 교사가 없으면 ε 만 정한다."""
+        """그날의 표본 예산·작업자 풀·ε 를 새로 연다. 교사가 없으면 ε 만 정한다.
+
+        ★ε 는 **ctx 에도** 건다 (2026-08-27 실측 사고). 분기 세계는 `ctx.make_market`
+        으로 **새로** 만들어지므로, 본 세계 객체에만 걸면 분기가 ε=0 으로 굴러간다:
+
+            본 세계   ε 0.50 → 하루 거래 487건
+            분기 세계 ε 0.00 → 3시간 거래 1건 (비례로는 60건)
+
+        그러면 "사실" 가지가 실제 궤적을 재현하지 못해 **두 갈래가 똑같아지고
+        라벨이 0 이 된다** — 실측 0일차 라벨 55건 중 51건이 0이었다.
+
+        탐색을 켜도 분기가 안 늘어난다: 분기 세계의 다리는 `on_decision=None`
+        (교사 재귀 금지)이라 `pool.submit` 이 한 번도 안 불린다. 그리고 난수는
+        좌표 해시(`actors/explore.py`)라 같은 오더·같은 시각이면 본 세계든 분기든
+        **같은 동전 결과**가 나온다 — 그러라고 만든 장치다.
+        """
         eps = explore if explore_of_day is None else float(explore_of_day(d))
+        ctx.explore = eps                    # ★분기 세계가 여기서 ε 를 받는다
         for who in (market.seller, market.buyer):
             if hasattr(who, "explore"):
                 who.explore = eps
         if not labels_per_day:
             return eps
-        b = RolloutBudget(max_labels=labels_per_day, identity_checks=0)
+        b = RolloutBudget(max_labels=labels_per_day,
+                          identity_checks=identity_checks)
         if b.stride <= 0:                    # 하루에 고르게 흩는다
             b.stride = max(1, d.load // max(1, labels_per_day))
         # ★작업자에게는 **그날 명단만** 보낸다 — 30일치(20만 건)를 통째로 절이면
@@ -360,6 +382,18 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                 row["buyer_alt"] = mt["buyer_alt"]
                 row["phi_buyer_alt"] = r["phi_buyer_alt"]
             rows.append(row)
+            # ★동일성 불변식 — 세계를 **더 쓰지 않는다**(이미 굴린 사실 가지를 대조).
+            fact = r.get("factual")
+            if fact is not None and (rep.identity_ok + rep.identity_bad) < identity_checks:
+                chk = identity_check(factual=fact, seller_entry=mt["seller"],
+                                     buyer_entry=mt["buyer"],
+                                     phi_read=r["phi_factual"])
+                if chk["ok"]:
+                    rep.identity_ok += 1
+                else:
+                    rep.identity_bad += 1
+                    if not rep.identity_first_bad:
+                        rep.identity_first_bad = chk
         rep.n_labels = len(rows)
         rep.worlds = pool.n_worlds
         pool.close()
