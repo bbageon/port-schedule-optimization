@@ -411,3 +411,55 @@ def test_judge_does_not_flag_a_busy_rl_arm():
         MJ._run_arm = old
     assert out["rl_silent"] is False
     assert not any("거의 안 했다" in x for x in said)
+
+
+# ─────────────────────── ★자격 검사 색인 — 옛 구현과 **한 건도** 달라지면 안 된다
+def _old_newly_eligible(m, t, *, orders, records, epoch_s=60.0):
+    """2026-08-27 이전 구현 — epoch 마다 전량을 정렬했다. 대조군으로만 쓴다."""
+    out = []
+    for doc_key, o in sorted(orders.items()):
+        if doc_key in m.decided:
+            continue
+        rec = records.get(doc_key)
+        if rec is None or rec.gate_in_s is not None:
+            continue
+        lead = o.in_out_reserve_s - o.copino_notice_s
+        w = m.effective_window_s(lead)
+        dt = o.in_out_reserve_s - t
+        if 0.0 < dt <= w and dt > w - epoch_s:
+            out.append(doc_key)
+    return out
+
+
+def test_eligibility_index_matches_the_old_full_scan():
+    """★색인이 옛 전량 정렬과 **같은 목록·같은 순서**를 내는가.
+
+    옛 코드는 epoch 마다 `sorted(orders.items())` 로 21만 건을 정렬했다 —
+    30일 무대에서 하루 1,440번, 분기 세계마다 180번. 자격은 `reserve ∈ (t, t+창]`
+    안에서만 생기므로 예약 시각 색인으로 그 구간만 보면 된다.
+
+    ⚠️ **순서까지 같아야 한다** — Seller 가 목록 순서대로 판단하므로 순서가 바뀌면
+    세계가 갈리고 지난 판정과 짝비교가 안 된다.
+    """
+    from yard_rl.v3.actors import Buyer, BuyerNet, Market, Seller, SellerNet
+    from yard_rl.v3.schema import Stage
+    from yard_rl.v3.stage.orders import orders_from_schedule
+
+    built = build_month(SEED, days=_short_days(2, load=900))
+    orders, records = orders_from_schedule(built)
+    m = Market(Seller(SellerNet(), None), Buyer(BuyerNet()), None)
+
+    # 일부는 이미 결정됐고 일부는 게이트를 지난 상태를 섞는다
+    keys = sorted(orders)
+    m.decided.update(keys[::37])
+    for k in keys[1::53]:
+        records[k].stamp(Stage.GATE_IN, orders[k].in_out_reserve_s)
+
+    seen = 0
+    for step in range(0, 2 * 24 * 60, 7):          # 이틀치를 7분 간격으로 훑는다
+        t = step * 60.0
+        got = m.newly_eligible(None, t, orders=orders, records=records)
+        want = _old_newly_eligible(m, t, orders=orders, records=records)
+        assert got == want, f"t={t}: 색인 {got[:3]} vs 전량 {want[:3]}"
+        seen += len(got)
+    assert seen > 100, f"자격자가 너무 적어 시험이 헐겁다 — {seen}건"

@@ -57,11 +57,24 @@ class MarketBridge:
         self.slot_steps = (self.SLOT_STEPS_LEGACY if cf_horizon_s is None
                            else self.SLOT_STEPS_HORIZON)
         self.on_decision = on_decision      # 교사 훅 — 없으면 라벨을 안 만든다
-        #: ★분기 세계에 넘길 **기록 묶음**을 고르는 훅 ([[YR-239]]).
+        #: ★분기 세계에 넘길 **기록·오더 묶음**을 고르는 훅 ([[YR-239]]).
         #: 기본(None)은 전부 넘긴다 — 하루 무대에서는 수천 건이라 문제가 없다.
-        #: 30일 무대는 20만 건이 쌓이므로 그대로 복제하면 스냅샷 하나가 몇 초가 된다.
-        #: 라벨은 사실·대안의 **차이**라, 창 밖 트럭은 양쪽에서 똑같이 빠져 상쇄된다.
+        #:
+        #: ⚠️ 30일 무대는 20만 건이 쌓인다. 스냅샷은 **작업자 프로세스로 절여 보내는**
+        #: 짐이므로, 안 자르면 작업 하나당 20만 개를 pickle·전송·unpickle 한다.
+        #:
+        #: 실측(2026-08-27) — **크기는 작지만 개수가 많다**:
+        #:     오더 1개 183바이트 · 21만 개 = 18.8MB · 절이기+풀기 0.44초
+        #:     사흘치(2.1만)로 자르면 1.8MB · 0.02초  ⇒ 작업당 0.42초 · 하루 24초
+        #: ★즉 **시간으로는 작은 몫**이다(하루 24초). 자르는 진짜 이유는 **메모리**다 —
+        #: 동시 진행 40건 × 18.8MB 가 부모·작업자 양쪽에 얹힌다.
+        #: ⚠️ 하루 소요가 70.9분 → 42.3분으로 준 것을 **이 수정 덕이라고 말하면 안 된다.**
+        #: ①24초로 28분을 설명할 수 없고 ②두 실행의 **탐색 ε 이 달랐다**(0.50 vs 0.00)
+        #: — 거래가 3,012 vs 809 로 3.7배 차이라 **아예 다른 세계**를 비교한 것이다.
+        #:
+        #: 라벨은 사실·대안의 **차이**라 창 밖 트럭은 양쪽에서 똑같이 빠져 상쇄된다.
         self.branch_records = None          # callable(t) -> dict
+        self.branch_orders = None           # callable(t) -> dict
         self.traded_edges = 0
         self.txn_failed = 0
         self.n_space = 0
@@ -173,9 +186,11 @@ class MarketBridge:
         if self.on_decision is not None and self._wants_snapshot(mbt, t):
             src = (self.records if self.branch_records is None
                    else self.branch_records(t))
+            src_o = (self.orders if self.branch_orders is None
+                     else self.branch_orders(t))
             pre = {"mbt": copy.deepcopy(mbt),
                    "records": copy.deepcopy(src),
-                   "orders": dict(self.orders),
+                   "orders": dict(src_o),
                    "decided": set(self.market.decided)}
 
         res = self.market.step(

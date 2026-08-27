@@ -47,6 +47,11 @@ class Market:
         self.window_s = float(window_s)
         self.window_cap_s = window_cap_s
         self.decided: set[str] = set()          # 최초 1회 — 다시 거래하지 않는다
+        #: ★예약 시각 순 색인 — `newly_eligible` 이 매번 전량을 훑지 않게 한다.
+        #: 계약: `orders` 의 **키 집합은 무대를 세운 뒤 안 바뀐다**(개방 루프 —
+        #: 트럭 명단이 미리 확정된다). 값은 바뀌지만(`relocate`·`defer`) 그건
+        #: 이미 `decided` 라 자격 검사에서 걸러진다.
+        self._by_reserve: list | None = None
 
     # ------------------------------------------------------------------ 자격
     def effective_window_s(self, lead_s: float | None) -> float:
@@ -59,21 +64,54 @@ class Market:
             w = min(w, float(self.window_cap_s))
         return w
 
+    def _reserve_index(self, orders) -> list:
+        """★예약 시각으로 정렬한 색인 — **한 번만** 만든다.
+
+        ■ 왜 필요한가 (2026-08-27 실측)
+          옛 코드는 epoch 마다 `sorted(orders.items())` 로 **전량을 정렬**했다.
+          하루 무대는 오더가 수천 개라 문제가 없었지만 30일 무대는 **21만 개**다:
+
+              하루 1,440 epoch × 21만 정렬  +  분기 세계마다 180 epoch × 21만
+
+          자격 검사는 `reserve ∈ (t, t + window_s]` 인 오더만 볼 수 있다
+          (`effective_window_s` 가 `window_s` 를 절대 안 넘기므로). 부하 12,500 이면
+          그 창에 **약 260건** — 21만 대신 260건만 보면 된다.
+
+        ■ 값이 바뀌어도 색인은 안 상한다
+          `defer` 가 예약 시각을 옮기지만, 그 오더는 그때 이미 `decided` 라
+          자격 검사에서 먼저 걸러진다. `relocate` 는 블록만 바꾼다.
+        """
+        if self._by_reserve is None:
+            self._by_reserve = sorted(
+                (o.in_out_reserve_s, k) for k, o in orders.items())
+        return self._by_reserve
+
     def newly_eligible(self, mbt, t: float, *, orders, records,
                        epoch_s: float = 60.0) -> list[str]:
-        """이번 epoch 에 **처음** 자격을 얻은 작업. 결정된 것은 다시 안 본다."""
+        """이번 epoch 에 **처음** 자격을 얻은 작업. 결정된 것은 다시 안 본다.
+
+        돌려주는 순서는 **docKey 오름차순** — 옛 구현(`sorted(orders.items())`)과
+        같아야 한다. 순서가 바뀌면 Seller 가 다른 판단을 내려 세계가 갈린다.
+        """
+        import bisect
+
+        idx = self._reserve_index(orders)
+        lo = bisect.bisect_right(idx, (t, chr(0x10FFFF)))
+        hi = bisect.bisect_right(idx, (t + self.window_s, chr(0x10FFFF)))
         out = []
-        for doc_key, o in sorted(orders.items()):
+        for _, doc_key in idx[lo:hi]:
             if doc_key in self.decided:
                 continue
             rec = records.get(doc_key)
             if rec is None or rec.gate_in_s is not None:
                 continue                          # 게이트를 지났다 = 자격 없음
+            o = orders[doc_key]
             lead = o.in_out_reserve_s - o.copino_notice_s
             w = self.effective_window_s(lead)
             dt = o.in_out_reserve_s - t
             if 0.0 < dt <= w and dt > w - epoch_s:   # ← "처음" 들어온 epoch 만
                 out.append(doc_key)
+        out.sort()                                   # 옛 구현과 같은 순서
         return out
 
     # ------------------------------------------------------------------ 한 판

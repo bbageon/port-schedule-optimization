@@ -281,19 +281,36 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     bridge = ctx.make_bridge(market, orders=orders, records=records,
                              on_decision=(on_decision if labels_per_day else None))
 
-    def _near_records(t: float) -> dict:
-        """분기 세계에 넘길 기록 — **그 앞뒤 며칠치**만.
+    def _near_keys(t: float) -> tuple:
+        """분기 세계에 넘길 **트럭 이름들** — 그 앞뒤 며칠치만.
+
+        스냅샷은 작업자 프로세스로 **절여 보내는 짐**이라, 20만 건을 그대로 넘기면
+        작업 하나마다 20만 개를 pickle·전송·unpickle 한다.
+
+        실측(2026-08-27) — **시간으로는 작고 메모리로는 크다**:
+            오더 21만 개 = 18.8MB · 절이기+풀기 0.44초 ⇒ 하루 55작업에 **24초**
+        ⚠️ 그러니 하루 소요가 준 것을 이 수정 덕이라고 말하면 안 된다 — 게다가 그
+        비교는 **탐색 ε 이 달라**(0.50 vs 0.00) 거래가 3.7배 차이 나는 다른 세계였다.
+        자르는 이유는 **동시 진행 40건이 부모·작업자 양쪽에 얹히는 메모리**다.
 
         H=3시간 안에 얽히는 트럭은 오늘과 (자정 근처면) 내일뿐이고, 어제 들어와
         아직 안 나간 트럭도 있다. 그 밖은 사실·대안 양쪽에서 똑같이 빠져 상쇄된다.
         """
         d = int(t // DAY_S)
-        pre = tuple(f"D{i:02d}-" for i in range(max(0, d - branch_days),
-                                                min(n_days, d + branch_days + 1)))
+        return tuple(f"D{i:02d}-" for i in range(max(0, d - branch_days),
+                                                 min(n_days, d + branch_days + 1)))
+
+    def _near_records(t: float) -> dict:
+        pre = _near_keys(t)
         return {k: v for k, v in records.items() if k.startswith(pre)}
+
+    def _near_orders(t: float) -> dict:
+        pre = _near_keys(t)
+        return {k: v for k, v in orders.items() if k.startswith(pre)}
 
     if labels_per_day:
         bridge.branch_records = _near_records
+        bridge.branch_orders = _near_orders
 
     res = MonthResult(plan=[d.as_dict() for d in days])
     archive: dict[str, float] = {}
