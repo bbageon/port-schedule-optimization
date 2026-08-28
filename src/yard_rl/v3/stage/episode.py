@@ -37,6 +37,7 @@ from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
                                                 ensure_time_ledger)
 from ..world.integrated.vessel import VESSEL_CLASSES
 from ..actors.classical import TRIGGER_TOP_K, ClassicalMarket
+from ..dispatch import RULE_BASES, make_preference
 from ..world.integrated.yard_layout import terminal_layout
 
 #: 정책에 공개되는 차량 정보 시점 — 사전 반출입정보 + 제공 ETA.
@@ -78,8 +79,11 @@ RL_TIME = "RL_TIME"        # 시간만 — 반대편. 둘을 합쳐야 두 몫�
 ARMS = ("NO_REALLOC", "RL", RL_SPACE, RL_TIME) + RULE_ARMS
 TODO_ARMS = ()
 
-#: 배차 축 — 지금은 규칙 `SF-SPT` 만. 계획법·얼린 망은 [[YR-213]].
-DISPATCHERS_READY = ("SF_SPT",)
+#: 배차 축 — 크레인 **바닥**. `SF_SPT` 는 현행이고 나머지는 고전 규칙 5종
+#: ([[YR-243]] · `v3/dispatch.py`). 계획법(`JointRolloutGreedy`)은 **뺀다** —
+#: `USES_FUTURE_INFORMATION = True` 오라클이라 바닥이 될 수 없다(사용자 지적
+#: 2026-08-28 · [[YR-213]] 권장안 B 철회).
+DISPATCHERS_READY = ("SF_SPT",) + tuple(sorted(RULE_BASES))
 
 
 @dataclass
@@ -115,7 +119,10 @@ class _Ctx:
     """분기 세계를 다시 조립하는 재료. 망은 **공유**하고 나머지만 새로 만든다."""
 
     def __init__(self, *, seller_net, buyer_net, layout, announcer, arm, grid_s,
-                 window_s, explore, seed, episode_end_s, cf_horizon_s):
+                 window_s, explore, seed, episode_end_s, cf_horizon_s,
+                 dispatcher: str = "SF_SPT"):
+        #: ★크레인 바닥 — 분기 세계도 **같은 것**을 써야 라벨이 정직하다.
+        self.dispatcher = dispatcher
         self.seller_net, self.buyer_net = seller_net, buyer_net
         self.layout, self.announcer = layout, announcer
         self.arm, self.grid_s, self.window_s = arm, grid_s, window_s
@@ -157,7 +164,7 @@ class _Ctx:
         return b
 
     def make_exec_policy(self):
-        return _sf_spt_policy()[0]
+        return _rule_policy(self.dispatcher, seed=self.seed)[0]
 
     #: 무대가 준 블록→스트림 표 (어느 블록이 어느 배의 몇 번 STS 인가)
     block_vessel: dict = {}
@@ -174,11 +181,18 @@ class _Ctx:
         return rehandles_of(mbt)
 
 
-def _sf_spt_policy():
-    """규칙 배차 `SF-SPT` — 실행 정책과 예외 계수기를 함께 돌려준다."""
+def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0):
+    """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
+
+    ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
+    크레인 위에서 만들어져 *"이 결정이 얼마였나"* 가 거짓이 된다. 그래서
+    `_Ctx.dispatcher` 가 이 값을 들고 다닌다.
+    """
     gens: dict[int, CandidateGenerator] = {}
     exc = {"n": 0}
-    pol = ResolverPolicy(ServiceFirstSPTPreference(), "SF")
+    pref = (ServiceFirstSPTPreference() if dispatcher == "SF_SPT"
+            else make_preference(dispatcher, seed=seed))
+    pol = ResolverPolicy(pref, dispatcher)
 
     def exec_policy(sim, dp):
         g = gens.setdefault(id(sim), CandidateGenerator(config=LEGACY_DEFAULT))
@@ -189,6 +203,11 @@ def _sf_spt_policy():
             exc["n"] += 1
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
     return exec_policy, exc
+
+
+def _sf_spt_policy():
+    """옛 이름 — 부르는 곳이 남아 있어 유지한다."""
+    return _rule_policy("SF_SPT")
 
 
 def yc_empty_travel_s(mbt) -> float:
@@ -381,7 +400,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                              on_decision=(on_decision if budget else None))
     if pool is not None:
         pool.__enter__()
-    exec_policy, exc = _sf_spt_policy()
+    exec_policy, exc = _rule_policy(dispatcher, seed=seed)
 
     def review(m, t):
         ann.review(m, t)

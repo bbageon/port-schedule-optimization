@@ -17,7 +17,8 @@ import sys
 import time
 from pathlib import Path
 
-from ..stage.month import N_DAYS, plan_month, summarize
+from ..stage.month import (N_DAYS, SHORT_LOADS, plan_days, plan_month,
+                          summarize)
 from .loop import DIAGNOSTIC_BASE, LABELS_PER_ITER
 from .month_loop import explore_of, run_month_training
 
@@ -35,9 +36,17 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default="outputs/v3/month", help="결과 폴더")
     ap.add_argument("--dry", action="store_true",
                     help="굴리지 않고 **달 계획만** 보여준다")
+    ap.add_argument("--loads", default=None,
+                    help="부하를 **직접 지정** — `short`(바닥 비교용 9일) 또는 "
+                         "쉼표 목록(예 3500,5000,7500). 주면 --days 는 무시한다")
     a = ap.parse_args(argv)
 
-    days = plan_month(a.seed, n_days=a.days)
+    if a.loads:
+        loads = (SHORT_LOADS if a.loads == "short"
+                 else tuple(int(x) for x in a.loads.split(",") if x))
+        days, a.days = plan_days(a.seed, loads), len(loads)
+    else:
+        days = plan_month(a.seed, n_days=a.days)
     s = summarize(days)
     print(f"■ 달 시드 {a.seed:,} · {a.days}일 (학습 {s['n_train']}일)")
     print(f"  {' · '.join(f'{k} {v}일' for k, v in s['by_label'].items())}")

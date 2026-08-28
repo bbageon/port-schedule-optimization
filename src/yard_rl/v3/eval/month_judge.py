@@ -17,15 +17,19 @@
 """
 from __future__ import annotations
 
+import json
 import math
-from concurrent.futures import ProcessPoolExecutor
+import pathlib
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
 from ..stage.month import N_DAYS, plan_month
 from ..stage.month_run import run_month
 
 #: 주판정 상대 — 고전 규칙 5종 + 안 팔기. 진단 팔(RL_SPACE·RL_TIME)은 따로.
-JUDGE_ARMS = ("NO_REALLOC", "FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
+#: `NEAREST` 제외 — 목적지가 20/21 블록에서 `Y01` 로 고정되는 구조 결함
+#: (`actors/classical.py` 머리말 · 사용자 결정 2026-08-28).
+JUDGE_ARMS = ("NO_REALLOC", "FCFS", "SPT", "LEAST_SLACK", "NETGAIN")
 ALPHA = 0.05
 
 #: ★"초혼잡"의 문턱 — 이 부하 이상인 날의 **다음 날**을 따로 묶는다.
@@ -82,7 +86,7 @@ def _run_arm(kw) -> ArmMonth:
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 arms=JUDGE_ARMS, n_days: int = N_DAYS, days=None,
                 trigger_k: dict | None = None, workers: int = 0,
-                extra_policies=None, log=print) -> dict:
+                extra_policies=None, ckpt_dir=None, log=print) -> dict:
     """`RL` 과 각 팔을 **같은 달** 위에서 겨룬다. 부하별로 표를 낸다.
 
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
@@ -106,12 +110,58 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
         todo = todo + (name,)
 
     log(f"■ 판정 — 팔 {len(jobs)}개 × {len(days)}일 (시드 {seed:,})")
-    n_w = workers or len(jobs)
-    if n_w <= 1:
-        got = [_run_arm(k) for k in jobs]
-    else:
-        with ProcessPoolExecutor(max_workers=n_w) as ex:
-            got = list(ex.map(_run_arm, jobs))
+
+    # ★팔 하나가 끝날 때마다 **바로 저장**한다 (2026-08-28 사고).
+    #   전에는 `ex.map` 이 전부 끝나야 돌아와서, 5시간 23분을 굴린 판정이 죽었을 때
+    #   **한 줄도 안 남았다.** 이제 끝난 팔은 건지고, 다시 돌리면 **건너뛴다**.
+    ck = pathlib.Path(ckpt_dir) if ckpt_dir else None
+    if ck:
+        ck.mkdir(parents=True, exist_ok=True)
+
+    def _load(label):
+        if not ck:
+            return None
+        f = ck / f"arm_{label}.json"
+        if not f.exists():
+            return None
+        d = json.loads(f.read_text(encoding="utf-8"))
+        return ArmMonth(arm=d["arm"],
+                        phi_by_day={int(k): v for k, v in d["phi_by_day"].items()},
+                        traded=d["traded"], n_space=d["n_space"], n_time=d["n_time"])
+
+    def _save(g):
+        if ck:
+            (ck / f"arm_{g.arm}.json").write_text(
+                json.dumps({"arm": g.arm, "phi_by_day": g.phi_by_day,
+                            "traded": g.traded, "n_space": g.n_space,
+                            "n_time": g.n_time}, ensure_ascii=False),
+                encoding="utf-8")
+
+    got, pending_jobs = [], []
+    for k in jobs:
+        cached = _load(k.get("_label", k["arm"]))
+        if cached is not None:
+            log(f"  · {cached.arm} — 이미 있음(건너뜀)")
+            got.append(cached)
+        else:
+            pending_jobs.append(k)
+
+    n_w = workers or max(1, len(pending_jobs))
+    if pending_jobs:
+        if n_w <= 1:
+            for k in pending_jobs:
+                g = _run_arm(k)
+                _save(g)
+                log(f"  · {g.arm} 완료")
+                got.append(g)
+        else:
+            with ProcessPoolExecutor(max_workers=n_w) as ex:
+                futs = [ex.submit(_run_arm, k) for k in pending_jobs]
+                for f in as_completed(futs):
+                    g = f.result()
+                    _save(g)
+                    log(f"  · {g.arm} 완료 ({len(got)+1}/{len(jobs)})")
+                    got.append(g)
     by_arm = {g.arm: g for g in got}
 
     train = [d for d in days if d.is_train]

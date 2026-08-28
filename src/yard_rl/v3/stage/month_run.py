@@ -44,7 +44,7 @@ from ..world.integrated.profiles import build_h21_profile
 from ..world.integrated.terminal_stream import (DIURNAL_DRAIN_S, OBS_24H,
                                                 ensure_time_ledger)
 from ..world.integrated.yard_layout import terminal_layout
-from .episode import (ARMS, DISPATCHERS_READY, _Ctx, _sf_spt_policy, _sim_from,
+from .episode import (ARMS, DISPATCHERS_READY, _Ctx, _rule_policy, _sim_from,
                       rehandles_of, yc_empty_travel_s)
 from .month import (DAY_S, N_DAYS, build_month, ledger_load, make_retarget,
                     month_vessel_idle, plan_month, plan_month_vessels,
@@ -215,7 +215,9 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     if arm not in ARMS:
         raise NotImplementedError(f"알 수 없는 재배치 팔 {arm!r} — 쓸 수 있는 팔: {ARMS}")
     if dispatcher not in DISPATCHERS_READY:
-        raise NotImplementedError(f"배차 {dispatcher!r} 은 아직 구현 전이다 (YR-213)")
+        raise NotImplementedError(
+            f"배차 {dispatcher!r} 은 아직 구현 전이다 — 쓸 수 있는 바닥: "
+            f"{DISPATCHERS_READY}")
 
     prof, layout = build_h21_profile(), terminal_layout()
     days = list(days) if days else plan_month(seed, n_days=n_days)
@@ -473,7 +475,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             state["day"] += 1
             state["snap"] = t + SNAP_S
 
-    exec_policy, exc = _sf_spt_policy()
+    exec_policy, exc = _rule_policy(dispatcher, seed=seed)
     mbt.run(exec_policy, review_fn=review)
     tape.snap(mbt, month_s)
     bridge._sync(mbt, month_s)

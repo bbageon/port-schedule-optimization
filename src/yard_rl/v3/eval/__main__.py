@@ -20,6 +20,7 @@ import sys
 import time
 from pathlib import Path
 
+from ..stage.month import SHORT_LOADS, plan_days
 from .guards import DIAGNOSTIC_BAND
 from .month_judge import JUDGE_ARMS, judge_month
 
@@ -52,6 +53,8 @@ def main(argv=None) -> int:
     ap.add_argument("--ckpt-early", default=None,
                     help="★학습 전 체크포인트 — 이것과 --ckpt 의 차이가 **순수 학습 효과**다 "
                          "(둘 다 ε=0 이라 탐색이 안 섞인다)")
+    ap.add_argument("--loads", default=None,
+                    help="부하를 직접 지정 — `short`(9일) 또는 쉼표 목록")
     ap.add_argument("--out", default="outputs/v3/month-judge")
     a = ap.parse_args(argv)
 
@@ -65,11 +68,18 @@ def main(argv=None) -> int:
         extra = {"RL_EARLY": (es, eb)}
         print(f"■ 학습 전 대조: {etag}")
 
+    days = None
+    if a.loads:
+        ld = (SHORT_LOADS if a.loads == "short"
+              else tuple(int(x) for x in a.loads.split(",") if x))
+        days, a.days = plan_days(a.seed, ld), len(ld)
+        print(f"■ 부하 지정 {a.days}일: " + " ".join(str(v // 1000) for v in ld))
+    out = Path(a.out)
     t0 = time.time()
     res = judge_month(seed=a.seed, seller_net=s_net, buyer_net=b_net,
                       arms=tuple(x for x in a.arms.split(",") if x),
-                      n_days=a.days, workers=a.workers, extra_policies=extra)
-    out = Path(a.out)
+                      n_days=a.days, days=days, workers=a.workers,
+                      extra_policies=extra, ckpt_dir=out / "arms")
     out.mkdir(parents=True, exist_ok=True)
     (out / f"judge_{a.seed}.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=1, default=str),
