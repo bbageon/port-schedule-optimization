@@ -28,6 +28,9 @@ from ..stage.month_run import run_month
 JUDGE_ARMS = ("NO_REALLOC", "FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
 ALPHA = 0.05
 
+#: ★"초혼잡"의 문턱 — 이 부하 이상인 날의 **다음 날**을 따로 묶는다.
+HEAVY_LOAD = 12_500
+
 
 def sign_test(diffs) -> dict:
     """양측 부호검정 — `diff < 0` 이 *"RL 이 쌌다"* 다.
@@ -62,9 +65,15 @@ class ArmMonth:
 
 
 def _run_arm(kw) -> ArmMonth:
-    """작업자 프로세스에서 도는 함수 — 팔 하나로 달 하나를 굴린다."""
+    """작업자 프로세스에서 도는 함수 — 팔 하나로 달 하나를 굴린다.
+
+    `_label` 은 결과를 부를 이름이다 — 같은 `arm="RL"` 을 **다른 정책**으로 두 번
+    굴릴 때(학습 전/후) 이름이 겹치지 않게 한다.
+    """
+    kw = dict(kw)
+    label = kw.pop("_label", kw["arm"])
     res = run_month(**kw)
-    return ArmMonth(arm=kw["arm"],
+    return ArmMonth(arm=label,
                     phi_by_day={d.index: d.phi_krw for d in res.days},
                     traded=res.traded_edges, n_space=res.n_space,
                     n_time=res.n_time)
@@ -73,7 +82,7 @@ def _run_arm(kw) -> ArmMonth:
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 arms=JUDGE_ARMS, n_days: int = N_DAYS, days=None,
                 trigger_k: dict | None = None, workers: int = 0,
-                log=print) -> dict:
+                extra_policies=None, log=print) -> dict:
     """`RL` 과 각 팔을 **같은 달** 위에서 겨룬다. 부하별로 표를 낸다.
 
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
@@ -85,10 +94,16 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 buyer_net=buyer_net)
     jobs = []
     for a in todo:
-        kw = dict(base, arm=a)
+        kw = dict(base, arm=a, _label=a)
         if trigger_k and a in trigger_k:
             kw["trigger_top_k"] = float(trigger_k[a])
         jobs.append(kw)
+    # ★같은 팔(RL)을 **다른 정책**으로 한 번 더 — 학습 전/후를 ε=0 에서 견준다.
+    #   탐색이 둘 다 0 이라 "탐색이 줄어 좋아졌다" 와 "배워서 좋아졌다" 가 갈린다.
+    for name, (s_n, b_n) in (extra_policies or {}).items():
+        jobs.append(dict(base, arm="RL", _label=name,
+                         seller_net=s_n, buyer_net=b_n))
+        todo = todo + (name,)
 
     log(f"■ 판정 — 팔 {len(jobs)}개 × {len(days)}일 (시드 {seed:,})")
     n_w = workers or len(jobs)
@@ -123,18 +138,31 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
         diffs = [rl.phi_by_day[d.index] - other.phi_by_day[d.index] for d in train]
         out["arms"][a] = sign_test(diffs)
 
-    loads = sorted({d.load for d in train})
-    for load in loads:
-        ds = [d for d in train if d.load == load]
-        row = {"n_days": len(ds), "label": ds[0].label, "thin": len(ds) < 4,
-               "arms": {}}
+    def _slice(ds, key):
+        row = {"n_days": len(ds), "label": key, "thin": len(ds) < 4, "arms": {}}
         for a in todo[1:]:
             other = by_arm[a]
             diffs = [rl.phi_by_day[d.index] - other.phi_by_day[d.index] for d in ds]
             row["arms"][a] = sign_test(diffs)
         row["beaten"] = sum(1 for a, r in row["arms"].items()
                             if r["p"] < ALPHA and r["median"] < 0)
-        out["by_load"][load] = row
+        return row
+
+    loads = sorted({d.load for d in train})
+    for load in loads:
+        ds = [d for d in train if d.load == load]
+        out["by_load"][load] = _slice(ds, ds[0].label)
+
+    # ★"초혼잡 다음 날" 축 (사용자 지적 2026-08-28) — 밀린 일감을 누가 잘 푸나.
+    #   하루 무대는 이 축이 **원리적으로 없다**(매일 아침 야드가 리셋된다).
+    prev = {d.index: days[d.index - 1].load if d.index > 0 else 0 for d in train}
+    after = [d for d in train if prev[d.index] >= HEAVY_LOAD]
+    calm = [d for d in train if prev[d.index] < HEAVY_LOAD]
+    out["by_wake"] = {}
+    if after:
+        out["by_wake"]["초혼잡 다음 날"] = _slice(after, "초혼잡 다음 날")
+    if calm:
+        out["by_wake"]["평상 다음 날"] = _slice(calm, "평상 다음 날")
 
     out["traded"] = {a: by_arm[a].traded for a in todo}
     _log_table(out, log)
@@ -149,12 +177,19 @@ def _log_table(out: dict, log) -> None:
             "패" if (r["p"] < ALPHA) else "무승부")
         log(f"   RL vs {a:<12} {r['win']:>2}/{r['n']:<2} "
             f"중앙 {r['median']:>+15,.0f}원 p={r['p']:.4f}  {mark}")
-    log("■ 부하별 (★사용자 지시 — 얇은 표본도 그대로 적는다)")
-    for load, row in out["by_load"].items():
-        thin = "  ⚠️표본 얇음" if row["thin"] else ""
-        log(f" 부하 {load:>6,} ({row['label']}) · {row['n_days']}일 · "
-            f"RL 이 넘은 팔 **{row['beaten']}/{len(row['arms'])}**{thin}")
-        for a, r in row["arms"].items():
-            mark = "★" if (r["p"] < ALPHA and r["median"] < 0) else " "
-            log(f"     {mark} {a:<12} {r['win']:>2}/{r['n']:<2} "
-                f"중앙 {r['median']:>+15,.0f}원 p={r['p']:.4f}")
+    def _rows(title, table, fmt):
+        log(title)
+        for k, row in table.items():
+            thin = "  ⚠️표본 얇음" if row["thin"] else ""
+            log(f" {fmt(k, row)} · {row['n_days']}일 · "
+                f"RL 이 넘은 팔 **{row['beaten']}/{len(row['arms'])}**{thin}")
+            for a, r in row["arms"].items():
+                mark = "★" if (r["p"] < ALPHA and r["median"] < 0) else " "
+                log(f"     {mark} {a:<12} {r['win']:>2}/{r['n']:<2} "
+                    f"중앙 {r['median']:>+15,.0f}원 p={r['p']:.4f}")
+
+    _rows("■ 부하별 (★사용자 지시 — 얇은 표본도 그대로 적는다)", out["by_load"],
+          lambda k, r: f"부하 {k:>6,} ({r['label']})")
+    if out.get("by_wake"):
+        _rows("■ ★밀림별 — 초혼잡이 남긴 일감을 누가 잘 푸나 (30일 무대에만 있는 축)",
+              out["by_wake"], lambda k, r: f"{k:<14}")

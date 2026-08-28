@@ -49,6 +49,9 @@ def main(argv=None) -> int:
                     help="RL 과 겨룰 팔 (쉼표 구분)")
     ap.add_argument("--workers", type=int, default=0,
                     help="팔을 나눌 프로세스 수 (0 = 팔 수만큼)")
+    ap.add_argument("--ckpt-early", default=None,
+                    help="★학습 전 체크포인트 — 이것과 --ckpt 의 차이가 **순수 학습 효과**다 "
+                         "(둘 다 ε=0 이라 탐색이 안 섞인다)")
     ap.add_argument("--out", default="outputs/v3/month-judge")
     a = ap.parse_args(argv)
 
@@ -56,11 +59,16 @@ def main(argv=None) -> int:
         print("⚠️ 진단 대역 시드다 — 여기 나온 수치는 **논문 주장이 아니다**")
     s_net, b_net, tag = _load_nets(a.ckpt)
     print(f"■ 정책: {tag}")
+    extra = None
+    if a.ckpt_early:
+        es, eb, etag = _load_nets(a.ckpt_early)
+        extra = {"RL_EARLY": (es, eb)}
+        print(f"■ 학습 전 대조: {etag}")
 
     t0 = time.time()
     res = judge_month(seed=a.seed, seller_net=s_net, buyer_net=b_net,
                       arms=tuple(x for x in a.arms.split(",") if x),
-                      n_days=a.days, workers=a.workers)
+                      n_days=a.days, workers=a.workers, extra_policies=extra)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / f"judge_{a.seed}.json").write_text(
