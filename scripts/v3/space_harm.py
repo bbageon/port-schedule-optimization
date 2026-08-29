@@ -1,4 +1,4 @@
-"""블록 재배치가 혼잡에서 왜 해로운가 ([[YR-248]]).
+"""블록 재배치가 혼잡에서 왜 해로운가 ([[YR-251]]).
 
     PYTHONPATH=src python scripts/v3/space_harm.py
 
