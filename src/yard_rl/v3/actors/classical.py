@@ -65,6 +65,26 @@
     ①제외 사유와 증거 ②포함했을 때의 수치를 **논문 각주로 남긴다**.
     코드도 지우지 않고 `RETIRED_ARMS` 로 남겨 재현할 수 있게 둔다.
 
+■ ★도착시각 조정을 쓰는 팔 둘 ([[YR-249]] · 2026-08-29)
+  [[YR-247]] 실측이 *"우세의 원인은 정책 품질이 아니라 **행동 폭**"* 임을 보였다 —
+  앞 넷은 전부 블록 재배치만 해서 절감이 −0.48~+0.53%로 사실상 0인데, 행동 폭을
+  블록으로 맞춘 학습 정책(`RL_SPACE`)도 −1.31%였다. 그래서 **도착시각 조정을 쓰는
+  규칙**이 없으면 *"같은 행동 폭에서도 학습이 낫다"* 를 물었을 때 답이 없다.
+
+  | 팔 | 반입(공간) | 반출·전체(시간) |
+  |---|---|---|
+  | `SLOT_LL` | 안 함 | **가장 한산한 칸**으로 미룬다 |
+  | `SPACE_TIME_LL` | 가장 한산한 블록 | **가장 한산한 칸** |
+
+  ★번역이 자의적이지 않다 — 공간 축에서 이미 쓰는 **Least-Loaded** 를 축만 바꿔
+  적용한 것이다. 트럭 예약제 문헌의 표준 규칙(*"가장 한산한 시간대로 배정"*)과 같은
+  꼴이고, 새 방법론이 아니다. [[YR-211]] 이 *"시간 이연은 고전 **배차** 규칙에
+  대응물이 없다"* 고 적은 것은 맞지만, 그 판단은 배차 규칙에 한정된 것이고 **예약제
+  문헌에는 대응물이 있다** — 그때 결정을 뒤집는 게 아니라 축을 넓히는 것이다.
+
+  ★"한산함" 은 `announced_around` 로 잰다 — 그 시각 ±창에 그 블록으로 **통지된**
+  물량이다. 공개 정보이고 학습 정책의 도착압력 칸과 **같은 함수**라 잣대가 같다.
+
 ■ 정보 경계 — 전 팔이 **공개 정보만** 쓴다
   통지 시각(`copino_notice_s`)·공개 예정(`in_out_reserve_s`)·현재 내부 대수·
   크레인 밀린 일만 본다. **실현 도착·실현 완료는 한 줄도 안 읽는다**
@@ -72,13 +92,19 @@
 """
 from __future__ import annotations
 
+from ..features.block import announced_around
 from ..reward.krw import KRW_TRUCK_HOUR
 from .market import EpochResult, Market
-from .offer import RESOLVER_KEEP, SPACE
+from .offer import RESOLVER_KEEP, SPACE, TIME
 from .resolver import ResolveResult, Trade
 
 #: 구현된 고전 팔. **`NEAREST` 는 뺐다** — 사유는 아래.
-ARM_RULES: tuple[str, ...] = ("FCFS", "SPT", "LEAST_SLACK", "NETGAIN")
+#: 앞 넷은 **블록 재배치만**, 뒤 둘은 **도착시각 조정**을 쓴다([[YR-249]]).
+ARM_RULES: tuple[str, ...] = ("FCFS", "SPT", "LEAST_SLACK", "NETGAIN",
+                              "SLOT_LL", "SPACE_TIME_LL")
+
+#: ★도착시각 조정을 쓰는 팔 — 행동 폭을 학습 정책에 맞춘 대조군.
+TIME_ARMS: frozenset = frozenset({"SLOT_LL", "SPACE_TIME_LL"})
 
 #: ★제외된 팔 — 코드는 남기되 판정에서 뺀다(재현·검증을 위해 지우지 않는다).
 RETIRED_ARMS: tuple[str, ...] = ("NEAREST",)
@@ -217,18 +243,26 @@ class ClassicalMarket(Market):
             return res
 
         hot = self._triggered_blocks(mbt, t)
-        picks = []
+        picks, time_picks = [], []
+        does_time = self.arm in TIME_ARMS
+        does_space = self.arm != "SLOT_LL"
         for doc_key in res.newly_eligible:
             o = orders[doc_key]
             src = o.con_loc
             if src not in mbt.blocks:
                 continue
             self.seller.trail.append({"t": t, "doc_key": doc_key})   # 결정 계수
-            if src not in hot or not o.is_inbound:
-                # 트리거 밖이거나 반출건 — 옮기지 않는다(v3 Seller 와 같은 물리 제약)
+            if src not in hot:
                 self.decided.add(doc_key)
                 continue
-            picks.append((self._priority(doc_key, o, mbt, t, records), doc_key))
+            if o.is_inbound and does_space:
+                # 반입 — 블록 재배치 (v3 Seller 와 같은 물리 제약)
+                picks.append((self._priority(doc_key, o, mbt, t, records), doc_key))
+            elif does_time:
+                # ★반출(또는 시간 전용 팔) — 도착시각 조정
+                time_picks.append((self._priority(doc_key, o, mbt, t, records), doc_key))
+            else:
+                self.decided.add(doc_key)
 
         reserved: dict = {}
         for _pri, doc_key in sorted(picks):
@@ -248,4 +282,46 @@ class ClassicalMarket(Market):
                 route_delta_s=float(route), defer_s=0.0))
             self.decided.add(doc_key)
             rec.record_swap(prev_block=src, reason="SPACE")
+
+        # ── ★도착시각 조정 — 가장 한산한 칸으로 ([[YR-249]])
+        taken: dict = {}
+        for _pri, doc_key in sorted(time_picks):
+            o, rec = orders[doc_key], records[doc_key]
+            src = o.con_loc
+            slots = list(time_slots_of(doc_key, t)) if time_slots_of else []
+            best = self._slot(mbt, src, slots, orders, taken, slot_capacity_left)
+            if best is None:
+                self.decided.add(doc_key)
+                rec.con_swap_reason = RESOLVER_KEEP
+                res.resolve.kept.append(doc_key)
+                continue
+            k, start, defer = best
+            taken[k] = taken.get(k, 0) + 1
+            res.resolve.trades.append(Trade(
+                doc_key=doc_key, src_block=src, coord_key=f"TIME@{k}",
+                kind=TIME, dst_block=None, slot=int(k),
+                route_delta_s=0.0, defer_s=float(defer)))
+            self.decided.add(doc_key)
+            rec.record_swap(prev_block=src, reason="TIME")
         return res
+
+    # ------------------------------------------------------------------ 시간 칸
+    def _slot(self, mbt, src, slots, orders, taken, slot_capacity_left):
+        """**언제로 미룰까** — 가장 한산한 칸. 못 미루면 `None`.
+
+        한산함은 `announced_around`(그 시각 ±창에 통지된 물량)로 잰다. 이번 epoch 에
+        이미 그 칸으로 보낸 대수(`taken`)를 더해 **같은 칸에 몰리는 것을 막는다** —
+        공간 축의 `reserved` 와 같은 장치다.
+        """
+        cands = []
+        for k, start, defer in slots:
+            if slot_capacity_left is not None:
+                left = slot_capacity_left(k)
+                if left is not None and left - taken.get(k, 0) <= 0:
+                    continue
+            load = announced_around(mbt, src, start, orders) + taken.get(k, 0)
+            cands.append((load, defer, k, start))
+        if not cands:
+            return None
+        load, defer, k, start = min(cands)      # 한산한 곳 → 동점이면 덜 미루는 쪽
+        return k, start, defer

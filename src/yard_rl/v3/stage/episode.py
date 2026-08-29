@@ -36,7 +36,8 @@ from ..world.integrated.profiles import build_h21_profile
 from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
                                                 ensure_time_ledger)
 from ..world.integrated.vessel import VESSEL_CLASSES
-from ..actors.classical import TRIGGER_TOP_K, ClassicalMarket
+from ..actors.classical import (ARM_RULES, RETIRED_ARMS, TRIGGER_TOP_K,
+                                ClassicalMarket)
 from ..dispatch import RULE_BASES, make_preference
 from ..world.integrated.yard_layout import terminal_layout
 
@@ -68,7 +69,9 @@ from .vessels import structural_idle_krw
 #: 구현된 재배치 팔. 나머지는 [[YR-211]].
 #: 고전 규칙 팔 ([[YR-211]] · `actors/classical.py`) — **주판정 축**이다.
 #: [06 §3] 동결 규약: 주판정 = 규칙 대비, 안 팔기 대비는 판별력 0([[YR-185]]).
-RULE_ARMS = ("FCFS", "SPT", "LEAST_SLACK", "NEAREST", "NETGAIN")
+#: ★목록은 `actors/classical.py` 가 **유일한 출처**다 (2026-08-29).
+#: 전에는 여기 따로 적어 두어 `SLOT_LL` 을 더했을 때 조용히 어긋났다.
+RULE_ARMS = ARM_RULES + RETIRED_ARMS   # 제외 팔도 **굴릴 수는** 있다(각주용)
 #: ★진단 팔 ([[YR-232]]) — 학습 망은 그대로 쓰되 **시간 이연 후보를 안 만든다**.
 #: 고전 팔이 공간 이동만 하므로, RL 의 우세가 *"구조가 좋아서"* 인지
 #: *"고를 게 많아서"* 인지 가르는 데 쓴다.
