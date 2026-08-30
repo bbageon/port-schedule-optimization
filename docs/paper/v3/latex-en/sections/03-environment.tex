@@ -74,22 +74,39 @@ the shape of the mixture is a construction of this study.}
 
 \subsection{Vessels and Quay Operations}
 \label{sec:env-vessel}
-We use three vessel classes. A small vessel has 50{,}000\,GT,
-3{,}000\,TEU, and two quay cranes. Its idle cost is KRW 149{,}500 per
-hour. A medium vessel has 100{,}000\,GT, 7{,}500\,TEU, and four cranes;
-its idle cost is KRW 299{,}000. A large vessel has 150{,}000\,GT,
-14{,}000\,TEU, and six cranes; its idle cost is KRW 448{,}500. For a
-vessel with capacity $C$ TEU, call volume is $C\cdot u$, where $u\sim
-U[0.15,0.30]$. Each day includes two small vessels and one medium
-vessel; one large vessel is added with probability 0.30. One quay crane
-processes 27.5\,moves/h, within the 24, 30, and 36\,moves/h values used
-in the literature~\cite{ref16}. We sum blocking across assigned quay
-cranes and divide by their number to obtain idle time per vessel. On the
-yard side, the reference service time is 180\,s per move. Nominal yard
-capacity is therefore $\mu_{YC}=21\times2\times3600/180=840$ moves per
+We use three vessel classes. Table~\ref{tab:vessels} summarises their
+size, assigned quay cranes, idle cost, and daily call mix.
+
+\begin{center}
+\captionof{table}{Vessel classes and daily call mix. Shares use the
+expected 3.3 vessel calls per day. The 0.3 call for large vessels is the
+expectation from adding one large vessel with probability 0.30.}
+\label{tab:vessels}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Class & GT & TEU & STS & Idle cost & Calls/day \\
+ & & & (cranes) & (KRW 1,000/h) & (mean share) \\
+\midrule
+Small & 50{,}000 & 3{,}000 & 2 & 149.5 & 2.0 (60.6\%) \\
+Medium & 100{,}000 & 7{,}500 & 4 & 299.0 & 1.0 (30.3\%) \\
+Large & 150{,}000 & 14{,}000 & 6 & 448.5 & 0.3 (9.1\%) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For a vessel with capacity $C$ TEU, call volume is $C\cdot u$, where
+$u\sim U[0.15,0.30]$. One quay crane processes 27.5\,moves/h, within the
+24, 30, and 36\,moves/h values used in the literature~\cite{ref16}. We
+sum blocking across the assigned quay cranes and divide by their number
+to obtain idle time per vessel.
+
+On the yard side, the reference service time is 180\,s per move, giving
+a nominal capacity of $\mu_{YC}=21\times2\times3600/180=840$ moves per
 hour. A move is a container movement, not a truck job. One truck job may
-require several moves and rehandles, and service time varies by position
-and job type. We therefore report move and truck units separately.
+require several moves and rehandles, so we report the two units
+separately.
 
 \subsection{Cost Function}
 \label{sec:env-cost}
