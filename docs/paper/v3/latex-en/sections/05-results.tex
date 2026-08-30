@@ -1,7 +1,9 @@
 % =====================================================================
 \section{Numerical Experiments}
+\label{sec:exp}
 
 \subsection{Scope of the Results}
+\label{sec:exp-scope}
 The results below come from the middle 28 days of a 30-day continuous
 diagnostic run generated with random seed 9{,}900{,}950, which does not
 overlap with training. Weights were frozen and the exploration
@@ -12,6 +14,7 @@ the source code, the raw per-policy results, and the figure scripts are
 released with the paper.
 
 \subsection{Confirmation of Architectural Operation}
+\label{sec:exp-confirm}
 Four structural conditions---separate models for proposal and
 acceptance, no commitment on one-sided consent, no realised future
 arrival or completion time among policy inputs, and no state reset at
@@ -23,6 +26,7 @@ branch that changes no action must reproduce the action and cost of the
 main run, passed 4/4 where counterfactual labels exist.
 
 \subsection{Paired Daily Comparison Across Policies}
+\label{sec:exp-paired}
 Every policy is run on the same random streams, following Kleijnen's
 analysis of common random numbers, so that a difference between two
 policies is not read off simulation noise~\cite{ref22}. The cost
@@ -71,11 +75,12 @@ Over 28 days the total cost was KRW 10.00\,bn without reallocation and
 KRW 8.52\,bn with the proposed policy, a reduction of KRW 1.471\,bn
 (14.7\%). The four rule-based policies above use block reallocation
 only, so this comparison reflects the potential of the architecture as a
-whole; a comparison matched on action range is treated in Sect.~5.5. The
+whole; a comparison matched on action range is treated in Sect.~\ref{sec:exp-rules}. The
 days on which the proposed policy costs more are few and small, whereas
 the days of largest reduction are those of congested demand.
 
 \subsection{Demand Level and the Decomposition of Actions}
+\label{sec:exp-decomp}
 Table~\ref{tab:actions} decomposes the reduction by demand level. Of the
 total, 90.5\% occurred on the four days with demand of 12{,}500 and
 15{,}000 trucks, which supports developing the architecture towards a
@@ -122,7 +127,8 @@ demand & Days & actions & only & only & training \\
 \end{table}
 
 \subsection{Rule-Based Policies of the Same Action Range}
-Sect.~5.4 raises the question of what a rule achieves when given the
+\label{sec:exp-rules}
+Sect.~\ref{sec:exp-decomp} raises the question of what a rule achieves when given the
 same action. Two rules were added by transferring the
 \emph{least-loaded} criterion from the spatial to the temporal axis,
 introducing no new parameter and sharing the congestion condition of the
@@ -139,10 +145,11 @@ congested days: the learned selection was optimised \emph{not towards
 winning frequently but towards reducing cost sharply on the expensive
 days}, and both indicators must be reported for this to be visible. The
 rule using both actions also weakens under congested demand,
-reproducing the property of Sect.~5.4 and suggesting it belongs to the
+reproducing the property of Sect.~\ref{sec:exp-decomp} and suggesting it belongs to the
 action rather than to a particular policy.
 
 \subsection{Learning Effect and Dispatching Sensitivity}
+\label{sec:exp-learning}
 Before the cost comparison, the fit itself. Over the 30 training
 iterations the proposal network's Huber loss fell from 0.079 to 0.029 on
 training decisions and from 0.268 to 0.119 on held-out ones, and the
@@ -176,7 +183,7 @@ bounded: learning contributes a reduction that is large in total and
 without exception on congested days, and counting days understates it
 because the policy was optimised to cut cost sharply when it is
 expensive rather than to win frequently---as observed for the rules in
-Sect.~5.5. Establishing it at a conventional significance level requires
+Sect.~\ref{sec:exp-rules}. Establishing it at a conventional significance level requires
 more congested days, not more days.
 
 Separately, the ranking of crane dispatching rules reversed with

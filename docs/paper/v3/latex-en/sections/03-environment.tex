@@ -1,10 +1,12 @@
 % =====================================================================
 \section{Experimental Environment}
+\label{sec:env}
 
 \subsection{A Literature-Calibrated Synthetic Environment}
+\label{sec:env-calib}
 The architecture is evaluated in a synthetic environment rather than on
 the operating record of a particular terminal, with scales taken from
-the studies reviewed in Sect.~2: 20 blocks~\cite{ref16}, several cranes
+the studies reviewed in Sect.~\ref{sec:related}: 20 blocks~\cite{ref16}, several cranes
 per block~\cite{ref8}, multi-week continuous
 operation~\cite{ref9}, strong time-of-day variation in truck
 arrivals~\cite{ref13}, three vessel classes of differing call
@@ -12,12 +14,13 @@ size~\cite{ref16}, and a triangular range for crane handling
 time~\cite{ref9}. Within those ranges this study fixes 21 blocks, two
 cranes per block, 30 continuous days with state carried across the day
 boundary, three vessel classes, and 180\,s of crane service time; the
-arrival curve is set out in Sect.~3.3. These fixed values are design
+arrival curve is set out in Sect.~\ref{sec:env-demand}. These fixed values are design
 choices of this study, and the citations establish only that they lie
 within the modelling range of existing work, not that they come from a
 specific port.
 
 \subsection{Terminal and Time Settings}
+\label{sec:env-terminal}
 The yard has 21 blocks with two cranes each (42 in total), a block
 capacity of 1{,}440 slots at 65\% initial occupancy, and a
 one-dimensional layout with the gate and the quay on opposite sides. The
@@ -29,6 +32,7 @@ the terminal stops: inventory, queues, crane state, and unfinished jobs
 carry over, with the first and last day connecting the boundaries.
 
 \subsection{External Truck Demand and the Arrival Process}
+\label{sec:env-demand}
 External truck job demand is built from ranges reported in the
 literature rather than copied from it: prior work establishes that
 terminals operate at these demand magnitudes and that truck arrivals
@@ -73,6 +77,7 @@ the shape of the mixture is a construction of this study.}
 \end{figure}
 
 \subsection{Vessels and Quay Operations}
+\label{sec:env-vessel}
 Vessels were divided into three classes: small (50{,}000\,GT,
 3{,}000\,TEU, two quay cranes, KRW 149{,}500 idle cost per hour), medium
 (100{,}000\,GT, 7{,}500\,TEU, four, KRW 299{,}000), and large
@@ -92,6 +97,7 @@ position and job type, so we report move units and truck units
 separately.
 
 \subsection{Cost Function}
+\label{sec:env-cost}
 The total cost over the interval $[d,d+1)$ is the sum of four terms:
 
 \begin{equation}

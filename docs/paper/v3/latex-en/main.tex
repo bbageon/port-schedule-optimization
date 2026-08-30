@@ -67,6 +67,7 @@ management \and Yard block reallocation \and Counterfactual learning
 
 % =====================================================================
 \section{Introduction}
+\label{sec:intro}
 
 Container volumes have kept growing while terminal land and equipment
 have not, and the resulting pressure on yard and gate operations has made
@@ -112,22 +113,32 @@ contributions are an \emph{independent policy structure}, a
 \emph{spatio-temporal action range}, \emph{counterfactual cost
 learning}, a \emph{separation of learning and operation}, and a
 \emph{decomposable evaluation} that reports execution, action range, and
-learning effect separately. Sect.~2 places these choices among existing
-work, Sect.~3 describes the environment, Sect.~4 the policies and the
-learning signal, and Sect.~5 the results.
+learning effect separately. Sect.~\ref{sec:related} places these choices among existing
+work, Sect.~\ref{sec:env} describes the environment, Sect.~\ref{sec:arch} the policies and the
+learning signal, and Sect.~\ref{sec:exp} the results.
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=\textwidth]{fig-arch.pdf}
-\caption{Reallocation decision flow and the separation of learning from
-operation. The operating path uses only the trained networks and issues
-no counterfactual simulation call.}
+\includegraphics[width=\textwidth]{fig-system.png}
+\caption{System architecture. (A) The operating path runs every 60\,s and
+uses only the trained networks: a job becomes eligible once, the proposal
+policy takes the $\arg\min$ over its candidates, the destination policy
+accepts or rejects, and the central procedure commits only on mutual
+agreement and free capacity, otherwise the original assignment stands.
+(B) The environment in which those decisions are executed and the four
+cost terms they are judged by. (C) The learning path is offline: a
+snapshot taken immediately before a decision is replayed as parallel
+worlds that differ in one action, and the difference in accumulated cost
+becomes the training target. No branch simulation is invoked on the
+operating path.}
 \label{fig:arch}
 \end{figure}
 
 % =====================================================================
 \section{Related Work}
+\label{sec:related}
 \subsection{Smart Ports and Terminal Operations}
+\label{sec:rel-port}
 Yen et al.\ measure port efficiency with data envelopment analysis and
 then explain the resulting scores through a Tobit regression on
 smart-port design attributes, separating \emph{how efficient a port is}
@@ -149,7 +160,7 @@ single objective. Kourounioti and Polydoropoulou develop time-of-day
 models of truck arrivals from aggregate terminal data, establishing that
 arrivals are far from uniform across the day~\cite{ref13}; the value of
 shifting an arrival therefore depends on where in the arrival curve it
-starts and lands, and the environment of Sect.~3 reproduces that shape
+starts and lands, and the environment of Sect.~\ref{sec:env} reproduces that shape
 rather than a flat rate.
 
 On the spatial side, Ng and Mak study yard crane scheduling in container
@@ -164,10 +175,11 @@ overall performance~\cite{ref9}; their design---continuous operation
 over weeks with state carried forward---is the one adopted below.
 Schwientek et al.\ compare dispatching methods on seaport container
 terminals in simulation and find their ranking to depend on terminal
-conditions~\cite{ref16}, which is why Sect.~5 reports results under one
+conditions~\cite{ref16}, which is why Sect.~\ref{sec:exp} reports results under one
 fixed dispatching rule and examines its sensitivity separately.
 
 \subsection{Reinforcement Learning as Optimisation over Future Cost}
+\label{sec:rel-rl}
 A dispatching rule scores an action by what that action costs now. The
 difficulty in the problem addressed here is that the expense created by
 moving a job appears later and elsewhere---in the waiting of trucks that
@@ -222,12 +234,12 @@ Kim et al.\ provide a related use of learning for resource-level control
 under environmental uncertainty in building demand response, and combine
 measured environmental records with synthetic parameters for the
 variation across individual units while stating the synthetic component
-declaratively~\cite{ref20}; Sect.~3.1 follows that practice.
+declaratively~\cite{ref20}; Sect.~\ref{sec:env-calib} follows that practice.
 
 
 % =====================================================================
-\input{sections/03-environment}
 \input{sections/04-policy}
+\input{sections/03-environment}
 \input{sections/05-results}
 \input{sections/06-conclusion}
 

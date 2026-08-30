@@ -1,7 +1,9 @@
 % =====================================================================
-\section{Policies and Learning}
+\section{Proposed Architecture}
+\label{sec:arch}
 
 \subsection{Notation, Actions, and Policies}
+\label{sec:arch-notation}
 Let the decision interval be $\delta=60$\,s and let the current
 assignment of job $i$ be $z_i=(b_i,\tau_i)$, with $b_i$ the block and
 $\tau_i$ the announced arrival time. A reallocation action is
@@ -42,6 +44,7 @@ rejected before the network is consulted, and the set of mutually agreed
 candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$.
 
 \subsection{Central Commitment Constraints}
+\label{sec:arch-commit}
 The central procedure creates no new candidate and commits only within
 $\mathcal J_t$, sorting agreed candidates by the predicted cost of the
 acceptance policy and breaking ties lexicographically. With
@@ -64,8 +67,9 @@ construction: only candidates carrying both a proposal and an acceptance
 are committed, and each job is reviewed exactly once.
 
 \subsection{Policy Models and Inputs}
+\label{sec:arch-models}
 The two functions $\hat c^{P}_{\theta}$ and $\hat c^{A}_{\psi}$ of
-Sect.~4.1 are neural networks, and their role is worth stating
+Sect.~\ref{sec:arch-notation} are neural networks, and their role is worth stating
 precisely: neither produces a probability over actions. Each maps an
 observed state and one candidate to the cost expected to follow from
 committing that candidate, so the policy is an $\arg\min$ over a learned
@@ -82,7 +86,35 @@ around the target time. Unrealised actual arrival and completion times,
 and the simultaneous responses of other accepting parties, are
 excluded.
 
+Fig.~\ref{fig:mlp} shows the shape of one such network. A candidate
+enters as a fixed-length vector $x\in\mathbb R^{d_{in}}$, passes through
+three linear layers of which the first two are followed by a
+non-linearity, and leaves as a single number: the cost expected to
+follow from that candidate. Two consequences matter for the architecture
+around it. Because the output is one scalar per candidate rather than a
+distribution over an action set, the same network serves a proposal
+whose candidate list changes from epoch to epoch---blocks with free
+slots, deferral steps still ahead of the truck---without retraining for
+each list length. And because the width is the same for every block, one
+set of weights is shared across the yard: a block does not learn its own
+model, it learns how a block of its current state should read a
+candidate. The two policies differ only in $d_{in}$, which is 21 for
+proposal and 16 for acceptance.
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=0.94\textwidth]{fig-mlp.png}
+\caption{Structure of one cost network. The input is a fixed-length
+feature vector for a single candidate and the output is the cost
+expected to follow from that candidate, so a decision evaluates the same
+network once per candidate and takes the $\arg\min$. The proposal and
+acceptance policies share this shape and differ only in the input
+dimension, 21 and 16 respectively.}
+\label{fig:mlp}
+\end{figure}
+
 \subsection{Counterfactual Cost Labels}
+\label{sec:arch-labels}
 For each sampled decision we clone the state and random stream
 immediately before branching and run up to three worlds for three hours:
 
@@ -101,6 +133,7 @@ to $(\phi_i^F,\phi_i^A)$ for the acceptance policy. Subtracting the mean
 removes the shared cost without changing the order of the two actions.
 
 \subsection{Training Settings and Operational Separation}
+\label{sec:arch-train}
 The per-day sample cap is 64 decisions and the exploration probability
 decreases linearly from 0.50 to 0.05, with an 80/20 train--validation
 split at the decision level. Optimisation uses Adam
