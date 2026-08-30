@@ -41,9 +41,13 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from figstyle import TEXTWIDTH_IN, apply, hgrid, save
 
-from yard_rl.v3.stage.month import LOAD_WEIGHTS
 from yard_rl.v3.world.integrated.terminal_stream import (
     DIURNAL_NIGHT_FRAC, DIURNAL_PEAKS)
+
+from figdata import month
+
+#: 부하 가중 추첨 — `month.py` 원본에서 든다 (torch 없이 그림이 그려지도록).
+LOAD_WEIGHTS = month().LOAD_WEIGHTS
 
 OUT = pathlib.Path("docs/paper/v3/figures")
 REF_LOAD = 12_500          # (b) 를 그릴 대표 수요 수준

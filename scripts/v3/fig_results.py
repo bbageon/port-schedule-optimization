@@ -26,7 +26,6 @@
 """
 from __future__ import annotations
 
-import importlib.util
 import json
 import pathlib
 import sys
@@ -41,6 +40,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from matplotlib.ticker import FuncFormatter
 
+from figdata import month
 from figstyle import (A_GREEN, BAND, BAR_GREY, BAR_MID, BAR_PALE, INK,
                       LOSS_RED, MUTED, P_BLUE, TEXTWIDTH_IN, apply, hgrid,
                       no_clip, panel, save)
@@ -84,27 +84,12 @@ def load_history():
     }
 
 
-def _plan_month():
-    """부하 계획만 읽는다 — `torch` 없이도 그림이 그려지도록 파일에서 직접 든다.
-
-    `yard_rl.v3.stage` 를 통하면 패키지 __init__ 이 actors → torch 까지 끌고 온다.
-    그림은 학습을 하지 않으므로 그 무게를 질 이유가 없다. 계획 규칙 자체는 같은
-    `month.py` 한 파일에서 오므로 값이 갈릴 여지는 없다.
-    """
-    path = ROOT / "src/yard_rl/v3/stage/month.py"
-    spec = importlib.util.spec_from_file_location("_month_plan", path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["_month_plan"] = mod
-    spec.loader.exec_module(mod)
-    return mod.plan_month
-
-
 def load_arms():
     arms = {}
     for f in ARMS.glob("arm_*.json"):
         d = json.loads(f.read_text(encoding="utf-8"))
         arms[d["arm"]] = {int(k): v for k, v in d["phi_by_day"].items()}
-    load = {d.index: d.load for d in _plan_month()(JUDGE_SEED)}
+    load = {d.index: d.load for d in month().plan_month(JUDGE_SEED)}
     days = [i for i in sorted(arms["RL"]) if 1 <= i <= 28]
     return arms, load, days
 
