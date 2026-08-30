@@ -133,14 +133,23 @@ def _heavy_bands(ax, ep, loads):
             ax.axvspan(e - 0.5, e + 0.5, color=BAND, alpha=0.55, lw=0, zorder=0)
 
 
-def fig_learning():
+def fig_learning(with_eps: bool = True, stem: str = "fig-learning-curve"):
+    """학습곡선. `with_eps=False` 면 탐색 일정 패널을 빼고 두 패널만 그린다.
+
+    ★제출본(12쪽)용 — ε 는 0.50→0.05 선형이라 한 문장이면 되고, 패널을 빼면 그림
+      높이가 약 4분의 1 줄어든다. 본편(작업용 원고)은 세 패널을 그대로 쓴다.
+    """
     ep, h = load_history()
+    n_ax = 3 if with_eps else 2
+    heights = [1.0, 1.0, 0.38] if with_eps else [1.0, 1.0]
     fig, axes = plt.subplots(
-        3, 1, figsize=(TEXTWIDTH_IN, 4.30), sharex=True, layout="constrained",
-        gridspec_kw={"height_ratios": [1.0, 1.0, 0.38]})
+        n_ax, 1, figsize=(TEXTWIDTH_IN, 4.30 if with_eps else 3.25),
+        sharex=True, layout="constrained",
+        gridspec_kw={"height_ratios": heights})
     fig.get_layout_engine().set(h_pad=0.02, w_pad=0.02, hspace=0.10,
                                 rect=(0, 0, 1, 1))
-    ax_p, ax_a, ax_e = axes
+    ax_p, ax_a = axes[0], axes[1]
+    ax_e = axes[2] if with_eps else None
 
     for ax, color, keys, name in (
             (ax_p, P_BLUE, ("p_train", "p_val"), "(a) Proposal network"),
@@ -161,20 +170,23 @@ def fig_learning():
         hgrid(ax)
         panel(ax, name)
 
-    _heavy_bands(ax_e, ep, h["load"])
-    ax_e.plot(ep, h["eps"], "-", lw=1.4, color=MUTED, zorder=3)
-    ax_e.set_ylim(0, 0.58)
-    no_clip(ax_e, h["eps"], "학습곡선 (c)")
-    ax_e.set_yticks([0.0, 0.25, 0.5])
-    ax_e.set_ylabel(r"$\varepsilon$")
-    hgrid(ax_e)
+    if ax_e is not None:
+        _heavy_bands(ax_e, ep, h["load"])
+        ax_e.plot(ep, h["eps"], "-", lw=1.4, color=MUTED, zorder=3)
+        ax_e.set_ylim(0, 0.58)
+        no_clip(ax_e, h["eps"], "학습곡선 (c)")
+        ax_e.set_yticks([0.0, 0.25, 0.5])
+        ax_e.set_ylabel(r"$\varepsilon$")
+        hgrid(ax_e)
 
     #  패널 이름은 축 이름 **뒤에** 붙인다 — `figstyle.panel` 이 축 이름 아랫줄로
     #  넣기 때문에, 먼저 부르면 `set_xlabel` 이 이름을 덮어쓴다.
-    ax_e.set_xlabel("Training iteration")
-    panel(ax_e, "(c) Exploration schedule")
-    ax_e.set_xlim(0.5, len(ep) + 0.5)
-    ax_e.set_xticks([1, 5, 10, 15, 20, 25, 30])
+    ax_last = ax_e if ax_e is not None else ax_a
+    ax_last.set_xlabel("Training iteration")
+    if ax_e is not None:
+        panel(ax_e, "(c) Exploration schedule")
+    ax_last.set_xlim(0.5, len(ep) + 0.5)
+    ax_last.set_xticks([1, 5, 10, 15, 20, 25, 30])
 
     # 범례는 그림에 하나 — 색은 패널이 이미 말하므로 회색 견본으로 **선모양**만 알린다.
     handles = [
@@ -188,7 +200,7 @@ def fig_learning():
     fig.legend(handles, labels, ncol=2, loc="outside upper center",
                handlelength=1.9, columnspacing=1.4)
 
-    save(fig, OUT, "fig-learning-curve", ROOT)
+    save(fig, OUT, stem, ROOT)
 
 
 # ══════════════════════ ② 수요수준별 분해 ══════════════════════
@@ -371,6 +383,7 @@ if __name__ == "__main__":
     apply()
     print("result figures (LNCS text width 4.80 in, serif 8-10 pt)")
     fig_learning()
+    fig_learning(with_eps=False, stem="fig-learning-curve-2p")
     total, share = fig_decomposition()
     win, n = fig_paired()
     print()
