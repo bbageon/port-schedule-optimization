@@ -192,7 +192,14 @@ their actions~\cite{ref7}, and counterfactual multi-agent policy
 gradients construct such a baseline from a centralised critic
 \cite{ref8}. We apply this idea to discrete-event simulation and use the
 monetary cost difference between two runs differing in a single action
-as the regression target of each independent policy. RUDDER, which
+as the regression target of each independent policy. A related use of
+machine learning for resource-level control under environmental
+uncertainty is found in building demand response, where policies for
+individual spaces are learned across tasks that share
+structure~\cite{ref25}; that study likewise combines measured
+environmental records with synthetic parameters for the variation across
+individual units, and states the synthetic component
+declaratively---an approach we follow in Sect.~3.1. RUDDER, which
 redistributes delayed rewards over a trajectory~\cite{ref23}, is left as
 a direction for extending long-horizon attribution. For policy
 comparison we use paired runs sharing common random numbers, a
@@ -239,6 +246,7 @@ inference within one architecture.
 \bibitem{ref22} Ministry of Oceans and Fisheries: Port facility charges: berthing rates and calculation basis. (in Korean)
 \bibitem{ref23} Arjona-Medina, J.A., et al.: RUDDER: return decomposition for delayed rewards. In: NeurIPS, vol. 32, pp. 13544--13555 (2019)
 \bibitem{ref24} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
+\bibitem{ref25} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
 \end{thebibliography}
 
 \end{document}
