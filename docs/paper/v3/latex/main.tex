@@ -8,7 +8,12 @@
 %
 %  ■ pdfLaTeX 로는 한글이 깨진다. 보는 방법은 README-latex.md 참조.
 % =====================================================================
-\documentclass[runningheads]{llncs}
+%  머리말(쪽 위의 저자명·제목)과 쪽번호는 넣지 않는다 — 스프링거가 조판할 때
+%  자기들이 넣는다 ("There is no need to include page numbers or running heads;
+%  this will be done at our end." — Springer 회의록 저자 지침 §2.4·§4.1).
+%  아래 \titlerunning·\authorrunning 은 그대로 둔다: 지침이 "제목이 길면 어떻게
+%  줄일지 제안해 달라"고 하므로, 줄인 형태를 원고에 남겨 두는 것이 그 제안이 된다.
+\documentclass{llncs}
 
 % ---- 한글 -------------------------------------------------------------
 \usepackage{kotex}
