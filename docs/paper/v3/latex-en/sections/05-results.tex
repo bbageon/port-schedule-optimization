@@ -7,22 +7,20 @@ diagnostic run generated with random seed 9{,}900{,}950, which does not
 overlap with training. Weights were frozen and the exploration
 probability set to zero, and all policies on a given day shared the same
 truck, vessel, and service random streams. Each day stores the four cost
-terms, the demand level, the transaction types, the unfinished jobs, and
-the long waits; the source code, the per-policy raw results, and the
-scripts that generate every figure are released with the paper, so that
-the seeds, checkpoints, and commands can be replayed.
+terms, the demand level, the transaction types, and the unfinished jobs;
+the source code, the raw per-policy results, and the figure scripts are
+released with the paper.
 
 \subsection{Confirmation of Architectural Operation}
-Six structural conditions were confirmed by different paths. Separate
-models for proposal and acceptance, the absence of any commitment on
-one-sided consent, the exclusion of realised future arrival and
-completion times from policy inputs, and the absence of any state reset
-at the day boundary follow from the implementation, the commitment
-constraints, and automated tests. Two were confirmed in the runs
+Four structural conditions---separate models for proposal and
+acceptance, no commitment on one-sided consent, no realised future
+arrival or completion time among policy inputs, and no state reset at
+the day boundary---follow from the implementation, the commitment
+constraints, and automated tests. Two more were confirmed in the runs
 themselves: counterfactual simulation calls during frozen-policy
-evaluation numbered \textbf{zero}, and the identity check---a branch
-that changes no action reproducing the action and cost of the main
-run---passed 4/4 in the training run, where counterfactual labels exist.
+evaluation numbered \textbf{zero}, and the identity check, in which a
+branch that changes no action must reproduce the action and cost of the
+main run, passed 4/4 where counterfactual labels exist.
 
 \subsection{Paired Daily Comparison Across Policies}
 The cost difference is the proposed policy minus the comparison policy;
@@ -132,15 +130,14 @@ the action itself carries value. When the action range is matched the
 proposed policy still costs less than the rule (20/28, $p=0.036$). Yet
 on the arrival-time axis alone the \emph{rule was lower on more days}
 (the proposed policy 8/28) while the total was about four times lower
-for the proposed policy, because under smooth demand the rule is
-marginally lower whereas on the congested days the proposed policy is
-3.8--5.6 times lower. The learned selection was optimised \emph{not
-towards winning frequently but towards reducing cost sharply on the
-expensive days}, and both indicators must be reported for this to be
-visible. The rule using both actions also weakens under congested
-demand, reproducing the property of Sect.~5.4---that block reallocation
-raises cost under congestion---and suggesting it belongs to the action
-rather than to a particular policy.
+for the proposed policy, because the rule is marginally lower under
+smooth demand whereas the proposed policy is 3.8--5.6 times lower on the
+congested days: the learned selection was optimised \emph{not towards
+winning frequently but towards reducing cost sharply on the expensive
+days}, and both indicators must be reported for this to be visible. The
+rule using both actions also weakens under congested demand,
+reproducing the property of Sect.~5.4 and suggesting it belongs to the
+action rather than to a particular policy.
 
 \subsection{Learning Effect and Dispatching Sensitivity}
 From KRW 10.00\,bn without reallocation, the untrained model reached KRW
@@ -156,17 +153,15 @@ $-1.5$\,m with a bootstrap interval that spans zero. Resampling the
 daily differences within demand strata, which respects the fixed demand
 mix of the stage, gives a 95\% interval of $[-32,-17]$\,m per day for
 the mean difference; resampling without strata widens it to
-$[-52,-3]$\,m, with 99.2\% of resamples remaining negative. Both
-intervals exclude zero, so the direction is consistent, but the narrow
-one is narrow partly by construction, since each congested stratum holds
-only two days and resampling within it cannot express uncertainty about
-how often congestion occurs at all. The conclusion we draw is therefore
+$[-52,-3]$\,m, with 99.2\% of resamples remaining negative. Both exclude
+zero, though the narrow one is narrow partly by construction, since each
+congested stratum holds only two days. The conclusion is therefore
 bounded: learning contributes a reduction that is large in total and
 without exception on congested days, and counting days understates it
 because the policy was optimised to cut cost sharply when it is
-expensive rather than to win frequently---the same property observed for
-the rules in Sect.~5.5. Establishing it at a conventional significance
-level requires more congested days, not more days.
+expensive rather than to win frequently---as observed for the rules in
+Sect.~5.5. Establishing it at a conventional significance level requires
+more congested days, not more days.
 
 Separately, the ranking of crane dispatching rules reversed with
 demand---the shortest-processing-time rule in current use was 22--25\%

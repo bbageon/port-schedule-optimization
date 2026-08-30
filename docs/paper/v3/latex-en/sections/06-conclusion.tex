@@ -1,27 +1,17 @@
 % =====================================================================
 \section{Conclusion}
 
-A reinforcement learning architecture that jointly revisits the yard
-block and arrival time of external truck jobs in response to real-time
-congestion has been developed. Proposal and acceptance are modelled as
-independent policies and a central procedure applies the assignments in
-one batch after checking mutual consent and resource constraints; the
-uncertainty in the induced congestion effects is tackled with a
-counterfactual cost signal from discrete-event simulations that differ
-in a single action, while at operating time candidates are evaluated by
-the trained networks alone. Three points follow. Spatial placement and
-temporal adjustment are compared within one action range. Separating the
-roles of proposing and accepting extends the logic of distributed
-appointment negotiation to a real-time reallocation
-policy~\cite{ref6}. Counterfactual comparison makes the
-contribution of a single action learnable from a joint cost, evaluating
-induced waiting and equipment flow in the same monetary unit as the
-immediate movement cost; because the branch computation is separated
-from operation, the decision path remains a small cost model and a
-constraint check. The construction thereby connects arrival-time
-negotiation~\cite{ref6}, yard crane operations~\cite{ref7,ref8},
-and multi-agent counterfactual learning~\cite{ref10,ref11} into one
-spatio-temporal assignment problem.
+This paper developed a reinforcement learning architecture that revisits
+both the yard block and the arrival time of an already announced truck
+job during operation, extending distributed appointment
+negotiation~\cite{ref6} and yard crane operations~\cite{ref7,ref8} into
+one spatio-temporal assignment problem. Because the cost of a
+reallocation appears later and elsewhere, each policy learns from a
+counterfactual cost difference measured over a fixed horizon rather than
+from an immediate move cost, which is how multi-agent counterfactual
+learning~\cite{ref10,ref11} enters an operational decision; keeping that
+branch computation offline leaves the operating path as a small cost
+model and a constraint check.
 
 Observations in the literature-calibrated environment indicate that the
 structure carries spatio-temporal reallocation through to execution, and
@@ -34,10 +24,15 @@ axis alone the rule was lower on more days and the proposed policy led
 only in total.
 
 \subsection{Limitations}
-Six limitations bound these results. The environment is synthetic: its
+Seven limitations bound these results. The environment is synthetic: its
 scale and variation are calibrated to reported ranges, but no operating
 record of a terminal was fitted, and the demand mix, the arrival-curve
 coefficients, and two of the four cost coefficients are design values.
+Training and evaluation moreover share the same arrival-curve shape,
+differing only in the demand level and the random draw, so the policy
+has not been shown to transfer to an arrival profile it never saw;
+varying peak times and widths during training and evaluating on a
+held-out curve is the natural next step.
 Congestion is rare on the stage---four of the 28 days---and that is
 exactly where the effect lives, so the statistics rest on a small number
 of expensive days; more congested days, rather than more days, is what

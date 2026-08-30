@@ -18,7 +18,7 @@
 \usepackage{array}
 \usepackage{caption}
 \captionsetup{font=small}
-\graphicspath{{figures/}}
+\graphicspath{{figures/}{../figures-demand/}}
 
 \begin{document}
 
@@ -35,33 +35,30 @@ Acceptance Policies with Counterfactual Cost Learning}
 
 % =====================================================================
 \begin{abstract}
-Container terminals aim at improving the efficiency of yard and gate
-operations by shaping where and when truck jobs are served. Given that
-external truck jobs are assigned to a yard block and an appointment time
-before the truck arrives, the ability to revise those assignments as
-congestion develops is a critical component for terminal operations.
-In this study, a reinforcement learning architecture that jointly
-revisits the yard block and the arrival time of an already announced
-truck job is proposed. A significant challenge is to cope with the
-indirect effects of a reallocation: moving one job changes the waiting
-of the following trucks, the crane work sequence, and the vessel supply
-flow, so the immediate travel time alone does not reveal whether the
-action was worthwhile. We employ a counterfactual, simulation-based cost
-signal to tackle this challenge. Our novel idea is to separate the
-policy that requests a reallocation from the policy that accepts it on
-behalf of the destination block or time slot, and to let a central
-procedure commit only the candidates on which both agree under resource
-constraints. Each policy is trained on the cost difference between
+External truck jobs at a container terminal are assigned a yard block
+and an appointment time before the truck arrives, so congestion that
+develops afterwards cannot be answered by that fixed plan. This paper
+proposes a reinforcement learning architecture that revisits both the
+block and the arrival time of an already announced job during
+operation. The policy that requests a reallocation and the policy that
+accepts it on behalf of the destination block or time slot are modelled
+independently, and a central procedure commits only the candidates on
+which both agree under resource constraints. Because moving one job also
+changes the waiting of following trucks, the crane work sequence, and
+vessel supply, each policy is trained on the cost difference between
 discrete-event simulations that differ in a single action from the same
 state, whereas inference at operating time uses the trained networks
-alone. The efficacy of the proposed method is verified by numerical
-experiments based on a continuous synthetic environment whose terminal
-size, time-of-day truck arrivals, multiple yard cranes, and vessel call
-volumes follow ranges reported in the literature. The results indicate
-that the decision path operates stably throughout continuous operation,
-that the cost reduction is concentrated in arrival-time adjustment under
-congested conditions, and that the trained model attains lower cost than
-rule-based policies matched to the same action range.
+alone. Evaluation uses a continuous synthetic environment in which
+external truck job demand is generated from a synthetic arrival curve
+informed by reported demand scales and by the strong time-of-day
+variation of truck arrivals. There the architecture lowered total
+operating cost by 14.7\% against no reallocation, and remained lower
+than rule-based policies given the same action range (20 of 28
+evaluation days, $p=0.036$). Arrival-time adjustment accounted for
+91.4\% of that reduction, and the four most congested days accounted for
+90.5\% of it, indicating that spatio-temporal reallocation is most valuable as a
+selective response to observed congestion rather than as a continuous
+intervention.
 
 \keywords{Smart port \and Container terminal \and Truck arrival
 management \and Yard block reallocation \and Counterfactual learning
@@ -71,34 +68,41 @@ management \and Yard block reallocation \and Counterfactual learning
 % =====================================================================
 \section{Introduction}
 
-Operational efficiency at a smart port depends not only on equipment
-automation but also on the ability to reallocate resources from
-information observed in real time, and smart-port research connects
-equipment and vehicle information to operating
-scenarios~\cite{ref1}. At a container terminal the
-working block and appointment time of an external truck are fixed before
-arrival, yet during operation demand concentrates on particular slots or
-blocks and crane queues change with it, so keeping the initial plan
-makes it difficult to reflect newly observed congestion. This paper
-revisits both \emph{where} a job is placed and \emph{when} the truck is
-asked to arrive.
+Container volumes have kept growing while terminal land and equipment
+have not, and the resulting pressure on yard and gate operations has made
+the smart port a focus of investment and of research. That interest is
+not confined to automation hardware. Studies of port efficiency find that
+automation, intelligence, and environmental design act through different
+channels, so what a terminal actually gains depends on how observed
+information is turned into operating decisions~\cite{ref1}. Attention has
+therefore stayed on the operational side of efficiency as much as on the
+equipment side, and work there continues along two lines. On the temporal
+side, truck appointment systems spread arrival peaks and let a terminal
+and carriers negotiate arrival times against their own
+costs~\cite{ref4,ref6}. On the spatial side, yard operations research
+improves placement, work sequencing, and crane interference, and finds
+that the ranking of dispatching rules can reverse with terminal
+conditions~\cite{ref7,ref8,ref9,ref16}. Reinforcement learning has
+recently entered this layer as real-time crane
+dispatching~\cite{ref19}.
 
-Truck appointment research uses time windows to spread arrival peaks and
-lets a terminal and carriers negotiate arrival times against their own
-costs~\cite{ref4,ref6}, while yard operations research addresses
-placement, work sequencing, and crane interference~\cite{ref7,ref8,ref9}.
-The two streams have improved temporal and spatial efficiency
-separately; this paper places both axes inside one real-time decision.
-Such a reallocation does not change the cost of a single job alone: when
-a job moves, the waiting of following trucks, the crane work sequence,
-and vessel supply flow change as well, so a cost signal including the
-induced congestion is required, and difference rewards and multi-agent
-counterfactual baselines provide one by comparing an action with an
-alternative~\cite{ref10,ref11}. Reallocation is also difficult to commit
-on the proposing side's benefit alone, since whether the destination can
-absorb the job must be judged separately; we therefore separate proposal
-and acceptance and leave consent and feasibility to a central
-procedure.
+These efforts share a boundary: they improve what happens \emph{given} a
+working block and an appointment time that were fixed before the truck
+arrived. Yet during operation demand concentrates on particular slots or
+blocks and crane queues change with it, so an assignment that was
+reasonable when it was made may no longer be. This paper revisits the
+assignment itself, placing both \emph{where} a job is placed and
+\emph{when} the truck is asked to arrive inside one real-time decision on
+jobs that have already been announced. Such a reallocation does not
+change the cost of a single job alone: when a job moves, the waiting of
+following trucks, the crane work sequence, and vessel supply flow change
+as well, so a cost signal including the induced congestion is required,
+and difference rewards and multi-agent counterfactual baselines provide
+one by comparing an action with an alternative~\cite{ref10,ref11}.
+Reallocation is also difficult to commit on the proposing side's benefit
+alone, since whether the destination can absorb the job must be judged
+separately; we therefore separate proposal and acceptance and leave
+consent and feasibility to a central procedure.
 
 We ask whether spatio-temporal reallocation can be composed from
 independent proposal and acceptance policies, whether counterfactual
@@ -113,7 +117,7 @@ learning effect separately.
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=0.68\textwidth]{fig1-architecture.pdf}
+\includegraphics[width=0.52\textwidth]{fig1-architecture.pdf}
 \caption{Reallocation decision flow and the separation of learning from
 operation. The operating path uses only the trained networks and issues
 no counterfactual simulation call.}
@@ -122,34 +126,86 @@ no counterfactual simulation call.}
 
 % =====================================================================
 \section{Related Work}
+\subsection{Smart Ports and Terminal Operations}
+Yen et al.\ measure port efficiency with data envelopment analysis and
+then explain the resulting scores through a Tobit regression on
+smart-port design attributes, separating \emph{how efficient a port is}
+from \emph{what accounts for the difference}; their treatment of
+automation, intelligence, and environmental design as distinct channels
+is what motivates studying the decision layer rather than the equipment
+layer~\cite{ref1}.
 
-Smart-port research treats automation, intelligence, and environmental
-design as distinct components of port efficiency~\cite{ref1}. Time-window
-appointments spread concentrated truck arrivals~\cite{ref4}, and
-negotiation studies show that carriers and a terminal can adjust arrival
-times while exchanging limited information~\cite{ref6}, and arrivals are
-not uniform over the day~\cite{ref13}. On the spatial side, yard crane research addresses
-work sequencing, interference, and load balancing~\cite{ref7,ref8};
-simulation compares how block length and crane deployment affect long-run
-performance~\cite{ref9}; and the ranking of dispatching rules can reverse
-with terminal conditions~\cite{ref16}. Reinforcement learning in ports
-has reached real-time crane dispatching~\cite{ref19}; this paper
-addresses the layer above it.
+On the temporal side, Chen et al.\ manage truck arrivals with time
+windows to relieve gate congestion, shaping the arrival profile instead
+of adding capacity~\cite{ref4}. Phan and Kim keep that lever but drop
+the single-decision-maker assumption: trucking companies and the
+terminal each retain their own costs and coordinate scheduling and
+appointments between them, so the schedule emerges from two parties
+rather than one optimiser~\cite{ref6}. That decentralised setting is the
+direct antecedent of the acceptance policy used here, and the reason
+acceptance is modelled as a separate policy rather than folded into a
+single objective. Kourounioti and Polydoropoulou develop time-of-day
+models of truck arrivals from aggregate terminal data, establishing that
+arrivals are far from uniform across the day~\cite{ref13}; the value of
+shifting an arrival therefore depends on where in the arrival curve it
+starts and lands, and the environment of Sect.~3 reproduces that shape
+rather than a flat rate.
 
-Difference rewards isolate the effect of one action from a joint cost by
-comparing it against a baseline in which other agents keep their
-actions~\cite{ref10}, and counterfactual multi-agent policy gradients
-construct such a baseline from a centralised critic~\cite{ref11}. We
-apply this to discrete-event simulation and use the monetary cost
-difference between two runs differing in a single action as the
-regression target of each independent policy. A related use of machine
-learning for resource-level control under environmental uncertainty is
-found in building demand response~\cite{ref20}; that study likewise
-combines measured environmental records with synthetic parameters for
-the variation across individual units and states the synthetic component
-declaratively, an approach we follow in Sect.~3.1.
-For policy comparison we use paired runs sharing common random
-numbers~\cite{ref22}.
+On the spatial side, Ng and Mak study yard crane scheduling in container
+terminals, sequencing the jobs a crane must serve so that truck waiting
+is reduced~\cite{ref7}. Speer and Fischer extend the problem to
+different automated yard crane systems, where cranes working the same
+block interfere with one another and the schedule must resolve that
+interference~\cite{ref8}. Petering and Murty take a terminal-wide view
+instead of a crane-wide one, using long-run simulation of a
+transshipment terminal to relate block length and crane deployment to
+overall performance~\cite{ref9}; their design---continuous operation
+over weeks with state carried forward---is the one adopted below.
+Schwientek et al.\ compare dispatching methods on seaport container
+terminals in simulation and find their ranking to depend on terminal
+conditions~\cite{ref16}, which is why Sect.~5 reports results under one
+fixed dispatching rule and examines its sensitivity separately.
+
+\subsection{Reinforcement Learning as Optimisation over Future Cost}
+A dispatching rule scores an action by what that action costs now. The
+difficulty in the problem addressed here is that the expense created by
+moving a job appears later and elsewhere---in the waiting of trucks that
+follow, in the crane work sequence, and in vessel supply---so a rule
+that prices only the immediate move cannot see it. Reinforcement
+learning is the natural tool precisely because it replaces the immediate
+cost with the cost an action leads to over a horizon, which is what
+makes a present decision answerable to its future consequences. Wang et
+al.\ apply a PPO-based approach to real-time yard crane scheduling
+across multiple blocks~\cite{ref19}, placing that kind of optimisation
+inside the execution layer; the present work addresses the layer above
+it, where the block and the arrival time are decided.
+
+Carrying future cost into a single agent's decision is the harder half
+when several parties act at once, because the horizon cost is joint.
+Wolpert and Tumer construct payoff functions for members of a collective
+that stay aligned with the global objective while remaining sensitive to
+the individual's own action---the difference-reward idea~\cite{ref10}.
+Foerster et al.\ realise the same idea in deep multi-agent learning by
+having a centralised critic marginalise one agent's action to form a
+counterfactual baseline~\cite{ref11}. Both obtain the future term from a
+learned value estimate. This paper takes the same decomposition but
+obtains the future term by measurement rather than estimation: the
+baseline is produced by re-running the discrete-event simulator from the
+same state with one action changed, so the regression target is a
+monetary cost difference accumulated over a fixed horizon rather than a
+bootstrapped advantage. The cost of that choice is offline computation,
+and its benefit is that the learning signal is denominated in the same
+currency as the objective.
+
+Kim et al.\ provide a related use of learning for resource-level control
+under environmental uncertainty in building demand response, and combine
+measured environmental records with synthetic parameters for the
+variation across individual units while stating the synthetic component
+declaratively~\cite{ref20}; Sect.~3.1 follows that practice. For the
+comparison itself, Kleijnen's analysis of common random numbers is the
+basis for running every policy on the same random streams, so that
+differences between policies are not read off simulation
+noise~\cite{ref22}.
 
 What distinguishes this work is the combination of an action range
 covering both arrival-time adjustment and block reallocation,

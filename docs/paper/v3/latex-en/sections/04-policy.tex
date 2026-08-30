@@ -6,17 +6,17 @@ Let the decision interval be $\delta=60$\,s and let the current
 assignment of job $i$ be $z_i=(b_i,\tau_i)$, with $b_i$ the block and
 $\tau_i$ the announced arrival time. A reallocation action is
 $a_i=(b'_i,\Delta_i)\in\mathcal A_i(t)$, giving
-$z_i(a_i)=(b'_i,\tau_i+\Delta_i)$: keeping the original assignment is
-$a_i^0=(b_i,0)$, block reallocation is $b'_i\ne b_i$, and arrival-time
-adjustment is $\Delta_i>0$; candidates that change both are allowed.
+$z_i(a_i)=(b'_i,\tau_i+\Delta_i)$: keeping the assignment is
+$a_i^0=(b_i,0)$, block reallocation is $b'_i\ne b_i$, arrival-time
+adjustment is $\Delta_i>0$, and candidates changing both are allowed.
 Outbound jobs are excluded from block reallocation because the container
 to be retrieved has a fixed location. With $n_i$ the announcement time,
 $g_i$ the gate-in time, and $r_i$ an indicator of prior review, the set
 newly reviewed at $t$ is
 $\mathcal E_t=\{i\mid n_i\le t<n_i+\delta,\ g_i>t,\ r_i=0\}$, so a job
-that has not yet arrived is reviewed at exactly one time point.
-The proposal policy selects the action of lowest expected cost from its
-own block state and the job and action features $o_i^P$:
+is reviewed at exactly one time point before it arrives. The proposal
+policy selects the action of lowest expected cost from its own block
+state and the job and action features $o_i^P$:
 
 \begin{equation}
 \hat a_i=\arg\min_{a\in\mathcal A_i(t)}
@@ -38,10 +38,8 @@ q_i=\mathbf 1\!\left[
 \end{equation}
 
 If the remaining capacity of the target resource is zero, the request is
-rejected before the network is consulted. The set of mutually agreed
-candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$. The
-problem structure in which two independent parties negotiate arrival
-times from limited information follows~\cite{ref6}.
+rejected before the network is consulted, and the set of mutually agreed
+candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$.
 
 \subsection{Central Commitment Constraints}
 The central procedure creates no new candidate and commits only within
@@ -94,8 +92,6 @@ giving targets $y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
 $y_{i,P}^P=(\phi_i^P-\bar\phi_i^P)/10^5$; the same centring is applied
 to $(\phi_i^F,\phi_i^A)$ for the acceptance policy. Subtracting the mean
 removes the shared cost without changing the order of the two actions.
-The baseline that reverses a single action connects to difference
-rewards and multi-agent counterfactual baselines~\cite{ref10,ref11}.
 
 \subsection{Training Settings and Operational Separation}
 The per-day sample cap is 64 decisions and the exploration probability
