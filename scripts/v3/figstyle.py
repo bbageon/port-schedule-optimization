@@ -103,6 +103,22 @@ def panel(ax, text: str) -> None:
     ax.set_title(text, loc="left", fontsize=PANEL_PT, color=INK, pad=3.0)
 
 
+def no_clip(ax, values, what: str, axis: str = "y") -> None:
+    """그림은 자료를 **자르지 않는다** — 축 밖으로 나간 값이 하나라도 있으면 멈춘다.
+
+    앞판 학습곡선이 선형축 상한을 넘긴 봉우리를 조용히 잘라 냈다. 눈으로는 "선이
+    위로 사라졌다" 로만 보여서 알아채기 어렵다. 축을 손볼 때마다 사람이 다시
+    확인하는 대신, 그릴 때 기계가 확인한다.
+    """
+    lo, hi = ax.get_ylim() if axis == "y" else ax.get_xlim()
+    lo, hi = min(lo, hi), max(lo, hi)
+    out = [v for v in values if not (lo <= v <= hi)]
+    if out:
+        raise AssertionError(
+            f"{what}: {len(out)} value(s) outside axis "
+            f"({lo:.4g}, {hi:.4g}); e.g. {out[:3]}. Widen the axis.")
+
+
 def save(fig, out_dir, stem: str, root=None) -> None:
     """PDF(출판본) + PNG 600dpi(검토용)."""
     out = pathlib.Path(out_dir)

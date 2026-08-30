@@ -74,8 +74,24 @@ Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
 The four existing rules use block reallocation only, so this comparison
 does not separate policy quality from action range. Sect.~\ref{sec:exp-rules}
 provides a matched comparison. The proposed policy was more expensive on
-only a few days, and those differences were small. The largest
-reductions all occurred on congested days.
+only two days, and both differences were small, whereas the largest
+reductions all occurred on congested days (Fig.~\ref{fig:paired}).
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/fig-paired-daily.pdf}
+\captionof{figure}{Paired daily cost difference against no reallocation over
+the same 28 days with the same random streams. Days are sorted by the
+difference, and a positive value means the proposed policy costs less.
+(a) All 28 days; four congested days dominate the axis, so (b) enlarges
+the shaded ranks 1--24. The proposed policy costs less on 26 of the 28
+days (two-sided sign test, $p<0.001$). The two exceptions are small,
+KRW $-17.1$\,m and KRW $-0.5$\,m, whereas each of the four congested days
+exceeds KRW 290\,m.}
+\label{fig:paired}
+\end{minipage}
+\end{center}
 
 \subsection{Demand Level and the Decomposition of Actions}
 \label{sec:exp-decomp}
@@ -86,7 +102,7 @@ policy that \emph{intervenes selectively when congestion is observed}
 rather than continuously. Restricting the policy to one action type at a
 time separates the spatial and temporal contributions. Arrival-time
 adjustment accounts for 91.3\% of the total reduction, mostly on the four
-congested days. Block-only reallocation saves KRW 0.124\,bn under smooth
+congested days (Fig.~\ref{fig:decomp}). Block-only reallocation saves KRW 0.124\,bn under smooth
 and normal demand but raises cost at the highest demand, producing a net
 increase of KRW 0.131\,bn. The policy should therefore adjust its use of
 spatial and temporal actions by demand level. Time-slot quotas were open
@@ -119,6 +135,25 @@ demand & Days & actions & only & only & training \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/fig-decomposition.pdf}
+\captionof{figure}{Cost reduction by demand level, decomposed by action
+range; the values are those of Table~\ref{tab:actions}. The vertical axis
+is split by demand because the two congested levels are more than ten
+times larger than the rest: (a) 3{,}500--7{,}500 and (b)
+12{,}500--15{,}000 trucks per day, with the number of days observed
+printed under each tick. The first three bars are measured against no
+reallocation. The fourth bar, set slightly apart, uses a different
+baseline: it is the trained model minus the untrained one, that is, the
+last column of Table~\ref{tab:actions}. Arrival-time adjustment carries
+91.3\% of the total reduction, whereas block-only reallocation turns
+negative once demand is congested.}
+\label{fig:decomp}
+\end{minipage}
+\end{center}
 
 \subsection{Rule-Based Policies of the Same Action Range}
 \label{sec:exp-rules}
@@ -157,6 +192,26 @@ With about 56 labelled decisions per iteration, this gap supports the
 choice of a small model. As exploration decreases, the share of
 decisions with exactly zero counterfactual difference falls from 51.4\%
 to 37.6\%. Training runs 4{,}671 counterfactual worlds in total.
+Fig.~\ref{fig:learning} shows both loss curves together with the
+exploration schedule that accompanies them.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/fig-learning-curve.pdf}
+\captionof{figure}{Training and validation loss over 30 iterations, with the
+per-iteration value drawn faintly beneath a five-iteration mean. (a) The
+proposal network and (b) the acceptance network are drawn separately
+because they are fitted on different decisions, and the vertical axis is
+logarithmic because the loss spans three orders of magnitude. (c) The
+exploration probability $\varepsilon$ decays linearly from 0.50 to 0.05.
+Shading marks the iterations whose demand level was drawn at 12{,}500
+trucks per day or above. Because the demand level is redrawn every
+iteration, much of the visible fluctuation, including the rise around
+iterations 17--24, follows that draw rather than the fit.}
+\label{fig:learning}
+\end{minipage}
+\end{center}
 
 Cost is KRW 10.00\,bn without reallocation, KRW 9.20\,bn with the
 untrained model, and KRW 8.52\,bn with the trained model. Training

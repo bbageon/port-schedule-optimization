@@ -43,7 +43,7 @@ from matplotlib.ticker import FuncFormatter
 
 from figstyle import (A_GREEN, BAND, BAR_GREY, BAR_MID, BAR_PALE, INK,
                       LOSS_RED, MUTED, P_BLUE, TEXTWIDTH_IN, apply, hgrid,
-                      panel, save)
+                      no_clip, panel, save)
 
 OUT = ROOT / "docs/paper/v3/figures/final_figure"
 HISTORY = ROOT / "outputs/v3/month-02/history.json"
@@ -51,14 +51,23 @@ ARMS = ROOT / "outputs/v3/judge-30d/arms"
 JUDGE_SEED = 9_900_950
 HEAVY = 12_500             # 이 부하부터 "혼잡" — 학습회차 음영과 분해 패널의 경계
 
+#: ★단위는 본문 표를 따라간다 — 그림과 표를 눈으로 대조할 수 있어야 한다.
+#:  · 월 합계(표 3)는 **십억원**  · 하루 차이(5.6절 본문)는 **백만원**
+#:  국문판 표는 억원·만원을 쓰므로 캡션이 환산을 한 줄로 적는다 (10억원 = 10억원).
+BN = 1e9                   # 십억원 (KRW bn)
+MN = 1e6                   # 백만원 (KRW m)
+
 #: 행동 분해 막대 — 색과 해칭을 **함께** 준다 (흑백에서도 갈리게).
-#: 앞 셋은 `재배치 없음` 대비, 마지막 하나는 `이른순 배정` 대비다. 기준선이 다르므로
-#: 파랑 계단에서 떼어내 회색으로 두고 이름에 대비 상대를 적는다.
+#:
+#: ★앞 셋과 넷째는 **기준선이 다르다.** 앞 셋은 `재배치 없음` 대비이고, 넷째
+#:  `RL_EARLY − RL` 은 **학습 전 체크포인트 대비**다 (`eval/__main__.py --ckpt-early`
+#:  = "학습 전 대조"). 곧 표 3 의 마지막 열 `학습의 몫`(Due to training)과 같은 값이다.
+#:  기준선이 다르므로 파랑 계단에서 떼어내 회색으로 두고 반 칸 띄운다.
 BARS = (
     ("Both actions", P_BLUE, None),
     ("Timing only", BAR_MID, "//"),
     ("Block only", BAR_PALE, "xx"),
-    ("Learned vs. earliest-first", BAR_GREY, "\\\\"),
+    ("Due to training", BAR_GREY, "\\\\"),
 )
 
 
@@ -143,10 +152,11 @@ def fig_learning():
         # ★로그 축 — 손실이 0.002 에서 1.06 까지 세 자릿수를 오간다. 선형으로 두면
         #   위쪽 뾰족한 값을 자르거나(앞판이 그랬다) 아래쪽 절반이 0선에 눌린다.
         ax.set_yscale("log")
-        ax.set_ylim(1.7e-3, 1.5)
+        ax.set_ylim(1.2e-3, 1.8)
         ax.set_yticks([0.01, 0.1, 1])
         ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
         ax.tick_params(which="minor", length=1.5, color=MUTED)
+        no_clip(ax, [v for k in keys for v in h[k]], f"학습곡선 {name}")
         ax.set_ylabel("Huber loss")
         hgrid(ax)
         panel(ax, name)
@@ -154,6 +164,7 @@ def fig_learning():
     _heavy_bands(ax_e, ep, h["load"])
     ax_e.plot(ep, h["eps"], "-", lw=1.4, color=MUTED, zorder=3)
     ax_e.set_ylim(0, 0.58)
+    no_clip(ax_e, h["eps"], "학습곡선 (c)")
     ax_e.set_yticks([0.0, 0.25, 0.5])
     ax_e.set_ylabel(r"$\varepsilon$")
     hgrid(ax_e)
@@ -185,8 +196,8 @@ def fig_decomposition():
     n_days = {L: sum(1 for i in days if load[i] == L) for L in levels}
 
     def agg(a, b):
-        """a − b 를 부하별로 합산 (억원). 양수 = 비용이 줄었다."""
-        return {L: sum(arms[a][i] - arms[b][i] for i in days if load[i] == L) / 1e8
+        """a − b 를 부하별로 합산 (십억원). 양수 = 비용이 줄었다."""
+        return {L: sum(arms[a][i] - arms[b][i] for i in days if load[i] == L) / BN
                 for L in levels}
 
     series = (agg("NO_REALLOC", "RL"), agg("NO_REALLOC", "RL_TIME"),
@@ -194,8 +205,8 @@ def fig_decomposition():
     total = sum(series[0].values())
     time_share = sum(series[1].values()) / total
 
-    # ★부하 구간으로 축을 나눈다 — 원활한 날의 절감(0.5억)과 초혼잡한 날의 절감
-    #   (7.5억)은 15배 차이다. 한 축에 두면 앞의 셋이 0선에 눌려 부호조차 안 보인다.
+    # ★부하 구간으로 축을 나눈다 — 원활한 날의 절감(0.05십억원)과 초혼잡한 날의
+    #   절감(0.75십억원)은 15배 차이다. 한 축에 두면 앞의 셋이 0선에 눌려 부호도 안 보인다.
     light = [L for L in levels if L < HEAVY]
     heavy = [L for L in levels if L >= HEAVY]
 
@@ -204,7 +215,7 @@ def fig_decomposition():
         gridspec_kw={"width_ratios": [len(light), len(heavy)]})
     fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
 
-    # 넷째 막대는 **기준선이 다르다** — 앞 셋에서 반 칸 띄워 눈이 먼저 알아채게 한다.
+    # 넷째 막대(학습의 몫)는 **기준선이 다르다** — 반 칸 띄워 눈이 먼저 알아채게 한다.
     w = 0.18
     offs = [(k - 1.5) * w + (0.35 * w if k == 3 else 0.0) for k in range(len(BARS))]
     mid = sum(offs) / len(offs)
@@ -227,10 +238,11 @@ def fig_decomposition():
         hi = max(v[L] for v in series for L in group)
         pad = 0.09 * (hi - lo)
         ax.set_ylim(lo - pad, hi + pad)
+        no_clip(ax, [v[L] for v in series for L in group], f"분해막대 {name}")
         hgrid(ax)
         panel(ax, name)
 
-    fig.supylabel("Cost reduction (KRW 100 M)",
+    fig.supylabel("Cost reduction (KRW bn)",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
     fig.supxlabel("Daily external truck job demand (days observed)",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
@@ -258,7 +270,7 @@ def _lolli(ax, rank, delta, s=16, lw=0.9):
 
 def fig_paired():
     arms, _, days = load_arms()
-    delta = sorted((arms["NO_REALLOC"][i] - arms["RL"][i]) / 1e8 for i in days)
+    delta = sorted((arms["NO_REALLOC"][i] - arms["RL"][i]) / MN for i in days)
     rank = list(range(1, len(delta) + 1))
     win = sum(1 for d in delta if d > 0)
     cut = len(delta) - 4          # 상위 4일이 축을 지배한다 — 나머지는 (b) 에서 본다
@@ -273,7 +285,8 @@ def fig_paired():
     ax_a.axvspan(0.4, cut + 0.6, color=BAND, alpha=0.45, lw=0, zorder=0)
     ax_a.set_xlim(0.2, len(delta) + 0.8)
     ax_a.set_xticks([1, 10, 20, 28])
-    ax_a.set_ylim(-0.40, 4.10)
+    ax_a.set_ylim(min(delta) * 1.5, max(delta) * 1.07)
+    no_clip(ax_a, delta, "짝비교 (a)")
     hgrid(ax_a)
     panel(ax_a, "(a) All 28 days")
     ax_a.text(0.05, 0.97,
@@ -281,7 +294,7 @@ def fig_paired():
               "two-sided sign test, $p<0.001$",
               transform=ax_a.transAxes, ha="left", va="top", color=INK,
               linespacing=1.35)
-    ax_a.text((cut + 1) / 2, -0.27, "shown in (b)", ha="center", va="center",
+    ax_a.text((cut + 1) / 2, min(delta) * 1.05, "shown in (b)", ha="center", va="center",
               fontsize=7.5, color=MUTED)
 
     # ── (b) ★확대 — 네 날이 축을 지배해서 나머지 24일이 0선에 뭉갠다. 26/28 이라는
@@ -289,11 +302,12 @@ def fig_paired():
     _lolli(ax_b, rank[:cut], delta[:cut], s=13, lw=0.9)
     ax_b.set_xlim(0.2, cut + 0.8)
     ax_b.set_xticks([1, 10, 20, 24])
-    ax_b.set_ylim(-0.205, 0.375)
+    ax_b.set_ylim(min(delta[:cut]) * 1.20, max(delta[:cut]) * 1.17)
+    no_clip(ax_b, delta[:cut], "짝비교 (b)")
     hgrid(ax_b)
     panel(ax_b, f"(b) Ranks 1–{cut}, enlarged")
 
-    fig.supylabel("Cost reduction (KRW 100 M)",
+    fig.supylabel("Cost reduction (KRW m)",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
     fig.supxlabel("Operating days ranked by paired cost difference",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
@@ -315,5 +329,5 @@ if __name__ == "__main__":
     win, n = fig_paired()
     print()
     print("[figure values read from raw data - cross-check the table]")
-    print(f"  decomposition total {total:.2f} (x100M KRW), timing share {share:.1%}")
+    print(f"  decomposition total {total:.3f} KRW bn, timing share {share:.1%}")
     print(f"  paired: {win}/{n} days improved")
