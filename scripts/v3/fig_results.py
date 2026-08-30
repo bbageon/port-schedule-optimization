@@ -47,10 +47,18 @@ from figstyle import (A_GREEN, BAND, BAR_MID, INK, LOSS_RED,
 
 OUT = ROOT / "docs/paper/v3/figures/final_figure"
 HISTORY = ROOT / "outputs/v3/month-02/history.json"
-#: ★판정 대역 (2026-08-30) — 진단 대역 9,900,950 에서 옮겼다.
-#: `eval/guards.py` 기준으로 9,400,000 은 진단 대역도, 이미 쓴 대역도 아니다.
-ARMS = ROOT / "outputs/v3/judge-locked/arms"
-JUDGE_SEED = 9_400_000
+#: ★대역은 **본문과 같아야 한다** — 그림만 먼저 옮기면 논문이 자기모순에 빠진다.
+#:
+#:  판정 대역(`judge-locked` · 9,400,000)으로 옮기려던 것을 **일시적으로 되돌린다.**
+#:  그림이 판정 대역으로 앞서 나가 있는 동안 그림 5 는 "28/28 일 개선", 본문과 캡션은
+#:  "26/28 일" 이라 한 논문 안에서 두 값이 부딪혔다. 본문·표의 205개 수치를 한 번에
+#:  옮기기 전까지는 **그림도 진단 대역에 머문다.**
+#:
+#:  ⚠️ 옮기는 조건: `RL_TIME`·`RL_SPACE` 판정 실행이 끝나 `judge-locked` 에 여덟 팔이
+#:     모두 들어오면, 아래 두 줄을 judge-locked·9,400,000 으로 되돌리고 **같은 커밋에서**
+#:     본문·표 수치도 함께 옮긴다. 그림 셋은 원자료를 직접 읽으므로 두 줄이면 된다.
+ARMS = ROOT / "outputs/v3/judge-30d/arms"
+JUDGE_SEED = 9_900_950
 HEAVY = 12_500             # 이 부하부터 "혼잡" — 학습회차 음영과 분해 패널의 경계
 
 #: ★단위는 **백만원 하나로 통일**한다 (사용자 지시 2026-08-30).
