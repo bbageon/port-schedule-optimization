@@ -143,6 +143,19 @@ reproducing the property of Sect.~5.4 and suggesting it belongs to the
 action rather than to a particular policy.
 
 \subsection{Learning Effect and Dispatching Sensitivity}
+Before the cost comparison, the fit itself. Over the 30 training
+iterations the proposal network's Huber loss fell from 0.079 to 0.029 on
+training decisions and from 0.268 to 0.119 on held-out ones, and the
+acceptance network's from 0.171 to 0.027 and from 0.315 to 0.136, taking
+means over the first and last five iterations with targets in units of
+KRW 100{,}000. Validation loss therefore falls with training, so the fit
+generalises to decisions the networks did not see; it nonetheless ends
+about four times the training loss, which is what roughly 56 labelled
+decisions per iteration permits and is a further reason for keeping the
+model small. The share of decisions whose counterfactual difference was
+exactly zero fell from 51.4\% to 37.6\% as exploration decayed, and
+4{,}671 counterfactual worlds were run in total.
+
 From KRW 10.00\,bn without reallocation, the untrained model reached KRW
 9.20\,bn and the trained model KRW 8.52\,bn, so training adds KRW
 0.675\,bn, 45.9\% of the total. Counting days, however, the trained

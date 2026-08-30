@@ -181,6 +181,26 @@ across multiple blocks~\cite{ref19}, placing that kind of optimisation
 inside the execution layer; the present work addresses the layer above
 it, where the block and the arrival time are decided.
 
+Two properties of the networks used here follow from that choice. First,
+they do not output a distribution over actions. Each maps an observed
+state and one candidate action to the operating cost expected to follow
+from it, and the decision is the candidate of lowest predicted cost;
+this is the value-approximation route, in the sense in which deep
+Q-networks approximate action values with a neural
+network~\cite{refmnih}, rather than the policy-gradient route. Second,
+the approximator is a small multilayer perceptron. Multilayer
+feedforward networks are general function
+approximators~\cite{refhornik}, but that property alone does not select
+an architecture; the choice here follows from the data. The inputs are
+fixed-length numeric tables rather than images, text, or graphs;
+candidates are scored one at a time and independently of each other; the
+input carries no temporal ordering that a recurrent or attention model
+could exploit; the number of labelled decisions is small relative to the
+number of blocks, so a larger model would overfit; and one set of
+weights is shared across all blocks. Under those conditions a small
+perceptron is the appropriate first choice, and a transformer or graph
+network would add capacity the available labels cannot support.
+
 Carrying future cost into a single agent's decision is the harder half
 when several parties act at once, because the horizon cost is joint.
 Wolpert and Tumer construct payoff functions for members of a collective
@@ -223,15 +243,18 @@ declaratively~\cite{ref20}; Sect.~3.1 follows that practice.
 \bibitem{ref7} Ng, W.C., Mak, K.L.: Yard crane scheduling in port container terminals. Appl. Math. Model. \textbf{29}(3), 263--276 (2005)
 \bibitem{ref8} Speer, U., Fischer, K.: Scheduling of different automated yard crane systems at container terminals. Transp. Sci. \textbf{51}(1), 305--324 (2017)
 \bibitem{ref9} Petering, M.E.H., Murty, K.G.: Effect of block length and yard crane deployment systems on overall performance at a seaport container transshipment terminal. Comput. Oper. Res. \textbf{36}(5), 1711--1725 (2009)
+\bibitem{ref16} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
+\bibitem{ref19} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
 \bibitem{ref10} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--280 (2001)
 \bibitem{ref11} Foerster, J., et al.: Counterfactual multi-agent policy gradients. In: AAAI, vol. 32 (2018)
 \bibitem{ref13} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. EJTIR \textbf{18}(1) (2018)
-\bibitem{ref16} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
-\bibitem{ref19} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
+\bibitem{refmnih} Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
+\bibitem{refhornik} Hornik, K.: Approximation capabilities of multilayer feedforward networks. Neural Netw. \textbf{4}(2), 251--257 (1991)
 \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
-\bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
 \bibitem{ref24} Ministry of Land, Infrastructure and Transport: Safe trucking freight rates for 2026, Notice 2026-402 (2026). (in Korean)
 \bibitem{ref25} Ministry of Oceans and Fisheries: Port facility charges: berthing rates and calculation basis. (in Korean)
+\bibitem{refhuber} Huber, P.J.: Robust estimation of a location parameter. Ann. Math. Statist. \textbf{35}(1), 73--101 (1964)
+\bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
 \end{thebibliography}
 
 \end{document}

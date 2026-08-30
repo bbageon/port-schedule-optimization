@@ -141,6 +141,19 @@ Polydoropoulou는 터미널 집계자료로 시간대별 트럭 도착 모형을
 크레인 스케줄링에 PPO 기반 방법을 적용해 그런 최적화를 실행 계층 안에
 놓는다~\cite{ref19}. 본 연구는 블록과 도착시각을 정하는 \emph{그 위 계층}을 다룬다.
 
+이 선택에서 본 연구가 쓰는 신경망의 성질 두 가지가 따라 나온다. 첫째, 이 망은 행동에
+대한 확률분포를 내놓지 않는다. 관측된 상태와 후보 행동 하나를 받아 그 후보를 확정했을
+때 뒤따를 것으로 예상되는 운영비용을 내놓고, 결정은 예상비용이 가장 낮은 후보다. 즉
+심층 Q-신경망이 신경망으로 행동가치를 근사하는 것과 같은 의미에서~\cite{refmnih}
+정책경사 계열이 아니라 \emph{값 근사} 계열이다. 둘째, 근사기는 작은
+다층퍼셉트론이다. 다층 순방향 신경망이 일반적인 함수 근사기라는 것은
+알려져 있지만~\cite{refhornik} 그 성질만으로 구조가 정해지지는 않는다. 선택의 근거는
+자료에 있다. 입력이 영상·문장·그래프가 아니라 고정 길이의 수치표이고, 후보를 한 번에
+하나씩 서로 독립으로 채점하며, 순환망이나 주의기제가 이용할 만한 시간적 순서가
+입력에 없고, 라벨이 붙은 결정의 수가 블록 수에 비해 적어 큰 모형은 과적합하며, 모든
+블록이 가중치 한 벌을 공유한다. 이 조건에서는 작은 퍼셉트론이 타당한 첫 선택이고,
+트랜스포머나 그래프 신경망은 지금의 라벨이 감당할 수 없는 용량을 더하는 셈이다.
+
 미래비용을 한 행위자의 결정에 실어 주는 일은 여럿이 동시에 움직일 때 더 어렵다.
 지평 비용이 \emph{공동}의 것이기 때문이다. Wolpert와 Tumer는 집단 구성원의 보상함수를
 전체 목적과 어긋나지 않으면서도 각자의 행동에 민감하도록 구성한다. 차이
@@ -174,15 +187,18 @@ Kim 등은 환경 불확실성 아래의 자원 단위 제어에 학습을 쓰�
 \bibitem{ref7} Ng, W.C., Mak, K.L.: Yard crane scheduling in port container terminals. Appl. Math. Model. \textbf{29}(3), 263--276 (2005)
 \bibitem{ref8} Speer, U., Fischer, K.: Scheduling of different automated yard crane systems at container terminals. Transp. Sci. \textbf{51}(1), 305--324 (2017)
 \bibitem{ref9} Petering, M.E.H., Murty, K.G.: Effect of block length and yard crane deployment systems on overall performance at a seaport container transshipment terminal. Comput. Oper. Res. \textbf{36}(5), 1711--1725 (2009)
+\bibitem{ref16} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
+\bibitem{ref19} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
 \bibitem{ref10} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--280 (2001)
 \bibitem{ref11} Foerster, J., et al.: Counterfactual multi-agent policy gradients. In: AAAI, vol. 32 (2018)
 \bibitem{ref13} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. EJTIR \textbf{18}(1) (2018)
-\bibitem{ref16} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
-\bibitem{ref19} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
+\bibitem{refmnih} Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
+\bibitem{refhornik} Hornik, K.: Approximation capabilities of multilayer feedforward networks. Neural Netw. \textbf{4}(2), 251--257 (1991)
 \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
-\bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
 \bibitem{ref24} 국토교통부: 2026년 적용 화물자동차 안전운임 고시, 제2026-402호 (2026)
 \bibitem{ref25} 해양수산부: 무역항 항만시설사용료: 접안료 요율과 산정기준
+\bibitem{refhuber} Huber, P.J.: Robust estimation of a location parameter. Ann. Math. Statist. \textbf{35}(1), 73--101 (1964)
+\bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
 \end{thebibliography}
 
 \end{document}

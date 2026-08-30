@@ -64,11 +64,18 @@ construction: only candidates carrying both a proposal and an acceptance
 are committed, and each job is reviewed exactly once.
 
 \subsection{Policy Models and Inputs}
-Both policies are multilayer perceptrons that score fixed-length
-features per candidate, with one set of weights shared across blocks:
-21-dimensional input for the proposal policy and 16 for the acceptance
-policy, two hidden layers of 64 units with ReLU, and 5{,}633 and 5{,}313
-parameters respectively---fewer than 11{,}000 in total. Inputs comprise
+The two functions $\hat c^{P}_{\theta}$ and $\hat c^{A}_{\psi}$ of
+Sect.~4.1 are neural networks, and their role is worth stating
+precisely: neither produces a probability over actions. Each maps an
+observed state and one candidate to the cost expected to follow from
+committing that candidate, so the policy is an $\arg\min$ over a learned
+cost rather than a sampled action, and the same network is evaluated
+once per candidate. Both are multilayer perceptrons that score
+fixed-length features per candidate, with one set of weights shared
+across blocks: 21-dimensional input for the proposal policy and 16 for
+the acceptance policy, two hidden layers of 64 units with ReLU, and
+5{,}633 and 5{,}313 parameters respectively---fewer than 11{,}000 in
+total. Inputs comprise
 current waiting, inventory, and remaining crane work, the public
 expected arrival time, the route difference, and the announced volume
 around the target time. Unrealised actual arrival and completion times,
@@ -97,7 +104,10 @@ removes the shared cost without changing the order of the two actions.
 The per-day sample cap is 64 decisions and the exploration probability
 decreases linearly from 0.50 to 0.05, with an 80/20 train--validation
 split at the decision level. Optimisation uses Adam
-($3\times10^{-4}$), a Huber loss ($\beta=1.0$), minibatches of up to 256
+($3\times10^{-4}$) and a Huber loss ($\beta=1.0$), the latter because a
+few counterfactual differences are far larger than the rest and a
+squared error would let those samples dominate the
+fit~\cite{refhuber}; minibatches of up to 256
 rows, $\max(50,\min(600,4\times\text{rows}))$ updates, and gradients
 clipped at 1.0. Counterfactual branches run in parallel across CPU cores
 and each day's labels are replaced after that day's update. At

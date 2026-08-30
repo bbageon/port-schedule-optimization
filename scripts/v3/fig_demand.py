@@ -11,7 +11,9 @@
   · 그림틀을 **네 변 모두** 두른다
   · 계열은 **선 모양**으로 가른다 — 흑백으로 인쇄해도 읽힌다
   · 범례는 **테두리 있는 상자**로 그림 안에 둔다
-  · 격자 없음 · 작은 글씨 · 캡션은 LaTeX 쪽에서 그림 **아래**에 붙는다
+  · 격자 없음 · 작은 글씨
+  · ★그림은 **이미지만** 만든다 — 제목·설명은 넣지 않는다. 패널 표시 (a)(b) 만 두고
+    나머지는 LaTeX 의 \caption 이 템플릿 규칙대로 그림 아래에 붙인다 (사용자 지시).
 
 ■ 무엇을 그리는가
   (a) 일일 외부 트럭 작업 수요 — 다섯 수준과 각각의 추첨 확률
@@ -93,7 +95,7 @@ def draw():
     ax1.set_ylabel("Probability")
     ax1.set_ylim(0, max(probs) * 1.28)
     ax1.set_xlim(-0.6, len(loads) - 0.4)
-    ax1.set_title("(a) Daily external truck job demand", fontsize=8.5, loc="left")
+    ax1.text(0.02, 0.96, "(a)", transform=ax1.transAxes, va="top", fontsize=8.5)
 
     # ── (b) 도착 과정 — 기저 + 가우시안 성분 ─────────────────────
     hs, base, comps, tot = rate_parts(REF_LOAD)
@@ -108,9 +110,8 @@ def draw():
     ax2.set_ylim(0, max(tot) * 1.40)
     ax2.set_xlabel("Hour of day")
     ax2.set_ylabel("Arrival rate (trucks/h)")
-    ax2.set_title(f"(b) Arrival process at {REF_LOAD:,} trucks/day",
-                  fontsize=8.5, loc="left")
-    ax2.legend(fontsize=7.2, loc="upper left", frameon=True, borderpad=0.5,
+    ax2.text(0.02, 0.96, "(b)", transform=ax2.transAxes, va="top", fontsize=8.5)
+    ax2.legend(fontsize=7.2, loc="upper left", bbox_to_anchor=(0.10, 1.0), frameon=True, borderpad=0.5,
                handlelength=2.4)
 
     # 네 변 모두 두른다 (LNCS 견본)
