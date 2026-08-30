@@ -20,12 +20,12 @@ work from the values this study fixed within those ranges.
 \toprule
 Component & Basis in prior work & Value used here \\
 \midrule
-Multiple blocks & 16 and 20 blocks~\cite{ref10,ref17} & 21 blocks \\
-Multiple yard cranes & Several cranes per block~\cite{ref5,ref18} & 2 per block \\
-Long-run discrete event & Multi-week continuous runs~\cite{ref13} & 30 days, state carried \\
-Time-of-day arrivals & Hourly probability, turn time~\cite{ref19,ref20} & Base plus three peaks \\
-Vessel class, call size & Three classes, differing calls~\cite{ref17,ref21} & Small/medium/large \\
-Crane service time & Triangular handling range~\cite{ref13} & 180\,s within the range \\
+Multiple blocks & 16 and 20 blocks~\cite{ref15,ref16} & 21 blocks \\
+Multiple yard cranes & Several cranes per block~\cite{ref8,ref17} & 2 per block \\
+Long-run discrete event & Multi-week continuous runs~\cite{ref9} & 30 days, state carried \\
+Time-of-day arrivals & Hourly probability, turn time~\cite{ref13,ref14} & Base plus three peaks \\
+Vessel class, call size & Three classes, differing calls~\cite{ref16,ref23} & Small/medium/large \\
+Crane service time & Triangular handling range~\cite{ref9} & 180\,s within the range \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -73,7 +73,7 @@ f(t)=0.38\,U(0,24)+0.62\sum_{m=1}^{3}w_m
 
 Time is measured in hours and the truncated density is renormalised so
 that it integrates to one over a day. The time-of-day arrival model and
-its effect on turn time follow~\cite{ref19,ref20}; the mixture weights
+its effect on turn time follow~\cite{ref13,ref14}; the mixture weights
 and peak centres were selected as design values so that congestion
 sensitivity can be compared across demand levels, and are not claimed to
 be estimates fitted to a particular terminal. Fig.~\ref{fig:arrival}
@@ -98,7 +98,7 @@ $u\sim U[0.15,0.30]$. The daily composition was two small vessels and
 one medium vessel, to which one large vessel was added with probability
 0.30. The throughput of one quay crane was set to 27.5\,move/h, which
 lies within the 24, 30, and 36\,move/h range used in the
-literature~\cite{ref17}. Blocking across quay cranes was summed and
+literature~\cite{ref16}. Blocking across quay cranes was summed and
 divided by the number assigned, giving the idle time per vessel.
 
 \begin{table}[t]
@@ -129,7 +129,7 @@ A move is a container movement and is not a truck. One truck job may
 require several moves and rehandles, and the realised service time
 varies with position and job type. We follow the guidance that equipment
 capacity must be reported together with move type, automation delay, and
-handling-vehicle conditions~\cite{ref6}.
+handling-vehicle conditions~\cite{ref18}.
 
 \subsection{Cost Function}
 The total cost over the interval $[d,d+1)$ is the sum of four terms:
@@ -141,10 +141,10 @@ The total cost over the interval $[d,d+1)$ is the sum of four terms:
 Truck dwell costs KRW 40{,}000 per hour, with the same rate applied
 again to any excess beyond one hour; the safe trucking freight rate is
 used as the monetary anchor and the hourly conversion is a study
-value~\cite{ref12}. Additional crane movement costs KRW 60{,}000 per
+value~\cite{ref24}. Additional crane movement costs KRW 60{,}000 per
 hour of extra work and a rehandle costs KRW 2{,}000, both design values.
 Vessel idling costs KRW 2.99 per GT-hour, converted from the excess
-berthing rate of KRW 29.9 per 10\,GT-hour~\cite{ref22}.
+berthing rate of KRW 29.9 per 10\,GT-hour~\cite{ref25}.
 
 With $h_i$ the terminal dwell time of truck $i$, $m$ the additional
 crane working time, $R$ the number of rehandles, and $T_v$ the
