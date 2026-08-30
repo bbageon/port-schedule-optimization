@@ -58,11 +58,10 @@ particular terminal. \textbf{Training and evaluation use the same curve
 shape}; only demand level and random draw differ. We therefore do not
 evaluate transfer to an arrival profile with a different shape.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{fig-demand.pdf}
-\captionof{figure}{External truck job demand. (a) The five daily demand levels and
+\caption{External truck job demand. (a) The five daily demand levels and
 the probability with which each is drawn, independently for each day.
 (b) The time-of-day arrival process at 12{,}500 trucks per day, with the
 uniform base and the three Gaussian components drawn separately beneath
@@ -70,16 +69,16 @@ the mixture they sum to. What the literature supports is that arrivals
 are far from uniform over the day; the demand levels and the shape of
 the mixture are design values of this study.}
 \label{fig:demand}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{Vessels and Quay Operations}
 \label{sec:env-vessel}
 We use three vessel classes. Table~\ref{tab:vessels} summarises their
 size, assigned quay cranes, idle cost, and daily call mix.
 
-\begin{center}
-\captionof{table}{Vessel classes and daily call mix. Shares use the
+\begin{table}[tbp]
+\centering
+\caption{Vessel classes and daily call mix. Shares use the
 expected 3.3 vessel calls per day. The 0.3 call for large vessels is the
 expectation from adding one large vessel with probability 0.30.}
 \label{tab:vessels}
@@ -95,7 +94,7 @@ Medium & 100{,}000 & 7{,}500 & 4 & 299.0 & 1.0 (30.3\%) \\
 Large & 150{,}000 & 14{,}000 & 6 & 448.5 & 0.3 (9.1\%) \\
 \bottomrule
 \end{tabular}
-\end{center}
+\end{table}
 For a vessel with capacity $C$ TEU, call volume is $C\cdot u$, where
 $u\sim U[0.15,0.30]$. One quay crane processes 27.5\,moves/h, within the
 24, 30, and 36\,moves/h values used in the literature~\cite{ref16}. We

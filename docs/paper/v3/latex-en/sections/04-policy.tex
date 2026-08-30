@@ -12,11 +12,10 @@ learning path clones the state and random stream immediately before a
 decision and compares the observed action with counterfactual
 alternatives. This computation remains outside the operational path.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/system-architecture.png}
-\captionof{figure}{Detailed flow of the proposed architecture. (a) Every
+\caption{Detailed flow of the proposed architecture. (a) Every
 60\,s, the operational path checks eligibility, proposal, acceptance,
 and commitment; failure of mutual consent or capacity keeps the original
 assignment. (b) The discrete-event environment links the gate, 21 blocks,
@@ -25,8 +24,7 @@ two yard cranes per block, and vessel operations to calculate cost $\Phi$.
 random stream over 3 h and constructs separate labels for the proposal
 and acceptance cost networks.}
 \label{fig:arch}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{Notation, Actions, and Policies}
 \label{sec:arch-notation}
@@ -139,23 +137,21 @@ a candidate in the current block state, rather than a separate rule for
 each block. The policies differ only in input dimension: 21 for proposal
 and 16 for acceptance.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/MLP-relu.png}
 
 \vspace{3pt}
 $\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_1x+b_1)+b_2\bigr)+b_3$
 \vspace{2pt}
-\captionof{figure}{Structure of one cost network. The input is a fixed-length
+\caption{Structure of one cost network. The input is a fixed-length
 feature vector for one candidate, and ReLU follows each of the two
 64-unit hidden layers. The output is one pair-centred cost score. A
 decision evaluates every candidate with the same network and takes the
 $\arg\min$. The proposal and acceptance policies share this structure
 and differ only in input dimension, 21 and 16 respectively.}
 \label{fig:mlp}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{Counterfactual Cost Labels}
 \label{sec:arch-labels}

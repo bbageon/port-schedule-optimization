@@ -43,6 +43,16 @@
 \renewcommand{\lastandname}{\unskip,}
 \graphicspath{{../figures/}}
 
+%  ■ 부동체(figure/table) 배치 — 쪽 아래가 비지 않게 (영문판과 같은 설정)
+%    부동체는 쪼개지지 않으므로 그림과 캡션이 갈라지지 않고, 동시에 LaTeX 이 본문으로
+%    쪽을 채운다. 비부동체로 두면 블록이 통째로 다음 쪽으로 밀려 앞 쪽 아래가 비었다.
+\usepackage{flafter}           % 부동체가 정의된 지점보다 앞서 나오지 않게 한다
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+
 \begin{document}
 \raggedbottom
 
@@ -112,17 +122,15 @@
 큰 반사실 분기는 운영 중에 실행되지 않는다. 세부 정책, 확정 제약과 학습식은
 \ref{sec:arch}절에서 설명한다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/System Concept.png}
-\captionof{figure}{제안 시스템의 전체 개념. (a) 온라인 운영은 관측된 상태에서 재배치 후보를
+\caption{제안 시스템의 전체 개념. (a) 온라인 운영은 관측된 상태에서 재배치 후보를
 제안하고, 목적지가 이를 수락한 뒤, 상호 동의와 용량 조건을 만족한 변경만 확정·실행한다.
 (b) 오프라인 학습은 같은 상태의 관측 행동과 반사실 대안을 3시간 비교해 두 비용망을
 학습한다. 운영 단계에서는 학습된 신경망만 사용한다.}
 \label{fig:concept}
-\end{minipage}
-\end{center}
+\end{figure}
 본 연구는 네 가지 질문을 다룬다. 첫째, 독립된 제안·수락 정책으로 시공간 재배치를
 구성할 수 있는가? 둘째, 계산량이 큰 반사실 학습을 운영 추론과 분리할 수 있는가? 셋째,
 이 아키텍처는 운영비를 줄이는가? 넷째, 관찰된 변화에서 행동 범위와 학습의 기여를

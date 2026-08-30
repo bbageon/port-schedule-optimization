@@ -8,18 +8,16 @@
 추가 이동, 재취급과 선박 유휴비용을 계산한다. 학습 경로는 결정 직전의 상태와 난수를
 복제해 관측 행동과 반사실 대안을 비교하며, 이 계산은 운영 경로와 분리된다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/system-architecture.png}
-\captionof{figure}{제안 아키텍처의 상세 흐름. (a) 운영 단계는 60초마다 자격 확인, 제안,
+\caption{제안 아키텍처의 상세 흐름. (a) 운영 단계는 60초마다 자격 확인, 제안,
 수락과 확정을 수행하며, 상호 동의나 용량 조건을 만족하지 못하면 원배정을 유지한다.
 (b) 이산사건 환경은 게이트, 21개 블록, 블록당 야드 크레인 2기와 선박 작업을 연결해
 운영비 $\Phi$를 계산한다. (c) 오프라인 학습은 같은 상태와 난수 흐름에서 최대 세 세계를
 3시간 비교해 제안망과 수락망의 비용 라벨을 각각 만든다.}
 \label{fig:arch}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{기호·행동·정책}
 \label{sec:arch-notation}
@@ -113,21 +111,19 @@ ReLU 활성함수가 적용된다. 출력은 그 후보의 짝 중심 비용 점
 상태에서 후보를 평가하는 공통 규칙을 학습한다. 두 정책은 입력 차원만 다르며 제안은
 21차원, 수락은 16차원이다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/MLP-relu.png}
 
 \vspace{3pt}
 $\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_1x+b_1)+b_2\bigr)+b_3$
 \vspace{2pt}
-\captionof{figure}{비용 신경망 하나의 구조. 입력은 후보 하나에 대한 고정 길이 특징 벡터이고
+\caption{비용 신경망 하나의 구조. 입력은 후보 하나에 대한 고정 길이 특징 벡터이고
 두 개의 64차원 은닉층에는 ReLU 활성함수를 적용한다. 출력은 그 후보의 짝 중심 비용
 점수 하나다. 한 번의 결정은 같은 망으로 후보를 각각 평가한 뒤 $\arg\min$을 취한다.
 제안 정책과 수락 정책은 이 구조를 공유하며 입력 차원만 각각 21과 16으로 다르다.}
 \label{fig:mlp}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{반사실 비용 라벨}
 \label{sec:arch-labels}

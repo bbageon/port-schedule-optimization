@@ -35,15 +35,14 @@ cost with no reallocation. A positive value means a cost reduction, whereas a
 negative value means a cost increase. The rows are grouped by research
 question rather than ranked in one list.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{table}[tbp]
 \centering
-\captionof{table}{Total cost reduction by policy. Each reduction is measured
+\caption{Total cost reduction by policy. Each reduction is measured
 against the 28-day total cost without reallocation. Positive values mean
 lower cost, whereas negative values mean higher cost.}
 \label{tab:policies}
 \small
-\begin{tabular}{@{}llr@{}}
+\begin{tabular}{@{}l l@{\hspace{2em}} r@{}}
 \toprule
 Policy & Action range & Reduction vs. no reallocation \\
 \midrule
@@ -63,8 +62,7 @@ Rule: net gain & block & $-$0.48\% \\
 No reallocation & --- & 0.00\% \\
 \bottomrule
 \end{tabular}
-\end{minipage}
-\end{center}
+\end{table}
 Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
 8.52\,bn with the learned policy. The reduction was KRW 1.471\,bn, or
 14.7\%. Time adjustment alone reduces cost by 13.44\%, whereas block
@@ -83,10 +81,9 @@ selectively: it is not designed to win on every day but to reduce cost
 sharply on congested ones. With 28 days and no tied differences, both
 tests are computed exactly. Table~\ref{tab:paired} reports both.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{table}[tbp]
 \centering
-\captionof{table}{Paired daily comparison between the learned policy and each
+\caption{Paired daily comparison between the learned policy and each
 comparison policy. ``Learned lower'' counts the days on which the
 learned policy costs less. Both $p$ values are two-sided and exact: a
 sign test, which uses only the direction of each daily difference, and a
@@ -109,8 +106,7 @@ Block rule & Net gain & 21/28 & \textbf{0.013} & \textbf{0.003} \\
 Baseline & No reallocation & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \\
 \bottomrule
 \end{tabular}
-\end{minipage}
-\end{center}
+\end{table}
 The learned policy costs less than the rule with the same block-and-time
 action range on 20 of 28 days (sign test $p=0.036$, signed-rank
 $p=0.015$). It costs less than the untrained model on 18 days, but this
@@ -125,11 +121,10 @@ interpreted separately. The learned policy is more expensive on only
 two days, and both differences are small, whereas the largest reductions
 all occur on congested days (Fig.~\ref{fig:paired}).
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-paired-daily.pdf}
-\captionof{figure}{Paired daily cost difference against no reallocation over
+\caption{Paired daily cost difference against no reallocation over
 the same 28 days with the same random streams. Days are sorted by the
 difference, and a positive value means the learned policy costs less.
 (a) All 28 days; four congested days dominate the axis, so (b) enlarges
@@ -138,8 +133,7 @@ days (two-sided sign test, $p<0.001$). The two exceptions are small,
 KRW $-17.1$\,m and KRW $-0.5$\,m, whereas each of the four congested days
 exceeds KRW 290\,m.}
 \label{fig:paired}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{Demand Level and the Decomposition of Actions}
 \label{sec:exp-decomp}
@@ -162,7 +156,7 @@ in this diagnostic run. The arrival-time results thus describe the
 \emph{potential range} of time shifting, not an executable schedule.
 Sensitivity analysis with finite quotas can define the practical range.
 
-\begin{table}[tb]
+\begin{table}[tbp]
 \centering
 \caption{Cost reduction by demand level (KRW bn, relative to no
 reallocation). Columns three to five separate the allowed actions. The
@@ -188,11 +182,10 @@ demand & Days & actions & only & only & training \\
 \end{tabular}
 \end{table}
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-decomposition.pdf}
-\captionof{figure}{Cost reduction by demand level, decomposed by action
+\caption{Cost reduction by demand level, decomposed by action
 range. The values are those of Table~\ref{tab:actions}, in million KRW
 (1\,bn $=$ 1{,}000\,m). All five demand levels share one axis, and the
 shaded band marks the two congested levels. Because those two are more
@@ -207,8 +200,7 @@ Moving from the non-congested to the congested regime, arrival-time
 adjustment and the training contribution both grow sharply, whereas
 block-only reallocation turns negative.}
 \label{fig:decomp}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{Rule-Based Policies of the Same Action Range}
 \label{sec:exp-rules}
@@ -252,11 +244,10 @@ to 37.6\%. Training runs 4{,}671 counterfactual worlds in total.
 Fig.~\ref{fig:learning} shows both loss curves together with the
 exploration schedule that accompanies them.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-learning-curve.pdf}
-\captionof{figure}{Training and validation loss over 30 iterations, with the
+\caption{Training and validation loss over 30 iterations, with the
 per-iteration value drawn faintly beneath a five-iteration mean. (a) The
 proposal network and (b) the acceptance network are drawn separately
 because they are fitted on different decisions, and the vertical axis is
@@ -267,8 +258,7 @@ trucks per day or above. Because the demand level is redrawn every
 iteration, much of the visible fluctuation, including the rise around
 iterations 17--24, follows that draw rather than the fit.}
 \label{fig:learning}
-\end{minipage}
-\end{center}
+\end{figure}
 Cost is KRW 10.00\,bn without reallocation, KRW 9.20\,bn with the
 untrained model, and KRW 8.52\,bn with the trained model. Training
 therefore adds KRW 0.675\,bn, or 45.9\% of the total reduction. However,

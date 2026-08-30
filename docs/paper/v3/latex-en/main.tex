@@ -26,6 +26,17 @@
 \usepackage{marvosym}          % \Letter — 교신저자를 가리키는 봉투 기호
 \graphicspath{{../figures/}}
 
+%  ■ 부동체(figure/table) 배치 — 쪽 아래가 비지 않게
+%    그림·표는 `figure`/`table` 부동체로 둔다. 부동체는 쪼개지지 않으므로 그림과 캡션이
+%    갈라지지 않고(예전에 minipage 로 막던 문제), 동시에 LaTeX 이 본문으로 쪽을 채운다.
+%    비부동체로 두면 블록이 통째로 다음 쪽으로 밀려 앞 쪽 아래가 통째로 비었다.
+\usepackage{flafter}           % 부동체가 **정의된 지점보다 앞서 나오지 않게** 한다
+\renewcommand{\topfraction}{0.9}        % 쪽 위쪽을 부동체가 최대 90% 까지 차지 가능
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}      % 본문이 최소 7% 만 있으면 부동체를 얹는다
+\renewcommand{\floatpagefraction}{0.75} % 부동체 전용쪽은 75% 이상 찼을 때만
+\setcounter{topnumber}{3}
+
 \begin{document}
 \raggedbottom
 
@@ -126,19 +137,17 @@ for the proposal and acceptance cost networks. The expensive
 counterfactual branches are therefore absent from online operation.
 Sect.~\ref{sec:arch} gives the policy, commitment, and learning details.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/System Concept.png}
-\captionof{figure}{Overall concept of the proposed system. (a) Online
+\caption{Overall concept of the proposed system. (a) Online
 operation proposes a reallocation from the observed state, asks the
 destination to accept it, and commits only changes that satisfy mutual
 consent and capacity. (b) Offline learning compares the observed action
 with counterfactual alternatives over 3 h to fit the two cost networks.
 Online operation uses only the fitted networks.}
 \label{fig:concept}
-\end{minipage}
-\end{center}
+\end{figure}
 This study addresses four questions: (i) whether independent proposal
 and acceptance policies can support spatio-temporal reallocation;
 (ii) whether computationally expensive counterfactual simulation can be

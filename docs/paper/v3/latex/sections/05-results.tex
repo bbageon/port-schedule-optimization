@@ -27,14 +27,13 @@
 음수는 비용 증가를 뜻한다. 전체 순위를 한 줄로 세우지 않고 행동 분해, 학습 여부,
 규칙 정책과 기준선 순으로 묶었다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{table}[tbp]
 \centering
-\captionof{table}{정책별 전체 비용 감소. 감소율은 재배치 없음의 28일 총비용을 기준으로 한다.
+\caption{정책별 전체 비용 감소. 감소율은 재배치 없음의 28일 총비용을 기준으로 한다.
 양수는 비용 감소, 음수는 비용 증가를 뜻한다.}
 \label{tab:policies}
 \small
-\begin{tabular}{@{}llr@{}}
+\begin{tabular}{@{}l l@{\hspace{2em}} r@{}}
 \toprule
 정책 & 사용 행동 & 재배치 없음 대비 감소율 \\
 \midrule
@@ -54,8 +53,7 @@
 재배치 없음 & --- & 0.00\% \\
 \bottomrule
 \end{tabular}
-\end{minipage}
-\end{center}
+\end{table}
 28일 총비용은 재배치 없음에서 100.0억원, 학습 정책에서 85.2억원이었다. 학습 정책은
 14.71억원, 즉 14.7\%를 줄였다. 시각 조정만 허용해도 13.44\%가 감소했지만 블록
 재배치만 허용하면 비용이 1.31\% 증가했다. 따라서 전체 감소는 주로 도착시각 조정에서
@@ -70,10 +68,9 @@ Kleijnen의 공통 난수 방법을 따른다~\cite{ref22}. 날짜를 독립 비
 목표로 하기 때문이다. 28일에 동점인 날이 없으므로 두 검정 모두 정확검정으로 계산했다.
 표~\ref{tab:paired}에 둘 다 적는다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{table}[tbp]
 \centering
-\captionof{table}{학습 정책과 비교 정책의 날짜별 짝비교. ``더 저렴한 날''은 같은 28일 중
+\caption{학습 정책과 비교 정책의 날짜별 짝비교. ``더 저렴한 날''은 같은 28일 중
 학습 정책의 비용이 더 낮았던 날의 수다. 두 $p$ 모두 양측 정확검정이다. 부호검정은
 하루하루 차이의 방향만 쓰고, 윌콕슨 부호순위검정은 그 크기까지 쓴다. 0.05 미만은
 굵게 표시했다.}
@@ -94,8 +91,7 @@ Kleijnen의 공통 난수 방법을 따른다~\cite{ref22}. 날짜를 독립 비
 기준선 & 재배치 없음 & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \\
 \bottomrule
 \end{tabular}
-\end{minipage}
-\end{center}
+\end{table}
 학습 정책은 같은 블록·시각 행동을 쓰는 규칙보다 28일 중 20일에서 비용이 낮았다
 (부호검정 $p=0.036$, 부호순위 $p=0.015$). 반면 학습 전 모형보다 낮은 날은 18일이었고
 차이는 두 검정 모두에서 통계적으로 유의하지 않았다($p=0.185$과 $p=0.164$). 5\% 수준에서 두 검정은
@@ -105,19 +101,17 @@ Kleijnen의 공통 난수 방법을 따른다~\cite{ref22}. 날짜를 독립 비
 함을 보여 준다. 학습 정책이 더 비싼 날은 이틀뿐이었고 차이도 작았다. 가장 큰 감소는
 모두 혼잡한 날에서 나타났다(그림~\ref{fig:paired}).
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-paired-daily.pdf}
-\captionof{figure}{재배치 없음 대비 날짜별 짝비교. 같은 28일에 같은 난수열을 썼고
+\caption{재배치 없음 대비 날짜별 짝비교. 같은 28일에 같은 난수열을 썼고
 차이 크기로 날을 정렬했다. 양수는 학습 정책이 더 쌌다는 뜻이다. (a)는 28일 전부이며,
 혼잡한 나흘이 축을 지배하므로 (b)에서 음영 구간인 1--24위를 확대했다. 학습 정책은
 28일 중 26일에서 더 쌌다(양측 부호검정 $p<0.001$). 더 비쌌던 이틀은 $-1{,}708$만원과
 $-51$만원으로 작은 반면, 혼잡한 나흘은 각각 2억 9{,}000만원을 넘었다. 세로축 단위는
 백만원이다.}
 \label{fig:paired}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{수요수준과 행동의 분해}
 \label{sec:exp-decomp}
@@ -135,7 +129,7 @@ $-51$만원으로 작은 반면, 혼잡한 나흘은 각각 2억 9{,}000만원�
 따라서 도착시각 관련 결과는 시간 이동이 제공할 수 있는 \emph{가능성의 범위}다. 유한한
 정원을 적용한 민감도 분석이 실제 적용 범위를 더 분명하게 할 수 있다.
 
-\begin{table}[t]
+\begin{table}[tbp]
 \centering
 \caption{수요수준별 비용 감소(재배치 없음 대비, 억원). 셋째부터 다섯째 열은 허용한
 행동을 구분한다. 마지막 열은 학습된 모형과 학습 전 모형의 차이다. 도착시각 조정과
@@ -159,11 +153,10 @@ $-51$만원으로 작은 반면, 혼잡한 나흘은 각각 2억 9{,}000만원�
 \end{tabular}
 \end{table}
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-decomposition.pdf}
-\captionof{figure}{수요수준별 비용 감소를 행동 범위로 분해했다. 값은
+\caption{수요수준별 비용 감소를 행동 범위로 분해했다. 값은
 표~\ref{tab:actions}에 적은 것과 같고 단위는 백만원이다(억원 값의 100배). 혼잡한 두
 다섯 수요 수준을 하나의 축에 함께 그렸고, 음영은 혼잡한 두 수준을 가리킨다. 그 둘이
 나머지보다 열 배 넘게 크므로 짧은 막대에는 값을 함께 적었다. 눈금 아래 $n$ 은 관측
@@ -173,8 +166,7 @@ $-51$만원으로 작은 반면, 혼잡한 나흘은 각각 2억 9{,}000만원�
 마지막 열이며 그래서 기호를 달리 그렸다. 비혼잡에서 혼잡으로 넘어가면 도착시각
 조정과 학습의 몫이 함께 급격히 커지는 반면, 블록만 쓰는 재배치는 음수로 돌아선다.}
 \label{fig:decomp}
-\end{minipage}
-\end{center}
+\end{figure}
 
 \subsection{같은 행동 범위를 쓰는 규칙 정책}
 \label{sec:exp-rules}
@@ -203,19 +195,17 @@ $-51$만원으로 작은 반면, 혼잡한 나흘은 각각 2억 9{,}000만원�
 학습에서는 4{,}671개의 반사실 세계를 실행했다. 그림~\ref{fig:learning}은 두 손실
 곡선과 함께 그 곁을 지키는 탐색 일정을 보여 준다.
 
-\begin{center}
-\begin{minipage}{\textwidth}
+\begin{figure}[tbp]
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-learning-curve.pdf}
-\captionof{figure}{30회차 동안의 학습·검증 손실. 회차별 원값을 옅게 깔고 그 위에 다섯
+\caption{30회차 동안의 학습·검증 손실. 회차별 원값을 옅게 깔고 그 위에 다섯
 회차 이동평균을 얹었다. (a) 제안망과 (b) 수락망은 서로 다른 결정으로 적합하므로 따로
 그렸고, 손실이 세 자릿수를 오가므로 세로축은 로그다. (c) 탐색 확률 $\varepsilon$은
 0.50에서 0.05로 선형 감소한다. 음영은 그 회차에 뽑힌 수요가 하루 12,500대 이상이었음을
 뜻한다. 수요를 회차마다 새로 뽑기 때문에 17--24회차의 상승을 포함해 눈에 보이는
 출렁임의 상당 부분은 적합이 아니라 그 추첨을 따른다.}
 \label{fig:learning}
-\end{minipage}
-\end{center}
+\end{figure}
 재배치 없음의 비용은 100.0억원이었다. 학습 전 모형은 92.0억원, 학습된 모형은
 85.2억원이었다. 따라서 학습 후 추가 감소는 6.75억원이며 전체 감소의 45.9\%다. 그러나
 학습된 모형이 더 낮은 날은 28일 중 18일에 그쳤다(부호검정 $p=0.185$, 부호순위
