@@ -100,15 +100,11 @@ proposal and acceptance}
 \textbf{Output} committed reallocation set $M_t$ \\
 \midrule
 1\quad $\mathcal E_t \leftarrow$ jobs first eligible in this 60\,s interval and not yet at the gate \\
-2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$ \textbf{do} \\
-3\quad\quad $\mathcal A_i(t) \leftarrow \{$keep, feasible destination blocks, feasible deferral slots$\}$ \\
-4\quad\quad $\hat a_i \leftarrow \arg\min_{a} c^P(o_i^P,a)$; add to $\mathrm{Offers}$ if it is a proposal, else keep \\
-5\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$ \textbf{do} \\
-6\quad\quad reject if the target has no remaining capacity, else $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
-7\quad $\mathcal J_t \leftarrow$ accepted candidates; sort by (predicted cost, job ID, target coordinate) \\
-8\quad \textbf{for} $i \in \mathcal J_t$ \textbf{do} \\
-9\quad\quad if ownership, block capacity, and slot quota hold, add to $M_t$ and decrement virtual capacity \\
-10\ \ record original block and time, apply all new assignments at once, lock $\mathcal E_t$ as reviewed \\
+2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$: $\hat a_i \leftarrow \arg\min_{a \in \mathcal A_i(t)} c^P(o_i^P,a)$; add to $\mathrm{Offers}$ if $\hat a_i \neq$ keep \\
+3\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$: reject if the target is full, else $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
+4\quad $\mathcal J_t \leftarrow$ accepted candidates, sorted by (predicted cost, job ID, target coordinate) \\
+5\quad \textbf{for} $i \in \mathcal J_t$: if ownership, block capacity, and slot quota hold, add to $M_t$ \\
+6\quad record the original assignments, apply $M_t$ at once, and lock $\mathcal E_t$ as reviewed \\
 \bottomrule
 \end{tabular}
 \end{table}

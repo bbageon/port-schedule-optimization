@@ -86,15 +86,11 @@ $K_k(t)=\infty$로 두며, 이 조건의 효과는 시간 조정 가능성의 �
 \textbf{출력} 확정 재배치 집합 $M_t$ \\
 \midrule
 1\quad $\mathcal E_t \leftarrow$ 이번 60초 구간에 처음 자격을 얻었고 게이트에 들어오지 않은 작업 \\
-2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$ \textbf{do} \\
-3\quad\quad $\mathcal A_i(t) \leftarrow \{$원배정 유지, 가능한 목적 블록, 가능한 이연 시간대$\}$ \\
-4\quad\quad $\hat a_i \leftarrow \arg\min_{a} c^P(o_i^P,a)$; \ 제안이면 $\mathrm{Offers}$ 에 넣고 아니면 원배정 확정 \\
-5\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$ \textbf{do} \\
-6\quad\quad 목표 자원의 남은 용량이 0이면 거절, 아니면 $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
-7\quad $\mathcal J_t \leftarrow$ 수락된 후보; \ (수락 예상비용, 작업 ID, 목적 좌표) 오름차순 정렬 \\
-8\quad \textbf{for} $i \in \mathcal J_t$ \textbf{do} \\
-9\quad\quad 소유권·블록 용량·시간대 정원을 만족하면 $M_t$ 에 넣고 가상 잔여 용량을 1 감소 \\
-10\ \ 원래 블록·시각을 기록하고 새 배정을 일괄 반영; $\mathcal E_t$ 전체를 검토 완료로 잠금 \\
+2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$: $\hat a_i \leftarrow \arg\min_{a} c^P(o_i^P,a)$; 제안이면 $\mathrm{Offers}$ 에 넣는다 \\
+3\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$: 목표가 꽉 찼으면 거절, 아니면 $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
+4\quad $\mathcal J_t \leftarrow$ 수락된 후보를 (수락 예상비용, 작업 ID, 목적 좌표) 오름차순으로 정렬 \\
+5\quad \textbf{for} $i \in \mathcal J_t$: 소유권·블록 용량·시간대 정원을 만족하면 $M_t$ 에 넣는다 \\
+6\quad 원래 배정을 기록하고 $M_t$ 를 일괄 반영한 뒤 $\mathcal E_t$ 를 검토 완료로 잠근다 \\
 \bottomrule
 \end{tabular}
 \end{table}

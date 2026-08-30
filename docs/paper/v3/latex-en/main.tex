@@ -78,46 +78,37 @@ management \and Yard block reallocation \and Counterfactual learning
 \subsection{Background}
 Operational efficiency at a smart port depends not only on equipment
 automation but also on the ability to reallocate resources from
-information observed in real time. Studies of port efficiency describe
-automation, intelligence, and environmental design as separate channels
-through which performance is affected, and smart-port programmes at
-Busan and Singapore likewise aim to connect equipment and vehicle
-information to operating scenarios~\cite{ref1,ref2,ref3}.
-
-At a container terminal the working block and appointment time of an
-external truck are normally fixed before arrival. During operation,
-however, demand concentrates on particular time slots or blocks, and
-crane queues and vessel-linked work change with it. Keeping the initial
-plan unchanged makes it difficult to reflect newly observed congestion
-in the assignment. This paper revisits, at that point, both
-\emph{where} a job is placed and \emph{when} the truck is asked to
-arrive.
+information observed in real time, and smart-port programmes at Busan
+and Singapore aim to connect equipment and vehicle information to
+operating scenarios~\cite{ref1,ref2,ref3}. At a container terminal the
+working block and appointment time of an external truck are normally
+fixed before arrival. During operation, however, demand concentrates on
+particular time slots or blocks, and crane queues and vessel-linked work
+change with it, so keeping the initial plan unchanged makes it difficult
+to reflect newly observed congestion. This paper revisits, at that
+point, both \emph{where} a job is placed and \emph{when} the truck is
+asked to arrive.
 
 \subsection{Problem Setting and Research Gap}
 Truck appointment research uses time windows to spread arrival peaks and
-has developed methods by which a terminal and carriers negotiate arrival
-times against their own costs~\cite{ref4,ref5,ref6}. Yard operations
-research addresses container placement, work sequencing, and
-interference among multiple cranes in order to reduce waiting and
-rehandling~\cite{ref7,ref8,ref9}. The two streams have improved
-temporal and spatial efficiency separately. This paper places both axes
-inside one real-time decision for jobs that have already been announced.
+lets a terminal and carriers negotiate arrival times against their own
+costs~\cite{ref4,ref5,ref6}, while yard operations research addresses
+placement, work sequencing, and crane interference to reduce waiting and
+rehandling~\cite{ref7,ref8,ref9}. The two streams have improved temporal
+and spatial efficiency separately; this paper places both axes inside
+one real-time decision for jobs that have already been announced.
 
 Spatio-temporal reallocation does not change the cost of a single job
-alone. When a job moves to another block or time, the waiting of
-following trucks, the crane work sequence, and vessel supply flow change
-as well. Evaluating an action by its immediate travel time is therefore
-insufficient; a cost signal that includes the induced congestion is
-required. Difference rewards and multi-agent counterfactual baselines
-provide a way to isolate the contribution of one action by comparing it
-with an alternative~\cite{ref10,ref11}.
-
+alone: when a job moves, the waiting of following trucks, the crane work
+sequence, and vessel supply flow change as well, so a cost signal that
+includes the induced congestion is required. Difference rewards and
+multi-agent counterfactual baselines isolate the contribution of one
+action by comparing it with an alternative~\cite{ref10,ref11}.
 Reallocation is also difficult to commit on the benefit of the proposing
-side alone. Whether the destination block or target time slot can absorb
-the job must be judged separately. Rather than a single central policy
-that makes every decision, we separate proposal and acceptance into
-independent policies and leave consent and resource feasibility to a
-central procedure.
+side alone, since whether the destination can absorb the job must be
+judged separately. We therefore separate proposal and acceptance into
+independent policies and leave consent and feasibility to a central
+procedure.
 
 \subsection{Research Questions and Contributions}
 Four research questions are addressed in this study.
@@ -130,17 +121,13 @@ operating-cost reduction?
 \textbf{RQ4.}~Can the roles of learning and of the action range be
 separated in the observed change?
 
-The contributions of this work are fivefold. First, an \emph{independent
-policy structure} separates proposal from acceptance and commits only
-mutually agreed jobs. Second, a \emph{spatio-temporal action range}
-treats block reallocation and arrival-time adjustment within one
-decision procedure. Third, \emph{counterfactual cost learning} captures
-indirect congestion effects from simulations differing in a single
-action. Fourth, a \emph{separation of learning and operation} confines
-the expensive branch simulation to training. Fifth, a
-\emph{decomposable evaluation} reports the execution, the action range,
-and the learning effect separately, so that the source of an observed
-change can be identified.
+The contributions are an \emph{independent policy structure} that commits
+only mutually agreed jobs, a \emph{spatio-temporal action range} that
+treats block reallocation and arrival-time adjustment in one procedure,
+\emph{counterfactual cost learning} for indirect congestion effects, a
+\emph{separation of learning and operation}, and a \emph{decomposable
+evaluation} that reports execution, action range, and learning effect
+separately.
 
 \begin{figure}[t]
 \centering
@@ -154,58 +141,47 @@ no counterfactual simulation call.}
 % =====================================================================
 \section{Related Work}
 
-\subsection{Smart Ports and Truck Arrival-Time Adjustment}
+\subsection{Smart Ports, Appointments, and Yard Operations}
 Smart-port research treats automation, intelligence, and environmental
-design as distinct components of port efficiency~\cite{ref1}. The Busan
-digital twin and the Tuas Port programme illustrate how equipment,
-vehicle, and space information is connected to operating scenarios and
-to automated equipment control~\cite{ref2,ref3}. Time-window
-appointments are a representative approach to spreading concentrated
-truck arrivals~\cite{ref4}, and negotiation studies show that carriers
-and a terminal can adjust arrival times while exchanging only limited
-information~\cite{ref5,ref6}. A vehicle appointment pilot at Busan
-likewise indicates that time adjustment can translate into on-site queue
-management~\cite{ref12}. Truck arrivals are not uniform over the
-day~\cite{ref13}, and the arrival pattern itself changes turn
-time~\cite{ref14}.
-
-\subsection{Yard Operations and Reinforcement Learning}
-Yard crane research addresses work sequencing, interference among
-cranes, and load balancing across blocks~\cite{ref7,ref8}. Dynamic
-discrete-event simulation has been used to compare how block length and
-crane deployment affect long-run terminal
-performance~\cite{ref9,ref15}. Recent work shows that the performance
-ranking of dispatching rules can reverse with terminal
-conditions~\cite{ref16}, and configurations with multiple cranes per
-block are studied as integrated scheduling
-problems~\cite{ref17}. Because equipment throughput depends on move type
-and interference, move units and truck units must be reported
-separately~\cite{ref18}. Reinforcement learning in ports has been
-extended to real-time crane dispatching~\cite{ref19}; this paper instead
-addresses the layer above it, reallocating the block and time of truck
-jobs.
+design as distinct components of port efficiency~\cite{ref1}, and the
+Busan digital twin and the Tuas Port programme connect equipment,
+vehicle, and space information to operating scenarios~\cite{ref2,ref3}.
+Time-window appointments spread concentrated truck
+arrivals~\cite{ref4}; negotiation studies show that carriers and a
+terminal can adjust arrival times while exchanging only limited
+information~\cite{ref5,ref6}, and a vehicle appointment pilot at Busan
+indicates that time adjustment translates into on-site queue
+management~\cite{ref12}. Arrivals are not uniform over the
+day~\cite{ref13} and the arrival pattern itself changes turn
+time~\cite{ref14}. On the spatial side, yard crane research addresses
+work sequencing, interference, and load balancing across
+blocks~\cite{ref7,ref8}; discrete-event simulation compares how block
+length and crane deployment affect long-run
+performance~\cite{ref9,ref15}; the ranking of dispatching rules can
+reverse with terminal conditions~\cite{ref16}; and multiple cranes per
+block are studied as integrated scheduling problems~\cite{ref17}.
+Equipment throughput depends on move type and interference, so move
+units and truck units must be reported separately~\cite{ref18}.
+Reinforcement learning in ports has been extended to real-time crane
+dispatching~\cite{ref19}; this paper addresses the layer above it.
 
 \subsection{Counterfactual Cost and Evaluation Design}
 Difference rewards isolate the effect of one action from a joint cost by
-comparing the outcome against a baseline in which other agents keep
-their actions~\cite{ref10}, and counterfactual multi-agent policy
-gradients construct such a baseline from a centralised critic
-\cite{ref11}. We apply this idea to discrete-event simulation and use the
-monetary cost difference between two runs differing in a single action
-as the regression target of each independent policy. A related use of
-machine learning for resource-level control under environmental
-uncertainty is found in building demand response, where policies for
-individual spaces are learned across tasks that share
-structure~\cite{ref20}; that study likewise combines measured
-environmental records with synthetic parameters for the variation across
-individual units, and states the synthetic component
-declaratively---an approach we follow in Sect.~3.1. RUDDER, which
-redistributes delayed rewards over a trajectory~\cite{ref21}, is left as
-a direction for extending long-horizon attribution. For policy
-comparison we use paired runs sharing common random numbers, a
-long-standing technique for reducing the noise of policy
-differences~\cite{ref22}. Evidence that vessel call size creates
-operational peaks also motivates evaluating several demand
+comparing it against a baseline in which other agents keep their
+actions~\cite{ref10}, and counterfactual multi-agent policy gradients
+construct such a baseline from a centralised critic~\cite{ref11}. We
+apply this to discrete-event simulation and use the monetary cost
+difference between two runs differing in a single action as the
+regression target of each independent policy. A related use of machine
+learning for resource-level control under environmental uncertainty is
+found in building demand response~\cite{ref20}; that study likewise
+combines measured environmental records with synthetic parameters for
+the variation across individual units and states the synthetic component
+declaratively, an approach we follow in Sect.~3.1.
+RUDDER~\cite{ref21} is left as a direction for long-horizon attribution.
+For policy comparison we use paired runs sharing common random
+numbers~\cite{ref22}, and evidence that vessel call size creates
+operational peaks motivates evaluating several demand
 levels~\cite{ref23}.
 
 What distinguishes this work is the combination of an action range

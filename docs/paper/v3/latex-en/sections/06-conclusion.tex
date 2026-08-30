@@ -4,37 +4,19 @@
 Reproduction separates the random seeds of training and evaluation and
 lets all policies on a given evaluation day share the truck demand,
 vessel schedule, and service random streams. Policy weights and the
-comparison conditions are frozen before evaluation. For each day we
-store not only the total cost but also the cost terms, the demand level,
-the transaction types, the unfinished jobs, and the long waits.
-
-The procedure is as follows. We first check the terminal, arrival,
-vessel, and cost constants together with the policy input dimensions,
-the counterfactual horizon, and the optimisation settings. The 30-day
-demand plan is printed in advance to confirm that the first and last day
-serve as connecting days. The policy is then trained in the diagnostic
-seed band with per-day checkpoints and losses stored. Next, a 30-day run
-per policy is executed with frozen weights under a seed that does not
-overlap training, and the middle 28 days are paired by date to compute
-total cost, median difference, and the sign test. Finally, the block and
-time actions are restricted one at a time to decompose the source of the
-cost change.
-
-Seven checks are automated: no commitment lacking either a proposal or
-an acceptance; no re-review of an already reviewed job; no realised
-future arrival or completion time in a policy input; a branch that
-changes no action reproducing the action and cost of the main run; the
-four cost terms using the same day boundary; zero counterfactual calls
-in frozen-policy evaluation; and no reset of inventory, queues, or
-unfinished jobs at the day boundary.
-
-A reproduction report should state the random seeds, checkpoints, code
-commit, and run commands; the daily demand levels and per-policy total
-costs; the four cost terms; the number of committed transactions and
-their action types; the number of unfinished jobs and the distribution
-of long waits; the daily win counts, median differences, and two-sided
-sign-test $p$ values; and the comparison of the untrained model, the
-trained model, and no reallocation under identical conditions.
+comparison conditions are frozen before evaluation. The policy is
+trained in a diagnostic seed band with per-day checkpoints stored; a
+30-day run per policy is then executed with frozen weights under a seed
+that does not overlap training; the middle 28 days are paired by date to
+compute total cost, median difference, and the sign test; and finally
+the block and time actions are restricted one at a time to decompose the
+source of the cost change. Seven checks listed in Sect.~5.2 are
+automated. Each day stores the four cost terms, the demand level, the
+transaction types, the unfinished jobs, and the long waits, so that a
+reproduction report can state which demand and which action produced the
+result rather than a total alone. The source code, the per-policy raw
+results, and the scripts that generate every figure are released with
+the paper.
 
 % =====================================================================
 \section{Conclusion}
@@ -56,49 +38,40 @@ yard crane operations~\cite{ref7,ref8}, and multi-agent counterfactual
 learning~\cite{ref10,ref11} into one spatio-temporal assignment problem.
 
 \subsection{Academic Implications}
-First, spatial placement and temporal adjustment are compared within one
-action range rather than treated as separate problems, so the policy can
-consider both where congestion occurs and when it is expected. Second,
-the roles of proposing and accepting are separated: instead of one
-policy deciding on behalf of the whole terminal, the sending and
-receiving sides each judge from limited observations while the central
-procedure checks only consent and feasibility. This extends the
-operating logic of distributed appointment negotiation to a real-time
-reallocation policy~\cite{ref5,ref6}. Third, counterfactual comparison
-makes the contribution of a single action learnable from a joint cost:
-not only the immediate movement cost of one job but also the induced
-waiting and equipment flow are evaluated in the same monetary unit.
-Because the branch computation required for learning is separated from
-operation, the decision path itself remains a small cost model and a
+Three points follow. Spatial placement and temporal adjustment are
+compared within one action range, so the policy can consider both where
+congestion occurs and when it is expected. The roles of proposing and
+accepting are separated, which extends the operating logic of
+distributed appointment negotiation to a real-time reallocation
+policy~\cite{ref5,ref6}. Counterfactual comparison makes the
+contribution of a single action learnable from a joint cost, evaluating
+the induced waiting and equipment flow in the same monetary unit as the
+immediate movement cost; because the branch computation is separated
+from operation, the decision path remains a small cost model and a
 constraint check.
 
 \subsection{Application and Future Directions}
 Observations in the literature-calibrated continuous synthetic
 environment indicate that the proposed structure carries spatio-temporal
 reallocation through to execution, and that arrival-time adjustment and
-learned selection can produce a direction of cost reduction, especially
-under congested conditions. This supports the view that real-time
-information at a smart port can lead to assignment actions rather than
-monitoring alone~\cite{ref1,ref2,ref3}.
+learned selection can produce a direction of cost reduction under
+congested conditions. This supports the view that real-time information
+at a smart port can lead to assignment actions rather than monitoring
+alone~\cite{ref1,ref2,ref3}. The same direction held when the action
+range was matched: arrival-time adjustment lowered cost significantly
+even under a rule ($+3.41\%$), and the proposed policy using the same
+actions was lower still (20/28, $p=0.0357$). On the arrival-time axis
+alone, however, the rule was lower on more days and the proposed policy
+led only in total, which suggests that the learned selection was
+optimised \emph{not towards winning frequently but towards reducing cost
+sharply on the expensive days}.
 
-The same direction was observed when the action range was matched.
-Adding rule-based policies that transfer the \emph{least-loaded}
-criterion from the spatial to the temporal axis, arrival-time adjustment
-lowered cost significantly even under a rule ($+3.41\%$), and the
-proposed policy using the same actions was lower still (20/28,
-$p=0.0357$). On the arrival-time axis alone, however, the rule-based
-policy was lower on more days and the proposed policy led only in total.
-The learned selection appears to have been optimised \emph{not towards
-winning frequently but towards reducing cost sharply on the expensive
-days}.
-
-Subsequent development can refine one axis at a time while preserving
-the core structure. Reflecting actual appointment quotas would make the
-executable range of time adjustment concrete, and repeating a wider
-variety of congested conditions would delineate the contribution
-relative to the untrained model. Where long-horizon effects matter, a
-method that redistributes reward over the whole decision sequence can
-also be compared~\cite{ref21}.
+Subsequent development can refine one axis at a time. Reflecting actual
+appointment quotas would make the executable range of time adjustment
+concrete, and repeating a wider variety of congested conditions would
+delineate the contribution relative to the untrained model. Where
+long-horizon effects matter, a method that redistributes reward over the
+whole decision sequence can also be compared~\cite{ref21}.
 
 \subsection{Concluding Remarks}
 Observation, proposal, acceptance, commitment, execution, and
