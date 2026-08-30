@@ -1,0 +1,216 @@
+% =====================================================================
+\section{Proposed Architecture}
+\label{sec:arch}
+
+Fig.~\ref{fig:arch} separates the architecture into the operational
+path, the terminal environment, and the offline learning path. The
+operational path reviews each newly announced job once and changes its
+assignment through independent proposal and acceptance policies and a
+central commitment procedure. The terminal environment then measures
+truck dwell, additional travel, rehandling, and vessel idle cost. The
+learning path clones the state and random stream immediately before a
+decision and compares the observed action with counterfactual
+alternatives. This computation remains outside the operational path.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{system-architecture.png}
+\captionof{figure}{Detailed flow of the proposed architecture. (a) Every
+60\,s, the operational path checks eligibility, proposal, acceptance,
+and commitment; failure of mutual consent or capacity keeps the original
+assignment. (b) The discrete-event environment links the gate, 21 blocks,
+two yard cranes per block, and vessel operations to calculate cost $\Phi$.
+(c) Offline learning compares up to three worlds from the same state and
+random stream over 3 h and constructs separate labels for the proposal
+and acceptance cost networks.}
+\label{fig:arch}
+\end{minipage}
+\end{center}
+
+\subsection{Notation, Actions, and Policies}
+\label{sec:arch-notation}
+The decision interval is $\delta=60$\,s. The current assignment of job
+$i$ is $z_i=(b_i,\tau_i)$, where $b_i$ is the block and $\tau_i$ is the
+announced arrival time. A reallocation action is
+$a_i=(b'_i,\Delta_i)\in\mathcal A_i(t)$ and gives
+$z_i(a_i)=(b'_i,\tau_i+\Delta_i)$. Keeping the original assignment is
+$a_i^0=(b_i,0)$. Block reallocation has $b'_i\ne b_i$, and arrival-time
+adjustment has $\Delta_i>0$; a candidate may change both. Outbound jobs
+are excluded from block reallocation because the retrieved container has
+a fixed location.
+Let $n_i$ be the announcement time, $g_i$ the gate-in time, and $r_i$ an
+indicator of prior review. A job becomes eligible not when it is
+announced but when its arrival comes within a review window
+$w_i=\min(W,\ \tau_i-n_i)$ of the present, with $W=1800$\,s, so that the
+decision is taken on the freshest state the lead time allows:
+
+\begin{equation}
+\mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ g_i>t,\ r_i=0\}.
+\end{equation}
+Each job therefore enters exactly one decision interval and is never
+revisited. For a job announced at least $W$ ahead of its arrival the
+decision falls exactly $W$ before that arrival---about 46 minutes later
+than the median announcement, which is where the freshness comes
+from---while a job announced with a shorter lead is reviewed as soon as
+it is announced. A job announced no earlier than its own arrival has
+$w_i=0$ and is never eligible; such jobs are 14.1\% of the demand under
+the lead-time distribution of Sect.~\ref{sec:env-demand}, and the
+architecture leaves their assignment untouched. The proposal
+policy uses the current block state and job-action features $o_i^P$. It
+scores each candidate and selects the one with the lowest predicted cost
+score (Sect.~\ref{sec:arch-models}):
+
+\begin{equation}
+\hat a_i=\arg\min_{a\in\mathcal A_i(t)}
+\hat c_{\theta}^{P}(o_i^P,a),\qquad
+p_i=\mathbf 1[\hat a_i\ne a_i^0].
+\end{equation}
+If the policy proposes a change, the destination block or target time
+slot becomes the accepting party. The acceptance policy uses the
+proposal message and destination state $o_i^A$ to compare acceptance
+with rejection:
+
+\begin{equation}
+q_i=\mathbf 1\!\left[
+\hat c_{\psi}^{A}(o_i^A,\hat a_i,\mathrm{accept})
+\le
+\hat c_{\psi}^{A}(o_i^A,\hat a_i,\mathrm{reject})
+\right].
+\end{equation}
+If the target resource has no remaining capacity, the request is rejected
+before the network is called. The mutually accepted candidates form
+$\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$.
+
+\subsection{Central Commitment Constraints}
+\label{sec:arch-commit}
+The central procedure does not create new candidates. It considers only
+$\mathcal J_t$, sorted by the acceptance policy's predicted cost, with
+lexicographic tie-breaking. Let $x_i\in\{0,1\}$ indicate commitment,
+$F_b(t)$ denote the free slots in block $b$, and $K_k(t)$ denote the
+remaining quota of time slot $k$. The procedure enforces
+
+\begin{equation}
+\begin{aligned}
+x_i&\le p_iq_i,\qquad
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[b'_i\!=\!b]\le F_b(t),\\
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[k(i)\!=\!k]&\le K_k(t),\qquad
+\sum_{t\in\mathcal T}\!\mathbf1[i\in\mathcal E_t]\le1.
+\end{aligned}
+\end{equation}
+Block capacity is enforced in every experiment. When time-slot quota
+data are unavailable, we set $K_k(t)=\infty$. Results under this setting
+represent the potential range of arrival-time adjustment. All committed
+assignments are applied together at the end of the decision epoch. An
+earlier commitment therefore cannot change the state observed by another
+candidate in the same epoch. The structure guarantees two properties:
+only mutually accepted candidates are committed, and each job is
+reviewed once.
+
+\subsection{Policy Models and Inputs}
+\label{sec:arch-models}
+The functions $\hat c^{P}_{\theta}$ and $\hat c^{A}_{\psi}$ in
+Sect.~\ref{sec:arch-notation} are cost networks. Neither produces action
+probabilities. Each maps an observed state and one candidate to a scalar
+cost score. The score is pair-centred rather than absolute: the two
+actions of a counterfactual pair are centred on their mean before
+training (Sect.~\ref{sec:arch-labels}), so the network predicts what a
+candidate costs relative to the action it was rolled out against. Mean
+subtraction removes a constant that is common to both actions, so the
+ranking of candidates, and therefore the $\arg\min$ in~(1) and the
+comparison in~(2), is unaffected. The policy evaluates every candidate
+with the same network and selects the $\arg\min$ of the learned score. Both networks are multilayer perceptrons with weights
+shared across blocks. The proposal network has a 21-dimensional input,
+and the acceptance network has a 16-dimensional input. Both use two
+64-unit hidden layers with ReLU. They contain 5{,}633 and 5{,}313
+parameters, respectively, or fewer than 11{,}000 in total. Inputs
+include current waiting, inventory, remaining crane work, the public
+expected arrival time, route difference, and announced volume near the
+target time. Unrealised arrival and completion times and simultaneous
+responses from other accepting parties are excluded.
+Fig.~\ref{fig:mlp} shows one cost network. A candidate enters as a
+fixed-length vector $x\in\mathbb R^{d_{in}}$. It passes through three
+linear layers, with ReLU after the first two, and produces one scalar:
+the pair-centred cost score of that candidate. Because the output is
+one value per candidate, the candidate-list length may change across
+decision epochs without changing the model. The same weights also apply
+to every block. The model therefore learns a common rule for evaluating
+a candidate in the current block state, rather than a separate rule for
+each block. The policies differ only in input dimension: 21 for proposal
+and 16 for acceptance.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{MLP-relu.png}
+
+\vspace{3pt}
+$\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_1x+b_1)+b_2\bigr)+b_3$
+\vspace{2pt}
+\captionof{figure}{Structure of one cost network. The input is a fixed-length
+feature vector for one candidate, and ReLU follows each of the two
+64-unit hidden layers. The output is one pair-centred cost score. A
+decision evaluates every candidate with the same network and takes the
+$\arg\min$. The proposal and acceptance policies share this structure
+and differ only in input dimension, 21 and 16 respectively.}
+\label{fig:mlp}
+\end{minipage}
+\end{center}
+
+\subsection{Counterfactual Cost Labels}
+\label{sec:arch-labels}
+For each sampled decision, we clone the state and random stream just
+before branching. We then run up to three worlds for three hours:
+
+\begin{equation}
+\begin{aligned}
+\phi_i^F&=\Phi_H(\text{observed}),\qquad
+\phi_i^P=\Phi_H(\text{proposal reversed}),\\
+\phi_i^A&=\Phi_H(\text{acceptance reversed}),
+\end{aligned}
+\end{equation}
+with $H=10{,}800$\,s. The alternative world always reverses what the
+policy actually did. If the proposal policy proposed a change, the
+alternative keeps the current assignment; if it kept the assignment, the
+alternative commits the cheapest candidate under the current weights.
+The acceptance alternative reverses acceptance and rejection. A decision
+without an acceptance request produces only the proposal comparison.
+For each policy, we centre the two actions of the pair on their mean,
+$\bar\phi_i^P=(\phi_i^F+\phi_i^P)/2$, and divide by KRW 100{,}000. This
+gives $y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
+$y_{i,P}^P=(\phi_i^P-\bar\phi_i^P)/10^5$, that is, $\pm$ half the
+pairwise cost difference. We apply the same centring to
+$(\phi_i^F,\phi_i^A)$ for the acceptance policy. The reference point is
+therefore the pair itself rather than a fixed action: the target states
+how much better or worse one action was than the single alternative that
+was rolled out against it in the same world. Mean subtraction removes
+the cost the two worlds share without changing the order of the two
+actions.
+
+\subsection{Training Settings and Operational Separation}
+\label{sec:arch-train}
+We sample at most 64 decisions per day. Exploration decreases linearly
+from 0.50 to 0.05, and decisions are split 80/20 into training and
+validation sets. We optimise with Adam ($3\times10^{-4}$) and Huber loss
+($\beta=1.0$). A few counterfactual differences are much larger than the
+rest, so squared error would allow these samples to dominate the fit
+~\cite{refhuber}. Minibatches contain at most 256 rows. The number of
+updates is $\max(50,\min(600,4\times\text{rows}))$, and gradients are
+clipped at 1.0. Counterfactual branches run in parallel across CPU cores,
+and each day's labels are replaced after the daily update. During
+evaluation, weights are frozen, exploration is disabled, and no
+counterfactual branch is called.
+The labels are therefore not a fixed dataset. Every counterfactual pair
+branches from the action the current policy actually took, so the states
+that are labelled, and the alternative each is compared against, both
+move as the weights change; the labels of one pass are discarded after
+that pass. In this respect the scheme is on-policy Monte-Carlo advantage
+estimation with a simulator-generated baseline: the target is a complete
+simulated rollout to the horizon, and the method uses neither
+bootstrapping nor a policy gradient.
+Training both networks for 30 passes took about 18 hours of wall-clock time on the machine used. Online
+inference requires one forward pass through a small network for each
+candidate. This cost is small relative to the accompanying constraint
+check. The main computational expense is counterfactual label
+generation, which is performed offline and never enters the operating
+path.
