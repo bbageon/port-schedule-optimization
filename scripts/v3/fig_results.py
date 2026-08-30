@@ -42,8 +42,8 @@ from matplotlib.ticker import FuncFormatter
 
 from figdata import month
 from figstyle import (A_GREEN, BAND, BAR_MID, INK, LOSS_RED,
-                      MARK_GREY, MUTED, P_BLUE, TEXTWIDTH_IN, apply, hgrid,
-                      no_clip, panel, save)
+                      MARK_GREY, MUTED, P_BLUE, SMALL_PT, TEXTWIDTH_IN, apply,
+                      hgrid, no_clip, panel, save)
 
 OUT = ROOT / "docs/paper/v3/figures/final_figure"
 HISTORY = ROOT / "outputs/v3/month-02/history.json"
@@ -204,67 +204,71 @@ def fig_decomposition():
     total = sum(series[0].values())
     time_share = sum(series[1].values()) / total
 
-    # ★부하 구간으로 축을 나눈다 — 원활한 날의 절감(47백만원)과 초혼잡한 날의
-    #   절감(747백만원)은 15배 차이다. 한 축에 두면 앞의 셋이 0선에 눌려 부호도 안 보인다.
-    #   이 그림의 메시지가 바로 그 **비혼잡 → 혼잡 전환**이므로 분리를 유지한다.
-    light = [L for L in levels if L < HEAVY]
-    heavy = [L for L in levels if L >= HEAVY]
-
-    fig, (ax_l, ax_h) = plt.subplots(
-        1, 2, figsize=(TEXTWIDTH_IN, 2.86), layout="constrained",
-        gridspec_kw={"width_ratios": [len(light), len(heavy)]})
-    fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
+    # ★한 패널로 합친다 (사용자 지시 2026-08-30) — 다섯 수요 수준은 **같은 축 하나**의
+    #   연속된 눈금이다. 둘로 쪼개면 원활한 쪽과 혼잡한 쪽이 서로 다른 실험처럼 읽힌다.
+    #   대신 혼잡 구간에 음영을 깔아, 쪼개기가 나르던 "비혼잡 → 혼잡 전환"을 유지한다.
+    #   ⚠️ 값의 폭이 15배(47 vs 747백만원)라 원활한 쪽 막대는 작게 찍힌다. 그래서
+    #      짧은 막대에는 숫자를 함께 적는다 — 부호와 크기를 표 없이도 읽게.
+    fig, ax = plt.subplots(1, 1, figsize=(TEXTWIDTH_IN, 2.86),
+                           layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02)
 
     w = 0.185
     offs = [-w, 0.0, w]                    # 막대 셋
     mark_off = 0.42                        # ◆ — 막대 무리에서 확실히 떨어뜨린다
-    #  눈금은 **가운데 막대 아래**에 둔다. 전체(막대+◆) 한가운데로 잡으면 라벨이
-    #  막대와 ◆ 사이 빈 곳에 떠서 어느 무리에 붙는지 흐려진다.
-    mid = 0.0
+    xs = list(range(len(levels)))
 
-    bars, mark = [], None
-    for ax, group, name in ((ax_l, light, "(a) Non-congested regime"),
-                            (ax_h, heavy, "(b) Congested regime")):
-        xs = list(range(len(group)))
-        for k, (vals, (label, fc, hatch)) in enumerate(zip(series, BARS)):
-            b = ax.bar([x + offs[k] for x in xs], [vals[L] for L in group], w,
-                       facecolor=fc, edgecolor=INK, linewidth=0.7, hatch=hatch,
-                       label=label, zorder=3)
-            if ax is ax_l:
-                bars.append(b)
+    # 혼잡 구간 음영 — 축을 나누는 대신 배경으로 구간을 말한다.
+    heavy_x = [x for x, L in zip(xs, levels) if L >= HEAVY]
+    if heavy_x:
+        ax.axvspan(min(heavy_x) - 0.5 + offs[0], max(heavy_x) + mark_off + 0.20,
+                   color=BAND, alpha=0.55, lw=0, zorder=0)
 
-        # ◆ + 세로선 — 막대와 **다른 문법**이라 "넷째 행동" 으로 안 읽힌다.
-        mx = [x + mark_off for x in xs]
-        mv = [train[L] for L in group]
-        ax.vlines(mx, 0, mv, color=MARK_GREY, lw=1.0, zorder=3)
-        m = ax.scatter(mx, mv, s=26, marker="D", facecolor=MARK_GREY,
-                       edgecolor="white", linewidth=0.5, zorder=4,
-                       label=MARK_LABEL)
-        if ax is ax_l:
-            mark = m
+    bars = []
+    for k, (vals, (label, fc, hatch)) in enumerate(zip(series, BARS)):
+        bars.append(ax.bar([x + offs[k] for x in xs], [vals[L] for L in levels],
+                           w, facecolor=fc, edgecolor=INK, linewidth=0.7,
+                           hatch=hatch, label=label, zorder=3))
 
-        vals_all = [v[L] for v in series for L in group] + mv
-        lo, hi = min(vals_all), max(vals_all)
-        pad = 0.10 * (hi - lo)
-        ax.set_ylim(lo - pad, hi + pad)
-        no_clip(ax, vals_all, f"분해 {name}")
+    # ◆ + 세로선 — 막대와 **다른 문법**이라 "넷째 행동" 으로 안 읽힌다.
+    mx = [x + mark_off for x in xs]
+    mv = [train[L] for L in levels]
+    ax.vlines(mx, 0, mv, color=MARK_GREY, lw=1.0, zorder=3)
+    mark = ax.scatter(mx, mv, s=26, marker="D", facecolor=MARK_GREY,
+                      edgecolor="white", linewidth=0.5, zorder=4,
+                      label=MARK_LABEL)
 
-        # ★0 선이 이 그림의 핵심이다 — 7,500 의 학습 기여도, 15,000 의 블록만도 음수다.
-        #   그래서 격자는 아주 옅게, 0 선만 굵게, 아래 테두리는 아예 없앤다.
-        hgrid(ax)
-        ax.axhline(0, lw=1.1, color=INK, zorder=5)
-        ax.spines["bottom"].set_visible(False)
-        ax.tick_params(axis="x", length=0, pad=3)
+    vals_all = [v[L] for v in series for L in levels] + mv
+    lo, hi = min(vals_all), max(vals_all)
+    ax.set_ylim(lo - 0.12 * (hi - lo), hi + 0.12 * (hi - lo))
+    no_clip(ax, vals_all, "분해")
 
-        ax.set_xticks([x + mid for x in xs])
-        ax.set_xticklabels([f"{L:,}\n$n$ = {n_days[L]}" for L in group])
-        ax.set_xlim(offs[0] - w / 2 - 0.16, len(group) - 1 + mark_off + 0.16)
-        panel(ax, name)
+    # 짧은 막대에만 값을 적는다 — 긴 막대는 축만으로 읽히므로 숫자를 얹으면 어수선하다.
+    span = hi - lo
+    for k, vals in enumerate(series):
+        for x, L in zip(xs, levels):
+            v = vals[L]
+            if abs(v) < 0.12 * span:
+                ax.text(x + offs[k], v + (0.018 * span if v >= 0 else -0.018 * span),
+                        f"{v:.0f}", ha="center",
+                        va="bottom" if v >= 0 else "top",
+                        fontsize=6.5, color=INK, zorder=5)
 
-    fig.supylabel("Cost reduction (million KRW)",
-                  fontsize=plt.rcParams["axes.labelsize"], color=INK)
-    fig.supxlabel("Daily external-truck demand (jobs/day)",
-                  fontsize=plt.rcParams["axes.labelsize"], color=INK)
+    # ★0 선이 이 그림의 핵심이다 — 7,500 의 학습 기여도, 15,000 의 블록만도 음수다.
+    #   그래서 격자는 아주 옅게, 0 선만 굵게, 아래 테두리는 아예 없앤다.
+    hgrid(ax)
+    ax.axhline(0, lw=1.1, color=INK, zorder=5)
+    ax.spines["bottom"].set_visible(False)
+    ax.tick_params(axis="x", length=0, pad=3)
+
+    ax.set_xticks(xs)
+    ax.set_xticklabels([f"{L:,}\n$n$ = {n_days[L]}" for L in levels])
+    ax.set_xlim(offs[0] - w / 2 - 0.20, len(levels) - 1 + mark_off + 0.20)
+    ax.text((min(heavy_x) + max(heavy_x)) / 2 + 0.1, hi + 0.055 * span,
+            "congested", ha="center", va="bottom", fontsize=SMALL_PT,
+            color=MUTED, zorder=5)
+    ax.set_ylabel("Cost reduction (million KRW)")
+    ax.set_xlabel("Daily external-truck demand (jobs/day)")
 
     # 범례는 한 줄로 좁게 둔다. 빈 칸을 끼워 넣으면 범례가 그림 폭 전체로 벌어져
     # 맨 오른쪽 항목이 (b) 패널의 머리말처럼 읽힌다. ◆ 라는 **다른 기호**가 이미

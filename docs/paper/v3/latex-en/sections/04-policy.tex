@@ -39,7 +39,6 @@ $a_i^0=(b_i,0)$. Block reallocation has $b'_i\ne b_i$, and arrival-time
 adjustment has $\Delta_i>0$; a candidate may change both. Outbound jobs
 are excluded from block reallocation because the retrieved container has
 a fixed location.
-
 Let $n_i$ be the announcement time, $g_i$ the gate-in time, and $r_i$ an
 indicator of prior review. A job becomes eligible not when it is
 announced but when its arrival comes within a review window
@@ -49,7 +48,6 @@ decision is taken on the freshest state the lead time allows:
 \begin{equation}
 \mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ g_i>t,\ r_i=0\}.
 \end{equation}
-
 Each job therefore enters exactly one decision interval and is never
 revisited. For a job announced at least $W$ ahead of its arrival the
 decision falls exactly $W$ before that arrival---about 46 minutes later
@@ -68,7 +66,6 @@ score (Sect.~\ref{sec:arch-models}):
 \hat c_{\theta}^{P}(o_i^P,a),\qquad
 p_i=\mathbf 1[\hat a_i\ne a_i^0].
 \end{equation}
-
 If the policy proposes a change, the destination block or target time
 slot becomes the accepting party. The acceptance policy uses the
 proposal message and destination state $o_i^A$ to compare acceptance
@@ -81,7 +78,6 @@ q_i=\mathbf 1\!\left[
 \hat c_{\psi}^{A}(o_i^A,\hat a_i,\mathrm{reject})
 \right].
 \end{equation}
-
 If the target resource has no remaining capacity, the request is rejected
 before the network is called. The mutually accepted candidates form
 $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$.
@@ -102,7 +98,6 @@ x_i&\le p_iq_i,\qquad
 \sum_{t\in\mathcal T}\!\mathbf1[i\in\mathcal E_t]\le1.
 \end{aligned}
 \end{equation}
-
 Block capacity is enforced in every experiment. When time-slot quota
 data are unavailable, we set $K_k(t)=\infty$. Results under this setting
 represent the potential range of arrival-time adjustment. All committed
@@ -133,7 +128,6 @@ include current waiting, inventory, remaining crane work, the public
 expected arrival time, route difference, and announced volume near the
 target time. Unrealised arrival and completion times and simultaneous
 responses from other accepting parties are excluded.
-
 Fig.~\ref{fig:mlp} shows one cost network. A candidate enters as a
 fixed-length vector $x\in\mathbb R^{d_{in}}$. It passes through three
 linear layers, with ReLU after the first two, and produces one scalar:
@@ -175,14 +169,12 @@ before branching. We then run up to three worlds for three hours:
 \phi_i^A&=\Phi_H(\text{acceptance reversed}),
 \end{aligned}
 \end{equation}
-
 with $H=10{,}800$\,s. The alternative world always reverses what the
 policy actually did. If the proposal policy proposed a change, the
 alternative keeps the current assignment; if it kept the assignment, the
 alternative commits the cheapest candidate under the current weights.
 The acceptance alternative reverses acceptance and rejection. A decision
 without an acceptance request produces only the proposal comparison.
-
 For each policy, we centre the two actions of the pair on their mean,
 $\bar\phi_i^P=(\phi_i^F+\phi_i^P)/2$, and divide by KRW 100{,}000. This
 gives $y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
@@ -208,7 +200,6 @@ clipped at 1.0. Counterfactual branches run in parallel across CPU cores,
 and each day's labels are replaced after the daily update. During
 evaluation, weights are frozen, exploration is disabled, and no
 counterfactual branch is called.
-
 The labels are therefore not a fixed dataset. Every counterfactual pair
 branches from the action the current policy actually took, so the states
 that are labelled, and the alternative each is compared against, both
@@ -217,7 +208,6 @@ that pass. In this respect the scheme is on-policy Monte-Carlo advantage
 estimation with a simulator-generated baseline: the target is a complete
 simulated rollout to the horizon, and the method uses neither
 bootstrapping nor a policy gradient.
-
 Training both networks for 24 passes took 4.7 CPU hours. Online
 inference requires one forward pass through a small network for each
 candidate. This cost is small relative to the accompanying constraint

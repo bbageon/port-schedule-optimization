@@ -62,13 +62,11 @@ No reallocation & --- & 0.00\% \\
 \end{tabular}
 \end{minipage}
 \end{center}
-
 Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
 8.52\,bn with the proposed policy. The reduction was KRW 1.471\,bn, or
 14.7\%. Time adjustment alone reduces cost by 13.44\%, whereas block
 reallocation alone raises cost by 1.31\%. The total reduction therefore
 comes mainly from arrival-time adjustment.
-
 We run every policy with the same random streams to reduce simulation
 noise, following Kleijnen's common-random-number method~\cite{ref22}.
 Days are treated as independent comparison units. We report two paired
@@ -110,7 +108,6 @@ Baseline & No reallocation & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \\
 \end{tabular}
 \end{minipage}
 \end{center}
-
 The proposed policy costs less than the rule with the same block-and-time
 action range on 20 of 28 days (sign test $p=0.036$, signed-rank
 $p=0.015$). It costs less than the untrained model on 18 days, but this
@@ -189,10 +186,11 @@ demand & Days & actions & only & only & training \\
 \includegraphics[width=\textwidth]{final_figure/fig-decomposition.pdf}
 \captionof{figure}{Cost reduction by demand level, decomposed by action
 range. The values are those of Table~\ref{tab:actions}, in million KRW
-(1\,bn $=$ 1{,}000\,m). The vertical axis is split by demand because the
-two congested levels are more than ten times larger than the rest:
-(a) 3{,}500--7{,}500 and (b) 12{,}500--15{,}000 jobs per day, with the
-number of days observed printed as $n$ under each tick. Bars measure a
+(1\,bn $=$ 1{,}000\,m). All five demand levels share one axis, and the
+shaded band marks the two congested levels. Because those two are more
+than ten times larger than the rest, the value is printed next to each
+short bar. The number of days observed appears as $n$ under each tick.
+Bars measure a
 restricted policy against no reallocation. The diamond is \emph{not} a
 fourth action: it is the trained model minus the untrained one---the
 training contribution, that is, the last column of
@@ -261,7 +259,6 @@ iterations 17--24, follows that draw rather than the fit.}
 \label{fig:learning}
 \end{minipage}
 \end{center}
-
 Cost is KRW 10.00\,bn without reallocation, KRW 9.20\,bn with the
 untrained model, and KRW 8.52\,bn with the trained model. Training
 therefore adds KRW 0.675\,bn, or 45.9\% of the total reduction. However,
@@ -274,7 +271,6 @@ the learning effect, and the trained model costs less on all four. The
 corresponding counts at lower demand levels are 9/12, 5/8, and 0/4. For
 the remaining 24 days, the mean difference is $-1.5$\,m and the
 bootstrap interval includes zero.
-
 A stratified bootstrap, which resamples the daily differences within
 demand strata with 20{,}000 resamples, gives a 95\% percentile interval
 of $[-32,-17]$\,m per day for the mean difference. Stratification
@@ -286,7 +282,6 @@ produces a large total reduction and is lower on all four congested
 days, but the day-level sign test is not significant. Establishing the
 learning effect at a conventional significance level requires more
 congested days, not simply more days overall.
-
 The ranking of crane-dispatching rules also changes with demand. The
 shortest processing time rule is 22--25\% more expensive than the other
 rules under smooth and normal demand, but it is the least expensive from

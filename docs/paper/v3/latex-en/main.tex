@@ -103,7 +103,6 @@ side, yard-operations research improves container placement, work
 sequencing, and crane-interference management~\cite{ref7,ref8,ref9,ref16}.
 Recent studies have also applied reinforcement learning to real-time
 yard-crane dispatching~\cite{ref19}.
-
 Most of these approaches assume that the working block and appointment
 time have already been fixed before the truck arrives. They improve
 operations within that assignment. During operation, however, demand
@@ -120,7 +119,6 @@ also decide whether it can absorb the job, separately from any benefit
 to the proposing side. We therefore use independent proposal and
 acceptance policies, while a central procedure checks mutual consent and
 feasibility.
-
 Fig.~\ref{fig:concept} summarises the full workflow. During operation,
 observation, proposal, acceptance, commitment, and execution form a
 60-s decision cycle. Offline, the observed action and two alternatives
@@ -142,7 +140,6 @@ Online operation uses only the fitted networks.}
 \label{fig:concept}
 \end{minipage}
 \end{center}
-
 This study asks four questions. Can the two independent policies support
 spatio-temporal reallocation? Can expensive
 counterfactual learning remain separate from online inference? Does the
@@ -168,7 +165,6 @@ attributes. This separates \emph{how efficient a port is} from
 automation, intelligence, and environmental design as distinct channels
 ~\cite{ref1}. This distinction motivates attention to the decision layer
 in addition to the equipment layer.
-
 On the temporal side, Chen et al.\ manage truck arrivals with time
 windows to relieve gate congestion. Their method reshapes the arrival
 profile instead of adding capacity~\cite{ref4}. Phan and Kim model a
@@ -181,7 +177,6 @@ time of day and show that arrivals are far from uniform~\cite{ref13}.
 The value of shifting an arrival therefore depends on both its original
 and target positions on the arrival curve. The environment in
 Sect.~\ref{sec:env} reflects this time-of-day variation.
-
 On the spatial side, Ng and Mak study yard crane scheduling in container
 terminals and sequence crane jobs to reduce truck waiting~\cite{ref7}.
 Speer and Fischer extend this problem to automated systems with several
@@ -205,7 +200,6 @@ Wang et al.\ apply a PPO-based method to real-time yard-crane scheduling
 across multiple blocks~\cite{ref19}. Their method optimises work
 sequencing in the execution layer. We address the preceding assignment
 layer, where the block and arrival time are selected.
-
 This perspective leads to two modelling choices. First, the networks do
 not output action probabilities. Each network maps the observed state
 and one candidate action to a predicted cost score, and the policy
@@ -227,7 +221,6 @@ attention model to exploit, and the number of labelled decisions is too
 small to support a much larger model. One set of weights is also shared
 across all blocks. A small perceptron is therefore an appropriate first
 model for this setting.
-
 When several parties act, the horizon cost is joint and the effect of
 one action is difficult to isolate. Wolpert and Tumer construct
 difference rewards that remain aligned with the global objective while
@@ -241,7 +234,6 @@ simulator after changing one action. The regression target is therefore
 the monetary cost difference accumulated over a fixed horizon, not a
 bootstrapped advantage. This choice adds offline computation but keeps
 the learning signal in the same units as the operating objective.
-
 Kim et al.\ study learning-based resource control under uncertainty in
 building demand response. They combine measured environmental records
 with synthetic parameters for unit-level variation and identify the
