@@ -47,8 +47,10 @@ from figstyle import (A_GREEN, BAND, BAR_MID, INK, LOSS_RED,
 
 OUT = ROOT / "docs/paper/v3/figures/final_figure"
 HISTORY = ROOT / "outputs/v3/month-02/history.json"
-ARMS = ROOT / "outputs/v3/judge-30d/arms"
-JUDGE_SEED = 9_900_950
+#: ★판정 대역 (2026-08-30) — 진단 대역 9,900,950 에서 옮겼다.
+#: `eval/guards.py` 기준으로 9,400,000 은 진단 대역도, 이미 쓴 대역도 아니다.
+ARMS = ROOT / "outputs/v3/judge-locked/arms"
+JUDGE_SEED = 9_400_000
 HEAVY = 12_500             # 이 부하부터 "혼잡" — 학습회차 음영과 분해 패널의 경계
 
 #: ★단위는 **백만원 하나로 통일**한다 (사용자 지시 2026-08-30).
@@ -192,6 +194,10 @@ def fig_decomposition():
         return {L: sum(arms[a][i] - arms[b][i] for i in days if load[i] == L) / MN
                 for L in levels}
 
+    need = ("RL_TIME", "RL_SPACE")
+    if any(k not in arms for k in need):
+        print(f"  (skipped) decomposition needs {need}; not run yet")
+        return None, None
     series = (agg("NO_REALLOC", "RL"), agg("NO_REALLOC", "RL_TIME"),
               agg("NO_REALLOC", "RL_SPACE"))
     train = agg("RL_EARLY", "RL")          # 막대가 아니다 — ◆ 로 그린다
@@ -285,6 +291,17 @@ def _lolli(ax, rank, delta, s=16, lw=0.9):
     ax.axhline(0, lw=0.9, color=INK, zorder=4)
 
 
+def _span(vals, pad_lo=0.10, pad_hi=0.08):
+    """0 선을 반드시 품는 y 범위.
+
+    지는 날이 하나도 없으면 min(vals) 가 양수라, 그것을 하한으로 쓰면 0 선과
+    가장 작은 막대가 잘린다 (판정 대역 9,400,000 이 실제로 그렇다).
+    """
+    lo, hi = min(min(vals), 0.0), max(max(vals), 0.0)
+    span = hi - lo or 1.0
+    return lo - span * pad_lo, hi + span * pad_hi
+
+
 def fig_paired():
     arms, _, days = load_arms()
     delta = sorted((arms["NO_REALLOC"][i] - arms["RL"][i]) / MN for i in days)
@@ -302,7 +319,7 @@ def fig_paired():
     ax_a.axvspan(0.4, cut + 0.6, color=BAND, alpha=0.45, lw=0, zorder=0)
     ax_a.set_xlim(0.2, len(delta) + 0.8)
     ax_a.set_xticks([1, 10, 20, 28])
-    ax_a.set_ylim(min(delta) * 1.5, max(delta) * 1.07)
+    ax_a.set_ylim(*_span(delta))
     no_clip(ax_a, delta, "짝비교 (a)")
     hgrid(ax_a)
     panel(ax_a, "(a) All 28 days")
@@ -311,7 +328,7 @@ def fig_paired():
               "two-sided sign test, $p<0.001$",
               transform=ax_a.transAxes, ha="left", va="top", color=INK,
               linespacing=1.35)
-    ax_a.text((cut + 1) / 2, min(delta) * 1.05, "shown in (b)", ha="center", va="center",
+    ax_a.text((cut + 1) / 2, _span(delta)[0] * 0.55, "shown in (b)", ha="center", va="center",
               fontsize=7.5, color=MUTED)
 
     # ── (b) ★확대 — 네 날이 축을 지배해서 나머지 24일이 0선에 뭉갠다. 26/28 이라는
@@ -319,7 +336,7 @@ def fig_paired():
     _lolli(ax_b, rank[:cut], delta[:cut], s=13, lw=0.9)
     ax_b.set_xlim(0.2, cut + 0.8)
     ax_b.set_xticks([1, 10, 20, 24])
-    ax_b.set_ylim(min(delta[:cut]) * 1.20, max(delta[:cut]) * 1.17)
+    ax_b.set_ylim(*_span(delta[:cut], pad_hi=0.17))
     no_clip(ax_b, delta[:cut], "짝비교 (b)")
     hgrid(ax_b)
     panel(ax_b, f"(b) Ranks 1–{cut}, enlarged")
@@ -346,5 +363,6 @@ if __name__ == "__main__":
     win, n = fig_paired()
     print()
     print("[figure values read from raw data - cross-check the table]")
-    print(f"  decomposition total {total:.0f} million KRW, timing share {share:.1%}")
+    if total is not None:
+        print(f"  decomposition total {total:.0f} million KRW, timing share {share:.1%}")
     print(f"  paired: {win}/{n} days improved")

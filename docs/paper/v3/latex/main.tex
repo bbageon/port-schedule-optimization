@@ -26,6 +26,13 @@
 % 국문 원고이므로 캡션 머리말도 우리말로 둔다 — 본문은 이미 "그림~5"·"표~3" 으로 부른다.
 \renewcommand{\figurename}{그림}
 \renewcommand{\tablename}{표}
+\usepackage{marvosym}          % \Letter — 교신저자를 가리키는 봉투 기호
+% 사사·이해관계 공시의 머리말도 우리말로 (영문판은 Acknowledgments/Disclosure of Interests)
+\renewcommand{\ackname}{사사.}
+\renewcommand{\discintname}{이해관계 공시.}
+% 저자 사이 연결어 — 그대로 두면 국문 원고에 "김건우 and 최봉준" 으로 찍힌다.
+\renewcommand{\andname}{·}
+\renewcommand{\lastandname}{\unskip{} ·}
 \graphicspath{{../figures/}}
 
 \begin{document}
@@ -35,9 +42,14 @@
 독립 제안·수락 정책과 반사실 비용 학습}
 \titlerunning{시공간 재배치를 위한 강화학습 아키텍처}
 
-\author{저자명\inst{1}}
-\authorrunning{저자명}
-\institute{소속 기관, 주소 \email{email@example.com}}
+%  ■ 소속이 하나면 \inst 번호를 쓰지 않는다 (llncsdoc §3.3)
+%    여러 소속일 때만 \institute 안을 \and 로 나누고 그때 위첨자 번호가 붙는다.
+%    두 저자가 같은 학과·같은 대학이므로 소속은 **한 번만** 적는다.
+%  ■ 교신저자는 이름 바로 뒤에 봉투 기호를 위첨자로 (스프링거 지침).
+\author{김건우 \and 최봉준\textsuperscript{\Letter}}
+\authorrunning{김건우 · 최봉준}
+% TODO(제출 전): 교신저자 이메일은 스프링거 필수 항목이다 — 아래에 \email{...} 추가.
+\institute{동서대학교 컴퓨터공학과, 부산, 대한민국}
 
 \maketitle
 
@@ -180,6 +192,19 @@ Kim 등은 건물 수요반응에서 환경 불확실성 아래의 자원 단위
 \input{sections/03-environment}
 \input{sections/05-results}
 \input{sections/06-conclusion}
+
+% =====================================================================
+%  사사와 이해관계 공시 — 참고문헌 **바로 앞**에, credits 환경 안에 둔다
+%  (llncsdoc §6). 사사는 선택, 이해관계 공시는 필수다.
+% =====================================================================
+\begin{credits}
+\subsubsection{\ackname}
+이 논문은 중소벤처기업부의 민관공동 기술개발사업(기술이전 사업화)
+(RS-2026-25529952) 지원을 받아 수행된 연구입니다.
+
+\subsubsection{\discintname}
+저자들은 이 논문의 내용과 관련하여 공시할 이해관계가 없습니다.
+\end{credits}
 
 % =====================================================================
 \small
