@@ -1,4 +1,4 @@
-"""(현재 미사용 — 사용자가 만든 fig-mlp.png 를 쓴다) Publication figure: the cost network evaluated once per candidate.
+"""Publication figure: the cost network evaluated once per candidate.
 
 Run from the repository root::
 
@@ -51,7 +51,7 @@ def _box(ax, x, y, w, h, title, detail="", *, fc="white", ec=RULE,
             fontsize=6.4, fontweight="bold", color=title_color)
     if detail:
         ax.text(x + w / 2, y + h * 0.27, detail, ha="center", va="center",
-                fontsize=5.6, color=MUTED)
+                fontsize=6.0, color=MUTED)
 
 
 def _arrow(ax, x1, y1, x2, y2, *, color=INK, lw=0.85):
@@ -99,13 +99,13 @@ def draw():
     ax.text(50.0, 13.0,
             "One forward pass per candidate; the policy takes the "
             "$\\arg\\min$ over candidates.",
-            ha="center", va="center", fontsize=5.4, color=MUTED)
+            ha="center", va="center", fontsize=6.0, color=MUTED)
 
     fig.subplots_adjust(left=0.01, right=0.99, bottom=0.02, top=0.98)
     for target in TARGETS:
         target.mkdir(parents=True, exist_ok=True)
         for ext in ("pdf", "svg", "png"):
-            out = target / f"fig-mlp-drawn.{ext}"
+            out = target / f"fig-mlp.{ext}"
             fig.savefig(out, dpi=450, bbox_inches="tight", pad_inches=0.025,
                         facecolor="white")
             print(out)

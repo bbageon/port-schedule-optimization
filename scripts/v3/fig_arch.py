@@ -1,4 +1,4 @@
-"""(현재 미사용 — 사용자가 만든 fig-system.png 를 쓴다) Publication figure: online decision flow and offline counterfactual learning.
+"""Publication figure: online decision flow and offline counterfactual learning.
 
 Run from the repository root::
 
@@ -38,7 +38,7 @@ WARM_BG = "#FBF4E8"
 
 def _box(ax, x, y, w, h, title, detail="", *, fc="white", ec=RULE,
          title_color=INK, lw=0.8, dashed=False, title_size=6.6,
-         detail_size=5.7):
+         detail_size=6.0):
     patch = FancyBboxPatch(
         (x, y), w, h,
         boxstyle="round,pad=0.18,rounding_size=0.7",
@@ -66,7 +66,7 @@ def _arrow(ax, x1, y1, x2, y2, *, color=INK, dashed=False, label=None,
     )
     if label:
         ax.text((x1 + x2) / 2, (y1 + y2) / 2 + label_dy, label,
-                ha="center", va="bottom", fontsize=5.4, color=MUTED)
+                ha="center", va="bottom", fontsize=6.0, color=MUTED)
 
 
 def draw():
@@ -110,7 +110,7 @@ def draw():
     # 짧게 둔다 — 두 화살표 사이에 딱 들어가야 선을 갉지 않는다.
     # "무엇이 안 바뀌는가" 는 캡션이 설명한다.
     ax.text(sum(keep_xs) / 2, 65.2, "KEEP / REJECT", ha="center", va="center",
-            fontsize=5.3, color=MUTED)
+            fontsize=6.0, color=MUTED)
 
     # Environment: the single source of state transition and cost.
     _box(ax, 9.0, 47.2, 82.0, 13.0,
@@ -118,15 +118,15 @@ def draw():
          "gate  →  21 blocks × 2 yard cranes  →  vessel streams\n"
          "cost Φ: dwell · travel · rehandling · vessel idle",
          fc=NEUTRAL_BG, ec=RULE, lw=0.8, title_size=6.25,
-         detail_size=5.35)
+         detail_size=6.0)
     # 라벨을 화살표 옆으로 뺀다 — 선 위에 얹으면 서로 갉아먹는다.
     _arrow(ax, xs[4] + widths[4] / 2, y - 0.4, 88.5, 60.4, color=INK, lw=0.7)
     ax.text(91.5, 65.4, "state transition", ha="left", va="center",
-            fontsize=5.4, color=MUTED)
+            fontsize=6.0, color=MUTED)
     _arrow(ax, 11.5, 60.4, xs[0] + widths[0] / 2, y - 0.4,
            color=MUTED, dashed=True, lw=0.65)
     ax.text(0.5, 65.4, "next state", ha="left", va="center",
-            fontsize=5.4, color=MUTED)
+            fontsize=6.0, color=MUTED)
 
     # (b) Offline counterfactual label generation.
     ax.text(0.5, 41.7, "(b) Offline learning — counterfactual simulation only",
@@ -136,30 +136,45 @@ def draw():
 
     world_x, world_w = 23.0, 21.0
     world_y = (28.0, 19.0, 10.0)
-    world_titles = ("Observed action", "Proposal reversed", "Acceptance reversed")
-    world_edges = (INK, P_BLUE, A_GREEN)
+    world_titles = ("Proposal reversed", "Observed action", "Acceptance reversed")
+    world_edges = (P_BLUE, INK, A_GREEN)
     for wy, title, edge in zip(world_y, world_titles, world_edges):
         _box(ax, world_x, wy, world_w, 6.4, title, "$H=3$ h → $\\Phi_H$",
              fc="white", ec=edge, title_color=edge, lw=0.8,
-             title_size=5.55, detail_size=4.9)
+             title_size=6.0, detail_size=6.0)
         _arrow(ax, 15.8, 19.0, world_x - 0.6, wy + 3.2,
                color=edge, lw=0.7)
 
-    _box(ax, 51.5, 13.0, 18.0, 16.0, "Centre paired costs",
-         "$y=(\\Phi_H-\\bar\\Phi_H)/10^5$",
-         fc=NEUTRAL_BG, ec=RULE, title_size=5.7, detail_size=5.3)
-    # 세 화살표를 한 점에 몰지 않는다 — 겹쳐서 뭉치면 어디로 가는지 안 보인다.
-    for wy, edge, ty in zip(world_y, world_edges, (25.0, 21.0, 17.0)):
-        _arrow(ax, world_x + world_w + 0.5, wy + 3.2,
-               51.0, ty, color=edge, lw=0.65)
+    # 정책마다 자기 반사실과만 짝을 이룬다. 두 상자로 분리해 세 세계를 한
+    # 수식에 함께 넣는 것으로 오독할 여지를 없앤다.
+    _box(ax, 51.5, 24.8, 19.0, 7.5, "Proposal targets",
+         "$\\Phi_{obs} \\leftrightarrow \\Phi_{P-alt}$",
+         fc=P_BLUE_BG, ec=P_BLUE, title_color=P_BLUE,
+         title_size=6.0, detail_size=6.0)
+    _box(ax, 51.5, 9.8, 19.0, 7.5, "Acceptance targets",
+         "$\\Phi_{obs} \\leftrightarrow \\Phi_{A-alt}$",
+         fc=A_GREEN_BG, ec=A_GREEN, title_color=A_GREEN,
+         title_size=6.0, detail_size=6.0)
+    # 대안 세계는 자기 상자에만, 관측 세계는 두 짝에 공통으로 들어간다.
+    _arrow(ax, world_x + world_w + 0.5, world_y[0] + 3.2,
+           51.0, 28.6, color=P_BLUE, lw=0.65)
+    _arrow(ax, world_x + world_w + 0.5, world_y[1] + 3.2,
+           51.0, 26.0, color=INK, lw=0.65)
+    _arrow(ax, world_x + world_w + 0.5, world_y[1] + 3.2,
+           51.0, 16.1, color=INK, lw=0.65)
+    _arrow(ax, world_x + world_w + 0.5, world_y[2] + 3.2,
+           51.0, 13.6, color=A_GREEN, lw=0.65)
+    ax.text(61.0, 20.8, "$y=(\\Phi_H-\\bar\\Phi_{pair})/10^5$",
+            ha="center", va="center", fontsize=6.0, color=MUTED)
 
     _box(ax, 77.0, 13.0, 21.5, 16.0, "Fit both cost nets",
          "Huber loss · Adam\nproduces $\\theta$ and $\\psi$",
-         fc=WARM_BG, ec=RULE, title_size=5.9, detail_size=5.2)
-    _arrow(ax, 70.0, 21.0, 76.4, 21.0, color=INK)
+         fc=WARM_BG, ec=RULE, title_size=6.0, detail_size=6.0)
+    _arrow(ax, 71.0, 28.6, 76.4, 23.5, color=P_BLUE, lw=0.65)
+    _arrow(ax, 71.0, 13.6, 76.4, 18.5, color=A_GREEN, lw=0.65)
     ax.text(99.0, 5.0,
             "Counterfactual branches generate labels offline; online decisions use only the fitted networks.",
-            ha="right", va="center", fontsize=5.3, color=MUTED)
+            ha="right", va="center", fontsize=6.0, color=MUTED)
 
     fig.subplots_adjust(left=0.012, right=0.992, bottom=0.018, top=0.992)
     for target in TARGETS:
