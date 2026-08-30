@@ -69,9 +69,9 @@ management \and Yard block reallocation \and Counterfactual learning
 \end{abstract}
 
 % =====================================================================
-\section{Introduction}\label{S:Introduction}
+\section{Introduction}
 
-\subsection{Background}\label{S:Background}
+\subsection{Background}
 Operational efficiency at a smart port depends not only on equipment
 automation but also on the ability to reallocate resources from
 information observed in real time, and smart-port programmes at Busan
@@ -84,28 +84,25 @@ makes it difficult to reflect newly observed congestion. This paper
 revisits both \emph{where} a job is placed and \emph{when} the truck is
 asked to arrive.
 
-\subsection{Problem Setting and Research Gap}\label{S:ProblemSetting}
+\subsection{Problem Setting and Research Gap}
 Truck appointment research uses time windows to spread arrival peaks and
 lets a terminal and carriers negotiate arrival times against their own
 costs~\cite{ref4,ref5,ref6}, while yard operations research addresses
-placement, work sequencing, and crane interference to reduce waiting and
-rehandling~\cite{ref7,ref8,ref9}. The two streams have improved temporal
-and spatial efficiency separately; this paper places both axes inside
-one real-time decision for jobs that have already been announced.
-
-Spatio-temporal reallocation does not change the cost of a single job
-alone: when a job moves, the waiting of following trucks, the crane work
-sequence, and vessel supply flow change as well, so a cost signal that
-includes the induced congestion is required. Difference rewards and
-multi-agent counterfactual baselines isolate the contribution of one
-action by comparing it with an alternative~\cite{ref10,ref11}.
-Reallocation is also difficult to commit on the benefit of the proposing
-side alone, since whether the destination can absorb the job must be
-judged separately. We therefore separate proposal and acceptance into
-independent policies and leave consent and feasibility to a central
+placement, work sequencing, and crane interference~\cite{ref7,ref8,ref9}.
+The two streams have improved temporal and spatial efficiency
+separately; this paper places both axes inside one real-time decision.
+Such a reallocation does not change the cost of a single job alone: when
+a job moves, the waiting of following trucks, the crane work sequence,
+and vessel supply flow change as well, so a cost signal including the
+induced congestion is required, and difference rewards and multi-agent
+counterfactual baselines provide one by comparing an action with an
+alternative~\cite{ref10,ref11}. Reallocation is also difficult to commit
+on the proposing side's benefit alone, since whether the destination can
+absorb the job must be judged separately; we therefore separate proposal
+and acceptance and leave consent and feasibility to a central
 procedure.
 
-\subsection{Research Questions and Contributions}\label{S:ResearchQuesti}
+\subsection{Research Questions and Contributions}
 Four research questions are addressed in this study.
 \textbf{RQ1.}~Can spatio-temporal reallocation be composed from
 independent proposal and acceptance policies?
@@ -124,7 +121,7 @@ learning effect separately.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{fig1-architecture.pdf}
+\includegraphics[width=0.80\textwidth]{fig1-architecture.pdf}
 \caption{Reallocation decision flow and the separation of learning from
 operation. The operating path uses only the trained networks and issues
 no counterfactual simulation call.}
@@ -132,9 +129,9 @@ no counterfactual simulation call.}
 \end{figure}
 
 % =====================================================================
-\section{Related Work}\label{S:RelatedWork}
+\section{Related Work}
 
-\subsection{Smart Ports, Appointments, and Yard Operations}\label{S:SmartPortsAppo}
+\subsection{Smart Ports, Appointments, and Yard Operations}
 Smart-port research treats automation, intelligence, and environmental
 design as distinct components of port efficiency~\cite{ref1}, and the
 Busan digital twin and the Tuas Port programme connect equipment,
@@ -157,7 +154,7 @@ separately~\cite{ref18}. Reinforcement learning in ports has reached
 real-time crane dispatching~\cite{ref19}; this paper addresses the
 layer above it.
 
-\subsection{Counterfactual Cost and Evaluation Design}\label{S:Counterfactual}
+\subsection{Counterfactual Cost and Evaluation Design}
 Difference rewards isolate the effect of one action from a joint cost by
 comparing it against a baseline in which other agents keep their
 actions~\cite{ref10}, and counterfactual multi-agent policy gradients
@@ -189,7 +186,8 @@ inference within one architecture.
 \input{sections/06-conclusion}
 
 % =====================================================================
-\begin{thebibliography}{24}
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+\begin{thebibliography}{25}
 \bibitem{ref1} Yen, B.T.H., et al.: How smart port design influences port efficiency: a DEA-Tobit approach. Res. Transp. Bus. Manag. \textbf{46}, 100862 (2023)
 \bibitem{ref2} Busan Port Authority: BPA--ADB cooperation on diffusing Busan Port smart technology (2023). (in Korean)
 \bibitem{ref3} Maritime and Port Authority of Singapore: Port of the Future: Tuas Port (2026)

@@ -1,5 +1,5 @@
 % =====================================================================
-\section{Policies and Learning}\label{S:PoliciesandLea}
+\section{Policies and Learning}
 
 \subsection{Notation, Actions, and Policies}
 Let the decision interval be $\delta=60$\,s and let the current
@@ -14,7 +14,7 @@ to be retrieved has a fixed location. With $n_i$ the announcement time,
 $g_i$ the gate-in time, and $r_i$ an indicator of prior review, the set
 newly reviewed at $t$ is
 $\mathcal E_t=\{i\mid n_i\le t<n_i+\delta,\ g_i>t,\ r_i=0\}$, so a job
-that has not yet arrived is reviewed at exactly one time point.\label{S:IndependentPro}
+that has not yet arrived is reviewed at exactly one time point.
 The proposal policy selects the action of lowest expected cost from its
 own block state and the job and action features $o_i^P$:
 
@@ -43,7 +43,7 @@ candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$. The
 problem structure in which two independent parties negotiate arrival
 times from limited information follows~\cite{ref5,ref6}.
 
-\subsection{Central Commitment Constraints}\label{S:CentralCommitm}
+\subsection{Central Commitment Constraints}
 The central procedure creates no new candidate and commits only within
 $\mathcal J_t$, sorting agreed candidates by the predicted cost of the
 acceptance policy and breaking ties lexicographically. With
@@ -65,7 +65,7 @@ the state seen by later candidates. Two conditions therefore hold by
 construction: only candidates carrying both a proposal and an acceptance
 are committed, and each job is reviewed exactly once.
 
-\subsection{Policy Models and Inputs}\label{S:PolicyModelsan}
+\subsection{Policy Models and Inputs}
 Both policies are multilayer perceptrons that score fixed-length
 features per candidate, with one set of weights shared across blocks:
 21-dimensional input for the proposal policy, 16 for the acceptance
@@ -76,7 +76,7 @@ around the target time. Unrealised actual arrival and completion times,
 and the simultaneous responses of other accepting parties, are
 excluded.
 
-\subsection{Counterfactual Cost Labels}\label{S:Counterfactual}
+\subsection{Counterfactual Cost Labels}
 For each sampled decision we clone the state and random stream
 immediately before branching and run up to three worlds for three hours:
 
@@ -96,7 +96,7 @@ removes the shared cost without changing the order of the two actions.
 The baseline that reverses a single action connects to difference
 rewards and multi-agent counterfactual baselines~\cite{ref10,ref11}.
 
-\subsection{Training Settings and Operational Separation}\label{S:TrainingSettin}
+\subsection{Training Settings and Operational Separation}
 The per-day sample cap is 64 decisions and the exploration probability
 decreases linearly from 0.50 to 0.05, with an 80/20 train--validation
 split at the decision level. Optimisation uses Adam

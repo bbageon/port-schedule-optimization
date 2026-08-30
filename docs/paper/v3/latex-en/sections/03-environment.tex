@@ -1,30 +1,25 @@
 % =====================================================================
-\section{Experimental Environment}\label{S:ExperimentalEn}
+\section{Experimental Environment}
 
-\subsection{A Literature-Calibrated Synthetic Environment}\label{S:ALiteratureCal}
-The performance of the proposed reallocation architecture is verified
-using numerical experiments. In order to conduct the experiments in a
-more realistic setup, scales and operating ranges reported in existing
-container terminal studies are employed to the extent possible. The
-environment is therefore not a replica of the operating data of a
-particular terminal but a \emph{literature-calibrated synthetic
-environment}. Prior work supports the components as follows: 16 and 20
+\subsection{A Literature-Calibrated Synthetic Environment}
+The performance of the proposed architecture is verified using numerical
+experiments. In order to conduct them in a more realistic setup, scales
+and operating ranges reported in existing container terminal studies are
+employed to the extent possible, so the environment is a
+\emph{literature-calibrated synthetic environment} rather than a replica
+of a particular terminal. Prior work reports 16 and 20
 blocks~\cite{ref15,ref16}, several cranes per block~\cite{ref8,ref17},
-multi-week continuous runs~\cite{ref9}, hourly arrival probability and its
-effect on turn time~\cite{ref13,ref14}, three vessel classes with differing
-call sizes~\cite{ref16,ref23}, and a triangular range for crane handling
-time~\cite{ref9}. Within those ranges this study fixed 21 blocks, two
-cranes per block, 30 days with state carried across the boundary, a base
-plus three arrival peaks, small/medium/large vessels, and 180\,s of
-crane service time.
+multi-week continuous runs~\cite{ref9}, hourly arrival probability and
+its effect on turn time~\cite{ref13,ref14}, three vessel classes with
+differing call sizes~\cite{ref16,ref23}, and a triangular range for
+crane handling time~\cite{ref9}. Within those ranges this study fixed 21
+blocks, two cranes per block, 30 days with state carried across the
+boundary, a base plus three arrival peaks, three vessel classes, and
+180\,s of crane service time. These fixed values are design choices; the
+citations establish that they lie within the modelling range of existing
+work, not that they come from a specific port.
 
-The 21 blocks, the exact demand levels, and the arrival-curve
-coefficients are therefore design values of this study. The citations
-establish that the chosen scale and variation lie within the modelling
-range of existing work; they do not indicate operating data from a
-specific port.
-
-\subsection{Terminal and Time Settings}\label{S:TerminalandTim}
+\subsection{Terminal and Time Settings}
 The yard has 21 blocks with two cranes each (42 in total), a block
 capacity of 1{,}440 slots at 65\% initial occupancy, and a
 one-dimensional layout with the gate and the quay on opposite sides. The
@@ -35,7 +30,7 @@ time. A day is a cut at which cost is separated, not a point at which
 the terminal stops: inventory, queues, crane state, and unfinished jobs
 carry over, with the first and last day connecting the boundaries.
 
-\subsection{External Truck Demand and the Arrival Process}\label{S:ExternalTruckD}
+\subsection{External Truck Demand and the Arrival Process}
 The daily demand was sampled from a discrete distribution over
 3{,}500, 5{,}000, 7{,}500, 12{,}500, and 15{,}000 trucks with
 probabilities 0.30, 0.30, 0.25, 0.10, and 0.05. The first three levels
@@ -61,7 +56,7 @@ be estimates fitted to a particular terminal. The uniform base keeps
 arrivals non-zero at night, so the yard state carried
 across the day boundary is not an artefact of an empty night.
 
-\subsection{Vessels and Quay Operations}\label{S:VesselsandQuay}
+\subsection{Vessels and Quay Operations}
 Vessels were divided into three classes: small (50{,}000\,GT,
 3{,}000\,TEU, two quay cranes, KRW 149{,}500 idle cost per hour), medium
 (100{,}000\,GT, 7{,}500\,TEU, four, KRW 299{,}000), and large
@@ -74,7 +69,7 @@ lies within the 24, 30, and 36\,move/h range used in the
 literature~\cite{ref16}. Blocking across quay cranes was summed and
 divided by the number assigned, giving the idle time per vessel.
 
-\subsection{Units of Yard Crane Capacity}\label{S:UnitsofYardCra}
+\subsection{Units of Yard Crane Capacity}
 The reference service time of one crane is 180\,s per move, so the
 nominal capacity is $\mu_{YC}=21\times2\times3600/180=840$
 moves per hour. A move is a container movement, not a truck: one truck
@@ -84,7 +79,7 @@ and truck units separately, following the guidance that capacity must be
 stated with move type, automation delay, and handling-vehicle
 conditions~\cite{ref18}.
 
-\subsection{Cost Function}\label{S:CostFunction}
+\subsection{Cost Function}
 The total cost over the interval $[d,d+1)$ is the sum of four terms:
 
 \begin{equation}
