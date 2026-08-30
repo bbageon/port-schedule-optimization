@@ -27,8 +27,11 @@ reproduced the action and cost of the main run.
 
 \subsection{Cost Reduction and Paired Daily Comparison}
 \label{sec:exp-paired}
-Table~\ref{tab:policies} compares each policy's 28-day total cost with no
-reallocation. A positive value means a cost reduction, whereas a
+Throughout this section, \emph{learned policy} denotes the full
+architecture of Sect.~\ref{sec:arch}---proposal, acceptance, and central
+commitment---and not the proposal policy, which is one of its two
+networks. Table~\ref{tab:policies} compares each policy's 28-day total
+cost with no reallocation. A positive value means a cost reduction, whereas a
 negative value means a cost increase. The rows are grouped by research
 question rather than ranked in one list.
 
@@ -44,9 +47,9 @@ lower cost, whereas negative values mean higher cost.}
 \toprule
 Policy & Action range & Reduction vs. no reallocation \\
 \midrule
-\textbf{Proposed policy} & block\,+\,time & \textbf{+14.72\%} \\
-Proposed, time only & time & +13.44\% \\
-Proposed, block only & block & $-$1.31\% \\
+\textbf{Learned policy} & block\,+\,time & \textbf{+14.72\%} \\
+Learned, time only & time & +13.44\% \\
+Learned, block only & block & $-$1.31\% \\
 \midrule
 Untrained model & block\,+\,time & +7.97\% \\
 \midrule
@@ -63,7 +66,7 @@ No reallocation & --- & 0.00\% \\
 \end{minipage}
 \end{center}
 Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
-8.52\,bn with the proposed policy. The reduction was KRW 1.471\,bn, or
+8.52\,bn with the learned policy. The reduction was KRW 1.471\,bn, or
 14.7\%. Time adjustment alone reduces cost by 13.44\%, whereas block
 reallocation alone raises cost by 1.31\%. The total reduction therefore
 comes mainly from arrival-time adjustment.
@@ -75,7 +78,7 @@ counts only the number of days on which one policy is cheaper, so it is
 blind to how large each day's difference is. A Wilcoxon signed-rank test
 ranks the differences by magnitude before summing them, so a policy that
 wins on fewer days but by a wider margin is scored differently by the
-two. The distinction matters here because the proposed policy acts
+two. The distinction matters here because the learned policy acts
 selectively: it is not designed to win on every day but to reduce cost
 sharply on congested ones. With 28 days and no tied differences, both
 tests are computed exactly. Table~\ref{tab:paired} reports both.
@@ -83,9 +86,9 @@ tests are computed exactly. Table~\ref{tab:paired} reports both.
 \begin{center}
 \begin{minipage}{\textwidth}
 \centering
-\captionof{table}{Paired daily comparison between the proposed policy and each
-comparison policy. ``Proposed lower'' counts the days on which the
-proposed policy costs less. Both $p$ values are two-sided and exact: a
+\captionof{table}{Paired daily comparison between the learned policy and each
+comparison policy. ``Learned lower'' counts the days on which the
+learned policy costs less. Both $p$ values are two-sided and exact: a
 sign test, which uses only the direction of each daily difference, and a
 Wilcoxon signed-rank test, which also uses its magnitude. Values below
 0.05 are in bold.}
@@ -94,7 +97,7 @@ Wilcoxon signed-rank test, which also uses its magnitude. Values below
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.185\textwidth}>{\raggedright\arraybackslash}p{0.30\textwidth}rrr@{}}
 \toprule
-Purpose & Comparison policy & \shortstack{Proposed lower\\days} &
+Purpose & Comparison policy & \shortstack{Learned lower\\days} &
 \shortstack{Sign test\\$p$} & \shortstack{Signed-rank\\$p$} \\
 \midrule
 Learning effect & Untrained model & 18/28 & 0.185 & 0.164 \\
@@ -108,7 +111,7 @@ Baseline & No reallocation & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \\
 \end{tabular}
 \end{minipage}
 \end{center}
-The proposed policy costs less than the rule with the same block-and-time
+The learned policy costs less than the rule with the same block-and-time
 action range on 20 of 28 days (sign test $p=0.036$, signed-rank
 $p=0.015$). It costs less than the untrained model on 18 days, but this
 difference is not statistically clear under either test ($p=0.185$ and
@@ -117,7 +120,7 @@ Table~\ref{tab:paired}. They are not equally sensitive, however: the
 signed-rank $p$ is the smaller of the two in six of the seven rows, which
 is what a concentrated effect produces. The architecture's
 action range and the additional effect of learning must therefore be
-interpreted separately. The proposed policy is more expensive on only
+interpreted separately. The learned policy is more expensive on only
 two days, and both differences are small, whereas the largest reductions
 all occur on congested days (Fig.~\ref{fig:paired}).
 
@@ -127,9 +130,9 @@ all occur on congested days (Fig.~\ref{fig:paired}).
 \includegraphics[width=\textwidth]{final_figure/fig-paired-daily.pdf}
 \captionof{figure}{Paired daily cost difference against no reallocation over
 the same 28 days with the same random streams. Days are sorted by the
-difference, and a positive value means the proposed policy costs less.
+difference, and a positive value means the learned policy costs less.
 (a) All 28 days; four congested days dominate the axis, so (b) enlarges
-the shaded ranks 1--24. The proposed policy costs less on 26 of the 28
+the shaded ranks 1--24. The learned policy costs less on 26 of the 28
 days (two-sided sign test, $p<0.001$). The two exceptions are small,
 KRW $-17.1$\,m and KRW $-0.5$\,m, whereas each of the four congested days
 exceeds KRW 290\,m.}
@@ -146,7 +149,11 @@ policy that \emph{intervenes selectively when congestion is observed}
 rather than continuously. Restricting the policy to one action type at a
 time separates the spatial and temporal contributions. Arrival-time
 adjustment accounts for 91.3\% of the total reduction, mostly on the four
-congested days (Fig.~\ref{fig:decomp}). Block-only reallocation saves KRW 0.124\,bn under smooth
+congested days (Fig.~\ref{fig:decomp}). This share should be read
+together with the cost structure of Sect.~\ref{sec:env-cost}, where truck
+waiting accounts for 96.4\% of total cost. An action that moves waiting
+time therefore acts on the dominant term, and the relative standing of
+spatial and temporal actions may differ under a different cost mix. Block-only reallocation saves KRW 0.124\,bn under smooth
 and normal demand but raises cost at the highest demand, producing a net
 increase of KRW 0.131\,bn. The policy should therefore adjust its use of
 spatial and temporal actions by demand level. Time-slot quotas were open
@@ -212,12 +219,12 @@ introduces no new parameter and uses the same congestion trigger as the
 other rules. Three findings follow. First, arrival-time adjustment under
 a rule reduces cost by 3.41\% relative to no reallocation
 ($p=0.0125$). The temporal action therefore has value by itself. Second,
-with the full spatio-temporal action range matched, the proposed policy
+with the full spatio-temporal action range matched, the learned policy
 costs less than the rule on 20 of 28 days ($p=0.036$). Third, for
 arrival-time adjustment alone, the rule costs less on more days; the
-proposed policy is lower on only 8 of 28 days. Yet the proposed policy's
+learned policy is lower on only 8 of 28 days. Yet the learned policy's
 total reduction is about four times larger. The rule is slightly better
-under smooth demand, whereas the proposed policy reduces cost 3.8--5.6
+under smooth demand, whereas the learned policy reduces cost 3.8--5.6
 times more on congested days. Thus, the learned policy tends to produce
 large savings on expensive days rather than frequent small wins. Both
 the number of wins and the total reduction are needed to show this

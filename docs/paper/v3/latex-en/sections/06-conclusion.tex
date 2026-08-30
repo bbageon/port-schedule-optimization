@@ -19,15 +19,15 @@ spatio-temporal reallocation from observation through proposal,
 acceptance, commitment, and execution. Cost reductions arise mainly from
 arrival-time adjustments on congested days. This result supports the
 view that real-time smart-port information can guide assignment actions,
-not only monitoring~\cite{ref1}. The proposed policy also has lower total
+not only monitoring~\cite{ref1}. The learned policy also has lower total
 cost than a rule with the same action range. For arrival-time adjustment
-alone, however, the rule is lower on more days, while the proposed policy
+alone, however, the rule is lower on more days, while the learned policy
 leads in total because of larger savings on congested days. Both daily
 win counts and total savings are therefore needed for interpretation.
 
 \subsection{Limitations}
 \label{sec:limits}
-Seven limitations bound these results. First, the environment is
+Eight limitations bound these results. First, the environment is
 synthetic. Its scale and variation follow reported ranges, but it is not
 fitted to the operating record of a specific terminal. The demand mix,
 arrival-curve coefficients, and two of the four cost coefficients are
@@ -45,9 +45,13 @@ Fifth, time-slot quotas are open, so the arrival-time results give a
 potential upper range rather than an executable schedule. Sixth, the
 three-hour counterfactual horizon is a design value. It combines a
 30-minute review window, up to 120 minutes of deferral, and a 30-minute
-arrival-pressure margin. Finally, the main comparison uses one crane
+arrival-pressure margin. Seventh, the main comparison uses one crane
 dispatching rule. Because rule rankings change with demand, another rule
-may change the measured size of the reallocation effect.
+may change the measured size of the reallocation effect. Finally, truck
+waiting accounts for 96.4\% of total cost under the cost coefficients
+used here, so whether arrival-time adjustment keeps its advantage over
+block reallocation under a different cost structure requires a
+sensitivity analysis of those coefficients.
 These limits can be tested one axis at a time. Actual appointment quotas
 would define the executable range of time adjustment. A wider set of
 congested conditions would clarify the contribution relative to the

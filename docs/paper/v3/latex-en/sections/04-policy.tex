@@ -208,7 +208,7 @@ that pass. In this respect the scheme is on-policy Monte-Carlo advantage
 estimation with a simulator-generated baseline: the target is a complete
 simulated rollout to the horizon, and the method uses neither
 bootstrapping nor a policy gradient.
-Training both networks for 24 passes took 4.7 CPU hours. Online
+Training both networks for 30 passes took about 18 hours of wall-clock time on the machine used. Online
 inference requires one forward pass through a small network for each
 candidate. This cost is small relative to the accompanying constraint
 check. The main computational expense is counterfactual label
