@@ -1,24 +1,32 @@
-"""외부 트럭 작업 수요 그림 — 일일 수요 분포 + 시간대별 도착 과정.
+r"""외부 트럭 작업 수요 그림 — 일일 수요 분포 + 시간대별 도착 과정.
 
     PYTHONPATH=src python scripts/v3/fig_demand.py
 
 ■ 왜 상수를 import 하는가
   수치를 손으로 옮겨 적으면 코드가 바뀔 때 그림만 조용히 옛날 값을 그린다. 여기서는
   `LOAD_WEIGHTS` 와 `DIURNAL_*` 를 **구현에서 직접 읽어** 그린다. 그림과 실험이
-  어긋날 수 없다.
+  어긋날 수 없다. 범례의 균등 기저 비율(38%)도 `DIURNAL_NIGHT_FRAC` 에서 만든다.
 
-■ 양식 — LNCS (사용자 지시 2026-08-30 · 견본 이미지)
-  · 그림틀을 **네 변 모두** 두른다
-  · 계열은 **선 모양**으로 가른다 — 흑백으로 인쇄해도 읽힌다
-  · 범례는 **테두리 있는 상자**로 그림 안에 둔다
-  · 격자 없음
+■ 양식은 `figstyle.py` 한 곳에서 온다 (사용자 지시 2026-08-30)
+  결과 그림 셋(`fig_results.py`)과 **같은 문법**으로 그린다. 한 논문 안에서 그림마다
+  색·범례 자리·패널 이름 규칙이 달라지면 독자가 그림마다 읽는 법을 새로 배워야 한다.
+
+    · 위·오른쪽 테두리 없음 · 가로 격자만 아주 옅게 (`hgrid`)
+    · 주 계열은 `P_BLUE`, 분해 성분은 `MUTED` — 색과 선모양이 늘 같이 간다
+      (흑백 인쇄에서도 실선/파선/점선으로 갈린다)
+    · 범례는 **그림 위 바깥에 하나** (`loc="outside upper center"`) — 앞판은 (b) 안
+      오른쪽 위에 얹혀 곡선 머리와 겹쳤다
+    · 패널 이름은 `panel()` 로 왼쪽 위에, **무슨 패널인지 이름으로** 말한다 —
+      "(a)" 만 두면 독자가 캡션을 찾아 내려가야 한다
+    · 축 밖으로 나간 값이 하나라도 있으면 `no_clip` 이 멈춘다
   · ★그림을 **LNCS 본문 폭 그대로** 그린다. 넓게 그려서 include 때 줄이면 글씨가
     같이 줄어 읽히지 않는다 (9인치를 0.86 textwidth 로 넣으면 46% 로 축소됐다).
-  · ★그림은 **이미지만** 만든다 — 제목·설명은 넣지 않는다. 패널 표시 (a)(b) 만 두고
+  · ★그림은 **이미지만** 만든다 — 제목·설명은 넣지 않는다. 패널 이름만 두고
     나머지는 LaTeX 의 \caption 이 템플릿 규칙대로 그림 아래에 붙인다 (사용자 지시).
 
 ■ 무엇을 그리는가
-  (a) 일일 외부 트럭 작업 수요 — 다섯 수준과 각각의 추첨 확률
+  (a) 일일 외부 트럭 작업 수요 — 다섯 수준과 각각의 추첨 확률. 확률은 **퍼센트 축**
+      하나로 읽는다 (앞판은 축이 0.0~0.2 소수, 막대 위 글씨는 30% 라 단위가 둘이었다).
   (b) 시간대별 도착률 λ(t) — 균등 기저와 가우시안 성분 셋의 합. 기저·성분을 따로
       그려서 **곡선의 형태가 문헌값이 아니라 본 연구의 합성 구성**임이 보이게 한다.
 
@@ -37,9 +45,11 @@ sys.path.insert(0, "src")
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from figstyle import TEXTWIDTH_IN, apply, hgrid, save
+from figstyle import (BAND, INK, MUTED, P_BLUE, SMALL_PT, TEXTWIDTH_IN, apply,
+                      hgrid, no_clip, panel, save)
 
 from yard_rl.v3.world.integrated.terminal_stream import (
     DIURNAL_NIGHT_FRAC, DIURNAL_PEAKS)
@@ -70,47 +80,66 @@ def rate_parts(total: int):
 
 
 def draw():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(TEXTWIDTH_IN, 2.05))
+    #  (a) 는 눈금 글씨가 다섯 개("12,500" 처럼 긴 것 포함)라 조금 넓게 준다.
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2, figsize=(TEXTWIDTH_IN, 2.35), layout="constrained",
+        gridspec_kw={"width_ratios": [1.14, 1.0]})
+    fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
 
     # ── (a) 일일 수요 수준과 추첨 확률 ───────────────────────────
     loads = [ld for ld, _, _ in LOAD_WEIGHTS]
-    probs = [w for _, w, _ in LOAD_WEIGHTS]
+    pct = [w * 100.0 for _, w, _ in LOAD_WEIGHTS]
     xs = list(range(len(loads)))
-    ax1.bar(xs, probs, width=0.55, facecolor="white", edgecolor="black",
-            linewidth=0.8, hatch="////")
-    for x, p in zip(xs, probs):
-        ax1.text(x, p + 0.010, f"{p:.0%}", ha="center", va="bottom")
+    #  계열이 하나뿐이라 해칭을 쓰지 않는다 — 결과 그림에서 해칭은 "색으로 안 갈리는
+    #  흰 막대" 하나에만 얹는 표시다. 여기서 사선을 깔면 뜻 없는 무늬가 된다.
+    ax1.bar(xs, pct, width=0.62, facecolor=P_BLUE, edgecolor=INK,
+            linewidth=0.7, zorder=3)
+    for x, p in zip(xs, pct):
+        ax1.text(x, p + 1.1, f"{p:.0f}%", ha="center", va="bottom",
+                 fontsize=SMALL_PT, color=INK, zorder=4)
     ax1.set_xticks(xs)
     ax1.set_xticklabels([f"{ld:,}" for ld in loads])
-    ax1.set_xlabel("Trucks per day")
-    ax1.set_ylabel("Probability")
-    ax1.set_ylim(0, max(probs) * 1.28)
-    ax1.set_xlim(-0.6, len(loads) - 0.4)
-    ax1.text(0.0, 1.03, "(a)", transform=ax1.transAxes, va="bottom", ha="left")
+    ax1.tick_params(axis="x", length=0, pad=3)
+    ax1.set_xlabel("Daily demand (trucks/day)")
+    ax1.set_ylabel("Draw probability (%)")
+    ax1.set_yticks([0, 10, 20, 30])
+    ax1.set_ylim(0, max(pct) * 1.32)
+    ax1.set_xlim(-0.62, len(loads) - 0.38)
+    no_clip(ax1, [p + 1.1 for p in pct], "수요 분포 (a)")
+    hgrid(ax1)
+    panel(ax1, "(a) Daily demand levels")
 
     # ── (b) 도착 과정 — 기저 + 가우시안 성분 ─────────────────────
     hs, base, comps, tot = rate_parts(REF_LOAD)
-    ax2.plot(hs, tot, color="black", lw=1.5, ls="-", label="Mixture")
-    ax2.plot([0, 24], [base, base], color="black", lw=0.9, ls="--",
-             label="Uniform base (38%)")
+    #  기저 아래를 아주 옅게 채운다 — "이만큼은 하루 어느 시각에나 깔려 있다" 가
+    #  선 하나보다 한눈에 읽힌다 (음영은 결과 그림의 `BAND` 와 같은 문법).
+    ax2.fill_between([0, 24], 0, base, color=BAND, alpha=0.55, lw=0, zorder=0)
     for i, c in enumerate(comps):
-        ax2.plot(hs, [base + v for v in c], color="black", lw=0.7, ls=":",
-                 label="Gaussian components" if i == 0 else None)
+        ax2.plot(hs, [base + v for v in c], color=MUTED, lw=0.85, ls=":",
+                 zorder=2)
+    ax2.plot([0, 24], [base, base], color=MUTED, lw=1.0, ls="--", zorder=3)
+    ax2.plot(hs, tot, color=P_BLUE, lw=1.6, ls="-", zorder=4)
     ax2.set_xlim(0, 24)
     ax2.set_xticks(range(0, 25, 6))
-    ax2.set_ylim(0, max(tot) * 1.10)
+    ax2.set_ylim(0, max(tot) * 1.12)
+    ax2.set_yticks([0, 500, 1000])
     ax2.set_xlabel("Hour of day")
     ax2.set_ylabel("Arrival rate (trucks/h)")
-    ax2.text(0.0, 1.03, "(b)", transform=ax2.transAxes, va="bottom", ha="left")
-    ax2.legend(loc="upper center", bbox_to_anchor=(0.62, 1.36), ncol=1,
-               labelspacing=0.3, handlelength=2.0, handletextpad=0.5,
-               borderaxespad=0.0)
+    no_clip(ax2, tot, "도착 과정 (b)")
+    hgrid(ax2)
+    panel(ax2, f"(b) Arrival process at {REF_LOAD:,}/day")
 
-    # 위·오른쪽 테두리 제거 + 가로 격자만 (집 규칙 · figstyle)
-    for ax in (ax1, ax2):
-        hgrid(ax)
+    # 범례는 그림 위 바깥에 한 줄 — 합(굵은 실선)을 먼저 읽고 그 아래 분해를 읽는
+    # 순서가 되도록 Mixture 를 맨 앞에 둔다.
+    fig.legend(
+        [Line2D([], [], color=P_BLUE, lw=1.6, ls="-"),
+         Line2D([], [], color=MUTED, lw=1.0, ls="--"),
+         Line2D([], [], color=MUTED, lw=0.85, ls=":")],
+        ["Mixture", f"Uniform base ({DIURNAL_NIGHT_FRAC:.0%})",
+         "Gaussian components"],
+        ncol=3, loc="outside upper center", handlelength=1.9,
+        columnspacing=1.4, handletextpad=0.5)
 
-    fig.tight_layout()
     save(fig, OUT, "fig-demand")
 
 
