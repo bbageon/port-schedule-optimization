@@ -14,8 +14,7 @@ counterfactual learning~\cite{ref10,ref11} enters the operating
 decision. Expensive branch simulation is used only during offline
 training. Online operation requires only small cost networks and
 constraint checks.
-In the synthetic environment of Sect.~
-ef{sec:env}, the architecture carries
+In the synthetic environment of Sect.~\ref{sec:env}, the architecture carries
 spatio-temporal reallocation from observation through proposal,
 acceptance, commitment, and execution. Cost reductions arise mainly from
 arrival-time adjustments on congested days. Real-time congestion information was therefore turned into assignment
@@ -25,38 +24,46 @@ alone, however, the rule is lower on more days, while the learned policy
 leads in total because of larger savings on congested days. Both daily
 win counts and total savings are therefore needed for interpretation.
 
-\subsection{Limitations}
-\label{sec:limits}
-Eight limitations bound these results. First, the environment is
-synthetic. Its scale and variation follow reported ranges, but it is not
-fitted to the operating record of a specific terminal. The demand mix,
-arrival-curve coefficients, and two of the four cost coefficients are
-also design values. Second, training and evaluation use the same
-arrival-curve shape and differ only in demand level and random draw. We
-therefore do not show transfer to an unseen arrival profile. Third, only
-four of the 28 days are congested, and most of the reduction occurs on
-those days. Confirming the learning effect requires more congested days,
-not simply more days overall. Fourth, we do not isolate the contribution
-of the independent acceptance policy. We confirm that one-sided consent
-never produces a commitment, but we do not measure the cost of removing
-the acceptance veto. Separate proposal and acceptance thus remain a
-design choice supported by operational checks rather than an ablation.
-Fifth, time-slot quotas are open, so the arrival-time results give a
-potential upper range rather than an executable schedule. Sixth, the
-three-hour counterfactual horizon is a design value. It combines a
-30-minute review window, up to 120 minutes of deferral, and a 30-minute
-arrival-pressure margin. Seventh, the main comparison uses one crane
-dispatching rule. Because rule rankings change with demand, another rule
-may change the measured size of the reallocation effect. Finally, truck
-waiting accounts for 96.4\% of total cost under the cost coefficients
-used here, so whether arrival-time adjustment keeps its advantage over
-block reallocation under a different cost structure requires a
-sensitivity analysis of those coefficients.
-These limits can be tested one axis at a time. Actual appointment quotas
-would define the executable range of time adjustment. A wider set of
-congested conditions would clarify the contribution relative to the
-untrained model. This study organises observation, proposal, acceptance,
-commitment, execution, and counterfactual learning into one reproducible
-structure. As automated equipment and appointment information expand,
-the architecture can help connect real-time congestion information to
-explainable resource-assignment decisions.
+\subsection{Scope of the Study and Directions for Extension}
+\label{sec:scope}
+This study examined whether the proposed architecture operates as
+intended, and what spatio-temporal reallocation is worth in cost terms,
+in a synthetic environment built from terminal scales and operational
+variation reported in the literature. The present results are therefore
+better read as experimental evidence about the conditions under which
+revisiting an existing assignment with congestion observed during
+operation is effective, rather than as a direct performance estimate for
+a particular terminal. Applying the arrival distribution, demand mix,
+and cost data of an actual terminal would allow the range of
+generalisation across different operating environments to be assessed
+more concretely.
+In this experiment the cost reduction concentrated in congested
+conditions at high demand. This suggests extending the policy so that it
+operates selectively according to the level of congestion rather than
+continuously. Repeated evaluation across a range of demand patterns and
+congestion frequencies would establish the conditions for such selective
+intervention, and the effect of learning, more reliably.
+On the operational side, the architecture should be extended to consider
+the time-slot quotas of an actual appointment system, the procedures by
+which carriers and the terminal revise an appointment, and a range of
+crane dispatching rules. The open time-slot quota used here is a setting
+for assessing the potential effect of arrival-time adjustment; applying
+real quotas would define the executable action range of the policy more
+realistically. The current separation of proposal and acceptance can
+also be analysed in finer detail by comparing designs with and without
+an acceptance veto and with different negotiation structures.
+Methodologically, the influence of the three-hour counterfactual horizon
+and of the cost coefficients on the relative value of policy actions can
+be analysed further. In the present cost structure the share of truck
+waiting cost is high, so arrival-time adjustment shows a large effect; a
+sensitivity analysis over different cost structures and horizons would
+therefore help identify the operating conditions under which spatial and
+temporal reallocation are effective.
+These extensions do not change the basic structure presented here
+---observation, proposal, acceptance, commitment, execution, and
+counterfactual learning---but carry it into real operating conditions
+and a wider range of demand environments. This study therefore presents
+one basic architecture for connecting real-time congestion information
+to explainable resource-assignment decisions rather than to monitoring
+alone, and it can develop into a validation that combines actual
+terminal data with operational constraints.
