@@ -11,7 +11,9 @@
   · 그림틀을 **네 변 모두** 두른다
   · 계열은 **선 모양**으로 가른다 — 흑백으로 인쇄해도 읽힌다
   · 범례는 **테두리 있는 상자**로 그림 안에 둔다
-  · 격자 없음 · 작은 글씨
+  · 격자 없음
+  · ★그림을 **LNCS 본문 폭 그대로** 그린다. 넓게 그려서 include 때 줄이면 글씨가
+    같이 줄어 읽히지 않는다 (9인치를 0.86 textwidth 로 넣으면 46% 로 축소됐다).
   · ★그림은 **이미지만** 만든다 — 제목·설명은 넣지 않는다. 패널 표시 (a)(b) 만 두고
     나머지는 LaTeX 의 \caption 이 템플릿 규칙대로 그림 아래에 붙인다 (사용자 지시).
 
@@ -40,14 +42,16 @@ from yard_rl.v3.stage.month import LOAD_WEIGHTS
 from yard_rl.v3.world.integrated.terminal_stream import (
     DIURNAL_NIGHT_FRAC, DIURNAL_PEAKS)
 
-OUT = pathlib.Path("docs/paper/v3/figures-demand")
+OUT = pathlib.Path("docs/paper/v3/figures")
+#: LNCS(llncs) 본문 폭. 그림을 **이 폭 그대로** 그려야 include 할 때 축소되지 않는다.
+TEXTWIDTH_IN = 4.80
 REF_LOAD = 12_500          # (b) 를 그릴 대표 수요 수준
 
 
 def _style():
     plt.rcParams.update({
         "font.family": "DejaVu Sans",
-        "font.size": 8,
+        "font.size": 7,
         "axes.linewidth": 0.7,      # 얇은 그림틀
         "axes.grid": False,
         "xtick.direction": "out",
@@ -79,7 +83,7 @@ def rate_parts(total: int):
 
 def draw():
     _style()
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.0, 3.1))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(TEXTWIDTH_IN, 1.95))
 
     # ── (a) 일일 수요 수준과 추첨 확률 ───────────────────────────
     loads = [ld for ld, _, _ in LOAD_WEIGHTS]
@@ -88,14 +92,14 @@ def draw():
     ax1.bar(xs, probs, width=0.55, facecolor="white", edgecolor="black",
             linewidth=0.8, hatch="////")
     for x, p in zip(xs, probs):
-        ax1.text(x, p + 0.010, f"{p:.0%}", ha="center", va="bottom", fontsize=7.5)
+        ax1.text(x, p + 0.010, f"{p:.0%}", ha="center", va="bottom", fontsize=6.0)
     ax1.set_xticks(xs)
-    ax1.set_xticklabels([f"{ld:,}" for ld in loads])
-    ax1.set_xlabel("Trucks per day")
-    ax1.set_ylabel("Probability")
+    ax1.set_xticklabels([f"{ld//1000}k" for ld in loads])
+    ax1.set_xlabel("Trucks per day", fontsize=7)
+    ax1.set_ylabel("Probability", fontsize=7)
     ax1.set_ylim(0, max(probs) * 1.28)
     ax1.set_xlim(-0.6, len(loads) - 0.4)
-    ax1.text(0.02, 0.96, "(a)", transform=ax1.transAxes, va="top", fontsize=8.5)
+    ax1.text(0.03, 0.95, "(a)", transform=ax1.transAxes, va="top", fontsize=7.5)
 
     # ── (b) 도착 과정 — 기저 + 가우시안 성분 ─────────────────────
     hs, base, comps, tot = rate_parts(REF_LOAD)
@@ -106,25 +110,26 @@ def draw():
         ax2.plot(hs, [base + v for v in c], color="black", lw=0.7, ls=":",
                  label="Gaussian components" if i == 0 else None)
     ax2.set_xlim(0, 24)
-    ax2.set_xticks(range(0, 25, 4))
+    ax2.set_xticks(range(0, 25, 6))
     ax2.set_ylim(0, max(tot) * 1.40)
-    ax2.set_xlabel("Hour of day")
-    ax2.set_ylabel("Arrival rate (trucks/h)")
-    ax2.text(0.02, 0.96, "(b)", transform=ax2.transAxes, va="top", fontsize=8.5)
-    ax2.legend(fontsize=7.2, loc="upper left", bbox_to_anchor=(0.10, 1.0), frameon=True, borderpad=0.5,
-               handlelength=2.4)
+    ax2.set_xlabel("Hour of day", fontsize=7)
+    ax2.set_ylabel("Arrival rate (trucks/h)", fontsize=7)
+    ax2.text(0.03, 0.95, "(b)", transform=ax2.transAxes, va="top", fontsize=7.5)
+    ax2.legend(fontsize=5.6, loc="upper left", bbox_to_anchor=(0.11, 1.02),
+               frameon=True, borderpad=0.35, labelspacing=0.32,
+               handlelength=1.9, handletextpad=0.5)
 
     # 네 변 모두 두른다 (LNCS 견본)
     for ax in (ax1, ax2):
         for sp in ax.spines.values():
             sp.set_visible(True)
-        ax.tick_params(labelsize=7.5, top=False, right=False)
+        ax.tick_params(labelsize=6.0, top=False, right=False, pad=1.6, length=2.4)
 
     fig.tight_layout()
     OUT.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
         f = OUT / ("fig-demand." + ext)
-        fig.savefig(f, dpi=220, bbox_inches="tight")
+        fig.savefig(f, dpi=400, bbox_inches="tight", pad_inches=0.02)
         print(f"  {f}")
     plt.close(fig)
 
