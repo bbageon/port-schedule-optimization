@@ -151,6 +151,12 @@ def fig_learning(with_eps: bool = True, stem: str = "fig-learning-curve"):
     ax_p, ax_a = axes[0], axes[1]
     ax_e = axes[2] if with_eps else None
 
+    #  ★가로축 이름을 **먼저** 건다. `figstyle.panel` 은 축 이름 아랫줄에 패널 이름을
+    #   붙이므로, 뒤에 `set_xlabel` 을 부르면 패널 이름이 지워진다. 2패널 판에서
+    #   "(b) Acceptance network" 가 사라졌던 것이 이 순서 때문이었다.
+    ax_last = ax_e if ax_e is not None else ax_a
+    ax_last.set_xlabel("Training iteration")
+
     for ax, color, keys, name in (
             (ax_p, P_BLUE, ("p_train", "p_val"), "(a) Proposal network"),
             (ax_a, A_GREEN, ("a_train", "a_val"), "(b) Acceptance network")):
@@ -179,10 +185,6 @@ def fig_learning(with_eps: bool = True, stem: str = "fig-learning-curve"):
         ax_e.set_ylabel(r"$\varepsilon$")
         hgrid(ax_e)
 
-    #  패널 이름은 축 이름 **뒤에** 붙인다 — `figstyle.panel` 이 축 이름 아랫줄로
-    #  넣기 때문에, 먼저 부르면 `set_xlabel` 이 이름을 덮어쓴다.
-    ax_last = ax_e if ax_e is not None else ax_a
-    ax_last.set_xlabel("Training iteration")
     if ax_e is not None:
         panel(ax_e, "(c) Exploration schedule")
     ax_last.set_xlim(0.5, len(ep) + 0.5)

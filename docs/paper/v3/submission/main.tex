@@ -360,17 +360,18 @@ Time & Decision interval $\delta$ & 60\,s \\
  & Review window $W$ & 1{,}800\,s \\
  & Counterfactual horizon $H$ (design) & 10{,}800\,s \\
 \midrule
-Demand & Daily levels (design) & 3{,}500, 5{,}000, 7{,}500, 12{,}500, 15{,}000 \\
+Demand & Announcement lead & median 1.27\,h (14.1\% $\le0$) \\
+ & Daily levels (design) & 3{,}500, 5{,}000, 7{,}500, 12{,}500, 15{,}000 \\
  & Draw probabilities (design) & 0.30, 0.30, 0.25, 0.10, 0.05 \\
  & Arrival curve (design) & uniform base 38\% $+$ 3 Gaussians \\
 \midrule
-Vessels & Classes, calls/day, quay crane rate & 3, 3.3, 27.5 moves/h \\
+Vessels & Classes (GT), calls/day, crane rate & 50/100/150k, 3.3, 27.5 moves/h \\
 \midrule
 Cost & Truck dwell & KRW 40{,}000/h (twice beyond 1\,h) \\
  & Crane move, rehandle (design) & KRW 60{,}000/h, KRW 2{,}000/event \\
  & Vessel idling & KRW 2.99 per GT-hour~\cite{ref25} \\
 \midrule
-Learning & Networks & $21\!\to\!64\!\to\!64\!\to\!1$, $16\!\to\!64\!\to\!64\!\to\!1$ \\
+Learning & Networks (proposal, acceptance) & $21/16\!\to\!64\!\to\!64\!\to\!1$ \\
  & Iterations, decisions per day & 30, $\le64$ \\
  & $\varepsilon$, optimiser & $0.50\!\to\!0.05$, Adam $3\times10^{-4}$ \\
 \midrule
@@ -412,11 +413,11 @@ compared and the first and last days only connect the continuous
 boundaries. All policies share the same truck, vessel, and service
 random streams on a given day, following the common-random-number
 method~\cite{ref22}. Implementation checks confirm that proposal and acceptance use separate
-models, that one-sided consent never produces a commitment, that
-realised future times are excluded from policy inputs, and that state
-continues across day boundaries; frozen-policy evaluation made zero
-counterfactual calls, and a branch that changed no action reproduced the
-action and the cost of the main run at all four sampled points. We compare the learned policy with three groups:
+models, that one-sided consent never commits, that realised future times
+are excluded from policy inputs, and that state continues across day
+boundaries; frozen-policy evaluation made zero counterfactual calls, and
+a branch that changed no action reproduced the main run at all four
+sampled points. We compare the learned policy with three groups:
 its own ablations, which allow only arrival-time adjustment or only
 block reallocation; the model after the first of the 30 training
 iterations, which isolates the effect of the remaining iterations; and
@@ -490,7 +491,7 @@ row of Table~\ref{tab:main}, although the signed-rank $p$ is the smaller
 of the two in most rows, which is consistent with an effect concentrated
 in a small number of high-cost days.
 
-The temporal comparison shows the same pattern from the opposite side.
+The temporal comparison shows why both tests are needed.
 Restricted to arrival-time adjustment, the rule that transfers the
 least-loaded criterion to the temporal axis reduces cost by 3.41\%
 relative to no reallocation, so the temporal action provides a
@@ -498,8 +499,9 @@ measurable benefit even without learning. Against that rule the learned
 time-only policy is cheaper on only 8 of 28 days, which the sign test
 reports as a difference in favour of the rule ($p=0.036$); yet the
 signed-rank test finds no difference ($p=0.399$) and the learned
-policy's 28-day total is KRW 1.00\,bn lower. Reporting only how often a
-policy wins would invert this conclusion.
+policy's 28-day total is KRW 1.00\,bn lower. This is the one comparison
+in which the two tests disagree, and reporting only how often a policy
+wins would invert the conclusion.
 
 \subsection{Demand Level and the Decomposition of Actions}
 \label{sec:exp-decomp}
