@@ -72,6 +72,22 @@ class ArmMonth:
     rollout_calls: int = 0       # 평가 중 반사실 호출 — 0 이어야 한다
     policy_exceptions: int = 0   # 배차 예외로 WAIT 로 물러선 횟수
     txn_failed: int = 0          # 확정 직전 제약에 걸려 되돌린 거래
+    #: ★하루치 상세 ([[YR-255]]) — 전에는 Φ 합계만 남기고 **나머지를 버렸다**.
+    #:  그래서 논문이 "어느 항이 줄었나"(비용 4항)도, 트럭 회전시간 같은
+    #:  현업 지표도 쓸 수 없었고, 비용 계수를 바꿔 보는 민감도 분석도
+    #:  달을 다시 굴려야만 했다. 이제 한 번 굴리면 셋 다 나온다.
+    days: list = field(default_factory=list)
+
+
+#: 판정 산출물에 남길 하루치 필드 — `stage/month_run.DayReport` 의 부분집합.
+DAY_KEEP = ("index", "load", "phi_krw", "c_wait", "c_move", "c_rehandle",
+            "c_vessel", "n_trucks", "n_censored", "mean_turn_time_s",
+            "p90_turn_time_s", "over_ratio", "truck_skipped",
+            "traded", "n_space", "n_time")
+
+
+def _day_row(d) -> dict:
+    return {k: getattr(d, k) for k in DAY_KEEP if hasattr(d, k)}
 
 
 def _run_arm(kw) -> ArmMonth:
@@ -91,7 +107,8 @@ def _run_arm(kw) -> ArmMonth:
                     n_time=res.n_time,
                     rollout_calls=rollout_calls(),
                     policy_exceptions=getattr(res, "policy_exceptions", 0),
-                    txn_failed=getattr(res, "txn_failed", 0))
+                    txn_failed=getattr(res, "txn_failed", 0),
+                    days=[_day_row(d) for d in res.days])
 
 
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
@@ -141,7 +158,8 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                         traded=d["traded"], n_space=d["n_space"], n_time=d["n_time"],
                         rollout_calls=d.get("rollout_calls", 0),
                         policy_exceptions=d.get("policy_exceptions", 0),
-                        txn_failed=d.get("txn_failed", 0))
+                        txn_failed=d.get("txn_failed", 0),
+                        days=d.get("days", []))
 
     def _save(g):
         if ck:
@@ -151,7 +169,8 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                             "n_time": g.n_time,
                             "rollout_calls": g.rollout_calls,
                             "policy_exceptions": g.policy_exceptions,
-                            "txn_failed": g.txn_failed}, ensure_ascii=False),
+                            "txn_failed": g.txn_failed,
+                            "days": g.days}, ensure_ascii=False),
                 encoding="utf-8")
 
     got, pending_jobs = [], []

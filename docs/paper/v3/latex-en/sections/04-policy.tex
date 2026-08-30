@@ -41,7 +41,7 @@ If the remaining capacity of the target resource is zero, the request is
 rejected before the network is consulted. The set of mutually agreed
 candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$. The
 problem structure in which two independent parties negotiate arrival
-times from limited information follows~\cite{ref5,ref6}.
+times from limited information follows~\cite{ref6}.
 
 \subsection{Central Commitment Constraints}
 The central procedure creates no new candidate and commits only within
@@ -68,8 +68,9 @@ are committed, and each job is reviewed exactly once.
 \subsection{Policy Models and Inputs}
 Both policies are multilayer perceptrons that score fixed-length
 features per candidate, with one set of weights shared across blocks:
-21-dimensional input for the proposal policy, 16 for the acceptance
-policy, two hidden layers of 64 units with ReLU in both. Inputs comprise
+21-dimensional input for the proposal policy and 16 for the acceptance
+policy, two hidden layers of 64 units with ReLU, and 5{,}633 and 5{,}313
+parameters respectively---fewer than 11{,}000 in total. Inputs comprise
 current waiting, inventory, and remaining crane work, the public
 expected arrival time, the route difference, and the announced volume
 around the target time. Unrealised actual arrival and completion times,
@@ -106,4 +107,11 @@ clipped at 1.0. Counterfactual branches run in parallel across CPU cores
 and each day's labels are replaced after that day's update. At
 evaluation the weights are frozen, exploration is disabled, and no
 counterfactual branch is invoked.
+
+Training the pair took 4.7 hours of CPU time over 24 passes. At
+operating time a decision costs one forward pass per candidate through a
+network of the size given above, which is negligible beside the
+constraint check it accompanies; the expense of the method lies entirely
+in generating the counterfactual labels, and that work is offline and
+never enters the operating path.
 

@@ -44,6 +44,10 @@ class Buyer:
         self.trail: list[dict] = []
         #: 반사실 분기용 **1회성 강제 응답** — {docKey: "BUY"|"REJECT"}.
         self.force_once: dict[str, str] = {}
+        #: ★절제 실험용 — 켜면 **수신 측 판단을 없앤다**([[YR-254]]).
+        #:  용량 검사(물리)는 그대로 살아 있으므로, 이 팔은 상호 동의 중
+        #:  **학습된 거절**만 덜어낸 것이지 제약 위반이 아니다.
+        self.always_buy = False
 
     def respond(self, mbt, offer: Offer, *, order, rec, t: float,
                 records, orders, end_s: float,
@@ -90,6 +94,8 @@ class Buyer:
         forced = self.force_once.pop(offer.doc_key, None)
         if forced in (BUY, REJECT):
             action = forced                    # 반사실: 반대로 응답했다면
+        elif self.always_buy:
+            action = BUY                       # ★절제 — 제안만으로 확정
         else:
             action = BUY if phi_buy <= phi_reject else REJECT
             dk = offer.doc_key

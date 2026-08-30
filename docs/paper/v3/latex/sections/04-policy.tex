@@ -47,7 +47,7 @@ q_i=\mathbf 1\!\left[
 
 목표 자원의 남은 용량이 0이면 신경망 판단 전에 거절한다. 두 정책이 함께 동의한 후보
 집합은 $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$이다. 독립된 두 주체가 제한된
-정보를 바탕으로 도착시각을 협의하는 문제 구조는~\cite{ref5,ref6}을 참고했다.
+정보를 바탕으로 도착시각을 협의하는 문제 구조는~\cite{ref6}을 참고했다.
 
 \subsection{중앙 확정 제약}
 중앙 절차는 새 후보를 만들지 않고 $\mathcal J_t$ 안에서만 확정한다. 동의 후보를
@@ -56,50 +56,23 @@ q_i=\mathbf 1\!\left[
 시간대 $k$의 남은 정원을 $K_k(t)$라 하면 다음 제약을 만족한다.
 
 \begin{equation}
-x_i\le p_iq_i,\qquad
-\sum_{i\in\mathcal J_t}x_i\mathbf1[b'_i=b]\le F_b(t)
-\quad(\forall b\in\mathcal B),
-\end{equation}
-\begin{equation}
-\sum_{i\in\mathcal J_t}x_i\mathbf1[k(i)=k]\le K_k(t)
-\quad(\forall k),\qquad
-\sum_{t\in\mathcal T}\mathbf1[i\in\mathcal E_t]\le1\quad(\forall i).
+x_i\le p_iq_i,\quad
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[b'_i\!=\!b]\le F_b(t),\quad
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[k(i)\!=\!k]\le K_k(t),\quad
+\sum_{t\in\mathcal T}\!\mathbf1[i\in\mathcal E_t]\le1.
 \end{equation}
 
 현행 실험에서 블록 용량 제약은 활성화돼 있다. 시간대 정원 자료가 없는 조건은
 $K_k(t)=\infty$로 두며, 이 조건의 효과는 시간 조정 가능성의 범위로 해석한다.
-확정된 새 배정은 모두 같은 시점에 일괄 반영한다. 따라서 먼저 확정된 작업이 같은
-결정 시점의 뒤 후보가 보는 상태를 바꾸지 않는다.
-
-\subsection{재배치 확정 절차}
-알고리즘~1은 제안과 수락이 모두 있는 후보만 확정한다는 합의 조건과, 한 작업을 한 번만
-검토하는 소유권 조건을 함께 보여 준다.
-
-\begin{table}[t]
-\centering
-\caption{알고리즘 1. 독립 제안·수락 기반 시공간 재배치}
-\label{alg:realloc}
-\small
-\begin{tabular}{@{}p{0.95\textwidth}@{}}
-\toprule
-\textbf{입력} 시점 $t$, 작업 장부 $O$, 야드 상태 $S$, 제안모형 $c^P$, 수락모형 $c^A$ \\
-\textbf{출력} 확정 재배치 집합 $M_t$ \\
-\midrule
-1\quad $\mathcal E_t \leftarrow$ 이번 60초 구간에 처음 자격을 얻었고 게이트에 들어오지 않은 작업 \\
-2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$: $\hat a_i \leftarrow \arg\min_{a} c^P(o_i^P,a)$; 제안이면 $\mathrm{Offers}$ 에 넣는다 \\
-3\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$: 목표가 꽉 찼으면 거절, 아니면 $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
-4\quad $\mathcal J_t \leftarrow$ 수락된 후보를 (수락 예상비용, 작업 ID, 목적 좌표) 오름차순으로 정렬 \\
-5\quad \textbf{for} $i \in \mathcal J_t$: 소유권·블록 용량·시간대 정원을 만족하면 $M_t$ 에 넣는다 \\
-6\quad 원래 배정을 기록하고 $M_t$ 를 일괄 반영한 뒤 $\mathcal E_t$ 를 검토 완료로 잠근다 \\
-\bottomrule
-\end{tabular}
-\end{table}
+확정된 새 배정은 모두 같은 시점에 일괄 반영하므로, 먼저 확정된 작업이 같은 결정
+시점의 뒤 후보가 보는 상태를 바꾸지 않는다. 따라서 두 조건이 구성으로 성립한다 ---
+제안과 수락을 모두 지닌 후보만 확정되고, 한 작업은 정확히 한 번만 검토된다.
 
 \subsection{정책모형과 입력}
 두 정책은 고정 길이 특징을 후보별로 평가하는 다층퍼셉트론이며 모든 블록이 같은
 가중치 한 벌을 공유한다. 제안 정책의 입력은 21차원, 수락 정책은 16차원이고 은닉층은
-둘 다 64--ReLU--64--ReLU다. 제안 정책은 모든 후보 중, 수락 정책은 수락·거절 중
-$\arg\min$을 취한다. 입력은 현재 대기·재고·크레인 잔여, 공개 도착예정시각, 경로
+둘 다 64--ReLU--64--ReLU이며, 매개변수는 각각 5{,}633개와 5{,}313개로 합쳐
+11{,}000개가 안 된다. 입력은 현재 대기·재고·크레인 잔여, 공개 도착예정시각, 경로
 차이와 목표 시각 주변의 통지 물량으로 구성한다. 아직 실현되지 않은 실제 도착·완료
 시각과 다른 수락 주체의 동시 응답은 입력에서 제외한다.
 
@@ -133,12 +106,8 @@ $\max(50,\min(600,4\times\text{학습행 수}))$다. 기울기는 1.0으로 제�
 
 반사실 분기는 CPU 여러 코어에서 병렬 실행하고 그날 생성한 라벨은 당일 갱신 뒤
 교체한다. 운영 평가에서는 가중치를 고정하고 탐색을 끄며 반사실 분기를 호출하지 않는다.
-그림~\ref{fig:learning}은 회차별 학습·검증 손실과 탐색 확률을 보여 준다.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.86\textwidth]{fig3-learning.pdf}
-\caption{회차별 학습·검증 손실과 탐색 확률. 하루가 한 회차이며 28일을 학습한다.
-학습 실행(난수시드 9,900,700)의 기록이며, \S5의 평가 실행과는 다른 난수 조건이다.}
-\label{fig:learning}
-\end{figure}
+두 망의 학습에 24회차 동안 CPU 시간 4.7시간가 들었다. 운영 시각의 결정은
+후보 하나당 위 크기의 망을 한 번 통과시키는 비용이라 함께 수행하는 제약 검사에 비해
+무시할 수 있다. 이 방법의 비용은 전적으로 반사실 라벨 생성에 있으며, 그 작업은
+오프라인에서 이루어져 운영 경로에 들어오지 않는다.

@@ -20,18 +20,20 @@ completion times from policy inputs, and the absence of any state reset
 at the day boundary follow from the implementation, the commitment
 constraints, and automated tests. Two were confirmed in the runs
 themselves: counterfactual simulation calls during frozen-policy
-evaluation numbered
-\textbf{zero}, and the identity check---a branch that changes no action
-reproducing the action and cost of the main run---passed 4/4 in the
-training run, where counterfactual labels exist.
+evaluation numbered \textbf{zero}, and the identity check---a branch
+that changes no action reproducing the action and cost of the main
+run---passed 4/4 in the training run, where counterfactual labels exist.
 
 \subsection{Paired Daily Comparison Across Policies}
 The cost difference is the proposed policy minus the comparison policy;
 a negative value means the proposed policy costs less. Days are treated
 as independent comparison units and a two-sided sign test is used
-(Table~\ref{tab:policies}).
+(Table~\ref{tab:policies}). A Wilcoxon signed-rank test on the same
+pairs, which uses the size of each daily difference and not only its
+sign, reaches the same conclusion throughout and is never weaker
+($p\le0.017$ against every rule-based policy).
 
-\begin{table}[t]
+\begin{table}[tb]
 \centering
 \caption{Every policy on the same 28 days, sorted by cost reduction. The
 two rightmost columns compare each policy with the proposed policy day
@@ -64,117 +66,111 @@ No reallocation & --- & 0.00\% & 26/28 & \textbf{$<$0.001} \\
 \end{tabular}
 \end{table}
 
-Over 28 days the total cost was KRW 10.00\,bn without reallocation and KRW
-8.52\,bn with the proposed policy, a reduction of KRW 1.471\,bn
-(14.7\%); the rate for every policy is listed in Table~\ref{tab:policies}.
-The four rule-based policies above use block reallocation
+Over 28 days the total cost was KRW 10.00\,bn without reallocation and
+KRW 8.52\,bn with the proposed policy, a reduction of KRW 1.471\,bn
+(14.7\%). The four rule-based policies above use block reallocation
 only, so this comparison reflects the potential of the architecture as a
-whole; a comparison matched on action range is treated separately in
-Sect.~5.6. The days on which the proposed policy costs more are few and
-small, whereas the days of largest reduction are those of congested
-demand.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.68\textwidth]{fig5-paired.pdf}
-\caption{Daily cost difference (proposed policy minus no reallocation),
-with the 28 days sorted by magnitude. Negative values are days on which the
-proposed policy costs less.}
-\label{fig:paired}
-\end{figure}
+whole; a comparison matched on action range is treated in Sect.~5.5. The
+days on which the proposed policy costs more are few and small, whereas
+the days of largest reduction are those of congested demand.
 
 \subsection{Demand Level and the Decomposition of Actions}
-Note that 90.5\% of the total cost reduction occurred on the four days
-with demand of 12{,}500 and 15{,}000 trucks: KRW 0.611\,bn on the former
-(41.5\% of the total) and 0.722\,bn on the latter (49.0\%), against
-0.047, 0.060, and 0.032\,bn on the 12, 8, and 4 days of 3{,}500,
-5{,}000, and 7{,}500 trucks. This supports developing the architecture
-towards a policy that \emph{intervenes selectively when congestion is
-observed} rather than continuously. To assess the contribution of each
-action, only one of the two was then allowed over the same 28 days
-(Table~\ref{tab:actions}, Fig.~\ref{fig:actions}). Arrival-time adjustment reduced cost by KRW
-1.320\,bn on the four congested days and accounted for 91.4\% of the
-total reduction. The block-only condition reduced cost by KRW
-0.124\,bn under smooth and normal demand but increased cost at the
-highest demand, leaving a net increase of KRW 0.131\,bn. The policy can
-therefore be optimised towards adjusting the relative use of spatial and
-temporal actions with the demand level. Time-slot quotas were open in
-this diagnostic run, so the arrival-time figures describe the
-\emph{range} of what time shifting could provide; a sensitivity
-analysis with finite quotas would refine the scope of application.
+Table~\ref{tab:actions} decomposes the reduction by demand level. Of the
+total, 90.5\% occurred on the four days with demand of 12{,}500 and
+15{,}000 trucks, which supports developing the architecture towards a
+policy that \emph{intervenes selectively when congestion is observed}
+rather than continuously. Allowing only one action at a time over the
+same 28 days separates the two contributions: arrival-time adjustment
+accounts for 91.4\% of the total reduction and almost all of it on those
+four days, whereas the block-only condition reduces cost under smooth
+and normal demand (KRW 0.124\,bn) but raises it at the highest demand,
+leaving a net increase of KRW 0.131\,bn. The policy can therefore be
+optimised towards adjusting the relative use of spatial and temporal
+actions with the demand level. Time-slot quotas were open in this
+diagnostic run, so the arrival-time figures describe the \emph{range} of
+what time shifting could provide; a sensitivity analysis with finite
+quotas would refine the scope of application.
 
-\begin{table}[t]
+\begin{table}[tb]
 \centering
-\caption{Where the reduction comes from. Cost reduction relative to no
-reallocation (KRW bn) when only one action is allowed. Arrival-time
-adjustment produces almost all of the total and does so on the four
-congested days, whereas block reallocation helps under light demand but
-turns negative when demand is highest.}
+\caption{Where the reduction comes from, by demand level (KRW bn,
+against no reallocation). Columns three to five allow one action at a
+time; the last column is the share of the total that training adds, the
+trained model measured against the untrained one. Arrival-time
+adjustment produces almost all of the reduction and does so on the four
+congested days, block reallocation helps under light demand but turns
+negative when demand is highest, and the contribution of training
+follows the same congested-day pattern.}
 \label{tab:actions}
 \small
-\begin{tabular}{@{}rrrrr@{}}
+\begin{tabular}{@{}rrrrrr@{}}
 \toprule
-Daily demand & Days & Both actions & Arrival time only & Block only \\
+Daily & & Both & Time & Block & Due to \\
+demand & Days & actions & only & only & training \\
 \midrule
-3,500 & 12 & 0.047 & $-$0.013 & 0.057 \\
-5,000 & 8 & 0.060 & 0.029 & 0.067 \\
-7,500 & 4 & 0.032 & 0.008 & 0.000 \\
-12,500 & 2 & 0.611 & 0.573 & $-$0.014 \\
-15,000 & 2 & 0.722 & 0.747 & $-$0.241 \\
+3,500 & 12 & 0.047 & $-$0.013 & 0.057 & 0.056 \\
+5,000 & 8 & 0.060 & 0.029 & 0.067 & 0.029 \\
+7,500 & 4 & 0.032 & 0.008 & 0.000 & $-$0.049 \\
+12,500 & 2 & 0.611 & 0.573 & $-$0.014 & 0.144 \\
+15,000 & 2 & 0.722 & 0.747 & $-$0.241 & 0.495 \\
 \midrule
-\textbf{Total} & \textbf{28} & \textbf{1.471} & \textbf{1.344} & \textbf{$-$0.131} \\
-\multicolumn{2}{@{}l}{\textit{share of total}} & 100\% & \textbf{91.4\%} & --- \\
+\textbf{Total} & \textbf{28} & \textbf{1.471} & \textbf{1.344} & \textbf{$-$0.131} & \textbf{0.675} \\
+\multicolumn{2}{@{}l}{\textit{share of total}} & 100\% & \textbf{91.4\%} & --- & \textbf{45.9\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.68\textwidth]{fig6-actions.pdf}
-\caption{Cost reduction by demand level and action type, relative to no
-reallocation over the same 28 days.}
-\label{fig:actions}
-\end{figure}
-
 \subsection{Rule-Based Policies of the Same Action Range}
 Sect.~5.4 raises the question of what a rule achieves when given the
-same action. Two rules were added by transferring the \emph{least-loaded}
-criterion from the spatial to the temporal axis; no new parameter is
-introduced, only the axis on which the criterion applies, and they share
-the congestion condition of the other rules. Table~\ref{tab:policies}
-places them among the other policies.
-
-Three observations follow. Arrival-time adjustment lowers cost
-significantly even under a rule ($+3.41\%$, $p=0.0125$ against no
-reallocation), so the action itself carries value. When the action range
-is matched the proposed policy still costs less than the rule (20/28,
-$p=0.036$; 14.72\% against 1.51\% in total). Yet on the arrival-time
-axis alone the \emph{rule was lower on more days} (the proposed policy
-8/28) while the total was about four times lower for the proposed
-policy: under smooth demand the rule is marginally lower ($-0.013$
-against $0.006$\,bn at 3{,}500 trucks) whereas on the congested days the
-proposed policy is 3.8--5.6 times lower (0.747 against 0.133\,bn at
-15{,}000). The learned selection was optimised \emph{not towards winning
-frequently but towards reducing cost sharply on the expensive days}, and
-both indicators must be reported for this to be visible. The rule using
-both actions also falls to 0.038 and 0.009\,bn under congested demand,
-reproducing the property of Sect.~5.4---that block reallocation raises
-cost under congestion---and suggesting it belongs to the action rather
-than to a particular policy.
+same action. Two rules were added by transferring the
+\emph{least-loaded} criterion from the spatial to the temporal axis,
+introducing no new parameter and sharing the congestion condition of the
+other rules; Table~\ref{tab:policies} places them among the rest. Three
+observations follow. Arrival-time adjustment lowers cost significantly
+even under a rule ($+3.41\%$, $p=0.0125$ against no reallocation), so
+the action itself carries value. When the action range is matched the
+proposed policy still costs less than the rule (20/28, $p=0.036$). Yet
+on the arrival-time axis alone the \emph{rule was lower on more days}
+(the proposed policy 8/28) while the total was about four times lower
+for the proposed policy, because under smooth demand the rule is
+marginally lower whereas on the congested days the proposed policy is
+3.8--5.6 times lower. The learned selection was optimised \emph{not
+towards winning frequently but towards reducing cost sharply on the
+expensive days}, and both indicators must be reported for this to be
+visible. The rule using both actions also weakens under congested
+demand, reproducing the property of Sect.~5.4---that block reallocation
+raises cost under congestion---and suggesting it belongs to the action
+rather than to a particular policy.
 
 \subsection{Learning Effect and Dispatching Sensitivity}
 From KRW 10.00\,bn without reallocation, the untrained model reached KRW
-9.20\,bn and the trained model KRW 8.52\,bn, so the additional reduction
-after training is KRW 0.67\,bn, about 45\% of the total. On a daily
-basis the trained model was lower on 18 of 28 days ($p=0.1849$): both the
-amount and the win count point towards lower cost, but statistical
-certainty is limited in the present sample, and because the large
-differences concentrate on a few congested days, repeated evaluation with
-more such days would delineate the learning contribution more sharply.
+9.20\,bn and the trained model KRW 8.52\,bn, so training adds KRW
+0.675\,bn, 45.9\% of the total. Counting days, however, the trained
+model was lower on only 18 of 28 ($p=0.1849$), and the mean daily
+difference (KRW $-24.1$\,m) is eighteen times the median ($-1.3$\,m).
+The two statistics disagree because the effect is concentrated rather
+than spread over the month: the four congested days carry 94.6\% of it
+and the trained model was lower on all four, against 9/12, 5/8, and 0/4
+on the lighter days, whereas the 24 remaining days give a mean of
+$-1.5$\,m with a bootstrap interval that spans zero. Resampling the
+daily differences within demand strata, which respects the fixed demand
+mix of the stage, gives a 95\% interval of $[-32,-17]$\,m per day for
+the mean difference; resampling without strata widens it to
+$[-52,-3]$\,m, with 99.2\% of resamples remaining negative. Both
+intervals exclude zero, so the direction is consistent, but the narrow
+one is narrow partly by construction, since each congested stratum holds
+only two days and resampling within it cannot express uncertainty about
+how often congestion occurs at all. The conclusion we draw is therefore
+bounded: learning contributes a reduction that is large in total and
+without exception on congested days, and counting days understates it
+because the policy was optimised to cut cost sharply when it is
+expensive rather than to win frequently---the same property observed for
+the rules in Sect.~5.5. Establishing it at a conventional significance
+level requires more congested days, not more days.
+
 Separately, the ranking of crane dispatching rules reversed with
 demand---the shortest-processing-time rule in current use was 22--25\%
 more expensive than others under smooth and normal demand but the
 cheapest from 7{,}500 trucks upward, and lowest overall when weighted by
-the designed demand mix---so the effect of the reallocation policy should
-also be re-examined under other dispatching rules.
-
+the designed demand mix---so the effect of the reallocation policy
+should also be re-examined under other dispatching rules.

@@ -7,11 +7,11 @@ experiments. In order to conduct them in a more realistic setup, scales
 and operating ranges reported in existing container terminal studies are
 employed to the extent possible, so the environment is a
 \emph{literature-calibrated synthetic environment} rather than a replica
-of a particular terminal. Prior work reports 16 and 20
-blocks~\cite{ref15,ref16}, several cranes per block~\cite{ref8,ref17},
-multi-week continuous runs~\cite{ref9}, hourly arrival probability and
-its effect on turn time~\cite{ref13,ref14}, three vessel classes with
-differing call sizes~\cite{ref16,ref23}, and a triangular range for
+of a particular terminal. Prior work reports 20
+blocks~\cite{ref16}, several cranes per block~\cite{ref8},
+multi-week continuous runs~\cite{ref9}, hourly arrival
+probability~\cite{ref13}, three vessel classes with
+differing call sizes~\cite{ref16}, and a triangular range for
 crane handling time~\cite{ref9}. Within those ranges this study fixed 21
 blocks, two cranes per block, 30 days with state carried across the
 boundary, a base plus three arrival peaks, three vessel classes, and
@@ -37,47 +37,41 @@ probabilities 0.30, 0.30, 0.25, 0.10, and 0.05. The first three levels
 represent smooth, normal, and high demand; the last two represent
 congested and heavily congested conditions. Within a day, the
 announcement time of each job was drawn from the time-of-day arrival
-density $f(t)$, a mixture of a uniform base and normal peaks:
+density $f(t)$, a mixture of a uniform base and three normal peaks with
+$(\mu_m,\sigma_m,w_m)$ equal to $(10,1.5,.317)$, $(15,2.5,.633)$, and
+$(21,1,.05)$:
 
 \begin{equation}
 f(t)=0.38\,U(0,24)+0.62\sum_{m=1}^{3}w_m
-\mathcal N_{[0,24)}(t;\mu_m,\sigma_m^2),
-\end{equation}
-\begin{equation}
-(\mu_m,\sigma_m,w_m)\in\{(10,1.5,.317),(15,2.5,.633),(21,1,.05)\}.
+\mathcal N_{[0,24)}(t;\mu_m,\sigma_m^2).
 \end{equation}
 
-Time is measured in hours and the truncated density is renormalised so
-that it integrates to one over a day. The time-of-day arrival model and
-its effect on turn time follow~\cite{ref13,ref14}; the mixture weights
-and peak centres were selected as design values so that congestion
-sensitivity can be compared across demand levels, and are not claimed to
-be estimates fitted to a particular terminal. The uniform base keeps
-arrivals non-zero at night, so the yard state carried
+Time is measured in hours and the truncated density is renormalised over
+a day. The arrival model follows~\cite{ref13}; the
+weights and peak centres are design
+values chosen so that congestion sensitivity can be compared across
+demand levels, not estimates fitted to a particular terminal. The
+uniform base keeps arrivals non-zero at night, so the yard state carried
 across the day boundary is not an artefact of an empty night.
 
 \subsection{Vessels and Quay Operations}
 Vessels were divided into three classes: small (50{,}000\,GT,
 3{,}000\,TEU, two quay cranes, KRW 149{,}500 idle cost per hour), medium
 (100{,}000\,GT, 7{,}500\,TEU, four, KRW 299{,}000), and large
-(150{,}000\,GT, 14{,}000\,TEU, six, KRW 448{,}500). Here, the
-parameters were generated as follows. The call volume of a vessel of
-capacity $C$ TEU was sampled as $C\cdot u$ with $u\sim U[0.15,0.30]$. The daily composition was two small vessels and
-one medium vessel, to which one large vessel was added with probability
-0.30. The throughput of one quay crane was set to 27.5\,move/h, which
-lies within the 24, 30, and 36\,move/h range used in the
-literature~\cite{ref16}. Blocking across quay cranes was summed and
-divided by the number assigned, giving the idle time per vessel.
-
-\subsection{Units of Yard Crane Capacity}
-The reference service time of one crane is 180\,s per move, so the
-nominal capacity is $\mu_{YC}=21\times2\times3600/180=840$
-moves per hour. A move is a container movement, not a truck: one truck
-job may require several moves and rehandles, and the realised service
-time varies with position and job type. We therefore report move units
-and truck units separately, following the guidance that capacity must be
-stated with move type, automation delay, and handling-vehicle
-conditions~\cite{ref18}.
+(150{,}000\,GT, 14{,}000\,TEU, six, KRW 448{,}500). The call volume of a
+vessel of capacity $C$ TEU was sampled as $C\cdot u$ with $u\sim
+U[0.15,0.30]$, and the daily composition was two small vessels and one
+medium vessel, to which one large vessel was added with probability
+0.30. The throughput of one quay crane was set to 27.5\,move/h, within
+the 24, 30, and 36\,move/h range used in the literature~\cite{ref16}.
+Blocking across quay cranes was summed and divided by the number
+assigned, giving the idle time per vessel. On the yard side the
+reference service time of one crane is 180\,s per move, so the nominal
+capacity is $\mu_{YC}=21\times2\times3600/180=840$ moves per hour. A
+move is a container movement, not a truck: one truck job may require
+several moves and rehandles, and the realised service time varies with
+position and job type, so we report move units and truck units
+separately.
 
 \subsection{Cost Function}
 The total cost over the interval $[d,d+1)$ is the sum of four terms:
@@ -108,3 +102,21 @@ Structural vessel time that the reallocation policy cannot change, such
 as berthing and quarantine, is separated as a diagnostic value. All four
 terms are computed as differences of cumulative values at the same day
 boundary.
+
+Two properties of the resulting environment were measured over the
+30-day training run. First, waiting dominates: $C_{wait}$ accounts for
+96.4\% of total cost, against 2.2\% for rehandling, 1.2\% for vessel
+idling, and 0.1\% for additional crane movement. Any conclusion drawn
+from $\Phi$ is therefore governed almost entirely by the
+safe-freight-rate coefficient taken from regulation~\cite{ref24}, and is
+insensitive to the two coefficients that are design values rather than
+literature values. Second, both the share of waiting and the service
+level worsen sharply with demand: waiting rises from 83.2\% of cost at
+3{,}500 trucks per day to 91.7\% at 7{,}500 and 99.1\% at 15{,}000,
+crowding out every other term. Across the month the mean turn time was
+0.89\,h and the 90th percentile 2.01\,h, with 5.0\% of 206{,}904 truck
+jobs unfinished on the day they were announced; but that 90th percentile
+ranges from 0.79\,h on the lightest days to 7.49\,h on the heaviest, a
+9.5-fold spread. Congested days are thus not merely more
+expensive---they are expensive for a different reason, and this is the
+property the reallocation policy is asked to exploit.

@@ -42,7 +42,7 @@
 스마트항만은 자동화 장비와 디지털 정보를 결합해 한정된 공간, 장비와 차량 흐름을
 효율적으로 조정하는 방향으로 발전하고 있다. 선행연구는 스마트 기술의 효과가 운영
 조건과 적용 방식에 따라 달라지므로, 관측 정보를 실제 자원 배치와 운영 판단으로
-연결하는 정책이 중요하다고 설명한다~\cite{ref1,ref2,ref3}.
+연결하는 정책이 중요하다고 설명한다~\cite{ref1}.
 본 연구는 이미 통지된 외부 트럭 작업의 야드 블록과 도착시각을 실시간 혼잡에 따라
 함께 재검토하는 강화학습 아키텍처를 제안한다. 재배치를 요청하는 정책과 이를 받을
 블록 또는 시간대의 수락 정책을 독립적으로 구성하고, 양쪽이 동의한 후보만 중앙 절차가
@@ -63,52 +63,34 @@
 
 % =====================================================================
 \section{서론}
+스마트항만의 운영 효율화는 장비 자동화뿐 아니라 실시간으로 관측한 정보를 바탕으로
+자원을 다시 배치하는 능력에 달려 있으며, 항만 효율 연구는 장비와 차량 정보를 운영
+시나리오에 연결한다~\cite{ref1}. 컨테이너 터미널에서 외부 트럭의 작업 블록과
+예약시각은 도착 전에 정해지지만, 운영 중에는 특정 시간대나 블록에 수요가 몰리고
+크레인 대기가 함께 변한다. 최초 계획을 그대로 유지하면 새로 관측된 혼잡을 반영하기
+어렵다. 본 연구는 작업을 \emph{어디에 배치할지}와 트럭을 \emph{언제 도착하게 할지}를
+함께 재검토한다.
 
-\subsection{연구 배경}
-스마트항만의 운영 효율화는 장비 자동화뿐 아니라 실시간 정보를 바탕으로 자원을 다시
-배치하는 능력에 달려 있다. 항만 효율 연구는 자동화·지능화·환경 설계가 서로 다른
-경로로 성과에 영향을 준다고 설명하며, 부산항과 싱가포르의 스마트항만 사업도 장비와
-차량 정보를 운영 시나리오에 연결하는 방향을 제시한다~\cite{ref1,ref2,ref3}.
+트럭 예약 연구는 시간창으로 도착 피크를 분산하고 터미널과 운송사가 각자의 비용에
+따라 도착시각을 협의하게 하며~\cite{ref4,ref6}, 야드 운영 연구는 배치·작업순서·크레인
+간섭을 다룬다~\cite{ref7,ref8,ref9}. 두 흐름은 시간과 공간의 효율을 따로 높여 왔고,
+본 연구는 두 축을 하나의 실시간 결정 안에 넣는다. 이런 재배치는 한 작업의 비용만
+바꾸지 않는다 --- 작업이 옮겨지면 뒤에 오는 트럭의 대기, 크레인 작업순서, 선박 공급
+흐름이 함께 달라지므로 뒤따르는 혼잡을 포함한 비용 신호가 필요하고, 차이 보상과 다중
+행위자 반사실 기준선이 한 행동을 대안과 비교해 그 신호를 준다~\cite{ref10,ref11}.
+재배치는 제안하는 쪽의 이익만으로 확정하기도 어렵다. 목적지가 그 작업을 감당할 수
+있는지는 따로 판단해야 하기 때문이다. 그래서 제안과 수락을 나누고 합의와 실행
+가능성은 중앙 절차에 맡긴다.
 
-컨테이너 터미널에서 외부 트럭의 작업 블록과 예약시각은 보통 도착 전에 정해진다.
-그러나 실제 운영 중에는 특정 시간대나 블록에 수요가 몰리고, 크레인 대기와 본선 연계
-작업이 함께 변한다. 이때 최초 계획을 그대로 유지하는 방식만으로는 새로 관측된 혼잡을
-배치 결정에 반영하기 어렵다. 본 연구는 이 지점에서 \emph{어디에 배치할지}와
-\emph{언제 도착하게 할지}를 함께 재검토한다.
+본 연구는 독립된 제안·수락 정책으로 시공간 재배치를 구성할 수 있는지, 반사실 학습을
+운영 추론과 분리할 수 있는지, 이 아키텍처가 운영비를 줄이는지, 그리고 관찰된 변화에서
+학습의 몫과 행동 범위의 몫을 갈라낼 수 있는지를 묻는다. 기여는 \emph{독립 정책 구조},
+\emph{시공간 행동 범위}, \emph{반사실 비용 학습}, \emph{학습·운영 분리}, 그리고
+실행·행동 범위·학습 효과를 나누어 보고하는 \emph{분해 가능한 평가}다.
 
-\subsection{문제 정의와 연구 공백}
-트럭 예약 연구는 시간창을 이용해 도착 피크를 분산하고, 터미널과 운송사가 각자의
-비용을 고려해 도착시각을 협의하는 방법을 발전시켰다~\cite{ref4,ref5,ref6}. 야드 운영
-연구는 컨테이너 배치, 작업순서와 복수 크레인의 간섭을 최적화해 대기와 재취급을 줄이는
-문제를 다뤘다~\cite{ref7,ref8,ref9}. 두 연구 흐름은 각각 시간과 공간의 효율을 높여
-왔다. 본 연구는 이미 통지된 작업을 대상으로 두 축을 하나의 실시간 의사결정 범위에
-넣는다.
-
-시공간 재배치는 한 작업의 비용만 바꾸지 않는다. 작업이 다른 블록이나 시간으로
-이동하면 뒤에 오는 트럭의 대기, 크레인 작업순서와 선박 공급 흐름도 달라진다. 따라서
-즉시 이동시간만으로 행동을 평가하기보다, 뒤따르는 혼잡 변화를 포함한 비용 신호가
-필요하다. 차이 보상과 다중 행위자 반사실 기준선은 한 행위의 기여를 대안 행동과
-비교해 분리하는 방법을 제공한다~\cite{ref10,ref11}.
-
-또한 재배치는 제안하는 쪽의 이익만으로 확정하기 어렵다. 목적 블록이나 목표 시간대가
-감당할 수 있는지 별도로 판단해야 한다. 본 연구는 하나의 중앙 정책이 모든 결정을
-대신하는 구조보다, 제안과 수락을 독립 정책으로 나누고 중앙 절차는 합의와 자원 제약을
-확인하는 구조에 초점을 둔다.
-
-\subsection{연구질문과 기여}
-\textbf{RQ1}~독립된 제안·수락 정책으로 시공간 재배치를 구성할 수 있는가.
-\textbf{RQ2}~반사실 학습과 운영 추론을 분리할 수 있는가.
-\textbf{RQ3}~제안 아키텍처는 운영비 절감 가능성을 보이는가.
-\textbf{RQ4}~관찰된 변화에서 학습과 행동 범위의 역할을 분리할 수 있는가.
-
-본 연구의 기여는 상호 동의한 작업만 확정하는 \emph{독립 정책 구조}, 블록 재배치와
-도착시각 조정을 한 절차에서 다루는 \emph{시공간 행동 범위}, 간접 혼잡 효과를 위한
-\emph{반사실 비용 학습}, \emph{학습·운영 분리}, 그리고 실행·행동 범위·학습 효과를
-나누어 보고하는 \emph{분해 가능한 평가}다.
-
-\begin{figure}[t]
+\begin{figure}[tb]
 \centering
-\includegraphics[width=\textwidth]{fig1-architecture.pdf}
+\includegraphics[width=0.68\textwidth]{fig1-architecture.pdf}
 \caption{재배치 결정 흐름과 학습·운영의 분리. 운영 경로는 학습된 신경망만 사용하며
 반사실 시뮬레이션을 호출하지 않는다.}
 \label{fig:arch}
@@ -116,36 +98,24 @@
 
 % =====================================================================
 \section{관련 연구}
-
-\subsection{스마트항만·예약·야드 운영}
 스마트항만 연구는 자동화, 지능화와 환경 설계를 항만 효율의 서로 다른 구성요소로
-보며~\cite{ref1}, 부산항 디지털 트윈과 투아스항 사례는 장비·차량·공간 정보를 운영
-시나리오에 연결한다~\cite{ref2,ref3}. 시간창 예약은 집중된 트럭 도착을
-분산하고~\cite{ref4}, 분산 협상 연구는 운송사와 터미널이 제한된 정보를 교환하며
-도착시각을 조정할 수 있음을 보였다~\cite{ref5,ref6}. 부산항 차량 예약 시범도 시간
-조정이 현장 대기 관리로 이어짐을 보여 준다~\cite{ref12}. 도착은 하루 중 균일하지
-않고~\cite{ref13} 도착 패턴 자체가 체류시간을 바꾼다~\cite{ref14}. 공간 쪽에서는
-야드 크레인 연구가 작업순서·간섭·블록별 부하 배분을 다루고~\cite{ref7,ref8},
-이산사건 시뮬레이션이 블록 길이와 크레인 배치의 장기 영향을
-비교하며~\cite{ref9,ref15}, 배차 규칙의 순위가 터미널 조건에 따라
-뒤집히고~\cite{ref16}, 블록당 복수 크레인이 통합 스케줄링 문제로
-연구된다~\cite{ref17}. 장비 처리능력은 이동 종류와 간섭에 따라 달라지므로 이동
-단위와 트럭 단위를 구분해야 한다~\cite{ref18}. 항만 강화학습은 실시간 크레인
-배차로 확장되고 있으나~\cite{ref19}, 본 연구는 그 상위 계층을 다룬다.
+본다~\cite{ref1}. 시간창 예약은 집중된 트럭 도착을 분산하고~\cite{ref4}, 협상 연구는
+운송사와 터미널이 제한된 정보를 교환하며 도착시각을 조정할 수 있음을
+보였으며~\cite{ref6}, 도착은 하루 중 균일하지 않다~\cite{ref13}. 공간 쪽에서는 야드
+크레인 연구가 작업순서·간섭·부하 배분을 다루고~\cite{ref7,ref8}, 이산사건 시뮬레이션이
+블록 길이와 크레인 배치의 장기 영향을 비교하며~\cite{ref9}, 배차 규칙의 순위가 터미널
+조건에 따라 뒤집힌다~\cite{ref16}. 항만 강화학습은 실시간 크레인 배차까지
+왔으나~\cite{ref19}, 본 연구는 그 상위 계층을 다룬다.
 
-\subsection{반사실 비용과 평가설계}
 한 행동의 효과를 공동 비용에서 분리하는 차이 보상은 다른 행위자의 행동을 유지한
 기준선과 현재 결과를 비교하며~\cite{ref10}, 다중 행위자 반사실 정책경사는 중앙
-가치모형으로 반사실 기준선을 구성한다~\cite{ref11}. 본 연구는 이 생각을 이산사건
-시뮬레이션에 적용해, 한 행동만 바꾼 두 실행의 원화 비용 차이를 독립 정책의 회귀
-목표로 사용한다. 환경 불확실성 아래에서 자원 단위 제어를 기계학습으로 다루는 인접
-사례로 건물 수요반응 연구가 있다. 여기서는 구조를 공유하는 과제들 사이에서 개별
-공간의 정책을 학습한다~\cite{ref20}. 이 연구도 실측 환경 기록과 개별 단위의 변동을
+가치모형으로 그 기준선을 구성한다~\cite{ref11}. 본 연구는 이를 이산사건 시뮬레이션에
+적용해, 한 행동만 바꾼 두 실행의 원화 비용 차이를 독립 정책의 회귀 목표로 삼는다.
+환경 불확실성 아래에서 자원 단위 제어를 기계학습으로 다루는 인접 사례로 건물
+수요반응 연구가 있다~\cite{ref20}. 그 연구도 실측 환경 기록과 개별 단위의 변동을
 만드는 합성 매개변수를 함께 쓰고 합성 부분을 선언적으로 적는데, 본 연구가 3.1절에서
-따르는 방식과 같다. 장기 지연보상을 다루는 RUDDER~\cite{ref21}는 적용 범위를 넓힐 후속
-방향으로 둔다. 정책 비교에서는 같은 난수를 공유하는 짝비교를 사용하며, 공통 난수는
-정책 차이의 잡음을 줄이는 전통적인 방법이다~\cite{ref22}. 선박 기항량이 운영 피크를
-만들 수 있다는 연구도 수요 조건을 여러 수준으로 나눌 근거를 제공한다~\cite{ref23}.
+따르는 방식과 같다. 정책 비교에서는 같은 난수를 공유하는 짝비교를 사용한다 --- 공통
+난수는 정책 차이의 잡음을 줄이는 전통적인 방법이다~\cite{ref22}.
 
 본 연구의 차별점은 \emph{도착시각 조정과 블록 재배치를 함께 다루는 행동 범위},
 \emph{독립된 제안·수락 정책}, \emph{상호 동의 기반 확정}, \emph{반사실 비용 학습과
@@ -158,30 +128,23 @@
 \input{sections/06-conclusion}
 
 % =====================================================================
-\begin{thebibliography}{24}
+\small
+\begin{thebibliography}{15}
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
 \bibitem{ref1} Yen, B.T.H., et al.: How smart port design influences port efficiency: a DEA-Tobit approach. Res. Transp. Bus. Manag. \textbf{46}, 100862 (2023)
-\bibitem{ref2} 부산항만공사: 부산항만공사-ADB, 부산항 스마트기술 개도국 확산 협력 (2023)
-\bibitem{ref3} Maritime and Port Authority of Singapore: Port of the Future: Tuas Port (2026)
 \bibitem{ref4} Chen, G., Govindan, K., Yang, Z.: Managing truck arrivals with time windows to alleviate gate congestion at container terminals. Int. J. Prod. Econ. \textbf{141}(1), 179--188 (2013)
-\bibitem{ref5} Phan, M.-H., Kim, K.H.: Negotiating truck arrival times among trucking companies and a container terminal. Transp. Res. E \textbf{75}, 132--144 (2015)
 \bibitem{ref6} Phan, M.-H., Kim, K.H.: Collaborative truck scheduling and appointments for trucking companies and container terminals. Transp. Res. B \textbf{86}, 37--50 (2016)
 \bibitem{ref7} Ng, W.C., Mak, K.L.: Yard crane scheduling in port container terminals. Appl. Math. Model. \textbf{29}(3), 263--276 (2005)
 \bibitem{ref8} Speer, U., Fischer, K.: Scheduling of different automated yard crane systems at container terminals. Transp. Sci. \textbf{51}(1), 305--324 (2017)
 \bibitem{ref9} Petering, M.E.H., Murty, K.G.: Effect of block length and yard crane deployment systems on overall performance at a seaport container transshipment terminal. Comput. Oper. Res. \textbf{36}(5), 1711--1725 (2009)
 \bibitem{ref10} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--280 (2001)
 \bibitem{ref11} Foerster, J., et al.: Counterfactual multi-agent policy gradients. In: AAAI, vol. 32 (2018)
-\bibitem{ref12} 부산항만공사: 차량반출입예약시스템 2차 시범운영 결과 (2022)
 \bibitem{ref13} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. EJTIR \textbf{18}(1) (2018)
-\bibitem{ref14} Azab, A.E., Eltawil, A.B.: A simulation based study of the effect of truck arrival patterns on truck turn time in container terminals. In: ECMS (2016)
-\bibitem{ref15} 장성용, 이원영: 시뮬레이션 기법을 이용한 컨테이너터미널 운영규칙의 평가. 한국항만경제학회지 \textbf{18}(1), 27--41 (2002)
 \bibitem{ref16} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
-\bibitem{ref17} Zhang, X., Li, H., Sheu, J.-B.: Integrated scheduling optimization of AGV and double yard cranes in automated container terminals. Transp. Res. B \textbf{179}, 102871 (2024)
-\bibitem{ref18} Port Equipment Manufacturers Association: Automatic Stacking Crane Performance (IP15) (2018)
 \bibitem{ref19} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
 \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
-\bibitem{ref21} Arjona-Medina, J.A., et al.: RUDDER: return decomposition for delayed rewards. In: NeurIPS, vol. 32, pp. 13544--13555 (2019)
 \bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
-\bibitem{ref23} Veenstra, A., de Waal, A.: The impact of container call size---evidence from simulation modelling. Marit. Transp. Res. \textbf{6}, 100109 (2024)
 \bibitem{ref24} 국토교통부: 2026년 적용 화물자동차 안전운임 고시, 제2026-402호 (2026)
 \bibitem{ref25} 해양수산부: 무역항 항만시설사용료: 접안료 요율과 산정기준
 \end{thebibliography}

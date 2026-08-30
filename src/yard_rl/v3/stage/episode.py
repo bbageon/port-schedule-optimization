@@ -79,7 +79,12 @@ RULE_ARMS = ARM_RULES + RETIRED_ARMS   # 제외 팔도 **굴릴 수는** 있다(
 #:    "TIME 을 빼면 얼마나 잃나" 를 재는 진단이지 공정한 재학습이 아니다.
 RL_SPACE = "RL_SPACE"      # 공간만 — 고전 팔과 같은 행동 폭
 RL_TIME = "RL_TIME"        # 시간만 — 반대편. 둘을 합쳐야 두 몫이 갈린다
-ARMS = ("NO_REALLOC", "RL", RL_SPACE, RL_TIME) + RULE_ARMS
+#: ★구조 절제 ([[YR-254]]) — 망은 그대로 두고 **수신 측 거부권만** 없앤다.
+#: 논문의 핵심 주장이 "제안과 수락을 갈라 두고 **양쪽이 동의해야** 확정" 인데,
+#: 정작 *동의를 없애면 얼마나 나빠지나* 를 잰 적이 없었다. 이 팔이 그 대조군이다.
+#: 용량 제약은 살아 있다 — 없애는 것은 **학습된 거절**뿐이다.
+RL_NOVETO = "RL_NOVETO"
+ARMS = ("NO_REALLOC", "RL", RL_SPACE, RL_TIME, RL_NOVETO) + RULE_ARMS
 TODO_ARMS = ()
 
 #: 배차 축 — 크레인 **바닥**. `SF_SPT` 는 현행이고 나머지는 고전 규칙 5종
@@ -143,6 +148,9 @@ class _Ctx:
             self._no_time = (self.arm == RL_SPACE)
             self._no_space = (self.arm == RL_TIME)
             self.arm = "RL"          # 시장은 RL 과 같다 — 후보만 막는다
+        if self.arm == RL_NOVETO:
+            self._no_veto = True
+            self.arm = "RL"          # 시장은 RL 과 같다 — 거부권만 뗀다
         if self.arm in RULE_ARMS:
             # ★고전 팔 — 학습 망이 아니라 규칙이 고른다. 자리는 같다([[YR-211]]).
             m = ClassicalMarket(self.arm, self.layout, window_s=self.window_s,
@@ -153,6 +161,7 @@ class _Ctx:
                             seed=self.seed)
             seller.no_space = getattr(self, "_no_space", False)
             buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
+            buyer.always_buy = getattr(self, "_no_veto", False)
             m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
         m.decided = set(decided)
         return m
