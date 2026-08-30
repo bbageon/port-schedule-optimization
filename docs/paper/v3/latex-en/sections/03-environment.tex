@@ -32,10 +32,10 @@ first and last days connect these continuous boundaries.
 
 \subsection{External Truck Demand and the Arrival Process}
 \label{sec:env-demand}
-We construct external-truck demand from ranges reported in prior work.
-The literature supports similar demand scales and strong time-of-day
-variation~\cite{ref13}; the specific curve below is our synthetic
-design. Daily demand is drawn from 3{,}500, 5{,}000, 7{,}500, 12{,}500,
+Prior work supports the fact that truck arrivals are far from uniform
+over the day and vary strongly with the time of day~\cite{ref13}. The
+daily demand levels and the specific arrival curve below are design
+values set for this study. Daily demand is drawn from 3{,}500, 5{,}000, 7{,}500, 12{,}500,
 and 15{,}000 trucks with probabilities 0.30, 0.30, 0.25, 0.10, and
 0.05 (Fig.~\ref{fig:demand}a). The first three levels represent smooth,
 normal, and high demand. The last two represent congested and heavily
@@ -66,9 +66,9 @@ evaluate transfer to an arrival profile with a different shape.
 the probability with which each is drawn, independently for each day.
 (b) The time-of-day arrival process at 12{,}500 trucks per day, with the
 uniform base and the three Gaussian components drawn separately beneath
-the mixture they sum to. The literature supports the demand magnitudes
-and the fact that arrivals are far from uniform over the day, whereas
-the shape of the mixture is a construction of this study.}
+the mixture they sum to. What the literature supports is that arrivals
+are far from uniform over the day; the demand levels and the shape of
+the mixture are design values of this study.}
 \label{fig:demand}
 \end{minipage}
 \end{center}
@@ -140,8 +140,8 @@ The 30-day training run reveals two properties of this environment.
 First, waiting dominates total cost. $C_{wait}$ accounts for 96.4\%,
 compared with 2.2\% for rehandling, 1.2\% for vessel idling, and 0.1\%
 for additional crane movement. Conclusions based on $\Phi$ are therefore
-driven mainly by the regulated safe-freight-rate coefficient
-~\cite{ref24}. The two design-based coefficients have little influence.
+driven mainly by the truck dwell coefficient, which we set using the
+safe freight rate as a monetary anchor. The two design-based coefficients have little influence.
 Second, waiting and service levels deteriorate sharply as demand rises.
 Waiting represents 83.2\% of cost at 3{,}500 trucks per day, 91.7\% at
 7{,}500, and 99.1\% at 15{,}000. Across the month, mean truck turn time
