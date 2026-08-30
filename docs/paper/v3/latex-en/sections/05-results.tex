@@ -176,16 +176,18 @@ demand & Days & actions & only & only & training \\
 \centering
 \includegraphics[width=\textwidth]{final_figure/fig-decomposition.pdf}
 \captionof{figure}{Cost reduction by demand level, decomposed by action
-range; the values are those of Table~\ref{tab:actions}. The vertical axis
-is split by demand because the two congested levels are more than ten
-times larger than the rest: (a) 3{,}500--7{,}500 and (b)
-12{,}500--15{,}000 trucks per day, with the number of days observed
-printed under each tick. The first three bars are measured against no
-reallocation. The fourth bar, set slightly apart, uses a different
-baseline: it is the trained model minus the untrained one, that is, the
-last column of Table~\ref{tab:actions}. Arrival-time adjustment carries
-91.3\% of the total reduction, whereas block-only reallocation turns
-negative once demand is congested.}
+range. The values are those of Table~\ref{tab:actions}, in million KRW
+(1\,bn $=$ 1{,}000\,m). The vertical axis is split by demand because the
+two congested levels are more than ten times larger than the rest:
+(a) 3{,}500--7{,}500 and (b) 12{,}500--15{,}000 jobs per day, with the
+number of days observed printed as $n$ under each tick. Bars measure a
+restricted policy against no reallocation. The diamond is \emph{not} a
+fourth action: it is the trained model minus the untrained one---the
+training contribution, that is, the last column of
+Table~\ref{tab:actions}---and carries a different mark for that reason.
+Moving from the non-congested to the congested regime, arrival-time
+adjustment and the training contribution both grow sharply, whereas
+block-only reallocation turns negative.}
 \label{fig:decomp}
 \end{minipage}
 \end{center}

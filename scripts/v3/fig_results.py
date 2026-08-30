@@ -41,8 +41,8 @@ from matplotlib.patches import Patch
 from matplotlib.ticker import FuncFormatter
 
 from figdata import month
-from figstyle import (A_GREEN, BAND, BAR_GREY, BAR_MID, BAR_PALE, INK,
-                      LOSS_RED, MUTED, P_BLUE, TEXTWIDTH_IN, apply, hgrid,
+from figstyle import (A_GREEN, BAND, BAR_MID, INK, LOSS_RED,
+                      MARK_GREY, MUTED, P_BLUE, TEXTWIDTH_IN, apply, hgrid,
                       no_clip, panel, save)
 
 OUT = ROOT / "docs/paper/v3/figures/final_figure"
@@ -51,24 +51,29 @@ ARMS = ROOT / "outputs/v3/judge-30d/arms"
 JUDGE_SEED = 9_900_950
 HEAVY = 12_500             # 이 부하부터 "혼잡" — 학습회차 음영과 분해 패널의 경계
 
-#: ★단위는 본문 표를 따라간다 — 그림과 표를 눈으로 대조할 수 있어야 한다.
-#:  · 월 합계(표 3)는 **십억원**  · 하루 차이(5.6절 본문)는 **백만원**
-#:  국문판 표는 억원·만원을 쓰므로 캡션이 환산을 한 줄로 적는다 (10억원 = 10억원).
-BN = 1e9                   # 십억원 (KRW bn)
-MN = 1e6                   # 백만원 (KRW m)
+#: ★단위는 **백만원 하나로 통일**한다 (사용자 지시 2026-08-30).
+#:  십억원으로 두면 원활한 수요 쪽이 0.02·0.04·0.06 이라 소수점만 읽게 된다.
+#:  백만원이면 20·40·60 과 200·400·600 이 되어 두 패널 다 눈에 바로 들어온다.
+#:  표는 억원(국문)·십억원(영문)을 쓰므로 **캡션이 환산을 한 줄로 적는다.**
+MN = 1e6                   # 백만원 (million KRW)
 
-#: 행동 분해 막대 — 색과 해칭을 **함께** 준다 (흑백에서도 갈리게).
+#: 행동 막대 셋 — 셋 다 `재배치 없음` 대비라 **같은 문법**(막대)에 같은 파랑 계단이다.
 #:
-#: ★앞 셋과 넷째는 **기준선이 다르다.** 앞 셋은 `재배치 없음` 대비이고, 넷째
-#:  `RL_EARLY − RL` 은 **학습 전 체크포인트 대비**다 (`eval/__main__.py --ckpt-early`
-#:  = "학습 전 대조"). 곧 표 3 의 마지막 열 `학습의 몫`(Due to training)과 같은 값이다.
-#:  기준선이 다르므로 파랑 계단에서 떼어내 회색으로 두고 반 칸 띄운다.
+#: ★해칭은 하나에만 쓴다 (사용자 지시 2026-08-30). 파랑+사선·흰색+X·회색+사선이
+#:  섞이면 작은 PDF 에서 오히려 안 갈린다. 색만으로 갈리지 않는 흰 막대 하나에만
+#:  얇은 사선을 얹어 흑백 인쇄까지 버티게 한다.
 BARS = (
     ("Both actions", P_BLUE, None),
-    ("Timing only", BAR_MID, "//"),
-    ("Block only", BAR_PALE, "xx"),
-    ("Due to training", BAR_GREY, "\\\\"),
+    ("Timing only", BAR_MID, None),
+    ("Block only", "white", "//"),
 )
+
+#: ★학습 기여는 **막대가 아니다.**
+#:  앞 셋은 "어떤 행동을 허용했나" 의 결과인데, 이것은 `RL_EARLY − RL`
+#:  (`--ckpt-early` = 학습 전 체크포인트) 즉 **효과의 분해값**이다. 같은 막대로 그리면
+#:  독자가 "학습이라는 넷째 행동이 있나?" 로 읽는다. 그래서 ◆ + 세로선으로 문법을
+#:  아예 바꾼다. 값은 표의 마지막 열 `학습의 몫`(Training contribution)과 같다.
+MARK_LABEL = "Training contribution"
 
 
 # ══════════════════════════ 원자료 ══════════════════════════
@@ -181,60 +186,85 @@ def fig_decomposition():
     n_days = {L: sum(1 for i in days if load[i] == L) for L in levels}
 
     def agg(a, b):
-        """a − b 를 부하별로 합산 (십억원). 양수 = 비용이 줄었다."""
-        return {L: sum(arms[a][i] - arms[b][i] for i in days if load[i] == L) / BN
+        """a − b 를 부하별로 합산 (백만원). 양수 = 비용이 줄었다."""
+        return {L: sum(arms[a][i] - arms[b][i] for i in days if load[i] == L) / MN
                 for L in levels}
 
     series = (agg("NO_REALLOC", "RL"), agg("NO_REALLOC", "RL_TIME"),
-              agg("NO_REALLOC", "RL_SPACE"), agg("RL_EARLY", "RL"))
+              agg("NO_REALLOC", "RL_SPACE"))
+    train = agg("RL_EARLY", "RL")          # 막대가 아니다 — ◆ 로 그린다
     total = sum(series[0].values())
     time_share = sum(series[1].values()) / total
 
-    # ★부하 구간으로 축을 나눈다 — 원활한 날의 절감(0.05십억원)과 초혼잡한 날의
-    #   절감(0.75십억원)은 15배 차이다. 한 축에 두면 앞의 셋이 0선에 눌려 부호도 안 보인다.
+    # ★부하 구간으로 축을 나눈다 — 원활한 날의 절감(47백만원)과 초혼잡한 날의
+    #   절감(747백만원)은 15배 차이다. 한 축에 두면 앞의 셋이 0선에 눌려 부호도 안 보인다.
+    #   이 그림의 메시지가 바로 그 **비혼잡 → 혼잡 전환**이므로 분리를 유지한다.
     light = [L for L in levels if L < HEAVY]
     heavy = [L for L in levels if L >= HEAVY]
 
     fig, (ax_l, ax_h) = plt.subplots(
-        1, 2, figsize=(TEXTWIDTH_IN, 2.65), layout="constrained",
+        1, 2, figsize=(TEXTWIDTH_IN, 2.70), layout="constrained",
         gridspec_kw={"width_ratios": [len(light), len(heavy)]})
     fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
 
-    # 넷째 막대(학습의 몫)는 **기준선이 다르다** — 반 칸 띄워 눈이 먼저 알아채게 한다.
-    w = 0.18
-    offs = [(k - 1.5) * w + (0.35 * w if k == 3 else 0.0) for k in range(len(BARS))]
-    mid = sum(offs) / len(offs)
-    bars = []
-    for ax, group, name in ((ax_l, light, "(a) Light to moderate demand"),
-                            (ax_h, heavy, "(b) Congested demand")):
+    w = 0.185
+    offs = [-w, 0.0, w]                    # 막대 셋
+    mark_off = 0.42                        # ◆ — 막대 무리에서 확실히 떨어뜨린다
+    #  눈금은 **가운데 막대 아래**에 둔다. 전체(막대+◆) 한가운데로 잡으면 라벨이
+    #  막대와 ◆ 사이 빈 곳에 떠서 어느 무리에 붙는지 흐려진다.
+    mid = 0.0
+
+    bars, mark = [], None
+    for ax, group, name in ((ax_l, light, "(a) Non-congested regime"),
+                            (ax_h, heavy, "(b) Congested regime")):
         xs = list(range(len(group)))
         for k, (vals, (label, fc, hatch)) in enumerate(zip(series, BARS)):
-            b = ax.bar([x + offs[k] for x in xs], [vals[L] for L in group],
-                       w, facecolor=fc, edgecolor=INK, linewidth=0.7,
-                       hatch=hatch, label=label, zorder=3)
+            b = ax.bar([x + offs[k] for x in xs], [vals[L] for L in group], w,
+                       facecolor=fc, edgecolor=INK, linewidth=0.7, hatch=hatch,
+                       label=label, zorder=3)
             if ax is ax_l:
                 bars.append(b)
-        # ★0 선이 해석의 핵심이다 — 블록만 쓰면 혼잡에서 아래로 내려간다.
-        ax.axhline(0, lw=0.9, color=INK, zorder=4)
-        ax.set_xticks([x + mid for x in xs])
-        ax.set_xticklabels([f"{L:,}\n({n_days[L]} d)" for L in group])
-        ax.set_xlim(offs[0] - 0.22, len(group) - 1 + offs[-1] + 0.22)
-        lo = min(v[L] for v in series for L in group)
-        hi = max(v[L] for v in series for L in group)
-        pad = 0.09 * (hi - lo)
+
+        # ◆ + 세로선 — 막대와 **다른 문법**이라 "넷째 행동" 으로 안 읽힌다.
+        mx = [x + mark_off for x in xs]
+        mv = [train[L] for L in group]
+        ax.vlines(mx, 0, mv, color=MARK_GREY, lw=1.0, zorder=3)
+        m = ax.scatter(mx, mv, s=26, marker="D", facecolor=MARK_GREY,
+                       edgecolor="white", linewidth=0.5, zorder=4,
+                       label=MARK_LABEL)
+        if ax is ax_l:
+            mark = m
+
+        vals_all = [v[L] for v in series for L in group] + mv
+        lo, hi = min(vals_all), max(vals_all)
+        pad = 0.10 * (hi - lo)
         ax.set_ylim(lo - pad, hi + pad)
-        no_clip(ax, [v[L] for v in series for L in group], f"분해막대 {name}")
+        no_clip(ax, vals_all, f"분해 {name}")
+
+        # ★0 선이 이 그림의 핵심이다 — 7,500 의 학습 기여도, 15,000 의 블록만도 음수다.
+        #   그래서 격자는 아주 옅게, 0 선만 굵게, 아래 테두리는 아예 없앤다.
         hgrid(ax)
+        ax.axhline(0, lw=1.1, color=INK, zorder=5)
+        ax.spines["bottom"].set_visible(False)
+        ax.tick_params(axis="x", length=0, pad=3)
+
+        ax.set_xticks([x + mid for x in xs])
+        ax.set_xticklabels([f"{L:,}\n$n$ = {n_days[L]}" for L in group])
+        ax.set_xlim(offs[0] - w / 2 - 0.16, len(group) - 1 + mark_off + 0.16)
         panel(ax, name)
 
-    fig.supylabel("Cost reduction (KRW bn)",
+    fig.supylabel("Cost reduction (million KRW)",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
-    fig.supxlabel("Daily external truck job demand (days observed)",
+    fig.supxlabel("Daily external-truck demand (jobs/day)",
                   fontsize=plt.rcParams["axes.labelsize"], color=INK)
 
-    fig.legend(list(bars), [b.get_label() for b in bars], ncol=2,
-               loc="outside upper center", handlelength=1.5,
-               columnspacing=1.4, handletextpad=0.5)
+    # 범례는 한 줄로 좁게 둔다. 빈 칸을 끼워 넣으면 범례가 그림 폭 전체로 벌어져
+    # 맨 오른쪽 항목이 (b) 패널의 머리말처럼 읽힌다. ◆ 라는 **다른 기호**가 이미
+    # 갈라 주므로 억지 간격은 필요 없다.
+    fig.legend(list(bars) + [mark],
+               [b.get_label() for b in bars] + [MARK_LABEL],
+               ncol=4, loc="outside upper center", handlelength=1.3,
+               columnspacing=1.1, handletextpad=0.45)
 
     save(fig, OUT, "fig-decomposition", ROOT)
     return total, time_share
@@ -314,5 +344,5 @@ if __name__ == "__main__":
     win, n = fig_paired()
     print()
     print("[figure values read from raw data - cross-check the table]")
-    print(f"  decomposition total {total:.3f} KRW bn, timing share {share:.1%}")
+    print(f"  decomposition total {total:.0f} million KRW, timing share {share:.1%}")
     print(f"  paired: {win}/{n} days improved")
