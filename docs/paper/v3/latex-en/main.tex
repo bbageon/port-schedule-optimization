@@ -1,0 +1,245 @@
+% =====================================================================
+%  A Reinforcement Learning Architecture for Spatio-Temporal
+%  Reallocation in Smart Container Terminals
+%
+%  Springer LNCS (llncs.cls).  Build with pdflatex or xelatex:
+%      pdflatex main.tex ; pdflatex main.tex
+%
+%  This is the English counterpart of ../latex/ (Korean).  The two must
+%  carry identical content; update both when a number changes.
+% =====================================================================
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb}
+\usepackage{array}
+\usepackage{caption}
+\captionsetup{font=small}
+\graphicspath{{figures/}}
+
+\begin{document}
+
+\title{A Reinforcement Learning Architecture for Spatio-Temporal
+Reallocation in Smart Container Terminals: Independent Proposal and
+Acceptance Policies with Counterfactual Cost Learning}
+\titlerunning{RL Architecture for Spatio-Temporal Reallocation}
+
+\author{Author Name\inst{1}}
+\authorrunning{A. Name}
+\institute{Affiliation, Address \email{email@example.com}}
+
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+Smart ports increasingly combine automated equipment with digital
+information to coordinate limited space, machinery, and vehicle flows.
+Prior work reports that the benefit of smart technology depends on
+operating conditions and on how it is applied, so the policy that turns
+observed information into actual resource decisions matters as much as
+the technology itself~\cite{ref14,ref15,ref16}.
+This paper proposes a reinforcement learning architecture that jointly
+revisits the yard block and the arrival time of an external truck job
+that has already been announced, in response to congestion observed at
+run time. A policy that requests reallocation and a policy that accepts
+it on behalf of the destination block or time slot are modelled
+independently, and only candidates on which both agree are committed by
+a central procedure under resource constraints. Each policy learns from
+the cost difference between discrete-event simulations that differ in a
+single action from the same state, while inference at operating time
+uses the trained networks alone. The architecture connects distributed
+appointment negotiation and counterfactual baseline research to the
+spatio-temporal reallocation problem~\cite{ref2,ref3,ref7,ref8}.
+
+We evaluate the architecture in a continuous synthetic environment whose
+terminal size, time-of-day truck arrivals, multiple yard cranes, and
+vessel call volumes follow ranges reported in the literature. Under a
+random seed not used for training, we compare against no reallocation,
+rule-based policies, and the model before training. The decision path
+from proposal through acceptance, commitment, and execution operated
+stably throughout continuous operation, and the direction of cost
+reduction was most visible in arrival-time adjustment under congested
+conditions. The trained model also showed lower cost than rule-based
+policies matched to the same action range, and the same direction was
+observed against the untrained model. The contribution lies less in a
+particular performance figure than in presenting real-time congestion
+observation, independent proposal and acceptance, mutual consent,
+counterfactual cost learning, and fast operational inference as a single
+executable structure.
+
+\keywords{Smart port \and Container terminal \and Truck arrival
+management \and Yard block reallocation \and Counterfactual learning
+\and Reinforcement learning}
+\end{abstract}
+
+% =====================================================================
+\section{Introduction}
+
+\subsection{Background}
+Operational efficiency at a smart port depends not only on equipment
+automation but also on the ability to reallocate resources from
+information observed in real time. Studies of port efficiency describe
+automation, intelligence, and environmental design as separate channels
+through which performance is affected, and smart-port programmes at
+Busan and Singapore likewise aim to connect equipment and vehicle
+information to operating scenarios~\cite{ref14,ref15,ref16}.
+
+At a container terminal the working block and appointment time of an
+external truck are normally fixed before arrival. During operation,
+however, demand concentrates on particular time slots or blocks, and
+crane queues and vessel-linked work change with it. Keeping the initial
+plan unchanged makes it difficult to reflect newly observed congestion
+in the assignment. This paper revisits, at that point, both
+\emph{where} a job is placed and \emph{when} the truck is asked to
+arrive.
+
+\subsection{Problem Setting and Research Gap}
+Truck appointment research uses time windows to spread arrival peaks and
+has developed methods by which a terminal and carriers negotiate arrival
+times against their own costs~\cite{ref1,ref2,ref3}. Yard operations
+research addresses container placement, work sequencing, and
+interference among multiple cranes in order to reduce waiting and
+rehandling~\cite{ref4,ref5,ref13}. The two streams have improved
+temporal and spatial efficiency separately. This paper places both axes
+inside one real-time decision for jobs that have already been announced.
+
+Spatio-temporal reallocation does not change the cost of a single job
+alone. When a job moves to another block or time, the waiting of
+following trucks, the crane work sequence, and vessel supply flow change
+as well. Evaluating an action by its immediate travel time is therefore
+insufficient; a cost signal that includes the induced congestion is
+required. Difference rewards and multi-agent counterfactual baselines
+provide a way to isolate the contribution of one action by comparing it
+with an alternative~\cite{ref7,ref8}.
+
+Reallocation is also difficult to commit on the benefit of the proposing
+side alone. Whether the destination block or target time slot can absorb
+the job must be judged separately. Rather than a single central policy
+that makes every decision, this paper separates proposal and acceptance
+into independent policies and leaves consent and resource feasibility to
+a central procedure.
+
+\subsection{Research Questions and Contributions}
+\textbf{RQ1.}~Can spatio-temporal reallocation be composed from
+independent proposal and acceptance policies?
+\textbf{RQ2.}~Can counterfactual learning be separated from operational
+inference?
+\textbf{RQ3.}~Does the proposed architecture show potential for
+operating-cost reduction?
+\textbf{RQ4.}~Can the roles of learning and of the action range be
+separated in the observed change?
+
+The contributions are fivefold: (i)~an \emph{independent policy
+structure} that separates proposal from acceptance and commits only
+mutually agreed jobs; (ii)~a \emph{spatio-temporal action range} that
+treats block reallocation and arrival-time adjustment within one
+decision procedure; (iii)~\emph{counterfactual cost learning} that
+captures indirect congestion effects from simulations differing in a
+single action; (iv)~a \emph{separation of learning and operation} that
+confines expensive branch simulation to training; and (v)~a
+\emph{decomposable evaluation} that reports execution, action range, and
+learning effect separately.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig1-architecture.pdf}
+\caption{Reallocation decision flow and the separation of learning from
+operation. The operating path uses only the trained networks and issues
+no counterfactual simulation call.}
+\label{fig:arch}
+\end{figure}
+
+% =====================================================================
+\section{Related Work}
+
+\subsection{Smart Ports and Truck Arrival-Time Adjustment}
+Smart-port research treats automation, intelligence, and environmental
+design as distinct components of port efficiency~\cite{ref14}. The Busan
+digital twin and the Tuas Port programme illustrate how equipment,
+vehicle, and space information is connected to operating scenarios and
+to automated equipment control~\cite{ref15,ref16}. Time-window
+appointments are a representative approach to spreading concentrated
+truck arrivals~\cite{ref1}, and negotiation studies show that carriers
+and a terminal can adjust arrival times while exchanging only limited
+information~\cite{ref2,ref3}. A vehicle appointment pilot at Busan
+likewise indicates that time adjustment can translate into on-site queue
+management~\cite{ref11}. Truck arrivals are not uniform over the
+day~\cite{ref19}, and the arrival pattern itself changes turn
+time~\cite{ref20}.
+
+\subsection{Yard Operations and Reinforcement Learning}
+Yard crane research addresses work sequencing, interference among
+cranes, and load balancing across blocks~\cite{ref4,ref5}. Dynamic
+discrete-event simulation has been used to compare how block length and
+crane deployment affect long-run terminal
+performance~\cite{ref13,ref10}. Recent work shows that the performance
+ranking of dispatching rules can reverse with terminal
+conditions~\cite{ref17}, and configurations with multiple cranes per
+block are studied as integrated scheduling
+problems~\cite{ref18}. Because equipment throughput depends on move type
+and interference, move units and truck units must be reported
+separately~\cite{ref6}. Reinforcement learning in ports has been
+extended to real-time crane dispatching~\cite{ref24}; this paper instead
+addresses the layer above it, reallocating the block and time of truck
+jobs.
+
+\subsection{Counterfactual Cost and Evaluation Design}
+Difference rewards isolate the effect of one action from a joint cost by
+comparing the outcome against a baseline in which other agents keep
+their actions~\cite{ref7}, and counterfactual multi-agent policy
+gradients construct such a baseline from a centralised critic
+\cite{ref8}. We apply this idea to discrete-event simulation and use the
+monetary cost difference between two runs differing in a single action
+as the regression target of each independent policy. RUDDER, which
+redistributes delayed rewards over a trajectory~\cite{ref23}, is left as
+a direction for extending long-horizon attribution. For policy
+comparison we use paired runs sharing common random numbers, a
+long-standing technique for reducing the noise of policy
+differences~\cite{ref9}. Evidence that vessel call size creates
+operational peaks also motivates evaluating several demand
+levels~\cite{ref21}.
+
+What distinguishes this work is the combination of an action range
+covering both arrival-time adjustment and block reallocation,
+independent proposal and acceptance policies, commitment based on mutual
+consent, and the separation of counterfactual learning from operational
+inference within one architecture.
+
+% =====================================================================
+\input{sections/03-environment}
+\input{sections/04-policy}
+\input{sections/05-results}
+\input{sections/06-conclusion}
+
+% =====================================================================
+\begin{thebibliography}{24}
+\bibitem{ref1} Chen, G., Govindan, K., Yang, Z.: Managing truck arrivals with time windows to alleviate gate congestion at container terminals. Int. J. Prod. Econ. \textbf{141}(1), 179--188 (2013)
+\bibitem{ref2} Phan, M.-H., Kim, K.H.: Negotiating truck arrival times among trucking companies and a container terminal. Transp. Res. E \textbf{75}, 132--144 (2015)
+\bibitem{ref3} Phan, M.-H., Kim, K.H.: Collaborative truck scheduling and appointments for trucking companies and container terminals. Transp. Res. B \textbf{86}, 37--50 (2016)
+\bibitem{ref4} Ng, W.C., Mak, K.L.: Yard crane scheduling in port container terminals. Appl. Math. Model. \textbf{29}(3), 263--276 (2005)
+\bibitem{ref5} Speer, U., Fischer, K.: Scheduling of different automated yard crane systems at container terminals. Transp. Sci. \textbf{51}(1), 305--324 (2017)
+\bibitem{ref6} Port Equipment Manufacturers Association: Automatic Stacking Crane Performance (IP15) (2018)
+\bibitem{ref7} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--280 (2001)
+\bibitem{ref8} Foerster, J., et al.: Counterfactual multi-agent policy gradients. In: AAAI, vol. 32 (2018)
+\bibitem{ref9} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
+\bibitem{ref10} Jang, S., Lee, W.: Evaluation of container terminal operating rules using simulation. J. Korea Port Econ. Assoc. \textbf{18}(1), 27--41 (2002). (in Korean)
+\bibitem{ref11} Busan Port Authority: Results of the second pilot operation of the vehicle appointment system (2022). (in Korean)
+\bibitem{ref12} Ministry of Land, Infrastructure and Transport: Safe trucking freight rates for 2026, Notice 2026-402 (2026). (in Korean)
+\bibitem{ref13} Petering, M.E.H., Murty, K.G.: Effect of block length and yard crane deployment systems on overall performance at a seaport container transshipment terminal. Comput. Oper. Res. \textbf{36}(5), 1711--1725 (2009)
+\bibitem{ref14} Yen, B.T.H., et al.: How smart port design influences port efficiency: a DEA-Tobit approach. Res. Transp. Bus. Manag. \textbf{46}, 100862 (2023)
+\bibitem{ref15} Busan Port Authority: BPA--ADB cooperation on diffusing Busan Port smart technology (2023). (in Korean)
+\bibitem{ref16} Maritime and Port Authority of Singapore: Port of the Future: Tuas Port (2026)
+\bibitem{ref17} Schwientek, A., Lange, A.-K., Jahn, C.: Simulation-based analysis of dispatching methods on seaport container terminals. ARGESIM Report \textbf{59}, 357--364 (2020)
+\bibitem{ref18} Zhang, X., Li, H., Sheu, J.-B.: Integrated scheduling optimization of AGV and double yard cranes in automated container terminals. Transp. Res. B \textbf{179}, 102871 (2024)
+\bibitem{ref19} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. EJTIR \textbf{18}(1) (2018)
+\bibitem{ref20} Azab, A.E., Eltawil, A.B.: A simulation based study of the effect of truck arrival patterns on truck turn time in container terminals. In: ECMS (2016)
+\bibitem{ref21} Veenstra, A., de Waal, A.: The impact of container call size---evidence from simulation modelling. Marit. Transp. Res. \textbf{6}, 100109 (2024)
+\bibitem{ref22} Ministry of Oceans and Fisheries: Port facility charges: berthing rates and calculation basis. (in Korean)
+\bibitem{ref23} Arjona-Medina, J.A., et al.: RUDDER: return decomposition for delayed rewards. In: NeurIPS, vol. 32, pp. 13544--13555 (2019)
+\bibitem{ref24} Wang, W., et al.: Yard crane real-time scheduling among multi-block at terminal: a reinforcement learning based PPO approach. Transp. Res. E \textbf{207}, 104635 (2026)
+\end{thebibliography}
+
+\end{document}

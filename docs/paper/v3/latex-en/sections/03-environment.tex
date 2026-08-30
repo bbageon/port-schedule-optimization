@@ -1,0 +1,153 @@
+% =====================================================================
+\section{Experimental Environment}
+
+\subsection{A Literature-Calibrated Synthetic Environment}
+The environment is not a replica of the operating data of a particular
+terminal but a \emph{literature-calibrated synthetic environment} that
+combines the scales and operating ranges used in existing container
+terminal studies. Table~\ref{tab:env} separates values taken directly
+from prior work from values this study fixed within those ranges.
+
+\begin{table}[t]
+\centering
+\caption{Environment components: basis in prior work and the value used here}
+\label{tab:env}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Component & Basis in prior work & Value used here \\
+\midrule
+Multiple blocks & 16 and 20 blocks~\cite{ref10,ref17} & 21 blocks \\
+Multiple yard cranes & Several cranes per block~\cite{ref5,ref18} & 2 per block \\
+Long-run discrete event & Multi-week continuous runs~\cite{ref13} & 30 days, state carried \\
+Time-of-day arrivals & Hourly probability, turn time~\cite{ref19,ref20} & Base plus three peaks \\
+Vessel class, call size & Three classes, differing calls~\cite{ref17,ref21} & Small/medium/large \\
+Crane service time & Triangular handling range~\cite{ref13} & 180\,s within the range \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 21 blocks, the exact demand levels, and the arrival-curve
+coefficients are therefore design values of this study. The citations
+establish that the chosen scale and variation lie within the modelling
+range of existing work; they do not indicate operating data from a
+specific port.
+
+\subsection{Terminal and Time Settings}
+The yard has 21 blocks with two yard cranes each, 42 in total. Block
+capacity is 1{,}440 slots with an initial occupancy of 65\%. The layout
+is one-dimensional and horizontal, with the gate and the quay on
+opposite sides. The policy decision interval is 60\,s. Operation runs
+for 30 continuous days, and the middle 28 days are compared after
+excluding the first and last day. The crane work sequence gives priority
+to actual service work and, within it, to the job with the shortest
+expected processing time.
+
+A day is not a point at which the terminal stops but a cut at which cost
+and intermediate results are separated. Yard inventory, queues, crane
+state, and unfinished jobs carry over to the next day. The first day
+connects the initial state to the continuous flow, and the last day
+preserves the residual effect of preceding work.
+
+\subsection{External Truck Demand and the Arrival Process}
+Daily demand is drawn from 3{,}500 (30\%), 5{,}000 (30\%), 7{,}500
+(25\%), 12{,}500 (10\%), and 15{,}000 (5\%) trucks. The first three
+represent smooth, normal, and high demand; the last two represent
+congested and heavily congested conditions. The time-of-day arrival
+density $f(t)$ is a mixture of a uniform base over 24 hours and normal
+peaks:
+
+\begin{equation}
+f(t)=0.38\,U(0,24)+0.62\sum_{m=1}^{3}w_m
+\mathcal N_{[0,24)}(t;\mu_m,\sigma_m^2),
+\end{equation}
+\begin{equation}
+(\mu_m,\sigma_m,w_m)\in
+\{(10,1.5,0.317),(15,2.5,0.633),(21,1.0,0.050)\}.
+\end{equation}
+
+Time is measured in hours and the truncated density is renormalised so
+that it integrates to one over a day. The time-of-day arrival model and
+its effect on turn time follow~\cite{ref19,ref20}; the mixture weights
+and peak centres are design values chosen to compare congestion
+sensitivity. Fig.~\ref{fig:arrival} shows the resulting curve.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{fig2-arrival.pdf}
+\caption{Time-of-day truck arrival density: a uniform base of 38\% over
+24 hours plus three normal peaks.}
+\label{fig:arrival}
+\end{figure}
+
+\subsection{Vessels and Quay Operations}
+Vessels are divided into three classes and the call volume is generated
+as a fixed fraction of vessel capacity (Table~\ref{tab:vessel}). Call
+volume is $\text{TEU}\times U(0.15,0.30)$. The default daily composition
+is two small vessels and one medium vessel, with one large vessel added
+with probability 0.30. The throughput of one quay crane is set to
+27.5\,move/h, which lies within the 24, 30, and 36\,move/h range used in
+the literature~\cite{ref17}. Blocking across quay cranes is summed and
+divided by the number assigned, giving idle time per vessel.
+
+\begin{table}[t]
+\centering
+\caption{Vessel classes and call volumes}
+\label{tab:vessel}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Class & GT & TEU & Call volume & Quay cranes & Idle cost/hour \\
+\midrule
+Small & 50,000 & 3,000 & 450--900 move & 2 & KRW 149,500 \\
+Medium & 100,000 & 7,500 & 1,125--2,250 move & 4 & KRW 299,000 \\
+Large & 150,000 & 14,000 & 2,100--4,200 move & 6 & KRW 448,500 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Units of Yard Crane Capacity}
+The reference service time of one crane is 180\,s per move, so the
+nominal total move capacity is
+
+\begin{equation}
+\mu_{YC}=21\times2\times\frac{3600}{180}=840\ \text{move/h}.
+\end{equation}
+
+A move is a container movement and is not a truck. One truck job may
+require several moves and rehandles, and the realised service time
+varies with position and job type. We follow the guidance that equipment
+capacity must be reported together with move type, automation delay, and
+handling-vehicle conditions~\cite{ref6}.
+
+\subsection{Cost Function}
+The total cost over the interval $[d,d+1)$ is the sum of four terms:
+
+\begin{equation}
+\Phi_d=C_{wait,d}+C_{move,d}+C_{rehandle,d}+C_{vessel,d}.
+\end{equation}
+
+Truck dwell costs KRW 40{,}000 per hour, with the same rate applied
+again to any excess beyond one hour; the safe trucking freight rate is
+used as the monetary anchor and the hourly conversion is a study
+value~\cite{ref12}. Additional crane movement costs KRW 60{,}000 per
+hour of extra work and a rehandle costs KRW 2{,}000, both design values.
+Vessel idling costs KRW 2.99 per GT-hour, converted from the excess
+berthing rate of KRW 29.9 per 10\,GT-hour~\cite{ref22}.
+
+With $h_i$ the terminal dwell time of truck $i$, $m$ the additional
+crane working time, $R$ the number of rehandles, and $T_v$ the
+policy-related idle time of vessel $v$:
+
+\begin{equation}
+C_{wait}=\sum_i 40{,}000\{h_i+\max(0,h_i-1)\},\quad
+C_{move}=60{,}000\,m,\quad C_{rehandle}=2{,}000\,R,
+\end{equation}
+\begin{equation}
+C_{vessel}=\sum_v 2.99\,GT_v\,T_v.
+\end{equation}
+
+Structural vessel time that the reallocation policy cannot change, such
+as berthing and quarantine, is separated as a diagnostic value. All four
+terms are computed as differences of cumulative values at the same day
+boundary.
