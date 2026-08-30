@@ -42,9 +42,12 @@ Acceptance Policies with Counterfactual Cost Learning}
 %  ■ 머리말(running head)의 이름은 이니셜로 줄여 \authorrunning 에 적는다.
 \author{Geon-U Kim \and Bong-Jun Choi\textsuperscript{\Letter}}
 \authorrunning{G.-U. Kim and B.-J. Choi}
-% TODO(제출 전): 교신저자 이메일은 스프링거 필수 항목이다 — 아래에 \email{...} 추가.
+%  이메일은 소속 **바로 아랫줄**에 둔다 — 스프링거 지침: "Email addresses should
+%  start on a new line directly under the corresponding affiliation."
+%  교신저자 이메일은 필수 항목이다.
 \institute{Department of Computer Engineering, Dongseo University,
-Busan, Republic of Korea}
+Busan, Republic of Korea\\
+\email{bjchoi@gdsu.dongseo.ac.kr}}
 
 \maketitle
 
@@ -74,9 +77,11 @@ four most congested days accounted for 90.5\%. These results suggest
 that spatio-temporal reallocation is most useful as a selective response
 to observed congestion rather than as a continuous intervention.
 
-\keywords{Smart port \and Container terminal \and Truck arrival
-management \and Yard block reallocation \and Counterfactual learning
-\and Reinforcement learning}
+%  구분은 쉼표로 (사용자 지시). llncs 의 \and 는 가운뎃점(·)으로 찍히므로 쓰지 않는다.
+%  ※ 스프링거 지침은 가운뎃점을 선호한다고만 적혀 있고 강제는 아니다.
+\keywords{Smart port, Container terminal, Truck appointment system,
+Yard block reallocation, Counterfactual cost learning, Reinforcement
+learning}
 \end{abstract}
 
 % =====================================================================
@@ -203,11 +208,17 @@ layer, where the block and arrival time are selected.
 
 This perspective leads to two modelling choices. First, the networks do
 not output action probabilities. Each network maps the observed state
-and one candidate action to its expected operating cost. The policy then
-selects the candidate with the lowest predicted cost. In this sense, the
-method follows value approximation, as deep Q-networks approximate
-action values with neural networks~\cite{refmnih}, rather than a
-policy-gradient approach. Second, we use small multilayer perceptrons.
+and one candidate action to a predicted cost score, and the policy
+selects the candidate with the lowest score. The score is not an
+absolute operating cost. Labels are centred within each counterfactual
+pair (Sect.~\ref{sec:arch-labels}), so a network predicts what one
+action costs \emph{relative to} the action it was compared against.
+Because the same constant is subtracted from both actions of a pair, the
+ordering of candidates is unchanged. The method therefore approximates
+action values rather than a policy, as deep Q-networks do~\cite{refmnih},
+but it forms its target differently: the target is a simulated cost
+difference measured to the end of a fixed horizon, not a bootstrapped
+estimate that reuses the network's own output. Second, we use small multilayer perceptrons.
 Feedforward networks are general function approximators
 ~\cite{refhornik}, but the input structure also supports this choice.
 Each input is a fixed-length numeric vector, and candidates are scored

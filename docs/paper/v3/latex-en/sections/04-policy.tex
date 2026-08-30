@@ -15,7 +15,7 @@ alternatives. This computation remains outside the operational path.
 \begin{center}
 \begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=\textwidth]{final_figure/System Architecture.png}
+\includegraphics[width=\textwidth]{final_figure/system-architecture.png}
 \captionof{figure}{Detailed flow of the proposed architecture. (a) Every
 60\,s, the operational path checks eligibility, proposal, acceptance,
 and commitment; failure of mutual consent or capacity keeps the original
@@ -60,7 +60,8 @@ $w_i=0$ and is never eligible; such jobs are 14.1\% of the demand under
 the lead-time distribution of Sect.~\ref{sec:env-demand}, and the
 architecture leaves their assignment untouched. The proposal
 policy uses the current block state and job-action features $o_i^P$. It
-scores each candidate and selects the one with the lowest expected cost:
+scores each candidate and selects the one with the lowest predicted cost
+score (Sect.~\ref{sec:arch-models}):
 
 \begin{equation}
 \hat a_i=\arg\min_{a\in\mathcal A_i(t)}
@@ -115,10 +116,15 @@ reviewed once.
 \label{sec:arch-models}
 The functions $\hat c^{P}_{\theta}$ and $\hat c^{A}_{\psi}$ in
 Sect.~\ref{sec:arch-notation} are cost networks. Neither produces action
-probabilities. Each maps an observed state and one candidate to the
-expected cost after that candidate is committed. The policy evaluates
-every candidate with the same network and selects the $\arg\min$ of the
-learned cost. Both networks are multilayer perceptrons with weights
+probabilities. Each maps an observed state and one candidate to a scalar
+cost score. The score is pair-centred rather than absolute: the two
+actions of a counterfactual pair are centred on their mean before
+training (Sect.~\ref{sec:arch-labels}), so the network predicts what a
+candidate costs relative to the action it was rolled out against. Mean
+subtraction removes a constant that is common to both actions, so the
+ranking of candidates, and therefore the $\arg\min$ in~(1) and the
+comparison in~(2), is unaffected. The policy evaluates every candidate
+with the same network and selects the $\arg\min$ of the learned score. Both networks are multilayer perceptrons with weights
 shared across blocks. The proposal network has a 21-dimensional input,
 and the acceptance network has a 16-dimensional input. Both use two
 64-unit hidden layers with ReLU. They contain 5{,}633 and 5{,}313
@@ -131,7 +137,7 @@ responses from other accepting parties are excluded.
 Fig.~\ref{fig:mlp} shows one cost network. A candidate enters as a
 fixed-length vector $x\in\mathbb R^{d_{in}}$. It passes through three
 linear layers, with ReLU after the first two, and produces one scalar:
-the expected cost that follows from the candidate. Because the output is
+the pair-centred cost score of that candidate. Because the output is
 one value per candidate, the candidate-list length may change across
 decision epochs without changing the model. The same weights also apply
 to every block. The model therefore learns a common rule for evaluating
@@ -149,8 +155,8 @@ $\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_
 \vspace{2pt}
 \captionof{figure}{Structure of one cost network. The input is a fixed-length
 feature vector for one candidate, and ReLU follows each of the two
-64-unit hidden layers. The output is one expected cost. A decision
-evaluates every candidate with the same network and takes the
+64-unit hidden layers. The output is one pair-centred cost score. A
+decision evaluates every candidate with the same network and takes the
 $\arg\min$. The proposal and acceptance policies share this structure
 and differ only in input dimension, 21 and 16 respectively.}
 \label{fig:mlp}
@@ -170,14 +176,24 @@ before branching. We then run up to three worlds for three hours:
 \end{aligned}
 \end{equation}
 
-with $H=10{,}800$\,s. A decision without an acceptance request produces
-only the proposal comparison. For each policy, we centre the two actions
-on their mean, $\bar\phi_i^P=(\phi_i^F+\phi_i^P)/2$, and divide by KRW
-100{,}000. This gives
-$y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
-$y_{i,P}^P=(\phi_i^P-\bar\phi_i^P)/10^5$. We apply the same centring to
-$(\phi_i^F,\phi_i^A)$ for the acceptance policy. Mean subtraction
-removes the shared cost without changing the order of the two actions.
+with $H=10{,}800$\,s. The alternative world always reverses what the
+policy actually did. If the proposal policy proposed a change, the
+alternative keeps the current assignment; if it kept the assignment, the
+alternative commits the cheapest candidate under the current weights.
+The acceptance alternative reverses acceptance and rejection. A decision
+without an acceptance request produces only the proposal comparison.
+
+For each policy, we centre the two actions of the pair on their mean,
+$\bar\phi_i^P=(\phi_i^F+\phi_i^P)/2$, and divide by KRW 100{,}000. This
+gives $y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
+$y_{i,P}^P=(\phi_i^P-\bar\phi_i^P)/10^5$, that is, $\pm$ half the
+pairwise cost difference. We apply the same centring to
+$(\phi_i^F,\phi_i^A)$ for the acceptance policy. The reference point is
+therefore the pair itself rather than a fixed action: the target states
+how much better or worse one action was than the single alternative that
+was rolled out against it in the same world. Mean subtraction removes
+the cost the two worlds share without changing the order of the two
+actions.
 
 \subsection{Training Settings and Operational Separation}
 \label{sec:arch-train}
@@ -192,6 +208,15 @@ clipped at 1.0. Counterfactual branches run in parallel across CPU cores,
 and each day's labels are replaced after the daily update. During
 evaluation, weights are frozen, exploration is disabled, and no
 counterfactual branch is called.
+
+The labels are therefore not a fixed dataset. Every counterfactual pair
+branches from the action the current policy actually took, so the states
+that are labelled, and the alternative each is compared against, both
+move as the weights change; the labels of one pass are discarded after
+that pass. In this respect the scheme is on-policy Monte-Carlo advantage
+estimation with a simulator-generated baseline: the target is a complete
+simulated rollout to the horizon, and the method uses neither
+bootstrapping nor a policy gradient.
 
 Training both networks for 24 passes took 4.7 CPU hours. Online
 inference requires one forward pass through a small network for each

@@ -69,44 +69,56 @@ Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
 reallocation alone raises cost by 1.31\%. The total reduction therefore
 comes mainly from arrival-time adjustment.
 
-Table~\ref{tab:paired} reports the daily paired comparisons separately.
 We run every policy with the same random streams to reduce simulation
 noise, following Kleijnen's common-random-number method~\cite{ref22}.
-We treat days as independent comparison units and use a two-sided sign
-test.
+Days are treated as independent comparison units. We report two paired
+tests because they answer different questions. A two-sided sign test
+counts only the number of days on which one policy is cheaper, so it is
+blind to how large each day's difference is. A Wilcoxon signed-rank test
+ranks the differences by magnitude before summing them, so a policy that
+wins on fewer days but by a wider margin is scored differently by the
+two. The distinction matters here because the proposed policy acts
+selectively: it is not designed to win on every day but to reduce cost
+sharply on congested ones. With 28 days and no tied differences, both
+tests are computed exactly. Table~\ref{tab:paired} reports both.
 
 \begin{center}
 \begin{minipage}{\textwidth}
 \centering
 \captionof{table}{Paired daily comparison between the proposed policy and each
 comparison policy. ``Proposed lower'' counts the days on which the
-proposed policy costs less. The reported $p$ is from a two-sided sign
-test.}
+proposed policy costs less. Both $p$ values are two-sided and exact: a
+sign test, which uses only the direction of each daily difference, and a
+Wilcoxon signed-rank test, which also uses its magnitude. Values below
+0.05 are in bold.}
 \label{tab:paired}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}p{0.18\textwidth}p{0.34\textwidth}rr@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.185\textwidth}>{\raggedright\arraybackslash}p{0.30\textwidth}rrr@{}}
 \toprule
 Purpose & Comparison policy & \shortstack{Proposed lower\\days} &
-\shortstack{Two-sided sign test\\$p$} \\
+\shortstack{Sign test\\$p$} & \shortstack{Signed-rank\\$p$} \\
 \midrule
-Learning effect & Untrained model & 18/28 & 0.185 \\
-Same action range & Least-loaded block\,+\,slot rule & 20/28 & \textbf{0.036} \\
-Block rule & Least slack & 20/28 & \textbf{0.036} \\
-Block rule & First-come-first-served & 22/28 & \textbf{0.004} \\
-Block rule & Shortest processing time & 21/28 & \textbf{0.013} \\
-Block rule & Net gain & 21/28 & \textbf{0.013} \\
-Baseline & No reallocation & 26/28 & \textbf{$<$0.001} \\
+Learning effect & Untrained model & 18/28 & 0.185 & 0.164 \\
+Same action range & Least-loaded block\,+\,slot rule & 20/28 & \textbf{0.036} & \textbf{0.015} \\
+Block rule & Least slack & 20/28 & \textbf{0.036} & \textbf{$<$0.001} \\
+Block rule & First-come-first-served & 22/28 & \textbf{0.004} & \textbf{$<$0.001} \\
+Block rule & Shortest processing time & 21/28 & \textbf{0.013} & \textbf{0.006} \\
+Block rule & Net gain & 21/28 & \textbf{0.013} & \textbf{0.003} \\
+Baseline & No reallocation & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \\
 \bottomrule
 \end{tabular}
 \end{minipage}
 \end{center}
 
 The proposed policy costs less than the rule with the same block-and-time
-action range on 20 of 28 days ($p=0.036$). It costs less than the
-untrained model on 18 days, but this difference is not statistically
-clear ($p=0.185$). A Wilcoxon signed-rank test, which also uses the size
-of each daily difference, gives the same conclusions. The architecture's
+action range on 20 of 28 days (sign test $p=0.036$, signed-rank
+$p=0.015$). It costs less than the untrained model on 18 days, but this
+difference is not statistically clear under either test ($p=0.185$ and
+$p=0.164$). At the 5\% level the two tests agree on every row of
+Table~\ref{tab:paired}. They are not equally sensitive, however: the
+signed-rank $p$ is the smaller of the two in six of the seven rows, which
+is what a concentrated effect produces. The architecture's
 action range and the additional effect of learning must therefore be
 interpreted separately. The proposed policy is more expensive on only
 two days, and both differences are small, whereas the largest reductions
@@ -253,7 +265,8 @@ iterations 17--24, follows that draw rather than the fit.}
 Cost is KRW 10.00\,bn without reallocation, KRW 9.20\,bn with the
 untrained model, and KRW 8.52\,bn with the trained model. Training
 therefore adds KRW 0.675\,bn, or 45.9\% of the total reduction. However,
-the trained model costs less on only 18 of 28 days ($p=0.1849$). The
+the trained model costs less on only 18 of 28 days (sign test
+$p=0.185$, signed-rank $p=0.164$). The
 mean daily difference is KRW $-24.1$\,m, about 18 times the median of
 $-1.3$\,m. This gap shows that the learning effect is concentrated rather
 than evenly distributed. The four congested days account for 94.6\% of
@@ -262,11 +275,11 @@ corresponding counts at lower demand levels are 9/12, 5/8, and 0/4. For
 the remaining 24 days, the mean difference is $-1.5$\,m and the
 bootstrap interval includes zero.
 
-Resampling daily differences within demand strata gives a 95\% interval
-of $[-32,-17]$\,m per day for the mean difference. This procedure
-preserves the demand mix fixed by the design. Without stratification, the
-interval widens to $[-52,-3]$\,m, and 99.2\% of resamples remain
-negative. Both intervals exclude zero, but the stratified interval is
+A stratified bootstrap, which resamples the daily differences within
+demand strata with 20{,}000 resamples, gives a 95\% percentile interval
+of $[-32,-17]$\,m per day for the mean difference. Stratification
+preserves the demand mix fixed by the design. Without it, the interval
+widens to $[-52,-3]$\,m, and 99.3\% of resamples remain negative. Both intervals exclude zero, but the stratified interval is
 partly narrow by construction because each congested stratum contains
 only two days. The interpretation is therefore limited. Learning
 produces a large total reduction and is lower on all four congested
