@@ -1,84 +1,48 @@
 % =====================================================================
-\section{Reproduction}
-
-Reproduction separates the random seeds of training and evaluation and
-lets all policies on a given evaluation day share the truck demand,
-vessel schedule, and service random streams. Policy weights and the
-comparison conditions are frozen before evaluation. The policy is
-trained in a diagnostic seed band with per-day checkpoints stored; a
-30-day run per policy is then executed with frozen weights under a seed
-that does not overlap training; the middle 28 days are paired by date to
-compute total cost, median difference, and the sign test; and finally
-the block and time actions are restricted one at a time to decompose the
-source of the cost change. Seven checks listed in Sect.~5.2 are
-automated. Each day stores the four cost terms, the demand level, the
-transaction types, the unfinished jobs, and the long waits, so that a
-reproduction report can state which demand and which action produced the
-result rather than a total alone. The source code, the per-policy raw
-results, and the scripts that generate every figure are released with
-the paper.
-
-% =====================================================================
 \section{Conclusion}
 
-\subsection{Summary}
 A reinforcement learning architecture that jointly revisits the yard
 block and arrival time of external truck jobs in response to real-time
-congestion at a container terminal has been developed. The reallocation
-proposal policy and the acceptance policy have been modelled
-independently, and a central commitment procedure applies the
+congestion has been developed. The proposal and acceptance policies have
+been modelled independently, and a central procedure applies the
 assignments in one batch after checking mutual consent and resource
 constraints. The uncertainty in the induced congestion effects has been
-tackled with a counterfactual cost signal: during training, costs are
-produced by discrete-event simulations that differ in a single action,
-whereas at operating time candidates are evaluated by the trained
-networks alone. The
-construction connects truck arrival-time negotiation~\cite{ref5,ref6},
-yard crane operations~\cite{ref7,ref8}, and multi-agent counterfactual
+tackled with a counterfactual cost signal produced by discrete-event
+simulations that differ in a single action, whereas at operating time
+candidates are evaluated by the trained networks alone. The construction
+connects truck arrival-time negotiation~\cite{ref5,ref6}, yard crane
+operations~\cite{ref7,ref8}, and multi-agent counterfactual
 learning~\cite{ref10,ref11} into one spatio-temporal assignment problem.
 
-\subsection{Academic Implications}
 Three points follow. Spatial placement and temporal adjustment are
-compared within one action range, so the policy can consider both where
-congestion occurs and when it is expected. The roles of proposing and
-accepting are separated, which extends the operating logic of
-distributed appointment negotiation to a real-time reallocation
-policy~\cite{ref5,ref6}. Counterfactual comparison makes the
-contribution of a single action learnable from a joint cost, evaluating
-the induced waiting and equipment flow in the same monetary unit as the
-immediate movement cost; because the branch computation is separated
-from operation, the decision path remains a small cost model and a
-constraint check.
+compared within one action range. The roles of proposing and accepting
+are separated, extending the logic of distributed appointment
+negotiation to a real-time reallocation policy~\cite{ref5,ref6}.
+Counterfactual comparison makes the contribution of a single action
+learnable from a joint cost, evaluating induced waiting and equipment
+flow in the same monetary unit as the immediate movement cost; because
+the branch computation is separated from operation, the decision path
+remains a small cost model and a constraint check.
 
-\subsection{Application and Future Directions}
-Observations in the literature-calibrated continuous synthetic
-environment indicate that the proposed structure carries spatio-temporal
-reallocation through to execution, and that arrival-time adjustment and
-learned selection can produce a direction of cost reduction under
-congested conditions. This supports the view that real-time information
-at a smart port can lead to assignment actions rather than monitoring
-alone~\cite{ref1,ref2,ref3}. The same direction held when the action
-range was matched: arrival-time adjustment lowered cost significantly
-even under a rule ($+3.41\%$), and the proposed policy using the same
-actions was lower still (20/28, $p=0.0357$). On the arrival-time axis
-alone, however, the rule was lower on more days and the proposed policy
-led only in total, which suggests that the learned selection was
-optimised \emph{not towards winning frequently but towards reducing cost
-sharply on the expensive days}.
+Observations in the literature-calibrated environment indicate that the
+proposed structure carries spatio-temporal reallocation through to
+execution, and that arrival-time adjustment and learned selection can
+produce a direction of cost reduction under congested conditions. This
+supports the view that real-time information at a smart port can lead to
+assignment actions rather than monitoring alone~\cite{ref1,ref2,ref3}.
+The same direction held when the action range was matched, although on
+the arrival-time axis alone the rule was lower on more days and the
+proposed policy led only in total. Subsequent development can refine one
+axis at a time: reflecting actual appointment quotas would make the
+executable range of time adjustment concrete, repeating a wider variety
+of congested conditions would delineate the contribution relative to the
+untrained model, and where long-horizon effects matter a method that
+redistributes reward over the whole decision sequence can be
+compared~\cite{ref21}.
 
-Subsequent development can refine one axis at a time. Reflecting actual
-appointment quotas would make the executable range of time adjustment
-concrete, and repeating a wider variety of congested conditions would
-delineate the contribution relative to the untrained model. Where
-long-horizon effects matter, a method that redistributes reward over the
-whole decision sequence can also be compared~\cite{ref21}.
-
-\subsection{Concluding Remarks}
 Observation, proposal, acceptance, commitment, execution, and
 counterfactual learning have been organised into a single reproducible
-structure. The experimental results indicate that this structure can
-develop into a reinforcement learning policy that adjusts port space and
-time together. As automated equipment and appointment information become
+structure. As automated equipment and appointment information become
 more widespread, the proposed architecture can serve as a basis for
 connecting real-time congestion information to explainable resource
 assignment decisions.

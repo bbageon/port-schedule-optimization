@@ -1,34 +1,20 @@
 % =====================================================================
-\section{Policies and Learning}
+\section{Policies and Learning}\label{S:PoliciesandLea}
 
-\subsection{Notation and the Decision Unit}
-Let the decision interval be $\delta=60$\,s, the set of yard blocks
-$\mathcal B$, and the set of arrival-deferral candidates $\mathcal D$.
-The current assignment of job $i$ is $z_i=(b_i,\tau_i)$, where $b_i$ is
-the block and $\tau_i$ the announced expected arrival time. A
-reallocation action is
-
-\begin{equation}
-a_i=(b'_i,\Delta_i)\in\mathcal A_i(t),\qquad
-z_i(a_i)=(b'_i,\tau_i+\Delta_i).
-\end{equation}
-
-Keeping the original assignment is $a_i^0=(b_i,0)$; block reallocation
-is $b'_i\ne b_i$; arrival-time adjustment is $\Delta_i>0$. Candidates
-that change both are allowed. Outbound jobs are excluded from block
-reallocation because the container to be retrieved has a fixed location.
-
-With $n_i$ the announcement time, $g_i$ the gate-in time, and $r_i$ an
-indicator of prior review, the set newly reviewed at time $t$ is
-
-\begin{equation}
-\mathcal E_t=\{i\mid n_i\le t<n_i+\delta,\ g_i>t,\ r_i=0\}.
-\end{equation}
-
-That is, a job that has not yet arrived is reviewed at exactly one time
-point, when its announcement first enters the eligibility window.
-
-\subsection{Independent Proposal and Acceptance Policies}
+\subsection{Notation, Actions, and Policies}
+Let the decision interval be $\delta=60$\,s and let the current
+assignment of job $i$ be $z_i=(b_i,\tau_i)$, with $b_i$ the block and
+$\tau_i$ the announced arrival time. A reallocation action is
+$a_i=(b'_i,\Delta_i)\in\mathcal A_i(t)$, giving
+$z_i(a_i)=(b'_i,\tau_i+\Delta_i)$: keeping the original assignment is
+$a_i^0=(b_i,0)$, block reallocation is $b'_i\ne b_i$, and arrival-time
+adjustment is $\Delta_i>0$; candidates that change both are allowed.
+Outbound jobs are excluded from block reallocation because the container
+to be retrieved has a fixed location. With $n_i$ the announcement time,
+$g_i$ the gate-in time, and $r_i$ an indicator of prior review, the set
+newly reviewed at $t$ is
+$\mathcal E_t=\{i\mid n_i\le t<n_i+\delta,\ g_i>t,\ r_i=0\}$, so a job
+that has not yet arrived is reviewed at exactly one time point.\label{S:IndependentPro}
 The proposal policy selects the action of lowest expected cost from its
 own block state and the job and action features $o_i^P$:
 
@@ -57,117 +43,67 @@ candidates is $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$. The
 problem structure in which two independent parties negotiate arrival
 times from limited information follows~\cite{ref5,ref6}.
 
-\subsection{Central Commitment Constraints}
+\subsection{Central Commitment Constraints}\label{S:CentralCommitm}
 The central procedure creates no new candidate and commits only within
-$\mathcal J_t$. Agreed candidates are sorted by the predicted cost of
-the acceptance policy in ascending order, with ties broken
-lexicographically by job and coordinate. With $x_i\in\{0,1\}$ the
-commitment indicator, $F_b(t)$ the free slots of the destination block,
-and $K_k(t)$ the remaining quota of time slot $k$:
+$\mathcal J_t$, sorting agreed candidates by the predicted cost of the
+acceptance policy and breaking ties lexicographically. With
+$x_i\in\{0,1\}$ the commitment indicator, $F_b(t)$ the free slots of
+block $b$, and $K_k(t)$ the remaining quota of slot $k$:
 
 \begin{equation}
-x_i\le p_iq_i,\qquad
-\sum_{i\in\mathcal J_t}x_i\mathbf1[b'_i=b]\le F_b(t)
-\quad(\forall b\in\mathcal B),
-\end{equation}
-\begin{equation}
-\sum_{i\in\mathcal J_t}x_i\mathbf1[k(i)=k]\le K_k(t)
-\quad(\forall k),\qquad
-\sum_{t\in\mathcal T}\mathbf1[i\in\mathcal E_t]\le1\quad(\forall i).
+x_i\le p_iq_i,\quad
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[b'_i\!=\!b]\le F_b(t),\quad
+\sum_{i\in\mathcal J_t}\!x_i\mathbf1[k(i)\!=\!k]\le K_k(t),\quad
+\sum_{t\in\mathcal T}\!\mathbf1[i\in\mathcal E_t]\le1.
 \end{equation}
 
-Block capacity is enforced in the present experiment. Where time-slot
-quota data are unavailable we set $K_k(t)=\infty$ and interpret the
-effect of that condition as the range of what time adjustment could
-provide. All committed assignments are applied at the same instant, so a
-job committed earlier does not change the state seen by later candidates
-at the same decision point.
+Block capacity is enforced here; where time-slot quota data are
+unavailable we set $K_k(t)=\infty$ and read that condition as the range
+of what time adjustment could provide. All committed assignments are
+applied at the same instant, so a job committed earlier does not change
+the state seen by later candidates. Two conditions therefore hold by
+construction: only candidates carrying both a proposal and an acceptance
+are committed, and each job is reviewed exactly once.
 
-\subsection{Commitment Procedure}
-Algorithm~1 states both the consent condition---only candidates with a
-proposal and an acceptance are committed---and the ownership condition
-that each job is reviewed exactly once.
-
-\begin{table}[t]
-\centering
-\caption{Algorithm 1. Spatio-temporal reallocation with independent
-proposal and acceptance}
-\label{alg:realloc}
-\small
-\begin{tabular}{@{}p{0.95\textwidth}@{}}
-\toprule
-\textbf{Input} time $t$, job ledger $O$, yard state $S$, proposal model $c^P$, acceptance model $c^A$ \\
-\textbf{Output} committed reallocation set $M_t$ \\
-\midrule
-1\quad $\mathcal E_t \leftarrow$ jobs first eligible in this 60\,s interval and not yet at the gate \\
-2\quad \textbf{for} $i \in \mathrm{sort}(\mathcal E_t)$: $\hat a_i \leftarrow \arg\min_{a \in \mathcal A_i(t)} c^P(o_i^P,a)$; add to $\mathrm{Offers}$ if $\hat a_i \neq$ keep \\
-3\quad \textbf{for} $(i,\hat a_i) \in \mathrm{Offers}$: reject if the target is full, else $q_i \leftarrow \arg\min_u c^A(o_i^A,\hat a_i,u)$ \\
-4\quad $\mathcal J_t \leftarrow$ accepted candidates, sorted by (predicted cost, job ID, target coordinate) \\
-5\quad \textbf{for} $i \in \mathcal J_t$: if ownership, block capacity, and slot quota hold, add to $M_t$ \\
-6\quad record the original assignments, apply $M_t$ at once, and lock $\mathcal E_t$ as reviewed \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Policy Models and Inputs}
+\subsection{Policy Models and Inputs}\label{S:PolicyModelsan}
 Both policies are multilayer perceptrons that score fixed-length
-features per candidate, and all blocks share one set of weights. The
-proposal policy takes a 21-dimensional input and the acceptance policy a
-16-dimensional one; both use two hidden layers of 64 units with ReLU.
-The proposal policy takes the $\arg\min$ over all candidates and the
-acceptance policy over accept and reject. Inputs comprise current
-waiting, inventory, and remaining crane work, the public expected
-arrival time, the route difference, and the announced volume around the
-target time. Unrealised actual arrival and completion times, and the
-simultaneous responses of other accepting parties, are excluded.
+features per candidate, with one set of weights shared across blocks:
+21-dimensional input for the proposal policy, 16 for the acceptance
+policy, two hidden layers of 64 units with ReLU in both. Inputs comprise
+current waiting, inventory, and remaining crane work, the public
+expected arrival time, the route difference, and the announced volume
+around the target time. Unrealised actual arrival and completion times,
+and the simultaneous responses of other accepting parties, are
+excluded.
 
-\subsection{Counterfactual Cost Labels}
+\subsection{Counterfactual Cost Labels}\label{S:Counterfactual}
 For each sampled decision we clone the state and random stream
 immediately before branching and run up to three worlds for three hours:
 
 \begin{equation}
-\phi_i^F=\Phi_H(\text{observed}),\quad
-\phi_i^P=\Phi_H(\text{proposal reversed}),\quad
-\phi_i^A=\Phi_H(\text{acceptance reversed}),\quad H=10{,}800\,\mathrm{s}.
+\phi_i^F=\Phi_H(\text{observed}),
+\quad \phi_i^P=\Phi_H(\text{proposal reversed}),
+\quad \phi_i^A=\Phi_H(\text{acceptance reversed}),
 \end{equation}
 
-Decisions without an acceptance request produce only the proposal
+with $H=10{,}800$\,s. Decisions without an acceptance request produce only the proposal
 comparison. For each policy the two actions are centred on their mean
-and divided by KRW 100{,}000:
+$\bar\phi_i^P=(\phi_i^F+\phi_i^P)/2$ and divided by KRW 100{,}000,
+giving targets $y_{i,F}^P=(\phi_i^F-\bar\phi_i^P)/10^5$ and
+$y_{i,P}^P=(\phi_i^P-\bar\phi_i^P)/10^5$; the same centring is applied
+to $(\phi_i^F,\phi_i^A)$ for the acceptance policy. Subtracting the mean
+removes the shared cost without changing the order of the two actions.
+The baseline that reverses a single action connects to difference
+rewards and multi-agent counterfactual baselines~\cite{ref10,ref11}.
 
-\begin{equation}
-\bar\phi_i^P=\frac{\phi_i^F+\phi_i^P}{2},\qquad
-y_{i,F}^P=\frac{\phi_i^F-\bar\phi_i^P}{100{,}000},\qquad
-y_{i,P}^P=\frac{\phi_i^P-\bar\phi_i^P}{100{,}000}.
-\end{equation}
-
-The same centring is applied to $(\phi_i^F,\phi_i^A)$ for the acceptance
-policy. Subtracting the mean removes the shared cost without changing
-the order of the two actions. The baseline that reverses a single action
-connects to difference rewards and multi-agent counterfactual
-baselines~\cite{ref10,ref11}.
-
-\subsection{Training Settings and Operational Separation}
+\subsection{Training Settings and Operational Separation}\label{S:TrainingSettin}
 The per-day sample cap is 64 decisions and the exploration probability
-decreases linearly from 0.50 to 0.05. Training and validation are split
-80/20 at the decision level. Optimisation uses Adam with a learning rate
-of $3\times10^{-4}$, a Huber loss with $\beta=1.0$, minibatches of up to
-256 rows, and $\max(50,\min(600,4\times\text{training rows}))$ updates,
-with gradients clipped at 1.0.
-
-Counterfactual branches run in parallel across CPU cores and the labels
-generated on a given day are replaced after that day's update. At
+decreases linearly from 0.50 to 0.05, with an 80/20 train--validation
+split at the decision level. Optimisation uses Adam
+($3\times10^{-4}$), a Huber loss ($\beta=1.0$), minibatches of up to 256
+rows, $\max(50,\min(600,4\times\text{rows}))$ updates, and gradients
+clipped at 1.0. Counterfactual branches run in parallel across CPU cores
+and each day's labels are replaced after that day's update. At
 evaluation the weights are frozen, exploration is disabled, and no
-counterfactual branch is invoked. Fig.~\ref{fig:learning} shows the
-training and validation losses together with the exploration
-probability.
+counterfactual branch is invoked.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.86\textwidth]{fig3-learning.pdf}
-\caption{Training and validation loss per iteration with the exploration
-probability. One day is one iteration and 28 days are trained. The
-record is from the training run (seed 9{,}900{,}700), a different random
-condition from the evaluation in Sect.~5.}
-\label{fig:learning}
-\end{figure}
