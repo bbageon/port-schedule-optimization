@@ -208,11 +208,10 @@ absolute operating cost. Labels are centred within each counterfactual
 pair (Sect.~\ref{sec:arch-labels}), so a network predicts what one
 action costs \emph{relative to} the action it was compared against.
 Because the same constant is subtracted from both actions of a pair, the
-ordering of candidates is unchanged. The method therefore approximates
-action values rather than a policy, as deep Q-networks do~\cite{refmnih},
-but it forms its target differently: the target is a simulated cost
-difference measured to the end of a fixed horizon, not a bootstrapped
-estimate that reuses the network's own output. Second, we use small multilayer perceptrons.
+ordering of candidates is unchanged. The method therefore learns a
+value-like quantity rather than a policy. Unlike deep Q-networks, which
+bootstrap from their own estimates~\cite{refmnih}, the target here is a
+Monte-Carlo cost difference measured over a fixed horizon. Second, we use small multilayer perceptrons.
 Feedforward networks are general function approximators
 ~\cite{refhornik}, but the input structure also supports this choice.
 Each input is a fixed-length numeric vector, and candidates are scored
