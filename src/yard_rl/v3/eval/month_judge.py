@@ -66,6 +66,12 @@ class ArmMonth:
     traded: int = 0
     n_space: int = 0
     n_time: int = 0
+    #: ★구조 검증 — **이 실행이 스스로 남긴다** (2026-08-30).
+    #: 전에는 판정이 성능만 기록해서, 논문의 "구조가 작동했다" 가 자동 시험·학습
+    #: 실행 같은 **다른 출처**에 기대고 있었다. 이제 판정 산출물에 함께 남는다.
+    rollout_calls: int = 0       # 평가 중 반사실 호출 — 0 이어야 한다
+    policy_exceptions: int = 0   # 배차 예외로 WAIT 로 물러선 횟수
+    txn_failed: int = 0          # 확정 직전 제약에 걸려 되돌린 거래
 
 
 def _run_arm(kw) -> ArmMonth:
@@ -74,13 +80,18 @@ def _run_arm(kw) -> ArmMonth:
     `_label` 은 결과를 부를 이름이다 — 같은 `arm="RL"` 을 **다른 정책**으로 두 번
     굴릴 때(학습 전/후) 이름이 겹치지 않게 한다.
     """
+    from ..reward.counterfactual import reset_rollout_calls, rollout_calls
     kw = dict(kw)
     label = kw.pop("_label", kw["arm"])
+    reset_rollout_calls()          # ★이 작업자 프로세스의 계수기를 0 으로
     res = run_month(**kw)
     return ArmMonth(arm=label,
                     phi_by_day={d.index: d.phi_krw for d in res.days},
                     traded=res.traded_edges, n_space=res.n_space,
-                    n_time=res.n_time)
+                    n_time=res.n_time,
+                    rollout_calls=rollout_calls(),
+                    policy_exceptions=getattr(res, "policy_exceptions", 0),
+                    txn_failed=getattr(res, "txn_failed", 0))
 
 
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
@@ -127,14 +138,20 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
         d = json.loads(f.read_text(encoding="utf-8"))
         return ArmMonth(arm=d["arm"],
                         phi_by_day={int(k): v for k, v in d["phi_by_day"].items()},
-                        traded=d["traded"], n_space=d["n_space"], n_time=d["n_time"])
+                        traded=d["traded"], n_space=d["n_space"], n_time=d["n_time"],
+                        rollout_calls=d.get("rollout_calls", 0),
+                        policy_exceptions=d.get("policy_exceptions", 0),
+                        txn_failed=d.get("txn_failed", 0))
 
     def _save(g):
         if ck:
             (ck / f"arm_{g.arm}.json").write_text(
                 json.dumps({"arm": g.arm, "phi_by_day": g.phi_by_day,
                             "traded": g.traded, "n_space": g.n_space,
-                            "n_time": g.n_time}, ensure_ascii=False),
+                            "n_time": g.n_time,
+                            "rollout_calls": g.rollout_calls,
+                            "policy_exceptions": g.policy_exceptions,
+                            "txn_failed": g.txn_failed}, ensure_ascii=False),
                 encoding="utf-8")
 
     got, pending_jobs = [], []
@@ -215,6 +232,16 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
         out["by_wake"]["평상 다음 날"] = _slice(calm, "평상 다음 날")
 
     out["traded"] = {a: by_arm[a].traded for a in todo}
+    # ★구조 검증 요약 — 논문 "아키텍처 작동 확인" 표가 이 실행에서 나온다.
+    out["structure"] = {
+        "rollout_calls_during_eval": sum(by_arm[a].rollout_calls for a in todo),
+        "policy_exceptions": sum(by_arm[a].policy_exceptions for a in todo),
+        "txn_failed": sum(by_arm[a].txn_failed for a in todo),
+        "arms_checked": len(todo),
+    }
+    bad = out["structure"]["rollout_calls_during_eval"]
+    log(f"■ 구조 검증 — 평가 중 반사실 호출 {bad}회"
+        + ("  ✔ 통과" if bad == 0 else "  ✗ ★교사 누출"))
     _log_table(out, log)
     return out
 
