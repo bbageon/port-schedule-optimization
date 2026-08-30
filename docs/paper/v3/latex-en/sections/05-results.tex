@@ -23,9 +23,12 @@ branch that changes no action must reproduce the action and cost of the
 main run, passed 4/4 where counterfactual labels exist.
 
 \subsection{Paired Daily Comparison Across Policies}
-The cost difference is the proposed policy minus the comparison policy;
-a negative value means the proposed policy costs less. Days are treated
-as independent comparison units and a two-sided sign test is used
+Every policy is run on the same random streams, following Kleijnen's
+analysis of common random numbers, so that a difference between two
+policies is not read off simulation noise~\cite{ref22}. The cost
+difference is the proposed policy minus the comparison policy; a
+negative value means the proposed policy costs less. Days are treated as
+independent comparison units and a two-sided sign test is used
 (Table~\ref{tab:policies}). A Wilcoxon signed-rank test on the same
 pairs, which uses the size of each daily difference and not only its
 sign, reaches the same conclusion throughout and is never weaker

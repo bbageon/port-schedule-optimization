@@ -80,9 +80,8 @@ equipment side, and work there continues along two lines. On the temporal
 side, truck appointment systems spread arrival peaks and let a terminal
 and carriers negotiate arrival times against their own
 costs~\cite{ref4,ref6}. On the spatial side, yard operations research
-improves placement, work sequencing, and crane interference, and finds
-that the ranking of dispatching rules can reverse with terminal
-conditions~\cite{ref7,ref8,ref9,ref16}. Reinforcement learning has
+improves container placement, work sequencing, and the handling of crane
+interference~\cite{ref7,ref8,ref9,ref16}. Reinforcement learning has
 recently entered this layer as real-time crane
 dispatching~\cite{ref19}.
 
@@ -113,7 +112,9 @@ contributions are an \emph{independent policy structure}, a
 \emph{spatio-temporal action range}, \emph{counterfactual cost
 learning}, a \emph{separation of learning and operation}, and a
 \emph{decomposable evaluation} that reports execution, action range, and
-learning effect separately.
+learning effect separately. Sect.~2 places these choices among existing
+work, Sect.~3 describes the environment, Sect.~4 the policies and the
+learning signal, and Sect.~5 the results.
 
 \begin{figure}[tb]
 \centering
@@ -201,17 +202,8 @@ Kim et al.\ provide a related use of learning for resource-level control
 under environmental uncertainty in building demand response, and combine
 measured environmental records with synthetic parameters for the
 variation across individual units while stating the synthetic component
-declaratively~\cite{ref20}; Sect.~3.1 follows that practice. For the
-comparison itself, Kleijnen's analysis of common random numbers is the
-basis for running every policy on the same random streams, so that
-differences between policies are not read off simulation
-noise~\cite{ref22}.
+declaratively~\cite{ref20}; Sect.~3.1 follows that practice.
 
-What distinguishes this work is the combination of an action range
-covering both arrival-time adjustment and block reallocation,
-independent proposal and acceptance policies, commitment based on mutual
-consent, and the separation of counterfactual learning from operational
-inference within one architecture.
 
 % =====================================================================
 \input{sections/03-environment}
@@ -221,7 +213,7 @@ inference within one architecture.
 
 % =====================================================================
 \small
-\begin{thebibliography}{18}
+\begin{thebibliography}{15}
 \setlength{\itemsep}{0pt}
 \setlength{\parsep}{0pt}
 \setlength{\topsep}{2pt}

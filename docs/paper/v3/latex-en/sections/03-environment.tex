@@ -2,22 +2,20 @@
 \section{Experimental Environment}
 
 \subsection{A Literature-Calibrated Synthetic Environment}
-The performance of the proposed architecture is verified using numerical
-experiments. In order to conduct them in a more realistic setup, scales
-and operating ranges reported in existing container terminal studies are
-employed to the extent possible, so the environment is a
-\emph{literature-calibrated synthetic environment} rather than a replica
-of a particular terminal. Prior work reports 20
-blocks~\cite{ref16}, several cranes per block~\cite{ref8},
-multi-week continuous runs~\cite{ref9}, strong time-of-day variation in
-truck arrivals~\cite{ref13}, three vessel classes with
-differing call sizes~\cite{ref16}, and a triangular range for
-crane handling time~\cite{ref9}. Within those ranges this study fixed 21
-blocks, two cranes per block, 30 days with state carried across the
-boundary, a base plus three arrival peaks, three vessel classes, and
-180\,s of crane service time. These fixed values are design choices; the
-citations establish that they lie within the modelling range of existing
-work, not that they come from a specific port.
+The architecture is evaluated in a synthetic environment rather than on
+the operating record of a particular terminal, with scales taken from
+the studies reviewed in Sect.~2: 20 blocks~\cite{ref16}, several cranes
+per block~\cite{ref8}, multi-week continuous
+operation~\cite{ref9}, strong time-of-day variation in truck
+arrivals~\cite{ref13}, three vessel classes of differing call
+size~\cite{ref16}, and a triangular range for crane handling
+time~\cite{ref9}. Within those ranges this study fixes 21 blocks, two
+cranes per block, 30 continuous days with state carried across the day
+boundary, three vessel classes, and 180\,s of crane service time; the
+arrival curve is set out in Sect.~3.3. These fixed values are design
+choices of this study, and the citations establish only that they lie
+within the modelling range of existing work, not that they come from a
+specific port.
 
 \subsection{Terminal and Time Settings}
 The yard has 21 blocks with two cranes each (42 in total), a block
