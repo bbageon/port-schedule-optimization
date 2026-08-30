@@ -42,8 +42,9 @@ a fixed location.
 Let $n_i$ be the announcement time, $g_i$ the gate-in time, and $r_i$ an
 indicator of prior review. A job becomes eligible not when it is
 announced but when its arrival comes within a review window
-$w_i=\min(W,\ \tau_i-n_i)$ of the present, with $W=1800$\,s, so that the
-decision is taken on the freshest state the lead time allows:
+$w_i=\min(W,\ \tau_i-n_i)$ of the present, with $W=1800$\,s. This delays
+the decision until the latest feasible point before arrival, so that the
+policy uses a more recent observation of terminal conditions:
 
 \begin{equation}
 \mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ g_i>t,\ r_i=0\}.
@@ -51,9 +52,9 @@ decision is taken on the freshest state the lead time allows:
 Each job therefore enters exactly one decision interval and is never
 revisited. For a job announced at least $W$ ahead of its arrival the
 decision falls exactly $W$ before that arrival---about 46 minutes later
-than the median announcement, which is where the freshness comes
-from---while a job announced with a shorter lead is reviewed as soon as
-it is announced. A job announced no earlier than its own arrival has
+than the median announcement---while a job announced with a shorter lead
+is reviewed as soon as it is announced. The policy therefore observes a
+more recent terminal state than it would at the announcement time. A job announced no earlier than its own arrival has
 $w_i=0$ and is never eligible; such jobs are 14.1\% of the demand under
 the lead-time distribution of Sect.~\ref{sec:env-demand}, and the
 architecture leaves their assignment untouched. The proposal
@@ -66,10 +67,9 @@ score (Sect.~\ref{sec:arch-models}):
 \hat c_{\theta}^{P}(o_i^P,a),\qquad
 p_i=\mathbf 1[\hat a_i\ne a_i^0].
 \end{equation}
-If the policy proposes a change, the destination block or target time
-slot becomes the accepting party. The acceptance policy uses the
-proposal message and destination state $o_i^A$ to compare acceptance
-with rejection:
+If a change is proposed, the acceptance policy evaluates the proposed
+destination block or time slot. It uses the proposal message and the
+destination state $o_i^A$ to compare acceptance with rejection:
 
 \begin{equation}
 q_i=\mathbf 1\!\left[
@@ -114,8 +114,8 @@ Sect.~\ref{sec:arch-notation} are cost networks. Neither produces action
 probabilities. Each maps an observed state and one candidate to a scalar
 cost score. The score is pair-centred rather than absolute: the two
 actions of a counterfactual pair are centred on their mean before
-training (Sect.~\ref{sec:arch-labels}), so the network predicts what a
-candidate costs relative to the action it was rolled out against. Mean
+training (Sect.~\ref{sec:arch-labels}), so the network predicts the
+candidate's cost relative to its paired counterfactual action. Mean
 subtraction removes a constant that is common to both actions, so the
 ranking of candidates, and therefore the $\arg\min$ in~(1) and the
 comparison in~(2), is unaffected. The policy evaluates every candidate
@@ -169,8 +169,8 @@ before branching. We then run up to three worlds for three hours:
 \phi_i^A&=\Phi_H(\text{acceptance reversed}),
 \end{aligned}
 \end{equation}
-with $H=10{,}800$\,s. The alternative world always reverses what the
-policy actually did. If the proposal policy proposed a change, the
+with $H=10{,}800$\,s. The counterfactual branch reverses the policy's
+observed decision. If the proposal policy proposed a change, the
 alternative keeps the current assignment; if it kept the assignment, the
 alternative commits the cheapest candidate under the current weights.
 The acceptance alternative reverses acceptance and rejection. A decision
@@ -183,7 +183,7 @@ pairwise cost difference. We apply the same centring to
 $(\phi_i^F,\phi_i^A)$ for the acceptance policy. The reference point is
 therefore the pair itself rather than a fixed action: the target states
 how much better or worse one action was than the single alternative that
-was rolled out against it in the same world. Mean subtraction removes
+was simulated against it from the same state. Mean subtraction removes
 the cost the two worlds share without changing the order of the two
 actions.
 
@@ -208,7 +208,8 @@ that pass. In this respect the scheme is on-policy Monte-Carlo advantage
 estimation with a simulator-generated baseline: the target is a complete
 simulated rollout to the horizon, and the method uses neither
 bootstrapping nor a policy gradient.
-Training both networks for 30 passes took about 18 hours of wall-clock time on the machine used. Online
+Training both networks for 30 iterations took about 18 hours of
+wall-clock time on the machine used. Online
 inference requires one forward pass through a small network for each
 candidate. This cost is small relative to the accompanying constraint
 check. The main computational expense is counterfactual label

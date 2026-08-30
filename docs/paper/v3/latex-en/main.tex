@@ -55,7 +55,7 @@ Busan, Republic of Korea\\
 \begin{abstract}
 Container terminals assign each external-truck job to a yard block and
 an appointment time before the truck arrives. A fixed assignment,
-however, cannot reflect congestion that emerges later. This paper
+however, cannot account for congestion that emerges later. This paper
 proposes a reinforcement learning architecture that jointly revisits
 the block and arrival time of an announced job during operation. Two
 independent policies decide whether to propose a reallocation and
@@ -70,12 +70,12 @@ trained networks. We evaluate the architecture in a continuous
 synthetic environment whose time-of-day arrival variation follows the
 literature and whose demand levels are design values. Compared with no
 reallocation, the proposed architecture reduced total operating cost by
-14.7\%. It also cost less than a rule-based policy with the same
-spatio-temporal action range on 20 of 28 days ($p=0.036$).
+14.7\%. It also achieved a lower operating cost than a rule-based policy with
+the same spatio-temporal action range on 20 of 28 days ($p=0.036$).
 Arrival-time adjustments accounted for 91.3\% of the reduction, and the
 four most congested days accounted for 90.5\%. These results suggest
-that spatio-temporal reallocation is most useful as a selective response
-to observed congestion rather than as a continuous intervention.
+that spatio-temporal reallocation may be more useful as a selective
+response to observed congestion than as a continuous intervention.
 
 %  구분은 쉼표로 (사용자 지시). llncs 의 \and 는 가운뎃점(·)으로 찍히므로 쓰지 않는다.
 %  ※ 스프링거 지침은 가운뎃점을 선호한다고만 적혀 있고 강제는 아니다.
@@ -94,8 +94,8 @@ congestion in yard and gate operations. Smart-port research therefore
 addresses not only automated equipment but also operational decisions.
 Studies of port efficiency show that automation, intelligence, and
 environmental design affect performance through different channels.
-Actual gains thus depend on how a terminal turns observed information
-into operating decisions~\cite{ref1}. Existing work follows two main
+Actual gains thus depend on how a terminal translates observed
+information into operational decisions~\cite{ref1}. Existing work follows two main
 directions. On the temporal side, truck appointment systems spread
 arrival peaks and allow terminals and carriers to coordinate arrival
 times while retaining their own costs~\cite{ref4,ref6}. On the spatial
@@ -103,16 +103,15 @@ side, yard-operations research improves container placement, work
 sequencing, and crane-interference management~\cite{ref7,ref8,ref9,ref16}.
 Recent studies have also applied reinforcement learning to real-time
 yard-crane dispatching~\cite{ref19}.
-Most of these approaches assume that the working block and appointment
-time have already been fixed before the truck arrives. They improve
+Most of these approaches assume that the assigned yard block and
+appointment time are fixed before the truck arrives. They improve
 operations within that assignment. During operation, however, demand
 may concentrate in particular time slots or blocks, while crane queues
 also change. An assignment that was reasonable when announced may then
 become inefficient. This paper revisits the assignment itself. For an
 announced job, it jointly decides \emph{where} the job should be handled
 and \emph{when} the truck should arrive. Moving one job affects later
-truck queues, the crane work sequence, and vessel supply. An immediate
-movement cost cannot capture these effects. Difference rewards and
+truck queues, the crane work sequence, and vessel supply. The immediate cost of reallocation cannot capture these effects. Difference rewards and
 multi-agent counterfactual baselines address this problem by comparing
 one action with an alternative~\cite{ref10,ref11}. The destination must
 also decide whether it can absorb the job, separately from any benefit
@@ -140,11 +139,12 @@ Online operation uses only the fitted networks.}
 \label{fig:concept}
 \end{minipage}
 \end{center}
-This study asks four questions. Can the two independent policies support
-spatio-temporal reallocation? Can expensive
-counterfactual learning remain separate from online inference? Does the
-architecture reduce operating cost? Finally, can the effects of the
-action range and of learning be distinguished? Our contributions are an
+This study addresses four questions: (i) whether independent proposal
+and acceptance policies can support spatio-temporal reallocation;
+(ii) whether computationally expensive counterfactual simulation can be
+confined to offline training; (iii) whether the resulting architecture
+reduces operating cost; and (iv) how the effects of the action range and
+of learning can be distinguished. Our contributions are an
 \emph{independent policy structure}, a \emph{spatio-temporal action
 range}, \emph{counterfactual cost learning}, a \emph{separation of
 learning and operation}, and a \emph{decomposable evaluation} of
@@ -253,10 +253,10 @@ our design values.
 % =====================================================================
 \begin{credits}
 \subsubsection{\ackname}
-This work was supported by Public-Private Joint Technology
-Commercialization R\&D (Technology Transfer and Commercialization)
-(RS-2026-25529952) funded by the Ministry of SMEs and Startups (MSS,
-Korea).
+This work was supported by the Public-Private Joint Technology
+Commercialization R\&D program (Technology Transfer and
+Commercialization, RS-2026-25529952) funded by the Ministry of SMEs and
+Startups (MSS, Korea).
 
 \subsubsection{\discintname}
 The authors have no competing interests to declare that are relevant to

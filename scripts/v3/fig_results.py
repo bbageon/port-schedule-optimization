@@ -171,7 +171,7 @@ def fig_learning():
 
     #  패널 이름은 축 이름 **뒤에** 붙인다 — `figstyle.panel` 이 축 이름 아랫줄로
     #  넣기 때문에, 먼저 부르면 `set_xlabel` 이 이름을 덮어쓴다.
-    ax_e.set_xlabel("Training epoch")
+    ax_e.set_xlabel("Training iteration")
     panel(ax_e, "(c) Exploration schedule")
     ax_e.set_xlim(0.5, len(ep) + 0.5)
     ax_e.set_xticks([1, 5, 10, 15, 20, 25, 30])
@@ -183,7 +183,7 @@ def fig_learning():
         Line2D([], [], color=MUTED, lw=1.6, ls="--"),
         Patch(facecolor=BAND, alpha=0.55, lw=0),
     ]
-    labels = ["per epoch", "train (5-epoch mean)", "validation (5-epoch mean)",
+    labels = ["per iteration", "train (5-iter. mean)", "validation (5-iter. mean)",
               f"demand $\\geq$ {HEAVY:,}"]
     fig.legend(handles, labels, ncol=2, loc="outside upper center",
                handlelength=1.9, columnspacing=1.4)
