@@ -16,6 +16,15 @@ pdflatex main.tex ; pdflatex main.tex      # 두 번 (상호참조)
 **국문판은 이 폴더에 두지 않는다** (사용자 지시 2026-08-30). 국문 원고는
 `../latex/`, 영문 작업본은 `../latex-en/` 에 그대로 있다.
 
+## 제목
+
+`A Reinforcement Learning Architecture for Spatio-Temporal Reallocation in Container Terminals`
+
+작업본의 22단어 제목에서 **부제를 덜어냈다**(사용자 결정 2026-08-30). LNCS 통상 범위는
+8~15단어이고, 기여 둘(독립 제안·수락 정책 / 반사실 비용 학습)은 초록 첫 세 문장이 말한다.
+`Smart` 는 뺐다 — 평가가 합성환경이라 수식이 과하다. 검색 노출은 keyword 의
+`Smart port` 가 유지한다.
+
 ## 작업본(`../latex-en`)과 무엇이 다른가
 
 내용을 **줄인 판**이다. 21쪽 → 12쪽. 수치·주장은 같고(같은 진단 대역 시드
