@@ -1,4 +1,4 @@
-"""논문 그림의 집 규칙 — 모든 그림이 이 한 곳을 쓴다 (사용자 지시 2026-08-30).
+r"""논문 그림의 집 규칙 — 모든 그림이 이 한 곳을 쓴다 (사용자 지시 2026-08-30).
 
     from figstyle import apply, save, TEXTWIDTH_IN, P_BLUE, A_GREEN
 
@@ -32,7 +32,16 @@ LOSS_RED = "#B4534F"       # 악화
 INK = "#202124"
 MUTED = "#5F6368"
 
+#: 막대 계열 — 파랑 계단 셋은 "재배치 없음 대비", 회색 하나는 **다른 기준선**이다.
+BAR_MID = "#7FA5C0"
+BAR_PALE = "#CBDBE5"
+BAR_GREY = "#8E9498"
+
+#: 뒤에 까는 음영 (강조 구간 · 무거운 회차) — 자료를 가리지 않을 만큼만 옅게.
+BAND = "#DCE3E8"
+
 BASE_PT = 8.0              # 본문 글씨 (하한)
+PANEL_PT = 8.5             # 패널 이름 ((a) ... )
 LABEL_PT = 9.0             # 축 이름
 TICK_PT = 8.0              # 눈금
 SMALL_PT = 8.0             # 범례·주석 (하한을 지킨다)
@@ -68,6 +77,7 @@ def apply() -> None:
         "ytick.major.width": 0.8,
         "xtick.major.size": 3.0,
         "ytick.major.size": 3.0,
+        "hatch.linewidth": 0.5,         # 해칭은 가늘게 — 굵으면 막대 색을 덮는다
         "legend.frameon": False,        # 범례 테두리 없음
         "legend.fontsize": SMALL_PT,
         "lines.linewidth": 1.5,         # 자료선 1.4~1.7
@@ -78,10 +88,19 @@ def apply() -> None:
     })
 
 
-def hgrid(ax) -> None:
+def hgrid(ax, which: str = "major") -> None:
     """가로 격자만 — 세로 격자는 눈을 어지럽힌다."""
-    ax.grid(axis="y", alpha=GRID_ALPHA, linewidth=0.6, color=INK)
+    ax.grid(axis="y", which=which, alpha=GRID_ALPHA, linewidth=0.6, color=INK)
     ax.set_axisbelow(True)
+
+
+def panel(ax, text: str) -> None:
+    """패널 이름은 왼쪽 위에 **가늘게** — 굵은 제목이 아니라 길잡이다.
+
+    여러 패널로 쪼갠 그림은 어느 것이 (a) 인지 그림 안에서 말해야 캡션이 가리킬 수
+    있다. 설명은 여전히 캡션의 몫이라 이름만 짧게 둔다.
+    """
+    ax.set_title(text, loc="left", fontsize=PANEL_PT, color=INK, pad=3.0)
 
 
 def save(fig, out_dir, stem: str, root=None) -> None:
