@@ -67,61 +67,32 @@ xelatex main.tex && xelatex main.tex
 
 용량이 크다(약 2~3 GB). 자주 쓸 게 아니면 ①이 낫다.
 
-## 3. 그림 — SVG 를 PDF 로 바꿔야 한다
+## 3. 그림
 
-`figures/` 에 있는 것은 **SVG** 인데 LaTeX 는 PDF·EPS·PNG 만 직접 넣을 수 있다.
-`main.tex` 는 `fig1-architecture.pdf` 처럼 **PDF 이름으로** 부르고 있으므로 한 번
-변환해야 한다.
+그림은 `docs/paper/v3/figures/` **한 곳**에 있고 두 논문이 `\graphicspath{{../figures/}}`
+로 같이 본다. 모두 matplotlib 으로 그린 벡터 PDF 이므로 변환이 필요 없다.
 
-### Inkscape 로 (품질이 가장 좋다 · 벡터 유지)
+| 파일 | 내용 | 생성기 |
+|---|---|---|
+| `fig-arch.pdf` | 운영 추론과 오프라인 학습의 분리 | `scripts/v3/fig_arch.py` |
+| `fig-demand.pdf` | 일일 수요 분포와 시간대별 도착 과정 | `scripts/v3/fig_demand.py` |
+| `fig-mlp.pdf` | 후보별 비용 신경망의 구조 | `scripts/v3/fig_mlp.py` |
 
-```powershell
-winget install Inkscape.Inkscape
-cd docs\paper\v3\latex\figures
-Get-ChildItem *.svg | ForEach-Object {
-  inkscape $_.FullName --export-type=pdf --export-filename="$($_.BaseName).pdf"
-}
-```
-
-### Overleaf 에서 바로 (변환 없이)
-
-`main.tex` 머리말에 아래를 넣고 `\includegraphics` 를 `\includesvg` 로 바꾸면
-Overleaf 가 알아서 변환한다.
-
-```latex
-\usepackage{svg}
-\svgpath{{figures/}}
-% \includegraphics[width=...]{fig4-policies.pdf}
-% → \includesvg[width=...]{fig4-policies}
-```
-
-### 브라우저에서 그림만 보고 싶으면
-
-SVG 는 그냥 브라우저로 열면 된다.
-
-```powershell
-start docs\paper\v3\latex\figures\fig4-policies.svg
-```
-
-## 4. 그림을 다시 만들려면
-
-수치가 바뀌면 원자료에서 다시 그린다. 하드코딩된 값은 없다.
+다시 만들려면 저장소 뿌리에서 돌린다. 수치를 손으로 적어 넣은 곳은 없다 —
+`fig-demand` 는 `LOAD_WEIGHTS`·`DIURNAL_PEAKS` 를 구현에서 직접 읽는다.
 
 ```powershell
 $env:PYTHONPATH = "src"
-python scripts/v3/figures.py
-Copy-Item outputs/v3/figures/*.svg docs/paper/v3/latex/figures/
+python scripts/v3/fig_arch.py
+python scripts/v3/fig_demand.py
+python scripts/v3/fig_mlp.py
 ```
 
-| 그림 | 내용 | 원자료 |
-|---|---|---|
-| fig1 | 재배치 결정 흐름과 학습·운영 분리 | (도식) |
-| fig2 | 시간대별 도착밀도 | 식 (1)(2) |
-| fig3 | 회차별 학습·검증 손실과 탐색 확률 | `outputs/v3/month-02/history.json` |
-| fig4 | 정책별 28일 총비용 감소율 | `outputs/v3/judge-30d/arms/` |
-| fig5 | 날짜별 비용 차이 (짝비교 분포) | 〃 |
-| fig6 | 수요수준별·행동유형별 비용 감소 | 〃 |
-| fig7 | 크레인 작업순서 규칙의 수요 민감도 | `outputs/v3/base-matrix/rows.json` |
+**그림에는 제목을 넣지 않는다.** 설명은 LaTeX `\caption` 이 그림 아래에 붙인다.
+그림은 LNCS 본문 폭(4.80 in)으로 그리므로 `width=	extwidth` 로 넣으면 축소되지
+않는다 — 넓게 그려서 줄이면 글씨가 같이 줄어 읽히지 않는다.
+
+`_provided/` 에는 쓰지 않는 원본 이미지가 이유와 함께 남아 있다.
 
 ## 5. 원고 본문을 고칠 때
 
