@@ -40,10 +40,25 @@ adjustment has $\Delta_i>0$; a candidate may change both. Outbound jobs
 are excluded from block reallocation because the retrieved container has
 a fixed location.
 
-Let $n_i$ be the announcement time, $g_i$ the gate-in time, and $r_i$
-an indicator of prior review. The jobs newly eligible at time $t$ are
-$\mathcal E_t=\{i\mid n_i\le t<n_i+\delta,\ g_i>t,\ r_i=0\}$. Thus, each
-job is reviewed once after announcement and before arrival. The proposal
+Let $n_i$ be the announcement time, $g_i$ the gate-in time, and $r_i$ an
+indicator of prior review. A job becomes eligible not when it is
+announced but when its arrival comes within a review window
+$w_i=\min(W,\ \tau_i-n_i)$ of the present, with $W=1800$\,s, so that the
+decision is taken on the freshest state the lead time allows:
+
+\begin{equation}
+\mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ g_i>t,\ r_i=0\}.
+\end{equation}
+
+Each job therefore enters exactly one decision interval and is never
+revisited. For a job announced at least $W$ ahead of its arrival the
+decision falls exactly $W$ before that arrival---about 46 minutes later
+than the median announcement, which is where the freshness comes
+from---while a job announced with a shorter lead is reviewed as soon as
+it is announced. A job announced no earlier than its own arrival has
+$w_i=0$ and is never eligible; such jobs are 14.1\% of the demand under
+the lead-time distribution of Sect.~\ref{sec:env-demand}, and the
+architecture leaves their assignment untouched. The proposal
 policy uses the current block state and job-action features $o_i^P$. It
 scores each candidate and selects the one with the lowest expected cost:
 

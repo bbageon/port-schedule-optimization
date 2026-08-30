@@ -126,9 +126,9 @@ def _heavy_bands(ax, ep, loads):
 def fig_learning():
     ep, h = load_history()
     fig, axes = plt.subplots(
-        3, 1, figsize=(TEXTWIDTH_IN, 3.95), sharex=True, layout="constrained",
+        3, 1, figsize=(TEXTWIDTH_IN, 4.30), sharex=True, layout="constrained",
         gridspec_kw={"height_ratios": [1.0, 1.0, 0.38]})
-    fig.get_layout_engine().set(h_pad=0.02, w_pad=0.02, hspace=0.06,
+    fig.get_layout_engine().set(h_pad=0.02, w_pad=0.02, hspace=0.10,
                                 rect=(0, 0, 1, 1))
     ax_p, ax_a, ax_e = axes
 
@@ -158,9 +158,11 @@ def fig_learning():
     ax_e.set_yticks([0.0, 0.25, 0.5])
     ax_e.set_ylabel(r"$\varepsilon$")
     hgrid(ax_e)
-    panel(ax_e, "(c) Exploration schedule")
 
+    #  패널 이름은 축 이름 **뒤에** 붙인다 — `figstyle.panel` 이 축 이름 아랫줄로
+    #  넣기 때문에, 먼저 부르면 `set_xlabel` 이 이름을 덮어쓴다.
     ax_e.set_xlabel("Training epoch")
+    panel(ax_e, "(c) Exploration schedule")
     ax_e.set_xlim(0.5, len(ep) + 0.5)
     ax_e.set_xticks([1, 5, 10, 15, 20, 25, 30])
 
@@ -203,7 +205,7 @@ def fig_decomposition():
     heavy = [L for L in levels if L >= HEAVY]
 
     fig, (ax_l, ax_h) = plt.subplots(
-        1, 2, figsize=(TEXTWIDTH_IN, 2.70), layout="constrained",
+        1, 2, figsize=(TEXTWIDTH_IN, 2.86), layout="constrained",
         gridspec_kw={"width_ratios": [len(light), len(heavy)]})
     fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
 
@@ -291,7 +293,7 @@ def fig_paired():
     cut = len(delta) - 4          # 상위 4일이 축을 지배한다 — 나머지는 (b) 에서 본다
 
     fig, (ax_a, ax_b) = plt.subplots(
-        1, 2, figsize=(TEXTWIDTH_IN, 2.45), layout="constrained",
+        1, 2, figsize=(TEXTWIDTH_IN, 2.62), layout="constrained",
         gridspec_kw={"width_ratios": [1, 1]})
     fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02, wspace=0.06)
 

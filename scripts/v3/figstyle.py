@@ -98,12 +98,28 @@ def hgrid(ax, which: str = "major") -> None:
 
 
 def panel(ax, text: str) -> None:
-    """패널 이름은 왼쪽 위에 **가늘게** — 굵은 제목이 아니라 길잡이다.
+    """패널 이름은 **그림 아래 가운데**에 — 위는 범례 자리다 (사용자 지시 2026-08-30).
 
     여러 패널로 쪼갠 그림은 어느 것이 (a) 인지 그림 안에서 말해야 캡션이 가리킬 수
     있다. 설명은 여전히 캡션의 몫이라 이름만 짧게 둔다.
+
+    자리는 subfigure 규약과 같다 — 눈금 → 축 이름 → **패널 이름** → LaTeX 캡션.
+    위에 두면 범례와 이름이 두 줄로 겹쳐 그림 머리가 무거웠다.
+
+    ■ 왜 `set_xlabel` 에 줄을 붙이는가
+      `ax.text` 로 축 아래에 얹으면 배치기(constrained layout)가 그 자리를 **예약하지
+      않아** 아래 그림·캡션과 겹칠 수 있다. 축 이름은 예약되므로 거기에 한 줄을 더
+      붙이면 패널이 몇 개든 자리가 자동으로 잡힌다.
+
+    ⚠️ `set_xlabel` 뒤에 부른다 — 먼저 부르면 축 이름이 패널 이름을 덮어쓴다.
     """
-    ax.set_title(text, loc="left", fontsize=PANEL_PT, color=INK, pad=3.0)
+    axis_name = ax.get_xlabel()
+    if axis_name:
+        # 축 이름이 있으면 그 아랫줄 — 한 덩이 글이라 크기는 축 이름 쪽을 따른다.
+        ax.set_xlabel(f"{axis_name}\n{text}", fontsize=LABEL_PT, color=INK,
+                      linespacing=1.7)
+    else:
+        ax.set_xlabel(text, fontsize=PANEL_PT, color=INK, labelpad=4.0)
 
 
 def no_clip(ax, values, what: str, axis: str = "y") -> None:
