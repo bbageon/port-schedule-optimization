@@ -25,5 +25,4 @@
 - `scripts/v3/fig_arch.py`
 - `scripts/v3/fig_mlp.py`
 - `docs/paper/v3/figures/fig-{arch,mlp}.{pdf,svg,png}`
-- `docs/paper/v3/latex-en/figures/fig-{arch,mlp}.{pdf,svg,png}`
 - 영문·국문 조판 PDF와 렌더링 검증 기록

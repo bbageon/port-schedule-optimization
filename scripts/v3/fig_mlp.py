@@ -1,4 +1,4 @@
-"""Publication figure: the cost network evaluated once per candidate.
+"""(현재 미사용 — 사용자가 만든 fig-mlp.png 를 쓴다) Publication figure: the cost network evaluated once per candidate.
 
 Run from the repository root::
 
@@ -105,7 +105,7 @@ def draw():
     for target in TARGETS:
         target.mkdir(parents=True, exist_ok=True)
         for ext in ("pdf", "svg", "png"):
-            out = target / f"fig-mlp.{ext}"
+            out = target / f"fig-mlp-drawn.{ext}"
             fig.savefig(out, dpi=450, bbox_inches="tight", pad_inches=0.025,
                         facecolor="white")
             print(out)

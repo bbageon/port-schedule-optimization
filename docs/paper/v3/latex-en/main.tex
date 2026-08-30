@@ -119,15 +119,18 @@ learning signal, and Sect.~\ref{sec:exp} the results.
 
 \begin{figure}[tb]
 \centering
-\includegraphics[width=\textwidth]{fig-arch.pdf}
-\caption{Architecture and information flow. (a) Every 60\,s the fitted
-proposal and acceptance networks score candidates, after which the central
-procedure commits only mutually accepted and feasible changes. Executing a
-decision advances the discrete-event terminal environment and produces the
-next observed state. (b) Offline learning clones the state and random stream
-immediately before a sampled decision, compares up to three worlds over a
-3-h horizon, and fits the two networks to centred cost differences. The
-counterfactual branches are not invoked during online inference.}
+\includegraphics[width=\textwidth]{fig-system.png}
+\caption{System architecture. (A) The operating path runs every 60\,s and
+uses only the trained networks: a job becomes eligible once, the proposal
+policy takes the $\arg\min$ over its candidates, the destination policy
+accepts or rejects, and the central procedure commits only on mutual
+agreement and free capacity, otherwise the original assignment stands.
+(B) The environment in which those decisions are executed and the four
+cost terms they are judged by. (C) The learning path is offline: a
+snapshot taken immediately before a decision is replayed as parallel
+worlds that differ in one action, and the difference in accumulated cost,
+centred within each policy's own pair, becomes the training target. No
+counterfactual branch is invoked on the operating path.}
 \label{fig:arch}
 \end{figure}
 

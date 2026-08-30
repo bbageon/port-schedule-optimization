@@ -1,4 +1,4 @@
-"""Publication figure: online decision flow and offline counterfactual learning.
+"""(현재 미사용 — 사용자가 만든 fig-system.png 를 쓴다) Publication figure: online decision flow and offline counterfactual learning.
 
 Run from the repository root::
 

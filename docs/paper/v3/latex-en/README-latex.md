@@ -7,14 +7,12 @@ Springer LNCS 양식(`llncs.cls`)으로 조판한 최종 원고다. 템플릿 �
 필요한 두 파일(`llncs.cls`·`splncs04.bst`)만 여기로 복사해 왔다.
 
 ```
-latex/
-  main.tex                  ← 표제·초록·서론·관련연구·참고문헌
-  sections/03-environment.tex
-  sections/04-policy.tex
-  sections/05-results.tex
-  sections/06-conclusion.tex   ← 재현방법 + 결론
-  figures/*.svg             ← 그림 7장 (아래 §3 참조)
-  llncs.cls  splncs04.bst   ← 템플릿에서 복사
+v3/
+  figures/                  ← 국문·영문이 함께 쓰는 그림 PDF/SVG/PNG
+  latex-en/
+    main.tex                ← 표제·초록·서론·관련연구·참고문헌
+    sections/*.tex          ← 방법·환경·결과·재현방법·결론
+    llncs.cls  splncs04.bst ← LNCS 템플릿 파일
 ```
 
 ## 1. 영어판은 pdfLaTeX 로도 된다
@@ -28,12 +26,13 @@ pdflatex main.tex     # 상호참조·그림번호 확정을 위해 두 번
 
 ## 2. 보는 방법 — 셋 중 하나
 
-이 컴퓨터에는 지금 TeX 이 깔려 있지 않다(`xelatex`·`pdflatex` 둘 다 없음).
+이 저장소에서는 MiKTeX의 `pdflatex`로 빌드를 검증했다.
 
 ### ① Overleaf — 설치 없이 가장 빠름 (권장)
 
 1. <https://overleaf.com> 에서 **New Project → Upload Project**
-2. `latex/` 폴더를 통째로 zip 으로 묶어 올린다
+2. `v3/figures/`와 `v3/latex-en/`을 같은 구조로 묶어 올린다
+3. Main document를 `latex-en/main.tex`으로 정한다
 4. Recompile 하면 오른쪽에 PDF 가 나온다
 
 기본 컴파일러(pdfLaTeX)로 그대로 된다.
@@ -43,7 +42,7 @@ pdflatex main.tex     # 상호참조·그림번호 확정을 위해 두 번
 ```powershell
 winget install MiKTeX.MiKTeX
 # 설치 뒤 새 터미널에서
-cd docs\paper\v3\latex
+cd docs\paper\v3\latex-en
 pdflatex main.tex
 pdflatex main.tex
 ```
@@ -55,7 +54,7 @@ pdflatex main.tex
 
 ```bash
 sudo apt update && sudo apt install -y texlive-latex-recommended texlive-latex-extra
-cd /mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/docs/paper/v3/latex
+cd /mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/docs/paper/v3/latex-en
 pdflatex main.tex && pdflatex main.tex
 ```
 
@@ -83,12 +82,12 @@ python scripts/v3/fig_mlp.py
 ```
 
 **그림에는 제목을 넣지 않는다.** 설명은 LaTeX `\caption` 이 그림 아래에 붙인다.
-그림은 LNCS 본문 폭(4.80 in)으로 그리므로 `width=	extwidth` 로 넣으면 축소되지
+그림은 LNCS 본문 폭(4.80 in)으로 그리므로 `width=\textwidth` 로 넣으면 축소되지
 않는다 — 넓게 그려서 줄이면 글씨가 같이 줄어 읽히지 않는다.
 
 `_provided/` 에는 쓰지 않는 원본 이미지가 이유와 함께 남아 있다.
 
-## 5. 원고 본문을 고칠 때
+## 4. 원고 본문을 고칠 때
 
 LaTeX 는 [md 원고](../README.md)를 옮긴 것이다. **수치가 바뀌면 md 를 먼저 고치고**
 여기에 반영한다. 표 번호와 그림 번호는 LaTeX 가 자동으로 매기므로 본문에서는
