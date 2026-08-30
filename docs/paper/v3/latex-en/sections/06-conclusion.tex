@@ -40,15 +40,17 @@ trained model, and no reallocation under identical conditions.
 \section{Conclusion}
 
 \subsection{Summary}
-This paper proposed a reinforcement learning architecture that jointly
-revisits the yard block and arrival time of external truck jobs in
-response to real-time congestion at a container terminal. The
-reallocation proposal policy and the acceptance policy are modelled
+A reinforcement learning architecture that jointly revisits the yard
+block and arrival time of external truck jobs in response to real-time
+congestion at a container terminal has been developed. The reallocation
+proposal policy and the acceptance policy have been modelled
 independently, and a central commitment procedure applies the
 assignments in one batch after checking mutual consent and resource
-constraints. During training, counterfactual costs are produced by
-discrete-event simulations that differ in a single action; at operating
-time, candidates are evaluated by the trained networks alone. The
+constraints. The uncertainty in the induced congestion effects has been
+tackled with a counterfactual cost signal: during training, costs are
+produced by discrete-event simulations that differ in a single action,
+whereas at operating time candidates are evaluated by the trained
+networks alone. The
 construction connects truck arrival-time negotiation~\cite{ref2,ref3},
 yard crane operations~\cite{ref4,ref5}, and multi-agent counterfactual
 learning~\cite{ref7,ref8} into one spatio-temporal assignment problem.
@@ -99,8 +101,8 @@ method that redistributes reward over the whole decision sequence can
 also be compared~\cite{ref23}.
 
 \subsection{Concluding Remarks}
-This paper organises observation, proposal, acceptance, commitment,
-execution, and counterfactual learning into a single reproducible
+Observation, proposal, acceptance, commitment, execution, and
+counterfactual learning have been organised into a single reproducible
 structure. The experimental results indicate that this structure can
 develop into a reinforcement learning policy that adjusts port space and
 time together. As automated equipment and appointment information become

@@ -35,40 +35,37 @@ Acceptance Policies with Counterfactual Cost Learning}
 
 % =====================================================================
 \begin{abstract}
-Smart ports increasingly combine automated equipment with digital
-information to coordinate limited space, machinery, and vehicle flows.
-Prior work reports that the benefit of smart technology depends on
-operating conditions and on how it is applied, so the policy that turns
-observed information into actual resource decisions matters as much as
-the technology itself~\cite{ref14,ref15,ref16}.
-This paper proposes a reinforcement learning architecture that jointly
-revisits the yard block and the arrival time of an external truck job
-that has already been announced, in response to congestion observed at
-run time. A policy that requests reallocation and a policy that accepts
-it on behalf of the destination block or time slot are modelled
-independently, and only candidates on which both agree are committed by
-a central procedure under resource constraints. Each policy learns from
-the cost difference between discrete-event simulations that differ in a
-single action from the same state, while inference at operating time
-uses the trained networks alone. The architecture connects distributed
-appointment negotiation and counterfactual baseline research to the
-spatio-temporal reallocation problem~\cite{ref2,ref3,ref7,ref8}.
-
-We evaluate the architecture in a continuous synthetic environment whose
+Container terminals aim at improving the efficiency of yard and gate
+operations by shaping where and when truck jobs are served. Given that
+external truck jobs are assigned to a yard block and an appointment time
+before the truck arrives, the ability to revise those assignments as
+congestion develops is a critical component for terminal operations.
+In this study, a reinforcement learning architecture that jointly
+revisits the yard block and the arrival time of an already announced
+truck job is proposed. A significant challenge is to cope with the
+indirect effects of a reallocation: moving one job changes the waiting
+of the following trucks, the crane work sequence, and the vessel supply
+flow, so the immediate travel time alone does not reveal whether the
+action was worthwhile. We employ a counterfactual, simulation-based cost
+signal to tackle this challenge. Our novel idea is to separate the
+policy that requests a reallocation from the policy that accepts it on
+behalf of the destination block or time slot, and to let a central
+procedure commit only the candidates on which both agree under resource
+constraints. Each policy is trained on the cost difference between
+discrete-event simulations that differ in a single action from the same
+state, whereas inference at operating time uses the trained networks
+alone, so that the expensive branch simulation never enters the
+operational path. The efficacy of the proposed method is verified by
+numerical experiments based on a continuous synthetic environment whose
 terminal size, time-of-day truck arrivals, multiple yard cranes, and
 vessel call volumes follow ranges reported in the literature. Under a
-random seed not used for training, we compare against no reallocation,
-rule-based policies, and the model before training. The decision path
-from proposal through acceptance, commitment, and execution operated
-stably throughout continuous operation, and the direction of cost
-reduction was most visible in arrival-time adjustment under congested
-conditions. The trained model also showed lower cost than rule-based
-policies matched to the same action range, and the same direction was
-observed against the untrained model. The contribution lies less in a
-particular performance figure than in presenting real-time congestion
-observation, independent proposal and acceptance, mutual consent,
-counterfactual cost learning, and fast operational inference as a single
-executable structure.
+random seed not used for training, the proposed policy is compared
+against no reallocation, rule-based policies, and the model before
+training. The results indicate that the decision path operates stably
+throughout continuous operation, that the direction of cost reduction is
+concentrated in arrival-time adjustment under congested conditions, and
+that the trained model attains lower cost than rule-based policies
+matched to the same action range.
 
 \keywords{Smart port \and Container terminal \and Truck arrival
 management \and Yard block reallocation \and Counterfactual learning
@@ -118,11 +115,12 @@ with an alternative~\cite{ref7,ref8}.
 Reallocation is also difficult to commit on the benefit of the proposing
 side alone. Whether the destination block or target time slot can absorb
 the job must be judged separately. Rather than a single central policy
-that makes every decision, this paper separates proposal and acceptance
-into independent policies and leaves consent and resource feasibility to
-a central procedure.
+that makes every decision, we separate proposal and acceptance into
+independent policies and leave consent and resource feasibility to a
+central procedure.
 
 \subsection{Research Questions and Contributions}
+Four research questions are addressed in this study.
 \textbf{RQ1.}~Can spatio-temporal reallocation be composed from
 independent proposal and acceptance policies?
 \textbf{RQ2.}~Can counterfactual learning be separated from operational
@@ -132,16 +130,17 @@ operating-cost reduction?
 \textbf{RQ4.}~Can the roles of learning and of the action range be
 separated in the observed change?
 
-The contributions are fivefold: (i)~an \emph{independent policy
-structure} that separates proposal from acceptance and commits only
-mutually agreed jobs; (ii)~a \emph{spatio-temporal action range} that
+The contributions of this work are fivefold. First, an \emph{independent
+policy structure} separates proposal from acceptance and commits only
+mutually agreed jobs. Second, a \emph{spatio-temporal action range}
 treats block reallocation and arrival-time adjustment within one
-decision procedure; (iii)~\emph{counterfactual cost learning} that
-captures indirect congestion effects from simulations differing in a
-single action; (iv)~a \emph{separation of learning and operation} that
-confines expensive branch simulation to training; and (v)~a
-\emph{decomposable evaluation} that reports execution, action range, and
-learning effect separately.
+decision procedure. Third, \emph{counterfactual cost learning} captures
+indirect congestion effects from simulations differing in a single
+action. Fourth, a \emph{separation of learning and operation} confines
+the expensive branch simulation to training. Fifth, a
+\emph{decomposable evaluation} reports the execution, the action range,
+and the learning effect separately, so that the source of an observed
+change can be identified.
 
 \begin{figure}[t]
 \centering

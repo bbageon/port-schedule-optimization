@@ -1,5 +1,5 @@
 % =====================================================================
-\section{Results}
+\section{Numerical Experiments}
 
 \subsection{Scope of the Results}
 The results below come from the middle 28 days of a 30-day continuous
@@ -64,13 +64,16 @@ Untrained model & \textbf{18/28} & \textbf{0.1849} & KRW $-$1.26\,M \\
 \end{tabular}
 \end{table}
 
-Over 28 days the total cost was KRW 10.00\,bn without reallocation and
-KRW 8.52\,bn with the proposed policy, a reduction of KRW 1.471\,bn
-(14.7\%; Fig.~\ref{fig:policies}). The four rule-based policies above use
-block reallocation only, so this comparison reflects the potential of the
-architecture as a whole; a comparison matched on action range is treated
-separately in Sect.~5.6. The distribution of daily differences is shown
-in Fig.~\ref{fig:paired}.
+Fig.~\ref{fig:policies} shows the reduction rate of each policy. Over
+28 days the total cost was KRW 10.00\,bn without reallocation and KRW
+8.52\,bn with the proposed policy, a reduction of KRW 1.471\,bn
+(14.7\%). The four rule-based policies above use block reallocation
+only, so this comparison reflects the potential of the architecture as a
+whole; a comparison matched on action range is treated separately in
+Sect.~5.6. Fig.~\ref{fig:paired} depicts the daily differences sorted by
+magnitude. It can be seen that the days on which the proposed policy
+costs more are few and small, whereas the days of largest reduction are
+those of congested demand.
 
 \begin{figure}[t]
 \centering
@@ -90,10 +93,11 @@ the proposed policy costs less.}
 \end{figure}
 
 \subsection{Cost Direction by Demand Level}
-90.5\% of the total cost reduction occurred on the four days with demand
-of 12{,}500 and 15{,}000 trucks (Table~\ref{tab:byload}). This supports
-developing the architecture towards a policy that \emph{intervenes
-selectively when congestion is observed} rather than continuously.
+Note that 90.5\% of the total cost reduction occurred on the four days
+with demand of 12{,}500 and 15{,}000 trucks (Table~\ref{tab:byload}).
+This observation supports developing the architecture towards a policy
+that \emph{intervenes selectively when congestion is observed} rather
+than continuously.
 Increasing the number of congested repetitions would also raise the
 statistical certainty of the effect size.
 
@@ -116,10 +120,11 @@ Daily demand & Days & No realloc. & Proposed & Reduction & Share \\
 \end{table}
 
 \subsection{Decomposition into Block and Arrival-Time Actions}
-Over the same 28 days we allowed only one of the two actions
-(Table~\ref{tab:actions}, Fig.~\ref{fig:actions}). Arrival-time
-adjustment reduced cost by KRW 1.320\,bn on the four congested days and
-accounted for 91.4\% of the total reduction. The block-only condition
+To assess the contribution of each action, only one of the two actions
+was allowed over the same 28 days (Table~\ref{tab:actions},
+Fig.~\ref{fig:actions}). Arrival-time adjustment reduced cost by KRW
+1.320\,bn on the four congested days and accounted for 91.4\% of the
+total reduction. The block-only condition
 reduced cost by KRW 0.124\,bn under smooth and normal demand but
 increased cost at the highest demand, leaving a net increase of KRW
 0.131\,bn. This decomposition indicates that the policy can be optimised
@@ -161,11 +166,11 @@ provide, and a sensitivity analysis with finite quotas would refine the
 scope of application.
 
 \subsection{Comparison with Rule-Based Policies of the Same Action Range}
-Section~5.5 showed that most of the reduction comes from arrival-time
-adjustment. We therefore ask what happens when a rule-based policy uses
-the same action. We added two rule-based policies by transferring the
-\emph{least-loaded} criterion already used on the spatial axis to the
-temporal axis. No new parameter is introduced---only the axis on which
+Sect.~5.5 showed that most of the reduction comes from arrival-time
+adjustment, which raises the question of what a rule-based policy
+achieves when it is given the same action. To answer it, two rule-based
+policies were added by transferring the \emph{least-loaded} criterion
+already used on the spatial axis to the temporal axis. No new parameter is introduced---only the axis on which
 the criterion is applied changes---and the policies share the same
 congestion condition as the other rule-based policies.
 
@@ -197,14 +202,14 @@ Rule (block + time) vs.\ no reallocation & \multicolumn{2}{r@{}}{23/28 \quad 0.0
 \end{tabular}
 \end{table}
 
-Three observations follow. First, arrival-time adjustment lowers cost
-significantly even under a rule ($+3.41\%$, $p=0.0125$): the action
-itself carries value. Second, when the action range is matched, the
-proposed policy costs less than the rule-based policy (20/28,
-$p=0.0357$; 14.72\% against 1.51\% in total). Third, on the arrival-time
-axis alone the \emph{rule-based policy was lower on more days} (the
-proposed policy 8/28), yet the total was about four times lower for the
-proposed policy.
+Three observations can be made. First, arrival-time adjustment lowers
+cost significantly even under a rule ($+3.41\%$, $p=0.0125$), which
+indicates that the action itself carries value. Second, when the action
+range is matched, the proposed policy costs less than the rule-based
+policy (20/28, $p=0.0357$; 14.72\% against 1.51\% in total). Third, on
+the arrival-time axis alone the \emph{rule-based policy was lower on
+more days} (the proposed policy 8/28), yet the total was about four
+times lower for the proposed policy.
 
 The reason for the third observation lies in the demand-level
 decomposition. Under smooth and normal demand the rule is marginally
@@ -234,8 +239,8 @@ on a small number of congested days, repeated evaluation with more
 congested days would delineate the range of the learning contribution
 more sharply.
 
-The relative ranking of crane dispatching rules reversed with demand
-(Fig.~\ref{fig:crane}). The shortest-processing-time rule in current use
+Fig.~\ref{fig:crane} shows that the relative ranking of crane
+dispatching rules reverses with demand. The shortest-processing-time rule in current use
 showed 22--25\% higher cost than other rules under smooth and normal
 demand but was the lowest from 7{,}500 trucks upward. Weighted by the
 designed demand mix, the 30-day expected cost is lowest for the current
