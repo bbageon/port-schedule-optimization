@@ -102,6 +102,28 @@ to the proposing side. We therefore use independent proposal and
 acceptance policies, while a central procedure checks mutual consent and
 feasibility.
 
+Fig.~\ref{fig:concept} summarises the full workflow. During operation,
+observation, proposal, acceptance, commitment, and execution form a
+60-s decision cycle. Offline, the observed action and two alternatives
+are compared from the same state and random stream to construct targets
+for the proposal and acceptance cost networks. The expensive
+counterfactual branches are therefore absent from online operation.
+Sect.~\ref{sec:arch} gives the policy, commitment, and learning details.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/System Concept.png}
+\captionof{figure}{Overall concept of the proposed system. (a) Online
+operation proposes a reallocation from the observed state, asks the
+destination to accept it, and commits only changes that satisfy mutual
+consent and capacity. (b) Offline learning compares the observed action
+with counterfactual alternatives over 3 h to fit the two cost networks.
+Online operation uses only the fitted networks.}
+\label{fig:concept}
+\end{minipage}
+\end{center}
+
 This study asks four questions. Can the two independent policies support
 spatio-temporal reallocation? Can expensive
 counterfactual learning remain separate from online inference? Does the
@@ -114,22 +136,6 @@ execution, action range, and learning effect. Sect.~\ref{sec:related}
 reviews the relevant literature. Sect.~\ref{sec:arch} presents the
 architecture and learning signal, Sect.~\ref{sec:env} describes the
 experimental environment, and Sect.~\ref{sec:exp} reports the results.
-
-\begin{center}
-\begin{minipage}{\textwidth}
-\centering
-\includegraphics[width=\textwidth]{fig-arch.pdf}
-\captionof{figure}{Architecture and information flow. (a) Every 60\,s the fitted
-proposal and acceptance networks score candidates, after which the central
-procedure commits only mutually accepted and feasible changes. Executing a
-decision advances the discrete-event terminal environment and produces the
-next observed state. (b) Offline learning clones the state and random stream
-immediately before a sampled decision, compares up to three worlds over a
-3-h horizon, and fits the two networks to centred cost differences. The
-counterfactual branches are not invoked during online inference.}
-\label{fig:arch}
-\end{minipage}
-\end{center}
 
 % =====================================================================
 \section{Related Work}

@@ -2,6 +2,32 @@
 \section{Proposed Architecture}
 \label{sec:arch}
 
+Fig.~\ref{fig:arch} separates the architecture into the operational
+path, the terminal environment, and the offline learning path. The
+operational path reviews each newly announced job once and changes its
+assignment through independent proposal and acceptance policies and a
+central commitment procedure. The terminal environment then measures
+truck dwell, additional travel, rehandling, and vessel idle cost. The
+learning path clones the state and random stream immediately before a
+decision and compares the observed action with counterfactual
+alternatives. This computation remains outside the operational path.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/System Architecture.png}
+\captionof{figure}{Detailed flow of the proposed architecture. (a) Every
+60\,s, the operational path checks eligibility, proposal, acceptance,
+and commitment; failure of mutual consent or capacity keeps the original
+assignment. (b) The discrete-event environment links the gate, 21 blocks,
+two yard cranes per block, and vessel operations to calculate cost $\Phi$.
+(c) Offline learning compares up to three worlds from the same state and
+random stream over 3 h and constructs separate labels for the proposal
+and acceptance cost networks.}
+\label{fig:arch}
+\end{minipage}
+\end{center}
+
 \subsection{Notation, Actions, and Policies}
 \label{sec:arch-notation}
 The decision interval is $\delta=60$\,s. The current assignment of job
@@ -101,13 +127,17 @@ and 16 for acceptance.
 \begin{center}
 \begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=\textwidth]{fig-mlp.pdf}
+\includegraphics[width=\textwidth]{final_figure/MLP-relu.png}
+
+\vspace{3pt}
+$\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_1x+b_1)+b_2\bigr)+b_3$
+\vspace{2pt}
 \captionof{figure}{Structure of one cost network. The input is a fixed-length
-feature vector for a single candidate and the output is the cost
-expected to follow from that candidate, so a decision evaluates the same
-network once per candidate and takes the $\arg\min$. The proposal and
-acceptance policies share this shape and differ only in the input
-dimension, 21 and 16 respectively.}
+feature vector for one candidate, and ReLU follows each of the two
+64-unit hidden layers. The output is one expected cost. A decision
+evaluates every candidate with the same network and takes the
+$\arg\min$. The proposal and acceptance policies share this structure
+and differ only in input dimension, 21 and 16 respectively.}
 \label{fig:mlp}
 \end{minipage}
 \end{center}

@@ -2,6 +2,25 @@
 \section{제안 아키텍처}
 \label{sec:arch}
 
+그림~\ref{fig:arch}에는 제안 아키텍처의 운영 경로, 터미널 환경과 오프라인 학습 경로가
+나타나 있다. 운영 경로는 새로 통지된 작업을 한 번 검토하고, 독립된 제안·수락
+정책과 중앙 확정 절차를 거쳐 배정을 바꾼다. 터미널 환경은 그 결정 이후의 트럭 대기,
+추가 이동, 재취급과 선박 유휴비용을 계산한다. 학습 경로는 결정 직전의 상태와 난수를
+복제해 관측 행동과 반사실 대안을 비교하며, 이 계산은 운영 경로와 분리된다.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\includegraphics[width=\textwidth]{final_figure/System Architecture.png}
+\captionof{figure}{제안 아키텍처의 상세 흐름. (a) 운영 단계는 60초마다 자격 확인, 제안,
+수락과 확정을 수행하며, 상호 동의나 용량 조건을 만족하지 못하면 원배정을 유지한다.
+(b) 이산사건 환경은 게이트, 21개 블록, 블록당 야드 크레인 2기와 선박 작업을 연결해
+운영비 $\Phi$를 계산한다. (c) 오프라인 학습은 같은 상태와 난수 흐름에서 최대 세 세계를
+3시간 비교해 제안망과 수락망의 비용 라벨을 각각 만든다.}
+\label{fig:arch}
+\end{minipage}
+\end{center}
+
 \subsection{기호·행동·정책}
 \label{sec:arch-notation}
 결정 간격은 $\delta=60$초다. 작업 $i$의 현재 배정을 $z_i=(b_i,\tau_i)$로 나타내며,
@@ -95,11 +114,15 @@ ReLU 활성함수가 적용된다. 출력은 해당 후보 이후의 예상 비�
 \begin{center}
 \begin{minipage}{\textwidth}
 \centering
-\includegraphics[width=\textwidth]{fig-mlp.pdf}
+\includegraphics[width=\textwidth]{final_figure/MLP-relu.png}
+
+\vspace{3pt}
+$\operatorname{MLP}(x)=W_3\,\operatorname{ReLU}\bigl(W_2\,\operatorname{ReLU}(W_1x+b_1)+b_2\bigr)+b_3$
+\vspace{2pt}
 \captionof{figure}{비용 신경망 하나의 구조. 입력은 후보 하나에 대한 고정 길이 특징 벡터이고
-출력은 그 후보를 택했을 때 뒤따를 것으로 예상되는 비용이다. 따라서 한 번의 결정은 같은
-망을 후보마다 한 번씩 통과시킨 뒤 $\arg\min$ 을 취한다. 제안 정책과 수락 정책은 이
-모양을 공유하며 입력 차원만 각각 21과 16으로 다르다.}
+두 개의 64차원 은닉층에는 ReLU 활성함수를 적용한다. 출력은 그 후보를 선택한 뒤의 예상
+비용 하나다. 한 번의 결정은 같은 망으로 후보를 각각 평가한 뒤 $\arg\min$을 취한다.
+제안 정책과 수락 정책은 이 구조를 공유하며 입력 차원만 각각 21과 16으로 다르다.}
 \label{fig:mlp}
 \end{minipage}
 \end{center}
