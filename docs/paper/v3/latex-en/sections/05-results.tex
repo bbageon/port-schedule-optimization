@@ -25,57 +25,92 @@ simulation calls. The identity check also passed at all four sampled
 points with counterfactual labels: a branch that changed no action
 reproduced the action and cost of the main run.
 
-\subsection{Paired Daily Comparison Across Policies}
+\subsection{Cost Reduction and Paired Daily Comparison}
 \label{sec:exp-paired}
-We run every policy with the same random streams to reduce simulation
-noise in pairwise differences, following Kleijnen's common-random-number
-method~\cite{ref22}. Cost difference is defined as proposed minus
-comparison; a negative value means that the proposed policy costs less.
-We treat days as independent comparison units and use a two-sided sign
-test (Table~\ref{tab:policies}). A Wilcoxon signed-rank test, which also
-uses the size of each daily difference, gives the same conclusions. For
-every rule-based comparison, $p\le0.017$.
+Table~\ref{tab:policies} compares each policy's 28-day total cost with no
+reallocation. A positive value means a cost reduction, whereas a
+negative value means a cost increase. The rows are grouped by research
+question rather than ranked in one list.
 
-\begin{table}[tb]
+\begin{center}
+\begin{minipage}{\textwidth}
 \centering
-\caption{Policies evaluated on the same 28 days, sorted by cost
-reduction. The two rightmost columns compare each policy with the
-proposed policy by day. Policies that adjust arrival time reduce cost,
-whereas block-only policies remain near zero.}
+\captionof{table}{Total cost reduction by policy. Each reduction is measured
+against the 28-day total cost without reallocation. Positive values mean
+lower cost, whereas negative values mean higher cost.}
 \label{tab:policies}
 \small
-\begin{tabular}{@{}llrrr@{}}
+\begin{tabular}{@{}llr@{}}
 \toprule
-& & & \multicolumn{2}{c}{vs.\ proposed} \\
-\cmidrule(l){4-5}
-Policy & Action range & Reduction & Days lower & $p$ \\
+Policy & Action range & Reduction vs. no reallocation \\
 \midrule
-\textbf{Proposed policy} & block\,+\,time & \textbf{+14.72\%} & --- & --- \\
-Proposed, time only & time & +13.44\% & --- & --- \\
-Untrained model & block\,+\,time & +7.97\% & 18/28 & 0.185 \\
+\textbf{Proposed policy} & block\,+\,time & \textbf{+14.72\%} \\
+Proposed, time only & time & +13.44\% \\
+Proposed, block only & block & $-$1.31\% \\
 \midrule
-Rule: least-loaded slot & time & +3.41\% & --- & --- \\
-Rule: least-loaded block\,+\,slot & block\,+\,time & +1.51\% & 20/28 & \textbf{0.036} \\
+Untrained model & block\,+\,time & +7.97\% \\
 \midrule
-Rule: least slack & block & +0.53\% & 20/28 & \textbf{0.036} \\
-Rule: first-come-first-served & block & +0.17\% & 22/28 & \textbf{0.004} \\
-Rule: shortest processing time & block & +0.05\% & 21/28 & \textbf{0.013} \\
-Rule: net gain & block & $-$0.48\% & 21/28 & \textbf{0.013} \\
-Proposed, block only & block & $-$1.31\% & --- & --- \\
+Rule: least-loaded slot & time & +3.41\% \\
+Rule: least-loaded block\,+\,slot & block\,+\,time & +1.51\% \\
+Rule: least slack & block & +0.53\% \\
+Rule: first-come-first-served & block & +0.17\% \\
+Rule: shortest processing time & block & +0.05\% \\
+Rule: net gain & block & $-$0.48\% \\
 \midrule
-No reallocation & --- & 0.00\% & 26/28 & \textbf{$<$0.001} \\
+No reallocation & --- & 0.00\% \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
+\end{center}
 
 Over 28 days, total cost was KRW 10.00\,bn without reallocation and KRW
 8.52\,bn with the proposed policy. The reduction was KRW 1.471\,bn, or
-14.7\%. Table~\ref{tab:policies} reports the reduction for each policy.
-The four existing rules use block reallocation only, so this comparison
-does not separate policy quality from action range. Sect.~\ref{sec:exp-rules}
-provides a matched comparison. The proposed policy was more expensive on
-only two days, and both differences were small, whereas the largest
-reductions all occurred on congested days (Fig.~\ref{fig:paired}).
+14.7\%. Time adjustment alone reduces cost by 13.44\%, whereas block
+reallocation alone raises cost by 1.31\%. The total reduction therefore
+comes mainly from arrival-time adjustment.
+
+Table~\ref{tab:paired} reports the daily paired comparisons separately.
+We run every policy with the same random streams to reduce simulation
+noise, following Kleijnen's common-random-number method~\cite{ref22}.
+We treat days as independent comparison units and use a two-sided sign
+test.
+
+\begin{center}
+\begin{minipage}{\textwidth}
+\centering
+\captionof{table}{Paired daily comparison between the proposed policy and each
+comparison policy. ``Proposed lower'' counts the days on which the
+proposed policy costs less. The reported $p$ is from a two-sided sign
+test.}
+\label{tab:paired}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.18\textwidth}p{0.34\textwidth}rr@{}}
+\toprule
+Purpose & Comparison policy & \shortstack{Proposed lower\\days} &
+\shortstack{Two-sided sign test\\$p$} \\
+\midrule
+Learning effect & Untrained model & 18/28 & 0.185 \\
+Same action range & Least-loaded block\,+\,slot rule & 20/28 & \textbf{0.036} \\
+Block rule & Least slack & 20/28 & \textbf{0.036} \\
+Block rule & First-come-first-served & 22/28 & \textbf{0.004} \\
+Block rule & Shortest processing time & 21/28 & \textbf{0.013} \\
+Block rule & Net gain & 21/28 & \textbf{0.013} \\
+Baseline & No reallocation & 26/28 & \textbf{$<$0.001} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{center}
+
+The proposed policy costs less than the rule with the same block-and-time
+action range on 20 of 28 days ($p=0.036$). It costs less than the
+untrained model on 18 days, but this difference is not statistically
+clear ($p=0.185$). A Wilcoxon signed-rank test, which also uses the size
+of each daily difference, gives the same conclusions. The architecture's
+action range and the additional effect of learning must therefore be
+interpreted separately. The proposed policy is more expensive on only
+two days, and both differences are small, whereas the largest reductions
+all occur on congested days (Fig.~\ref{fig:paired}).
 
 \begin{center}
 \begin{minipage}{\textwidth}

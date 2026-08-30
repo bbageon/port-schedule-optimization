@@ -23,6 +23,9 @@
 \usepackage{array}
 \usepackage{caption}
 \captionsetup{font=small}
+% 국문 원고이므로 캡션 머리말도 우리말로 둔다 — 본문은 이미 "그림~5"·"표~3" 으로 부른다.
+\renewcommand{\figurename}{그림}
+\renewcommand{\tablename}{표}
 \graphicspath{{../figures/}}
 
 \begin{document}
@@ -192,8 +195,8 @@ Kim 등은 건물 수요반응에서 환경 불확실성 아래의 자원 단위
 \bibitem{refmnih} Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
 \bibitem{refhornik} Hornik, K.: Approximation capabilities of multilayer feedforward networks. Neural Netw. \textbf{4}(2), 251--257 (1991)
 \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
-\bibitem{ref24} 국토교통부: 2026년 적용 화물자동차 안전운임 고시, 제2026-402호 (2026)
-\bibitem{ref25} 해양수산부: 무역항 항만시설사용료: 접안료 요율과 산정기준
+\bibitem{ref24} Ministry of Land, Infrastructure and Transport: Notice on Safe Freight Rates for Cargo Vehicles Applicable in 2026. MOLIT Notice No. 2026-402 (2026)
+\bibitem{ref25} Ministry of Oceans and Fisheries: Regulations on the Use of Port Facilities and Fees at Trade Ports, etc. MOF Notice No. 2025-218 (2025)
 \bibitem{refhuber} Huber, P.J.: Robust estimation of a location parameter. Ann. Math. Statist. \textbf{35}(1), 73--101 (1964)
 \bibitem{ref22} Kleijnen, J.P.C.: Analyzing simulation experiments with common random numbers. Manag. Sci. \textbf{34}(1), 65--74 (1988)
 \end{thebibliography}
