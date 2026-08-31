@@ -229,7 +229,7 @@ revisited. For a job announced at least $W$ ahead of its arrival the
 decision falls exactly $W$ before that arrival, about 46 minutes later
 than the median announcement; a job announced with a shorter lead is
 reviewed immediately. A job announced no earlier than its own arrival
-has $w_i=0$ and is never eligible; such jobs are 14.1\% of the demand
+has $w_i=0$ and is never eligible; such jobs are 14.1\% of the demand,
 and the architecture leaves them untouched. The proposal policy scores
 each candidate from the block state and job-action features $o_i^P$ and
 selects the lowest score, while the acceptance policy compares
@@ -286,9 +286,9 @@ expected arrival time, route difference, and announced volume near the
 target time; unrealised arrival and completion times and simultaneous
 responses from other accepting parties are excluded. The output is one
 pair-centred cost score per candidate, so the length of the candidate
-list may change without retraining, and mean subtraction inside a pair
-removes a constant common to both actions and therefore leaves the
-ranking in~(2) unchanged.
+list may change without retraining. Mean subtraction inside a pair
+removes a constant that is common to both actions and therefore leaves
+the ranking in~(2) unchanged.
 
 \subsection{Counterfactual Cost Labels and Training}
 \label{sec:arch-labels}
@@ -420,7 +420,8 @@ compared and the first and last days only connect the continuous
 boundaries. All policies share the same truck, vessel, and service
 random streams on a given day, following the common-random-number
 method~\cite{ref22}. Implementation checks confirm that proposal and acceptance use separate
-models, that one-sided consent never commits, that realised future times
+models, that one-sided consent never produces a commitment, that realised
+future times
 are excluded from policy inputs, and that state continues across day
 boundaries; frozen-policy evaluation made zero counterfactual calls, and
 a branch that changed no action reproduced the main run at all four
@@ -448,7 +449,8 @@ they answer different questions. A two-sided sign test counts only the
 days on which one policy is cheaper, so it is blind to how large each
 day's difference is; a Wilcoxon signed-rank test ranks the differences
 by magnitude before summing them, so a policy that wins on fewer days
-but by a wider margin is scored differently by the two. The distinction
+but by a wider margin is scored differently by the two tests. The
+distinction
 matters here because the learned policy acts selectively. With 28 days
 and no tied differences, both tests are computed exactly.
 
@@ -552,8 +554,8 @@ decreases from 0.079 to 0.029 on training decisions and from 0.268 to
 five iterations, targets in units of KRW 100{,}000). The decline in
 validation loss indicates that the learned mapping generalises to
 held-out decisions, although the final validation loss remains about
-four times the training loss, which supports keeping the model small
-with about 56 labelled decisions per iteration. The share of decisions
+four times the training loss; with about 56 labelled decisions per
+iteration, this supports keeping the model small. The share of decisions
 whose counterfactual difference is exactly zero falls from 51.4\% to
 37.6\% as exploration decreases, and training used 4{,}671
 counterfactual worlds in total (Fig.~\ref{fig:learn}).
@@ -563,25 +565,24 @@ counterfactual worlds in total (Fig.~\ref{fig:learn}).
 \includegraphics[width=\textwidth]{fig-learning-curve-2p.pdf}
 \caption{Training and validation loss over the 30 iterations, with the
 per-iteration value drawn faintly beneath a five-iteration mean; the
-vertical axis is logarithmic. Shading marks the iterations whose demand
-was drawn at 12{,}500 or above, so much of the visible fluctuation
-follows that draw rather than the fit. Exploration decreased linearly
+vertical axis is logarithmic. Shading marks the iterations in which the
+demand level drawn was 12{,}500 or above, so much of the visible
+fluctuation follows that draw rather than the fit. Exploration decreased linearly
 from 0.50 to 0.05.}
 \label{fig:learn}
 \end{figure}
 
-Cost is KRW 10.00\,bn without reallocation, KRW 9.20\,bn with the
-first-iteration model, and KRW 8.52\,bn with the trained model, so the
-remaining 29 iterations add KRW 0.675\,bn, or 45.9\% of the total
+The first-iteration model cost KRW 9.20\,bn over the same days, so the
+remaining 29 iterations added KRW 0.675\,bn, or 45.9\% of the total
 reduction. The trained model is cheaper on only 18 of 28 days
 ($p=0.185$), and the four congested days account for 94.6\% of this
-increment, on all of which the trained model is cheaper. A stratified
+increment, and the trained model is cheaper on all four. A stratified
 bootstrap over the daily differences with 20{,}000 resamples gives a
 95\% interval of $[-32,-17]$\,m per day for the mean difference, which
 excludes zero: the learning effect is large in total and concentrated,
 but not frequent enough for the day-level sign test at a conventional
 significance level. Establishing it more firmly requires more congested
-days rather than more days overall. Finally, the ranking of crane-dispatching rules also changes with demand
+days rather than more days overall. Finally, the ranking of crane-dispatching rules changes with demand
 ---the shortest processing time rule is 22--25\% more expensive under
 smooth demand but the cheapest from 7{,}500 trucks upward---so the
 reallocation effect should also be tested under other rules.
@@ -596,7 +597,7 @@ policies and a central commitment step connect distributed appointment
 coordination~\cite{ref6} and yard-crane operation~\cite{ref7,ref8} into
 one spatio-temporal assignment problem, and each policy learns from
 counterfactual cost differences measured over a fixed horizon rather
-than from an immediate movement cost, which brings multi-agent
+than from an immediate movement cost; this brings multi-agent
 counterfactual learning~\cite{ref10,ref11} into the operating decision.
 Because the expensive branch simulation is used only during offline
 training, online operation requires only small cost networks and
