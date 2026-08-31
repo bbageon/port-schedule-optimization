@@ -169,7 +169,7 @@ reduces truck waiting~\cite{ref7}, multi-crane interference extends the
 scheduling problem~\cite{ref8}, block length and crane deployment govern
 terminal-wide performance under long simulations~\cite{ref9}, and the
 relative standing of dispatching rules depends on terminal
-conditions~\cite{ref16}. Both streams optimise operations \emph{after}
+conditions~\cite{ref16}. Both streams optimise operations after
 the block and the appointment have been assigned; efficiency studies
 suggest that the decision layer that produces those assignments is
 itself a lever~\cite{ref1}.
@@ -192,7 +192,7 @@ probabilities; each maps a state and one candidate action to a cost
 score, and the policy selects the lowest score. The score is not an
 absolute cost: labels are centred within each counterfactual pair
 (Sect.~\ref{sec:arch-labels}), so a network learns what one action costs
-\emph{relative to} the action it was compared against. The method
+relative to the action it was compared against. The method
 therefore learns a value-like quantity rather than a policy; unlike deep
 Q-networks, which bootstrap from their own estimates~\cite{refmnih}, the
 target here is a Monte-Carlo cost difference measured over a fixed
@@ -402,7 +402,7 @@ vessel $v$:
 \begin{aligned}
 \Phi_d&=C_{wait,d}+C_{move,d}+C_{rehandle,d}+C_{vessel,d},\\
 C_{wait}&=\sum_i 40{,}000\{h_i+\max(0,h_i-1)\},\qquad
-C_{move}=60{,}000\,m,\\
+C_{move}=60{,}000\,million,\\
 C_{rehandle}&=2{,}000\,R,\qquad
 C_{vessel}=\sum_v 2.99\,GT_v T_v.
 \end{aligned}
@@ -446,9 +446,9 @@ the learned policy.
 
 \subsection{Cost Reduction and Paired Daily Comparison}
 \label{sec:exp-paired}
-Over the 28 compared days, total cost was KRW 10.00\,bn without
-reallocation and KRW 8.52\,bn with the learned policy, a reduction of
-KRW 1.471\,bn or 14.7\% (Table~\ref{tab:main}). Days are treated as
+Over the 28 compared days, total cost was KRW 10.00\,billion without
+reallocation and KRW 8.52\,billion with the learned policy, a reduction of
+KRW 1.471\,billion or 14.7\% (Table~\ref{tab:main}). Days are treated as
 independent comparison units, and we report two paired tests because
 they answer different questions. A two-sided sign test counts only the
 days on which one policy is cheaper, so it is blind to how large each
@@ -466,8 +466,8 @@ reallocation; positive means lower cost. The paired columns compare the
 learned policy with that row's policy on the same days, and $p$ values
 are two-sided and exact. Values below 0.05 are in bold. Against no
 reallocation the two days on which the learned policy is more expensive
-cost KRW $-17.1$\,m and KRW $-0.5$\,m, whereas each of the four
-congested days exceeds KRW 290\,m.}
+cost KRW $-17.1$\,million and KRW $-0.5$\,million, whereas each of the four
+congested days exceeds KRW 290\,million.}
 \label{tab:main}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -513,7 +513,7 @@ measurable benefit even without learning. Against that rule the learned
 time-only policy is cheaper on only 8 of 28 days, which the sign test
 reports as a difference in favour of the rule ($p=0.036$); yet the
 signed-rank test finds no difference ($p=0.399$) and the learned
-policy's 28-day total is KRW 1.00\,bn lower. This is the one comparison
+policy's 28-day total is KRW 1.00\,billion lower. This is the one comparison
 in which the two tests disagree, and reporting only how often a policy
 wins would invert the conclusion.
 
@@ -525,9 +525,9 @@ action range. The four days with 12{,}500 or 15{,}000 trucks account for
 a policy that \emph{intervenes selectively when congestion is observed}
 rather than continuously. Restricting the policy to one action type at a
 time separates the two contributions: arrival-time adjustment alone
-gives KRW 1.344\,bn and block reallocation alone $-$KRW 0.131\,bn, so
-their interaction accounts for the remaining KRW 0.258\,bn of the
-KRW 1.471\,bn total. Arrival-time adjustment therefore explains 91.3\%
+gives KRW 1.344\,billion and block reallocation alone $-$KRW 0.131\,billion, so
+their interaction accounts for the remaining KRW 0.258\,billion of the
+KRW 1.471\,billion total. Arrival-time adjustment therefore explains 91.3\%
 of the reduction. This share should be read together with the cost
 structure: truck waiting is 96.4\% of total cost here, so arrival-time
 adjustment acts directly on the dominant component, and the relative
@@ -551,11 +551,12 @@ carries a different mark.}
 
 \subsection{Effect of Learning and Sensitivity to the Dispatching Rule}
 \label{sec:exp-learning}
-Across the 30 training iterations the proposal network's Huber loss
-decreases from 0.079 to 0.029 on training decisions and from 0.268 to
-0.119 on validation decisions; the acceptance network decreases from
-0.171 to 0.027 and from 0.315 to 0.136 (means over the first and last
-five iterations, targets in units of KRW 100{,}000). The decline in
+Losses below are reported in the scaled label units of
+Sect.~\ref{sec:arch-labels} as means over the first and last five of the 30
+training iterations. The proposal network's Huber loss decreases from
+0.079 to 0.029 on training decisions and from 0.268 to 0.119 on
+validation decisions; the acceptance network decreases from 0.171 to
+0.027 and from 0.315 to 0.136. The decline in
 validation loss indicates that the learned mapping generalises to
 held-out decisions, although the final validation loss remains about
 four times the training loss; with about 56 labelled decisions per
@@ -576,13 +577,13 @@ from 0.50 to 0.05.}
 \label{fig:learn}
 \end{figure}
 
-The first-iteration model cost KRW 9.20\,bn over the same days, so the
-remaining 29 iterations added KRW 0.675\,bn, or 45.9\% of the total
+The first-iteration model cost KRW 9.20\,billion over the same days, so the
+remaining 29 iterations added KRW 0.675\,billion, or 45.9\% of the total
 reduction. The trained model is cheaper on only 18 of 28 days
 ($p=0.185$), and the four congested days account for 94.6\% of this
 increment, and the trained model is cheaper on all four. A stratified
 bootstrap over the daily differences with 20{,}000 resamples gives a
-95\% interval of $[-32,-17]$\,m per day for the mean difference, which
+95\% interval of $[-32,-17]$\,million per day for the mean difference, which
 excludes zero: the learning effect is large in total and concentrated,
 but not frequent enough for the day-level sign test at a conventional
 significance level. Establishing it more firmly requires more congested
