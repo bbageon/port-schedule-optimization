@@ -344,7 +344,6 @@ measured ranges from synthetic parameters and identifying the synthetic
 component explicitly~\cite{ref20}, we state which values are design
 choices: the daily demand levels, the shape of the arrival curve, the
 counterfactual horizon, and two of the four cost coefficients.
-
 \begin{table}[tbp]
 \centering
 \caption{Experimental setup. Values marked \emph{design} are choices of
@@ -387,7 +386,6 @@ Evaluation & Days, compared, seed & 30, middle 28, 9{,}900{,}950 \\
 \bottomrule
 \end{tabular}
 \end{table}
-
 The total cost over $[d,d+1)$ is the sum of four terms, where $h_i$ is
 the dwell time of truck $i$, $m$ the additional crane working time, $R$
 the number of rehandles, and $T_v$ the policy-related idle time of
@@ -452,7 +450,6 @@ but by a wider margin is scored differently by the two tests. The
 distinction
 matters here because the learned policy acts selectively. With 28 days
 and no tied differences, both tests are computed exactly.
-
 \begin{table}[tbp]
 \centering
 \caption{Main comparison. ``Reduction'' is the 28-day total against no
@@ -488,7 +485,6 @@ No reallocation & --- & 0.00\% & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \
 \bottomrule
 \end{tabular}
 \end{table}
-
 The learned policy costs less than the rule with the same
 block-and-time action range on 20 of 28 days (sign test $p=0.036$,
 signed-rank $p=0.015$), and less than no reallocation on 26 of 28 days
@@ -557,7 +553,6 @@ iteration, this supports keeping the model small. The share of decisions
 whose counterfactual difference is exactly zero falls from 51.4\% to
 37.6\% as exploration decreases, and training used 4{,}671
 counterfactual worlds in total (Fig.~\ref{fig:learn}).
-
 \begin{figure}[bp]
 \centering
 \includegraphics[width=\textwidth]{fig-learning-curve-2p.pdf}
@@ -569,7 +564,6 @@ fluctuation follows that draw rather than the fit. Exploration decreased linearl
 from 0.50 to 0.05.}
 \label{fig:learn}
 \end{figure}
-
 The first-iteration model cost KRW 9.20\,billion over the same days, so the
 remaining 29 iterations added KRW 0.675\,billion, or 45.9\% of the total
 reduction. The trained model is cheaper on only 18 of 28 days
