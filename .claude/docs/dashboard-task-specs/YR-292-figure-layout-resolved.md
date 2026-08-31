@@ -116,6 +116,36 @@
 **결과**: 본문 들여쓰기 **0**. 기준선보다 들어간 줄은 저자 이름(가운데 정렬)과
 수식 번호(오른쪽 끝) 여섯뿐이고, 배치는 하나도 안 변했다.
 
+## 5. §5.3 을 두 줄 줄여 그림 3을 그 절의 마지막으로
+
+사용자 요청: *"그냥 5.3 의 내용을 약간만 줄여줄래? 그림이 다 들어가도록"*.
+
+**넘치는 양을 먼저 쟀다** — §5.3 본문이 11쪽으로 **정확히 두 줄**(y=119.4·131.3)
+넘쳐 결론 머리말 앞을 차지하고 있었다. 그 두 줄만큼만 줄였다.
+
+| | 이전 | 지금 |
+|---|---|---|
+| §5.3 끝 | 11쪽 y=131 | **10쪽 y=387** (그림 3 바로 위) |
+| 그림 3 | 10쪽 y=610 | 10쪽 y=610 (§5.3 의 마지막 요소) |
+| §6 시작 | 11쪽 y=161 | **11쪽 y=117 — 쪽 맨 위** |
+| 사사 | 11쪽 y=486 | 11쪽 y=442 |
+
+10쪽의 §5.3 마지막 줄은 `...should also be tested under other rules.` 로
+**문장이 끝난다**. 그 뒤에 그림 3이 온다.
+
+**줄인 것은 군더더기뿐 — 수치·p값·판정은 한 글자도 안 건드렸다.**
+
+| 이전 | 지금 |
+|---|---|
+| Losses **below are reported** in the scaled label units … of the 30 **training** iterations. | Losses **are** in the scaled label units …, as means over … of the 30 iterations. |
+| **The decline in validation loss indicates that the learned** mapping generalises …, **although the final validation loss remains** about four times … | **Validation loss declines, indicating that the** mapping generalises …, **though it stays** about four times … |
+| cheaper on **only** 18 of 28 days …, **and the trained model is cheaper on all four** | cheaper on 18 of 28 days …, and the four congested days, **on all of which it is cheaper**, account for 94.6\% … |
+| the day-level sign test **at a conventional significance level** … **rather than** more days overall | the day-level sign test … **, not** more days overall |
+
+**두 번 되돌린 것**: ①`so the mapping generalises` 는 인과를 단정하므로
+`indicating that` 으로 되돌렸다. ②`four times the training loss` 에서 뺐던
+`about` 도 되살렸다 — 근삿값을 단정으로 바꾸면 안 된다.
+
 ## 검증
 
 12쪽 · A4 · Overfull 0 · Underfull 0 · 오류 0 · 미정의 참조 0 · 인용순서 두 축 통과 ·
@@ -124,4 +154,4 @@
 
 ## Evidence
 
-`2eb47c6` (문단 병합·그림 3) · `641abf1` (그림 2) · `9e866d2` (들여쓰기 제거)
+`2eb47c6` (문단 병합·그림 3) · `641abf1` (그림 2) · `9e866d2` (들여쓰기 제거) · `8c752aa` (§5.3 축약)
