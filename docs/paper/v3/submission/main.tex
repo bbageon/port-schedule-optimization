@@ -106,7 +106,6 @@ research improves container placement, work sequencing, and
 crane-interference management~\cite{ref7,ref8,ref9,ref16}, and
 reinforcement learning has been applied to real-time yard-crane
 dispatching~\cite{ref19}.
-
 Most of these approaches assume that the assigned yard block and
 appointment time are fixed before the truck arrives and improve
 operations within that assignment. During operation, however, demand may
@@ -124,7 +123,6 @@ to the proposing side, so we use independent proposal and acceptance
 policies while a central procedure checks mutual consent and
 feasibility. Fig.~\ref{fig:arch} summarises the online decision path and
 the offline counterfactual learning procedure.
-
 This study makes three contributions: (i) a post-assignment
 spatio-temporal reallocation architecture with independent proposal and
 acceptance policies and a central commitment step; (ii) simulator-based
@@ -159,7 +157,6 @@ conditions~\cite{ref16}. Both streams optimise operations after
 the block and the appointment have been assigned; efficiency studies
 suggest that the decision layer that produces those assignments is
 itself a lever~\cite{ref1}.
-
 Reinforcement learning has entered this domain at the execution layer:
 a method based on proximal policy optimisation schedules yard cranes
 in real time across multiple blocks~\cite{ref19}. We address the preceding
@@ -172,7 +169,6 @@ multi-agent baselines compare one actor's action with an alternative
 while holding the rest fixed~\cite{ref11}. We follow this idea, but the
 baseline is produced by re-simulating the terminal rather than by a
 learned critic.
-
 Two modelling choices follow. First, the networks do not output action
 probabilities; each maps a state and one candidate action to a cost
 score, and the policy selects the lowest score. The score is not an
@@ -317,7 +313,6 @@ y_{i,P}^P=\frac{\phi_i^P-\bar\phi_i^P}{10^5},
 that is, $\pm$ half the pairwise cost difference; the same centring is
 applied to $(\phi_i^F,\phi_i^A)$. The reference point is therefore the
 pair itself rather than a fixed action.
-
 We sample at most 64 decisions per day, split them 80/20 into training
 and validation, and optimise with Adam ($3\times10^{-4}$) and Huber loss
 ($\beta=1.0$), which prevents a few very large counterfactual
@@ -418,7 +413,6 @@ truck dwell coefficient. Congestion changes the cost structure as well
 as its level: waiting is 83.2\% of cost at 3{,}500 trucks per day and
 99.1\% at 15{,}000, and the daily 90th-percentile turn time ranges from
 0.79\,h on the lightest days to 7.49\,h on the heaviest.
-
 The evaluation uses a 30-day continuous run with a random seed held
 out from training; the middle 28 days are
 compared and the first and last days only connect the continuous
@@ -504,7 +498,6 @@ but this difference is not statistically significant under either test
 row of Table~\ref{tab:main}, although the signed-rank $p$ is the smaller
 of the two in most rows, which is consistent with an effect concentrated
 in a small number of high-cost days.
-
 The temporal comparison shows why both tests are needed.
 Restricted to arrival-time adjustment, the rule that transfers the
 least-loaded criterion to the temporal axis reduces cost by 3.41\%
@@ -613,7 +606,6 @@ arrival-time adjustment on congested days. Because a rule can be
 cheaper on more days while the
 learned policy is cheaper in total, both the frequency of lower-cost
 outcomes and the aggregate reduction are needed for interpretation.
-
 These results establish the architecture in a literature-based synthetic
 environment rather than estimating performance at a particular terminal,
 and the concentration of the effect on congested days suggests operating

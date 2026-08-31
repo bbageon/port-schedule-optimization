@@ -143,7 +143,10 @@ def fig_learning(with_eps: bool = True, stem: str = "fig-learning-curve"):
     n_ax = 3 if with_eps else 2
     heights = [1.0, 1.0, 0.38] if with_eps else [1.0, 1.0]
     fig, axes = plt.subplots(
-        n_ax, 1, figsize=(TEXTWIDTH_IN, 4.30 if with_eps else 3.25),
+        #  ★2패널(제출본)은 높이를 3.25 -> 2.70 in 으로 줄였다. 폭과 글자 크기는
+        #   그대로 두고 **높이만** 줄인 것이라 가독성 손실이 없다. 이유는 조판:
+        #   3.25 in 이면 그림이 5장 밖으로 밀려 결론·사사 아래에 앉는다 (YR-292).
+        n_ax, 1, figsize=(TEXTWIDTH_IN, 4.30 if with_eps else 2.70),
         sharex=True, layout="constrained",
         gridspec_kw={"height_ratios": heights})
     fig.get_layout_engine().set(h_pad=0.02, w_pad=0.02, hspace=0.10,
