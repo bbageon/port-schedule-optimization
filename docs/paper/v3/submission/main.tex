@@ -42,7 +42,7 @@
 %  넘었다. 기여 둘(독립 제안·수락 정책 / 반사실 비용 학습)은 초록 첫 세 문장이 말한다.
 %  "Smart" 는 뺐다: 평가가 합성환경이라 수식이 과하다 (keyword 에는 남겨 검색은 유지).
 \title{A Reinforcement Learning Architecture for Spatio-Temporal
-Reallocation in Container Terminals}
+Reallocation in Time-Coupled Real-Time Operations}
 \titlerunning{RL Architecture for Spatio-Temporal Reallocation}
 
 \author{Geon-U Kim \and Bong-Jun Choi\textsuperscript{\Letter}}
@@ -127,7 +127,11 @@ counterfactual cost learning that keeps expensive branch simulation
 offline and leaves only small networks and constraint checks online; and
 (iii) an evaluation that separates the effect of the action range from
 the effect of learning, and that reports both how often and by how much
-the learned policy is cheaper. Sect.~\ref{sec:related} reviews related
+the learned policy is cheaper. The architecture is stated for real-time operational systems in which
+an assignment can be revised while its consequences appear only later,
+and it is instantiated and evaluated here in a container-terminal
+environment.
+Sect.~\ref{sec:related} reviews related
 work, Sect.~\ref{sec:arch} presents the architecture and the learning
 signal, Sect.~\ref{sec:env} describes the environment and the evaluation
 protocol, and Sect.~\ref{sec:exp} reports the results.
@@ -189,10 +193,12 @@ Q-networks, which bootstrap from their own estimates~\cite{refmnih}, the
 target here is a Monte-Carlo cost difference measured over a fixed
 horizon. Second, the approximator is a small multilayer perceptron.
 Feedforward networks are general approximators~\cite{refhornik}, and the
-input structure supports the choice: inputs are fixed-length numeric
-vectors, candidates are scored independently, there is no temporal order
-for a recurrent or attention model to exploit, and the number of labels
-is small.
+input structure supports the choice. The environment is time-coupled,
+but that coupling enters through the label, which is a forward
+simulation over a fixed horizon, rather than through the policy input:
+each candidate is scored from a fixed-length vector of the current
+state, candidates are scored independently, and the number of labels is
+small.
 
 % =====================================================================
 \section{Proposed Architecture}
