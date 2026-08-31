@@ -141,20 +141,6 @@ work, Sect.~\ref{sec:arch} presents the architecture and the learning
 signal, Sect.~\ref{sec:env} describes the environment and the evaluation
 protocol, and Sect.~\ref{sec:exp} reports the results.
 
-\begin{figure}[tbp]
-\centering
-\includegraphics[width=\textwidth]{system-architecture.png}
-\caption{The proposed architecture. (a) Every 60\,s the operational path
-checks eligibility, proposal, acceptance, and commitment; failure of
-mutual consent or capacity keeps the original assignment. (b) The
-discrete-event environment links the gate, 21 blocks, two yard cranes
-per block, and vessel operations to calculate the cost $\Phi$.
-(c) Offline learning compares up to three worlds from the same state and
-random stream over 3\,h and builds separate labels for the proposal and
-acceptance cost networks.}
-\label{fig:arch}
-\end{figure}
-
 % =====================================================================
 \section{Related Work}
 \label{sec:related}
@@ -207,6 +193,20 @@ independently, and the number of labels is small.
 % =====================================================================
 \section{Proposed Architecture}
 \label{sec:arch}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{system-architecture.png}
+\caption{The proposed architecture. (a) Every 60\,s the operational path
+checks eligibility, proposal, acceptance, and commitment; failure of
+mutual consent or capacity keeps the original assignment. (b) The
+discrete-event environment links the gate, 21 blocks, two yard cranes
+per block, and vessel operations to calculate the cost $\Phi$.
+(c) Offline learning compares up to three worlds from the same state and
+random stream over 3\,h and builds separate labels for the proposal and
+acceptance cost networks.}
+\label{fig:arch}
+\end{figure}
 
 \subsection{Notation, Actions, and Policies}
 \label{sec:arch-notation}
