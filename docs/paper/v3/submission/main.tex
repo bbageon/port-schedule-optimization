@@ -540,15 +540,12 @@ carries a different mark.}
 
 \subsection{Effect of Learning and Sensitivity to the Dispatching Rule}
 \label{sec:exp-learning}
-Losses below are reported in the scaled label units of
-Sect.~\ref{sec:arch-labels} as means over the first and last five of the 30
-training iterations. The proposal network's Huber loss decreases from
+Losses are in the scaled label units of Sect.~\ref{sec:arch-labels},
+as means over the first and last five of the 30 iterations. The proposal network's Huber loss decreases from
 0.079 to 0.029 on training decisions and from 0.268 to 0.119 on
 validation decisions; the acceptance network decreases from 0.171 to
-0.027 and from 0.315 to 0.136. The decline in
-validation loss indicates that the learned mapping generalises to
-held-out decisions, although the final validation loss remains about
-four times the training loss; with about 56 labelled decisions per
+0.027 and from 0.315 to 0.136. Validation loss declines, indicating that the mapping generalises
+to held-out decisions, though it stays about four times the training loss; with about 56 labelled decisions per
 iteration, this supports keeping the model small. The share of decisions
 whose counterfactual difference is exactly zero falls from 51.4\% to
 37.6\% as exploration decreases, and training used 4{,}671
@@ -566,15 +563,14 @@ from 0.50 to 0.05.}
 \end{figure}
 The first-iteration model cost KRW 9.20\,billion over the same days, so the
 remaining 29 iterations added KRW 0.675\,billion, or 45.9\% of the total
-reduction. The trained model is cheaper on only 18 of 28 days
-($p=0.185$), and the four congested days account for 94.6\% of this
-increment, and the trained model is cheaper on all four. A stratified
+reduction. The trained model is cheaper on 18 of 28 days
+($p=0.185$), and the four congested days, on all of which it is
+cheaper, account for 94.6\% of this increment. A stratified
 bootstrap over the daily differences with 20{,}000 resamples gives a
 95\% interval of $[-32,-17]$\,million per day for the mean difference, which
 excludes zero: the learning effect is large in total and concentrated,
-but not frequent enough for the day-level sign test at a conventional
-significance level. Establishing it more firmly requires more congested
-days rather than more days overall. Finally, the ranking of crane-dispatching rules changes with demand
+but not frequent enough for the day-level sign test. Establishing it
+more firmly requires more congested days, not more days overall. Finally, the ranking of crane-dispatching rules changes with demand
 ---the shortest processing time rule is 22--25\% more expensive under
 smooth demand but the cheapest from 7{,}500 trucks upward---so the
 reallocation effect should also be tested under other rules.
