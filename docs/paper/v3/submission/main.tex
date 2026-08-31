@@ -419,8 +419,8 @@ as its level: waiting is 83.2\% of cost at 3{,}500 trucks per day and
 99.1\% at 15{,}000, and the daily 90th-percentile turn time ranges from
 0.79\,h on the lightest days to 7.49\,h on the heaviest.
 
-The evaluation uses a 30-day continuous run with random seed
-9{,}900{,}950, which was not used in training; the middle 28 days are
+The evaluation uses a 30-day continuous run with a random seed held
+out from training; the middle 28 days are
 compared and the first and last days only connect the continuous
 boundaries. All policies share the same truck, vessel, and service
 random streams on a given day, following the common-random-number
@@ -616,7 +616,9 @@ outcomes and the aggregate reduction are needed for interpretation.
 These results establish the architecture in a literature-based synthetic
 environment rather than estimating performance at a particular terminal,
 and the concentration of the effect on congested days suggests operating
-the policy selectively rather than continuously. Future work will extend
+the policy selectively rather than continuously. They rest on a
+single 30-day realisation and carry no estimate of variation across
+realisations. Future work will extend
 the framework along three axes: terminal-specific arrival, demand, and
 cost data; executable appointment quotas and alternative acceptance
 structures, including the value of the acceptance veto; and robustness
