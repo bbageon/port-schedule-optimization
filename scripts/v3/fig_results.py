@@ -234,7 +234,11 @@ def fig_decomposition():
     #   대신 혼잡 구간에 음영을 깔아, 쪼개기가 나르던 "비혼잡 → 혼잡 전환"을 유지한다.
     #   ⚠️ 값의 폭이 15배(47 vs 747백만원)라 원활한 쪽 막대는 작게 찍힌다. 그래서
     #      짧은 막대에는 숫자를 함께 적는다 — 부호와 크기를 표 없이도 읽게.
-    fig, ax = plt.subplots(1, 1, figsize=(TEXTWIDTH_IN, 2.86),
+    #  ★높이 2.86 -> 2.15 in. 폭과 글자 크기는 그대로 두고 **높이만** 줄였다.
+    #   2.86 이면 그림 2·3이 한 쪽의 위·아래 띠를 다 먹어 그 쪽에 본문이 한 줄도
+    #   못 들어갔다 (10쪽이 그림만 있는 쪽이 됐다). 낮추니 두 그림이 9·10쪽으로
+    #   갈라져 각각 본문 아래에 앉는다 (YR-293).
+    fig, ax = plt.subplots(1, 1, figsize=(TEXTWIDTH_IN, 2.15),
                            layout="constrained")
     fig.get_layout_engine().set(w_pad=0.03, h_pad=0.02)
 
