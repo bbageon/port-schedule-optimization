@@ -18,12 +18,25 @@ pdflatex main.tex ; pdflatex main.tex      # 두 번 (상호참조)
 
 ## 제목
 
-`A Reinforcement Learning Architecture for Spatio-Temporal Reallocation in Container Terminals`
+`A Reinforcement Learning Architecture for Spatio-Temporal Reallocation in Real-Time Operations with Delayed Effects`
 
-작업본의 22단어 제목에서 **부제를 덜어냈다**(사용자 결정 2026-08-30). LNCS 통상 범위는
-8~15단어이고, 기여 둘(독립 제안·수락 정책 / 반사실 비용 학습)은 초록 첫 세 문장이 말한다.
-`Smart` 는 뺐다 — 평가가 합성환경이라 수식이 과하다. 검색 노출은 keyword 의
-`Smart port` 가 유지한다.
+두 번 줄였다. ①작업본의 22단어 제목에서 **부제를 덜어내고** `Smart` 를 뺐다
+②도메인 단어(`Container Terminals`)를 빼고 **문제의 성격**으로 바꿨다 —
+"실시간으로 돌아가고, 지금 내린 결정의 결과가 나중에 나타나는 운영".
+
+`Delayed Effects` 는 **초록이 이미 쓰는 말**이다("To capture these delayed
+effects, each policy learns from cost differences…"). 제목의 핵심어를 초록이
+스스로 정의하는 구조라 따로 설명이 필요 없다.
+
+제목이 도메인을 벗은 만큼 본문 두 곳이 그것을 책임진다:
+
+- **§1 범위 문장** — 아키텍처는 실시간 운영 시스템 일반을 대상으로 서술하되
+  **여기서는 컨테이너 터미널 환경에 구현·평가**했다고 밝힌다.
+- **§2** — "지연 효과는 정책 **입력**이 아니라 **라벨**(고정 지평을 앞으로 굴린
+  결과)이 나른다". 순환망(LSTM 등)을 쓰지 않는 이유가 여기서 설명된다.
+
+⚠️ 작업본(`../latex-en`, `../latex`)의 제목은 아직 이전 안(`Time-Coupled
+Real-Time Operations`)이다 — 제출본만 먼저 바꿨다(사용자 지시 2026-08-31).
 
 ## 작업본(`../latex-en`)과 무엇이 다른가
 
