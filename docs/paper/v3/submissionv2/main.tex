@@ -83,10 +83,11 @@ the same spatio-temporal action range on 20 of 28 days ($p=0.036$).
 Arrival-time adjustment was the larger contributor, and the four most
 congested days accounted for 90.5\% of the reduction. In a controlled
 sweep in which congested days rose from 2 to 14 out of 28, the share of
-spatial actions fell monotonically from 32\% to 12\%, and the gain from
-training was statistically detectable only in the most congested
-environment. These results suggest that spatio-temporal reallocation may
-be more useful as a selective response to observed congestion than as a
+spatial actions fell monotonically from 32\% to 12\%, and the day-level sign test
+detected the gain from training only in the most congested environment. Arrival-time results assume no appointment-quota
+limit and therefore bound the potential rather than an executable
+schedule. These results suggest that spatio-temporal reallocation may be
+more useful as a selective response to observed congestion than as a
 continuous intervention.
 
 \keywords{Smart port, Container terminal, Truck appointment system,
@@ -225,14 +226,14 @@ before arrival, so the policy uses a more recent observation of terminal
 conditions:
 
 \begin{equation}
-\mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ g_i>t,\ r_i=0\}.
+\mathcal E_t=\{i\mid w_i-\delta<\tau_i-t\le w_i,\ \tau_i>t,\ g_i>t,\ r_i=0\}.
 \end{equation}
 Each job therefore enters exactly one decision interval and is never
 revisited. For a job announced at least $W$ ahead of its arrival the
 decision falls exactly $W$ before that arrival, about 46 minutes later
 than the median announcement; a job announced with a shorter lead is
 reviewed immediately. A job announced no earlier than its own arrival
-has $w_i=0$ and is never eligible; such jobs are 14.1\% of the demand,
+has $w_i\le0$ and is never eligible; such jobs are 14.1\% of the demand,
 and the architecture leaves them untouched. The proposal policy scores
 each candidate from the block state and job-action features $o_i^P$ and
 selects the lowest score, while the acceptance policy compares
@@ -258,8 +259,10 @@ form $\mathcal J_t=\{i\in\mathcal E_t\mid p_iq_i=1\}$.
 \subsection{Central Commitment}
 \label{sec:arch-commit}
 The central procedure creates no new candidates. It considers only
-$\mathcal J_t$, sorted by the acceptance policy's predicted cost with
-lexicographic tie-breaking. With $x_i\in\{0,1\}$ indicating commitment,
+$\mathcal J_t$, ordered by the acceptance policy's predicted score with
+lexicographic tie-breaking. Because scores are pair-centred
+(Sect.~\ref{sec:arch-labels}) they are not calibrated across jobs, so this
+order fixes a deterministic sequence rather than a priority. With $x_i\in\{0,1\}$ indicating commitment,
 $F_b(t)$ the free slots in block $b$, and $K_k(t)$ the remaining quota
 of time slot $k$, it enforces
 
@@ -396,7 +399,7 @@ vessel $v$:
 \begin{aligned}
 \Phi_d&=C_{wait,d}+C_{move,d}+C_{rehandle,d}+C_{vessel,d},\\
 C_{wait}&=\sum_i 40{,}000\{h_i+\max(0,h_i-1)\},\qquad
-C_{move}=60{,}000\,million,\\
+C_{move}=60{,}000\,m,\\
 C_{rehandle}&=2{,}000\,R,\qquad
 C_{vessel}=\sum_v 2.99\,GT_v T_v.
 \end{aligned}
@@ -476,9 +479,11 @@ No reallocation & --- & 0.00\% & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \
 \end{tabular}
 \end{table}
 \noindent
-Days are treated as
-independent comparison units, and we report two paired tests because
-they answer different questions. A two-sided sign test counts only the
+Days are the comparison
+units. State carries across day boundaries, so they are not independent
+replications: the tests below compare policies on a common trajectory,
+not over independent runs. We report two because they answer different
+questions. A two-sided sign test counts only the
 days on which one policy is cheaper; a Wilcoxon signed-rank test ranks
 the differences by magnitude first, so a policy that wins on fewer days
 but by a wider margin is scored differently. The distinction matters
@@ -599,7 +604,8 @@ training, online operation requires only small cost networks and
 constraint checks. In the synthetic environment the architecture reduced
 cost by 14.7\% against no reallocation and was cheaper than a rule with
 the same action range on 20 of 28 days; the reduction came mainly from
-arrival-time adjustment on congested days.
+arrival-time adjustment on congested days, measured without an
+appointment-quota limit.
 These results establish the architecture in a literature-based synthetic
 environment rather than at a particular terminal, and the concentration
 of the effect on congested days suggests operating the policy

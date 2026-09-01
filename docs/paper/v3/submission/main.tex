@@ -80,9 +80,11 @@ reallocation, the architecture reduced total operating cost by 14.7\%
 over 28 days, and it achieved a lower cost than a rule-based policy with
 the same spatio-temporal action range on 20 of 28 days ($p=0.036$).
 Arrival-time adjustments accounted for 91.3\% of the reduction, and the
-four most congested days for 90.5\%. These results suggest that
-spatio-temporal reallocation may be more useful as a selective response
-to observed congestion than as a continuous intervention.
+four most congested days for 90.5\%. Arrival-time results assume no
+appointment-quota limit and therefore bound the potential rather than an
+executable schedule. These results suggest that spatio-temporal
+reallocation may be more useful as a selective response to observed
+congestion than as a continuous intervention.
 
 \keywords{Smart port, Container terminal, Truck appointment system,
 Yard block reallocation, Counterfactual cost learning, Reinforcement
@@ -395,7 +397,7 @@ vessel $v$:
 \begin{aligned}
 \Phi_d&=C_{wait,d}+C_{move,d}+C_{rehandle,d}+C_{vessel,d},\\
 C_{wait}&=\sum_i 40{,}000\{h_i+\max(0,h_i-1)\},\qquad
-C_{move}=60{,}000\,million,\\
+C_{move}=60{,}000\,m,\\
 C_{rehandle}&=2{,}000\,R,\qquad
 C_{vessel}=\sum_v 2.99\,GT_v T_v.
 \end{aligned}
@@ -592,7 +594,8 @@ training, online operation requires only small cost networks and
 constraint checks. In the synthetic environment the architecture reduced
 cost by 14.7\% against no reallocation and was cheaper than a rule with
 the same action range on 20 of 28 days; the reduction came mainly from
-arrival-time adjustment on congested days. Because a rule can be
+arrival-time adjustment on congested days, measured without an
+appointment-quota limit. Because a rule can be
 cheaper on more days while the
 learned policy is cheaper in total, both the frequency of lower-cost
 outcomes and the aggregate reduction are needed for interpretation.
