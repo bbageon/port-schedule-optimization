@@ -21,7 +21,9 @@ from scipy import stats
 
 from figdata import month
 
-TEX = (ROOT / "docs/paper/v3/submission/main.tex").read_text(encoding="utf-8")
+#  원고 경로는 인자로 받는다 — 제출본과 v2 를 같은 잣대로 잰다.
+PAPER = sys.argv[1] if len(sys.argv) > 1 else "docs/paper/v3/submission"
+TEX = (ROOT / PAPER / "main.tex").read_text(encoding="utf-8")
 MN, BN = 1e6, 1e9
 SEED = 9_900_950
 
@@ -68,7 +70,10 @@ def main():
     bad += not check("시각만 (십억원)", t_only, "1.344", "{:.3f}")
     bad += not check("블록만 (십억원)", b_only, "$-$KRW 0.131", "{:.3f}")
     bad += not check("상호작용 (십억원)", total - t_only - b_only, "0.258", "{:.3f}")
-    bad += not check("시각 비중 %", 100 * t_only / total, "91.3", "{:.1f}")
+    #  ★집계 비중은 환경마다 달라진다 (67·79·81·53.8·91.3%). 민감도를 보고하는
+    #   원고는 이 값을 쓰지 않으므로 대조도 건너뛴다.
+    if "controlled sweep" not in TEX:
+        bad += not check("시각 비중 %", 100 * t_only / total, "91.3", "{:.1f}")
     heavy = [i for i in days if load[i] >= 12_500]
     share = sum(arms["NO_REALLOC"][i] - arms["RL"][i] for i in heavy) / (base - tot["RL"])
     bad += not check("혼잡 나흘 비중 %", 100 * share, "90.5", "{:.1f}")
@@ -96,8 +101,11 @@ def main():
     print("\n[학습 효과]")
     bad += not check("1회차 모형 총액 (십억원)", tot["RL_EARLY"] / BN, "KRW 9.20")
     bad += not check("학습의 몫 (십억원)", (tot["RL_EARLY"] - tot["RL"]) / BN, "0.675", "{:.3f}")
-    bad += not check("학습의 몫 비중 %",
-                     100 * (tot["RL_EARLY"] - tot["RL"]) / (base - tot["RL"]), "45.9", "{:.1f}")
+    #  ★학습의 몫 비중도 분모(전체 감소)가 환경마다 두 배씩 달라 비교가 안 된다.
+    #   민감도를 보고하는 원고는 절대액과 중앙값으로 대신하므로 대조를 건너뛴다.
+    if "controlled sweep" not in TEX:
+        bad += not check("학습의 몫 비중 %",
+                         100 * (tot["RL_EARLY"] - tot["RL"]) / (base - tot["RL"]), "45.9", "{:.1f}")
     inc = tot["RL_EARLY"] - tot["RL"]
     inc_heavy = sum(arms["RL_EARLY"][i] - arms["RL"][i] for i in heavy)
     bad += not check("혼잡 나흘이 학습 몫에서 차지 %", 100 * inc_heavy / inc, "94.6", "{:.1f}")
@@ -130,7 +138,61 @@ def main():
     bad += not check("회차당 라벨 평균", sum(r["n_labels"] for r in h) / len(h), "56", "{:.0f}")
     bad += not check("반사실 세계 합계", sum(r["worlds"] for r in h), "4{,}671", "{:.0f}")
 
+    bad += sweep_checks()
+
     print(f"\n대조 실패 {bad}건")
+    return bad
+
+
+def sweep_checks():
+    """혼잡 빈도 민감도 — 세 환경의 값을 원자료에서 다시 계산해 대조한다.
+
+    시드는 셋 다 9,900,980 으로 같고 혼잡일 빈도만 2/6/14 로 다르다.
+    규약대로 첫날·마지막날을 뺀 가운데 28일만 쓴다.
+    """
+    from math import comb
+
+    if "controlled sweep" not in TEX:
+        return 0                      # 민감도를 안 쓰는 원고면 건너뛴다
+    print("\n[혼잡 빈도 민감도]")
+    bad = 0
+    ARMS = ("NO_REALLOC", "RL", "RL_SPACE", "RL_TIME", "RL_EARLY")
+    want = {
+        "env-quiet": dict(t="67", b="$+$KRW 0.23", sp="32.0", g="0.18",
+                          med="$+$0.8", sign="17/28", p="0.345"),
+        "env-mixed": dict(t="79", b="$-$KRW 2.40", sp="21.5", g="1.51",
+                          med="$-$0.1", sign="14/28", p="1.000"),
+        "env-heavy": dict(t="81", b="$+$KRW 1.17", sp="11.9", g="1.60",
+                          med="$+$9.7", sign="22 of 28", p="0.004"),
+    }
+    for env, w in want.items():
+        phi, meta = {}, {}
+        for a in ARMS:
+            d = json.loads((ROOT / f"outputs/v3/{env}/arms/arm_{a}.json")
+                           .read_text(encoding="utf-8"))
+            phi[a] = d["phi_by_day"]
+            meta[a] = d
+        days = sorted(set(phi["NO_REALLOC"]) & set(phi["RL"]), key=int)[1:-1]
+        base = sum(phi["NO_REALLOC"][d] for d in days)
+        tot = base - sum(phi["RL"][d] for d in days)
+        t_only = base - sum(phi["RL_TIME"][d] for d in days)
+        b_only = base - sum(phi["RL_SPACE"][d] for d in days)
+        gain = sum(phi["RL_EARLY"][d] - phi["RL"][d] for d in days)
+        dl = sorted((phi["RL_EARLY"][d] - phi["RL"][d]) / MN for d in days)
+        med = (dl[len(dl) // 2 - 1] + dl[len(dl) // 2]) / 2
+        pos = sum(1 for d in days if phi["RL_EARLY"][d] > phi["RL"][d])
+        n = sum(1 for d in days if phi["RL_EARLY"][d] != phi["RL"][d])
+        k = min(pos, n - pos)
+        pval = min(1.0, 2 * sum(comb(n, i) for i in range(k + 1)) / 2 ** n)
+        ns, nt = meta["RL"]["n_space"], meta["RL"]["n_time"]
+
+        bad += not check(f"{env} 시각 몫%", t_only / tot * 100, w["t"], "{:.0f}")
+        bad += not check(f"{env} 블록만 (십억)", b_only / BN, w["b"], "{:.2f}")
+        bad += not check(f"{env} 공간 비중%", ns / (ns + nt) * 100, w["sp"], "{:.1f}")
+        bad += not check(f"{env} 학습 몫 (십억)", gain / BN, w["g"], "{:.2f}")
+        bad += not check(f"{env} 학습 중앙값 (백만)", med, w["med"], "{:.1f}")
+        bad += not check(f"{env} 학습 부호", f"{pos}/{n}", w["sign"])
+        bad += not check(f"{env} 학습 p", pval, w["p"], "{:.3f}")
     return bad
 
 
