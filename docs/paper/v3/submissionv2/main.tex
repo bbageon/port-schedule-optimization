@@ -31,6 +31,7 @@
 \usepackage{caption}
 \captionsetup{font=small}
 \usepackage{marvosym}          % \Letter — 교신저자 표시
+\usepackage{float}
 \usepackage{flafter}           % 부동체가 정의 지점보다 앞서 나오지 않게
 \graphicspath{{figures/}}
 
@@ -193,7 +194,6 @@ independently, and the number of labels is small.
 % =====================================================================
 \section{Proposed Architecture}
 \label{sec:arch}
-
 \begin{figure}[bp]
 \centering
 \includegraphics[width=\textwidth]{system-architecture.png}
@@ -206,7 +206,6 @@ to three worlds from the same state and random stream over 3\,h and
 labels the two cost networks.}
 \label{fig:arch}
 \end{figure}
-
 \subsection{Notation, Actions, and Policies}
 \label{sec:arch-notation}
 The decision interval is $\delta=60$\,s. The current assignment of job
@@ -342,10 +341,9 @@ yard of roughly twenty blocks~\cite{ref16}, multiple cranes per block~\cite{ref8
 multi-week operation~\cite{ref9}, strong time-of-day variation in truck
 arrivals~\cite{ref13}, three vessel classes~\cite{ref16}, and a reported
 range of crane handling times~\cite{ref9}---and Table~\ref{tab:setup}
-lists the values used within them. Following the practice of separating
-measured ranges from synthetic parameters and identifying the synthetic
-component explicitly~\cite{ref20}, we state which values are design
-choices: the daily demand levels, the shape of the arrival curve, the
+lists the values used within them. Following the practice of separating measured ranges from synthetic
+parameters and marking the latter~\cite{ref20}, we state which values are
+design choices: the daily demand levels, the arrival curve, the
 counterfactual horizon, and two of the four cost coefficients.
 \begin{table}[bp]
 \centering
@@ -407,13 +405,12 @@ The base monetary scale is
 derived from the safe trucking freight rate~\cite{ref24}, whereas the
 conversion to an hourly dwell-cost coefficient is a design choice.
 Structural vessel time that the policy cannot change is recorded
-separately. Waiting dominates the total: $C_{wait}$ accounts for 96.4\%,
-against 2.2\% for rehandling, 1.2\% for vessel idling, and 0.1\% for
-crane movement, so conclusions based on $\Phi$ are driven mainly by the
-truck dwell coefficient. Congestion changes the cost structure as well
-as its level: waiting is 83.2\% of cost at 3{,}500 trucks per day and
-99.1\% at 15{,}000, and the daily 90th-percentile turn time ranges from
-0.79\,h on the lightest days to 7.49\,h on the heaviest.
+separately. Waiting dominates: $C_{wait}$ is 96.4\% of the total, against 2.2\% for
+rehandling, 1.2\% for vessel idling and 0.1\% for crane movement, so
+$\Phi$ is driven mainly by the truck dwell coefficient. Congestion
+changes the structure as well as the level: waiting is 83.2\% of cost at
+3{,}500 trucks per day and 99.1\% at 15{,}000, and the daily
+90th-percentile turn time ranges from 0.79 to 7.49\,h.
 The evaluation uses a 30-day continuous run with a random seed held
 out from training; the middle 28 days are
 compared and the first and last days only connect the continuous
@@ -421,9 +418,8 @@ boundaries. All policies share the same truck, vessel, and service
 random streams on a given day, following the common-random-number
 method~\cite{ref22}. Implementation checks confirm that proposal and acceptance use separate
 models, that one-sided consent never produces a commitment, that realised
-future times
-are excluded from policy inputs, and that state continues across day
-boundaries; frozen-policy evaluation made zero counterfactual calls, and
+future times are excluded from policy inputs, and that state continues
+across day boundaries; frozen-policy evaluation made zero counterfactual calls, and
 a branch that changed no action reproduced the main run at all four
 sampled points. We compare the learned policy with three groups:
 its own ablations, which allow only arrival-time adjustment or only
@@ -443,17 +439,8 @@ the learned policy.
 \label{sec:exp-paired}
 Over the 28 compared days, total cost was KRW 10.00\,billion without
 reallocation and KRW 8.52\,billion with the learned policy, a reduction of
-KRW 1.471\,billion or 14.7\% (Table~\ref{tab:main}). Days are treated as
-independent comparison units, and we report two paired tests because
-they answer different questions. A two-sided sign test counts only the
-days on which one policy is cheaper, so it is blind to how large each
-day's difference is; a Wilcoxon signed-rank test ranks the differences
-by magnitude before summing them, so a policy that wins on fewer days
-but by a wider margin is scored differently by the two tests. The
-distinction
-matters here because the learned policy acts selectively. With 28 days
-and no tied differences, both tests are computed exactly.
-\begin{table}[tbp]
+KRW 1.471\,billion or 14.7\% (Table~\ref{tab:main}).
+\begin{table}[H]
 \centering
 \caption{Main comparison. ``Reduction'' is the 28-day total against no
 reallocation; positive means lower cost. The paired columns compare the
@@ -488,15 +475,22 @@ No reallocation & --- & 0.00\% & 26/28 & \textbf{$<$0.001} & \textbf{$<$0.001} \
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent
+Days are treated as
+independent comparison units, and we report two paired tests because
+they answer different questions. A two-sided sign test counts only the
+days on which one policy is cheaper; a Wilcoxon signed-rank test ranks
+the differences by magnitude first, so a policy that wins on fewer days
+but by a wider margin is scored differently. The distinction matters
+because the learned policy acts selectively. With 28 days
+and no tied differences, both tests are computed exactly.
 The learned policy costs less than the rule with the same
 block-and-time action range on 20 of 28 days (sign test $p=0.036$,
 signed-rank $p=0.015$), and less than no reallocation on 26 of 28 days
 ($p<0.001$). It costs less than the first-iteration model on 18 days,
-but this difference is not statistically significant under either test
-($p=0.185$ and $p=0.164$). At the 5\% level the two tests agree on every
-row of Table~\ref{tab:main}, although the signed-rank $p$ is the smaller
-of the two in most rows, which is consistent with an effect concentrated
-in a small number of high-cost days.
+but not significantly under either test ($p=0.185$, $p=0.164$). At the 5\% level the two tests agree on every
+row of Table~\ref{tab:main}, though the signed-rank $p$ is usually the
+smaller, consistent with an effect concentrated in a few high-cost days.
 The temporal comparison shows why both tests are needed.
 Restricted to arrival-time adjustment, the rule that transfers the
 least-loaded criterion to the temporal axis reduces cost by 3.41\%
@@ -513,7 +507,7 @@ wins would invert the conclusion.
 \label{sec:exp-decomp}
 Fig.~\ref{fig:decomp} decomposes the reduction by demand level and by
 action range.
-\begin{figure}[tbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{fig-decomposition.pdf}
 \caption{Cost reduction by demand level, decomposed by action range, in
@@ -524,6 +518,7 @@ learned policy minus the first-iteration model. The split between the two
 action types is specific to this demand mix.}
 \label{fig:decomp}
 \end{figure}
+\noindent
 The four days with 12{,}500 or 15{,}000 trucks account for
 90.5\% of the total, which supports developing the architecture towards
 a policy that \emph{intervenes selectively when congestion is observed}
@@ -558,7 +553,7 @@ iteration, this supports keeping the model small. The share of decisions
 whose counterfactual difference is exactly zero falls from 51.4\% to
 37.6\% as exploration decreases, and training used 4{,}671
 counterfactual worlds in total (Fig.~\ref{fig:learn}).
-\begin{figure}[bp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{fig-learning-curve-2p.pdf}
 \caption{Training and validation loss over the 30 iterations; the faint
@@ -569,24 +564,23 @@ that draw rather than the fit. Exploration fell linearly from 0.50 to
 0.05.}
 \label{fig:learn}
 \end{figure}
+\noindent
 The first-iteration model cost KRW 9.20\,billion over the same days, so the
 remaining 29 iterations added KRW 0.675\,billion. Across the same sweep
 the training gain was KRW 0.18, 1.51 and 1.60\,billion, but its median
 per-day value was $+$0.8, $-$0.1 and $+$9.7\,million, and the day-level
 sign test rejected only in the most congested environment (22 of 28,
 $p=0.004$, against 17/28 $p=0.345$ and 14/28 $p=1.000$): training pays
-off on the typical day only when congestion is frequent. Here the
-trained model is cheaper on 18 of 28 days
-($p=0.185$), and the four congested days, on all of which it is
-cheaper, account for 94.6\% of this increment. A stratified
-bootstrap over the daily differences with 20{,}000 resamples gives a
-95\% interval of $[-32,-17]$\,million per day for the mean difference, which
-excludes zero: the learning effect is large in total and concentrated,
-but not frequent enough for the day-level sign test. Establishing it
-more firmly requires more congested days, not more days overall. Finally, the ranking of crane-dispatching rules changes with demand
----the shortest processing time rule is 22--25\% more expensive under
-smooth demand but the cheapest from 7{,}500 trucks upward---so the
-reallocation effect should also be tested under other rules.
+off on the typical day only when congestion is frequent. Here the trained model is cheaper on 18 of 28 days ($p=0.185$), and the
+four congested days, on all of which it is cheaper, account for 94.6\% of
+this increment. A stratified bootstrap over the daily differences with
+20{,}000 resamples gives a 95\% interval of $[-32,-17]$\,million per day,
+which excludes zero: the learning effect is large and concentrated but
+not frequent enough for the day-level sign test, so establishing it more
+firmly requires more congested days, not more days overall. Finally, the ranking of crane-dispatching rules changes with demand---the
+shortest processing time rule is 22--25\% more expensive under smooth
+demand but the cheapest from 7{,}500 trucks upward---so the reallocation
+effect should also be tested under other rules.
 
 % =====================================================================
 \section{Conclusion}
@@ -605,22 +599,18 @@ training, online operation requires only small cost networks and
 constraint checks. In the synthetic environment the architecture reduced
 cost by 14.7\% against no reallocation and was cheaper than a rule with
 the same action range on 20 of 28 days; the reduction came mainly from
-arrival-time adjustment on congested days. Because a rule can be
-cheaper on more days while the
-learned policy is cheaper in total, both the frequency of lower-cost
-outcomes and the aggregate reduction are needed for interpretation.
+arrival-time adjustment on congested days.
 These results establish the architecture in a literature-based synthetic
-environment rather than estimating performance at a particular terminal,
-and the concentration of the effect on congested days suggests operating
-the policy selectively rather than continuously. A sweep over the frequency of congested
+environment rather than at a particular terminal, and the concentration
+of the effect on congested days suggests operating the policy
+selectively. A sweep over the frequency of congested
 days leaves the aggregate result and the shift from spatial to temporal
 action intact, but shows that the split between the two contributions is
-not stably estimated at 28 days. Future work will extend
-the framework along three axes: terminal-specific arrival, demand, and
-cost data; executable appointment quotas and alternative acceptance
-structures, including the value of the acceptance veto; and robustness
-across counterfactual horizons, cost structures, and crane-dispatching
-rules.
+not stably estimated at 28 days. Future work will extend the framework along three axes:
+terminal-specific arrival, demand, and cost data; appointment quotas and
+alternative acceptance structures, including the value of the acceptance
+veto; and robustness across counterfactual horizons, cost structures, and
+crane-dispatching rules.
 
 % =====================================================================
 \begin{credits}
