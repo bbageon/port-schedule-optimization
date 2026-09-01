@@ -42,6 +42,7 @@ env-mixed / env-heavy)의 결과를 반영한 판이다. `submission/` 은 손�
 | §5.6 | *"or **45.9%** of the total reduction"* | 비율 삭제 — 절대액 셋과 **중앙값** 셋, 부호검정 p 셋으로 대체 |
 | 결론 | *"carry no estimate of variation across realisations"* | 민감도 결과로 교체 — 집계 결과와 전환은 유지되지만 분해는 28일로 안 잡힌다 |
 | 그림 2 캡션 | — | *"specific to this demand mix"* 한 줄 추가 |
+| §5.4 (그림 연결) | — | *"Fig. 2 shows why: block-only reallocation saves cost at the two lightest demand levels but costs it at 15,000 trucks"* — 그림이 이미 기제를 보여 준다는 것을 명시 |
 
 **왜 91.3% 와 45.9% 를 뺐나**: 91.3% 는 다섯 자료 중 **가장 바깥값**이고
 (67 · 79 · 81 · 53.8 · 91.3), 45.9% 는 분모(전체 감소)가 환경마다 두 배씩 달라
