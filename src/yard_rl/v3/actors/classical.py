@@ -156,8 +156,13 @@ class ClassicalMarket(Market):
 
     def __init__(self, arm: str, layout, *, window_s: float = 1800.0,
                  trigger_top_k: float = TRIGGER_TOP_K):
-        if arm not in ARM_RULES:
-            raise ValueError(f"고전 팔이 아니다: {arm!r} — {ARM_RULES}")
+        # ★제외 팔(RETIRED_ARMS)도 **생성은 된다** — 판정에서 빼는 것은 judge 의
+        # 팔 목록이고, 여기서 막으면 "코드는 남기되 재현은 가능" 계약이 깨진다.
+        # (b1c0991 이 NEAREST 를 ARM_RULES 에서 빼며 이 검사를 안 넓혀
+        #  test_all_declared_arms_actually_run 이 그 뒤로 실패하고 있었다.)
+        if arm not in ARM_RULES + RETIRED_ARMS:
+            raise ValueError(
+                f"고전 팔이 아니다: {arm!r} — {ARM_RULES + RETIRED_ARMS}")
         # 부모의 seller/buyer/resolver 는 안 쓴다. 계수용 껍데기만 둔다.
         super().__init__(_Trail(), _Trail(), None, window_s=window_s)
         self.arm = arm
