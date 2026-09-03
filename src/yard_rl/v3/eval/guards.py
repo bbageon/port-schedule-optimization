@@ -23,7 +23,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 #: 판정 대역 재사용 금지 — 이미 쓴 대역
-USED_BANDS = (9_200_000, 9_300_000, 9_600_000, 9_700_000, 9_800_000)
+#: 9_400_000 은 v3 최종 판정([[YR-233]] · 2026-08-30, `outputs/v3/judge-locked/`)에서
+#: 썼다. 한 대역은 한 번만 쓴다 — 두 번째 판정은 그 대역에서 고를 여지를 만든다.
+USED_BANDS = (9_200_000, 9_300_000, 9_400_000, 9_600_000, 9_700_000, 9_800_000)
 #: 비판정(진단) 시드 대역
 DIAGNOSTIC_BAND = 9_900_000
 
