@@ -114,7 +114,8 @@ def _run_arm(kw) -> ArmMonth:
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 arms=JUDGE_ARMS, n_days: int = N_DAYS, days=None,
                 trigger_k: dict | None = None, workers: int = 0,
-                extra_policies=None, ckpt_dir=None, log=print) -> dict:
+                extra_policies=None, ckpt_dir=None, log=print,
+                window_s: float | None = None) -> dict:
     """`RL` 과 각 팔을 **같은 달** 위에서 겨룬다. 부하별로 표를 낸다.
 
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
@@ -122,8 +123,15 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     """
     days = list(days) if days else plan_month(seed, n_days=n_days)
     todo = ("RL",) + tuple(a for a in arms if a != "RL")
+    #: ★재검토 창 `W` — 안 주면 무대 기본값(1800초 = 도착 30분 전). [[YR-299]] A 가
+    #:  이 손잡이로 30분/1시간/2시간을 견준다. *"도착 30분 전 재배정은 촉박하지 않나"*
+    #:  라는 물음에, **평가만 바꿔** 답한다(재학습 없음).
+    #:  ⚠️ 망은 30분 조건에서 배웠다 — 큰 W 에 **불리한 편향**이 있다. 그래도 이득이
+    #:  유지되면 그 자체로 강한 결과다.
     base = dict(seed=seed, days=days, seller_net=seller_net,
                 buyer_net=buyer_net)
+    if window_s is not None:
+        base["window_s"] = float(window_s)
     jobs = []
     for a in todo:
         kw = dict(base, arm=a, _label=a)
