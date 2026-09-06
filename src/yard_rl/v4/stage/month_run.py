@@ -51,7 +51,8 @@ from .month import (DAY_S, N_DAYS, build_month, ledger_load, make_retarget,
                     prune_completed, retire_done_vessels, truck_net_by_block,
                     vessel_meta)
 from .branchpool import BranchJob, BranchPool, default_workers
-from .month_engine import MonthTerminal, inject_vessel
+from .month_engine import (VESSEL_DEADLINE_MULT, MonthTerminal,
+                           inject_vessel)
 from .orders import EPOCH_S, V3Announcer, orders_from_schedule
 from .rollout import RolloutBudget, identity_check
 
@@ -197,7 +198,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               slot_mode: str = "HORIZON", trigger_top_k: float | None = None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
-              branch_days: int = 1, identity_checks: int = 4) -> MonthResult:
+              branch_days: int = 1, identity_checks: int = 4,
+              vessel_deadline_mult: float | None = None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -218,6 +220,15 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         raise NotImplementedError(
             f"배차 {dispatcher!r} 은 아직 구현 전이다 — 쓸 수 있는 바닥: "
             f"{DISPATCHERS_READY}")
+
+    #: ★본선 여유 배수 — 기본은 무대 상수. [[YR-248]] 1단계가 이 손잡이로 재보정한다.
+    #:  `d = 2.0` 이면 `slack = M·c·(d−1)` 가 배 크기 상수가 되어 본선 신호가 죽는다.
+    _dmult = (VESSEL_DEADLINE_MULT if vessel_deadline_mult is None
+              else float(vessel_deadline_mult))
+    if _dmult < 1.0:
+        raise ValueError(
+            f"vessel_deadline_mult 는 1.0 이상이어야 한다 — {_dmult} 는 야드가 "
+            "무한히 빨라도 달성 불가한 계획이다 (scenario_gen 머리말)")
 
     prof, layout = build_h21_profile(), terminal_layout()
     days = list(days) if days else plan_month(seed, n_days=n_days)
@@ -409,6 +420,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         for r in v_by_day.get(d.index, []):
             try:
                 a = inject_vessel(m, r["block"], r, key=r["key"],
+                                  deadline_mult=_dmult,
                                   size_seed=f"v3:month:{seed}:{r['key']}")
             except TransferError as ex:
                 skipped += 1

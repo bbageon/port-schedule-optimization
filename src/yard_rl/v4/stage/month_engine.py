@@ -45,6 +45,16 @@ from ..world.integrated.vessel import (VesselPlan, VesselProcess,
                                        VesselWorkType)
 
 #: 계획 완료시각 여유 배수 — 사본 생성기(`scenario_gen`)의 기본값과 같게 둔다.
+#:
+#: ★이 값이 본선 신호를 죽인다 ([[YR-248]] 0단계 · 2026-09-06)
+#:   `slack = 계획완료 − 지금 − 남은작업` 에 `계획완료 = 시작 + M·c·d` 를 넣으면
+#:   진척이 **소거되어 `slack = M·c·(d − 1)`** — 진척·시각과 무관한 상수가 된다.
+#:   `d = 2.0` 이면 slack 이 그 배의 **총 작업시간 전체**(4.4~26.2h)라 특징의
+#:   `±2h` 클램프에 전부 붙는다. 그래서 정책은 어느 배가 급한지 못 본다.
+#:
+#:   `d = 1.15` 로 내리면 `slack = M·c·0.15` 라 계획보다 15%만 밀려도 신호가 산다.
+#:   `d ≥ 1.0` 이어야 한다 — 그 아래는 야드가 무한히 빨라도 달성 불가
+#:   (`scenario_gen.py` 머리말 · `phys_min_completion_s`).
 VESSEL_DEADLINE_MULT = 2.0
 #: 40ft 비율 — 사본 `TerminalStreamParams.size_mix_ft40` 기본값과 같다.
 SIZE_MIX_FT40 = 0.6
@@ -136,7 +146,8 @@ def free_targets(sim, *, limit: int, seed: str) -> list[str]:
 
 
 def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
-                  key: str, size_seed: str) -> VesselAdmission:
+                  key: str, size_seed: str,
+                  deadline_mult: float = VESSEL_DEADLINE_MULT) -> VesselAdmission:
     """배 한 척(정확히는 STS 스트림 하나)을 **런 중에** 블록에 붙인다.
 
     사본 `_seed_events` 가 t=0 에 하는 일과 같은 것을 시각 `start_s` 에 한다:
@@ -177,8 +188,8 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
         raise TransferError(f"{key}: 실을 물량이 0 — {reason or '물량 0'}")
 
     # -- 계획 시각 — 사본 생성기와 같은 식 (본선 절)
-    pc = start + moves * cadence * VESSEL_DEADLINE_MULT
-    etd = start + moves * cadence * (VESSEL_DEADLINE_MULT + 1.0)
+    pc = start + moves * cadence * deadline_mult
+    etd = start + moves * cadence * (deadline_mult + 1.0)
     tgt_c = ([sim.stacks.containers[t] for t in targets]
              if work == VesselWorkType.LOAD else None)
     phys_min = phys_min_completion_s(sim.profile, work=work, start_s=start,
