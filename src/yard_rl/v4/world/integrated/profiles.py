@@ -43,6 +43,27 @@ def build_dgt_approx_profile(single_yaml: str | Path = DGT_SINGLE_YAML
     )
 
 
+#: ★야드트랙터 왕복시간(초) — **v4 전용 재보정** ([[YR-248]] 1단계 · 2026-09-06)
+#:
+#: ■ 왜 바꿨나
+#:   v3(논문)의 180초는 공급 간격을 60초로 만들어 STS 수요(130.9초)보다 **2.18배**
+#:   빨랐다. 안벽 버퍼가 마르지 않으니 배가 굶지 않았고, 본선 유휴가 Φ의 **0.84%**
+#:   에 그쳤다 — 문헌이 보고하는 안벽 크레인 성능 손실 10~20% 범위 밖이다
+#:   (`.claude/docs/references/본선-야드-병목-문헌.md`).
+#:
+#:   그 결과 **크레인이 본선 일감을 뒤로 미뤄도 손해가 안 생겼다.** 비용을 낮추도록
+#:   학습하는 정책이 본선 축을 무시하는 게 합리적인 무대였다 — 꼬리표(`is_vessel`)는
+#:   있는데 **배울 결과가 없었다.**
+#:
+#: ■ 왜 400초인가
+#:   공급 간격 400/3 = 133.3초로 STS 수요 130.9초와 거의 같다(여유 0.98배). 평소엔
+#:   겨우 맞추다가 **야드 크레인이 트럭에 붙들리면 배가 굶는다.** 그리고 왕복 6~7분은
+#:   현실 터미널(5~10분) 안이다 — 후하게 준 값을 현실로 되돌린 것이지 인위적 조작이 아니다.
+#:
+#: ⚠️ v3 는 180초 그대로다. **두 세대의 무대가 다르므로 성능 비교 불가.**
+YT_ROUND_TRIP_S = 400.0
+
+
 def build_calibrated_profile() -> IntegratedProfile:
     """문헌 보정 v2 — "신항 표준 ARMG 블록" (YR-002 재기준화, D5·D1 사용자 확정).
 
@@ -100,4 +121,4 @@ def build_h21_profile() -> IntegratedProfile:
     return replace(base, terminal_id="H21-SHARED-YT",
                    transfer=TransferFleetSpec("YT1", "YT",
                                               n_units=base.transfer.n_units,
-                                              move_time_s=base.transfer.move_time_s))
+                                              move_time_s=YT_ROUND_TRIP_S))
