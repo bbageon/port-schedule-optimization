@@ -55,7 +55,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                        labels_per_day: int = LABELS_PER_ITER,
                        out_dir: str | Path = "outputs/v4/month",
                        workers: int = 1, val_frac: float = 0.2,
-                       days=None, log=print) -> tuple[TrainState, object]:
+                       days=None, log=print,
+                       horizon_s: float | None = None) -> tuple[TrainState, object]:
     """30일을 한 번에 굴리며 **날마다** 학생을 갱신한다.
 
     돌려주는 것: (학습 상태, `MonthResult`). 중간보고는 `log` 로 나간다.
@@ -136,10 +137,14 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         seen.append(rep)
         return seen
 
+    #: ★반사실 창 — 안 주면 무대 기본값(3시간). [[YR-299]] B 가 이 손잡이로
+    #:  6시간을 견준다. 창은 **학습 라벨을 몇 시간 어치로 채점하느냐**만 정한다 —
+    #:  트럭 도착·통지·30분 결정·정책이 보는 정보·운영 속도는 하나도 안 바뀐다.
+    extra = {} if horizon_s is None else {"horizon_s": float(horizon_s)}
     res = run_month(seed=seed, arm="RL", seller_net=s_net, buyer_net=b_net,
                     days=days, labels_per_day=labels_per_day, workers=workers,
                     explore_of_day=lambda d: explore_of(d, n_days=n),
-                    on_fit=on_fit, on_day=on_day)
+                    on_fit=on_fit, on_day=on_day, **extra)
 
     log(f"■ 끝 — {(time.time() - t_start)/3600:.2f}시간")
     _report_by_load(res, log)

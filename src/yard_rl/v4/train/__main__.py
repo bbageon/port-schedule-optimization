@@ -39,6 +39,10 @@ def main(argv=None) -> int:
     ap.add_argument("--loads", default=None,
                     help="부하를 **직접 지정** — `short`(바닥 비교용 9일) 또는 "
                          "쉼표 목록(예 3500,5000,7500). 주면 --days 는 무시한다")
+    ap.add_argument("--horizon-h", type=float, default=None,
+                    help="반사실 창(시간) — 안 주면 무대 기본값 3시간. "
+                         "[[YR-299]] B 가 6 을 준다. 창은 **학습 라벨의 채점 길이**만 "
+                         "정한다 (도착·통지·결정시점·운영속도는 안 바뀐다)")
     a = ap.parse_args(argv)
 
     if a.loads:
@@ -54,15 +58,20 @@ def main(argv=None) -> int:
     print("  날별 부하: " + " ".join(
         (f"[{d.load // 1000}]" if not d.is_train else str(d.load // 1000))
         for d in days) + "   ([]=연결용)")
+    from .. import CF_HORIZON_S
+    _h = CF_HORIZON_S / 3600.0 if a.horizon_h is None else a.horizon_h
     print(f"  ε {explore_of(days[0], n_days=len(days)):.2f} → "
-          f"{explore_of(days[-1], n_days=len(days)):.2f} · 라벨 {a.labels}/일")
+          f"{explore_of(days[-1], n_days=len(days)):.2f} · 라벨 {a.labels}/일 · "
+          f"반사실 창 {_h:.0f}시간")
     if a.dry:
         return 0
 
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     run_month_training(seed=a.seed, n_days=a.days, labels_per_day=a.labels,
-                       out_dir=a.out, workers=a.workers, days=days)
+                       out_dir=a.out, workers=a.workers, days=days,
+                       horizon_s=(None if a.horizon_h is None
+                                  else a.horizon_h * 3600.0))
     print(f"■ 총 {(time.time() - t0) / 3600:.2f}시간 · 결과 {a.out}")
     return 0
 
