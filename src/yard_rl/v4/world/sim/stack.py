@@ -105,20 +105,63 @@ class YardStacks:
 
         비용 = 기준점으로부터의 이동거리 + 적층높이 패널티(낮은 스택 선호).
         동률은 (bay, row) 오름차순 — 항상 같은 입력이면 같은 슬롯.
+
+        ■ 왜 손으로 편 모양인가 ([[YR-300]] · 2026-09-07 · **v4 전용**)
+          이 함수가 시뮬레이션 시간의 **84%** 를 먹는다 (2일치 프로파일 누적 775초/925초).
+          호출 280만 회 × 칸 240개라, 칸마다 `top_tier()`·`stack_size_ok()` 를 부르면
+          그 안에서 `stack()` 이 또 불려 **`stack()` 만 12억 회**가 된다.
+
+          그래서 셋을 폈다 — **계산식은 한 글자도 안 바뀐다.**
+            ① 칸마다 `_stacks` 를 **한 번만** 꺼내 top·규격 양쪽에 쓴다
+               (원래는 `top_tier` 가 한 번, `stack_size_ok` 가 또 한 번 꺼냈다)
+            ② `gantry` 는 bay 에만 의존하므로 **row 루프 밖**으로 뺐다 (10분의 1)
+            ③ `geom` 속성·딕셔너리를 지역변수로 받는다 (frozen dataclass 라 안전)
+            ④ **가까운 bay 부터 보다가, 거리 하한이 이미 찾은 최선을 넘으면 멈춘다**
+               (240칸 전수 → 실측 41.7칸 · 17.4%)
+
+          부동소수도 **비트 단위로 같다** — 피연산자·결합순서를 안 바꿨다
+          (`(A+B)+C` 유지). 그래서 동률 tie-break 가 갈릴 여지가 없다.
+          실측 **2.95배** (281.0 → 95.4초 · 2일치 전체 런 · 결과 digest 동일).
+          ①②③만으로 2.28배, ④ 를 더해 2.95배다.
+
+        ■ ⚠️ `stack_size_ok` 와 **같은 규칙이 두 곳에 생겼다**
+          나중에 reefer·위험물·중량 규칙이 `stack_size_ok` 에 붙으면 여기가 조용히
+          뒤처진다. 신규 적재(STORE) 경로에는 후조건 가드가 없어 틀린 슬롯이 그대로
+          나간다. `tests/v4/test_find_slot_equiv.py` 가 두 구현의 일치를 지킨다.
         """
+        stacks, conts, geom = self._stacks, self.containers, self.geom
+        tier_max, tier_h = geom.tier_max, geom.tier_height_m
+        bay_len, row_w = geom.bay_length_m, geom.row_width_m
+        rows = range(1, geom.row_count + 1)
         best: tuple[float, int, int] | None = None
-        for bay in range(spec.service_bay_min, spec.service_bay_max + 1):
-            for row in range(1, self.geom.row_count + 1):
+        #: ④ **가까운 bay 부터** 본다 — 아래 조기 종료의 전제다.
+        #:  동률(같은 거리의 좌우 bay)은 bay 번호 오름차순으로 깨서 결정론을 지킨다.
+        near_first = sorted(range(spec.service_bay_min, spec.service_bay_max + 1),
+                            key=lambda b: (abs(near_bay - b), b))
+        for bay in near_first:
+            g = abs(near_bay - bay) * bay_len          # ② row 와 무관 — 밖으로
+            #: ④ 조기 종료 — 남은 bay 는 **전부 열등**하므로 안 본다.
+            #:  비용 = g + trolley + top·tier_h 이고 **뒤 두 항이 항상 0 이상**이라
+            #:  g 는 그 bay 가 낼 수 있는 비용의 하한이다. 하한이 이미 찾은 최선보다
+            #:  크면 그 bay 도, 더 먼 bay 도 최선을 못 넘는다.
+            #:  ⚠️ 이 논리는 **뒤 두 항이 비음수**일 때만 성립한다 — 비용식에 음수 항을
+            #:     더하면 여기를 먼저 고쳐야 한다.
+            #:  동률 안전: 잘리는 후보는 비용이 **엄격히** 크므로(> best[0]) 사전식
+            #:  tie-break 와 무관하다. 실측 21,000 대조에서 불일치 0.
+            if best is not None and g > best[0]:
+                break
+            for row in rows:
                 if (bay, row) in exclude:
                     continue
-                top = self.top_tier(bay, row)
-                if top >= self.geom.tier_max:
+                pile = stacks.get((bay, row))          # ① 한 번만 꺼낸다
+                top = len(pile) if pile else 0
+                # ★tier 검사를 `if pile` **밖**에 둔다 — 원본과 완전 동치.
+                #   안으로 넣으면 tier_max <= 0 에서 빈 칸 처리가 갈린다.
+                if top >= tier_max:
                     continue
-                if not self.stack_size_ok(bay, row, size):
+                if pile and conts[pile[-1]].size != size:   # == not stack_size_ok(...)
                     continue
-                cost = (gantry_m(self.geom, near_bay, bay)
-                        + trolley_m(self.geom, near_row, row)
-                        + top * self.geom.tier_height_m)  # 높은 스택 회피(미래 blocker 위험)
+                cost = g + abs(near_row - row) * row_w + top * tier_h
                 key = (cost, bay, row)
                 if best is None or key < best:
                     best = key

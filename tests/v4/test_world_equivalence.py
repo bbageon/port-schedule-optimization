@@ -96,9 +96,39 @@ def _same_arrival_curve():
             getattr(o, fn).__kwdefaults__.update(kd)
 
 
+def _same_yt_round_trip():
+    """v4 는 야드트랙터 왕복을 **470초**로 바꿨다 ([[YR-248]] 1단계).
+
+    이 시험은 *"사본 엔진이 원본과 같은 하루를 굴리는가"* 를 보는 것이지
+    *"무대 설정이 같은가"* 를 보는 것이 아니다. 의도한 무대 차이를 빼고 **엔진만**
+    대조하려면 왕복시간을 원본과 같은 180초로 맞춰야 한다.
+
+    ⚠️ 이 되돌림을 지우면 안 된다 — 지우면 이 시험은 [[YR-248]] 의 무대 변경을
+       엔진 결함으로 잘못 신고한다 (2026-09-07 실제로 그렇게 실패했다).
+    """
+    import contextlib
+
+    from yard_rl.v4.world.integrated import profiles as v4p
+
+    @contextlib.contextmanager
+    def ctx():
+        old = v4p.YT_ROUND_TRIP_S
+        v4p.YT_ROUND_TRIP_S = 180.0          # 원본 트리와 같은 값
+        try:
+            yield
+        finally:
+            v4p.YT_ROUND_TRIP_S = old
+
+    return ctx()
+
+
 def test_clone_engine_reproduces_original():
-    """원본 트리와 v3 사본 트리가 **같은 수치**를 낸다 (도착 곡선을 맞춘 뒤)."""
-    with _same_arrival_curve():
+    """원본 트리와 v4 사본 트리가 **같은 수치**를 낸다 (도착 곡선·왕복시간을 맞춘 뒤).
+
+    ★맞추는 것은 **무대 설정**이고, 대조하는 것은 **엔진**이다. v4 가 의도적으로 바꾼
+      설정([[YR-248]] 트랙터 왕복 470초)은 되돌린 뒤 비교해야 엔진 표류만 잡힌다.
+    """
+    with _same_arrival_curve(), _same_yt_round_trip():
         a = _run("yard_rl.integrated")
         b = _run("yard_rl.v4.world.integrated")
     assert a == b, (
