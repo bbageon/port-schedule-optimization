@@ -63,22 +63,23 @@ pdflatex main.tex && pdflatex main.tex
 ## 3. 그림
 
 그림은 `docs/paper/v3/figures/` **한 곳**에 있고 두 논문이 `\graphicspath{{../figures/}}`
-로 같이 본다. 모두 matplotlib 으로 그린 벡터 PDF 이므로 변환이 필요 없다.
+로 같이 본다. 핵심 구조도는 제공된 PNG를 사용하고, 수요·결과 그림은 스크립트가 만든
+PDF를 사용한다.
 
 | 파일 | 내용 | 생성기 |
 |---|---|---|
-| `fig-arch.pdf` | 운영 추론과 오프라인 학습의 분리 | `scripts/v3/fig_arch.py` |
+| `final_figure/System Concept.png` | 서론의 온라인 운영·오프라인 학습 개념 | 제공 그림 |
+| `final_figure/system-architecture.png` | 3장 운영·환경·학습 상세 구조 | 제공 그림 |
 | `fig-demand.pdf` | 일일 수요 분포와 시간대별 도착 과정 | `scripts/v3/fig_demand.py` |
-| `fig-mlp.pdf` | 후보별 비용 신경망의 구조 | `scripts/v3/fig_mlp.py` |
+| `final_figure/MLP-relu.png` | 후보별 비용 신경망의 구조 | `scripts/v3/fig_mlp_relu.py` |
 
 다시 만들려면 저장소 뿌리에서 돌린다. 수치를 손으로 적어 넣은 곳은 없다 —
 `fig-demand` 는 `LOAD_WEIGHTS`·`DIURNAL_PEAKS` 를 구현에서 직접 읽는다.
 
 ```powershell
 $env:PYTHONPATH = "src"
-python scripts/v3/fig_arch.py
 python scripts/v3/fig_demand.py
-python scripts/v3/fig_mlp.py
+python scripts/v3/fig_mlp_relu.py
 ```
 
 **그림에는 제목을 넣지 않는다.** 설명은 LaTeX `\caption` 이 그림 아래에 붙인다.
