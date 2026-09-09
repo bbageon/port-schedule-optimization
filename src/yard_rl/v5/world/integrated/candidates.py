@@ -1,0 +1,522 @@
+"""동적 후보 생성기 — 4종·mandatory·padding·feasible 노출 (YR-037, 최종전략 §8).
+
+engine.candidates_for(최소 SERVE·feasible-only, golden 하네스용 compat shim)와 별개로, 정책·
+resolver 가 소비할 **풍부한 CandidateSet** 을 생성한다.
+- 4종: SERVE / PRE_REHANDLE(§8.4 도착 전 재조작) / REPOSITION(§8.2 위치조정) / WAIT.
+- feasible_mask = **committed(직전 결정까지) 예약 대비 marginal 실행가능성**. 형제 크레인 충돌은
+  resolver 몫(D-FEASIBLE) → mask 가 resolve 순서 무관·결정적. 오늘 조용히 드롭하던 충돌 SERVE 를
+  feasible=False·mask_reason 으로 노출한다.
+- mandatory(SLA 임박, YR-029 흡수)는 pruning 절대 금지. 정보시점 게이팅으로 누출 0.
+- YR-050: plan 전 게이트를 module 함수(iter_*)로 분리해 엔진의 결정 시점 개방 술어
+  (eta_opportunity)와 공유 — ETA 만 보이는 한산기에도 결정이 열린다.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
+
+from ..domain.enums import InformationLevel, JobFlow, JobStatus, ServiceMode
+from ..sim.constraints import ConstraintViolation
+from ..contract.schema import CandidateKind
+from .jobplan import JobPlan, JobRef
+from .policy_config import ExecPolicyConfig, LEGACY_DEFAULT
+from .reservation import Corridor
+
+_KIND_RANK = {CandidateKind.SERVE: 0, CandidateKind.PRE_REHANDLE: 1,
+              CandidateKind.REPOSITION: 2, CandidateKind.WAIT: 3}
+
+
+# ---------------------------------------------------------------- 공유 게이트 (YR-050)
+# 엔진의 결정 시점 개방 술어(eta_opportunity)와 생성기의 후보 발행이 같은 게이트를 읽어야
+# "결정은 열렸는데 후보가 없다/후보는 있는데 결정이 안 열린다" 어긋남이 구조적으로 불가능하다.
+# 그래서 plan/예약 검증 **전** 단계 게이트를 module 함수로 두고 양쪽이 공유한다.
+
+def _visible_eta_of(j, level) -> float | None:
+    """정책 가시 도착예상 — PRE_ADVICE 의 provided_eta 만. actual_* 절대 미열람(누출 0)."""
+    if level == InformationLevel.PRE_ADVICE and j.provided_eta is not None:
+        return j.provided_eta
+    return None
+
+
+def _future_bay_of(sim, j, spec, yc) -> float | None:
+    if j.target_container is not None and j.target_container in sim.stacks.containers:
+        return float(sim.stacks.containers[j.target_container].bay)
+    if j.service_mode == ServiceMode.STORE and j.inbound_size is not None:
+        slot = sim.stacks.find_slot(j.inbound_size, spec, yc.state.position_bay,
+                                    yc.state.trolley_row)
+        return float(slot[0]) if slot else None
+    return None
+
+
+def iter_pre_rehandle_jobs(sim, crane_id: str, level):
+    """PRE_REHANDLE 후보의 plan 전 게이트를 통과하는 (job, container) — 결정론(job_id 순).
+
+    게이트: PRE_ADVICE 한정 + GATE_OUT·PLANNED + 대상 실재·작업가능·서비스구간 내 +
+    blocker 존재 + 재조작 여유 + ETA 가시·결정 지평 이내. YR-043: "도착 전 완료 가능"
+    (pre_window)은 mask 가 아니라 feature 로 제공하므로 여기 없다.
+    """
+    if level != InformationLevel.PRE_ADVICE:
+        return
+    spec = sim.fleet.spec(crane_id)
+    horizon = sim.profile.decision_horizon_s
+    now = sim.now
+    for jid in sorted(sim.jobs):
+        j = sim.jobs[jid]
+        if j.flow != JobFlow.GATE_OUT or j.status != JobStatus.PLANNED:
+            continue
+        if j.target_container is None:
+            continue
+        c = sim.stacks.containers.get(j.target_container)
+        if c is None or not c.work_available:
+            continue
+        if not (spec.service_bay_min <= c.bay <= spec.service_bay_max):
+            continue
+        if not sim.stacks.blockers_above(j.target_container):
+            continue
+        if not sim.stacks.rehandle_capacity_ok(j.target_container, spec):
+            continue
+        eta = _visible_eta_of(j, level)
+        if eta is None or eta - now > horizon:
+            continue
+        yield j, c
+
+
+# YR-141 opt-in — 구속적 PREPOSITION (기본 False = 기존 바이트 동일). True 면 위치조정
+# 후보가 **결속 작업**을 지니고(PREPO:<jid>:<bay>), 목표 근접 시 소멸·ETA 만료 내재.
+# 교착 탈출 REPO 는 안전기능으로 불변 분리. 반복 이동은 근접 소멸이 1차 억제하고
+# 잔여 위반은 판정 ⑦(반복·만료 후 이동 = 0)이 계수한다 — 스펙 고지.
+BOUND_REPO = False
+
+# YR-142 opt-in — one-shot 재발행 금지 (기본 False = 기존 동작 불변). True 면 실행 이력
+# (sim._prepo_history)에 오른 결속 작업의 PREPO 후보 발행을 생성기가 차단하고, 차단 횟수를
+# sim._prepo_blocked 에 계수한다. BOUND_REPO(결속 발행 여부)와 **독립 축** — B1(결속·반복
+# 허용) / B2(결속·one-shot) 대조를 위해 분리 (18차 감사 2026-08-02).
+PREPO_ONE_SHOT = False
+
+
+# YR-147 2단계 opt-in — 대기 행동 의미 (기본 "WAIT" = 기존 바이트 동일).
+#  "WAIT"          A: 무기한 대기 (wake 예약 없음 — 현행)
+#  "DEFER_ALL"     B: 후보 삭제 없이 모든 대기를 유한 DEFER 로 — 만료(now+DEFER_T_MAX)가
+#                     항상 붙어 재개방(wake)이 보장. 관측 trigger 있으면 min(trigger, 만료).
+#  "DEFER_TRIGGER" C: 관측 가능 trigger 가 있을 때만 전략적 DEFER — trigger 부재 대기는
+#                     구조적 fallback 전용(공동조합 열거에서 제외, baselines._admissible_combos).
+# trigger 는 공개 정보만(provided_eta·release_time) — 실현 미래시각 비누출 (YR-147 계약).
+WAIT_MODE = "WAIT"
+DEFER_T_MAX = 600.0     # 사전등록 동결 (YR-147 2단계) — 튜닝 금지
+
+# YR-143 opt-in — C0(전략적 위치조정 없음): True 면 결속·비결속 능동 위치조정을 전부
+# 미발행하고 교착 탈출(안전기능)만 유지. 기본 False = 기존 동작 불변.
+SAFETY_ONLY = False
+
+
+def prepo_bound_jid(job_id):
+    """PREPO:<jid>:<bay> → 결속 작업 id. 다중 블록 'A:작업' 처럼 jid 에 콜론이 있어도
+    안전하도록 양끝에서 뗀다 (split(':')[1] 금지 — 18차 감사). PREPO 아니면 None."""
+    if not job_id or not job_id.startswith("PREPO:"):
+        return None
+    return job_id[len("PREPO:"):].rsplit(":", 1)[0]
+
+
+def iter_eta_reposition_jobs(sim, crane_id: str, level):
+    """(jid, bay, eta) — provided_eta 주도 위치조정의 **작업 결속** 원천 (결정론)."""
+    if level != InformationLevel.PRE_ADVICE:
+        return
+    spec = sim.fleet.spec(crane_id)
+    yc = sim.fleet.get(crane_id)
+    horizon = sim.profile.decision_horizon_s
+    now = sim.now
+    for jid in sorted(sim.jobs):
+        j = sim.jobs[jid]
+        if not j.is_external_truck:
+            continue
+        if j.status != JobStatus.PLANNED:
+            continue                      # 미도착(PLANNED)만 — 도착·배정·진행·완료 전부
+                                          # 소멸. YR-145: 예측 ETA 가 미래여도 조기 도착해
+                                          # RUNNING 인 작업에 발행되던 구멍 봉쇄 (YR-142 기각 원인)
+        eta = _visible_eta_of(j, level)
+        if eta is None or eta <= now or eta - now > horizon:
+            continue
+        bay = _future_bay_of(sim, j, spec, yc)
+        if bay is None:
+            continue
+        yield jid, float(min(max(bay, spec.service_bay_min), spec.service_bay_max)), eta
+
+
+def iter_eta_reposition_bays(sim, crane_id: str, level):
+    """외부트럭 **provided_eta 주도** REPOSITION 목표 bay (clamp 적용) — 결정론(job_id 순).
+
+    내부작업 release_time 주도 bay 는 포함하지 않는다 — 그 축은 정보수준과 무관해 결정 시점
+    개방(YR-050)에 쓰면 낮은 정보수준의 거동·golden 이 바뀐다.
+    """
+    for _jid, bay, _eta in iter_eta_reposition_jobs(sim, crane_id, level):
+        yield bay
+
+
+def eta_opportunity(sim, crane_id: str, level) -> bool:
+    """이 크레인이 **ETA 정보만으로** 지금 열 수 있는 선제 재조작(PRE_REHANDLE) 기회가
+    있는가 — 엔진 결정 시점 개방 술어 (YR-050). 실제 도착시각은 읽지 않는다.
+
+    plan·예약 검증 전 게이트만 본다 (엔진이 이벤트마다 호출 — plan 산출 금지). 그래서
+    "열렸지만 전 후보 plan 실패 → WAIT" 는 가능하나(무해), 그 역(후보 발행 가능한데 결정
+    미개방)은 게이트 공유로 불가능하다.
+
+    위치선점(REPOSITION) 기회는 **의도적으로 제외**한다: PRE 는 실행하면 blocker 가 사라져
+    기회가 자연 소멸(자기 제한적)하지만 REPO 는 bay 거리가 계속 재발생해 결정 시점이
+    무한정 증식하고(rollout baseline 비용 제곱 증가), baseline 의 WAIT-최하위 선호와 만나면
+    한산기 내내 재배치를 반복하는 퇴화 압력이 된다 (YR-039 REPOSITION 지배 재발 경로).
+    REPOSITION 후보 자체는 이렇게 열린 결정 시점에서 기존과 동일하게 발행된다.
+    """
+    if level != InformationLevel.PRE_ADVICE:
+        return False
+    return any(True for _ in iter_pre_rehandle_jobs(sim, crane_id, level))
+
+
+def iter_vessel_prep_jobs(sim, crane_id: str, level):
+    """본선판 ETA — 다가올 **적하(반출)** 대상의 blocker 를 미리 정리(선제 준비)하는 (job, container).
+
+    트럭 PRE_REHANDLE 의 본선판. 게이트: PLANNED VESSEL_LOAD + 대상 실재·작업가능·서비스구간 내 +
+    blocker 존재 + 재조작 여유 + release_time(스케줄) 이 결정 지평 이내. 스케줄은 알려진 계획이라
+    정보수준 무관하나, 트럭과 평행하게 PRE_ADVICE 로 둔다(결정론·기존 게이트 재사용).
+    """
+    if level != InformationLevel.PRE_ADVICE:
+        return
+    spec = sim.fleet.spec(crane_id)
+    horizon = sim.profile.decision_horizon_s
+    now = sim.now
+    for jid in sorted(sim.jobs):
+        j = sim.jobs[jid]
+        if j.flow != JobFlow.VESSEL_LOAD or j.status != JobStatus.PLANNED:
+            continue
+        if j.target_container is None:
+            continue
+        c = sim.stacks.containers.get(j.target_container)
+        if c is None or not c.work_available:
+            continue
+        if not (spec.service_bay_min <= c.bay <= spec.service_bay_max):
+            continue
+        if not sim.stacks.blockers_above(j.target_container):
+            continue
+        if not sim.stacks.rehandle_capacity_ok(j.target_container, spec):
+            continue
+        rt = j.release_time
+        if rt is None or rt - now > horizon:      # 스케줄 지평 (본선판 ETA)
+            continue
+        yield j, c
+
+
+@dataclass(frozen=True)
+class GenCandidate:
+    candidate_id: int                 # 튜플 위치 == CandidateSet items 인덱스
+    kind: CandidateKind
+    job_ref: JobRef | None            # SERVE/PRE/REPO 는 JobRef; WAIT=None
+    plan: JobPlan | None              # marginal feasibility plan (어댑터 feature 원천); WAIT=None
+    mandatory: bool
+    feasible: bool                    # committed 대비 marginal
+    mask_reason: str | None           # feasible=True ⟺ None
+    score: float                      # §8.3 pruning 전용 — features·net 진입 금지
+    # YR-147 DEFER (WAIT 전용·기본 None = 기존 불변). features·net 진입 금지 — 상태 불변.
+    defer_until: float | None = None  # 재개방 보장 시각 (엔진 wake 예약)
+    defer_trigger: str | None = None  # "ETA"|"RELEASE"|None(관측 trigger 없음)
+    defer_trigger_jid: str | None = None  # 기다리는 대상 작업 (YR-146 허가증 — 기록 전용)
+
+
+@dataclass(frozen=True)
+class GeneratedCandidates:
+    crane_id: str
+    items: tuple[GenCandidate, ...]   # 실후보(WAIT 포함, padding 제외). 위치==candidate_id
+
+
+class CandidateGenerator:
+    def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
+                 pre_rehandle_min_window_s: float = 600.0,
+                 block_pre_rehandle: bool = False, vessel_prep: bool = False,
+                 config: ExecPolicyConfig | None = None):
+        self.k_max = k_max
+        self.mandatory_wait_frac = mandatory_wait_frac
+        # YR-160 본체 1단계(2026-08-09): 행동 정의 플래그를 **주입**받는다 —
+        # `policy_config.ExecPolicyConfig`(duck-typing: wait_mode·safety_only·
+        # bound_repo·prepo_one_shot). None(기본)이면 과도기로 모듈 전역을 읽는다
+        # (기존 실험 골든 불변). 성능 하네스는 명시 주입이 규약이다.
+        self.config = LEGACY_DEFAULT if config is None else config
+        # YR-088 "본선판 ETA" (opt-in, 기본 off=골든 바이트 동일). ON 이면 다가올 적하(반출)
+        # 대상의 blocker 를 미리 정리하는 PRE_REHANDLE 후보를 스케줄(release_time) 기반으로 발행
+        # — 트럭 PRE_REHANDLE 의 본선판(선제 준비). 정책/rollout 이 미리 준비할 선택지를 얻는다.
+        self.vessel_prep = vessel_prep
+        # YR-043: mask 아님 — "도착 전 완료 가능" 은 §8.4 운영 트레이드오프라 State/Cost 로 이관.
+        # 참고값으로만 보존 (후보 생성 게이트로 사용 금지).
+        self.pre_window = pre_rehandle_min_window_s
+        # YR-045 ETA_NO_PRE arm 전용: ETA 는 보이되 선제 재조작 후보만 발행 차단 —
+        # 위치선점(REPOSITION) 경로의 순효과 분리. 엔진 결정 개방(eta_opportunity)은
+        # 이 플래그와 독립이라 arm 간 결정 기회가 동등하다 (YR-050 매핑 §6).
+        self.block_pre_rehandle = block_pre_rehandle
+
+    # -------------------------------------------------------- entry points
+    def serve_refs(self, sim, crane_id: str) -> list[JobRef]:
+        """engine.candidates_for 호환 — feasible SERVE JobRef 만 (오늘과 동치)."""
+        out = []
+        for gc in self._serve(sim, crane_id, sim.now):
+            if gc.feasible:
+                out.append(gc.job_ref)
+        return out
+
+    def generate(self, sim, crane_id: str, level: InformationLevel) -> GeneratedCandidates:
+        yc = sim.fleet.get(crane_id)
+        if not yc.idle or yc.yielded:
+            return GeneratedCandidates(crane_id, (replace(self._wait(), candidate_id=0),))
+        now = sim.now
+        pre = ([] if self.block_pre_rehandle
+               else self._pre_rehandle(sim, crane_id, now, level))
+        raw = (self._serve(sim, crane_id, now) + pre
+               + self._reposition(sim, crane_id, now, level))
+        keep = sorted(self._prune(raw), key=self._order_key)
+        items = list(keep) + [self._wait(sim, now, level)]
+        return GeneratedCandidates(
+            crane_id, tuple(replace(gc, candidate_id=i) for i, gc in enumerate(items)))
+
+    # -------------------------------------------------------- 4종 생성
+    def _serve(self, sim, cid, now) -> list[GenCandidate]:
+        yc = sim.fleet.get(cid)
+        spec = sim.fleet.spec(cid)
+        out = []
+        for jid in sorted(sim.jobs):
+            j = sim.jobs[jid]
+            if not sim._dispatchable(j, cid):
+                continue
+            ref = sim._jobref(j, spec, yc)
+            if ref is None:
+                continue
+            cum = sim.cum_wait(jid) if j.is_external_truck else None
+            mand = self._is_mandatory(sim, j, cum)
+            plan = sim._plan(cid, ref)
+            if plan is None:
+                if not mand:
+                    continue
+                out.append(GenCandidate(0, CandidateKind.SERVE, ref, None, True, False,
+                                        "PLAN_FAILED", self._score(sim, ref, None, now, cum)))
+                continue
+            reason = self._committed_reason(sim, plan)
+            out.append(GenCandidate(0, CandidateKind.SERVE, ref, plan, mand, reason is None,
+                                    reason, self._score(sim, ref, plan, now, cum)))
+        return out
+
+    def _pre_rehandle(self, sim, cid, now, level) -> list[GenCandidate]:
+        # 게이트는 iter_pre_rehandle_jobs(공유 술어) — 정보 제약(ETA 미가시·PRE_ADVICE 한정)
+        # + §8.3 탐색축소(결정 지평)만. YR-043: "도착 전 완료 가능"(pre_window) 게이트 제거 —
+        # §8.4 운영 트레이드오프는 mask 가 아니라 State/Cost 로 제공(predicted_arrival_gap_s
+        # feature, YR-050 부터 음수=연착 보존)해 RL 이 학습한다.
+        out = []
+        for j, c in iter_pre_rehandle_jobs(sim, cid, level):
+            ref = JobRef(job_id=j.job_id, token=j.job_id, kind=CandidateKind.PRE_REHANDLE,
+                         target_container=j.target_container, lane_id=sim._lane_for(c.bay),
+                         eligible_crane_ids=sim.eligible_cranes(c.bay),
+                         is_vessel=False, is_external=True)
+            plan = sim._plan(cid, ref)
+            if plan is None:
+                continue
+            reason = self._committed_reason(sim, plan)
+            out.append(GenCandidate(0, CandidateKind.PRE_REHANDLE, ref, plan, False,
+                                    reason is None, reason,
+                                    self._score(sim, ref, plan, now, None)))
+        if self.vessel_prep:                       # YR-088 본선판 ETA — 다가올 적하 선제 준비
+            for j, c in iter_vessel_prep_jobs(sim, cid, level):
+                ref = JobRef(job_id=j.job_id, token=j.job_id, kind=CandidateKind.PRE_REHANDLE,
+                             target_container=j.target_container, lane_id=sim._lane_for(c.bay),
+                             eligible_crane_ids=sim.eligible_cranes(c.bay),
+                             is_vessel=True, is_external=False)
+                plan = sim._plan(cid, ref)
+                if plan is None:
+                    continue
+                reason = self._committed_reason(sim, plan)
+                out.append(GenCandidate(0, CandidateKind.PRE_REHANDLE, ref, plan, False,
+                                        reason is None, reason,
+                                        self._score(sim, ref, plan, now, None)))
+        return out
+
+    def _escape_bays(self, sim, cid) -> set[float]:
+        """YR-112 — 간섭 교착에서 **비켜서는** 목표 bay.
+
+        엔진 술어(`interference_deadlock_corridors`)가 참일 때만 발행하므로 정상 런에는
+        후보가 하나도 늘지 않는다(골든 보존).
+
+        막힌 통로 (lo,hi) 를 이 크레인의 정지 위치가 안전간격 안에서 가리고 있으면, 그
+        간격이 **정확히 풀리는 최소 거리**만큼 물러난다 — 가까운 쪽 끝에서 `안전간격` 만큼.
+        실측 두 형태 모두 이 식으로 풀린다:
+          · YC-L 22 · YC-W 24 · 통로 (22,23) → YC-L 을 20 으로
+          · YC-L 16 · YC-W 19 · 통로 (17,19) → YC-L 을 15 로 (1 bay 만 움직이면 된다)
+        1 bay 이동도 유효하므로 일반 REPOSITION 의 "이동가치" 하한(>1)을 여기엔 적용하지 않는다.
+        """
+        cors = sim.interference_deadlock_corridors()
+        if not cors:
+            return set()
+        yc, spec = sim.fleet.get(cid), sim.fleet.spec(cid)
+        gap = sim.reservations.safety_gap_bay
+        pos = yc.state.position_bay
+        out: set[float] = set()
+        for lo, hi in cors:
+            if not Corridor(pos, pos).overlaps(Corridor(lo, hi), gap):
+                continue                       # 이 크레인은 이 통로를 막고 있지 않다
+            for tgt in (lo - gap, hi + gap):   # 아래로 / 위로 — 둘 다 후보로 열어 둔다
+                t = float(min(max(tgt, spec.service_bay_min), spec.service_bay_max))
+                if abs(t - pos) < 1e-9:
+                    continue
+                if not Corridor(t, t).overlaps(Corridor(lo, hi), gap):
+                    out.add(t)
+        return out
+
+    def _flags(self) -> tuple:
+        """(wait_mode, safety_only, bound_repo, prepo_one_shot) — 주입 우선, 없으면
+        모듈 전역(과도기 — YR-160 본체 완결 시 전역 경로 제거)."""
+        c = self.config
+        return (c.wait_mode, c.safety_only, c.bound_repo, c.prepo_one_shot)
+
+    def _reposition(self, sim, cid, now, level) -> list[GenCandidate]:
+        yc = sim.fleet.get(cid)
+        out = []
+        escape_targets = self._escape_bays(sim, cid)
+        _, safety_only, bound_repo, prepo_one_shot = self._flags()
+        if safety_only:
+            targets = escape_targets            # YR-143 C0 — 능동 위치조정 미발행
+        elif bound_repo:
+            # YR-141 구속판: 결속 작업이 명시된 PREPO 후보 (근접 시 소멸 — 도착 후 재발행 억제)
+            bound = []
+            hist = (getattr(sim, "_prepo_history", None)  # YR-142: one-shot 재발행 금지
+                    if prepo_one_shot else None)
+            for jid, bay, _eta in iter_eta_reposition_jobs(sim, cid, level):
+                if hist and jid in hist:
+                    bl = getattr(sim, "_prepo_blocked", None)   # 고유 (시점·크레인·작업)
+                    if bl is None:                              # 삼족 집합 — 19차 감사
+                        bl = sim._prepo_blocked = set()
+                    bl.add((float(sim.now), cid, jid))
+                    continue                    # 실행된 작업의 재발행 = 규칙으로 차단
+                if abs(bay - yc.state.position_bay) <= 1.0:
+                    continue                    # 목표 근접 = 후보 소멸 (반복 이동 1차 억제)
+                bound.append((jid, bay))
+            for jid, tb in sorted(bound):
+                ref = JobRef(job_id=f"PREPO:{jid}:{int(tb)}", token=None,
+                             kind=CandidateKind.REPOSITION, target_container=None,
+                             lane_id=None, eligible_crane_ids=(cid,), is_vessel=False,
+                             is_external=False, reposition_target_bay=tb)
+                plan = sim._plan(cid, ref)
+                if plan is None:
+                    continue
+                reason = self._committed_reason(sim, plan)
+                out.append(GenCandidate(0, CandidateKind.REPOSITION, ref, plan, False,
+                                        reason is None, reason, -1000.0 + tb))
+            targets = escape_targets            # 탈출(안전기능)은 불변 분리
+        else:
+            targets = set(self._future_target_bays(sim, cid, now, level)) | escape_targets
+        for tb in sorted(targets):
+            # 일반 선제 위치조정은 1 bay 이하의 미세이동을 버리지만, 교착 탈출은
+            # **정확히 1 bay**만 비켜도 통로가 열릴 수 있다(YR-116: 16→15).
+            # 탈출 목표까지 같은 하한을 적용하면 계산된 목표가 최종 후보에서 다시 사라진다.
+            if tb not in escape_targets and abs(tb - yc.state.position_bay) <= 1.0:
+                continue
+            ref = JobRef(job_id=f"REPO:{cid}:{int(tb)}", token=None,
+                         kind=CandidateKind.REPOSITION, target_container=None, lane_id=None,
+                         eligible_crane_ids=(cid,), is_vessel=False, is_external=False,
+                         reposition_target_bay=tb)
+            plan = sim._plan(cid, ref)
+            if plan is None:
+                continue
+            reason = self._committed_reason(sim, plan)
+            out.append(GenCandidate(0, CandidateKind.REPOSITION, ref, plan, False,
+                                    reason is None, reason, -1000.0 + tb))  # 낮은 우선
+        return out
+
+    def _defer_trigger_time(self, sim, now, level):
+        """가장 이른 관측 가능 미래 사건 (공개 정보만) — (시각, 종류, 대상 작업) 또는
+        (None, None, None). YR-146 허가증: 대상 작업 id 를 함께 반환(기록 전용).
+
+        외부트럭 provided_eta(정보수준 가시성 규칙 재사용)·내부작업 release_time 만 본다.
+        실현(actual_*) 미래시각은 절대 읽지 않는다 (YR-147 비누출 계약)."""
+        best_t, best_k, best_j = None, None, None
+        for jid in sorted(sim.jobs):
+            j = sim.jobs[jid]
+            if j.status != JobStatus.PLANNED:
+                continue
+            if j.is_external_truck:
+                t, k = _visible_eta_of(j, level), "ETA"
+            else:
+                t, k = getattr(j, "release_time", None), "RELEASE"
+            if t is not None and t > now and (best_t is None or t < best_t):
+                best_t, best_k, best_j = t, k, jid
+        return best_t, best_k, best_j
+
+    def _wait(self, sim=None, now=None, level=None) -> GenCandidate:
+        base = GenCandidate(0, CandidateKind.WAIT, None, None, False, True, None,
+                            float("-inf"))
+        wait_mode = self._flags()[0]
+        if wait_mode == "WAIT" or sim is None:      # A(현행) 또는 busy/양보 구조 경로
+            return base
+        t, k, jid = self._defer_trigger_time(sim, now, level)
+        expiry = now + DEFER_T_MAX
+        if t is not None:
+            return replace(base, defer_until=min(t, expiry), defer_trigger=k,
+                           defer_trigger_jid=jid)
+        # 관측 trigger 없음 — B: 전략 허용 유한 대기 / C: 구조적 fallback 전용(조합 제외)
+        return replace(base, defer_until=expiry, defer_trigger=None)
+
+    # -------------------------------------------------------- 공통
+    def _committed_reason(self, sim, plan) -> str | None:
+        """1차 mask = ReservationTable.reject_reason (2·3차와 동일 소스)."""
+        return sim.reservations.reject_reason(sim._reservation(plan))
+
+    def _is_mandatory(self, sim, j, cum) -> bool:
+        return bool(j.is_external_truck and cum is not None
+                    and cum >= self.mandatory_wait_frac * sim.profile.long_wait_sla_s)
+
+    def _visible_eta(self, j, level) -> float | None:
+        return _visible_eta_of(j, level)
+
+    def _future_job_bay(self, sim, j, spec, yc) -> float | None:
+        return _future_bay_of(sim, j, spec, yc)
+
+    def _future_target_bays(self, sim, cid, now, level) -> set:
+        """외부트럭 ETA 주도(공유 술어) ∪ 내부작업 release 주도 — 합집합은 기존과 동일."""
+        spec = sim.fleet.spec(cid)
+        yc = sim.fleet.get(cid)
+        horizon = sim.profile.decision_horizon_s
+        bays = set(iter_eta_reposition_bays(sim, cid, level))
+        for j in sim.jobs.values():
+            if j.status == JobStatus.DONE or j.is_external_truck:
+                continue
+            eta = j.release_time if j.status == JobStatus.PLANNED else None
+            if eta is None or eta <= now or eta - now > horizon:
+                continue
+            bay = _future_bay_of(sim, j, spec, yc)
+            if bay is None:
+                continue
+            bays.add(float(min(max(bay, spec.service_bay_min), spec.service_bay_max)))
+        return bays
+
+    def _score(self, sim, ref, plan, now, cum) -> float:
+        """§8.3 탐색축소 필터 (계수 assumed) — pruning 전용, features 진입 금지."""
+        s = 0.0
+        if cum is not None:
+            s += cum
+        j = sim.jobs.get(ref.job_id)
+        if j is not None and j.is_vessel_linked and j.deadline is not None:
+            s += max(0.0, sim.profile.long_wait_sla_s - (j.deadline - now))
+        if plan is not None:
+            s -= 0.1 * plan.duration_s + 50.0 * plan.rehandles
+        return s
+
+    # -------------------------------------------------------- prune·order
+    def _prune(self, raw) -> list:
+        """mandatory 는 전량 보존, 나머지를 score 로 budget 까지 채운다.
+
+        YR-044: mandatory 가 budget(k_max-1) 을 넘으면 **후보칸을 늘려 전부 싣는다** (이전엔
+        K_TOO_SMALL 로 크래시 — 혼잡 시 SLA 임박 트럭이 12대를 넘으면 에피소드가 죽었다).
+        "조용한 유실 금지" 의도는 유실 0 이지 크래시가 아니다. 후보 수는 가변이고 Q망은
+        후보별 공유 점수 구조(YR-031-b)라 K 확장이 안전하다.
+        """
+        budget = self.k_max - 1                       # WAIT 1칸 예약
+        mand = [c for c in raw if c.mandatory]
+        rest = [c for c in raw if not c.mandatory]
+        rest.sort(key=lambda c: (-c.score,) + self._order_key(c))
+        return mand + rest[:max(0, budget - len(mand))]
+
+    def _order_key(self, gc) -> tuple:
+        """canonical id 순 — score 미세동률이 텐서 레이아웃을 흔들지 않게 membership/id 분리."""
+        ref = gc.job_ref
+        return (_KIND_RANK[gc.kind], ref.job_id if ref else "",
+                ref.reposition_target_bay if (ref and ref.reposition_target_bay is not None) else -1.0)
