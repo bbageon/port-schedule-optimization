@@ -1,0 +1,888 @@
+{
+  "schema": "yard.v5.debug-coverage.v1",
+  "task": "YR-303",
+  "scope": "implementation-debug-only; no performance or realism judgment",
+  "collected": 199,
+  "unique_passed": 199,
+  "missing": [],
+  "duplicates": [],
+  "aggregation": "All 179 original tests completed. Select the unchanged 32 slow cases from the initial run, 129 non-PPO cases from the fixed rerun, and 38 final learner cases. This is NOT a single final full-suite invocation.",
+  "final_source_sha256": "a84d1e405028bcf1b3e1bd8cbcde281ec4bc8dbb13d74cd225a794bedcd975eb",
+  "runs": [
+    {
+      "evidence": "initial-full.xml",
+      "tests": 179,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1337.607,
+      "selected_passes": 32
+    },
+    {
+      "evidence": "final-rerun.xml",
+      "tests": 163,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 338.609,
+      "selected_passes": 129
+    },
+    {
+      "evidence": "final-learners.xml",
+      "tests": 38,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 27.736,
+      "selected_passes": 38
+    }
+  ],
+  "testcases": [
+    {
+      "nodeid": "tests/v5/test_branch_pool.py::test_parallel_matches_serial",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_branch_pool.py::test_rollout_counter_survives_process_split",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_branch_pool.py::test_eval_path_stays_teacher_free[1]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_branch_pool.py::test_eval_path_stays_teacher_free[3]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_all_arms_registered",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[FCFS]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[SPT]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[LEAST_SLACK]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[NETGAIN]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[SLOT_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arm_runs_and_makes_no_rollouts[SPACE_TIME_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_space_rules_never_defer_time[FCFS]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_space_rules_never_defer_time[LEAST_SLACK]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_space_rules_never_defer_time[NETGAIN]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_space_rules_never_defer_time[SPT]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_time_rules_do_defer_time[SLOT_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_time_rules_do_defer_time[SPACE_TIME_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[FCFS]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[SPT]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[LEAST_SLACK]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[NETGAIN]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[SLOT_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_trigger_limits_trades[SPACE_TIME_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[FCFS]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[SPT]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[LEAST_SLACK]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[NETGAIN]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[SLOT_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_reproducible[SPACE_TIME_LL]",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_arms_actually_differ",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_no_realloc_makes_no_trades",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_classical_arms.py::test_classical_market_rejects_unknown_arm",
+      "evidence": "initial-full.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_episode_repro.py::test_same_seed_same_day[NO_REALLOC]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_episode_repro.py::test_same_seed_same_day[RL]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_episode_repro.py::test_unimplemented_arm_fails_loudly",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_episode_repro.py::test_all_declared_arms_actually_run",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_episode_repro.py::test_eval_path_never_calls_the_teacher",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_same_coordinate_same_value",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_any_coordinate_change_changes_value[changed0]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_any_coordinate_change_changes_value[changed1]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_any_coordinate_change_changes_value[changed2]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_any_coordinate_change_changes_value[changed3]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_uniform_enough_to_drive_exploration",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_pick_covers_range_and_stays_inside",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_explore_branch_stable.py::test_actor_explore_is_branch_stable",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_inline_matches_stack_size_ok[0.0]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_inline_matches_stack_size_ok[0.3]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_inline_matches_stack_size_ok[0.45]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_inline_matches_stack_size_ok[0.75]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_inline_matches_stack_size_ok[0.95]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_top_matches_top_tier[0.3]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_top_matches_top_tier[0.45]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_top_matches_top_tier[0.75]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_find_slot_equiv.py::test_find_slot_is_deterministic",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_month_run_differs_from_clone_only_by_the_guard",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_guard_is_bigger_than_the_clone",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_twenty_eight_training_days",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_days_are_contiguous",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_short_month_knows_its_own_length",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_month_is_reproducible",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_load_weights_sum_to_one",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_summary_counts_only_training_days",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_schedule_is_shifted_and_unique",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_vessels_are_shifted_into_their_day",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_vessel_work_balances_the_yard[9400777]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_vessel_work_balances_the_yard[9400778]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_vessel_work_balances_the_yard[9400779]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_vessel_work_balances_the_yard[9400780]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_work_field_agrees_with_type_offset",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_sign_test_matches_published_numbers",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_sign_test_drops_ties_and_says_so",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_empty_sign_test_is_not_significant",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_a_finished_vessel_with_jobs_left_is_not_retired",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_a_finished_vessel_with_no_jobs_is_retired_and_archived",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_a_just_finished_vessel_waits_for_its_last_transfer",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_an_unfinished_vessel_is_never_retired",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_announcer_window_keeps_only_that_stretch",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_each_block_stays_near_its_starting_level",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_month_vessel_work_is_deterministic_and_policy_free",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_judge_flags_a_silent_rl_arm",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_judge_does_not_flag_a_busy_rl_arm",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_eligibility_index_matches_the_old_full_scan",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_branch_worlds_get_the_same_exploration_rate",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_ctx_explore_is_what_branches_read",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_month_stage.py::test_identity_check_costs_no_extra_world",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_three_classes_exist_with_design_values",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_call_volume_is_15_to_30_percent_of_capacity",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_port_time_comes_from_the_measured_table",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_large_vessel_is_rare_not_absent",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_small_and_medium_come_every_day",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_streams_fit_the_one_stream_per_block_contract",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_one_ship_supplies_from_several_blocks",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_work_fits_inside_the_window",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_stream_productivity_matches_design",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_vessel_classes.py::test_daily_volume_is_near_the_design_average",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_all_v4_source_files_were_copied",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/candidate.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/cost.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/fixtures.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/leakage.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/schema.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/serialize.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/state.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/transition.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/validate.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/vectors.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/contract/vessel.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/domain/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/domain/enums.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/domain/models.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/domain/validators.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/adapter.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/audit.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/baselines.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/block_congestion.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/candidates.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/cost.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/cost_config.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/cost_curve.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/cost_curve_v2.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/cranes.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/day_plan.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/dispatcher.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/engine.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/events.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/fixtures.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/jobplan.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/lane.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/ledger.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/multiblock.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/order_schema.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/policy_config.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/profile.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/profiles.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/reservation.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/resolver.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/scenario.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/scenario_gen.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/slot_plan.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/terminal_stream.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/time_contract.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/time_grid.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/time_sell.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/transfer.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/vessel.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/vessel_cost.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/vessel_signals.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/integrated/yard_layout.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/io/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/io/profile_loader.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/sim/__init__.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/sim/constraints.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/sim/kpis.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/sim/stack.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_physical_world_is_unchanged_from_v4[world/sim/travel_time.py]",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_copy_manifest_pins_the_declared_base_commit",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_clone.py::test_v5_has_no_absolute_import_from_another_generation",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_world_equivalence.py::test_clone_engine_reproduces_original",
+      "evidence": "final-rerun.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_legacy_train_seed.py::test_training_seed_overrides_ambient_rng[daily]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_legacy_train_seed.py::test_training_seed_overrides_ambient_rng[month]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_legacy_train_seed.py::test_different_training_seeds_change_both_initial_models[daily]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_legacy_train_seed.py::test_different_training_seeds_change_both_initial_models[month]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[1.5-rollout_intervals]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[1.5-epochs]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[1.5-minibatch_size]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[True-rollout_intervals]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[True-epochs]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_count_settings_reject_non_integers_before_running[True-minibatch_size]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_early_stop_reports_the_divergence_that_actually_stopped_training",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_gae_rejects_discontinuous_collection_instead_of_joining_unrelated_states",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_invalid_review_time_is_rejected_before_reading_world[nan]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_invalid_review_time_is_rejected_before_reading_world[inf]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_invalid_review_time_is_rejected_before_reading_world[-1.0]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_nonfinite_discount_time_unit_is_rejected[nan]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_nonfinite_discount_time_unit_is_rejected[inf]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_gae_does_not_broadcast_one_blocks_value_across_two_blocks",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_regressions.py::test_true_terminal_allows_next_episode_but_cuts_future_rewards",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_mask_is_respected_and_replay_logprob_identical",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_buyer_actions_distinct_even_for_zero_offer",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_gae_time_discount_and_truncation_bootstrap",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_gae_full_return_and_true_terminal_cuts_trace",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_clipping_both_advantage_signs",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_joint_mask_rejects_duplicate_tokens_and_corridor_conflict",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_invalid_config_rejected[change0]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_invalid_config_rejected[change1]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_invalid_config_rejected[change2]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_invalid_config_rejected[change3]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_checkpoint_roundtrip_and_v4_rejected",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_boundary_telescopes_cost_and_preserves_zero_time_choices",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_units.py::test_shared_policy_updates_from_recorded_action",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_real_engine_all_roles_no_world_clone_continuous_updates",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_no_mixing_legacy_teacher_or_policy[kwargs0]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_no_mixing_legacy_teacher_or_policy[kwargs1]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_no_mixing_legacy_teacher_or_policy[kwargs2]",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_only_diagnostic_seeds_allowed",
+      "evidence": "final-learners.xml"
+    },
+    {
+      "nodeid": "tests/v5/test_ppo_integration.py::test_midnight_cleanup_does_not_reset_cost_or_world",
+      "evidence": "final-learners.xml"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "copy-before-fix.xml",
+      "sha256": "62b78d74ad9773c928b4d5579bd8469a441365ab701b3d60554887a565d61da3"
+    },
+    {
+      "file": "copy-fixed.xml",
+      "sha256": "4b0a061cc2c364af94e6498a9ca7e6d1742436f4567b96b7fa90d8bd2f1a257d"
+    },
+    {
+      "file": "final-learners.xml",
+      "sha256": "229889a160e0a4832d11e662cec15154cd40c3d190df3f1ea225e0976bf42687"
+    },
+    {
+      "file": "final-rerun.xml",
+      "sha256": "5608d4e9fc66020ac01b0f1ae1c0ba6f6a12e61457019c3133d3cdcaeb471c2b"
+    },
+    {
+      "file": "initial-full.xml",
+      "sha256": "375fb453ce698274ffe4b69276dd50a7468dc0f013e18baf894c19184d932a52"
+    },
+    {
+      "file": "ppo-before-fix.xml",
+      "sha256": "ac58afa8dee73ac6cf56e7a00050c67412521811d27b41ed027f9770c53cfd36"
+    },
+    {
+      "file": "ppo-fixed.xml",
+      "sha256": "6937b83e0d8eff86a6a9930b16879866e6e24b6db264d7d0af93299f31be8ad7"
+    },
+    {
+      "file": "replay-final.json",
+      "sha256": "abf6bed4527861088d5988583f3b074c3c59bd5c5f96287fcfc8f933570ae944"
+    },
+    {
+      "file": "replay.json",
+      "sha256": "e25610d5da662fa1935c17eb6df81e5c6dd407d8e332f94c27542e29f0c3c268"
+    },
+    {
+      "file": "seed-before-fix.xml",
+      "sha256": "c1453ac3c78d91a24619e6193b8f12508d00b9178f8787a06a8d287350bde8f9"
+    },
+    {
+      "file": "train-final.json",
+      "sha256": "f1d62dad24da818b8c27a81aaf1a2dbd23a167e618f412dd3a6de7fcd2e76d54"
+    },
+    {
+      "file": "train.json",
+      "sha256": "383d1383ead30b13216097136ed742f39d1b7aecf188fc25bec96ce3b0c8b15a"
+    }
+  ]
+}

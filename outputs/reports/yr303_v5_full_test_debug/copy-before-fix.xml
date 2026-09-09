@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.428" timestamp="2026-09-10T08:37:46.088702+09:00" hostname="global0558"><testcase classname="tests.v5.test_world_clone" name="test_all_v4_source_files_were_copied" time="0.233"><failure message="AssertionError: assert not ['crane/features.py', 'crane/__init__.py']">def test_all_v4_source_files_were_copied():
+        missing = [p.relative_to(SOURCE).as_posix() for p in SOURCE.rglob("*.py")
+                   if not (CLONE / p.relative_to(SOURCE)).exists()]
+&gt;       assert not missing
+E       AssertionError: assert not ['crane/features.py', 'crane/__init__.py']
+
+tests/v5/test_world_clone.py:15: AssertionError</failure></testcase></testsuite></testsuites>

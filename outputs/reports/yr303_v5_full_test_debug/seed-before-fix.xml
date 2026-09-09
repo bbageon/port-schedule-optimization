@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="2.986" timestamp="2026-09-10T08:50:47.387911+09:00" hostname="global0558"><testcase classname="tests.v5.test_legacy_train_seed" name="test_training_seed_overrides_ambient_rng[daily]" time="1.335"><failure message="assert False&#10; +  where False = all(&lt;generator object test_training_seed_overrides_ambient_rng.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187db60&gt;)">kind = 'daily'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72414fa11ca0&gt;
+tmp_path = PosixPath('/tmp/pytest-of-geonu/pytest-3/test_training_seed_overrides_a0')
+
+    @pytest.mark.parametrize("kind", ["daily", "month"])
+    def test_training_seed_overrides_ambient_rng(kind, monkeypatch, tmp_path):
+        a = initial_weights(kind, 9900303, 1, monkeypatch, tmp_path)
+        b = initial_weights(kind, 9900303, 2, monkeypatch, tmp_path)
+&gt;       assert all(torch.equal(x, y) for x, y in zip(a, b))
+E       assert False
+E        +  where False = all(&lt;generator object test_training_seed_overrides_ambient_rng.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187db60&gt;)
+
+tests/v5/test_legacy_train_seed.py:41: AssertionError</failure></testcase><testcase classname="tests.v5.test_legacy_train_seed" name="test_training_seed_overrides_ambient_rng[month]" time="0.008"><failure message="assert False&#10; +  where False = all(&lt;generator object test_training_seed_overrides_ambient_rng.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187cba0&gt;)">kind = 'month'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72412eb42cf0&gt;
+tmp_path = PosixPath('/tmp/pytest-of-geonu/pytest-3/test_training_seed_overrides_a1')
+
+    @pytest.mark.parametrize("kind", ["daily", "month"])
+    def test_training_seed_overrides_ambient_rng(kind, monkeypatch, tmp_path):
+        a = initial_weights(kind, 9900303, 1, monkeypatch, tmp_path)
+        b = initial_weights(kind, 9900303, 2, monkeypatch, tmp_path)
+&gt;       assert all(torch.equal(x, y) for x, y in zip(a, b))
+E       assert False
+E        +  where False = all(&lt;generator object test_training_seed_overrides_ambient_rng.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187cba0&gt;)
+
+tests/v5/test_legacy_train_seed.py:41: AssertionError</failure></testcase><testcase classname="tests.v5.test_legacy_train_seed" name="test_different_training_seeds_change_both_initial_models[daily]" time="0.011"><failure message="assert False&#10; +  where False = all(&lt;generator object test_different_training_seeds_change_both_initial_models.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187d540&gt;)">kind = 'daily'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72412eb98dd0&gt;
+tmp_path = PosixPath('/tmp/pytest-of-geonu/pytest-3/test_different_training_seeds_0')
+
+    @pytest.mark.parametrize("kind", ["daily", "month"])
+    def test_different_training_seeds_change_both_initial_models(kind, monkeypatch, tmp_path):
+        a = initial_weights(kind, 9900303, 1, monkeypatch, tmp_path)
+        b = initial_weights(kind, 9900304, 1, monkeypatch, tmp_path)
+&gt;       assert all(not torch.equal(x, y) for x, y in zip(a, b))
+E       assert False
+E        +  where False = all(&lt;generator object test_different_training_seeds_change_both_initial_models.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187d540&gt;)
+
+tests/v5/test_legacy_train_seed.py:48: AssertionError</failure></testcase><testcase classname="tests.v5.test_legacy_train_seed" name="test_different_training_seeds_change_both_initial_models[month]" time="0.008"><failure message="assert False&#10; +  where False = all(&lt;generator object test_different_training_seeds_change_both_initial_models.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187d8c0&gt;)">kind = 'month'
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72412eb99d90&gt;
+tmp_path = PosixPath('/tmp/pytest-of-geonu/pytest-3/test_different_training_seeds_1')
+
+    @pytest.mark.parametrize("kind", ["daily", "month"])
+    def test_different_training_seeds_change_both_initial_models(kind, monkeypatch, tmp_path):
+        a = initial_weights(kind, 9900303, 1, monkeypatch, tmp_path)
+        b = initial_weights(kind, 9900304, 1, monkeypatch, tmp_path)
+&gt;       assert all(not torch.equal(x, y) for x, y in zip(a, b))
+E       assert False
+E        +  where False = all(&lt;generator object test_different_training_seeds_change_both_initial_models.&lt;locals&gt;.&lt;genexpr&gt; at 0x72413187d8c0&gt;)
+
+tests/v5/test_legacy_train_seed.py:48: AssertionError</failure></testcase></testsuite></testsuites>

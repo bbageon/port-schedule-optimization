@@ -27,6 +27,7 @@ def update(policy, optimizer, intervals, bootstrap, config, rng):
             adv = (adv - a.mean()) / scale
     losses, kls, gradients = [], [], []
     n_minibatches = 0
+    early_stopped = False
     for _ in range(config.epochs):
         order = rng.permutation(len(entries))
         stop = False
@@ -53,7 +54,11 @@ def update(policy, optimizer, intervals, bootstrap, config, rng):
             actor_loss = -torch.stack(objectives).mean() if objectives else value_loss * 0
             entropy = torch.stack(entropies).mean() if entropies else value_loss * 0
             kl = float(torch.stack(approx_kls).mean()) if approx_kls else 0.0
-            if not np.isfinite(kl) or kl > config.target_kl:
+            if not np.isfinite(kl):
+                raise FloatingPointError("Non-finite PPO policy divergence")
+            kls.append(kl)  # Include the batch that STOPPED training in the report.
+            if kl > config.target_kl:
+                early_stopped = True
                 stop = True
                 break
             loss = actor_loss + config.value_coef * value_loss - config.entropy_coef * entropy
@@ -65,12 +70,12 @@ def update(policy, optimizer, intervals, bootstrap, config, rng):
                                                    error_if_nonfinite=True)
             optimizer.step()
             losses.append(float(loss.detach()))
-            kls.append(kl)
             gradients.append(float(norm))
             n_minibatches += 1
         if stop:
             break
     return {"loss": float(np.mean(losses)) if losses else 0.0,
+            "early_stopped": early_stopped,
             "max_kl": max(kls, default=0.0), "max_grad_norm_before_clip": max(gradients, default=0.0),
             "minibatches": n_minibatches, "intervals": len(intervals),
             "block_samples": len(entries), "active_block_samples": len(active),

@@ -39,6 +39,9 @@ class PPOConfig:
     target_kl: float = 0.03
 
     def __post_init__(self):
+        counts = (self.rollout_intervals, self.epochs, self.minibatch_size)
+        if any(not isinstance(v, int) or isinstance(v, bool) for v in counts):
+            raise ValueError("Batch sizes and epochs must be positive integers")
         if any(not math.isfinite(float(v)) for v in asdict(self).values()):
             raise ValueError("PPO configuration must be finite")
         if min(self.rollout_intervals, self.epochs, self.minibatch_size) < 1:
@@ -98,6 +101,8 @@ class PPORuntime:
         return float(phi.total)
 
     def select(self, role, bid, t, rows, mask=None):
+        if not math.isfinite(t) or t < 0:
+            raise ValueError("Decision time must be finite and nonnegative")
         if self.time_s is None:
             raise RuntimeError("A synchronized initial boundary must precede decisions")
         if t < self.time_s - 1e-6:
@@ -125,6 +130,8 @@ class PPORuntime:
             self.on_update(rep)
 
     def boundary(self, t, *, terminated=False, final=False):
+        if not math.isfinite(t) or t < 0:
+            raise ValueError("Review time must be finite and nonnegative")
         if self.time_s is not None and t < self.time_s - 1e-6:
             raise RuntimeError("Review clock went backwards")
         states = self.states_at(t)

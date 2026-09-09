@@ -33,6 +33,8 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
+import torch
+
 from ..eval.guards import DIAGNOSTIC_BAND
 from ..stage.month import N_DAYS, plan_month, summarize
 from ..stage.month_run import run_month
@@ -68,6 +70,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
             f"학습 시드 {seed:,} 가 진단 대역({DIAGNOSTIC_BAND:,}~)이 아니다 — "
             f"판정 대역을 학습에 쓰면 그 대역이 오염된다")
     out = Path(out_dir)
+    # Seed BEFORE creating supplied nets; run_month cannot seed them afterwards.
+    torch.manual_seed(int(seed) + 1)
     s_net, b_net = SellerNet(), BuyerNet()
     st = TrainState(s_net, b_net, StudentTrainer(s_net, b_net))
     days = list(days) if days else plan_month(seed, n_days=n_days)

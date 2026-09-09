@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="11" time="3.279" timestamp="2026-09-10T08:33:36.083032+09:00" hostname="global0558"><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[1.5-rollout_intervals]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[1.5-epochs]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[1.5-minibatch_size]" time="0.000"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[True-rollout_intervals]" time="0.000"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[True-epochs]" time="0.000"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_count_settings_reject_non_integers_before_running[True-minibatch_size]" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:17: in test_count_settings_reject_non_integers_before_running
+    with pytest.raises(ValueError, match="integer"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_early_stop_reports_the_divergence_that_actually_stopped_training" time="1.573"><failure message="assert 0.0 &gt; 0.03&#10; +  where 0.03 = PPOConfig(rollout_intervals=60, epochs=2, minibatch_size=64, learning_rate=0.0003, gamma=0.999, gae_lambda=0.95, time_unit_s=60.0, reward_scale_krw=1000000.0, clip=0.2, value_coef=0.5, entropy_coef=0.001, max_grad_norm=0.5, target_kl=0.03).target_kl">tests/v5/test_ppo_regressions.py:37: in test_early_stop_reports_the_divergence_that_actually_stopped_training
+    assert rep["max_kl"] &gt; config.target_kl
+E   assert 0.0 &gt; 0.03
+E    +  where 0.03 = PPOConfig(rollout_intervals=60, epochs=2, minibatch_size=64, learning_rate=0.0003, gamma=0.999, gae_lambda=0.95, time_unit_s=60.0, reward_scale_krw=1000000.0, clip=0.2, value_coef=0.5, entropy_coef=0.001, max_grad_norm=0.5, target_kl=0.03).target_kl</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_gae_rejects_discontinuous_collection_instead_of_joining_unrelated_states" time="0.001"><failure message="Failed: DID NOT RAISE ValueError">tests/v5/test_ppo_regressions.py:46: in test_gae_rejects_discontinuous_collection_instead_of_joining_unrelated_states
+    with pytest.raises(ValueError, match="contiguous"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_invalid_review_time_is_rejected_before_reading_world[nan]" time="0.001"><failure message="Failed: Invalid clock was passed into state collection">tests/v5/test_ppo_regressions.py:57: in test_invalid_review_time_is_rejected_before_reading_world
+    rt.boundary(t)
+src/yard_rl/v5/ppo/runtime.py:130: in boundary
+    states = self.states_at(t)
+             ^^^^^^^^^^^^^^^^^
+tests/v5/test_ppo_regressions.py:54: in must_not_read
+    pytest.fail("Invalid clock was passed into state collection")
+E   Failed: Invalid clock was passed into state collection</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_invalid_review_time_is_rejected_before_reading_world[inf]" time="0.001"><failure message="Failed: Invalid clock was passed into state collection">tests/v5/test_ppo_regressions.py:57: in test_invalid_review_time_is_rejected_before_reading_world
+    rt.boundary(t)
+src/yard_rl/v5/ppo/runtime.py:130: in boundary
+    states = self.states_at(t)
+             ^^^^^^^^^^^^^^^^^
+tests/v5/test_ppo_regressions.py:54: in must_not_read
+    pytest.fail("Invalid clock was passed into state collection")
+E   Failed: Invalid clock was passed into state collection</failure></testcase><testcase classname="tests.v5.test_ppo_regressions" name="test_invalid_review_time_is_rejected_before_reading_world[-1.0]" time="0.001"><failure message="Failed: Invalid clock was passed into state collection">tests/v5/test_ppo_regressions.py:57: in test_invalid_review_time_is_rejected_before_reading_world
+    rt.boundary(t)
+src/yard_rl/v5/ppo/runtime.py:130: in boundary
+    states = self.states_at(t)
+             ^^^^^^^^^^^^^^^^^
+tests/v5/test_ppo_regressions.py:54: in must_not_read
+    pytest.fail("Invalid clock was passed into state collection")
+E   Failed: Invalid clock was passed into state collection</failure></testcase></testsuite></testsuites>

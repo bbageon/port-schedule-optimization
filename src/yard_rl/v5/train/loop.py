@@ -180,6 +180,8 @@ def run_training(*, iters: int = 20, out_dir: str | Path = "outputs/v5/train",
     사전등록이 무너지므로**, 예산을 먼저 정해 두고 그 안에서 돈다.
     """
     out = Path(out_dir)
+    # Seed BEFORE creating supplied nets; run_episode cannot seed them afterwards.
+    torch.manual_seed(int(seed_base) + 1)
     s_net, b_net = SellerNet(), BuyerNet()
     st = TrainState(s_net, b_net, StudentTrainer(s_net, b_net))
     t_start = time.time()
