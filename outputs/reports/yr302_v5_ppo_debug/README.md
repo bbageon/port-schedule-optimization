@@ -2,6 +2,7 @@
 
 2026-09-09 사용자 요청: v4를 독립 복사하여 v5 코드를 만들고 디버깅까지만.
 v4 기준 커밋: `6d42455cbb1c61c5667c50d38776c4372148c417`.
+구현 커밋: `5a9e8dd18750365f7f683fb74a12f1f625e62f59`.
 본 보고서는 **배선·수식·물리 실행 확인**이며 성능 개선 판정이 아니다.
 
 ## 진행사항
@@ -65,6 +66,7 @@ bash scripts/v5/debug_ppo.sh --eval --checkpoint outputs/v5/new-debug/policy.pt 
 
 출력 JSON에 v5 소스 전체 해시가 있다. 가중치 파일은 로컬
 `outputs/v5/yr302-final-train/policy.pt`에 남겼다. 물리 세계 재개 파일은 아니다.
+파일 SHA-256(내용 식별값): `397a897be724407179d33fbd99255d97010b07e0ff70b3b46e15125601890fd2`.
 
 ## 해석·예정사항
 
