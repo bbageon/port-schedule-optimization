@@ -169,10 +169,22 @@ RULE_BASES: dict[str, type] = {
 }
 
 
-def make_preference(name: str, *, seed: int = 0):
-    """바닥 이름으로 `Preference` 를 만든다. 모르는 이름이면 즉시 거절한다."""
+#: ★학습 크레인 정책 이름 ([[YR-248]] 2단계). 규칙 바닥이 아니라 **망**이라
+#:  `RULE_BASES` 와 따로 둔다 — 바닥 비교표에 섞이면 "규칙 5종" 이라는 말이 흐려진다.
+RL_CRANE = "RL_CRANE"
+
+
+def make_preference(name: str, *, seed: int = 0, crane_net=None):
+    """바닥 이름으로 `Preference` 를 만든다. 모르는 이름이면 즉시 거절한다.
+
+    `RL_CRANE` 이면 학습 정책을 만든다 — `crane_net` 을 주면 그 망을, 안 주면
+    **무작위 초기 망**을 쓴다(학습 전 진단용).
+    """
+    if name == RL_CRANE:
+        from .crane.policy import CranePolicy
+        return CranePolicy(crane_net)
     if name not in RULE_BASES:
         raise ValueError(f"모르는 크레인 바닥: {name!r} (있는 것: "
-                         f"{', '.join(sorted(RULE_BASES))})")
+                         f"{', '.join(sorted(RULE_BASES))}, {RL_CRANE})")
     cls = RULE_BASES[name]
     return cls(seed=seed) if cls is RandomOrder else cls()

@@ -38,7 +38,7 @@ from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
 from ..world.integrated.vessel import VESSEL_CLASSES
 from ..actors.classical import (ARM_RULES, RETIRED_ARMS, TRIGGER_TOP_K,
                                 ClassicalMarket)
-from ..dispatch import RULE_BASES, make_preference
+from ..dispatch import RL_CRANE, RULE_BASES, make_preference
 from ..world.integrated.yard_layout import terminal_layout
 
 #: 정책에 공개되는 차량 정보 시점 — 사전 반출입정보 + 제공 ETA.
@@ -91,7 +91,8 @@ TODO_ARMS = ()
 #: ([[YR-243]] · `v3/dispatch.py`). 계획법(`JointRolloutGreedy`)은 **뺀다** —
 #: `USES_FUTURE_INFORMATION = True` 오라클이라 바닥이 될 수 없다(사용자 지적
 #: 2026-08-28 · [[YR-213]] 권장안 B 철회).
-DISPATCHERS_READY = ("SF_SPT",) + tuple(sorted(RULE_BASES))
+#: ★`RL_CRANE` 은 규칙이 아니라 **학습 망**이다 ([[YR-248]] 2단계).
+DISPATCHERS_READY = ("SF_SPT", RL_CRANE) + tuple(sorted(RULE_BASES))
 
 
 @dataclass

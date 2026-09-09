@@ -68,6 +68,23 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
             f"학습 시드 {seed:,} 가 진단 대역({DIAGNOSTIC_BAND:,}~)이 아니다 — "
             f"판정 대역을 학습에 쓰면 그 대역이 오염된다")
     out = Path(out_dir)
+    #: ★망 초기값을 시드에 묶는다 ([[YR-302]] · 2026-09-10)
+    #:
+    #: ■ 왜 필요한가 — 이게 없어서 [[YR-299]] B 가 무효가 됐다
+    #:   `torch.manual_seed` 는 `stage/month_run.py` 와 `stage/episode.py` 두 곳에 있는데
+    #:   **둘 다 `seller_net is None` 일 때만** 탄다. 학습 경로는 망을 여기서 만들어
+    #:   넘기므로 **한 번도 시딩되지 않았다.**
+    #:
+    #:   그 결과 같은 시드로 두 번 돌려도 다른 정책이 나왔다. [[YR-299]] B 에서
+    #:   창 3h/6h 를 견줬는데 **0일차부터 거래가 갈렸다**(4,400 vs 3,759 · 공간 비중
+    #:   33.5% vs 17.3%). 0일차는 창이 개입할 경로가 없으므로 원인은 초기값뿐이었고,
+    #:   그래서 "3.7배 차이" 를 창 탓으로 돌릴 수 없게 됐다.
+    #:
+    #: ■ 왜 `seed + 1` 인가
+    #:   `run_month` 안에서 `torch.manual_seed(seed)` 가 또 불릴 수 있다(탐색 잡음용).
+    #:   같은 값을 쓰면 초기값과 탐색이 같은 흐름을 공유해 둘이 얽힌다. 한 칸 띄운다.
+    import torch
+    torch.manual_seed(int(seed) + 1)
     s_net, b_net = SellerNet(), BuyerNet()
     st = TrainState(s_net, b_net, StudentTrainer(s_net, b_net))
     days = list(days) if days else plan_month(seed, n_days=n_days)
