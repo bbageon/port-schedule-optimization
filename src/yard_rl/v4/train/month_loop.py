@@ -68,7 +68,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
             f"학습 시드 {seed:,} 가 진단 대역({DIAGNOSTIC_BAND:,}~)이 아니다 — "
             f"판정 대역을 학습에 쓰면 그 대역이 오염된다")
     out = Path(out_dir)
-    #: ★망 초기값을 시드에 묶는다 ([[YR-302]] · 2026-09-10)
+    #: ★망 초기값을 시드에 묶는다 ([[YR-304]] · 2026-09-10)
     #:
     #: ■ 왜 필요한가 — 이게 없어서 [[YR-299]] B 가 무효가 됐다
     #:   `torch.manual_seed` 는 `stage/month_run.py` 와 `stage/episode.py` 두 곳에 있는데
