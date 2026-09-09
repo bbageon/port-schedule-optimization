@@ -1,6 +1,6 @@
 # YR-303 — v5 전체 시험·추가 디버깅
 
-- **상태**: in-progress
+- **상태**: done
 - 사용자 직접 요청: 2026-09-10, "테스트 돌리고 디버깅해".
 - 앞선 YR-302 구현의 검증을 이어간다. 새 연구 가설·성능 최적화 실험이 아니다.
 - 대상: `src/yard_rl/v5`, `tests/v5`, 필요 시 `scripts/v5`.
@@ -27,3 +27,4 @@
 - [보고서](../../../outputs/reports/yr303_v5_full_test_debug/README.md)
   · [항목 대조](../../../outputs/reports/yr303_v5_full_test_debug/coverage.json).
 - 성능 개선·현실타당성은 미평가이며 장기 실험은 시작하지 않는다.
+- 구현·검증 커밋: `ddaf20685527e8af3596d04202c830bd28ad3789`.
