@@ -57,11 +57,18 @@ class PPOConfig:
 
 class PPORuntime:
     def __init__(self, policy: BlockPolicy, *, config=None, seed=302,
-                 training=True, stop_s=None, on_update=None):
+                 training=True, stop_s=None, on_update=None, learning_window_s=None,
+                 on_boundary=None):
         if stop_s is not None and (not math.isfinite(stop_s) or stop_s <= 0):
             raise ValueError("stop_s must be finite and positive")
         self.policy, self.config = policy, config or PPOConfig()
         self.training, self.stop_s, self.on_update = bool(training), stop_s, on_update
+        if learning_window_s is not None:
+            start, end = learning_window_s
+            if not (math.isfinite(start) and math.isfinite(end) and 0 <= start < end):
+                raise ValueError("Learning window must be finite, nonnegative and increasing")
+            learning_window_s = (float(start), float(end))
+        self.learning_window_s, self.on_boundary = learning_window_s, on_boundary
         self.optimizer = torch.optim.Adam(policy.parameters(), lr=self.config.learning_rate)
         self.rng = np.random.default_rng(seed)
         self.action_rng = torch.Generator(device="cpu").manual_seed(seed)
@@ -69,9 +76,14 @@ class PPORuntime:
         self.role_counts, self.crane_actions = Counter(), Counter()
         self.time_s, self.initial_cost, self.cost_krw = None, None, 0.0
         self.total_reward, self.intervals = 0.0, 0
+        self.learning_reward, self.learning_intervals = 0.0, 0
         self.execute = CraneActor(self)
         self.truncated = False
         self.bound = False
+
+    def collecting_at(self, t):
+        return self.training and (self.learning_window_s is None or
+                                  self.learning_window_s[0] <= t < self.learning_window_s[1])
 
     def bind(self, mbt, bridge, meta, archive):
         if self.bound:
@@ -114,7 +126,7 @@ class PPORuntime:
             action = (int(torch.multinomial(dist.probs, 1, generator=self.action_rng))
                       if self.training else int(dist.probs.argmax()))
             logp = float(dist.log_prob(torch.tensor(action)))
-        if self.training:
+        if self.collecting_at(self.time_s):
             self.pending[self.index[bid]].append(Choice(role, t, x, mask, action, logp))
         self.role_counts[role] += 1
         return action
@@ -143,26 +155,34 @@ class PPORuntime:
         if self.initial_cost is None:
             self.initial_cost = cost
         elif t > self.time_s + 1e-6:
+            if self.learning_window_s is not None and any(
+                    self.time_s < edge < t for edge in self.learning_window_s):
+                raise RuntimeError("A review must occur exactly at each learning-window boundary")
             delta = cost - self.cost_krw
             if delta < -1e-5:
                 raise RuntimeError("Cumulative cost fell: lost/pruned accounting data")
             reward = -delta / self.config.reward_scale_krw
             self.total_reward += reward
             self.intervals += 1
-            if self.training:
+            if self.collecting_at(self.time_s):
+                self.learning_reward += reward
+                self.learning_intervals += 1
                 self.buffer.append(Interval(self.time_s, t, self.states, self.values,
                                              self.pending, reward, terminated))
         elif not final:
             return  # Repeated reviews must not erase decisions or charge cost twice.
         self.time_s, self.cost_krw = float(t), cost
         should_stop = self.stop_s is not None and t >= self.stop_s - 1e-6
-        if len(self.buffer) >= self.config.rollout_intervals or final or should_stop:
+        if (len(self.buffer) >= self.config.rollout_intervals or final or should_stop
+                or not self.collecting_at(t)):
             self._update(np.zeros_like(bootstrap) if terminated else bootstrap)
         # Values MUST be recollected after an update, for the next on-policy batch.
         self.states = states
         with torch.no_grad():
             self.values = self.policy.value(states).numpy().copy()
         self.pending = [[] for _ in self.bids]
+        if self.on_boundary is not None:
+            self.on_boundary(self)
         if should_stop and not final:
             self.truncated = True
             raise DebugStop(f"Debug time limit {t:g}s; unfinished work retained")
@@ -177,6 +197,9 @@ class PPORuntime:
                 "intervals": self.intervals, "roles": dict(self.role_counts),
                 "crane_actions": dict(self.crane_actions), "cost_krw": self.cost_krw,
                 "initial_cost_krw": self.initial_cost, "team_reward": self.total_reward,
+                "learning_window_s": self.learning_window_s,
+                "learning_intervals": self.learning_intervals,
+                "learning_reward": self.learning_reward,
                 "truncated": self.truncated, "updates": self.updates,
                 "traded_edges": self.bridge.traded_edges, "txn_failed": self.bridge.txn_failed,
                 "n_space": self.bridge.n_space, "n_time": self.bridge.n_time,
