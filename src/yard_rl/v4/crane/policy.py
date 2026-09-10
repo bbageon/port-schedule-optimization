@@ -54,7 +54,33 @@ from .features import CRANE_DIM, crane_features
 #:   재배정층에서 빌려온 값이라 목표 중앙이 **0.095** 였다 — 신호가 0 근처로 뭉개져
 #:   학습이 사실상 안 됐을 것이다. [[YR-299]] B 가 이 계측이 없어 눈금 문제를
 #:   검증조차 못 했던 그 실패를 여기서는 계측이 막았다.
+#:
+#: ■ ★이제는 **기본값·보고용 참조값**이다 ([[YR-309]] · 2026-09-11)
+#:   실제 학습은 **그날 라벨의 중앙 격차**로 나눈다 — 아래 `CRANE_SCALE_FLOOR` 참조.
+#:   이 상수는 헬퍼의 기본 인자와 *"대략 이 자릿수"* 를 가리키는 용도로 남는다.
 CRANE_ADV_SCALE = 10_000.0
+
+#: ★날별 눈금의 **하한** ([[YR-309]]).
+#:
+#: 왜 날마다 다시 재나 — [[YR-308]] 4시간 학습이 요동친 원인 가설이다.
+#:   라벨 1,455건 실측에서 목표 격차 중앙이 부하별로 **13배** 벌어졌다:
+#:       부하  3,500 →  2,999원 (목표 중앙 0.30 — 신호가 묻힌다)
+#:            12,500 → 39,907원 (목표 중앙 3.99 — 학습이 튄다)
+#:   학습률은 고정인데 목표가 13배 오르내리면 **부하 12,500 인 날의 갱신이 3,500 인
+#:   날보다 13배 세게 민다.** 24회차 중 9회차가 눈금 경고를 냈고, 마지막 회차가 가장
+#:   난폭했으며 그 직후 평가가 최악(+39.23%)이었다.
+#:
+#: 왜 정책이 안 망가지나 — **순서만 쓰기 때문이다.**
+#:   `rank()` 는 점수를 크기순 비교에만 쓴다. 양수로 나누면 순서가 안 바뀌므로
+#:   날마다 눈금이 달라도 **정책의 행동은 그대로**다. 바뀌는 것은 각 날이 기울기에
+#:   기여하는 **세기**뿐이고, 그것을 고르게 만드는 것이 이 변경의 목적이다.
+#:
+#: 왜 하한이 필요한가 — 차이가 **정확히 0 인 결정이 약 21%** 다.
+#:   중앙값이 0 에 가까워지면 나눗셈이 폭발한다. 그리고 하루 Φ 가 수천만~수십억인데
+#:   격차 중앙이 1,000원 미만이면 그날 선택은 사실상 **비용 중립**이다 — 그것을
+#:   목표 1 로 부풀리면 망이 **반올림 잡음을 쫓게** 된다. 하한이 그 증폭을 막는다.
+#:   (실측 최솟값은 부하 3,500 의 921원 — 하한은 그 바로 위다.)
+CRANE_SCALE_FLOOR = 1_000.0
 
 #: WAIT 자리 — `BaselinePreference` 규약과 같다(항상 최하위).
 _WAIT_KEY: tuple = (2, 0.0, "")
@@ -118,15 +144,18 @@ class CranePolicy(BaselinePreference):
         return (tier, score, ref.job_id)
 
 
-def to_advantage(phi: float, base: float) -> float:
-    """`(Φ − 그 결정의 기준선) / CRANE_ADV_SCALE` — 학습 목표.
+def to_advantage(phi: float, base: float, scale: float | None = None) -> float:
+    """`(Φ − 그 결정의 기준선) / 눈금` — 학습 목표.
 
     기준선은 그 결정에서 굴린 세계들의 평균이다. 양쪽에서 같은 값을 빼므로
     **argmin 순서는 안 바뀐다**(상수 차감). 재배정층 `nets.to_advantage` 와 같은 규약.
+
+    `scale` — 안 주면 `CRANE_ADV_SCALE`. 학습 경로는 **그날 라벨의 중앙 격차**를
+    넣는다 ([[YR-309]] · `CraneLabelCollector.result` 가 계산해 넘긴다).
     """
-    return (float(phi) - float(base)) / CRANE_ADV_SCALE
+    return (float(phi) - float(base)) / float(scale or CRANE_ADV_SCALE)
 
 
-def from_advantage(x: float) -> float:
-    """망 출력 → 원화 (기준선 대비). 보고·진단용."""
-    return float(x) * CRANE_ADV_SCALE
+def from_advantage(x: float, scale: float | None = None) -> float:
+    """망 출력 → 원화 (기준선 대비). 보고·진단용. 눈금은 `to_advantage` 와 같아야 한다."""
+    return float(x) * float(scale or CRANE_ADV_SCALE)

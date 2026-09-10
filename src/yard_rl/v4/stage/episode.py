@@ -530,6 +530,12 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
             res.crane_labels = labels.samples
             res.crane_stats = dict(crane.stats, worlds=crane.pool.n_worlds,
                                    zero=labels.zero,
+                                   #: ★그날 눈금 ([[YR-309]]) — 학습기가 이 값으로
+                                   #:  목표를 되돌린다. 안 실어 보내면 기본 상수로
+                                   #:  되돌아가 보고 수치가 조용히 어긋난다.
+                                   scale=labels.scale,
+                                   median_gap_krw=labels.median_gap_krw,
+                                   floor_bound=labels.floor_bound,
                                    hook_errors=exc.get("hook", 0))
             if crane.pool.workers > 1:
                 add_rollout_calls(crane.pool.n_worlds)

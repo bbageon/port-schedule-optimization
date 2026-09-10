@@ -28,9 +28,10 @@
 """
 from __future__ import annotations
 
+import statistics as st
 from dataclasses import dataclass, field
 
-from .policy import to_advantage
+from .policy import CRANE_ADV_SCALE, CRANE_SCALE_FLOOR, to_advantage
 
 
 @dataclass
@@ -42,6 +43,10 @@ class CraneSample:
     crane: str
     job: str | None
     action: str          # "PICKED" | "ALT"
+    #: ★원화 원본 ([[YR-309]]). 눈금이 **그날 라벨 전체를 봐야** 정해지므로,
+    #:  `add` 때는 원본만 담고 `result` 에서 한꺼번에 목표로 바꾼다.
+    phi: float = 0.0
+    base: float = 0.0
 
 
 @dataclass
@@ -49,6 +54,10 @@ class CraneLabelSet:
     samples: list[CraneSample] = field(default_factory=list)
     worlds: int = 0                      # 굴린 반사실 세계 수
     zero: int = 0                        # 차이가 0 이던 결정 수
+    #: ★이 날에 실제로 쓴 눈금(원) — 보고·역환산에 이 값을 써야 한다
+    scale: float = CRANE_ADV_SCALE
+    median_gap_krw: float = 0.0          # 그날 라벨의 격차 중앙 (하한 적용 전)
+    floor_bound: bool = False            # 하한이 걸렸나 (= 그날은 비용 중립에 가까웠다)
 
     def __len__(self) -> int:
         return len(self.samples)
@@ -76,19 +85,34 @@ class CraneLabelCollector:
         base = 0.5 * (float(phi_factual) + float(phi_alt))    # ★그 결정의 기준선
         if abs(float(phi_factual) - float(phi_alt)) < 1e-6:
             self.out.zero += 1
+        #: ★목표는 여기서 안 정한다 — 눈금이 그날 라벨 **전체**의 중앙 격차라
+        #:  마지막 한 건까지 와야 계산된다. `result()` 가 한꺼번에 채운다.
         self.out.samples.append(CraneSample(
-            row=[float(v) for v in picked_row],
-            target=to_advantage(phi_factual, base),
-            crane=crane, job=job, action="PICKED"))
+            row=[float(v) for v in picked_row], target=0.0,
+            crane=crane, job=job, action="PICKED",
+            phi=float(phi_factual), base=base))
         self.out.samples.append(CraneSample(
-            row=[float(v) for v in alt_row],
-            target=to_advantage(phi_alt, base),
-            crane=crane, job=job, action="ALT"))
+            row=[float(v) for v in alt_row], target=0.0,
+            crane=crane, job=job, action="ALT",
+            phi=float(phi_alt), base=base))
 
     def note_worlds(self, n: int) -> None:
         self.out.worlds += int(n)
 
     def result(self) -> CraneLabelSet:
+        """★눈금을 **그날 라벨로 정하고** 목표를 채운다 ([[YR-309]]).
+
+        전에는 전 부하 공통 상수(10,000원)를 썼다. 그러면 부하 12,500 인 날의
+        목표가 3.99, 부하 3,500 인 날이 0.30 으로 **13배** 벌어져, 학습률이 고정인데
+        날마다 미는 세기가 13배 달라진다 ([[YR-308]] 4시간 학습이 요동친 원인 가설).
+        """
+        ss = self.out.samples
+        gaps = [abs(ss[i].phi - ss[i + 1].phi) for i in range(0, len(ss) - 1, 2)]
+        self.out.median_gap_krw = st.median(gaps) if gaps else 0.0
+        self.out.scale = max(CRANE_SCALE_FLOOR, self.out.median_gap_krw)
+        self.out.floor_bound = self.out.median_gap_krw < CRANE_SCALE_FLOOR
+        for smp in ss:
+            smp.target = to_advantage(smp.phi, smp.base, self.out.scale)
         return self.out
 
 

@@ -30,7 +30,7 @@ import torch
 from ..eval import TRAIN_LOADS
 from ..stage import RolloutBudget, run_episode
 from .fit import CraneFitReport, CraneTrainer, scale_health
-from .policy import CRANE_ADV_SCALE, CraneNet
+from .policy import CraneNet
 
 #: 비판정(진단) 시드 대역 — 판정 대역은 여기서 절대 쓰지 않는다.
 DIAGNOSTIC_BASE = 9_900_000
@@ -74,7 +74,10 @@ class CraneIterReport:
     loss: float = 0.0
     val_loss: float = 0.0            # ★진짜 지표 — 안 본 표본에서의 오차
     n_val: int = 0
-    median_gap_krw: float = 0.0      # 목표 중앙 격차 — 눈금 실측치
+    median_gap_krw: float = 0.0      # 목표 중앙 격차 — 그날 라벨이 얼마짜리였나
+    #: ★그날 실제로 쓴 눈금(원) ([[YR-309]]). 회차마다 다르다 — 그게 이 변경의 요점이다.
+    scale_krw: float = 0.0
+    floor_bound: bool = False        # 하한이 걸렸나 = 그날은 비용 중립에 가까웠다
     scale: str = ""
     #: ★날별로 나눈 검증 손실 — **회차끼리 비교하려면 이 값이어야 한다.**
     #:  날마다 목표 눈금이 3,000~42,000원(14배)까지 벌어져서, 날것 손실은
@@ -87,8 +90,9 @@ class CraneIterReport:
                 f"(대안없음 {self.no_alt:>3}·불일치 {self.factual_mismatch:>2}"
                 f"·강제실패 {self.force_failed:>2}·0비율 {self.zero_label_ratio:>5.1%}) "
                 f"· 격차 {self.gap:>+14,.0f} ({self.gap_ratio:>+6.2%}) "
-                f"· 손실 {self.loss:.5f} · 검증 {self.val_loss:.5f}"
-                f"(정규 {self.val_loss_norm:.3f}) · 눈금 {self.scale}")
+                f"· 손실 {self.loss:.5f} · 검증 {self.val_loss:.5f} "
+                f"· 눈금 {self.scale_krw:>8,.0f}원"
+                f"{'(하한)' if self.floor_bound else '      '} {self.scale}")
 
 
 @dataclass
@@ -219,10 +223,14 @@ def run_crane_training(*, iters: int = 20,
         fit: CraneFitReport = st.trainer.fit(ls, seed=seed, val_frac=val_frac)
         rep.loss, rep.val_loss, rep.n_val = fit.loss, fit.val_loss, fit.n_val
         rep.median_gap_krw = fit.median_gap_krw
-        rep.scale = scale_health(fit.median_gap_krw)
-        #: 날별 눈금으로 나눈다 — 회차끼리 견주려면 이 값이어야 한다(위 주석 참조)
-        rep.val_loss_norm = rep.val_loss / max(1e-9,
-                                               fit.median_gap_krw / CRANE_ADV_SCALE)
+        rep.scale_krw, rep.floor_bound = fit.scale_krw, fit.floor_bound
+        #: ★그날 눈금 기준으로 본다 — [[YR-309]] 이후 이 값은 **항상 1.00 근처**여야
+        #:  한다(하한이 걸린 날만 예외). 사실상 불변식 검사다.
+        rep.scale = scale_health(fit.median_gap_krw, fit.scale_krw)
+        #: 검증손실은 눈금이 이미 날별로 맞춰져 있어 그대로 비교 가능하다.
+        #: 그래도 하한이 걸린 날은 어긋나므로 한 번 더 나눠 남긴다.
+        rep.val_loss_norm = rep.val_loss / max(
+            1e-9, fit.median_gap_krw / max(1e-9, fit.scale_krw))
         rep.secs = time.time() - t0
         st.history.append(rep)
         st.save(out, it)
@@ -236,8 +244,14 @@ def run_crane_training(*, iters: int = 20,
 def _labelset(samples, stats):
     """에피소드가 낸 표본 → 학습기가 먹는 그릇 (얇은 어댑터)."""
     from .teacher import CraneLabelSet
+    from .policy import CRANE_ADV_SCALE as _DEFAULT   # 회계에 눈금이 없을 때만
     ls = CraneLabelSet()
     ls.samples = list(samples)
     ls.worlds = int(stats.get("worlds", 0))
     ls.zero = int(stats.get("zero", 0))
+    #: ★에피소드가 실은 그날 눈금을 그대로 받는다 ([[YR-309]]) — 여기서 다시 계산하면
+    #:  하한 처리가 두 곳에 생겨 언젠가 갈라진다.
+    ls.scale = float(stats.get("scale", _DEFAULT))
+    ls.median_gap_krw = float(stats.get("median_gap_krw", 0.0))
+    ls.floor_bound = bool(stats.get("floor_bound", False))
     return ls

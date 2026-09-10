@@ -33,10 +33,12 @@ def test_baseline_is_the_mean():
     c = CraneLabelCollector()
     c.add(picked_row=[0.0] * 8, alt_row=[1.0] * 8,
           phi_factual=900_000.0, phi_alt=1_100_000.0, crane="YC-L", job="J1")
-    a, b = c.result().samples
+    ls = c.result()
+    a, b = ls.samples
     assert abs(a.target + b.target) < 1e-9
-    # 원화로 되돌리면 절반 격차
-    assert abs(from_advantage(a.target) + 100_000.0) < 1e-6
+    # 원화로 되돌리면 절반 격차. ★되돌릴 때는 **그날 눈금**을 써야 한다
+    # ([[YR-309]]) — 기본 상수로 되돌리면 조용히 틀린 값이 나온다.
+    assert abs(from_advantage(a.target, ls.scale) + 100_000.0) < 1e-6
 
 
 def test_zero_gap_counted():
@@ -119,3 +121,79 @@ def test_scale_health_flags_bad_scales():
     assert "적정" in scale_health(CRANE_ADV_SCALE)
     assert "눈금이 크다" in scale_health(CRANE_ADV_SCALE * 0.01)
     assert "눈금이 작다" in scale_health(CRANE_ADV_SCALE * 100)
+
+
+# ─────────────────────────────────────────────── 날별 눈금 ([[YR-309]])
+
+def test_scale_is_the_days_median_gap():
+    """★눈금은 **그날 라벨의 중앙 격차**다 — 전 부하 공통 상수가 아니다.
+
+    상수를 쓰면 부하 12,500 인 날의 목표가 3.99, 3,500 인 날이 0.30 으로 13배
+    벌어져 학습률이 고정인데 미는 세기가 13배 달라진다 ([[YR-308]] 실측).
+    """
+    c = CraneLabelCollector()
+    for gap in (10_000.0, 20_000.0, 30_000.0):        # 중앙 20,000
+        c.add(picked_row=[0.0] * 8, alt_row=[1.0] * 8,
+              phi_factual=1_000_000.0, phi_alt=1_000_000.0 + gap,
+              crane="YC-L", job="J")
+    ls = c.result()
+    assert ls.median_gap_krw == 20_000.0
+    assert ls.scale == 20_000.0
+    assert ls.floor_bound is False
+
+
+def test_targets_center_on_one():
+    """★그날 목표 중앙이 1 근처가 된다 — 이게 이 변경의 목적이다."""
+    import statistics as stx
+    c = CraneLabelCollector()
+    for gap in (4_000.0, 20_000.0, 60_000.0, 90_000.0):
+        c.add(picked_row=[0.0] * 8, alt_row=[1.0] * 8,
+              phi_factual=1_000_000.0, phi_alt=1_000_000.0 + gap,
+              crane="YC-L", job="J")
+    ls = c.result()
+    ss = ls.samples
+    mid = stx.median([abs(ss[i].target - ss[i + 1].target)
+                      for i in range(0, len(ss), 2)])
+    assert abs(mid - 1.0) < 1e-9, f"목표 중앙이 1 이 아니다: {mid}"
+    assert "적정" in scale_health(ls.median_gap_krw, ls.scale)
+
+
+def test_scale_floor_stops_chasing_rounding():
+    """★하한 — 격차 중앙이 0 에 가까우면 나눗셈이 폭발한다.
+
+    차이가 정확히 0 인 결정이 약 21% 다. 그리고 하루 Φ 가 수천만~수십억인데 격차
+    중앙이 1,000원 미만이면 그날 선택은 사실상 **비용 중립**이다 — 목표 1 로
+    부풀리면 망이 **반올림 잡음을 쫓는다.**
+    """
+    from yard_rl.v4.crane.policy import CRANE_SCALE_FLOOR
+
+    c = CraneLabelCollector()
+    for _ in range(3):
+        c.add(picked_row=[0.0] * 8, alt_row=[1.0] * 8,
+              phi_factual=1_000_000.0, phi_alt=1_000_000.0,   # 격차 0
+              crane="YC-L", job="J")
+    ls = c.result()
+    assert ls.median_gap_krw == 0.0
+    assert ls.scale == CRANE_SCALE_FLOOR, "하한이 안 걸렸다 — 0 나눗셈이 난다"
+    assert ls.floor_bound is True
+    assert all(s.target == 0.0 for s in ls.samples)
+
+
+def test_ordering_survives_rescaling():
+    """★눈금이 바뀌어도 **정책의 행동은 그대로**다.
+
+    `rank()` 는 점수를 크기순 비교에만 쓴다. 양수로 나누면 순서가 안 바뀌므로
+    날마다 눈금이 달라도 배정이 안 바뀐다 — 바뀌는 것은 각 날이 기울기에
+    기여하는 **세기**뿐이고, 그것을 고르게 만드는 것이 이 변경의 목적이다.
+    """
+    def targets(span):
+        c = CraneLabelCollector()
+        for g in (1.0, 3.0, 7.0):
+            c.add(picked_row=[0.0] * 8, alt_row=[1.0] * 8,
+                  phi_factual=1_000_000.0, phi_alt=1_000_000.0 + g * span,
+                  crane="YC-L", job="J")
+        return [s.target for s in c.result().samples]
+
+    small, big = targets(1_000.0), targets(100_000.0)
+    assert [x < y for x, y in zip(small, small[1:])] == \
+           [x < y for x, y in zip(big, big[1:])], "눈금이 순서를 바꿨다"
