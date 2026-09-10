@@ -136,3 +136,32 @@ def test_teacher_off_by_default():
     r = _run()
     assert r.crane_stats == {}
     assert r.crane_labels == []
+
+
+def test_evaluation_is_paired():
+    """★고정 평가일은 **같은 시드**로 두 정책을 굴린다.
+
+    짝이 안 맞으면 정책 차이와 날 차이가 섞여 *"학습이 됐나"* 를 물을 수 없다.
+    첫 10회차(2026-09-10)가 바로 그래서 판별이 안 됐다 — 회차마다 시드가 달라
+    "부하 12,500 이 +69.22% → +1.81%" 가 학습 덕인지 그날이 쉬웠는지 못 가렸다.
+    """
+    import yard_rl.v4.crane.train as T
+
+    seen = []
+    orig = T.run_episode
+
+    def spy(**kw):
+        seen.append((kw["load"], kw["seed"], kw["dispatcher"]))
+        return orig(**kw)
+
+    T.run_episode = spy
+    try:
+        T.evaluate(CraneNet(), loads=(LOAD,), seed_base=SEED)
+    finally:
+        T.run_episode = orig
+
+    assert len(seen) == 2, f"평가일 하나에 에피소드 둘이어야 한다: {seen}"
+    (l1, s1, d1), (l2, s2, d2) = seen
+    assert s1 == s2, f"두 팔이 다른 날을 굴렸다 — 짝비교가 아니다: {s1} vs {s2}"
+    assert l1 == l2
+    assert {d1, d2} == {RL_CRANE, "SF_SPT"}, f"두 팔이 아니다: {d1} vs {d2}"

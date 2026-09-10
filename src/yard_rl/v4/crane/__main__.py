@@ -38,6 +38,9 @@ def main(argv=None) -> int:
                     help="부하 목록 (예 3500,5000,7500). 안 주면 학습 기본 부하")
     ap.add_argument("--hours", type=float, default=None,
                     help="시간 예산(시간) — 이 시간을 넘기면 회차를 더 안 연다")
+    ap.add_argument("--eval-every", type=int, default=5,
+                    help="몇 회차마다 **고정 평가일**로 짝비교할까 (0 = 안 함). "
+                         "학습 전에도 한 번 재서 기준점을 남긴다")
     ap.add_argument("--out", default="outputs/v4/crane-train", help="결과 폴더")
     ap.add_argument("--dry", action="store_true", help="굴리지 않고 계획만 본다")
     a = ap.parse_args(argv)
@@ -52,6 +55,10 @@ def main(argv=None) -> int:
     print(f"  부하 {loads} · 라벨 {a.labels}/회차 · 반사실 창 {a.horizon_h:.0f}시간")
     print(f"  작업자 {workers} · 결과 {a.out}")
     print(f"  기준선: 같은 시드 SF_SPT (규칙 크레인) · 재배정은 끈다(NO_REALLOC)")
+    if a.eval_every > 0:
+        from .train import EVAL_LOADS, EVAL_SEED_BASE
+        print(f"  고정 평가일: 부하 {EVAL_LOADS} · 시드 {EVAL_SEED_BASE:,}대 · "
+              f"{a.eval_every}회차마다 (학습 전 1회 포함) — **같은 날 짝비교**")
     if a.dry:
         return 0
 
@@ -60,14 +67,22 @@ def main(argv=None) -> int:
     st = run_crane_training(
         iters=a.iters, out_dir=a.out, labels_per_iter=a.labels,
         seed_base=a.seed, loads=loads, workers=workers,
-        horizon_s=a.horizon_h * 3600.0,
+        horizon_s=a.horizon_h * 3600.0, eval_every=a.eval_every,
         time_budget_s=(a.hours * 3600.0 if a.hours else None))
     secs = time.time() - t0
     print(f"■ 끝 — {len(st.history)}회차 · {secs/3600:.2f}시간")
     if st.history:
         last = st.history[-1]
         print(f"  마지막 회차 격차 {last.gap:+,.0f}원 ({last.gap_ratio:+.2%}) "
-              f"· 검증손실 {last.val_loss:.5f} · 눈금 {last.scale}")
+              f"· 검증손실 {last.val_loss:.5f}(정규 {last.val_loss_norm:.3f}) "
+              f"· 눈금 {last.scale}")
+    if st.evals:
+        first, last_e = st.evals[0], st.evals[-1]
+        print(f"  ★고정 평가일 (같은 날 짝비교 · 음수 = RL 이 싸다)")
+        print(f"    학습 전 중앙 {first['median_gap_ratio']:+.2%} "
+              f"(이긴 날 {first['n_win']}/{len(first['rows'])})")
+        print(f"    학습 후 중앙 {last_e['median_gap_ratio']:+.2%} "
+              f"(이긴 날 {last_e['n_win']}/{len(last_e['rows'])})")
     (Path(a.out) / "run.json").write_text(
         json.dumps({"iters": a.iters, "seed": a.seed, "labels": a.labels,
                     "loads": list(loads), "horizon_h": a.horizon_h,

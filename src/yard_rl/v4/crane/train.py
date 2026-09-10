@@ -30,7 +30,7 @@ import torch
 from ..eval import TRAIN_LOADS
 from ..stage import RolloutBudget, run_episode
 from .fit import CraneFitReport, CraneTrainer, scale_health
-from .policy import CraneNet
+from .policy import CRANE_ADV_SCALE, CraneNet
 
 #: 비판정(진단) 시드 대역 — 판정 대역은 여기서 절대 쓰지 않는다.
 DIAGNOSTIC_BASE = 9_900_000
@@ -38,6 +38,15 @@ DIAGNOSTIC_BASE = 9_900_000
 #: 회차당 라벨 표본 수. 재배정층과 **같은 규모**로 맞췄다 — 축이 달라서 예산이
 #: 다르면 "어느 축이 나은가" 가 예산 차이인지 축 차이인지 못 가린다.
 LABELS_PER_ITER = 64
+
+#: ★고정 평가일 — 학습에 **안 쓰는** 날. 매번 **같은 날**을 굴린다.
+#:
+#: 왜 필요한가 (2026-09-10 첫 10회차의 교훈):
+#:   회차마다 시드가 달라 *"부하 12,500 이 +69.22% → +1.81% 로 좋아졌다"* 를 봐도
+#:   **학습 덕인지 그날이 쉬웠는지 못 가린다.** 짝이 안 맞는 비교였다.
+#:   같은 날을 두 정책으로 굴려야 그날의 난이도가 상쇄된다.
+EVAL_SEED_BASE = DIAGNOSTIC_BASE + 900
+EVAL_LOADS = (3_500, 7_500, 15_000)
 
 
 @dataclass
@@ -67,6 +76,10 @@ class CraneIterReport:
     n_val: int = 0
     median_gap_krw: float = 0.0      # 목표 중앙 격차 — 눈금 실측치
     scale: str = ""
+    #: ★날별로 나눈 검증 손실 — **회차끼리 비교하려면 이 값이어야 한다.**
+    #:  날마다 목표 눈금이 3,000~42,000원(14배)까지 벌어져서, 날것 손실은
+    #:  "학습이 나빠졌다" 와 "그날 격차가 컸다" 를 못 가린다 (2026-09-10 실측).
+    val_loss_norm: float = 0.0
 
     def line(self) -> str:
         return (f"[{self.it:>3}] 부하 {self.load:,} {self.secs/60:>5.1f}분 "
@@ -74,8 +87,8 @@ class CraneIterReport:
                 f"(대안없음 {self.no_alt:>3}·불일치 {self.factual_mismatch:>2}"
                 f"·강제실패 {self.force_failed:>2}·0비율 {self.zero_label_ratio:>5.1%}) "
                 f"· 격차 {self.gap:>+14,.0f} ({self.gap_ratio:>+6.2%}) "
-                f"· 손실 {self.loss:.5f} · 검증 {self.val_loss:.5f} "
-                f"· 눈금 {self.scale}")
+                f"· 손실 {self.loss:.5f} · 검증 {self.val_loss:.5f}"
+                f"(정규 {self.val_loss_norm:.3f}) · 눈금 {self.scale}")
 
 
 @dataclass
@@ -83,6 +96,8 @@ class CraneTrainState:
     net: CraneNet
     trainer: CraneTrainer
     history: list = field(default_factory=list)
+    #: 고정 평가일 결과 — 회차별로 쌓인다
+    evals: list = field(default_factory=list)
 
     def save(self, path: Path, it: int) -> None:
         path.mkdir(parents=True, exist_ok=True)
@@ -91,6 +106,41 @@ class CraneTrainState:
         (path / "history.json").write_text(
             json.dumps([asdict(h) for h in self.history], ensure_ascii=False,
                        indent=1), encoding="utf-8")
+        (path / "evals.json").write_text(
+            json.dumps(self.evals, ensure_ascii=False, indent=1),
+            encoding="utf-8")
+
+
+def evaluate(net, *, loads=EVAL_LOADS, seed_base: int = EVAL_SEED_BASE,
+             workers: int = 1) -> dict:
+    """고정 평가일을 **같은 시드로** RL·규칙 각각 굴려 짝비교한다.
+
+    ★짝비교여야 하는 이유: 날마다 난이도가 다르다. 다른 날끼리 견주면 정책 차이와
+      날 차이가 섞여 *"학습이 됐나"* 를 물을 수 없다.
+
+    교사를 안 붙이므로 반사실 세계가 안 뜬다 — 하루 굴리는 값만 든다.
+    """
+    rows = []
+    for i, load in enumerate(loads):
+        seed = int(seed_base) + i * 10 + load // 1000
+        rl = run_episode(load=load, arm="NO_REALLOC", dispatcher="RL_CRANE",
+                         seed=seed, crane_net=net)
+        rule = run_episode(load=load, arm="NO_REALLOC", dispatcher="SF_SPT",
+                           seed=seed)
+        rows.append({"load": load, "seed": seed,
+                     "phi_rl": rl.phi_krw, "phi_rule": rule.phi_krw,
+                     "gap": rl.phi_krw - rule.phi_krw,
+                     "gap_ratio": (rl.phi_krw - rule.phi_krw)
+                     / max(1e-9, rule.phi_krw)})
+    ratios = sorted(r["gap_ratio"] for r in rows)
+    return {"rows": rows, "median_gap_ratio": ratios[len(ratios) // 2],
+            "n_win": sum(1 for r in rows if r["gap_ratio"] < 0)}
+
+
+def _eval_line(it: int, ev: dict) -> str:
+    per = " ".join(f"{r['load']//1000}k {r['gap_ratio']:+.2%}" for r in ev["rows"])
+    return (f"    ▸ 고정 평가일 [{it:>3}] 중앙 {ev['median_gap_ratio']:+.2%} · "
+            f"이긴 날 {ev['n_win']}/{len(ev['rows'])} · {per}")
 
 
 def run_crane_training(*, iters: int = 20,
@@ -101,7 +151,7 @@ def run_crane_training(*, iters: int = 20,
                        loads: tuple[int, ...] = TRAIN_LOADS,
                        horizon_s: float = 10_800.0,
                        workers: int = 1, val_frac: float = 0.2,
-                       log=print) -> CraneTrainState:
+                       eval_every: int = 5, log=print) -> CraneTrainState:
     """회차를 돌린다. **표본 0 이면 즉시 멈춘다** (06 하드가드).
 
     `time_budget_s` 를 주면 시간으로도 끊는다 — 회차 수를 **결과 보고 늘리면
@@ -114,6 +164,17 @@ def run_crane_training(*, iters: int = 20,
     net = CraneNet()
     st = CraneTrainState(net, CraneTrainer(net))
     t_start = time.time()
+
+    def do_eval(it: int) -> None:
+        """고정 평가일로 **짝비교**한다. 이게 없으면 학습 여부를 못 묻는다."""
+        if eval_every <= 0:
+            return
+        ev = evaluate(net, workers=workers)
+        ev["it"] = it
+        st.evals.append(ev)
+        log(_eval_line(it, ev))
+
+    do_eval(-1)          # ★학습 **전** 기준점 — 없으면 나중 값을 견줄 데가 없다
 
     for it in range(iters):
         if time_budget_s is not None and time.time() - t_start > time_budget_s:
@@ -159,10 +220,15 @@ def run_crane_training(*, iters: int = 20,
         rep.loss, rep.val_loss, rep.n_val = fit.loss, fit.val_loss, fit.n_val
         rep.median_gap_krw = fit.median_gap_krw
         rep.scale = scale_health(fit.median_gap_krw)
+        #: 날별 눈금으로 나눈다 — 회차끼리 견주려면 이 값이어야 한다(위 주석 참조)
+        rep.val_loss_norm = rep.val_loss / max(1e-9,
+                                               fit.median_gap_krw / CRANE_ADV_SCALE)
         rep.secs = time.time() - t0
         st.history.append(rep)
         st.save(out, it)
         log(rep.line())
+        if eval_every > 0 and (it + 1) % eval_every == 0:
+            do_eval(it)
 
     return st
 
