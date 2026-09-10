@@ -1,0 +1,26 @@
+{
+  "scope": "v5 shared-block PPO, first continuous execution validation only",
+  "supersedes": "No older-generation scenario PASS is inherited; original preflight.json is preserved.",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "v5의 규칙 대비 비용 개선은 아직 측정하지 않았다",
+    "reasons": ["새 PPO는 단기 구현 검사만 끝났으며 비교 성능 자료가 없다"],
+    "evidence": {"previous_debug": "outputs/reports/yr303_v5_full_test_debug/coverage.json"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "INCONCLUSIVE",
+    "summary": "30일 연속 학습의 구간 제외·저장·비용 보존·실행 재현 사슬은 아직 미검증이다",
+    "reasons": ["현재 CLI는 최대 하루 디버깅용", "첫날·마지막날 학습 제외 및 날짜별 저장을 연결해야 한다"],
+    "evidence": {"task": "YR-306", "existing_debug_tests": 199, "continuous_training_verified": false}
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "v5 환경의 현실타당성은 이전 정책의 기록으로 통과 처리할 수 없다",
+    "reasons": ["이전 점유율 65%와 v5의 초기 조건 45%가 다름", "v5 전체 외부 보정 자료와 장기 운영흐름 검증 미완료"],
+    "evidence": {"allowed_claim_scope": "NO_PERFORMANCE_CLAIM", "initial_occupancy": 0.45, "old_initial_occupancy": 0.65}
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}
