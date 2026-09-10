@@ -1,0 +1,136 @@
+{
+  "task": "YR-306",
+  "training_started": false,
+  "source_commit": "901e1e13063bf7ff44a7e001fd78b518a6c5c387",
+  "authorization": {
+    "allowed": false,
+    "reason": "저장된 scenario PASS 재계산 실패"
+  },
+  "authorization_process_exit_code": 1,
+  "scenario_recheck": {
+    "name": "scenario_validity",
+    "status": "FAIL",
+    "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+    "reasons": [
+      "외부 앵커 근거 sha256 불일치: gate_to_block_time",
+      "외부 앵커 근거 sha256 불일치: vessel_workload",
+      "외부 앵커 근거 sha256 불일치: initial_yard_occupancy",
+      "외부 앵커 근거 sha256 불일치: truck_arrival_rate",
+      "외부 앵커 근거 sha256 불일치: crane_service_time"
+    ],
+    "evidence": {
+      "continuous_operation": true,
+      "internal_checks": {
+        "event_time_order": true,
+        "record_chain_complete": true,
+        "information_boundary": true,
+        "no_truth_leak": true,
+        "policy_declares_no_future_info": true,
+        "ownership_conservation": true,
+        "physical_constraints": true,
+        "achievable_vessel_deadline": true,
+        "ledger_conservation": true,
+        "deterministic_replay": true
+      },
+      "flow_checks": {
+        "continuous_arrivals": true,
+        "warmup_excluded": true,
+        "fixed_measurement_window": true,
+        "load_state_classified": true,
+        "flow_balance_consistent_with_classification": true
+      },
+      "anchors": {
+        "gate_to_block_time": {
+          "observed_range": [
+            180,
+            420
+          ],
+          "simulated_range": [
+            190,
+            410
+          ],
+          "unit": "s",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "vessel_workload": {
+          "observed_range": [
+            145,
+            170
+          ],
+          "simulated_range": [
+            148,
+            148.2
+          ],
+          "unit": "moves/h",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "initial_yard_occupancy": {
+          "observed_range": [
+            0.6,
+            0.75
+          ],
+          "simulated_range": [
+            0.65,
+            0.65
+          ],
+          "unit": "ratio",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "truck_arrival_rate": {
+          "observed_range": [
+            60,
+            225
+          ],
+          "simulated_range": [
+            161.6,
+            161.6
+          ],
+          "unit": "trucks/h",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        },
+        "crane_service_time": {
+          "observed_range": [
+            120,
+            180
+          ],
+          "simulated_range": [
+            139.3,
+            140
+          ],
+          "unit": "s",
+          "source_path": "configs/anchors/external_anchors_v1.json",
+          "source_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281"
+        }
+      },
+      "operational_trace_path": null,
+      "operational_trace_sha256": null,
+      "operational_trace_verified": false,
+      "operational_trace_records": 0,
+      "minimum_operational_trace_records": 30,
+      "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+    }
+  },
+  "hash_diagnosis": {
+    "file": "configs/anchors/external_anchors_v1.json",
+    "expected_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281",
+    "working_tree_raw_sha256": "5f9d63681cfad022fdd78d864ff1c17e6534f3323252e136017eec3501773ad1",
+    "lf_normalized_sha256": "f3d5689b344f9679465f349aad03bd3218a3b3ce23c07f87e30c9759f3857281",
+    "interpretation": "The direct legacy gate failure is a CRLF/LF byte difference, not changed anchor values. No source evidence was rewritten."
+  },
+  "applicability": {
+    "legacy_initial_occupancy": 0.65,
+    "v5_initial_occupancy": 0.45,
+    "legacy_gate_is_not_v5_scenario_approval": true
+  },
+  "execution_limit": {
+    "current_cli_max_simulated_days": 1,
+    "current_cli_builds_days": 2,
+    "current_cli_default_simulated_hours": 2,
+    "current_cli_default_trucks_per_day": 300
+  },
+  "scope": "Startup preflight only. No training run; no new performance judgment."
+}
