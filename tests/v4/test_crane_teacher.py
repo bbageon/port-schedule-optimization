@@ -55,6 +55,12 @@ def test_alternative_is_runner_up():
     assert pick_alternative([(0.1, 0)]) is None  # 후보 하나면 비교 대상이 없다
 
 
+#: 가짜 문제의 격차 폭 — **실측 눈금에 맞춘다** ([[YR-308]]: 중앙 9,470원).
+#: 여기가 실제 라벨과 자릿수가 다르면 `test_records_gap_for_scale_check` 가
+#: 눈금이 아니라 **가짜 문제의 크기**를 검사하게 된다.
+_GAP_SPAN = 20_000
+
+
 def _learnable(n: int = 300):
     """배울 수 있는 가짜 문제 — *"오래 기다린 트럭을 먼저 하면 싸다"*."""
     rng = random.Random(7)
@@ -65,8 +71,8 @@ def _learnable(n: int = 300):
         b = [0, 1, rng.uniform(0, 2), 0, rng.uniform(0, 1), rng.uniform(0, 1), 0,
              rng.uniform(0, 1)]
         c.add(picked_row=a, alt_row=b,
-              phi_factual=1_000_000 - a[2] * 200_000,
-              phi_alt=1_000_000 - b[2] * 200_000, crane="YC-L", job="J")
+              phi_factual=1_000_000 - a[2] * _GAP_SPAN,
+              phi_alt=1_000_000 - b[2] * _GAP_SPAN, crane="YC-L", job="J")
     return c.result()
 
 

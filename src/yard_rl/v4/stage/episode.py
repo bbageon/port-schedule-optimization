@@ -471,10 +471,18 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
         crane = CraneCollector(ctx, budget=crane_budget, horizon_s=horizon_s,
                                workers=(default_workers() if workers < 0 else workers))
         if crane_budget.stride <= 0:
-            # 하루에 고르게 흩는다. 눈금은 **라벨이 될 수 있는 결정** 수 기준이다 —
-            # 부하 300 에서 하루 1,156건이 쓸 수 있었으므로 부하당 약 4건으로 본다
-            # (2026-09-10 실측 · `crane/collect.py` 머리말).
-            crane_budget.stride = max(1, (load * 4) // max(1, crane_budget.max_labels))
+            # 하루에 고르게 흩는다. 간격은 **라벨이 될 수 있는 결정** 수 기준이다.
+            #
+            # ★부하당 몇 건이 쓸 수 있나 (2026-09-10 실측 · 창 3시간):
+            #       부하    300  →  1,040건  (3.47배)
+            #             3,500  →  4,717건  (1.35배)
+            #             7,500  →  6,916건  (0.92배)
+            #            15,000  → 12,926건  (0.86배)
+            #   **부하가 커질수록 트럭 한 대당 쓸 수 있는 결정이 준다** — 붐빌수록
+            #   크레인이 쉬지 않고 돌아 "고를 여지가 있는 순간" 의 비중이 낮아진다.
+            #   처음엔 부하 300 을 외삽해 4배로 잡았다가 학습 부하에서 간격이 4배
+            #   벌어져 **예산 24건 중 9건만 뽑혔다.** 실측 최솟값 0.86 에 맞춰 1배로.
+            crane_budget.stride = max(1, load // max(1, crane_budget.max_labels))
         on_crane = crane.hook(mbt, market, orders, records)
         crane.pool.__enter__()
 
