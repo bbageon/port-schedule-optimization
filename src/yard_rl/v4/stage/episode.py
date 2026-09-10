@@ -110,6 +110,10 @@ class EpisodeResult:
     rollout_worlds: int = 0
     decisions: int = 0
     missed_labels: int = 0
+    #: ★크레인층 라벨 ([[YR-308]]) — 재배정층 `labels` 와 **따로** 둔다.
+    #:  섞으면 어느 축에서 온 신호인지 못 가린다 (한 번에 한 축).
+    crane_labels: list = field(default_factory=list)
+    crane_stats: dict = field(default_factory=dict)
     slot_mode: str = "HORIZON"
 
     def as_dict(self) -> dict:
@@ -119,7 +123,8 @@ class EpisodeResult:
              "n_space": self.n_space, "n_time": self.n_time,
              "txn_failed": self.txn_failed, "n_decisions": self.decisions,
              "n_labels": len(self.labels), "rollout_worlds": self.rollout_worlds,
-             "missed_labels": self.missed_labels, "slot_mode": self.slot_mode}
+             "missed_labels": self.missed_labels, "slot_mode": self.slot_mode,
+             "n_crane_labels": len(self.crane_labels), "crane": self.crane_stats}
         d.update(self.breakdown)
         return d
 
@@ -129,9 +134,13 @@ class _Ctx:
 
     def __init__(self, *, seller_net, buyer_net, layout, announcer, arm, grid_s,
                  window_s, explore, seed, episode_end_s, cf_horizon_s,
-                 dispatcher: str = "SF_SPT"):
+                 dispatcher: str = "SF_SPT", crane_net=None):
         #: ★크레인 바닥 — 분기 세계도 **같은 것**을 써야 라벨이 정직하다.
         self.dispatcher = dispatcher
+        #: ★크레인 **망도** 공유한다 ([[YR-308]]). 안 넘기면 분기 세계가
+        #:  `make_preference` 안에서 **무작위 새 망**을 만들어, 라벨이 학습 중인
+        #:  정책이 아니라 딴 정책의 것이 된다 — 판매·구매 망을 공유하는 이유와 같다.
+        self.crane_net = crane_net
         self.seller_net, self.buyer_net = seller_net, buyer_net
         self.layout, self.announcer = layout, announcer
         self.arm, self.grid_s, self.window_s = arm, grid_s, window_s
@@ -176,8 +185,9 @@ class _Ctx:
             b.no_time = True         # ★[[YR-232]] 진단 — 이연 후보를 안 낸다
         return b
 
-    def make_exec_policy(self):
-        return _rule_policy(self.dispatcher, seed=self.seed)[0]
+    def make_exec_policy(self, *, on_crane=None):
+        return _rule_policy(self.dispatcher, seed=self.seed,
+                            crane_net=self.crane_net, on_crane=on_crane)[0]
 
     #: 무대가 준 블록→스트림 표 (어느 블록이 어느 배의 몇 번 STS 인가)
     block_vessel: dict = {}
@@ -194,27 +204,44 @@ class _Ctx:
         return rehandles_of(mbt)
 
 
-def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0):
+def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0,
+                 crane_net=None, on_crane=None):
     """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
 
     ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
     크레인 위에서 만들어져 *"이 결정이 얼마였나"* 가 거짓이 된다. 그래서
     `_Ctx.dispatcher` 가 이 값을 들고 다닌다.
+
+    `on_crane(sim, dp, gb, assign)` — ★크레인 **결정 훅** ([[YR-308]]).
+      결정이 정해진 **직후·반영 직전**에 불린다. 이 자리여야 하는 이유:
+        · `gb` (후보 전부) 와 `assign` (고른 것) 을 **둘 다** 볼 수 있다
+        · `sim` 이 아직 **결정 전 상태**라 여기서 뜬 스냅샷이 곧 분기점이다
+      훅이 터지면 조용히 WAIT 로 떨어지지 않도록 `exc["hook"]` 에 따로 센다 —
+      크레인 예외와 섞이면 "정책이 이상하다" 와 "교사가 이상하다" 를 못 가린다.
+
+    `crane_net` — `RL_CRANE` 일 때 쓸 망. 안 주면 무작위 새 망이라 라벨이 거짓이 된다.
     """
     gens: dict[int, CandidateGenerator] = {}
-    exc = {"n": 0}
+    exc = {"n": 0, "hook": 0}
     pref = (ServiceFirstSPTPreference() if dispatcher == "SF_SPT"
-            else make_preference(dispatcher, seed=seed))
+            else make_preference(dispatcher, seed=seed, crane_net=crane_net))
     pol = ResolverPolicy(pref, dispatcher)
 
     def exec_policy(sim, dp):
         g = gens.setdefault(id(sim), CandidateGenerator(config=LEGACY_DEFAULT))
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
         try:
-            _apply(sim, pol.decide(sim, dp, gb))
+            assign = pol.decide(sim, dp, gb)
+            if on_crane is not None:
+                try:
+                    on_crane(sim, dp, gb, assign)
+                except Exception:
+                    exc["hook"] += 1        # ★훅 오류는 결정을 안 건드린다
+            _apply(sim, assign)
         except Exception:
             exc["n"] += 1
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+    exec_policy.pref = pref                 # 분기 세계가 강제 손잡이를 잡는 자리
     return exec_policy, exc
 
 
@@ -316,6 +343,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 lead_mode: str = "DIST", window_s: float = 1800.0,
                 explore: float = 0.0, horizon_s: float = CF_HORIZON_S,
                 budget: RolloutBudget | None = None,
+                crane_net=None, crane_budget: RolloutBudget | None = None,
                 slot_mode: str = "HORIZON", workers: int = 1,
                 trigger_top_k: float | None = None,
                 obs=None) -> EpisodeResult:
@@ -358,10 +386,29 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
         torch.manual_seed(int(seed))
     s_net = seller_net if seller_net is not None else SellerNet()
     b_net = buyer_net if buyer_net is not None else BuyerNet()
+    #: ★크레인 망도 **시드에 묶는다** ([[YR-308]] · [[YR-304]] 와 같은 함정).
+    #:  안 묶으면 본 세계와 분기 세계가 각자 무작위 망을 만들어 **서로 다른 정책**이
+    #:  된다 — 실측: 사실 가지가 실제와 다른 결정을 내 라벨이 통째로 버려졌다
+    #:  (2026-09-10 첫 연기시험: 표본 6건 중 사실불일치 2건, 라벨 0건).
+    if dispatcher == RL_CRANE and crane_net is None:
+        from ..crane.policy import CraneNet
+        torch.manual_seed(int(seed) + 2)
+        crane_net = CraneNet()
     ctx = _Ctx(seller_net=s_net, buyer_net=b_net, layout=layout, announcer=ann,
                arm=arm, grid_s=EPOCH_S, window_s=window_s, explore=explore,
                seed=seed, episode_end_s=obs.observe_s,
-               cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None))
+               cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None),
+               #: ★크레인 바닥을 **실제로 넘긴다** ([[YR-308]] · 2026-09-10).
+               #:  전에는 안 넘겨서 분기 세계가 늘 기본값 `SF_SPT` 로 굴렀다.
+               #:  `_Ctx` 머리말이 *"분기 세계도 같은 것을 써야 한다"* 고 적어 둔
+               #:  바로 그 계약이 코드에서 빠져 있었다.
+               #:
+               #:  ⚠️ v3(논문)에도 같은 구멍이 있지만 **결과에는 영향이 없다**:
+               #:     판정 경로는 배차를 넘기되 교사(`budget`)를 안 붙여 분기 세계가
+               #:     아예 안 뜨고, 학습 경로는 배차를 기본값 `SF_SPT` 로 쓴다.
+               #:     둘이 겹친 실행이 없어 이 값이 읽힌 적이 없다.
+               dispatcher=dispatcher,
+               crane_net=crane_net)
     ctx.block_vessel = built.get("block_vessel", {})
     if trigger_top_k is not None:
         ctx.trigger_top_k = float(trigger_top_k)   # ★[[YR-232]] 민감도 스윕용
@@ -413,7 +460,30 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                              on_decision=(on_decision if budget else None))
     if pool is not None:
         pool.__enter__()
-    exec_policy, exc = _rule_policy(dispatcher, seed=seed)
+
+    # ── 크레인층 교사 ([[YR-308]]) — 재배정층과 **완전히 따로** 돈다.
+    #    한 번에 한 축이므로 둘을 동시에 켜는 것은 권하지 않는다(막지는 않는다 —
+    #    막으면 두 축 상호작용을 볼 실험 자체가 불가능해진다).
+    crane = None
+    on_crane = None
+    if crane_budget is not None:
+        from ..crane.collect import CraneCollector
+        crane = CraneCollector(ctx, budget=crane_budget, horizon_s=horizon_s,
+                               workers=(default_workers() if workers < 0 else workers))
+        if crane_budget.stride <= 0:
+            # 하루에 고르게 흩는다. 눈금은 **라벨이 될 수 있는 결정** 수 기준이다 —
+            # 부하 300 에서 하루 1,156건이 쓸 수 있었으므로 부하당 약 4건으로 본다
+            # (2026-09-10 실측 · `crane/collect.py` 머리말).
+            crane_budget.stride = max(1, (load * 4) // max(1, crane_budget.max_labels))
+        on_crane = crane.hook(mbt, market, orders, records)
+        crane.pool.__enter__()
+
+    exec_policy, exc = _rule_policy(dispatcher, seed=seed, crane_net=crane_net,
+                                    on_crane=on_crane)
+    if crane is not None:
+        #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
+        #:  새로 만들면 RL_CRANE 일 때 망이 달라져 대안이 딴 정책의 2등이 된다.
+        crane.attach(exec_policy.pref)
 
     def review(m, t):
         ann.review(m, t)
@@ -447,9 +517,19 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = "RL",
                 pending.append(row)
             if pool.workers > 1:
                 add_rollout_calls(pool.n_worlds)
+        if crane is not None:
+            labels = crane.finish()
+            res.crane_labels = labels.samples
+            res.crane_stats = dict(crane.stats, worlds=crane.pool.n_worlds,
+                                   zero=labels.zero,
+                                   hook_errors=exc.get("hook", 0))
+            if crane.pool.workers > 1:
+                add_rollout_calls(crane.pool.n_worlds)
     finally:
         if pool is not None:
             pool.close()
+        if crane is not None:
+            crane.close()
 
     # ── 사건을 끝까지 흡수 (마지막 epoch 이후 완료분)
     bridge._sync(mbt, obs.observe_s)

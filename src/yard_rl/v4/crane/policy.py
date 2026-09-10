@@ -74,28 +74,28 @@ class CranePolicy(BaselinePreference):
         #:  끄면 망이 SERVE/PRE_REHANDLE/REPOSITION 을 완전히 자유롭게 고른다.
         #:  **효과가 실증되기 전에는 켜 둔다.**
         self.serve_first = bool(serve_first)
-        #: 학습용 흔적 — 결정마다 (특징, 점수)를 남긴다. 교사가 라벨을 붙일 자리다.
-        self.trail: list[dict] = []
+        #: ★강제 손잡이 — `{크레인: job_id}`. 반사실 세계에서 *"대신 저걸 했다면"* 을
+        #:  만드는 유일한 방법이다. 판매·구매의 `force_once` 와 같은 규약이되,
+        #:  **비우는 책임은 부르는 쪽**에 있다 (`crane/rollout.py` 가 결정 하나를
+        #:  손으로 돌린 직후 비운다) — 시계로 맞추면 분기 시각이 결정 시각과
+        #:  1e-6 만 어긋나도 강제가 통째로 날아간다.
+        self.force_once: dict[str, str] = {}
 
     def rank(self, sim, crane_id, gc) -> tuple:
         ref = gc.job_ref
         if ref is None:
             return _WAIT_KEY
+        if self.force_once.get(crane_id) == ref.job_id:
+            #: tier −1 — 어떤 후보보다도 앞. 단 resolver 가 `mandatory` 를 더 앞에
+            #: 두므로 **필수 작업은 못 제친다**(엔진 계약). 강제가 실제로 먹었는지는
+            #: 부르는 쪽이 결과를 읽어 확인한다.
+            return (-1, 0.0, ref.job_id)
         x = crane_features(sim, crane_id, gc)
         with torch.no_grad():
             score = float(self.net(torch.tensor([x], dtype=torch.float32))[0])
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
         #: `job_id` 를 끝에 두는 것은 **결정론**을 위해서다 — 점수가 같으면 항상 같은 배정.
         return (tier, score, ref.job_id)
-
-    # ------------------------------------------------------------------ 학습 훅
-    def record(self, sim, crane_id, gc, chosen: bool) -> None:
-        """이 결정의 특징을 남긴다. 교사가 나중에 라벨을 붙인다."""
-        self.trail.append({
-            "t": sim.clock, "crane": crane_id,
-            "job": getattr(gc.job_ref, "job_id", None),
-            "kind": str(gc.kind), "x": crane_features(sim, crane_id, gc),
-            "chosen": bool(chosen)})
 
 
 def to_advantage(phi: float, base: float) -> float:

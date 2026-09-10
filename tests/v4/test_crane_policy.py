@@ -73,23 +73,15 @@ def test_network_actually_decides():
 
     이 시험이 없으면 "꽂았다" 와 "작동한다" 를 구분 못 한다. 실제로 개발 중
     `SF_SPT` 와 Φ 가 우연히 같아 한 번 헷갈렸다 (2026-09-10).
-    """
-    import yard_rl.v4.dispatch as D
-    import yard_rl.v4.stage.episode as E
 
-    orig = E.make_preference
+    ★전에는 `make_preference` 를 가로채 망을 갈아 끼웠다. [[YR-308]] 이 `crane_net`
+      인자를 열었으므로 **그 자리를 그대로 쓴다** — 가로채기는 실제 경로를 안 밟는다.
+    """
     got = []
-    try:
-        for s in (1, 2, 3):
-            torch.manual_seed(s)
-            net = CraneNet()
-            E.make_preference = (lambda name, seed=0, _n=net:
-                                 CranePolicy(_n) if name == RL_CRANE
-                                 else D.make_preference(name, seed=seed))
-            got.append(run_episode(load=LOAD, arm="NO_REALLOC",
-                                   dispatcher=RL_CRANE, seed=SEED).phi_krw)
-    finally:
-        E.make_preference = orig
+    for s in (1, 2, 3):
+        torch.manual_seed(s)
+        got.append(run_episode(load=LOAD, arm="NO_REALLOC", dispatcher=RL_CRANE,
+                               seed=SEED, crane_net=CraneNet()).phi_krw)
     assert len(set(got)) > 1, f"망이 달라도 Φ 가 같다 — 정책이 안 쓰이고 있다: {got}"
 
 
