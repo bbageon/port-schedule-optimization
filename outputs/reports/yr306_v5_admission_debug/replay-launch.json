@@ -1,0 +1,63 @@
+{
+  "checked_at": "2026-09-11T13:51:40.7744345+09:00",
+  "started_at": "2026-09-11T13:50:51.1623125+09:00",
+  "windows_pid": 63756,
+  "preregistration_commit": "e7b6a70",
+  "task": "YR-306",
+  "purpose": "original-30-day-first-admission-failure-reproduction",
+  "output": "outputs/v5/yr306-replay-30d-8ab7d9d",
+  "source_code": {
+    "git_head": "8ab7d9dd64406372e2ac2538cd222677b6ed3ae2",
+    "git_dirty": false,
+    "source_sha256": "a33f42c6f5d36d32cba544d1b81f63c5a9f2edc23aa7420ac92897d47641acb3",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-source-8ab7d9d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 682,
+    "torch_threads": 1
+  },
+  "original_settings_equal": {
+    "seed": true,
+    "action_mode": true,
+    "learning_window_s": true,
+    "days": true,
+    "initial_occupancy": true,
+    "ppo": true
+  },
+  "planned_trucks": 177500,
+  "status_snapshot": {
+    "state": "running",
+    "phase": "warmup",
+    "time_s": 54000,
+    "day": 1,
+    "completed_days": 0,
+    "updates": 0,
+    "learning_intervals": 0,
+    "cost_krw": 36384668.62508126,
+    "roles": {
+      "seller": 1977,
+      "buyer": 1821,
+      "crane": 7891
+    },
+    "admitted": 2630,
+    "skipped": 0,
+    "vessel_failed": 0,
+    "wall_seconds": 36.788053586147726
+  },
+  "resources_before": {
+    "logical_cpus": 24,
+    "available_memory_mib": 54317,
+    "v4_training_running": false,
+    "v4_single_cpu_diagnostic_running": true,
+    "v5_threads": 1
+  },
+  "authorization": {
+    "allowed": true,
+    "target": "reliability",
+    "gate_file": "outputs/reports/yr306_v5_admission_debug/gate-after-debug.json",
+    "gate_commit": "7f16417849ae5b7c6f4fb8f4ac9829e067390d32"
+  },
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "thirty_day_completion_verified": false
+}
