@@ -1,0 +1,71 @@
+{
+  "generation": "v5",
+  "algorithm": "shared-block-PPO",
+  "purpose": "first-continuous-execution-validation; NO performance claim",
+  "code": {
+    "git_head": "8ab7d9dd64406372e2ac2538cd222677b6ed3ae2",
+    "git_dirty": false,
+    "source_sha256": "a33f42c6f5d36d32cba544d1b81f63c5a9f2edc23aa7420ac92897d47641acb3",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-source-8ab7d9d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 707,
+    "torch_threads": 1
+  },
+  "v4_base_commit": "6d42455cbb1c61c5667c50d38776c4372148c417",
+  "seed": 9900306,
+  "days": [
+    {
+      "index": 0,
+      "load": 60,
+      "label": "fixed-load-debug",
+      "seed": 9901306,
+      "t0": 0,
+      "train": false,
+      "n_days": 3
+    },
+    {
+      "index": 1,
+      "load": 60,
+      "label": "fixed-load-debug",
+      "seed": 9902306,
+      "t0": 86400,
+      "train": true,
+      "n_days": 3
+    },
+    {
+      "index": 2,
+      "load": 60,
+      "label": "fixed-load-debug",
+      "seed": 9903306,
+      "t0": 172800,
+      "train": false,
+      "n_days": 3
+    }
+  ],
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60,
+    "reward_scale_krw": 1000000,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "learning_window_s": [
+    86400,
+    172800
+  ],
+  "initial_occupancy": 0.45,
+  "action_mode": "sample-all-days",
+  "day_metric": "calendar interval cost, not arrival-cohort cost",
+  "counterfactual_worlds_allowed": 0,
+  "recovery": "day checkpoints are weights only, not physical world resume"
+}

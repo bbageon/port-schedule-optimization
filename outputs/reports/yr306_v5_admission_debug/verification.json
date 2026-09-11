@@ -1,0 +1,127 @@
+{
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "checks": {
+    "normal_results_unchanged": true,
+    "policy_and_action_rng_unchanged": true,
+    "input_and_learning_settings_unchanged": true,
+    "clean_pinned_source": true,
+    "completed": true,
+    "updates_0_24_0": true,
+    "no_counterfactuals": true,
+    "all_180_trucks_admitted": true,
+    "no_vessel_failures": true,
+    "physical_invariants": true,
+    "live_cohorts_saved": true,
+    "tests_passed": true,
+    "all_tests_present": true
+  },
+  "code": {
+    "git_head": "8ab7d9dd64406372e2ac2538cd222677b6ed3ae2",
+    "git_dirty": false,
+    "source_sha256": "a33f42c6f5d36d32cba544d1b81f63c5a9f2edc23aa7420ac92897d47641acb3",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-source-8ab7d9d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 707,
+    "torch_threads": 1
+  },
+  "seed": 9900306,
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60,
+    "reward_scale_krw": 1000000,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "old_run": "outputs/v5/yr306-smoke-bcbcd00",
+  "new_run": "outputs/v5/yr306-smoke-8ab7d9d",
+  "tests": {
+    "unit-tests.xml": {
+      "tests": 101,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "continuous-tests.xml": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "identical_report_fields": {
+    "roles": true,
+    "crane_actions": true,
+    "cost_krw": true,
+    "team_reward": true,
+    "learning_reward": true,
+    "learning_intervals": true,
+    "updates": true,
+    "admitted": true,
+    "skipped": true,
+    "traded_edges": true
+  },
+  "identical_checkpoints": {
+    "initial.pt": true,
+    "day_01.pt": true,
+    "day_02.pt": true,
+    "day_03.pt": true,
+    "final.pt": true
+  },
+  "identical_settings": {
+    "seed": true,
+    "days": true,
+    "ppo": true,
+    "learning_window_s": true,
+    "initial_occupancy": true,
+    "action_mode": true
+  },
+  "updates_by_day": [
+    0,
+    24,
+    0
+  ],
+  "admitted": 180,
+  "vessel_admissions": 24,
+  "cost_krw": 27400099.411798928,
+  "roles": {
+    "seller": 160,
+    "buyer": 142,
+    "crane": 19154
+  },
+  "original_30_day_failure_resolved": false,
+  "artifacts": {
+    "outputs/v5/yr306-smoke-bcbcd00/cohort_reports.json": "9016a25d423f56672d6990d701cd76144bffc9af0cb8861144e68338adfe55ac",
+    "outputs/v5/yr306-smoke-bcbcd00/day_01.pt": "53294477c050cff9ade8588ab8de4692bcdc1eeff703652244265e3b0424949c",
+    "outputs/v5/yr306-smoke-bcbcd00/day_02.pt": "c5111651df7c6d0a774e5b1ed5db3a0bf21ea14fcc1d38a01d4b699dd2223d86",
+    "outputs/v5/yr306-smoke-bcbcd00/day_03.pt": "29a22e73150250b286d2fe15d22330793004d81f3353e3b0d272935a7b548c78",
+    "outputs/v5/yr306-smoke-bcbcd00/days.json": "b7f173ac808a18f85027185d15d42661b0373c3b4065e7009cf27d8559115037",
+    "outputs/v5/yr306-smoke-bcbcd00/final.pt": "29a22e73150250b286d2fe15d22330793004d81f3353e3b0d272935a7b548c78",
+    "outputs/v5/yr306-smoke-bcbcd00/initial.pt": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+    "outputs/v5/yr306-smoke-bcbcd00/manifest.json": "e093776970f400494a07567e01e3f7cd45cc22df3ea2a132fbfa28caf0b4148c",
+    "outputs/v5/yr306-smoke-bcbcd00/report.json": "1712f02409553e76fe4bf8806d6858328d1d5d90438ca93c120128b58efa4398",
+    "outputs/v5/yr306-smoke-bcbcd00/status.json": "f536d08931671d0b934ebaa378ce797a03afbefd5fd2b520420a648e27d84175",
+    "outputs/v5/yr306-smoke-8ab7d9d/admissions.json": "4dc96fed8d5f34d61796bf799eeec907576b2363a223818cd5b4951349bb6625",
+    "outputs/v5/yr306-smoke-8ab7d9d/cohort_live.json": "396924934ab8b3ac4a627de5a9a13e7244a409007a75ad424aebd1aa610aa754",
+    "outputs/v5/yr306-smoke-8ab7d9d/cohort_reports.json": "9016a25d423f56672d6990d701cd76144bffc9af0cb8861144e68338adfe55ac",
+    "outputs/v5/yr306-smoke-8ab7d9d/day_01.pt": "53294477c050cff9ade8588ab8de4692bcdc1eeff703652244265e3b0424949c",
+    "outputs/v5/yr306-smoke-8ab7d9d/day_02.pt": "c5111651df7c6d0a774e5b1ed5db3a0bf21ea14fcc1d38a01d4b699dd2223d86",
+    "outputs/v5/yr306-smoke-8ab7d9d/day_03.pt": "29a22e73150250b286d2fe15d22330793004d81f3353e3b0d272935a7b548c78",
+    "outputs/v5/yr306-smoke-8ab7d9d/days.json": "b7f173ac808a18f85027185d15d42661b0373c3b4065e7009cf27d8559115037",
+    "outputs/v5/yr306-smoke-8ab7d9d/final.pt": "29a22e73150250b286d2fe15d22330793004d81f3353e3b0d272935a7b548c78",
+    "outputs/v5/yr306-smoke-8ab7d9d/initial.pt": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+    "outputs/v5/yr306-smoke-8ab7d9d/manifest.json": "1b397e0252cfbde9e006d02f40571328a096deb6408a38098f7ab143fde99031",
+    "outputs/v5/yr306-smoke-8ab7d9d/month_result.json": "1e97263b97de18e843d157d320da6e2c48d833bbce13b9be612659f7d11cdda3",
+    "outputs/v5/yr306-smoke-8ab7d9d/report.json": "efae2d38b50ba88d154db894db5208bdcba1420db41cb11af7027a049daeb6cf",
+    "outputs/v5/yr306-smoke-8ab7d9d/status.json": "f536d08931671d0b934ebaa378ce797a03afbefd5fd2b520420a648e27d84175"
+  }
+}

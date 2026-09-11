@@ -1,0 +1,53 @@
+{
+  "scope": "v5 admission failure diagnostics; no policy/cost/scenario optimization",
+  "performance": {
+    "name": "performance",
+    "status": "INCONCLUSIVE",
+    "summary": "규칙 대비 성능은 미측정이다",
+    "reasons": [
+      "비교 평가를 하지 않았다"
+    ],
+    "evidence": {
+      "claim_scope": "NO_PERFORMANCE_CLAIM"
+    }
+  },
+  "reliability": {
+    "name": "reliability",
+    "status": "FAIL",
+    "summary": "누락 상세 기록·즉시 중단·정상 3일 일치 확인, 원본 30일 누락 원인은 미확정",
+    "reasons": [
+      "기록 누락과 사후 검사 지연은 수정·검증됨",
+      "원본 30일 전체 투입 누락 원인 재현·보정은 미완료"
+    ],
+    "evidence": {
+      "task": "YR-306",
+      "source_commit": "bcbcd00aa23c5c458d323180289969714ee2664d",
+      "original_status": "outputs/reports/yr306_v5_admission_debug/original-status.json",
+      "saved_artifact_audit": "outputs/reports/yr306_v5_admission_debug/saved-audit.json",
+      "debug_code_commit": "8ab7d9dd64406372e2ac2538cd222677b6ed3ae2",
+      "debug_verification": "outputs/reports/yr306_v5_admission_debug/verification.json",
+      "debugging_scope_passed": true
+    }
+  },
+  "scenario_validity": {
+    "name": "scenario_validity",
+    "status": "FAIL",
+    "summary": "v5 현실타당성은 미통과이며 개별 투입 누락 원인도 미확정이다",
+    "reasons": [
+      "45% 초기 점유율 외부 보정·장기 흐름 미검증",
+      "원본 전체 개별 누락 사유 미보존"
+    ],
+    "evidence": {
+      "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+      "initial_occupancy": 0.45
+    }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": [
+    "reliability",
+    "scenario_validity",
+    "performance"
+  ]
+}
