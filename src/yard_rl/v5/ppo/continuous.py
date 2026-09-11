@@ -61,7 +61,19 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
     before_cf = rollout_calls()
     try:
         initial = journal.checkpoint("initial.pt", runtime)
-        result = run_month(seed=seed, days=days, ppo=runtime)
+        result = run_month(seed=seed, days=days, ppo=runtime,
+                           on_admission=journal.admission, on_day=journal.day_report)
+        # Keep the returned evidence even when a final validation rejects the run.
+        write_json(output / "month_result.json", asdict(result))
+        write_json(output / "cohort_reports.json", {"note": "Inherited cohort metric; distinct from calendar rewards",
+                                                     "live": [d.as_dict() for d in result.live],
+                                                     "final": [d.as_dict() for d in result.days]})
+        journal.admissions.update(admitted=result.admitted, skipped=result.skipped,
+            vessels=result.vessel_admissions,
+            vessel_failed=sum(not a["ok"] for a in result.vessel_admissions))
+        if result.truck_skips and not journal.admissions["truck_failures"]:
+            journal.admissions["truck_failures"] = result.truck_skips
+        journal.save_admissions()
         for sim in runtime.mbt.blocks.values():
             sim.check_invariants()
         cf = rollout_calls() - before_cf
@@ -88,16 +100,16 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
                       claim_scope="NO_PERFORMANCE_CLAIM", code=stamp,
                       restart="No physical-world resume; restart same seed in a NEW directory")
         write_json(output / "report.json", report)
-        write_json(output / "cohort_reports.json", {"note": "Inherited cohort metric; distinct from calendar rewards",
-                                                     "live": [d.as_dict() for d in result.live],
-                                                     "final": [d.as_dict() for d in result.days]})
         write_json(output / "status.json", {"state": "completed", "time_s": runtime.time_s,
                                              "completed_days": n_days, "updates": len(runtime.updates)})
         journal.event("completed", {"time_s": runtime.time_s, "updates": len(runtime.updates),
                                      "counterfactual_worlds": cf})
         return runtime, report
     except BaseException as error:
-        journal.fail(error, runtime)
+        try:
+            journal.fail(error, runtime)
+        except Exception as log_error:
+            error.add_note(f"Failure journal could not be saved: {log_error}")
         raise
 
 

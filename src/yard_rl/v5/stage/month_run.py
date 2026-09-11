@@ -54,6 +54,7 @@ from .branchpool import BranchJob, BranchPool, default_workers
 from .month_engine import (VESSEL_DEADLINE_MULT, MonthTerminal,
                            inject_vessel)
 from .orders import EPOCH_S, V3Announcer, orders_from_schedule
+from .admission import truck_admission_event
 from .rollout import RolloutBudget, identity_check
 
 #: 계수기를 얼마나 자주 찍나. 날 경계는 **항상** 따로 찍는다.
@@ -123,6 +124,7 @@ class MonthResult:
     policy_exceptions: int = 0
     retargeted: int = 0
     vessel_admissions: list = field(default_factory=list)
+    truck_skips: list = field(default_factory=list)
 
     @property
     def train_days(self) -> list:
@@ -199,7 +201,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
-              vessel_deadline_mult: float | None = None, ppo=None) -> MonthResult:
+              vessel_deadline_mult: float | None = None, ppo=None,
+              on_admission=None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -432,15 +435,21 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                                   size_seed=f"v3:month:{seed}:{r['key']}")
             except TransferError as ex:
                 skipped += 1
-                res.vessel_admissions.append({"key": r["key"], "day": d.index,
-                                              "ok": False, "why": str(ex)})
+                row = {"key": r["key"], "day": d.index, "block": r["block"],
+                       "time_s": d.t0, "asked": r["moves"], "moves": 0,
+                       "ok": False, "why": str(ex)}
+                res.vessel_admissions.append(row)
+                if on_admission is not None:
+                    on_admission({"kind": "vessel", **row})
                 continue
             n += 1
             moves += a.moves
-            res.vessel_admissions.append({"key": a.vessel_key, "day": d.index,
-                                          "ok": True, "moves": a.moves,
-                                          "asked": a.asked_moves,
-                                          "why": a.reason})
+            row = {"key": a.vessel_key, "day": d.index, "block": r["block"],
+                   "time_s": d.t0, "ok": True, "moves": a.moves,
+                   "asked": a.asked_moves, "why": a.reason}
+            res.vessel_admissions.append(row)
+            if on_admission is not None:
+                on_admission({"kind": "vessel", **row})
         return n, moves, skipped
 
     def close_day(m, d, t: float, opened: tuple) -> None:
@@ -480,7 +489,11 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     opened = {"cur": (0, 0, 0)}
 
     def review(m, t: float) -> None:
+        previous_admitted, previous_skips = ann.n_admitted, ann.n_skipped
         ann.review(m, t)
+        if on_admission is not None and (ann.n_admitted != previous_admitted
+                                         or ann.n_skipped != previous_skips):
+            on_admission(truck_admission_event(ann, m, t, previous_skips))
         if ppo is not None:
             bridge._sync(m, t)
             ppo.boundary(t)
@@ -529,6 +542,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
 
     res.admitted = ann.n_admitted
     res.skipped = ann.n_skipped
+    res.truck_skips = list(ann.skips)
     res.traded_edges = bridge.traded_edges
     res.n_space, res.n_time = bridge.n_space, bridge.n_time
     res.txn_failed = bridge.txn_failed

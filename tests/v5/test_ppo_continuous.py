@@ -135,3 +135,10 @@ def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path):
     assert all(d["checkpoint"]["pending_intervals"] == 0 for d in days)
     assert not list(out.glob("*.partial"))
     assert json.loads((out / "status.json").read_text())["completed_days"] == 3
+    admissions = json.loads((out / "admissions.json").read_text())
+    assert admissions["admitted"] == 180 and admissions["skipped"] == 0
+    assert admissions["vessel_failed"] == 0 and not admissions["truck_failures"]
+    assert len(json.loads((out / "cohort_live.json").read_text())) == 3
+    result = json.loads((out / "month_result.json").read_text())
+    assert result["admitted"] == admissions["admitted"] and result["truck_skips"] == []
+    assert not (out / "failed-policy.pt").exists()
