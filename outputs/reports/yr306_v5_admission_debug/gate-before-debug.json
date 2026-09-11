@@ -1,0 +1,24 @@
+{
+  "scope": "v5 admission failure diagnostics; no policy/cost/scenario optimization",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "규칙 대비 성능은 미측정이다", "reasons": ["비교 평가를 하지 않았다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "FAIL",
+    "summary": "30일 실행이 투입 누락으로 실패했고 개별 사유를 파일로 저장하지 않았다",
+    "reasons": ["최종 실패 전 상세 기록이 저장되지 않음", "첫 누락 이후에도 학습이 계속됨"],
+    "evidence": {"task": "YR-306", "source_commit": "bcbcd00aa23c5c458d323180289969714ee2664d", "original_status": "outputs/reports/yr306_v5_admission_debug/original-status.json", "saved_artifact_audit": "outputs/reports/yr306_v5_admission_debug/saved-audit.json"}
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "v5 현실타당성은 미통과이며 개별 투입 누락 원인도 미확정이다",
+    "reasons": ["45% 초기 점유율 외부 보정·장기 흐름 미검증", "원본 전체 개별 누락 사유 미보존"],
+    "evidence": {"allowed_claim_scope": "NO_PERFORMANCE_CLAIM", "initial_occupancy": 0.45}
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}
