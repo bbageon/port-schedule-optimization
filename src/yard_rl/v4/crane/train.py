@@ -29,7 +29,8 @@ import torch
 
 from ..eval import TRAIN_LOADS
 from ..stage import RolloutBudget, run_episode
-from .fit import CraneFitReport, CraneTrainer, scale_health
+from .fit import (FIT_STEPS_PER_SAMPLE, CraneFitReport, CraneTrainer,
+                  scale_health)
 from .policy import CraneNet
 
 #: 비판정(진단) 시드 대역 — 판정 대역은 여기서 절대 쓰지 않는다.
@@ -74,6 +75,8 @@ class CraneIterReport:
     loss: float = 0.0
     val_loss: float = 0.0            # ★진짜 지표 — 안 본 표본에서의 오차
     n_val: int = 0
+    steps: int = 0                   # 이 회차에 먹인 스텝 수
+    steps_coef: float = FIT_STEPS_PER_SAMPLE
     median_gap_krw: float = 0.0      # 목표 중앙 격차 — 그날 라벨이 얼마짜리였나
     #: ★그날 실제로 쓴 눈금(원) ([[YR-309]]). 회차마다 다르다 — 그게 이 변경의 요점이다.
     scale_krw: float = 0.0
@@ -155,7 +158,9 @@ def run_crane_training(*, iters: int = 20,
                        loads: tuple[int, ...] = TRAIN_LOADS,
                        horizon_s: float = 10_800.0,
                        workers: int = 1, val_frac: float = 0.2,
-                       eval_every: int = 5, log=print) -> CraneTrainState:
+                       eval_every: int = 5,
+                       steps_coef: float = FIT_STEPS_PER_SAMPLE,
+                       log=print) -> CraneTrainState:
     """회차를 돌린다. **표본 0 이면 즉시 멈춘다** (06 하드가드).
 
     `time_budget_s` 를 주면 시간으로도 끊는다 — 회차 수를 **결과 보고 늘리면
@@ -166,7 +171,7 @@ def run_crane_training(*, iters: int = 20,
     #:  실행마다 다른 정책이라 같은 시드로 돌려도 Φ 가 재현되지 않는다.
     torch.manual_seed(int(seed_base) + 3)
     net = CraneNet()
-    st = CraneTrainState(net, CraneTrainer(net))
+    st = CraneTrainState(net, CraneTrainer(net, steps_coef=steps_coef))
     t_start = time.time()
 
     def do_eval(it: int) -> None:
@@ -222,6 +227,7 @@ def run_crane_training(*, iters: int = 20,
         ls = _labelset(ep.crane_labels, cs)
         fit: CraneFitReport = st.trainer.fit(ls, seed=seed, val_frac=val_frac)
         rep.loss, rep.val_loss, rep.n_val = fit.loss, fit.val_loss, fit.n_val
+        rep.steps, rep.steps_coef = fit.steps, fit.steps_coef
         rep.median_gap_krw = fit.median_gap_krw
         rep.scale_krw, rep.floor_bound = fit.scale_krw, fit.floor_bound
         #: ★그날 눈금 기준으로 본다 — [[YR-309]] 이후 이 값은 **항상 1.00 근처**여야

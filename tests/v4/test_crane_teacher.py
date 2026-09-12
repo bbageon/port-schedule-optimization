@@ -197,3 +197,34 @@ def test_ordering_survives_rescaling():
     small, big = targets(1_000.0), targets(100_000.0)
     assert [x < y for x, y in zip(small, small[1:])] == \
            [x < y for x, y in zip(big, big[1:])], "눈금이 순서를 바꿨다"
+
+
+def test_fit_intensity_is_a_knob():
+    """★회차당 학습 강도를 조절할 수 있다 ([[YR-310]]).
+
+    기본 4.0 은 학습 표본 102개에 408스텝이라 **한 날에 408번 맞추는** 셈이다.
+    라벨은 회차마다 버리므로(버퍼 없음) 망이 매 회차 그날 데이터로 다시 그려진다.
+    """
+    from yard_rl.v4.crane.fit import FIT_STEPS_PER_SAMPLE
+
+    assert FIT_STEPS_PER_SAMPLE == 4.0, "기본값은 실험 전까지 안 움직인다"
+    ls = _learnable(200)
+    a = CraneTrainer(CraneNet(), steps_coef=4.0).fit(ls, seed=1)
+    b = CraneTrainer(CraneNet(), steps_coef=1.0).fit(ls, seed=1)
+    assert b.steps < a.steps, f"계수를 낮췄는데 스텝이 안 줄었다: {a.steps} vs {b.steps}"
+    assert b.steps_coef == 1.0 and a.steps_coef == 4.0, "원자료에 계수가 남아야 한다"
+
+
+def test_gentler_fitting_still_learns():
+    """★덜 세게 가르쳐도 **배우기는 한다** — 너무 줄이면 학습 자체가 죽는다."""
+    torch.manual_seed(1)
+    net = CraneNet()
+    CraneTrainer(net, steps_coef=1.0).fit(_learnable(), seed=1)
+    net.eval()
+    with torch.no_grad():
+        short = float(net(torch.tensor([[0, 1, 0.2, 0, .5, .5, 0, .5]],
+                                       dtype=torch.float32))[0])
+        long_ = float(net(torch.tensor([[0, 1, 1.8, 0, .5, .5, 0, .5]],
+                                       dtype=torch.float32))[0])
+    assert long_ < short, (
+        f"계수 1.0 에서 학습이 죽었다 — 짧음 {short:.3f} · 김 {long_:.3f}")

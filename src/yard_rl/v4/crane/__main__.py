@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 from ..eval import TRAIN_LOADS
+from .fit import FIT_STEPS_PER_SAMPLE
 from .train import DIAGNOSTIC_BASE, LABELS_PER_ITER, run_crane_training
 
 
@@ -41,6 +42,10 @@ def main(argv=None) -> int:
     ap.add_argument("--eval-every", type=int, default=5,
                     help="몇 회차마다 **고정 평가일**로 짝비교할까 (0 = 안 함). "
                          "학습 전에도 한 번 재서 기준점을 남긴다")
+    ap.add_argument("--steps-coef", type=float, default=None,
+                    help="회차당 학습 강도 — 스텝 수 = 계수 × 학습 표본 수 "
+                         "(하한 50·상한 600). 기본 4.0 은 표본 102개에 408스텝이라 "
+                         "망이 매 회차 그날 데이터로 다시 그려진다 ([[YR-310]])")
     ap.add_argument("--out", default="outputs/v4/crane-train", help="결과 폴더")
     ap.add_argument("--dry", action="store_true", help="굴리지 않고 계획만 본다")
     a = ap.parse_args(argv)
@@ -54,7 +59,10 @@ def main(argv=None) -> int:
     print(f"■ 크레인 학습 — {a.iters}회차 · 시드 바닥 {a.seed:,}")
     print(f"  부하 {loads} · 라벨 {a.labels}/회차 · 반사실 창 {a.horizon_h:.0f}시간")
     print(f"  작업자 {workers} · 결과 {a.out}")
+    _sc = a.steps_coef if a.steps_coef is not None else FIT_STEPS_PER_SAMPLE
     print(f"  기준선: 같은 시드 SF_SPT (규칙 크레인) · 재배정은 끈다(NO_REALLOC)")
+    print(f"  학습 강도: 스텝 = {_sc:g} x 표본수 "
+          f"(라벨 {a.labels}건이면 약 {int(_sc * a.labels * 2 * 0.8)}스텝)")
     if a.eval_every > 0:
         from .train import EVAL_LOADS, EVAL_SEED_BASE
         print(f"  고정 평가일: 부하 {EVAL_LOADS} · 시드 {EVAL_SEED_BASE:,}대 · "
@@ -68,6 +76,8 @@ def main(argv=None) -> int:
         iters=a.iters, out_dir=a.out, labels_per_iter=a.labels,
         seed_base=a.seed, loads=loads, workers=workers,
         horizon_s=a.horizon_h * 3600.0, eval_every=a.eval_every,
+        steps_coef=(a.steps_coef if a.steps_coef is not None
+                    else FIT_STEPS_PER_SAMPLE),
         time_budget_s=(a.hours * 3600.0 if a.hours else None))
     secs = time.time() - t0
     print(f"■ 끝 — {len(st.history)}회차 · {secs/3600:.2f}시간")
@@ -85,6 +95,7 @@ def main(argv=None) -> int:
               f"(이긴 날 {last_e['n_win']}/{len(last_e['rows'])})")
     (Path(a.out) / "run.json").write_text(
         json.dumps({"iters": a.iters, "seed": a.seed, "labels": a.labels,
+                    "steps_coef": _sc,
                     "loads": list(loads), "horizon_h": a.horizon_h,
                     "workers": workers, "secs": secs}, ensure_ascii=False,
                    indent=1), encoding="utf-8")
