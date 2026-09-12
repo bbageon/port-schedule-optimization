@@ -113,12 +113,18 @@ def test_truck_and_ship_cannot_claim_the_same_box():
     assert report['violations']['duplicate_exits'] == 1
 
 
-@pytest.mark.parametrize('target,reason', [('UNKNOWN', 'missing_sources'),
-                                         ('IN_late', 'exit_before_possible_arrival')])
-def test_exit_requires_a_known_prior_source(target, reason):
-    report = audit_container_plan(built([entry(target=target),
+def test_exit_requires_a_known_source():
+    report = audit_container_plan(built([entry(target='UNKNOWN'),
         entry('late', 'GATE_IN', None, arrival=2000)]), {})
-    assert report['violations'][reason] == 1
+    assert report['violations']['missing_sources'] == 1
+
+
+def test_truck_arriving_before_known_cargo_is_pending_not_invalid():
+    report = audit_container_plan(built([entry(target='IN_late'),
+        entry('late', 'GATE_IN', None, arrival=2000)]), {})
+    assert report['passed'] and not report['violations']
+    assert report['planned_waiting_exits'] == 1
+    assert report['planned_waiting_examples'][0]['planned_wait_lower_bound_s'] == 1400
 
 
 def test_vessel_unload_supplies_a_fixed_named_box():

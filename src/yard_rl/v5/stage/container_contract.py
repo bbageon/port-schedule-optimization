@@ -69,6 +69,7 @@ def audit_container_plan(built: dict, vessels_by_day: dict) -> dict:
     lower bounds, not fabricated physical completion times.
     """
     counts, examples = Counter(), defaultdict(list)
+    waiting = []
     sources, exits, identities = {}, {}, []
     initial = built.get('day0', built)['scenarios']
 
@@ -98,7 +99,11 @@ def audit_container_plan(built: dict, vessels_by_day: dict) -> dict:
         elif origin['block'] != bid:
             issue('wrong_planned_block', dict(source=origin, exit=item))
         elif origin['earliest_s'] > earliest:
-            issue('exit_before_possible_arrival', dict(source=origin, exit=item))
+            # This is an order/arrival plan, not a completed physical exit.
+            # A truck may arrive before its fixed cargo and wait. Never invent
+            # readiness or reject a valid reservation merely for that ordering.
+            waiting.append(dict(source=origin, exit=item,
+                                planned_wait_lower_bound_s=origin['earliest_s'] - earliest))
 
     for bid, scn in sorted(initial.items()):
         for cid, box in sorted(scn.containers.items()):
@@ -152,11 +157,12 @@ def audit_container_plan(built: dict, vessels_by_day: dict) -> dict:
     for cid, bid, key, at in sorted(outgoing, key=lambda x: (x[3], x[2])):
         consume(cid, bid, key, at)
     payload = json.dumps(identities, ensure_ascii=False, separators=(',', ':')).encode()
-    return dict(schema='yard_rl.v5.container_contract.v1', passed=not counts,
+    return dict(schema='yard_rl.v5.container_contract.v2', passed=not counts,
                 scope='static fixed-identity contract; NOT physical feasibility or performance',
                 truck_orders=len(built['schedule']), vessel_streams=stream_count,
                 source_containers=len(sources), fixed_exit_containers=len(exits),
                 violations=dict(sorted(counts.items())), examples=dict(examples),
+                planned_waiting_exits=len(waiting), planned_waiting_examples=waiting[:5],
                 identity_sha256=hashlib.sha256(payload).hexdigest())
 
 
