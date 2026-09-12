@@ -1,0 +1,161 @@
+{
+  "task": "YR-306",
+  "scope": "bounded admission contract correction, not a full replay",
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "preregistration_commit": "4937302",
+  "preregistration": ".claude/docs/dashboard-task-specs/YR-306-admission-wait.md",
+  "test_source_commit": "415e3e7",
+  "tested_source_matches_commit": true,
+  "test_source_sha256_lf": {
+    "src/yard_rl/v5/stage/cargo_runtime.py": "3d0342420a85d864f7f0847c9b7cd0ee18db4557343461ebbdfb22eaca88b880",
+    "tests/v5/test_cargo_capacity_wait.py": "0db925a7ec326f0d6940aad00cb16a29b18da4f9f2ff2bd3c9770372f5e0ad5e"
+  },
+  "old_source": {
+    "git_head": "83de18ddb811057ab88ac930881d4b18c3118184",
+    "git_dirty": false,
+    "source_sha256": "358fe6b1a667527f0464f53214828eddc511f71b39666a54e9d8f1dd7a2bf7ac",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-runtime-source-83de18d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 454,
+    "torch_threads": 1
+  },
+  "absolute_seed": 9900306,
+  "tests": {
+    "tests": 156,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 99.599
+  },
+  "reported_counts": {
+    "tests": 156,
+    "old_updates": 480,
+    "old_admitted": 125269,
+    "old_skipped": 1,
+    "old_time_s": 1817220
+  },
+  "claim_alignment": {
+    "name": "claim_alignment",
+    "status": "PASS",
+    "summary": "보고 핵심 수치가 원자료와 일치함",
+    "reasons": [],
+    "evidence": {
+      "absolute_tolerance": 0.0,
+      "reported_values": {
+        "tests": 156,
+        "old_updates": 480,
+        "old_admitted": 125269,
+        "old_skipped": 1,
+        "old_time_s": 1817220
+      },
+      "raw_values": {
+        "tests": 156,
+        "old_updates": 480,
+        "old_admitted": 125269,
+        "old_skipped": 1,
+        "old_time_s": 1817220.0
+      },
+      "absolute_differences": {
+        "old_admitted": 0.0,
+        "old_skipped": 0.0,
+        "old_time_s": 0.0,
+        "old_updates": 0.0,
+        "tests": 0.0
+      }
+    }
+  },
+  "wait_measurements": {
+    "wait_cost_at_600_s": 6000.0,
+    "wait_cost_at_1200_s": 12666.666666666666,
+    "final_cost_krw": 27333.333333333332,
+    "physical_inventory": 1440.0,
+    "extra_cost_for_600_s_wait": 6666.666666666666
+  },
+  "full_block_test": "actual 1440-box block; unchanged stack constraints and PPO cost/reward path",
+  "balance_test": "synthetic 934-box + 542 planned-discharge reconstruction; not a day-22 replay",
+  "integration_test": "actual new-bundle three-day test; only code_stamp substituted in the test",
+  "maximum_test_cpu_cores": 1,
+  "cpu_affinity": [
+    23
+  ],
+  "long_run_restarted": false,
+  "full_v5_suite": false,
+  "old_world_resumed": false,
+  "unchanged": [
+    "seed bundle",
+    "PPO parameters/features",
+    "cost coefficients",
+    "frozen world",
+    "v3/v4"
+  ],
+  "limits": [
+    "30-day rerun not performed",
+    "old one-truck short-run residual not diagnosed",
+    "no baseline performance comparison or real cargo-flow calibration"
+  ],
+  "artifacts_sha256": {
+    "failed-run/admissions.json": "865e35226abecf390c6cae3d70a008d5dbfc9ec457bfeb57fdc86fe32cc25f36",
+    "failed-run/cargo-status.json": "e25e27aa47f7f2d2b4e11da1d61b5cb25d9215a77d9b0b9f86922a71c1471daf",
+    "failed-run/container_contract.json": "afa2681a12b087dd5c960a369fa24e280b83a0e3ebc9748de332381c051bf165",
+    "failed-run/days.json": "a953aafc24a77c12c8eec0fee54ac70678ba6bf9a05e3a929b9c1067cb57e9b6",
+    "failed-run/events.jsonl": "17caafe7be05be99760d4cc8d6db55cc4e2ab172e4835b8e98b082e5a4dcfe9b",
+    "failed-run/manifest.json": "b8dbc7127880f8686c8bf35f6fe74c5462902a21f7abc58b8937449b2c5b7464",
+    "failed-run/partial_report.json": "8dbec29376144ee0efca9af6fb8e0d3d5e50ddaf46ad32f09c78de9cce710e8b",
+    "failed-run/status.json": "6339498c076eb151df6661f341c826436029443d3bbb98276939c6c6a3a9dc20",
+    "development-tests.xml": "f6f59c0172302b69eab2c62d63c583ead1c6981fa251406097d11493b5bbca26",
+    "final-tests.xml": "fc6d040764b52b76d4958f309733f4b1a03cb86d4138ff24232fff7c5a368963",
+    "verified-tests.xml": "abc346de70f1c96c2f4961efcebe6d9c98e5079b13e74eecc2d6802386dbdad8",
+    "gate-after-wait.json": "57816bf631f310dd95525af8d722a485e62a0323ab55be18bb81d1d19fd843e4"
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "주문 보존·비용 연결 검사이며 정책 성능 비교는 하지 않았다",
+      "reasons": [
+        "규칙 대비 비용 개선과 완주 가드를 수집하지 않았다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "용량 부족 주문은 대기로 보존하도록 수정했지만 수정 후 30일 재검증은 남았다",
+      "reasons": [
+        "이전 실행은 22일차 주문 거절로 실패했다",
+        "수정 뒤 같은 30일 전체 실행은 아직 수행하지 않았다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "test_source_commit": "415e3e7",
+        "test_evidence": "outputs/reports/yr306_admission_wait/final-tests.xml",
+        "old_failure": "outputs/reports/yr306_admission_wait/failed-run/status.json",
+        "long_run_restarted": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "만재 대기·공간 해제·비용 누적은 확인했지만 장기·외부 타당성은 미완료다",
+      "reasons": [
+        "장기 적체와 이전 단기 반입 1건 잔여 원인은 미검증이다",
+        "수입·수출별 실측 흐름과 초기 점유율·운반시간 보정은 별도 미완료다"
+      ],
+      "evidence": {
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}

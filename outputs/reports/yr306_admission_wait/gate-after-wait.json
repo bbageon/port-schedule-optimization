@@ -1,0 +1,28 @@
+{
+  "scope": "YR-306 no-rejection order admission correction; no long rerun",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "주문 보존·비용 연결 검사이며 정책 성능 비교는 하지 않았다",
+    "reasons": ["규칙 대비 비용 개선과 완주 가드를 수집하지 않았다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "FAIL",
+    "summary": "용량 부족 주문은 대기로 보존하도록 수정했지만 수정 후 30일 재검증은 남았다",
+    "reasons": ["이전 실행은 22일차 주문 거절로 실패했다", "수정 뒤 같은 30일 전체 실행은 아직 수행하지 않았다"],
+    "evidence": {"task": "YR-306", "test_source_commit": "415e3e7",
+      "test_evidence": "outputs/reports/yr306_admission_wait/final-tests.xml",
+      "old_failure": "outputs/reports/yr306_admission_wait/failed-run/status.json",
+      "long_run_restarted": false}
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "만재 대기·공간 해제·비용 누적은 확인했지만 장기·외부 타당성은 미완료다",
+    "reasons": ["장기 적체와 이전 단기 반입 1건 잔여 원인은 미검증이다",
+                "수입·수출별 실측 흐름과 초기 점유율·운반시간 보정은 별도 미완료다"],
+    "evidence": {"allowed_claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "claim_eligible": false, "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}
