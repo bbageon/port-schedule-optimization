@@ -1,0 +1,279 @@
+{
+  "task": "YR-306",
+  "scope": "short CLI verification and live long-run startup only",
+  "captured_utc": "2026-09-12T10:59:42.632439+00:00",
+  "source_commit": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+  "preregistration": ".claude/docs/dashboard-task-specs/YR-306-wait-restart.md",
+  "prior_fix_commit": "415e3e7",
+  "source_matches_tested_fix": true,
+  "preregistration_sha256_at_source": "978ee9f4322625e6467d385e47f00ba35cd803dbac4541694b3b5b6999e97610",
+  "code": {
+    "git_head": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+    "git_dirty": false,
+    "source_sha256": "02c5c0dd043a89eb01f50d3354711cc71cb8e83df0f1b0c857607c62d15c8fc7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-source-4549ae9",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 2228,
+    "torch_threads": 1
+  },
+  "absolute_seed": 9900306,
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "same_long_input_and_settings": true,
+  "seed_sha256": "efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a",
+  "long_run": "outputs\\v5\\yr306-wait-30d-4549ae9",
+  "smoke_run": "outputs\\v5\\yr306-wait-smoke-4549ae9",
+  "old_world_resumed": false,
+  "initial_checkpoint_sha256": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+  "initial_policy_matches_original": true,
+  "smoke_initial_checkpoint_sha256": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+  "prior_initial_checkpoint_sha256": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+  "launcher_pid": 39620,
+  "linux_pid": 2228,
+  "cpu_affinity": "pid 2228's current affinity list: 23",
+  "command": "/home/geonu/.venvs/yard-rl/bin/python -u -m yard_rl.v5.ppo.continuous --seed 9900306 --days 30 --seed-bundle /mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr306_seed_regeneration/seed-9900306/seed-data.json.gz --seed-sha256 efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a --output /mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-30d-4549ae9",
+  "smoke": {
+    "state": "completed",
+    "updates": 24,
+    "admitted": 180,
+    "skipped": 0,
+    "vessels": 24,
+    "counterfactual_worlds": 0,
+    "cargo": {
+      "planned_sources": 18783,
+      "planned_exits": 4055,
+      "ready_sources": 18782,
+      "completed_exits": 4055,
+      "physical_inventory": 14727,
+      "expected_inventory": 14727,
+      "pending_admissions": 5,
+      "dependent_reroutes": 1,
+      "remote_vessel_handoffs": 1,
+      "completed_jobs": {
+        "GATE_OUT": 103,
+        "VESSEL_LOAD": 3952,
+        "VESSEL_DISCHARGE": 5098,
+        "GATE_IN": 76
+      },
+      "active_unfinished_jobs": {
+        "GATE_IN": 1
+      },
+      "active_unfinished_vessels": 0,
+      "routing_examples": [
+        {
+          "job": "Y04:J-D00-M1-s0-0272",
+          "source": "Y04",
+          "destination": "Y08",
+          "time_s": 34200.0,
+          "road_ready_s": null
+        }
+      ]
+    }
+  },
+  "startup": {
+    "state": "running",
+    "phase": "training",
+    "time_s": 104400.0,
+    "day": 2,
+    "completed_days": 1,
+    "updates": 5,
+    "learning_intervals": 300,
+    "cost_krw": 80217786.41170694,
+    "roles": {
+      "seller": 3934,
+      "buyer": 3609,
+      "crane": 17151
+    },
+    "admitted": 5435,
+    "skipped": 0,
+    "vessel_failed": 0,
+    "wall_seconds": 134.31156257726252
+  },
+  "cargo": {
+    "time_s": 104400.0,
+    "planned_sources": 161371,
+    "planned_exits": 146963,
+    "ready_sources": 18537,
+    "completed_exits": 2626,
+    "physical_inventory": 15911,
+    "expected_inventory": 15911,
+    "pending_admissions": 142,
+    "dependent_reroutes": 62,
+    "remote_vessel_handoffs": 0,
+    "completed_jobs": {
+      "GATE_OUT": 2626,
+      "GATE_IN": 1759,
+      "VESSEL_DISCHARGE": 3170
+    },
+    "active_unfinished_jobs": {
+      "GATE_IN": 407,
+      "GATE_OUT": 643,
+      "VESSEL_LOAD": 1356,
+      "VESSEL_DISCHARGE": 1358
+    },
+    "active_unfinished_vessels": 8,
+    "routing_examples": [
+      {
+        "job": "D00-D-01008",
+        "source": "Y19",
+        "destination": "Y16",
+        "time_s": 24960.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-00594",
+        "source": "Y06",
+        "destination": "Y08",
+        "time_s": 29940.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-00943",
+        "source": "Y11",
+        "destination": "Y19",
+        "time_s": 32700.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01571",
+        "source": "Y17",
+        "destination": "Y13",
+        "time_s": 38700.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01689",
+        "source": "Y08",
+        "destination": "Y15",
+        "time_s": 41400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01666",
+        "source": "Y03",
+        "destination": "Y19",
+        "time_s": 42660.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01805",
+        "source": "Y16",
+        "destination": "Y19",
+        "time_s": 46260.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02986",
+        "source": "Y03",
+        "destination": "Y17",
+        "time_s": 49320.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02233",
+        "source": "Y01",
+        "destination": "Y20",
+        "time_s": 50640.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02288",
+        "source": "Y21",
+        "destination": "Y18",
+        "time_s": 53460.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      }
+    ]
+  },
+  "long_run_restarted": true,
+  "full_30_days_completed": false,
+  "artifacts_sha256": {
+    ".gitattributes": "6485a96f1633702fa1ffdae783b7fa55cb3b578f07b69a2b176abd81843a773c",
+    "authorization.json": "f1c7199aee6c556d168d026e3d5e971ba17c0a61af90b55528c2e1135cf9dd74",
+    "gate-at-start.json": "9af2ecb97d13e85c6122c9287315959a127362fe685d6ed271304376a0ece283",
+    "smoke/admissions.json": "4dc96fed8d5f34d61796bf799eeec907576b2363a223818cd5b4951349bb6625",
+    "smoke/cargo-status.json": "f4ba1da329a47a592ebc9eeca3b597e010d62bdc37d5c807f845ccd756f3c0fc",
+    "smoke/container_contract.json": "9952f208fc7a5a431968007b674031b95dc57b873e5e84a68d568f7693ac9a86",
+    "smoke/days.json": "01156c2be27a640d9db02004232260c5447b52058c44796d50bfc685ea132eb7",
+    "smoke/events.jsonl": "36d5cccb942fde823ff5b0672e6de6129d65fa9c7f353849800bab6f7eb5c35b",
+    "smoke/launch.sh": "c8242ee4a06174e49fb8a19bbaad184b7e9931c4b537f4457ef75467167eacfe",
+    "smoke/manifest.json": "4e00c44558a489ab90e5143cdcbec459d25b96803dbc868db24bc5c7d1501d0c",
+    "smoke/report.json": "d6f8c2a6f869915255362a77a0c09928f450ae4e5fce97380d77c3690bd8f24b",
+    "smoke/status.json": "f536d08931671d0b934ebaa378ce797a03afbefd5fd2b520420a648e27d84175",
+    "startup/admissions.json": "d65a79b7ce71ae3f42f58a513cd2e4c4fd52eb1487703e4d8a93aba2627299ba",
+    "startup/cargo-status.json": "1ae79570fe55a5718b761235dd5a15785010c2654a32e72177cd14abcc7e9bf8",
+    "startup/container_contract.json": "afa2681a12b087dd5c960a369fa24e280b83a0e3ebc9748de332381c051bf165",
+    "startup/days.json": "1f0fca22dcadd71da0d528dc7b12b16c209f3ae8275bef2a12577836078923c5",
+    "startup/launch.sh": "127c2ffff02a73ecf020c1f8fb298e1863673f91c854b20601036c9289d37ab9",
+    "startup/manifest.json": "a3f771cfd2e7fa37d9852446529c8652adb7da495a7c6585f0f6de640a5efae7",
+    "startup/status.json": "a055e39fd0034454287222c170ffffc165c546cf965444e1748db4b9bb58e3ab"
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "연결 검사와 재시작 확인이며 정책 성능 비교가 아니다",
+      "reasons": [
+        "규칙 대비 비용 개선 비교를 수행하지 않았다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "수정본 장기 실행의 완주 확인이 아직 남았다",
+      "reasons": [
+        "이전 실행은 22일차에 실패했고 수정본 30일 완주 결과는 아직 없다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "source_commit": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+        "prior_tests": "outputs/reports/yr306_admission_wait/final-tests.xml",
+        "old_failure": "outputs/reports/yr306_admission_wait/failed-run/status.json"
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "장기 적체·잔여 원인과 실제 항만 흐름 보정은 미완료다",
+      "reasons": [
+        "단기 반입 잔여와 장기 적체 원인 검증이 남았다",
+        "수입·수출별 실측 흐름과 초기 점유율·운반시간 보정이 남았다"
+      ],
+      "evidence": {
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}

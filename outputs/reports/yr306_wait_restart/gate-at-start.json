@@ -1,0 +1,28 @@
+{
+  "scope": "YR-306 admission-wait correction: same-input long-run startup",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "연결 검사와 재시작 확인이며 정책 성능 비교가 아니다",
+    "reasons": ["규칙 대비 비용 개선 비교를 수행하지 않았다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "FAIL",
+    "summary": "수정본 장기 실행의 완주 확인이 아직 남았다",
+    "reasons": ["이전 실행은 22일차에 실패했고 수정본 30일 완주 결과는 아직 없다"],
+    "evidence": {"task": "YR-306", "source_commit": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+      "prior_tests": "outputs/reports/yr306_admission_wait/final-tests.xml",
+      "old_failure": "outputs/reports/yr306_admission_wait/failed-run/status.json"}
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "장기 적체·잔여 원인과 실제 항만 흐름 보정은 미완료다",
+    "reasons": ["단기 반입 잔여와 장기 적체 원인 검증이 남았다",
+      "수입·수출별 실측 흐름과 초기 점유율·운반시간 보정이 남았다"],
+    "evidence": {"allowed_claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}
