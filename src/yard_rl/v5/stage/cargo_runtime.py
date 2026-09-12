@@ -110,14 +110,18 @@ class CargoTerminal(MonthTerminal):
         return entry | {'block': bid, 'travel_s': self.layout.gate_to_block_s(bid)}
 
     def admit_external_job(self, bid, job, *, gate_in_s, travel_s):
-        if job.flow != JobFlow.GATE_OUT:
-            cid = 'IN_' + job.job_id
-            if (job.flow != JobFlow.GATE_IN or cid not in self.sources
-                    or self.sources[cid]['source_job'] != job.job_id or cid in self.ready_times):
-                raise TransferError(f'{job.job_id}: invalid or already produced incoming cargo')
-            return super().admit_external_job(bid, job, gate_in_s=gate_in_s, travel_s=travel_s)
+        """Register demand, not a storage reservation: full yards retain waiting jobs.
+
+        Physical store-slot checks remain in CargoBlock._dispatchable/_store_slot.
+        The inherited capacity guard is for legacy admission and transfers only.
+        """
         jid, cid = job.job_id, job.target_container
-        if (cid not in self.sources or self.exit_jobs.get(cid) != jid
+        if job.flow != JobFlow.GATE_OUT:
+            cid = 'IN_' + jid
+            if (job.flow != JobFlow.GATE_IN or cid not in self.sources
+                    or self.sources[cid]['source_job'] != jid or cid in self.ready_times):
+                raise TransferError(f'{jid}: invalid or already produced incoming cargo')
+        elif (cid not in self.sources or self.exit_jobs.get(cid) != jid
                 or cid in self.exit_times or bid != self.locations[cid]):
             raise TransferError(f'{jid}: invalid fixed cargo reservation')
         if jid in self.ledger.records or bid not in self.blocks:
@@ -140,7 +144,7 @@ class CargoTerminal(MonthTerminal):
             tl._a_idx += 1
             tl._n_inside += 1
         self.ledger.register(JobRecord(jid, bid, bid, job.flow.value, a_gate_in=gate_in_s))
-        self.pending_admissions += cid not in self.ready_times
+        self.pending_admissions += job.flow == JobFlow.GATE_OUT and cid not in self.ready_times
 
     def commit(self, txn):
         self.validate(txn)
