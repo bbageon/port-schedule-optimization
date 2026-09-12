@@ -1,0 +1,42 @@
+{
+  "scope": "YR-306 regenerated fixed-container input; physical runtime acceptance remains unverified",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "규칙 대비 비용 개선은 측정하지 않았다",
+    "reasons": ["이번 결과는 새 입력 생성과 파일 검사이며 정책 성능시험이 아니다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "FAIL",
+    "summary": "고정 명단의 중복·출처 문제는 해결했으나 새 입력의 실제 연속 실행 연결은 미완료다",
+    "reasons": [
+      "미도착 컨테이너를 기다렸다가 처리하는 실행 경로 검증이 남았다",
+      "반입 재배정 뒤 후속 반출·선적이 실제 위치를 따라가는 연결 검증이 남았다",
+      "새 30일 명단을 사용한 물리 완주·누락 없음은 아직 측정하지 않았다"
+    ],
+    "evidence": {
+      "task": "YR-306", "source_code_commit": "8539a9280953703ef2ac809b210a3f1e4d1ca256",
+      "input_audit": "outputs/reports/yr306_seed_regeneration/seed-9900306/audit.json",
+      "regenerated_30_day_input_valid": true, "runtime_default_changed": false,
+      "long_training_restarted": false
+    }
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "운송 대상은 고정됐지만 물리 실행·실제 화물 흐름 보정은 검증하지 않았다",
+    "reasons": [
+      "계획상 먼저 도착하는 트럭 11건은 정상 대기로 모델링할 대상이지 자동 오류가 아니다",
+      "계획 시각 차이는 실제 적치 완료·대기시간이 아니다",
+      "수입·수출 구분 자료 없이 같은 블록의 공급을 섞었으므로 실측 운송 흐름을 재현했다고 볼 수 없다",
+      "초기 점유율 45%의 외부 보정과 장기 용량·처리 흐름 검증도 미완료다"
+    ],
+    "evidence": {
+      "input_audit": "outputs/reports/yr306_seed_regeneration/seed-9900306/audit.json",
+      "initial_occupancy": 0.45, "physical_execution_verified": false,
+      "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+    }
+  },
+  "claim_eligible": false, "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}

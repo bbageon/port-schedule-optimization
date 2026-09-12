@@ -1,0 +1,720 @@
+{
+  "task": "YR-306",
+  "scope": "regenerated fixed-identity input, not runtime acceptance",
+  "source_code": {
+    "git_dirty": false,
+    "git_head": "8539a9280953703ef2ac809b210a3f1e4d1ca256",
+    "numpy": "2.5.3",
+    "pid": 340,
+    "python": "3.12.13",
+    "source_sha256": "24a98f334a6887b5f4bacb9fea67b9bafdb2d661cf658ef63d48ed3db1eee4f0",
+    "torch": "2.13.0+cpu",
+    "torch_threads": 1,
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-seed-source-8539a92"
+  },
+  "seed": 9900306,
+  "rule_manifest": {
+    "amended_rules_at_source_commit": "8539a9280953703ef2ac809b210a3f1e4d1ca256",
+    "code": {
+      "git_dirty": false,
+      "git_head": "8539a9280953703ef2ac809b210a3f1e4d1ca256",
+      "numpy": "2.5.3",
+      "pid": 340,
+      "python": "3.12.13",
+      "source_sha256": "24a98f334a6887b5f4bacb9fea67b9bafdb2d661cf658ef63d48ed3db1eee4f0",
+      "torch": "2.13.0+cpu",
+      "torch_threads": 1,
+      "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-seed-source-8539a92"
+    },
+    "cpus": [
+      23
+    ],
+    "days": [
+      {
+        "index": 0,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9901306,
+        "t0": 0.0,
+        "train": false
+      },
+      {
+        "index": 1,
+        "label": "혼잡",
+        "load": 12500,
+        "n_days": 30,
+        "seed": 9902306,
+        "t0": 86400.0,
+        "train": true
+      },
+      {
+        "index": 2,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9903306,
+        "t0": 172800.0,
+        "train": true
+      },
+      {
+        "index": 3,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9904306,
+        "t0": 259200.0,
+        "train": true
+      },
+      {
+        "index": 4,
+        "label": "혼잡",
+        "load": 12500,
+        "n_days": 30,
+        "seed": 9905306,
+        "t0": 345600.0,
+        "train": true
+      },
+      {
+        "index": 5,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9906306,
+        "t0": 432000.0,
+        "train": true
+      },
+      {
+        "index": 6,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9907306,
+        "t0": 518400.0,
+        "train": true
+      },
+      {
+        "index": 7,
+        "label": "혼잡",
+        "load": 12500,
+        "n_days": 30,
+        "seed": 9908306,
+        "t0": 604800.0,
+        "train": true
+      },
+      {
+        "index": 8,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9909306,
+        "t0": 691200.0,
+        "train": true
+      },
+      {
+        "index": 9,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9910306,
+        "t0": 777600.0,
+        "train": true
+      },
+      {
+        "index": 10,
+        "label": "혼잡시작",
+        "load": 7500,
+        "n_days": 30,
+        "seed": 9911306,
+        "t0": 864000.0,
+        "train": true
+      },
+      {
+        "index": 11,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9912306,
+        "t0": 950400.0,
+        "train": true
+      },
+      {
+        "index": 12,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9913306,
+        "t0": 1036800.0,
+        "train": true
+      },
+      {
+        "index": 13,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9914306,
+        "t0": 1123200.0,
+        "train": true
+      },
+      {
+        "index": 14,
+        "label": "혼잡시작",
+        "load": 7500,
+        "n_days": 30,
+        "seed": 9915306,
+        "t0": 1209600.0,
+        "train": true
+      },
+      {
+        "index": 15,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9916306,
+        "t0": 1296000.0,
+        "train": true
+      },
+      {
+        "index": 16,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9917306,
+        "t0": 1382400.0,
+        "train": true
+      },
+      {
+        "index": 17,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9918306,
+        "t0": 1468800.0,
+        "train": true
+      },
+      {
+        "index": 18,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9919306,
+        "t0": 1555200.0,
+        "train": true
+      },
+      {
+        "index": 19,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9920306,
+        "t0": 1641600.0,
+        "train": true
+      },
+      {
+        "index": 20,
+        "label": "혼잡시작",
+        "load": 7500,
+        "n_days": 30,
+        "seed": 9921306,
+        "t0": 1728000.0,
+        "train": true
+      },
+      {
+        "index": 21,
+        "label": "혼잡",
+        "load": 12500,
+        "n_days": 30,
+        "seed": 9922306,
+        "t0": 1814400.0,
+        "train": true
+      },
+      {
+        "index": 22,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9923306,
+        "t0": 1900800.0,
+        "train": true
+      },
+      {
+        "index": 23,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9924306,
+        "t0": 1987200.0,
+        "train": true
+      },
+      {
+        "index": 24,
+        "label": "혼잡시작",
+        "load": 7500,
+        "n_days": 30,
+        "seed": 9925306,
+        "t0": 2073600.0,
+        "train": true
+      },
+      {
+        "index": 25,
+        "label": "혼잡시작",
+        "load": 7500,
+        "n_days": 30,
+        "seed": 9926306,
+        "t0": 2160000.0,
+        "train": true
+      },
+      {
+        "index": 26,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9927306,
+        "t0": 2246400.0,
+        "train": true
+      },
+      {
+        "index": 27,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9928306,
+        "t0": 2332800.0,
+        "train": true
+      },
+      {
+        "index": 28,
+        "label": "보통",
+        "load": 5000,
+        "n_days": 30,
+        "seed": 9929306,
+        "t0": 2419200.0,
+        "train": true
+      },
+      {
+        "index": 29,
+        "label": "원활",
+        "load": 3500,
+        "n_days": 30,
+        "seed": 9930306,
+        "t0": 2505600.0,
+        "train": false
+      }
+    ],
+    "debug_load": null,
+    "learning_updates": 0,
+    "preregistration": ".claude/docs/dashboard-task-specs/YR-306-fixed-seed-regeneration.md",
+    "preregistration_commit": "1469b02",
+    "profile": {
+      "assumed": true,
+      "block": {
+        "bay_count": 24,
+        "bay_length_m": 6.5,
+        "block_id": "B1",
+        "row_count": 10,
+        "row_width_m": 3.1,
+        "tier_height_m": 2.6,
+        "tier_max": 6,
+        "transfer_row": 0
+      },
+      "cranes": [
+        {
+          "crane_id": "YC-L",
+          "gantry_speed_mps": 4.0,
+          "hoist_speed_empty_mps": 1.17,
+          "hoist_speed_loaded_mps": 0.58,
+          "lock_time_s": 30.0,
+          "service_bay_max": 24,
+          "service_bay_min": 1,
+          "trolley_speed_mps": 1.0,
+          "truck_positioning_time_s": 25.0,
+          "unlock_time_s": 20.0
+        },
+        {
+          "crane_id": "YC-W",
+          "gantry_speed_mps": 4.0,
+          "hoist_speed_empty_mps": 1.17,
+          "hoist_speed_loaded_mps": 0.58,
+          "lock_time_s": 30.0,
+          "service_bay_max": 24,
+          "service_bay_min": 1,
+          "trolley_speed_mps": 1.0,
+          "truck_positioning_time_s": 25.0,
+          "unlock_time_s": 20.0
+        }
+      ],
+      "decision_horizon_s": 1800.0,
+      "gate_travel_estimate_s": 210.0,
+      "lane_graph": {
+        "edges": [
+          [
+            "L1",
+            "L2"
+          ]
+        ],
+        "lane_ids": [
+          "L1",
+          "L2"
+        ]
+      },
+      "long_wait_sla_s": 1800.0,
+      "profile_date": "2026-07-15",
+      "safety_gap_bay": 2.0,
+      "shift_len_s": 28800.0,
+      "sts_target_moves_per_hour": 25.0,
+      "terminal_id": "H21-SHARED-YT",
+      "transfer": {
+        "fleet_id": "YT1",
+        "kind": "YT",
+        "move_time_s": 470.0,
+        "n_units": 3
+      }
+    },
+    "rules": {
+      "assignment_order": "planned demand time, then job key",
+      "cargo_classes": "pooled block inventory; import/export/transshipment classes not calibrated",
+      "max_exits_per_source": 1,
+      "missing_supply": "error; no new cargo, dropped jobs, flow changes or appointment shifts",
+      "name": "fixed-cargo-v2",
+      "rng": "v5:fixed-cargo-v2:<seed>:<block>",
+      "runtime_requirements": [
+        "wait for actual ready cargo",
+        "follow actual relocated container block"
+      ],
+      "selection": "uniform unassigned planned sources in block; otherwise earliest future source",
+      "source_time": "planned lower bound, not actual readiness"
+    },
+    "rules_sha256_lf": "b163431929ec3c3340dbfaf56befc2b7446b167a7d05282e2a8cd03ecd21290c",
+    "seed": 9900306,
+    "simulation_steps": 0
+  },
+  "checks": {
+    "both_clean": true,
+    "same_code": true,
+    "same_seed": true,
+    "same_days": true,
+    "same_rules": true,
+    "same_original_trucks": true,
+    "same_original_vessels": true,
+    "same_initial_cargo": true,
+    "both_input_valid": true,
+    "equal_audits": true,
+    "data_files_byte_identical": true,
+    "no_unregistered_changes": true,
+    "one_core": true,
+    "no_production_simulation_or_learning": true,
+    "all_selected_tests_passed": true,
+    "unique_tests": true
+  },
+  "tests_overlap_do_not_sum": {
+    "verified-tests.xml": {
+      "tests": 147,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 78.678
+    },
+    "final-focused-tests.xml": {
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.361
+    }
+  },
+  "unique_passing_tests": 147,
+  "earlier_failed_tests": "development-tests.xml and focused-tests.xml retained; repaired by final code",
+  "tests_scope": "Generator, contract, fixed admission, PPO integration/continuous fixtures and frozen engine clone. Not all v5 tests.",
+  "old_violations": {
+    "duplicate_exits": 88679,
+    "missing_sources": 8,
+    "unbound_vessel_load_moves": 44670,
+    "unbound_vessel_load_streams": 108
+  },
+  "new_audit": {
+    "contract": {
+      "examples": {},
+      "fixed_exit_containers": 146963,
+      "identity_sha256": "461cdb05ee3ba7ef3984563034c9fcadce725a6927f6eb6427dea9efcd4a0c6c",
+      "passed": true,
+      "planned_waiting_examples": [
+        {
+          "exit": {
+            "block": "Y08",
+            "container": "IN_D21-D-12368",
+            "earliest_s": 1896266.203689866,
+            "order": "D21-D-12213"
+          },
+          "planned_wait_lower_bound_s": 2488.256986004766,
+          "source": {
+            "block": "Y08",
+            "container": "IN_D21-D-12368",
+            "earliest_s": 1898754.4606758708,
+            "source": "D21-D-12368"
+          }
+        },
+        {
+          "exit": {
+            "block": "Y08",
+            "container": "IN_D21-D-12391",
+            "earliest_s": 1897651.6222415268,
+            "order": "D21-D-12302"
+          },
+          "planned_wait_lower_bound_s": 1490.566000337014,
+          "source": {
+            "block": "Y08",
+            "container": "IN_D21-D-12391",
+            "earliest_s": 1899142.1882418639,
+            "source": "D21-D-12391"
+          }
+        },
+        {
+          "exit": {
+            "block": "Y08",
+            "container": "IN_D21-D-12424",
+            "earliest_s": 1899384.9077650653,
+            "order": "D21-D-12405"
+          },
+          "planned_wait_lower_bound_s": 335.43373977788724,
+          "source": {
+            "block": "Y08",
+            "container": "IN_D21-D-12424",
+            "earliest_s": 1899720.3415048432,
+            "source": "D21-D-12424"
+          }
+        },
+        {
+          "exit": {
+            "block": "Y08",
+            "container": "IN_Y08:J-D22-M1-s1-0000",
+            "earliest_s": 1900508.514486883,
+            "order": "D21-D-12468"
+          },
+          "planned_wait_lower_bound_s": 11740.433586724102,
+          "source": {
+            "block": "Y08",
+            "container": "IN_Y08:J-D22-M1-s1-0000",
+            "earliest_s": 1912248.9480736072,
+            "source": "Y08:J-D22-M1-s1-0000"
+          }
+        },
+        {
+          "exit": {
+            "block": "Y08",
+            "container": "IN_Y08:J-D22-M1-s1-0001",
+            "earliest_s": 1901595.3408482047,
+            "order": "D22-D-00008"
+          },
+          "planned_wait_lower_bound_s": 10784.516316311667,
+          "source": {
+            "block": "Y08",
+            "container": "IN_Y08:J-D22-M1-s1-0001",
+            "earliest_s": 1912379.8571645163,
+            "source": "Y08:J-D22-M1-s1-0001"
+          }
+        }
+      ],
+      "planned_waiting_exits": 11,
+      "schema": "yard_rl.v5.container_contract.v2",
+      "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+      "source_containers": 161371,
+      "truck_orders": 177500,
+      "vessel_streams": 288,
+      "violations": {}
+    },
+    "empty_execution_records": true,
+    "ending_unassigned_sources": 14408,
+    "exits": 146963,
+    "max_planned_wait_lower_bound_s": 11740.433586724102,
+    "passed": true,
+    "physical_execution_verified": false,
+    "planned_source_to_demand_s": {
+      "maximum": 2150522.0307048624,
+      "meaning": "planned time difference, NOT actual yard dwell",
+      "median": 148754.13651076995,
+      "minimum": -11740.433586724102
+    },
+    "planned_waiting_exits": 11,
+    "ready_for_training": false,
+    "schema": "yard_rl.v5.fixed_cargo_seed.v2",
+    "scope": "fixed-identity input validity only; no policy performance or operational realism claim",
+    "source_exit_counts": {
+      "GATE_IN->GATE_OUT": 49367,
+      "GATE_IN->VESSEL_LOAD": 20274,
+      "INITIAL->GATE_OUT": 10585,
+      "INITIAL->VESSEL_LOAD": 3023,
+      "VESSEL_DISCHARGE->GATE_OUT": 42341,
+      "VESSEL_DISCHARGE->VESSEL_LOAD": 21373
+    },
+    "source_size_counts": {
+      "FT20": 55518,
+      "FT40": 105853
+    },
+    "sources": 161371,
+    "truck_orders": 177500,
+    "waiting_examples": [
+      {
+        "container": "IN_D21-D-12368",
+        "job": "D21-D-12213",
+        "planned_wait_lower_bound_s": 2488.256986004766
+      },
+      {
+        "container": "IN_D21-D-12391",
+        "job": "D21-D-12302",
+        "planned_wait_lower_bound_s": 1490.566000337014
+      },
+      {
+        "container": "IN_D21-D-12424",
+        "job": "D21-D-12405",
+        "planned_wait_lower_bound_s": 335.43373977788724
+      },
+      {
+        "container": "IN_Y08:J-D22-M1-s1-0000",
+        "job": "D21-D-12468",
+        "planned_wait_lower_bound_s": 11740.433586724102
+      },
+      {
+        "container": "IN_Y08:J-D22-M1-s1-0001",
+        "job": "D22-D-00008",
+        "planned_wait_lower_bound_s": 10784.516316311667
+      },
+      {
+        "container": "IN_Y08:J-D22-M1-s1-0002",
+        "job": "D22-D-00033",
+        "planned_wait_lower_bound_s": 9254.08219427499
+      },
+      {
+        "container": "IN_Y08:J-D22-M1-s1-0003",
+        "job": "D22-D-00053",
+        "planned_wait_lower_bound_s": 8112.938009533798
+      },
+      {
+        "container": "IN_Y08:J-D22-M1-s1-0004",
+        "job": "D22-D-00083",
+        "planned_wait_lower_bound_s": 6247.00570966932
+      }
+    ]
+  },
+  "changed_outbound_size_metadata": 44745,
+  "normalized_initial_block_labels": 13608,
+  "bundle_sha256": "efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a",
+  "generation_seconds": [
+    27.867420406080782,
+    27.880164608359337
+  ],
+  "generation_simulation_steps": 0,
+  "generation_learning_updates": 0,
+  "runtime_default_changed": false,
+  "ready_for_training": false,
+  "claim_alignment": {
+    "name": "claim_alignment",
+    "status": "PASS",
+    "summary": "보고 핵심 수치가 원자료와 일치함",
+    "reasons": [],
+    "evidence": {
+      "absolute_tolerance": 0.0,
+      "reported_values": {
+        "trucks": 177500,
+        "sources": 161371,
+        "exits": 146963,
+        "unassigned": 14408,
+        "duplicate_exits": 0,
+        "missing_sources": 0,
+        "unbound_vessel_load_moves": 0,
+        "normalized_initial_block_labels": 13608,
+        "unique_tests": 147
+      },
+      "raw_values": {
+        "trucks": 177500,
+        "sources": 161371,
+        "exits": 146963,
+        "unassigned": 14408,
+        "unique_tests": 147,
+        "normalized_initial_block_labels": 13608,
+        "duplicate_exits": 0,
+        "missing_sources": 0,
+        "unbound_vessel_load_moves": 0
+      },
+      "absolute_differences": {
+        "duplicate_exits": 0.0,
+        "exits": 0.0,
+        "missing_sources": 0.0,
+        "normalized_initial_block_labels": 0.0,
+        "sources": 0.0,
+        "trucks": 0.0,
+        "unassigned": 0.0,
+        "unbound_vessel_load_moves": 0.0,
+        "unique_tests": 0.0
+      }
+    }
+  },
+  "artifacts_sha256": {
+    "seed-9900306/audit.json": "360bc3d8a1f62c598710d9d7ffd241faea93741df2f439f2be5e8609b67e6210",
+    "seed-9900306/manifest.json": "ff7011c4c6564503bd77c57475616963575ac987208ada307b7119397b8b4bf3",
+    "seed-9900306/baseline-audit.json": "cee51bd6f3baf175bb9c133b3ffdafb31bee41e1ee268724a7dd544a58caf688",
+    "seed-9900306/seed-data.json.gz": "efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a",
+    "repeat-audit.json": "1bc2528145e0c2a47ba9709f896f8a83bb366700a0289af68174874dcbbbf660",
+    "repeat-manifest.json": "acb2d8f6c07f7b2ce7f518330a2bd8884d050933c61bd69a18a0147b1640f69e",
+    "repeat-baseline-audit.json": "cee51bd6f3baf175bb9c133b3ffdafb31bee41e1ee268724a7dd544a58caf688",
+    "verified-tests.xml": "eb6ea9d62f85d3a1b202168c80b1cb146f90952dd621c21fce5a906bd27ba8f3",
+    "final-focused-tests.xml": "a219986d08052b10c36857a7960b52af9306cddaf841e261610863ccc1f432d5",
+    "development-tests.xml": "4eb3f6339fe8fe8749bf7fef99fa447c31cf1499a51e3cb52389b05e7afc7aa4",
+    "focused-tests.xml": "7c30d61be1f33362b251749f8eb7847e3f7b9e3ab3b2d9cc4aca5867f19fc721"
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "규칙 대비 비용 개선은 측정하지 않았다",
+      "reasons": [
+        "이번 결과는 새 입력 생성과 파일 검사이며 정책 성능시험이 아니다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "고정 명단의 중복·출처 문제는 해결했으나 새 입력의 실제 연속 실행 연결은 미완료다",
+      "reasons": [
+        "미도착 컨테이너를 기다렸다가 처리하는 실행 경로 검증이 남았다",
+        "반입 재배정 뒤 후속 반출·선적이 실제 위치를 따라가는 연결 검증이 남았다",
+        "새 30일 명단을 사용한 물리 완주·누락 없음은 아직 측정하지 않았다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "source_code_commit": "8539a9280953703ef2ac809b210a3f1e4d1ca256",
+        "input_audit": "outputs/reports/yr306_seed_regeneration/seed-9900306/audit.json",
+        "regenerated_30_day_input_valid": true,
+        "runtime_default_changed": false,
+        "long_training_restarted": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "운송 대상은 고정됐지만 물리 실행·실제 화물 흐름 보정은 검증하지 않았다",
+      "reasons": [
+        "계획상 먼저 도착하는 트럭 11건은 정상 대기로 모델링할 대상이지 자동 오류가 아니다",
+        "계획 시각 차이는 실제 적치 완료·대기시간이 아니다",
+        "수입·수출 구분 자료 없이 같은 블록의 공급을 섞었으므로 실측 운송 흐름을 재현했다고 볼 수 없다",
+        "초기 점유율 45%의 외부 보정과 장기 용량·처리 흐름 검증도 미완료다"
+      ],
+      "evidence": {
+        "input_audit": "outputs/reports/yr306_seed_regeneration/seed-9900306/audit.json",
+        "initial_occupancy": 0.45,
+        "physical_execution_verified": false,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}
