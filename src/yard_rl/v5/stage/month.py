@@ -273,6 +273,8 @@ def build_month(seed: int, *, days=None, profile=None, layout=None,
         for e in built["schedule"]:
             e = dict(e)
             e["job_id"] = f"D{d.index:02d}-{e['job_id']}"   # 날마다 고유하게
+            if e['flow'] == 'GATE_IN':
+                e['con_no'] = f"IN_{e['job_id']}"
             e["arrival_s"] = float(e["arrival_s"]) + d.t0
             e["day"] = d.index
             schedule.append(e)
@@ -455,21 +457,11 @@ def retire_done_vessels(mbt, archive: dict, t: float | None = None,
 
 
 def make_retarget(seed: int):
-    """★반출 대상을 **투입 시각에** 다시 고르는 고름기 ([[YR-239]]).
+    """Compatibility name: verify the fixed target, never choose another box.
 
-    왜 필요한지는 `orders.V3Announcer.review` 안의 주석에 있다 — 한 줄로 줄이면
-    *"30일이면 컨테이너 이름이 날마다 겹치고 초기 적재는 유한하다"* 이다.
-
-    ■ 규칙
-      ① 명단이 찍은 상자가 **아직 야드에 있고 아무도 안 찍었으면** 그대로 쓴다
-         (첫날은 하루 무대와 **한 상자도 안 다르게** 굴러야 한다)
-      ② 아니면 그 블록에서 **아무도 안 찍은 상자**를 하나 고른다
-      ③ 그것도 없으면 `None` — 호출부가 조용히 넘기지 않고 `NO_TARGET` 으로 남긴다
-
-    난수는 **오더 이름에서만** 나온다. 그래야 반사실 분기 세계가 같은 야드에서
-    같은 상자를 고른다 — 안 그러면 사실·대안이 다른 트럭을 굴려 라벨이 오염된다.
+    Missing or already assigned cargo is an input/admission failure. The seed
+    argument remains for callers, but random replacement is no longer allowed.
     """
-    import random as _r
 
     def pick(mbt, bid: str, e: dict):
         sim = mbt.blocks.get(bid)
@@ -480,9 +472,6 @@ def make_retarget(seed: int):
         want = e.get("target")
         if want is not None and want in sim.stacks.containers and want not in taken:
             return want
-        cand = [c for c in sorted(sim.stacks.containers) if c not in taken]
-        if not cand:
-            return None
-        return cand[_r.Random(f"v3:month:{seed}:tgt:{e['job_id']}").randrange(len(cand))]
+        return None
 
     return pick

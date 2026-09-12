@@ -106,7 +106,7 @@ def test_failed_world_is_reported_without_claiming_resume(monkeypatch, tmp_path)
         continuous.run_continuous(output=out, n_days=3, load=60)
 
 
-def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path):
+def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path, fixed_container_input):
     monkeypatch.setattr(continuous, "code_stamp", lambda: {"pid": os.getpid(), "test_only": True})
     def forbidden(*args, **kwargs):
         raise AssertionError("No counterfactual world is allowed")
@@ -136,6 +136,7 @@ def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path):
     assert not list(out.glob("*.partial"))
     assert json.loads((out / "status.json").read_text())["completed_days"] == 3
     admissions = json.loads((out / "admissions.json").read_text())
+    assert json.loads((out / 'container_contract.json').read_text())['passed']
     assert admissions["admitted"] == 180 and admissions["skipped"] == 0
     assert admissions["vessel_failed"] == 0 and not admissions["truck_failures"]
     assert len(json.loads((out / "cohort_live.json").read_text())) == 3

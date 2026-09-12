@@ -55,6 +55,7 @@ from .month_engine import (VESSEL_DEADLINE_MULT, MonthTerminal,
                            inject_vessel)
 from .orders import EPOCH_S, V3Announcer, orders_from_schedule
 from .admission import truck_admission_event
+from .container_contract import audit_container_plan, require_container_plan
 from .rollout import RolloutBudget, identity_check
 
 #: 계수기를 얼마나 자주 찍나. 날 경계는 **항상** 따로 찍는다.
@@ -202,7 +203,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
               vessel_deadline_mult: float | None = None, ppo=None,
-              on_admission=None) -> MonthResult:
+              on_admission=None, on_container_contract=None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -242,10 +243,15 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     n_days = len(days)
     built = build_month(seed, days=days, profile=prof, layout=layout,
                         lead_mode=lead_mode)
-    orders, records = orders_from_schedule(built)
     # ★본선 양하/적하를 **트럭 수지에 맞춘다** — 안 그러면 야드가 30일 동안 빈다.
     v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
                                   truck_net=truck_net_by_block(built["schedule"]))
+    if ppo is not None:
+        contract = audit_container_plan(built, v_by_day)
+        if on_container_contract is not None:
+            on_container_contract(contract)
+        require_container_plan(contract)
+    orders, records = orders_from_schedule(built)
     meta = {}
     for rows in v_by_day.values():
         meta.update(vessel_meta(rows))
@@ -261,7 +267,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                          for b, s in scns.items()},
                         extra_review_epochs=tuple(
                             i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)))
-    # ★반출 대상은 **투입 시각에** 다시 고른다 — 30일은 이름이 날마다 겹친다.
+    # Verify the input's fixed target; a missing box must not be replaced.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
                       retarget=make_retarget(seed))
 
@@ -441,6 +447,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                 res.vessel_admissions.append(row)
                 if on_admission is not None:
                     on_admission({"kind": "vessel", **row})
+                if ppo is not None:
+                    raise  # A missing logging callback must not permit reduced-workload learning.
                 continue
             n += 1
             moves += a.moves
@@ -494,6 +502,11 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         if on_admission is not None and (ann.n_admitted != previous_admitted
                                          or ann.n_skipped != previous_skips):
             on_admission(truck_admission_event(ann, m, t, previous_skips))
+        if ppo is not None and ann.n_skipped != previous_skips:
+            from .container_contract import ContainerContractError
+            raise ContainerContractError(
+                f'Fixed truck admission failed at {t}: {ann.skips[previous_skips:]}',
+                report=truck_admission_event(ann, m, t, previous_skips))
         if ppo is not None:
             bridge._sync(m, t)
             ppo.boundary(t)

@@ -49,6 +49,12 @@ class RunJournal:
     def save_admissions(self):
         write_json(self.output / "admissions.json", self.admissions)
 
+    def container_contract(self, report):
+        write_json(self.output / "container_contract.json", report)
+        self.event("container_contract", {"passed": report['passed'],
+                                          "violations": report['violations'],
+                                          "identity_sha256": report['identity_sha256']})
+
     def admission(self, row):
         self.admissions["time_s"] = row["time_s"]
         if row["kind"] == "trucks":

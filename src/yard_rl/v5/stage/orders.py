@@ -26,6 +26,7 @@ from ..world.integrated.terminal_stream import (OBS_24H, TerminalStreamParams,
                                                 sample_lead_s)
 from ..world.integrated.yard_layout import terminal_layout
 from .vessels import build_diurnal_v3
+from .container_contract import container_no, namespace_initial_inventory
 
 #: 투입 검토 격자(초) — 엔진의 review epoch 격자와 같아야 한다.
 EPOCH_S = 60.0
@@ -56,11 +57,13 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         prm = dataclasses.replace(prm, fill_ratio=float(fill_ratio))
     built = build_diurnal_v3(profile, seed, load=load, obs=obs, layout=layout,
                              params=prm, background_seed=seed)
+    namespace_initial_inventory(built)
 
     rng = random.Random(f"v3:lead:{seed}:{load}:{lead_mode}")
     for e in built["schedule"]:
         # ★블록 접두 제거 — 엔진 id 와 docKey 를 같은 문자열로 만든다.
         e["job_id"] = e["job_id"].split(":")[-1]
+        e["con_no"] = container_no(e)
         lead = 1800.0 if lead_mode == "FIXED" else sample_lead_s(rng.random())
         # 통지가 창 시작보다 앞설 수는 없다 — 0 으로 눌러 담는다(02 §4 음수 리드).
         e["lead_s"] = min(float(lead), float(e["arrival_s"]))
@@ -84,7 +87,7 @@ def orders_from_schedule(built: dict) -> tuple[dict[str, Order], dict[str, Execu
                   copino_notice_s=round(notice, 3),
                   in_out_reserve_s=round(e["arrival_s"], 3),
                   con_loc=e["block"],
-                  con_no=str(e.get("con_no") or f"CN{dk}"))
+                  con_no=container_no(e))
         orders[dk] = o
         records[dk] = ExecutionRecord(doc_key=dk, copino_notice_s=o.copino_notice_s)
     return orders, records
@@ -104,8 +107,7 @@ class V3Announcer:
                  period_s: float = EPOCH_S, retarget=None):
         self.period_s = float(period_s)
         self.end_s = end_s
-        #: ★반출 대상을 **투입 시각에** 다시 고르는 훅 ([[YR-239]]). None = 명단 그대로.
-        #: 30일 무대에서는 필수다 — 아래 `review` 머리말 참조.
+        #: Compatibility hook: verify a fixed target. Choosing another box is forbidden.
         self.retarget = retarget
         self.n_retargeted = 0
         self.by_epoch: dict[float, list[dict]] = {}
@@ -155,14 +157,8 @@ class V3Announcer:
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": "TAIL"})
                 continue
             if self.retarget is not None and e["flow"] == "GATE_OUT":
-                # ★반출 대상을 **투입 시각에** 다시 고른다 ([[YR-239]]).
-                #   하루 무대는 대상을 무대 세울 때 정해도 된다 — 그 상자가 t=0 야드에
-                #   있고 하루 안에 아무도 안 건드리기 때문이다. 30일은 다르다:
-                #     · 컨테이너 이름이 **날마다 겹친다**(`C0123` 이 매일 다시 나온다)
-                #     · 초기 적재는 유한한데 반출은 30일 동안 계속된다
-                #   ⇒ 5일차 트럭이 찍은 상자를 2일차 트럭이 이미 가져가 버린다.
-                #   그러면 `admit_external_job` 이 "반출 대상 부재" 로 거절하고
-                #   **트럭이 조용히 사라진다**(부하가 저절로 줄어든다).
+                # A repeated day-local pickup ID is invalid input, not permission
+                # to give this driver somebody else's container (YR-306).
                 tgt = self.retarget(mbt, e["block"], e)
                 if tgt is None:
                     self.n_skipped += 1
@@ -170,8 +166,12 @@ class V3Announcer:
                                        "reason": "NO_TARGET"})
                     continue
                 if tgt != e.get("target"):
-                    e = {**e, "target": tgt}       # ★원본을 안 건드린다 — 분기와 공유한다
-                    self.n_retargeted += 1
+                    self.n_skipped += 1
+                    self.skips.append({"t": t, "job_id": e["job_id"],
+                                       "reason": "CONTAINER_ID_CHANGED",
+                                       "expected": e.get("target"), "proposed": tgt})
+                    continue
+            container_no(e)  # Public order and engine job must identify the same box.
             job = _job_from_entry(e, arr)
             try:
                 mbt.admit_external_job(e["block"], job, gate_in_s=arr,

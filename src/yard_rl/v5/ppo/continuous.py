@@ -53,6 +53,7 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
                 "initial_occupancy": MONTH_FILL_RATIO, "action_mode": "sample-all-days",
                 "day_metric": "calendar interval cost, not arrival-cohort cost",
                 "counterfactual_worlds_allowed": 0,
+                "container_contract": "fixed identity, unique source/exit, explicit vessel load list",
                 "recovery": "day checkpoints are weights only, not physical world resume"}
     journal = RunJournal(output, days, manifest)
     runtime = PPORuntime(policy, config=config, seed=seed, training=True,
@@ -62,7 +63,8 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
     try:
         initial = journal.checkpoint("initial.pt", runtime)
         result = run_month(seed=seed, days=days, ppo=runtime,
-                           on_admission=journal.admission, on_day=journal.day_report)
+                           on_admission=journal.admission, on_day=journal.day_report,
+                           on_container_contract=journal.container_contract)
         # Keep the returned evidence even when a final validation rejects the run.
         write_json(output / "month_result.json", asdict(result))
         write_json(output / "cohort_reports.json", {"note": "Inherited cohort metric; distinct from calendar rewards",

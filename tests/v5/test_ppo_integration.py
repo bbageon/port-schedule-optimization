@@ -14,7 +14,7 @@ from yard_rl.v5.stage.month_run import run_month
 from yard_rl.v5.world.integrated.engine import TerminalSimulator
 
 
-def test_real_engine_all_roles_no_world_clone_continuous_updates(monkeypatch, tmp_path):
+def test_real_engine_all_roles_no_world_clone_continuous_updates(monkeypatch, tmp_path, fixed_container_input):
     def forbidden(*args, **kwargs):
         raise AssertionError("PPO must not clone a terminal or start a CF worker pool")
     monkeypatch.setattr(TerminalSimulator, "__deepcopy__", forbidden, raising=False)
@@ -70,7 +70,7 @@ def test_only_diagnostic_seeds_allowed():
         run_debug(seed=9400000, duration_s=60)
 
 
-def test_midnight_cleanup_does_not_reset_cost_or_world():
+def test_midnight_cleanup_does_not_reset_cost_or_world(fixed_container_input):
     torch.manual_seed(9900302)
     torch.set_num_threads(1)
     rt = PPORuntime(BlockPolicy(), training=False, stop_s=DAY_S + 60)

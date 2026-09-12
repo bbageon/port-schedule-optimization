@@ -180,7 +180,19 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     targets: list[str] = []
     reason = ""
     if work == VesselWorkType.LOAD:
-        targets = free_targets(sim, limit=asked, seed=f"{size_seed}:tgt")
+        if 'targets' in row:
+            if not isinstance(row['targets'], (list, tuple)):
+                raise TransferError(f'{key}: fixed vessel targets must be a list')
+            targets = list(row['targets'])
+            taken = {j.target_container for j in sim.jobs.values()
+                     if j.target_container is not None}
+            if (len(targets) != asked or any(not isinstance(c, str) for c in targets)
+                    or len(set(targets)) != asked
+                    or any(c not in sim.stacks.containers or c in taken for c in targets)):
+                raise TransferError(f'{key}: fixed vessel target unavailable or duplicated')
+        else:
+            # Inherited non-PPO diagnostics only. PPO preflight requires targets.
+            targets = free_targets(sim, limit=asked, seed=f"{size_seed}:tgt")
         if len(targets) < asked:
             reason = f"재고 부족 {len(targets)}/{asked}"
     moves = asked if work == VesselWorkType.DISCHARGE else len(targets)

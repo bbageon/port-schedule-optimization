@@ -44,6 +44,8 @@ class Order:
     con_no: str             # 컨테이너 번호 (기정)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.con_no, str) or not self.con_no.strip():
+            raise ValueError(f"{self.doc_key}: con_no must name a fixed container")
         if self.in_out not in (INOUT_OUT, INOUT_IN):
             raise ValueError(f"{self.doc_key}: in_out 은 0(반출)/1(반입) — {self.in_out}")
         if ":" in self.doc_key:
