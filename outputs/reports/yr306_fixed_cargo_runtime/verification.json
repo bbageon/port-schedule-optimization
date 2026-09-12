@@ -1,0 +1,172 @@
+{
+  "task": "YR-306",
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "scope": "fixed input runtime acceptance and observed restart, not 30-day completion",
+  "preregistration_commit": "db29b87",
+  "preregistration": ".claude/docs/dashboard-task-specs/YR-306-fixed-cargo-runtime.md",
+  "source_code": {
+    "git_head": "83de18ddb811057ab88ac930881d4b18c3118184",
+    "git_dirty": false,
+    "source_sha256": "358fe6b1a667527f0464f53214828eddc511f71b39666a54e9d8f1dd7a2bf7ac",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-runtime-source-83de18d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 454,
+    "torch_threads": 1
+  },
+  "absolute_seed": 9900306,
+  "tests": {
+    "tests": 190,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 145.294
+  },
+  "checks": {
+    "all_selected_tests_passed": true,
+    "same_clean_code": true,
+    "fixed_30d_input": true,
+    "small_run_completed": true,
+    "no_counterfactuals": true,
+    "calendar_updates": true,
+    "exactly_one_learning_day": true,
+    "real_dependent_routing": true,
+    "cargo_conservation": true,
+    "long_run_started": true,
+    "long_run_no_admission_loss": true,
+    "same_hyperparameters": true
+  },
+  "reported_counts": {
+    "tests": 190,
+    "small_trucks": 180,
+    "small_updates": 24,
+    "long_time_s": 54000.0,
+    "long_admitted": 2630,
+    "long_updates": 0
+  },
+  "claim_alignment": {
+    "name": "claim_alignment",
+    "status": "PASS",
+    "summary": "보고 핵심 수치가 원자료와 일치함",
+    "reasons": [],
+    "evidence": {
+      "absolute_tolerance": 0.0,
+      "reported_values": {
+        "tests": 190,
+        "small_trucks": 180,
+        "small_updates": 24,
+        "long_time_s": 54000.0,
+        "long_admitted": 2630,
+        "long_updates": 0
+      },
+      "raw_values": {
+        "tests": 190,
+        "small_trucks": 180,
+        "small_updates": 24,
+        "long_time_s": 54000.0,
+        "long_admitted": 2630,
+        "long_updates": 0
+      },
+      "absolute_differences": {
+        "long_admitted": 0.0,
+        "long_time_s": 0.0,
+        "long_updates": 0.0,
+        "small_trucks": 0.0,
+        "small_updates": 0.0,
+        "tests": 0.0
+      }
+    }
+  },
+  "cpu_affinity": [
+    23
+  ],
+  "maximum_cpu_cores": 1,
+  "long_run_directory": "outputs\\v5\\yr306-cargo-30d-83de18d",
+  "long_run_snapshot_only": true,
+  "long_run_completed": false,
+  "training_schedule": "1 warmup + 28 training + 1 cooldown day, then 2h drain",
+  "full_v5_suite_run": false,
+  "all_cargo_completed_claim": false,
+  "known_limits": [
+    "fixed cross-block vessel transfer service assumption, not distance-calibrated",
+    "cargo pooled within block, not real import/export flow calibration",
+    "untrained policy; no baseline comparison or performance claim"
+  ],
+  "artifacts_sha256": {
+    "smoke/manifest.json": "938e70ba7e4732430790f17d8711f25b2bf593493ce041ec09559e8d12702f00",
+    "smoke/report.json": "109efe3057e0ac0c1adc62d21a70a0707faab73daba1908c04fe006476e09770",
+    "smoke/status.json": "99ccc3a7fef4f1352c02d7ac541bd0d4c3f5dff57297e67b266ca89e457ac2b0",
+    "smoke/days.json": "dcc3f670b5e214ed1bf1d9b598d46577e94f44f8a4adc934ff8393c16bdf6711",
+    "smoke/admissions.json": "bbd0f6b97e8855bdeb8dbbef2121adccd7555e71526a1fc83ef61c7afd6c5c43",
+    "smoke/cargo-status.json": "276834eba7875c7d1a5bfeee96f11f2be3283ef9fed65b0085f906042bfd2f18",
+    "smoke/container_contract.json": "8bf50364b060510a7c896ef4f2ff73111d695b1d761ae05d5fbb0c7959128de3",
+    "smoke/month_result.json": "302e59bbfffab129837d8acb48aa4a4172b33ec556fe6ba613da9f8d698c7670",
+    "smoke/cohort_reports.json": "41c5458cb330232a39c7acfc97feed6fcc05aff7e95d74429c5ac2ffe745a8ad",
+    "long_run/manifest.json": "109fa30e3ecbba3281a34a9d3e7a1b84770d2037102598695a7466cde2f24f1b",
+    "long_run/status.json": "bf74e47ac431ae5d49c06af90c26bedd8337397e303d6f74c681a71d1c4f8c0b",
+    "long_run/cargo.json": "641deecf2d9bdb09945ba1739e932a156c2eac7e1722393c1086328964117ce2",
+    "long_run/admissions.json": "5c33e288f349f69f83060172456d50f2133df17e7eaeffad57594905b8990ae8",
+    "smoke/events.jsonl": "de50e7ec7a47160bff6a132b5b66cfdc7263ec6b8dd10b3132fdcea06e77e5f1",
+    "development-tests.xml": "ab5da54a9ee64e42fc7d89dd5d16a50e3835b026f97be5b45ae410b91ded5772",
+    "integration-tests-final.xml": "6e4e9ba622f548c42c8441b9c6df61ab894de34b5b3b577d6911e66669cc2c8e",
+    "integration-tests.xml": "c15111ff9bda52067397aedb19fa461cfa45bc4a29eee4330c5f49f6cda7d02f",
+    "prune-regression-tests.xml": "a5cdc39757b1fa3e11dcca9c3a3f5d0f261bf9ffd162186ade2179b25a3fe49a",
+    "verified-tests.xml": "58c0bf69b3d4b8e6da03f3b5d7026ea9018c535687d2769ee5e84e03936edb52"
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "규칙보다 비용을 줄였는지는 아직 판단하지 않는다",
+      "reasons": [
+        "이번 검사는 데이터·실행 연결이며 정책 성능 비교가 아니다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "고정 상자의 대기·위치 연결 검사는 통과했으나 새 30일 실행의 최종 결과는 아직 없다",
+      "reasons": [
+        "30일 전 구간의 물량 누락 없음·물리 제약·잔여 작업은 아직 확인 중이다",
+        "3일 시험 종료 때 반입 1건이 남았으며 이 잔여의 구체적인 원인은 아직 분리하지 않았다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "source_code_commit": "83de18d",
+        "verified_tests": "outputs/reports/yr306_fixed_cargo_runtime/verified-tests.xml",
+        "small_execution": "outputs/reports/yr306_fixed_cargo_runtime/smoke/report.json",
+        "long_run_snapshot": "outputs/reports/yr306_fixed_cargo_runtime/long_run/status.json",
+        "fixed_identity_readiness_and_routing_verified": true,
+        "long_run_completed": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "작은 실제 실행에서 물리 순서는 확인했지만 장기 흐름과 실측 보정은 미완료다",
+      "reasons": [
+        "3일 저부하 검사가 30일 운영 용량과 모든 작업의 완료를 보장하지는 않는다",
+        "수입·수출 구분 없는 블록별 공급 배정은 실제 화물 흐름으로 보정되지 않았다",
+        "다른 블록의 선적도 기존 운반 자원과 서비스시간을 쓰며 실제 거리별 시간 보정은 미완료다",
+        "초기 점유율 45% 등 외부 보정과 특정 터미널 운영 이력이 없다"
+      ],
+      "evidence": {
+        "small_physical_execution_verified": true,
+        "initial_occupancy": 0.45,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}
