@@ -1,0 +1,47 @@
+{
+  "scope": "YR-306 fixed-container identity repair; original 30-day training input remains invalid",
+  "performance": {
+    "name": "performance",
+    "status": "INCONCLUSIVE",
+    "summary": "규칙 대비 비용 개선은 측정하지 않았다",
+    "reasons": ["이번 작업은 번호 연결과 입력 검사 보정이다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability",
+    "status": "FAIL",
+    "summary": "번호 연결과 조기 거부는 검증했으나 유효한 30일 입력의 연속 실행은 미완료다",
+    "reasons": [
+      "원래 날짜별 입력에 중복 출고와 출처 없는 대상이 남아 있다",
+      "본선의 고정 선적 대상과 후속 작업 연결은 미완료다",
+      "입력 검사를 통과한 원래 규모의 30일 실행은 아직 없다"
+    ],
+    "evidence": {
+      "task": "YR-306",
+      "debug_code_commit": "412a324eab60ebedd9b691e2e13dd6fee58e642c",
+      "debug_verification": "outputs/reports/yr306_container_identity/verification.json",
+      "identity_repair_verified": true,
+      "original_30_day_input_valid": false,
+      "long_training_restarted": false
+    }
+  },
+  "scenario_validity": {
+    "name": "scenario_validity",
+    "status": "FAIL",
+    "summary": "고정 화물의 운송 연결이 없어 실제 항만처럼 작동하는 입력이라고 볼 수 없다",
+    "reasons": [
+      "반복 출고 88679건, 출처 없는 반출 8건",
+      "고정 대상 없는 본선 선적 묶음 108개, 소속 작업 44670건",
+      "초기 점유율 45% 외부 보정과 장기 흐름 검증도 미완료다"
+    ],
+    "evidence": {
+      "input_audit": "outputs/reports/yr306_container_identity/after-frozen.json",
+      "initial_occupancy": 0.45,
+      "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+    }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}

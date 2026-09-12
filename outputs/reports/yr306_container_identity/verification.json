@@ -1,0 +1,215 @@
+{
+  "task": "YR-306",
+  "scope": "fixed-container identity repair and fail-closed input audit",
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "preregistration_commit": "83d7670fa12bb9f20f369512d2edfeb924ce3816",
+  "preregistration": ".claude/docs/dashboard-task-specs/YR-306-container-identity-audit.md",
+  "source_before": {
+    "git_head": "8ab7d9dd64406372e2ac2538cd222677b6ed3ae2",
+    "git_dirty": false,
+    "source_sha256": "a33f42c6f5d36d32cba544d1b81f63c5a9f2edc23aa7420ac92897d47641acb3",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-source-8ab7d9d",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 1250,
+    "torch_threads": 1
+  },
+  "source_after": {
+    "git_head": "412a324eab60ebedd9b691e2e13dd6fee58e642c",
+    "git_dirty": false,
+    "source_sha256": "e7e2ceb541d61a7d5b7c5530ab491c2bd0c3d7c6c17cb6d31d0facd73fdd1524",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-source-412a324",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 1289,
+    "torch_threads": 1
+  },
+  "test_source_commit": "412a324eab60ebedd9b691e2e13dd6fee58e642c",
+  "test_tree_listing_sha256": "b770630bb80224f175c4ea3a03d84741687691e85676ab4256e3b23e081ab1cc",
+  "additional_test_source_commit": "b90a87a4cbf4c3db8c9f7b914094e600a9b78725",
+  "additional_test_source_path": "tests/v5/test_fixed_vessel_admission.py",
+  "additional_test_source_sha256_lf": "3f9c6a9d739149d32bb2139e8e219f845c51a5302b0d004876d245571d2e4751",
+  "cpu_affinity": [
+    23
+  ],
+  "maximum_cpu_cores": 1,
+  "tests_overlap_do_not_sum": {
+    "targeted-tests.xml": {
+      "tests": 84,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 77.946,
+      "all_collected_passed": true
+    },
+    "contract-and-clone-tests.xml": {
+      "tests": 96,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 14.464,
+      "all_collected_passed": true
+    },
+    "full-tests.xml": {
+      "tests": 249,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1904.132,
+      "all_collected_passed": true
+    },
+    "fixed-admission-tests.xml": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 9.32,
+      "all_collected_passed": true
+    }
+  },
+  "test_fixture_scope": "Small fixed-cargo fixtures; one day of vessel work. NOT original 30-day repair.",
+  "checks": {
+    "baseline_clean": true,
+    "after_clean": true,
+    "same_audit_script": true,
+    "same_seed_and_daily_workloads": true,
+    "same_six_order_fields": true,
+    "all_original_public_ids_unlinked": true,
+    "all_new_public_ids_linked": true,
+    "new_initial_ids_unique": true,
+    "same_fixed_source_at_entrypoint": true,
+    "entrypoint_audit_matches_static_audit": true,
+    "bad_input_rejected_before_world_and_training": true,
+    "no_final_model": true,
+    "failure_checkpoint_intact": true,
+    "all_258_cases_covered": true
+  },
+  "identity_repair_verified": true,
+  "original_30_day_input_valid": false,
+  "long_training_restarted": false,
+  "violations_remaining": {
+    "duplicate_exits": 88679,
+    "missing_sources": 8,
+    "unbound_vessel_load_moves": 44670,
+    "unbound_vessel_load_streams": 108
+  },
+  "unresolved": [
+    "Original daily generator reuses departed container targets without recorded re-entry.",
+    "Original vessel LOAD plans have quantities but no fixed container manifests.",
+    "Fixed incoming-to-outgoing cargo chains and physical readiness are not implemented end-to-end.",
+    "Subsequent pickup/load must follow the actual block after inbound relocation.",
+    "Static identity validity does not prove physical feasibility or policy performance."
+  ],
+  "artifact_hash_mode": "raw bytes; report-local gitattributes prevents newline conversion",
+  "artifacts_sha256": {
+    "baseline-frozen.json": "0abbc09184c677aa571c6c7c7480297af1dc974f79a0aaef7f120ece409f9b13",
+    "after-frozen.json": "0e90e533e369527d51f5fe0e959299758cded4d2c967e064631b97bcdf9780f5",
+    "preflight-manifest.json": "29b3772c70b2990bcc82fce42ac32ef83b8a9cd3a283de75ef31d0c057f88ce2",
+    "preflight-status.json": "b934227e84bcd79ad393ce92c35445b64a7ffc33443d621ce39b26059f6ad100",
+    "preflight-container_contract.json": "04b9bb5894726f240f7c7c4707289d19a2e2cdfd958f9c07c6129d2708e19955",
+    "preflight-events.jsonl": "1a0f5716d30807fb0860bd2c74b5c8538acd54d700c455b4c0223b576516ee49",
+    "original-failure-diagnosis.json": "e484dc0218c713b473ec748c27522402cd15c26600404b161d5e5a203e951345",
+    "targeted-tests.xml": "c5324d903842e20afa27db8a31892961e0c39d80287f6af2284580601cc31e2d",
+    "contract-and-clone-tests.xml": "12a78b9e707a1457ff444c6479812a0efbb61c0036a87521ab6124f495dc304f",
+    "full-tests.xml": "da0795013f97ab229e5cb8065df7c5a8e7d3b84537ace86df43d368810561a9a",
+    "fixed-admission-tests.xml": "9fa9eb3d183edb8400280b6efd9d3c3668286161dac4605e32b74b2a319e5681"
+  },
+  "claim_alignment": {
+    "name": "claim_alignment",
+    "status": "PASS",
+    "summary": "보고 핵심 수치가 원자료와 일치함",
+    "reasons": [],
+    "evidence": {
+      "absolute_tolerance": 0.0,
+      "reported_values": {
+        "trucks": 177500,
+        "mismatch_before": 177500,
+        "mismatch_after": 0,
+        "initial_distinct_ids": 13608,
+        "duplicate_exits": 88679,
+        "missing_sources": 8,
+        "unbound_vessel_load_streams": 108,
+        "unbound_vessel_load_moves": 44670,
+        "updates": 0
+      },
+      "raw_values": {
+        "trucks": 177500,
+        "mismatch_before": 177500,
+        "mismatch_after": 0,
+        "initial_distinct_ids": 13608,
+        "updates": 0,
+        "duplicate_exits": 88679,
+        "missing_sources": 8,
+        "unbound_vessel_load_moves": 44670,
+        "unbound_vessel_load_streams": 108
+      },
+      "absolute_differences": {
+        "duplicate_exits": 0.0,
+        "initial_distinct_ids": 0.0,
+        "mismatch_after": 0.0,
+        "mismatch_before": 0.0,
+        "missing_sources": 0.0,
+        "trucks": 0.0,
+        "unbound_vessel_load_moves": 0.0,
+        "unbound_vessel_load_streams": 0.0,
+        "updates": 0.0
+      }
+    }
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "규칙 대비 비용 개선은 측정하지 않았다",
+      "reasons": [
+        "이번 작업은 번호 연결과 입력 검사 보정이다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "번호 연결과 조기 거부는 검증했으나 유효한 30일 입력의 연속 실행은 미완료다",
+      "reasons": [
+        "원래 날짜별 입력에 중복 출고와 출처 없는 대상이 남아 있다",
+        "본선의 고정 선적 대상과 후속 작업 연결은 미완료다",
+        "입력 검사를 통과한 원래 규모의 30일 실행은 아직 없다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "debug_code_commit": "412a324eab60ebedd9b691e2e13dd6fee58e642c",
+        "debug_verification": "outputs/reports/yr306_container_identity/verification.json",
+        "identity_repair_verified": true,
+        "original_30_day_input_valid": false,
+        "long_training_restarted": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "고정 화물의 운송 연결이 없어 실제 항만처럼 작동하는 입력이라고 볼 수 없다",
+      "reasons": [
+        "반복 출고 88679건, 출처 없는 반출 8건",
+        "고정 대상 없는 본선 선적 묶음 108개, 소속 작업 44670건",
+        "초기 점유율 45% 외부 보정과 장기 흐름 검증도 미완료다"
+      ],
+      "evidence": {
+        "input_audit": "outputs/reports/yr306_container_identity/after-frozen.json",
+        "initial_occupancy": 0.45,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}

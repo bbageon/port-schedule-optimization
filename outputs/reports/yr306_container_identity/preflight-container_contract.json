@@ -1,0 +1,144 @@
+{
+  "schema": "yard_rl.v5.container_contract.v1",
+  "passed": false,
+  "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+  "truck_orders": 177500,
+  "vessel_streams": 288,
+  "source_containers": 161371,
+  "fixed_exit_containers": 13614,
+  "violations": {
+    "duplicate_exits": 88679,
+    "missing_sources": 8,
+    "unbound_vessel_load_moves": 44670,
+    "unbound_vessel_load_streams": 108
+  },
+  "examples": {
+    "unbound_vessel_load_streams": [
+      {
+        "stream": "D01-S1-s1",
+        "moves": 312
+      },
+      {
+        "stream": "D01-M1-s2",
+        "moves": 313
+      },
+      {
+        "stream": "D01-S2-s1",
+        "moves": 419
+      },
+      {
+        "stream": "D01-S1-s0",
+        "moves": 312
+      },
+      {
+        "stream": "D02-M1-s3",
+        "moves": 422
+      }
+    ],
+    "duplicate_exits": [
+      {
+        "first": {
+          "container": "Y10-C0576",
+          "block": "Y10",
+          "order": "D00-D-02377",
+          "earliest_s": 56564.43608706588
+        },
+        "repeated": {
+          "container": "Y10-C0576",
+          "block": "Y10",
+          "order": "D01-D-00008",
+          "earliest_s": 86828.78134499739
+        }
+      },
+      {
+        "first": {
+          "container": "Y05-C0228",
+          "block": "Y05",
+          "order": "D00-D-01612",
+          "earliest_s": 45958.232949849844
+        },
+        "repeated": {
+          "container": "Y05-C0228",
+          "block": "Y05",
+          "order": "D01-D-00016",
+          "earliest_s": 86933.17238654825
+        }
+      },
+      {
+        "first": {
+          "container": "Y14-C0200",
+          "block": "Y14",
+          "order": "D00-D-01318",
+          "earliest_s": 41612.79743328208
+        },
+        "repeated": {
+          "container": "Y14-C0200",
+          "block": "Y14",
+          "order": "D01-D-00022",
+          "earliest_s": 87146.24524752778
+        }
+      },
+      {
+        "first": {
+          "container": "Y07-C0367",
+          "block": "Y07",
+          "order": "D00-D-00073",
+          "earliest_s": 5009.55851144329
+        },
+        "repeated": {
+          "container": "Y07-C0367",
+          "block": "Y07",
+          "order": "D01-D-00045",
+          "earliest_s": 87485.58927599386
+        }
+      },
+      {
+        "first": {
+          "container": "Y08-C0181",
+          "block": "Y08",
+          "order": "D00-D-03069",
+          "earliest_s": 69485.11311837766
+        },
+        "repeated": {
+          "container": "Y08-C0181",
+          "block": "Y08",
+          "order": "D01-D-00068",
+          "earliest_s": 87917.82363676223
+        }
+      }
+    ],
+    "missing_sources": [
+      {
+        "container": "Y08-C0649",
+        "block": "Y08",
+        "order": "D29-D-00326",
+        "earliest_s": 2526943.7008697805
+      },
+      {
+        "container": "Y08-C0659",
+        "block": "Y08",
+        "order": "D29-D-00371",
+        "earliest_s": 2529492.9237769214
+      },
+      {
+        "container": "Y05-C0651",
+        "block": "Y05",
+        "order": "D29-D-00860",
+        "earliest_s": 2540898.107738315
+      },
+      {
+        "container": "Y05-C0654",
+        "block": "Y05",
+        "order": "D29-D-01385",
+        "earliest_s": 2548093.5166920265
+      },
+      {
+        "container": "Y05-C0652",
+        "block": "Y05",
+        "order": "D29-D-02857",
+        "earliest_s": 2569698.7606322994
+      }
+    ]
+  },
+  "identity_sha256": "0a17698bf0b837db32a4143de659c0cd06f6e02fd418423100041543a144e105"
+}

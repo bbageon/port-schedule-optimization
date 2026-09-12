@@ -30,6 +30,7 @@ def main():
     manifest, status, contract = (read(run / name) for name in
                                   ('manifest.json', 'status.json', 'container_contract.json'))
     tests = {}
+    cases = {}
     for name in ('targeted-tests.xml', 'contract-and-clone-tests.xml', 'full-tests.xml',
                  'fixed-admission-tests.xml'):
         xml = ET.parse(report / name).getroot()
@@ -39,6 +40,7 @@ def main():
         tests[name]['seconds'] = sum(float(s.get('time', '0')) for s in suites)
         tests[name]['all_collected_passed'] = all(tests[name][key] == 0
                                                  for key in ('failures', 'errors', 'skipped'))
+        cases[name] = {(c.get('classname'), c.get('name')) for c in xml.iter('testcase')}
     # This is a report of completed checks, not permission to hide an incomplete run.
     if (tests['full-tests.xml']['tests'] != 249
             or tests['fixed-admission-tests.xml']['tests'] != 9 or not all(
@@ -67,6 +69,7 @@ def main():
         'no_final_model': not (run / 'final.pt').exists(),
         'failure_checkpoint_intact': digest(run / status['failed_checkpoint']['path'])
             == status['failed_checkpoint']['sha256'],
+        'all_258_cases_covered': len(cases['full-tests.xml'] | cases['fixed-admission-tests.xml']) == 258,
     }
     if not all(checks.values()):
         raise RuntimeError(f'Evidence mismatch: {[key for key, ok in checks.items() if not ok]}')
@@ -87,14 +90,15 @@ def main():
     value = {
         'task': 'YR-306', 'scope': 'fixed-container identity repair and fail-closed input audit',
         'claim_scope': 'NO_PERFORMANCE_CLAIM',
-        'preregistration_commit': '83d7670',
+        'preregistration_commit': '83d7670fa12bb9f20f369512d2edfeb924ce3816',
         'preregistration': '.claude/docs/dashboard-task-specs/YR-306-container-identity-audit.md',
         'source_before': before['code'], 'source_after': after['code'],
         'test_source_commit': commit,
         'test_tree_listing_sha256': hashlib.sha256(tree).hexdigest(),
         'additional_test_source_commit': extra_commit,
         'additional_test_source_path': extra_test,
-        'additional_test_source_sha256': digest(root / extra_test),
+        'additional_test_source_sha256_lf': hashlib.sha256(
+            (root / extra_test).read_text(encoding='utf-8').encode()).hexdigest(),
         'cpu_affinity': [23], 'maximum_cpu_cores': 1,
         'tests_overlap_do_not_sum': tests,
         'test_fixture_scope': 'Small fixed-cargo fixtures; one day of vessel work. NOT original 30-day repair.',
@@ -108,8 +112,23 @@ def main():
             'Subsequent pickup/load must follow the actual block after inbound relocation.',
             'Static identity validity does not prove physical feasibility or policy performance.',
         ],
+        'artifact_hash_mode': 'raw bytes; report-local gitattributes prevents newline conversion',
         'artifacts_sha256': {name: digest(report / name) for name in files},
     }
+    from yard_rl.experiments.gate_harness import (
+        attach_common_gates, judge_claim_alignment, report_from_dict,
+    )
+    reported = dict(trucks=177500, mismatch_before=177500, mismatch_after=0,
+                    initial_distinct_ids=13608, duplicate_exits=88679, missing_sources=8,
+                    unbound_vessel_load_streams=108, unbound_vessel_load_moves=44670, updates=0)
+    raw = dict(trucks=after['truck_orders'], mismatch_before=before['identity_mismatches'],
+               mismatch_after=after['identity_mismatches'], initial_distinct_ids=after['initial_distinct_ids'],
+               updates=status['updates'], **contract['violations'])
+    alignment = judge_claim_alignment(reported_values=reported, raw_values=raw)
+    value['claim_alignment'] = alignment.as_dict()
+    if alignment.status.value != 'PASS':
+        raise RuntimeError('Reported counts disagree with source evidence')
+    value = attach_common_gates(value, report_from_dict(read(report / 'gate-after-identity.json')))
     write('verification.json', value)
     print(json.dumps({'checks': checks, 'tests': tests, 'long_training_restarted': False},
                      ensure_ascii=False, indent=2))
