@@ -1,0 +1,172 @@
+{
+  "task": "YR-306",
+  "captured_at": "2026-09-13T01:23:35.0721535+09:00",
+  "scope": "completed run evidence and diagnostic replay startup, not a completed cause verdict",
+  "preregistration": ".claude/docs/dashboard-task-specs/YR-306-residual-diagnosis.md",
+  "preregistration_commit": "0a4ed0bbd52e61d3664c03b78167b0fb1847f82b",
+  "code": {
+    "git_head": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+    "git_dirty": false,
+    "source_sha256": "02c5c0dd043a89eb01f50d3354711cc71cb8e83df0f1b0c857607c62d15c8fc7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-source-4549ae9",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 2228,
+    "torch_threads": 1
+  },
+  "absolute_seed": 9900306,
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60,
+    "reward_scale_krw": 1000000,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "seed_sha256": "efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a",
+  "full_30_days_completed": true,
+  "original_updates": 672,
+  "original_admitted": 177500,
+  "original_skipped": 0,
+  "original_counterfactual_worlds": 0,
+  "final_checkpoint": {
+    "path": "final.pt",
+    "sha256": "4e65b0ea9cd709da6e5f6d5ee2c8c4f1e3e1b432caec96f95a4062c571273f5c",
+    "scope": "weights-and-optimizer; no physical-world resume",
+    "pending_intervals": 0
+  },
+  "unfinished_jobs": {
+    "VESSEL_LOAD": 1200,
+    "VESSEL_DISCHARGE": 1729,
+    "GATE_OUT": 48
+  },
+  "physical_inventory": 13927,
+  "expected_inventory": 13927,
+  "offline_bound_result": "window-bounds-final.json",
+  "unit_tests": 9,
+  "replay_smoke_verified": true,
+  "short_residual_snapshot_is_not_long_run_evidence": true,
+  "replay_run": "outputs/v5/yr306-residual-30d-5e3cdce",
+  "replay_code": {
+    "git_head": "5e3cdce606f0c1fa24077df2361516482320b466",
+    "git_dirty": false,
+    "source_sha256": "02c5c0dd043a89eb01f50d3354711cc71cb8e83df0f1b0c857607c62d15c8fc7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-residual-source",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 344,
+    "torch_threads": 1
+  },
+  "replay_launcher_pid": 24648,
+  "replay_cpu_affinity": [
+    23
+  ],
+  "replay_startup_snapshot": {
+    "state": "running",
+    "phase": "training",
+    "time_s": 118800,
+    "day": 2,
+    "completed_days": 1,
+    "updates": 9,
+    "learning_intervals": 540,
+    "cost_krw": 100921014.39005515,
+    "roles": {
+      "seller": 5395,
+      "buyer": 4926,
+      "crane": 20329
+    },
+    "admitted": 7862,
+    "skipped": 0,
+    "vessel_failed": 0,
+    "wall_seconds": 118.88555203285068
+  },
+  "long_residual_diagnosis_completed": false,
+  "original_files_preserved_by_copy": true,
+  "artifacts_sha256": {
+    ".gitattributes": "57bb2cba7e70a66d025af12fdd61cb3ce8382b321a2d1ef4e6e3c058f6538093",
+    "gate-current.json": "d7aba1a17fe96590c60ce9aa55f906f2dc5ddf4e9f77cdcd6e42403ef5389f18",
+    "window-bounds.json": "74cb62cf49d768d3dcc3046896bcd728c4ad74b91c08f8fdc327f3b0790696c5",
+    "window-tests.xml": "0a7cb89116ef90a46a479bc2aaba1dbb8e2e792588b8656809b61b829d88a25a",
+    "completed-original/admissions.json": "1f39a7508d8576028cf809e39d7c12469ca1c28cf942211b73b558df0eac3581",
+    "completed-original/cargo-status.json": "8a2b3982c212b8ad2cb6e5df7f9d0e052901935ced2dc0428f32c83c023bacf5",
+    "completed-original/cohort_reports.json": "8606d93bd9b62d292282124672e61bfb858b9e0f8496ade123db5ab2d8996c20",
+    "completed-original/container_contract.json": "afa2681a12b087dd5c960a369fa24e280b83a0e3ebc9748de332381c051bf165",
+    "completed-original/days.json": "f7acd0b09bbd3a7f971db6d76c4a76e09673ed35acd8a3455ddf9f446ccf0437",
+    "completed-original/events.jsonl": "77bab17f66680384b82a8fd49e8fdea9a61d341dd4bf1ea535b660175e7f5d35",
+    "completed-original/manifest.json": "a3f771cfd2e7fa37d9852446529c8652adb7da495a7c6585f0f6de640a5efae7",
+    "completed-original/month_result.json": "4dace1459175f72c03db3551209ba968e6cfe968dcd51a406bb0e99fdc255308",
+    "completed-original/report.json": "3490140c60fa149e6a84e50fa1ab1d4b8c055a958db3672ade6270e6d3f61de2",
+    "completed-original/status.json": "6ca0b00382d974b497a213d004fef2c6c3d3f2a6ef5cf7a254e02e4174548bc9",
+    "replay-smoke/days.json": "01156c2be27a640d9db02004232260c5447b52058c44796d50bfc685ea132eb7",
+    "replay-smoke/manifest.json": "35c3664d2abbf91cefe04dbdf5e041083a856217d539c47b8a1670c545bd5eef",
+    "replay-smoke/report.json": "07c5ec9be67d00271a3e3d84b00dbab5d7e5710c6eb52f0f8f06aff690e1068c",
+    "replay-smoke/residual-diagnosis.json": "24b7bf9342567bfea593ba4b69070ac0975519cdf95dd63eb19ae401a763e1dc",
+    "replay-smoke/residual-state.json.gz": "8fc72ecc1905cf5d6179b57a5a20a42a99e090ca9bfc750829bd0b15832d55d5",
+    "replay-smoke/status.json": "f536d08931671d0b934ebaa378ce797a03afbefd5fd2b520420a648e27d84175",
+    "replay-start/launch.sh": "d45a49d6d997d933f4524e92093569286fa28cef1b28e51da3a132340c04030b",
+    "replay-start/manifest.json": "2f3e0ec94816e8502c3ed68c043a6e166bc0d52e9807141ff7b2ff409ea3e36a",
+    "replay-start/status.json": "b493e24f4f5189814c55d133d8694bf40606e6682958bd16855c34370910cc72",
+    "window-bounds-final.json": "74cb62cf49d768d3dcc3046896bcd728c4ad74b91c08f8fdc327f3b0790696c5",
+    "window-tests-final.xml": "d39abeda399a6b5080364a576616dd52e3fd29856a2eba2e035f20e135a22bcd"
+  },
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "완료 실행의 잔여 진단이며 규칙 대비 성능 비교가 아니다",
+      "reasons": [
+        "비교 평가 없음, 미완료 작업과 본선 보호 검증이 남았다"
+      ],
+      "evidence": {
+        "claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "원 실행 완주는 확인했지만 잔여 작업별 상태 재현 검증이 남았다",
+      "reasons": [
+        "종료 후 예정 공급/해제만으로 잔여 2,977건을 설명하지 못한다",
+        "원 실행은 작업별 종료 상태를 저장하지 않아 동일 실행 재현으로 추가 관측 중이다"
+      ],
+      "evidence": {
+        "task": "YR-306",
+        "full_30_days_completed": true,
+        "original_source": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+        "original_result": "outputs/reports/yr306_residual_diagnosis/completed-original/report.json",
+        "replay_source": "5e3cdce606f0c1fa24077df2361516482320b466",
+        "short_replay": "outputs/reports/yr306_residual_diagnosis/replay-smoke/residual-diagnosis.json"
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "작업 소진·잔여 원인 및 실측 항만 보정이 미완료다",
+      "reasons": [
+        "잔여 2,977건의 상태와 동시 작업 제약 원인을 더 확인해야 한다",
+        "실측 운송 흐름·점유율·운반시간 보정과 성능 비교가 없다"
+      ],
+      "evidence": {
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  },
+  "analysis_method": "Conservative bounds omit policy-dependent truck route duration; no actual feasibility verdict"
+}

@@ -47,3 +47,16 @@ def test_missing_source_rejected():
     doc['sources'] = []
     with pytest.raises(KeyError):
         window_bounds(doc,100)
+
+
+def test_original_route_duration_is_not_a_policy_independent_lower_bound():
+    doc = example(release=90,source=0)
+    doc['schedule'][0]['travel_s'] = 20
+    assert window_bounds(doc,100)['lower_bound_unfinished'] == {}
+
+
+def test_inbound_source_route_can_also_change():
+    doc = example(release=90,source=110)
+    doc['sources'][0].update(source_kind='GATE_IN',source_job='IN')
+    doc['schedule'].append(dict(job_id='IN',flow='GATE_IN',day=0,arrival_s=80,travel_s=30))
+    assert window_bounds(doc,100)['lower_bound_unfinished'] == {}

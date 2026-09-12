@@ -1,0 +1,30 @@
+{
+  "scope": "YR-306 completed original archive, offline bounds and pending residual replay",
+  "performance": {
+    "name": "performance", "status": "INCONCLUSIVE",
+    "summary": "완료 실행의 잔여 진단이며 규칙 대비 성능 비교가 아니다",
+    "reasons": ["비교 평가 없음, 미완료 작업과 본선 보호 검증이 남았다"],
+    "evidence": {"claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "reliability": {
+    "name": "reliability", "status": "FAIL",
+    "summary": "원 실행 완주는 확인했지만 잔여 작업별 상태 재현 검증이 남았다",
+    "reasons": ["종료 후 예정 공급/해제만으로 잔여 2,977건을 설명하지 못한다",
+      "원 실행은 작업별 종료 상태를 저장하지 않아 동일 실행 재현으로 추가 관측 중이다"],
+    "evidence": {"task": "YR-306", "full_30_days_completed": true,
+      "original_source": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+      "original_result": "outputs/reports/yr306_residual_diagnosis/completed-original/report.json",
+      "replay_source": "5e3cdce606f0c1fa24077df2361516482320b466",
+      "short_replay": "outputs/reports/yr306_residual_diagnosis/replay-smoke/residual-diagnosis.json"}
+  },
+  "scenario_validity": {
+    "name": "scenario_validity", "status": "FAIL",
+    "summary": "작업 소진·잔여 원인 및 실측 항만 보정이 미완료다",
+    "reasons": ["잔여 2,977건의 상태와 동시 작업 제약 원인을 더 확인해야 한다",
+      "실측 운송 흐름·점유율·운반시간 보정과 성능 비교가 없다"],
+    "evidence": {"allowed_claim_scope": "NO_PERFORMANCE_CLAIM"}
+  },
+  "claim_eligible": false, "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": ["reliability", "scenario_validity", "performance"]
+}

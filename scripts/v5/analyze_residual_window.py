@@ -17,6 +17,7 @@ def window_bounds(document, end_s):
     if len(sources) != len(document['sources']):
         raise ValueError('Duplicate source identity')
     jobs, seen = [], set()
+    gate_arrivals = {e['job_id']:float(e['arrival_s']) for e in document['schedule']}
 
     def add(jid, kind, day, release, source_id=None):
         if jid in seen:
@@ -24,6 +25,10 @@ def window_bounds(document, end_s):
         seen.add(jid)
         source = sources[source_id] if source_id is not None else None
         supply = 0.0 if source is None else float(source['planned_source_s'])
+        if source is not None and source['source_kind'] == 'GATE_IN':
+            # Reassignment can shorten the original route. Gate time alone is a
+            # conservative bound; the original block travel time is NOT one.
+            supply = gate_arrivals[source['source_job']]
         earliest = max(float(release), supply)
         if earliest >= end_s:
             jobs.append(dict(job_id=jid, flow=kind, day=day, release_lower_bound_s=release,
@@ -32,7 +37,7 @@ def window_bounds(document, end_s):
                              release_outside=release >= end_s, source_outside=supply >= end_s))
 
     for e in document['schedule']:
-        add(e['job_id'], e['flow'], e['day'], float(e['arrival_s']) + float(e['travel_s']),
+        add(e['job_id'], e['flow'], e['day'], float(e['arrival_s']),
             e['target'] if e['flow'] == 'GATE_OUT' else None)
     for day, rows in document['vessels_by_day'].items():
         for row in rows:
