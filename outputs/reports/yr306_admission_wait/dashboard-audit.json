@@ -1,0 +1,32 @@
+{
+  "name": "dashboard_code_alignment",
+  "status": "PASS",
+  "summary": "Dashboard·spec·코드·증거가 일치함",
+  "reasons": [],
+  "evidence": {
+    "task_id": "YR-306",
+    "expected_state": "in-progress",
+    "board_matches": [
+      "in-progress.md"
+    ],
+    "spec_path": ".claude/docs/dashboard-task-specs/YR-306-v5-first-continuous-training.md",
+    "evidence_paths": [
+      "outputs/reports/yr306_admission_wait/verification.json",
+      "outputs/reports/yr306_admission_wait/gate-after-wait.json",
+      "outputs/reports/yr306_admission_wait/failed-run/status.json",
+      "src/yard_rl/v5/stage/cargo_runtime.py",
+      "tests/v5/test_cargo_capacity_wait.py"
+    ],
+    "control_paths": [
+      ".claude\\Dashboard\\in-progress.md",
+      ".claude\\docs\\dashboard-task-specs\\YR-306-v5-first-continuous-training.md"
+    ],
+    "evidence_commits": [
+      "a5d2b7c",
+      "415e3e7"
+    ],
+    "remote_ref": "origin/강화학습-판매",
+    "pin_commit": null,
+    "drift": []
+  }
+}
