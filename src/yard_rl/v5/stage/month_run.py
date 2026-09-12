@@ -203,7 +203,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
               vessel_deadline_mult: float | None = None, ppo=None,
-              on_admission=None, on_container_contract=None) -> MonthResult:
+              on_admission=None, on_container_contract=None, seed_data=None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -241,11 +241,16 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     prof, layout = build_h21_profile(), terminal_layout()
     days = list(days) if days else plan_month(seed, n_days=n_days)
     n_days = len(days)
-    built = build_month(seed, days=days, profile=prof, layout=layout,
-                        lead_mode=lead_mode)
-    # ★본선 양하/적하를 **트럭 수지에 맞춘다** — 안 그러면 야드가 30일 동안 빈다.
-    v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
-                                  truck_net=truck_net_by_block(built["schedule"]))
+    if seed_data is None:
+        built = build_month(seed, days=days, profile=prof, layout=layout, lead_mode=lead_mode)
+        v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
+                                    truck_net=truck_net_by_block(built['schedule']))
+    else:
+        if ppo is None or labels_per_day:
+            raise ValueError('Fixed cargo runtime is supported only in the PPO path')
+        from .cargo_input import restore_input
+        built = restore_input(seed_data, seed=seed, days=days, lead_mode=lead_mode)
+        v_by_day = {int(d): rows for d,rows in seed_data['vessels_by_day'].items()}
     if ppo is not None:
         contract = audit_container_plan(built, v_by_day)
         if on_container_contract is not None:
@@ -263,13 +268,22 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     scns = {b: dataclasses.replace(s, jobs=[], vessels=[], horizon_s=month_s,
                                    drain_window_s=DIURNAL_DRAIN_S)
             for b, s in built["day0"]["scenarios"].items()}
-    mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(s, prof))
-                         for b, s in scns.items()},
-                        extra_review_epochs=tuple(
-                            i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)))
+    extra_epochs = tuple(i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1))
+    if seed_data is None:
+        mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(s, prof)) for b,s in scns.items()},
+                            extra_review_epochs=extra_epochs)
+    else:
+        from .cargo_runtime import CargoBlock, CargoTerminal
+        from .episode import INFO_LEVEL
+        blocks = {b: ensure_time_ledger(CargoBlock(prof, s)) for b,s in scns.items()}
+        for s in blocks.values():
+            s.info_level = INFO_LEVEL
+        mbt = CargoTerminal(blocks, document=seed_data, layout=layout, extra_review_epochs=extra_epochs)
+        mbt.orders, mbt.records = orders, records
     # Verify the input's fixed target; a missing box must not be replaced.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
-                      retarget=make_retarget(seed))
+                      retarget=make_retarget(seed) if seed_data is None else None,
+                      resolve_entry=None if seed_data is None else mbt.resolve_entry)
 
     if ppo is None and (seller_net is None or buyer_net is None):
         torch.manual_seed(int(seed))

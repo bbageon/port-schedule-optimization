@@ -104,11 +104,12 @@ class V3Announcer:
     """
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
-                 period_s: float = EPOCH_S, retarget=None):
+                 period_s: float = EPOCH_S, retarget=None, resolve_entry=None):
         self.period_s = float(period_s)
         self.end_s = end_s
         #: Compatibility hook: verify a fixed target. Choosing another box is forbidden.
         self.retarget = retarget
+        self.resolve_entry = resolve_entry
         self.n_retargeted = 0
         self.by_epoch: dict[float, list[dict]] = {}
         for e in schedule:
@@ -128,6 +129,7 @@ class V3Announcer:
         c = V3Announcer.__new__(V3Announcer)
         c.period_s, c.end_s, c.by_epoch = self.period_s, self.end_s, self.by_epoch
         c.retarget, c.n_retargeted = self.retarget, 0
+        c.resolve_entry = self.resolve_entry
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         return c
 
@@ -144,6 +146,7 @@ class V3Announcer:
         c.period_s, c.end_s = self.period_s, self.end_s
         c.by_epoch = {k: v for k, v in self.by_epoch.items() if lo <= k <= hi}
         c.retarget, c.n_retargeted = self.retarget, 0
+        c.resolve_entry = self.resolve_entry
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         return c
 
@@ -151,6 +154,8 @@ class V3Announcer:
         if not on_grid(t, self.period_s):
             return
         for e in self.by_epoch.get(round(t, 6), []):
+            if self.resolve_entry is not None:
+                e = self.resolve_entry(e)
             arr = e["arrival_s"]
             if self.end_s is not None and arr + e["travel_s"] > self.end_s:
                 self.n_skipped += 1

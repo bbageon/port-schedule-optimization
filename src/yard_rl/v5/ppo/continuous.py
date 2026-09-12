@@ -35,7 +35,8 @@ def make_plan(seed, n_days, load=None):
     return plan_month(seed, n_days=n_days)
 
 
-def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
+def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None,
+                   seed_bundle=None, seed_sha256=None):
     days = make_plan(seed, n_days, load)
     config = config or PPOConfig()
     output = Path(output)
@@ -43,6 +44,14 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
         raise FileExistsError("Choose a NEW output directory")
     torch.set_num_threads(1)
     stamp = code_stamp()  # Refuse dirty or misidentified source BEFORE writing outputs.
+    if (seed_bundle is None) != (seed_sha256 is None):
+        raise ValueError('Both seed_bundle and seed_sha256 must be supplied')
+    document = None
+    if seed_bundle is not None:
+        from ..stage.seed_bundle import load_seed_bundle
+        from ..stage.cargo_input import restore_input
+        document, _ = load_seed_bundle(seed_bundle, expected_sha256=seed_sha256)
+        restore_input(document, seed=seed, days=days, lead_mode='DIST')
     torch.manual_seed(seed)
     policy = BlockPolicy()
     manifest = {"generation": "v5", "algorithm": "shared-block-PPO",
@@ -55,6 +64,9 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
                 "counterfactual_worlds_allowed": 0,
                 "container_contract": "fixed identity, unique source/exit, explicit vessel load list",
                 "recovery": "day checkpoints are weights only, not physical world resume"}
+    if document is not None:
+        manifest['fixed_seed'] = dict(path=str(Path(seed_bundle).resolve()), sha256=seed_sha256,
+                                     schema=document['schema'], rules=document['rules'])
     journal = RunJournal(output, days, manifest)
     runtime = PPORuntime(policy, config=config, seed=seed, training=True,
                          learning_window_s=manifest["learning_window_s"],
@@ -62,7 +74,8 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
     before_cf = rollout_calls()
     try:
         initial = journal.checkpoint("initial.pt", runtime)
-        result = run_month(seed=seed, days=days, ppo=runtime,
+        fixed_args = {} if document is None else {'seed_data': document}
+        result = run_month(seed=seed, days=days, ppo=runtime, **fixed_args,
                            on_admission=journal.admission, on_day=journal.day_report,
                            on_container_contract=journal.container_contract)
         # Keep the returned evidence even when a final validation rejects the run.
@@ -92,8 +105,13 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None):
             raise RuntimeError("Warmup/cooldown leaked into learning")
         if result.skipped or any(not a["ok"] for a in result.vessel_admissions):
             raise RuntimeError("Some external trucks or vessels could not be admitted; inspect logs")
+        if document is not None and (result.admitted != len(document['schedule'])
+                or len(result.vessel_admissions) != sum(map(len, document['vessels_by_day'].values()))):
+            raise RuntimeError('Executed admission counts differ from the fixed input file')
         final = journal.checkpoint("final.pt", runtime)
         report = runtime.report()
+        if document is not None:
+            report['cargo'] = runtime.mbt.cargo_report()
         report.update(state="completed", counterfactual_worlds=cf, n_days=n_days,
                       learning_days=n_days - 2, learning_interval_cost_krw=learning_cost,
                       admitted=result.admitted, skipped=result.skipped,
@@ -121,8 +139,11 @@ def main(argv=None):
     parser.add_argument("--seed", type=int, default=9900306)
     parser.add_argument("--days", type=int, default=30)
     parser.add_argument("--debug-load", type=int, help="Fixed low load for short wiring tests only")
+    parser.add_argument('--seed-bundle', type=Path)
+    parser.add_argument('--seed-sha256')
     args = parser.parse_args(argv)
-    run_continuous(output=args.output, seed=args.seed, n_days=args.days, load=args.debug_load)
+    run_continuous(output=args.output, seed=args.seed, n_days=args.days, load=args.debug_load,
+                   seed_bundle=args.seed_bundle, seed_sha256=args.seed_sha256)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,8 @@
 
      그래서 배를 **그날 아침에 붙인다** — `admit_external_job` 이 트럭에 대해
      이미 하는 일과 같은 계약이다(검사 먼저·통과하면 원자적으로 수술).
-     적하 대상은 **그 순간 야드에 실제로 있는 상자** 중에서 고른다.
+     기존 진단 경로는 그 순간 야드에 실제로 있는 상자를 요구한다.
+     고정 명단 PPO 경로는 출처가 확인된 상자를 예약하고, 실제 적치될 때까지 기다린다.
 
 ■ 계약 (사본 `admit_external_job` 과 같게 맞춘다)
   · 검사 단계에서 실패하면 **아무것도 안 바꾼다** (fail-closed)
@@ -156,8 +157,8 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     ■ 양하와 적하가 다르다 (사본 `scenario_gen` 본선 절과 같은 규칙)
       · 양하(DISCHARGE) — 배가 상자를 **내린다**. 야드 재고를 안 쓴다. job 해제는
         시각이 아니라 **박스의 물리 도착**이라 `JOB_RELEASED` 를 안 건다.
-      · 적하(LOAD) — 배가 상자를 **싣는다**. 야드에 있는 상자를 찍어야 하고,
-        재고가 모자라면 물량이 깎인다(`clipped`).
+      · 적하(LOAD) — 배가 상자를 **싣는다**. 고정 명단은 물량을 깎지 않고
+        지정 상자의 실제 적치를 기다린다. 명단 없는 기존 진단만 재고 한도로 깎인다.
 
     실패하면 `TransferError` 를 던지고 **아무것도 안 바꾼다.**
     """
@@ -179,6 +180,7 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     asked = int(row["moves"])
     targets: list[str] = []
     reason = ""
+    cargo = getattr(mbt, 'sources', None)
     if work == VesselWorkType.LOAD:
         if 'targets' in row:
             if not isinstance(row['targets'], (list, tuple)):
@@ -188,7 +190,10 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
                      if j.target_container is not None}
             if (len(targets) != asked or any(not isinstance(c, str) for c in targets)
                     or len(set(targets)) != asked
-                    or any(c not in sim.stacks.containers or c in taken for c in targets)):
+                    or (cargo is None and any(c not in sim.stacks.containers or c in taken for c in targets))
+                    or (cargo is not None and any(c not in cargo or c in mbt.exit_times
+                        or mbt.exit_jobs.get(c) != f'{bid}:J-{key}-{m:04d}'
+                        for m,c in enumerate(targets)))):
                 raise TransferError(f'{key}: fixed vessel target unavailable or duplicated')
         else:
             # Inherited non-PPO diagnostics only. PPO preflight requires targets.
@@ -203,7 +208,7 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     pc = start + moves * cadence * deadline_mult
     etd = start + moves * cadence * (deadline_mult + 1.0)
     tgt_c = ([sim.stacks.containers[t] for t in targets]
-             if work == VesselWorkType.LOAD else None)
+             if work == VesselWorkType.LOAD and cargo is None else None)
     phys_min = phys_min_completion_s(sim.profile, work=work, start_s=start,
                                      moves=moves, cadence_s=cadence,
                                      load_targets=tgt_c)
@@ -217,6 +222,8 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
 
     # -- 여기부터 실패하지 않는 연산만 (원자성 — 사본 admit_external_job 과 같은 계약)
     sim.vessels[key] = VesselProcess(key, work, plan)
+    if cargo is not None:
+        mbt.vessel_home[key] = bid
     sim.queue.push(start, EventKind.VESSEL_START, key)
     flow = (JobFlow.VESSEL_DISCHARGE if work == VesselWorkType.DISCHARGE
             else JobFlow.VESSEL_LOAD)
@@ -236,11 +243,13 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
                     actual_gate_in=None, actual_block_arrival=None,
                     target_container=targets[m],
                     deadline=pc + 1800.0, priority_class=1, vessel_id=key)
-        sim.jobs[jid] = j
+        owner = (mbt.locations[targets[m]] if cargo is not None and work == VesselWorkType.LOAD else bid)
+        yard = mbt.blocks[owner]
+        yard.jobs[jid] = j
         # 양하는 **박스 물리 도착**이 해제한다 — 시각으로 안 푼다 (사본 `_seed_events`)
         if not (j.is_vessel_linked and j.service_mode == ServiceMode.STORE):
-            sim.queue.push(j.release_time, EventKind.JOB_RELEASED, jid)
-        mbt.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
+            yard.queue.push(j.release_time, EventKind.JOB_RELEASED, jid)
+        mbt.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=owner,
                                       flow=j.flow.value, a_gate_in=None))
     sim._refresh_rates()                     # STS 대기 요율에 새 배가 잡히게
     return VesselAdmission(vessel_key=key, block=bid, work=work.value,

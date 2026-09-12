@@ -124,6 +124,9 @@ class RunJournal:
             self.event("day", row)
         if t % 3600 == 0:
             self.save_admissions()
+            cargo = getattr(runtime.mbt, 'cargo_report', None)
+            if cargo is not None:
+                write_json(self.output / 'cargo-status.json', dict(time_s=t, **cargo()))
             phase = ("warmup" if t < DAY_S else "training" if runtime.collecting_at(t)
                      else "cooldown" if t < len(self.days) * DAY_S else "drain")
             state = {"state": "running", "phase": phase, "time_s": t,
@@ -147,6 +150,9 @@ class RunJournal:
                "restart": "Use the same pinned code/seed in a NEW directory from the beginning"}
         # A secondary snapshot failure must not replace the original exception.
         for name, action in (
+                ('cargo_state', lambda: write_json(self.output / 'cargo-status.json',
+                    dict(time_s=runtime.mbt.now, **runtime.mbt.cargo_report()))
+                    if hasattr(getattr(runtime, 'mbt', None), 'cargo_report') else None),
                 ("admissions", self.save_admissions),
                 ("failed_checkpoint", lambda: self.checkpoint("failed-policy.pt", runtime)),
                 ("partial_report", lambda: write_json(self.output / "partial_report.json",
