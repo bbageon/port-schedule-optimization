@@ -207,7 +207,9 @@ def test_fit_intensity_is_a_knob():
     """
     from yard_rl.v4.crane.fit import FIT_STEPS_PER_SAMPLE
 
-    assert FIT_STEPS_PER_SAMPLE == 4.0, "기본값은 실험 전까지 안 움직인다"
+    #: [[YR-311]] 이 사전등록 기준을 통과해 1.0 으로 동결했다 — 4.0 은 재배정층에서
+    #: 그대로 가져온 값이었고 한 날에 408스텝을 먹여 망을 매일 다시 그렸다.
+    assert FIT_STEPS_PER_SAMPLE == 1.0, "동결값이 움직였다 — 근거 실험 없이 바꾸지 않는다"
     ls = _learnable(200)
     a = CraneTrainer(CraneNet(), steps_coef=4.0).fit(ls, seed=1)
     b = CraneTrainer(CraneNet(), steps_coef=1.0).fit(ls, seed=1)
