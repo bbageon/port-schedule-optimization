@@ -6,7 +6,6 @@ import hashlib
 import json
 from pathlib import Path
 import os
-import subprocess
 
 from capture_residual_state import capture, json_default
 
@@ -25,7 +24,9 @@ def require(ok, message):
 
 
 def comparable_report(report):
-    return {k:v for k,v in report.items() if k != 'code'}
+    # Saved JSON normalizes runtime tuples to lists; compare the serialized contract.
+    normalized = json.loads(json.dumps(report))
+    return {k:v for k,v in normalized.items() if k != 'code'}
 
 
 def main():
