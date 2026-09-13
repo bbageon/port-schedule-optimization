@@ -1,6 +1,6 @@
 # YR-306 — 수정 없는 세 정책 참고 비교
 
-- **상태**: in-progress
+- **상태**: in-progress — 실행 대기열 등록, 다른 v4 작업 종료 대기
 - 사용자 승인 2026-09-14: 검증 순서의 예외로 현재 코드를 고치지 않고
   최종 정책·학습 전 정책·규칙 정책의 참고용 비교를 먼저 실행한다.
 - 기존 신뢰성·현실성·성능 판정은 통과로 바꾸지 않는다. 정식 채택·논문 성능 주장은 금지한다.
@@ -56,6 +56,9 @@
 
 ## 산출물·다음 순서
 
+- 9/14 07:22:56 KST 대기열 등록, Linux PID 744, CPU 23 한 개로 제한했다.
+- 실행기·기존 종료창 검사 21개 통과. 고정 코드 `d38b2ec`의 깨끗한 별도 작업 폴더와 원본 v5 일치를 확인했다.
+- 아직 소규모 연결 검사·30일 비교는 시작 전이다. [등록 증거](../../../outputs/reports/yr306_reference_comparison/verification.json).
 - 실행기: `scripts/v5/compare_frozen_policies.py`, `scripts/v5/queue_reference_comparison.py`.
 - 실행 결과: `outputs/v5/yr306-reference-comparison/` (새 폴더).
 - 등록/검사/결과 증거: `outputs/reports/yr306_reference_comparison/`.
