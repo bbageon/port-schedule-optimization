@@ -1,0 +1,16 @@
+{
+  "task": "YR-306",
+  "date": "2026-09-14",
+  "authority": "explicit user approval in this conversation",
+  "user_request": "검증 순서의 예외로 현재 코드를 고치지 않고 최종 정책·학습 전 정책·규칙 정책의 참고용 비교평가를 진행",
+  "sequence_exception_authorized": true,
+  "formal_gates_passed": false,
+  "prior_gate": "outputs/reports/yr306_residual_diagnosis/gate-current.json",
+  "prior_gate_commit": "28f94e90596d70e69bdfcb35d35bd98fba4fa262",
+  "prior_gate_sha256": "d7aba1a17fe96590c60ce9aa55f906f2dc5ddf4e9f77cdcd6e42403ef5389f18",
+  "prior_authorize_next": {"allowed": false, "target": "performance", "reason": "reliability must be resolved first"},
+  "scope": "REFERENCE_ONLY",
+  "unchanged": ["src/yard_rl/v5", "source seed data", "original checkpoints", "cost and WAIT semantics"],
+  "concurrency_exception_authorized": false,
+  "default_resource_plan": "one CPU, sequential arms, wait for existing v4 workloads to finish"
+}
