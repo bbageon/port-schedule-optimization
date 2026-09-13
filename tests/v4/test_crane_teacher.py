@@ -230,3 +230,29 @@ def test_gentler_fitting_still_learns():
                                        dtype=torch.float32))[0])
     assert long_ < short, (
         f"계수 1.0 에서 학습이 죽었다 — 짧음 {short:.3f} · 김 {long_:.3f}")
+
+
+def test_checkpoint_resumes_optimizer_too(tmp_path):
+    """★이어받기는 **옵티마이저까지** 되살린다 ([[YR-312]]).
+
+    Adam 은 기울기의 이동평균을 들고 있다. 망만 이어받으면 그 평균이 0 에서 다시
+    시작해 첫 몇 회차가 새 시작과 같은 갱신을 한다 — "이어서 돌렸다" 가 거짓이 된다.
+    """
+    from yard_rl.v4.crane.train import CraneTrainState
+
+    torch.manual_seed(5)
+    net = CraneNet()
+    st = CraneTrainState(net, CraneTrainer(net, steps_coef=1.0))
+    st.trainer.fit(_learnable(100), seed=1)          # 옵티마이저에 상태가 생긴다
+    st.save(tmp_path, 7)
+
+    net2 = CraneNet()
+    tr2 = CraneTrainer(net2, steps_coef=1.0)
+    it = CraneTrainState.load(tmp_path / "crane_007.pt", net2, tr2)
+    assert it == 7
+    for a, b in zip(net.state_dict().values(), net2.state_dict().values()):
+        assert torch.equal(a, b), "망이 안 되살아났다"
+    s1, s2 = st.trainer.opt.state_dict()["state"], tr2.opt.state_dict()["state"]
+    assert s1.keys() == s2.keys() and len(s1) > 0, "옵티마이저 상태가 비었다"
+    k = next(iter(s1))
+    assert torch.equal(s1[k]["exp_avg"], s2[k]["exp_avg"]), "Adam 이동평균이 안 되살아났다"

@@ -108,8 +108,26 @@ class CraneTrainState:
 
     def save(self, path: Path, it: int) -> None:
         path.mkdir(parents=True, exist_ok=True)
-        torch.save({"crane": self.net.state_dict(), "it": it},
+        #: ★옵티마이저 상태도 같이 남긴다 ([[YR-312]]). Adam 은 기울기의 이동평균을
+        #:  들고 있어서, 망만 이어받으면 첫 몇 회차가 **새 시작과 같은** 갱신을 한다.
+        torch.save({"crane": self.net.state_dict(),
+                    "opt": self.trainer.opt.state_dict(),
+                    "steps_coef": self.trainer.steps_coef, "it": it},
                    path / f"crane_{it:03d}.pt")
+
+    @staticmethod
+    def load(path: str | Path, net: CraneNet, trainer: CraneTrainer) -> int:
+        """체크포인트에서 망·옵티마이저를 되살리고 **그 회차 번호**를 돌려준다.
+
+        옛 체크포인트(망만 저장)도 읽는다 — 그때는 옵티마이저가 새것이라 경고한다.
+        """
+        ck = torch.load(path)
+        net.load_state_dict(ck["crane"])
+        if "opt" in ck:
+            trainer.opt.load_state_dict(ck["opt"])
+        else:
+            print(f"⚠️ {path}: 옵티마이저 상태가 없는 옛 체크포인트 — 첫 회차가 새 시작처럼 갱신된다")
+        return int(ck["it"])
         (path / "history.json").write_text(
             json.dumps([asdict(h) for h in self.history], ensure_ascii=False,
                        indent=1), encoding="utf-8")
@@ -160,11 +178,15 @@ def run_crane_training(*, iters: int = 20,
                        workers: int = 1, val_frac: float = 0.2,
                        eval_every: int = 5,
                        steps_coef: float = FIT_STEPS_PER_SAMPLE,
+                       resume: str | Path | None = None,
                        log=print) -> CraneTrainState:
     """회차를 돌린다. **표본 0 이면 즉시 멈춘다** (06 하드가드).
 
     `time_budget_s` 를 주면 시간으로도 끊는다 — 회차 수를 **결과 보고 늘리면
     사전등록이 무너지므로** 예산을 먼저 정해 두고 그 안에서 돈다.
+
+    `resume` — 체크포인트에서 **이어서** 돈다 ([[YR-312]]). 회차 번호가 이어지므로
+    시드도 이어져 **새 날**들을 본다. 망·옵티마이저를 되살리고, 초기화 시딩은 건너뛴다.
     """
     out = Path(out_dir)
     #: ★망 초기값을 시드에 묶는다 ([[YR-304]] 의 교훈). 안 묶으면 학습 전 팔이
@@ -172,6 +194,10 @@ def run_crane_training(*, iters: int = 20,
     torch.manual_seed(int(seed_base) + 3)
     net = CraneNet()
     st = CraneTrainState(net, CraneTrainer(net, steps_coef=steps_coef))
+    start_it = 0
+    if resume is not None:
+        start_it = CraneTrainState.load(resume, net, st.trainer) + 1
+        log(f"■ {resume} 에서 이어서 — {start_it} 회차부터")
     t_start = time.time()
 
     def do_eval(it: int) -> None:
@@ -183,9 +209,9 @@ def run_crane_training(*, iters: int = 20,
         st.evals.append(ev)
         log(_eval_line(it, ev))
 
-    do_eval(-1)          # ★학습 **전** 기준점 — 없으면 나중 값을 견줄 데가 없다
+    do_eval(start_it - 1)   # ★학습 **전** 기준점 — 없으면 나중 값을 견줄 데가 없다
 
-    for it in range(iters):
+    for it in range(start_it, start_it + iters):
         if time_budget_s is not None and time.time() - t_start > time_budget_s:
             log(f"시간 예산 {time_budget_s/3600:.1f}시간 소진 — {it} 회차에서 종료")
             break

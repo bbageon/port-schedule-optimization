@@ -46,6 +46,8 @@ def main(argv=None) -> int:
                     help="회차당 학습 강도 — 스텝 수 = 계수 × 학습 표본 수 "
                          "(하한 50·상한 600). 기본 4.0 은 표본 102개에 408스텝이라 "
                          "망이 매 회차 그날 데이터로 다시 그려진다 ([[YR-310]])")
+    ap.add_argument("--resume", default=None,
+                    help="이 체크포인트에서 **이어서** 돈다 — 회차·시드가 이어져 새 날을 본다")
     ap.add_argument("--out", default="outputs/v4/crane-train", help="결과 폴더")
     ap.add_argument("--dry", action="store_true", help="굴리지 않고 계획만 본다")
     a = ap.parse_args(argv)
@@ -78,6 +80,7 @@ def main(argv=None) -> int:
         horizon_s=a.horizon_h * 3600.0, eval_every=a.eval_every,
         steps_coef=(a.steps_coef if a.steps_coef is not None
                     else FIT_STEPS_PER_SAMPLE),
+        resume=a.resume,
         time_budget_s=(a.hours * 3600.0 if a.hours else None))
     secs = time.time() - t0
     print(f"■ 끝 — {len(st.history)}회차 · {secs/3600:.2f}시간")
@@ -95,7 +98,7 @@ def main(argv=None) -> int:
               f"(이긴 날 {last_e['n_win']}/{len(last_e['rows'])})")
     (Path(a.out) / "run.json").write_text(
         json.dumps({"iters": a.iters, "seed": a.seed, "labels": a.labels,
-                    "steps_coef": _sc,
+                    "steps_coef": _sc, "resume": a.resume,
                     "loads": list(loads), "horizon_h": a.horizon_h,
                     "workers": workers, "secs": secs}, ensure_ascii=False,
                    indent=1), encoding="utf-8")
