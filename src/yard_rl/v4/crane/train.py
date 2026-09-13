@@ -114,6 +114,15 @@ class CraneTrainState:
                     "opt": self.trainer.opt.state_dict(),
                     "steps_coef": self.trainer.steps_coef, "it": it},
                    path / f"crane_{it:03d}.pt")
+        #: ⚠️ 이 두 줄은 반드시 **이 함수 안**에 있어야 한다. [[YR-312]] 착수 때 `load` 를
+        #:  끼워 넣다가 `return` 뒤로 밀려 죽은 코드가 됐고, 이어 돌린 실행의 회차 기록이
+        #:  통째로 안 남았다 (2026-09-14 발견 · 체크포인트는 남아 복구 가능했다).
+        (path / "history.json").write_text(
+            json.dumps([asdict(h) for h in self.history], ensure_ascii=False,
+                       indent=1), encoding="utf-8")
+        (path / "evals.json").write_text(
+            json.dumps(self.evals, ensure_ascii=False, indent=1),
+            encoding="utf-8")
 
     @staticmethod
     def load(path: str | Path, net: CraneNet, trainer: CraneTrainer) -> int:
@@ -128,12 +137,6 @@ class CraneTrainState:
         else:
             print(f"⚠️ {path}: 옵티마이저 상태가 없는 옛 체크포인트 — 첫 회차가 새 시작처럼 갱신된다")
         return int(ck["it"])
-        (path / "history.json").write_text(
-            json.dumps([asdict(h) for h in self.history], ensure_ascii=False,
-                       indent=1), encoding="utf-8")
-        (path / "evals.json").write_text(
-            json.dumps(self.evals, ensure_ascii=False, indent=1),
-            encoding="utf-8")
 
 
 def evaluate(net, *, loads=EVAL_LOADS, seed_base: int = EVAL_SEED_BASE,
@@ -152,11 +155,18 @@ def evaluate(net, *, loads=EVAL_LOADS, seed_base: int = EVAL_SEED_BASE,
                          seed=seed, crane_net=net)
         rule = run_episode(load=load, arm="NO_REALLOC", dispatcher="SF_SPT",
                            seed=seed)
+        #: ★비용을 **본선과 트럭으로 갈라** 남긴다 (사용자 지시 2026-09-14).
+        #:  합계만 보면 "붐비는 날에 진다" 가 배 때문인지 트럭 때문인지 모른다.
+        def _split(b):
+            return {"truck": b.get("c_wait", 0.0), "vessel": b.get("c_vessel", 0.0),
+                    "rehandle": b.get("c_rehandle", 0.0), "move": b.get("c_move", 0.0)}
         rows.append({"load": load, "seed": seed,
                      "phi_rl": rl.phi_krw, "phi_rule": rule.phi_krw,
                      "gap": rl.phi_krw - rule.phi_krw,
                      "gap_ratio": (rl.phi_krw - rule.phi_krw)
-                     / max(1e-9, rule.phi_krw)})
+                     / max(1e-9, rule.phi_krw),
+                     "split_rl": _split(rl.breakdown),
+                     "split_rule": _split(rule.breakdown)})
     ratios = sorted(r["gap_ratio"] for r in rows)
     return {"rows": rows, "median_gap_ratio": ratios[len(ratios) // 2],
             "n_win": sum(1 for r in rows if r["gap_ratio"] < 0)}
@@ -166,6 +176,17 @@ def _eval_line(it: int, ev: dict) -> str:
     per = " ".join(f"{r['load']//1000}k {r['gap_ratio']:+.2%}" for r in ev["rows"])
     return (f"    ▸ 고정 평가일 [{it:>3}] 중앙 {ev['median_gap_ratio']:+.2%} · "
             f"이긴 날 {ev['n_win']}/{len(ev['rows'])} · {per}")
+
+
+def split_table(ev: dict) -> str:
+    """부하별 **본선 / 트럭** 격차 — 어느 쪽에서 지고 이기는지."""
+    out = ["    부하    트럭대기(학습−규칙)   본선유휴(학습−규칙)   파내기      합계"]
+    for r in ev["rows"]:
+        a, b = r["split_rl"], r["split_rule"]
+        d = {k: a[k] - b[k] for k in a}
+        out.append(f"  {r['load']:>7,}  {d['truck']:>+14,.0f}원  {d['vessel']:>+14,.0f}원  "
+                   f"{d['rehandle']:>+10,.0f}원  {r['gap']:>+14,.0f}원 ({r['gap_ratio']:+.2%})")
+    return "\n".join(out)
 
 
 def run_crane_training(*, iters: int = 20,

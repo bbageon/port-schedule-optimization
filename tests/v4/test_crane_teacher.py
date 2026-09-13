@@ -246,6 +246,12 @@ def test_checkpoint_resumes_optimizer_too(tmp_path):
     st.trainer.fit(_learnable(100), seed=1)          # 옵티마이저에 상태가 생긴다
     st.save(tmp_path, 7)
 
+    #: ★회차 기록도 같이 남아야 한다. [[YR-312]] 착수 때 이 두 파일을 쓰는 줄이
+    #:  `load` 의 return 뒤로 밀려 죽은 코드가 됐고, 이어 돌린 실행의 기록이 통째로
+    #:  안 남았다 (2026-09-14). 체크포인트만 검사하면 그 사고를 못 잡는다.
+    assert (tmp_path / "history.json").exists(), "회차 기록(history.json)이 안 남았다"
+    assert (tmp_path / "evals.json").exists(), "평가 기록(evals.json)이 안 남았다"
+
     net2 = CraneNet()
     tr2 = CraneTrainer(net2, steps_coef=1.0)
     it = CraneTrainState.load(tmp_path / "crane_007.pt", net2, tr2)
