@@ -22,3 +22,4 @@
 - YR-296 spec을 기존 done row와 맞추고 종속 날짜·미투입 때문에 과거 확증을 승계하지 않는다고 명시했다.
 - 미완료: 실제 투고본 식별(YR-298, 사용자 확인 요청), 그 원고·도표/재계산 스크립트의 일괄 정정, 현재 신뢰성 재판정.
 - [실행 보고](../../../outputs/reports/yr317_v3_reliability/README.md) · [주장 대조표](../../../outputs/reports/yr317_v3_reliability/claim-map.md).
+- 구현·검증 `b1145f0` 원격 반영 확인, 해당 row의 `audit-dashboard` 통과. 이는 전체 연구 신뢰성 통과가 아니다.
