@@ -101,7 +101,7 @@ class V3Announcer:
     """
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
-                 period_s: float = EPOCH_S, retarget=None):
+                 period_s: float = EPOCH_S, retarget=None, record_admissions: bool = False):
         self.period_s = float(period_s)
         self.end_s = end_s
         #: ★반출 대상을 **투입 시각에** 다시 고르는 훅 ([[YR-239]]). None = 명단 그대로.
@@ -116,6 +116,8 @@ class V3Announcer:
         self.n_admitted = 0
         self.n_skipped = 0
         self.skips: list[dict] = []
+        self.record_admissions = record_admissions
+        self.admission_events: list[dict] = []
 
     def clone_fresh(self) -> V3Announcer:
         """반사실 분기용 사본 — 같은 명단, **자기 계수기**.
@@ -127,6 +129,7 @@ class V3Announcer:
         c.period_s, c.end_s, c.by_epoch = self.period_s, self.end_s, self.by_epoch
         c.retarget, c.n_retargeted = self.retarget, 0
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
+        c.record_admissions, c.admission_events = self.record_admissions, []
         return c
 
     def window(self, lo: float, hi: float) -> "V3Announcer":
@@ -143,7 +146,15 @@ class V3Announcer:
         c.by_epoch = {k: v for k, v in self.by_epoch.items() if lo <= k <= hi}
         c.retarget, c.n_retargeted = self.retarget, 0
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
+        c.record_admissions, c.admission_events = self.record_admissions, []
         return c
+
+    def _record_admission(self, e, t, outcome, reason=None):
+        if self.record_admissions:
+            self.admission_events.append({"job_id": e["job_id"], "t": t,
+                "outcome": outcome, "reason": reason, "block": e["block"],
+                "flow": e["flow"], "target": e.get("target"),
+                "planned_gate_in_s": e["arrival_s"]})
 
     def review(self, mbt, t: float) -> None:
         if not on_grid(t, self.period_s):
@@ -153,6 +164,7 @@ class V3Announcer:
             if self.end_s is not None and arr + e["travel_s"] > self.end_s:
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": "TAIL"})
+                self._record_admission(e, t, "SKIPPED", "TAIL")
                 continue
             if self.retarget is not None and e["flow"] == "GATE_OUT":
                 # ★반출 대상을 **투입 시각에** 다시 고른다 ([[YR-239]]).
@@ -168,6 +180,7 @@ class V3Announcer:
                     self.n_skipped += 1
                     self.skips.append({"t": t, "job_id": e["job_id"],
                                        "reason": "NO_TARGET"})
+                    self._record_admission(e, t, "SKIPPED", "NO_TARGET")
                     continue
                 if tgt != e.get("target"):
                     e = {**e, "target": tgt}       # ★원본을 안 건드린다 — 분기와 공유한다
@@ -177,6 +190,8 @@ class V3Announcer:
                 mbt.admit_external_job(e["block"], job, gate_in_s=arr,
                                        travel_s=e["travel_s"])
                 self.n_admitted += 1
+                self._record_admission(e, t, "ADMITTED")
             except TransferError as ex:
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": str(ex)})
+                self._record_admission(e, t, "SKIPPED", str(ex))

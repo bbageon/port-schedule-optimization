@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+from collections import Counter
 from dataclasses import dataclass, field
 
 import torch
@@ -87,6 +88,7 @@ class DayReport:
     vessel_skipped: int = 0
     #: 그날 **못 들어온 트럭** — 조용히 사라지면 부하가 저절로 줄어든다
     truck_skipped: int = 0
+    truck_skip_reasons: dict = field(default_factory=dict)
     #: 그날 반출 대상을 **다시 고른** 트럭 (30일이면 이름이 겹친다 — YR-239)
     retargeted: int = 0
     pruned: dict = field(default_factory=dict)
@@ -122,6 +124,8 @@ class MonthResult:
     policy_exceptions: int = 0
     retargeted: int = 0
     vessel_admissions: list = field(default_factory=list)
+    request_ledger: list = field(default_factory=list)
+    request_summary: dict = field(default_factory=dict)
 
     @property
     def train_days(self) -> list:
@@ -178,7 +182,7 @@ class _MonthCtx(_Ctx):
 
 
 def _day_records(records: dict, day: int) -> dict:
-    """그 날 **게이트를 들어온** 트럭의 기록만. `docKey` 에 날짜가 박혀 있다."""
+    """최초 요청의 날짜 집합. 도착시각이 변경돼도 docKey의 날짜 접두는 유지된다."""
     pre = f"D{day:02d}-"
     return {k: v for k, v in records.items() if k.startswith(pre)}
 
@@ -197,7 +201,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               slot_mode: str = "HORIZON", trigger_top_k: float | None = None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
-              branch_days: int = 1, identity_checks: int = 4) -> MonthResult:
+              branch_days: int = 1, identity_checks: int = 4,
+              capture_requests: bool = False) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -245,7 +250,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                             i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)))
     # ★반출 대상은 **투입 시각에** 다시 고른다 — 30일은 이름이 날마다 겹친다.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
-                      retarget=make_retarget(seed))
+                      retarget=make_retarget(seed), record_admissions=capture_requests)
 
     if seller_net is None or buyer_net is None:
         torch.manual_seed(int(seed))
@@ -441,6 +446,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                         vessels=opened[0], vessel_moves=opened[1],
                         vessel_skipped=opened[2], provisional=True,
                         truck_skipped=ann.n_skipped - state["skip"],
+                        truck_skip_reasons=dict(Counter(r["reason"] for r in ann.skips[state["skip"]:])),
                         retargeted=ann.n_retargeted - state["retgt"])
         state.update(traded=bridge.traded_edges, space=bridge.n_space,
                      time=bridge.n_time, dec=len(market.seller.trail),
@@ -507,4 +513,11 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     res.decisions = len(market.seller.trail)
     res.policy_exceptions = exc["n"]
     res.retargeted = ann.n_retargeted
+    if capture_requests:
+        from .request_audit import request_ledger
+        res.request_ledger, res.request_summary = request_ledger(
+            built["schedule"], ann.admission_events, records, orders, end_s=sim_end)
+        res.request_summary["announcer_counts_match"] = (
+            res.admitted == res.request_summary["admitted"]
+            and res.skipped == res.request_summary["skipped"])
     return res

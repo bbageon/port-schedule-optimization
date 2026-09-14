@@ -11,7 +11,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-317 | Paper | **v3 리뷰 개정 묶음 — 기록 보정 착수** | 🟠 | 하위 a에서 초기 모형·평가 재사용·통계 출력 보정, 관련 검사 52개 통과. 독립 반복은 미착수. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [증거](../../outputs/reports/yr317_v3_reliability/README.md) |
-| YR-317-g | Exp | **기존 수요 보존·미투입 이유 검증** | 🟠 | a 이후, 수락 비교에서 정책별 미투입 675~1,919대. 새 예약 제약을 추가하지 않고 기존 장부를 검사. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | a·g 이후, 공통 KEEP 대비 후보와 KEEP 목표의 상대 의존성을 분리 검증. 좌표 강제·교사 경계 감사 선행. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-317-d | Exp | **독립 월 반복·공간·수락망·학습 기여** | 🟠 | 게이트 통과 후 평가. 거절 제거와 망 완전 제거를 구분, 기존 네 비용 항 민감도·장기 운영 포함. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) |
 | YR-317-e | Exp | **온라인 처리시간과 재현 명세** | 🟠 | 기존 review 전체와 망·확정 구간 계측. 빈 주기·제안 있는 주기를 나눠 보고. [spec](../docs/dashboard-task-specs/YR-317-e-v3-review-runtime-reproduction.md) |
