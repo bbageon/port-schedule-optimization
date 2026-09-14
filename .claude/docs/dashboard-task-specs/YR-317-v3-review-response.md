@@ -24,3 +24,4 @@
 - 정밀안·감사 산출물 커밋 `777a33b`의 origin 반영 확인. 문서 18개·row/spec 8쌍·고유 파일 해시 50개 검사 통과.
 - 9/14 구현: 초기 가중치·시드·갱신일 기록, 평가 결과 재사용 계약, 종속 날짜의 진단 표기. 관련 검사 52개 통과.
 - [실행 보고](../../../outputs/reports/yr317_v3_reliability/README.md) · [원고 정정 문안](../../../outputs/reports/yr317_v3_reliability/manuscript-corrections.md).
+- 9/15 사용자 실험 지시로 g의 실제 기록 진단 시작. 300대 단기 실행 완료 후 세 정책의 연속 10일 재생 중이다. [진단 실행](../../../outputs/reports/yr317_v3_request_audit/README.md).
