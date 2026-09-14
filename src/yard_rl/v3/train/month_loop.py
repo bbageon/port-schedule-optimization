@@ -33,7 +33,10 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
+import torch
+
 from ..eval.guards import DIAGNOSTIC_BAND
+from ..eval.contracts import network_identity, runtime_identity, write_json
 from ..stage.month import N_DAYS, plan_month, summarize
 from ..stage.month_run import run_month
 from .fit import StudentTrainer
@@ -55,7 +58,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                        labels_per_day: int = LABELS_PER_ITER,
                        out_dir: str | Path = "outputs/v3/month",
                        workers: int = 1, val_frac: float = 0.2,
-                       days=None, log=print) -> tuple[TrainState, object]:
+                       days=None, log=print, init_seed: int | None = None) -> tuple[TrainState, object]:
     """30일을 한 번에 굴리며 **날마다** 학생을 갱신한다.
 
     돌려주는 것: (학습 상태, `MonthResult`). 중간보고는 `log` 로 나간다.
@@ -67,11 +70,33 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
             f"학습 시드 {seed:,} 가 진단 대역({DIAGNOSTIC_BAND:,}~)이 아니다 — "
             f"판정 대역을 학습에 쓰면 그 대역이 오염된다")
     out = Path(out_dir)
+    if list(out.glob("ckpt_*.pt")) or (out / "history.json").exists():
+        raise ValueError("Existing training evidence must be preserved; use a new output directory.")
+    init_seed = int(seed if init_seed is None else init_seed)
+    torch.manual_seed(init_seed)
     s_net, b_net = SellerNet(), BuyerNet()
     st = TrainState(s_net, b_net, StudentTrainer(s_net, b_net))
-    days = list(days) if days else plan_month(seed, n_days=n_days)
+    days = list(days) if days is not None else plan_month(seed, n_days=n_days)
+    if not days:
+        raise ValueError("Empty training plan.")
     n = len(days)
-    log(f"■ 30일 무대 · 시드 {seed:,} · 학습 {sum(d.is_train for d in days)}일")
+    manifest = {"schema": "yard_rl.v3.month-training.v1", "seed": seed,
+                "init_seed": init_seed, "plan": [asdict(d) for d in days],
+                "labels_per_day": labels_per_day, "workers": workers,
+                "val_frac": val_frac, "runtime": runtime_identity(),
+                "initial_networks": {"seller": network_identity(s_net),
+                                     "buyer": network_identity(b_net)},
+                "measurement_days": [d.index for d in days if d.is_train],
+                "fit_days": [], "optimizer_steps": 0,
+                "boundary_fit_policy": "legacy v3: fit any day with labels, including boundary days"}
+    out.mkdir(parents=True, exist_ok=True)
+    torch.save({"seller": s_net.state_dict(), "buyer": b_net.state_dict(), "it": -1,
+                "metadata": {"phase": "untrained", "fit_days": [], "optimizer_steps": 0,
+                             "init_seed": init_seed, "environment_seed": seed}},
+               out / "ckpt_init.pt")
+    write_json(out / "training_manifest.json", manifest)
+    log(f"■ {n}일 무대 · 시드 {seed:,} · 측정 {sum(d.is_train for d in days)}일 · 초기화 {init_seed}")
+    log("  학습은 라벨 있는 모든 날에 수행한다. 경계일 제외는 측정 범위이며 학습 제외가 아니다.")
     log(f"  {summarize(days)}")
     t_start = time.time()
     marks = {"t": t_start}
@@ -89,6 +114,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         tr, va = _split_by_decision(ls, val_frac)
         st.trainer.steps_per_iter = max(50, min(600, 4 * len(tr.seller)))
         m = st.trainer.fit(tr, seed=day.seed)
+        manifest["fit_days"].append(day.index)
+        manifest["optimizer_steps"] += m.steps
         vs, vb = st.trainer.evaluate(va) if va.seller else (0.0, 0.0)
         return {"n_seller": len(ls.seller), "n_buyer": len(ls.buyer),
                 "zero_ratio": (zero / len(rows) if rows else 0.0),
@@ -125,7 +152,11 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
             val_buyer_loss=float(f.get("val_buyer_loss", 0.0)),
             n_val=int(f.get("n_val", 0)), worlds=rep.worlds))
         marks["t"] = now
-        st.save(out, rep.index)
+        st.save(out, rep.index, metadata={
+            "phase": "post_day", "day_index": rep.index, "init_seed": init_seed,
+            "environment_seed": seed, "fit_days": list(manifest["fit_days"]),
+            "optimizer_steps": manifest["optimizer_steps"]})
+        write_json(out / "training_manifest.json", manifest)
         (out / "days.json").write_text(
             json.dumps([r.as_dict() for r in _live_so_far(rep)],
                        ensure_ascii=False, indent=1), encoding="utf-8")
@@ -153,7 +184,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
 
 def _report_by_load(res, log) -> None:
     """★부하별 판정 표 (사용자 지시 2026-08-26) — **표본이 얇으면 그 사실도 적는다**."""
-    log("■ 부하별 (학습 28일 · 확정 Φ)")
+    log("■ 부하별 (측정 대상 날짜 · 확정 Φ · 학습 일수와 별개)")
     for load, ds in res.by_load().items():
         phis = sorted(d.phi_krw for d in ds)
         mid = phis[len(phis) // 2]

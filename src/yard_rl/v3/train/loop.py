@@ -103,10 +103,11 @@ class TrainState:
     trainer: StudentTrainer
     history: list[IterReport] = field(default_factory=list)
 
-    def save(self, path: Path, it: int) -> None:
+    def save(self, path: Path, it: int, *, metadata: dict | None = None) -> None:
         path.mkdir(parents=True, exist_ok=True)
         torch.save({"seller": self.seller_net.state_dict(),
-                    "buyer": self.buyer_net.state_dict(), "it": it},
+                    "buyer": self.buyer_net.state_dict(), "it": it,
+                    "metadata": metadata or {}},
                    path / f"ckpt_{it:03d}.pt")
         (path / "history.json").write_text(
             json.dumps([asdict(h) for h in self.history], ensure_ascii=False,

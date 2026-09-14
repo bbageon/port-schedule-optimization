@@ -7,9 +7,9 @@
   그래서 **달 전체를 팔마다 한 번씩** 굴린다. 같은 시드·같은 도착 명단·같은 본선
   이므로 날 d 의 Φ 는 팔끼리 짝이 맞는다. 갈라지는 것은 오직 정책의 선택뿐이다.
 
-■ 판정식 — **부호검정** (06 §3 · [[YR-228]])
-  회차 격차는 판정력이 없다([[YR-228]] — 전부 |t| < 2). 날 단위로 *"어느 쪽이
-  쌌나"* 를 세고 이항검정을 한다. 크기가 아니라 **부호**를 세므로 이상치에 안 흔들린다.
+■ 통계 단위 (YR-317-a 정정)
+  날짜들은 이전 날의 상태를 이어받는다. 이 함수는 한 달의 기술통계만 제공하며,
+  독립 표본 수는 1이다. 날짜별 부호검정으로 유의한 승리를 선언하지 않는다.
 
 ■ ★부하별로 따로 낸다 (사용자 지시 2026-08-26)
   가중 추첨이라 부하마다 날 수가 다르다 — 초혼잡은 28일 중 1~3일뿐이다.
@@ -17,7 +17,6 @@
 """
 from __future__ import annotations
 
-import json
 import math
 import pathlib
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -25,6 +24,9 @@ from dataclasses import dataclass, field
 
 from ..stage.month import N_DAYS, plan_month
 from ..stage.month_run import run_month
+from .contracts import arm_contract, load_arm, runtime_identity, save_arm, validate_label
+
+_MONTH_RUNNER = run_month  # signature used for contracts, including all effective defaults
 
 #: 주판정 상대 — 고전 규칙 5종 + 안 팔기. 진단 팔(RL_SPACE·RL_TIME)은 따로.
 #: `NEAREST` 제외 — 목적지가 20/21 블록에서 `Y01` 로 고정되는 구조 결함
@@ -106,8 +108,8 @@ def _run_arm(kw) -> ArmMonth:
                     traded=res.traded_edges, n_space=res.n_space,
                     n_time=res.n_time,
                     rollout_calls=rollout_calls(),
-                    policy_exceptions=getattr(res, "policy_exceptions", 0),
-                    txn_failed=getattr(res, "txn_failed", 0),
+                    policy_exceptions=res.policy_exceptions,
+                    txn_failed=res.txn_failed,
                     days=[_day_row(d) for d in res.days])
 
 
@@ -121,7 +123,16 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
     `trigger_k` — 고전 팔의 트리거 상위 비율 `{팔: k}`. 없으면 기본값.
     """
-    days = list(days) if days else plan_month(seed, n_days=n_days)
+    days = list(days) if days is not None else plan_month(seed, n_days=n_days)
+    if not days or not any(d.is_train for d in days):
+        raise ValueError("Evaluation needs a nonempty measured window.")
+    if seller_net is None or buyer_net is None:
+        import torch
+        from ..actors import SellerNet, BuyerNet
+        with torch.random.fork_rng(devices=[]):
+            torch.manual_seed(int(seed))
+            seller_net = seller_net if seller_net is not None else SellerNet()
+            buyer_net = buyer_net if buyer_net is not None else BuyerNet()
     todo = ("RL",) + tuple(a for a in arms if a != "RL")
     #: ★재검토 창 `W` — 안 주면 무대 기본값(1800초 = 도착 30분 전). [[YR-299]] A 가
     #:  이 손잡이로 30분/1시간/2시간을 견준다. *"도착 30분 전 재배정은 촉박하지 않나"*
@@ -138,14 +149,19 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
         if trigger_k and a in trigger_k:
             kw["trigger_top_k"] = float(trigger_k[a])
         jobs.append(kw)
-    # ★같은 팔(RL)을 **다른 정책**으로 한 번 더 — 학습 전/후를 ε=0 에서 견준다.
-    #   탐색이 둘 다 0 이라 "탐색이 줄어 좋아졌다" 와 "배워서 좋아졌다" 가 갈린다.
+    # Same action policy with alternative weights. EARLY is not necessarily untrained.
     for name, (s_n, b_n) in (extra_policies or {}).items():
         jobs.append(dict(base, arm="RL", _label=name,
                          seller_net=s_n, buyer_net=b_n))
         todo = todo + (name,)
 
     log(f"■ 판정 — 팔 {len(jobs)}개 × {len(days)}일 (시드 {seed:,})")
+    for label in todo:
+        validate_label(label)
+    if len(set(todo)) != len(todo):
+        raise ValueError("Duplicate arm labels would overwrite evaluation evidence.")
+    runtime = runtime_identity()
+    contracts = {job["_label"]: arm_contract(job, runtime, _MONTH_RUNNER) for job in jobs}
 
     # ★팔 하나가 끝날 때마다 **바로 저장**한다 (2026-08-28 사고).
     #   전에는 `ex.map` 이 전부 끝나야 돌아와서, 5시간 23분을 굴린 판정이 죽었을 때
@@ -157,29 +173,15 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     def _load(label):
         if not ck:
             return None
-        f = ck / f"arm_{label}.json"
-        if not f.exists():
+        d = load_arm(ck / f"arm_{label}.json", contracts[label])
+        if d is None:
             return None
-        d = json.loads(f.read_text(encoding="utf-8"))
-        return ArmMonth(arm=d["arm"],
-                        phi_by_day={int(k): v for k, v in d["phi_by_day"].items()},
-                        traded=d["traded"], n_space=d["n_space"], n_time=d["n_time"],
-                        rollout_calls=d.get("rollout_calls", 0),
-                        policy_exceptions=d.get("policy_exceptions", 0),
-                        txn_failed=d.get("txn_failed", 0),
-                        days=d.get("days", []))
+        d["phi_by_day"] = {int(k): v for k, v in d["phi_by_day"].items()}
+        return ArmMonth(**d)
 
     def _save(g):
         if ck:
-            (ck / f"arm_{g.arm}.json").write_text(
-                json.dumps({"arm": g.arm, "phi_by_day": g.phi_by_day,
-                            "traded": g.traded, "n_space": g.n_space,
-                            "n_time": g.n_time,
-                            "rollout_calls": g.rollout_calls,
-                            "policy_exceptions": g.policy_exceptions,
-                            "txn_failed": g.txn_failed,
-                            "days": g.days}, ensure_ascii=False),
-                encoding="utf-8")
+            save_arm(ck / f"arm_{g.arm}.json", g, contracts[g.arm])
 
     got, pending_jobs = [], []
     for k in jobs:
@@ -221,7 +223,13 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     silent = rl.traded == 0 or (ref > 0 and rl.traded < 0.05 * ref)
     out: dict = {"seed": seed, "n_train": len(train), "arms": {},
                  "by_load": {}, "rl_traded": rl.traded,
-                 "peer_traded": ref, "rl_silent": bool(silent)}
+                 "peer_traded": ref, "rl_silent": bool(silent),
+                 "inference": {"unit": "continuous_month", "independent_runs": 1,
+                               "daily_statistics": "descriptive_only",
+                               "claim_eligible": False},
+                 "monthly_total_krw": {a: sum(by_arm[a].phi_by_day[d.index] for d in train)
+                                       for a in todo},
+                 "contracts": contracts}
     if silent:
         log(f"⚠️ ★RL 이 거래를 거의 안 했다 — {len(train)}일에 **{rl.traded}건** "
             f"(고전 팔 중앙 {ref:,}건). "
@@ -230,16 +238,14 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     for a in todo[1:]:
         other = by_arm[a]
         diffs = [rl.phi_by_day[d.index] - other.phi_by_day[d.index] for d in train]
-        out["arms"][a] = sign_test(diffs)
+        out["arms"][a] = _dependent_days(diffs)
 
     def _slice(ds, key):
         row = {"n_days": len(ds), "label": key, "thin": len(ds) < 4, "arms": {}}
         for a in todo[1:]:
             other = by_arm[a]
             diffs = [rl.phi_by_day[d.index] - other.phi_by_day[d.index] for d in ds]
-            row["arms"][a] = sign_test(diffs)
-        row["beaten"] = sum(1 for a, r in row["arms"].items()
-                            if r["p"] < ALPHA and r["median"] < 0)
+            row["arms"][a] = _dependent_days(diffs)
         return row
 
     loads = sorted({d.load for d in train})
@@ -273,24 +279,26 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     return out
 
 
+def _dependent_days(diffs) -> dict:
+    stats = sign_test(diffs)
+    stats.pop("p")
+    return {**stats, "sum_difference_krw": sum(diffs), "descriptive_only": True}
+
+
 def _log_table(out: dict, log) -> None:
     tag = "  ⚠️RL 거래 거의 없음" if out.get("rl_silent") else ""
-    log(f"■ 전체 (학습 {out['n_train']}일 · RL 거래 {out.get('rl_traded', 0):,}건{tag})")
+    log(f"■ 기술통계 (측정 {out['n_train']}일 · 독립 실행 1개 · RL 거래 {out.get('rl_traded', 0):,}건{tag})")
     for a, r in out["arms"].items():
-        mark = "★승" if (r["p"] < ALPHA and r["median"] < 0) else (
-            "패" if (r["p"] < ALPHA) else "무승부")
         log(f"   RL vs {a:<12} {r['win']:>2}/{r['n']:<2} "
-            f"중앙 {r['median']:>+15,.0f}원 p={r['p']:.4f}  {mark}")
+            f"중앙 {r['median']:>+15,.0f}원 · 월 차이 {r['sum_difference_krw']:+,.0f}원 (확증 아님)")
     def _rows(title, table, fmt):
         log(title)
         for k, row in table.items():
             thin = "  ⚠️표본 얇음" if row["thin"] else ""
-            log(f" {fmt(k, row)} · {row['n_days']}일 · "
-                f"RL 이 넘은 팔 **{row['beaten']}/{len(row['arms'])}**{thin}")
+            log(f" {fmt(k, row)} · {row['n_days']}일 · 종속 날짜의 기술통계{thin}")
             for a, r in row["arms"].items():
-                mark = "★" if (r["p"] < ALPHA and r["median"] < 0) else " "
-                log(f"     {mark} {a:<12} {r['win']:>2}/{r['n']:<2} "
-                    f"중앙 {r['median']:>+15,.0f}원 p={r['p']:.4f}")
+                log(f"       {a:<12} {r['win']:>2}/{r['n']:<2} "
+                    f"중앙 {r['median']:>+15,.0f}원")
 
     _rows("■ 부하별 (★사용자 지시 — 얇은 표본도 그대로 적는다)", out["by_load"],
           lambda k, r: f"부하 {k:>6,} ({r['label']})")

@@ -29,6 +29,8 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=DIAGNOSTIC_BASE + 700,
                     help="달 시드 — 진단 대역(9,900,0xx)만 허용")
     ap.add_argument("--days", type=int, default=N_DAYS, help="달 길이 (기본 30)")
+    ap.add_argument("--init-seed", type=int, default=None,
+                    help="망 초기화 시드 (생략하면 --seed). 학습 전 가중치를 별도 저장한다")
     ap.add_argument("--labels", type=int, default=LABELS_PER_ITER,
                     help="하루에 만들 반사실 라벨 수")
     ap.add_argument("--workers", type=int, default=-1,
@@ -48,7 +50,7 @@ def main(argv=None) -> int:
     else:
         days = plan_month(a.seed, n_days=a.days)
     s = summarize(days)
-    print(f"■ 달 시드 {a.seed:,} · {a.days}일 (학습 {s['n_train']}일)")
+    print(f"■ 달 시드 {a.seed:,} · {a.days}일 (측정 {s['n_train']}일, 학습은 라벨 있는 모든 날)")
     print(f"  {' · '.join(f'{k} {v}일' for k, v in s['by_label'].items())}")
     print(f"  학습분 트럭 {s['trucks_train']:,}대 · 평균 부하 {s['mean_load_train']:,.0f}")
     print("  날별 부하: " + " ".join(
@@ -62,7 +64,7 @@ def main(argv=None) -> int:
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     run_month_training(seed=a.seed, n_days=a.days, labels_per_day=a.labels,
-                       out_dir=a.out, workers=a.workers, days=days)
+                       out_dir=a.out, workers=a.workers, days=days, init_seed=a.init_seed)
     print(f"■ 총 {(time.time() - t0) / 3600:.2f}시간 · 결과 {a.out}")
     return 0
 

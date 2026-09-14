@@ -25,16 +25,21 @@ from .guards import DIAGNOSTIC_BAND
 from .month_judge import JUDGE_ARMS, judge_month
 
 
-def _load_nets(path: str | None):
+def _load_nets(path: str | None, *, init_seed: int = 0, require_untrained: bool = False):
     """체크포인트에서 학생 두 망을 되살린다. 없으면 무작위 초기화(진단용)."""
     from ..actors import BuyerNet, SellerNet
+    import torch
 
+    torch.manual_seed(int(init_seed))
     s, b = SellerNet(), BuyerNet()
     if not path:
         return s, b, "무작위 초기화 (학습 전 — 진단용)"
-    import torch
-
     ck = torch.load(path, map_location="cpu", weights_only=True)
+    if require_untrained:
+        meta = ck.get("metadata", {})
+        if (meta.get("phase") != "untrained" or meta.get("optimizer_steps") != 0
+                or meta.get("fit_days") != [] or ck.get("it") != -1):
+            raise ValueError("--ckpt-init requires a recorded zero-update initialization; ckpt_000 is post-day.")
     s.load_state_dict(ck["seller"])
     b.load_state_dict(ck["buyer"])
     return s, b, f"{path} (회차 {ck.get('it', '?')})"
@@ -42,17 +47,20 @@ def _load_nets(path: str | None):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="yard_rl.v3.eval",
-                                 description="30일 무대 판정 (부하별 부호검정)")
+                                 description="연속 월 평가 (날짜별 기술통계, 독립 반복은 별도)")
     ap.add_argument("--seed", type=int, required=True, help="판정할 달의 시드")
     ap.add_argument("--ckpt", default=None, help="학생 체크포인트 .pt")
+    ap.add_argument("--init-seed", type=int, default=None,
+                    help="가중치 미지정 시 초기화 시드 (기본: --seed)")
     ap.add_argument("--days", type=int, default=30)
     ap.add_argument("--arms", default=",".join(JUDGE_ARMS),
                     help="RL 과 겨룰 팔 (쉼표 구분)")
     ap.add_argument("--workers", type=int, default=0,
                     help="팔을 나눌 프로세스 수 (0 = 팔 수만큼)")
     ap.add_argument("--ckpt-early", default=None,
-                    help="★학습 전 체크포인트 — 이것과 --ckpt 의 차이가 **순수 학습 효과**다 "
-                         "(둘 다 ε=0 이라 탐색이 안 섞인다)")
+                    help="이른 시점의 대조 가중치. ckpt_000은 첫날 학습 후이며 학습 전이 아니다")
+    ap.add_argument("--ckpt-init", default=None,
+                    help="실제 학습 전 대조 가중치 ckpt_init.pt (0회 갱신 기록을 검증)")
     ap.add_argument("--loads", default=None,
                     help="부하를 직접 지정 — `short`(9일) 또는 쉼표 목록")
     ap.add_argument("--out", default="outputs/v3/month-judge")
@@ -60,13 +68,18 @@ def main(argv=None) -> int:
 
     if (a.seed // 100_000) * 100_000 == DIAGNOSTIC_BAND:
         print("⚠️ 진단 대역 시드다 — 여기 나온 수치는 **논문 주장이 아니다**")
-    s_net, b_net, tag = _load_nets(a.ckpt)
+    init_seed = a.seed if a.init_seed is None else a.init_seed
+    s_net, b_net, tag = _load_nets(a.ckpt, init_seed=init_seed)
     print(f"■ 정책: {tag}")
-    extra = None
+    extra = {}
     if a.ckpt_early:
         es, eb, etag = _load_nets(a.ckpt_early)
-        extra = {"RL_EARLY": (es, eb)}
-        print(f"■ 학습 전 대조: {etag}")
+        extra["RL_EARLY"] = (es, eb)
+        print(f"■ 이른 시점 대조 (학습 전으로 간주하지 않음): {etag}")
+    if a.ckpt_init:
+        es, eb, etag = _load_nets(a.ckpt_init, require_untrained=True)
+        extra["RL_INIT"] = (es, eb)
+        print(f"■ 0회 갱신 학습 전 대조: {etag}")
 
     days = None
     if a.loads:
