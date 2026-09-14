@@ -11,7 +11,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-317 | Paper | **v3 리뷰 정밀 전략 — 예약 제약은 결론·후속연구** | 🟠 | 9/14 사용자 범위 수정. 초기 모형·거절 제거·미투입 장부 감사 반영, 실험 미착수. `777a33b`(정밀안) · [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [증거](../../outputs/reports/yr317_v3_review_strategy/README.md) |
-| YR-317-a | Exp | **리뷰 근거·통계 단위·초기 모형 정합** | 🟠 | 첫 순서: ckpt_000은 첫날 학습 후. 파생 시드·결과 재사용·누락 가드도 검사. [spec](../docs/dashboard-task-specs/YR-317-a-v3-review-evidence-audit.md) |
 | YR-317-g | Exp | **기존 수요 보존·미투입 이유 검증** | 🟠 | a 이후, 수락 비교에서 정책별 미투입 675~1,919대. 새 예약 제약을 추가하지 않고 기존 장부를 검사. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | a·g 이후, 공통 KEEP 대비 후보와 KEEP 목표의 상대 의존성을 분리 검증. 좌표 강제·교사 경계 감사 선행. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-317-d | Exp | **독립 월 반복·공간·수락망·학습 기여** | 🟠 | 게이트 통과 후 평가. 거절 제거와 망 완전 제거를 구분, 기존 네 비용 항 민감도·장기 운영 포함. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) |
