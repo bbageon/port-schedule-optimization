@@ -50,6 +50,8 @@ from ..world.integrated.terminal_stream import (DIURNAL_DAY_TOTAL,
                                                 _retime_vessels, allocate,
                                                 attach_bnct, diurnal_arrivals,
                                                 distribution_vector)
+from ..world.domain.enums import JobFlow
+from ..world.integrated.multiblock import CAPACITY_MARGIN
 from ..world.integrated.scenario_gen import trunc_normal
 from ..world.integrated.vessel import (VESSEL_CLASSES, VesselClass, port_time_s,
                                        sample_vessel_moves)
@@ -238,6 +240,30 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
     exit_rng = random.Random(f"h21d:exit:{seed}")
     resid_rng = random.Random(f"h21d:resid:{seed}")
     fallbacks = {b: 0 for b in layout.ids}
+    # ── ★반입 상한 — 블록이 받을 수 있는 만큼만 배정한다 ([[YR-316]] · 2026-09-15)
+    #
+    #   전에는 용량을 안 보고 배정했다. 반출 대상이 떨어진 블록은 반출 트럭이 반입으로
+    #   바뀌어(fallback) 반입이 몰리고, 장치율 0.65 인 하루 무대에서 그 블록이 넘친다.
+    #   넘친 트럭은 안내자가 `용량 부족` 으로 **거절해 조용히 사라졌다** — 판정 대역
+    #   9,000,000 에서 28일 중 13일이 전건 투입에 실패해 실격됐다([[YR-314]]).
+    #
+    #   엔진의 거절 조건은 `free_slots <= CAPACITY_MARGIN`,
+    #   `free_slots = 물리 − 적재 − 계획된 반입·양하 − 예약`. 반출·적하가 빠져나가며
+    #   자리를 되돌려주는 것은 **안 센다(보수적)** — 그래서 상한은
+    #       cap[b] = 물리 − 초기 적재 − 배경 양하 − CAPACITY_MARGIN
+    #   이고, 하루 반입이 이 안이면 어느 순간에도 거절이 안 난다.
+    #
+    #   ★난수 소비는 그대로다 — 흐름·규격·주행 추첨은 블록과 무관하게 같은 순서로
+    #     뽑힌다. 그래서 **넘치지 않는 날은 바이트 동일**하고, 넘치는 날만 넘친 트럭이
+    #     여유가 가장 큰 블록으로 간다(같은 여유면 배치 순서 — 결정론).
+    g = profile.block
+    phys = g.bay_count * g.row_count * g.tier_max
+    inbound_cap = {}
+    for b in layout.ids:
+        discharge = sum(1 for j in scns[b].jobs if j.flow == JobFlow.VESSEL_DISCHARGE)
+        inbound_cap[b] = max(0, phys - len(scns[b].containers) - discharge - CAPACITY_MARGIN)
+    n_in = {b: 0 for b in layout.ids}
+    redirects = {b: 0 for b in layout.ids}
     schedule = []
     for i, (t, bid) in enumerate(zip(times, slots)):
         sr = params.resid_travel_sigma_s
@@ -246,6 +272,14 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
         out = want_out and bool(free[bid])
         if want_out and not out:
             fallbacks[bid] += 1
+        if not out:
+            if n_in[bid] >= inbound_cap[bid]:
+                best = max(layout.ids, key=lambda b: (inbound_cap[b] - n_in[b],
+                                                      -layout.ids.index(b)))
+                if inbound_cap[best] - n_in[best] > 0:
+                    redirects[bid] += 1
+                    bid = best
+            n_in[bid] += 1
         schedule.append({
             "job_id": f"{bid}:D-{i:05d}", "block": bid,
             "arrival_s": round(t, 3),
@@ -272,6 +306,10 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
             "sim_end_s": obs.observe_s + drain_s,
             "flow_fallbacks": fallbacks,
             "flow_fallbacks_total": sum(fallbacks.values()),
+            #: [[YR-316]] — 용량 때문에 다른 블록으로 돌린 반입 수 (블록별 · 합계) 와 상한
+            "capacity_redirects": redirects,
+            "capacity_redirects_total": sum(redirects.values()),
+            "inbound_cap": inbound_cap,
             "observation": obs.as_dict(), "layout": layout.as_dict(),
             "mode": "diurnal_24h_v3"}
 
