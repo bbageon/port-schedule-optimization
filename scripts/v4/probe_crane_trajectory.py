@@ -34,10 +34,12 @@ def main(argv=None) -> int:
     ap.add_argument("--ckpt-dir", required=True)
     ap.add_argument("--load", type=int, default=7_500)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--every", type=int, default=1,
+                    help="체크포인트를 N개마다 하나만 — 붐비는 부하는 한 점에 5분이라 전수가 비싸다")
     a = ap.parse_args(argv)
 
     d = Path(a.ckpt_dir)
-    ckpts = sorted(d.glob("crane_*.pt"))
+    ckpts = sorted(d.glob("crane_*.pt"))[::max(1, a.every)]
     if not ckpts:
         raise SystemExit(f"체크포인트가 없다: {d}")
     #: ★고정 평가일과 **같은 시드**를 쓴다 — 다른 날을 쓰면 5회차 지점 값과 못 잇는다
