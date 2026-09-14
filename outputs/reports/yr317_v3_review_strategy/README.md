@@ -17,5 +17,19 @@
   전체 board 통과를 주장하지 않는다. 기존 이력은 이번 문서 작업에서 변경하지 않았다.
 - 완료 전 검사 범위: 신규 row/spec 일치·상대 링크·변경 문서 줄 수·원자료 합계·공백 오류.
 - 검사 명령: `python outputs/reports/yr317_v3_review_strategy/validate.py`.
-- [검사 결과](validation.json): Markdown 14개·row/spec 7쌍·원자료 해시 29개, 지적 0건.
+- 최초 작성 검증: Markdown 14개·row/spec 7쌍·원자료 해시 29개, 지적 0건. [현재 검사 결과](validation.json).
 - 전략 산출물 커밋 `2480ba3`을 origin에 push했고 parent spec·Dashboard에 같은 증거를 기록했다.
+
+## 사용자 범위 수정과 정밀 검토
+
+- [현행 전략](../../../.claude/docs/strategy-history/2026-09-14-v3-review-refined-strategy.md).
+- [전체 후보 검증](../../../.claude/docs/strategy-history/2026-09-14-v3-review-ranking-detail.md) · [반복·제거 비교](../../../.claude/docs/strategy-history/2026-09-14-v3-review-evaluation-detail.md).
+- 예약 정원·변경 부담은 결론·제약층 필요성·후속연구로 이관했다. 별도 YR-317-g는 기존 수요 보존 검사다.
+- 읽기 전용 재검토 명령: `python outputs/reports/yr317_v3_review_strategy/refine_audit.py`.
+- [정밀 감사 결과](refinement-audit.json): 코드·원자료 39개 해시와 함수 위치, 미투입·비용 항 합계.
+- ckpt_000은 첫날 라벨 55건으로 학습한 뒤 저장됐다. 진짜 초기 모형과 구별해야 한다.
+- 수락망 비교의 미투입 집계는 전체 745·거절 제거 675·재배치 없음 1,919대다. 원인·비용 영향은 미확인이다.
+- NOVETO는 망의 거절만 끄고 점수에 의한 중앙 정렬은 남긴다. 전체 망 제거의 근거로 쓰지 않는다.
+- 변경 후보의 목표는 공통 KEEP 대비 차이의 절반이다. 초기의 임의 a-b/b-c 설명을 실제 v3 구조로 적용하지 않는다.
+- 신규 시뮬레이션·재학습·원고 편집은 0회다. 코드 실행 경로를 수정하지 않았다.
+- 현행 검증은 Markdown 18개·row/spec 8쌍·고유 원자료/코드 해시 50개를 대상으로 한다.

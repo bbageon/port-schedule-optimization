@@ -33,7 +33,7 @@ def main() -> None:
     boards = {p.name: p.read_text(encoding="utf-8-sig").splitlines()
               for p in (ROOT / ".claude/Dashboard").glob("*.md") if p.name != "README.md"}
     for spec in specs:
-        task = re.match(r"YR-317(?:-[a-f](?=-))?", spec.name).group(0)
+        task = re.match(r"YR-317(?:-[a-g](?=-))?", spec.name).group(0)
         matches = [(state, line) for state, lines in boards.items() for line in lines
                    if re.match(r"\| " + re.escape(task) + r" \|", line)]
         if len(matches) != 1 or matches[0][0] != "backlog.md":
@@ -42,15 +42,22 @@ def main() -> None:
             failures.append(f"Spec link: {task}")
         if "**상태**: backlog" not in spec.read_text(encoding="utf-8"):
             failures.append(f"Spec state: {task}")
-    snapshot = json.loads((REPORT / "snapshot.json").read_text(encoding="utf-8"))
-    for source in snapshot["sources"]:
-        actual = hashlib.sha256((ROOT / source["path"]).read_bytes()).hexdigest()
-        if actual != source["sha256"]:
-            failures.append(f"Source hash: {source['path']}")
+    sources = {}
+    for name in ["snapshot.json", "refinement-audit.json"]:
+        snapshot = json.loads((REPORT / name).read_text(encoding="utf-8"))
+        for source in snapshot["sources"]:
+            path, expected = source["path"], source["sha256"]
+            if path in sources and sources[path] != expected:
+                failures.append(f"Conflicting source versions: {path}")
+            sources[path] = expected
+    for path, expected in sources.items():
+        actual = hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+        if actual != expected:
+            failures.append(f"Source hash: {path}")
     result = {
         "scope": "YR-317 strategy documents and new rows only",
         "markdown_files_checked": len(files), "row_specs_checked": len(specs),
-        "source_hashes_checked": len(snapshot["sources"]), "failures": failures,
+        "source_hashes_checked": len(sources), "failures": failures,
         "new_simulations": 0,
         "global_dashboard_audit": "not claimed; existing ID/status/length issues documented",
     }

@@ -1,0 +1,1051 @@
+{
+  "kind": "read_only_refinement_audit",
+  "new_simulations": 0,
+  "git_head": "8a061e85fbf467fef18ba59df6573733c61f9a5f",
+  "findings": {
+    "early_checkpoint": {
+      "file": "outputs/v3/month-02/ckpt_000.pt",
+      "interpretation": "saved after the first day's fit, not an untrained initialization",
+      "history_first_it": 0,
+      "first_day_labels": 55,
+      "first_day_seller_loss": 0.10710979253053665,
+      "first_day_buyer_loss": 0.34908658266067505,
+      "training_hours_from_history": 17.79135699298647
+    },
+    "ranking_scope": {
+      "seller_counterfactual": "KEEP versus one SELL coordinate",
+      "sell_target": "(cost(SELL coordinate) - cost(KEEP)) / (2 * ADV_SCALE)",
+      "keep_target": "depends on the paired SELL coordinate",
+      "noveto": "always BUY but still runs BuyerNet and returns its BUY score",
+      "resolver": "sorts accepted offers by predicted_phi then deterministic offer key",
+      "arbitrary_coordinate_override": "not provided by current KEEP/SELL forcing API"
+    },
+    "measurement_gaps": [
+      "month judge does not save MonthResult admitted/skipped totals or skip reasons",
+      "old arm files can lack all per-day detailed fields",
+      "cached arm files are selected by arm label without a run-contract hash check",
+      "month base seed + 1000*(day+1) can overlap if month bases differ by 1000"
+    ]
+  },
+  "observed_month_data": {
+    "judge-consent": {
+      "NO_REALLOC": {
+        "measured_days": 28,
+        "truck_skipped": 1919,
+        "n_censored": 0,
+        "n_trucks": 201581,
+        "cost_terms_krw": {
+          "c_wait": 11600970671.398306,
+          "c_move": 20347031.25,
+          "c_rehandle": 345718000.0,
+          "c_vessel": 179848487.63865715
+        }
+      },
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 745,
+        "n_censored": 0,
+        "n_trucks": 202755,
+        "cost_terms_krw": {
+          "c_wait": 9412547644.1791,
+          "c_move": 20924177.083333332,
+          "c_rehandle": 345616000.0,
+          "c_vessel": 145586995.21729463
+        }
+      },
+      "RL_NOVETO": {
+        "measured_days": 28,
+        "truck_skipped": 675,
+        "n_censored": 0,
+        "n_trucks": 202825,
+        "cost_terms_krw": {
+          "c_wait": 9705841816.466618,
+          "c_move": 21019402.083333332,
+          "c_rehandle": 349468000.0,
+          "c_vessel": 143252687.0793144
+        }
+      }
+    },
+    "env-quiet": {
+      "NO_REALLOC": {
+        "measured_days": 28,
+        "truck_skipped": 502,
+        "n_censored": 0,
+        "n_trucks": 151498,
+        "cost_terms_krw": {
+          "c_wait": 5924563749.755376,
+          "c_move": 18226975.0,
+          "c_rehandle": 300756000.0,
+          "c_vessel": 139190956.85428134
+        }
+      },
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 650,
+        "n_censored": 0,
+        "n_trucks": 151350,
+        "cost_terms_krw": {
+          "c_wait": 5120677650.2585335,
+          "c_move": 18442260.416666668,
+          "c_rehandle": 300400000.0,
+          "c_vessel": 120434730.3236153
+        }
+      },
+      "RL_EARLY": {
+        "measured_days": 28,
+        "truck_skipped": 395,
+        "n_censored": 0,
+        "n_trucks": 151605,
+        "cost_terms_krw": {
+          "c_wait": 5288659904.7052555,
+          "c_move": 18528141.666666668,
+          "c_rehandle": 304730000.0,
+          "c_vessel": 131191136.68081774
+        }
+      },
+      "RL_SPACE": {
+        "measured_days": 28,
+        "truck_skipped": 583,
+        "n_censored": 0,
+        "n_trucks": 151417,
+        "cost_terms_krw": {
+          "c_wait": 5721608276.919689,
+          "c_move": 18174487.5,
+          "c_rehandle": 298864000.0,
+          "c_vessel": 118032182.67749861
+        }
+      },
+      "RL_TIME": {
+        "measured_days": 28,
+        "truck_skipped": 506,
+        "n_censored": 0,
+        "n_trucks": 151494,
+        "cost_terms_krw": {
+          "c_wait": 5371968446.905294,
+          "c_move": 18435381.25,
+          "c_rehandle": 303078000.0,
+          "c_vessel": 141885677.4688232
+        }
+      }
+    },
+    "env-mixed": {
+      "NO_REALLOC": {
+        "measured_days": 28,
+        "truck_skipped": 631,
+        "n_censored": 0,
+        "n_trucks": 197369,
+        "cost_terms_krw": {
+          "c_wait": 13576286460.2811,
+          "c_move": 20259010.416666668,
+          "c_rehandle": 338790000.0,
+          "c_vessel": 189724343.57311222
+        }
+      },
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 1047,
+        "n_censored": 0,
+        "n_trucks": 196953,
+        "cost_terms_krw": {
+          "c_wait": 11047060193.171026,
+          "c_move": 20477843.75,
+          "c_rehandle": 343860000.0,
+          "c_vessel": 162878846.18488127
+        }
+      },
+      "RL_EARLY": {
+        "measured_days": 28,
+        "truck_skipped": 651,
+        "n_censored": 0,
+        "n_trucks": 197353,
+        "cost_terms_krw": {
+          "c_wait": 12544627914.818468,
+          "c_move": 20718750.0,
+          "c_rehandle": 345532000.0,
+          "c_vessel": 171799761.41346657
+        }
+      },
+      "RL_SPACE": {
+        "measured_days": 28,
+        "truck_skipped": 643,
+        "n_censored": 0,
+        "n_trucks": 197357,
+        "cost_terms_krw": {
+          "c_wait": 16000310579.407906,
+          "c_move": 20146750.0,
+          "c_rehandle": 335908000.0,
+          "c_vessel": 164453464.20487824
+        }
+      },
+      "RL_TIME": {
+        "measured_days": 28,
+        "truck_skipped": 623,
+        "n_censored": 0,
+        "n_trucks": 197377,
+        "cost_terms_krw": {
+          "c_wait": 11567647817.334984,
+          "c_move": 20504168.75,
+          "c_rehandle": 343574000.0,
+          "c_vessel": 188096694.11054543
+        }
+      }
+    },
+    "env-heavy": {
+      "NO_REALLOC": {
+        "measured_days": 28,
+        "truck_skipped": 1530,
+        "n_censored": 0,
+        "n_trucks": 267470,
+        "cost_terms_krw": {
+          "c_wait": 28898948747.108715,
+          "c_move": 22495497.916666668,
+          "c_rehandle": 369504000.0,
+          "c_vessel": 346396863.1277431
+        }
+      },
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 872,
+        "n_censored": 0,
+        "n_trucks": 268128,
+        "cost_terms_krw": {
+          "c_wait": 23886848828.387165,
+          "c_move": 23460666.666666668,
+          "c_rehandle": 388592000.0,
+          "c_vessel": 291244105.50306696
+        }
+      },
+      "RL_EARLY": {
+        "measured_days": 28,
+        "truck_skipped": 1104,
+        "n_censored": 0,
+        "n_trucks": 267896,
+        "cost_terms_krw": {
+          "c_wait": 25475335805.401985,
+          "c_move": 23028281.25,
+          "c_rehandle": 383902000.0,
+          "c_vessel": 309989533.062954
+        }
+      },
+      "RL_SPACE": {
+        "measured_days": 28,
+        "truck_skipped": 682,
+        "n_censored": 0,
+        "n_trucks": 268318,
+        "cost_terms_krw": {
+          "c_wait": 27798754345.32654,
+          "c_move": 22820227.083333332,
+          "c_rehandle": 376086000.0,
+          "c_vessel": 271607699.745339
+        }
+      },
+      "RL_TIME": {
+        "measured_days": 28,
+        "truck_skipped": 1536,
+        "n_censored": 0,
+        "n_trucks": 267464,
+        "cost_terms_krw": {
+          "c_wait": 24766896929.658627,
+          "c_move": 22859416.666666668,
+          "c_rehandle": 380444000.0,
+          "c_vessel": 354135405.67818105
+        }
+      }
+    },
+    "veto-quiet": {
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 650,
+        "n_censored": 0,
+        "n_trucks": 151350,
+        "cost_terms_krw": {
+          "c_wait": 5120677650.2585335,
+          "c_move": 18442260.416666668,
+          "c_rehandle": 300400000.0,
+          "c_vessel": 120434730.3236153
+        }
+      },
+      "RL_NOVETO": {
+        "measured_days": 28,
+        "truck_skipped": 592,
+        "n_censored": 0,
+        "n_trucks": 151408,
+        "cost_terms_krw": {
+          "c_wait": 5128305344.784785,
+          "c_move": 18377395.833333332,
+          "c_rehandle": 302160000.0,
+          "c_vessel": 122745621.42706555
+        }
+      }
+    },
+    "veto-mixed": {
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 1047,
+        "n_censored": 0,
+        "n_trucks": 196953,
+        "cost_terms_krw": {
+          "c_wait": 11047060193.171026,
+          "c_move": 20477843.75,
+          "c_rehandle": 343860000.0,
+          "c_vessel": 162878846.18488127
+        }
+      },
+      "RL_NOVETO": {
+        "measured_days": 28,
+        "truck_skipped": 989,
+        "n_censored": 415,
+        "n_trucks": 197016,
+        "cost_terms_krw": {
+          "c_wait": 14602215068.322819,
+          "c_move": 20395185.416666668,
+          "c_rehandle": 339676000.0,
+          "c_vessel": 165813099.0813524
+        }
+      }
+    },
+    "veto-heavy": {
+      "RL": {
+        "measured_days": 28,
+        "truck_skipped": 872,
+        "n_censored": 0,
+        "n_trucks": 268128,
+        "cost_terms_krw": {
+          "c_wait": 23886848828.387165,
+          "c_move": 23460666.666666668,
+          "c_rehandle": 388592000.0,
+          "c_vessel": 291244105.50306696
+        }
+      },
+      "RL_NOVETO": {
+        "measured_days": 28,
+        "truck_skipped": 818,
+        "n_censored": 0,
+        "n_trucks": 268182,
+        "cost_terms_krw": {
+          "c_wait": 24864975075.885742,
+          "c_move": 23058641.666666668,
+          "c_rehandle": 386530000.0,
+          "c_vessel": 298487062.6940818
+        }
+      }
+    }
+  },
+  "code_locations": {
+    "src/yard_rl/v3/train/labels.py": [
+      {
+        "name": "Sample",
+        "line": 30
+      },
+      {
+        "name": "LabelSet",
+        "line": 40
+      },
+      {
+        "name": "LabelCollector",
+        "line": 59
+      },
+      {
+        "name": "__len__",
+        "line": 47
+      },
+      {
+        "name": "tensors",
+        "line": 50
+      },
+      {
+        "name": "__init__",
+        "line": 67
+      },
+      {
+        "name": "add_seller",
+        "line": 70
+      },
+      {
+        "name": "add_buyer",
+        "line": 85
+      },
+      {
+        "name": "note_worlds",
+        "line": 98
+      },
+      {
+        "name": "result",
+        "line": 101
+      }
+    ],
+    "src/yard_rl/v3/train/month_loop.py": [
+      {
+        "name": "explore_of",
+        "line": 45
+      },
+      {
+        "name": "run_month_training",
+        "line": 53
+      },
+      {
+        "name": "_report_by_load",
+        "line": 154
+      },
+      {
+        "name": "on_fit",
+        "line": 79
+      },
+      {
+        "name": "on_day",
+        "line": 100
+      },
+      {
+        "name": "_live_so_far",
+        "line": 135
+      }
+    ],
+    "src/yard_rl/v3/train/loop.py": [
+      {
+        "name": "IterReport",
+        "line": 57
+      },
+      {
+        "name": "TrainState",
+        "line": 98
+      },
+      {
+        "name": "explore_at",
+        "line": 116
+      },
+      {
+        "name": "_collect",
+        "line": 124
+      },
+      {
+        "name": "_split_by_decision",
+        "line": 149
+      },
+      {
+        "name": "run_training",
+        "line": 170
+      },
+      {
+        "name": "line",
+        "line": 87
+      },
+      {
+        "name": "save",
+        "line": 106
+      }
+    ],
+    "src/yard_rl/v3/actors/seller.py": [
+      {
+        "name": "Seller",
+        "line": 28
+      },
+      {
+        "name": "__init__",
+        "line": 31
+      },
+      {
+        "name": "_space_coords",
+        "line": 48
+      },
+      {
+        "name": "_time_coords",
+        "line": 58
+      },
+      {
+        "name": "decide",
+        "line": 67
+      }
+    ],
+    "src/yard_rl/v3/actors/buyer.py": [
+      {
+        "name": "Buyer",
+        "line": 36
+      },
+      {
+        "name": "__init__",
+        "line": 39
+      },
+      {
+        "name": "respond",
+        "line": 52
+      }
+    ],
+    "src/yard_rl/v3/actors/resolver.py": [
+      {
+        "name": "Trade",
+        "line": 27
+      },
+      {
+        "name": "ResolveResult",
+        "line": 41
+      },
+      {
+        "name": "Resolver",
+        "line": 52
+      },
+      {
+        "name": "traded_edges",
+        "line": 47
+      },
+      {
+        "name": "__init__",
+        "line": 55
+      },
+      {
+        "name": "resolve",
+        "line": 61
+      },
+      {
+        "name": "keep_reason",
+        "line": 108
+      }
+    ],
+    "src/yard_rl/v3/stage/branchpool.py": [
+      {
+        "name": "BranchJob",
+        "line": 40
+      },
+      {
+        "name": "_init_worker",
+        "line": 53
+      },
+      {
+        "name": "run_job",
+        "line": 63
+      },
+      {
+        "name": "run_job_with",
+        "line": 68
+      },
+      {
+        "name": "default_workers",
+        "line": 89
+      },
+      {
+        "name": "BranchPool",
+        "line": 97
+      },
+      {
+        "name": "__init__",
+        "line": 104
+      },
+      {
+        "name": "__enter__",
+        "line": 115
+      },
+      {
+        "name": "__exit__",
+        "line": 122
+      },
+      {
+        "name": "submit",
+        "line": 126
+      },
+      {
+        "name": "_collect",
+        "line": 138
+      },
+      {
+        "name": "results",
+        "line": 142
+      },
+      {
+        "name": "close",
+        "line": 155
+      }
+    ],
+    "src/yard_rl/v3/stage/rollout.py": [
+      {
+        "name": "RolloutBudget",
+        "line": 65
+      },
+      {
+        "name": "BranchResult",
+        "line": 109
+      },
+      {
+        "name": "SnapshotRollout",
+        "line": 121
+      },
+      {
+        "name": "identity_check",
+        "line": 201
+      },
+      {
+        "name": "take",
+        "line": 79
+      },
+      {
+        "name": "peek",
+        "line": 88
+      },
+      {
+        "name": "taken",
+        "line": 100
+      },
+      {
+        "name": "seen",
+        "line": 104
+      },
+      {
+        "name": "__init__",
+        "line": 129
+      },
+      {
+        "name": "branch",
+        "line": 135
+      },
+      {
+        "name": "review",
+        "line": 176
+      }
+    ],
+    "src/yard_rl/v3/stage/month_run.py": [
+      {
+        "name": "DayReport",
+        "line": 64
+      },
+      {
+        "name": "MonthResult",
+        "line": 111
+      },
+      {
+        "name": "_MonthTape",
+        "line": 138
+      },
+      {
+        "name": "_MonthCtx",
+        "line": 166
+      },
+      {
+        "name": "_day_records",
+        "line": 180
+      },
+      {
+        "name": "_phi_of_day",
+        "line": 186
+      },
+      {
+        "name": "run_month",
+        "line": 193
+      },
+      {
+        "name": "as_dict",
+        "line": 106
+      },
+      {
+        "name": "train_days",
+        "line": 127
+      },
+      {
+        "name": "by_load",
+        "line": 130
+      },
+      {
+        "name": "__init__",
+        "line": 141
+      },
+      {
+        "name": "snap",
+        "line": 145
+      },
+      {
+        "name": "read",
+        "line": 149
+      },
+      {
+        "name": "diff",
+        "line": 156
+      },
+      {
+        "name": "vessel_idle",
+        "line": 176
+      },
+      {
+        "name": "on_decision",
+        "line": 267
+      },
+      {
+        "name": "wants_epoch",
+        "line": 283
+      },
+      {
+        "name": "_near_keys",
+        "line": 291
+      },
+      {
+        "name": "_near_records",
+        "line": 310
+      },
+      {
+        "name": "_near_orders",
+        "line": 314
+      },
+      {
+        "name": "open_teacher",
+        "line": 328
+      },
+      {
+        "name": "close_teacher",
+        "line": 366
+      },
+      {
+        "name": "open_day",
+        "line": 406
+      },
+      {
+        "name": "close_day",
+        "line": 426
+      },
+      {
+        "name": "review",
+        "line": 462
+      }
+    ],
+    "src/yard_rl/v3/stage/orders.py": [
+      {
+        "name": "build_stage",
+        "line": 34
+      },
+      {
+        "name": "orders_from_schedule",
+        "line": 71
+      },
+      {
+        "name": "V3Announcer",
+        "line": 93
+      },
+      {
+        "name": "__init__",
+        "line": 103
+      },
+      {
+        "name": "clone_fresh",
+        "line": 120
+      },
+      {
+        "name": "window",
+        "line": 132
+      },
+      {
+        "name": "review",
+        "line": 148
+      }
+    ],
+    "src/yard_rl/v3/stage/month.py": [
+      {
+        "name": "DayPlan",
+        "line": 77
+      },
+      {
+        "name": "plan_month",
+        "line": 102
+      },
+      {
+        "name": "plan_days",
+        "line": 144
+      },
+      {
+        "name": "summarize",
+        "line": 157
+      },
+      {
+        "name": "prune_completed",
+        "line": 171
+      },
+      {
+        "name": "job_count",
+        "line": 219
+      },
+      {
+        "name": "ledger_load",
+        "line": 224
+      },
+      {
+        "name": "build_month",
+        "line": 238
+      },
+      {
+        "name": "plan_month_vessels",
+        "line": 285
+      },
+      {
+        "name": "truck_net_by_block",
+        "line": 342
+      },
+      {
+        "name": "vessel_meta",
+        "line": 364
+      },
+      {
+        "name": "month_vessel_idle",
+        "line": 369
+      },
+      {
+        "name": "retire_done_vessels",
+        "line": 409
+      },
+      {
+        "name": "make_retarget",
+        "line": 457
+      },
+      {
+        "name": "t1",
+        "line": 88
+      },
+      {
+        "name": "is_train",
+        "line": 92
+      },
+      {
+        "name": "as_dict",
+        "line": 96
+      },
+      {
+        "name": "add",
+        "line": 387
+      },
+      {
+        "name": "pick",
+        "line": 474
+      }
+    ],
+    "src/yard_rl/v3/eval/month_judge.py": [
+      {
+        "name": "sign_test",
+        "line": 39
+      },
+      {
+        "name": "ArmMonth",
+        "line": 61
+      },
+      {
+        "name": "_day_row",
+        "line": 89
+      },
+      {
+        "name": "_run_arm",
+        "line": 93
+      },
+      {
+        "name": "judge_month",
+        "line": 114
+      },
+      {
+        "name": "_log_table",
+        "line": 276
+      },
+      {
+        "name": "_load",
+        "line": 157
+      },
+      {
+        "name": "_save",
+        "line": 172
+      },
+      {
+        "name": "_slice",
+        "line": 235
+      },
+      {
+        "name": "_rows",
+        "line": 284
+      }
+    ],
+    "src/yard_rl/v3/eval/__main__.py": [
+      {
+        "name": "_load_nets",
+        "line": 28
+      },
+      {
+        "name": "main",
+        "line": 43
+      }
+    ],
+    "src/yard_rl/v3/reward/krw.py": [
+      {
+        "name": "vessel_krw_per_hour",
+        "line": 52
+      },
+      {
+        "name": "vessel_rho",
+        "line": 57
+      },
+      {
+        "name": "truck_wait_krw",
+        "line": 62
+      },
+      {
+        "name": "yc_move_krw",
+        "line": 77
+      },
+      {
+        "name": "rehandle_krw",
+        "line": 85
+      },
+      {
+        "name": "vessel_idle_krw",
+        "line": 90
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "src/yard_rl/v3/train/labels.py",
+      "sha256": "f79b7d82ef69c0d3eb78fd90b08c8ce4ecd6d1e07c2e3f48b2c4bf44fd5bd5bb"
+    },
+    {
+      "path": "src/yard_rl/v3/train/month_loop.py",
+      "sha256": "3115bf836633b8118195bb23081e3f6f15420cfb12c1b6214d26e8de419ad2b7"
+    },
+    {
+      "path": "src/yard_rl/v3/train/loop.py",
+      "sha256": "be5343fcb30f0a709e007ad5fa6c668a580c4fc1c420913656564649c55bfaac"
+    },
+    {
+      "path": "src/yard_rl/v3/actors/seller.py",
+      "sha256": "5db3c4cc8a69d00b2ccdfeca67834cd9dd78a67cf9917e070d450bd9e72c1578"
+    },
+    {
+      "path": "src/yard_rl/v3/actors/buyer.py",
+      "sha256": "d895fd4e11babc74f6c01c965d1e52ba9d491536f4a0a66653fa26d3c974e320"
+    },
+    {
+      "path": "src/yard_rl/v3/actors/resolver.py",
+      "sha256": "d1ba1eaee5f60cae2f0eef7e76f44f79f9dc886eb755f81bcaf7637cf82cacff"
+    },
+    {
+      "path": "src/yard_rl/v3/stage/branchpool.py",
+      "sha256": "e2128b0f459fbb479f37dafb75de6ae881761539ba942474607e171d502873ce"
+    },
+    {
+      "path": "src/yard_rl/v3/stage/rollout.py",
+      "sha256": "ba0b863cfae874d9e08ca8d1b8f8ebab553562d7d263289bb2d618cb62362103"
+    },
+    {
+      "path": "src/yard_rl/v3/stage/month_run.py",
+      "sha256": "23291a1d4a3c1e0623019b1cd715bfa7f7b024ddd78b6a87b1b707062f52d594"
+    },
+    {
+      "path": "src/yard_rl/v3/stage/orders.py",
+      "sha256": "f8cf2fda21dda0d25beba78e4aba02ea394ec37d5d652821eae36603a1c550c8"
+    },
+    {
+      "path": "src/yard_rl/v3/stage/month.py",
+      "sha256": "6165641443bd2f66a075cc7e6327985da5971d925865978699806d4cd7c68162"
+    },
+    {
+      "path": "src/yard_rl/v3/eval/month_judge.py",
+      "sha256": "cd0a7b401b2cd262f5309b8da0c430c8fd717dbf40f5c971dd94a8d36fda0297"
+    },
+    {
+      "path": "src/yard_rl/v3/eval/__main__.py",
+      "sha256": "ce2769c6916de69ffc51dbce6d7cedcf042d8406fa669e77712add938c6bedcf"
+    },
+    {
+      "path": "src/yard_rl/v3/reward/krw.py",
+      "sha256": "8526082bc0e59efd9fdfa18563ae8610cfbec2b6f8d01048abd552b2821f4492"
+    },
+    {
+      "path": "outputs/v3/month-02/history.json",
+      "sha256": "66f90d208471f820af6212034661f1001714a8b576d152263df015df2d6b58f3"
+    },
+    {
+      "path": "outputs/v3/judge-consent/arms/arm_NO_REALLOC.json",
+      "sha256": "3306ccfb13c1a7123727579622c05e3c56003ba297733f32983070fef6db2660"
+    },
+    {
+      "path": "outputs/v3/judge-consent/arms/arm_RL.json",
+      "sha256": "bc1ceef53dc384a56cff3f7fcb686c68eade7893037d570fa1ce4cb36d2f6fa1"
+    },
+    {
+      "path": "outputs/v3/judge-consent/arms/arm_RL_NOVETO.json",
+      "sha256": "21633a59daefe802740c385dc50749f9067b1f9966b8fa78d5619a5887b5d2e0"
+    },
+    {
+      "path": "outputs/v3/env-quiet/arms/arm_NO_REALLOC.json",
+      "sha256": "e31d428add2642f77e5addc83ad81c3982efc0debb9b88f0639b947191e80586"
+    },
+    {
+      "path": "outputs/v3/env-quiet/arms/arm_RL.json",
+      "sha256": "9b39232d9c1e9b4995de6ac72bf840d488660f21bbfffc32e3f4b2067b300957"
+    },
+    {
+      "path": "outputs/v3/env-quiet/arms/arm_RL_EARLY.json",
+      "sha256": "66cc09a215614fb9b4c505642e52502ad71069bab27bc1d1f9302797b196e837"
+    },
+    {
+      "path": "outputs/v3/env-quiet/arms/arm_RL_SPACE.json",
+      "sha256": "e809cc0e286fb72fb882b50877688fcbba755288f66026f3598886114f21dcaa"
+    },
+    {
+      "path": "outputs/v3/env-quiet/arms/arm_RL_TIME.json",
+      "sha256": "31b8883edefc717c44878f80b7258b5114d39680d16a577eed5731834c1fcf44"
+    },
+    {
+      "path": "outputs/v3/env-mixed/arms/arm_NO_REALLOC.json",
+      "sha256": "ebcb84e3d6637b71aa85b5da4c5e1de782e75d2190b1be5d0420d91403b83dbd"
+    },
+    {
+      "path": "outputs/v3/env-mixed/arms/arm_RL.json",
+      "sha256": "a384cdc7365df6391344f25c7460d60386472b909a3c96f61cf440cc29d5ad0d"
+    },
+    {
+      "path": "outputs/v3/env-mixed/arms/arm_RL_EARLY.json",
+      "sha256": "2b3742c79705f7861caa10b98fd7dfcac25a90ba3df36fcddcc43e3f63c7fe85"
+    },
+    {
+      "path": "outputs/v3/env-mixed/arms/arm_RL_SPACE.json",
+      "sha256": "910a62525ad26b5ac20dda107b90737fdfaa99612fa5b1dd2dd0a2d214aeb0f3"
+    },
+    {
+      "path": "outputs/v3/env-mixed/arms/arm_RL_TIME.json",
+      "sha256": "5daa6ee5936ad4cbefc25a6305c3c6ef6aaa3b8e809b52ff673acfd890a11820"
+    },
+    {
+      "path": "outputs/v3/env-heavy/arms/arm_NO_REALLOC.json",
+      "sha256": "d30faf57be7140a84feee046d217a6ac39ac2df40060472bd9dbe273bcebee4d"
+    },
+    {
+      "path": "outputs/v3/env-heavy/arms/arm_RL.json",
+      "sha256": "f8b10dc5fb92af7a92b9568b380ff9345862114f0604f2a090a53c942624cae4"
+    },
+    {
+      "path": "outputs/v3/env-heavy/arms/arm_RL_EARLY.json",
+      "sha256": "47092e8c62831d90502cd88f525ef27ac43be4ce8fc3f79780bc396cd72e8281"
+    },
+    {
+      "path": "outputs/v3/env-heavy/arms/arm_RL_SPACE.json",
+      "sha256": "f33ff191f3b573c0f9c7b3a0f82ada66e06554761ad66c99a225c93ac8fcad3a"
+    },
+    {
+      "path": "outputs/v3/env-heavy/arms/arm_RL_TIME.json",
+      "sha256": "db0ffe2aa2f45bc4aa5eb9dbe960202dae687be22edbbe9d836853cb032dd6e2"
+    },
+    {
+      "path": "outputs/v3/veto-quiet/arms/arm_RL.json",
+      "sha256": "9b39232d9c1e9b4995de6ac72bf840d488660f21bbfffc32e3f4b2067b300957"
+    },
+    {
+      "path": "outputs/v3/veto-quiet/arms/arm_RL_NOVETO.json",
+      "sha256": "dbe0acc57ac122f00f72c952de7ed9313a57a34b336b2a7a2173965e04674034"
+    },
+    {
+      "path": "outputs/v3/veto-mixed/arms/arm_RL.json",
+      "sha256": "a384cdc7365df6391344f25c7460d60386472b909a3c96f61cf440cc29d5ad0d"
+    },
+    {
+      "path": "outputs/v3/veto-mixed/arms/arm_RL_NOVETO.json",
+      "sha256": "b6823b3e8262ce0ca3aa220895840fe247d8960fc369ddab99b740e17dcd910c"
+    },
+    {
+      "path": "outputs/v3/veto-heavy/arms/arm_RL.json",
+      "sha256": "f8b10dc5fb92af7a92b9568b380ff9345862114f0604f2a090a53c942624cae4"
+    },
+    {
+      "path": "outputs/v3/veto-heavy/arms/arm_RL_NOVETO.json",
+      "sha256": "0f331328645b79f7c81b7a127795ec2ce377a7ea0dde3b772dae4c24a194d1d9"
+    }
+  ],
+  "limitations": "Skip reasons and their cost impact cannot be recovered from these aggregate files."
+}
