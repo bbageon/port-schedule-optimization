@@ -1,0 +1,59 @@
+{
+  "schema": "yr317.v3.audit-gates.v1",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "Independent monthly replication has not been established.",
+      "reasons": [
+        "Daily observations within one continuous run are dependent."
+      ],
+      "evidence": {
+        "audit_path": "outputs/reports/yr317_v3_review_strategy/refinement-audit.json",
+        "audit_sha256": "73700ace0aebe87069cb08714f1c7b1f3eabc5bd4f75688bf3d9e03371a60e7f",
+        "source_commit": "73a66a9504dded094915ca50c85e71e5623f7224",
+        "scope": "v3 manuscript review; read-only audit; no new performance experiment"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "The initialization claim and result reuse contract do not match v3 code.",
+      "reasons": [
+        "ckpt_000 follows day-zero fitting; true initialization was not saved.",
+        "Cached arm files do not validate seed, configuration or network weights.",
+        "Missing legacy guard fields default to zero.",
+        "The submitted PDF/source identity is unresolved (YR-298)."
+      ],
+      "evidence": {
+        "audit_path": "outputs/reports/yr317_v3_review_strategy/refinement-audit.json",
+        "audit_sha256": "73700ace0aebe87069cb08714f1c7b1f3eabc5bd4f75688bf3d9e03371a60e7f",
+        "source_commit": "73a66a9504dded094915ca50c85e71e5623f7224",
+        "scope": "v3 manuscript review; read-only audit; no new performance experiment"
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "INCONCLUSIVE",
+      "summary": "Existing truck admission accounting needs verification.",
+      "reasons": [
+        "Skipped demand differs across policies; per-request reasons are absent from arm files.",
+        "No claim of real-terminal feasibility is authorized by these synthetic results."
+      ],
+      "evidence": {
+        "audit_path": "outputs/reports/yr317_v3_review_strategy/refinement-audit.json",
+        "audit_sha256": "73700ace0aebe87069cb08714f1c7b1f3eabc5bd4f75688bf3d9e03371a60e7f",
+        "source_commit": "73a66a9504dded094915ca50c85e71e5623f7224",
+        "scope": "v3 manuscript review; read-only audit; no new performance experiment"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}
