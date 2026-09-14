@@ -18,4 +18,4 @@
 - 완료 전 검사 범위: 신규 row/spec 일치·상대 링크·변경 문서 줄 수·원자료 합계·공백 오류.
 - 검사 명령: `python outputs/reports/yr317_v3_review_strategy/validate.py`.
 - [검사 결과](validation.json): Markdown 14개·row/spec 7쌍·원자료 해시 29개, 지적 0건.
-- 원격 반영 커밋은 parent spec과 Dashboard evidence에 후속 기록한다.
+- 전략 산출물 커밋 `2480ba3`을 origin에 push했고 parent spec·Dashboard에 같은 증거를 기록했다.

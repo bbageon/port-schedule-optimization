@@ -10,7 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-317 | Paper | **v3 리뷰 대응 — 전략 작성·개정 실험 미착수** | 🟠 | 심사위원 1~3 대응. 기존 원자료 재합산, 독립성·운영 제약·순위·기여·사용자 맥락으로 분리. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) |
+| YR-317 | Paper | **v3 리뷰 대응 — 전략 작성·개정 실험 미착수** | 🟠 | 심사위원 1~3 대응. 기존 원자료 재합산, 독립성·운영 제약·순위·기여·사용자 맥락으로 분리. `2480ba3` · [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [증거](../../outputs/reports/yr317_v3_review_strategy/README.md) |
 | YR-317-a | Exp | **리뷰 근거·통계 단위 정합** | 🟠 | 첫 순서: 제출본·코드·시드·원자료·기존 판정을 맞추는 신뢰성 보정. [spec](../docs/dashboard-task-specs/YR-317-a-v3-review-evidence-audit.md) |
 | YR-317-b | Sim | **예약 정원·변경 가능 시간·외부 비용** | 🟠 | a 이후, 시간 조정 이득의 운영 전제를 한 축씩 검증. [spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) |
 | YR-317-c | Exp | **전체 후보 순위와 선택 손실 검사** | 🟠 | a·b 이후, 쌍 비교 학습이 실제 전체 선택으로 이어지는지 검사. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
