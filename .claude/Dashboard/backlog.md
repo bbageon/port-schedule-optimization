@@ -13,7 +13,6 @@
 | YR-317 | Paper | **v3 개정 4일 마감 — 핵심 검증·원고 통합 우선** | 🟠 | 9/15 사용자 지시, 9/19 KST 목표. 새 학습·독립 확증 미실행, 실측 예산으로 실행 전 표본 고정. 과거 외부 대기 합산과 현 v3 미연결 구분. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [전략·증거](../../docs/paper/v3/paper-revision/README.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-317-d | Exp | **독립 월 반복·부하별 공간·수락망 기여** | 🟠 | 기존 낮은 부하 공간 이득·최고 부하 시간 우위 검산. 월 단위 통계·완전 수락망 제거·민감도 계획, 게이트 뒤 실행. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) |
-| YR-317-d1 | Data | **기존 합성곡선을 지키는 독립 30일 입력 구성** | 🟠 | 9/16 사용자 지시. 월·날짜·블록 파생 시드 중복을 막고 20개 입력을 고정·검증한다. 성능 평가와 구분. [spec](../docs/dashboard-task-specs/YR-317-d1-v3-independent-seed-bank.md) |
 | YR-317-e | Exp | **온라인 처리시간과 재현 명세** | 🟠 | 60초 검토·3시간 학습 관찰·30/90일 평가를 분리한 계측 계획 작성. 측정 미실행. [spec](../docs/dashboard-task-specs/YR-317-e-v3-review-runtime-reproduction.md) |
 | YR-317-h | Exp | **v3 기본 수평·수직 환경 정의·검증** | 🟠 | 두 기본 구조·경로·인계·자원 공유 정의 작성. 기존 1차원 배치와 구별, 혼합 제외, 환경 구현·평가는 이후. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) |
 | YR-301 | Sim | **[[YR-216]] 이연 상한이 죽은 코드** | ⚪ | `bridge.py:159` 의 `start > t + cf_horizon_s → break` 가 한 번도 안 걸린다 — 자격 창 1800초 + 이연 격자 900×8 = 최대 2.5시간인데 상한이 3시간이라 항상 더 크다. 해롭진 않지만 *이 가드가 지켜 준다* 는 잘못된 안심을 준다. [[YR-299]] B 감사에서 부수 발견. **주석으로 조건을 못 박는 것**을 권함(지우면 [[YR-216]] 사고가 재발). [spec](../docs/dashboard-task-specs/YR-301-dead-defer-cap.md) |

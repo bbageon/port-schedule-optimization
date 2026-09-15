@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-317-d1 | Data | **합성곡선 보존 독립 입력 20개월 구성 착수** | 🟠 | 2026-09-16 | 난수·곡선·무결성 검사 14개 통과. 기존 생성기 유지, 실제 입력 생성 후 고정하며 정책 평가는 별도다. [spec](../docs/dashboard-task-specs/YR-317-d1-v3-independent-seed-bank.md) |
 | YR-317-b | Paper | **현실 제약·외부 비용 범위 원고 초안 반영** | 🟠 | 2026-09-15 | 14쪽 부분 개정본·서술/보존 검사 13개 통과. 실제 제약 실험은 미수행, 전체 개정·분량 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
 | YR-317-f | UI | **TOS·올컨e 역할·업무 흐름 §3.5 추가** | 🟠 | 2026-09-15 | 운영자·운송사·운전자 사례 반영, 문헌 22건·인용 검사 통과. 현장·사용자 평가 없음, 전체 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-f-v3-review-hci-context.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
 | YR-317-g | Exp | **10일 재관측 종료·기록 대조 통과, 처리 계약 보정 남음** | 🟠 | 2026-09-15 | 9/15 22:37 세 정책 종료, 비용·행동 재현. 미투입 170/180/136건·선박 잔여 1,174/1,348/1,239건. 독립 반복 미착수. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [종료 결과](../../docs/paper/v3/paper-revision/13-재관측-종료결과.md) · [재검산](../../outputs/reports/yr317_v3_request_audit/replay-completion-verified.json) |
