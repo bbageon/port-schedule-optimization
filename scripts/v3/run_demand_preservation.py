@@ -111,6 +111,7 @@ def main():
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip():
         raise RuntimeError("Use a clean frozen checkout")
     if args.launch:
+        checkpoint_hash, prereg_hash = sha(args.checkpoint), sha(args.prereg)
         available = int(re.search(r"MemAvailable:\s+(\d+)", Path("/proc/meminfo").read_text()).group(1))
         if 3 * 3 * 1024**2 > .8 * available:
             raise RuntimeError("Three policy workers exceed the 80% memory budget")
@@ -121,7 +122,7 @@ def main():
                 cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
         save(args.out / "launch.json", {"at": now(), "pid": process.pid,
             "source_commit": source_commit(), "user_cpu_limit": 20, "active_policy_workers": 3,
-            "cpus": [0, 1, 2], "checkpoint_sha256": sha(args.checkpoint), "prereg_sha256": sha(args.prereg)})
+            "cpus": [0, 1, 2], "checkpoint_sha256": checkpoint_hash, "prereg_sha256": prereg_hash})
         print(json.dumps({"pid": process.pid, "out": str(args.out)}))
         return
     os.sched_setaffinity(0, set(range(20)))
