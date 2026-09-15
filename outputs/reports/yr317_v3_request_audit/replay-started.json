@@ -1,0 +1,102 @@
+{
+  "schema": "yr317.admission-replay-started.v1",
+  "verified_at": "2026-09-15T11:32:55.682857+00:00",
+  "state_at_verification": "running",
+  "phase": "full",
+  "full_launch": {
+    "started_at": "2026-09-15T11:32:05.509120+00:00",
+    "source_commit": "1b601c04a0ec5f779a875921dd37ee116b5cfa9a",
+    "workers": {
+      "NO_REALLOC": {
+        "pid": 13115,
+        "cpu": 0
+      },
+      "RL": {
+        "pid": 13116,
+        "cpu": 1
+      },
+      "RL_NOVETO": {
+        "pid": 13117,
+        "cpu": 2
+      }
+    }
+  },
+  "worker_affinity": {
+    "NO_REALLOC": "pid 13115's current affinity list: 0",
+    "RL": "pid 13116's current affinity list: 1",
+    "RL_NOVETO": "pid 13117's current affinity list: 2"
+  },
+  "v5_affinity": "pid 4583's current affinity list: 23",
+  "smoke_recording_passed": true,
+  "smoke": {
+    "NO_REALLOC": {
+      "trucks": {
+        "COMPLETED": 300
+      },
+      "vessel_work": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "elapsed_s": 47.22500233631581
+    },
+    "RL": {
+      "trucks": {
+        "COMPLETED": 300
+      },
+      "vessel_work": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "elapsed_s": 48.56467368360609
+    },
+    "RL_NOVETO": {
+      "trucks": {
+        "COMPLETED": 300
+      },
+      "vessel_work": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "elapsed_s": 48.26236255373806
+    }
+  },
+  "artifact_sha256": {
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/launch.json": "4f99b7285903e70c3824a8a4d2a2d3801470d0692cd098ce46850817003ba7a8",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/full/launch.json": "0633bdf077834b4b1815d0be947b093c532ff64c612959af7907037525df7f2c",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/smoke/summary.json": "1581b061103b24d2c1a62a9befb34c67f9822e804e09a33585a35a8e5d53438c",
+    "outputs/reports/yr317_v3_request_audit/replay-prereg.md": "36a61eb863df219cffa77ac19e75328f5955a337d94eb8781149e9144b1811d5",
+    "outputs/reports/yr317_v3_request_audit/replay-tests.json": "a7ec3e5c04a47ee88014f039460fb06a8650a4dc7bf080e883c7722c31753032",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/smoke/NO_REALLOC/manifest.json": "b551e6b3127a7f85e9a5077f04c668fc8c62b7619268094acd7804dd2c45dc24",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/smoke/RL/manifest.json": "b4505c8be913c56d5f768793d6a33263621bff0cff700e7ab007b45464d970a3",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/smoke/RL_NOVETO/manifest.json": "4d8b3190a9dd8283e6b3dc2e683980f28decb5beb8aca0833b773d756cbaa5e1",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/full/NO_REALLOC/manifest.json": "47c0cd8913069a2f863549eeb0fa0824dbe80c796de6aa5b135ba46caca515e1",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/full/RL/manifest.json": "b9dbc83b04f0fb29df81a74a63569807d4b1a70e159cfc43f677483b6d168223",
+    "outputs/reports/yr317_v3_request_audit/replay-1b601c0/full/RL_NOVETO/manifest.json": "de5eddca6a72a78661593c4634795a546759c6f2e1c622d91b2630c67c6f189c"
+  },
+  "performance_confirmed": false,
+  "new_training_runs": 0
+}
