@@ -1,0 +1,106 @@
+{
+  "schema": "yr317.descriptive-performance.v1",
+  "passed": true,
+  "scope": {
+    "diagnostic": "one reused seed 9500000, all 10 days (indices 0..9)",
+    "legacy": "original judge-30d, middle 28 days (indices 1..28)",
+    "cost": "existing terminal cost; skipped requests and external rescheduling costs excluded"
+  },
+  "diagnostic": {
+    "NO_REALLOC": {
+      "total_cost_krw": 4653268099.94026,
+      "components_krw": {
+        "c_wait": 4449909376.524424,
+        "c_move": 7203625.0,
+        "c_rehandle": 117728000.0,
+        "c_vessel": 78427098.41583629
+      },
+      "truck_requested": 69000,
+      "truck_completed": 68830,
+      "truck_skipped": 170,
+      "vessel_requested": 44322,
+      "vessel_admitted": 43394,
+      "vessel_not_admitted": 928,
+      "tracking_end_s": 871200.0,
+      "saving_krw": 0.0,
+      "saving_percent": 0.0
+    },
+    "RL": {
+      "total_cost_krw": 3849398791.8667264,
+      "components_krw": {
+        "c_wait": 3659524539.2445197,
+        "c_move": 7360532.291666667,
+        "c_rehandle": 119066000.0,
+        "c_vessel": 63447720.33053985
+      },
+      "truck_requested": 69000,
+      "truck_completed": 68820,
+      "truck_skipped": 180,
+      "vessel_requested": 44322,
+      "vessel_admitted": 43295,
+      "vessel_not_admitted": 1027,
+      "tracking_end_s": 871200.0,
+      "saving_krw": 803869308.0735335,
+      "saving_percent": 17.275370574153115
+    },
+    "RL_NOVETO": {
+      "total_cost_krw": 3943227566.98317,
+      "components_krw": {
+        "c_wait": 3756629144.2614994,
+        "c_move": 7373762.5,
+        "c_rehandle": 119206000.0,
+        "c_vessel": 60018660.22167055
+      },
+      "truck_requested": 69000,
+      "truck_completed": 68864,
+      "truck_skipped": 136,
+      "vessel_requested": 44322,
+      "vessel_admitted": 43267,
+      "vessel_not_admitted": 1055,
+      "tracking_end_s": 871200.0,
+      "saving_krw": 710040532.9570899,
+      "saving_percent": 15.258964618140217
+    }
+  },
+  "legacy": {
+    "NO_REALLOC": {
+      "total_cost_krw": 9995809196.761591,
+      "saving_krw": 0.0,
+      "saving_percent": 0.0
+    },
+    "RL": {
+      "total_cost_krw": 8524384604.0202055,
+      "saving_krw": 1471424592.7413855,
+      "saving_percent": 14.720414963683908
+    },
+    "RL_TIME": {
+      "total_cost_krw": 8652212605.860168,
+      "saving_krw": 1343596590.9014225,
+      "saving_percent": 13.441599018683913
+    },
+    "RL_SPACE": {
+      "total_cost_krw": 10126454146.595718,
+      "saving_krw": -130644949.83412743,
+      "saving_percent": -1.3069972351658468
+    }
+  },
+  "full_vs_no_veto": {
+    "saving_krw": 93828775.11644363,
+    "saving_percent_of_no_veto": 2.3794917620802916,
+    "saving_percentage_points_of_baseline": 2.016405956012898
+  },
+  "input_sha256": {
+    "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json": "b0c15ffa8ba26fd3642f74f949e00045dc0de5d3b5aefc854f6b159900f137fc",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+    "outputs/v3/judge-30d/arms/arm_NO_REALLOC.json": "946b67cc3d8cc8fcac3da1c11b364c60da786bcf357b3879642c10c849548545",
+    "outputs/v3/judge-30d/arms/arm_RL.json": "3e82f6b9dfd40380040db87303bce265508b615f25c89d88237fda9934ff77b9",
+    "outputs/v3/judge-30d/arms/arm_RL_TIME.json": "183a5229ab21068ed56e3b90c10c1da94a1a81624eb48ed4bff790cf78d7d9c2",
+    "outputs/v3/judge-30d/arms/arm_RL_SPACE.json": "f762f3b4c547c710742988cbf6b06f25311915d8eed7a13298353de9037fbd14"
+  },
+  "generator_sha256": "ee39a6baa8ce66b6ee11718b52b2adfb0011321dbac9bc05080577d7a82068fe",
+  "new_simulations": 0,
+  "new_training_runs": 0,
+  "performance_confirmed": false
+}
