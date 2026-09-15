@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/geonu/yr317-v3-demand-2e4caef/scripts/v3/run_demand_preservation.py", line 140, in <module>
+    main()
+  File "/home/geonu/yr317-v3-demand-2e4caef/scripts/v3/run_demand_preservation.py", line 110, in main
+    return child(args)
+           ^^^^^^^^^^^
+  File "/home/geonu/yr317-v3-demand-2e4caef/scripts/v3/run_demand_preservation.py", line 33, in child
+    result = run_one(args.arm, args.arm, seed, days, args, sha(args.checkpoint))
+                                                           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/geonu/yr317-v3-demand-2e4caef/scripts/v3/run_request_audit.py", line 26, in sha
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/geonu/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/home/geonu/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/geonu/yr317-v3-demand-2e4caef/outputs/v3/month-02/ckpt_029.pt'

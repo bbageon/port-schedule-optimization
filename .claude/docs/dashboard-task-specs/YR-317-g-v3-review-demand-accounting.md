@@ -86,3 +86,7 @@
 - `completion-gates.json`·`e8c1e89`에서 `authorize-next --target scenario_validity` 허용을 확인했다.
 - 별도 `PRESERVE` 모드: 통지 때의 부족으로 요청을 버리지 않고 접수하며, 미지정 반출·적하 작업은 실제 해제 이후 가용 재고에 연결한다. 원 도착·물량·비용·물리 서비스 제약은 유지한다.
 - [실행 전 고정](../../../outputs/reports/yr317_v3_demand_preservation/prereg.md). 기존 검사 39개와 추가 검사 7개를 통과했다. 300대 실제 연결 검사 후 같은 10일 세 정책 진단을 수행한다.
+- `2e4caef` 고정 코드에서 300대 연결 검사를 통과했다. 각 정책 트럭 300대·본선 7,022건 전부 완료, 미투입·잔여 0. 9/16 08:06 KST부터 같은 10일 진단 진행 중이다.
+- 고정 입력 20개월 전체를 다시 생성해 모든 내용 지문이 같음을 확인했다(4,038,000건). [입력 일치](../../../outputs/reports/yr317_v3_demand_preservation/input-equivalence-2e4caef.json).
+- 학습 분기 연결도 확인했다. 비교 세계 6개·사실 결정 일치 2/2·가중치 변경 없음. [결과](../../../outputs/reports/yr317_v3_demand_preservation/teacher-probe-2e4caef.json). 새 학습 결과로 보고하지 않는다.
+- [진행·해석](../../../docs/paper/v3/paper-revision/15-요청보존-보정검증.md). 최초 가중치 경로 오류와 연결검사 저장 형식 오류는 보존했고 원래 조건으로 재실행했다.
