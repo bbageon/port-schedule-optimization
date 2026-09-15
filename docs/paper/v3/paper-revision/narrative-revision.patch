@@ -1,0 +1,155 @@
+--- main.tex
++++ main-revised.tex
+@@ -1,3 +1,4 @@
++% Partial review draft: R1-2 and R3 prose only; remaining review items are unresolved.
+ % =====================================================================
+ %  제출본 (submission) — 영문 단일 파일, 목표 12쪽
+ %
+@@ -28,6 +29,8 @@
+ \usepackage{booktabs}
+ \usepackage{amsmath, amssymb}
+ \usepackage{array}
++\usepackage{url}
++\urlstyle{same}
+ \usepackage{caption}
+ \captionsetup{font=small}
+ \usepackage{marvosym}          % \Letter — 교신저자 표시
+@@ -84,9 +87,10 @@
+ congested days accounted for 90.5\% of the reduction. In a controlled
+ sweep in which congested days rose from 2 to 14 out of 28, the share of
+ spatial actions fell monotonically from 32\% to 12\%, and the day-level sign test
+-detected the gain from training only in the most congested environment. Arrival-time results assume no appointment-quota
+-limit and therefore bound the potential rather than an executable
+-schedule. These results suggest that spatio-temporal reallocation may be
++detected the gain from training only in the most congested environment. Arrival-time results assume unbounded appointment quotas and omit
++carrier-specific availability, minimum notification requirements, and
++rescheduling and external-waiting costs; they describe modelled terminal
++cost changes rather than validated operational savings. These results suggest that spatio-temporal reallocation may be
+ more useful as a selective response to observed congestion than as a
+ continuous intervention.
+ 
+@@ -154,6 +158,9 @@
+ terminal coordinate schedules while each keeps its own
+ cost~\cite{ref6}, and time-of-day models built from terminal records
+ show that arrivals are far from uniform over a day~\cite{ref13}.
++Booking quotas also affect truck turn time and crane utilisation, and
++their selection requires balancing terminal and trucker
++interests~\cite{refquota}.
+ Yard-operations studies reshape demand in space: crane work sequencing
+ reduces truck waiting~\cite{ref7}, multi-crane interference extends the
+ scheduling problem~\cite{ref8}, block length and crane deployment govern
+@@ -274,10 +281,12 @@
+ \sum_{t\in\mathcal T}\!\mathbf1[i\in\mathcal E_t]\le1.
+ \end{aligned}
+ \end{equation}
+-Block capacity is enforced in every experiment; when time-slot quota
+-data are unavailable we set $K_k(t)=\infty$, so the arrival-time results
+-represent the potential range of adjustment rather than an executable
+-schedule. All committed assignments are applied together at the end of
++Block-capacity checks are applied, but $K_k(t)=\infty$ in all reported
++experiments because terminal-specific booking quotas are unavailable.
++The candidate time range is an algorithmic setting, not a verified
++carrier availability window or notification allowance. Thus these
++checks establish feasibility only within the simulated rules, not
++the executability of a changed appointment in practice. All committed assignments are applied together at the end of
+ the decision epoch, so an earlier commitment cannot change the state
+ seen by another candidate in the same epoch.
+ 
+@@ -333,6 +342,38 @@
+ of wall-clock time. During evaluation the weights are frozen,
+ exploration is disabled, and no counterfactual branch is called, so
+ online operation costs one forward pass per candidate.
++
++\subsection{Intended Users and Operational Context}
++\label{sec:user-context}
++We envisage the architecture as a recommendation component alongside a
++terminal operating system (TOS). Busan New Port research identifies a gap
++between provided congestion information and actual truck waiting
++times~\cite{refbusanwait}; a study of Korean TOS products discusses their
++operational support functions~\cite{reftos}. The Busan Port Authority's
++2022 description of AllCON-e includes mobile vehicle booking, transfer
++transport, and information services~\cite{refallcone}. These sources
++motivate an application context; the workflow below is our proposed
++design, not an implemented connection to those systems.
++
++Terminal yard planners and operations staff would review the current
++and proposed block/time, observed congestion, and route implications,
++then accept, revise, or reject a recommendation. Carrier dispatchers
++would check arrival-time changes against vehicle availability and later
++jobs, and could propose an acceptable window or decline. Drivers would
++receive the confirmed time and destination and report execution
++difficulties. For example, a proposed later arrival would be reviewed
++by the operator, checked with the dispatcher, and communicated to the
++driver only after agreement; if agreement were absent, the original
++assignment would remain pending review. The human response deadline
++would be defined operationally, not equated with the algorithm's
++60-second review interval.
++
++The two networks encode computational proposal and acceptance, not
++human consent. Pair-centred scores should not be shown as calibrated
++monetary savings or confidence probabilities. This study evaluates
++simulated operating costs, not an interface or user tasks. Field
++integration, usability, user acceptance, and the handling of late or
++rejected recommendations remain to be evaluated.
+ 
+ % =====================================================================
+ \section{Experimental Environment and Evaluation Protocol}
+@@ -408,7 +449,10 @@
+ derived from the safe trucking freight rate~\cite{ref24}, whereas the
+ conversion to an hourly dwell-cost coefficient is a design choice.
+ Structural vessel time that the policy cannot change is recorded
+-separately. Waiting dominates: $C_{wait}$ is 96.4\% of the total, against 2.2\% for
++separately. Truck dwell is measured after gate entry; the objective
++does not include waiting outside the gate, carrier rescheduling
++charges, or disruption to subsequent trips. These omitted burdens
++can change the net benefit of a time adjustment. Waiting dominates: $C_{wait}$ is 96.4\% of the total, against 2.2\% for
+ rehandling, 1.2\% for vessel idling and 0.1\% for crane movement, so
+ $\Phi$ is driven mainly by the truck dwell coefficient. Congestion
+ changes the structure as well as the level: waiting is 83.2\% of cost at
+@@ -612,11 +656,17 @@
+ selectively. A sweep over the frequency of congested
+ days leaves the aggregate result and the shift from spatial to temporal
+ action intact, but shows that the split between the two contributions is
+-not stably estimated at 28 days. Future work will extend the framework along three axes:
+-terminal-specific arrival, demand, and cost data; appointment quotas and
+-alternative acceptance structures, including the value of the acceptance
+-veto; and robustness across counterfactual horizons, cost structures, and
+-crane-dispatching rules.
++not stably estimated at 28 days. Deployment would require a feasibility layer that intersects proposed
++changes with finite booking availability, carrier-approved time
++windows, minimum notification requirements, and cargo/vessel
++deadlines~\cite{ref4,ref6,refquota}. Terminal and carrier data are needed
++to set these constraints and the omitted economic costs. We have not
++tested whether the observed savings persist under those conditions
++or estimated a break-even rescheduling charge. This is a scope
++limitation, not evidence of deployment feasibility. Further work
++also concerns alternative acceptance structures, counterfactual
++horizons, cost coefficients, dispatching rules, and evaluation of
++the proposed user workflow in Sect.~\ref{sec:user-context}.
+ 
+ % =====================================================================
+ \begin{credits}
+@@ -633,7 +683,8 @@
+ 
+ % =====================================================================
+ \small
+-\begin{thebibliography}{18}
++\begin{thebibliography}{22}
++\raggedright
+ \setlength{\itemsep}{0pt}
+ \setlength{\parsep}{0pt}
+ \setlength{\topsep}{2pt}
+@@ -648,9 +699,13 @@
+ \bibitem{ref10} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--279 (2001)
+ \bibitem{ref11} Foerster, J.N., Farquhar, G., Afouras, T., Nardelli, N., Whiteson, S.: Counterfactual multi-agent policy gradients. In: Proc. 32nd AAAI Conf. Artif. Intell. pp. 2974--2982. AAAI Press (2018)
+ \bibitem{ref13} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. Eur. J. Transp. Infrastruct. Res. \textbf{18}(1), 76--90 (2018)
++\bibitem{refquota} Huynh, N., Walton, C.M.: Robust scheduling of truck arrivals at marine container terminals. J. Transp. Eng. \textbf{134}(8), 347--353 (2008). doi:10.1061/(ASCE)0733-947X(2008)134:8(347)
+ \bibitem{refmnih} Mnih, V., et al.: Human-level control through deep reinforcement learning. Nature \textbf{518}(7540), 529--533 (2015)
+ \bibitem{refhornik} Hornik, K.: Approximation capabilities of multilayer feedforward networks. Neural Netw. \textbf{4}(2), 251--257 (1991)
+ \bibitem{refhuber} Huber, P.J.: Robust estimation of a location parameter. Ann. Math. Statist. \textbf{35}(1), 73--101 (1964)
++\bibitem{refbusanwait} Kim, Y.-I., Shin, J.-Y., Park, H.-J.: A study on the prediction of gate in-out truck waiting time in the container terminal. J. Navig. Port Res. \textbf{46}(4), 344--350 (2022). doi:10.5394/KINPR.2022.46.4.344 (in Korean)
++\bibitem{reftos} Won, S.-H., Cho, S.-W., Lee, E.-K.: Analysis technology trend and strategies to vitalize the industry on terminal operating system (TOS) of smart port. J. Shipping Logist. \textbf{41}(1), 25--53 (2025). doi:10.37059/tjosal.2025.41.1.25 (in Korean)
++\bibitem{refallcone} Busan Port Authority: Handle Busan Port container cargo easily with AllCON-e. Press release, 16 August 2022 (in Korean; title translated). \url{https://www.busanpa.com/board/view.do?boardId=BBS_0000031&dataSid=27966&menuCd=DOM_000000105002001000}
+ \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
+ \bibitem{ref25} Ministry of Oceans and Fisheries: Regulations on the Use of Port Facilities and Fees at Trade Ports, etc. MOF Notice No. 2025-218 (2025) (in Korean)
+ \bibitem{ref24} Ministry of Land, Infrastructure and Transport: Notice on Safe Freight Rates for Cargo Vehicles Applicable in 2026. MOLIT Notice No. 2026-402 (2026) (in Korean)
