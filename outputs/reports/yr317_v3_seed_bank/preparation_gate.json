@@ -1,0 +1,143 @@
+{
+  "schema": "yr317.seed-preparation-gate.v1",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "Independent policy comparison has not been executed.",
+      "reasons": [
+        "The reused-seed replay is descriptive only."
+      ],
+      "evidence": {
+        "scope": "independent input preparation after completed observation replay",
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "901bb74a69553487d51fe9eac92b912cf876c49f"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "901bb74a69553487d51fe9eac92b912cf876c49f",
+            "drift": []
+          }
+        },
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json": "00ed3e0cbd55206c3893e0949e4dbd187cd967fb5f4f49f48bdea5436eaeed9f"
+        },
+        "replay_recording_verified": true,
+        "independent_inputs_generated": false
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "Independent input identities and derived RNG separation have not been frozen and verified.",
+      "reasons": [
+        "A month-root shift of 1,000 can reuse another run's daily seed; a new input registry and source/curve contract are required."
+      ],
+      "evidence": {
+        "scope": "independent input preparation after completed observation replay",
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "901bb74a69553487d51fe9eac92b912cf876c49f"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "901bb74a69553487d51fe9eac92b912cf876c49f",
+            "drift": []
+          }
+        },
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json": "00ed3e0cbd55206c3893e0949e4dbd187cd967fb5f4f49f48bdea5436eaeed9f"
+        },
+        "replay_recording_verified": true,
+        "independent_inputs_generated": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "The existing replay leaves requested work unadmitted and vessel work outstanding.",
+      "reasons": [
+        "Input construction alone cannot certify all requested work can be served."
+      ],
+      "evidence": {
+        "scope": "independent input preparation after completed observation replay",
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "901bb74a69553487d51fe9eac92b912cf876c49f"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "901bb74a69553487d51fe9eac92b912cf876c49f",
+            "drift": []
+          }
+        },
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/replay-completion-verified.json": "00ed3e0cbd55206c3893e0949e4dbd187cd967fb5f4f49f48bdea5436eaeed9f"
+        },
+        "replay_recording_verified": true,
+        "independent_inputs_generated": false
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  },
+  "claim_eligible": false
+}
