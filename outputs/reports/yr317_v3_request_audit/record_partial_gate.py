@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 from yard_rl.experiments.gate_harness import (
-    GateOutcome, GateStatus, ResearchGateReport, audit_dashboard)
+    GateOutcome, GateStatus, ResearchGateReport, audit_dashboard, judge_claim_alignment)
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = Path(__file__).resolve().parent
@@ -15,11 +15,25 @@ def main():
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     paths = [str(p.relative_to(ROOT)).replace("\\", "/") for p in (
         OUT / "auto-b0fe052/reconciliation-2.json", OUT / "run-3279b7f/NO_REALLOC/result.json",
-        OUT / "run-3279b7f/NO_REALLOC/requests.jsonl.gz", OUT / "reconciliation-tests.xml")]
+        OUT / "run-3279b7f/NO_REALLOC/requests.jsonl.gz", OUT / "reconciliation-tests.xml",
+        OUT / "baseline-result.md")]
     snapshot = json.loads((ROOT / paths[0]).read_text(encoding="utf-8"))
     baseline = snapshot["completed_arms"]["NO_REALLOC"]
     if not snapshot["completed_artifacts_valid"] or not baseline["passed"]:
         raise SystemExit("The completed baseline did not reconcile; preserve the failed evidence.")
+    raw = json.loads((ROOT / paths[1]).read_text(encoding="utf-8"))
+    requested_moves = sum(v["asked"] for v in raw["vessel_admissions"])
+    admitted_moves = sum(v["moves"] for v in raw["vessel_admissions"])
+    # Values printed in baseline-result.md and the Dashboard, checked against saved raw results.
+    alignment = judge_claim_alignment(
+        {"requested": 69000, "completed": 68830, "skipped": 170,
+         "vessel_requested": 44322, "vessel_admitted": 43394, "vessel_reduced": 928},
+        {"requested": raw["request_summary"]["requested"],
+         "completed": raw["request_summary"]["states"]["COMPLETED"],
+         "skipped": raw["request_summary"]["skipped"], "vessel_requested": requested_moves,
+         "vessel_admitted": admitted_moves, "vessel_reduced": requested_moves - admitted_moves})
+    if alignment.status is not GateStatus.PASS:
+        raise SystemExit("Reported baseline counts do not match the saved raw evidence.")
     board = audit_dashboard(ROOT, task_id="YR-317-g", expected_state="in-progress",
         spec_path=".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
         evidence_paths=paths, evidence_commits=[commit],
@@ -30,7 +44,8 @@ def main():
     evidence = {"scope": "completed NO_REALLOC baseline only; other two policies pending at snapshot",
         "board_commit": commit, "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
         "artifact_sha256": {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in paths},
-        "dashboard": board.as_dict(), "requested_trucks": baseline["requested"],
+        "dashboard": board.as_dict(), "claim_alignment": alignment.as_dict(),
+        "requested_trucks": baseline["requested"],
         "truck_states": baseline["states"], "vessel_admissions": baseline["vessel_admissions"],
         "record_reconciliation_passed": True, "claim_eligible": False}
     gates = ResearchGateReport(
