@@ -128,6 +128,7 @@ class MonthResult:
     request_summary: dict = field(default_factory=dict)
     vessel_work_ledger: list = field(default_factory=list)
     vessel_work_summary: dict = field(default_factory=dict)
+    demand_bindings: list = field(default_factory=list)
 
     @property
     def train_days(self) -> list:
@@ -204,7 +205,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
-              capture_requests: bool = False, diagnose_admissions: bool = False) -> MonthResult:
+              capture_requests: bool = False, diagnose_admissions: bool = False,
+              admission_mode: str = "LEGACY") -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -228,6 +230,9 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             f"배차 {dispatcher!r} 은 아직 구현 전이다 — 쓸 수 있는 바닥: "
             f"{DISPATCHERS_READY}")
 
+    if admission_mode not in ("LEGACY", "PRESERVE"):
+        raise ValueError("admission_mode must be LEGACY or PRESERVE")
+    preserve = admission_mode == "PRESERVE"
     prof, layout = build_h21_profile(), terminal_layout()
     days = list(days) if days else plan_month(seed, n_days=n_days)
     n_days = len(days)
@@ -252,14 +257,16 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     scns = {b: dataclasses.replace(s, jobs=[], vessels=[], horizon_s=month_s,
                                    drain_window_s=DIURNAL_DRAIN_S)
             for b, s in built["day0"]["scenarios"].items()}
-    mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(s, prof))
+    from .demand_engine import DemandTerminal
+    terminal_cls = DemandTerminal if preserve else MonthTerminal
+    mbt = terminal_cls({b: ensure_time_ledger(_sim_from(s, prof))
                          for b, s in scns.items()},
                         extra_review_epochs=tuple(
-                            i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)))
+                            i * EPOCH_S for i in range(int((sim_end if preserve else month_s) // EPOCH_S) + 1)))
     # ★반출 대상은 **투입 시각에** 다시 고른다 — 30일은 이름이 날마다 겹친다.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
                       retarget=make_retarget(seed), record_admissions=capture_requests,
-                      diagnose_admissions=diagnose_admissions)
+                      diagnose_admissions=diagnose_admissions, preserve_requests=preserve)
 
     if seller_net is None or buyer_net is None:
         torch.manual_seed(int(seed))
@@ -424,8 +431,11 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             diagnostic = inventory_snapshot(m, r["block"]) if vessel_audit is not None else None
             try:
                 a = inject_vessel(m, r["block"], r, key=r["key"],
-                                  size_seed=f"v3:month:{seed}:{r['key']}")
+                                  size_seed=f"v3:month:{seed}:{r['key']}",
+                                  defer_load_targets=preserve)
             except TransferError as ex:
+                if preserve:
+                    raise
                 skipped += 1
                 res.vessel_admissions.append({"key": r["key"], "day": d.index,
                                               "ok": False, "why": str(ex),
@@ -542,4 +552,13 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             and res.skipped == res.request_summary["skipped"])
     if vessel_audit is not None:
         res.vessel_work_ledger, res.vessel_work_summary = vessel_audit.finish(mbt)
+    if preserve:
+        mbt.check_invariants()
+        res.demand_bindings = getattr(mbt, "demand_bindings", [])
+        res.request_summary["admission_mode"] = admission_mode
+        res.request_summary["physical_invariants_enabled"] = all(s._check for s in mbt.blocks.values())
+        res.request_summary["late_target_bindings"] = len(getattr(mbt, "demand_bindings", []))
+        res.request_summary["unbound_jobs_at_end"] = sum(
+            j.flow.value in ("GATE_OUT", "VESSEL_LOAD") and j.target_container is None
+            for sim in mbt.blocks.values() for j in sim.jobs.values())
     return res

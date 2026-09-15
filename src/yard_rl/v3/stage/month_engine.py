@@ -136,7 +136,7 @@ def free_targets(sim, *, limit: int, seed: str) -> list[str]:
 
 
 def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
-                  key: str, size_seed: str) -> VesselAdmission:
+                  key: str, size_seed: str, defer_load_targets: bool = False) -> VesselAdmission:
     """배 한 척(정확히는 STS 스트림 하나)을 **런 중에** 블록에 붙인다.
 
     사본 `_seed_events` 가 t=0 에 하는 일과 같은 것을 시각 `start_s` 에 한다:
@@ -168,11 +168,11 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     asked = int(row["moves"])
     targets: list[str] = []
     reason = ""
-    if work == VesselWorkType.LOAD:
+    if work == VesselWorkType.LOAD and not defer_load_targets:
         targets = free_targets(sim, limit=asked, seed=f"{size_seed}:tgt")
         if len(targets) < asked:
             reason = f"재고 부족 {len(targets)}/{asked}"
-    moves = asked if work == VesselWorkType.DISCHARGE else len(targets)
+    moves = asked if work == VesselWorkType.DISCHARGE or defer_load_targets else len(targets)
     if moves <= 0:
         raise TransferError(f"{key}: 실을 물량이 0 — {reason or '물량 0'}")
 
@@ -180,7 +180,7 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     pc = start + moves * cadence * VESSEL_DEADLINE_MULT
     etd = start + moves * cadence * (VESSEL_DEADLINE_MULT + 1.0)
     tgt_c = ([sim.stacks.containers[t] for t in targets]
-             if work == VesselWorkType.LOAD else None)
+            if work == VesselWorkType.LOAD and not defer_load_targets else None)
     phys_min = phys_min_completion_s(sim.profile, work=work, start_s=start,
                                      moves=moves, cadence_s=cadence,
                                      load_targets=tgt_c)
@@ -211,7 +211,7 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
         else:
             j = Job(job_id=jid, flow=flow, release_time=start + m * cadence,
                     actual_gate_in=None, actual_block_arrival=None,
-                    target_container=targets[m],
+                    target_container=(None if defer_load_targets else targets[m]),
                     deadline=pc + 1800.0, priority_class=1, vessel_id=key)
         sim.jobs[jid] = j
         # 양하는 **박스 물리 도착**이 해제한다 — 시각으로 안 푼다 (사본 `_seed_events`)

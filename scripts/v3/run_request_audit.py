@@ -44,6 +44,8 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
     seller, buyer, _ = _load_nets(args.checkpoint)
     job = dict(_label=label, arm=arm, seed=seed, days=days,
                seller_net=seller, buyer_net=buyer, capture_requests=True)
+    if getattr(args, "admission_mode", "LEGACY") != "LEGACY":
+        job["admission_mode"] = args.admission_mode
     diagnostics = getattr(args, "diagnose_admissions", False)
     if diagnostics:
         job["diagnose_admissions"] = True
@@ -103,6 +105,9 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
             if e["outcome"] == "SKIPPED")
         result.update(vessel_work_ledger=res.vessel_work_ledger,
                       vessel_work_summary=res.vessel_work_summary)
+    if getattr(args, "admission_mode", "LEGACY") == "PRESERVE":
+        result["demand_bindings"] = res.demand_bindings
+        checks["physical_invariants_enabled"] = res.request_summary["physical_invariants_enabled"]
     write_json(out / "result.json", result)
     print(json.dumps({"event": "finished", "arm": label, "elapsed_s": result["elapsed_s"],
         "requests": res.request_summary, "checks": checks}, ensure_ascii=False), flush=True)

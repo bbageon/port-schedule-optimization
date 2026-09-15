@@ -102,7 +102,7 @@ class V3Announcer:
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
                  period_s: float = EPOCH_S, retarget=None, record_admissions: bool = False,
-                 diagnose_admissions: bool = False):
+                 diagnose_admissions: bool = False, preserve_requests: bool = False):
         self.period_s = float(period_s)
         self.end_s = end_s
         #: ★반출 대상을 **투입 시각에** 다시 고르는 훅 ([[YR-239]]). None = 명단 그대로.
@@ -119,6 +119,7 @@ class V3Announcer:
         self.skips: list[dict] = []
         self.record_admissions = record_admissions
         self.diagnose_admissions = diagnose_admissions
+        self.preserve_requests = preserve_requests
         self.admission_events: list[dict] = []
 
     def clone_fresh(self) -> V3Announcer:
@@ -133,6 +134,7 @@ class V3Announcer:
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         c.record_admissions, c.admission_events = self.record_admissions, []
         c.diagnose_admissions = self.diagnose_admissions
+        c.preserve_requests = self.preserve_requests
         return c
 
     def window(self, lo: float, hi: float) -> "V3Announcer":
@@ -151,6 +153,7 @@ class V3Announcer:
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         c.record_admissions, c.admission_events = self.record_admissions, []
         c.diagnose_admissions = self.diagnose_admissions
+        c.preserve_requests = self.preserve_requests
         return c
 
     def _record_admission(self, e, t, outcome, reason=None, *, mbt=None):
@@ -169,6 +172,8 @@ class V3Announcer:
         for e in self.by_epoch.get(round(t, 6), []):
             arr = e["arrival_s"]
             if self.end_s is not None and arr + e["travel_s"] > self.end_s:
+                if self.preserve_requests:
+                    raise TransferError(f"{e['job_id']}: requested arrival outside declared horizon")
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": "TAIL"})
                 self._record_admission(e, t, "SKIPPED", "TAIL")
@@ -183,7 +188,7 @@ class V3Announcer:
                 #   그러면 `admit_external_job` 이 "반출 대상 부재" 로 거절하고
                 #   **트럭이 조용히 사라진다**(부하가 저절로 줄어든다).
                 tgt = self.retarget(mbt, e["block"], e)
-                if tgt is None:
+                if tgt is None and not self.preserve_requests:
                     self.n_skipped += 1
                     self.skips.append({"t": t, "job_id": e["job_id"],
                                        "reason": "NO_TARGET"})
@@ -199,6 +204,10 @@ class V3Announcer:
                 self.n_admitted += 1
                 self._record_admission(e, t, "ADMITTED")
             except TransferError as ex:
+                if self.preserve_requests:
+                    raise  # Invalid requests cannot silently become lower demand.
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": str(ex)})
                 self._record_admission(e, t, "SKIPPED", str(ex), mbt=mbt)
+        if self.preserve_requests:
+            mbt.bind_available_targets(t)
