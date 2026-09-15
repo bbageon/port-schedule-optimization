@@ -1,0 +1,177 @@
+{
+  "schema": "v3.cost_scope_audit.v1",
+  "date": "2026-09-15",
+  "source_head": "8b21f56da16de62266f3b74de2ad0bb3e3cd72d0",
+  "checks": {
+    "equal_dwell_equal_cost_despite_two_hour_schedule_shift": true,
+    "engine_audit_can_record_two_hour_external_interval": true,
+    "pre_gate_record_has_zero_current_cost": true,
+    "NO_REALLOC_all_requests_reconciled": true,
+    "NO_REALLOC_wait_sum_matches_saved_cost": true,
+    "RL_all_requests_reconciled": true,
+    "RL_wait_sum_matches_saved_cost": true,
+    "RL_NOVETO_all_requests_reconciled": true,
+    "RL_NOVETO_wait_sum_matches_saved_cost": true,
+    "core_cost_source_matches_9715cc6": true,
+    "core_cost_source_matches_3279b7f": true,
+    "core_cost_source_matches_1b601c0": true
+  },
+  "passed": true,
+  "illustrative_cost_calls": [
+    {
+      "original_appointment_s": 50400.0,
+      "gate_in_s": 50400.0,
+      "gate_out_s": 51000.0,
+      "cost": {
+        "phi_krw": 6666.666666666667,
+        "c_wait": 6666.666666666667,
+        "c_move": 0.0,
+        "c_rehandle": 0.0,
+        "c_vessel": 0.0,
+        "n_trucks": 1,
+        "n_censored": 0,
+        "mean_turn_time_s": 600.0,
+        "over_ratio": 0.0,
+        "p50_turn_time_s": 600.0,
+        "p90_turn_time_s": 600.0,
+        "p99_turn_time_s": 600.0
+      }
+    },
+    {
+      "original_appointment_s": 50400.0,
+      "gate_in_s": 57600.0,
+      "gate_out_s": 58200.0,
+      "cost": {
+        "phi_krw": 6666.666666666667,
+        "c_wait": 6666.666666666667,
+        "c_move": 0.0,
+        "c_rehandle": 0.0,
+        "c_vessel": 0.0,
+        "n_trucks": 1,
+        "n_censored": 0,
+        "mean_turn_time_s": 600.0,
+        "over_ratio": 0.0,
+        "p50_turn_time_s": 600.0,
+        "p90_turn_time_s": 600.0,
+        "p99_turn_time_s": 600.0
+      }
+    }
+  ],
+  "illustrative_engine_deferral_record": [
+    {
+      "job_id": "example",
+      "block": "B",
+      "flow": "GATE_OUT",
+      "n_deferrals": 1,
+      "deferred_total_s": 7200,
+      "original_appointment_s": 50400.0,
+      "actual_gate_in_s": 57600.0,
+      "driver_outside_wait_s": 7200.0
+    }
+  ],
+  "saved_diagnostic_runs": {
+    "NO_REALLOC": {
+      "requests": 69000,
+      "later_gate_count": 0,
+      "later_gate_minus_request_hours": 0.0,
+      "wait_recomputed_krw": 4449909376.524425,
+      "saved_wait_krw": 4449909376.524425,
+      "examples": []
+    },
+    "RL": {
+      "requests": 69000,
+      "later_gate_count": 31446,
+      "later_gate_minus_request_hours": 31761.0,
+      "wait_recomputed_krw": 3659524539.2445135,
+      "saved_wait_krw": 3659524539.2445135,
+      "examples": [
+        {
+          "job_id": "D00-D-00001",
+          "requested_arrival_s": 77.515,
+          "gate_in_s": 977.515,
+          "gate_out_s": 1767.8633802498189,
+          "accounted_turn_time_s": 790.3483802498189,
+          "accounted_wait_krw": 8781.648669442431
+        },
+        {
+          "job_id": "D00-D-00004",
+          "requested_arrival_s": 287.759,
+          "gate_in_s": 1187.759,
+          "gate_out_s": 2127.184136838769,
+          "accounted_turn_time_s": 939.425136838769,
+          "accounted_wait_krw": 10438.057075986322
+        }
+      ]
+    },
+    "RL_NOVETO": {
+      "requests": 69000,
+      "later_gate_count": 43920,
+      "later_gate_minus_request_hours": 42139.75,
+      "wait_recomputed_krw": 3756629144.2615047,
+      "saved_wait_krw": 3756629144.2615047,
+      "examples": [
+        {
+          "job_id": "D00-D-00000",
+          "requested_arrival_s": 60.616,
+          "gate_in_s": 960.616,
+          "gate_out_s": 1672.3759521312525,
+          "accounted_turn_time_s": 711.7599521312525,
+          "accounted_wait_krw": 7908.443912569472
+        },
+        {
+          "job_id": "D00-D-00001",
+          "requested_arrival_s": 77.515,
+          "gate_in_s": 977.515,
+          "gate_out_s": 1767.8633802498189,
+          "accounted_turn_time_s": 790.3483802498189,
+          "accounted_wait_krw": 8781.648669442431
+        }
+      ]
+    }
+  },
+  "core_source_comparison": {
+    "9715cc6": {
+      "src/yard_rl/v3/reward/phi.py": true,
+      "src/yard_rl/v3/reward/krw.py": true,
+      "src/yard_rl/v3/schema/lifecycle.py": true
+    },
+    "3279b7f": {
+      "src/yard_rl/v3/reward/phi.py": true,
+      "src/yard_rl/v3/reward/krw.py": true,
+      "src/yard_rl/v3/schema/lifecycle.py": true
+    },
+    "1b601c0": {
+      "src/yard_rl/v3/reward/phi.py": true,
+      "src/yard_rl/v3/reward/krw.py": true,
+      "src/yard_rl/v3/schema/lifecycle.py": true
+    }
+  },
+  "input_sha256": {
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz": "0c3efa1cfa52a97ac01b06fd2880a5b837fa8399ecd8572ab2cfb8e66be54b29",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+    "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz": "9427497c9e3564a7ba86dbd28eac5555c2de18d6a805e5db1dac7e3cc1af19c5",
+    "src/yard_rl/v3/reward/phi.py": "1dde767db6889fa98eba325fac01a708ee7bc2d5078d96ebfcae8d0c048c1fbe",
+    "src/yard_rl/v3/reward/krw.py": "8526082bc0e59efd9fdfa18563ae8610cfbec2b6f8d01048abd552b2821f4492",
+    "src/yard_rl/v3/schema/lifecycle.py": "ca01c1d72b353c79c85ff97c4012d3a1554bbf5f7da9e70e45b563a174e6029c",
+    "src/yard_rl/v3/stage/month_run.py": "c34be273c571a9b97bdec147ef0b8cf84a979a1d171a4e361a0637707e45672a",
+    "src/yard_rl/v3/stage/rollout.py": "ba0b863cfae874d9e08ca8d1b8f8ebab553562d7d263289bb2d618cb62362103",
+    "src/yard_rl/v3/stage/bridge.py": "899d2da0d5cb4ddb005bfa1cc84df0ef101fd3e3c25329e4acdae693cd48e3ed",
+    "src/yard_rl/v3/world/integrated/time_sell.py": "089ed159c59c71f09616ae35dba46a3b8c517a150caf486f2b2fd2f7e4c99c0e",
+    "src/yard_rl/v3/world/integrated/multiblock.py": "1cca5f55663dc0d39845a5cd869524a90b3bed2e84cede3b9e527623102055e9",
+    "src/yard_rl/experiments/yr151_transfer_ppo.py": "0fe6a3100c148add099a3b0271cda2b9a4d10f94ea5f45aa12caf8dc60b98369",
+    "src/yard_rl/experiments/yr164_cost_decomposition.py": "d42da48dcd9f6296f5ce3ae2325ab3a8a90a3d2cb1d5bf8e6c43f8aa46cd7394"
+  },
+  "conclusion": "Historical phi_terminal adds the external interval; v3 terminal_cost_krw uses actual gate-in dwell and omits that addition in both evaluation and counterfactual labels.",
+  "limits": [
+    "The example calls cost and audit functions; it is not a full terminal simulation.",
+    "Gate minus requested arrival is an interval, not proof of actual driver idle time.",
+    "Source at manuscript preparation is not proof of the exact original experiment executable.",
+    "No external-cost rate, break-even calculation, policy change or new training was introduced."
+  ],
+  "new_simulations": 0,
+  "new_training_runs": 0,
+  "performance_confirmed": false
+}

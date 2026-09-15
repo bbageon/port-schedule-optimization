@@ -5,7 +5,7 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
-- **v3 개정 전략 작성 (2026-09-15, YR-317)**: 최신 준비 원고 8파일을 paper-revision에 동일 복사했다. 부하별 효과를 검산하고 현실 제약 문헌·전체 후보 검증·독립 월 비교·기본 두 구조·TOS/올컨e 사용 맥락 전략을 작성했다. 새 학습·확증은 실행하지 않았다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [전략·검산](../../docs/paper/v3/paper-revision/README.md)
+- **v3 개정 4일 마감·비용 연결 확인 (2026-09-15, YR-317·a)**: 9/19 KST 완료 목표를 반영했다. 과거 외부 대기 합산은 실제 있지만 현 v3 학습·평가에는 미연결이며 12개 감사 검사를 통과했다. 기존 원고 8파일 보존, 새 학습·독립 확증은 미실행이다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [비용 확인·일정](../../docs/paper/v3/paper-revision/12-시간변경비용-코드확인.md)
 
 ## 상태별 파일
 
