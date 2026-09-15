@@ -1,0 +1,43 @@
+{
+  "schema": "yr317.admission-replay-launch-audit.v1",
+  "dashboard": {
+    "name": "dashboard_code_alignment",
+    "status": "PASS",
+    "summary": "Dashboard·spec·코드·증거가 일치함",
+    "reasons": [],
+    "evidence": {
+      "task_id": "YR-317-g",
+      "expected_state": "in-progress",
+      "board_matches": [
+        "in-progress.md"
+      ],
+      "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+      "evidence_paths": [
+        "outputs/reports/yr317_v3_request_audit/replay-started.json",
+        "outputs/reports/yr317_v3_request_audit/replay-authorization.json",
+        "outputs/reports/yr317_v3_request_audit/replay-tests.json",
+        "outputs/reports/yr317_v3_request_audit/replay-prereg.md",
+        "outputs/reports/yr317_v3_request_audit/replay-1b601c0/smoke/summary.json",
+        "outputs/reports/yr317_v3_request_audit/replay-1b601c0/launch.json",
+        "docs/paper/v3/paper-revision/09-미투입-재관측.md"
+      ],
+      "control_paths": [
+        ".claude\\Dashboard\\in-progress.md",
+        ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+      ],
+      "evidence_commits": [
+        "4bff5ca2508743b6706fe372475157be8211d664",
+        "1b601c04a0ec5f779a875921dd37ee116b5cfa9a"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "4bff5ca2508743b6706fe372475157be8211d664",
+      "drift": []
+    }
+  },
+  "board_commit": "4bff5ca2508743b6706fe372475157be8211d664",
+  "execution_commit": "1b601c04a0ec5f779a875921dd37ee116b5cfa9a",
+  "launch_artifact_hashes_match": true,
+  "scope": "successful small-run recording and actual full-run launch only",
+  "performance_confirmed": false,
+  "full_replay_completed": false
+}
