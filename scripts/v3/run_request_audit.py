@@ -44,6 +44,9 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
     seller, buyer, _ = _load_nets(args.checkpoint)
     job = dict(_label=label, arm=arm, seed=seed, days=days,
                seller_net=seller, buyer_net=buyer, capture_requests=True)
+    diagnostics = getattr(args, "diagnose_admissions", False)
+    if diagnostics:
+        job["diagnose_admissions"] = True
     contract = arm_contract(job, runtime_identity(), run_month)
     stamp = repro_stamp(experiment="YR-317-g", seeds={"base": [seed],
         "days": [d.seed for d in days]}, params={"run": contract["settings"]},
@@ -64,7 +67,8 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
                     "day_index_completed": day.index, "days_planned": len(days),
                     "elapsed_s": row["elapsed_s"], "truck_skipped": day.truck_skipped,
                     "skip_reasons": day.truck_skip_reasons}
-        write_json(Path(args.out) / "progress.json", progress)
+        progress_root = out if getattr(args, "isolated_progress", False) else Path(args.out)
+        write_json(progress_root / "progress.json", progress)
         print(json.dumps(progress, ensure_ascii=False), flush=True)
 
     reset_rollout_calls()
@@ -91,6 +95,14 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         "requested_identity_sha256": digest(requested_identity),
         "request_ledger_sha256": sha(ledger_path), "recording_checks": checks,
         "claim_eligible": False, "repro": stamp}
+    if diagnostics:
+        checks["vessel_recording"] = res.vessel_work_summary["recording_ok"]
+        checks["failure_inventory_recorded"] = all(
+            e.get("reason") == "TAIL" or "inventory_at_failure" in e
+            for row in res.request_ledger for e in row["admission_events"]
+            if e["outcome"] == "SKIPPED")
+        result.update(vessel_work_ledger=res.vessel_work_ledger,
+                      vessel_work_summary=res.vessel_work_summary)
     write_json(out / "result.json", result)
     print(json.dumps({"event": "finished", "arm": label, "elapsed_s": result["elapsed_s"],
         "requests": res.request_summary, "checks": checks}, ensure_ascii=False), flush=True)

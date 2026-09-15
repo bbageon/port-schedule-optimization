@@ -42,7 +42,7 @@ def close(a, b):
     return math.isclose(a, b, rel_tol=1e-10, abs_tol=1e-4)
 
 
-def reconcile(result, manifest, rows, live_days):
+def reconcile(result, manifest, rows, live_days, *, expected_commit=FROZEN_COMMIT):
     """Independently check raw events, cohort totals, and the existing cost formula."""
     issues = Counter()
     examples = defaultdict(list)
@@ -131,7 +131,7 @@ def reconcile(result, manifest, rows, live_days):
     check(settings["labels_per_day"] is None and settings["explore"] == 0
           and settings["capture_requests"] is True, "diagnostic_settings")
     check(result["repro"] == manifest["repro"], "repro_manifest")
-    check(result["repro"]["code"]["git_head"] == FROZEN_COMMIT
+    check(result["repro"]["code"]["git_head"] == expected_commit
           and result["repro"]["code"]["git_dirty"] is False, "frozen_clean_code")
     check(result["rollout_calls"] == result["policy_exceptions"] == 0, "runtime_guards")
     expected_checks = {"request_recording", "announcer_counts", "wait_cost_reconciles",
