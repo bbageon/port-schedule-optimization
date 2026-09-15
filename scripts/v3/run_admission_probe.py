@@ -65,7 +65,7 @@ def main():
         seller, buyer, _ = _load_nets(args.checkpoint)
         kwargs = dict(seed=seed, arm="RL", days=days, seller_net=seller, buyer_net=buyer,
                       capture_requests=True, diagnose_admissions=mode == "on")
-        contract = arm_contract(kwargs, runtime_identity(), run_month)
+        contract = arm_contract(dict(_label=f"observer_{mode}", **kwargs), runtime_identity(), run_month)
         stamp = repro_stamp(experiment="YR-317-g-admission-observer", seeds={"base": [seed],
             "days": [d.seed for d in days]}, params={"run": contract["settings"]},
             prereg=str(args.prereg), extra={"checkpoint_sha256": checkpoint_hash,
