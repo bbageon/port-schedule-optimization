@@ -39,6 +39,7 @@
 
 ## 📌 현재 상태 overview (한눈에)
 
+- **v3 독립 입력 구성 완료 (2026-09-16, YR-317-d1)**: 기존 합성곡선·물량 확률을 유지해 20개월·600일·4,038,000건을 고정했다. 난수 중복 없음·첫 월 재생성 동일·파일 재검산 통과. 정책 성능 평가와 새 학습은 미실행, g 처리 계약 보정 뒤 d에 연결한다. [spec](../docs/dashboard-task-specs/YR-317-d1-v3-independent-seed-bank.md) · [결과](../../docs/paper/v3/paper-revision/14-독립시드-합성곡선.md)
 - **v3 문헌·사용 맥락 원고 병행 보완 (2026-09-15, YR-317-b·f)**: 현실 제약·비용 범위와 운영자·운송사·운전자 업무 흐름을 별도 개정 원고 및 답변 초안에 반영했다. 14쪽 PDF·참고문헌 22건, 기준본과 기존 성능표·그림 보존 확인. 전체 리뷰 통합·12쪽 목표는 남는다. [b spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [f spec](../docs/dashboard-task-specs/YR-317-f-v3-review-hci-context.md) · [반영·검증](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md)
 - **v3 재관측 종료·처리 계약 보정 남음 (2026-09-16 확인, YR-317-g)**: 9/15 22:37 세 정책 10일 실행 종료. 기존 비용·행동 재현, 실패 상태·선박 완료 장부 대조 통과. 트럭 미투입 170/180/136건과 선박 잔여가 남아 독립 확증으로 승격하지 않는다. 후속 실험은 미착수다. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [종료·재검산](../../docs/paper/v3/paper-revision/13-재관측-종료결과.md) · [성능표](../../docs/paper/v3/paper-revision/08-성능비교표.md)
 - **v5 서론 과제 PPT 완료 (2026-09-14, YR-315)**: 서론 17장과 참고문헌 2장, 문헌 7편·발표 노트·문장형 초안을 작성했다. 기존 문서의 독립 판매·구매·반사실 학습을 v5 공유 정책·실행 경험 학습으로 바꾸고 성능 미확정을 유지했다. 학습 코드는 변경하지 않았다. [spec](../docs/dashboard-task-specs/YR-315-v5-introduction-coursework.md) · [PPT](../../docs/paper/v5/introduction/v5_졸업논문_서론.pptx)
