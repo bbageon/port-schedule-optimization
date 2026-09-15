@@ -1,0 +1,383 @@
+{
+  "schema": "yr317.admission-observer-probe.v1",
+  "checks": {
+    "behavior_unchanged": true,
+    "request_recording": true,
+    "vessel_recording": true,
+    "no_teacher": true,
+    "no_policy_exception": true
+  },
+  "passed": true,
+  "modes": {
+    "off": {
+      "elapsed_s": 47.10909340810031,
+      "repro": {
+        "experiment": "YR-317-g-admission-observer",
+        "code": {
+          "git_head": "09611b3b12a1388a778a4815e9470c4a6859873d",
+          "git_dirty": false,
+          "python": "3.12.13"
+        },
+        "profile_id": null,
+        "seeds": {
+          "base": [
+            9900700
+          ],
+          "days": [
+            9901700
+          ]
+        },
+        "params": {
+          "run": {
+            "repr": "{'seed': 9900700, 'arm': 'RL', 'seller_net': {'class': 'yard_rl.v3.actors.nets.SellerNet', 'training': True, 'state_sha256': 'c2b451659cda98e13df29522591bb04b34a79e1aaae3879e06d73960a701e65e'}, 'buyer_net': {'class': 'yard_rl.v3.actors.nets.BuyerNet', 'training': True, 'state_sha256': '7639e5949c2e3f22da9858b7f5953cc652cba298ab16aef177f172a6ae8fb3de'}, 'n_days': 1, 'dispatcher': 'SF_SPT', 'lead_mode': 'DIST', 'window_s': 1800.0, 'explore': 0.0, 'horizon_s': 10800.0, 'slot_mode': 'HORIZON', 'trigger_top_k': None, 'days': [{'index': 0, 'load': 300, 'label': '300', 'seed': 9901700, 't0': 0.0, 'n_days': 1}], 'on_day': None, 'labels_per_day': None, 'workers': 1, 'explore_of_day': None, 'on_fit': None, 'branch_days': 1, 'identity_checks': 4, 'capture_requests': True, 'diagnose_admissions': False}"
+          }
+        },
+        "prereg": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md",
+        "checkpoint_sha256": "50f2da2e8b3070dbba48273f0de5debdf5514fe96f0fa1f5a8f25b8a830cba99",
+        "prereg_sha256": "92f3b8a8b801e4dcb12ef927a944bd388a29f01fa4fe75ad8f9e4c78793febc3",
+        "runner_sha256": "610cc234519faff6c0228db1153c959e0ad151702337fdf197a5f00eb5dbb08c"
+      },
+      "request_summary": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "skip_reasons": {},
+        "admitted": 300,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 3438379.37345804,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 93600.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true
+      },
+      "teacher_calls": 0,
+      "vessel_work_ledger": [],
+      "vessel_work_summary": {},
+      "policy_exceptions": 0,
+      "behavior_sha256": "4da47d1481ed6e415b290466c56faaf1e6f18a7015660735cd05280e162ea808"
+    },
+    "on": {
+      "elapsed_s": 48.34865348227322,
+      "repro": {
+        "experiment": "YR-317-g-admission-observer",
+        "code": {
+          "git_head": "09611b3b12a1388a778a4815e9470c4a6859873d",
+          "git_dirty": false,
+          "python": "3.12.13"
+        },
+        "profile_id": null,
+        "seeds": {
+          "base": [
+            9900700
+          ],
+          "days": [
+            9901700
+          ]
+        },
+        "params": {
+          "run": {
+            "repr": "{'seed': 9900700, 'arm': 'RL', 'seller_net': {'class': 'yard_rl.v3.actors.nets.SellerNet', 'training': True, 'state_sha256': 'c2b451659cda98e13df29522591bb04b34a79e1aaae3879e06d73960a701e65e'}, 'buyer_net': {'class': 'yard_rl.v3.actors.nets.BuyerNet', 'training': True, 'state_sha256': '7639e5949c2e3f22da9858b7f5953cc652cba298ab16aef177f172a6ae8fb3de'}, 'n_days': 1, 'dispatcher': 'SF_SPT', 'lead_mode': 'DIST', 'window_s': 1800.0, 'explore': 0.0, 'horizon_s': 10800.0, 'slot_mode': 'HORIZON', 'trigger_top_k': None, 'days': [{'index': 0, 'load': 300, 'label': '300', 'seed': 9901700, 't0': 0.0, 'n_days': 1}], 'on_day': None, 'labels_per_day': None, 'workers': 1, 'explore_of_day': None, 'on_fit': None, 'branch_days': 1, 'identity_checks': 4, 'capture_requests': True, 'diagnose_admissions': True}"
+          }
+        },
+        "prereg": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md",
+        "checkpoint_sha256": "50f2da2e8b3070dbba48273f0de5debdf5514fe96f0fa1f5a8f25b8a830cba99",
+        "prereg_sha256": "92f3b8a8b801e4dcb12ef927a944bd388a29f01fa4fe75ad8f9e4c78793febc3",
+        "runner_sha256": "610cc234519faff6c0228db1153c959e0ad151702337fdf197a5f00eb5dbb08c"
+      },
+      "request_summary": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "skip_reasons": {},
+        "admitted": 300,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 3438379.37345804,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 93600.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true
+      },
+      "teacher_calls": 0,
+      "vessel_work_ledger": [
+        {
+          "key": "D00-L1-s1",
+          "block": "Y01",
+          "work": "DISCHARGE",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 82812.4495990898,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-L1-s5",
+          "block": "Y02",
+          "work": "LOAD",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 86339.30183698596,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-L1-s2",
+          "block": "Y03",
+          "work": "DISCHARGE",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 82812.4495990898,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-M1-s2",
+          "block": "Y04",
+          "work": "DISCHARGE",
+          "start_s": 13607.921379188288,
+          "asked": 548,
+          "attempted": true,
+          "admitted": 548,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 85346.10319736916,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 548,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-M1-s1",
+          "block": "Y05",
+          "work": "DISCHARGE",
+          "start_s": 13607.921379188288,
+          "asked": 548,
+          "attempted": true,
+          "admitted": 548,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 85346.10319736916,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 548,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-L1-s3",
+          "block": "Y09",
+          "work": "DISCHARGE",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 82812.4495990898,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-S1-s0",
+          "block": "Y10",
+          "work": "DISCHARGE",
+          "start_s": 8492.008619501436,
+          "asked": 422,
+          "attempted": true,
+          "admitted": 422,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 63735.644983137245,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 422,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-S2-s0",
+          "block": "Y11",
+          "work": "LOAD",
+          "start_s": 15786.91586086362,
+          "asked": 319,
+          "attempted": true,
+          "admitted": 319,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 63013.74583299878,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 319,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-M1-s0",
+          "block": "Y12",
+          "work": "LOAD",
+          "start_s": 13607.921379188288,
+          "asked": 548,
+          "attempted": true,
+          "admitted": 548,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 88825.68342202994,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 548,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-L1-s4",
+          "block": "Y13",
+          "work": "DISCHARGE",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 82812.4495990898,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-S2-s1",
+          "block": "Y14",
+          "work": "LOAD",
+          "start_s": 15786.91586086362,
+          "asked": 319,
+          "attempted": true,
+          "admitted": 319,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 63575.278812260534,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 319,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-S1-s1",
+          "block": "Y16",
+          "work": "DISCHARGE",
+          "start_s": 8492.008619501436,
+          "asked": 422,
+          "attempted": true,
+          "admitted": 422,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 63735.644983137245,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 422,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-M1-s3",
+          "block": "Y19",
+          "work": "DISCHARGE",
+          "start_s": 13607.921379188288,
+          "asked": 548,
+          "attempted": true,
+          "admitted": 548,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 85346.10319736916,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 548,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        },
+        {
+          "key": "D00-L1-s0",
+          "block": "Y21",
+          "work": "DISCHARGE",
+          "start_s": 9765.176871817994,
+          "asked": 558,
+          "attempted": true,
+          "admitted": 558,
+          "sts_done": true,
+          "sts_remaining": 0,
+          "sts_completion_s": 82812.4495990898,
+          "admission_ok": true,
+          "reason": "",
+          "completed_yard_jobs": 558,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "unadmitted_moves": 0
+        }
+      ],
+      "vessel_work_summary": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "policy_exceptions": 0,
+      "behavior_sha256": "4da47d1481ed6e415b290466c56faaf1e6f18a7015660735cd05280e162ea808"
+    }
+  },
+  "new_training_runs": 0,
+  "independent_confirmation": false,
+  "performance_claim_eligible": false,
+  "scope": "same fixed small workload, comparing diagnostics off/on; not the 10-day failure-state replay"
+}
