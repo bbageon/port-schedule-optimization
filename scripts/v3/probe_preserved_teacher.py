@@ -57,7 +57,11 @@ def main():
         "checkpoint_sha256": hashlib.sha256(args.checkpoint.read_bytes()).hexdigest(),
         "elapsed_s": time.monotonic() - start, "new_training_runs": 0,
         "purpose": "wiring-only counterfactual probe, without optimizer or performance inference"}
-    args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    def encode(value):
+        if isinstance(value, torch.Tensor):
+            return value.detach().cpu().tolist()
+        raise TypeError(f"Unsupported label value: {type(value).__name__}")
+    args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=encode) + "\n", encoding="utf-8")
     print(json.dumps({k: payload[k] for k in ("passed", "checks", "worlds", "identity_ok", "identity_bad", "elapsed_s")}))
     return int(not payload["passed"])
 
