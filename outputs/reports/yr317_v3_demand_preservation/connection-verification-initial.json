@@ -1,0 +1,72 @@
+{
+  "at": "2026-09-15T23:19:06.828580+00:00",
+  "scope": "completed input and connection checks; full diagnosis in progress",
+  "dashboard": {
+    "name": "dashboard_code_alignment",
+    "status": "FAIL",
+    "summary": "Dashboard·코드·증거 사이 불일치가 있음",
+    "reasons": [
+      "증거 commit이 origin/????-??에 push되지 않음: f17bede0cacad2133d698fd67a8ed745c8663ace"
+    ],
+    "evidence": {
+      "task_id": "YR-317-g",
+      "expected_state": "in-progress",
+      "board_matches": [
+        "in-progress.md"
+      ],
+      "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+      "evidence_paths": [
+        "outputs/reports/yr317_v3_demand_preservation/input-equivalence-2e4caef.json",
+        "outputs/reports/yr317_v3_demand_preservation/teacher-probe-2e4caef.json",
+        "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/smoke/summary.json"
+      ],
+      "control_paths": [
+        ".claude\\Dashboard\\in-progress.md",
+        ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+      ],
+      "evidence_commits": [
+        "f17bede0cacad2133d698fd67a8ed745c8663ace"
+      ],
+      "remote_ref": "origin/????-??",
+      "pin_commit": "f17bede0cacad2133d698fd67a8ed745c8663ace",
+      "drift": []
+    }
+  },
+  "progress_snapshot": {
+    "NO_REALLOC": {
+      "at": "2026-09-15T23:16:29.295702+00:00",
+      "state": "running",
+      "arm": "NO_REALLOC",
+      "day_index_completed": 3,
+      "days_planned": 10,
+      "elapsed_s": 574.7935097375885,
+      "truck_skipped": 0,
+      "skip_reasons": {}
+    },
+    "RL": {
+      "at": "2026-09-15T23:19:02.041748+00:00",
+      "state": "running",
+      "arm": "RL",
+      "day_index_completed": 4,
+      "days_planned": 10,
+      "elapsed_s": 727.5567716052756,
+      "truck_skipped": 0,
+      "skip_reasons": {}
+    },
+    "RL_NOVETO": {
+      "at": "2026-09-15T23:16:19.078348+00:00",
+      "state": "running",
+      "arm": "RL_NOVETO",
+      "day_index_completed": 3,
+      "days_planned": 10,
+      "elapsed_s": 564.5906256856397,
+      "truck_skipped": 0,
+      "skip_reasons": {}
+    }
+  },
+  "source_commit": "2e4caef",
+  "user_cpu_limit": 20,
+  "new_training_runs": 0,
+  "performance_confirmed": false,
+  "full_research_gate_pending": true
+}
