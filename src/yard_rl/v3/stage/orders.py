@@ -101,7 +101,8 @@ class V3Announcer:
     """
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
-                 period_s: float = EPOCH_S, retarget=None, record_admissions: bool = False):
+                 period_s: float = EPOCH_S, retarget=None, record_admissions: bool = False,
+                 diagnose_admissions: bool = False):
         self.period_s = float(period_s)
         self.end_s = end_s
         #: ★반출 대상을 **투입 시각에** 다시 고르는 훅 ([[YR-239]]). None = 명단 그대로.
@@ -117,6 +118,7 @@ class V3Announcer:
         self.n_skipped = 0
         self.skips: list[dict] = []
         self.record_admissions = record_admissions
+        self.diagnose_admissions = diagnose_admissions
         self.admission_events: list[dict] = []
 
     def clone_fresh(self) -> V3Announcer:
@@ -130,6 +132,7 @@ class V3Announcer:
         c.retarget, c.n_retargeted = self.retarget, 0
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         c.record_admissions, c.admission_events = self.record_admissions, []
+        c.diagnose_admissions = self.diagnose_admissions
         return c
 
     def window(self, lo: float, hi: float) -> "V3Announcer":
@@ -147,14 +150,18 @@ class V3Announcer:
         c.retarget, c.n_retargeted = self.retarget, 0
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         c.record_admissions, c.admission_events = self.record_admissions, []
+        c.diagnose_admissions = self.diagnose_admissions
         return c
 
-    def _record_admission(self, e, t, outcome, reason=None):
+    def _record_admission(self, e, t, outcome, reason=None, *, mbt=None):
         if self.record_admissions:
             self.admission_events.append({"job_id": e["job_id"], "t": t,
                 "outcome": outcome, "reason": reason, "block": e["block"],
                 "flow": e["flow"], "target": e.get("target"),
                 "planned_gate_in_s": e["arrival_s"]})
+            if self.diagnose_admissions and outcome == "SKIPPED" and mbt is not None:
+                from .admission_audit import inventory_snapshot
+                self.admission_events[-1]["inventory_at_failure"] = inventory_snapshot(mbt, e["block"])
 
     def review(self, mbt, t: float) -> None:
         if not on_grid(t, self.period_s):
@@ -180,7 +187,7 @@ class V3Announcer:
                     self.n_skipped += 1
                     self.skips.append({"t": t, "job_id": e["job_id"],
                                        "reason": "NO_TARGET"})
-                    self._record_admission(e, t, "SKIPPED", "NO_TARGET")
+                    self._record_admission(e, t, "SKIPPED", "NO_TARGET", mbt=mbt)
                     continue
                 if tgt != e.get("target"):
                     e = {**e, "target": tgt}       # ★원본을 안 건드린다 — 분기와 공유한다
@@ -194,4 +201,4 @@ class V3Announcer:
             except TransferError as ex:
                 self.n_skipped += 1
                 self.skips.append({"t": t, "job_id": e["job_id"], "reason": str(ex)})
-                self._record_admission(e, t, "SKIPPED", str(ex))
+                self._record_admission(e, t, "SKIPPED", str(ex), mbt=mbt)

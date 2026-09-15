@@ -1,0 +1,133 @@
+{
+ "completed_at": "2026-09-15T06:12:31.024632+00:00",
+ "claim_eligible": false,
+ "purpose": "diagnostic replay of an already-used seed, shortened from 30 to 10 days",
+ "pilot_recording_checks": {
+  "request_recording": true,
+  "announcer_counts": true,
+  "wait_cost_reconciles": true,
+  "no_teacher": true,
+  "no_policy_exceptions": true
+ },
+ "arms": {
+  "NO_REALLOC": {
+   "requests": {
+    "requested": 69000,
+    "states": {
+     "COMPLETED": 68830,
+     "SKIPPED": 170
+    },
+    "skip_reasons": {
+     "NO_TARGET": 170
+    },
+    "admitted": 68830,
+    "skipped": 170,
+    "unprocessed": 0,
+    "accounted_wait_krw": 4449909376.524425,
+    "recording_issues": [],
+    "recording_ok": true,
+    "all_requests_admitted": false,
+    "end_s": 871200.0,
+    "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+    "announcer_counts_match": true
+   },
+   "elapsed_s": 8779.86579445377,
+   "recording_checks": {
+    "request_recording": true,
+    "announcer_counts": true,
+    "wait_cost_reconciles": true,
+    "no_teacher": true,
+    "no_policy_exceptions": true
+   }
+  },
+  "RL": {
+   "requests": {
+    "requested": 69000,
+    "states": {
+     "COMPLETED": 68820,
+     "SKIPPED": 180
+    },
+    "skip_reasons": {
+     "Y21: 용량 부족 (free=-10)": 2,
+     "Y21: 용량 부족 (free=-8)": 1,
+     "Y21: 용량 부족 (free=-5)": 1,
+     "Y21: 용량 부족 (free=-1)": 4,
+     "Y21: 용량 부족 (free=0)": 2,
+     "Y21: 용량 부족 (free=1)": 4,
+     "Y21: 용량 부족 (free=2)": 4,
+     "NO_TARGET": 157,
+     "Y21: 용량 부족 (free=-116)": 1,
+     "Y21: 용량 부족 (free=-103)": 1,
+     "Y21: 용량 부족 (free=-70)": 1,
+     "Y21: 용량 부족 (free=-69)": 1,
+     "Y21: 용량 부족 (free=-26)": 1
+    },
+    "admitted": 68820,
+    "skipped": 180,
+    "unprocessed": 0,
+    "accounted_wait_krw": 3659524539.2445135,
+    "recording_issues": [],
+    "recording_ok": true,
+    "all_requests_admitted": false,
+    "end_s": 871200.0,
+    "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+    "announcer_counts_match": true
+   },
+   "elapsed_s": 7186.390972145833,
+   "recording_checks": {
+    "request_recording": true,
+    "announcer_counts": true,
+    "wait_cost_reconciles": true,
+    "no_teacher": true,
+    "no_policy_exceptions": true
+   }
+  },
+  "RL_NOVETO": {
+   "requests": {
+    "requested": 69000,
+    "states": {
+     "COMPLETED": 68864,
+     "SKIPPED": 136
+    },
+    "skip_reasons": {
+     "Y21: 용량 부족 (free=2)": 2,
+     "NO_TARGET": 132,
+     "Y21: 용량 부족 (free=-8)": 1,
+     "Y09: 용량 부족 (free=-27)": 1
+    },
+    "admitted": 68864,
+    "skipped": 136,
+    "unprocessed": 0,
+    "accounted_wait_krw": 3756629144.2615047,
+    "recording_issues": [],
+    "recording_ok": true,
+    "all_requests_admitted": false,
+    "end_s": 871200.0,
+    "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+    "announcer_counts_match": true
+   },
+   "elapsed_s": 7551.853592138737,
+   "recording_checks": {
+    "request_recording": true,
+    "announcer_counts": true,
+    "wait_cost_reconciles": true,
+    "no_teacher": true,
+    "no_policy_exceptions": true
+   }
+  }
+ },
+ "common_gates": {
+  "performance": {
+   "status": "INCONCLUSIVE",
+   "reason": "no independent confirmation"
+  },
+  "reliability": {
+   "status": "INCONCLUSIVE",
+   "reason": "recording checks passed; manuscript alignment remains separate"
+  },
+  "scenario_validity": {
+   "status": "FAIL",
+   "reason": "full demand and vessel-flow validation is still required"
+  }
+ }
+}

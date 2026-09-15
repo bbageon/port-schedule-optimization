@@ -126,6 +126,8 @@ class MonthResult:
     vessel_admissions: list = field(default_factory=list)
     request_ledger: list = field(default_factory=list)
     request_summary: dict = field(default_factory=dict)
+    vessel_work_ledger: list = field(default_factory=list)
+    vessel_work_summary: dict = field(default_factory=dict)
 
     @property
     def train_days(self) -> list:
@@ -202,7 +204,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               days=None, on_day=None, labels_per_day: int | None = None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
-              capture_requests: bool = False) -> MonthResult:
+              capture_requests: bool = False, diagnose_admissions: bool = False) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -219,6 +221,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     """
     if arm not in ARMS:
         raise NotImplementedError(f"알 수 없는 재배치 팔 {arm!r} — 쓸 수 있는 팔: {ARMS}")
+    if diagnose_admissions and not capture_requests:
+        raise ValueError("Admission diagnostics require capture_requests=True")
     if dispatcher not in DISPATCHERS_READY:
         raise NotImplementedError(
             f"배차 {dispatcher!r} 은 아직 구현 전이다 — 쓸 수 있는 바닥: "
@@ -233,6 +237,10 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     # ★본선 양하/적하를 **트럭 수지에 맞춘다** — 안 그러면 야드가 30일 동안 빈다.
     v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
                                   truck_net=truck_net_by_block(built["schedule"]))
+    vessel_audit = None
+    if diagnose_admissions:
+        from .admission_audit import VesselWorkAudit, inventory_snapshot
+        vessel_audit = VesselWorkAudit(r for rows in v_by_day.values() for r in rows)
     meta = {}
     for rows in v_by_day.values():
         meta.update(vessel_meta(rows))
@@ -250,7 +258,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                             i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)))
     # ★반출 대상은 **투입 시각에** 다시 고른다 — 30일은 이름이 날마다 겹친다.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
-                      retarget=make_retarget(seed), record_admissions=capture_requests)
+                      retarget=make_retarget(seed), record_admissions=capture_requests,
+                      diagnose_admissions=diagnose_admissions)
 
     if seller_net is None or buyer_net is None:
         torch.manual_seed(int(seed))
@@ -412,20 +421,29 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         """그날 배를 붙인다. 못 붙인 배는 조용히 넘기지 않고 세어 둔다."""
         n = moves = skipped = 0
         for r in v_by_day.get(d.index, []):
+            diagnostic = inventory_snapshot(m, r["block"]) if vessel_audit is not None else None
             try:
                 a = inject_vessel(m, r["block"], r, key=r["key"],
                                   size_seed=f"v3:month:{seed}:{r['key']}")
             except TransferError as ex:
                 skipped += 1
                 res.vessel_admissions.append({"key": r["key"], "day": d.index,
-                                              "ok": False, "why": str(ex)})
+                                              "ok": False, "why": str(ex),
+                                              "asked": r["moves"], "moves": 0,
+                                              "block": r["block"], "work": r["work"]})
+                if vessel_audit is not None:
+                    res.vessel_admissions[-1]["inventory_before_admission"] = diagnostic
+                    vessel_audit.admission(res.vessel_admissions[-1])
                 continue
             n += 1
             moves += a.moves
             res.vessel_admissions.append({"key": a.vessel_key, "day": d.index,
                                           "ok": True, "moves": a.moves,
                                           "asked": a.asked_moves,
-                                          "why": a.reason})
+                                           "why": a.reason})
+            if vessel_audit is not None:
+                res.vessel_admissions[-1]["inventory_before_admission"] = diagnostic
+                vessel_audit.admission(res.vessel_admissions[-1])
         return n, moves, skipped
 
     def close_day(m, d, t: float, opened: tuple) -> None:
@@ -456,6 +474,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         # ★순서가 계약이다 — **먼저 job 을 치우고** 그 다음 배를 치운다.
         #   배 앞으로 남은 job 이 있는데 배를 치우면 그 job 이 영원히 안 풀린다
         #   (`retire_done_vessels` 머리말 참조 · 2026-08-26 실측 사고).
+        if vessel_audit is not None:
+            vessel_audit.observe(m)
         rep.pruned = prune_completed(m, t)
         retire_done_vessels(m, archive, t=t)
         rep.load_after = ledger_load(m)
@@ -520,4 +540,6 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         res.request_summary["announcer_counts_match"] = (
             res.admitted == res.request_summary["admitted"]
             and res.skipped == res.request_summary["skipped"])
+    if vessel_audit is not None:
+        res.vessel_work_ledger, res.vessel_work_summary = vessel_audit.finish(mbt)
     return res

@@ -1,0 +1,1303 @@
+{
+  "schema": "yr317.request-audit.reconciliation.v1",
+  "snapshot_at": "2026-09-15T06:12:48.396228+00:00",
+  "run": "outputs/reports/yr317_v3_request_audit/run-3279b7f",
+  "analyzer_sha256": "ccaea7f42ee3474646e4bd51648a7167e8db0918efbf422bce4d598804637ab3",
+  "completed_arms": {
+    "pilot_RL": {
+      "passed": true,
+      "issues": {},
+      "examples": {},
+      "requested": 300,
+      "states": {
+        "COMPLETED": 300
+      },
+      "skip_reasons": {},
+      "cohorts": {
+        "0": {
+          "requested": 300,
+          "states": {
+            "COMPLETED": 300
+          },
+          "accounted_wait_krw": 3438379.3734580413,
+          "gate_entered": 300,
+          "flows": {
+            "GATE_OUT": 179,
+            "GATE_IN": 121
+          }
+        }
+      },
+      "skip_groups": [],
+      "accounted_wait_krw": 3438379.3734580413,
+      "skipped_accounted_wait_krw": 0.0,
+      "four_cost_totals_krw": {
+        "c_wait": 3438379.3734580413,
+        "c_move": 275139.5833333333,
+        "c_rehandle": 2832000.0,
+        "c_vessel": 384165.6937806197
+      },
+      "vessel_admissions": {
+        "streams": 14,
+        "failed": 0,
+        "admitted_moves": 7022,
+        "asked_moves_in_recorded_streams": 7022,
+        "missing_asked_fields": 0,
+        "completion_validated": false
+      },
+      "full_truck_demand_completed": true,
+      "artifact_sha256": {
+        "manifest.json": "4ebb3a12f427b9470029647c976d0e2dca6d8eb77b5cf06aaaf984223adafddc",
+        "result.json": "e27bbfd70000175655f087eba723b26483b03baab0cae7a004626a190bbf7b7a",
+        "requests.jsonl.gz": "e1dbe1d2078eb964e19e41902d4b11585936e2f69bc22ef62e53edea5659e34d",
+        "days.jsonl": "b41a3caca5d5e4a8179c5a150a91b0f8d33f6623d50fbba2b859403529159db6"
+      },
+      "artifact_checks": {
+        "ledger_sha256": true,
+        "checkpoint_sha256": true,
+        "prereg_sha256": true,
+        "runner_sha256": true
+      },
+      "elapsed_s": 64.67950005363673,
+      "requested_identity_sha256": "c60f9695d4360a32afebc6f2b806d4c7b99dd115ef0a74dea697d75ceed018ad"
+    },
+    "NO_REALLOC": {
+      "passed": true,
+      "issues": {},
+      "examples": {},
+      "requested": 69000,
+      "states": {
+        "COMPLETED": 68830,
+        "SKIPPED": 170
+      },
+      "skip_reasons": {
+        "NO_TARGET": 170
+      },
+      "cohorts": {
+        "0": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 50702449.17156391,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1403,
+            "GATE_OUT": 2097
+          }
+        },
+        "1": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 62127902.798966184,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1378,
+            "GATE_OUT": 2122
+          }
+        },
+        "2": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 82269135.948535,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 2978,
+            "GATE_IN": 2022
+          }
+        },
+        "3": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 81863393.7019769,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 3036,
+            "GATE_IN": 1964
+          }
+        },
+        "4": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 103276645.82459079,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_OUT": 1992,
+            "GATE_IN": 1508
+          }
+        },
+        "5": {
+          "requested": 7500,
+          "states": {
+            "COMPLETED": 7500
+          },
+          "accounted_wait_krw": 224941483.80432215,
+          "gate_entered": 7500,
+          "flows": {
+            "GATE_OUT": 3924,
+            "GATE_IN": 3576
+          }
+        },
+        "6": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12500
+          },
+          "accounted_wait_krw": 1325901295.1059327,
+          "gate_entered": 12500,
+          "flows": {
+            "GATE_IN": 5236,
+            "GATE_OUT": 7264
+          }
+        },
+        "7": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12500
+          },
+          "accounted_wait_krw": 1244503493.9513614,
+          "gate_entered": 12500,
+          "flows": {
+            "GATE_OUT": 7321,
+            "GATE_IN": 5179
+          }
+        },
+        "8": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12363,
+            "SKIPPED": 137
+          },
+          "accounted_wait_krw": 1196938834.3416586,
+          "gate_entered": 12363,
+          "flows": {
+            "GATE_OUT": 6578,
+            "GATE_IN": 5922
+          }
+        },
+        "9": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3467,
+            "SKIPPED": 33
+          },
+          "accounted_wait_krw": 77384741.87551615,
+          "gate_entered": 3467,
+          "flows": {
+            "GATE_IN": 1551,
+            "GATE_OUT": 1949
+          }
+        }
+      },
+      "skip_groups": [
+        {
+          "day": 8,
+          "block": "Y09",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 40
+        },
+        {
+          "day": 8,
+          "block": "Y17",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 96
+        },
+        {
+          "day": 8,
+          "block": "Y20",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y19",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 33
+        }
+      ],
+      "accounted_wait_krw": 4449909376.524396,
+      "skipped_accounted_wait_krw": 0.0,
+      "four_cost_totals_krw": {
+        "c_wait": 4449909376.524424,
+        "c_move": 7203625.0,
+        "c_rehandle": 117728000.0,
+        "c_vessel": 78427098.41583629
+      },
+      "vessel_admissions": {
+        "streams": 110,
+        "failed": 0,
+        "admitted_moves": 43394,
+        "asked_moves_in_recorded_streams": 44322,
+        "missing_asked_fields": 0,
+        "completion_validated": false
+      },
+      "full_truck_demand_completed": false,
+      "artifact_sha256": {
+        "manifest.json": "f422c525473bf11e07b4c96f0dfb984b72d0f6ec95af5d096a12f54083ca8a84",
+        "result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+        "requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+        "days.jsonl": "dc8acc99bf85ca5d98b03f64692ced141adf2388b8d05dec9b9f07b3ebc0097f"
+      },
+      "artifact_checks": {
+        "ledger_sha256": true,
+        "checkpoint_sha256": true,
+        "prereg_sha256": true,
+        "runner_sha256": true
+      },
+      "elapsed_s": 8779.86579445377,
+      "requested_identity_sha256": "07522a01ce823ccdde1a3c22ed5063aaa77a96ca1b77af1f9e786fa6baeafd3e",
+      "original_prefix_diagnostic": {
+        "source_sha256": "3306ccfb13c1a7123727579622c05e3c56003ba297733f32983070fef6db2660",
+        "scope": "descriptive counts only; 10-day cutoff differs from original 30-day run",
+        "differences": []
+      }
+    },
+    "RL": {
+      "passed": true,
+      "issues": {},
+      "examples": {},
+      "requested": 69000,
+      "states": {
+        "COMPLETED": 68820,
+        "SKIPPED": 180
+      },
+      "skip_reasons": {
+        "Y21: 용량 부족 (free=-10)": 2,
+        "Y21: 용량 부족 (free=-1)": 4,
+        "Y21: 용량 부족 (free=0)": 2,
+        "Y21: 용량 부족 (free=2)": 4,
+        "Y21: 용량 부족 (free=1)": 4,
+        "Y21: 용량 부족 (free=-8)": 1,
+        "Y21: 용량 부족 (free=-5)": 1,
+        "NO_TARGET": 157,
+        "Y21: 용량 부족 (free=-69)": 1,
+        "Y21: 용량 부족 (free=-26)": 1,
+        "Y21: 용량 부족 (free=-116)": 1,
+        "Y21: 용량 부족 (free=-103)": 1,
+        "Y21: 용량 부족 (free=-70)": 1
+      },
+      "cohorts": {
+        "0": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 46945698.28187522,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1403,
+            "GATE_OUT": 2097
+          }
+        },
+        "1": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 57456674.54418464,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1378,
+            "GATE_OUT": 2122
+          }
+        },
+        "2": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 77928005.00300226,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 2978,
+            "GATE_IN": 2022
+          }
+        },
+        "3": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 78250219.2133389,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 3036,
+            "GATE_IN": 1964
+          }
+        },
+        "4": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3483,
+            "SKIPPED": 17
+          },
+          "accounted_wait_krw": 54127851.030282125,
+          "gate_entered": 3483,
+          "flows": {
+            "GATE_OUT": 1992,
+            "GATE_IN": 1508
+          }
+        },
+        "5": {
+          "requested": 7500,
+          "states": {
+            "COMPLETED": 7494,
+            "SKIPPED": 6
+          },
+          "accounted_wait_krw": 226214824.61239427,
+          "gate_entered": 7494,
+          "flows": {
+            "GATE_OUT": 3924,
+            "GATE_IN": 3576
+          }
+        },
+        "6": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12500
+          },
+          "accounted_wait_krw": 1082274719.779775,
+          "gate_entered": 12500,
+          "flows": {
+            "GATE_IN": 5236,
+            "GATE_OUT": 7264
+          }
+        },
+        "7": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12453,
+            "SKIPPED": 47
+          },
+          "accounted_wait_krw": 1024863579.2485679,
+          "gate_entered": 12453,
+          "flows": {
+            "GATE_OUT": 7321,
+            "GATE_IN": 5179
+          }
+        },
+        "8": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12430,
+            "SKIPPED": 70
+          },
+          "accounted_wait_krw": 944315656.7814013,
+          "gate_entered": 12430,
+          "flows": {
+            "GATE_OUT": 6578,
+            "GATE_IN": 5922
+          }
+        },
+        "9": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3460,
+            "SKIPPED": 40
+          },
+          "accounted_wait_krw": 67147310.74969807,
+          "gate_entered": 3460,
+          "flows": {
+            "GATE_IN": 1551,
+            "GATE_OUT": 1949
+          }
+        }
+      },
+      "skip_groups": [
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-1)",
+          "count": 4
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-10)",
+          "count": 2
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-5)",
+          "count": 1
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-8)",
+          "count": 1
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=0)",
+          "count": 2
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=1)",
+          "count": 3
+        },
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=2)",
+          "count": 4
+        },
+        {
+          "day": 5,
+          "block": "Y03",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 6
+        },
+        {
+          "day": 7,
+          "block": "Y05",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 47
+        },
+        {
+          "day": 8,
+          "block": "Y05",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 59
+        },
+        {
+          "day": 8,
+          "block": "Y09",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 7
+        },
+        {
+          "day": 8,
+          "block": "Y20",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 4
+        },
+        {
+          "day": 9,
+          "block": "Y07",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y19",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 33
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-103)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-116)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-26)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-69)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-70)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=1)",
+          "count": 1
+        }
+      ],
+      "accounted_wait_krw": 3659524539.2445054,
+      "skipped_accounted_wait_krw": 0.0,
+      "four_cost_totals_krw": {
+        "c_wait": 3659524539.2445197,
+        "c_move": 7360532.291666667,
+        "c_rehandle": 119066000.0,
+        "c_vessel": 63447720.33053985
+      },
+      "vessel_admissions": {
+        "streams": 110,
+        "failed": 0,
+        "admitted_moves": 43295,
+        "asked_moves_in_recorded_streams": 44322,
+        "missing_asked_fields": 0,
+        "completion_validated": false
+      },
+      "full_truck_demand_completed": false,
+      "artifact_sha256": {
+        "manifest.json": "a55ff4a9eda657075c708e0aee0ab31ec2b5aeb55c079dfeaf6df4d9602f20da",
+        "result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+        "requests.jsonl.gz": "0c3efa1cfa52a97ac01b06fd2880a5b837fa8399ecd8572ab2cfb8e66be54b29",
+        "days.jsonl": "cc0cfe8d4b8fcd6cf16342f90f25dcad86a4e812b35c090db2899cee3d6eac78"
+      },
+      "artifact_checks": {
+        "ledger_sha256": true,
+        "checkpoint_sha256": true,
+        "prereg_sha256": true,
+        "runner_sha256": true
+      },
+      "elapsed_s": 7186.390972145833,
+      "requested_identity_sha256": "07522a01ce823ccdde1a3c22ed5063aaa77a96ca1b77af1f9e786fa6baeafd3e",
+      "original_prefix_diagnostic": {
+        "source_sha256": "bc1ceef53dc384a56cff3f7fcb686c68eade7893037d570fa1ce4cb36d2f6fa1",
+        "scope": "descriptive counts only; 10-day cutoff differs from original 30-day run",
+        "differences": [
+          {
+            "day": 0,
+            "field": "traded",
+            "original": 2463,
+            "replay": 2441
+          },
+          {
+            "day": 0,
+            "field": "n_space",
+            "original": 938,
+            "replay": 964
+          },
+          {
+            "day": 0,
+            "field": "n_time",
+            "original": 1525,
+            "replay": 1477
+          },
+          {
+            "day": 1,
+            "field": "traded",
+            "original": 2488,
+            "replay": 2459
+          },
+          {
+            "day": 1,
+            "field": "n_space",
+            "original": 868,
+            "replay": 926
+          },
+          {
+            "day": 1,
+            "field": "n_time",
+            "original": 1620,
+            "replay": 1533
+          },
+          {
+            "day": 2,
+            "field": "traded",
+            "original": 3155,
+            "replay": 3067
+          },
+          {
+            "day": 2,
+            "field": "n_space",
+            "original": 939,
+            "replay": 1048
+          },
+          {
+            "day": 2,
+            "field": "n_time",
+            "original": 2216,
+            "replay": 2019
+          },
+          {
+            "day": 3,
+            "field": "traded",
+            "original": 3076,
+            "replay": 2979
+          },
+          {
+            "day": 3,
+            "field": "n_space",
+            "original": 912,
+            "replay": 1099
+          },
+          {
+            "day": 3,
+            "field": "n_time",
+            "original": 2164,
+            "replay": 1880
+          },
+          {
+            "day": 4,
+            "field": "truck_skipped",
+            "original": 0,
+            "replay": 17
+          },
+          {
+            "day": 4,
+            "field": "traded",
+            "original": 2459,
+            "replay": 2329
+          },
+          {
+            "day": 4,
+            "field": "n_space",
+            "original": 1055,
+            "replay": 1133
+          },
+          {
+            "day": 4,
+            "field": "n_time",
+            "original": 1404,
+            "replay": 1196
+          },
+          {
+            "day": 5,
+            "field": "truck_skipped",
+            "original": 3,
+            "replay": 6
+          },
+          {
+            "day": 5,
+            "field": "traded",
+            "original": 4435,
+            "replay": 4389
+          },
+          {
+            "day": 5,
+            "field": "n_space",
+            "original": 886,
+            "replay": 1042
+          },
+          {
+            "day": 5,
+            "field": "n_time",
+            "original": 3549,
+            "replay": 3347
+          },
+          {
+            "day": 6,
+            "field": "truck_skipped",
+            "original": 16,
+            "replay": 0
+          },
+          {
+            "day": 6,
+            "field": "traded",
+            "original": 7826,
+            "replay": 7172
+          },
+          {
+            "day": 6,
+            "field": "n_space",
+            "original": 574,
+            "replay": 678
+          },
+          {
+            "day": 6,
+            "field": "n_time",
+            "original": 7252,
+            "replay": 6494
+          },
+          {
+            "day": 7,
+            "field": "truck_skipped",
+            "original": 51,
+            "replay": 47
+          },
+          {
+            "day": 7,
+            "field": "traded",
+            "original": 6934,
+            "replay": 6317
+          },
+          {
+            "day": 7,
+            "field": "n_space",
+            "original": 381,
+            "replay": 365
+          },
+          {
+            "day": 7,
+            "field": "n_time",
+            "original": 6553,
+            "replay": 5952
+          },
+          {
+            "day": 8,
+            "field": "truck_skipped",
+            "original": 41,
+            "replay": 70
+          },
+          {
+            "day": 8,
+            "field": "traded",
+            "original": 6992,
+            "replay": 6802
+          },
+          {
+            "day": 8,
+            "field": "n_space",
+            "original": 401,
+            "replay": 362
+          },
+          {
+            "day": 8,
+            "field": "n_time",
+            "original": 6591,
+            "replay": 6440
+          },
+          {
+            "day": 9,
+            "field": "truck_skipped",
+            "original": 53,
+            "replay": 40
+          },
+          {
+            "day": 9,
+            "field": "traded",
+            "original": 2011,
+            "replay": 1917
+          },
+          {
+            "day": 9,
+            "field": "n_space",
+            "original": 778,
+            "replay": 809
+          },
+          {
+            "day": 9,
+            "field": "n_time",
+            "original": 1233,
+            "replay": 1108
+          }
+        ]
+      }
+    },
+    "RL_NOVETO": {
+      "passed": true,
+      "issues": {},
+      "examples": {},
+      "requested": 69000,
+      "states": {
+        "COMPLETED": 68864,
+        "SKIPPED": 136
+      },
+      "skip_reasons": {
+        "Y21: 용량 부족 (free=2)": 2,
+        "NO_TARGET": 132,
+        "Y09: 용량 부족 (free=-27)": 1,
+        "Y21: 용량 부족 (free=-8)": 1
+      },
+      "cohorts": {
+        "0": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 47687705.5596131,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1403,
+            "GATE_OUT": 2097
+          }
+        },
+        "1": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3500
+          },
+          "accounted_wait_krw": 56578846.63269385,
+          "gate_entered": 3500,
+          "flows": {
+            "GATE_IN": 1378,
+            "GATE_OUT": 2122
+          }
+        },
+        "2": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 79263712.62633215,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 2978,
+            "GATE_IN": 2022
+          }
+        },
+        "3": {
+          "requested": 5000,
+          "states": {
+            "COMPLETED": 5000
+          },
+          "accounted_wait_krw": 78849396.57903145,
+          "gate_entered": 5000,
+          "flows": {
+            "GATE_OUT": 3036,
+            "GATE_IN": 1964
+          }
+        },
+        "4": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3498,
+            "SKIPPED": 2
+          },
+          "accounted_wait_krw": 54435127.45103542,
+          "gate_entered": 3498,
+          "flows": {
+            "GATE_OUT": 1992,
+            "GATE_IN": 1508
+          }
+        },
+        "5": {
+          "requested": 7500,
+          "states": {
+            "COMPLETED": 7497,
+            "SKIPPED": 3
+          },
+          "accounted_wait_krw": 326534618.87760407,
+          "gate_entered": 7497,
+          "flows": {
+            "GATE_OUT": 3924,
+            "GATE_IN": 3576
+          }
+        },
+        "6": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12490,
+            "SKIPPED": 10
+          },
+          "accounted_wait_krw": 1069333558.9571775,
+          "gate_entered": 12490,
+          "flows": {
+            "GATE_IN": 5236,
+            "GATE_OUT": 7264
+          }
+        },
+        "7": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12423,
+            "SKIPPED": 77
+          },
+          "accounted_wait_krw": 1026431287.5498282,
+          "gate_entered": 12423,
+          "flows": {
+            "GATE_OUT": 7321,
+            "GATE_IN": 5179
+          }
+        },
+        "8": {
+          "requested": 12500,
+          "states": {
+            "COMPLETED": 12471,
+            "SKIPPED": 29
+          },
+          "accounted_wait_krw": 951200197.3669207,
+          "gate_entered": 12471,
+          "flows": {
+            "GATE_OUT": 6578,
+            "GATE_IN": 5922
+          }
+        },
+        "9": {
+          "requested": 3500,
+          "states": {
+            "COMPLETED": 3485,
+            "SKIPPED": 15
+          },
+          "accounted_wait_krw": 66314692.661262974,
+          "gate_entered": 3485,
+          "flows": {
+            "GATE_IN": 1551,
+            "GATE_OUT": 1949
+          }
+        }
+      },
+      "skip_groups": [
+        {
+          "day": 4,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=2)",
+          "count": 2
+        },
+        {
+          "day": 5,
+          "block": "Y03",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 3
+        },
+        {
+          "day": 6,
+          "block": "Y02",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 10
+        },
+        {
+          "day": 7,
+          "block": "Y05",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 77
+        },
+        {
+          "day": 8,
+          "block": "Y05",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 18
+        },
+        {
+          "day": 8,
+          "block": "Y09",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 10
+        },
+        {
+          "day": 8,
+          "block": "Y20",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y07",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y09",
+          "flow": "GATE_IN",
+          "reason": "Y09: 용량 부족 (free=-27)",
+          "count": 1
+        },
+        {
+          "day": 9,
+          "block": "Y19",
+          "flow": "GATE_OUT",
+          "reason": "NO_TARGET",
+          "count": 12
+        },
+        {
+          "day": 9,
+          "block": "Y21",
+          "flow": "GATE_IN",
+          "reason": "Y21: 용량 부족 (free=-8)",
+          "count": 1
+        }
+      ],
+      "accounted_wait_krw": 3756629144.26155,
+      "skipped_accounted_wait_krw": 0.0,
+      "four_cost_totals_krw": {
+        "c_wait": 3756629144.2614994,
+        "c_move": 7373762.5,
+        "c_rehandle": 119206000.0,
+        "c_vessel": 60018660.22167055
+      },
+      "vessel_admissions": {
+        "streams": 110,
+        "failed": 0,
+        "admitted_moves": 43267,
+        "asked_moves_in_recorded_streams": 44322,
+        "missing_asked_fields": 0,
+        "completion_validated": false
+      },
+      "full_truck_demand_completed": false,
+      "artifact_sha256": {
+        "manifest.json": "46337ba68c27c86815991e0a048d23913cac1cb7f5550899835ba85267d17455",
+        "result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+        "requests.jsonl.gz": "9427497c9e3564a7ba86dbd28eac5555c2de18d6a805e5db1dac7e3cc1af19c5",
+        "days.jsonl": "a973554ef22d445782ca3bfbf0be36d638552dd9efc26bf3987bfd926778e1fc"
+      },
+      "artifact_checks": {
+        "ledger_sha256": true,
+        "checkpoint_sha256": true,
+        "prereg_sha256": true,
+        "runner_sha256": true
+      },
+      "elapsed_s": 7551.853592138737,
+      "requested_identity_sha256": "07522a01ce823ccdde1a3c22ed5063aaa77a96ca1b77af1f9e786fa6baeafd3e",
+      "original_prefix_diagnostic": {
+        "source_sha256": "21633a59daefe802740c385dc50749f9067b1f9966b8fa78d5619a5887b5d2e0",
+        "scope": "descriptive counts only; 10-day cutoff differs from original 30-day run",
+        "differences": [
+          {
+            "day": 0,
+            "field": "traded",
+            "original": 2946,
+            "replay": 2941
+          },
+          {
+            "day": 0,
+            "field": "n_space",
+            "original": 901,
+            "replay": 931
+          },
+          {
+            "day": 0,
+            "field": "n_time",
+            "original": 2045,
+            "replay": 2010
+          },
+          {
+            "day": 1,
+            "field": "traded",
+            "original": 2936,
+            "replay": 2932
+          },
+          {
+            "day": 1,
+            "field": "n_space",
+            "original": 864,
+            "replay": 933
+          },
+          {
+            "day": 1,
+            "field": "n_time",
+            "original": 2072,
+            "replay": 1999
+          },
+          {
+            "day": 2,
+            "field": "traded",
+            "original": 4011,
+            "replay": 3988
+          },
+          {
+            "day": 2,
+            "field": "n_space",
+            "original": 900,
+            "replay": 981
+          },
+          {
+            "day": 2,
+            "field": "n_time",
+            "original": 3111,
+            "replay": 3007
+          },
+          {
+            "day": 3,
+            "field": "traded",
+            "original": 3940,
+            "replay": 3942
+          },
+          {
+            "day": 3,
+            "field": "n_space",
+            "original": 857,
+            "replay": 1016
+          },
+          {
+            "day": 3,
+            "field": "n_time",
+            "original": 3083,
+            "replay": 2926
+          },
+          {
+            "day": 4,
+            "field": "truck_skipped",
+            "original": 12,
+            "replay": 2
+          },
+          {
+            "day": 4,
+            "field": "traded",
+            "original": 2917,
+            "replay": 2941
+          },
+          {
+            "day": 4,
+            "field": "n_space",
+            "original": 1009,
+            "replay": 1175
+          },
+          {
+            "day": 4,
+            "field": "n_time",
+            "original": 1908,
+            "replay": 1766
+          },
+          {
+            "day": 5,
+            "field": "truck_skipped",
+            "original": 5,
+            "replay": 3
+          },
+          {
+            "day": 5,
+            "field": "traded",
+            "original": 5465,
+            "replay": 5431
+          },
+          {
+            "day": 5,
+            "field": "n_space",
+            "original": 898,
+            "replay": 993
+          },
+          {
+            "day": 5,
+            "field": "n_time",
+            "original": 4567,
+            "replay": 4438
+          },
+          {
+            "day": 6,
+            "field": "truck_skipped",
+            "original": 18,
+            "replay": 10
+          },
+          {
+            "day": 6,
+            "field": "traded",
+            "original": 9750,
+            "replay": 9672
+          },
+          {
+            "day": 6,
+            "field": "n_space",
+            "original": 639,
+            "replay": 718
+          },
+          {
+            "day": 6,
+            "field": "n_time",
+            "original": 9111,
+            "replay": 8954
+          },
+          {
+            "day": 7,
+            "field": "truck_skipped",
+            "original": 73,
+            "replay": 77
+          },
+          {
+            "day": 7,
+            "field": "traded",
+            "original": 9618,
+            "replay": 9465
+          },
+          {
+            "day": 7,
+            "field": "n_space",
+            "original": 732,
+            "replay": 797
+          },
+          {
+            "day": 7,
+            "field": "n_time",
+            "original": 8886,
+            "replay": 8668
+          },
+          {
+            "day": 8,
+            "field": "truck_skipped",
+            "original": 25,
+            "replay": 29
+          },
+          {
+            "day": 8,
+            "field": "traded",
+            "original": 9698,
+            "replay": 9499
+          },
+          {
+            "day": 8,
+            "field": "n_space",
+            "original": 693,
+            "replay": 873
+          },
+          {
+            "day": 8,
+            "field": "n_time",
+            "original": 9005,
+            "replay": 8626
+          },
+          {
+            "day": 9,
+            "field": "truck_skipped",
+            "original": 27,
+            "replay": 15
+          },
+          {
+            "day": 9,
+            "field": "traded",
+            "original": 2929,
+            "replay": 2821
+          },
+          {
+            "day": 9,
+            "field": "n_space",
+            "original": 1227,
+            "replay": 1295
+          },
+          {
+            "day": 9,
+            "field": "n_time",
+            "original": 1702,
+            "replay": 1526
+          }
+        ]
+      }
+    }
+  },
+  "pending_arms": {},
+  "problems": [],
+  "completed_artifacts_valid": true,
+  "all_main_arms_complete": true,
+  "same_requested_work_across_all_main_arms": true,
+  "claim_eligible": false,
+  "independent_confirmatory_runs": 0,
+  "interpretation": {
+    "NO_TARGET": "No unclaimed container available in the requested block at announcement; not proof of an empty yard or a congestion cause.",
+    "cost": "Existing gate-entry cost excludes skipped requests; zero recorded cost is not evidence of zero operational burden.",
+    "days": "Live-day skip counters follow announcement intervals; ledger cohorts follow original requested day.",
+    "scope": "Fixed, reused-seed 10-day diagnostic; no new training or performance inference."
+  }
+}

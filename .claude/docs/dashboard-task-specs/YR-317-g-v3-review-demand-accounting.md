@@ -30,3 +30,14 @@
 - [기준 정책 결과](../../../outputs/reports/yr317_v3_request_audit/baseline-result.md) · [원자료 재대조](../../../outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json).
 - [진행 시점 원자료 대조](../../../outputs/reports/yr317_v3_request_audit/snapshot-20260915-1104.json). 완료 전 성능 판정이나 세 정책 비교 결과로 보고하지 않는다.
 - [실행 보고](../../../outputs/reports/yr317_v3_request_audit/README.md) · [단기 실행 재대조](../../../outputs/reports/yr317_v3_request_audit/pilot_validation.json).
+
+## 9/15 세 정책 종료와 다음 단일축 보정
+
+- 15:12 세 정책 10일 진단 완료. 완료 68,830/68,820/68,864건, 미투입 170/180/136건이며 기본 요청 명단은 각각 69,000건이다.
+- 본선 요청은 각각 44,322회, 실제 투입 43,394/43,295/43,267회다. 기존 기록에는 본선 최종 완료 검증이 없다.
+- [종료 결과와 원인 경로](../../../outputs/reports/yr317_v3_request_audit/completed-diagnostic.md) · [최종 원자료 대조](../../../outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json).
+- 사용자 지시로 다음 단계 실행. 기존 baseline_gate의 `authorize-next --target reliability` 허용을 재확인했다.
+- 보정 축은 기록 정합 하나다. 실제 재고/지정 재고/미도착 예약을 구분하고, 본선 요청·완료·잔여 작업을 메모리 정리 전 보존한다.
+- 완전 실패한 본선 투입에서도 원래 요청 수를 남긴다. 기존 정책·비용·미투입 처리 규칙은 바꾸지 않는다.
+- 관련 검사 46개 통과. [실제 300대 OFF/ON 계약](../../../outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md)에 따라 관측 기능이 기존 결과를 바꾸지 않는지 확인한다.
+- 300대 검사로 기존 10일 실패의 재고 원인을 확정하지 않는다. 독립 반복·추가학습·수평/수직 검증으로 보고하지 않는다.
