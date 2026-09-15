@@ -1,0 +1,315 @@
+{
+  "schema": "yr317.v3.partial-audit-gates.v1",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "No independent comparison is available; two diagnostic policies remain pending.",
+      "reasons": [
+        "Reused-seed ten-day diagnostic does not establish a general cost benefit."
+      ],
+      "evidence": {
+        "scope": "completed NO_REALLOC baseline only; other two policies pending at snapshot",
+        "board_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json": "2d84256ebb5dc927fc634aae075e9934ed493a539651e9325503892517d75ece",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml": "ad2b58a27ea756d995be7cc5a57e41ae7ae80fcea081fb780a182e93c615a2e8",
+          "outputs/reports/yr317_v3_request_audit/baseline-result.md": "c520534df4c7a64bcf289fad2c1bef8740b4a51a6d99888fb16701d3edaca777"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml",
+              "outputs/reports/yr317_v3_request_audit/baseline-result.md"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "b882d62c6643a9c8ee4207383aa9251bc1e27281"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "raw_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "absolute_differences": {
+              "completed": 0.0,
+              "requested": 0.0,
+              "skipped": 0.0,
+              "vessel_admitted": 0.0,
+              "vessel_reduced": 0.0,
+              "vessel_requested": 0.0
+            }
+          }
+        },
+        "requested_trucks": 69000,
+        "truck_states": {
+          "COMPLETED": 68830,
+          "SKIPPED": 170
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 43394,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "record_reconciliation_passed": true,
+        "claim_eligible": false
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "Baseline records reconcile, but the complete review evidence remains unresolved.",
+      "reasons": [
+        "Two main policy ledgers remain pending at the saved snapshot.",
+        "Submitted manuscript identity and text-to-evidence corrections remain separate pending work."
+      ],
+      "evidence": {
+        "scope": "completed NO_REALLOC baseline only; other two policies pending at snapshot",
+        "board_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json": "2d84256ebb5dc927fc634aae075e9934ed493a539651e9325503892517d75ece",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml": "ad2b58a27ea756d995be7cc5a57e41ae7ae80fcea081fb780a182e93c615a2e8",
+          "outputs/reports/yr317_v3_request_audit/baseline-result.md": "c520534df4c7a64bcf289fad2c1bef8740b4a51a6d99888fb16701d3edaca777"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml",
+              "outputs/reports/yr317_v3_request_audit/baseline-result.md"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "b882d62c6643a9c8ee4207383aa9251bc1e27281"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "raw_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "absolute_differences": {
+              "completed": 0.0,
+              "requested": 0.0,
+              "skipped": 0.0,
+              "vessel_admitted": 0.0,
+              "vessel_reduced": 0.0,
+              "vessel_requested": 0.0
+            }
+          }
+        },
+        "requested_trucks": 69000,
+        "truck_states": {
+          "COMPLETED": 68830,
+          "SKIPPED": 170
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 43394,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "record_reconciliation_passed": true,
+        "claim_eligible": false
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "The requested workload is not fully admitted in the diagnostic baseline.",
+      "reasons": [
+        "170 requested trucks were skipped before gate entry and have zero cost under the existing formula.",
+        "Recorded vessel requests contain 44,322 moves, but only 43,394 moves were admitted.",
+        "Full vessel completion and the cause of unavailable outbound targets remain unverified."
+      ],
+      "evidence": {
+        "scope": "completed NO_REALLOC baseline only; other two policies pending at snapshot",
+        "board_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json": "2d84256ebb5dc927fc634aae075e9934ed493a539651e9325503892517d75ece",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml": "ad2b58a27ea756d995be7cc5a57e41ae7ae80fcea081fb780a182e93c615a2e8",
+          "outputs/reports/yr317_v3_request_audit/baseline-result.md": "c520534df4c7a64bcf289fad2c1bef8740b4a51a6d99888fb16701d3edaca777"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-2.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/reconciliation-tests.xml",
+              "outputs/reports/yr317_v3_request_audit/baseline-result.md"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "b882d62c6643a9c8ee4207383aa9251bc1e27281"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "b882d62c6643a9c8ee4207383aa9251bc1e27281",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "raw_values": {
+              "requested": 69000,
+              "completed": 68830,
+              "skipped": 170,
+              "vessel_requested": 44322,
+              "vessel_admitted": 43394,
+              "vessel_reduced": 928
+            },
+            "absolute_differences": {
+              "completed": 0.0,
+              "requested": 0.0,
+              "skipped": 0.0,
+              "vessel_admitted": 0.0,
+              "vessel_reduced": 0.0,
+              "vessel_requested": 0.0
+            }
+          }
+        },
+        "requested_trucks": 69000,
+        "truck_states": {
+          "COMPLETED": 68830,
+          "SKIPPED": 170
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 43394,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "record_reconciliation_passed": true,
+        "claim_eligible": false
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  },
+  "claim_eligible": false,
+  "snapshot_at": "2026-09-15T02:07:10.018268+00:00"
+}
