@@ -1,0 +1,503 @@
+{
+  "schema": "yr317.paper-revision-source-audit.v1",
+  "source_selection": "latest prepared submission version in repository history; portal-upload identity unverified",
+  "source_commit": "9715cc6eae2d3a7580c033f2c410464188c55463",
+  "copied_files": [
+    {
+      "source": "docs/paper/v3/submissionv2/README.md",
+      "copy": "docs/paper/v3/paper-revision/source-README.md",
+      "source_sha256": "36b8a67bae10ae94ffdc6858143b8b7ec9b2a1361dd0076b4a7530d45b9ca7ee",
+      "copy_sha256": "36b8a67bae10ae94ffdc6858143b8b7ec9b2a1361dd0076b4a7530d45b9ca7ee",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/figures/fig-decomposition.pdf",
+      "copy": "docs/paper/v3/paper-revision/figures/fig-decomposition.pdf",
+      "source_sha256": "8610abd29bd6f2ea529462c17b6971b3b67d1f2513394bc37d321b24fd9ceef3",
+      "copy_sha256": "8610abd29bd6f2ea529462c17b6971b3b67d1f2513394bc37d321b24fd9ceef3",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/figures/fig-learning-curve-2p.pdf",
+      "copy": "docs/paper/v3/paper-revision/figures/fig-learning-curve-2p.pdf",
+      "source_sha256": "d90c091cd922838e68ccf6206cacc28e9b869a229b4d389a728ac51deea4b1e9",
+      "copy_sha256": "d90c091cd922838e68ccf6206cacc28e9b869a229b4d389a728ac51deea4b1e9",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/figures/system-architecture.png",
+      "copy": "docs/paper/v3/paper-revision/figures/system-architecture.png",
+      "source_sha256": "3b7b737b07709520485ff7e323ae973019840bca4dc42e2633e4be7acca06f92",
+      "copy_sha256": "3b7b737b07709520485ff7e323ae973019840bca4dc42e2633e4be7acca06f92",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/llncs.cls",
+      "copy": "docs/paper/v3/paper-revision/llncs.cls",
+      "source_sha256": "a3cfe775b394aba8db8fbb54b8920ecbb12f4532cf787cd6d9b04712f58d0d1a",
+      "copy_sha256": "a3cfe775b394aba8db8fbb54b8920ecbb12f4532cf787cd6d9b04712f58d0d1a",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/main.pdf",
+      "copy": "docs/paper/v3/paper-revision/main.pdf",
+      "source_sha256": "6fd1fa30bdad1ca533409c6492eeeeb48896fbcdd9117f264872aaf269e0462e",
+      "copy_sha256": "6fd1fa30bdad1ca533409c6492eeeeb48896fbcdd9117f264872aaf269e0462e",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/main.tex",
+      "copy": "docs/paper/v3/paper-revision/main.tex",
+      "source_sha256": "0a506fb56e45d31567486cbc8e461d3ded1864c4a8d6ad90d389fa800d252a7d",
+      "copy_sha256": "0a506fb56e45d31567486cbc8e461d3ded1864c4a8d6ad90d389fa800d252a7d",
+      "identical": true
+    },
+    {
+      "source": "docs/paper/v3/submissionv2/splncs04.bst",
+      "copy": "docs/paper/v3/paper-revision/splncs04.bst",
+      "source_sha256": "f36c3a17e5304a692706359aafa9de709395a085e579eb47c027095aeaa35174",
+      "copy_sha256": "f36c3a17e5304a692706359aafa9de709395a085e579eb47c027095aeaa35174",
+      "identical": true
+    }
+  ],
+  "input_sha256": {
+    "outputs/v3/judge-30d/arms/arm_NO_REALLOC.json": "946b67cc3d8cc8fcac3da1c11b364c60da786bcf357b3879642c10c849548545",
+    "outputs/v3/judge-30d/arms/arm_RL.json": "3e82f6b9dfd40380040db87303bce265508b615f25c89d88237fda9934ff77b9",
+    "outputs/v3/judge-30d/arms/arm_RL_TIME.json": "183a5229ab21068ed56e3b90c10c1da94a1a81624eb48ed4bff790cf78d7d9c2",
+    "outputs/v3/judge-30d/arms/arm_RL_SPACE.json": "f762f3b4c547c710742988cbf6b06f25311915d8eed7a13298353de9037fbd14",
+    "outputs/v3/env-quiet/arms/arm_NO_REALLOC.json": "e31d428add2642f77e5addc83ad81c3982efc0debb9b88f0639b947191e80586",
+    "outputs/v3/env-quiet/arms/arm_RL.json": "9b39232d9c1e9b4995de6ac72bf840d488660f21bbfffc32e3f4b2067b300957",
+    "outputs/v3/env-quiet/arms/arm_RL_TIME.json": "31b8883edefc717c44878f80b7258b5114d39680d16a577eed5731834c1fcf44",
+    "outputs/v3/env-quiet/arms/arm_RL_SPACE.json": "e809cc0e286fb72fb882b50877688fcbba755288f66026f3598886114f21dcaa",
+    "outputs/v3/env-mixed/arms/arm_NO_REALLOC.json": "ebcb84e3d6637b71aa85b5da4c5e1de782e75d2190b1be5d0420d91403b83dbd",
+    "outputs/v3/env-mixed/arms/arm_RL.json": "a384cdc7365df6391344f25c7460d60386472b909a3c96f61cf440cc29d5ad0d",
+    "outputs/v3/env-mixed/arms/arm_RL_TIME.json": "5daa6ee5936ad4cbefc25a6305c3c6ef6aaa3b8e809b52ff673acfd890a11820",
+    "outputs/v3/env-mixed/arms/arm_RL_SPACE.json": "910a62525ad26b5ac20dda107b90737fdfaa99612fa5b1dd2dd0a2d214aeb0f3",
+    "outputs/v3/env-heavy/arms/arm_NO_REALLOC.json": "d30faf57be7140a84feee046d217a6ac39ac2df40060472bd9dbe273bcebee4d",
+    "outputs/v3/env-heavy/arms/arm_RL.json": "f8b10dc5fb92af7a92b9568b380ff9345862114f0604f2a090a53c942624cae4",
+    "outputs/v3/env-heavy/arms/arm_RL_TIME.json": "db0ffe2aa2f45bc4aa5eb9dbe960202dae687be22edbbe9d836853cb032dd6e2",
+    "outputs/v3/env-heavy/arms/arm_RL_SPACE.json": "f33ff191f3b573c0f9c7b3a0f82ada66e06554761ad66c99a225c93ac8fcad3a"
+  },
+  "descriptive_evidence": {
+    "judge-30d": {
+      "compared_days": 28,
+      "congested_days": 4,
+      "cost_totals_krw": {
+        "NO_REALLOC": 9995809196.761591,
+        "RL": 8524384604.0202055,
+        "RL_TIME": 8652212605.860168,
+        "RL_SPACE": 10126454146.595718
+      },
+      "reduction_krw": {
+        "RL": 1471424592.7413855,
+        "RL_TIME": 1343596590.9014225,
+        "RL_SPACE": -130644949.83412743
+      },
+      "reduction_percent": {
+        "RL": 14.720414963683908,
+        "RL_TIME": 13.441599018683913,
+        "RL_SPACE": -1.3069972351658468
+      },
+      "time_only_share_percent": 91.31263657882671,
+      "spatial_action_percent": 25.710927257109272,
+      "action_share_scope": "30-day run totals, as used by the original manuscript checker",
+      "middle28_spatial_percent": null,
+      "by_load": [
+        {
+          "load": 3500,
+          "days": 12,
+          "reduction_million_krw": {
+            "RL": 47.2207310954275,
+            "RL_TIME": -12.607607653141997,
+            "RL_SPACE": 57.073002125583805
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 3.935060924618959,
+            "RL_TIME": -1.0506339710951664,
+            "RL_SPACE": 4.756083510465317
+          },
+          "space_increment_over_time_million_krw": 59.8283387485695
+        },
+        {
+          "load": 5000,
+          "days": 8,
+          "reduction_million_krw": {
+            "RL": 59.83225859806718,
+            "RL_TIME": 29.413726833136945,
+            "RL_SPACE": 67.21276825831579
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 7.479032324758397,
+            "RL_TIME": 3.676715854142118,
+            "RL_SPACE": 8.401596032289474
+          },
+          "space_increment_over_time_million_krw": 30.418531764930233
+        },
+        {
+          "load": 7500,
+          "days": 4,
+          "reduction_million_krw": {
+            "RL": 32.00401105046412,
+            "RL_TIME": 7.527025467083574,
+            "RL_SPACE": 0.38382752847874163
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 8.00100276261603,
+            "RL_TIME": 1.8817563667708934,
+            "RL_SPACE": 0.09595688211968541
+          },
+          "space_increment_over_time_million_krw": 24.47698558338055
+        },
+        {
+          "load": 12500,
+          "days": 2,
+          "reduction_million_krw": {
+            "RL": 610.7514151419779,
+            "RL_TIME": 572.649605814079,
+            "RL_SPACE": -14.242307179318905
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 305.37570757098894,
+            "RL_TIME": 286.3248029070395,
+            "RL_SPACE": -7.121153589659452
+          },
+          "space_increment_over_time_million_krw": 38.10180932789886
+        },
+        {
+          "load": 15000,
+          "days": 2,
+          "reduction_million_krw": {
+            "RL": 721.6161768554495,
+            "RL_TIME": 746.6138404402654,
+            "RL_SPACE": -241.07224056718587
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 360.8080884277247,
+            "RL_TIME": 373.3069202201327,
+            "RL_SPACE": -120.53612028359294
+          },
+          "space_increment_over_time_million_krw": -24.997663584815978
+        }
+      ]
+    },
+    "env-quiet": {
+      "compared_days": 28,
+      "congested_days": 2,
+      "cost_totals_krw": {
+        "NO_REALLOC": 6382737681.609657,
+        "RL": 5559954640.998816,
+        "RL_TIME": 5835367505.624118,
+        "RL_SPACE": 6156678947.097188
+      },
+      "reduction_krw": {
+        "RL": 822783040.6108418,
+        "RL_TIME": 547370175.9855394,
+        "RL_SPACE": 226058734.5124693
+      },
+      "reduction_percent": {
+        "RL": 12.890754432561057,
+        "RL_TIME": 8.57578993983501,
+        "RL_SPACE": 3.541720587449549
+      },
+      "time_only_share_percent": 66.52667215638849,
+      "spatial_action_percent": 32.042433671285224,
+      "action_share_scope": "30-day run totals, as used by the original manuscript checker",
+      "middle28_spatial_percent": 31.604017469170433,
+      "by_load": [
+        {
+          "load": 3500,
+          "days": 12,
+          "reduction_million_krw": {
+            "RL": 125.80754262699676,
+            "RL_TIME": -19.885984153519885,
+            "RL_SPACE": 155.25145631778966
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 10.483961885583064,
+            "RL_TIME": -1.657165346126657,
+            "RL_SPACE": 12.937621359815806
+          },
+          "space_increment_over_time_million_krw": 145.69352678051666
+        },
+        {
+          "load": 5000,
+          "days": 9,
+          "reduction_million_krw": {
+            "RL": 32.95160976708464,
+            "RL_TIME": -1.118224473744884,
+            "RL_SPACE": 44.841640456830156
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 3.661289974120516,
+            "RL_TIME": -0.12424716374943157,
+            "RL_SPACE": 4.982404495203351
+          },
+          "space_increment_over_time_million_krw": 34.06983424082953
+        },
+        {
+          "load": 7500,
+          "days": 5,
+          "reduction_million_krw": {
+            "RL": 90.86844570363296,
+            "RL_TIME": 89.71185233390806,
+            "RL_SPACE": 15.841627195519656
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 18.173689140726587,
+            "RL_TIME": 17.942370466781608,
+            "RL_SPACE": 3.1683254391039313
+          },
+          "space_increment_over_time_million_krw": 1.1565933697248996
+        },
+        {
+          "load": 12500,
+          "days": 1,
+          "reduction_million_krw": {
+            "RL": 289.2527041096113,
+            "RL_TIME": 252.3795839348581,
+            "RL_SPACE": -21.051253501764773
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 289.2527041096113,
+            "RL_TIME": 252.3795839348581,
+            "RL_SPACE": -21.051253501764773
+          },
+          "space_increment_over_time_million_krw": 36.87312017475319
+        },
+        {
+          "load": 15000,
+          "days": 1,
+          "reduction_million_krw": {
+            "RL": 283.9027384035163,
+            "RL_TIME": 226.282948344038,
+            "RL_SPACE": 31.17526404409456
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 283.9027384035163,
+            "RL_TIME": 226.282948344038,
+            "RL_SPACE": 31.17526404409456
+          },
+          "space_increment_over_time_million_krw": 57.619790059478284
+        }
+      ]
+    },
+    "env-mixed": {
+      "compared_days": 28,
+      "congested_days": 6,
+      "cost_totals_krw": {
+        "NO_REALLOC": 14125059814.270878,
+        "RL": 11574276883.105907,
+        "RL_TIME": 12119822680.19553,
+        "RL_SPACE": 16520818793.612783
+      },
+      "reduction_krw": {
+        "RL": 2550782931.1649704,
+        "RL_TIME": 2005237134.075348,
+        "RL_SPACE": -2395758979.3419056
+      },
+      "reduction_percent": {
+        "RL": 18.058563749145012,
+        "RL_TIME": 14.196308974560306,
+        "RL_SPACE": -16.961053693531365
+      },
+      "time_only_share_percent": 78.6126137812728,
+      "spatial_action_percent": 21.51584869153788,
+      "action_share_scope": "30-day run totals, as used by the original manuscript checker",
+      "middle28_spatial_percent": 20.76901582570555,
+      "by_load": [
+        {
+          "load": 3500,
+          "days": 8,
+          "reduction_million_krw": {
+            "RL": 44.04299238414626,
+            "RL_TIME": -6.95557136111287,
+            "RL_SPACE": 53.06552495866194
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 5.5053740480182825,
+            "RL_TIME": -0.8694464201391088,
+            "RL_SPACE": 6.633190619832742
+          },
+          "space_increment_over_time_million_krw": 50.998563745259126
+        },
+        {
+          "load": 5000,
+          "days": 7,
+          "reduction_million_krw": {
+            "RL": 2.527696517607227,
+            "RL_TIME": -30.077419629453527,
+            "RL_SPACE": -420.91824149315704
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 0.36109950251531814,
+            "RL_TIME": -4.296774232779075,
+            "RL_SPACE": -60.13117735616529
+          },
+          "space_increment_over_time_million_krw": 32.605116147060755
+        },
+        {
+          "load": 7500,
+          "days": 7,
+          "reduction_million_krw": {
+            "RL": 137.20375394680894,
+            "RL_TIME": 96.41875571242731,
+            "RL_SPACE": -155.83638547388566
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 19.600536278115563,
+            "RL_TIME": 13.774107958918188,
+            "RL_SPACE": -22.262340781983667
+          },
+          "space_increment_over_time_million_krw": 40.78499823438162
+        },
+        {
+          "load": 12500,
+          "days": 3,
+          "reduction_million_krw": {
+            "RL": 860.4182009512599,
+            "RL_TIME": 905.9772948214339,
+            "RL_SPACE": 80.80923157077432
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 286.8060669837533,
+            "RL_TIME": 301.9924316071447,
+            "RL_SPACE": 26.93641052359144
+          },
+          "space_increment_over_time_million_krw": -45.55909387017405
+        },
+        {
+          "load": 15000,
+          "days": 3,
+          "reduction_million_krw": {
+            "RL": 1506.590287365149,
+            "RL_TIME": 1039.8740745320547,
+            "RL_SPACE": -1952.879108904298
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 502.1967624550497,
+            "RL_TIME": 346.6246915106849,
+            "RL_SPACE": -650.9597029680992
+          },
+          "space_increment_over_time_million_krw": 466.71621283309435
+        }
+      ]
+    },
+    "env-heavy": {
+      "compared_days": 28,
+      "congested_days": 14,
+      "cost_totals_krw": {
+        "NO_REALLOC": 29637345108.153126,
+        "RL": 24590145600.5569,
+        "RL_TIME": 25524335752.003475,
+        "RL_SPACE": 28469268272.155216
+      },
+      "reduction_krw": {
+        "RL": 5047199507.596226,
+        "RL_TIME": 4113009356.1496506,
+        "RL_SPACE": 1168076835.9979095
+      },
+      "reduction_percent": {
+        "RL": 17.029863805876996,
+        "RL_TIME": 13.877792835830551,
+        "RL_SPACE": 3.9412330346572637
+      },
+      "time_only_share_percent": 81.49092085540539,
+      "spatial_action_percent": 11.878944205148754,
+      "action_share_scope": "30-day run totals, as used by the original manuscript checker",
+      "middle28_spatial_percent": 11.163687233672213,
+      "by_load": [
+        {
+          "load": 3500,
+          "days": 4,
+          "reduction_million_krw": {
+            "RL": 43.979462860558854,
+            "RL_TIME": -22.33535048243201,
+            "RL_SPACE": 47.2003487148157
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 10.994865715139714,
+            "RL_TIME": -5.583837620608002,
+            "RL_SPACE": 11.800087178703926
+          },
+          "space_increment_over_time_million_krw": 66.31481334299086
+        },
+        {
+          "load": 5000,
+          "days": 5,
+          "reduction_million_krw": {
+            "RL": 308.4499636402409,
+            "RL_TIME": 213.3551967909725,
+            "RL_SPACE": 285.92743941954444
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 61.68999272804818,
+            "RL_TIME": 42.6710393581945,
+            "RL_SPACE": 57.18548788390889
+          },
+          "space_increment_over_time_million_krw": 95.09476684926841
+        },
+        {
+          "load": 7500,
+          "days": 5,
+          "reduction_million_krw": {
+            "RL": 138.53557222393957,
+            "RL_TIME": 35.57479944401288,
+            "RL_SPACE": 124.23496676585809
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 27.707114444787912,
+            "RL_TIME": 7.114959888802576,
+            "RL_SPACE": 24.846993353171616
+          },
+          "space_increment_over_time_million_krw": 102.96077277992669
+        },
+        {
+          "load": 12500,
+          "days": 7,
+          "reduction_million_krw": {
+            "RL": 2115.761694814957,
+            "RL_TIME": 1848.3615230315534,
+            "RL_SPACE": 23.30472716207433
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 302.251670687851,
+            "RL_TIME": 264.05164614736475,
+            "RL_SPACE": 3.3292467374391896
+          },
+          "space_increment_over_time_million_krw": 267.4001717834039
+        },
+        {
+          "load": 15000,
+          "days": 7,
+          "reduction_million_krw": {
+            "RL": 2440.472814056528,
+            "RL_TIME": 2038.0531873655445,
+            "RL_SPACE": 687.4093539356179
+          },
+          "mean_daily_reduction_million_krw": {
+            "RL": 348.6389734366469,
+            "RL_TIME": 291.1504553379349,
+            "RL_SPACE": 98.20133627651684
+          },
+          "space_increment_over_time_million_krw": 402.41962669098353
+        }
+      ]
+    }
+  },
+  "markdown_lines": {
+    "01-독립반복-부하별효과.md": 117,
+    "02-현실제약-문헌검토.md": 76,
+    "03-후보순위-검증전략.md": 91,
+    "04-수평-수직환경-정의.md": 90,
+    "05-TOS-올컨e-사용맥락.md": 68,
+    "06-문헌목록.md": 72,
+    "README.md": 34,
+    "source-README.md": 110,
+    "리뷰-대응전략.md": 87
+  },
+  "broken_local_links": [],
+  "passed": true,
+  "new_simulations": 0,
+  "new_training_runs": 0,
+  "performance_confirmed": false
+}

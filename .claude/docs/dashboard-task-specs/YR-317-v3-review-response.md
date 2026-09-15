@@ -5,13 +5,13 @@
 - **전략 작성 후 YR-317-a 코드 보정에 착수**했다. 이 row는 개정 작업 묶음이며 독립 반복 실험은 미착수다.
 - 범위: v3 원고·코드·원자료의 독립성, 기존 수요 보존, 전체 후보 선택,
   공간·수락망·학습 기여, 민감도, 사용자 맥락과 처리시간을 검토한다.
-- 사용자 후속 지시: 예약 정원·변경 부담은 결론·제약층 필요성·후속연구로 이관한다. 이번 새 실험에서 제외한다.
+- 사용자 후속 지시: 예약 정원·변경 부담은 결론·제약층 필요성·후속연구로 이관한다. 9/15 문헌 기반 적용 검토를 추가하며 새 실험에서는 제외한다.
 - v4·v5 결과는 v3 성능 증거로 승계하지 않는다. 수정은 v3에 한정하며 기존 투고 후보는 보존한다.
 - [전략 원문](../strategy-history/2026-09-14-v3-review-response-strategy.md).
 - [실험 계약 제안](../strategy-history/2026-09-14-v3-review-experiment-protocol.md).
 - [사용자 맥락·재현성](../strategy-history/2026-09-14-v3-review-hci-reproducibility.md).
 - [전략 작성 검증](../../../outputs/reports/yr317_v3_review_strategy/README.md).
-- **현행 전략**: [정밀 검토](../strategy-history/2026-09-14-v3-review-refined-strategy.md),
+- **9/14 전략 이력**: [정밀 검토](../strategy-history/2026-09-14-v3-review-refined-strategy.md),
   [선택 정확성](../strategy-history/2026-09-14-v3-review-ranking-detail.md),
   [반복·제거 비교](../strategy-history/2026-09-14-v3-review-evaluation-detail.md).
 - 후속: a 기록 정합 → g 기존 수요 보존 → c 선택 정확성 → d 독립 확증. b 결론·e 처리시간·f 사용자 맥락은 별도 준비.
@@ -25,3 +25,15 @@
 - 9/14 구현: 초기 가중치·시드·갱신일 기록, 평가 결과 재사용 계약, 종속 날짜의 진단 표기. 관련 검사 52개 통과.
 - [실행 보고](../../../outputs/reports/yr317_v3_reliability/README.md) · [원고 정정 문안](../../../outputs/reports/yr317_v3_reliability/manuscript-corrections.md).
 - 9/15 사용자 실험 지시로 g의 실제 기록 진단 시작. 300대 단기 실행 완료 후 세 정책의 연속 10일 재생 중이다. [진단 실행](../../../outputs/reports/yr317_v3_request_audit/README.md).
+
+## 9/15 최신 지시와 개정 작업 기준
+
+- **현행 전략**: [paper-revision 리뷰 대응](../../../docs/paper/v3/paper-revision/리뷰-대응전략.md). 원고 복사·문헌 검토·전략 작성 완료, 원고 내용 수정·새 확증은 미착수다.
+- 최신 준비본 submissionv2의 추적 파일 8개를 복사하고 내용 동일성을 검증했다. 실제 투고 포털 업로드와의 일치는 별도 미확인이다.
+- 독립 월 반복은 유지하고 b는 문헌-제약-필요 자료 대응표, c는 공통 KEEP 조건과 전체 후보 검증을 구체화했다.
+- 기존 낮은 부하의 공간 효과를 검산했지만 15,000대 구간에서는 시간만이 전체보다 약 2,500만 원 더 좋다. 조건부 설명과 불리한 결과를 함께 보존한다.
+- h를 기본 수평·수직 구조 정의·검증으로 등록했다. 기존 1차원 배치를 수직 검증 완료로 부르지 않고 혼합 배치는 제외한다.
+- f는 부산항 대기시간·TOS 학술문헌과 올컨e 공식 자료, 운영자·운송사·운전자 흐름으로 구체화했다. 실제 연동·사용자 효과 검증은 아니다.
+- [문서·원자료 검산](../../../docs/paper/v3/paper-revision/source-audit.json) · [상세 결정 기록](../strategy-history/2026-09-15-v3-paper-revision-strategy.md).
+- 순서: a·g의 기록·처리량 정합 → c 후보 진단 → d 독립 비교. h 환경 준비와 b·f 문안 준비, e 계측은 각 명세에 따라 연결한다.
+- 세 게이트 미통과를 문서 작성 완료로 대체하지 않는다. parent는 전체 개정 묶음이므로 backlog를 유지한다.

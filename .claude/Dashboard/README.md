@@ -5,6 +5,8 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **v3 개정 전략 작성 (2026-09-15, YR-317)**: 최신 준비 원고 8파일을 paper-revision에 동일 복사했다. 부하별 효과를 검산하고 현실 제약 문헌·전체 후보 검증·독립 월 비교·기본 두 구조·TOS/올컨e 사용 맥락 전략을 작성했다. 새 학습·확증은 실행하지 않았다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [전략·검산](../../docs/paper/v3/paper-revision/README.md)
+
 ## 상태별 파일
 
 | State | 파일 | 현황 |
