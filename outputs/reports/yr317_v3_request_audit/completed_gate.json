@@ -1,0 +1,479 @@
+{
+  "schema": "yr317.v3.completed-diagnostic-gates.v1",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "No independent performance confirmation has been run.",
+      "reasons": [
+        "One reused-seed shortened run and an observer equivalence check cannot establish general benefit."
+      ],
+      "evidence": {
+        "scope": "completed reused-seed 10-day diagnosis plus a 300-request observer check",
+        "board_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "observer_execution_commit": "09611b3b12a1388a778a4815e9470c4a6859873d",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json": "b0c15ffa8ba26fd3642f74f949e00045dc0de5d3b5aefc854f6b159900f137fc",
+          "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md": "27d68c1c5fec4f230d90f15341c7fef3a71d3398714f2c4d83fbc3fd885388d4",
+          "outputs/reports/yr317_v3_request_audit/observer-tests.json": "434122a50e77cbbb246591a3ee1128cc1be493ce3911377e930462cdf5ed1c70",
+          "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md": "92f3b8a8b801e4dcb12ef927a944bd388a29f01fa4fe75ad8f9e4c78793febc3",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json": "bb9c99887f30ab66da54d1672e74a6c437b88a0dcb1c995b1b6f6c882c3ffddc",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json": "db569a41d4dd72f23d3eab85802d9db29d566ebba31a94cc75f042616da7b581",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json": "298da7cd45194fe9efee89d8c9b86b7f51219144ebcc4468e9ef5663ad4f895b",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json": "f422c525473bf11e07b4c96f0dfb984b72d0f6ec95af5d096a12f54083ca8a84",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl": "dc8acc99bf85ca5d98b03f64692ced141adf2388b8d05dec9b9f07b3ebc0097f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz": "0c3efa1cfa52a97ac01b06fd2880a5b837fa8399ecd8572ab2cfb8e66be54b29",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json": "a55ff4a9eda657075c708e0aee0ab31ec2b5aeb55c079dfeaf6df4d9602f20da",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl": "cc0cfe8d4b8fcd6cf16342f90f25dcad86a4e812b35c090db2899cee3d6eac78",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz": "9427497c9e3564a7ba86dbd28eac5555c2de18d6a805e5db1dac7e3cc1af19c5",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json": "46337ba68c27c86815991e0a048d23913cac1cb7f5550899835ba85267d17455",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl": "a973554ef22d445782ca3bfbf0be36d638552dd9efc26bf3987bfd926778e1fc"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json",
+              "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md",
+              "outputs/reports/yr317_v3_request_audit/observer-tests.json",
+              "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "992b7b8b9acbdf9c72aa1c5a32829c42229b8906"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "raw_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "absolute_differences": {
+              "NO_REALLOC.completed": 0.0,
+              "NO_REALLOC.skipped": 0.0,
+              "NO_REALLOC.vessel_reduced": 0.0,
+              "RL.completed": 0.0,
+              "RL.skipped": 0.0,
+              "RL.vessel_reduced": 0.0,
+              "RL_NOVETO.completed": 0.0,
+              "RL_NOVETO.skipped": 0.0,
+              "RL_NOVETO.vessel_reduced": 0.0
+            }
+          }
+        },
+        "completed_record_reconciliation": true,
+        "observer_checks": {
+          "behavior_unchanged": true,
+          "request_recording": true,
+          "vessel_recording": true,
+          "no_teacher": true,
+          "no_policy_exception": true
+        },
+        "full_workload_counts": {
+          "NO_REALLOC.completed": 68830,
+          "NO_REALLOC.skipped": 170,
+          "NO_REALLOC.vessel_reduced": 928,
+          "RL.completed": 68820,
+          "RL.skipped": 180,
+          "RL.vessel_reduced": 1027,
+          "RL_NOVETO.completed": 68864,
+          "RL_NOVETO.skipped": 136,
+          "RL_NOVETO.vessel_reduced": 1055
+        },
+        "observer_vessel_counts": {
+          "streams": 14,
+          "requested_moves": 7022,
+          "admitted_moves": 7022,
+          "unadmitted_moves": 0,
+          "completed_yard_jobs": 7022,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "recording_ok": true,
+          "issues": [],
+          "all_requested_work_completed": true
+        }
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "FAIL",
+      "summary": "Saved diagnostic records reconcile, but the full failure-state evidence is incomplete.",
+      "reasons": [
+        "The original ten-day artifacts lack vessel completion and inventory-at-failure observations.",
+        "RL policy counts differ from the historical run from its first day; exact replay is not established.",
+        "The new observer is validated on a small workload, not on the ten-day failure states."
+      ],
+      "evidence": {
+        "scope": "completed reused-seed 10-day diagnosis plus a 300-request observer check",
+        "board_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "observer_execution_commit": "09611b3b12a1388a778a4815e9470c4a6859873d",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json": "b0c15ffa8ba26fd3642f74f949e00045dc0de5d3b5aefc854f6b159900f137fc",
+          "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md": "27d68c1c5fec4f230d90f15341c7fef3a71d3398714f2c4d83fbc3fd885388d4",
+          "outputs/reports/yr317_v3_request_audit/observer-tests.json": "434122a50e77cbbb246591a3ee1128cc1be493ce3911377e930462cdf5ed1c70",
+          "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md": "92f3b8a8b801e4dcb12ef927a944bd388a29f01fa4fe75ad8f9e4c78793febc3",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json": "bb9c99887f30ab66da54d1672e74a6c437b88a0dcb1c995b1b6f6c882c3ffddc",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json": "db569a41d4dd72f23d3eab85802d9db29d566ebba31a94cc75f042616da7b581",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json": "298da7cd45194fe9efee89d8c9b86b7f51219144ebcc4468e9ef5663ad4f895b",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json": "f422c525473bf11e07b4c96f0dfb984b72d0f6ec95af5d096a12f54083ca8a84",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl": "dc8acc99bf85ca5d98b03f64692ced141adf2388b8d05dec9b9f07b3ebc0097f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz": "0c3efa1cfa52a97ac01b06fd2880a5b837fa8399ecd8572ab2cfb8e66be54b29",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json": "a55ff4a9eda657075c708e0aee0ab31ec2b5aeb55c079dfeaf6df4d9602f20da",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl": "cc0cfe8d4b8fcd6cf16342f90f25dcad86a4e812b35c090db2899cee3d6eac78",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz": "9427497c9e3564a7ba86dbd28eac5555c2de18d6a805e5db1dac7e3cc1af19c5",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json": "46337ba68c27c86815991e0a048d23913cac1cb7f5550899835ba85267d17455",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl": "a973554ef22d445782ca3bfbf0be36d638552dd9efc26bf3987bfd926778e1fc"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json",
+              "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md",
+              "outputs/reports/yr317_v3_request_audit/observer-tests.json",
+              "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "992b7b8b9acbdf9c72aa1c5a32829c42229b8906"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "raw_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "absolute_differences": {
+              "NO_REALLOC.completed": 0.0,
+              "NO_REALLOC.skipped": 0.0,
+              "NO_REALLOC.vessel_reduced": 0.0,
+              "RL.completed": 0.0,
+              "RL.skipped": 0.0,
+              "RL.vessel_reduced": 0.0,
+              "RL_NOVETO.completed": 0.0,
+              "RL_NOVETO.skipped": 0.0,
+              "RL_NOVETO.vessel_reduced": 0.0
+            }
+          }
+        },
+        "completed_record_reconciliation": true,
+        "observer_checks": {
+          "behavior_unchanged": true,
+          "request_recording": true,
+          "vessel_recording": true,
+          "no_teacher": true,
+          "no_policy_exception": true
+        },
+        "full_workload_counts": {
+          "NO_REALLOC.completed": 68830,
+          "NO_REALLOC.skipped": 170,
+          "NO_REALLOC.vessel_reduced": 928,
+          "RL.completed": 68820,
+          "RL.skipped": 180,
+          "RL.vessel_reduced": 1027,
+          "RL_NOVETO.completed": 68864,
+          "RL_NOVETO.skipped": 136,
+          "RL_NOVETO.vessel_reduced": 1055
+        },
+        "observer_vessel_counts": {
+          "streams": 14,
+          "requested_moves": 7022,
+          "admitted_moves": 7022,
+          "unadmitted_moves": 0,
+          "completed_yard_jobs": 7022,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "recording_ok": true,
+          "issues": [],
+          "all_requested_work_completed": true
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "Requested workload is reduced by the current admission behavior.",
+      "reasons": [
+        "Truck requests skipped: 170, 180, 136; corresponding vessel moves not admitted: 928, 1027, 1055.",
+        "Adding observation does not fix admission losses or validate realistic terminal operation."
+      ],
+      "evidence": {
+        "scope": "completed reused-seed 10-day diagnosis plus a 300-request observer check",
+        "board_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+        "execution_commit": "3279b7fc41b3c9ae1a5c44ed92327b6d648160c1",
+        "observer_execution_commit": "09611b3b12a1388a778a4815e9470c4a6859873d",
+        "artifact_sha256": {
+          "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json": "b0c15ffa8ba26fd3642f74f949e00045dc0de5d3b5aefc854f6b159900f137fc",
+          "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md": "27d68c1c5fec4f230d90f15341c7fef3a71d3398714f2c4d83fbc3fd885388d4",
+          "outputs/reports/yr317_v3_request_audit/observer-tests.json": "434122a50e77cbbb246591a3ee1128cc1be493ce3911377e930462cdf5ed1c70",
+          "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md": "92f3b8a8b801e4dcb12ef927a944bd388a29f01fa4fe75ad8f9e4c78793febc3",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json": "bb9c99887f30ab66da54d1672e74a6c437b88a0dcb1c995b1b6f6c882c3ffddc",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json": "db569a41d4dd72f23d3eab85802d9db29d566ebba31a94cc75f042616da7b581",
+          "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json": "298da7cd45194fe9efee89d8c9b86b7f51219144ebcc4468e9ef5663ad4f895b",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json": "6ec09374add04becbe4fdd0708f4b576b638b080030fb9f69aaeca6246f09c02",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz": "1abd9b82b3447457b10611109c26da4eeb12c979567351ec39f92bcd4ba6b67f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json": "f422c525473bf11e07b4c96f0dfb984b72d0f6ec95af5d096a12f54083ca8a84",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl": "dc8acc99bf85ca5d98b03f64692ced141adf2388b8d05dec9b9f07b3ebc0097f",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json": "2592c1ca830ce9b719af8bb206ee6c37fda654b251821ce91ae5cb04ded11dfd",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz": "0c3efa1cfa52a97ac01b06fd2880a5b837fa8399ecd8572ab2cfb8e66be54b29",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json": "a55ff4a9eda657075c708e0aee0ab31ec2b5aeb55c079dfeaf6df4d9602f20da",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl": "cc0cfe8d4b8fcd6cf16342f90f25dcad86a4e812b35c090db2899cee3d6eac78",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json": "2e3aa42592c873e04442228fb578eddb926c36e5c6a7f73bdf5b5b2eb3263406",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz": "9427497c9e3564a7ba86dbd28eac5555c2de18d6a805e5db1dac7e3cc1af19c5",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json": "46337ba68c27c86815991e0a048d23913cac1cb7f5550899835ba85267d17455",
+          "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl": "a973554ef22d445782ca3bfbf0be36d638552dd9efc26bf3987bfd926778e1fc"
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-317-g",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+            "evidence_paths": [
+              "outputs/reports/yr317_v3_request_audit/auto-b0fe052/reconciliation-4.json",
+              "outputs/reports/yr317_v3_request_audit/completed-diagnostic.md",
+              "outputs/reports/yr317_v3_request_audit/observer-tests.json",
+              "outputs/reports/yr317_v3_request_audit/admission-probe-prereg.md",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/comparison.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/off.json",
+              "outputs/reports/yr317_v3_request_audit/probe-09611b3-r2/on.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/NO_REALLOC/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL/days.jsonl",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/result.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/requests.jsonl.gz",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/manifest.json",
+              "outputs/reports/yr317_v3_request_audit/run-3279b7f/RL_NOVETO/days.jsonl"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+            ],
+            "evidence_commits": [
+              "992b7b8b9acbdf9c72aa1c5a32829c42229b8906"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "992b7b8b9acbdf9c72aa1c5a32829c42229b8906",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "raw_values": {
+              "NO_REALLOC.completed": 68830,
+              "NO_REALLOC.skipped": 170,
+              "NO_REALLOC.vessel_reduced": 928,
+              "RL.completed": 68820,
+              "RL.skipped": 180,
+              "RL.vessel_reduced": 1027,
+              "RL_NOVETO.completed": 68864,
+              "RL_NOVETO.skipped": 136,
+              "RL_NOVETO.vessel_reduced": 1055
+            },
+            "absolute_differences": {
+              "NO_REALLOC.completed": 0.0,
+              "NO_REALLOC.skipped": 0.0,
+              "NO_REALLOC.vessel_reduced": 0.0,
+              "RL.completed": 0.0,
+              "RL.skipped": 0.0,
+              "RL.vessel_reduced": 0.0,
+              "RL_NOVETO.completed": 0.0,
+              "RL_NOVETO.skipped": 0.0,
+              "RL_NOVETO.vessel_reduced": 0.0
+            }
+          }
+        },
+        "completed_record_reconciliation": true,
+        "observer_checks": {
+          "behavior_unchanged": true,
+          "request_recording": true,
+          "vessel_recording": true,
+          "no_teacher": true,
+          "no_policy_exception": true
+        },
+        "full_workload_counts": {
+          "NO_REALLOC.completed": 68830,
+          "NO_REALLOC.skipped": 170,
+          "NO_REALLOC.vessel_reduced": 928,
+          "RL.completed": 68820,
+          "RL.skipped": 180,
+          "RL.vessel_reduced": 1027,
+          "RL_NOVETO.completed": 68864,
+          "RL_NOVETO.skipped": 136,
+          "RL_NOVETO.vessel_reduced": 1055
+        },
+        "observer_vessel_counts": {
+          "streams": 14,
+          "requested_moves": 7022,
+          "admitted_moves": 7022,
+          "unadmitted_moves": 0,
+          "completed_yard_jobs": 7022,
+          "outstanding_yard_jobs": 0,
+          "unaccounted_yard_jobs": 0,
+          "recording_ok": true,
+          "issues": [],
+          "all_requested_work_completed": true
+        }
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  },
+  "claim_eligible": false,
+  "observer_validation_passed": true,
+  "new_training_runs": 0,
+  "independent_confirmatory_runs": 0
+}
