@@ -39,6 +39,7 @@
 
 ## 📌 현재 상태 overview (한눈에)
 
+- **v3 문헌·사용 맥락 원고 병행 보완 (2026-09-15, YR-317-b·f)**: 현실 제약·비용 범위와 운영자·운송사·운전자 업무 흐름을 별도 개정 원고 및 답변 초안에 반영했다. 14쪽 PDF·참고문헌 22건, 기준본과 기존 성능표·그림 보존 확인. 전체 리뷰 통합·12쪽 목표는 남는다. [b spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [f spec](../docs/dashboard-task-specs/YR-317-f-v3-review-hci-context.md) · [반영·검증](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md)
 - **v3 미투입 재관측 실제 실행 중 (2026-09-15 20:32 시작, YR-317-g)**: 검사 38개와 세 정책의 300대 연결 검사를 통과하고, 코어 0·1·2에서 연속 10일 진단을 시작했다. 기존 v5 코어 23은 유지한다. 실패 시점 재고·예약과 본선 완료를 수집하며 비용표도 자동 생성한다. 기존 전체 모형 17.28% 절감은 처리 누락이 섞인 관측값이고 새 성능 확증은 아니다. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [진행·시작 검증](../../docs/paper/v3/paper-revision/09-미투입-재관측.md) · [기존 성능표](../../docs/paper/v3/paper-revision/08-성능비교표.md)
 - **v5 서론 과제 PPT 완료 (2026-09-14, YR-315)**: 서론 17장과 참고문헌 2장, 문헌 7편·발표 노트·문장형 초안을 작성했다. 기존 문서의 독립 판매·구매·반사실 학습을 v5 공유 정책·실행 경험 학습으로 바꾸고 성능 미확정을 유지했다. 학습 코드는 변경하지 않았다. [spec](../docs/dashboard-task-specs/YR-315-v5-introduction-coursework.md) · [PPT](../../docs/paper/v5/introduction/v5_졸업논문_서론.pptx)
 - **v5 세 정책 참고 비교 대기열 등록 (2026-09-14, YR-306)**: 사용자 예외 승인으로 환경·정책 코드를 고치지 않고 최종/학습 전/규칙을 같은 30일 명단에서 비교한다. 검사 21개 통과, 07:22 대기열 등록 후 다른 v4 작업 종료 대기 중이다. CPU 1개 순차, 아직 비교 결과 없음. 잔여 2,977건 한계·정식 성능 미확정은 유지한다. [spec](../docs/dashboard-task-specs/YR-306-v5-first-continuous-training.md) · [비교 계약](../docs/dashboard-task-specs/YR-306-reference-comparison.md) · [등록 증거](../../outputs/reports/yr306_reference_comparison/README.md)
