@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-317-d2 | Infra | **일별 관측 파일 이름 충돌 수정·재검증** | 🟠 | 2026-09-16 | 코드 검사 70개 통과. 첫 실파일 저장의 label 중복을 policy_label로 분리하고 세 정책 계측 동일성을 다시 검사한다. [spec](../docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md) |
 | YR-317-b | Paper | **현실 제약·외부 비용 범위 원고 초안 반영** | 🟠 | 2026-09-15 | 14쪽 부분 개정본·서술/보존 검사 13개 통과. 실제 제약 실험은 미수행, 전체 개정·분량 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
 | YR-317-f | UI | **TOS·올컨e 역할·업무 흐름 §3.5 추가** | 🟠 | 2026-09-15 | 운영자·운송사·운전자 사례 반영, 문헌 22건·인용 검사 통과. 현장·사용자 평가 없음, 전체 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-f-v3-review-hci-context.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
 | YR-317-g | Exp | **공급 보정 후 세 조건 30일 검증 중** | 🟠 | 2026-09-16 | 12:13 KST 실제 시작, 원래 기준/보정 기준/보정 전체 비교. 20개월 기말 부족 0·계획 재고 최대 1,427/1,440개, 새 연결 검사 통과. 실제 잔여 판정 뒤 독립 반복, 새 학습 미착수. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [설명](../../docs/paper/v3/paper-revision/17-공급계획-연결검증.md) |
