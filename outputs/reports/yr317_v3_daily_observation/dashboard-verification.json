@@ -1,0 +1,25 @@
+{
+  "command": [
+    "C:\\Users\\geonu\\anaconda3\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "audit-dashboard",
+    "--task",
+    "YR-317-d2",
+    "--state",
+    "done",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md",
+    "--evidence-path",
+    "outputs/reports/yr317_v3_daily_observation/run-e9838a3/summary.json",
+    "--evidence-path",
+    "outputs/reports/yr317_v3_daily_observation/file-verification.json",
+    "--evidence-commit",
+    "a0bd06fe73bcef1ffc227dfcc5de065720a3e4d6",
+    "--remote-ref",
+    "origin/강화학습-판매"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"name\": \"dashboard_code_alignment\",\n  \"status\": \"PASS\",\n  \"summary\": \"Dashboard·spec·코드·증거가 일치함\",\n  \"reasons\": [],\n  \"evidence\": {\n    \"task_id\": \"YR-317-d2\",\n    \"expected_state\": \"done\",\n    \"board_matches\": [\n      \"done.md\"\n    ],\n    \"spec_path\": \".claude/docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md\",\n    \"evidence_paths\": [\n      \"outputs/reports/yr317_v3_daily_observation/run-e9838a3/summary.json\",\n      \"outputs/reports/yr317_v3_daily_observation/file-verification.json\"\n    ],\n    \"control_paths\": [\n      \".claude\\\\Dashboard\\\\done.md\",\n      \".claude\\\\docs\\\\dashboard-task-specs\\\\YR-317-d2-v3-daily-observation.md\"\n    ],\n    \"evidence_commits\": [\n      \"a0bd06fe73bcef1ffc227dfcc5de065720a3e4d6\"\n    ],\n    \"remote_ref\": \"origin/강화학습-판매\",\n    \"pin_commit\": null,\n    \"drift\": []\n  }\n}\n",
+  "stderr": ""
+}
