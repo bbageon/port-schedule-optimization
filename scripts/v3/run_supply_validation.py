@@ -24,7 +24,7 @@ def child(args):
     import torch
     torch.set_num_threads(1)
     from yard_rl.v3.stage.month import plan_days, plan_month
-    seed=9_900_700
+    seed=9_900_700 if args.phase=='smoke' else json.loads(Path(args.diagnostic_input).read_text())['selected_seed']
     days=plan_days(seed,(300,)) if args.phase=='smoke' else plan_month(seed)
     arm,args.supply_mode=VARIANTS[args.variant]
     args.admission_mode='PRESERVE'
@@ -51,6 +51,7 @@ def phase(args,name):
             cmd=[sys.executable,'-u',str(Path(__file__).resolve()),'--out',str(folder),
                  '--checkpoint',args.checkpoint,'--prereg',args.prereg,
                  '--input-audit',args.input_audit,
+                 '--diagnostic-input',args.diagnostic_input,
                  '--phase',name,'--variant',variant,'--cpu',str(cpu)]
             with (folder/f'{variant}.log').open('xb') as log:
                 workers[variant]=subprocess.Popen(cmd,cwd=ROOT,stdout=log,
@@ -105,6 +106,7 @@ def main():
     p.add_argument('--checkpoint',required=True)
     p.add_argument('--prereg',required=True)
     p.add_argument('--input-audit',required=True)
+    p.add_argument('--diagnostic-input',required=True)
     p.add_argument('--variant',choices=VARIANTS)
     p.add_argument('--cpu',type=int)
     p.add_argument('--phase',choices=('smoke','full'))
@@ -120,6 +122,13 @@ def main():
         or not all(r['quantity_feasible'] and r['after_shortfall']==0
                    and r['daily_envelope_passed'] for r in audit['months'])):
         raise RuntimeError('Complete frozen-input quantity/daily-envelope audit required before launch')
+    diagnostic=json.loads(Path(args.diagnostic_input).read_text())
+    selected=diagnostic['selected_seed']
+    attempts=diagnostic['attempts']
+    if (not 9_900_701 <= selected <= 9_900_720
+        or [r['seed'] for r in attempts] != list(range(9_900_701,selected+1))
+        or any(r['deficit'] for r in attempts[:-1]) or not attempts[-1]['deficit']):
+        raise RuntimeError('Diagnostic input must follow the preregistered first-failure rule')
     if args.launch:
         import re
         available=int(re.search(r'MemAvailable:\s+(\d+)',Path('/proc/meminfo').read_text()).group(1))
@@ -128,13 +137,15 @@ def main():
         checkpoint_sha,prereg_sha=sha(args.checkpoint),sha(args.prereg)
         args.out.mkdir(parents=True,exist_ok=False)
         cmd=[sys.executable,'-u',str(Path(__file__).resolve()),'--out',str(args.out),
-             '--checkpoint',args.checkpoint,'--prereg',args.prereg,'--input-audit',args.input_audit]
+             '--checkpoint',args.checkpoint,'--prereg',args.prereg,'--input-audit',args.input_audit,
+             '--diagnostic-input',args.diagnostic_input]
         with (args.out/'supervisor.log').open('xb') as log:
             process=subprocess.Popen(cmd,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,
                                      stdin=subprocess.DEVNULL,start_new_session=True)
         receipt={'at':now(),'pid':process.pid,'source_commit':source_commit(),
                  'checkpoint_sha256':checkpoint_sha,'prereg_sha256':prereg_sha,
                  'input_audit_sha256':sha(args.input_audit),
+                 'diagnostic_input_sha256':sha(args.diagnostic_input),'diagnostic_seed':selected,
                  'cpus':[0,1,2],'user_cpu_limit':20,'new_training_runs':0}
         save(args.out/'launch.json',receipt)
         print(json.dumps(receipt))
