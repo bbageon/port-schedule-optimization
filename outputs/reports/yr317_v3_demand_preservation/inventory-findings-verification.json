@@ -1,0 +1,48 @@
+{
+  "at": "2026-09-16T01:08:59.258584+00:00",
+  "scope": "one completed policy and original-input count audit; two policies still running",
+  "dashboard": {
+    "name": "dashboard_code_alignment",
+    "status": "PASS",
+    "summary": "Dashboard·spec·코드·증거가 일치함",
+    "reasons": [],
+    "evidence": {
+      "task_id": "YR-317-g",
+      "expected_state": "in-progress",
+      "board_matches": [
+        "in-progress.md"
+      ],
+      "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+      "evidence_paths": [
+        "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/result.json",
+        "outputs/reports/yr317_v3_demand_preservation/outcome-audit-full/RL.json",
+        "outputs/reports/yr317_v3_demand_preservation/inventory-balance-interim-v2.json",
+        "outputs/reports/yr317_v3_demand_preservation/independent-input-inventory.json"
+      ],
+      "control_paths": [
+        ".claude\\Dashboard\\in-progress.md",
+        ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+      ],
+      "evidence_commits": [
+        "7cc28a8828bd682052ae00d65d0175de656540cc"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "7cc28a8828bd682052ae00d65d0175de656540cc",
+      "drift": []
+    }
+  },
+  "reported_values": {
+    "trucks_requested": true,
+    "trucks_completed": true,
+    "trucks_censored": true,
+    "vessel_unfinished": true,
+    "bound_y05": true,
+    "bound_y08": true,
+    "independent_inputs_unchanged": true,
+    "original_short_months": true
+  },
+  "passed": true,
+  "new_training_runs": 0,
+  "independent_policy_evaluations": 0,
+  "claim_eligible": false
+}
