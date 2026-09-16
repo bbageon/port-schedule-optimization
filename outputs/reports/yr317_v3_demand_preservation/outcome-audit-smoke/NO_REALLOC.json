@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "issues": [],
+  "vessel_totals": {
+    "requested_moves": 7022,
+    "admitted_moves": 7022,
+    "completed_yard_jobs": 7022,
+    "outstanding_yard_jobs": 0,
+    "unadmitted_moves": 0,
+    "unaccounted_yard_jobs": 0
+  },
+  "vessels_with_unfinished_work": [],
+  "all_vessel_work_completed": true,
+  "all_trucks_completed": true,
+  "unfinished_trucks_by_state": {},
+  "unfinished_trucks": [],
+  "late_bindings_checked": 1744,
+  "unbound_jobs_at_end": 0,
+  "arrival_shift": {
+    "later_gate_count": 0,
+    "total_hours": 0.0,
+    "mean_minutes_among_shifted": 0,
+    "max_minutes": 0.0,
+    "scope": "observed gate time minus original requested time; not proof of actual driver waiting or a monetary cost"
+  },
+  "limits": [
+    "Saved vessel rows do not contain each job's release time, physical inventory, or remaining service work.",
+    "Binding checks prove recorded time consistency, not inventory availability at every binding.",
+    "Remaining work is not assigned a cause from aggregate counters alone."
+  ],
+  "claim_eligible": false,
+  "new_training_runs": 0,
+  "request_reconciliation": {
+    "passed": true,
+    "issues": {},
+    "examples": {},
+    "requested": 300,
+    "states": {
+      "COMPLETED": 300
+    },
+    "skip_reasons": {},
+    "cohorts": {
+      "0": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "accounted_wait_krw": 3388548.126753492,
+        "gate_entered": 300,
+        "flows": {
+          "GATE_OUT": 179,
+          "GATE_IN": 121
+        }
+      }
+    },
+    "skip_groups": [],
+    "accounted_wait_krw": 3388548.126753492,
+    "skipped_accounted_wait_krw": 0.0,
+    "four_cost_totals_krw": {
+      "c_wait": 3388548.126753492,
+      "c_move": 280651.0416666667,
+      "c_rehandle": 2890000.0,
+      "c_vessel": 351054.6550221356
+    },
+    "vessel_admissions": {
+      "streams": 14,
+      "failed": 0,
+      "admitted_moves": 7022,
+      "asked_moves_in_recorded_streams": 7022,
+      "missing_asked_fields": 0,
+      "completion_validated": false
+    },
+    "full_truck_demand_completed": true
+  },
+  "artifact_sha256": {
+    "result.json": "00c7ee6e03cc9efa856dc25439814ca65176b5d883948146792df25230c35cde",
+    "manifest.json": "5551076244957870958ee582f5d51b2fea404717fa183525856455f0affc7408",
+    "requests.jsonl.gz": "dedf0150443e5b0c799d0ed223747d807f9477c52efe583d724ea9a33b5f316a",
+    "days.jsonl": "0066a43ef0ff096336364f81e7c131d4d6a14feafc623852bb90d079d4a4a919"
+  },
+  "arm": "NO_REALLOC",
+  "source_commit": "2e4caef6292d697348083001cc0aa8f314db2b2b"
+}
