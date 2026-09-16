@@ -94,6 +94,7 @@ class DayReport:
     pruned: dict = field(default_factory=dict)
     load_after: dict = field(default_factory=dict)
     provisional: bool = True
+    operational: dict = field(default_factory=dict)
     # -- 학습 (교사를 붙였을 때만 채워진다)
     explore: float = 0.0
     n_labels: int = 0
@@ -132,6 +133,7 @@ class MonthResult:
     supply_plan_audit: dict = field(default_factory=dict)
     container_flow_summary: dict = field(default_factory=dict)
     container_links: list = field(default_factory=list)
+    daily_observation: dict = field(default_factory=dict)
 
     @property
     def train_days(self) -> list:
@@ -209,7 +211,9 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
               capture_requests: bool = False, diagnose_admissions: bool = False,
-              admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL") -> MonthResult:
+              admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL",
+              capture_daily: bool = False, daily_sample_s: float = 300.0,
+              on_observation=None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -326,6 +330,11 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     on_decision.wants_epoch = wants_epoch
     bridge = ctx.make_bridge(market, orders=orders, records=records,
                              on_decision=(on_decision if labels_per_day else None))
+    observer = None
+    if capture_daily:
+        from .daily_observation import DailyObserver
+        observer = DailyObserver(days, seed=seed, arm=arm, sample_s=daily_sample_s,
+                                 on_sample=on_observation)
 
     def _near_keys(t: float) -> tuple:
         """분기 세계에 넘길 **트럭 이름들** — 그 앞뒤 며칠치만.
@@ -498,6 +507,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                      time=bridge.n_time, dec=len(market.seller.trail),
                      skip=ann.n_skipped, retgt=ann.n_retargeted)
         rep.explore = state.get("eps", 0.0)
+        if observer is not None:
+            rep.operational = observer.rows[d.index]
         close_teacher(d, rep)                 # 라벨 거두기 -> 학생 갱신
         # ★순서가 계약이다 — **먼저 job 을 치우고** 그 다음 배를 치운다.
         #   배 앞으로 남은 job 이 있는데 배를 치우면 그 job 이 영원히 안 풀린다
@@ -516,6 +527,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     opened = {"cur": (0, 0, 0)}
 
     def review(m, t: float) -> None:
+        if observer is not None:
+            observer.observe(m, t, bridge)
         ann.review(m, t)
         bridge.review(m, t)
         if t >= state["snap"]:
@@ -540,6 +553,9 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     # ★배수 구간(마지막 날 뒤 2시간)에 끝난 트럭까지 흡수한다. 이걸 안 하면
     #   그 트럭들이 게이트를 나간 기록이 없어 **검열된 것처럼** 계산된다.
     bridge._sync(mbt, sim_end)
+    if observer is not None:
+        observer.finish(built["schedule"], records, sim_end)
+        res.daily_observation = observer.metadata
 
     # ── 확정 — 끝까지 기다린 값으로 다시 낸다 (판정은 이쪽)
     for d in days:

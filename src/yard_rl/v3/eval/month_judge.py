@@ -79,13 +79,14 @@ class ArmMonth:
     #:  현업 지표도 쓸 수 없었고, 비용 계수를 바꿔 보는 민감도 분석도
     #:  달을 다시 굴려야만 했다. 이제 한 번 굴리면 셋 다 나온다.
     days: list = field(default_factory=list)
+    daily_observation: dict = field(default_factory=dict)
 
 
 #: 판정 산출물에 남길 하루치 필드 — `stage/month_run.DayReport` 의 부분집합.
 DAY_KEEP = ("index", "load", "phi_krw", "c_wait", "c_move", "c_rehandle",
             "c_vessel", "n_trucks", "n_censored", "mean_turn_time_s",
             "p90_turn_time_s", "over_ratio", "truck_skipped",
-            "traded", "n_space", "n_time")
+            "traded", "n_space", "n_time", "operational", "provisional", "train")
 
 
 def _day_row(d) -> dict:
@@ -110,14 +111,16 @@ def _run_arm(kw) -> ArmMonth:
                     rollout_calls=rollout_calls(),
                     policy_exceptions=res.policy_exceptions,
                     txn_failed=res.txn_failed,
-                    days=[_day_row(d) for d in res.days])
+                    days=[_day_row(d) for d in res.days],
+                    daily_observation=res.daily_observation)
 
 
 def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 arms=JUDGE_ARMS, n_days: int = N_DAYS, days=None,
                 trigger_k: dict | None = None, workers: int = 0,
                 extra_policies=None, ckpt_dir=None, log=print,
-                window_s: float | None = None, admission_mode: str = "LEGACY") -> dict:
+                window_s: float | None = None, admission_mode: str = "LEGACY",
+                capture_daily: bool = True, daily_sample_s: float = 300.0) -> dict:
     """`RL` 과 각 팔을 **같은 달** 위에서 겨룬다. 부하별로 표를 낸다.
 
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
@@ -142,7 +145,8 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     #:  ⚠️ 망은 30분 조건에서 배웠다 — 큰 W 에 **불리한 편향**이 있다. 그래도 이득이
     #:  유지되면 그 자체로 강한 결과다.
     base = dict(seed=seed, days=days, seller_net=seller_net,
-                buyer_net=buyer_net, admission_mode=admission_mode)
+                buyer_net=buyer_net, admission_mode=admission_mode,
+                capture_daily=capture_daily, daily_sample_s=daily_sample_s)
     if window_s is not None:
         base["window_s"] = float(window_s)
     jobs = []

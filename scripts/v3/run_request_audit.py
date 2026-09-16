@@ -43,7 +43,9 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         raise RuntimeError("Checkpoint changed during the experiment.")
     seller, buyer, _ = _load_nets(args.checkpoint)
     job = dict(_label=label, arm=arm, seed=seed, days=days,
-               seller_net=seller, buyer_net=buyer, capture_requests=True)
+               seller_net=seller, buyer_net=buyer, capture_requests=True,
+               capture_daily=getattr(args, "capture_daily", True),
+               daily_sample_s=getattr(args, "daily_sample_s", 300.0))
     if getattr(args, "admission_mode", "LEGACY") != "LEGACY":
         job["admission_mode"] = args.admission_mode
     if getattr(args, "supply_mode", "ORIGINAL") != "ORIGINAL":
@@ -77,7 +79,16 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
 
     reset_rollout_calls()
     kwargs = {k: v for k, v in job.items() if k != "_label"}
-    res = run_month(**kwargs, on_day=on_day)
+    state_path = out / "operating-state.jsonl.gz"
+    if job['capture_daily']:
+        with gzip.open(state_path, 'wt', encoding='utf-8') as stream:
+            def on_state(row):
+                stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + '\n')
+                if row['boundary']:
+                    stream.flush()
+            res = run_month(**kwargs, on_day=on_day, on_observation=on_state)
+    else:
+        res = run_month(**kwargs, on_day=on_day)
     ledger_path = out / "requests.jsonl.gz"
     with gzip.open(ledger_path, "wt", encoding="utf-8") as stream:
         for row in res.request_ledger:
@@ -100,6 +111,17 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         "request_ledger_sha256": sha(ledger_path), "recording_checks": checks,
         "claim_eligible": False, "repro": stamp,
         "supply_plan_audit": res.supply_plan_audit}
+    if job['capture_daily']:
+        daily_path = out / 'daily-final.jsonl'
+        with daily_path.open('w', encoding='utf-8') as stream:
+            for day in res.days:
+                stream.write(json.dumps(dict(seed=seed, arm=arm, label=label, **day.as_dict()),
+                                        ensure_ascii=False, allow_nan=False) + '\n')
+        result['daily_observation'] = res.daily_observation
+        result['daily_artifacts'] = {
+            'operating-state.jsonl.gz': sha(state_path), 'daily-final.jsonl': sha(daily_path)}
+        checks['daily_observation_complete'] = all(
+            d.operational.get('day_index') == d.index and 'cohort' in d.operational for d in res.days)
     if diagnostics:
         checks["vessel_recording"] = res.vessel_work_summary["recording_ok"]
         checks["container_identity_chain"] = res.container_flow_summary["passed"]
