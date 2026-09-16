@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-16T00:14:13.878831+00:00",
+  "scope": "read-only outcome-audit smoke completed; full simulation and automatic audits running",
+  "dashboard": {
+    "name": "dashboard_code_alignment",
+    "status": "PASS",
+    "summary": "Dashboard·spec·코드·증거가 일치함",
+    "reasons": [],
+    "evidence": {
+      "task_id": "YR-317-g",
+      "expected_state": "in-progress",
+      "board_matches": [
+        "in-progress.md"
+      ],
+      "spec_path": ".claude/docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md",
+      "evidence_paths": [
+        "outputs/reports/yr317_v3_demand_preservation/outcome-audit-smoke/NO_REALLOC.json",
+        "outputs/reports/yr317_v3_demand_preservation/outcome-audit-smoke/RL.json",
+        "outputs/reports/yr317_v3_demand_preservation/outcome-audit-smoke/RL_NOVETO.json"
+      ],
+      "control_paths": [
+        ".claude\\Dashboard\\in-progress.md",
+        ".claude\\docs\\dashboard-task-specs\\YR-317-g-v3-review-demand-accounting.md"
+      ],
+      "evidence_commits": [
+        "0616fd432da5476fbce7ac9632032126dd4bf9ea"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "0616fd432da5476fbce7ac9632032126dd4bf9ea",
+      "drift": []
+    }
+  },
+  "research_claim_eligible": false,
+  "new_training_runs": 0
+}
