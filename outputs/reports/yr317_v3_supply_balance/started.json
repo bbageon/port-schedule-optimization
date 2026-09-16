@@ -1,0 +1,71 @@
+{
+  "at": "2026-09-16T03:15:32.636999+00:00",
+  "checks": {
+    "all_new_processes_live": true,
+    "source_clean": true,
+    "same_diagnostic_month": true,
+    "cpu_assignment": true,
+    "modes": true,
+    "smoke_passed": true
+  },
+  "passed": true,
+  "workers": {
+    "original_baseline": {
+      "pid": 18215,
+      "cpus": [
+        0
+      ],
+      "seed": 9900702,
+      "n_days": 30,
+      "admission_mode": "PRESERVE",
+      "supply_mode": "ORIGINAL",
+      "git_head": "b76f3be26de7de25405acf271590b60db07e536e",
+      "git_dirty": false
+    },
+    "balanced_baseline": {
+      "pid": 18216,
+      "cpus": [
+        1
+      ],
+      "seed": 9900702,
+      "n_days": 30,
+      "admission_mode": "PRESERVE",
+      "supply_mode": "COUNT_BALANCED",
+      "git_head": "b76f3be26de7de25405acf271590b60db07e536e",
+      "git_dirty": false
+    },
+    "balanced_full": {
+      "pid": 18217,
+      "cpus": [
+        2
+      ],
+      "seed": 9900702,
+      "n_days": 30,
+      "admission_mode": "PRESERVE",
+      "supply_mode": "COUNT_BALANCED",
+      "git_head": "b76f3be26de7de25405acf271590b60db07e536e",
+      "git_dirty": false
+    }
+  },
+  "launch": {
+    "at": "2026-09-16T03:13:38.813564+00:00",
+    "source_commit": "b76f3be26de7de25405acf271590b60db07e536e",
+    "workers": {
+      "original_baseline": {
+        "pid": 18215,
+        "cpu": 0
+      },
+      "balanced_baseline": {
+        "pid": 18216,
+        "cpu": 1
+      },
+      "balanced_full": {
+        "pid": 18217,
+        "cpu": 2
+      }
+    }
+  },
+  "independent_policy_evaluations": 0,
+  "new_training_runs": 0,
+  "claim_eligible": false
+}

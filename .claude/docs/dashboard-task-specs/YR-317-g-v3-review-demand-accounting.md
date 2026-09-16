@@ -135,3 +135,5 @@
 - 관련 코드 검사 41개 통과. 실행 전 고정 소스로 입력 전체를 재검산하고 코드 지문·20개월 통과 결과를 실행기에서 확인한다.
 - `064c6b0`의 깨끗한 소스에서 20개월 재검산·추가 집계 검사 7개 통과. [입력 검증](../../../outputs/reports/yr317_v3_supply_balance/input-verification.json). 도착곡선·물량 유지, 월말 부족 0·날짜별 용량 초과 없음이며 시각별 서비스까지 통과한 것은 아니다.
 - 보정이 없는 9,900,700은 단기 연결 검사에만 사용한다. 입력만 검사하는 고정 순서로 첫 부족 시드 9,900,702(Y07 100개 부족)를 선정했다. [선택 근거](../../../outputs/reports/yr317_v3_supply_balance/diagnostic-input-choice.json). 독립 20개월의 정책 성능은 보지 않았다.
+- `b76f3be`의 새 300대 세 조건 검사가 통과했고 12:13:38 KST에 30일 검증을 실제 시작했다. 원래 기준/보정 기준/보정 전체 PID 18215/18216/18217, CPU 0/1/2. [실행 확인](../../../outputs/reports/yr317_v3_supply_balance/started.json).
+- [새 연결 결과](../../../outputs/reports/yr317_v3_supply_balance/run-b76f3be/smoke/summary.json). 본 실행은 진행 중이며 g 완료·독립 반복·추가학습 완료로 보고하지 않는다.
