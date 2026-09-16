@@ -46,6 +46,8 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
                seller_net=seller, buyer_net=buyer, capture_requests=True)
     if getattr(args, "admission_mode", "LEGACY") != "LEGACY":
         job["admission_mode"] = args.admission_mode
+    if getattr(args, "supply_mode", "ORIGINAL") != "ORIGINAL":
+        job["supply_mode"] = args.supply_mode
     diagnostics = getattr(args, "diagnose_admissions", False)
     if diagnostics:
         job["diagnose_admissions"] = True
@@ -96,9 +98,17 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         "request_summary": res.request_summary, "vessel_admissions": res.vessel_admissions,
         "requested_identity_sha256": digest(requested_identity),
         "request_ledger_sha256": sha(ledger_path), "recording_checks": checks,
-        "claim_eligible": False, "repro": stamp}
+        "claim_eligible": False, "repro": stamp,
+        "supply_plan_audit": res.supply_plan_audit}
     if diagnostics:
         checks["vessel_recording"] = res.vessel_work_summary["recording_ok"]
+        checks["container_identity_chain"] = res.container_flow_summary["passed"]
+        link_path = out / "container-links.jsonl.gz"
+        with gzip.open(link_path, "wt", encoding="utf-8") as stream:
+            for row in res.container_links:
+                stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+        result["container_flow_summary"] = res.container_flow_summary
+        result["container_links_sha256"] = sha(link_path)
         checks["failure_inventory_recorded"] = all(
             e.get("reason") == "TAIL" or "inventory_at_failure" in e
             for row in res.request_ledger for e in row["admission_events"]

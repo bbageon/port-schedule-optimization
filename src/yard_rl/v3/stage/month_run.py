@@ -129,6 +129,9 @@ class MonthResult:
     vessel_work_ledger: list = field(default_factory=list)
     vessel_work_summary: dict = field(default_factory=dict)
     demand_bindings: list = field(default_factory=list)
+    supply_plan_audit: dict = field(default_factory=dict)
+    container_flow_summary: dict = field(default_factory=dict)
+    container_links: list = field(default_factory=list)
 
     @property
     def train_days(self) -> list:
@@ -206,7 +209,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               workers: int = 1, explore_of_day=None, on_fit=None,
               branch_days: int = 1, identity_checks: int = 4,
               capture_requests: bool = False, diagnose_admissions: bool = False,
-              admission_mode: str = "LEGACY") -> MonthResult:
+              admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL") -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -232,6 +235,10 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
 
     if admission_mode not in ("LEGACY", "PRESERVE"):
         raise ValueError("admission_mode must be LEGACY or PRESERVE")
+    if supply_mode not in ("ORIGINAL", "COUNT_BALANCED"):
+        raise ValueError("supply_mode must be ORIGINAL or COUNT_BALANCED")
+    if supply_mode == "COUNT_BALANCED" and admission_mode != "PRESERVE":
+        raise ValueError("COUNT_BALANCED requires PRESERVE admission")
     preserve = admission_mode == "PRESERVE"
     prof, layout = build_h21_profile(), terminal_layout()
     days = list(days) if days else plan_month(seed, n_days=n_days)
@@ -242,6 +249,13 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     # ★본선 양하/적하를 **트럭 수지에 맞춘다** — 안 그러면 야드가 30일 동안 빈다.
     v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
                                   truck_net=truck_net_by_block(built["schedule"]))
+    supply_audit = {"mode": "ORIGINAL"}
+    if supply_mode == "COUNT_BALANCED":
+        from .supply_plan import balance_vessel_supply
+        initial = {b: len(s.containers) for b, s in built["day0"]["scenarios"].items()}
+        capacity = prof.block.bay_count * prof.block.row_count * prof.block.tier_max
+        v_by_day, supply_audit = balance_vessel_supply(
+            v_by_day, built["schedule"], initial, {b: capacity for b in initial})
     vessel_audit = None
     if diagnose_admissions:
         from .admission_audit import VesselWorkAudit, inventory_snapshot
@@ -263,6 +277,10 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                          for b, s in scns.items()},
                         extra_review_epochs=tuple(
                             i * EPOCH_S for i in range(int((sim_end if preserve else month_s) // EPOCH_S) + 1)))
+    container_audit = None
+    if diagnose_admissions:
+        from .container_audit import ContainerFlowAudit
+        container_audit = ContainerFlowAudit(mbt)
     # ★반출 대상은 **투입 시각에** 다시 고른다 — 30일은 이름이 날마다 겹친다.
     ann = V3Announcer(built["schedule"], end_s=sim_end,
                       retarget=make_retarget(seed), record_admissions=capture_requests,
@@ -340,7 +358,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         bridge.branch_records = _near_records
         bridge.branch_orders = _near_orders
 
-    res = MonthResult(plan=[d.as_dict() for d in days])
+    res = MonthResult(plan=[d.as_dict() for d in days], supply_plan_audit=supply_audit)
     archive: dict[str, float] = {}
     tape = _MonthTape(meta, archive)
     state = {"day": 0, "snap": 0.0, "traded": 0, "space": 0, "time": 0,
@@ -486,6 +504,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         #   (`retire_done_vessels` 머리말 참조 · 2026-08-26 실측 사고).
         if vessel_audit is not None:
             vessel_audit.observe(m)
+        if container_audit is not None:
+            container_audit.observe(m)
         rep.pruned = prune_completed(m, t)
         retire_done_vessels(m, archive, t=t)
         rep.load_after = ledger_load(m)
@@ -552,6 +572,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             and res.skipped == res.request_summary["skipped"])
     if vessel_audit is not None:
         res.vessel_work_ledger, res.vessel_work_summary = vessel_audit.finish(mbt)
+    if container_audit is not None:
+        res.container_flow_summary, res.container_links = container_audit.finish(mbt)
     if preserve:
         mbt.check_invariants()
         res.demand_bindings = getattr(mbt, "demand_bindings", [])
