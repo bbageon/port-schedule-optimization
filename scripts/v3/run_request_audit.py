@@ -54,7 +54,7 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
     if diagnostics:
         job["diagnose_admissions"] = True
     contract = arm_contract(job, runtime_identity(), run_month)
-    stamp = repro_stamp(experiment="YR-317-g", seeds={"base": [seed],
+    stamp = repro_stamp(experiment=getattr(args, "experiment", "YR-317-g"), seeds={"base": [seed],
         "days": [d.seed for d in days]}, params={"run": contract["settings"]},
         prereg=args.prereg, extra={"checkpoint_sha256": checkpoint_hash,
             "prereg_sha256": sha(args.prereg), "runner_sha256": sha(__file__)})
@@ -115,7 +115,7 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         daily_path = out / 'daily-final.jsonl'
         with daily_path.open('w', encoding='utf-8') as stream:
             for day in res.days:
-                stream.write(json.dumps(dict(seed=seed, arm=arm, label=label, **day.as_dict()),
+                stream.write(json.dumps(dict(seed=seed, arm=arm, policy_label=label, **day.as_dict()),
                                         ensure_ascii=False, allow_nan=False) + '\n')
         result['daily_observation'] = res.daily_observation
         result['daily_artifacts'] = {

@@ -16,3 +16,4 @@
 - 착수 허용: seed-bank completion-gates의 scenario_validity 보정 인가. 첫 호출은 선언 문구 불일치로 거부되어 정확한 대상 선언 후 허용됐으며 두 기록을 보존한다.
 - 구현: `stage/daily_observation.py`, 월 실행·평가 저장·요청 진단 실행기에 연결. 300초 상태와 연속시간 적분으로 일 평균 대기열을 저장한다.
 - [실행 전 계약](../../../outputs/reports/yr317_v3_daily_observation/prereg.md). 검증 스크립트는 `scripts/v3/check_daily_observation.py`다.
+- 첫 실제 파일 검사 `e4a8ffd`는 계측 실행 후 일별 파일 저장에서 부하 이름과 정책 이름의 `label` 중복으로 중단됐다. 정책 이름을 `policy_label`로 분리하며 실패 자료를 보존한다. 수정 소스에서 세 정책을 다시 검증한다.

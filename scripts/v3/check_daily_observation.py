@@ -33,7 +33,7 @@ def main():
         for enabled in (False, True):
             cfg = SimpleNamespace(**vars(args), admission_mode='PRESERVE',
                 supply_mode='ORIGINAL', diagnose_admissions=True, isolated_progress=True,
-                capture_daily=enabled, daily_sample_s=300.0)
+                capture_daily=enabled, daily_sample_s=300.0, experiment='YR-317-d2')
             label = ('on_' if enabled else 'off_') + arm
             results.append(run_one(label, arm, seed, days, cfg, sha(args.checkpoint)))
         off, on = results
