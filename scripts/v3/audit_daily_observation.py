@@ -1,12 +1,40 @@
 """Recompute the new daily artifacts without launching a simulator."""
 import argparse
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
 from collections import defaultdict
 import gzip
 import hashlib
 import json
 import math
 from pathlib import Path
+
+
+def queue_audit(states, requests):
+    """Rebuild pre-dispatch snapshots from final truck event timestamps.
+
+    A synchronized review observes the queue BEFORE decisions at its timestamp.
+    Thus a service starting exactly at t still belongs to that snapshot's queue.
+    Arrivals use <= t, matching the observer's declared physical arrival contract.
+    """
+    arrivals, starts = defaultdict(list), defaultdict(list)
+    for r in requests:
+        if r['block_in_s'] is not None:
+            arrivals[r['final_block']].append(r['block_in_s'])
+        if r['service_start_s'] is not None:
+            starts[r['final_block']].append(r['service_start_s'])
+    for values in (*arrivals.values(), *starts.values()):
+        values.sort()
+    mismatches, same_time_starts = [], 0
+    for s in states:
+        t = s['at_s']
+        for bid, row in s['blocks'].items():
+            actual = bisect_right(arrivals[bid], t) - bisect_left(starts[bid], t)
+            same_time_starts += bisect_right(starts[bid], t) - bisect_left(starts[bid], t)
+            if actual != row['truck_queue']:
+                mismatches.append(dict(at_s=t, block=bid, expected=actual, recorded=row['truck_queue']))
+    return dict(passed=not mismatches, mismatches=mismatches[:20],
+                mismatch_count=len(mismatches), same_time_starts=same_time_starts,
+                timing='arrivals <= t, service starts < t; snapshot precedes dispatch at t')
 
 
 def audit(folder):
@@ -28,20 +56,8 @@ def audit(folder):
                       for s in states for k,total in s['total'].items()),
         midnight_links=all(a['operational']['end']==b['operational']['start']
                            for a,b in zip(daily,daily[1:])))
-    arrivals, starts = defaultdict(list), defaultdict(list)
-    for r in requests:
-        if r['block_in_s'] is not None:
-            arrivals[r['final_block']].append(r['block_in_s'])
-        if r['service_start_s'] is not None:
-            starts[r['final_block']].append(r['service_start_s'])
-    for values in (*arrivals.values(), *starts.values()):
-        values.sort()
-    queue_matches = True
-    for s in states:
-        actual = {bid: bisect_right(arrivals[bid], s['at_s']) - bisect_right(starts[bid], s['at_s'])
-                  for bid in s['blocks']}
-        queue_matches &= all(actual[bid]==row['truck_queue'] for bid,row in s['blocks'].items())
-    checks['queues_match_request_events'] = queue_matches
+    queues = queue_audit(states, requests)
+    checks['queues_match_request_events'] = queues['passed']
     for d in daily:
         op = d['operational']; i=d['index']
         cohort = [r for r in requests if r['requested_day']==i]
@@ -62,7 +78,8 @@ def audit(folder):
             close(op['queue']['truck_queue_mean'],
                   (op['end']['total']['truck_queue_area_s']-op['start']['total']['truck_queue_area_s'])/86400)
         ])
-    return dict(passed=all(checks.values()), checks=checks, day_rows=len(daily), state_rows=len(states))
+    return dict(passed=all(checks.values()), checks=checks, queues=queues,
+                day_rows=len(daily), state_rows=len(states))
 
 
 def main():

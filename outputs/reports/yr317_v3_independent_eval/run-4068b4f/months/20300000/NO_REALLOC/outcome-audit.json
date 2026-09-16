@@ -1,0 +1,581 @@
+{
+  "passed": true,
+  "issues": [],
+  "vessel_totals": {
+    "requested_moves": 117478,
+    "admitted_moves": 117478,
+    "completed_yard_jobs": 117364,
+    "outstanding_yard_jobs": 114,
+    "unadmitted_moves": 0,
+    "unaccounted_yard_jobs": 0
+  },
+  "vessels_with_unfinished_work": [
+    {
+      "key": "D29-S2-s1",
+      "block": "Y02",
+      "work": "LOAD",
+      "start_s": 2521729.6460234877,
+      "asked": 389,
+      "attempted": true,
+      "admitted": 389,
+      "sts_done": false,
+      "sts_remaining": 26,
+      "sts_completion_s": null,
+      "admission_ok": true,
+      "reason": "",
+      "completed_yard_jobs": 364,
+      "outstanding_yard_jobs": 25,
+      "unaccounted_yard_jobs": 0,
+      "unadmitted_moves": 0,
+      "elapsed_since_start_h": 21.519542771253423,
+      "started_before_final_day": false
+    },
+    {
+      "key": "D29-M1-s3",
+      "block": "Y05",
+      "work": "LOAD",
+      "start_s": 2511282.676685415,
+      "asked": 541,
+      "attempted": true,
+      "admitted": 541,
+      "sts_done": false,
+      "sts_remaining": 40,
+      "sts_completion_s": null,
+      "admission_ok": true,
+      "reason": "",
+      "completed_yard_jobs": 503,
+      "outstanding_yard_jobs": 38,
+      "unaccounted_yard_jobs": 0,
+      "unadmitted_moves": 0,
+      "elapsed_since_start_h": 24.421478698495775,
+      "started_before_final_day": false
+    },
+    {
+      "key": "D29-M1-s1",
+      "block": "Y10",
+      "work": "DISCHARGE",
+      "start_s": 2511282.676685415,
+      "asked": 541,
+      "attempted": true,
+      "admitted": 541,
+      "sts_done": true,
+      "sts_remaining": 0,
+      "sts_completion_s": 2582104.494867279,
+      "admission_ok": true,
+      "reason": "",
+      "completed_yard_jobs": 506,
+      "outstanding_yard_jobs": 35,
+      "unaccounted_yard_jobs": 0,
+      "unadmitted_moves": 0,
+      "elapsed_since_start_h": 24.421478698495775,
+      "started_before_final_day": false
+    },
+    {
+      "key": "D29-S1-s1",
+      "block": "Y18",
+      "work": "LOAD",
+      "start_s": 2544124.94396387,
+      "asked": 247,
+      "attempted": true,
+      "admitted": 247,
+      "sts_done": false,
+      "sts_remaining": 16,
+      "sts_completion_s": null,
+      "admission_ok": true,
+      "reason": "",
+      "completed_yard_jobs": 231,
+      "outstanding_yard_jobs": 16,
+      "unaccounted_yard_jobs": 0,
+      "unadmitted_moves": 0,
+      "elapsed_since_start_h": 15.298626676702794,
+      "started_before_final_day": false
+    }
+  ],
+  "all_vessel_work_completed": false,
+  "all_trucks_completed": false,
+  "unfinished_trucks_by_state": {
+    "CENSORED": 2
+  },
+  "unfinished_trucks": [
+    {
+      "job_id": "D29-D-04910",
+      "requested_day": 29,
+      "flow": "GATE_IN",
+      "requested_block": "Y10",
+      "requested_arrival_s": 2588165.68,
+      "lead_s": 26860.076669620346,
+      "requested_target": null,
+      "travel_s": 299.0,
+      "admission_events": [
+        {
+          "job_id": "D29-D-04910",
+          "t": 2561280.0,
+          "outcome": "ADMITTED",
+          "reason": null,
+          "block": "Y10",
+          "flow": "GATE_IN",
+          "target": null,
+          "planned_gate_in_s": 2588165.68
+        }
+      ],
+      "state": "CENSORED",
+      "gate_in_s": 2588165.68,
+      "block_in_s": 2588464.68,
+      "service_start_s": null,
+      "job_done_s": null,
+      "gate_out_s": null,
+      "final_reserved_arrival_s": 2588165.68,
+      "final_block": "Y10",
+      "accounted_turn_time_s": 11034.319999999832,
+      "accounted_wait_krw": 205207.1111111074
+    },
+    {
+      "job_id": "D29-D-04918",
+      "requested_day": 29,
+      "flow": "GATE_IN",
+      "requested_block": "Y10",
+      "requested_arrival_s": 2588469.445,
+      "lead_s": 1379.3741434717242,
+      "requested_target": null,
+      "travel_s": 295.6519944158264,
+      "admission_events": [
+        {
+          "job_id": "D29-D-04918",
+          "t": 2587080.0,
+          "outcome": "ADMITTED",
+          "reason": null,
+          "block": "Y10",
+          "flow": "GATE_IN",
+          "target": null,
+          "planned_gate_in_s": 2588469.445
+        }
+      ],
+      "state": "CENSORED",
+      "gate_in_s": 2588469.445,
+      "block_in_s": 2588765.096994416,
+      "service_start_s": null,
+      "job_done_s": null,
+      "gate_out_s": null,
+      "final_reserved_arrival_s": 2588469.445,
+      "final_block": "Y10",
+      "accounted_turn_time_s": 10730.555000000168,
+      "accounted_wait_krw": 198456.77777778148
+    }
+  ],
+  "late_bindings_checked": 47910,
+  "unbound_jobs_at_end": 0,
+  "arrival_shift": {
+    "later_gate_count": 0,
+    "total_hours": 0.0,
+    "mean_minutes_among_shifted": 0,
+    "max_minutes": 0.0,
+    "scope": "observed gate time minus original requested time; not proof of actual driver waiting or a monetary cost"
+  },
+  "limits": [
+    "Saved vessel rows do not contain each job's release time, physical inventory, or remaining service work.",
+    "Binding checks prove recorded time consistency, not inventory availability at every binding.",
+    "Remaining work is not assigned a cause from aggregate counters alone."
+  ],
+  "claim_eligible": false,
+  "new_training_runs": 0,
+  "request_reconciliation": {
+    "passed": true,
+    "issues": {},
+    "examples": {},
+    "requested": 166500,
+    "states": {
+      "COMPLETED": 166498,
+      "CENSORED": 2
+    },
+    "skip_reasons": {},
+    "cohorts": {
+      "0": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 51524652.718490444,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2083,
+          "GATE_IN": 1417
+        }
+      },
+      "1": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 52396773.19164162,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2120,
+          "GATE_IN": 1380
+        }
+      },
+      "2": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 50006098.44386421,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2104,
+          "GATE_IN": 1396
+        }
+      },
+      "3": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 107094593.2653595,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 2956,
+          "GATE_IN": 2044
+        }
+      },
+      "4": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 50612205.01555234,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_IN": 1414,
+          "GATE_OUT": 2086
+        }
+      },
+      "5": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 49719666.01420695,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_IN": 1407,
+          "GATE_OUT": 2093
+        }
+      },
+      "6": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 58645075.39792602,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_IN": 1445,
+          "GATE_OUT": 2055
+        }
+      },
+      "7": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 60573279.660094485,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2085,
+          "GATE_IN": 1415
+        }
+      },
+      "8": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 72718858.27052258,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 2941,
+          "GATE_IN": 2059
+        }
+      },
+      "9": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 49438424.47110604,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2121,
+          "GATE_IN": 1379
+        }
+      },
+      "10": {
+        "requested": 7500,
+        "states": {
+          "COMPLETED": 7500
+        },
+        "accounted_wait_krw": 151001053.75069675,
+        "gate_entered": 7500,
+        "flows": {
+          "GATE_OUT": 4459,
+          "GATE_IN": 3041
+        }
+      },
+      "11": {
+        "requested": 7500,
+        "states": {
+          "COMPLETED": 7500
+        },
+        "accounted_wait_krw": 167980670.18427002,
+        "gate_entered": 7500,
+        "flows": {
+          "GATE_OUT": 4485,
+          "GATE_IN": 3015
+        }
+      },
+      "12": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 75877207.56208487,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 2933,
+          "GATE_IN": 2067
+        }
+      },
+      "13": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 48856680.53356764,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2076,
+          "GATE_IN": 1424
+        }
+      },
+      "14": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 49309667.36052459,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2127,
+          "GATE_IN": 1373
+        }
+      },
+      "15": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 62767551.16857349,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 1822,
+          "GATE_IN": 1678
+        }
+      },
+      "16": {
+        "requested": 12500,
+        "states": {
+          "COMPLETED": 12500
+        },
+        "accounted_wait_krw": 1376714719.5499284,
+        "gate_entered": 12500,
+        "flows": {
+          "GATE_OUT": 7326,
+          "GATE_IN": 5174
+        }
+      },
+      "17": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 269100785.58726746,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 2947,
+          "GATE_IN": 2053
+        }
+      },
+      "18": {
+        "requested": 15000,
+        "states": {
+          "COMPLETED": 15000
+        },
+        "accounted_wait_krw": 2428023339.508122,
+        "gate_entered": 15000,
+        "flows": {
+          "GATE_IN": 7284,
+          "GATE_OUT": 7716
+        }
+      },
+      "19": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 142100066.9079149,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_IN": 2438,
+          "GATE_OUT": 2562
+        }
+      },
+      "20": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 100665036.93633904,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 2962,
+          "GATE_IN": 2038
+        }
+      },
+      "21": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 50387084.77593124,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2147,
+          "GATE_IN": 1353
+        }
+      },
+      "22": {
+        "requested": 7500,
+        "states": {
+          "COMPLETED": 7500
+        },
+        "accounted_wait_krw": 168949763.59908214,
+        "gate_entered": 7500,
+        "flows": {
+          "GATE_IN": 3063,
+          "GATE_OUT": 4437
+        }
+      },
+      "23": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 53799423.82145027,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2053,
+          "GATE_IN": 1447
+        }
+      },
+      "24": {
+        "requested": 12500,
+        "states": {
+          "COMPLETED": 12500
+        },
+        "accounted_wait_krw": 1804347245.5028088,
+        "gate_entered": 12500,
+        "flows": {
+          "GATE_IN": 6141,
+          "GATE_OUT": 6359
+        }
+      },
+      "25": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 5000
+        },
+        "accounted_wait_krw": 197339300.63252437,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_OUT": 3004,
+          "GATE_IN": 1996
+        }
+      },
+      "26": {
+        "requested": 7500,
+        "states": {
+          "COMPLETED": 7500
+        },
+        "accounted_wait_krw": 216346972.86988986,
+        "gate_entered": 7500,
+        "flows": {
+          "GATE_IN": 2994,
+          "GATE_OUT": 4506
+        }
+      },
+      "27": {
+        "requested": 7500,
+        "states": {
+          "COMPLETED": 7500
+        },
+        "accounted_wait_krw": 206639030.21946174,
+        "gate_entered": 7500,
+        "flows": {
+          "GATE_IN": 3616,
+          "GATE_OUT": 3884
+        }
+      },
+      "28": {
+        "requested": 3500,
+        "states": {
+          "COMPLETED": 3500
+        },
+        "accounted_wait_krw": 55705979.37725333,
+        "gate_entered": 3500,
+        "flows": {
+          "GATE_OUT": 2157,
+          "GATE_IN": 1343
+        }
+      },
+      "29": {
+        "requested": 5000,
+        "states": {
+          "COMPLETED": 4998,
+          "CENSORED": 2
+        },
+        "accounted_wait_krw": 80355643.41997018,
+        "gate_entered": 5000,
+        "flows": {
+          "GATE_IN": 2060,
+          "GATE_OUT": 2940
+        }
+      }
+    },
+    "skip_groups": [],
+    "accounted_wait_krw": 8308996849.716333,
+    "skipped_accounted_wait_krw": 0.0,
+    "four_cost_totals_krw": {
+      "c_wait": 8308996849.716425,
+      "c_move": 19334385.416666668,
+      "c_rehandle": 310044000.0,
+      "c_vessel": 108777549.75444613
+    },
+    "vessel_admissions": {
+      "streams": 288,
+      "failed": 0,
+      "admitted_moves": 117478,
+      "asked_moves_in_recorded_streams": 117478,
+      "missing_asked_fields": 0,
+      "completion_validated": false
+    },
+    "full_truck_demand_completed": false
+  },
+  "artifact_sha256": {
+    "result.json": "f1273e00206f780652ea5a1388d7f02b86e64c14a63051b266373b20ba67a9bd",
+    "manifest.json": "b55e9bf65e53d3dcf346beae66b947471007974f721b6fafe2334e86fcf0197e",
+    "requests.jsonl.gz": "33be6524f40b9f7c32d14d26bbd3fbddf633635e2bd32860920311c1555d7f1d",
+    "days.jsonl": "4b8a724332168b197b69db9ef0673ca0e1b752c52b65559d46fe0f065ad58388"
+  },
+  "arm": "NO_REALLOC",
+  "source_commit": "4068b4f73daf2ed860b0357c6f9aeef5f270c3bf"
+}

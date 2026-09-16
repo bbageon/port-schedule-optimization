@@ -95,6 +95,8 @@ def child(args, cfg):
 def command(args, **flags):
     cmd = [sys.executable, '-u', str(Path(__file__).resolve()), '--config', str(args.config),
            '--workspace', str(args.workspace), '--out', str(args.out)]
+    if getattr(args, 'recover_from', None) is not None:
+        cmd += ['--recover-from', str(args.recover_from)]
     for key, value in flags.items():
         cmd += ['--' + key.replace('_', '-')]
         if value is not True:
@@ -109,20 +111,20 @@ def resources(cfg):
     return min(cfg['workers_max'], memory_workers), available
 
 
-def run_jobs(args, cfg, jobs, *, smoke=False):
+def run_jobs(args, cfg, jobs, *, smoke=False, retained=()):
     limit, available = resources(cfg)
     if limit < 1:
         raise RuntimeError('Insufficient available memory for one worker')
     limit = min(limit, 3) if smoke else limit
     # Diagnostic probes can run while the supply run owns CPU 2.
     free = deque(range(3, 3 + limit) if smoke else range(limit))
-    pending, active, completed = deque(jobs), {}, []
+    pending, active, completed, failed = deque(jobs), {}, list(retained), []
     phase = 'smoke' if smoke else 'months'
     save(args.out / f'{phase}-resources.json', dict(at=now(), workers=limit,
         mem_available_bytes=available, worker_budget_gib=cfg['worker_budget_gib'], cpus=list(free)))
     try:
-        while pending or active:
-            while pending and free:
+        while active or (pending and not failed):
+            while pending and free and not failed:
                 seed, arm = pending.popleft()
                 cpu = free.popleft()
                 folder = args.out / phase / str(seed)
@@ -141,15 +143,22 @@ def run_jobs(args, cfg, jobs, *, smoke=False):
                 seed, arm = key
                 folder = args.out / phase / str(seed) / arm
                 if code != 0 or not (folder / 'completion.json').exists():
-                    raise RuntimeError(f'{phase} worker {key} failed with exit {code}; no replacement seed')
-                completed.append(read(folder / 'completion.json'))
+                    failed.append(dict(seed=seed, arm=arm, exit_code=code))
+                else:
+                    completed.append(read(folder / 'completion.json'))
                 del active[key]
                 free.append(cpu)
-            save(args.out / 'progress.json', dict(at=now(), state='running', phase=phase,
-                completed=len(completed), planned=len(jobs), pending=len(pending),
+            save(args.out / 'progress.json', dict(at=now(),
+                state='draining_after_failure' if failed else 'running', phase=phase,
+                completed=len(completed), retained=len(retained), planned=len(jobs)+len(retained),
+                failed=failed, pending=len(pending),
                 active=[dict(seed=s, arm=a, pid=p.pid, cpu=c) for (s, a), (p, c) in active.items()]))
             if active:
                 time.sleep(10)
+        save(args.out / f'{phase}-outcomes.json', dict(completed=completed, failed=failed,
+            pending=list(pending), scope='Failed work stops new launches; already active runs finish and save their evidence.'))
+        if failed:
+            raise RuntimeError(f'{phase} failed jobs preserved; all other active jobs allowed to finish: {failed}')
     finally:
         for proc, _ in active.values():
             if proc.poll() is None:
@@ -187,7 +196,14 @@ def supervise(args, cfg):
         raise RuntimeError('Supply/input/physical record checks failed; independent evaluation not started')
     verified_config(args)
     # Round-robin by month, preserving all policies and all seeds including losses.
-    completed = run_jobs(args, cfg, [(s, a) for s in SEEDS for a in ARMS])
+    retained = []
+    jobs = [(s, a) for s in SEEDS for a in ARMS]
+    if args.recover_from is not None:
+        from recover_independent_evaluation import recover_completed
+        retained = recover_completed(args, cfg)
+        kept = {(c['month']['seed'], c['month']['arm']) for c in retained}
+        jobs = [job for job in jobs if job not in kept]
+    completed = run_jobs(args, cfg, jobs, retained=retained)
     rows = [c['month'] for c in completed]
     save(args.out / 'month-results.json', sorted(rows, key=lambda r: (r['seed'], r['arm'])))
     summary = paired_summary(rows)
@@ -207,9 +223,13 @@ def main():
     p.add_argument('--arm', choices=ARMS)
     p.add_argument('--cpu', type=int)
     p.add_argument('--smoke', action='store_true')
+    p.add_argument('--recover-from', type=Path,
+                   help='Preserve old attempts; re-audit compatible final results, rerun only missing results')
     args = p.parse_args()
     for name in ('workspace', 'config', 'out'):
         setattr(args, name, getattr(args, name).resolve())
+    if args.recover_from is not None:
+        args.recover_from = args.recover_from.resolve()
     os.chdir(ROOT)
     cfg = verified_config(args)
     if args.arm:

@@ -5,7 +5,7 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
-- **v3 고정 모델 독립 평가 대기열 가동 (2026-09-16, YR-317-d)**: 23:24 KST 등록, 세 정책 연결·기록 검사 및 재생 동일성 통과. g 종료·원자료 검사 뒤 20시드×3정책을 실행한다. 현재 본 평가 0/60·새 학습 없음, 일별 자료와 월 단위 비용표를 함께 저장한다. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [등록 증거](../../outputs/reports/yr317_v3_independent_eval/started.json)
+- **v3 독립 반복 기록 검사 복구 (2026-09-17, YR-317-d)**: 03:11 본 평가 시작 후 07:25 첫 월의 동일 시각 대기열 검사 오류로 중단. 검사 수정·30일 원자료 재검산·실행 계약 동일성 확인. 완료 1개 보존, 나머지 59개 복구 준비. 정책·모델·입력·비용 변경 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [오류·복구](../../docs/paper/v3/paper-revision/21-독립반복-검사오류와복구.md)
 - **v3 독립 반복용 일별 계측 완료 (2026-09-16, YR-317-d2)**: 물량·시작 잔여·블록별 대기열·야드 작업·턴타임·공간/시간 비율·비용을 저장한다. 코드 70검사, 세 정책 계측 켬/끔 30항목, 파일 재검산 27항목 통과. 독립 성능 평가 자체는 g 판정 뒤다. [spec](../docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md) · [정의·결과](../../docs/paper/v3/paper-revision/18-독립반복-일별관측.md)
 - **v3 개정 4일 마감·비용 연결 확인 (2026-09-15, YR-317·a)**: 9/19 KST 완료 목표를 반영했다. 과거 외부 대기 합산은 실제 있지만 현 v3 학습·평가에는 미연결이며 12개 감사 검사를 통과했다. 기존 원고 8파일 보존, 새 학습·독립 확증은 미실행이다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [비용 확인·일정](../../docs/paper/v3/paper-revision/12-시간변경비용-코드확인.md)
 
