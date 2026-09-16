@@ -1,0 +1,84 @@
+{
+  "at": "2026-09-16T01:54:44.754376+00:00",
+  "scope": "harvest of all three completed fixed-seed diagnostic arms; not research success",
+  "checks": {
+    "source_events_reconciled": true,
+    "same_requests_across_policies": true,
+    "same_requests_as_original_run": true,
+    "all_trucks_admitted": true,
+    "original_vessel_work_preserved": true,
+    "runtime_and_physical_checks": true,
+    "all_three_process_groups_completed": true,
+    "all_three_inventory_arms_present": true,
+    "NO_REALLOC_outcome_audit": true,
+    "NO_REALLOC_day_costs": true,
+    "NO_REALLOC_components": true,
+    "NO_REALLOC_ledger_hash": true,
+    "NO_REALLOC_stock_total": true,
+    "NO_REALLOC_recording": true,
+    "NO_REALLOC_deficit_matches_unbound": true,
+    "RL_outcome_audit": true,
+    "RL_day_costs": true,
+    "RL_components": true,
+    "RL_ledger_hash": true,
+    "RL_stock_total": true,
+    "RL_recording": true,
+    "RL_deficit_matches_unbound": true,
+    "RL_NOVETO_outcome_audit": true,
+    "RL_NOVETO_day_costs": true,
+    "RL_NOVETO_components": true,
+    "RL_NOVETO_ledger_hash": true,
+    "RL_NOVETO_stock_total": true,
+    "RL_NOVETO_recording": true,
+    "RL_NOVETO_deficit_matches_unbound": true,
+    "request_identities_equal": true,
+    "no_false_all_complete_claim": true
+  },
+  "passed": true,
+  "findings": {
+    "NO_REALLOC": {
+      "cost_krw": 5177729277.428394,
+      "saving_pct": 0.0,
+      "trucks_unfinished": 0,
+      "vessel_yard_unfinished": 1681,
+      "minimum_shortfall_by_block": {}
+    },
+    "RL": {
+      "cost_krw": 4362438455.2517,
+      "saving_pct": 15.746107579066425,
+      "trucks_unfinished": 181,
+      "vessel_yard_unfinished": 1817,
+      "minimum_shortfall_by_block": {
+        "Y05": 181,
+        "Y08": 25
+      }
+    },
+    "RL_NOVETO": {
+      "cost_krw": 4862805416.646541,
+      "saving_pct": 6.082277460019425,
+      "trucks_unfinished": 238,
+      "vessel_yard_unfinished": 1560,
+      "minimum_shortfall_by_block": {
+        "Y05": 238,
+        "Y07": 19
+      }
+    }
+  },
+  "sha256": {
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/manifest.json": "418d9164b3ed92979da5269220353a2bab3472a5dac8cc5380008cfb557b7ff1",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/days.jsonl": "92f6bfae807dedb7c1acdf2124c9ead08520c033ded639fdaf00c3976c648488",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/requests.jsonl.gz": "6b1ace20b5848fb77418439725386cebaa92a75d8775c0c8cad2c2fa7b3ff77d",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/result.json": "46535cb49ab3f5b574201d5c62a8a74b9a12fa2191349768428fde092c01ac5d",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/manifest.json": "385cd6aaf431a7da52bf5afa7844cc48db087d95b9c9039c4aba5c78e1743c45",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/days.jsonl": "f354eaf57bf9404410e2be35c509b158b476ab07c47ecb18749b5f08396ad76e",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/requests.jsonl.gz": "018bd2e4880296d3138c02e2df807173e413bf82ee5f8659e3ace7185f628cb0",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/result.json": "7a0f8e832ad5145f22171503f7230d5dbea18f217c711b2bfcfba41e9645119b",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/manifest.json": "1a1e4ea99f77917b2570c8ce10cd01c5b3bd521f245a0617809e9a926712056b",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/days.jsonl": "03dbcdb0fee20f73cb3b7172e775f83ac336c9637f28375222cf05d2601e27c2",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/requests.jsonl.gz": "c86d7005a5e3685db7e1412608b26bb569abe4ccd9f45c5b7f97f638644e275f",
+    "outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/result.json": "2d49b5c5a7ad5e5c775d46d9adf35c9829045958f9551379b0a23e6c097d0685"
+  },
+  "new_training_runs": 0,
+  "independent_policy_evaluations": 0,
+  "claim_eligible": false
+}

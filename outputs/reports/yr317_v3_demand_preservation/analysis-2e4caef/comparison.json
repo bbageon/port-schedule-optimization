@@ -1,0 +1,2031 @@
+{
+  "schema": "yr317.demand-preservation-comparison.v1",
+  "checks": {
+    "source_events_reconciled": true,
+    "same_requests_across_policies": true,
+    "same_requests_as_original_run": true,
+    "all_trucks_admitted": true,
+    "original_vessel_work_preserved": true,
+    "runtime_and_physical_checks": true
+  },
+  "preservation_passed": true,
+  "all_requested_completed": false,
+  "arms": {
+    "NO_REALLOC": {
+      "total_cost_krw": 5177729277.428394,
+      "components_krw": {
+        "c_wait": 4972823117.342184,
+        "c_move": 7210341.666666667,
+        "c_rehandle": 116780000.0,
+        "c_vessel": 80915818.41954365
+      },
+      "requests": {
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 69000
+        },
+        "skip_reasons": {},
+        "admitted": 69000,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 4972823117.342189,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 871200.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 19950,
+        "unbound_jobs_at_end": 0
+      },
+      "vessel_work": {
+        "streams": 110,
+        "requested_moves": 44322,
+        "admitted_moves": 44322,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 42641,
+        "outstanding_yard_jobs": 1681,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": false
+      },
+      "failure_kinds": {},
+      "failures": [],
+      "reduced_vessel_admissions": [],
+      "recording_checks": {
+        "request_recording": true,
+        "announcer_counts": true,
+        "wait_cost_reconciles": true,
+        "no_teacher": true,
+        "no_policy_exceptions": true,
+        "vessel_recording": true,
+        "failure_inventory_recorded": true,
+        "physical_invariants_enabled": true
+      },
+      "ledger_reconciliation": {
+        "passed": true,
+        "issues": {},
+        "examples": {},
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 69000
+        },
+        "skip_reasons": {},
+        "cohorts": {
+          "0": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 50702449.17156391,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1403,
+              "GATE_OUT": 2097
+            }
+          },
+          "1": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 62624937.21449979,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1378,
+              "GATE_OUT": 2122
+            }
+          },
+          "2": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 81825894.38200346,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 2978,
+              "GATE_IN": 2022
+            }
+          },
+          "3": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 83672874.7191669,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 3036,
+              "GATE_IN": 1964
+            }
+          },
+          "4": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 60726216.02036474,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_OUT": 1992,
+              "GATE_IN": 1508
+            }
+          },
+          "5": {
+            "requested": 7500,
+            "states": {
+              "COMPLETED": 7500
+            },
+            "accounted_wait_krw": 544468693.9368607,
+            "gate_entered": 7500,
+            "flows": {
+              "GATE_OUT": 3924,
+              "GATE_IN": 3576
+            }
+          },
+          "6": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1429692227.643149,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_IN": 5236,
+              "GATE_OUT": 7264
+            }
+          },
+          "7": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1277039277.9350338,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 7321,
+              "GATE_IN": 5179
+            }
+          },
+          "8": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1288515042.177185,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 6578,
+              "GATE_IN": 5922
+            }
+          },
+          "9": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 93555504.14235638,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1551,
+              "GATE_OUT": 1949
+            }
+          }
+        },
+        "skip_groups": [],
+        "accounted_wait_krw": 4972823117.342128,
+        "skipped_accounted_wait_krw": 0.0,
+        "four_cost_totals_krw": {
+          "c_wait": 4972823117.342184,
+          "c_move": 7210341.666666667,
+          "c_rehandle": 116780000.0,
+          "c_vessel": 80915818.41954365
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 44322,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "full_truck_demand_completed": true
+      },
+      "prior_run_comparison": {
+        "same_day_count": true,
+        "same_requested_identity": true,
+        "differences": [
+          {
+            "day": 1,
+            "field": "phi_krw",
+            "old": 79714574.89583251,
+            "new": 80314312.18189326
+          },
+          {
+            "day": 1,
+            "field": "c_wait",
+            "old": 62127902.798966184,
+            "new": 62624937.21449979
+          },
+          {
+            "day": 1,
+            "field": "c_move",
+            "old": 706197.9166666666,
+            "new": 701918.75
+          },
+          {
+            "day": 1,
+            "field": "c_rehandle",
+            "old": 12382000.0,
+            "new": 12486000.0
+          },
+          {
+            "day": 1,
+            "field": "c_vessel",
+            "old": 4498474.1801996585,
+            "new": 4501456.21739348
+          },
+          {
+            "day": 2,
+            "field": "phi_krw",
+            "old": 96508097.6905919,
+            "new": 96199807.62076144
+          },
+          {
+            "day": 2,
+            "field": "c_wait",
+            "old": 82269135.948535,
+            "new": 81825894.38200346
+          },
+          {
+            "day": 2,
+            "field": "c_move",
+            "old": 622564.5833333334,
+            "new": 607533.3333333334
+          },
+          {
+            "day": 2,
+            "field": "c_rehandle",
+            "old": 10768000.0,
+            "new": 10688000.0
+          },
+          {
+            "day": 2,
+            "field": "c_vessel",
+            "old": 2848397.158723572,
+            "new": 3078379.9054246517
+          },
+          {
+            "day": 3,
+            "field": "phi_krw",
+            "old": 95182755.98254317,
+            "new": 97194199.47366633
+          },
+          {
+            "day": 3,
+            "field": "c_wait",
+            "old": 81863393.7019769,
+            "new": 83672874.7191669
+          },
+          {
+            "day": 3,
+            "field": "c_move",
+            "old": 575385.4166666666,
+            "new": 577985.4166666666
+          },
+          {
+            "day": 3,
+            "field": "c_rehandle",
+            "old": 9962000.0,
+            "new": 10058000.0
+          },
+          {
+            "day": 3,
+            "field": "c_vessel",
+            "old": 2781976.863899602,
+            "new": 2885339.3378327447
+          },
+          {
+            "day": 4,
+            "field": "phi_krw",
+            "old": 116699264.9744272,
+            "new": 74332705.80275133
+          },
+          {
+            "day": 4,
+            "field": "c_wait",
+            "old": 103276645.82459079,
+            "new": 60726216.02036474
+          },
+          {
+            "day": 4,
+            "field": "c_move",
+            "old": 609456.25,
+            "new": 611758.3333333334
+          },
+          {
+            "day": 4,
+            "field": "c_rehandle",
+            "old": 9876000.0,
+            "new": 9962000.0
+          },
+          {
+            "day": 4,
+            "field": "c_vessel",
+            "old": 2937162.899836411,
+            "new": 3032731.4490532586
+          },
+          {
+            "day": 5,
+            "field": "phi_krw",
+            "old": 245060994.04101646,
+            "new": 566256291.5306529
+          },
+          {
+            "day": 5,
+            "field": "c_wait",
+            "old": 224941483.80432215,
+            "new": 544468693.9368607
+          },
+          {
+            "day": 5,
+            "field": "c_move",
+            "old": 798931.25,
+            "new": 827125.0
+          },
+          {
+            "day": 5,
+            "field": "c_rehandle",
+            "old": 13176000.0,
+            "new": 13766000.0
+          },
+          {
+            "day": 5,
+            "field": "c_vessel",
+            "old": 6144578.986694299,
+            "new": 7194472.593792156
+          },
+          {
+            "day": 6,
+            "field": "phi_krw",
+            "old": 1356248901.6867654,
+            "new": 1461560818.3319483
+          },
+          {
+            "day": 6,
+            "field": "c_wait",
+            "old": 1325901295.1059327,
+            "new": 1429692227.643149
+          },
+          {
+            "day": 6,
+            "field": "c_move",
+            "old": 951383.3333333334,
+            "new": 942635.4166666666
+          },
+          {
+            "day": 6,
+            "field": "c_rehandle",
+            "old": 14914000.0,
+            "new": 14610000.0
+          },
+          {
+            "day": 6,
+            "field": "c_vessel",
+            "old": 14482223.247499561,
+            "new": 16315955.27213253
+          },
+          {
+            "day": 7,
+            "field": "phi_krw",
+            "old": 1277733687.1899326,
+            "new": 1309377605.5585713
+          },
+          {
+            "day": 7,
+            "field": "c_wait",
+            "old": 1244503493.9513614,
+            "new": 1277039277.9350338
+          },
+          {
+            "day": 7,
+            "field": "c_move",
+            "old": 1007202.0833333334,
+            "new": 990762.5
+          },
+          {
+            "day": 7,
+            "field": "c_rehandle",
+            "old": 15646000.0,
+            "new": 15474000.0
+          },
+          {
+            "day": 7,
+            "field": "c_vessel",
+            "old": 16576991.155237962,
+            "new": 15873565.12353765
+          },
+          {
+            "day": 8,
+            "field": "phi_krw",
+            "old": 1226977819.4771016,
+            "new": 1318788803.8993034
+          },
+          {
+            "day": 8,
+            "field": "c_wait",
+            "old": 1196938834.3416586,
+            "new": 1288515042.177185
+          },
+          {
+            "day": 8,
+            "field": "c_move",
+            "old": 871379.1666666666,
+            "new": 874006.25
+          },
+          {
+            "day": 8,
+            "field": "c_rehandle",
+            "old": 13120000.0,
+            "new": 12982000.0
+          },
+          {
+            "day": 8,
+            "field": "c_vessel",
+            "old": 16047605.96877628,
+            "new": 16417755.472118365
+          },
+          {
+            "day": 8,
+            "field": "n_trucks",
+            "old": 12363,
+            "new": 12500
+          },
+          {
+            "day": 8,
+            "field": "truck_skipped",
+            "old": 137,
+            "new": 0
+          },
+          {
+            "day": 9,
+            "field": "phi_krw",
+            "old": 101951883.99715176,
+            "new": 116514613.02394854
+          },
+          {
+            "day": 9,
+            "field": "c_wait",
+            "old": 77384741.87551615,
+            "new": 93555504.14235638
+          },
+          {
+            "day": 9,
+            "field": "c_move",
+            "old": 699454.1666666666,
+            "new": 714945.8333333334
+          },
+          {
+            "day": 9,
+            "field": "c_rehandle",
+            "old": 11758000.0,
+            "new": 10628000.0
+          },
+          {
+            "day": 9,
+            "field": "c_vessel",
+            "old": 12109687.954968942,
+            "new": 11616163.04825882
+          },
+          {
+            "day": 9,
+            "field": "n_trucks",
+            "old": 3467,
+            "new": 3500
+          },
+          {
+            "day": 9,
+            "field": "truck_skipped",
+            "old": 33,
+            "new": 0
+          }
+        ],
+        "compared_fields": [
+          "phi_krw",
+          "c_wait",
+          "c_move",
+          "c_rehandle",
+          "c_vessel",
+          "n_trucks",
+          "truck_skipped",
+          "n_space",
+          "n_time",
+          "traded",
+          "decisions"
+        ]
+      },
+      "elapsed_s": 8626.120579443872,
+      "saving_percent": 0.0,
+      "old_total_cost_krw": 4653268099.94026,
+      "old_skipped": 170,
+      "old_vessel_unadmitted": 928
+    },
+    "RL": {
+      "total_cost_krw": 4362438455.2517,
+      "components_krw": {
+        "c_wait": 4173947930.980849,
+        "c_move": 7355386.458333333,
+        "c_rehandle": 118668000.0,
+        "c_vessel": 62467137.81251826
+      },
+      "requests": {
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 68819,
+          "CENSORED": 181
+        },
+        "skip_reasons": {},
+        "admitted": 69000,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 4173947930.9808517,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 871200.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 19940,
+        "unbound_jobs_at_end": 206
+      },
+      "vessel_work": {
+        "streams": 110,
+        "requested_moves": 44322,
+        "admitted_moves": 44322,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 42505,
+        "outstanding_yard_jobs": 1817,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": false
+      },
+      "failure_kinds": {},
+      "failures": [],
+      "reduced_vessel_admissions": [],
+      "recording_checks": {
+        "request_recording": true,
+        "announcer_counts": true,
+        "wait_cost_reconciles": true,
+        "no_teacher": true,
+        "no_policy_exceptions": true,
+        "vessel_recording": true,
+        "failure_inventory_recorded": true,
+        "physical_invariants_enabled": true
+      },
+      "ledger_reconciliation": {
+        "passed": true,
+        "issues": {},
+        "examples": {},
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 68819,
+          "CENSORED": 181
+        },
+        "skip_reasons": {},
+        "cohorts": {
+          "0": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 46943921.96239607,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1403,
+              "GATE_OUT": 2097
+            }
+          },
+          "1": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 57725107.61934011,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1378,
+              "GATE_OUT": 2122
+            }
+          },
+          "2": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 77263451.90071969,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 2978,
+              "GATE_IN": 2022
+            }
+          },
+          "3": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 78052267.37906212,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 3036,
+              "GATE_IN": 1964
+            }
+          },
+          "4": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 55976698.44744319,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_OUT": 1992,
+              "GATE_IN": 1508
+            }
+          },
+          "5": {
+            "requested": 7500,
+            "states": {
+              "COMPLETED": 7500
+            },
+            "accounted_wait_krw": 186958183.19522297,
+            "gate_entered": 7500,
+            "flows": {
+              "GATE_OUT": 3924,
+              "GATE_IN": 3576
+            }
+          },
+          "6": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1106837397.1222768,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_IN": 5236,
+              "GATE_OUT": 7264
+            }
+          },
+          "7": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1044462245.3728349,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 7321,
+              "GATE_IN": 5179
+            }
+          },
+          "8": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12415,
+              "CENSORED": 85
+            },
+            "accounted_wait_krw": 1367025647.6533153,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 6578,
+              "GATE_IN": 5922
+            }
+          },
+          "9": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3404,
+              "CENSORED": 96
+            },
+            "accounted_wait_krw": 152703010.32823783,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1551,
+              "GATE_OUT": 1949
+            }
+          }
+        },
+        "skip_groups": [],
+        "accounted_wait_krw": 4173947930.9808273,
+        "skipped_accounted_wait_krw": 0.0,
+        "four_cost_totals_krw": {
+          "c_wait": 4173947930.980849,
+          "c_move": 7355386.458333333,
+          "c_rehandle": 118668000.0,
+          "c_vessel": 62467137.81251826
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 44322,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "full_truck_demand_completed": false
+      },
+      "prior_run_comparison": {
+        "same_day_count": true,
+        "same_requested_identity": true,
+        "differences": [
+          {
+            "day": 0,
+            "field": "phi_krw",
+            "old": 53387084.74020856,
+            "new": 53385308.420729406
+          },
+          {
+            "day": 0,
+            "field": "c_wait",
+            "old": 46945698.28187522,
+            "new": 46943921.96239607
+          },
+          {
+            "day": 1,
+            "field": "phi_krw",
+            "old": 74412189.25122975,
+            "new": 74821771.13552572
+          },
+          {
+            "day": 1,
+            "field": "c_wait",
+            "old": 57456674.54418464,
+            "new": 57725107.61934011
+          },
+          {
+            "day": 1,
+            "field": "c_move",
+            "old": 717166.6666666666,
+            "new": 703706.25
+          },
+          {
+            "day": 1,
+            "field": "c_rehandle",
+            "old": 12208000.0,
+            "new": 12324000.0
+          },
+          {
+            "day": 1,
+            "field": "c_vessel",
+            "old": 4030348.0403784392,
+            "new": 4068957.2661856073
+          },
+          {
+            "day": 1,
+            "field": "n_time",
+            "old": 1533,
+            "new": 1543
+          },
+          {
+            "day": 1,
+            "field": "traded",
+            "old": 2459,
+            "new": 2469
+          },
+          {
+            "day": 2,
+            "field": "phi_krw",
+            "old": 91488873.45171587,
+            "new": 91029616.15742524
+          },
+          {
+            "day": 2,
+            "field": "c_wait",
+            "old": 77928005.00300226,
+            "new": 77263451.90071969
+          },
+          {
+            "day": 2,
+            "field": "c_move",
+            "old": 610512.5,
+            "new": 618881.25
+          },
+          {
+            "day": 2,
+            "field": "c_rehandle",
+            "old": 10620000.0,
+            "new": 10688000.0
+          },
+          {
+            "day": 2,
+            "field": "c_vessel",
+            "old": 2330355.948713621,
+            "new": 2459283.006705554
+          },
+          {
+            "day": 2,
+            "field": "n_space",
+            "old": 1048,
+            "new": 1070
+          },
+          {
+            "day": 2,
+            "field": "n_time",
+            "old": 2019,
+            "new": 2027
+          },
+          {
+            "day": 2,
+            "field": "traded",
+            "old": 3067,
+            "new": 3097
+          },
+          {
+            "day": 3,
+            "field": "phi_krw",
+            "old": 90757452.68616554,
+            "new": 90381486.47215359
+          },
+          {
+            "day": 3,
+            "field": "c_wait",
+            "old": 78250219.2133389,
+            "new": 78052267.37906212
+          },
+          {
+            "day": 3,
+            "field": "c_move",
+            "old": 563820.8333333334,
+            "new": 579447.9166666666
+          },
+          {
+            "day": 3,
+            "field": "c_rehandle",
+            "old": 10000000.0,
+            "new": 9848000.0
+          },
+          {
+            "day": 3,
+            "field": "c_vessel",
+            "old": 1943412.6394933239,
+            "new": 1901771.1764247988
+          },
+          {
+            "day": 3,
+            "field": "n_space",
+            "old": 1099,
+            "new": 1082
+          },
+          {
+            "day": 3,
+            "field": "n_time",
+            "old": 1880,
+            "new": 1914
+          },
+          {
+            "day": 3,
+            "field": "traded",
+            "old": 2979,
+            "new": 2996
+          },
+          {
+            "day": 4,
+            "field": "phi_krw",
+            "old": 66704277.190654546,
+            "new": 68262600.26018448
+          },
+          {
+            "day": 4,
+            "field": "c_wait",
+            "old": 54127851.030282125,
+            "new": 55976698.44744319
+          },
+          {
+            "day": 4,
+            "field": "c_move",
+            "old": 608941.6666666666,
+            "new": 601222.9166666666
+          },
+          {
+            "day": 4,
+            "field": "c_rehandle",
+            "old": 9410000.0,
+            "new": 9208000.0
+          },
+          {
+            "day": 4,
+            "field": "c_vessel",
+            "old": 2557484.493705759,
+            "new": 2476678.8960746243
+          },
+          {
+            "day": 4,
+            "field": "n_trucks",
+            "old": 3483,
+            "new": 3500
+          },
+          {
+            "day": 4,
+            "field": "truck_skipped",
+            "old": 17,
+            "new": 0
+          },
+          {
+            "day": 4,
+            "field": "n_space",
+            "old": 1133,
+            "new": 1150
+          },
+          {
+            "day": 4,
+            "field": "n_time",
+            "old": 1196,
+            "new": 1230
+          },
+          {
+            "day": 4,
+            "field": "traded",
+            "old": 2329,
+            "new": 2380
+          },
+          {
+            "day": 5,
+            "field": "phi_krw",
+            "old": 245618726.2240183,
+            "new": 206385102.12392634
+          },
+          {
+            "day": 5,
+            "field": "c_wait",
+            "old": 226214824.61239427,
+            "new": 186958183.19522297
+          },
+          {
+            "day": 5,
+            "field": "c_move",
+            "old": 844458.3333333334,
+            "new": 859516.6666666666
+          },
+          {
+            "day": 5,
+            "field": "c_rehandle",
+            "old": 13316000.0,
+            "new": 13616000.0
+          },
+          {
+            "day": 5,
+            "field": "c_vessel",
+            "old": 5243443.27829069,
+            "new": 4951402.262036723
+          },
+          {
+            "day": 5,
+            "field": "n_trucks",
+            "old": 7494,
+            "new": 7500
+          },
+          {
+            "day": 5,
+            "field": "truck_skipped",
+            "old": 6,
+            "new": 0
+          },
+          {
+            "day": 5,
+            "field": "n_space",
+            "old": 1042,
+            "new": 1064
+          },
+          {
+            "day": 5,
+            "field": "n_time",
+            "old": 3347,
+            "new": 3315
+          },
+          {
+            "day": 5,
+            "field": "traded",
+            "old": 4389,
+            "new": 4379
+          },
+          {
+            "day": 6,
+            "field": "phi_krw",
+            "old": 1112991720.599032,
+            "new": 1136970450.9011693
+          },
+          {
+            "day": 6,
+            "field": "c_wait",
+            "old": 1082274719.779775,
+            "new": 1106837397.1222768
+          },
+          {
+            "day": 6,
+            "field": "c_move",
+            "old": 1001866.6666666666,
+            "new": 981093.75
+          },
+          {
+            "day": 6,
+            "field": "c_rehandle",
+            "old": 15512000.0,
+            "new": 15796000.0
+          },
+          {
+            "day": 6,
+            "field": "c_vessel",
+            "old": 14203134.1525903,
+            "new": 13355960.028892418
+          },
+          {
+            "day": 6,
+            "field": "n_space",
+            "old": 678,
+            "new": 614
+          },
+          {
+            "day": 6,
+            "field": "n_time",
+            "old": 6494,
+            "new": 6853
+          },
+          {
+            "day": 6,
+            "field": "traded",
+            "old": 7172,
+            "new": 7467
+          },
+          {
+            "day": 7,
+            "field": "phi_krw",
+            "old": 1053376501.1723906,
+            "new": 1071290145.4925119
+          },
+          {
+            "day": 7,
+            "field": "c_wait",
+            "old": 1024863579.2485679,
+            "new": 1044462245.3728347
+          },
+          {
+            "day": 7,
+            "field": "c_move",
+            "old": 1047420.8333333334,
+            "new": 1017818.75
+          },
+          {
+            "day": 7,
+            "field": "c_rehandle",
+            "old": 15928000.0,
+            "new": 16202000.0
+          },
+          {
+            "day": 7,
+            "field": "c_vessel",
+            "old": 11537501.090489304,
+            "new": 9608081.369677186
+          },
+          {
+            "day": 7,
+            "field": "n_trucks",
+            "old": 12453,
+            "new": 12500
+          },
+          {
+            "day": 7,
+            "field": "truck_skipped",
+            "old": 47,
+            "new": 0
+          },
+          {
+            "day": 7,
+            "field": "n_space",
+            "old": 365,
+            "new": 411
+          },
+          {
+            "day": 7,
+            "field": "n_time",
+            "old": 5952,
+            "new": 6579
+          },
+          {
+            "day": 7,
+            "field": "traded",
+            "old": 6317,
+            "new": 6990
+          },
+          {
+            "day": 8,
+            "field": "phi_krw",
+            "old": 971323942.8749279,
+            "new": 1394356476.8879478
+          },
+          {
+            "day": 8,
+            "field": "c_wait",
+            "old": 944315656.7814013,
+            "new": 1367025647.6533153
+          },
+          {
+            "day": 8,
+            "field": "c_move",
+            "old": 906425.0,
+            "new": 873816.6666666666
+          },
+          {
+            "day": 8,
+            "field": "c_rehandle",
+            "old": 14428000.0,
+            "new": 13994000.0
+          },
+          {
+            "day": 8,
+            "field": "c_vessel",
+            "old": 11673861.093526574,
+            "new": 12463012.567965634
+          },
+          {
+            "day": 8,
+            "field": "n_trucks",
+            "old": 12430,
+            "new": 12500
+          },
+          {
+            "day": 8,
+            "field": "truck_skipped",
+            "old": 70,
+            "new": 0
+          },
+          {
+            "day": 8,
+            "field": "n_space",
+            "old": 362,
+            "new": 578
+          },
+          {
+            "day": 8,
+            "field": "n_time",
+            "old": 6440,
+            "new": 6508
+          },
+          {
+            "day": 8,
+            "field": "traded",
+            "old": 6802,
+            "new": 7086
+          },
+          {
+            "day": 9,
+            "field": "phi_krw",
+            "old": 89338023.67638324,
+            "new": 175555497.4001269
+          },
+          {
+            "day": 9,
+            "field": "c_wait",
+            "old": 67147310.74969807,
+            "new": 152703010.32823783
+          },
+          {
+            "day": 9,
+            "field": "c_move",
+            "old": 698533.3333333334,
+            "new": 758495.8333333334
+          },
+          {
+            "day": 9,
+            "field": "c_rehandle",
+            "old": 11564000.0,
+            "new": 10912000.0
+          },
+          {
+            "day": 9,
+            "field": "c_vessel",
+            "old": 9928179.593351843,
+            "new": 11181991.238555716
+          },
+          {
+            "day": 9,
+            "field": "n_trucks",
+            "old": 3460,
+            "new": 3500
+          },
+          {
+            "day": 9,
+            "field": "truck_skipped",
+            "old": 40,
+            "new": 0
+          },
+          {
+            "day": 9,
+            "field": "n_space",
+            "old": 809,
+            "new": 838
+          },
+          {
+            "day": 9,
+            "field": "n_time",
+            "old": 1108,
+            "new": 1235
+          },
+          {
+            "day": 9,
+            "field": "traded",
+            "old": 1917,
+            "new": 2073
+          }
+        ],
+        "compared_fields": [
+          "phi_krw",
+          "c_wait",
+          "c_move",
+          "c_rehandle",
+          "c_vessel",
+          "n_trucks",
+          "truck_skipped",
+          "n_space",
+          "n_time",
+          "traded",
+          "decisions"
+        ]
+      },
+      "elapsed_s": 6366.475766028278,
+      "saving_percent": 15.746107579066429,
+      "old_total_cost_krw": 3849398791.8667264,
+      "old_skipped": 180,
+      "old_vessel_unadmitted": 1027
+    },
+    "RL_NOVETO": {
+      "total_cost_krw": 4862805416.646541,
+      "components_krw": {
+        "c_wait": 4668979463.514996,
+        "c_move": 7392504.166666667,
+        "c_rehandle": 119524000.0,
+        "c_vessel": 66909448.964878604
+      },
+      "requests": {
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 68762,
+          "CENSORED": 238
+        },
+        "skip_reasons": {},
+        "admitted": 69000,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 4668979463.514993,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 871200.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 19902,
+        "unbound_jobs_at_end": 257
+      },
+      "vessel_work": {
+        "streams": 110,
+        "requested_moves": 44322,
+        "admitted_moves": 44322,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 42762,
+        "outstanding_yard_jobs": 1560,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": false
+      },
+      "failure_kinds": {},
+      "failures": [],
+      "reduced_vessel_admissions": [],
+      "recording_checks": {
+        "request_recording": true,
+        "announcer_counts": true,
+        "wait_cost_reconciles": true,
+        "no_teacher": true,
+        "no_policy_exceptions": true,
+        "vessel_recording": true,
+        "failure_inventory_recorded": true,
+        "physical_invariants_enabled": true
+      },
+      "ledger_reconciliation": {
+        "passed": true,
+        "issues": {},
+        "examples": {},
+        "requested": 69000,
+        "states": {
+          "COMPLETED": 68762,
+          "CENSORED": 238
+        },
+        "skip_reasons": {},
+        "cohorts": {
+          "0": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 47665231.44294671,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1403,
+              "GATE_OUT": 2097
+            }
+          },
+          "1": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 57551289.08207498,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1378,
+              "GATE_OUT": 2122
+            }
+          },
+          "2": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 78458723.5149535,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 2978,
+              "GATE_IN": 2022
+            }
+          },
+          "3": {
+            "requested": 5000,
+            "states": {
+              "COMPLETED": 5000
+            },
+            "accounted_wait_krw": 79970156.64713417,
+            "gate_entered": 5000,
+            "flows": {
+              "GATE_OUT": 3036,
+              "GATE_IN": 1964
+            }
+          },
+          "4": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3500
+            },
+            "accounted_wait_krw": 55100617.85452667,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_OUT": 1992,
+              "GATE_IN": 1508
+            }
+          },
+          "5": {
+            "requested": 7500,
+            "states": {
+              "COMPLETED": 7500
+            },
+            "accounted_wait_krw": 341397516.34476036,
+            "gate_entered": 7500,
+            "flows": {
+              "GATE_OUT": 3924,
+              "GATE_IN": 3576
+            }
+          },
+          "6": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1157303208.1074133,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_IN": 5236,
+              "GATE_OUT": 7264
+            }
+          },
+          "7": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12500
+            },
+            "accounted_wait_krw": 1146786169.1915913,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 7321,
+              "GATE_IN": 5179
+            }
+          },
+          "8": {
+            "requested": 12500,
+            "states": {
+              "COMPLETED": 12359,
+              "CENSORED": 141
+            },
+            "accounted_wait_krw": 1554951741.0982785,
+            "gate_entered": 12500,
+            "flows": {
+              "GATE_OUT": 6578,
+              "GATE_IN": 5922
+            }
+          },
+          "9": {
+            "requested": 3500,
+            "states": {
+              "COMPLETED": 3403,
+              "CENSORED": 97
+            },
+            "accounted_wait_krw": 149794810.23131564,
+            "gate_entered": 3500,
+            "flows": {
+              "GATE_IN": 1551,
+              "GATE_OUT": 1949
+            }
+          }
+        },
+        "skip_groups": [],
+        "accounted_wait_krw": 4668979463.515012,
+        "skipped_accounted_wait_krw": 0.0,
+        "four_cost_totals_krw": {
+          "c_wait": 4668979463.514996,
+          "c_move": 7392504.166666667,
+          "c_rehandle": 119524000.0,
+          "c_vessel": 66909448.964878604
+        },
+        "vessel_admissions": {
+          "streams": 110,
+          "failed": 0,
+          "admitted_moves": 44322,
+          "asked_moves_in_recorded_streams": 44322,
+          "missing_asked_fields": 0,
+          "completion_validated": false
+        },
+        "full_truck_demand_completed": false
+      },
+      "prior_run_comparison": {
+        "same_day_count": true,
+        "same_requested_identity": true,
+        "differences": [
+          {
+            "day": 0,
+            "field": "phi_krw",
+            "old": 54174853.476279765,
+            "new": 54152379.359613374
+          },
+          {
+            "day": 0,
+            "field": "c_wait",
+            "old": 47687705.5596131,
+            "new": 47665231.44294671
+          },
+          {
+            "day": 1,
+            "field": "phi_krw",
+            "old": 73698336.72703259,
+            "new": 74808555.61285096
+          },
+          {
+            "day": 1,
+            "field": "c_wait",
+            "old": 56578846.63269385,
+            "new": 57551289.08207498
+          },
+          {
+            "day": 1,
+            "field": "c_move",
+            "old": 706577.0833333334,
+            "new": 694010.4166666666
+          },
+          {
+            "day": 1,
+            "field": "c_rehandle",
+            "old": 12292000.0,
+            "new": 12340000.0
+          },
+          {
+            "day": 1,
+            "field": "c_vessel",
+            "old": 4120913.0110054,
+            "new": 4223256.114109315
+          },
+          {
+            "day": 1,
+            "field": "n_time",
+            "old": 1999,
+            "new": 2005
+          },
+          {
+            "day": 1,
+            "field": "traded",
+            "old": 2932,
+            "new": 2938
+          },
+          {
+            "day": 2,
+            "field": "phi_krw",
+            "old": 92899995.32658269,
+            "new": 92165192.83304495
+          },
+          {
+            "day": 2,
+            "field": "c_wait",
+            "old": 79263712.62633216,
+            "new": 78458723.5149535
+          },
+          {
+            "day": 2,
+            "field": "c_move",
+            "old": 622212.5,
+            "new": 627683.3333333334
+          },
+          {
+            "day": 2,
+            "field": "c_rehandle",
+            "old": 10626000.0,
+            "new": 10702000.0
+          },
+          {
+            "day": 2,
+            "field": "c_vessel",
+            "old": 2388070.200250519,
+            "new": 2376785.984758131
+          },
+          {
+            "day": 2,
+            "field": "n_space",
+            "old": 981,
+            "new": 988
+          },
+          {
+            "day": 2,
+            "field": "n_time",
+            "old": 3007,
+            "new": 3005
+          },
+          {
+            "day": 2,
+            "field": "traded",
+            "old": 3988,
+            "new": 3993
+          },
+          {
+            "day": 3,
+            "field": "phi_krw",
+            "old": 91414041.51629807,
+            "new": 92837894.52450596
+          },
+          {
+            "day": 3,
+            "field": "c_wait",
+            "old": 78849396.57903145,
+            "new": 79970156.64713417
+          },
+          {
+            "day": 3,
+            "field": "c_move",
+            "old": 590931.25,
+            "new": 568885.4166666666
+          },
+          {
+            "day": 3,
+            "field": "c_rehandle",
+            "old": 10022000.0,
+            "new": 10068000.0
+          },
+          {
+            "day": 3,
+            "field": "c_vessel",
+            "old": 1951713.687266612,
+            "new": 2230852.4607051197
+          },
+          {
+            "day": 3,
+            "field": "n_space",
+            "old": 1016,
+            "new": 1008
+          },
+          {
+            "day": 3,
+            "field": "n_time",
+            "old": 2926,
+            "new": 2927
+          },
+          {
+            "day": 3,
+            "field": "traded",
+            "old": 3942,
+            "new": 3935
+          },
+          {
+            "day": 4,
+            "field": "phi_krw",
+            "old": 67062095.90496831,
+            "new": 67980153.02336465
+          },
+          {
+            "day": 4,
+            "field": "c_wait",
+            "old": 54435127.45103542,
+            "new": 55100617.85452667
+          },
+          {
+            "day": 4,
+            "field": "c_move",
+            "old": 616443.75,
+            "new": 634535.4166666666
+          },
+          {
+            "day": 4,
+            "field": "c_rehandle",
+            "old": 9412000.0,
+            "new": 9582000.0
+          },
+          {
+            "day": 4,
+            "field": "c_vessel",
+            "old": 2598524.7039328897,
+            "new": 2662999.7521713083
+          },
+          {
+            "day": 4,
+            "field": "n_trucks",
+            "old": 3498,
+            "new": 3500
+          },
+          {
+            "day": 4,
+            "field": "truck_skipped",
+            "old": 2,
+            "new": 0
+          },
+          {
+            "day": 4,
+            "field": "n_space",
+            "old": 1175,
+            "new": 1171
+          },
+          {
+            "day": 4,
+            "field": "n_time",
+            "old": 1766,
+            "new": 1774
+          },
+          {
+            "day": 4,
+            "field": "traded",
+            "old": 2941,
+            "new": 2945
+          },
+          {
+            "day": 5,
+            "field": "phi_krw",
+            "old": 346125280.5151394,
+            "new": 361126053.9363886
+          },
+          {
+            "day": 5,
+            "field": "c_wait",
+            "old": 326534618.87760407,
+            "new": 341397516.34476036
+          },
+          {
+            "day": 5,
+            "field": "c_move",
+            "old": 835683.3333333334,
+            "new": 863985.4166666666
+          },
+          {
+            "day": 5,
+            "field": "c_rehandle",
+            "old": 13660000.0,
+            "new": 13640000.0
+          },
+          {
+            "day": 5,
+            "field": "c_vessel",
+            "old": 5094978.304202038,
+            "new": 5224552.174961548
+          },
+          {
+            "day": 5,
+            "field": "n_trucks",
+            "old": 7497,
+            "new": 7500
+          },
+          {
+            "day": 5,
+            "field": "truck_skipped",
+            "old": 3,
+            "new": 0
+          },
+          {
+            "day": 5,
+            "field": "n_space",
+            "old": 993,
+            "new": 978
+          },
+          {
+            "day": 5,
+            "field": "n_time",
+            "old": 4438,
+            "new": 4494
+          },
+          {
+            "day": 5,
+            "field": "traded",
+            "old": 5431,
+            "new": 5472
+          },
+          {
+            "day": 6,
+            "field": "phi_krw",
+            "old": 1097846528.3551905,
+            "new": 1187133188.6222427
+          },
+          {
+            "day": 6,
+            "field": "c_wait",
+            "old": 1069333558.9571775,
+            "new": 1157303208.1074133
+          },
+          {
+            "day": 6,
+            "field": "c_move",
+            "old": 1006118.75,
+            "new": 974620.8333333334
+          },
+          {
+            "day": 6,
+            "field": "c_rehandle",
+            "old": 15310000.0,
+            "new": 15562000.0
+          },
+          {
+            "day": 6,
+            "field": "c_vessel",
+            "old": 12196850.648012877,
+            "new": 13293359.681496078
+          },
+          {
+            "day": 6,
+            "field": "n_trucks",
+            "old": 12490,
+            "new": 12500
+          },
+          {
+            "day": 6,
+            "field": "truck_skipped",
+            "old": 10,
+            "new": 0
+          },
+          {
+            "day": 6,
+            "field": "n_space",
+            "old": 718,
+            "new": 711
+          },
+          {
+            "day": 6,
+            "field": "n_time",
+            "old": 8954,
+            "new": 9035
+          },
+          {
+            "day": 6,
+            "field": "traded",
+            "old": 9672,
+            "new": 9746
+          },
+          {
+            "day": 7,
+            "field": "phi_krw",
+            "old": 1053359251.6898855,
+            "new": 1178080225.4139776
+          },
+          {
+            "day": 7,
+            "field": "c_wait",
+            "old": 1026431287.5498282,
+            "new": 1146786169.1915913
+          },
+          {
+            "day": 7,
+            "field": "c_move",
+            "old": 1019552.0833333334,
+            "new": 1044008.3333333334
+          },
+          {
+            "day": 7,
+            "field": "c_rehandle",
+            "old": 16282000.0,
+            "new": 16588000.0
+          },
+          {
+            "day": 7,
+            "field": "c_vessel",
+            "old": 9626412.056723988,
+            "new": 13662047.889053036
+          },
+          {
+            "day": 7,
+            "field": "n_trucks",
+            "old": 12423,
+            "new": 12500
+          },
+          {
+            "day": 7,
+            "field": "truck_skipped",
+            "old": 77,
+            "new": 0
+          },
+          {
+            "day": 7,
+            "field": "n_space",
+            "old": 797,
+            "new": 884
+          },
+          {
+            "day": 7,
+            "field": "n_time",
+            "old": 8668,
+            "new": 8725
+          },
+          {
+            "day": 7,
+            "field": "traded",
+            "old": 9465,
+            "new": 9609
+          },
+          {
+            "day": 8,
+            "field": "phi_krw",
+            "old": 979002189.8954281,
+            "new": 1582903727.8015742
+          },
+          {
+            "day": 8,
+            "field": "c_wait",
+            "old": 951200197.3669207,
+            "new": 1554951741.0982785
+          },
+          {
+            "day": 8,
+            "field": "c_move",
+            "old": 906777.0833333334,
+            "new": 879368.75
+          },
+          {
+            "day": 8,
+            "field": "c_rehandle",
+            "old": 14362000.0,
+            "new": 13950000.0
+          },
+          {
+            "day": 8,
+            "field": "c_vessel",
+            "old": 12533215.445173971,
+            "new": 13122617.953295616
+          },
+          {
+            "day": 8,
+            "field": "n_trucks",
+            "old": 12471,
+            "new": 12500
+          },
+          {
+            "day": 8,
+            "field": "truck_skipped",
+            "old": 29,
+            "new": 0
+          },
+          {
+            "day": 8,
+            "field": "n_space",
+            "old": 873,
+            "new": 842
+          },
+          {
+            "day": 8,
+            "field": "n_time",
+            "old": 8626,
+            "new": 8779
+          },
+          {
+            "day": 8,
+            "field": "traded",
+            "old": 9499,
+            "new": 9621
+          },
+          {
+            "day": 9,
+            "field": "phi_krw",
+            "old": 87644993.57636523,
+            "new": 171618045.51897743
+          },
+          {
+            "day": 9,
+            "field": "c_wait",
+            "old": 66314692.661262974,
+            "new": 149794810.23131564
+          },
+          {
+            "day": 9,
+            "field": "c_move",
+            "old": 712318.75,
+            "new": 748258.3333333334
+          },
+          {
+            "day": 9,
+            "field": "c_rehandle",
+            "old": 11110000.0,
+            "new": 10962000.0
+          },
+          {
+            "day": 9,
+            "field": "c_vessel",
+            "old": 9507982.165102256,
+            "new": 10112976.954328451
+          },
+          {
+            "day": 9,
+            "field": "n_trucks",
+            "old": 3485,
+            "new": 3500
+          },
+          {
+            "day": 9,
+            "field": "truck_skipped",
+            "old": 15,
+            "new": 0
+          },
+          {
+            "day": 9,
+            "field": "n_space",
+            "old": 1295,
+            "new": 1233
+          },
+          {
+            "day": 9,
+            "field": "n_time",
+            "old": 1526,
+            "new": 1607
+          },
+          {
+            "day": 9,
+            "field": "traded",
+            "old": 2821,
+            "new": 2840
+          }
+        ],
+        "compared_fields": [
+          "phi_krw",
+          "c_wait",
+          "c_move",
+          "c_rehandle",
+          "c_vessel",
+          "n_trucks",
+          "truck_skipped",
+          "n_space",
+          "n_time",
+          "traded",
+          "decisions"
+        ]
+      },
+      "elapsed_s": 7534.886675563641,
+      "saving_percent": 6.082277460019421,
+      "old_total_cost_krw": 3943227566.98317,
+      "old_skipped": 136,
+      "old_vessel_unadmitted": 1055
+    }
+  },
+  "artifact_sha256": {
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/result.json": "46535cb49ab3f5b574201d5c62a8a74b9a12fa2191349768428fde092c01ac5d",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/manifest.json": "418d9164b3ed92979da5269220353a2bab3472a5dac8cc5380008cfb557b7ff1",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/requests.jsonl.gz": "6b1ace20b5848fb77418439725386cebaa92a75d8775c0c8cad2c2fa7b3ff77d",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/NO_REALLOC/days.jsonl": "92f6bfae807dedb7c1acdf2124c9ead08520c033ded639fdaf00c3976c648488",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/result.json": "7a0f8e832ad5145f22171503f7230d5dbea18f217c711b2bfcfba41e9645119b",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/manifest.json": "385cd6aaf431a7da52bf5afa7844cc48db087d95b9c9039c4aba5c78e1743c45",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/requests.jsonl.gz": "018bd2e4880296d3138c02e2df807173e413bf82ee5f8659e3ace7185f628cb0",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL/days.jsonl": "f354eaf57bf9404410e2be35c509b158b476ab07c47ecb18749b5f08396ad76e",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/result.json": "2d49b5c5a7ad5e5c775d46d9adf35c9829045958f9551379b0a23e6c097d0685",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/manifest.json": "1a1e4ea99f77917b2570c8ce10cd01c5b3bd521f245a0617809e9a926712056b",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/requests.jsonl.gz": "c86d7005a5e3685db7e1412608b26bb569abe4ccd9f45c5b7f97f638644e275f",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_demand_preservation/run-2e4caef-r2/full/RL_NOVETO/days.jsonl": "03dbcdb0fee20f73cb3b7172e775f83ac336c9637f28375222cf05d2601e27c2"
+  },
+  "source_commit": "2e4caef6292d697348083001cc0aa8f314db2b2b",
+  "new_training_runs": 0,
+  "independent_confirmation": false,
+  "claim_eligible": false,
+  "training_status": "not started; inspect remaining physical work and preregister training separately"
+}
