@@ -1,5 +1,7 @@
 """Recompute the new daily artifacts without launching a simulator."""
 import argparse
+from bisect import bisect_right
+from collections import defaultdict
 import gzip
 import hashlib
 import json
@@ -26,13 +28,18 @@ def audit(folder):
                       for s in states for k,total in s['total'].items()),
         midnight_links=all(a['operational']['end']==b['operational']['start']
                            for a,b in zip(daily,daily[1:])))
+    arrivals, starts = defaultdict(list), defaultdict(list)
+    for r in requests:
+        if r['block_in_s'] is not None:
+            arrivals[r['final_block']].append(r['block_in_s'])
+        if r['service_start_s'] is not None:
+            starts[r['final_block']].append(r['service_start_s'])
+    for values in (*arrivals.values(), *starts.values()):
+        values.sort()
     queue_matches = True
     for s in states:
-        actual = {bid:0 for bid in s['blocks']}
-        for r in requests:
-            at, start = r['block_in_s'], r['service_start_s']
-            if at is not None and at <= s['at_s'] and (start is None or start > s['at_s']):
-                actual[r['final_block']] += 1
+        actual = {bid: bisect_right(arrivals[bid], s['at_s']) - bisect_right(starts[bid], s['at_s'])
+                  for bid in s['blocks']}
         queue_matches &= all(actual[bid]==row['truck_queue'] for bid,row in s['blocks'].items())
     checks['queues_match_request_events'] = queue_matches
     for d in daily:

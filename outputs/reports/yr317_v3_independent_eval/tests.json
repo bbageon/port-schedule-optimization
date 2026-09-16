@@ -1,0 +1,36 @@
+{
+  "regression": {
+    "tests": [
+      "test_independent_evaluation.py (first 8 tests)",
+      "test_daily_observation.py",
+      "test_month_stage.py",
+      "test_review_reliability.py",
+      "test_request_audit.py"
+    ],
+    "passed": 78,
+    "elapsed_s": 92.52
+  },
+  "final_focused": {
+    "command": [
+      "wsl",
+      "-d",
+      "Ubuntu",
+      "--cd",
+      "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4",
+      "--",
+      "env",
+      "PYTHONPATH=src",
+      "OMP_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1",
+      "OPENBLAS_NUM_THREADS=1",
+      "/home/geonu/.venvs/yard-rl/bin/python",
+      "-m",
+      "pytest",
+      "tests/v3/test_independent_evaluation.py",
+      "-q"
+    ],
+    "returncode": 0,
+    "stdout": "............                                                             [100%]\n12 passed in 2.74s\n",
+    "stderr": ""
+  }
+}

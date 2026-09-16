@@ -33,7 +33,7 @@ def now():
 def run_one(label, arm, seed, days, args, checkpoint_hash):
     from yard_rl.integrated.repro import repro_stamp, code_dirty
     from yard_rl.v3.eval.__main__ import _load_nets
-    from yard_rl.v3.eval.contracts import arm_contract, digest, runtime_identity, write_json
+    from yard_rl.v3.eval.contracts import arm_contract, digest, network_identity, runtime_identity, write_json
     from yard_rl.v3.reward import reset_rollout_calls, rollout_calls
     from yard_rl.v3.stage.month_run import run_month
 
@@ -42,10 +42,13 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
     if sha(args.checkpoint) != checkpoint_hash:
         raise RuntimeError("Checkpoint changed during the experiment.")
     seller, buyer, _ = _load_nets(args.checkpoint)
+    weights_before = [network_identity(net) for net in (seller, buyer)]
     job = dict(_label=label, arm=arm, seed=seed, days=days,
                seller_net=seller, buyer_net=buyer, capture_requests=True,
                capture_daily=getattr(args, "capture_daily", True),
                daily_sample_s=getattr(args, "daily_sample_s", 300.0))
+    if getattr(args, "expected_input", None) is not None:
+        job["expected_input"] = args.expected_input
     if getattr(args, "admission_mode", "LEGACY") != "LEGACY":
         job["admission_mode"] = args.admission_mode
     if getattr(args, "supply_mode", "ORIGINAL") != "ORIGINAL":
@@ -62,7 +65,8 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         raise RuntimeError("Experiment checkout is not verified clean.")
     start = time.monotonic()
     write_json(out / "manifest.json", {"started_at": now(), "contract": contract,
-        "repro": stamp, "checkpoint": args.checkpoint, "purpose": "request-record diagnosis; no confirmatory inference"})
+        "repro": stamp, "checkpoint": args.checkpoint, "purpose": getattr(args, "purpose",
+            "request-record diagnosis; no confirmatory inference")})
     print(json.dumps({"event": "started", "arm": label, "days": len(days), "seed": seed}, ensure_ascii=False), flush=True)
 
     def on_day(day):
@@ -100,7 +104,9 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
               "announcer_counts": res.request_summary["announcer_counts_match"],
               "wait_cost_reconciles": math.isclose(res.request_summary["accounted_wait_krw"],
                   sum(d.c_wait for d in res.days), rel_tol=1e-10, abs_tol=1e-4),
-              "no_teacher": rollout_calls() == 0, "no_policy_exceptions": res.policy_exceptions == 0}
+              "no_teacher": rollout_calls() == 0, "no_policy_exceptions": res.policy_exceptions == 0,
+              "frozen_networks": weights_before == [network_identity(net) for net in (seller, buyer)],
+              "checkpoint_unchanged": sha(args.checkpoint) == checkpoint_hash}
     result = {"arm": arm, "label": label, "seed": seed, "finished_at": now(),
         "elapsed_s": time.monotonic() - start, "plan": [asdict(d) for d in days],
         "days": [d.as_dict() for d in res.days], "traded": res.traded_edges,

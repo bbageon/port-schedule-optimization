@@ -213,7 +213,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               capture_requests: bool = False, diagnose_admissions: bool = False,
               admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL",
               capture_daily: bool = False, daily_sample_s: float = 300.0,
-              on_observation=None) -> MonthResult:
+              on_observation=None, expected_input: dict | None = None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -275,6 +275,14 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     scns = {b: dataclasses.replace(s, jobs=[], vessels=[], horizon_s=month_s,
                                    drain_window_s=DIURNAL_DRAIN_S)
             for b, s in built["day0"]["scenarios"].items()}
+    if expected_input is not None:
+        # Read-only check of the actual inputs before any engine or policy runs.
+        from ..eval.seed_bank import digest
+        actual = dict(schedule_sha256=digest(built["schedule"]),
+                      initial_scenarios_sha256=digest(scns),
+                      vessels_sha256=digest(v_by_day))
+        if actual != expected_input:
+            raise ValueError(f"Frozen monthly input mismatch: {actual}")
     from .demand_engine import DemandTerminal
     terminal_cls = DemandTerminal if preserve else MonthTerminal
     mbt = terminal_cls({b: ensure_time_ledger(_sim_from(s, prof))
