@@ -44,7 +44,7 @@ def test_identical_run_resumes_and_dependent_days_do_not_claim_significance(judg
     assert "beaten" not in next(iter(out["by_load"].values()))
 
 
-@pytest.mark.parametrize("change", ["seed", "plan", "window", "trigger", "weights", "runtime"])
+@pytest.mark.parametrize("change", ["seed", "plan", "window", "trigger", "weights", "runtime", "admission"])
 def test_changed_conditions_refuse_cache_before_any_new_simulation(judge_case, monkeypatch, change):
     kwargs, calls = judge_case
     mj.judge_month(**kwargs)
@@ -58,6 +58,8 @@ def test_changed_conditions_refuse_cache_before_any_new_simulation(judge_case, m
         kwargs["trigger_k"] = {"RL": 0.5}
     elif change == "weights":
         kwargs["seller_net"] = SellerNet()
+    elif change == "admission":
+        kwargs["admission_mode"] = "PRESERVE"
     else:
         identity = runtime_identity()
         identity["source_and_config_sha256"] = "changed"
@@ -169,3 +171,70 @@ def test_actual_fit_days_and_steps_are_recorded_including_boundary_days(tmp_path
     assert any(not torch.equal(initial["seller"][k], first["seller"][k]) for k in initial["seller"])
     with pytest.raises(ValueError, match="zero-update"):
         _load_nets(str(tmp_path / "ckpt_000.pt"), require_untrained=True)
+
+
+def test_preserved_demand_reaches_every_evaluation_arm_and_cache(judge_case, monkeypatch):
+    kwargs, calls = judge_case
+    seen = []
+    original = mj._run_arm
+
+    def capture(job):
+        seen.append((job["_label"], job["admission_mode"]))
+        return original(job)
+
+    monkeypatch.setattr(mj, "_run_arm", capture)
+    kwargs.update(admission_mode="PRESERVE", extra_policies={"RL_INIT": (SellerNet(), BuyerNet())})
+    out = mj.judge_month(**kwargs)
+    assert out["admission_mode"] == "PRESERVE"
+    assert seen == [(a, "PRESERVE") for a in ("RL", "NO_REALLOC", "RL_INIT")]
+    for arm, mode in seen:
+        saved = json.loads((kwargs["ckpt_dir"] / f"arm_{arm}.json").read_text())
+        assert saved["contract"]["settings"]["admission_mode"] == mode
+    assert mj.judge_month(**kwargs) == out
+    assert len(calls) == 3
+
+
+@pytest.mark.parametrize("mode", ["LEGACY", "PRESERVE"])
+def test_training_records_environment_in_initial_final_weights_and_results(tmp_path, monkeypatch, mode):
+    def fake_world(**kw):
+        assert kw["admission_mode"] == mode
+        reports = []
+        for day in kw["days"]:
+            rep = DayReport(index=day.index, load=day.load, label=day.label, train=day.is_train)
+            kw["on_day"](rep)
+            reports.append(rep)
+        return MonthResult(plan=[], days=reports, live=reports)
+
+    monkeypatch.setattr(ml, "run_month", fake_world)
+    ml.run_month_training(seed=9_900_700, n_days=3, out_dir=tmp_path,
+                          admission_mode=mode, log=lambda *_: None)
+    for name in ("training_manifest.json", "month.json"):
+        assert json.loads((tmp_path / name).read_text())["admission_mode"] == mode
+    for name in ("ckpt_init.pt", "ckpt_002.pt"):
+        ck = torch.load(tmp_path / name, weights_only=True)
+        assert ck["metadata"]["admission_mode"] == mode
+
+
+def test_unknown_admission_mode_fails_before_output_creation(tmp_path):
+    out = tmp_path / "invalid"
+    with pytest.raises(ValueError, match="admission_mode"):
+        ml.run_month_training(admission_mode="typo", out_dir=out)
+    with pytest.raises(ValueError, match="admission_mode"):
+        mj.judge_month(seed=9_900_700, admission_mode="typo", ckpt_dir=out)
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("kind", ["train", "eval"])
+def test_cli_passes_explicit_preserved_demand_to_entry_function(tmp_path, monkeypatch, kind):
+    from yard_rl.v3.train import __main__ as train_cli
+    from yard_rl.v3.eval import __main__ as eval_cli
+    seen = []
+    args = ["--seed", "9900700", "--days", "3", "--admission-mode", "PRESERVE", "--out", str(tmp_path)]
+    if kind == "train":
+        monkeypatch.setattr(train_cli, "run_month_training", lambda **kw: seen.append(kw))
+        assert train_cli.main(args) == 0
+    else:
+        monkeypatch.setattr(eval_cli, "_load_nets", lambda *a, **kw: (None, None, "test"))
+        monkeypatch.setattr(eval_cli, "judge_month", lambda **kw: seen.append(kw) or {})
+        assert eval_cli.main(args) == 0
+    assert len(seen) == 1 and seen[0]["admission_mode"] == "PRESERVE"

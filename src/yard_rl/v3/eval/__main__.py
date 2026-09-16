@@ -53,6 +53,8 @@ def main(argv=None) -> int:
     ap.add_argument("--init-seed", type=int, default=None,
                     help="가중치 미지정 시 초기화 시드 (기본: --seed)")
     ap.add_argument("--days", type=int, default=30)
+    ap.add_argument("--admission-mode", choices=("LEGACY", "PRESERVE"), default="LEGACY",
+                    help="요청 처리 계약: 학습·평가에서 사용하는 환경을 명시")
     ap.add_argument("--arms", default=",".join(JUDGE_ARMS),
                     help="RL 과 겨룰 팔 (쉼표 구분)")
     ap.add_argument("--workers", type=int, default=0,
@@ -71,6 +73,7 @@ def main(argv=None) -> int:
     init_seed = a.seed if a.init_seed is None else a.init_seed
     s_net, b_net, tag = _load_nets(a.ckpt, init_seed=init_seed)
     print(f"■ 정책: {tag}")
+    print(f"■ 요청 처리 계약: {a.admission_mode}")
     extra = {}
     if a.ckpt_early:
         es, eb, etag = _load_nets(a.ckpt_early)
@@ -92,7 +95,7 @@ def main(argv=None) -> int:
     res = judge_month(seed=a.seed, seller_net=s_net, buyer_net=b_net,
                       arms=tuple(x for x in a.arms.split(",") if x),
                       n_days=a.days, days=days, workers=a.workers,
-                      extra_policies=extra, ckpt_dir=out / "arms")
+                      extra_policies=extra, ckpt_dir=out / "arms", admission_mode=a.admission_mode)
     out.mkdir(parents=True, exist_ok=True)
     (out / f"judge_{a.seed}.json").write_text(
         json.dumps(res, ensure_ascii=False, indent=1, default=str),

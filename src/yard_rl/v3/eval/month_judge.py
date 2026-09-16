@@ -117,12 +117,14 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
                 arms=JUDGE_ARMS, n_days: int = N_DAYS, days=None,
                 trigger_k: dict | None = None, workers: int = 0,
                 extra_policies=None, ckpt_dir=None, log=print,
-                window_s: float | None = None) -> dict:
+                window_s: float | None = None, admission_mode: str = "LEGACY") -> dict:
     """`RL` 과 각 팔을 **같은 달** 위에서 겨룬다. 부하별로 표를 낸다.
 
     `workers` — 팔을 몇 프로세스로 나눌까. 0 이면 팔 수만큼(달 하나는 단일 스레드다).
     `trigger_k` — 고전 팔의 트리거 상위 비율 `{팔: k}`. 없으면 기본값.
     """
+    if admission_mode not in ("LEGACY", "PRESERVE"):
+        raise ValueError("admission_mode must be LEGACY or PRESERVE")
     days = list(days) if days is not None else plan_month(seed, n_days=n_days)
     if not days or not any(d.is_train for d in days):
         raise ValueError("Evaluation needs a nonempty measured window.")
@@ -140,7 +142,7 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     #:  ⚠️ 망은 30분 조건에서 배웠다 — 큰 W 에 **불리한 편향**이 있다. 그래도 이득이
     #:  유지되면 그 자체로 강한 결과다.
     base = dict(seed=seed, days=days, seller_net=seller_net,
-                buyer_net=buyer_net)
+                buyer_net=buyer_net, admission_mode=admission_mode)
     if window_s is not None:
         base["window_s"] = float(window_s)
     jobs = []
@@ -264,6 +266,7 @@ def judge_month(*, seed: int, seller_net=None, buyer_net=None,
     if calm:
         out["by_wake"]["평상 다음 날"] = _slice(calm, "평상 다음 날")
 
+    out["admission_mode"] = admission_mode
     out["traded"] = {a: by_arm[a].traded for a in todo}
     # ★구조 검증 요약 — 논문 "아키텍처 작동 확인" 표가 이 실행에서 나온다.
     out["structure"] = {

@@ -58,11 +58,14 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                        labels_per_day: int = LABELS_PER_ITER,
                        out_dir: str | Path = "outputs/v3/month",
                        workers: int = 1, val_frac: float = 0.2,
-                       days=None, log=print, init_seed: int | None = None) -> tuple[TrainState, object]:
+                       days=None, log=print, init_seed: int | None = None,
+                       admission_mode: str = "LEGACY") -> tuple[TrainState, object]:
     """30일을 한 번에 굴리며 **날마다** 학생을 갱신한다.
 
     돌려주는 것: (학습 상태, `MonthResult`). 중간보고는 `log` 로 나간다.
     """
+    if admission_mode not in ("LEGACY", "PRESERVE"):
+        raise ValueError("admission_mode must be LEGACY or PRESERVE")
     # ★학습은 **비판정(진단) 대역**에서만 돈다 — 판정 대역을 학습에 쓰면
     #   [[YR-210]] 의 "새 대역·재사용 금지" 계약이 깨진다.
     if (int(seed) // 100_000) * 100_000 != DIAGNOSTIC_BAND:
@@ -81,7 +84,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         raise ValueError("Empty training plan.")
     n = len(days)
     manifest = {"schema": "yard_rl.v3.month-training.v1", "seed": seed,
-                "init_seed": init_seed, "plan": [asdict(d) for d in days],
+                "init_seed": init_seed, "admission_mode": admission_mode,
+                "plan": [asdict(d) for d in days],
                 "labels_per_day": labels_per_day, "workers": workers,
                 "val_frac": val_frac, "runtime": runtime_identity(),
                 "initial_networks": {"seller": network_identity(s_net),
@@ -92,7 +96,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
     out.mkdir(parents=True, exist_ok=True)
     torch.save({"seller": s_net.state_dict(), "buyer": b_net.state_dict(), "it": -1,
                 "metadata": {"phase": "untrained", "fit_days": [], "optimizer_steps": 0,
-                             "init_seed": init_seed, "environment_seed": seed}},
+                             "init_seed": init_seed, "environment_seed": seed,
+                             "admission_mode": admission_mode}},
                out / "ckpt_init.pt")
     write_json(out / "training_manifest.json", manifest)
     log(f"■ {n}일 무대 · 시드 {seed:,} · 측정 {sum(d.is_train for d in days)}일 · 초기화 {init_seed}")
@@ -154,7 +159,8 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         marks["t"] = now
         st.save(out, rep.index, metadata={
             "phase": "post_day", "day_index": rep.index, "init_seed": init_seed,
-            "environment_seed": seed, "fit_days": list(manifest["fit_days"]),
+            "environment_seed": seed, "admission_mode": admission_mode,
+            "fit_days": list(manifest["fit_days"]),
             "optimizer_steps": manifest["optimizer_steps"]})
         write_json(out / "training_manifest.json", manifest)
         (out / "days.json").write_text(
@@ -170,12 +176,12 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
     res = run_month(seed=seed, arm="RL", seller_net=s_net, buyer_net=b_net,
                     days=days, labels_per_day=labels_per_day, workers=workers,
                     explore_of_day=lambda d: explore_of(d, n_days=n),
-                    on_fit=on_fit, on_day=on_day)
+                    on_fit=on_fit, on_day=on_day, admission_mode=admission_mode)
 
     log(f"■ 끝 — {(time.time() - t_start)/3600:.2f}시간")
     _report_by_load(res, log)
     (out / "month.json").write_text(
-        json.dumps({"seed": seed, "plan": res.plan,
+        json.dumps({"seed": seed, "admission_mode": admission_mode, "plan": res.plan,
                     "days": [d.as_dict() for d in res.days],
                     "live": [d.as_dict() for d in res.live]},
                    ensure_ascii=False, indent=1), encoding="utf-8")

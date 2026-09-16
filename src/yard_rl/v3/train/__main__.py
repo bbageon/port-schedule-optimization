@@ -29,6 +29,8 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=DIAGNOSTIC_BASE + 700,
                     help="달 시드 — 진단 대역(9,900,0xx)만 허용")
     ap.add_argument("--days", type=int, default=N_DAYS, help="달 길이 (기본 30)")
+    ap.add_argument("--admission-mode", choices=("LEGACY", "PRESERVE"), default="LEGACY",
+                    help="요청 처리 계약: 기존 방식 또는 요청을 보존하는 보정 방식")
     ap.add_argument("--init-seed", type=int, default=None,
                     help="망 초기화 시드 (생략하면 --seed). 학습 전 가중치를 별도 저장한다")
     ap.add_argument("--labels", type=int, default=LABELS_PER_ITER,
@@ -51,6 +53,7 @@ def main(argv=None) -> int:
         days = plan_month(a.seed, n_days=a.days)
     s = summarize(days)
     print(f"■ 달 시드 {a.seed:,} · {a.days}일 (측정 {s['n_train']}일, 학습은 라벨 있는 모든 날)")
+    print(f"  요청 처리 계약: {a.admission_mode}")
     print(f"  {' · '.join(f'{k} {v}일' for k, v in s['by_label'].items())}")
     print(f"  학습분 트럭 {s['trucks_train']:,}대 · 평균 부하 {s['mean_load_train']:,.0f}")
     print("  날별 부하: " + " ".join(
@@ -64,7 +67,8 @@ def main(argv=None) -> int:
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     run_month_training(seed=a.seed, n_days=a.days, labels_per_day=a.labels,
-                       out_dir=a.out, workers=a.workers, days=days, init_seed=a.init_seed)
+                       out_dir=a.out, workers=a.workers, days=days, init_seed=a.init_seed,
+                       admission_mode=a.admission_mode)
     print(f"■ 총 {(time.time() - t0) / 3600:.2f}시간 · 결과 {a.out}")
     return 0
 
