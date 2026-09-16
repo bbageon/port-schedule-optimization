@@ -65,3 +65,22 @@ def test_supply_mode_cannot_be_silently_ignored_by_legacy_admission():
 def test_invalid_geometry_is_rejected_even_when_final_stock_would_fit():
     with pytest.raises(ValueError, match='initial stock'):
         balance_vessel_supply({0:[stream('A',3)]}, [], {'Y01':10}, {'Y01':8})
+
+
+def test_early_flip_cannot_create_intermediate_overcapacity():
+    original={0:[stream('A',4)],1:[stream('B',5,'DISCHARGE',start=86400)],
+              2:[stream('C',4,start=172800)]}
+    trucks=[dict(block='Y01',flow='GATE_OUT',day=2) for _ in range(4)]
+    _,report=balance_vessel_supply(original,trucks,{'Y01':5},{'Y01':10})
+    # Either A or C would fix the final -2, but A would make day 1 stock 14.
+    assert [r['key'] for r in report['changes']]==['C']
+    assert report['corrected_end_balance']['Y01']==6
+
+
+def test_opposite_flips_can_fix_end_shortage_without_intermediate_overflow():
+    original={0:[stream('A',4,'DISCHARGE')],1:[stream('B',5,start=86400)]}
+    trucks=[dict(block='Y01',flow='GATE_OUT',day=2) for _ in range(5)]
+    _,report=balance_vessel_supply(original,trucks,{'Y01':5},{'Y01':10})
+    assert report['original_end_balance']['Y01']==-1
+    assert report['corrected_end_balance']['Y01']==1
+    assert [(r['key'],r['new_work']) for r in report['changes']]==[('A','LOAD'),('B','DISCHARGE')]

@@ -1,0 +1,277 @@
+{
+  "phase": "smoke",
+  "checks": {
+    "same_truck_requests": true,
+    "recording": true,
+    "physical_container_chains": true,
+    "same_balanced_vessels": true,
+    "same_vessel_volume": true,
+    "no_change_when_original_feasible": true,
+    "all_smoke_work_completed": true
+  },
+  "passed": true,
+  "arms": {
+    "original_baseline": {
+      "requests": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "skip_reasons": {},
+        "admitted": 300,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 3388548.1267534923,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 93600.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 1744,
+        "unbound_jobs_at_end": 0
+      },
+      "vessels": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1907,
+          "GATE_IN": 16
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "supply": {
+        "mode": "ORIGINAL"
+      },
+      "cost_krw": 6910253.823442294
+    },
+    "balanced_baseline": {
+      "requests": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "skip_reasons": {},
+        "admitted": 300,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 3388548.1267534923,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 93600.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 1744,
+        "unbound_jobs_at_end": 0
+      },
+      "vessels": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1907,
+          "GATE_IN": 16
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "supply": {
+        "mode": "COUNT_BALANCED",
+        "original_end_balance": {
+          "Y01": 1201,
+          "Y02": 89,
+          "Y03": 1201,
+          "Y04": 1191,
+          "Y05": 1193,
+          "Y06": 647,
+          "Y07": 648,
+          "Y08": 650,
+          "Y09": 1200,
+          "Y10": 1066,
+          "Y11": 331,
+          "Y12": 102,
+          "Y13": 1204,
+          "Y14": 329,
+          "Y15": 640,
+          "Y16": 1060,
+          "Y17": 644,
+          "Y18": 642,
+          "Y19": 1188,
+          "Y20": 652,
+          "Y21": 1206
+        },
+        "corrected_end_balance": {
+          "Y01": 1201,
+          "Y02": 89,
+          "Y03": 1201,
+          "Y04": 1191,
+          "Y05": 1193,
+          "Y06": 647,
+          "Y07": 648,
+          "Y08": 650,
+          "Y09": 1200,
+          "Y10": 1066,
+          "Y11": 331,
+          "Y12": 102,
+          "Y13": 1204,
+          "Y14": 329,
+          "Y15": 640,
+          "Y16": 1060,
+          "Y17": 644,
+          "Y18": 642,
+          "Y19": 1188,
+          "Y20": 652,
+          "Y21": 1206
+        },
+        "changes": [],
+        "quantity_feasible": true,
+        "timely_service_proven": false,
+        "scope": "original assignments only; policy reallocation can still create local shortages"
+      },
+      "cost_krw": 6910253.823442294
+    },
+    "balanced_full": {
+      "requests": {
+        "requested": 300,
+        "states": {
+          "COMPLETED": 300
+        },
+        "skip_reasons": {},
+        "admitted": 300,
+        "skipped": 0,
+        "unprocessed": 0,
+        "accounted_wait_krw": 3441997.0806564135,
+        "recording_issues": [],
+        "recording_ok": true,
+        "all_requests_admitted": true,
+        "end_s": 93600.0,
+        "cost_scope": "existing gate-in to gate-out/cutoff cost; no new external-wait or rescheduling fees",
+        "announcer_counts_match": true,
+        "admission_mode": "PRESERVE",
+        "physical_invariants_enabled": true,
+        "late_target_bindings": 1744,
+        "unbound_jobs_at_end": 0
+      },
+      "vessels": {
+        "streams": 14,
+        "requested_moves": 7022,
+        "admitted_moves": 7022,
+        "unadmitted_moves": 0,
+        "completed_yard_jobs": 7022,
+        "outstanding_yard_jobs": 0,
+        "unaccounted_yard_jobs": 0,
+        "recording_ok": true,
+        "issues": [],
+        "all_requested_work_completed": true
+      },
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1888,
+          "GATE_IN": 35
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "supply": {
+        "mode": "COUNT_BALANCED",
+        "original_end_balance": {
+          "Y01": 1201,
+          "Y02": 89,
+          "Y03": 1201,
+          "Y04": 1191,
+          "Y05": 1193,
+          "Y06": 647,
+          "Y07": 648,
+          "Y08": 650,
+          "Y09": 1200,
+          "Y10": 1066,
+          "Y11": 331,
+          "Y12": 102,
+          "Y13": 1204,
+          "Y14": 329,
+          "Y15": 640,
+          "Y16": 1060,
+          "Y17": 644,
+          "Y18": 642,
+          "Y19": 1188,
+          "Y20": 652,
+          "Y21": 1206
+        },
+        "corrected_end_balance": {
+          "Y01": 1201,
+          "Y02": 89,
+          "Y03": 1201,
+          "Y04": 1191,
+          "Y05": 1193,
+          "Y06": 647,
+          "Y07": 648,
+          "Y08": 650,
+          "Y09": 1200,
+          "Y10": 1066,
+          "Y11": 331,
+          "Y12": 102,
+          "Y13": 1204,
+          "Y14": 329,
+          "Y15": 640,
+          "Y16": 1060,
+          "Y17": 644,
+          "Y18": 642,
+          "Y19": 1188,
+          "Y20": 652,
+          "Y21": 1206
+        },
+        "changes": [],
+        "quantity_feasible": true,
+        "timely_service_proven": false,
+        "scope": "original assignments only; policy reallocation can still create local shortages"
+      },
+      "cost_krw": 6901286.093765421
+    }
+  },
+  "new_training_runs": 0,
+  "independent_policy_evaluations": 0,
+  "claim_eligible": false
+}

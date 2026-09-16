@@ -1,0 +1,79 @@
+{
+  "scope": "actual 300-truck connection tests only; first supply candidate rejected before full run",
+  "checks": {
+    "original_baseline_recording": true,
+    "original_baseline_same_days_as_prior": true,
+    "original_baseline_all_smoke_trucks_done": true,
+    "original_baseline_all_vessel_work_done": true,
+    "original_baseline_container_identity_chain": true,
+    "original_baseline_saved_link_hash": true,
+    "balanced_baseline_recording": true,
+    "balanced_baseline_same_days_as_prior": true,
+    "balanced_baseline_all_smoke_trucks_done": true,
+    "balanced_baseline_all_vessel_work_done": true,
+    "balanced_baseline_container_identity_chain": true,
+    "balanced_baseline_saved_link_hash": true,
+    "balanced_full_recording": true,
+    "balanced_full_same_days_as_prior": true,
+    "balanced_full_all_smoke_trucks_done": true,
+    "balanced_full_all_vessel_work_done": true,
+    "balanced_full_container_identity_chain": true,
+    "balanced_full_saved_link_hash": true
+  },
+  "passed": true,
+  "arms": {
+    "original_baseline": {
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1907,
+          "GATE_IN": 16
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "outcome_passed": true
+    },
+    "balanced_baseline": {
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1907,
+          "GATE_IN": 16
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "outcome_passed": true
+    },
+    "balanced_full": {
+      "container_flow": {
+        "passed": true,
+        "issues": [],
+        "snapshots": 2,
+        "initial_containers": 13608,
+        "produced_containers": 5399,
+        "completed_removals": 1923,
+        "remaining_containers": 17084,
+        "source_flows": {
+          "INITIAL": 1888,
+          "GATE_IN": 35
+        },
+        "scope": "physical quantity and identity chain, not real cargo-manifest or customer identity validation"
+      },
+      "outcome_passed": true
+    }
+  },
+  "new_training_runs": 0,
+  "independent_policy_evaluations": 0
+}

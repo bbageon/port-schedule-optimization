@@ -62,8 +62,13 @@ def main():
                   'revised_vessels_sha256':digest(revised),'vessels':revised,'audit':report}
         output['original_daily_balances'] = daily_bounds(initial,data['schedule'],data['vessels'])
         output['revised_daily_balances'] = daily_bounds(initial,data['schedule'],revised)
+        envelope_ok = all(new['max_stock'] <= max(max(capacities.values()), old['max_stock'])
+                          and new['min_stock'] >= min(0, old['min_stock'])
+                          for old,new in zip(output['original_daily_balances'],output['revised_daily_balances']))
+        assert envelope_ok
         (args.out/f'seed-{data["seed"]}.json').write_text(json.dumps(output,indent=2)+'\n',encoding='utf-8')
         results.append({'seed':data['seed'],'changes':report['changes'],
+                        'daily_envelope_passed':envelope_ok,
                         'quantity_feasible':report['quantity_feasible'],
                         'before_shortfall':sum(max(0,-v) for v in report['original_end_balance'].values()),
                         'after_shortfall':sum(max(0,-v) for v in report['corrected_end_balance'].values()),
