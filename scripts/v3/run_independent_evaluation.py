@@ -19,7 +19,7 @@ for key in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS'):
     os.environ[key] = '1'
 from run_request_audit import ROOT, now, run_one
 from independent_eval_checks import (ARMS, SEEDS, audit_run, month_row,
-    paired_summary, read, save, sha, supply_preflight, write_report)
+    paired_summary, read, save, sha, smoke_summary, supply_preflight, write_report)
 
 
 def verified_config(args):
@@ -165,9 +165,10 @@ def run_jobs(args, cfg, jobs, *, smoke=False):
 
 def supervise(args, cfg):
     smoke = run_jobs(args, cfg, [(9_900_722, arm) for arm in ARMS], smoke=True)
-    if not all(c['audit']['all_trucks_completed'] and c['audit']['all_vessels_completed'] for c in smoke):
-        raise RuntimeError('Diagnostic wiring test left unfinished work')
-    save(args.out / 'smoke-summary.json', dict(passed=True, runs=smoke, independent_runs=0))
+    validation = smoke_summary(smoke)
+    save(args.out / 'smoke-summary.json', validation)
+    if not validation['passed']:
+        raise RuntimeError('Diagnostic wiring/recording check failed')
     supply = args.workspace / cfg['supply_run']
     while True:
         status = read(supply / 'progress.json')

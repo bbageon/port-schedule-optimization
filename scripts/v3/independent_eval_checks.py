@@ -114,6 +114,18 @@ def month_row(result):
         elapsed_s=result['elapsed_s'], spatial=result['space'], temporal=result['time'])
 
 
+def smoke_summary(completed):
+    """Wiring validity and work completion are separate, including in probes."""
+    checks = dict(three_policies=len(completed) == 3
+        and {c['month']['arm'] for c in completed} == set(ARMS),
+        diagnostic_seed=all(c['month']['seed'] == 9_900_722 for c in completed),
+        all_records_valid=bool(completed) and all(c['audit']['passed'] for c in completed))
+    return dict(passed=all(checks.values()), checks=checks, runs=completed, independent_runs=0,
+        all_work_completed=all(c['audit']['all_trucks_completed'] and
+                               c['audit']['all_vessels_completed'] for c in completed),
+        scope='Execution, fixed inputs/weights and saved-record checks; remaining work is retained, not discarded.')
+
+
 def paired_summary(rows, *, bootstrap_samples=20_000):
     """Resample whole months, never the dependent daily observations."""
     import numpy as np

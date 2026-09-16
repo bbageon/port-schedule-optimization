@@ -89,3 +89,16 @@ def test_supply_completion_with_failed_checks_does_not_allow_start(tmp_path):
     save(tmp_path / 'full/summary.json', {'passed': False})
     with pytest.raises(ValueError, match='failed'):
         supply_preflight(tmp_path, 'checkpoint')
+
+
+def test_probe_completion_is_not_confused_with_record_validity():
+    from independent_eval_checks import smoke_summary
+    values = [dict(month=dict(seed=9_900_722, arm=arm),
+        audit=dict(passed=True, all_trucks_completed=True, all_vessels_completed=arm != 'NO_REALLOC'))
+        for arm in ARMS]
+    result = smoke_summary(values)
+    assert result['passed'] and not result['all_work_completed']
+    assert result['independent_runs'] == 0
+    values[0]['audit']['passed'] = False
+    assert not smoke_summary(values)['passed']
+    assert not smoke_summary(values[1:])['passed']

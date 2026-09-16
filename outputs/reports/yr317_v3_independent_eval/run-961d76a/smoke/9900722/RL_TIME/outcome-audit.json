@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "issues": [],
+  "vessel_totals": {
+    "requested_moves": 9516,
+    "admitted_moves": 9516,
+    "completed_yard_jobs": 9516,
+    "outstanding_yard_jobs": 0,
+    "unadmitted_moves": 0,
+    "unaccounted_yard_jobs": 0
+  },
+  "vessels_with_unfinished_work": [],
+  "all_vessel_work_completed": true,
+  "all_trucks_completed": true,
+  "unfinished_trucks_by_state": {},
+  "unfinished_trucks": [],
+  "late_bindings_checked": 4636,
+  "unbound_jobs_at_end": 0,
+  "arrival_shift": {
+    "later_gate_count": 94,
+    "total_hours": 65.75,
+    "mean_minutes_among_shifted": 41.96808510638298,
+    "max_minutes": 120.0,
+    "scope": "observed gate time minus original requested time; not proof of actual driver waiting or a monetary cost"
+  },
+  "limits": [
+    "Saved vessel rows do not contain each job's release time, physical inventory, or remaining service work.",
+    "Binding checks prove recorded time consistency, not inventory availability at every binding.",
+    "Remaining work is not assigned a cause from aggregate counters alone."
+  ],
+  "claim_eligible": false,
+  "new_training_runs": 0,
+  "request_reconciliation": {
+    "passed": true,
+    "issues": {},
+    "examples": {},
+    "requested": 120,
+    "states": {
+      "COMPLETED": 120
+    },
+    "skip_reasons": {},
+    "cohorts": {
+      "0": {
+        "requested": 60,
+        "states": {
+          "COMPLETED": 60
+        },
+        "accounted_wait_krw": 724456.937068276,
+        "gate_entered": 60,
+        "flows": {
+          "GATE_OUT": 34,
+          "GATE_IN": 26
+        }
+      },
+      "1": {
+        "requested": 60,
+        "states": {
+          "COMPLETED": 60
+        },
+        "accounted_wait_krw": 717390.5902061064,
+        "gate_entered": 60,
+        "flows": {
+          "GATE_IN": 19,
+          "GATE_OUT": 41
+        }
+      }
+    },
+    "skip_groups": [],
+    "accounted_wait_krw": 1441847.527274382,
+    "skipped_accounted_wait_krw": 0.0,
+    "four_cost_totals_krw": {
+      "c_wait": 1441847.5272743823,
+      "c_move": 602631.25,
+      "c_rehandle": 7586000.0,
+      "c_vessel": 1179078.5150080197
+    },
+    "vessel_admissions": {
+      "streams": 22,
+      "failed": 0,
+      "admitted_moves": 9516,
+      "asked_moves_in_recorded_streams": 9516,
+      "missing_asked_fields": 0,
+      "completion_validated": false
+    },
+    "full_truck_demand_completed": true
+  },
+  "artifact_sha256": {
+    "result.json": "732e62ea666e4b401ccac6bad255abc66f6d268d653d9231cbd5bdcd517bc841",
+    "manifest.json": "f5706709fb194ea4b4110e3079ac647c8bbfc8c536574a48529dfd70c55ed723",
+    "requests.jsonl.gz": "16fc105d60a0c78fa8e8e2b691ac7167216523661a7c3c584911bf821f4eb632",
+    "days.jsonl": "84716517b9924bed667d4c32bb5d7811a583df04356b95c35271de4f274109be"
+  },
+  "arm": "RL_TIME",
+  "source_commit": "961d76a5cf32e66a03e2ecafcd3373b6e6a28945"
+}
