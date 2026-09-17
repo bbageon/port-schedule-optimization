@@ -33,9 +33,9 @@ def quota(*, total, available, primary_cpus, primary_rss, extra_rss,
     extra_live = len(extra_rss)
     future_primary = sum(max(budget, r) for r in primary_rss)
     future_primary += max(0, len(primary_cpus)-len(primary_rss))*budget
-    external = sum(external_rss)
+    external = sum(max(budget,r) for r in external_rss)
     extra_reserved = sum(max(budget, r) for r in extra_rss)
-    reserve_headroom = sum(max(0, budget-r) for r in primary_rss + extra_rss)
+    reserve_headroom = sum(max(0, budget-r) for r in primary_rss + extra_rss + external_rss)
     reserve_headroom += max(0, len(primary_cpus)-len(primary_rss))*budget
     # Two GiB for supervisors/runtime, plus 20% physical-memory headroom.
     slots_total = int((.8*total - external - 2*GIB - future_primary - extra_reserved)//budget)
@@ -53,10 +53,12 @@ def verified_config(args):
     for name, expected in cfg['files'].items():
         if sha(args.workspace / name) != expected:
             raise ValueError(f'Frozen add-on artifact changed: {name}')
-    old = base.verified_config(SimpleNamespace(config=args.workspace / cfg['base_config'],
+    frozen_base = ROOT / cfg['base_config']
+    if read(frozen_base) != read(args.workspace / cfg['base_config']):
+        raise ValueError('Workspace and frozen base configuration contents differ')
+    old = base.verified_config(SimpleNamespace(config=frozen_base,
                                               workspace=args.workspace))
-    if read(args.workspace / cfg['primary_run'] / 'launch.json')['config_sha256'] != sha(
-            args.workspace / cfg['base_config']):
+    if read(args.workspace / cfg['primary_run'] / 'launch.json')['config_sha256'] != sha(frozen_base):
         raise ValueError('Primary run did not use the frozen base config')
     old = dict(old, prereg=cfg['prereg'])
     return cfg, old

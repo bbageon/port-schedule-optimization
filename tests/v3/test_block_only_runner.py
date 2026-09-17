@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import json
 from types import SimpleNamespace as NS
 
 import pytest
@@ -9,9 +10,32 @@ import run_block_only_evaluation as runner
 from independent_eval_checks import read, save, sha
 
 
+def test_primary_config_hash_uses_exact_frozen_source_not_windows_line_endings(tmp_path,monkeypatch):
+    frozen=tmp_path/'frozen';workspace=tmp_path/'workspace'
+    frozen.mkdir();workspace.mkdir()
+    raw='{\n  "prereg": "original.md"\n}\n'
+    (frozen/'base.json').write_bytes(raw.encode())
+    (workspace/'base.json').write_bytes(raw.replace('\n','\r\n').encode())
+    save(workspace/'primary/launch.json',dict(config_sha256=sha(frozen/'base.json')))
+    cfg=dict(arm='RL_SPACE',seeds=list(runner.SEEDS),base_config='base.json',
+             primary_run='primary',prereg='added.md',files={'base.json':sha(workspace/'base.json')})
+    save(tmp_path/'config.json',cfg)
+    monkeypatch.setattr(runner,'ROOT',frozen)
+    def verify(args):
+        assert args.config==frozen/'base.json'
+        return read(args.config)
+    monkeypatch.setattr(runner.base,'verified_config',verify)
+    args=NS(config=tmp_path/'config.json',workspace=workspace)
+    _,value=runner.verified_config(args)
+    assert value['prereg']=='added.md'
+    save(frozen/'base.json',dict(prereg='changed.md'))
+    with pytest.raises(ValueError,match='configuration contents differ'):
+        runner.verified_config(args)
+
+
 def test_resource_reservation_counts_primary_future_workers_and_external_run():
     g = runner.GIB
-    cpus = runner.quota(total=62.6*g, available=38*g, primary_cpus=list(range(13)),
+    cpus = runner.quota(total=62.6*g, available=40*g, primary_cpus=list(range(13)),
         primary_rss=[g]*13, extra_rss=[], external_rss=[2*g], occupied=[])
     assert cpus == [13]  # Available-memory headroom is tighter than the total-worker cap.
     # Primary between child launches still owns all thirteen slots.

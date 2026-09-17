@@ -41,4 +41,5 @@ Block-only와 기준정책을 비교해야 블록 조정만으로 비용이 줄�
 - [추가 실행 전 고정](../../../../outputs/reports/yr317_v3_block_only/prereg.md)
 - [추가 실행기](../../../../scripts/v3/run_block_only_evaluation.py)
 - [기존 독립 반복 계약](20-독립반복-실행계약.md)
-- [추가 실행기·통합 집계 검사](../../../../outputs/reports/yr317_v3_block_only/tests.json): 관련 검사 42개 통과. 자원 중복 방지, 시간 변경 차단, 실패 격리, 입력·모델 불일치 및 미완료 통계 차단을 확인했다.
+- [추가 실행기·통합 집계 검사](../../../../outputs/reports/yr317_v3_block_only/tests.json): 관련 검사 43개 통과. 자원 중복 방지, 시간 변경 차단, 실패 격리, 입력·모델 불일치 및 미완료 통계 차단을 확인했다.
+- [시작 전 파일 지문 검사](../../../../outputs/reports/yr317_v3_block_only/launch-precheck.json): Windows 작업 폴더와 Linux 고정 소스의 줄바꿈 차이를 발견했다. 설정 내용 일치와 기존 실행에 사용한 고정 원본의 지문을 모두 검사하도록 수정했다. 당시 추가 감독기·본 실험은 미시작, 기존 실행은 유지했다.
