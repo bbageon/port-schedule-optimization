@@ -1,0 +1,240 @@
+{
+  "at": "2026-09-17T02:06:36.117592+00:00",
+  "state": "block_only_months_started",
+  "launch": {
+    "at": "2026-09-17T02:02:14.118883+00:00",
+    "pid": 24443,
+    "source_commit": "ea9164b3fe9e3f7ac84dd2594419472efa477901",
+    "source_checkout": "/home/geonu/yr317-v3-block-ea9164b",
+    "config_sha256": "d67f864ca0bce64c065cc9b82e6d6d333a0eeaf03023fdce9eeeb0ff61c613af",
+    "checkpoint_sha256": "50f2da2e8b3070dbba48273f0de5debdf5514fe96f0fa1f5a8f25b8a830cba99",
+    "planned_independent_runs": 20,
+    "primary_run": "outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+    "new_training_runs": 0
+  },
+  "progress": {
+    "at": "2026-09-17T02:06:25.806822+00:00",
+    "state": "running",
+    "phase": "months",
+    "planned": 20,
+    "completed": 0,
+    "pending": 19,
+    "failed": [],
+    "active": [
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "pid": 24485,
+        "cpu": 13
+      }
+    ],
+    "resources": {
+      "primary_state": "running",
+      "primary_reserved_cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "primary_active": 13,
+      "addon_active": 1,
+      "external_active": 1,
+      "mem_total_bytes": 67234705408,
+      "mem_available_bytes": 38765080576,
+      "budget_per_worker_gib": 3,
+      "total_worker_limit": 16,
+      "cpu_limit": 20,
+      "primary_failed": false,
+      "primary_stale": false
+    }
+  },
+  "primary_progress": {
+    "at": "2026-09-17T02:06:30.027605+00:00",
+    "state": "running",
+    "phase": "months",
+    "completed": 1,
+    "retained": 1,
+    "planned": 60,
+    "failed": [],
+    "pending": 46,
+    "active": [
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "pid": 23416,
+        "cpu": 0
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "pid": 23417,
+        "cpu": 1
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "pid": 23418,
+        "cpu": 2
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "pid": 23419,
+        "cpu": 3
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "pid": 23420,
+        "cpu": 4
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "pid": 23421,
+        "cpu": 5
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "pid": 23422,
+        "cpu": 6
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "pid": 23423,
+        "cpu": 7
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "pid": 23424,
+        "cpu": 8
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "pid": 23425,
+        "cpu": 9
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "pid": 23426,
+        "cpu": 10
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "pid": 23427,
+        "cpu": 11
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "pid": 23428,
+        "cpu": 12
+      }
+    ]
+  },
+  "diagnostic": {
+    "passed": true,
+    "validation": {
+      "passed": true,
+      "checks": {
+        "arm": true,
+        "no_temporal_actions": true,
+        "no_daily_temporal_actions": true,
+        "records": true,
+        "result_hash": true,
+        "spatial_path_exercised": true
+      },
+      "spatial": 19,
+      "temporal": 0,
+      "remaining_work": {
+        "passed": true,
+        "checks": {
+          "recording": true,
+          "links": true,
+          "daily": true,
+          "runner": true,
+          "no_truck_loss": true,
+          "no_vessel_loss": true
+        },
+        "truck_unfinished": 0,
+        "vessel_unfinished": 5,
+        "unbound_at_cutoff": 0,
+        "all_trucks_completed": true,
+        "all_vessels_completed": false
+      }
+    },
+    "completion": [
+      {
+        "at": "2026-09-17T02:04:29.327915+00:00",
+        "state": "completed",
+        "pid": 24453,
+        "cpu": 13,
+        "input_hashes": {
+          "schedule_sha256": "b1cc95d1fea0e20fb504300c8e2bda6a390b755bfca206fe39558c19fe36754e",
+          "initial_scenarios_sha256": "24ad83a88ed9dbf74b1ccfe62edc54e68f309b2b4b7590b7a64b6cf0d61e603f",
+          "vessels_sha256": "663e511afb6af83c7977c97b89b373e6b4155f2387624bf63b2a4beba3f0f19b"
+        },
+        "result_sha256": "986df7399fd354602285b27945ee63df8967282a6bb3f6305921567422e06200",
+        "audit": {
+          "passed": true,
+          "checks": {
+            "recording": true,
+            "links": true,
+            "daily": true,
+            "runner": true,
+            "no_truck_loss": true,
+            "no_vessel_loss": true
+          },
+          "truck_unfinished": 0,
+          "vessel_unfinished": 5,
+          "unbound_at_cutoff": 0,
+          "all_trucks_completed": true,
+          "all_vessels_completed": false
+        },
+        "month": {
+          "seed": 9900722,
+          "arm": "RL_SPACE",
+          "cost_28d_krw": 0.0,
+          "cost_30d_krw": 10613142.395630736,
+          "requested": 120,
+          "completed": 120,
+          "censored": 0,
+          "unbound_at_cutoff": 0,
+          "unfinished_vessel_jobs": 5,
+          "vessel_all_completed": false,
+          "requested_identity_sha256": "f419ba8e66f2a03460061b6c4f6ba20bc76f35173f86552a8e6848208e5d15fc",
+          "elapsed_s": 131.64602210838348,
+          "spatial": 19,
+          "temporal": 0
+        }
+      }
+    ],
+    "same_requests_as_primary": true,
+    "independent_runs": 0
+  },
+  "source_clean": true,
+  "first_month_same_contract_except_policy": true,
+  "first_month_manifests": [
+    "outputs\\reports\\yr317_v3_independent_eval\\run-7e2fb14\\months\\20000000\\RL\\manifest.json",
+    "outputs\\reports\\yr317_v3_block_only\\run-ea9164b\\months\\20000000\\RL_SPACE\\manifest.json"
+  ],
+  "processes": "    PID STAT PSR %CPU   RSS     ELAPSED COMMAND\n   4583 R+    23 99.9 1925812 2-18:27:14 python\n  23325 Ss    17  0.1 654396   03:26:50 python\n  23416 RN     0 99.9 962108   03:24:43 python\n  23417 RN     1 99.9 1259320  03:24:43 python\n  23418 RN     2 99.9 1122584  03:24:43 python\n  23419 RN     3 99.9 1054988  03:24:43 python\n  23420 RN     4 99.9 1463124  03:24:43 python\n  23421 RN     5 99.9 1283936  03:24:43 python\n  23422 RN     6 99.9 1017368  03:24:43 python\n  23423 RN     7 99.9 1233772  03:24:43 python\n  23424 RN     8 99.9 1186028  03:24:43 python\n  23425 RN     9 99.9 1300532  03:24:43 python\n  23426 RN    10 99.9 1325820  03:24:43 python\n  23427 RN    11 99.9 990560   03:24:43 python\n  23428 RN    12 99.9 1239672  03:24:43 python\n  24443 Ss    19  0.4 233212      04:21 python\n  24485 RN    13 99.6 859488      02:00 python\n",
+  "new_training_runs": 0,
+  "total_planned_policy_runs": 80,
+  "claim_eligible": false
+}
