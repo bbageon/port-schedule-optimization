@@ -8,8 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-317-b | Paper | **현실 제약·외부 비용 범위 원고 초안 반영** | 🟠 | 2026-09-15 | 14쪽 부분 개정본·서술/보존 검사 13개 통과. 실제 제약 실험은 미수행, 전체 개정·분량 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
-| YR-317-f | UI | **TOS·올컨e 역할·업무 흐름 §3.5 추가** | 🟠 | 2026-09-15 | 운영자·운송사·운전자 사례 반영, 문헌 22건·인용 검사 통과. 현장·사용자 평가 없음, 전체 통합 남음. [spec](../docs/dashboard-task-specs/YR-317-f-v3-review-hci-context.md) · [개정 기록](../../docs/paper/v3/paper-revision/10-문헌-사용맥락-원고반영.md) |
 | YR-317-g | Exp | **30일 진단 종료·기록과 물리 연결 통과·작업 잔여 남음** | 🟠 | 2026-09-16 | 9/17 03:10 KST 종료. 보정 기준/전체 트럭 잔여 1,367/5,086대, 선박 야드 잔여 2,556/4,307건. 전건 완료·성능·지속운영 통과와 구분, 잔여 해석 남음. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [종료 검사](../../outputs/reports/yr317_v3_independent_eval/run-4068b4f/supply-preflight.json) |
 | YR-317-d | Exp | **Block-only 20개 추가 시작·총 80개 독립 비교 진행** | 🟠 | 2026-09-16 | 9/17 11:04 KST 추가 시작. 진단 공간 19건·시간 0건·기록 통과, 관련 검사 43개. 기존 13개 유지+추가 1개 실행·19개 대기, 동일 입력·모델·비용·새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [추가 실행 증거](../../outputs/reports/yr317_v3_block_only/started.json) |
 | YR-317-a | Exp | **v3 기록 정합·시간 변경 비용 경로 확인** | 🟠 | 2026-09-14 | 과거 외부 대기 합산 존재, 현 v3 학습·평가에는 미연결. 비용 감사 12개 통과. 기존 준비본 8파일 동일, 포털 업로드 동일성 별도 미확인. [spec](../docs/dashboard-task-specs/YR-317-a-v3-review-evidence-audit.md) · [비용 감사](../../docs/paper/v3/paper-revision/12-시간변경비용-코드확인.md) · [복사·검산](../../docs/paper/v3/paper-revision/source-audit.json) |

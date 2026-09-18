@@ -1,0 +1,135 @@
+{
+  "schema": "yr317.integrated-document-validation.v1",
+  "at": "2026-09-18T00:16:38.527564+00:00",
+  "checks": {
+    "required_document_files_exist": true,
+    "main.tex_receipt_hash": true,
+    "main-revised.tex_receipt_hash": true,
+    "main-integrated.tex_receipt_hash": true,
+    "original_pdf_preserved": true,
+    "prior_pdf_preserved": true,
+    "original_and_prior_receipts_agree": true,
+    "explicit_pending_not_submission_ready": true,
+    "prereg_sha256_unchanged": true,
+    "addon_prereg_sha256_unchanged": true,
+    "twenty_two_unique_references": true,
+    "prior_bibliography_preserved": true,
+    "original_references_retained": true,
+    "all_citations_defined_and_references_used": true,
+    "unique_labels_and_required_sections": true,
+    "all_cross_references_defined": true,
+    "original_figure_files_and_sequence_preserved": true,
+    "eleven_policy_costs_and_daily_wins_preserved_without_p_columns": true,
+    "historical_time_rule_daily_win_example_retained": true,
+    "pending_evidence_explicit_in_manuscript": true,
+    "registered_monthly_statistics_present": true,
+    "response_links_and_line_limit": true,
+    "response_section_locations_exist": true,
+    "response_covers_all_reviewers": true,
+    "compile_finished_without_layout_reference_or_unexpected_warnings": true,
+    "official_pdf_matches_final_build": true,
+    "build_is_not_older_than_source": true,
+    "final_pdf_readable_without_text_outside_page": true
+  },
+  "passed": true,
+  "exceptions": {},
+  "details": {
+    "missing_required_files": [],
+    "undefined_citations": [],
+    "first_citation_order_matches_bibliography": true,
+    "undefined_cross_references": [],
+    "duplicate_labels": [],
+    "figures": [
+      "system-architecture.png",
+      "fig-decomposition.pdf",
+      "fig-learning-curve-2p.pdf"
+    ],
+    "historical_performance_rows": {
+      "full": {
+        "actions": "block+time",
+        "reduction_percent": "14.72",
+        "daily_wins": "---"
+      },
+      "time-only": {
+        "actions": "time",
+        "reduction_percent": "13.44",
+        "daily_wins": "---"
+      },
+      "block-only": {
+        "actions": "block",
+        "reduction_percent": "-1.31",
+        "daily_wins": "---"
+      },
+      "first-iteration model": {
+        "actions": "block+time",
+        "reduction_percent": "7.97",
+        "daily_wins": "18/28"
+      },
+      "rule: least-loaded slot": {
+        "actions": "time",
+        "reduction_percent": "3.41",
+        "daily_wins": "---"
+      },
+      "rule: least-loaded block+slot": {
+        "actions": "block+time",
+        "reduction_percent": "1.51",
+        "daily_wins": "20/28"
+      },
+      "rule: least slack": {
+        "actions": "block",
+        "reduction_percent": "0.53",
+        "daily_wins": "20/28"
+      },
+      "rule: first-come-first-serve": {
+        "actions": "block",
+        "reduction_percent": "0.17",
+        "daily_wins": "22/28"
+      },
+      "rule: shortest processing time": {
+        "actions": "block",
+        "reduction_percent": "0.05",
+        "daily_wins": "21/28"
+      },
+      "rule: net gain": {
+        "actions": "block",
+        "reduction_percent": "-0.48",
+        "daily_wins": "21/28"
+      },
+      "no reallocation": {
+        "actions": "---",
+        "reduction_percent": "0.00",
+        "daily_wins": "26/28"
+      }
+    },
+    "daily_count_mentions_not_retained": [
+      "14/28",
+      "17/28"
+    ],
+    "response_markdown_lines": 144,
+    "broken_response_links": [],
+    "unmatched_response_pages": [],
+    "compile_log": "tmp/pdfs/yr317-integration/main-integrated.log",
+    "known_class_warnings": [
+      {
+        "line": 249,
+        "text": "Package amsmath Warning: Unable to redefine math accent \\vec.\n\n\\macc@depth=\\count323\nLaTeX Info: Redefining \\bmod on input line 904."
+      },
+      {
+        "line": 323,
+        "text": "Package caption Warning: Unknown document class (or package),\n(caption)                standard defaults will be used.\nSee the caption package documentation for explanation.\n"
+      }
+    ],
+    "other_warnings": [],
+    "errors": [],
+    "pdf_pages": 12,
+    "text_outside_page": [],
+    "pdf_sha256": "511a1bb5f849ad30594e00854c008d75d2890f0a666085649f0815f558806f4e",
+    "target_page_limit_met": true,
+    "page_limit_status": "within_target"
+  },
+  "target_pages": 12,
+  "target_page_limit_is_hard_failure": false,
+  "scientific_validation": "Document consistency only; pending experiments and historical costs are not newly validated performance.",
+  "new_experiments": 0,
+  "submission_ready": false
+}

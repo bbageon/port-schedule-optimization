@@ -10,7 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-317 | Paper | **v3 개정 4일 마감 — 핵심 검증·원고 통합 우선** | 🟠 | 9/15 사용자 지시, 9/19 KST 목표. 새 학습·독립 확증 미실행, 실측 예산으로 실행 전 표본 고정. 과거 외부 대기 합산과 현 v3 미연결 구분. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [전략·증거](../../docs/paper/v3/paper-revision/README.md) |
+| YR-317 | Paper | **12쪽 통합 초안 완료·네 정책 독립 결과 대기** | 🟠 | 9/19 KST 목표. i·b·f 문서 범위 완료, 진행 중 80개 실행의 최종 통계·후보 검증 등은 미완료. 제출 완료본이 아니다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-317-d3 | Exp | **피크 폭에 따른 일별 비용·정책 효과 검토안** | 🟠 | 같은 물량·구성 성분에서 폭만 변경하는 강건성 설계. 1.5배에서는 봉우리 합침 확인, 곡선 계산만 완료·시뮬레이션 미착수. [spec](../docs/dashboard-task-specs/YR-317-d3-v3-arrival-width-robustness.md) |
 | YR-317-e | Exp | **온라인 처리시간과 재현 명세** | 🟠 | 60초 검토·3시간 학습 관찰·30/90일 평가를 분리한 계측 계획 작성. 측정 미실행. [spec](../docs/dashboard-task-specs/YR-317-e-v3-review-runtime-reproduction.md) |
