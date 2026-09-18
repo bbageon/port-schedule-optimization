@@ -1,0 +1,55 @@
+{
+  "id": "f65ceebc-2eb8-4476-bc10-1152b37d8d01",
+  "ok": true,
+  "result": {
+    "automation": {
+      "id": "3814e2bf-cd17-4ced-ba0c-1b2f97350cae",
+      "name": "v3 independent evaluation - 30min status",
+      "prompt": "# v3 독립 실험 30분 진행 점검\n\n사용자가 진행 중인 리뷰 대응 실험을 30분마다 점검하고 보고하라고 요청했다. 이 작업은 기존 YR-317-d(네 정책 독립 반복)의 읽기 전용 상태 확인이다. 실험을 수정하는 작업이 아니다.\n\n## 읽을 자료\n\n- 기존 세 정책 60개: `outputs/reports/yr317_v3_independent_eval/run-7e2fb14/progress.json`, 같은 폴더의 `launch.json`.\n- Block-only 20개: `outputs/reports/yr317_v3_block_only/run-ea9164b/progress.json`, 같은 폴더의 `launch.json`.\n- 실행 중 항목은 해당 `months/{seed}/{arm}/progress.json`의 진행 일수와 파일 갱신 시각만 읽는다. 필요하면 `days.jsonl` 마지막 줄, 감독 로그 마지막 30줄, 저장된 `completion.json`과 검사 요약을 읽는다.\n- 이전 점검은 이 자동 점검 세션의 앞선 보고를 사용한다. 없으면 첫 관측이라고 표시한다.\n- 작업 디렉터리는 반드시 `C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매`다. 다른 체크아웃의 옛 결과를 읽지 않는다.\n\n## 확인할 것\n\n1. 한국시간 확인 시각, 총 80개 중 완료·실행·대기·실패 수, 가능하면 정책별 완료 수. 기본 실행의 `completed`에는 `retained`가 이미 포함되므로 더하지 않는다.\n2. 직전 점검 대비 완료 수와 실행 중 시뮬레이션 날짜의 변화. 완료가 늘지 않았다는 이유만으로 중단이라 판단하지 않는다.\n3. 두 감독기의 `state`, `failed` 목록과 갱신 시각. 문제가 의심되면 `launch.json`의 감독 PID와 활성 PID를 WSL의 `ps`로 읽기 전용 확인한다. 오래된 PID가 재사용됐을 수 있으므로 명령행·소스 경로도 대조한다. v5 등 다른 작업을 변경하지 않는다.\n4. 실제 CPU·메모리는 필요할 때만 읽는다. 기록상 예약 코어와 현재 활성 실행 수를 구분한다.\n5. 남은 시간은 관측 근거가 충분할 때 범위로만 제시한다. 진행 속도의 변동을 무시해 정확한 완료 시각을 약속하지 않는다.\n\n감독 파일은 약 10초마다 갱신되므로 5분 이상 갱신이 없으면 경고한다. 자식 파일은 시뮬레이션 하루가 끝날 때만 갱신하므로 수시간 변화가 없어도 실패는 아니다. `day_index_completed`는 0부터 시작하므로 표시할 때 1을 더한다. 기본 평가의 최종 상태에서는 `completed` 대신 `independent_runs=60`을 읽어야 할 수 있다. Block-only의 `waiting_for_primary`는 기본 결과 통합 대기이며 실패가 아니다. 통합 결과 경로는 `outputs/reports/yr317_v3_block_only/run-ea9164b-combined`다.\n\n## 보고 형식\n\n- 쉬운 한국어, 결론부터. `진행사항 / 해석 / 예정사항`의 짧은 세 문단을 사용한다.\n- 완료 수, 지난 점검 이후 변화, 오류·정체 여부, 다음 확인을 10줄 안팎으로 보고한다. 변화가 없어도 보고를 남긴다.\n- 성공적으로 종료된 실행도 잔여 작업이 0이라는 뜻은 아니다. 최종 비교가 끝나기 전 일관된 성능 향상이나 독립 통계 통과를 주장하지 않는다.\n- 원고 통합 초안은 완료했으며 현재 필요한 것은 독립 실행과 검사 결과다. 중간 결과를 제출용 최종 성능으로 바꾸지 않는다.\n\n## 변경 금지와 종료\n\n- 코드·모델·시드·비용·입력·사전등록·원고·Dashboard를 수정하지 않는다. 재학습·새 실험·전체 재검산·프로세스 종료/재시작·코어 재배분·다른 사람에게 메시지 전송을 하지 않는다.\n- 오류가 있으면 해당 실행과 관측 근거를 보고한다. 이번 주기에서는 직접 복구하지 않는다.\n- 정확히 80개가 끝났고 두 감독기의 최종 상태와 저장된 검사 결과로 확인할 수 있으면 최종 상태를 보고한다. 비용 개선이나 잔여 0을 완료 조건에 넣지 않는다.\n- 전체 종료를 확인한 뒤에만 `outputs/reports/yr317_v3_progress_schedule/registration.json`의 `result.automation.id`에서 자기 ID를 읽고 `orca automations edit --id <자기 ID> --disabled --json`으로 이 예약만 중지한다. 최상위 `id`는 요청 번호이므로 사용하지 않는다. 사용자에게 중지 사실과 남은 리뷰 작업을 알린다.\n- 결과가 없거나 상태 확인이 실패하면 확인 불가라고 보고하고 예약은 유지한다. 무한 대기하지 말고 이번 점검을 마친다.\n",
+      "precheck": null,
+      "agentId": "codex",
+      "runContext": {
+        "kind": "workspace-run",
+        "projectId": "github:bbageon/port-schedule-optimization",
+        "hostId": "local",
+        "projectHostSetupId": "44b8f675-9b37-446f-a382-05a137524940",
+        "repoId": "44b8f675-9b37-446f-a382-05a137524940",
+        "path": "C:/Users/geonu/Desktop/port_reinforcement"
+      },
+      "sourceContext": {
+        "kind": "task-source",
+        "provider": "github",
+        "projectId": "github:bbageon/port-schedule-optimization",
+        "hostId": "local",
+        "projectHostSetupId": "44b8f675-9b37-446f-a382-05a137524940",
+        "repoId": "44b8f675-9b37-446f-a382-05a137524940",
+        "providerIdentity": {
+          "provider": "github",
+          "owner": "bbageon",
+          "repo": "port-schedule-optimization"
+        },
+        "accountLabel": null
+      },
+      "projectId": "44b8f675-9b37-446f-a382-05a137524940",
+      "executionTargetType": "local",
+      "executionTargetId": "local",
+      "schedulerOwner": "local_host_service",
+      "workspaceMode": "existing",
+      "workspaceId": "44b8f675-9b37-446f-a382-05a137524940::C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+      "baseBranch": null,
+      "reuseSession": true,
+      "timezone": "Asia/Seoul",
+      "rrule": "*/30 * * * *",
+      "dtstart": 1789691549191,
+      "enabled": true,
+      "nextRunAt": 1789693200000,
+      "missedRunPolicy": "run_once_within_grace",
+      "missedRunGraceMinutes": 720,
+      "createdAt": 1789691549200,
+      "updatedAt": 1789691590043
+    }
+  },
+  "_meta": {
+    "runtimeId": "8f2eff40-4cb4-4f42-93ad-4ed036128406"
+  }
+}
