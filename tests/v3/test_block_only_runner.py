@@ -54,6 +54,54 @@ def test_low_memory_pauses_launches_and_primary_completion_releases_capacity():
     assert len(cpus) == 15 and all(0 <= c < 20 for c in cpus)
 
 
+def test_drained_primary_queue_releases_only_idle_cpus_and_their_memory_reservation():
+    configured = list(range(13))
+    status = dict(state='running', phase='months', pending=0,
+                  active=[dict(cpu=c) for c in (1, 4, 6, 9, 12)])
+    reserved = runner.reserved_primary_cpus(status, configured)
+    assert reserved == [1, 4, 6, 9, 12]
+    g = runner.GIB
+    cpus = runner.quota(total=62.6*g, available=40*g, primary_cpus=reserved,
+        primary_rss=[3*g]*5, extra_rss=[], external_rss=[2*g], occupied=[0, 23])
+    assert len(cpus) == 10 and not set(cpus) & {0, 1, 4, 6, 9, 12, 23}
+    status['pending'] = 1
+    assert runner.reserved_primary_cpus(status, configured) == configured
+    del status['pending']
+    assert runner.reserved_primary_cpus(status, configured) == configured
+
+
+def test_drained_queue_rejects_unexpected_or_shared_primary_cpu():
+    for cpus in ([2, 2], [23]):
+        status = dict(state='running', phase='months', pending=0,
+                      active=[dict(cpu=c) for c in cpus])
+        with pytest.raises(ValueError, match='active CPUs'):
+            runner.reserved_primary_cpus(status, list(range(13)))
+
+
+def test_recovered_completed_months_are_counted_but_never_relaunched(tmp_path, monkeypatch):
+    monkeypatch.setattr(runner, 'resources', lambda *a: ([4], dict(primary_failed=False)))
+    monkeypatch.setattr(runner.time, 'sleep', lambda _: None)
+    retained = [dict(month=dict(seed=20_000_000, arm='RL_SPACE'), state='completed')]
+    launched = []
+    class Process:
+        pid = 123
+        def __init__(self, cmd, **kwargs):
+            seed = int(cmd[cmd.index('--seed')+1])
+            launched.append(seed)
+            assert '--recover-from' not in cmd
+            save(tmp_path/'months'/str(seed)/'RL_SPACE/completion.json',
+                 dict(month=dict(seed=seed, arm='RL_SPACE'), state='completed'))
+        def poll(self):
+            return 0
+    monkeypatch.setattr(runner.subprocess, 'Popen', Process)
+    args = NS(workspace=tmp_path, config=tmp_path/'config', out=tmp_path,
+              recover_from=tmp_path/'old')
+    done = runner.run_jobs(args, {}, [20_100_000], retained=retained)
+    assert launched == [20_100_000] and done[0] == retained[0]
+    status = read(tmp_path/'progress.json')
+    assert (status['planned'], status['completed'], status['retained']) == (2, 2, 1)
+
+
 def test_block_only_rejects_temporal_actions_even_with_passed_generic_audit(tmp_path):
     result = dict(arm='RL_SPACE', time=0, space=4, days=[dict(n_time=0)])
     save(tmp_path/'result.json',result)

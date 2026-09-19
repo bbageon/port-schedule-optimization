@@ -46,6 +46,20 @@ def quota(*, total, available, primary_cpus, primary_rss, extra_rss,
     return cpus[:slots]
 
 
+def reserved_primary_cpus(status, configured):
+    """Keep capacity for queued jobs; release idle cores only after the queue drains."""
+    if status['state'] in ('completed', 'failed'):
+        return []
+    if (status.get('phase') != 'months' or type(status.get('pending')) is not int
+            or status['pending'] != 0):
+        return list(configured)
+    active = status['active']
+    cpus = [item['cpu'] for item in active]
+    if len(cpus) != len(set(cpus)) or not set(cpus) <= set(configured):
+        raise ValueError('Primary active CPUs disagree with its reserved capacity')
+    return sorted(cpus)
+
+
 def verified_config(args):
     cfg = read(args.config)
     if cfg['arm'] != 'RL_SPACE' or tuple(cfg['seeds']) != SEEDS:
@@ -69,7 +83,8 @@ def resources(args, cfg, active):
     status = read(primary / 'progress.json')
     terminal = status['state'] in ('completed', 'failed')
     primary_active = status.get('active', [])
-    reserved = read(primary / 'months-resources.json')['cpus'] if not terminal else []
+    configured = read(primary / 'months-resources.json')['cpus'] if not terminal else []
+    reserved = reserved_primary_cpus(status, configured)
     # If a supervisor has failed, no new add-on work is launched; active work drains.
     blocked = status['state'] in ('failed', 'draining_after_failure') or (primary / 'failure.json').exists()
     stale = not terminal and time.time() - (primary / 'progress.json').stat().st_mtime > 300
@@ -77,12 +92,20 @@ def resources(args, cfg, active):
     get = lambda k: int(re.search(k+r':\s+(\d+)', mem).group(1))*1024
     primary_rss = [process_rss(v['pid']) for v in primary_active]
     extra_rss = [process_rss(p.pid) for p, _ in active.values()]
-    external_rss = [r for pid in cfg['external_pids'] if (r := process_rss(pid))]
+    external = [(pid, r) for pid in cfg['external_pids'] if (r := process_rss(pid))]
+    external_rss = [r for _, r in external]
+    external_cpus = set()
+    for pid, _ in external:
+        try:
+            external_cpus.update(os.sched_getaffinity(pid))
+        except ProcessLookupError:
+            pass
     cpus = quota(total=get('MemTotal'), available=get('MemAvailable'), primary_cpus=reserved,
                  primary_rss=primary_rss, extra_rss=extra_rss, external_rss=external_rss,
-                 occupied=[c for _, c in active.values()])
+                 occupied=[c for _, c in active.values()] + list(external_cpus))
     info = dict(primary_state=status['state'], primary_reserved_cpus=reserved,
-        primary_active=len(primary_active), addon_active=len(active), external_active=len(external_rss),
+        primary_active=len(primary_active), primary_pending=status.get('pending'),
+        addon_active=len(active), external_active=len(external_rss), external_cpus=sorted(external_cpus),
         mem_total_bytes=get('MemTotal'), mem_available_bytes=get('MemAvailable'),
         budget_per_worker_gib=3, total_worker_limit=16, cpu_limit=20,
         primary_failed=blocked, primary_stale=stale)
@@ -92,6 +115,8 @@ def resources(args, cfg, active):
 def command(args, **flags):
     cmd = [sys.executable, '-u', str(Path(__file__).resolve()), '--workspace', str(args.workspace),
            '--config', str(args.config), '--out', str(args.out)]
+    if getattr(args, 'recover_from', None) is not None and 'seed' not in flags:
+        cmd += ['--recover-from', str(args.recover_from)]
     for key, value in flags.items():
         cmd += ['--'+key.replace('_', '-')]
         if value is not True:
@@ -115,8 +140,8 @@ def validate_block_only(folder, *, smoke=False):
     return verdict
 
 
-def run_jobs(args, cfg, jobs, *, smoke=False):
-    pending, active, completed, failed = deque(jobs), {}, [], []
+def run_jobs(args, cfg, jobs, *, smoke=False, retained=()):
+    pending, active, completed, failed = deque(jobs), {}, list(retained), []
     phase = 'smoke' if smoke else 'months'
     try:
         while pending or active:
@@ -149,7 +174,8 @@ def run_jobs(args, cfg, jobs, *, smoke=False):
                 del active[seed]
             save(args.out/'progress.json', dict(at=now(),
                 state='draining_after_failure' if failed else ('running' if active else 'waiting_for_resources'),
-                phase=phase, planned=len(jobs), completed=len(completed), pending=len(pending), failed=failed,
+                phase=phase, planned=len(jobs)+len(retained), completed=len(completed),
+                retained=len(retained), pending=len(pending), failed=failed,
                 active=[dict(seed=s, arm='RL_SPACE', pid=p.pid, cpu=c) for s,(p,c) in active.items()],
                 resources=info))
             if failed and not active:
@@ -173,7 +199,7 @@ def run_jobs(args, cfg, jobs, *, smoke=False):
                 proc.wait()
 
 
-def supervise(args, cfg):
+def supervise(args, cfg, old):
     import torch
     from yard_rl.v3.eval.contracts import runtime_identity
     torch.set_num_threads(1)
@@ -183,16 +209,22 @@ def supervise(args, cfg):
         raise ValueError('Simulation source/config/runtime changed from the primary batch')
     save(args.out/'source-compatibility.json', dict(passed=True, runtime=current,
         reference_manifest=cfg['reference_manifest'], changes='Only policy arm: RL_SPACE; no simulation changes'))
-    smoke = run_jobs(args, cfg, [9_900_722], smoke=True)
-    folder = args.out/'smoke/9900722/RL_SPACE'
-    verdict = validate_block_only(folder, smoke=True)
-    result = read(folder/'result.json')
-    old = read(args.workspace/cfg['primary_run']/'smoke/9900722/RL/result.json')
-    if result['requested_identity_sha256'] != old['requested_identity_sha256']:
-        raise ValueError('Block-only smoke differs from primary request inputs')
-    save(args.out/'smoke-summary.json', dict(passed=True, validation=verdict, completion=smoke,
-        same_requests_as_primary=True, independent_runs=0))
-    completed = run_jobs(args, cfg, list(SEEDS))
+    retained = []
+    if args.recover_from is not None:
+        from recover_block_only_evaluation import recover_completed
+        retained = recover_completed(args, cfg, old)
+    else:
+        smoke = run_jobs(args, cfg, [9_900_722], smoke=True)
+        folder = args.out/'smoke/9900722/RL_SPACE'
+        verdict = validate_block_only(folder, smoke=True)
+        result = read(folder/'result.json')
+        primary_smoke = read(args.workspace/cfg['primary_run']/'smoke/9900722/RL/result.json')
+        if result['requested_identity_sha256'] != primary_smoke['requested_identity_sha256']:
+            raise ValueError('Block-only smoke differs from primary request inputs')
+        save(args.out/'smoke-summary.json', dict(passed=True, validation=verdict, completion=smoke,
+            same_requests_as_primary=True, independent_runs=0))
+    kept = {c['month']['seed'] for c in retained}
+    completed = run_jobs(args, cfg, [s for s in SEEDS if s not in kept], retained=retained)
     save(args.out/'month-results.json', [c['month'] for c in completed])
     primary = args.workspace/cfg['primary_run']
     while read(primary/'progress.json')['state'] != 'completed':
@@ -217,9 +249,13 @@ def main():
     parser.add_argument('--seed', type=int)
     parser.add_argument('--cpu', type=int)
     parser.add_argument('--smoke', action='store_true')
+    parser.add_argument('--recover-from', type=Path,
+                        help='Copy verified finished runs into a new output; run only unstarted seeds')
     args = parser.parse_args()
     for name in ('workspace', 'config', 'out'):
         setattr(args, name, getattr(args,name).resolve())
+    if args.recover_from is not None:
+        args.recover_from = args.recover_from.resolve()
     os.chdir(ROOT)
     cfg, old = verified_config(args)
     if args.seed is not None:
@@ -238,6 +274,9 @@ def main():
     if subprocess.check_output(['git','status','--porcelain'],text=True).strip():
         raise RuntimeError('Use a clean frozen checkout')
     if args.launch:
+        if args.recover_from is not None:
+            from recover_block_only_evaluation import recovery_plan
+            recovery_plan(args, cfg, old, require_stopped=True)
         args.out.mkdir(parents=True, exist_ok=False)
         with (args.out/'supervisor.log').open('xb') as log:
             proc = subprocess.Popen(command(args),cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,
@@ -245,13 +284,14 @@ def main():
         receipt = dict(at=now(),pid=proc.pid,source_commit=subprocess.check_output(
             ['git','rev-parse','HEAD'],text=True).strip(), source_checkout=str(ROOT),
             config_sha256=sha(args.config),checkpoint_sha256=old['checkpoint_sha256'],
-            planned_independent_runs=20,primary_run=cfg['primary_run'],new_training_runs=0)
+            planned_independent_runs=20,primary_run=cfg['primary_run'],new_training_runs=0,
+            recover_from=str(args.recover_from) if args.recover_from else None)
         save(args.out/'launch.json',receipt)
         print(receipt)
         return
     os.sched_setaffinity(0,set(range(20)))
     try:
-        supervise(args,cfg)
+        supervise(args,cfg,old)
     except BaseException:
         save(args.out/'failure.json',dict(at=now(),traceback=traceback.format_exc()))
         save(args.out/'progress.json',dict(at=now(),state='failed',claim_eligible=False))
