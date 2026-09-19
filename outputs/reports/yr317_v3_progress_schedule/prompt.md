@@ -5,7 +5,7 @@
 ## 읽을 자료
 
 - 기존 세 정책 60개: `outputs/reports/yr317_v3_independent_eval/run-7e2fb14/progress.json`, 같은 폴더의 `launch.json`.
-- Block-only 20개: `outputs/reports/yr317_v3_block_only/run-ea9164b/progress.json`, 같은 폴더의 `launch.json`.
+- Block-only 20개: `outputs/reports/yr317_v3_block_only/run-de630ec/progress.json`, 같은 폴더의 `launch.json`. 9/19 자원 예약 보정 후 이어받은 경로다. 옛 `run-ea9164b`의 완료 6개가 보존돼 포함되므로 두 폴더를 합산하지 않는다.
 - 실행 중 항목은 해당 `months/{seed}/{arm}/progress.json`의 진행 일수와 파일 갱신 시각만 읽는다. 필요하면 `days.jsonl` 마지막 줄, 감독 로그 마지막 30줄, 저장된 `completion.json`과 검사 요약을 읽는다.
 - 이전 점검은 이 자동 점검 세션의 앞선 보고를 사용한다. 없으면 첫 관측이라고 표시한다.
 - 작업 디렉터리는 반드시 `C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매`다. 다른 체크아웃의 옛 결과를 읽지 않는다.
@@ -18,14 +18,14 @@
 4. 실제 CPU·메모리는 필요할 때만 읽는다. 기록상 예약 코어와 현재 활성 실행 수를 구분한다.
 5. 남은 시간은 관측 근거가 충분할 때 범위로만 제시한다. 진행 속도의 변동을 무시해 정확한 완료 시각을 약속하지 않는다.
 
-감독 파일은 약 10초마다 갱신되므로 5분 이상 갱신이 없으면 경고한다. 자식 파일은 시뮬레이션 하루가 끝날 때만 갱신하므로 수시간 변화가 없어도 실패는 아니다. `day_index_completed`는 0부터 시작하므로 표시할 때 1을 더한다. 기본 평가의 최종 상태에서는 `completed` 대신 `independent_runs=60`을 읽어야 할 수 있다. Block-only의 `waiting_for_primary`는 기본 결과 통합 대기이며 실패가 아니다. 통합 결과 경로는 `outputs/reports/yr317_v3_block_only/run-ea9164b-combined`다.
+감독 파일은 약 10초마다 갱신되므로 5분 이상 갱신이 없으면 경고한다. 자식 파일은 시뮬레이션 하루가 끝날 때만 갱신하므로 수시간 변화가 없어도 실패는 아니다. `day_index_completed`는 0부터 시작하므로 표시할 때 1을 더한다. 기본 평가의 최종 상태에서는 `completed` 대신 `independent_runs=60`을 읽어야 할 수 있다. Block-only의 `waiting_for_primary`는 기본 결과 통합 대기이며 실패가 아니다. 통합 결과 경로는 `outputs/reports/yr317_v3_block_only/run-de630ec-combined`다.
 
 ## 보고 형식
 
 - 쉬운 한국어, 결론부터. `진행사항 / 해석 / 예정사항`의 짧은 세 문단을 사용한다.
 - 완료 수, 지난 점검 이후 변화, 오류·정체 여부, 다음 확인을 10줄 안팎으로 보고한다. 변화가 없어도 보고를 남긴다.
 - 성공적으로 종료된 실행도 잔여 작업이 0이라는 뜻은 아니다. 최종 비교가 끝나기 전 일관된 성능 향상이나 독립 통계 통과를 주장하지 않는다.
-- 원고 통합 초안은 완료했으며 현재 필요한 것은 독립 실행과 검사 결과다. 중간 결과를 제출용 최종 성능으로 바꾸지 않는다.
+- 원고 통합 초안은 완료했으나 독립 비교·후보 순위·수락망·처리시간 등의 검증과 시간 정책 중심 재구성이 남아 있다. 중간 결과를 제출용 최종 성능으로 바꾸지 않는다.
 
 ## 변경 금지와 종료
 

@@ -6,7 +6,7 @@
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
 - **v3 전체 리뷰 통합 초안 완료 (2026-09-18, YR-317-i·b·f)**: 12쪽 PDF·전체 답변서·실제 원고 위치 작성, 기존 11정책 표·그림 3개·22문헌 보존 및 문서 28검사 통과. 네 정책 독립 결과와 후보·온라인 시간 등의 실증은 미완료다. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md)
-- **v3 네 정책 독립 반복 진행 (2026-09-17, YR-317-d)**: 기존 세 정책 60개를 유지하며 11:04 KST 같은 20시드의 Block-only를 추가 시작했다. 기존 13개+추가 1개 실행, 추가 19개 대기. 진단 공간 19건·시간 0건·입력/기록 검사와 코드 43검사 통과. 모델·곡선·비용 유지, 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [추가 실행 증거](../../outputs/reports/yr317_v3_block_only/started.json)
+- **v3 네 정책 독립 반복 61/80 완료 (2026-09-19, YR-317-d)**: 12:24 KST 주요 5개+블록 8개 실행·6개 대기·실패 목록 0. 유휴 자원 예약을 해제하고 완료 블록 6개를 보존해 미시작분을 병렬 재개했다. 관련 검사 60개 통과, 모델·곡선·비용 유지, 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [복구 검증](../../outputs/reports/yr317_v3_resource_recovery/README.md)
 - **v3 독립 반복용 일별 계측 완료 (2026-09-16, YR-317-d2)**: 물량·시작 잔여·블록별 대기열·야드 작업·턴타임·공간/시간 비율·비용을 저장한다. 코드 70검사, 세 정책 계측 켬/끔 30항목, 파일 재검산 27항목 통과. 독립 성능 평가 자체는 g 판정 뒤다. [spec](../docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md) · [정의·결과](../../docs/paper/v3/paper-revision/18-독립반복-일별관측.md)
 - **v3 개정 4일 마감·비용 연결 확인 (2026-09-15, YR-317·a)**: 9/19 KST 완료 목표를 반영했다. 과거 외부 대기 합산은 실제 있지만 현 v3 학습·평가에는 미연결이며 12개 감사 검사를 통과했다. 기존 원고 8파일 보존, 새 학습·독립 확증은 미실행이다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [비용 확인·일정](../../docs/paper/v3/paper-revision/12-시간변경비용-코드확인.md)
 

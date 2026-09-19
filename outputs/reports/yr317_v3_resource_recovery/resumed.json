@@ -1,0 +1,430 @@
+{
+  "at": "2026-09-19T03:26:48.850803+00:00",
+  "scope": "Read-only post-recovery verification; only this derived receipt was written.",
+  "passed": true,
+  "checks": {
+    "expected_5_primary_8_addon": true,
+    "all_worker_affinities_match": true,
+    "no_shared_worker_cpu": true,
+    "worker_cpus_within_20": true,
+    "no_primary_addon_overlap": true,
+    "all_workers_progressed": true,
+    "all_worker_seed_and_output_match": true,
+    "addon_children_of_new_supervisor": true,
+    "external_4583_unchanged_core23": true,
+    "external_cpu_avoided": true,
+    "source_clean": true,
+    "source_head_matches_launch": true,
+    "six_completed_preserved": true,
+    "old_supervisor_absent": true,
+    "no_failure_files": true,
+    "supervisors_running_without_failed_jobs": true
+  },
+  "sampling": {
+    "start": "2026-09-19T03:26:45.848838+00:00",
+    "end": "2026-09-19T03:26:48.850803+00:00",
+    "elapsed_seconds": 3.0029,
+    "clock_ticks_per_second": 100
+  },
+  "new_supervisor": {
+    "pid": 36166,
+    "state": "S",
+    "source_checkout": "/home/geonu/yr317-v3-block-recovery-de630ec",
+    "source_commit": "de630ec192b827f346780f65f251df768971e84c",
+    "git_porcelain": ""
+  },
+  "progress": {
+    "primary": {
+      "at": "2026-09-19T03:26:42.660623+00:00",
+      "state": "running",
+      "phase": "months",
+      "completed": 55,
+      "planned": 60,
+      "pending": 0,
+      "failed": []
+    },
+    "addon": {
+      "at": "2026-09-19T03:26:45.665036+00:00",
+      "state": "running",
+      "phase": "months",
+      "completed": 6,
+      "planned": 20,
+      "pending": 6,
+      "failed": []
+    }
+  },
+  "workers": [
+    {
+      "group": "primary",
+      "seed": 20000000,
+      "arm": "RL_TIME",
+      "pid": 23418,
+      "cpu": 2,
+      "actual_affinity": [
+        2
+      ],
+      "last_cpu": 2,
+      "process_state": "R",
+      "parent_pid": 23325,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "primary",
+      "seed": 20200000,
+      "arm": "RL_TIME",
+      "pid": 23424,
+      "cpu": 8,
+      "actual_affinity": [
+        8
+      ],
+      "last_cpu": 8,
+      "process_state": "R",
+      "parent_pid": 23325,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "primary",
+      "seed": 21000000,
+      "arm": "NO_REALLOC",
+      "pid": 26598,
+      "cpu": 11,
+      "actual_affinity": [
+        11
+      ],
+      "last_cpu": 11,
+      "process_state": "R",
+      "parent_pid": 23325,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "primary",
+      "seed": 21500000,
+      "arm": "RL",
+      "pid": 30108,
+      "cpu": 10,
+      "actual_affinity": [
+        10
+      ],
+      "last_cpu": 10,
+      "process_state": "R",
+      "parent_pid": 23325,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "primary",
+      "seed": 21500000,
+      "arm": "RL_TIME",
+      "pid": 30197,
+      "cpu": 5,
+      "actual_affinity": [
+        5
+      ],
+      "last_cpu": 5,
+      "process_state": "R",
+      "parent_pid": 23325,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 20600000,
+      "arm": "RL_SPACE",
+      "pid": 36176,
+      "cpu": 0,
+      "actual_affinity": [
+        0
+      ],
+      "last_cpu": 0,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 20700000,
+      "arm": "RL_SPACE",
+      "pid": 36177,
+      "cpu": 1,
+      "actual_affinity": [
+        1
+      ],
+      "last_cpu": 1,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 20800000,
+      "arm": "RL_SPACE",
+      "pid": 36178,
+      "cpu": 3,
+      "actual_affinity": [
+        3
+      ],
+      "last_cpu": 3,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 20900000,
+      "arm": "RL_SPACE",
+      "pid": 36179,
+      "cpu": 4,
+      "actual_affinity": [
+        4
+      ],
+      "last_cpu": 4,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 21000000,
+      "arm": "RL_SPACE",
+      "pid": 36180,
+      "cpu": 6,
+      "actual_affinity": [
+        6
+      ],
+      "last_cpu": 6,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 21100000,
+      "arm": "RL_SPACE",
+      "pid": 36181,
+      "cpu": 7,
+      "actual_affinity": [
+        7
+      ],
+      "last_cpu": 7,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 21200000,
+      "arm": "RL_SPACE",
+      "pid": 36182,
+      "cpu": 9,
+      "actual_affinity": [
+        9
+      ],
+      "last_cpu": 9,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 3.0,
+      "cpu_percent": 99.9,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    },
+    {
+      "group": "addon",
+      "seed": 21300000,
+      "arm": "RL_SPACE",
+      "pid": 36183,
+      "cpu": 12,
+      "actual_affinity": [
+        12
+      ],
+      "last_cpu": 12,
+      "process_state": "R",
+      "parent_pid": 36166,
+      "cpu_seconds_delta": 2.99,
+      "cpu_percent": 99.6,
+      "same_process": true,
+      "seed_matches": true,
+      "output_matches": true
+    }
+  ],
+  "external": {
+    "pid": 4583,
+    "affinity": [
+      23
+    ],
+    "same_process": true,
+    "cpu_seconds_delta": 3.0
+  },
+  "retained": [
+    {
+      "seed": 20000000,
+      "files": {
+        "result.json": {
+          "sha256": "b385420d222cc22911eeefd2d80b06dec70cf288d47431510128b104885ac51c",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "9620b676c909430d46c990d7172dc7e51522f9b74eb1ddeeb647fdcbe35f4d59",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "421536f8ad90f486b9f07ed4eef8eee91720f3a6b7a862de297ff6e056b7a3f0",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    },
+    {
+      "seed": 20100000,
+      "files": {
+        "result.json": {
+          "sha256": "01dabe9e837074234813df3a64473d72f0f6c780aa81bf62c98b8d66279352e5",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "7ba76d1241b7a0caecc88788ce8eaffb09d3173a0912e394d8d38a1c59c194cf",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "e5e03917cc5fe7759117b0a209ba2fed494498d2810b60611f38144f81923d2f",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    },
+    {
+      "seed": 20200000,
+      "files": {
+        "result.json": {
+          "sha256": "1b9f4ad10524fb6b0a10270e1255298b0fea09591f2f808a3c6822bfef52b0d6",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "4af8df559ddacb200a2ec54b8013bde1a6ca1cccd7568ae5d8a2605f86bb52b9",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "aead6fb5b39c2ef861094d573c51129654eebdae929f4b1a2fecc41af165219e",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    },
+    {
+      "seed": 20300000,
+      "files": {
+        "result.json": {
+          "sha256": "fa5b17d6a58b9b9b32be670a22801680fe43acaa2d04930f038f4bbd683f1dea",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "feedd555b1cf3752c72b85c800aff944761a989dd6d515aaaf8fc47679e6372c",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "13bc5c9fb23815dd3d3aa4f2ec0528663148b237f96406ec93db51ca225b6fa9",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    },
+    {
+      "seed": 20400000,
+      "files": {
+        "result.json": {
+          "sha256": "9862899dc79a2cae34ef64de7c1052c5ddb20434bb3d0c5ee027aadd3cff1803",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "3d7bc1ce545b0f6c6000038393d7749f6cabf257f9a02c374c711b9ec1fcebda",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "6da57328197d9c143fe99ae1a04bbcb7ed2bb24788886794d7d86cfc14494422",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    },
+    {
+      "seed": 20500000,
+      "files": {
+        "result.json": {
+          "sha256": "26c2675b4160c1b911794d33ceec8c6a97696abc9fea2cee20047ca404915bba",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "completion.json": {
+          "sha256": "2c90528b183713953bc93bd5042f9b38e940a741bf32fbbc54b1e56ae6239fb1",
+          "old_equals_new": true,
+          "equals_recovery": true
+        },
+        "manifest.json": {
+          "sha256": "80b4aff3067f6e82b97f5fbad4a34d91faa93eb161f1d600d21a4ea649171982",
+          "old_equals_new": true,
+          "equals_recovery": true
+        }
+      }
+    }
+  ],
+  "rehashed_artifacts": 18,
+  "large_artifacts_rehashed": false,
+  "existing_full_copy_verification": "run-de630ec/recovery.json and resource_recovery/preflight.json",
+  "failures": {
+    "primary": [],
+    "addon": [],
+    "previous_addon": []
+  }
+}
