@@ -1,0 +1,600 @@
+{
+  "schema": "yr317.vertical.initial-diagnostic-analysis.v1",
+  "created_utc": "2026-09-19T04:47:18.803038+00:00",
+  "scope": "Historical analysis of initial vertical implementation run; not horizontal/vertical or policy performance evidence",
+  "source_commit": "f2533eed4cc26d15de6ffbcac52367019fde38c5",
+  "run": "run-f2533ee",
+  "claim_eligible": false,
+  "qualification_passed": false,
+  "new_training_runs": 0,
+  "new_simulations_started_by_analysis": 0,
+  "rl_time_executed": false,
+  "qualification": {
+    "arm": "NO_REALLOC",
+    "passed_checks": 18,
+    "total_checks": 19,
+    "failed_checks": [
+      "all_vessel_work_completed"
+    ],
+    "recorded_checks": {
+      "all_requests_admitted": true,
+      "all_requests_completed": true,
+      "no_unbound_jobs": true,
+      "feasible_external_deadlines": true,
+      "request_recording": true,
+      "admission_counts": true,
+      "physical_invariants_enabled": true,
+      "container_flow_passed": true,
+      "vessel_recording": true,
+      "all_vessel_work_completed": false,
+      "no_dropped_vessel_moves": true,
+      "no_policy_exceptions": true,
+      "no_rollouts_or_training": true,
+      "no_spatial_actions": true,
+      "frozen_networks": true,
+      "runtime_unchanged": true,
+      "checkpoint_unchanged": true,
+      "canonical_input_matches": true,
+      "two_complete_daily_records": true
+    },
+    "elapsed_s": 543.9466102086008,
+    "simulation_cutoff_s": 180000.0,
+    "external_trucks_requested": 120,
+    "external_trucks_completed": 120,
+    "vessel_streams": 16,
+    "vessel_jobs_requested": 5738,
+    "vessel_yard_jobs_completed": 4469,
+    "vessel_yard_jobs_outstanding": 1269
+  },
+  "evidence_integrity_checks": {
+    "result_raw_sha256_matches_qualification": true,
+    "canonical_gzip_sha256_matches_manifest": true,
+    "balanced_gzip_sha256_matches_manifest": true,
+    "environment_semantic_sha256_matches_manifest": true,
+    "canonical_schedule_matches": true,
+    "canonical_initial_scenarios_match": true,
+    "balanced_vessels_match": true,
+    "legacy_canonical_inputs_match": true,
+    "result_canonical_inputs_match": true,
+    "qualification_summary_matches_result": true,
+    "rl_time_output_absent": true,
+    "failure_record_present": true,
+    "raw_artifact_container-links.jsonl.gz": true,
+    "raw_artifact_daily-final.jsonl": true,
+    "raw_artifact_days.jsonl": true,
+    "raw_artifact_operating-state.jsonl.gz": true,
+    "raw_artifact_requests.jsonl.gz": true
+  },
+  "all_evidence_integrity_checks_passed": true,
+  "canonical_input_identity": {
+    "schedule_sha256": "d23868f3993e8d62bcec0d1ba1fd3f91fd2bb53da9f10a450a3c2ac89e07f2a1",
+    "initial_scenarios_sha256": "4159dfafd670e42f047ea31e7acdf6ab9c362df9ccc8ce2e26397191fd9ecf13",
+    "vessels_sha256": "500c87977ba2e15937e8faee39d8bdef7f78d3b7d9a121a158856741ea15e306"
+  },
+  "resource_inputs": {
+    "shared_yt_units_per_block": 3,
+    "legacy_cycle_s": 180.0,
+    "vertical_cycle_s_min": 410.4,
+    "vertical_cycle_s_max": 762.4,
+    "environment_spec": {
+      "kind": "VERTICAL_END",
+      "geometry": {
+        "n_blocks": 21,
+        "bay_count": 24,
+        "row_count": 10,
+        "tier_max": 6,
+        "bay_length_m": 6.5,
+        "row_width_m": 3.1,
+        "block_gap_m": 13.0,
+        "land_road_clearance_m": 26.0,
+        "water_road_clearance_m": 26.0,
+        "gate_approach_m": 1000.0,
+        "quay_approach_m": 1000.0,
+        "speed_mps": 5.0
+      },
+      "discharge_pipeline_capacity": 3,
+      "source_exit_mean_s": 300.0
+    }
+  },
+  "lower_bound_method": {
+    "combined_formula": "first_start_s + ceil((LOAD_moves + DISCHARGE_moves) / shared_yt_units) * cycle_s",
+    "combined_scope": "Completion of all required YT transfer cycles, not identical to the yard-job completion audit because LOAD yard work precedes its subsequent transfer",
+    "discharge_formula": "stream.start_s + ceil(stream.moves / shared_yt_units) * cycle_s",
+    "discharge_scope": "Last delivery in the current aggregate-round-trip simulator; necessary before completing all DISCHARGE yard jobs",
+    "optimistic_assumptions": [
+      "All three YTs available at earliest applicable start",
+      "All work available immediately at that start",
+      "No STS cadence or crane service delay",
+      "No waiting, conflicts, buffer limits, or other-stream interference for discharge-specific bounds"
+    ],
+    "interpretation": "A bound above the cutoff proves insufficient time for that target under these model parameters; a bound below cutoff does not prove feasibility or absence of deadlock",
+    "not_actual_completion_prediction": true
+  },
+  "block_bounds": [
+    {
+      "block": "Y01",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 762.4,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y02",
+      "load_moves": 448,
+      "discharge_moves": 356,
+      "combined_moves": 804,
+      "shared_yt_units": 3,
+      "cycle_s": 744.8,
+      "first_start_s": 27313.6311363598,
+      "ideal_batches": 268,
+      "all_transfer_cycles_complete_lower_bound_s": 226920.0311363598,
+      "all_transfer_cycles_complete_lower_bound_h": 63.03334198232216,
+      "exceeds_50h_transfer_cutoff": true,
+      "observed_outstanding_yard_jobs": 348
+    },
+    {
+      "block": "Y03",
+      "load_moves": 0,
+      "discharge_moves": 324,
+      "combined_moves": 324,
+      "shared_yt_units": 3,
+      "cycle_s": 727.2,
+      "first_start_s": 29349.71276013632,
+      "ideal_batches": 108,
+      "all_transfer_cycles_complete_lower_bound_s": 107887.31276013632,
+      "all_transfer_cycles_complete_lower_bound_h": 29.968697988926756,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y04",
+      "load_moves": 0,
+      "discharge_moves": 359,
+      "combined_moves": 359,
+      "shared_yt_units": 3,
+      "cycle_s": 709.6,
+      "first_start_s": 96095.40319307656,
+      "ideal_batches": 120,
+      "all_transfer_cycles_complete_lower_bound_s": 181247.40319307655,
+      "all_transfer_cycles_complete_lower_bound_h": 50.34650088696571,
+      "exceeds_50h_transfer_cutoff": true,
+      "observed_outstanding_yard_jobs": 67
+    },
+    {
+      "block": "Y05",
+      "load_moves": 448,
+      "discharge_moves": 0,
+      "combined_moves": 448,
+      "shared_yt_units": 3,
+      "cycle_s": 692.0,
+      "first_start_s": 27313.6311363598,
+      "ideal_batches": 150,
+      "all_transfer_cycles_complete_lower_bound_s": 131113.6311363598,
+      "all_transfer_cycles_complete_lower_bound_h": 36.420453093433274,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 36
+    },
+    {
+      "block": "Y06",
+      "load_moves": 0,
+      "discharge_moves": 364,
+      "combined_moves": 364,
+      "shared_yt_units": 3,
+      "cycle_s": 674.4,
+      "first_start_s": 110622.02108363873,
+      "ideal_batches": 122,
+      "all_transfer_cycles_complete_lower_bound_s": 192898.82108363873,
+      "all_transfer_cycles_complete_lower_bound_h": 53.58300585656632,
+      "exceeds_50h_transfer_cutoff": true,
+      "observed_outstanding_yard_jobs": 118
+    },
+    {
+      "block": "Y07",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 656.8,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y08",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 639.2,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y09",
+      "load_moves": 356,
+      "discharge_moves": 331,
+      "combined_moves": 687,
+      "shared_yt_units": 3,
+      "cycle_s": 621.6,
+      "first_start_s": 34597.81418079992,
+      "ideal_batches": 229,
+      "all_transfer_cycles_complete_lower_bound_s": 176944.2141807999,
+      "all_transfer_cycles_complete_lower_bound_h": 49.15117060577775,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 65
+    },
+    {
+      "block": "Y10",
+      "load_moves": 324,
+      "discharge_moves": 356,
+      "combined_moves": 680,
+      "shared_yt_units": 3,
+      "cycle_s": 604.0,
+      "first_start_s": 29349.71276013632,
+      "ideal_batches": 227,
+      "all_transfer_cycles_complete_lower_bound_s": 166457.71276013632,
+      "all_transfer_cycles_complete_lower_bound_h": 46.23825354448231,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 80
+    },
+    {
+      "block": "Y11",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 586.4,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y12",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 568.8,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y13",
+      "load_moves": 0,
+      "discharge_moves": 331,
+      "combined_moves": 331,
+      "shared_yt_units": 3,
+      "cycle_s": 551.2,
+      "first_start_s": 34597.81418079992,
+      "ideal_batches": 111,
+      "all_transfer_cycles_complete_lower_bound_s": 95781.01418079992,
+      "all_transfer_cycles_complete_lower_bound_h": 26.605837272444422,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y14",
+      "load_moves": 331,
+      "discharge_moves": 359,
+      "combined_moves": 690,
+      "shared_yt_units": 3,
+      "cycle_s": 533.6,
+      "first_start_s": 34597.81418079992,
+      "ideal_batches": 230,
+      "all_transfer_cycles_complete_lower_bound_s": 157325.81418079993,
+      "all_transfer_cycles_complete_lower_bound_h": 43.7016150502222,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 325
+    },
+    {
+      "block": "Y15",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 516.0,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y16",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 498.4,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y17",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 480.8,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y18",
+      "load_moves": 364,
+      "discharge_moves": 0,
+      "combined_moves": 364,
+      "shared_yt_units": 3,
+      "cycle_s": 463.2,
+      "first_start_s": 110622.02108363873,
+      "ideal_batches": 122,
+      "all_transfer_cycles_complete_lower_bound_s": 167132.42108363874,
+      "all_transfer_cycles_complete_lower_bound_h": 46.42567252323298,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 155
+    },
+    {
+      "block": "Y19",
+      "load_moves": 356,
+      "discharge_moves": 331,
+      "combined_moves": 687,
+      "shared_yt_units": 3,
+      "cycle_s": 445.6,
+      "first_start_s": 34597.81418079992,
+      "ideal_batches": 229,
+      "all_transfer_cycles_complete_lower_bound_s": 136640.21418079993,
+      "all_transfer_cycles_complete_lower_bound_h": 37.9556150502222,
+      "exceeds_50h_transfer_cutoff": false,
+      "observed_outstanding_yard_jobs": 75
+    },
+    {
+      "block": "Y20",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 428.0,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    },
+    {
+      "block": "Y21",
+      "load_moves": 0,
+      "discharge_moves": 0,
+      "combined_moves": 0,
+      "shared_yt_units": 3,
+      "cycle_s": 410.4,
+      "first_start_s": null,
+      "ideal_batches": 0,
+      "all_transfer_cycles_complete_lower_bound_s": null,
+      "all_transfer_cycles_complete_lower_bound_h": null,
+      "exceeds_50h_transfer_cutoff": null,
+      "observed_outstanding_yard_jobs": 0
+    }
+  ],
+  "discharge_stream_bounds": [
+    {
+      "stream": "D01-M1-s1",
+      "block": "Y02",
+      "moves": 356,
+      "start_s": 110218.98116183252,
+      "cycle_s": 744.8,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 198850.18116183253,
+      "last_delivery_lower_bound_h": 55.23616143384237,
+      "exceeds_50h_cutoff": true
+    },
+    {
+      "stream": "D00-S1-s0",
+      "block": "Y03",
+      "moves": 324,
+      "start_s": 29349.71276013632,
+      "cycle_s": 727.2,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 107887.31276013632,
+      "last_delivery_lower_bound_h": 29.968697988926756,
+      "exceeds_50h_cutoff": false
+    },
+    {
+      "stream": "D01-S1-s0",
+      "block": "Y04",
+      "moves": 359,
+      "start_s": 96095.40319307656,
+      "cycle_s": 709.6,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 181247.40319307655,
+      "last_delivery_lower_bound_h": 50.34650088696571,
+      "exceeds_50h_cutoff": true
+    },
+    {
+      "stream": "D01-S2-s0",
+      "block": "Y06",
+      "moves": 364,
+      "start_s": 110622.02108363873,
+      "cycle_s": 674.4,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 192898.82108363873,
+      "last_delivery_lower_bound_h": 53.58300585656632,
+      "exceeds_50h_cutoff": true
+    },
+    {
+      "stream": "D00-M1-s2",
+      "block": "Y09",
+      "moves": 331,
+      "start_s": 34597.81418079992,
+      "cycle_s": 621.6,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 103595.41418079993,
+      "last_delivery_lower_bound_h": 28.77650393911109,
+      "exceeds_50h_cutoff": false
+    },
+    {
+      "stream": "D01-M1-s0",
+      "block": "Y10",
+      "moves": 356,
+      "start_s": 110218.98116183252,
+      "cycle_s": 604.0,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 182094.98116183252,
+      "last_delivery_lower_bound_h": 50.581939211620146,
+      "exceeds_50h_cutoff": true
+    },
+    {
+      "stream": "D00-M1-s1",
+      "block": "Y13",
+      "moves": 331,
+      "start_s": 34597.81418079992,
+      "cycle_s": 551.2,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 95781.01418079992,
+      "last_delivery_lower_bound_h": 26.605837272444422,
+      "exceeds_50h_cutoff": false
+    },
+    {
+      "stream": "D01-S1-s1",
+      "block": "Y14",
+      "moves": 359,
+      "start_s": 96095.40319307656,
+      "cycle_s": 533.6,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 160127.40319307655,
+      "last_delivery_lower_bound_h": 44.47983422029904,
+      "exceeds_50h_cutoff": false
+    },
+    {
+      "stream": "D00-M1-s0",
+      "block": "Y19",
+      "moves": 331,
+      "start_s": 34597.81418079992,
+      "cycle_s": 445.6,
+      "dedicated_units_optimistic": 3,
+      "last_delivery_lower_bound_s": 84059.41418079993,
+      "last_delivery_lower_bound_h": 23.349837272444425,
+      "exceeds_50h_cutoff": false
+    }
+  ],
+  "legacy_diagnostic": {
+    "source_commit": "de630ec192b827f346780f65f251df768971e84c",
+    "same_canonical_input": true,
+    "curve_exactly_preserved": true,
+    "external_trucks_completed": 120,
+    "vessel_requested": 5738,
+    "vessel_completed": 5738,
+    "vessel_outstanding": 0,
+    "recording_checks_passed": true,
+    "interpretation": "Matched-input implementation diagnosis only. Geometry, travel times, crane roles, and finite delivery pipeline changed together; not a controlled orientation or policy comparison."
+  },
+  "unresolved_diagnosis": {
+    "blocks": [
+      "Y05",
+      "Y14"
+    ],
+    "issue": "Idle-crane/queued-work behavior is under separate investigation",
+    "deadlock_excluded": false,
+    "all_remaining_work_explained_by_capacity": false
+  },
+  "evidence": [
+    {
+      "path": "run-f2533ee/manifest.json",
+      "bytes": 18142,
+      "raw_sha256": "b86dec35bbedd457480a2f1b2ee275b29d4f3ba122a3119f76e1d4c3f2fcff47"
+    },
+    {
+      "path": "run-f2533ee/failure.json",
+      "bytes": 494,
+      "raw_sha256": "b82077ffb8cb61dd0c675014b92e05f3fc9f213657e87e5455a01e6f932e0998"
+    },
+    {
+      "path": "run-f2533ee/canonical-input.json.gz",
+      "bytes": 153181,
+      "raw_sha256": "e4b65f6e6c082692d0eb99bdc9921d0b4f4915f8b48401220c21a078b2f986c5"
+    },
+    {
+      "path": "run-f2533ee/balanced-vessels.json.gz",
+      "bytes": 525,
+      "raw_sha256": "ea280dc9acccd1d45ad7ac753ecab46efdf7ae536d28978df1b24c74bfa51ea1"
+    },
+    {
+      "path": "run-f2533ee/environment-spec.json",
+      "bytes": 397,
+      "raw_sha256": "892fe61904075a741f1a44a51c6e6aa814d61d55f7328230c6e70a89f9204cc4"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/qualification.json",
+      "bytes": 2418,
+      "raw_sha256": "59b39317711c9b9c250db8dfe79e1f6cd4fd897a09b92c16169a7c0e4fa9943d"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/result.json",
+      "bytes": 1259569,
+      "raw_sha256": "b3fd2a39e9fc9a7625d6197ae9b517dc57cc2e1d20aaffa1a0447b4343c2282f",
+      "archive_path": "run-f2533ee/NO_REALLOC/result.json.gz",
+      "archive_sha256": "a78aeaef8cfca8994b652d61a8743fb086971853f4a30d10b11b62f89a3ab3e8",
+      "archive_decodes_to_recorded_original": true
+    },
+    {
+      "path": "legacy-two-day-diagnostic.json",
+      "bytes": 26742,
+      "raw_sha256": "6be12516d784d6b82cacc4518743bbf35831a7deacee01a92143ef3bbfc1f0f3"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/container-links.jsonl.gz",
+      "bytes": 52296,
+      "raw_sha256": "908fa27c3b3873ac27d4a396cebb3af01968e1890898dfe44c93a6116aa6268a"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/daily-final.jsonl",
+      "bytes": 36739,
+      "raw_sha256": "0bbc03007c7996cc4ca3190bb01a3917d0ff36caf04cdf195a0c54794cd9546f"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/days.jsonl",
+      "bytes": 36530,
+      "raw_sha256": "8c3b48879f55cde2da150cd79f6e9ce7c0786cd77d1d6811561a4dfb1f205242"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/operating-state.jsonl.gz",
+      "bytes": 104577,
+      "raw_sha256": "8c1ad1fe1e027fb915fa8fbd7852df7391c726b1d08ff84365f30a449753179b"
+    },
+    {
+      "path": "run-f2533ee/NO_REALLOC/requests.jsonl.gz",
+      "bytes": 15402,
+      "raw_sha256": "92428ecb22fc0fb6a85a4914c7cab2476d61ff96011d1df1e6c2d9190cf92e8e"
+    }
+  ]
+}

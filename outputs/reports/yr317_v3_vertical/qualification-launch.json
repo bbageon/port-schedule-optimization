@@ -1,0 +1,26 @@
+{
+  "source_commit": "f2533eed4cc26d15de6ffbcac52367019fde38c5",
+  "source_checkout": "/home/geonu/yr317-v3-vertical-f2533ee",
+  "command": [
+    "wsl",
+    "--cd",
+    "/home/geonu/yr317-v3-vertical-f2533ee",
+    "-e",
+    "env",
+    "PYTHONPATH=src",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "/home/geonu/.venvs/yard-rl/bin/python",
+    "-u",
+    "scripts/v3/qualify_vertical_environment.py",
+    "--cpu",
+    "18",
+    "--source-commit",
+    "f2533eed4cc26d15de6ffbcac52367019fde38c5",
+    "--checkpoint",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/v3/month-02/ckpt_029.pt",
+    "--out",
+    "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_vertical/run-f2533ee"
+  ]
+}

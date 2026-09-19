@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "audit-dashboard",
+    "--task",
+    "YR-317-h",
+    "--state",
+    "in-progress",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md",
+    "--evidence-path",
+    "outputs/reports/yr317_v3_vertical/tests-final.xml",
+    "--evidence-path",
+    "outputs/reports/yr317_v3_vertical/legacy-equivalence.json",
+    "--evidence-commit",
+    "f2533eed4cc26d15de6ffbcac52367019fde38c5",
+    "--remote-ref",
+    "origin/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"name\": \"dashboard_code_alignment\",\n  \"status\": \"PASS\",\n  \"summary\": \"Dashboard\u00b7spec\u00b7\ucf54\ub4dc\u00b7\uc99d\uac70\uac00 \uc77c\uce58\ud568\",\n  \"reasons\": [],\n  \"evidence\": {\n    \"task_id\": \"YR-317-h\",\n    \"expected_state\": \"in-progress\",\n    \"board_matches\": [\n      \"in-progress.md\"\n    ],\n    \"spec_path\": \".claude/docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md\",\n    \"evidence_paths\": [\n      \"outputs/reports/yr317_v3_vertical/tests-final.xml\",\n      \"outputs/reports/yr317_v3_vertical/legacy-equivalence.json\"\n    ],\n    \"control_paths\": [\n      \".claude\\\\Dashboard\\\\in-progress.md\",\n      \".claude\\\\docs\\\\dashboard-task-specs\\\\YR-317-h-v3-review-basic-layouts.md\"\n    ],\n    \"evidence_commits\": [\n      \"f2533eed4cc26d15de6ffbcac52367019fde38c5\"\n    ],\n    \"remote_ref\": \"origin/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4\",\n    \"pin_commit\": null,\n    \"drift\": []\n  }\n}\n",
+  "stderr": ""
+}

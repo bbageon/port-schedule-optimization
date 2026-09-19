@@ -118,6 +118,7 @@ class VerticalEnvironment:
             "discharge_pipeline_capacity": self.discharge_pipeline_capacity,
             "crane_roles": "profile crane order: external / vessel; full stock access",
             "crane_parking": "outside each end by ceil(safety_gap_bay); no storage",
+            "candidate_pruning": "feasible-first optional candidates; preserve all mandatory candidates and at least one feasible action when available",
             "transfer_cycles_s": {b: self.layout.yt_round_trip_s(b) for b in self.layout.ids},
             "limitations": [
                 "Synthetic coordinates and parking extensions, not a measured terminal",

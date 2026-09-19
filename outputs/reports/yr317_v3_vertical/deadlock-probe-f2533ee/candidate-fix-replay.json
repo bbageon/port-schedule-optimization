@@ -1,0 +1,654 @@
+{
+  "purpose": "Saved local-state regression diagnostic; not performance or whole-horizon qualification",
+  "conditions": {
+    "horizon_s": 3600,
+    "policy": "SF_SPT",
+    "initial_clear_yields_both": true,
+    "initial_check_invariants_both": true,
+    "no_new_external_admissions": true,
+    "no_learning": true,
+    "no_repeated_manual_wake": true
+  },
+  "identity": {
+    "frozen_source_commit": "f2533eed4cc26d15de6ffbcac52367019fde38c5",
+    "candidate_file": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/src/yard_rl/v3/layouts/candidates.py",
+    "candidate_sha256": "86984f8660f785a8b6f86381fdef4d354b9858fff8d47e54574110d3c7d11192",
+    "rule_policy_file": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/src/yard_rl/v3/stage/episode.py",
+    "rule_policy_file_sha256": "fda50c49c3e108d7a0bd8d06294ed1234fb833a48267fba8343bfe574f653a40",
+    "frozen_runtime_sha256": "b429e0add1198f8cc280a33f9814c1a754f5e902d6a4f244707fde60651ae061",
+    "frozen_base_candidates_sha256": "17a7b337da9109751249bcd7f660b45972a34b3f92c2c3d085789d915a6440a8",
+    "diagnostic_script_sha256": "2746c4431a2d4ce38db465492d3cd4538f8bc7754b33a0a8a896085e402d309e",
+    "cpu": 19,
+    "pid": 37090
+  },
+  "blocks": {
+    "Y05": {
+      "snapshot_sha256": "dc16c20643a9f5ff6ffd92be5ec84f818c1e6e0a4342b375d0595e42c924c599",
+      "original": {
+        "initial": {
+          "clock_s": 126900.0,
+          "job_status": {
+            "RELEASED": 36,
+            "DONE": 104
+          },
+          "yard_done": 104,
+          "vessel_yard_done": 102,
+          "containers": 235,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {},
+          "positions": {
+            "YC-L": {
+              "bay": 0.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "df93de31465cd0ae"
+        },
+        "initial_candidates": {
+          "YC-L": [
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ],
+          "YC-W": [
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0095"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0128"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0166"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0175"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0187"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0203"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0269"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0296"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0330"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0335"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y05:J-D00-S2-s1-0357"
+            },
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ]
+        },
+        "final": {
+          "clock_s": 130500.0,
+          "job_status": {
+            "RELEASED": 36,
+            "DONE": 104
+          },
+          "yard_done": 104,
+          "vessel_yard_done": 102,
+          "containers": 235,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {},
+          "positions": {
+            "YC-L": {
+              "bay": 0.0,
+              "row": 5.5,
+              "yielded": true,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": true,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "5194af1bb657a269"
+        },
+        "newly_completed": 0,
+        "decisions": 60,
+        "reviews": 60,
+        "chosen": {
+          "WAIT": 119
+        },
+        "invariant_checks": 181,
+        "policy_exceptions": 0,
+        "original_snapshot_not_mutated": true
+      },
+      "fixed": {
+        "initial": {
+          "clock_s": 126900.0,
+          "job_status": {
+            "RELEASED": 36,
+            "DONE": 104
+          },
+          "yard_done": 104,
+          "vessel_yard_done": 102,
+          "containers": 235,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {},
+          "positions": {
+            "YC-L": {
+              "bay": 0.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "df93de31465cd0ae"
+        },
+        "initial_candidates": {
+          "YC-L": [
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ],
+          "YC-W": [
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0018"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0096"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0102"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0134"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0151"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0189"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0206"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0208"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0237"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0249"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y05:J-D00-S2-s1-0337"
+            },
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ]
+        },
+        "final": {
+          "clock_s": 130500.0,
+          "job_status": {
+            "RELEASED": 25,
+            "DONE": 114,
+            "RUNNING": 1
+          },
+          "yard_done": 114,
+          "vessel_yard_done": 112,
+          "containers": 225,
+          "active_plans": 1,
+          "reservations": 1,
+          "discharge_pipeline": {},
+          "positions": {
+            "YC-L": {
+              "bay": 0.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": "Y05:J-D00-S2-s1-0208"
+            }
+          },
+          "event_stream_hash": "75eea972dac030f8"
+        },
+        "newly_completed": 10,
+        "decisions": 11,
+        "reviews": 60,
+        "chosen": {
+          "SERVE": 11
+        },
+        "invariant_checks": 83,
+        "policy_exceptions": 0,
+        "original_snapshot_not_mutated": true
+      },
+      "regression_passed": true
+    },
+    "Y14": {
+      "snapshot_sha256": "b92f8c0e4fbccd29d4a69f577c0459a56878e6b2ce2d6fafcc82689a761c784f",
+      "original": {
+        "initial": {
+          "clock_s": 127200.0,
+          "job_status": {
+            "DONE": 126,
+            "RELEASED": 74,
+            "PLANNED": 251
+          },
+          "yard_done": 126,
+          "vessel_yard_done": 123,
+          "containers": 495,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {
+            "D01-S1-s1": 3
+          },
+          "positions": {
+            "YC-L": {
+              "bay": 1.0,
+              "row": 5.0,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "38e856b6d512ae59"
+        },
+        "initial_candidates": {
+          "YC-L": [
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ],
+          "YC-W": [
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0038"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0093"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0153"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0162"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0166"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0180"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0186"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0207"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0212"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0301"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": false,
+              "mask_reason": "CRANE_INTERFERENCE",
+              "job": "Y14:J-D00-M1-s3-0309"
+            },
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ]
+        },
+        "final": {
+          "clock_s": 130800.0,
+          "job_status": {
+            "DONE": 126,
+            "RELEASED": 74,
+            "PLANNED": 251
+          },
+          "yard_done": 126,
+          "vessel_yard_done": 123,
+          "containers": 495,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {
+            "D01-S1-s1": 3
+          },
+          "positions": {
+            "YC-L": {
+              "bay": 1.0,
+              "row": 5.0,
+              "yielded": true,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": true,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "aac2b5e4d6cc46cc"
+        },
+        "newly_completed": 0,
+        "decisions": 60,
+        "reviews": 60,
+        "chosen": {
+          "WAIT": 119
+        },
+        "invariant_checks": 181,
+        "policy_exceptions": 0,
+        "original_snapshot_not_mutated": true
+      },
+      "fixed": {
+        "initial": {
+          "clock_s": 127200.0,
+          "job_status": {
+            "DONE": 126,
+            "RELEASED": 74,
+            "PLANNED": 251
+          },
+          "yard_done": 126,
+          "vessel_yard_done": 123,
+          "containers": 495,
+          "active_plans": 0,
+          "reservations": 0,
+          "discharge_pipeline": {
+            "D01-S1-s1": 3
+          },
+          "positions": {
+            "YC-L": {
+              "bay": 1.0,
+              "row": 5.0,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": null
+            }
+          },
+          "event_stream_hash": "38e856b6d512ae59"
+        },
+        "initial_candidates": {
+          "YC-L": [
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ],
+          "YC-W": [
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0040"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0062"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0064"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0120"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0174"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0193"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0208"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0267"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0295"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0306"
+            },
+            {
+              "kind": "SERVE",
+              "feasible": true,
+              "mask_reason": null,
+              "job": "Y14:J-D00-M1-s3-0329"
+            },
+            {
+              "kind": "WAIT",
+              "feasible": true,
+              "mask_reason": null,
+              "job": null
+            }
+          ]
+        },
+        "final": {
+          "clock_s": 130800.0,
+          "job_status": {
+            "DONE": 136,
+            "RELEASED": 63,
+            "RUNNING": 1,
+            "PLANNED": 251
+          },
+          "yard_done": 136,
+          "vessel_yard_done": 133,
+          "containers": 485,
+          "active_plans": 1,
+          "reservations": 1,
+          "discharge_pipeline": {
+            "D01-S1-s1": 3
+          },
+          "positions": {
+            "YC-L": {
+              "bay": 1.0,
+              "row": 5.0,
+              "yielded": false,
+              "assigned": null
+            },
+            "YC-W": {
+              "bay": 25.0,
+              "row": 5.5,
+              "yielded": false,
+              "assigned": "Y14:J-D00-M1-s3-0193"
+            }
+          },
+          "event_stream_hash": "b37b4396ca6eb702"
+        },
+        "newly_completed": 10,
+        "decisions": 11,
+        "reviews": 60,
+        "chosen": {
+          "SERVE": 11
+        },
+        "invariant_checks": 83,
+        "policy_exceptions": 0,
+        "original_snapshot_not_mutated": true
+      },
+      "regression_passed": true
+    }
+  },
+  "passed": true,
+  "elapsed_s": 10.199906520545483
+}

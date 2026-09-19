@@ -584,7 +584,12 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             state["day"] += 1
             state["snap"] = t + SNAP_S
 
-    exec_policy, exc = _rule_policy(dispatcher, seed=seed)
+    if environment is None:
+        exec_policy, exc = _rule_policy(dispatcher, seed=seed)
+    else:
+        from ..layouts.candidates import FeasibleCandidateGenerator
+        exec_policy, exc = _rule_policy(
+            dispatcher, seed=seed, candidate_generator_cls=FeasibleCandidateGenerator)
     mbt.run(exec_policy, review_fn=review)
     tape.snap(mbt, month_s)
     bridge._sync(mbt, month_s)

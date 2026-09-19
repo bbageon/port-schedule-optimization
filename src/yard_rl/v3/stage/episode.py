@@ -193,7 +193,8 @@ class _Ctx:
         return rehandles_of(mbt)
 
 
-def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0):
+def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0,
+                 candidate_generator_cls=CandidateGenerator):
     """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
 
     ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
@@ -207,7 +208,7 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0):
     pol = ResolverPolicy(pref, dispatcher)
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator(config=LEGACY_DEFAULT))
+        g = gens.setdefault(id(sim), candidate_generator_cls(config=LEGACY_DEFAULT))
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
         try:
             _apply(sim, pol.decide(sim, dp, gb))
