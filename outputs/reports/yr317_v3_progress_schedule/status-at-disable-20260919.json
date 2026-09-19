@@ -1,0 +1,211 @@
+{
+  "checked_at": "2026-09-19T06:13:48.311301+00:00",
+  "automation_id": "3814e2bf-cd17-4ced-ba0c-1b2f97350cae",
+  "automation_enabled": false,
+  "experiments": {
+    "independent": {
+      "path": "outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+      "progress_sha256_at_read": "1e62e4abc869835bd4b5e030fcf70e3b031f97d05e0d9df36fc8d00684236aae",
+      "progress_snapshot": {
+        "at": "2026-09-19T06:13:41.237376+00:00",
+        "state": "running",
+        "phase": "months",
+        "completed": 55,
+        "retained": 1,
+        "planned": 60,
+        "failed": [],
+        "pending": 0,
+        "active": [
+          {
+            "seed": 20000000,
+            "arm": "RL_TIME",
+            "pid": 23418,
+            "cpu": 2
+          },
+          {
+            "seed": 20200000,
+            "arm": "RL_TIME",
+            "pid": 23424,
+            "cpu": 8
+          },
+          {
+            "seed": 21000000,
+            "arm": "NO_REALLOC",
+            "pid": 26598,
+            "cpu": 11
+          },
+          {
+            "seed": 21500000,
+            "arm": "RL",
+            "pid": 30108,
+            "cpu": 10
+          },
+          {
+            "seed": 21500000,
+            "arm": "RL_TIME",
+            "pid": 30197,
+            "cpu": 5
+          }
+        ]
+      },
+      "completion_counts": {
+        "NO_REALLOC": 19,
+        "RL": 19,
+        "RL_TIME": 17
+      }
+    },
+    "block_only": {
+      "path": "outputs/reports/yr317_v3_block_only/run-de630ec",
+      "progress_sha256_at_read": "afcaee78bcbbf6529499878ef6b98a2f44dc7f22eb6d30a1311619493ef0bf86",
+      "progress_snapshot": {
+        "at": "2026-09-19T06:13:39.342473+00:00",
+        "state": "running",
+        "phase": "months",
+        "planned": 20,
+        "completed": 6,
+        "retained": 6,
+        "pending": 5,
+        "failed": [],
+        "active": [
+          {
+            "seed": 20600000,
+            "arm": "RL_SPACE",
+            "pid": 36176,
+            "cpu": 0
+          },
+          {
+            "seed": 20700000,
+            "arm": "RL_SPACE",
+            "pid": 36177,
+            "cpu": 1
+          },
+          {
+            "seed": 20800000,
+            "arm": "RL_SPACE",
+            "pid": 36178,
+            "cpu": 3
+          },
+          {
+            "seed": 20900000,
+            "arm": "RL_SPACE",
+            "pid": 36179,
+            "cpu": 4
+          },
+          {
+            "seed": 21000000,
+            "arm": "RL_SPACE",
+            "pid": 36180,
+            "cpu": 6
+          },
+          {
+            "seed": 21100000,
+            "arm": "RL_SPACE",
+            "pid": 36181,
+            "cpu": 7
+          },
+          {
+            "seed": 21200000,
+            "arm": "RL_SPACE",
+            "pid": 36182,
+            "cpu": 9
+          },
+          {
+            "seed": 21300000,
+            "arm": "RL_SPACE",
+            "pid": 36183,
+            "cpu": 12
+          },
+          {
+            "seed": 21400000,
+            "arm": "RL_SPACE",
+            "pid": 36578,
+            "cpu": 13
+          }
+        ],
+        "resources": {
+          "primary_state": "running",
+          "primary_reserved_cpus": [
+            2,
+            5,
+            8,
+            10,
+            11
+          ],
+          "primary_active": 5,
+          "primary_pending": 0,
+          "addon_active": 9,
+          "external_active": 1,
+          "external_cpus": [
+            23
+          ],
+          "mem_total_bytes": 67234705408,
+          "mem_available_bytes": 34310868992,
+          "budget_per_worker_gib": 3,
+          "total_worker_limit": 16,
+          "cpu_limit": 20,
+          "primary_failed": false,
+          "primary_stale": false
+        }
+      },
+      "completion_counts": {
+        "RL_SPACE": 6
+      }
+    },
+    "vertical": {
+      "path": "outputs/reports/yr317_v3_vertical_transfer/run-8c24c80/main",
+      "progress_sha256_at_read": "1320b3b1672e326f75967545bf3e3747a4a30829d89e432a9424905332e94d6a",
+      "progress_snapshot": {
+        "at": "2026-09-19T06:13:42.061579+00:00",
+        "pid": 37520,
+        "state": "running",
+        "phase": "main",
+        "active": [
+          {
+            "arm": "NO_REALLOC",
+            "pid": 37521,
+            "cpu": 18,
+            "rss_bytes": 864546816,
+            "progress": {
+              "at": "2026-09-19T06:13:19.225693+00:00",
+              "state": "running",
+              "arm": "NO_REALLOC",
+              "seed": 20000000,
+              "pid": 37521,
+              "cpu": 18,
+              "day_index_completed": 2,
+              "days_planned": 30,
+              "elapsed_s": 2702.8022422418,
+              "simulation_time_s": 280200.0,
+              "truck_skipped": 0,
+              "skip_reasons": {}
+            }
+          },
+          {
+            "arm": "RL_TIME",
+            "pid": 37522,
+            "cpu": 19,
+            "rss_bytes": 924815360,
+            "progress": {
+              "at": "2026-09-19T06:13:12.033212+00:00",
+              "state": "running",
+              "arm": "RL_TIME",
+              "seed": 20000000,
+              "pid": 37522,
+              "cpu": 19,
+              "day_index_completed": 2,
+              "days_planned": 30,
+              "elapsed_s": 2695.6213323343545,
+              "simulation_time_s": 279900.0,
+              "truck_skipped": 0,
+              "skip_reasons": {}
+            }
+          }
+        ],
+        "completed": {},
+        "failed": {}
+      },
+      "completion_counts": {}
+    }
+  },
+  "scope": "Status snapshot; scheduled reports disabled, simulations not modified"
+}
