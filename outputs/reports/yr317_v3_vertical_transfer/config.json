@@ -1,0 +1,32 @@
+{
+  "schema": "yr317.vertical-comparison.v1",
+  "seed": 20000000,
+  "arms": [
+    "NO_REALLOC",
+    "RL_TIME"
+  ],
+  "base_config": "outputs/reports/yr317_v3_independent_eval/config.json",
+  "base_config_sha256": "c29cf6c85c3abbcedce7f7fb2af01ef0b1438f840871577f0b78716f0d5dbc56",
+  "source_commit": "8c24c80161dc12c6057318bdf595d84c2162092e",
+  "prereg": "outputs/reports/yr317_v3_vertical_transfer/prereg.md",
+  "prereg_sha256": "12cfb38c64766903b5da8ce0f74c472997900747dbe332a8a659efaa9a840792",
+  "environment_spec": {
+    "kind": "VERTICAL_END",
+    "geometry": {
+      "n_blocks": 21,
+      "bay_count": 24,
+      "row_count": 10,
+      "tier_max": 6,
+      "bay_length_m": 6.5,
+      "row_width_m": 3.1,
+      "block_gap_m": 13.0,
+      "land_road_clearance_m": 26.0,
+      "water_road_clearance_m": 26.0,
+      "gate_approach_m": 1000.0,
+      "quay_approach_m": 1000.0,
+      "speed_mps": 5.0
+    },
+    "discharge_pipeline_capacity": 3,
+    "source_exit_mean_s": 300.0
+  }
+}
