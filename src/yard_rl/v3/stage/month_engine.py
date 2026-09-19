@@ -136,7 +136,8 @@ def free_targets(sim, *, limit: int, seed: str) -> list[str]:
 
 
 def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
-                  key: str, size_seed: str, defer_load_targets: bool = False) -> VesselAdmission:
+                  key: str, size_seed: str, defer_load_targets: bool = False,
+                  planning_profile=None) -> VesselAdmission:
     """배 한 척(정확히는 STS 스트림 하나)을 **런 중에** 블록에 붙인다.
 
     사본 `_seed_events` 가 t=0 에 하는 일과 같은 것을 시각 `start_s` 에 한다:
@@ -184,8 +185,14 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
     phys_min = phys_min_completion_s(sim.profile, work=work, start_s=start,
                                      moves=moves, cadence_s=cadence,
                                      load_targets=tgt_c)
-    if phys_min > pc:
-        pc = phys_min
+    # A layout diagnostic can retain the canonical external vessel deadlines
+    # while recording the new physical lower bound separately. Default callers
+    # preserve the original calculation exactly.
+    planning_min = phys_min if planning_profile is None else phys_min_completion_s(
+        planning_profile, work=work, start_s=start, moves=moves,
+        cadence_s=cadence, load_targets=tgt_c)
+    if planning_min > pc:
+        pc = planning_min
         etd = pc + moves * cadence
     plan = VesselPlan(planned_start_s=start, planned_completion_s=pc,
                       completion_basis=None, etd_s=etd, total_moves=moves,

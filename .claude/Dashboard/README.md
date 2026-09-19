@@ -5,6 +5,8 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **v3 수직형 환경 구현 (2026-09-19, YR-317-h)**: 양끝 인계·역할 분리·전체 재고 접근·비통과 크레인의 대피·실제 경로시간 연결, 93검사 통과 및 기존 작은 실행 결과 동일. 고정 모델 단기 진단 준비, 두 구조 비교·재학습 미실행. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [구현·검증](../../docs/paper/v3/paper-revision/26-수직형-구현검증.md)
+
 - **v3 전체 리뷰 통합 초안 완료 (2026-09-18, YR-317-i·b·f)**: 12쪽 PDF·전체 답변서·실제 원고 위치 작성, 기존 11정책 표·그림 3개·22문헌 보존 및 문서 28검사 통과. 네 정책 독립 결과와 후보·온라인 시간 등의 실증은 미완료다. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md)
 - **v3 네 정책 독립 반복 61/80 완료 (2026-09-19, YR-317-d)**: 12:24 KST 주요 5개+블록 8개 실행·6개 대기·실패 목록 0. 유휴 자원 예약을 해제하고 완료 블록 6개를 보존해 미시작분을 병렬 재개했다. 관련 검사 60개 통과, 모델·곡선·비용 유지, 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [복구 검증](../../outputs/reports/yr317_v3_resource_recovery/README.md)
 - **v3 독립 반복용 일별 계측 완료 (2026-09-16, YR-317-d2)**: 물량·시작 잔여·블록별 대기열·야드 작업·턴타임·공간/시간 비율·비용을 저장한다. 코드 70검사, 세 정책 계측 켬/끔 30항목, 파일 재검산 27항목 통과. 독립 성능 평가 자체는 g 판정 뒤다. [spec](../docs/dashboard-task-specs/YR-317-d2-v3-daily-observation.md) · [정의·결과](../../docs/paper/v3/paper-revision/18-독립반복-일별관측.md)

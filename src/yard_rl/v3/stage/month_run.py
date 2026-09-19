@@ -134,6 +134,7 @@ class MonthResult:
     container_flow_summary: dict = field(default_factory=dict)
     container_links: list = field(default_factory=list)
     daily_observation: dict = field(default_factory=dict)
+    environment_manifest: dict = field(default_factory=dict)
 
     @property
     def train_days(self) -> list:
@@ -213,7 +214,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               capture_requests: bool = False, diagnose_admissions: bool = False,
               admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL",
               capture_daily: bool = False, daily_sample_s: float = 300.0,
-              on_observation=None, expected_input: dict | None = None) -> MonthResult:
+              on_observation=None, expected_input: dict | None = None,
+              environment_spec: dict | None = None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -230,6 +232,15 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     """
     if arm not in ARMS:
         raise NotImplementedError(f"알 수 없는 재배치 팔 {arm!r} — 쓸 수 있는 팔: {ARMS}")
+    if environment_spec is not None:
+        if admission_mode != "PRESERVE" or supply_mode != "COUNT_BALANCED":
+            raise ValueError("Layout qualification requires PRESERVE and COUNT_BALANCED inputs")
+        if labels_per_day or on_fit is not None or explore_of_day is not None or explore != 0:
+            raise ValueError("Layout qualification supports frozen-policy evaluation, not training")
+        if arm not in ("NO_REALLOC", "RL_TIME"):
+            raise ValueError("Layout qualification currently supports NO_REALLOC and RL_TIME")
+        if arm == "RL_TIME" and (seller_net is None or buyer_net is None):
+            raise ValueError("Layout evaluation requires explicit frozen model weights")
     if diagnose_admissions and not capture_requests:
         raise ValueError("Admission diagnostics require capture_requests=True")
     if dispatcher not in DISPATCHERS_READY:
@@ -249,7 +260,6 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     n_days = len(days)
     built = build_month(seed, days=days, profile=prof, layout=layout,
                         lead_mode=lead_mode)
-    orders, records = orders_from_schedule(built)
     # ★본선 양하/적하를 **트럭 수지에 맞춘다** — 안 그러면 야드가 30일 동안 빈다.
     v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
                                   truck_net=truck_net_by_block(built["schedule"]))
@@ -275,17 +285,29 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     scns = {b: dataclasses.replace(s, jobs=[], vessels=[], horizon_s=month_s,
                                    drain_window_s=DIURNAL_DRAIN_S)
             for b, s in built["day0"]["scenarios"].items()}
-    if expected_input is not None:
+    if expected_input is not None or environment_spec is not None:
         # Read-only check of the actual inputs before any engine or policy runs.
         from ..eval.seed_bank import digest
         actual = dict(schedule_sha256=digest(built["schedule"]),
                       initial_scenarios_sha256=digest(scns),
                       vessels_sha256=digest(v_by_day))
-        if actual != expected_input:
+        if expected_input is not None and actual != expected_input:
             raise ValueError(f"Frozen monthly input mismatch: {actual}")
+    environment = None
+    environment_manifest = {}
+    if environment_spec is not None:
+        from ..layouts import VerticalEnvironment
+        environment = VerticalEnvironment.from_dict(environment_spec, prof, layout)
+        built = {**built, "schedule": environment.adapt_schedule(built["schedule"])}
+        layout = environment.layout
+        environment_manifest = environment.manifest(
+            canonical_input=actual, schedule=built["schedule"])
+    orders, records = orders_from_schedule(built)
     from .demand_engine import DemandTerminal
     terminal_cls = DemandTerminal if preserve else MonthTerminal
-    mbt = terminal_cls({b: ensure_time_ledger(_sim_from(s, prof))
+    mbt = terminal_cls({b: ensure_time_ledger(
+                            _sim_from(s, prof) if environment is None
+                            else environment.make_sim(s, prof, b))
                          for b, s in scns.items()},
                         extra_review_epochs=tuple(
                             i * EPOCH_S for i in range(int((sim_end if preserve else month_s) // EPOCH_S) + 1)))
@@ -376,6 +398,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
         bridge.branch_orders = _near_orders
 
     res = MonthResult(plan=[d.as_dict() for d in days], supply_plan_audit=supply_audit)
+    res.environment_manifest = environment_manifest
     archive: dict[str, float] = {}
     tape = _MonthTape(meta, archive)
     state = {"day": 0, "snap": 0.0, "traded": 0, "space": 0, "time": 0,
@@ -467,7 +490,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             try:
                 a = inject_vessel(m, r["block"], r, key=r["key"],
                                   size_seed=f"v3:month:{seed}:{r['key']}",
-                                  defer_load_targets=preserve)
+                                  defer_load_targets=preserve,
+                                  planning_profile=(prof if environment is not None else None))
             except TransferError as ex:
                 if preserve:
                     raise
@@ -486,6 +510,14 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                                           "ok": True, "moves": a.moves,
                                           "asked": a.asked_moves,
                                            "why": a.reason})
+            if environment is not None:
+                plan = m.blocks[r["block"]].vessels[a.vessel_key].plan
+                res.vessel_admissions[-1].update(
+                    planned_completion_s=plan.planned_completion_s,
+                    etd_s=plan.etd_s,
+                    phys_min_completion_s=plan.phys_min_completion_s,
+                    structural_min_overrun_s=max(
+                        0.0, plan.phys_min_completion_s - plan.planned_completion_s))
             if vessel_audit is not None:
                 res.vessel_admissions[-1]["inventory_before_admission"] = diagnostic
                 vessel_audit.admission(res.vessel_admissions[-1])

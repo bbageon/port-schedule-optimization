@@ -1,0 +1,128 @@
+{
+  "schema": "yr317.v3.vertical.legacy-equivalence.v1",
+  "started_at": "2026-09-19T04:23:22.891374+00:00",
+  "seed": 99194001,
+  "cpu": 19,
+  "threads": 1,
+  "case": {
+    "days": 1,
+    "trucks": 21,
+    "arm": "NO_REALLOC",
+    "admission_mode": "PRESERVE",
+    "supply_mode": "COUNT_BALANCED",
+    "capture_requests": true,
+    "diagnose_admissions": true,
+    "capture_daily": true,
+    "environment_spec": "omitted"
+  },
+  "source_difference": {
+    "lf_changed": [
+      "src/yard_rl/v3/stage/month_engine.py",
+      "src/yard_rl/v3/stage/month_run.py"
+    ],
+    "added": [
+      "src/yard_rl/v3/layouts/__init__.py",
+      "src/yard_rl/v3/layouts/environment.py",
+      "src/yard_rl/v3/layouts/geometry.py",
+      "src/yard_rl/v3/layouts/runtime.py"
+    ],
+    "removed": [],
+    "unexpected_changed": [],
+    "basis": "Raw and LF-normalized hashes saved in per-run metadata; only intended opt-in stage edits differ."
+  },
+  "compared": "Complete dataclass MonthResult, every daily observation, and rollout count; only empty workspace result.environment_manifest removed.",
+  "new_training_runs": 0,
+  "claim_eligible": false,
+  "limits": "One small default-path regression, not H/V performance or complete equivalence for all policies/inputs.",
+  "state": "completed",
+  "completed_at": "2026-09-19T04:24:43.917075+00:00",
+  "passed": true,
+  "checks": {
+    "empty_new_environment_manifest": true,
+    "exact_serialized_results": true,
+    "no_differences": true,
+    "expected_request_count": true,
+    "source_stable": true,
+    "no_rollouts": true,
+    "cpu_one_thread": true
+  },
+  "differences": [],
+  "common_result_sha256": "a4d179d1770e485d34678072a7d662571261831277bb30cfb2b8cf8adbd961ca",
+  "workspace_normalized_result_sha256": "a4d179d1770e485d34678072a7d662571261831277bb30cfb2b8cf8adbd961ca",
+  "runs": {
+    "frozen": {
+      "root": "/home/geonu/yr317-v3-block-recovery-de630ec",
+      "seed": 99194001,
+      "elapsed_s": 36.25207746587694,
+      "cpu_affinity": [
+        19
+      ],
+      "torch_threads": 1,
+      "interop_threads": 1,
+      "result_sha256": "a4d179d1770e485d34678072a7d662571261831277bb30cfb2b8cf8adbd961ca",
+      "loaded_sources_changed_during_run": [],
+      "observations": 289,
+      "requested": 21,
+      "rollout_calls": 0
+    },
+    "workspace": {
+      "root": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4",
+      "seed": 99194001,
+      "elapsed_s": 37.363041690550745,
+      "cpu_affinity": [
+        19
+      ],
+      "torch_threads": 1,
+      "interop_threads": 1,
+      "result_sha256": "c49c90aadd429ec6511b22797f2d17f502f6d96641817ca5a27c9b2dfc308106",
+      "loaded_sources_changed_during_run": [],
+      "observations": 289,
+      "requested": 21,
+      "rollout_calls": 0
+    }
+  },
+  "artifacts": {
+    "frozen": {
+      "path": "frozen-result.json.gz",
+      "compressed_bytes": 115170,
+      "compressed_sha256": "0a116a96ae5b36edc1ca14e441ce83359485304ce03cb82798c50a12097cd3d2",
+      "uncompressed_bytes": 3722129,
+      "uncompressed_sha256": "384e8f52a160668698553c5fa94aed250b76ef62b6635d64c6e4e6c87ea98774",
+      "normalized_semantic_sha256": "a4d179d1770e485d34678072a7d662571261831277bb30cfb2b8cf8adbd961ca",
+      "source_manifest_path": "frozen-meta.json",
+      "source_manifest_sha256": "ddc72c560044f67d17007dbc2b44b5e3720ce82828956c2b33e4ba5404bcf91b"
+    },
+    "workspace": {
+      "path": "workspace-result.json.gz",
+      "compressed_bytes": 115197,
+      "compressed_sha256": "547ec2e6df9970882f2625c4d4a3649261090a35554e0424327c49b0dfdc195a",
+      "uncompressed_bytes": 3722161,
+      "uncompressed_sha256": "d6db7b9dccb81816c64f87e22dc79b14255315aacfbb9efa0fe0da09698c6029",
+      "normalized_semantic_sha256": "a4d179d1770e485d34678072a7d662571261831277bb30cfb2b8cf8adbd961ca",
+      "source_manifest_path": "workspace-meta.json",
+      "source_manifest_sha256": "79463c7323151d6b5dd3f2eabb45eb98e34087aa6994fcd7fef4dd77778ee587"
+    }
+  },
+  "compression": "gzip mtime=0, empty filename; decompressed full results preserved byte-for-byte",
+  "focused_tests": {
+    "xml_path": "legacy-focused-tests.xml",
+    "xml_sha256": "838813717739e469f336438d5113ee76169a2bdfd9168bdaa4bdef9f0b77153c",
+    "passed": 38,
+    "deselected": 1,
+    "failures": 0,
+    "errors": 0,
+    "elapsed_s": 124.91,
+    "cpu_affinity": [
+      19
+    ],
+    "thread_env": 1,
+    "files": [
+      "tests/v3/test_world_clone.py",
+      "tests/v3/test_world_equivalence.py",
+      "tests/v3/test_month_stage.py"
+    ],
+    "selection": "not test_branch_worlds_get_the_same_exploration_rate",
+    "selection_reason": "Default-path regression only; no teacher/training branch execution.",
+    "command": "PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 19 /home/geonu/.venvs/yard-rl/bin/python -B -m pytest tests/v3/test_world_clone.py tests/v3/test_world_equivalence.py tests/v3/test_month_stage.py -q -p no:cacheprovider -k \"not test_branch_worlds_get_the_same_exploration_rate\" --junitxml=outputs/reports/yr317_v3_vertical/legacy-focused-tests.xml"
+  }
+}
