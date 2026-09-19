@@ -1,0 +1,973 @@
+{
+  "schema": "yr317.v3.layout-readiness.source-audit.v1",
+  "at": "2026-09-19T03:12:20.141471+00:00",
+  "scope": "Static inspection of current workspace source, not frozen evaluation checkout certification.",
+  "source_audit_status": "recorded",
+  "runtime_qualified": false,
+  "performance_evidence": false,
+  "new_simulations": 0,
+  "new_training_runs": 0,
+  "tests_executed": 0,
+  "claim": "Current shared single-axis V3 is not a runtime-qualified horizontal/vertical comparison.",
+  "line_numbering": "1-based UTF-8 decoded splitlines; SHA-256 covers exact bytes including newlines.",
+  "sources": [
+    {
+      "path": "src/yard_rl/v3/stage/month_run.py",
+      "sha256": "eb4e1c50e6c3ddc3487b7e087654ffa4018c2d08ecf87d96897962cb735df5c6",
+      "bytes": 30822,
+      "line_count": 610,
+      "references": [
+        {
+          "start_line": 205,
+          "end_line": 222,
+          "text": "def run_month(*, seed: int, arm: str = \"RL\", seller_net=None, buyer_net=None,\n              n_days: int = N_DAYS, dispatcher: str = \"SF_SPT\",\n              lead_mode: str = \"DIST\", window_s: float = 1800.0,\n              explore: float = 0.0, horizon_s: float = CF_HORIZON_S,\n              slot_mode: str = \"HORIZON\", trigger_top_k: float | None = None,\n              days=None, on_day=None, labels_per_day: int | None = None,\n              workers: int = 1, explore_of_day=None, on_fit=None,\n              branch_days: int = 1, identity_checks: int = 4,\n              capture_requests: bool = False, diagnose_admissions: bool = False,\n              admission_mode: str = \"LEGACY\", supply_mode: str = \"ORIGINAL\",\n              capture_daily: bool = False, daily_sample_s: float = 300.0,\n              on_observation=None, expected_input: dict | None = None) -> MonthResult:\n    \"\"\"30\uc77c\uc744 \ud55c \ubc88\uc5d0 \uad74\ub9b0\ub2e4. `on_day(DayReport)` \uac00 **\uc911\uac04\ubcf4\uace0** \ud6c5\uc774\ub2e4.\n\n    \u25a0 \uad50\uc0ac\ub97c \ubd99\uc774\uba74 (`labels_per_day`) **\ud558\ub8e8\uac00 \uace7 \ud55c \ud68c\ucc28**\uac00 \ub41c\ub2e4\n      \ud558\ub8e8\ub97c \uad74\ub9ac\uba70 \ubc18\uc0ac\uc2e4 \ub77c\ubca8\uc744 K\uac74 \ubaa8\uc73c\uace0, \ud558\ub8e8\uac00 \ub05d\ub098\uba74 `on_fit(day, rows)` \ub85c\n      \ud559\uc0dd \ub9dd\uc744 \uac31\uc2e0\ud55c\ub2e4. **\uac31\uc2e0\ub41c \ub9dd\uc73c\ub85c \ub2e4\uc74c \ub0a0\uc744 \uc774\uc5b4\uc11c \uad74\ub9b0\ub2e4** \u2014 \uc138\uacc4\uac00 \uc548\n      \ub04a\uae30\ubbc0\ub85c \uc5b4\uc81c\uc758 \uc57c\ub4dc \uc704\uc5d0\uc11c \uc624\ub298 \uc815\ucc45\uc774 \ud310\ub2e8\ud55c\ub2e4."
+        },
+        {
+          "start_line": 247,
+          "end_line": 251,
+          "text": "    prof, layout = build_h21_profile(), terminal_layout()\n    days = list(days) if days else plan_month(seed, n_days=n_days)\n    n_days = len(days)\n    built = build_month(seed, days=days, profile=prof, layout=layout,\n                        lead_mode=lead_mode)"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/stage/month.py",
+      "sha256": "6165641443bd2f66a075cc7e6327985da5971d925865978699806d4cd7c68162",
+      "bytes": 24514,
+      "line_count": 488,
+      "references": [
+        {
+          "start_line": 238,
+          "end_line": 270,
+          "text": "def build_month(seed: int, *, days=None, profile=None, layout=None,\n                lead_mode: str = \"DIST\", n_days: int = N_DAYS,\n                fill_ratio: float = MONTH_FILL_RATIO) -> dict:\n    \"\"\"30\uc77c\uce58 **\ub3c4\ucc29 \uba85\ub2e8**\uc744 \uc774\uc5b4 \ubd99\uc778\ub2e4.\n\n    \u25a0 \uc5b4\ub5bb\uac8c \uc787\ub098\n      \ud558\ub8e8 \uc0dd\uc131\uae30(`build_stage`)\ub97c \ub0a0\ub9c8\ub2e4 \ubd80\ub974\uace0, \uadf8 \ub0a0\uc758 \ub3c4\ucc29\u00b7\ud1b5\uc9c0 \uc2dc\uac01\uc5d0\n      `day.t0` \ub97c \ub354\ud55c\ub2e4. \ub3c4\ucc29 \uace1\uc120 \uc790\uccb4\ub294 **\ud558\ub8e8 \uc8fc\uae30**\ub85c \uc815\uc758\ub3fc \uc788\uc5b4\n      (`diurnal_rate` \uc758 `h = t/3600`) \uadf8\ub300\ub85c 30\uc77c\uc744 \ubabb \ub9cc\ub4e0\ub2e4 \u2014 \uadf8\ub798\uc11c\n      \ub0a0\ub9c8\ub2e4 \ub9cc\ub4e4\uc5b4 \uc62e\uaca8 \ubd99\uc778\ub2e4.\n\n    \u25a0 \ubb34\uc5c7\uc774 \ud558\ub8e8\uce58\ub9cc \uc788\uc5b4\uc57c \ud558\ub098\n      **\ucd08\uae30 \uc801\uc7ac**\ub294 \uccab\ub0a0 \uac83\ub9cc \uc4f4\ub2e4. \ub458\uc9f8 \ub0a0\ubd80\ud130\ub294 \uc804\ub0a0\uc774 \ub0a8\uae34 \uc57c\ub4dc\uac00 \ucd9c\ubc1c\uc810\uc774\ub2e4.\n      \ubcf8\uc120\uc740 \u00a7\ubcf8\uc120 \ucc38\uc870 \u2014 \ub0a0\uc744 \ub118\uc5b4\uac00\ubbc0\ub85c \ub530\ub85c \ubc30\uce58\ud55c\ub2e4.\n\n    \ub3cc\ub824\uc8fc\ub294 \uac83:\n      `days`      : \ub0a0 \uacc4\ud68d (\ubd80\ud558\u00b7\ub77c\ubca8\u00b7\uc2dc\ub4dc)\n      `schedule`  : 30\uc77c\uce58 \ub3c4\ucc29 \uba85\ub2e8 (\uc2dc\uac01\uc774 \uc774\ubbf8 \uc6d4 \uae30\uc900\uc73c\ub85c \uc62e\uaca8\uc838 \uc788\ub2e4)\n      `day0`      : \uccab\ub0a0 `build_stage` \uacb0\uacfc \u2014 \uc2dc\ub098\ub9ac\uc624(\ucd08\uae30 \uc801\uc7ac)\ub97c \uc5ec\uae30\uc11c \uac00\uc838\uc628\ub2e4\n    \"\"\"\n    from .orders import build_stage\n    from ..world.integrated.profiles import build_h21_profile\n    from ..world.integrated.yard_layout import terminal_layout\n\n    profile = profile or build_h21_profile()\n    layout = layout or terminal_layout()\n    days = days or plan_month(seed, n_days=n_days)\n\n    day0, schedule = None, []\n    for d in days:\n        built = build_stage(load=d.load, seed=d.seed, profile=profile,\n                            layout=layout, lead_mode=lead_mode,\n                            fill_ratio=fill_ratio)"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/stage/episode.py",
+      "sha256": "e8d36186a39ecb59a9e92b0e4e81f1a97e3a9444a4ff901678771cdeb6df7332",
+      "bytes": 25030,
+      "line_count": 492,
+      "references": [
+        {
+          "start_line": 49,
+          "end_line": 57,
+          "text": "def _sim_from(scn, profile):\n    \"\"\"\uc2dc\ub098\ub9ac\uc624 \u2192 \uc2dc\ubbac\ub808\uc774\ud130. **\uc2dc\ub098\ub9ac\uc624\ub97c \ub9cc\ub4e0 \ud504\ub85c\ud30c\uc77c\uacfc \uac19\uc740 \uac83**\uc744 \ub118\uae34\ub2e4.\n\n    v2 \uc758 `experiments/yr149_load_cells._sim_from` \uacfc \uac19\uc740 \uc77c\uc744 \ud558\uc9c0\ub9cc, v3 \ub294\n    \uc2e4\ud5d8 \uc2a4\ud06c\ub9bd\ud2b8\ub97c \uc784\ud3ec\ud2b8\ud558\uc9c0 \uc54a\ub294\ub2e4(\uc0ac\uc6a9\uc790 \uc9c0\uc2dc 2026-08-22).\n    \"\"\"\n    sim = TerminalSimulator(profile, scn, check_invariants=True)\n    sim.info_level = INFO_LEVEL\n    return sim"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/yard_layout.py",
+      "sha256": "722e9f44648c69cff76bfc73c771d7d04b3cba5f0f354dbe92e2798ca9780652",
+      "bytes": 10380,
+      "line_count": 188,
+      "references": [
+        {
+          "start_line": 45,
+          "end_line": 55,
+          "text": "class YardLayout:\n    \"\"\"\uc57c\ub4dc\ucd95 \uc704 \ube14\ub85d \uc704\uce58\uc640 \uc8fc\ud589\uc2dc\uac04. \uc704\uce58\ub294 \ubbf8\ud130 \uc808\ub300\uc88c\ud45c\ub85c **\uba85\uc2dc \ubcf4\uad00**\ud55c\ub2e4.\n\n    \ubd80\ubd84\uc9d1\ud569(N=3 \ud68c\uadc0\uc2dc\ud5d8)\ub3c4 \uc804\uccb4 \ud130\ubbf8\ub110\uc758 \uc808\ub300\uc88c\ud45c\ub97c \uadf8\ub300\ub85c \ubb3c\ub824\ubc1b\ub294\ub2e4 \u2014 3\ube14\ub85d\ub9cc \ub530\ub85c\n    \uc7ac\uc911\uc2ec\ud654\ud558\uba74 N=3 \uacfc N=21 \uc758 \uae30\ud558\uac00 \ub2ec\ub77c\uc838 \ud68c\uadc0\uc2dc\ud5d8\uc774 \ubcf8 \ud658\uacbd\uc744 \ub300\ud45c\ud558\uc9c0 \ubabb\ud55c\ub2e4.\n    \"\"\"\n\n    ids: tuple[str, ...]\n    positions_m: tuple[float, ...]\n    speed_mps: float = TRUCK_SPEED_MPS\n"
+        },
+        {
+          "start_line": 81,
+          "end_line": 119,
+          "text": "    def gate_to_block_s(self, bid: str) -> float:\n        \"\"\"\uac8c\uc774\ud2b8(\ucd95 \uc6d0\uc810) \u2192 \ube14\ub85d \uc8fc\ud589\uc2dc\uac04.\"\"\"\n        return self.position_m(bid) / self.speed_mps\n\n    def block_to_block_s(self, a: str, b: str) -> float:\n        \"\"\"\ube14\ub85d \u2192 \ube14\ub85d \uc8fc\ud589\uc2dc\uac04 (\ub300\uce6d\u00b7\uc0bc\uac01\ubd80\ub4f1\uc2dd \uc131\ub9bd \u2014 \ub2e8\uc77c\ucd95 \uac70\ub9ac).\"\"\"\n        return abs(self.position_m(a) - self.position_m(b)) / self.speed_mps\n\n    # ------------------------------------------------------------------ \uc548\ubcbd (v3)\n    def quay_axis_s(self) -> float:\n        \"\"\"\uac8c\uc774\ud2b8\u2194\uc548\ubcbd \ucd95 \uc804\uccb4 \uc2dc\uac04 \u2014 **\uae30\uc874 \ubc30\uce58\uc5d0\uc11c \uc720\ub3c4**\ub41c\ub2e4(\uc0c8 \uc790\uc720\ubcc0\uc218 \uc544\ub2d8).\n\n        \uc548\ubcbd\uc744 \ucd95 **\ubc18\ub300 \ub05d\uc5d0 \ub300\uce6d\uc73c\ub85c** \ub454\ub2e4(\uc218\ud3c9 \ubc30\uce58 \u00b7 \uc0ac\uc6a9\uc790 \uacb0\uc815 2026-08-20):\n\n            \uac8c\uc774\ud2b8 \u2500 Y01 \u2500 \u2026 \u2500 Y21 \u2500 \uc548\ubcbd\n              190s \u2191            \u2191 410s     \uac8c\uc774\ud2b8 \uae30\uc900\n              410s \u2191            \u2191 190s     \uc548\ubcbd \uae30\uc900\n\n        `\ucd95 = \uac00\uc7a5 \uac00\uae4c\uc6b4 \ube14\ub85d + \uac00\uc7a5 \uba3c \ube14\ub85d` \uc774\ub77c 21\ube14\ub85d \ubb34\ub300\uc5d0\uc11c 190+410 = 600\ucd08\ub2e4.\n        \u2192 `.claude/docs/architecture/02-\ubb34\ub300.md` \u00a71 (\uacc4\uc57d `quay_axis_s = 600`)\n        \"\"\"\n        lo, hi = self.gate_time_range_s()\n        return lo + hi\n\n    def quay_to_block_s(self, bid: str) -> float:\n        \"\"\"\uc548\ubcbd \u2192 \ube14\ub85d \uc8fc\ud589\uc2dc\uac04. \uac8c\uc774\ud2b8 \uac70\ub9ac\uc758 **\uc5ed\uc21c**\uc774\ub2e4.\n\n        \ud2b8\ub7ed\uc5d0 \uc88b\uc740 \ube14\ub85d\uacfc \ubcf8\uc120\uc5d0 \uc88b\uc740 \ube14\ub85d\uc774 \uc815\ud655\ud788 \ubc18\ub300\uac00 \ub418\uc5b4, \uc7ac\ubc30\uce58\uac00 \uc9c4\uc9dc\n        trade-off \ub97c \ub2e4\ub8e8\uac8c \ub41c\ub2e4.\n        \"\"\"\n        return self.quay_axis_s() - self.gate_to_block_s(bid)\n\n    def yt_round_trip_s(self, bid: str) -> float:\n        \"\"\"\uadf8 \ube14\ub85d\uc5d0 \ubd99\uc740 YT \uc2a4\ud2b8\ub9bc\uc758 \uc655\ubcf5 \uc2dc\uac04 = \uc548\ubcbd \uac70\ub9ac \u00d7 2.\n\n        \uad6c `move_time_s = 180\ucd08` \uc0c1\uc218\ub294 \uc6b0\ub9ac \ub808\uc774\uc544\uc6c3 **\ud3b8\ub3c4**(190~410\ucd08)\ubcf4\ub2e4 \uc9e7\uc544\n        \ubaa8\uc21c\uc774\uc5c8\ub2e4. \ube14\ub85d\ubcc4\ub85c 380~820\ucd08\uac00 \ub418\uace0, \ud3c9\uade0\uc774 \uc815\ud655\ud788 600\ucd08\ub2e4.\n        \u2192 `.claude/docs/architecture/02b-\ubcf8\uc120.md` \u00a74\"\"\"\n        return 2.0 * self.quay_to_block_s(bid)"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/profiles.py",
+      "sha256": "a7af66f8aebd5ce1f31fdc02cf845473b20df3dba67d1f6163625819f91265f3",
+      "bytes": 5343,
+      "line_count": 103,
+      "references": [
+        {
+          "start_line": 21,
+          "end_line": 44,
+          "text": "def build_dgt_approx_profile(single_yaml: str | Path = DGT_SINGLE_YAML\n                             ) -> IntegratedProfile:\n    \"\"\"DGT \uadfc\uc0ac \ud1b5\ud569 \ud504\ub85c\ud30c\uc77c \u2014 \uc804 \ud56d\ubaa9 assumed (\uc2e4\uce21\uc740 YR-002 \ud6c4).\n\n    - \ube14\ub85d\u00b7\ud06c\ub808\uc778 \uc2a4\ud399: dgt_armg.yaml (10\uc5f4\u00d76\ub2e8\u00b7bay 24 \uac00\uc815\u00b7Kalmar ASC \ubb38\ud5cc \uc18d\ub3c4)\n    - \ud06c\ub808\uc778 2\uae30 (topology: \ube14\ub85d\ub2f9 2\uae30 \u2014 \uc5ed\ud560\ubd84\ub9ac \uc5c6\uc774 \ub3d9\uc77c \uc2a4\ud399 \uadfc\uc0ac)\n    - AGV: 60\ub300/23\ube14\ub85d \u2248 3\ub300/\ube14\ub85d (\uacf5\uac1c\uac12 \uc720\ub3c4, \uc655\ubcf5\uc2dc\uac04 assumed 180s)\n    \"\"\"\n    single = load_profile(single_yaml)\n    base = single.crane\n    cranes = tuple(replace(base, crane_id=cid) for cid in (\"YC-L\", \"YC-W\"))\n    return IntegratedProfile(\n        terminal_id=\"DGT-APPROX-2CR\",\n        profile_date=\"2026-07-15\",\n        assumed=True,\n        block=single.block,\n        cranes=cranes,\n        lane_graph=LaneGraph((\"L1\", \"L2\"), ((\"L1\", \"L2\"),)),\n        transfer=TransferFleetSpec(\"AGV1\", \"AGV\", n_units=3, move_time_s=180.0),\n        long_wait_sla_s=single.long_wait_sla_s,\n        decision_horizon_s=single.decision_horizon_s,\n        gate_travel_estimate_s=single.gate_travel_estimate_s,\n    )\n"
+        },
+        {
+          "start_line": 59,
+          "end_line": 103,
+          "text": "def build_hjnc_approx_profile(single_yaml: str | Path = HJNC_SINGLE_YAML\n                              ) -> IntegratedProfile:\n    \"\"\"HJNC \uadfc\uc0ac \ud1b5\ud569 \ud504\ub85c\ud30c\uc77c \u2014 \uc804 \ud56d\ubaa9 assumed.\n\n    \uc8fc\uc758 (YR-022 \uc218\ub834): \uacf5\uac1c\uc815\ubcf4 \uc218\uc900\uc5d0\uc11c hjnc_armg \uacfc dgt_armg \uc740 \uc218\uce58 \ub3d9\uc77c \u2014\n    \ubcf8 \uadfc\uc0ac\uc5d0\uc11c \uc2e4\uc9c8 \ucc28\uc774\ub294 \uc774\uc1a1 fleet \uc885\ub958(YT vs AGV, \ub77c\ubca8) \ubfd0\uc774\uba70 \uc5ed\ud559\uc740 \uac19\ub2e4.\n    \ub530\ub77c\uc11c \ub3d9\uc77c seed \uc2e4\ud589 \uacb0\uacfc\ub294 DGT \uadfc\uc0ac\uc640 \uc77c\uce58\ud560 \uac83\uc73c\ub85c \uc608\uc0c1 (\uadf8 \uc218\ub834 \uc790\uccb4\uac00\n    evidence \u2014 YR-023 \uc120\ub840). \uc2e4\ucc28\ubcc4\ud654\ub294 \uc218\ud3c9\ubc30\uc5f4\u00b7YT \ub300\uc218 \ub4f1 \ud611\uc57d(\ud83e\udd1d) \ud6c4.\n    \"\"\"\n    single = load_profile(single_yaml)\n    base = single.crane\n    cranes = tuple(replace(base, crane_id=cid) for cid in (\"YC-L\", \"YC-W\"))\n    return IntegratedProfile(\n        terminal_id=\"HJNC-APPROX-2CR\",\n        profile_date=\"2026-07-15\",\n        assumed=True,\n        block=single.block,\n        cranes=cranes,\n        lane_graph=LaneGraph((\"L1\", \"L2\"), ((\"L1\", \"L2\"),)),\n        transfer=TransferFleetSpec(\"YT1\", \"YT\", n_units=3, move_time_s=180.0),\n        long_wait_sla_s=single.long_wait_sla_s,\n        decision_horizon_s=single.decision_horizon_s,\n        gate_travel_estimate_s=single.gate_travel_estimate_s,\n    )\n\n\ndef build_h21_profile() -> IntegratedProfile:\n    \"\"\"H-21 **\uc218\ud3c9 \uacf5\uc720\ud615** \ud569\uc131 \uad6c\uc870 \ud504\ub85c\ud30c\uc77c \u2014 \uc774\uc1a1\ucc28\uc885\uc774 YT \ub2e4 (YR-150 \uc815\ud569).\n\n    **\uc65c \ubcc4\ub3c4 \ube4c\ub354\uc778\uac00**: Dashboard \ub294 H-21 \uc744 \"\ub450 YC \uac00 \ud2b8\ub7ed\u00b7\ubcf8\uc120\uc744 \uacf5\uc720\ud558\uace0 **YT** \ub85c\n    \uc6b4\uc1a1\ud558\ub294 \uad6c\uc870\"\ub85c \uc815\uc758\ud558\ub294\ub370, `build_calibrated_profile()` \uc740 DGT \uadfc\uc0ac\uc5d0\uc11c \uc628\n    **AGV** fleet \uc744 \ub3cc\ub824\uc900\ub2e4. \uc790\uaca9 \ud30c\uc77c\ub7ff\uc774 \uadf8\uac83\uc744 \uadf8\ub300\ub85c \uc368\uc11c **\ucf54\ub4dc\uc640 \uad6c\uc870 \uc815\uc758\uac00\n    \uc5b4\uae0b\ub098 \uc788\uc5c8\ub2e4**(\uc678\ubd80 \uac10\uc0ac \uc9c0\uc801 2026-08-06).\n\n    \ud604\uc7ac YT\u00b7AGV \uc758 \uc5ed\ud559 \uc218\uce58\ub294 \ub3d9\uc77c(3\ub300\u00b7180\ucd08)\uc774\ub77c \uacb0\uacfc\ub294 \ubc14\ub00c\uc9c0 \uc54a\uc9c0\ub9cc, \ub77c\ubca8\uc774 \uc5b4\uae0b\ub09c\n    \ucc44\ub85c \uc131\ub2a5\uc2dc\ud5d8\uc5d0 \ub4e4\uc5b4\uac00\uba74 \"\ubb34\uc5c7\uc744 \uc2e4\ud5d8\ud588\ub294\uac00\"\uac00 \ud750\ub824\uc9c4\ub2e4. \uadf8\ub798\uc11c **\uc218\uce58\ub294 \uadf8\ub300\ub85c \ub450\uace0\n    \uc774\uc1a1\ucc28\uc885\ub9cc YT \ub85c \ub9de\ucd98 \uc911\ub9bd \uc774\ub984 \ud504\ub85c\ud30c\uc77c**\uc744 \ub454\ub2e4.\n\n    \ud2b9\uc815 \ud130\ubbf8\ub110 \uc774\ub984\uc744 \uc4f0\uc9c0 \uc54a\ub294\ub2e4 \u2014 H-21 \uc740 \ud569\uc131 \uad6c\uc870\uc774\uc9c0 HJNC \uc7ac\ud604\uc774 \uc544\ub2c8\ub2e4.\n    \"\"\"\n    base = build_calibrated_profile()\n    return replace(base, terminal_id=\"H21-SHARED-YT\",\n                   transfer=TransferFleetSpec(\"YT1\", \"YT\",\n                                              n_units=base.transfer.n_units,\n                                              move_time_s=base.transfer.move_time_s))"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/engine.py",
+      "sha256": "ddf2b27118e9fc868f300f3a97fddc6cceefd41609b1a174665ed3f627cc5a2f",
+      "bytes": 65045,
+      "line_count": 1156,
+      "references": [
+        {
+          "start_line": 134,
+          "end_line": 136,
+          "text": "        self.transfer = TransferFleet(\n            self.profile.transfer.fleet_id, self.profile.transfer.kind,\n            self.profile.transfer.n_units, self.profile.transfer.move_time_s)"
+        },
+        {
+          "start_line": 267,
+          "end_line": 273,
+          "text": "    def eligible_cranes(self, bay: int) -> tuple[str, ...]:\n        return tuple(cid for cid in self.fleet.ids()\n                     if self.fleet.spec(cid).service_bay_min <= bay <= self.fleet.spec(cid).service_bay_max)\n\n    def _lane_for(self, bay: int) -> str | None:\n        ids = self.profile.lane_graph.lane_ids\n        return ids[(bay - 1) % len(ids)] if ids else None"
+        },
+        {
+          "start_line": 494,
+          "end_line": 513,
+          "text": "    def _dispatchable(self, j, crane_id: str) -> bool:\n        if j.status not in (JobStatus.WAITING, JobStatus.RELEASED):\n            return False\n        if j.assigned_crane is not None:\n            return False\n        spec = self.fleet.spec(crane_id)\n        if j.target_container is not None:\n            c = self.stacks.containers.get(j.target_container)\n            if c is None or not c.work_available:\n                return False\n            if not (spec.service_bay_min <= c.bay <= spec.service_bay_max):\n                return False\n            if not self.stacks.rehandle_capacity_ok(j.target_container, spec):\n                return False\n        if j.service_mode == ServiceMode.STORE:      # \uc2e0\uaddc \ubc18\uc785 \u2014 \uc801\uc7ac \uc2ac\ub86f \ud544\uc694 (YR-080 \u00a71)\n            yc = self.fleet.get(crane_id)\n            if self._store_slot(j, spec, yc.state.position_bay,\n                                yc.state.trolley_row) is None:\n                return False\n        return True"
+        },
+        {
+          "start_line": 552,
+          "end_line": 560,
+          "text": "    def _plan(self, crane_id: str, ref: JobRef, *, extra_exclude=frozenset()) -> JobPlan | None:\n        \"\"\"\uc2a4\ud0dd \ubbf8\ubcc0\ud615\uc73c\ub85c JobPlan \uacc4\uc0b0 (deferred). \uc2e4\ud328 \uc2dc None.\n\n        kind \ubd84\uae30: SERVE(GATE_IN \uc7a5\uce58 / GATE_OUT\u00b7\ubcf8\uc120 \ubc18\ucd9c) \u00b7 PRE_REHANDLE(blocker \ub9cc relocate,\n        target \uc794\uc874) \u00b7 REPOSITION(\ucee8\ud14c\uc774\ub108 \ubbf8\uc870\uc791, \ube48 \uc8fc\ud589\ub9cc). extra_exclude \ub294 dry_run \uc21c\ucc28 \uc608\uc57d.\n        \"\"\"\n        yc = self.fleet.get(crane_id)\n        spec = self.fleet.spec(crane_id)\n        geom = self.profile.block"
+        },
+        {
+          "start_line": 597,
+          "end_line": 603,
+          "text": "            dest = self._store_slot(j, spec, cur_bay, cur_row, exclude=exclude)\n            if dest is None:\n                return None\n            db, dr = dest\n            dtier = stk.top_tier(db, dr) + 1\n            src = (db, geom.transfer_row, 1)\n            mv = move_container(spec, geom, cur_bay, cur_row, src, (db, dr, dtier))"
+        },
+        {
+          "start_line": 649,
+          "end_line": 653,
+          "text": "                # \ub300\uc0c1 \ubc18\ucd9c (PRE_REHANDLE \uc740 blocker \ub9cc \uce58\uc6b0\uace0 target \uc794\uc874)\n                target = stk.containers[target_id]\n                src = (target.bay, target.row, target.tier)\n                dst = (target.bay, geom.transfer_row, 1)\n                mv = move_container(spec, geom, cur_bay, cur_row, src, dst)"
+        },
+        {
+          "start_line": 990,
+          "end_line": 1015,
+          "text": "    def _transfer_request(self, vid: str):\n        arrive = self.transfer.request(self.clock, vid)\n        if arrive is not None:\n            self.queue.push(arrive, EventKind.TRANSFER_ARRIVE, vid)\n\n    def _release_next_discharge(self, vid: str):\n        \"\"\"\uc591\ud558 \ubc15\uc2a4 1\uac1c \uc57c\ub4dc \uc778\uacc4 \u2192 \uadf8 \uc120\ubc15\uc758 \ub2e4\uc74c PLANNED \uc591\ud558 job 1\uac74 \ud574\uc81c (FIFO).\n\n        YR-080 \ub2e8\uacc42 \u2014 job_id \uc815\ub82c = \uc0dd\uc131 \uc21c FIFO (\uacb0\uc815\ub860). \uc774\ubca4\ud2b8\ub85c \uc6b0\ud68c\ud574\n        event_log \uac00\uc2dc\uc131\u00b7\ub3d9\uc2dc\uac01 tie-break(TRANSFER_ARRIVE 2 \u2192 VESSEL_RELEASED 3) \uace0\uc815.\n        \"\"\"\n        for jid in sorted(self.jobs):\n            j = self.jobs[jid]\n            if (j.vessel_id == vid and j.status == JobStatus.PLANNED\n                    and j.service_mode == ServiceMode.STORE):\n                self.queue.push(self.clock, EventKind.VESSEL_RELEASED, jid)\n                return\n\n    def _transfer_arrive(self, vid: str):\n        v = self.vessels[vid]\n        if v.work_type == VesselWorkType.DISCHARGE:\n            v.buffer_level = max(0, v.buffer_level - 1)   # box \uc57c\ub4dc \uc778\uacc4\n            self._release_next_discharge(vid)             # YR-080: \ub3c4\ucc29 \ubc15\uc2a4 = job \ud574\uc81c\n        else:\n            v.buffer_level += 1                           # box \uc548\ubcbd staged\n        nxt = self.transfer.dispatch_pending(self.clock)"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/transfer.py",
+      "sha256": "4b654a39b543ff5eb0c2e9bfa2da261e3faf72764ba07c263fa0e425dfd8b59e",
+      "bytes": 2206,
+      "line_count": 60,
+      "references": [
+        {
+          "start_line": 15,
+          "end_line": 22,
+          "text": "class TransferFleet:\n    fleet_id: str\n    kind: str\n    n_units: int\n    move_time_s: float\n    busy_until: list[float] = field(default_factory=list)     # len == n_units\n    pending: list[tuple[float, str]] = field(default_factory=list)  # (\uc694\uccad\uc2dc\uac01, vessel_id) FIFO\n    transfer_wait_accum_s: float = 0.0"
+        },
+        {
+          "start_line": 34,
+          "end_line": 53,
+          "text": "    def request(self, now: float, vessel_id: str) -> float | None:\n        \"\"\"\uc774\uc1a1 \uc694\uccad. \uc720\ub2db \uc5ec\uc720 \uc2dc \ubc30\ucc28\ud558\uace0 \ub3c4\ucc29\uc2dc\uac01 \ubc18\ud658, \uc544\ub2c8\uba74 pending \ud050.\"\"\"\n        i = self._free_index(now)\n        if i is None:\n            self.pending.append((now, vessel_id))\n            return None\n        self.busy_until[i] = now + self.move_time_s\n        return now + self.move_time_s\n\n    def dispatch_pending(self, now: float) -> tuple[float, str] | None:\n        \"\"\"\uc720\ub2db\uc774 free \ub41c \uc2dc\uc810\uc5d0 \ub300\uae30\uc694\uccad \uc7ac\ubc30\ucc28 \u2014 (\ub3c4\ucc29\uc2dc\uac01, vessel_id) \ub610\ub294 None.\"\"\"\n        if not self.pending:\n            return None\n        i = self._free_index(now)\n        if i is None:\n            return None\n        _, vid = self.pending.pop(0)\n        self.busy_until[i] = now + self.move_time_s\n        return now + self.move_time_s, vid\n"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/profile.py",
+      "sha256": "fd006432f4a979806edb7642765ea76ad3d4df3272f7ffb426eabd502db0eb6c",
+      "bytes": 1477,
+      "line_count": 40,
+      "references": [
+        {
+          "start_line": 15,
+          "end_line": 38,
+          "text": "class TransferFleetSpec:\n    fleet_id: str\n    kind: str                  # \"YT\" | \"AGV\" | \"SC\"\n    n_units: int\n    move_time_s: float         # \ubcf8\uc120\u2194\uc57c\ub4dc \uc655\ubcf5 assumed\n\n\n@dataclass(frozen=True)\nclass IntegratedProfile:\n    terminal_id: str\n    profile_date: str\n    assumed: bool\n    block: BlockGeometry\n    cranes: tuple[CraneSpec, ...]        # \ub2e4\uc911 YC (service_bay \uad6c\uac04 \uacb9\uce68 \ud5c8\uc6a9)\n    lane_graph: LaneGraph\n    transfer: TransferFleetSpec\n    long_wait_sla_s: float\n    decision_horizon_s: float\n    safety_gap_bay: float = 2.0          # \ube44\ud1b5\uacfc \ud06c\ub808\uc778 \uac04 \ucd5c\uc18c bay \uac04\uaca9 (assumed)\n    shift_len_s: float = 28800.0         # 8h \uad50\ub300 (shift_idx \uc0b0\ucd9c)\n    gate_travel_estimate_s: float = 600.0\n    sts_target_moves_per_hour: float = 25.0   # assumed \ubaa9\ud45c \uc0dd\uc0b0\uc131 (cadence \uc0b0\ucd9c)\n\n    @property"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/integrated/multiblock.py",
+      "sha256": "1cca5f55663dc0d39845a5cd869524a90b3bed2e84cede3b9e527623102055e9",
+      "bytes": 37783,
+      "line_count": 689,
+      "references": [
+        {
+          "start_line": 475,
+          "end_line": 488,
+          "text": "    def validate(self, txn: TransferTxn) -> None:\n        rec = self.ledger.records[txn.job_id]\n        if rec.version != txn.seen_version or rec.owner != txn.src:\n            raise TransferError(f\"{txn.job_id}: version/owner \ubcc0\uacbd (stale quote)\")\n        if not rec.reassignable:\n            raise TransferError(f\"{txn.job_id}: \uc900\ube44 \ud6c4 lock\")\n        j = self.blocks[txn.src].jobs.get(txn.job_id)\n        if j is None or j.status != JobStatus.PLANNED:\n            raise TransferError(f\"{txn.job_id}: \uc900\ube44 \ud6c4 \uc0c1\ud0dc \ubcc0\uacbd\")\n        dst_sim = self.blocks[txn.dst]\n        spec = dst_sim.fleet.spec(dst_sim.profile.cranes[0].crane_id)\n        if j.inbound_size is not None and dst_sim.stacks.find_slot(\n                j.inbound_size, spec, spec.service_bay_min, 1.0) is None:\n            raise TransferError(f\"{txn.dst}: \uaddc\uaca9 \uc801\ud569 \uc2ac\ub86f \uc5c6\uc74c\")"
+        }
+      ]
+    },
+    {
+      "path": "src/yard_rl/v3/world/domain/models.py",
+      "sha256": "65010d7237294660548eb1a91192643cec7b3e9041ae2433d264fe5c49acd92e",
+      "bytes": 5861,
+      "line_count": 150,
+      "references": [
+        {
+          "start_line": 66,
+          "end_line": 82,
+          "text": "    @property\n    def service_mode(self) -> ServiceMode:\n        \"\"\"\ubb3c\ub9ac \uc2e4\ud589 \ubaa8\ub4dc (YR-080 \u00a71) \u2014 **\ub370\uc774\ud130 \uc8fc\ub3c4** \ud310\uc815.\n\n        inbound_size \uac00 \uc788\uc73c\uba74 \uc2e0\uaddc \ubc18\uc785(STORE = \uc778\uacc4\uc810\u2192\uc2a4\ud0dd), \uc5c6\uc73c\uba74 \ubc18\ucd9c(RETRIEVE).\n        \ud604\uc7ac\ub294 GATE_IN \ub9cc STORE \ub77c flow \ubd84\uae30\uc640 \uc644\uc804 \ub4f1\uac00(\ub2e8\uacc4 1 \ub4f1\uac00 \ub9ac\ud329\ud130 \uacc4\uc57d).\n        \ubcf8\uc120 \uc591\ud558\uac00 inbound \ub85c \uc804\ud658\ub418\uba74(\ub2e8\uacc4 2) \uc790\ub3d9\uc73c\ub85c STORE \uacbd\ub85c\ub97c \ud0c4\ub2e4.\n        \"\"\"\n        return (ServiceMode.STORE if self.inbound_size is not None\n                else ServiceMode.RETRIEVE)\n\n    @property\n    def requester_type(self) -> RequesterType:\n        \"\"\"\uc5c5\ubb34 \uc694\uccad \uc8fc\uccb4 \u2014 \ube44\uc6a9(\ud2b8\ub7ed \ub300\uae30 vs \uc120\uc11d \ucd08\uacfc)\u00b7\ud1b5\uacc4 \uad6c\ubd84\uc6a9 (YR-080 \u00a71).\"\"\"\n        return (RequesterType.VESSEL if self.is_vessel_linked\n                else RequesterType.TRUCK)\n"
+        },
+        {
+          "start_line": 110,
+          "end_line": 133,
+          "text": "class BlockGeometry:\n    block_id: str\n    bay_count: int\n    row_count: int\n    tier_max: int\n    bay_length_m: float\n    row_width_m: float\n    tier_height_m: float\n    transfer_row: int = 0  # \ucc28\uc120(\ud2b8\ub7ed \uc778\uacc4) \uc704\uce58 \u2014 row \uc88c\ud45c 0\n\n\n@dataclass(frozen=True)\nclass CraneSpec:\n    crane_id: str\n    service_bay_min: int\n    service_bay_max: int\n    gantry_speed_mps: float\n    trolley_speed_mps: float\n    hoist_speed_loaded_mps: float\n    hoist_speed_empty_mps: float\n    lock_time_s: float\n    unlock_time_s: float\n    truck_positioning_time_s: float\n"
+        }
+      ]
+    },
+    {
+      "path": "tests/integrated/test_structure_compiler.py",
+      "sha256": "0707df33d1219b4d819eb5610b0b28a18fe6a576a6c0d2b1da3cee0a80f39502",
+      "bytes": 4375,
+      "line_count": 94,
+      "references": [
+        {
+          "start_line": 1,
+          "end_line": 8,
+          "text": "\"\"\"YR-083 step1\u00b75 \u2014 \uad6c\uc870\uacc4\uc57d \uc2a4\ud0a4\ub9c8\u00b7compiler\u00b7\ud638\ud658\uc131 \ud310\uc815 \ud68c\uadc0 \ud14c\uc2a4\ud2b8.\n\n\uc5d4\uc9c4 \uc18c\ube44(mask/resolver) \ubbf8\ud3ec\ud568 \u2014 \uacc4\uc57d \ud45c\ud604\u00b7\ud310\uc815\u00b7\"\uc870\uc6a9\ud55c \uc720\uc2e4 0\" \ubd88\ubcc0\ub9cc \uac80\uc0ac.\n\"\"\"\nfrom __future__ import annotations\n\nfrom yard_rl.contract.structure import (CraneSide, StructureContract, VehicleType)\nfrom yard_rl.integrated.structure_compiler import (CompatVerdict, compile_all,"
+        },
+        {
+          "start_line": 39,
+          "end_line": 47,
+          "text": "def test_dgt_role_split_unsupported_now_adapt_later():\n    cs = compile_terminal(\"DGT\")\n    assert cs.contract.is_role_split\n    assert cs.engine_verdict is CompatVerdict.STRUCTURE_UNSUPPORTED\n    assert cs.target_verdict is CompatVerdict.SCHEMA_ADAPTATION_REQUIRED\n    asp = {a for a, _ in cs.unsupported}\n    assert \"crane_role_split\" in asp\n    assert \"transfer_fleet\" in asp          # AGV \ubbf8\ubaa8\ud615\n    assert cs.contract.sides == {CraneSide.LANDSIDE, CraneSide.WATERSIDE}"
+        }
+      ]
+    },
+    {
+      "path": "tests/unit/test_public_topology_profiles.py",
+      "sha256": "479f0bd7f8c4d9374cd80037d79231d7d3ec448f9bee64279b58e5de64940e67",
+      "bytes": 1884,
+      "line_count": 46,
+      "references": [
+        {
+          "start_line": 14,
+          "end_line": 25,
+          "text": "def test_dgt_profile_preserves_real_landside_waterside_split():\n    p = _load(\"dgt_public_topology.yaml\")\n    assert p[\"yard\"][\"orientation\"] == \"PERPENDICULAR_TO_QUAY\"\n    assert p[\"yard\"][\"crane_count\"] == 46\n    assert p[\"yard\"][\"cranes_per_block\"] == 2\n    assert p[\"yard\"][\"block_count\"] == 23\n    points = {x[\"type\"]: x for x in p[\"transfer_points\"]}\n    assert points[\"LSTP\"][\"allowed_vehicle_types\"] == [\"EXTERNAL_TRUCK\"]\n    assert points[\"LSTP\"][\"approach_maneuver\"] == \"REVERSE_IN\"\n    assert points[\"WSTP\"][\"allowed_vehicle_types\"] == [\"AGV\"]\n    assert p[\"road_network\"][\"hard_vehicle_separation\"] is True\n    assert p[\"road_network\"][\"main_road_direction_confirmed\"] is False"
+        },
+        {
+          "start_line": 28,
+          "end_line": 38,
+          "text": "def test_hjnc_profile_does_not_invent_lane_count_or_direction_edges():\n    p = _load(\"hjnc_public_topology.yaml\")\n    assert p[\"yard\"][\"orientation\"] == \"PARALLEL_TO_QUAY\"\n    assert p[\"yard\"][\"block_count\"] == 21\n    assert p[\"yard\"][\"crane_count\"] == 42\n    assert p[\"yard\"][\"cranes_per_block\"] == 2\n    assert p[\"yard\"][\"block_length_teu\"] == 52\n    assert p[\"road_network\"][\"directed_circulation_depicted\"] is True\n    assert p[\"road_network\"][\"directed_edges\"] is None\n    assert all(x[\"service_capacity\"] is None\n               for x in p[\"block_template\"][\"service_sides\"])"
+        }
+      ]
+    },
+    {
+      "path": "tests/v3/test_world_clone.py",
+      "sha256": "feb7b185613c607cc0cb3e605dd4d3dfab99a074189dcab69b677cf05e2820e9",
+      "bytes": 5499,
+      "line_count": 125,
+      "references": [
+        {
+          "start_line": 63,
+          "end_line": 79,
+          "text": "def test_unextended_files_are_byte_identical():\n    \"\"\"\ud655\uc7a5 \uc14b\uc744 \ube80 \uc804\ubd80\ub294 **\ubc14\uc774\ud2b8 \ub3d9\uc77c**\ud558\ub2e4.\"\"\"\n    drift = []\n    for rel, orig, clone in _pairs():\n        if rel in EXTENDED:\n            continue\n        a = hashlib.sha256(orig.read_bytes()).hexdigest()\n        b = hashlib.sha256(clone.read_bytes()).hexdigest()\n        if a != b:\n            drift.append(rel)\n    assert not drift, (\n        f\"\uc0ac\ubcf8\uc774 \uc6d0\ubcf8\uacfc \uc5b4\uae0b\ub0ac\ub2e4 \u2014 {drift}. \uc5b4\ub290 \ucabd\uc744 \uace0\uce60\uc9c0 \ud310\uc815\ud558\uace0, v3 \uac00 \uc77c\ubd80\ub7ec \"\n        f\"\ubc14\uafbc \uac83\uc774\uba74 EXTENDED \uc640 v3/world/__init__.py \ud45c\uc5d0 \ub4f1\ub85d\ud558\ub77c.\")\n\n\n@pytest.mark.parametrize(\"rel\", sorted(EXTENDED))\ndef test_extended_files_only_append(rel):"
+        }
+      ]
+    },
+    {
+      "path": "tests/v3/test_world_equivalence.py",
+      "sha256": "3e09bb7a8cc73f9b8f188559f1adc64d89e7cf5d09691bf6e1b820633642d33b",
+      "bytes": 4899,
+      "line_count": 107,
+      "references": [
+        {
+          "start_line": 99,
+          "end_line": 106,
+          "text": "def test_clone_engine_reproduces_original():\n    \"\"\"\uc6d0\ubcf8 \ud2b8\ub9ac\uc640 v3 \uc0ac\ubcf8 \ud2b8\ub9ac\uac00 **\uac19\uc740 \uc218\uce58**\ub97c \ub0b8\ub2e4 (\ub3c4\ucc29 \uace1\uc120\uc744 \ub9de\ucd98 \ub4a4).\"\"\"\n    with _same_arrival_curve():\n        a = _run(\"yard_rl.integrated\")\n        b = _run(\"yard_rl.v3.world.integrated\")\n    assert a == b, (\n        f\"\uc0ac\ubcf8 \uc5d4\uc9c4\uc774 \uc6d0\ubcf8\uacfc \ub2e4\ub978 \ud558\ub8e8\ub97c \uad74\ub838\ub2e4\\n  \uc6d0\ubcf8 {a}\\n  \uc0ac\ubcf8 {b}\\n\"\n        f\"\u2192 \uc0ac\ubcf8\uc774 \uc6d0\ubcf8 \ubc16 \ubaa8\ub4c8\uc744 \ub04c\uc5b4\uc624\uace0 \uc788\uac70\ub098, \uc0ac\ubcf8\uc5d0 \ube60\uc9c4 \ubaa8\ub4c8\uc774 \uc788\ub2e4.\")"
+        }
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "monthly_environment_fixed",
+      "finding": "run_month fixes build_h21_profile and terminal_layout; build_month already accepts profile/layout.",
+      "evidence": {
+        "path": "src/yard_rl/v3/stage/month_run.py",
+        "line_references": [
+          {
+            "start_line": 205,
+            "end_line": 222
+          },
+          {
+            "start_line": 247,
+            "end_line": 251
+          }
+        ]
+      }
+    },
+    {
+      "id": "single_axis_layout",
+      "finding": "One-dimensional positions and travel times do not define operationally distinct horizontal/vertical layouts.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/yard_layout.py",
+        "line_references": [
+          {
+            "start_line": 45,
+            "end_line": 55
+          },
+          {
+            "start_line": 81,
+            "end_line": 119
+          }
+        ]
+      }
+    },
+    {
+      "id": "role_and_endpoint_gaps",
+      "finding": "Eligibility uses bay ranges; dispatchability has no landside/waterside role check; STORE/RETRIEVE use the same transfer_row.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/engine.py",
+        "line_references": [
+          {
+            "start_line": 134,
+            "end_line": 136
+          },
+          {
+            "start_line": 267,
+            "end_line": 273
+          },
+          {
+            "start_line": 494,
+            "end_line": 513
+          },
+          {
+            "start_line": 552,
+            "end_line": 560
+          },
+          {
+            "start_line": 597,
+            "end_line": 603
+          },
+          {
+            "start_line": 649,
+            "end_line": 653
+          },
+          {
+            "start_line": 990,
+            "end_line": 1015
+          }
+        ]
+      }
+    },
+    {
+      "id": "fleet_kind_not_dynamics",
+      "finding": "TransferFleet request/dispatch_pending use availability and move_time_s without a kind-dependent branch.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/transfer.py",
+        "line_references": [
+          {
+            "start_line": 15,
+            "end_line": 22
+          },
+          {
+            "start_line": 34,
+            "end_line": 53
+          }
+        ]
+      }
+    },
+    {
+      "id": "profile_limitations_explicit",
+      "finding": "Approximate builders explicitly describe absent role separation and identical vehicle dynamics.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/profiles.py",
+        "line_references": [
+          {
+            "start_line": 21,
+            "end_line": 44
+          },
+          {
+            "start_line": 59,
+            "end_line": 103
+          }
+        ]
+      }
+    },
+    {
+      "id": "travel_wiring_requires_runtime_check",
+      "finding": "Inspected engine creates TransferFleet from profile.transfer.move_time_s; geometry-to-event-time behavior still needs runtime qualification.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/engine.py",
+        "line_references": [
+          {
+            "start_line": 134,
+            "end_line": 136
+          },
+          {
+            "start_line": 267,
+            "end_line": 273
+          },
+          {
+            "start_line": 494,
+            "end_line": 513
+          },
+          {
+            "start_line": 552,
+            "end_line": 560
+          },
+          {
+            "start_line": 597,
+            "end_line": 603
+          },
+          {
+            "start_line": 649,
+            "end_line": 653
+          },
+          {
+            "start_line": 990,
+            "end_line": 1015
+          }
+        ]
+      }
+    },
+    {
+      "id": "destination_slot_first_crane",
+      "finding": "Destination inbound slot validation uses profile.cranes[0]; role split needs a consistent permitted-resource check.",
+      "evidence": {
+        "path": "src/yard_rl/v3/world/integrated/multiblock.py",
+        "line_references": [
+          {
+            "start_line": 475,
+            "end_line": 488
+          }
+        ]
+      }
+    },
+    {
+      "id": "legacy_structure_test",
+      "finding": "Non-V3 structure test explicitly classifies role split as unsupported; test was inspected, not executed.",
+      "evidence": {
+        "path": "tests/integrated/test_structure_compiler.py",
+        "line_references": [
+          {
+            "start_line": 1,
+            "end_line": 8
+          },
+          {
+            "start_line": 39,
+            "end_line": 47
+          }
+        ]
+      }
+    },
+    {
+      "id": "topology_test_scope",
+      "finding": "Topology tests inspect YAML fields, not operational consumption; test was not executed.",
+      "evidence": {
+        "path": "tests/unit/test_public_topology_profiles.py",
+        "line_references": [
+          {
+            "start_line": 14,
+            "end_line": 25
+          },
+          {
+            "start_line": 28,
+            "end_line": 38
+          }
+        ]
+      }
+    },
+    {
+      "id": "clone_test_scope",
+      "finding": "Clone tests enforce intended source equivalence, not H/V differentiation; test was not executed.",
+      "evidence": {
+        "path": "tests/v3/test_world_clone.py",
+        "line_references": [
+          {
+            "start_line": 63,
+            "end_line": 79
+          }
+        ]
+      }
+    },
+    {
+      "id": "equivalence_test_scope",
+      "finding": "V3 equivalence test compares the existing shared engine with the original; test was not executed.",
+      "evidence": {
+        "path": "tests/v3/test_world_equivalence.py",
+        "line_references": [
+          {
+            "start_line": 99,
+            "end_line": 106
+          }
+        ]
+      }
+    }
+  ],
+  "yt_round_trip_static_search": {
+    "method": "AST direct named or attribute calls in src/yard_rl/v3/**/*.py",
+    "definitions": [
+      {
+        "path": "src/yard_rl/v3/world/integrated/yard_layout.py",
+        "line": 113
+      }
+    ],
+    "calls": [],
+    "files_scanned": 113,
+    "searched_source_manifest": [
+      {
+        "path": "src/yard_rl/v3/__init__.py",
+        "sha256": "e77f030e4dcffd187054666f0949b36b6f4f232c01f3014bee40cb872f443aca"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/__init__.py",
+        "sha256": "354975f9bd692cdc98341f683ef1cb1d15ad7d28ff66fbe765227e9518bcc366"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/buyer.py",
+        "sha256": "d895fd4e11babc74f6c01c965d1e52ba9d491536f4a0a66653fa26d3c974e320"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/classical.py",
+        "sha256": "b45add02f877176b6dd1c7a7e61ec0e88e5b26e4b2e9ec5097e0cfa84fb0b86c"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/explore.py",
+        "sha256": "c4682eb59cfc273e83198e741566907a7661b6e2b0bf512178cde0e80925d6b9"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/market.py",
+        "sha256": "2ec0489d75f2193ac11f45897d44fd71b5b5ce27e6eed301189d70dd81676f3a"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/nets.py",
+        "sha256": "4f220e315e2b01fd0c118d014915290aa9c6f7cf247eaffadb20c9cb46549218"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/offer.py",
+        "sha256": "5a3ecbcc75947716734566cc162791c0e6cdd0dd9fb8bf733254d2525ee858ae"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/resolver.py",
+        "sha256": "d1ba1eaee5f60cae2f0eef7e76f44f79f9dc886eb755f81bcaf7637cf82cacff"
+      },
+      {
+        "path": "src/yard_rl/v3/actors/seller.py",
+        "sha256": "5db3c4cc8a69d00b2ccdfeca67834cd9dd78a67cf9917e070d450bd9e72c1578"
+      },
+      {
+        "path": "src/yard_rl/v3/dispatch.py",
+        "sha256": "4005e09769a289dd51a4d1f50236206812cd880fec5c1924b90ddf9ba0256418"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/__init__.py",
+        "sha256": "df00f9fd633d0074ae759e2ead6f49d3083896937402a18d732fa28a3f72afc1"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/__main__.py",
+        "sha256": "0c8adcdafef2df5c5a958081040e7a641cf26a71f48babb58bb49fc077bf75a6"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/contracts.py",
+        "sha256": "8fccabac51150aa990200bd334421e506f9bf170e76ecd8c99d885658963a800"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/guards.py",
+        "sha256": "41603b8b825ec5ad27f4db72faa6dbdc5ca4c0a446ad0772add740331828b7c6"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/month_judge.py",
+        "sha256": "9a45a75dd4ec8b081c0427b2855e69694c8464949bd5f9618ca8f79eab0d6aa1"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/run.py",
+        "sha256": "04f6eb45ee770d42f5b14ec0247658a056da729ff390923c33f82ac25b695ead"
+      },
+      {
+        "path": "src/yard_rl/v3/eval/seed_bank.py",
+        "sha256": "345f63e4a243d6e24333d4ef2c792d88e24797e5b2c2c846fb29a54847501bc9"
+      },
+      {
+        "path": "src/yard_rl/v3/features/__init__.py",
+        "sha256": "953cb79c8a59f049627b4793aca415c95ba36c09e8e260c3ed46b9ecaa68a9bc"
+      },
+      {
+        "path": "src/yard_rl/v3/features/block.py",
+        "sha256": "d37206ed96c8b04c2ad5bac3df77964ba086ce4207fa6ca8175066a0b9ac3033"
+      },
+      {
+        "path": "src/yard_rl/v3/features/candidate.py",
+        "sha256": "bbbb3e7ff52391cc1890de88ed29ffbd83f4f738c940359e44d648c3b11e7e0a"
+      },
+      {
+        "path": "src/yard_rl/v3/reward/__init__.py",
+        "sha256": "2c81e340ccb5c106778cb7e71a1821d2267ec7e28abe7405ce27901c6a2d6a0c"
+      },
+      {
+        "path": "src/yard_rl/v3/reward/counterfactual.py",
+        "sha256": "ad17c9a679b71fc28bf444ea5224ced0047ff442d97bdb2ae72c1ceaaa227fe7"
+      },
+      {
+        "path": "src/yard_rl/v3/reward/krw.py",
+        "sha256": "8526082bc0e59efd9fdfa18563ae8610cfbec2b6f8d01048abd552b2821f4492"
+      },
+      {
+        "path": "src/yard_rl/v3/reward/phi.py",
+        "sha256": "1dde767db6889fa98eba325fac01a708ee7bc2d5078d96ebfcae8d0c048c1fbe"
+      },
+      {
+        "path": "src/yard_rl/v3/schema/__init__.py",
+        "sha256": "9b1ad22196d9b735c6b4e7cfc21b47c9f8f236b8c1047cca14bdebc1681a5ee4"
+      },
+      {
+        "path": "src/yard_rl/v3/schema/lifecycle.py",
+        "sha256": "ca01c1d72b353c79c85ff97c4012d3a1554bbf5f7da9e70e45b563a174e6029c"
+      },
+      {
+        "path": "src/yard_rl/v3/schema/order.py",
+        "sha256": "3f2f838c995ee4dfeebe00489858c46ec0657667e2c8b90d559773ab0ce60f9b"
+      },
+      {
+        "path": "src/yard_rl/v3/schema/record.py",
+        "sha256": "de89e7879162ca082b1836427e0ecb98311629669bfb3f1cae1cd3b74a09d25a"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/__init__.py",
+        "sha256": "6513ae3e85d08efe96a2212d60669954b56b1bd169c787f5c9cedf2c03283e80"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/admission_audit.py",
+        "sha256": "cd4e77f5dd0a28557279dc0814ecfb1af5c46d86bcb81e22911ad00744fa4148"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/branchpool.py",
+        "sha256": "e2128b0f459fbb479f37dafb75de6ae881761539ba942474607e171d502873ce"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/bridge.py",
+        "sha256": "899d2da0d5cb4ddb005bfa1cc84df0ef101fd3e3c25329e4acdae693cd48e3ed"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/container_audit.py",
+        "sha256": "9e4f376daa199baea6db32d097916c6ca8ffb4e3c97ad7143e5f91d98ca358ee"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/daily_observation.py",
+        "sha256": "a6837a065233c1c338214f7c359a723724e7ad9100839e4a77fabca4f306262c"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/demand_engine.py",
+        "sha256": "afaf51f5d06d8df62f62ad04d9acfea677533417a06ae18bc4cbdbe0650513dc"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/episode.py",
+        "sha256": "e8d36186a39ecb59a9e92b0e4e81f1a97e3a9444a4ff901678771cdeb6df7332"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/month.py",
+        "sha256": "6165641443bd2f66a075cc7e6327985da5971d925865978699806d4cd7c68162"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/month_engine.py",
+        "sha256": "f26f5af24a2be89191ccd911f11935326961e26eaac31882051bde83fc1c0b7b"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/month_run.py",
+        "sha256": "eb4e1c50e6c3ddc3487b7e087654ffa4018c2d08ecf87d96897962cb735df5c6"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/orders.py",
+        "sha256": "d886370a3df5962985f453801a89af19dea81e9eb23a53b31f0b1099d47183c7"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/request_audit.py",
+        "sha256": "56c4379d09e7f24d6e4942b955daa01e81cc8e79a8b88021346c87bd8441f35e"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/rollout.py",
+        "sha256": "ba0b863cfae874d9e08ca8d1b8f8ebab553562d7d263289bb2d618cb62362103"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/supply_plan.py",
+        "sha256": "ab544257dff25b2d6f6a8664a16283db5298ebc1a04f7edaa67123273fe5ed60"
+      },
+      {
+        "path": "src/yard_rl/v3/stage/vessels.py",
+        "sha256": "3d22f71d8ddfdf0d0773f3eba14d3c9100c4a61a52f756b62c20912e72050f89"
+      },
+      {
+        "path": "src/yard_rl/v3/train/__init__.py",
+        "sha256": "ece0ae375981993106f995f71702391900a8b1e90f5ece292bf0a5d65930cb31"
+      },
+      {
+        "path": "src/yard_rl/v3/train/__main__.py",
+        "sha256": "217ab17537404011b242b0caa295d783f565ffb3c9994ca636f5cd1df7f9d897"
+      },
+      {
+        "path": "src/yard_rl/v3/train/fit.py",
+        "sha256": "0e09d1ee3ff77534aa8b87d491972ea2e8e8f74222cb4b4b4302283ebf8effa2"
+      },
+      {
+        "path": "src/yard_rl/v3/train/labels.py",
+        "sha256": "f79b7d82ef69c0d3eb78fd90b08c8ce4ecd6d1e07c2e3f48b2c4bf44fd5bd5bb"
+      },
+      {
+        "path": "src/yard_rl/v3/train/loop.py",
+        "sha256": "de874123f229031d1b13d446db2a7f07acd210bff054144c9da2d9db3518387f"
+      },
+      {
+        "path": "src/yard_rl/v3/train/month_loop.py",
+        "sha256": "7af801f003b5527f487f23fc763613df90976800ae6d5f9652ded24681dd4044"
+      },
+      {
+        "path": "src/yard_rl/v3/world/__init__.py",
+        "sha256": "b656ab0cf41086cc20a5ac43ccb5b59e5844cc0ee276158c2b8180ab2436babc"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/__init__.py",
+        "sha256": "100d159c453660378347f4542799e1b5434578f3b5d31d855d7cf61473c9ec54"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/candidate.py",
+        "sha256": "ba42ac86a16c714b364449103979f39449bb7e78f44af9245a034fa7ded225c9"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/cost.py",
+        "sha256": "df15227418bdb2c2288c2a8d6b1ec2e8cf591aa178f572ac2cde8e895e909e72"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/fixtures.py",
+        "sha256": "5847c81764ab06c91e34a82d55049624a1a645ad8f98a0e8345be88a7ce91b86"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/leakage.py",
+        "sha256": "4562cc758ac2a56dab2f62e0c24ca4f23e3d4d1258e9a24c05b9519bbc5d241a"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/schema.py",
+        "sha256": "1062033e22bf77f5f3e549ab2c288aa21fe139b290372284e523944a058dd068"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/serialize.py",
+        "sha256": "3d7785ba9f8fda2b3873be16b0870ec08d572db023a64471132c2766257089c0"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/state.py",
+        "sha256": "5d33f3a73d6b7fa7b3df64c1c9f329367d79011f77149e788a0fda47bd97280d"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/transition.py",
+        "sha256": "3448d6e240860682f27107cacc4329554bd2a0266e109a1cad1482f2e75f5f24"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/validate.py",
+        "sha256": "b74e4413006b69cedab94a724e15adef2f27fc891bfe51f935b2d36d8ccc677c"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/vectors.py",
+        "sha256": "f3c915f4411620479089969a27919ae234e2048937af9a42de0e7bf799343c28"
+      },
+      {
+        "path": "src/yard_rl/v3/world/contract/vessel.py",
+        "sha256": "e3ec157381c1a577e6fc1304b47b7186bc1930e5fa14ed80796b6c8b0735a45e"
+      },
+      {
+        "path": "src/yard_rl/v3/world/domain/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/yard_rl/v3/world/domain/enums.py",
+        "sha256": "ba19bcda685cf22ffe55d2527c9d1311a92a11685b3e8c0252dc9f4e7de555e3"
+      },
+      {
+        "path": "src/yard_rl/v3/world/domain/models.py",
+        "sha256": "65010d7237294660548eb1a91192643cec7b3e9041ae2433d264fe5c49acd92e"
+      },
+      {
+        "path": "src/yard_rl/v3/world/domain/validators.py",
+        "sha256": "2c8cb7e41cd44794e608e24284f7d8b3481e3e47bc381fd6ff588da3daa203ac"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/__init__.py",
+        "sha256": "fc47ebcebfdd86e0e0c9c39180e78b95b2342b1765292d3333b8f4d16ca73256"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/adapter.py",
+        "sha256": "ca436de79b46168bb9f626702ed26b8806300000ddd05ea0aa03b7e52b451580"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/audit.py",
+        "sha256": "aa13d6cb1102f5bd1591679ccbad2be8a1f411d7ce184f16c57fe5c5568bdde5"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/baselines.py",
+        "sha256": "0af81bcd7b16faec92b678dee17418ac5aec705593dc11b1c9418578c21279ac"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/block_congestion.py",
+        "sha256": "031adae2955ff32688d1a1d46ba9e6ebeb5d0fc930a32076bac9ed99d63e02b2"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/candidates.py",
+        "sha256": "21f2f8401b4505f6a8d876779345c0c162fc8891fc1c908e8cfce42a36b0269f"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/cost.py",
+        "sha256": "cb414bdb9305e37aea15287fe45bb7cf8b72e502154e21a4d82f0ec9f966687a"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/cost_config.py",
+        "sha256": "0f6e0fc9b628337e92d6e6510e3c25a81788fd47788eba3121ab7190c2cc70f9"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/cost_curve.py",
+        "sha256": "f028b8c6f88cf1b5a7876d342ad6bc53677feda115366763f0a43dd596a7a60f"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/cost_curve_v2.py",
+        "sha256": "2bae79eeb2dfefcb2412202eb497f2a816448af4679dfdb8b78ab9a97f7ac8e0"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/cranes.py",
+        "sha256": "29c549ac412e50e67e9dd56ea8abcf65f8924d9eb41bbc9b26ab31bb10a257dd"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/day_plan.py",
+        "sha256": "2e7163732a741ae61675a2b7ea0bb456c8144bb21ccff09faef6c3d36b51c8c3"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/dispatcher.py",
+        "sha256": "b2d2c42077b25ea5d4454c924843e29a51cc19a0182fd584a16e82748bff8055"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/engine.py",
+        "sha256": "ddf2b27118e9fc868f300f3a97fddc6cceefd41609b1a174665ed3f627cc5a2f"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/events.py",
+        "sha256": "34f03ecc95f9d6bbc07ba39b188a87c3c27bc44f88376c2a5589fbe1c072c013"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/fixtures.py",
+        "sha256": "abf93a8e70ebce28d728895842d69d84031f2b10e6338300f7983f37c8ecd6eb"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/jobplan.py",
+        "sha256": "ba8c165fa09d57e3190509e29824e8ae41e044623228ff577c734e7ed6062d07"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/lane.py",
+        "sha256": "8254f853cb7284979a8ccaf154e8307c85d8e20eaad530d47ec744efa62179a7"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/ledger.py",
+        "sha256": "1fcdf4a779e98f6dac6e339ee71c7c4591021ee284e31df2a6af1e749318a2a7"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/multiblock.py",
+        "sha256": "1cca5f55663dc0d39845a5cd869524a90b3bed2e84cede3b9e527623102055e9"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/order_schema.py",
+        "sha256": "74d6c68fe43ecdb36e1745967d1b209d723049f6d45d0bb9fec4f3e293f6d97d"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/policy_config.py",
+        "sha256": "9afad2af0c4db1954eca879e23b24b114ebd0a78b487e38ee7f3e69b9b5d3dc4"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/profile.py",
+        "sha256": "fd006432f4a979806edb7642765ea76ad3d4df3272f7ffb426eabd502db0eb6c"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/profiles.py",
+        "sha256": "a7af66f8aebd5ce1f31fdc02cf845473b20df3dba67d1f6163625819f91265f3"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/reservation.py",
+        "sha256": "4935313d9774e21c64649424bf948312fcdadd3b7c63c43dd7967699b76be556"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/resolver.py",
+        "sha256": "41a160094a8e854edde7227a9e4baea24e3dd448585141900936416753cb86ed"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/scenario.py",
+        "sha256": "cc7782d58ae7c2382d3f403ed399ff116b24f4cb325bad314e6cc8d811153b5a"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/scenario_gen.py",
+        "sha256": "c95285f6829a47c936b48efc893bcb3a7fb4d463ee270aba033d759e696d89ad"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/slot_plan.py",
+        "sha256": "1b814bddbc4f1043750aa7985891869725c4f0947accb773d0614c3afd1bc47f"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/terminal_stream.py",
+        "sha256": "0d4538aa0856434104d177a5c2d627656eaf97741d00c269658bfbe12a5f037b"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/time_contract.py",
+        "sha256": "ca9a517fdf40585e761b666a16eefd3685c0621f1ef951cb4a5d6c343372b352"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/time_grid.py",
+        "sha256": "38b3e4635ae120c45633c68e935eea4af3918c4e89277b1a9c6db82795e34dc7"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/time_sell.py",
+        "sha256": "089ed159c59c71f09616ae35dba46a3b8c517a150caf486f2b2fd2f7e4c99c0e"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/transfer.py",
+        "sha256": "4b654a39b543ff5eb0c2e9bfa2da261e3faf72764ba07c263fa0e425dfd8b59e"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/vessel.py",
+        "sha256": "94b5bbb608329efd93c34bc401a02d3be8e4642761b38ece96c5390d3a7f40a9"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/vessel_cost.py",
+        "sha256": "425598d3356127997bda6a61cdebc0c0157c725e6388ec3b2a4df0061d148bf3"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/vessel_signals.py",
+        "sha256": "52c77722ec54722261147d5bb1d4080363b86fdb4b5d94dc728c41ea5741d258"
+      },
+      {
+        "path": "src/yard_rl/v3/world/integrated/yard_layout.py",
+        "sha256": "722e9f44648c69cff76bfc73c771d7d04b3cba5f0f354dbe92e2798ca9780652"
+      },
+      {
+        "path": "src/yard_rl/v3/world/io/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/yard_rl/v3/world/io/profile_loader.py",
+        "sha256": "81a8b98c6ab1b08684fe9b62466e7425f3ddf96697c513e2cf5ac5c3c68f2826"
+      },
+      {
+        "path": "src/yard_rl/v3/world/sim/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "src/yard_rl/v3/world/sim/constraints.py",
+        "sha256": "21f463e9b4c0f9adeb549fa623de4add0a363fa28d792cd248274ec40c15ec5e"
+      },
+      {
+        "path": "src/yard_rl/v3/world/sim/kpis.py",
+        "sha256": "cf9f803edea8f636b76370d31c4c3227971dbee671f3fd466243e948c3c25032"
+      },
+      {
+        "path": "src/yard_rl/v3/world/sim/stack.py",
+        "sha256": "40f51e31d57be47857c44c18a8a493f1b94eb2c654daec7a6b49199d179f1a82"
+      },
+      {
+        "path": "src/yard_rl/v3/world/sim/travel_time.py",
+        "sha256": "d33fcf87ab219a183cd8fe26e505193bafbd2d9c49d46bfffb70238f29718b0b"
+      }
+    ],
+    "limitation": "No direct calls does not prove global unreachability or absence of dynamic dispatch. No runtime tracing performed."
+  },
+  "qualification_stages": [
+    {
+      "stage": 1,
+      "status": "not_run"
+    },
+    {
+      "stage": 2,
+      "status": "not_run"
+    },
+    {
+      "stage": 3,
+      "status": "not_run"
+    },
+    {
+      "stage": 4,
+      "status": "not_run"
+    },
+    {
+      "stage": 5,
+      "status": "not_run"
+    }
+  ],
+  "limits": [
+    "No new numeric geometry, speed or buffer contract fixed.",
+    "Frozen experiments, source, inputs and checkpoints unchanged.",
+    "No H/V performance, real-terminal replication or orientation causal effect established.",
+    "Policy counts and structure-specific training need a separate registered protocol; 160 runs are not automatically launched."
+  ]
+}
