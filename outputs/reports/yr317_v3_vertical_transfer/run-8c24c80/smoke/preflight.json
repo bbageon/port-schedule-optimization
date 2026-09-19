@@ -1,0 +1,583 @@
+{
+  "at": "2026-09-19T05:24:14.368605+00:00",
+  "checks": {
+    "memory_available_12gib": true,
+    "vertical_cores_free": true,
+    "v3_workers_with_pair_within20": true,
+    "cpus_available": true
+  },
+  "meminfo": {
+    "MemTotal": 67234705408,
+    "MemFree": 24235032576,
+    "MemAvailable": 36613373952,
+    "Buffers": 299638784,
+    "Cached": 12210417664,
+    "SwapCached": 0,
+    "Active": 962355200,
+    "Inactive": 40545828864,
+    "Active(anon)": 10354688,
+    "Inactive(anon)": 29270429696,
+    "Active(file)": 952000512,
+    "Inactive(file)": 11275399168,
+    "Unevictable": 0,
+    "Mlocked": 0,
+    "SwapTotal": 17179869184,
+    "SwapFree": 17179869184,
+    "Dirty": 364544,
+    "Writeback": 0,
+    "AnonPages": 28997853184,
+    "Mapped": 2115526656,
+    "Shmem": 282664960,
+    "KReclaimable": 805298176,
+    "Slab": 1063346176,
+    "SReclaimable": 805298176,
+    "SUnreclaim": 258048000,
+    "KernelStack": 15835136,
+    "PageTables": 84987904,
+    "SecPageTables": 0,
+    "NFS_Unstable": 0,
+    "Bounce": 0,
+    "WritebackTmp": 0,
+    "CommitLimit": 50797219840,
+    "Committed_AS": 39562461184,
+    "VmallocTotal": 35184372087808,
+    "VmallocUsed": 49934336,
+    "VmallocChunk": 0,
+    "Percpu": 14942208,
+    "HardwareCorrupted": 0,
+    "AnonHugePages": 25165824,
+    "ShmemHugePages": 0,
+    "ShmemPmdMapped": 0,
+    "FileHugePages": 0,
+    "FilePmdMapped": 0,
+    "Unaccepted": 0,
+    "HugePages_Total": 0,
+    "HugePages_Free": 0,
+    "HugePages_Rsvd": 0,
+    "HugePages_Surp": 0,
+    "Hugepagesize": 2097152,
+    "Hugetlb": 0,
+    "DirectMap4k": 105906176,
+    "DirectMap2M": 19027460096,
+    "DirectMap1G": 57982058496
+  },
+  "meminfo_raw": "MemTotal:       65658892 kB\nMemFree:        23667024 kB\nMemAvailable:   35755248 kB\nBuffers:          292616 kB\nCached:         11924236 kB\nSwapCached:            0 kB\nActive:           939800 kB\nInactive:       39595536 kB\nActive(anon):      10112 kB\nInactive(anon): 28584404 kB\nActive(file):     929688 kB\nInactive(file): 11011132 kB\nUnevictable:           0 kB\nMlocked:               0 kB\nSwapTotal:      16777216 kB\nSwapFree:       16777216 kB\nDirty:               356 kB\nWriteback:             0 kB\nAnonPages:      28318216 kB\nMapped:          2065944 kB\nShmem:            276040 kB\nKReclaimable:     786424 kB\nSlab:            1038424 kB\nSReclaimable:     786424 kB\nSUnreclaim:       252000 kB\nKernelStack:       15464 kB\nPageTables:        82996 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    49606660 kB\nCommitted_AS:   38635216 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       48764 kB\nVmallocChunk:          0 kB\nPercpu:            14592 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     24576 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      103424 kB\nDirectMap2M:    18581504 kB\nDirectMap1G:    56623104 kB\n",
+  "reserved_cpus": [
+    18,
+    19
+  ],
+  "reserve_gib": {
+    "vertical_pair": 6,
+    "future_existing_worker": 3,
+    "margin": 3
+  },
+  "v3_workers": 14,
+  "known_processes": [
+    {
+      "pid": 744,
+      "ppid": 738,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "scripts/v5/queue_reference_comparison.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--output",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-reference-comparison"
+      ],
+      "rss_bytes": 18391040,
+      "cpus": [
+        23
+      ]
+    },
+    {
+      "pid": 4583,
+      "ppid": 744,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-reference-source/scripts/v5/compare_frozen_policies.py",
+        "--arm",
+        "final",
+        "--original-run",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-30d-4549ae9",
+        "--seed-bundle",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr306_seed_regeneration/seed-9900306/seed-data.json.gz",
+        "--output",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-reference-comparison/final"
+      ],
+      "rss_bytes": 2176057344,
+      "cpus": [
+        23
+      ]
+    },
+    {
+      "pid": 23325,
+      "ppid": 23316,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f"
+      ],
+      "rss_bytes": 669069312,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "pid": 23418,
+      "ppid": 23325,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f",
+        "--seed",
+        "20000000",
+        "--arm",
+        "RL_TIME",
+        "--cpu",
+        "2"
+      ],
+      "rss_bytes": 1686720512,
+      "cpus": [
+        2
+      ]
+    },
+    {
+      "pid": 23424,
+      "ppid": 23325,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f",
+        "--seed",
+        "20200000",
+        "--arm",
+        "RL_TIME",
+        "--cpu",
+        "8"
+      ],
+      "rss_bytes": 1778192384,
+      "cpus": [
+        8
+      ]
+    },
+    {
+      "pid": 26598,
+      "ppid": 23325,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f",
+        "--seed",
+        "21000000",
+        "--arm",
+        "NO_REALLOC",
+        "--cpu",
+        "11"
+      ],
+      "rss_bytes": 1148522496,
+      "cpus": [
+        11
+      ]
+    },
+    {
+      "pid": 30108,
+      "ppid": 23325,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f",
+        "--seed",
+        "21500000",
+        "--arm",
+        "RL",
+        "--cpu",
+        "10"
+      ],
+      "rss_bytes": 2225082368,
+      "cpus": [
+        10
+      ]
+    },
+    {
+      "pid": 30197,
+      "ppid": 23325,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-independent-7e2fb14/scripts/v3/run_independent_evaluation.py",
+        "--config",
+        "/home/geonu/yr317-v3-independent-7e2fb14/outputs/reports/yr317_v3_independent_eval/config.json",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-7e2fb14",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_independent_eval/run-4068b4f",
+        "--seed",
+        "21500000",
+        "--arm",
+        "RL_TIME",
+        "--cpu",
+        "5"
+      ],
+      "rss_bytes": 1732710400,
+      "cpus": [
+        5
+      ]
+    },
+    {
+      "pid": 36166,
+      "ppid": 36123,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--recover-from",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-ea9164b"
+      ],
+      "rss_bytes": 593858560,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "pid": 36176,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "20600000",
+        "--cpu",
+        "0"
+      ],
+      "rss_bytes": 1055686656,
+      "cpus": [
+        0
+      ]
+    },
+    {
+      "pid": 36177,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "20700000",
+        "--cpu",
+        "1"
+      ],
+      "rss_bytes": 1102368768,
+      "cpus": [
+        1
+      ]
+    },
+    {
+      "pid": 36178,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "20800000",
+        "--cpu",
+        "3"
+      ],
+      "rss_bytes": 1091481600,
+      "cpus": [
+        3
+      ]
+    },
+    {
+      "pid": 36179,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "20900000",
+        "--cpu",
+        "4"
+      ],
+      "rss_bytes": 1202720768,
+      "cpus": [
+        4
+      ]
+    },
+    {
+      "pid": 36180,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "21000000",
+        "--cpu",
+        "6"
+      ],
+      "rss_bytes": 1071108096,
+      "cpus": [
+        6
+      ]
+    },
+    {
+      "pid": 36181,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "21100000",
+        "--cpu",
+        "7"
+      ],
+      "rss_bytes": 1132171264,
+      "cpus": [
+        7
+      ]
+    },
+    {
+      "pid": 36182,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "21200000",
+        "--cpu",
+        "9"
+      ],
+      "rss_bytes": 1056067584,
+      "cpus": [
+        9
+      ]
+    },
+    {
+      "pid": 36183,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "21300000",
+        "--cpu",
+        "12"
+      ],
+      "rss_bytes": 1180700672,
+      "cpus": [
+        12
+      ]
+    },
+    {
+      "pid": 36578,
+      "ppid": 36166,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/scripts/v3/run_block_only_evaluation.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/home/geonu/yr317-v3-block-recovery-de630ec/outputs/reports/yr317_v3_block_only/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_block_only/run-de630ec",
+        "--seed",
+        "21400000",
+        "--cpu",
+        "13"
+      ],
+      "rss_bytes": 1015525376,
+      "cpus": [
+        13
+      ]
+    },
+    {
+      "pid": 37398,
+      "ppid": 37393,
+      "argv": [
+        "/home/geonu/.venvs/yard-rl/bin/python",
+        "-u",
+        "/home/geonu/yr317-v3-vertical-transfer/scripts/v3/launch_vertical_comparison.py",
+        "--workspace",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매",
+        "--config",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_vertical_transfer/config.json",
+        "--out",
+        "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_vertical_transfer/run-8c24c80",
+        "--smoke",
+        "--supervise"
+      ],
+      "rss_bytes": 18497536,
+      "cpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    }
+  ],
+  "conflicting_processes": [],
+  "scope": "Separate pair reservation; existing supervisors and their own budgets are unchanged"
+}

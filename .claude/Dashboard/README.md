@@ -5,7 +5,7 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
-- **v3 수직형 두 정책 병렬 준비 (2026-09-19, YR-317-h)**: 기존 독립 평가 첫 시드·모델·비용·기록 기준 재사용. 초기 실패 보존, 기록 오류와 잔여 분리. CPU18·19에서 연결 검사 후 수직형 기준/시간 2회만 추가하며 기존 환경 결과는 감사 후 재사용한다. 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [실행 설계](../../docs/paper/v3/paper-revision/27-수직형-단일시드-보완실험.md)
+- **v3 수직형 두 정책 병렬 실행 중 (2026-09-19, YR-317-h)**: 14:28 KST 시드20,000,000의 30일 기준/시간 실행을 CPU18·19에서 시작했다. 52검사와 두 정책 연결·원자료 감사 통과, 본선 잔여 보존. 기존 독립 실험 유지·새 학습 없음. 각 환경의 기준 대비 시간정책 효과를 비교하는 제한적 사례다. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [실제 시작](../../outputs/reports/yr317_v3_vertical_transfer/started.json)
 
 - **v3 전체 리뷰 통합 초안 완료 (2026-09-18, YR-317-i·b·f)**: 12쪽 PDF·전체 답변서·실제 원고 위치 작성, 기존 11정책 표·그림 3개·22문헌 보존 및 문서 28검사 통과. 네 정책 독립 결과와 후보·온라인 시간 등의 실증은 미완료다. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md)
 - **v3 네 정책 독립 반복 61/80 완료 (2026-09-19, YR-317-d)**: 12:24 KST 주요 5개+블록 8개 실행·6개 대기·실패 목록 0. 유휴 자원 예약을 해제하고 완료 블록 6개를 보존해 미시작분을 병렬 재개했다. 관련 검사 60개 통과, 모델·곡선·비용 유지, 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [복구 검증](../../outputs/reports/yr317_v3_resource_recovery/README.md)
