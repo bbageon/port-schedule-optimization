@@ -1,0 +1,39 @@
+{
+  "command": [
+    "C:\\Users\\geonu\\anaconda3\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr317_v3_vertical\\qualification-gates.json",
+    "--gate-sha256",
+    "f980bc0bd7b8443c84678958a91233af6694c6e3aa828d0594284efa96292531",
+    "--gate-commit",
+    "579d2bd",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-317-h",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "scenario_validity"
+  ],
+  "returncode": 0,
+  "response": {
+    "task": "YR-317-h",
+    "allowed": true,
+    "reason": "미통과 게이트를 직접 해결하는 단일축 보정 작업",
+    "kind": "REMEDIATION",
+    "targets": [
+      "scenario_validity"
+    ],
+    "stage": null,
+    "current_unresolved": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
