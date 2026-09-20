@@ -13,6 +13,7 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-317-h2 | Sim | **구조별 7일 학습·같은 시드 평가 — 각 환경에서 배운 시간정책이 각 환경에서 이김 (수평 −2.2%·수직 −4.6%, 1시드 사례)** | 2026-09-20 | 학습 2개(라벨 389·갱신 2,496 동일 예산)·평가 4개 검사 통과. 수직은 미완료 2,505→2,751 증가. 반복은 [[YR-317-h3]]. [spec](../docs/dashboard-task-specs/YR-317-h2-v3-layout-specific-training.md) · [결과](../../docs/paper/v3/paper-revision/28-구조별-학습-평가-결과.md) · [짝 요약](../../outputs/reports/yr317_v3_layout_training/run-01dbd2d/main/summary.json) |
 | YR-317-h | Sim | **수직형 두 정책 30일 완료·같은 시드 두 환경 표 (축소 범위)** | 2026-09-20 | `108e7bd` · 수직형: 시간정책 −0.77%(10.4억)·미완료 3,558→3,705. 기존 공유형 같은 시드: 시간정책 미결 5,701·비용 8.3배 → [[YR-317-j]]. 6검사 통과·지문 일치, 원고 반영은 d와 함께. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [결과표](../../outputs/reports/yr317_v3_vertical_transfer/two-environment-comparison.md) · [검증](../../outputs/reports/yr317_v3_vertical_transfer/two-environment-comparison.json) |
 | YR-317-i | Paper | **전체 답변서·12쪽 통합 초안 완료, 독립 결과는 대기** | 2026-09-18 | `3082402` · 기존 11정책 표·그림 3개·22문헌 보존, 문서 28검사 통과. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) · [검증](../../docs/paper/v3/paper-revision/integrated-validation.json) |
 | YR-317-b | Paper | **현실 제약·비용 제외의 원고·답변 서술 완료** | 2026-09-18 | `3082402` · 무제한 슬롯·외부 비용 제외와 적용 조건을 통합본에 명시. 현실 제약하 성능 실험 완료를 뜻하지 않는다. [spec](../docs/dashboard-task-specs/YR-317-b-v3-review-operational-validity.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) |

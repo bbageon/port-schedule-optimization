@@ -1,0 +1,300 @@
+{
+  "passed": true,
+  "phase": "main",
+  "n_days": 7,
+  "environments": {
+    "legacy": {
+      "passed": true,
+      "environment": "legacy",
+      "seed": 30300000,
+      "policies": [
+        "NO_REALLOC",
+        "RL_TIME"
+      ],
+      "n_days": 7,
+      "costs": {
+        "measurement_days": {
+          "baseline_cost_krw": 4841032734.148048,
+          "time_only_cost_krw": 4733299149.561683,
+          "saving_krw": 107733584.5863657,
+          "saving_pct": 2.2254256581746756,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "all_days": {
+          "baseline_cost_krw": 5189465664.656199,
+          "time_only_cost_krw": 5013905276.344025,
+          "saving_krw": 175560388.3121748,
+          "saving_pct": 3.3830147390291216,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      },
+      "per_day": [
+        {
+          "index": 0,
+          "load": 7500,
+          "train": false,
+          "baseline_phi_krw": 245770216.07797506,
+          "time_only_phi_krw": 183804152.08693886
+        },
+        {
+          "index": 1,
+          "load": 5000,
+          "train": true,
+          "baseline_phi_krw": 105906338.13221072,
+          "time_only_phi_krw": 103827596.80989593
+        },
+        {
+          "index": 2,
+          "load": 15000,
+          "train": true,
+          "baseline_phi_krw": 2642320542.7015758,
+          "time_only_phi_krw": 2611846812.008234
+        },
+        {
+          "index": 3,
+          "load": 3500,
+          "train": true,
+          "baseline_phi_krw": 122625716.2712888,
+          "time_only_phi_krw": 125262171.77112266
+        },
+        {
+          "index": 4,
+          "load": 12500,
+          "train": true,
+          "baseline_phi_krw": 1597971109.8115652,
+          "time_only_phi_krw": 1532709933.41716
+        },
+        {
+          "index": 5,
+          "load": 7500,
+          "train": true,
+          "baseline_phi_krw": 372209027.2314076,
+          "time_only_phi_krw": 359652635.5552699
+        },
+        {
+          "index": 6,
+          "load": 5000,
+          "train": false,
+          "baseline_phi_krw": 102662714.43017596,
+          "time_only_phi_krw": 96801974.69540323
+        }
+      ],
+      "operational_outcomes": {
+        "NO_REALLOC": {
+          "all_trucks_completed": true,
+          "truck_unfinished": 0,
+          "unbound_at_cutoff": 0,
+          "vessel_unfinished": 0,
+          "all_vessels_completed": true,
+          "structurally_late_vessel_streams": 0,
+          "maximum_structural_min_overrun_s": 0,
+          "scope": "Observed completion/capacity outcomes; separate from input and recording validity"
+        },
+        "RL_TIME": {
+          "all_trucks_completed": true,
+          "truck_unfinished": 0,
+          "unbound_at_cutoff": 0,
+          "vessel_unfinished": 2,
+          "all_vessels_completed": false,
+          "structurally_late_vessel_streams": 0,
+          "maximum_structural_min_overrun_s": 0,
+          "scope": "Observed completion/capacity outcomes; separate from input and recording validity"
+        }
+      },
+      "actions": {
+        "NO_REALLOC": {
+          "time": 0,
+          "space": 0,
+          "traded": 0
+        },
+        "RL_TIME": {
+          "time": 3634,
+          "space": 0,
+          "traded": 3634
+        }
+      },
+      "claim_eligible": false,
+      "statistical_inference": false,
+      "independent_sample_count": 1,
+      "purpose": "Layout-specific weights evaluated in their own environment; descriptive, no H/V causal claim"
+    },
+    "vertical": {
+      "passed": true,
+      "environment": "vertical",
+      "seed": 30300000,
+      "policies": [
+        "NO_REALLOC",
+        "RL_TIME"
+      ],
+      "n_days": 7,
+      "costs": {
+        "measurement_days": {
+          "baseline_cost_krw": 36173671587.56115,
+          "time_only_cost_krw": 34494037429.722496,
+          "saving_krw": 1679634157.8386536,
+          "saving_pct": 4.643250419778291,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "all_days": {
+          "baseline_cost_krw": 39228486327.67409,
+          "time_only_cost_krw": 37097230057.132164,
+          "saving_krw": 2131256270.5419235,
+          "saving_pct": 5.432930174107711,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      },
+      "per_day": [
+        {
+          "index": 0,
+          "load": 7500,
+          "train": false,
+          "baseline_phi_krw": 2115328861.845276,
+          "time_only_phi_krw": 1740714997.103989
+        },
+        {
+          "index": 1,
+          "load": 5000,
+          "train": true,
+          "baseline_phi_krw": 1335266122.563224,
+          "time_only_phi_krw": 1089403933.5538087
+        },
+        {
+          "index": 2,
+          "load": 15000,
+          "train": true,
+          "baseline_phi_krw": 17519133870.32588,
+          "time_only_phi_krw": 16320277579.458105
+        },
+        {
+          "index": 3,
+          "load": 3500,
+          "train": true,
+          "baseline_phi_krw": 2229905552.714708,
+          "time_only_phi_krw": 2141121974.9739451
+        },
+        {
+          "index": 4,
+          "load": 12500,
+          "train": true,
+          "baseline_phi_krw": 11089694997.474903,
+          "time_only_phi_krw": 11024566858.982231
+        },
+        {
+          "index": 5,
+          "load": 7500,
+          "train": true,
+          "baseline_phi_krw": 3999671044.482433,
+          "time_only_phi_krw": 3918667082.7544074
+        },
+        {
+          "index": 6,
+          "load": 5000,
+          "train": false,
+          "baseline_phi_krw": 939485878.2676649,
+          "time_only_phi_krw": 862477630.3056781
+        }
+      ],
+      "operational_outcomes": {
+        "NO_REALLOC": {
+          "all_trucks_completed": false,
+          "truck_unfinished": 2505,
+          "unbound_at_cutoff": 0,
+          "vessel_unfinished": 1020,
+          "all_vessels_completed": false,
+          "structurally_late_vessel_streams": 0,
+          "maximum_structural_min_overrun_s": 0.0,
+          "scope": "Observed completion/capacity outcomes; separate from input and recording validity"
+        },
+        "RL_TIME": {
+          "all_trucks_completed": false,
+          "truck_unfinished": 2751,
+          "unbound_at_cutoff": 0,
+          "vessel_unfinished": 1045,
+          "all_vessels_completed": false,
+          "structurally_late_vessel_streams": 0,
+          "maximum_structural_min_overrun_s": 0.0,
+          "scope": "Observed completion/capacity outcomes; separate from input and recording validity"
+        }
+      },
+      "actions": {
+        "NO_REALLOC": {
+          "time": 0,
+          "space": 0,
+          "traded": 0
+        },
+        "RL_TIME": {
+          "time": 41476,
+          "space": 0,
+          "traded": 41476
+        }
+      },
+      "claim_eligible": false,
+      "statistical_inference": false,
+      "independent_sample_count": 1,
+      "purpose": "Layout-specific weights evaluated in their own environment; descriptive, no H/V causal claim"
+    }
+  },
+  "training": {
+    "legacy": {
+      "elapsed_s": 12317.733539854176,
+      "total_labels": 389,
+      "optimizer_steps": 2496,
+      "fit_days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "final_checkpoint_sha256": "40f2e4fa0ebc393e7d017735d38938230faaf564abbc55cbcf12d147f59ee29b"
+    },
+    "vertical": {
+      "elapsed_s": 22679.6366230594,
+      "total_labels": 389,
+      "optimizer_steps": 2496,
+      "fit_days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "final_checkpoint_sha256": "e388cc04b252afe50e1a7c72cf5cb91b2561cb768545413172a2241ba6312ec8"
+    }
+  },
+  "claim_eligible": false,
+  "statistical_inference": false,
+  "purpose": "Each environment: its own trained time-only weights vs NO_REALLOC on the shared evaluation seed"
+}

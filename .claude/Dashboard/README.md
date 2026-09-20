@@ -5,6 +5,7 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **v3 구조별 7일 학습·평가 완료 (2026-09-20, YR-317-h2→done, h3 등록)**: 같은 학습 시드로 수평·수직 각각 시간정책을 따로 학습해 같은 평가 시드에서 자기 환경 기준정책과 비교. 수평 −2.2%(6/7일), 수직 −4.6%(7/7일)로 환경 안에서 배운 모델은 이기지만 수직은 미완료 트럭 246대 증가. 1시드 서술 사례. [결과](../../docs/paper/v3/paper-revision/28-구조별-학습-평가-결과.md)
 - **v3 수직형 두 정책 완료·같은 시드 두 환경 표 (2026-09-20, YR-317-h→done, YR-317-j 등록)**: 수직 끝단형에서 시간정책이 28일 비용 0.77% 감소했으나 미완료 트럭 147대 증가. 기존 공유형 같은 시드 20,000,000에서는 시간정책이 미결 5,701·미완료 5,847을 남겨 최종 비용이 기준의 8.3배 — 원인 진단을 j로 등록. 시드 하나의 서술이며 원고 반영은 d 최종 수치와 함께. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [결과표](../../outputs/reports/yr317_v3_vertical_transfer/two-environment-comparison.md)
 
 - **v3 전체 리뷰 통합 초안 완료 (2026-09-18, YR-317-i·b·f)**: 12쪽 PDF·전체 답변서·실제 원고 위치 작성, 기존 11정책 표·그림 3개·22문헌 보존 및 문서 28검사 통과. 네 정책 독립 결과와 후보·온라인 시간 등의 실증은 미완료다. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md)
