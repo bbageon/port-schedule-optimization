@@ -5,7 +5,7 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
-- **v3 수직형 두 정책 병렬 실행 중 (2026-09-19, YR-317-h)**: 14:28 KST 시드20,000,000의 30일 기준/시간 실행을 CPU18·19에서 시작했다. 52검사와 두 정책 연결·원자료 감사 통과, 본선 잔여 보존. 기존 독립 실험 유지·새 학습 없음. 각 환경의 기준 대비 시간정책 효과를 비교하는 제한적 사례다. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [실제 시작](../../outputs/reports/yr317_v3_vertical_transfer/started.json)
+- **v3 수직형 두 정책 완료·같은 시드 두 환경 표 (2026-09-20, YR-317-h→done, YR-317-j 등록)**: 수직 끝단형에서 시간정책이 28일 비용 0.77% 감소했으나 미완료 트럭 147대 증가. 기존 공유형 같은 시드 20,000,000에서는 시간정책이 미결 5,701·미완료 5,847을 남겨 최종 비용이 기준의 8.3배 — 원인 진단을 j로 등록. 시드 하나의 서술이며 원고 반영은 d 최종 수치와 함께. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [결과표](../../outputs/reports/yr317_v3_vertical_transfer/two-environment-comparison.md)
 
 - **v3 전체 리뷰 통합 초안 완료 (2026-09-18, YR-317-i·b·f)**: 12쪽 PDF·전체 답변서·실제 원고 위치 작성, 기존 11정책 표·그림 3개·22문헌 보존 및 문서 28검사 통과. 네 정책 독립 결과와 후보·온라인 시간 등의 실증은 미완료다. [spec](../docs/dashboard-task-specs/YR-317-i-v3-integrated-review-draft.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md)
 - **v3 네 정책 독립 반복 61/80 완료 (2026-09-19, YR-317-d)**: 15:12 KST 주요5개+블록9개 실행·5개 대기·실패 목록0. 사용자 요청으로 30분 자동 보고 예약만 비활성화했고 실험은 유지했다. 모델·곡선·비용 유지, 새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [예약 중지](../../outputs/reports/yr317_v3_progress_schedule/disabled-by-user-20260919.json)

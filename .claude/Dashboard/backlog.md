@@ -12,6 +12,7 @@
 |---|---|---|---|---|
 | YR-317 | Paper | **12쪽 통합 초안 완료·네 정책 독립 결과 대기** | 🟠 | 9/19 KST 목표. i·b·f 문서 범위 완료, 진행 중 80개 실행의 최종 통계·후보 검증 등은 미완료. 제출 완료본이 아니다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
+| YR-317-j | Exp | **기존 공유형 시간정책 미결 5,701·미완료 5,847 원인 진단 (시드 20,000,000)** | 🔴 | h 표 작성 중 발견. 같은 시드 기준정책은 미결 0. 정책 행동인지 기록 결함인지 가려야 d 통계·g 잔여 해석을 읽을 수 있다. 읽기 전용 진단. [spec](../docs/dashboard-task-specs/YR-317-j-v3-legacy-time-policy-unbound-diagnosis.md) |
 | YR-317-d3 | Exp | **피크 폭에 따른 일별 비용·정책 효과 검토안** | 🟠 | 같은 물량·구성 성분에서 폭만 변경하는 강건성 설계. 1.5배에서는 봉우리 합침 확인, 곡선 계산만 완료·시뮬레이션 미착수. [spec](../docs/dashboard-task-specs/YR-317-d3-v3-arrival-width-robustness.md) |
 | YR-317-e | Exp | **온라인 처리시간과 재현 명세** | 🟠 | 60초 검토·3시간 학습 관찰·30/90일 평가를 분리한 계측 계획 작성. 측정 미실행. [spec](../docs/dashboard-task-specs/YR-317-e-v3-review-runtime-reproduction.md) |
 | YR-301 | Sim | **[[YR-216]] 이연 상한이 죽은 코드** | ⚪ | `bridge.py:159` 의 `start > t + cf_horizon_s → break` 가 한 번도 안 걸린다 — 자격 창 1800초 + 이연 격자 900×8 = 최대 2.5시간인데 상한이 3시간이라 항상 더 크다. 해롭진 않지만 *이 가드가 지켜 준다* 는 잘못된 안심을 준다. [[YR-299]] B 감사에서 부수 발견. **주석으로 조건을 못 박는 것**을 권함(지우면 [[YR-216]] 사고가 재발). [spec](../docs/dashboard-task-specs/YR-301-dead-defer-cap.md) |

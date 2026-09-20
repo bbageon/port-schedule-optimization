@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-317-h | Sim | **수직형 기준·시간 30일 두 실행 병렬 진행** | 🟠 | 2026-09-19 | 14:28 KST 첫 고정시드20,000,000·모델 고정·CPU18/19 시작. 52검사와 두 정책 연결 감사 통과·본선 잔여 보존. 기존 독립 실행 유지·새 학습 없음. [spec](../docs/dashboard-task-specs/YR-317-h-v3-review-basic-layouts.md) · [시작](../../outputs/reports/yr317_v3_vertical_transfer/started.json) |
 | YR-317-g | Exp | **30일 진단 종료·기록과 물리 연결 통과·작업 잔여 남음** | 🟠 | 2026-09-16 | 9/17 03:10 KST 종료. 보정 기준/전체 트럭 잔여 1,367/5,086대, 선박 야드 잔여 2,556/4,307건. 전건 완료·성능·지속운영 통과와 구분, 잔여 해석 남음. [spec](../docs/dashboard-task-specs/YR-317-g-v3-review-demand-accounting.md) · [종료 검사](../../outputs/reports/yr317_v3_independent_eval/run-4068b4f/supply-preflight.json) |
 | YR-317-d | Exp | **61/80 완료·14개 실행, 정기 보고 예약 중지** | 🟠 | 2026-09-16 | 9/19 15:12 KST 주요5개+블록9개 실행·5개 대기·실패 목록0. 사용자 요청으로 30분 보고 예약만 끄고 실험 유지. [spec](../docs/dashboard-task-specs/YR-317-d-v3-review-independent-confirmation.md) · [예약 중지](../../outputs/reports/yr317_v3_progress_schedule/disabled-by-user-20260919.json) |
 | YR-317-a | Exp | **v3 기록 정합·시간 변경 비용 경로 확인** | 🟠 | 2026-09-14 | 과거 외부 대기 합산 존재, 현 v3 학습·평가에는 미연결. 비용 감사 12개 통과. 기존 준비본 8파일 동일, 포털 업로드 동일성 별도 미확인. [spec](../docs/dashboard-task-specs/YR-317-a-v3-review-evidence-audit.md) · [비용 감사](../../docs/paper/v3/paper-revision/12-시간변경비용-코드확인.md) · [복사·검산](../../docs/paper/v3/paper-revision/source-audit.json) |

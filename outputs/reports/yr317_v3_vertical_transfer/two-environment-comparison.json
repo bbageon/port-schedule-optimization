@@ -1,0 +1,201 @@
+{
+ "passed": true,
+ "seed": 20000000,
+ "policies": [
+  "NO_REALLOC",
+  "RL_TIME"
+ ],
+ "measurement": "request-day attributed final cost (result.json days == daily-final.jsonl); middle 28 days primary, 30 days supplementary; provisional days.jsonl not used",
+ "reuse_conditions": {
+  "expected_input": {
+   "schedule_sha256": "186ca012bc5fba73a19b5e1096b800d8e8f70a19c63715e74634cc32a2c6dd05",
+   "initial_scenarios_sha256": "d5b416316db55627abfbbabdd55936e15584238f23504d82ccec0c703d600012",
+   "vessels_sha256": "ba7eee3b4517ada4952efc28c24de6fbc35cfdc7ae68ac671069217f26d1607b"
+  },
+  "checkpoint_sha256": "50f2da2e8b3070dbba48273f0de5debdf5514fe96f0fa1f5a8f25b8a830cba99",
+  "legacy_source_commit": "7e2fb1411949b0dc0c6867525f741698ebbebdd2",
+  "vertical_source_commit": "8c24c80161dc12c6057318bdf595d84c2162092e",
+  "problems": {
+   "legacy_shared/NO_REALLOC": [],
+   "legacy_shared/RL_TIME": [],
+   "vertical_end/NO_REALLOC": [],
+   "vertical_end/RL_TIME": []
+  }
+ },
+ "pair_summary_consistent": true,
+ "environments": {
+  "legacy_shared": {
+   "NO_REALLOC": {
+    "cost_28d_krw": {
+     "phi_krw": 15194730491.568596,
+     "c_wait": 14692809439.014593,
+     "c_move": 19197722.916666668,
+     "c_rehandle": 317144000.0,
+     "c_vessel": 165579329.63733706
+    },
+    "cost_30d_krw": 16506272754.825514,
+    "requests": {
+     "requested": 198000,
+     "completed": 197906,
+     "unfinished_at_cutoff": 94,
+     "unbound_at_cutoff": 0
+    },
+    "vessel_yard_jobs": {
+     "requested": 125278,
+     "completed": 122813,
+     "outstanding": 2465
+    },
+    "actions": {
+     "time_changes": 0,
+     "block_changes": 0,
+     "traded": 0
+    },
+    "turn_time_h": {
+     "mean_28d": 1.300374215096286,
+     "p90_median_of_days_28d": 0.8261176027306485
+    },
+    "trucks_28d": 182000,
+    "elapsed_h": 7.4106794618590115,
+    "completed_at": "2026-09-17T06:06:53.759942+00:00",
+    "result_sha256": "525eddec05314d3dee215966ac4901abe2ad3bc8254bd9fd223249865c87ffea"
+   },
+   "RL_TIME": {
+    "cost_28d_krw": {
+     "phi_krw": 125589750698.09113,
+     "c_wait": 124999377483.9017,
+     "c_move": 18634362.5,
+     "c_rehandle": 310384000.0,
+     "c_vessel": 261354851.6894223
+    },
+    "cost_30d_krw": 127132487317.7989,
+    "requests": {
+     "requested": 198000,
+     "completed": 192153,
+     "unfinished_at_cutoff": 5847,
+     "unbound_at_cutoff": 5701
+    },
+    "vessel_yard_jobs": {
+     "requested": 125278,
+     "completed": 116864,
+     "outstanding": 8414
+    },
+    "actions": {
+     "time_changes": 119712,
+     "block_changes": 0,
+     "traded": 119712
+    },
+    "turn_time_h": {
+     "mean_28d": 8.880762618389145,
+     "p90_median_of_days_28d": 0.9145968526779001
+    },
+    "trucks_28d": 182000,
+    "elapsed_h": 65.2301842046097,
+    "completed_at": "2026-09-19T15:55:50.948435+00:00",
+    "result_sha256": "70caf4ce9605a451536d0512978e4b8dadb7188289580a021c6d02db4f60d587"
+   },
+   "time_minus_baseline_28d": {
+    "saving_krw": -110395020206.52252,
+    "saving_pct": -726.5349014764007
+   },
+   "time_minus_baseline_30d": {
+    "saving_krw": -110626214562.97339,
+    "saving_pct": -670.2071158410517
+   }
+  },
+  "vertical_end": {
+   "NO_REALLOC": {
+    "cost_28d_krw": {
+     "phi_krw": 134091568822.1241,
+     "c_wait": 131895739769.59012,
+     "c_move": 65347479.166666664,
+     "c_rehandle": 255440000.0,
+     "c_vessel": 1875041573.3673055
+    },
+    "cost_30d_krw": 138592909993.89166,
+    "requests": {
+     "requested": 198000,
+     "completed": 194442,
+     "unfinished_at_cutoff": 3558,
+     "unbound_at_cutoff": 0
+    },
+    "vessel_yard_jobs": {
+     "requested": 125278,
+     "completed": 123566,
+     "outstanding": 1712
+    },
+    "actions": {
+     "time_changes": 0,
+     "block_changes": 0,
+     "traded": 0
+    },
+    "turn_time_h": {
+     "mean_28d": 9.43971093448528,
+     "p90_median_of_days_28d": 11.299248640504084
+    },
+    "trucks_28d": 182000,
+    "elapsed_h": 10.66532063758337,
+    "completed_at": "2026-09-19T16:08:30.920353+00:00",
+    "result_sha256": "4225e54165def9182e0e1637ed397792089c161c975e5ee80e592dc18b5711a8"
+   },
+   "RL_TIME": {
+    "cost_28d_krw": {
+     "phi_krw": 133053748249.56374,
+     "c_wait": 130859936791.88066,
+     "c_move": 65388645.833333336,
+     "c_rehandle": 254992000.0,
+     "c_vessel": 1873430811.849747
+    },
+    "cost_30d_krw": 137170461342.96815,
+    "requests": {
+     "requested": 198000,
+     "completed": 194295,
+     "unfinished_at_cutoff": 3705,
+     "unbound_at_cutoff": 0
+    },
+    "vessel_yard_jobs": {
+     "requested": 125278,
+     "completed": 123527,
+     "outstanding": 1751
+    },
+    "actions": {
+     "time_changes": 66816,
+     "block_changes": 0,
+     "traded": 66816
+    },
+    "turn_time_h": {
+     "mean_28d": 9.368961517090174,
+     "p90_median_of_days_28d": 10.99779614645729
+    },
+    "trucks_28d": 182000,
+    "elapsed_h": 10.932598594269301,
+    "completed_at": "2026-09-19T16:24:32.175107+00:00",
+    "result_sha256": "76056577e16ce04a9ccba98119a5c84e4cb1ab8f75fd308ae526e8716ba4f2f1"
+   },
+   "time_minus_baseline_28d": {
+    "saving_krw": 1037820572.5603638,
+    "saving_pct": 0.7739640766952763
+   },
+   "time_minus_baseline_30d": {
+    "saving_krw": 1422448650.9235077,
+    "saving_pct": 1.0263502303156782
+   }
+  }
+ },
+ "vertical_large_raw_sha256": {
+  "NO_REALLOC": {
+   "result.json": "4225e54165def9182e0e1637ed397792089c161c975e5ee80e592dc18b5711a8",
+   "requests.jsonl.gz": "c0d59f341f2e6b941b1dd16bd2a3e9d540e8739e66e808606423a3c4041d8c2e",
+   "operating-state.jsonl.gz": "ac85f818f9958d727a87f601f0c21c062b39ae2985b74acc32d0650dbeae708d",
+   "container-links.jsonl.gz": "a33ea6da987e35aa71c2001271314d069c360dc322e75ef02ea05f01dff3d45a",
+   "outcome-audit.json": "64c84588fb8f54a596d2d6c9bff9885e46bbddceb71b3270254d82b1d32805bb"
+  },
+  "RL_TIME": {
+   "result.json": "76056577e16ce04a9ccba98119a5c84e4cb1ab8f75fd308ae526e8716ba4f2f1",
+   "requests.jsonl.gz": "21a3d9d275db0e4caf55e023af374899818cad369a0e3ef97caa801216f91689",
+   "operating-state.jsonl.gz": "45d05c02935576c4056ee3ffb4fdfee1a56ead43d11608d6d4b1e5ac4f93023f",
+   "container-links.jsonl.gz": "b0ee12584258ec96aef1fd90b0258079a4cb4845ba5b12bebd8695e5d41fd94d",
+   "outcome-audit.json": "e430992a2345d98e8b0347000e140f3488f6d43b7e03f59b6dfa0b2134aa43f2"
+  }
+ },
+ "claim_scope": "Single predefined seed; descriptive only. Not an independent replication, not a horizontal-vs-vertical causal comparison, not a field result."
+}
