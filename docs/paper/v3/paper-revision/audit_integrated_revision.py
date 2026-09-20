@@ -132,7 +132,12 @@ def audit():
     citations = [key.strip() for group in re.findall(r'\\cite\w*\{([^}]+)\}', uncomment(draft))
                  for key in group.split(',')]
     checks['twenty_two_unique_references'] = len(keys) == len(set(keys)) == receipt.get('references') == 22
-    checks['prior_bibliography_preserved'] = bool(prior_bib) and dict(draft_bib) == dict(prior_bib)
+    replacements = receipt.get('bibliography_replacements', {})
+    prior_map, draft_map = dict(prior_bib), dict(draft_bib)
+    details['bibliography_replacements'] = replacements
+    checks['prior_bibliography_preserved'] = (bool(prior_bib)
+        and set(draft_map) == {replacements.get(k, k) for k in prior_map}
+        and all(draft_map[k] == v for k, v in prior_map.items() if k not in replacements))
     checks['original_references_retained'] = bool(original_bib) and set(dict(original_bib)) <= set(keys)
     checks['all_citations_defined_and_references_used'] = bool(citations) and set(citations) == set(keys)
     details['undefined_citations'] = sorted(set(citations)-set(keys))

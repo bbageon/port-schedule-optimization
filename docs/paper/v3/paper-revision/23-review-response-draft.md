@@ -111,11 +111,11 @@ We also clarify the spatial abstraction. The current environment uses a simplifi
 
 **Response.** We have added an intended-use section positioning the architecture as a recommendation component alongside a terminal operating system. The proposed roles are terminal yard planners and operations staff who review or revise assignments, carrier dispatchers who assess time changes against transport commitments, and drivers who receive confirmed instructions and report execution difficulties. A concrete proposed workflow links operator review, dispatcher coordination, and communication of the final instruction. Human response deadlines are operational design decisions and are not identified with the algorithm's 60-second review interval.
 
-The section cites Busan New Port truck-waiting research, Korean TOS research, and the Busan Port Authority's description of AllCON-e as application context. These sources do not establish that our system has been integrated into those services or determine their actual approval permissions. Agreement between the proposal and acceptance networks is explicitly distinguished from human consent. The present evidence concerns the computational decision-support component, not interface usability or human acceptance behavior.
+The section cites Busan New Port truck-waiting research, Korean TOS research, and the World Bank/IAPH digitalization report that documents the Busan Port Authority's port community system (vehicle booking, transshipment shuttle, and integrated information services) as application context. These sources do not establish that our system has been integrated into those services or determine their actual approval permissions. Agreement between the proposal and acceptance networks is explicitly distinguished from human consent. The present evidence concerns the computational decision-support component, not interface usability or human acceptance behavior.
 
 **Evidence and location.** E4 and E10; §3.5 (p. 5) and §6 (p. 11).
 
-**Outstanding.** No interface deployment, TOS/AllCON-e integration, user study, or improvement in human decision making is claimed. The added context responds to the requested clarification but does not establish an empirical HCI contribution.
+**Outstanding.** No interface deployment, TOS/port-community-system integration, user study, or improvement in human decision making is claimed. The added context responds to the requested clarification but does not establish an empirical HCI contribution.
 
 ## 한글 상태·증거 지도
 

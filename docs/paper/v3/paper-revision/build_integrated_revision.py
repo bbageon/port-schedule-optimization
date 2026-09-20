@@ -96,13 +96,19 @@ Sect.~\ref{sec:arch-models} states the conditions and remaining gap.
 
 """
 
+BIB_REPLACEMENT_ITEM = (r"\bibitem{refwbiaph} World Bank, International Association of Ports and Harbors: "
+    r"Accelerating Digitalization: Critical Actions to Strengthen the Resilience of the Maritime "
+    r"Supply Chain. World Bank, Washington, DC (2021)")
+
 USERS = r"""\subsection{Intended Users and Operational Context}
 \label{sec:user-context}
 Terminal yard planners and operations staff are the intended users,
 with carrier dispatchers and drivers. Busan New Port waiting-time
 research~\cite{refbusanwait}, Korean terminal operating system (TOS)
-research~\cite{reftos}, and the Busan Port Authority's AllCON-e booking
-and information services~\cite{refallcone} motivate this proposed
+research~\cite{reftos}, and the Busan Port Authority's port community
+system, whose vehicle booking, transshipment shuttle, and integrated
+information services the World Bank and IAPH documented as a port
+digitalization case~\cite{refwbiaph}, motivate this proposed
 application; integration is untested.
 
 A planner would compare the original and recommended block/time and
@@ -325,9 +331,10 @@ waiting, rescheduling, and subsequent-trip costs. Those require
 terminal and carrier data. We have not tested savings under those
 constraints or estimated a break-even rescheduling charge. Remaining
 work includes candidate ranking, acceptance ablations, cost and horizon
-sensitivity, online timing, and distinct basic layouts. TOS and
-AllCON-e provide an application context; the proposed operator--carrier--
-driver workflow still requires integration and user evaluation.
+sensitivity, online timing, and distinct basic layouts. TOS and the
+Busan port community system provide an application context; the proposed
+operator--carrier--driver workflow still requires integration and user
+evaluation.
 
 """
 
@@ -451,6 +458,10 @@ sensitive to its coefficient and the excluded external burdens.
 
 """
     tail = source[source.index(r'\begin{credits}'):]
+    # One grey-literature source (press release) is replaced by the World Bank/IAPH
+    # report documenting the same Busan port community system; recorded in the receipt.
+    old_item = re.search(r'\\bibitem\{refallcone\}[^\n]+\n', tail).group(0)
+    tail = tail.replace(old_item, BIB_REPLACEMENT_ITEM + '\n', 1)
     text = ('% Integrated review working draft; pending evidence is not a completed result.\n'
             + head + ABSTRACT + INTRO + RELATED + arch + USERS + env + PROTOCOL + RESULTS + CONCLUSION + tail)
     # Bibliography remains the same 22 sources, reordered by their new first use.
@@ -474,6 +485,7 @@ sensitive to its coefficient and the excluded external burdens.
         prereg_sha256=sha(OUT.parents[3]/'outputs/reports/yr317_v3_independent_eval/prereg.md'),
         addon_prereg_sha256=sha(OUT.parents[3]/'outputs/reports/yr317_v3_block_only/prereg.md'),
         new_experiments=0, submission_ready=False,
+        bibliography_replacements={'refallcone': 'refwbiaph'},
         completed_scope=['integrated manuscript prose', 'historical table without daily significance claims',
                          'registered independent protocol', 'explicit outstanding evidence'],
         unresolved=['80-run aggregate results', 'full-candidate ranking validation',
