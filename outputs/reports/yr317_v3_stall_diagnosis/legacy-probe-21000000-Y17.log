@@ -1,0 +1,19 @@
+{"event": "day", "day": 0, "elapsed_s": 248.15659786947072}
+{"event": "day", "day": 1, "elapsed_s": 391.56995953898877}
+{"event": "day", "day": 2, "elapsed_s": 663.6792782275006}
+Traceback (most recent call last):
+  File "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_stall_diagnosis/legacy_probe.py", line 203, in <module>
+    main()
+  File "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_stall_diagnosis/legacy_probe.py", line 185, in main
+    run_month(arm='NO_REALLOC', seed=args.seed, days=plan_month(args.seed), workers=1, explore=0,
+  File "/home/geonu/yr317-v3-independent-7e2fb14/src/yard_rl/v3/stage/month_run.py", line 556, in run_month
+    mbt.run(exec_policy, review_fn=review)
+  File "/home/geonu/yr317-v3-independent-7e2fb14/src/yard_rl/v3/stage/month_engine.py", line 80, in run
+    review_fn(self, t)
+  File "/home/geonu/yr317-v3-independent-7e2fb14/src/yard_rl/v3/stage/month_run.py", line 539, in review
+    observer.observe(m, t, bridge)
+  File "/home/geonu/yr317-v3-independent-7e2fb14/src/yard_rl/v3/stage/daily_observation.py", line 102, in observe
+    self.on_sample(dict(seed=self.seed, arm=self.arm, day_index=min(int(t // DAY_S), self.n_days-1),
+  File "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr317_v3_stall_diagnosis/legacy_probe.py", line 154, in observe
+    raise RuntimeError(f'block {args.block} simulator not retained; keys={list(sims)[:5]}')
+RuntimeError: block Y17 simulator not retained; keys=[0, 1, 2, 3, 4]
