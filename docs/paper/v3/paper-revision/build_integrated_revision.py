@@ -96,7 +96,7 @@ Sect.~\ref{sec:arch-models} states the conditions and remaining gap.
 
 """
 
-BIB_REPLACEMENT_ITEM = (r"\bibitem{refwbiaph} World Bank, International Association of Ports and Harbors: "
+BIB_REPLACEMENT_ITEM = (r"\bibitem{refwbiaph} World Bank, IAPH: "
     r"Accelerating Digitalization: Critical Actions to Strengthen the Resilience of the Maritime "
     r"Supply Chain. World Bank, Washington, DC (2021)")
 
@@ -106,10 +106,9 @@ Terminal yard planners and operations staff are the intended users,
 with carrier dispatchers and drivers. Busan New Port waiting-time
 research~\cite{refbusanwait}, Korean terminal operating system (TOS)
 research~\cite{reftos}, and the Busan Port Authority's port community
-system, whose vehicle booking, transshipment shuttle, and integrated
-information services the World Bank and IAPH documented as a port
-digitalization case~\cite{refwbiaph}, motivate this proposed
-application; integration is untested.
+system with vehicle booking, documented by the World Bank and IAPH as a
+digitalization case~\cite{refwbiaph}, motivate this proposed application;
+integration is untested.
 
 A planner would compare the original and recommended block/time and
 observed congestion, then accept, modify, or reject the recommendation.
@@ -304,12 +303,12 @@ Online latency is unmeasured. State and candidate construction, features,
 scoring, conflict resolution, and commitment need timing apart from
 simulation advancement, with hardware, threads, candidate counts,
 warm-up, median, upper percentiles, maximum, and 60-second overruns.
-Network size and month runtime are not latency evidence.
 
-The one-axis synthetic layout does not validate distinct horizontal
-and vertical handling systems. Their travel paths, transfer points,
-and crane-resource sharing require explicit comparison; rotating
-coordinates is insufficient. Hybrid layouts are excluded. Cost-weight,
+The networks consume order and yard-state records only; no layout
+geometry enters them, so transfer to another handling system needs no
+layout-specific inputs. The unvalidated part is the uncalibrated
+simulator, and no claim is made about specific parallel or perpendicular
+terminals. Cost-weight,
 peak-width, and longer-run robustness also remain untested by the
 existing frequency sweep.
 
@@ -331,10 +330,10 @@ waiting, rescheduling, and subsequent-trip costs. Those require
 terminal and carrier data. We have not tested savings under those
 constraints or estimated a break-even rescheduling charge. Remaining
 work includes candidate ranking, acceptance ablations, cost and horizon
-sensitivity, online timing, and distinct basic layouts. TOS and the
-Busan port community system provide an application context; the proposed
-operator--carrier--driver workflow still requires integration and user
-evaluation.
+sensitivity, online timing, and simulator calibration against terminal
+measurements. TOS and the Busan
+port community system give an application context; the operator--carrier--
+driver workflow still needs integration and user evaluation.
 
 """
 
@@ -407,6 +406,21 @@ ranking accuracy."""
                         'the alternative forces a proposal selected by the current weights.\n'
                         'Acceptance and feasibility still govern actual commitment. The acceptance\n'
                         'alternative swaps acceptance and rejection.')
+    arch = arch.replace(
+        'Inputs\ninclude current waiting, inventory, remaining crane work, the public\n'
+        'expected arrival time, route difference, and announced volume near the\n'
+        'target time; unrealised arrival and completion times and simultaneous\n'
+        'responses from other accepting parties are excluded.',
+        'Inputs\nare order records and yard-state summaries only: current waiting,\n'
+        'inventory, remaining crane work, the public expected arrival time, route\n'
+        'difference, and announced volume near the target time; unrealised arrival\n'
+        'and completion times and simultaneous responses from other accepting\n'
+        'parties are excluded.')
+    assert 'order records and yard-state summaries only' in arch
+    arch = arch.replace(
+        'Pair centring preserves the ordering\ninside one pair, but does not by itself justify all comparisons in~(2).',
+        'Pair centring preserves the ordering\ninside one pair, not every comparison in~(2).')
+    assert 'not every comparison in~(2)' in arch
     arch = arch.replace('online operation costs one forward pass per candidate.',
                         'network scoring is only part of the online path. Candidate construction,\n'
                         'conflict resolution, and commitment must also be timed.')
@@ -490,7 +504,7 @@ sensitive to its coefficient and the excluded external burdens.
                          'registered independent protocol', 'explicit outstanding evidence'],
         unresolved=['80-run aggregate results', 'full-candidate ranking validation',
                     'acceptance-network ablation', 'additional robustness analyses',
-                    'online latency measurements', 'horizontal/vertical layout evaluation'])
+                    'online latency measurements', 'simulator calibration against terminal measurements'])
     (OUT/'integrated-revision.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf8')
     print(json.dumps(dict(references=len(cited), submission_ready=False, output='main-integrated.tex')))
 

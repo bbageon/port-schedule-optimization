@@ -17,7 +17,7 @@ REQUIRED_LABELS = {'sec:arch-models', 'sec:arch-commit', 'sec:user-context',
     'sec:exp-learning', 'sec:pending-evidence', 'sec:concl'}
 REQUIRED_PENDING = {'80-run aggregate results', 'full-candidate ranking validation',
     'acceptance-network ablation', 'additional robustness analyses',
-    'online latency measurements', 'horizontal/vertical layout evaluation'}
+    'online latency measurements', 'simulator calibration against terminal measurements'}
 
 
 def sha(path):
@@ -173,7 +173,7 @@ def audit():
     pending = re.search(r'\\label\{sec:pending-evidence\}(.*?)(?=\\section\{|\Z)', uncomment(draft), re.S)
     pending_text = pending.group(1).lower() if pending else ''
     checks['pending_evidence_explicit_in_manuscript'] = bool(pending) and all(
-        token in pending_text for token in ('80', 'in progress', 'ranking', 'acceptance', 'latency', 'horizontal', 'vertical'))
+        token in pending_text for token in ('80', 'in progress', 'ranking', 'acceptance', 'latency', 'simulator', 'calibrat'))
     protocol = re.search(r'\\label\{sec:independent-protocol\}(.*?)(?=\\section\{|\Z)', uncomment(draft), re.S)
     protocol_text = re.sub(r'[{}\\\s]', '', protocol.group(1)).lower() if protocol else ''
     checks['registered_monthly_statistics_present'] = bool(protocol) and all(

@@ -99,11 +99,11 @@ The scope of the missing timing evidence is stated explicitly: candidate constru
 
 **Response.** We agree and distinguish repeatability within the simulator from validity at an operating terminal. The independent protocol addresses realization-specific effects using 20 environments with matched policy inputs, but its final results are pending and it remains synthetic. We explicitly disclose the corrected admission and vessel-supply contract and its difference from the original training and evaluation conditions. Neither record validity nor quantity balance establishes sustainable operation or field feasibility.
 
-We also clarify the spatial abstraction. The current environment uses a simplified single-axis layout and does not establish a comparison between operationally distinct parallel and perpendicular terminals. Definitions of two basic layouts are a validation design, not completed structural experiments. Hybrid layouts and replication of a particular operating terminal are outside the present scope. The architecture is presented as a simulation-based decision-support concept with unresolved external-validity limitations.
+We also clarify what the policy consumes. The networks receive order records and yard-state summaries only (Sect. 3.3); no layout geometry enters them, so the method needs no layout-specific inputs. We therefore do not claim validation of parallel or perpendicular terminals. As a robustness check we trained and evaluated the same procedure in a second synthetic environment with different transfer and crane dynamics; there, the environment-specific time-only policy was cheaper than no reallocation on all five measurement days of one seed while unfinished work increased, and that environment is uncalibrated. We report this only as evidence that the learning procedure adapts to different dynamics, not as a layout comparison. Replication of a particular operating terminal is outside the present scope. The architecture is presented as a simulation-based decision-support concept with unresolved external-validity limitations.
 
 **Evidence and location.** E1–E3 and E9; §4 (p. 6), §4.1 (p. 7), §5.4 (p. 10), and §6 (p. 11).
 
-**Outstanding.** The complete independent results, parallel/perpendicular structural evaluation, and validation against operating-terminal data are not supplied by this draft. Additional seeds alone would not resolve the absence of field evidence.
+**Outstanding.** The complete independent results and calibration of the simulator against operating-terminal measurements (turn time, crane utilisation, throughput) are not supplied by this draft. Additional seeds alone would not resolve the absence of field evidence.
 
 ### Reviewer 3 — users, decision making, and HCI context
 

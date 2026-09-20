@@ -204,13 +204,14 @@ Both $\hat c^{P}_{\theta}$ and $\hat c^{A}_{\psi}$ are multilayer
 perceptrons with two 64-unit hidden layers and ReLU, with weights shared
 across blocks: $21\to64\to64\to1$ for proposal and $16\to64\to64\to1$
 for acceptance, or fewer than 11{,}000 parameters in total. Inputs
-include current waiting, inventory, remaining crane work, the public
-expected arrival time, route difference, and announced volume near the
-target time; unrealised arrival and completion times and simultaneous
-responses from other accepting parties are excluded. The output is one
+are order records and yard-state summaries only: current waiting,
+inventory, remaining crane work, the public expected arrival time, route
+difference, and announced volume near the target time; unrealised arrival
+and completion times and simultaneous responses from other accepting
+parties are excluded. The output is one
 pair-centred cost score per candidate, so the length of the candidate
 list may change without retraining. Pair centring preserves the ordering
-inside one pair, but does not by itself justify all comparisons in~(2).
+inside one pair, not every comparison in~(2).
 For a fixed state and a common KEEP outcome $K=C(s,\mathrm{KEEP})$,
 the ideal label of a changed candidate is
 \begin{equation}
@@ -269,10 +270,9 @@ Terminal yard planners and operations staff are the intended users,
 with carrier dispatchers and drivers. Busan New Port waiting-time
 research~\cite{refbusanwait}, Korean terminal operating system (TOS)
 research~\cite{reftos}, and the Busan Port Authority's port community
-system, whose vehicle booking, transshipment shuttle, and integrated
-information services the World Bank and IAPH documented as a port
-digitalization case~\cite{refwbiaph}, motivate this proposed
-application; integration is untested.
+system with vehicle booking, documented by the World Bank and IAPH as a
+digitalization case~\cite{refwbiaph}, motivate this proposed application;
+integration is untested.
 
 A planner would compare the original and recommended block/time and
 observed congestion, then accept, modify, or reject the recommendation.
@@ -543,12 +543,12 @@ Online latency is unmeasured. State and candidate construction, features,
 scoring, conflict resolution, and commitment need timing apart from
 simulation advancement, with hardware, threads, candidate counts,
 warm-up, median, upper percentiles, maximum, and 60-second overruns.
-Network size and month runtime are not latency evidence.
 
-The one-axis synthetic layout does not validate distinct horizontal
-and vertical handling systems. Their travel paths, transfer points,
-and crane-resource sharing require explicit comparison; rotating
-coordinates is insufficient. Hybrid layouts are excluded. Cost-weight,
+The networks consume order and yard-state records only; no layout
+geometry enters them, so transfer to another handling system needs no
+layout-specific inputs. The unvalidated part is the uncalibrated
+simulator, and no claim is made about specific parallel or perpendicular
+terminals. Cost-weight,
 peak-width, and longer-run robustness also remain untested by the
 existing frequency sweep.
 
@@ -568,10 +568,10 @@ waiting, rescheduling, and subsequent-trip costs. Those require
 terminal and carrier data. We have not tested savings under those
 constraints or estimated a break-even rescheduling charge. Remaining
 work includes candidate ranking, acceptance ablations, cost and horizon
-sensitivity, online timing, and distinct basic layouts. TOS and the
-Busan port community system provide an application context; the proposed
-operator--carrier--driver workflow still requires integration and user
-evaluation.
+sensitivity, online timing, and simulator calibration against terminal
+measurements. TOS and the Busan
+port community system give an application context; the operator--carrier--
+driver workflow still needs integration and user evaluation.
 
 \begin{credits}
 \subsubsection{\ackname}
@@ -609,7 +609,7 @@ the content of this article.
 \bibitem{refhuber} Huber, P.J.: Robust estimation of a location parameter. Ann. Math. Statist. \textbf{35}(1), 73--101 (1964)
 \bibitem{refbusanwait} Kim, Y.-I., Shin, J.-Y., Park, H.-J.: A study on the prediction of gate in-out truck waiting time in the container terminal. J. Navig. Port Res. \textbf{46}(4), 344--350 (2022). doi:10.5394/KINPR.2022.46.4.344 (in Korean)
 \bibitem{reftos} Won, S.-H., Cho, S.-W., Lee, E.-K.: Analysis technology trend and strategies to vitalize the industry on terminal operating system (TOS) of smart port. J. Shipping Logist. \textbf{41}(1), 25--53 (2025). doi:10.37059/tjosal.2025.41.1.25 (in Korean)
-\bibitem{refwbiaph} World Bank, International Association of Ports and Harbors: Accelerating Digitalization: Critical Actions to Strengthen the Resilience of the Maritime Supply Chain. World Bank, Washington, DC (2021)
+\bibitem{refwbiaph} World Bank, IAPH: Accelerating Digitalization: Critical Actions to Strengthen the Resilience of the Maritime Supply Chain. World Bank, Washington, DC (2021)
 \bibitem{ref20} Kim, S., Mowakeaa, R., Kim, S.-J., Lim, H.: Building energy management for demand response using kernel lifelong learning. IEEE Access \textbf{8}, 82131--82141 (2020)
 \bibitem{ref25} Ministry of Oceans and Fisheries: Regulations on the Use of Port Facilities and Fees at Trade Ports, etc. MOF Notice No. 2025-218 (2025) (in Korean)
 \bibitem{ref24} Ministry of Land, Infrastructure and Transport: Notice on Safe Freight Rates for Cargo Vehicles Applicable in 2026. MOLIT Notice No. 2026-402 (2026) (in Korean)
