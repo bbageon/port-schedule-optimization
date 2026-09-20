@@ -59,13 +59,27 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                        out_dir: str | Path = "outputs/v3/month",
                        workers: int = 1, val_frac: float = 0.2,
                        days=None, log=print, init_seed: int | None = None,
-                       admission_mode: str = "LEGACY") -> tuple[TrainState, object]:
+                       admission_mode: str = "LEGACY", arm: str = "RL",
+                       supply_mode: str = "ORIGINAL",
+                       environment_spec: dict | None = None) -> tuple[TrainState, object]:
     """30일을 한 번에 굴리며 **날마다** 학생을 갱신한다.
 
     돌려주는 것: (학습 상태, `MonthResult`). 중간보고는 `log` 로 나간다.
+
+    `arm` 은 학습에 쓰는 후보 폭 — 기본 `RL`(블록+시간), `RL_TIME` 은 시간만.
+    `environment_spec` 을 주면 그 배치 환경 **안에서** 학습한다 ([[YR-317-h2]] —
+    구조별 별도 가중치). 이때는 요청 보존·공급 보정 계약과 `RL_TIME` 만 허용된다.
     """
     if admission_mode not in ("LEGACY", "PRESERVE"):
         raise ValueError("admission_mode must be LEGACY or PRESERVE")
+    if arm not in ("RL", "RL_TIME"):
+        raise ValueError("Training arm must be RL or RL_TIME")
+    if supply_mode not in ("ORIGINAL", "COUNT_BALANCED"):
+        raise ValueError("supply_mode must be ORIGINAL or COUNT_BALANCED")
+    if environment_spec is not None and (admission_mode != "PRESERVE"
+                                         or supply_mode != "COUNT_BALANCED"
+                                         or arm != "RL_TIME"):
+        raise ValueError("Layout training requires PRESERVE, COUNT_BALANCED and RL_TIME")
     # ★학습은 **비판정(진단) 대역**에서만 돈다 — 판정 대역을 학습에 쓰면
     #   [[YR-210]] 의 "새 대역·재사용 금지" 계약이 깨진다.
     if (int(seed) // 100_000) * 100_000 != DIAGNOSTIC_BAND:
@@ -83,8 +97,12 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
     if not days:
         raise ValueError("Empty training plan.")
     n = len(days)
+    from ..eval.seed_bank import digest as _digest
+    env_sha = None if environment_spec is None else _digest(environment_spec)
     manifest = {"schema": "yard_rl.v3.month-training.v1", "seed": seed,
                 "init_seed": init_seed, "admission_mode": admission_mode,
+                "arm": arm, "supply_mode": supply_mode,
+                "environment_spec": environment_spec, "environment_spec_sha256": env_sha,
                 "plan": [asdict(d) for d in days],
                 "labels_per_day": labels_per_day, "workers": workers,
                 "val_frac": val_frac, "runtime": runtime_identity(),
@@ -97,7 +115,9 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
     torch.save({"seller": s_net.state_dict(), "buyer": b_net.state_dict(), "it": -1,
                 "metadata": {"phase": "untrained", "fit_days": [], "optimizer_steps": 0,
                              "init_seed": init_seed, "environment_seed": seed,
-                             "admission_mode": admission_mode}},
+                             "admission_mode": admission_mode, "arm": arm,
+                             "supply_mode": supply_mode,
+                             "environment_spec_sha256": env_sha}},
                out / "ckpt_init.pt")
     write_json(out / "training_manifest.json", manifest)
     log(f"■ {n}일 무대 · 시드 {seed:,} · 측정 {sum(d.is_train for d in days)}일 · 초기화 {init_seed}")
@@ -160,6 +180,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         st.save(out, rep.index, metadata={
             "phase": "post_day", "day_index": rep.index, "init_seed": init_seed,
             "environment_seed": seed, "admission_mode": admission_mode,
+            "arm": arm, "supply_mode": supply_mode, "environment_spec_sha256": env_sha,
             "fit_days": list(manifest["fit_days"]),
             "optimizer_steps": manifest["optimizer_steps"]})
         write_json(out / "training_manifest.json", manifest)
@@ -173,15 +194,19 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
         seen.append(rep)
         return seen
 
-    res = run_month(seed=seed, arm="RL", seller_net=s_net, buyer_net=b_net,
+    res = run_month(seed=seed, arm=arm, seller_net=s_net, buyer_net=b_net,
                     days=days, labels_per_day=labels_per_day, workers=workers,
                     explore_of_day=lambda d: explore_of(d, n_days=n),
-                    on_fit=on_fit, on_day=on_day, admission_mode=admission_mode)
+                    on_fit=on_fit, on_day=on_day, admission_mode=admission_mode,
+                    supply_mode=supply_mode, environment_spec=environment_spec,
+                    layout_training=environment_spec is not None)
 
     log(f"■ 끝 — {(time.time() - t_start)/3600:.2f}시간")
     _report_by_load(res, log)
     (out / "month.json").write_text(
-        json.dumps({"seed": seed, "admission_mode": admission_mode, "plan": res.plan,
+        json.dumps({"seed": seed, "admission_mode": admission_mode, "arm": arm,
+                    "supply_mode": supply_mode, "environment_spec_sha256": env_sha,
+                    "plan": res.plan,
                     "days": [d.as_dict() for d in res.days],
                     "live": [d.as_dict() for d in res.live]},
                    ensure_ascii=False, indent=1), encoding="utf-8")

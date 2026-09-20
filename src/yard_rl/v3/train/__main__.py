@@ -43,7 +43,19 @@ def main(argv=None) -> int:
     ap.add_argument("--loads", default=None,
                     help="부하를 **직접 지정** — `short`(바닥 비교용 9일) 또는 "
                          "쉼표 목록(예 3500,5000,7500). 주면 --days 는 무시한다")
+    ap.add_argument("--arm", choices=("RL", "RL_TIME"), default="RL",
+                    help="학습 후보 폭: RL(블록+시간, 기본) 또는 RL_TIME(시간만)")
+    ap.add_argument("--supply-mode", choices=("ORIGINAL", "COUNT_BALANCED"), default="ORIGINAL",
+                    help="본선 공급 계약: 원래 계획 또는 트럭 수지 보정(PRESERVE 필요)")
+    ap.add_argument("--environment", choices=("legacy", "vertical"), default="legacy",
+                    help="배치 환경: legacy(기존 공유형) 또는 vertical(수직 끝단형 합성 명세 — "
+                         "PRESERVE·COUNT_BALANCED·RL_TIME 필요)")
     a = ap.parse_args(argv)
+    environment_spec = None
+    if a.environment == "vertical":
+        from ..layouts import synthetic_vertical_spec
+        from ..world.integrated.profiles import build_h21_profile
+        environment_spec = synthetic_vertical_spec(build_h21_profile(), n_blocks=21)
 
     if a.loads:
         loads = (SHORT_LOADS if a.loads == "short"
@@ -53,7 +65,7 @@ def main(argv=None) -> int:
         days = plan_month(a.seed, n_days=a.days)
     s = summarize(days)
     print(f"■ 달 시드 {a.seed:,} · {a.days}일 (측정 {s['n_train']}일, 학습은 라벨 있는 모든 날)")
-    print(f"  요청 처리 계약: {a.admission_mode}")
+    print(f"  요청 처리 계약: {a.admission_mode} · 공급 {a.supply_mode} · 후보 {a.arm} · 환경 {a.environment}")
     print(f"  {' · '.join(f'{k} {v}일' for k, v in s['by_label'].items())}")
     print(f"  학습분 트럭 {s['trucks_train']:,}대 · 평균 부하 {s['mean_load_train']:,.0f}")
     print("  날별 부하: " + " ".join(
@@ -68,7 +80,8 @@ def main(argv=None) -> int:
     t0 = time.time()
     run_month_training(seed=a.seed, n_days=a.days, labels_per_day=a.labels,
                        out_dir=a.out, workers=a.workers, days=days, init_seed=a.init_seed,
-                       admission_mode=a.admission_mode)
+                       admission_mode=a.admission_mode, arm=a.arm, supply_mode=a.supply_mode,
+                       environment_spec=environment_spec)
     print(f"■ 총 {(time.time() - t0) / 3600:.2f}시간 · 결과 {a.out}")
     return 0
 

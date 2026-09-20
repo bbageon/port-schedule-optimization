@@ -78,13 +78,53 @@ def test_geometry_must_match_stock_and_clear_the_parking_rail():
         VerticalEnvironment.from_dict(spec, profile, terminal_layout())
 
 
-@pytest.mark.parametrize('kwargs', [dict(arm='RL'), dict(arm='RL_TIME'),
-                                   dict(arm='NO_REALLOC', labels_per_day=1)])
+@pytest.mark.parametrize('kwargs', [
+    dict(arm='RL'), dict(arm='RL_TIME'),
+    dict(arm='NO_REALLOC', labels_per_day=1),                 # training without the opt-in
+    dict(arm='RL_TIME', labels_per_day=1),                    # same, time-only
+    dict(arm='RL', labels_per_day=1, layout_training=True),   # opt-in but full candidates
+    dict(arm='NO_REALLOC', layout_training=True),             # opt-in without training
+])
 def test_unqualified_policy_or_training_is_rejected_before_simulation(kwargs):
     _, _, spec = environment()
     with pytest.raises(ValueError):
         run_month(seed=99194001, environment_spec=spec, admission_mode='PRESERVE',
                   supply_mode='COUNT_BALANCED', **kwargs)
+
+
+def test_layout_training_opt_in_requires_an_environment():
+    from yard_rl.v3.actors import BuyerNet, SellerNet
+    with pytest.raises(ValueError, match='opt-in'):
+        run_month(seed=99194001, arm='RL_TIME', seller_net=SellerNet(), buyer_net=BuyerNet(),
+                  labels_per_day=1, layout_training=True,
+                  admission_mode='PRESERVE', supply_mode='COUNT_BALANCED')
+
+
+def test_layout_training_labels_and_fits_inside_the_vertical_environment():
+    """The teacher runs in the vertical simulator: branch worlds get the day's
+    exploration rate, counterfactual labels are produced and the student is updated.
+    Tiny stage; no performance claim."""
+    import torch
+    from yard_rl.v3.actors import BuyerNet, SellerNet
+    _, _, spec = environment()
+    torch.manual_seed(1)
+    seller, buyer = SellerNet(), BuyerNet()
+    days = plan_days(99194001, (40, 40))
+    seen, fits = [], []
+
+    def on_fit(day, rows):
+        fits.append((day.index, len(rows)))
+        return {'n_seller': len(rows)}
+
+    result = run_month(seed=99194001, days=days, arm='RL_TIME', seller_net=seller,
+        buyer_net=buyer, labels_per_day=2, workers=1, explore_of_day=lambda d: 0.37,
+        on_fit=on_fit, on_day=seen.append, layout_training=True,
+        admission_mode='PRESERVE', supply_mode='COUNT_BALANCED', environment_spec=spec)
+    assert [d.explore for d in seen] == [0.37, 0.37]
+    assert result.environment_manifest['runtime_schedule_sha256']
+    assert result.policy_exceptions == 0 and result.n_space == 0
+    assert fits and sum(n for _, n in fits) > 0
+    assert sum(d.worlds for d in result.days) > 0
 
 
 def test_continuous_stage_preserves_canonical_requests_and_records_physical_input():

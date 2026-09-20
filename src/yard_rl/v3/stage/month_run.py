@@ -215,7 +215,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               admission_mode: str = "LEGACY", supply_mode: str = "ORIGINAL",
               capture_daily: bool = False, daily_sample_s: float = 300.0,
               on_observation=None, expected_input: dict | None = None,
-              environment_spec: dict | None = None) -> MonthResult:
+              environment_spec: dict | None = None,
+              layout_training: bool = False) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -232,13 +233,19 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     """
     if arm not in ARMS:
         raise NotImplementedError(f"알 수 없는 재배치 팔 {arm!r} — 쓸 수 있는 팔: {ARMS}")
+    training_requested = (bool(labels_per_day) or on_fit is not None
+                          or explore_of_day is not None or explore != 0)
+    if layout_training and (environment_spec is None or not training_requested):
+        raise ValueError("layout_training is an explicit opt-in for training inside a layout environment")
     if environment_spec is not None:
         if admission_mode != "PRESERVE" or supply_mode != "COUNT_BALANCED":
             raise ValueError("Layout qualification requires PRESERVE and COUNT_BALANCED inputs")
-        if labels_per_day or on_fit is not None or explore_of_day is not None or explore != 0:
+        if training_requested and not layout_training:
             raise ValueError("Layout qualification supports frozen-policy evaluation, not training")
         if arm not in ("NO_REALLOC", "RL_TIME"):
             raise ValueError("Layout qualification currently supports NO_REALLOC and RL_TIME")
+        if layout_training and arm != "RL_TIME":
+            raise ValueError("Layout training is limited to the time-only policy RL_TIME")
         if arm == "RL_TIME" and (seller_net is None or buyer_net is None):
             raise ValueError("Layout evaluation requires explicit frozen model weights")
     if diagnose_admissions and not capture_requests:
