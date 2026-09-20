@@ -1,0 +1,4544 @@
+{
+  "months": 20,
+  "policy_runs": 80,
+  "independent_unit": "one continuous month",
+  "original_analysis": {
+    "months": 20,
+    "policy_runs": 60,
+    "independent_unit": "one continuous month",
+    "bootstrap_samples": 20000,
+    "bootstrap_seed": 9900721,
+    "primary_window": "day indices 1..28; original paper window",
+    "secondary_window": "all 30 days; same continuous runs",
+    "comparisons": {
+      "28d:NO_REALLOC-RL": {
+        "primary": true,
+        "mean_saving_krw": 2394294704.401075,
+        "interval_level": 0.975,
+        "mean_saving_interval_krw": [
+          -11727356716.276031,
+          26385129467.361824
+        ],
+        "ratio_of_sums_saving_pct": 10.996611168397715,
+        "mean_month_saving_pct": -39.659354654009,
+        "wins": 4,
+        "losses": 16,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -942950209.2171612,
+          -1015632610.4082642,
+          -4962535870.020142,
+          -13420116628.190022,
+          1222834978.5687618,
+          -427601257.3026562,
+          -3182150780.7079706,
+          -3495537620.5323944,
+          -13192570833.614973,
+          -4389853394.4567795,
+          160952355506.5204,
+          4429161115.259029,
+          2589680811.199192,
+          -3402580009.807972,
+          -4905716562.50663,
+          -55408880085.55061,
+          -2683343473.059948,
+          -6311276238.4396,
+          -788693372.8130875,
+          -2778699376.897663
+        ]
+      },
+      "28d:RL_TIME-RL": {
+        "primary": true,
+        "mean_saving_krw": 15020050736.08995,
+        "interval_level": 0.975,
+        "mean_saving_interval_krw": [
+          -4795002032.212826,
+          41907763522.03471
+        ],
+        "ratio_of_sums_saving_pct": 43.664487687363064,
+        "mean_month_saving_pct": -27.27337567967721,
+        "wins": 7,
+        "losses": 13,
+        "ties": 0,
+        "monthly_savings_krw": [
+          109452069997.30537,
+          -3185892734.739502,
+          167188906572.70926,
+          -15032476341.619898,
+          -1349651058.546154,
+          -1754636642.3157072,
+          -3378018677.0212584,
+          -4493814481.592567,
+          -14740192180.32034,
+          -6250446468.036249,
+          2499911982.4292297,
+          1813772611.0327759,
+          622233481.2270336,
+          -5169376844.629784,
+          -5922508017.482979,
+          95873501353.40039,
+          -5336175363.214956,
+          -7522691208.4714775,
+          1192632160.1446075,
+          -4106133418.458687
+        ]
+      },
+      "28d:NO_REALLOC-RL_TIME": {
+        "primary": false,
+        "mean_saving_krw": -12625756031.688879,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          -42372594603.13685,
+          16947321061.940756
+        ],
+        "ratio_of_sums_saving_pct": -57.98807036256852,
+        "mean_month_saving_pct": -114.32537649085675,
+        "wins": 16,
+        "losses": 4,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -110395020206.52252,
+          2170260124.331238,
+          -172151442442.7294,
+          1612359713.4298763,
+          2572486037.114916,
+          1327035385.013051,
+          195867896.31328773,
+          998276861.060173,
+          1547621346.7053661,
+          1860593073.5794697,
+          158452443524.09116,
+          2615388504.2262535,
+          1967447329.9721584,
+          1766796834.8218117,
+          1016791454.9763489,
+          -151282381438.95102,
+          2652831890.1550083,
+          1211414970.0318775,
+          -1981325532.957695,
+          1327434041.5610237
+        ]
+      },
+      "30d:NO_REALLOC-RL": {
+        "primary": false,
+        "mean_saving_krw": 2397495553.901287,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          -10586459489.899416,
+          21876064573.94687
+        ],
+        "ratio_of_sums_saving_pct": 10.631912629228056,
+        "mean_month_saving_pct": -37.63386008161464,
+        "wins": 4,
+        "losses": 16,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -928804654.5591373,
+          -1257312122.2690964,
+          -5581019654.051395,
+          -13414300773.41909,
+          1237059506.442545,
+          -444969038.91599464,
+          -3235844797.536791,
+          -3207577230.7746887,
+          -13518127530.33294,
+          -4507115221.359688,
+          161993240131.56863,
+          4302556345.415358,
+          2994704622.794899,
+          -3158754200.6769753,
+          -5222691121.690998,
+          -55295782175.86685,
+          -2779906561.051628,
+          -6625057885.788267,
+          -479097294.34542847,
+          -2921289265.5567417
+        ]
+      },
+      "30d:RL_TIME-RL": {
+        "primary": false,
+        "mean_saving_krw": 14944101923.776081,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          -4012250839.6750016,
+          37976889767.75741
+        ],
+        "ratio_of_sums_saving_pct": 42.579914268347,
+        "mean_month_saving_pct": -26.692406292229936,
+        "wins": 7,
+        "losses": 13,
+        "ties": 0,
+        "monthly_savings_krw": [
+          109697409908.41425,
+          -3454978417.145872,
+          166852962210.49908,
+          -15022712562.483927,
+          -1355216678.4759731,
+          -1768481638.3428173,
+          -3429789392.9785194,
+          -4799379218.396059,
+          -15082651212.222013,
+          -6365423002.775555,
+          2483524002.9705296,
+          1551438786.195242,
+          970224746.2394142,
+          -5259216099.700695,
+          -6179557515.828548,
+          96121313171.3369,
+          -5442166582.305584,
+          -7843969885.201687,
+          1459394319.2119598,
+          -4250686463.4885216
+        ]
+      },
+      "30d:NO_REALLOC-RL_TIME": {
+        "primary": false,
+        "mean_saving_krw": -12546606369.874794,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          -42380253588.13126,
+          17107158130.7467
+        ],
+        "ratio_of_sums_saving_pct": -55.63906990390911,
+        "mean_month_saving_pct": -106.79466075798298,
+        "wins": 16,
+        "losses": 4,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -110626214562.97339,
+          2197666294.8767757,
+          -172433981864.55048,
+          1608411789.0648365,
+          2592276184.918518,
+          1323512599.4268227,
+          193944595.4417286,
+          1591801987.6213703,
+          1564523681.8890743,
+          1858307781.4158669,
+          159509716128.59808,
+          2751117559.2201157,
+          2024479876.5554848,
+          2100461899.0237198,
+          956866394.1375504,
+          -151417095347.20374,
+          2662260021.253956,
+          1218911999.4134197,
+          -1938491613.5573883,
+          1329397197.9317799
+        ]
+      }
+    },
+    "all_requested_work_completed": false,
+    "claim_eligible": false,
+    "scope": "Frozen-model synthetic evaluation; operational guards and external validity require separate judgment.",
+    "new_training_runs": 0
+  },
+  "additional_analysis": {
+    "comparisons": {
+      "28d:NO_REALLOC-RL_SPACE": {
+        "primary": true,
+        "family": "additional_block_only",
+        "mean_saving_krw": -12064130739.831596,
+        "interval_level": 0.975,
+        "mean_saving_interval_krw": [
+          -29280439736.003216,
+          14039065063.89373
+        ],
+        "ratio_of_sums_saving_pct": -55.40861556715839,
+        "mean_month_saving_pct": -147.70890107752228,
+        "wins": 3,
+        "losses": 17,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -1459445063.0951843,
+          -30881893664.018703,
+          -589339750.7863235,
+          -26036884180.148567,
+          -3378142635.047838,
+          -5160119247.961487,
+          -11378235705.442142,
+          -14459941485.493172,
+          -40329000419.024254,
+          -26449942887.597652,
+          160153044949.6346,
+          250398595.97969437,
+          53621325.40738487,
+          -48627079950.296234,
+          -23409179961.599293,
+          -62913310799.80943,
+          -11016465732.589062,
+          -23146164891.763893,
+          -57243075386.20906,
+          -15261457906.771322
+        ]
+      },
+      "28d:RL_SPACE-RL": {
+        "primary": true,
+        "family": "additional_block_only",
+        "mean_saving_krw": 14458425444.232672,
+        "interval_level": 0.975,
+        "mean_saving_interval_krw": [
+          7805246930.597618,
+          22579089823.953056
+        ],
+        "ratio_of_sums_saving_pct": 42.729437163578424,
+        "mean_month_saving_pct": 36.05056922388352,
+        "wins": 19,
+        "losses": 1,
+        "ties": 0,
+        "monthly_savings_krw": [
+          516494853.87802315,
+          29866261053.61044,
+          -4373196119.233818,
+          12616767551.958546,
+          4600977613.6166,
+          4732517990.658831,
+          8196084924.734173,
+          10964403864.960777,
+          27136429585.40928,
+          22060089493.140873,
+          799310556.8857689,
+          4178762519.279335,
+          2536059485.791807,
+          45224499940.488266,
+          18503463399.092663,
+          7504430714.25882,
+          8333122259.529114,
+          16834888653.324295,
+          56454382013.39598,
+          12482758529.87366
+        ]
+      },
+      "30d:NO_REALLOC-RL_SPACE": {
+        "primary": false,
+        "family": "additional_block_only",
+        "mean_saving_krw": -12308698569.260988,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          -27886910301.191208,
+          9805656010.762144
+        ],
+        "ratio_of_sums_saving_pct": -54.58404607046681,
+        "mean_month_saving_pct": -142.42165222873462,
+        "wins": 2,
+        "losses": 18,
+        "ties": 0,
+        "monthly_savings_krw": [
+          -1853564563.739626,
+          -31098803413.809097,
+          -904344797.7834816,
+          -26447776330.813793,
+          -3465774884.2051353,
+          -5338853376.360802,
+          -11552100260.372763,
+          -14856954555.202267,
+          -40601022900.95447,
+          -26575413537.358704,
+          160778212978.9742,
+          -122644531.01514053,
+          95851669.8331356,
+          -49016552690.15872,
+          -23820751937.65818,
+          -63063442464.8008,
+          -11152106765.685936,
+          -23655008327.11258,
+          -57833146013.830574,
+          -15689774683.165043
+        ]
+      },
+      "30d:RL_SPACE-RL": {
+        "primary": false,
+        "family": "additional_block_only",
+        "mean_saving_krw": 14706194123.162273,
+        "interval_level": 0.95,
+        "mean_saving_interval_krw": [
+          8651983195.880165,
+          21737580581.24118
+        ],
+        "ratio_of_sums_saving_pct": 42.18802674498912,
+        "mean_month_saving_pct": 35.901247569088284,
+        "wins": 19,
+        "losses": 1,
+        "ties": 0,
+        "monthly_savings_krw": [
+          924759909.1804886,
+          29841491291.54,
+          -4676674856.267914,
+          13033475557.394703,
+          4702834390.64768,
+          4893884337.444807,
+          8316255462.835972,
+          11649377324.427578,
+          27082895370.62153,
+          22068298315.999016,
+          1215027152.5943966,
+          4425200876.430498,
+          2898852952.9617634,
+          45857798489.48175,
+          18598060815.967182,
+          7767660288.933945,
+          8372200204.634308,
+          17029950441.32431,
+          57354048719.485146,
+          12768485417.608301
+        ]
+      }
+    },
+    "bootstrap_samples": 20000,
+    "bootstrap_seed": 9900723,
+    "seed_order": [
+      20000000,
+      20100000,
+      20200000,
+      20300000,
+      20400000,
+      20500000,
+      20600000,
+      20700000,
+      20800000,
+      20900000,
+      21000000,
+      21100000,
+      21200000,
+      21300000,
+      21400000,
+      21500000,
+      21600000,
+      21700000,
+      21800000,
+      21900000
+    ],
+    "correction_scope": "97.5% intervals protect the two added 28-day comparisons only; they do not redefine the original comparison family.",
+    "independent_unit": "one continuous month",
+    "descriptive_30d": true
+  },
+  "load_description": {
+    "scope": "Descriptive grouping by scheduled daily truck volume within days 1..28. Daily states carry over; these are not independent day samples or causal load effects.",
+    "per_month": [
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 951357973.6219188,
+        "mean_day_cost_krw": 79279831.1351599
+      },
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 847848898.0365093,
+        "mean_day_cost_krw": 121121271.14807275
+      },
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 3,
+        "cost_krw": 890477244.5796585,
+        "mean_day_cost_krw": 296825748.1932195
+      },
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 4371772849.958246,
+        "mean_day_cost_krw": 1457257616.6527488
+      },
+      {
+        "seed": 20000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 8133273525.372263,
+        "mean_day_cost_krw": 2711091175.124088
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 2369303248.8209753,
+        "mean_day_cost_krw": 197441937.40174794
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 2196276730.4899426,
+        "mean_day_cost_krw": 313753818.64142036
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 3,
+        "cost_krw": 1571938216.0852048,
+        "mean_day_cost_krw": 523979405.3617349
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3450892718.1979685,
+        "mean_day_cost_krw": 1150297572.7326562
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 6549269787.191667,
+        "mean_day_cost_krw": 2183089929.063889
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 28487454433.151443,
+        "mean_day_cost_krw": 2373954536.0959535
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 16503353927.09416,
+        "mean_day_cost_krw": 2357621989.58488
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 3,
+        "cost_krw": 23021914298.15444,
+        "mean_day_cost_krw": 7673971432.718147
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 4119309770.603027,
+        "mean_day_cost_krw": 1373103256.8676755
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 53457718269.08805,
+        "mean_day_cost_krw": 17819239423.02935
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 451300666.4351896,
+        "mean_day_cost_krw": 90260133.28703792
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1267816607.497718,
+        "mean_day_cost_krw": 115256055.22706528
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1541669923.511731,
+        "mean_day_cost_krw": 256944987.25195515
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 5293527716.004745,
+        "mean_day_cost_krw": 1323381929.0011861
+      },
+      {
+        "seed": 20100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 4752641849.044006,
+        "mean_day_cost_krw": 2376320924.522003
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 947033285.7727828,
+        "mean_day_cost_krw": 189406657.15455657
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 2002578178.7163134,
+        "mean_day_cost_krw": 182052561.70148304
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 2438292824.1788316,
+        "mean_day_cost_krw": 406382137.3631386
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 4304819861.986127,
+        "mean_day_cost_krw": 1076204965.4965317
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 4629865222.247599,
+        "mean_day_cost_krw": 2314932611.1237993
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 461084387.55889237,
+        "mean_day_cost_krw": 92216877.51177847
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1267609492.0693154,
+        "mean_day_cost_krw": 115237226.55175595
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1414449850.4405956,
+        "mean_day_cost_krw": 235741641.74009928
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 4091561349.6092596,
+        "mean_day_cost_krw": 1022890337.4023149
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 3901991558.484087,
+        "mean_day_cost_krw": 1950995779.2420435
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 813905857.0597049,
+        "mean_day_cost_krw": 135650976.17661747
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 662295390.0686849,
+        "mean_day_cost_krw": 110382565.01144749
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 8,
+        "cost_krw": 2334655020.381362,
+        "mean_day_cost_krw": 291831877.54767025
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 7226898846.140391,
+        "mean_day_cost_krw": 1445379769.2280784
+      },
+      {
+        "seed": 20200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 8920083028.981144,
+        "mean_day_cost_krw": 2973361009.6603813
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 1228900432.377671,
+        "mean_day_cost_krw": 204816738.72961184
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 598467216.9676149,
+        "mean_day_cost_krw": 99744536.16126914
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 8,
+        "cost_krw": 3126371599.3563614,
+        "mean_day_cost_krw": 390796449.9195452
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 12048523411.833956,
+        "mean_day_cost_krw": 2409704682.3667912
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7918111352.115824,
+        "mean_day_cost_krw": 2639370450.7052746
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 19415508767.257366,
+        "mean_day_cost_krw": 3235918127.876228
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 37330072679.72362,
+        "mean_day_cost_krw": 6221678779.953937
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 8,
+        "cost_krw": 62776028153.37242,
+        "mean_day_cost_krw": 7847003519.171553
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 49569313313.30091,
+        "mean_day_cost_krw": 9913862662.660183
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 23018357671.70638,
+        "mean_day_cost_krw": 7672785890.568793
+      },
+      {
+        "seed": 20300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 13,
+        "cost_krw": 835499927.5679072,
+        "mean_day_cost_krw": 64269225.19753133
+      },
+      {
+        "seed": 20300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 1087147547.7548442,
+        "mean_day_cost_krw": 155306792.5364063
+      },
+      {
+        "seed": 20300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 1001181315.6748875,
+        "mean_day_cost_krw": 200236263.13497752
+      },
+      {
+        "seed": 20300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 3224241243.9475927,
+        "mean_day_cost_krw": 1612120621.9737964
+      },
+      {
+        "seed": 20300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2447321429.5834384,
+        "mean_day_cost_krw": 2447321429.5834384
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 13,
+        "cost_krw": 2637363890.393519,
+        "mean_day_cost_krw": 202874145.41488606
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 4959621079.001598,
+        "mean_day_cost_krw": 708517297.0002283
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 2722021519.9499307,
+        "mean_day_cost_krw": 544404303.9899862
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 6875986338.643894,
+        "mean_day_cost_krw": 3437993169.321947
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 4820515264.729751,
+        "mean_day_cost_krw": 4820515264.729751
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 13,
+        "cost_krw": 830245898.8331752,
+        "mean_day_cost_krw": 63865069.14101347
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 1169097515.7997365,
+        "mean_day_cost_krw": 167013930.8285338
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 936870149.4766157,
+        "mean_day_cost_krw": 187374029.89532313
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2116895637.7150044,
+        "mean_day_cost_krw": 1058447818.8575022
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 1929922549.2742634,
+        "mean_day_cost_krw": 1929922549.2742634
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 3,
+        "cost_krw": 337637027.70466465,
+        "mean_day_cost_krw": 112545675.90155488
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 15,
+        "cost_krw": 2013470121.4659789,
+        "mean_day_cost_krw": 134231341.43106526
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 4,
+        "cost_krw": 1024312761.4312537,
+        "mean_day_cost_krw": 256078190.35781342
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 6751552602.727181,
+        "mean_day_cost_krw": 1350310520.5454364
+      },
+      {
+        "seed": 20400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 3052409030.5612907,
+        "mean_day_cost_krw": 3052409030.5612907
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 3,
+        "cost_krw": 222253334.81667104,
+        "mean_day_cost_krw": 74084444.93889035
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 15,
+        "cost_krw": 2137740693.185049,
+        "mean_day_cost_krw": 142516046.2123366
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 4,
+        "cost_krw": 822042695.9277271,
+        "mean_day_cost_krw": 205510673.98193178
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 5908385618.242773,
+        "mean_day_cost_krw": 1181677123.6485546
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2866124223.1493874,
+        "mean_day_cost_krw": 2866124223.1493874
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 3,
+        "cost_krw": 229489043.8124085,
+        "mean_day_cost_krw": 76496347.9374695
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 15,
+        "cost_krw": 1985648740.6028683,
+        "mean_day_cost_krw": 132376582.70685789
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 4,
+        "cost_krw": 931318685.6704855,
+        "mean_day_cost_krw": 232829671.41762137
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 5205165586.30847,
+        "mean_day_cost_krw": 1041033117.261694
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2255273450.3812213,
+        "mean_day_cost_krw": 2255273450.3812213
+      },
+      {
+        "seed": 20500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 772133974.6643671,
+        "mean_day_cost_krw": 96516746.83304588
+      },
+      {
+        "seed": 20500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 678827744.0947709,
+        "mean_day_cost_krw": 113137957.34912848
+      },
+      {
+        "seed": 20500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 12,
+        "cost_krw": 3360029965.2113323,
+        "mean_day_cost_krw": 280002497.10094434
+      },
+      {
+        "seed": 20500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1328902051.5637903,
+        "mean_day_cost_krw": 1328902051.5637903
+      },
+      {
+        "seed": 20500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 3036408288.764783,
+        "mean_day_cost_krw": 3036408288.764783
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 948640285.7972693,
+        "mean_day_cost_krw": 118580035.72465867
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 986755618.9497322,
+        "mean_day_cost_krw": 164459269.82495537
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 12,
+        "cost_krw": 4617527630.901608,
+        "mean_day_cost_krw": 384793969.2418007
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1035579456.7905048,
+        "mean_day_cost_krw": 1035579456.7905048
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2015400289.1625843,
+        "mean_day_cost_krw": 2015400289.1625843
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 752799753.9907697,
+        "mean_day_cost_krw": 94099969.24884622
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 643421474.8766875,
+        "mean_day_cost_krw": 107236912.47944792
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 12,
+        "cost_krw": 3158810576.7262774,
+        "mean_day_cost_krw": 263234214.72718978
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1014139319.1900036,
+        "mean_day_cost_krw": 1014139319.1900036
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2280095514.5022545,
+        "mean_day_cost_krw": 2280095514.5022545
+      },
+      {
+        "seed": 20600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 11,
+        "cost_krw": 709254776.3931907,
+        "mean_day_cost_krw": 64477706.94483552
+      },
+      {
+        "seed": 20600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 5,
+        "cost_krw": 584472542.4645802,
+        "mean_day_cost_krw": 116894508.49291603
+      },
+      {
+        "seed": 20600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 2519599833.4763274,
+        "mean_day_cost_krw": 251959983.34763274
+      },
+      {
+        "seed": 20600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1263643919.697913,
+        "mean_day_cost_krw": 1263643919.697913
+      },
+      {
+        "seed": 20600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2781067910.092442,
+        "mean_day_cost_krw": 2781067910.092442
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 11,
+        "cost_krw": 2022011488.3633971,
+        "mean_day_cost_krw": 183819226.21485427
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 5,
+        "cost_krw": 1565792692.8677416,
+        "mean_day_cost_krw": 313158538.5735483
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 2816943884.4735384,
+        "mean_day_cost_krw": 281694388.44735384
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1955845975.1676452,
+        "mean_day_cost_krw": 1955845975.1676452
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2679595721.960101,
+        "mean_day_cost_krw": 2679595721.960101
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 11,
+        "cost_krw": 731461250.6138557,
+        "mean_day_cost_krw": 66496477.32853234
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 5,
+        "cost_krw": 586806957.1092324,
+        "mean_day_cost_krw": 117361391.42184648
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 2448339896.310992,
+        "mean_day_cost_krw": 244833989.63109916
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 947679062.1990497,
+        "mean_day_cost_krw": 947679062.1990497
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2947883919.5780363,
+        "mean_day_cost_krw": 2947883919.5780363
+      },
+      {
+        "seed": 20700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 1187628201.5231419,
+        "mean_day_cost_krw": 98969016.79359515
+      },
+      {
+        "seed": 20700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 4,
+        "cost_krw": 394891262.91685873,
+        "mean_day_cost_krw": 98722815.72921468
+      },
+      {
+        "seed": 20700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 9,
+        "cost_krw": 2076323158.9044354,
+        "mean_day_cost_krw": 230702573.21160394
+      },
+      {
+        "seed": 20700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2429673089.481492,
+        "mean_day_cost_krw": 1214836544.740746
+      },
+      {
+        "seed": 20700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2359526001.25653,
+        "mean_day_cost_krw": 2359526001.25653
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 2455681492.826307,
+        "mean_day_cost_krw": 204640124.40219223
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 4,
+        "cost_krw": 455475860.40432024,
+        "mean_day_cost_krw": 113868965.10108006
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 9,
+        "cost_krw": 4875877074.243243,
+        "mean_day_cost_krw": 541764119.3603604
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2166195931.3977227,
+        "mean_day_cost_krw": 1083097965.6988614
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 1990348975.7432604,
+        "mean_day_cost_krw": 1990348975.7432604
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 1198927551.952012,
+        "mean_day_cost_krw": 99910629.32933433
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 4,
+        "cost_krw": 406604546.1561542,
+        "mean_day_cost_krw": 101651136.53903855
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 9,
+        "cost_krw": 1942178783.8161583,
+        "mean_day_cost_krw": 215797642.64623982
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 1845951333.2811036,
+        "mean_day_cost_krw": 922975666.6405518
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2056102637.8168573,
+        "mean_day_cost_krw": 2056102637.8168573
+      },
+      {
+        "seed": 20800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 7,
+        "cost_krw": 1168269888.7487857,
+        "mean_day_cost_krw": 166895698.39268368
+      },
+      {
+        "seed": 20800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 2081134689.0344222,
+        "mean_day_cost_krw": 189194062.63949293
+      },
+      {
+        "seed": 20800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 2012569125.0470977,
+        "mean_day_cost_krw": 402513825.00941956
+      },
+      {
+        "seed": 20800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2691107226.9554377,
+        "mean_day_cost_krw": 1345553613.4777188
+      },
+      {
+        "seed": 20800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7795271003.968233,
+        "mean_day_cost_krw": 2598423667.989411
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 7,
+        "cost_krw": 4969637039.973871,
+        "mean_day_cost_krw": 709948148.5676959
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 4615963101.529444,
+        "mean_day_cost_krw": 419633009.2299494
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 4654784492.552043,
+        "mean_day_cost_krw": 930956898.5104086
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 5099077586.958983,
+        "mean_day_cost_krw": 2549538793.4794917
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 9601460546.354609,
+        "mean_day_cost_krw": 3200486848.7848697
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 7,
+        "cost_krw": 1153365597.9548557,
+        "mean_day_cost_krw": 164766513.9935508
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1944968905.012579,
+        "mean_day_cost_krw": 176815355.00114354
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 1875432945.2082849,
+        "mean_day_cost_krw": 375086589.041657
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2368971605.357517,
+        "mean_day_cost_krw": 1184485802.6787584
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 6857991533.515375,
+        "mean_day_cost_krw": 2285997177.8384585
+      },
+      {
+        "seed": 20900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 458223051.4687408,
+        "mean_day_cost_krw": 76370508.57812347
+      },
+      {
+        "seed": 20900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1166936438.2357986,
+        "mean_day_cost_krw": 106085130.74870896
+      },
+      {
+        "seed": 20900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1288130545.1319692,
+        "mean_day_cost_krw": 214688424.18866155
+      },
+      {
+        "seed": 20900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2655098947.910597,
+        "mean_day_cost_krw": 1327549473.9552984
+      },
+      {
+        "seed": 20900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7252249667.285963,
+        "mean_day_cost_krw": 2417416555.7619877
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 1377024525.5010145,
+        "mean_day_cost_krw": 229504087.5835024
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 2282262573.120589,
+        "mean_day_cost_krw": 207478415.73823535
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 3442614111.428661,
+        "mean_day_cost_krw": 573769018.5714434
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2727727978.14839,
+        "mean_day_cost_krw": 1363863989.074195
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7380862856.291197,
+        "mean_day_cost_krw": 2460287618.7637324
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 464633689.82786274,
+        "mean_day_cost_krw": 77438948.3046438
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1180661701.8711865,
+        "mean_day_cost_krw": 107332881.98828968
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1235110599.6830666,
+        "mean_day_cost_krw": 205851766.61384442
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2205784096.0153375,
+        "mean_day_cost_krw": 1102892048.0076687
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 5873855489.056148,
+        "mean_day_cost_krw": 1957951829.6853826
+      },
+      {
+        "seed": 21000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 39708798638.30588,
+        "mean_day_cost_krw": 3970879863.830588
+      },
+      {
+        "seed": 21000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 24530286275.423714,
+        "mean_day_cost_krw": 3504326610.774816
+      },
+      {
+        "seed": 21000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 19323387950.38772,
+        "mean_day_cost_krw": 3220564658.397953
+      },
+      {
+        "seed": 21000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 26218507219.122852,
+        "mean_day_cost_krw": 26218507219.122852
+      },
+      {
+        "seed": 21000000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 4,
+        "cost_krw": 65782854935.65275,
+        "mean_day_cost_krw": 16445713733.913187
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1462270442.3474698,
+        "mean_day_cost_krw": 146227044.234747
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 960623294.0427213,
+        "mean_day_cost_krw": 137231899.14896017
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1212917832.9259915,
+        "mean_day_cost_krw": 202152972.15433192
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 2604466504.8130684,
+        "mean_day_cost_krw": 2604466504.8130684
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 4,
+        "cost_krw": 8371201438.243282,
+        "mean_day_cost_krw": 2092800359.5608206
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 3295185672.848063,
+        "mean_day_cost_krw": 329518567.2848063
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 2084871526.4750996,
+        "mean_day_cost_krw": 297838789.4964428
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1563823916.52577,
+        "mean_day_cost_krw": 260637319.42096165
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1688820148.5504203,
+        "mean_day_cost_krw": 1688820148.5504203
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 4,
+        "cost_krw": 8478690230.4024105,
+        "mean_day_cost_krw": 2119672557.6006026
+      },
+      {
+        "seed": 21100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1712035062.0786045,
+        "mean_day_cost_krw": 171203506.20786044
+      },
+      {
+        "seed": 21100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 1467612499.435756,
+        "mean_day_cost_krw": 244602083.23929265
+      },
+      {
+        "seed": 21100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 3059296151.291416,
+        "mean_day_cost_krw": 437042307.3273452
+      },
+      {
+        "seed": 21100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 6182398609.750038,
+        "mean_day_cost_krw": 2060799536.5833461
+      },
+      {
+        "seed": 21100000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 6300760567.713994,
+        "mean_day_cost_krw": 3150380283.856997
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1990174834.3009367,
+        "mean_day_cost_krw": 199017483.43009368
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 1661012999.9033217,
+        "mean_day_cost_krw": 276835499.98388696
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1886956533.843812,
+        "mean_day_cost_krw": 269565219.12054455
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3057420151.6312485,
+        "mean_day_cost_krw": 1019140050.5437495
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 5697377255.331463,
+        "mean_day_cost_krw": 2848688627.6657314
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1703124790.2663264,
+        "mean_day_cost_krw": 170312479.02663264
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 1529489445.1231723,
+        "mean_day_cost_krw": 254914907.5205287
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 3002417008.291853,
+        "mean_day_cost_krw": 428916715.47026473
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 5447595006.70954,
+        "mean_day_cost_krw": 1815865002.2365134
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 4424088135.652664,
+        "mean_day_cost_krw": 2212044067.826332
+      },
+      {
+        "seed": 21200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 9,
+        "cost_krw": 711112409.7031159,
+        "mean_day_cost_krw": 79012489.96701288
+      },
+      {
+        "seed": 21200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 671239794.3963071,
+        "mean_day_cost_krw": 111873299.06605119
+      },
+      {
+        "seed": 21200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1743640022.5036016,
+        "mean_day_cost_krw": 249091431.7862288
+      },
+      {
+        "seed": 21200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3906844431.272088,
+        "mean_day_cost_krw": 1302281477.090696
+      },
+      {
+        "seed": 21200000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7622169640.242225,
+        "mean_day_cost_krw": 2540723213.414075
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 9,
+        "cost_krw": 668775659.1615682,
+        "mean_day_cost_krw": 74308406.57350758
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 624079677.2218705,
+        "mean_day_cost_krw": 104013279.53697842
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1578019502.1481757,
+        "mean_day_cost_krw": 225431357.4497394
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 2928596868.203788,
+        "mean_day_cost_krw": 976198956.0679293
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 6265853780.182741,
+        "mean_day_cost_krw": 2088617926.7275803
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 9,
+        "cost_krw": 713910996.9624231,
+        "mean_day_cost_krw": 79323444.1069359
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 676400976.1135393,
+        "mean_day_cost_krw": 112733496.01892322
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1707349765.8599105,
+        "mean_day_cost_krw": 243907109.40855864
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3324240614.297439,
+        "mean_day_cost_krw": 1108080204.765813
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 6265656614.911865,
+        "mean_day_cost_krw": 2088552204.9706218
+      },
+      {
+        "seed": 21300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 561330040.2548362,
+        "mean_day_cost_krw": 140332510.06370905
+      },
+      {
+        "seed": 21300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 2138462657.5149117,
+        "mean_day_cost_krw": 194405696.13771924
+      },
+      {
+        "seed": 21300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 1559010905.043346,
+        "mean_day_cost_krw": 311802181.0086692
+      },
+      {
+        "seed": 21300000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 8,
+        "cost_krw": 11999803963.379272,
+        "mean_day_cost_krw": 1499975495.422409
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 725728188.9206591,
+        "mean_day_cost_krw": 181432047.23016477
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 3077721377.1331906,
+        "mean_day_cost_krw": 279792852.4666537
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 3033201955.401945,
+        "mean_day_cost_krw": 606640391.080389
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 8,
+        "cost_krw": 12824536054.544544,
+        "mean_day_cost_krw": 1603067006.818068
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 559424248.1686914,
+        "mean_day_cost_krw": 139856062.04217285
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 2275586448.246371,
+        "mean_day_cost_krw": 206871495.29512462
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 1376317290.1257355,
+        "mean_day_cost_krw": 275263458.0251471
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 8,
+        "cost_krw": 10280482744.82976,
+        "mean_day_cost_krw": 1285060343.10372
+      },
+      {
+        "seed": 21400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 398309405.78606045,
+        "mean_day_cost_krw": 66384900.964343406
+      },
+      {
+        "seed": 21400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 10,
+        "cost_krw": 1330984043.5519876,
+        "mean_day_cost_krw": 133098404.35519877
+      },
+      {
+        "seed": 21400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 2092922717.428652,
+        "mean_day_cost_krw": 298988959.63266456
+      },
+      {
+        "seed": 21400000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 6410230573.595967,
+        "mean_day_cost_krw": 1282046114.7191935
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 817053450.0754972,
+        "mean_day_cost_krw": 136175575.01258287
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 10,
+        "cost_krw": 3787710534.639932,
+        "mean_day_cost_krw": 378771053.4639932
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 4021890838.0684323,
+        "mean_day_cost_krw": 574555834.009776
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 6511508480.085434,
+        "mean_day_cost_krw": 1302301696.0170867
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 431094930.5418037,
+        "mean_day_cost_krw": 71849155.09030062
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 10,
+        "cost_krw": 1363714850.82077,
+        "mean_day_cost_krw": 136371485.082077
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 2164245794.523842,
+        "mean_day_cost_krw": 309177970.6462631
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 5256599709.499903,
+        "mean_day_cost_krw": 1051319941.8999805
+      },
+      {
+        "seed": 21500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 389265026.0362816,
+        "mean_day_cost_krw": 97316256.5090704
+      },
+      {
+        "seed": 21500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 962667283.2912579,
+        "mean_day_cost_krw": 137523897.61303684
+      },
+      {
+        "seed": 21500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 2511709744.903711,
+        "mean_day_cost_krw": 251170974.49037108
+      },
+      {
+        "seed": 21500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 6,
+        "cost_krw": 8487665403.514446,
+        "mean_day_cost_krw": 1414610900.585741
+      },
+      {
+        "seed": 21500000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 3170550392.8504786,
+        "mean_day_cost_krw": 3170550392.8504786
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 11574956302.55177,
+        "mean_day_cost_krw": 2893739075.6379423
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 8535829633.973,
+        "mean_day_cost_krw": 1219404233.4247143
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 10066667642.447788,
+        "mean_day_cost_krw": 1006666764.2447789
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 6,
+        "cost_krw": 37971882178.658325,
+        "mean_day_cost_krw": 6328647029.776387
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2781402178.5159044,
+        "mean_day_cost_krw": 2781402178.5159044
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 16675540384.784597,
+        "mean_day_cost_krw": 4168885096.1961493
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 24257224823.984715,
+        "mean_day_cost_krw": 3465317831.9978166
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 29621075763.885807,
+        "mean_day_cost_krw": 2962107576.388581
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 6,
+        "cost_krw": 67594120225.415276,
+        "mean_day_cost_krw": 11265686704.23588
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 28656278091.476776,
+        "mean_day_cost_krw": 28656278091.476776
+      },
+      {
+        "seed": 21600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 412966242.7020315,
+        "mean_day_cost_krw": 82593248.5404063
+      },
+      {
+        "seed": 21600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 9,
+        "cost_krw": 1111433826.2927089,
+        "mean_day_cost_krw": 123492647.36585654
+      },
+      {
+        "seed": 21600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1568318725.3428056,
+        "mean_day_cost_krw": 224045532.19182938
+      },
+      {
+        "seed": 21600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2575536812.9584703,
+        "mean_day_cost_krw": 1287768406.4792352
+      },
+      {
+        "seed": 21600000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 5,
+        "cost_krw": 12461412758.342495,
+        "mean_day_cost_krw": 2492282551.668499
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 1293404900.936503,
+        "mean_day_cost_krw": 258680980.1873006
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 9,
+        "cost_krw": 1507818705.8091965,
+        "mean_day_cost_krw": 167535411.75657737
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 3339556310.519494,
+        "mean_day_cost_krw": 477079472.9313563
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 1967686240.38247,
+        "mean_day_cost_krw": 983843120.191235
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 5,
+        "cost_krw": 12704545681.050797,
+        "mean_day_cost_krw": 2540909136.2101593
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 440947647.45980114,
+        "mean_day_cost_krw": 88189529.49196023
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 9,
+        "cost_krw": 1112911030.135397,
+        "mean_day_cost_krw": 123656781.12615521
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1445392546.1389105,
+        "mean_day_cost_krw": 206484649.4484158
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 1998348597.614654,
+        "mean_day_cost_krw": 999174298.807327
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 5,
+        "cost_krw": 10479236654.134743,
+        "mean_day_cost_krw": 2095847330.8269486
+      },
+      {
+        "seed": 21700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 398915442.89291286,
+        "mean_day_cost_krw": 66485907.14881881
+      },
+      {
+        "seed": 21700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1316889571.7302034,
+        "mean_day_cost_krw": 119717233.79365486
+      },
+      {
+        "seed": 21700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1534658210.3899708,
+        "mean_day_cost_krw": 219236887.19856724
+      },
+      {
+        "seed": 21700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 4020460779.236125,
+        "mean_day_cost_krw": 1340153593.0787084
+      },
+      {
+        "seed": 21700000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2490611709.335194,
+        "mean_day_cost_krw": 2490611709.335194
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 2375059899.701348,
+        "mean_day_cost_krw": 395843316.6168913
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 4031093279.702322,
+        "mean_day_cost_krw": 366463025.4274838
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 3746103038.05564,
+        "mean_day_cost_krw": 535157576.86509144
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3919661774.8941875,
+        "mean_day_cost_krw": 1306553924.964729
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2000893959.6705093,
+        "mean_day_cost_krw": 2000893959.6705093
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 403405245.8935732,
+        "mean_day_cost_krw": 67234207.64892887
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 1417972121.1422594,
+        "mean_day_cost_krw": 128906556.46747813
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1417996380.8921373,
+        "mean_day_cost_krw": 202570911.5560196
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3265274455.0679607,
+        "mean_day_cost_krw": 1088424818.3559868
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2045472540.556598,
+        "mean_day_cost_krw": 2045472540.556598
+      },
+      {
+        "seed": 21800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 2500520338.7351847,
+        "mean_day_cost_krw": 312565042.3418981
+      },
+      {
+        "seed": 21800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 4208951071.987549,
+        "mean_day_cost_krw": 526118883.9984436
+      },
+      {
+        "seed": 21800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 3553195449.9250913,
+        "mean_day_cost_krw": 592199241.6541818
+      },
+      {
+        "seed": 21800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 6559568907.572283,
+        "mean_day_cost_krw": 1639892226.8930707
+      },
+      {
+        "seed": 21800000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 5302422897.591168,
+        "mean_day_cost_krw": 2651211448.795584
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 1718961314.8729684,
+        "mean_day_cost_krw": 214870164.35912105
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 4059372447.005759,
+        "mean_day_cost_krw": 507421555.87571985
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 3746834722.60618,
+        "mean_day_cost_krw": 624472453.7676967
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 6599070611.473471,
+        "mean_day_cost_krw": 1649767652.8683677
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 6789112942.665987,
+        "mean_day_cost_krw": 3394556471.3329935
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 2792192840.1468463,
+        "mean_day_cost_krw": 349024105.0183558
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 6623905491.600857,
+        "mean_day_cost_krw": 827988186.4501071
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 6774379230.152656,
+        "mean_day_cost_krw": 1129063205.0254426
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 4253131431.861462,
+        "mean_day_cost_krw": 1063282857.9653655
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 3662375205.007151,
+        "mean_day_cost_krw": 1831187602.5035756
+      },
+      {
+        "seed": 21900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1275471275.9157007,
+        "mean_day_cost_krw": 127547127.59157006
+      },
+      {
+        "seed": 21900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 1494722350.8465343,
+        "mean_day_cost_krw": 186840293.85581678
+      },
+      {
+        "seed": 21900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 2424821659.84559,
+        "mean_day_cost_krw": 346403094.2636557
+      },
+      {
+        "seed": 21900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2611079682.6859713,
+        "mean_day_cost_krw": 1305539841.3429856
+      },
+      {
+        "seed": 21900000,
+        "arm": "NO_REALLOC",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2398978846.949202,
+        "mean_day_cost_krw": 2398978846.949202
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1336672740.8431392,
+        "mean_day_cost_krw": 133667274.08431391
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 1756046702.0769014,
+        "mean_day_cost_krw": 219505837.75961268
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 5170794775.272391,
+        "mean_day_cost_krw": 738684967.8960559
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2782380609.8822756,
+        "mean_day_cost_krw": 1391190304.9411378
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 1937878365.0659528,
+        "mean_day_cost_krw": 1937878365.0659528
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1245976103.323225,
+        "mean_day_cost_krw": 124597610.33232251
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 1403420446.7167506,
+        "mean_day_cost_krw": 175427555.83959383
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 2383601309.4491,
+        "mean_day_cost_krw": 340514472.77844286
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 1998565354.3933897,
+        "mean_day_cost_krw": 999282677.1966949
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_TIME",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 1846076560.7995093,
+        "mean_day_cost_krw": 1846076560.7995093
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 1609802856.8536801,
+        "mean_day_cost_krw": 134150238.07114
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 1883362509.218803,
+        "mean_day_cost_krw": 269051787.03125757
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 3,
+        "cost_krw": 656693959.0578575,
+        "mean_day_cost_krw": 218897986.35261917
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 4425290812.033791,
+        "mean_day_cost_krw": 1475096937.3445969
+      },
+      {
+        "seed": 20000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 8079025417.499649,
+        "mean_day_cost_krw": 2693008472.499883
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 2833357555.568652,
+        "mean_day_cost_krw": 566671511.1137304
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 11779321621.604103,
+        "mean_day_cost_krw": 1070847420.1458275
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 9014980277.215988,
+        "mean_day_cost_krw": 1502496712.8693314
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 12360331683.618763,
+        "mean_day_cost_krw": 3090082920.9046907
+      },
+      {
+        "seed": 20100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 8200859288.504588,
+        "mean_day_cost_krw": 4100429644.252294
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 470049644.8197906,
+        "mean_day_cost_krw": 78341607.4699651
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 579914491.6219908,
+        "mean_day_cost_krw": 96652415.2703318
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 8,
+        "cost_krw": 1772001621.3679326,
+        "mean_day_cost_krw": 221500202.67099157
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 9335897261.824139,
+        "mean_day_cost_krw": 1867179452.3648276
+      },
+      {
+        "seed": 20200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 8389314873.783755,
+        "mean_day_cost_krw": 2796438291.261252
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 13,
+        "cost_krw": 5034480468.825376,
+        "mean_day_cost_krw": 387267728.37118274
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 7019509318.589064,
+        "mean_day_cost_krw": 1002787045.5127233
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 11719356520.525682,
+        "mean_day_cost_krw": 2343871304.1051364
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 7968201756.896199,
+        "mean_day_cost_krw": 3984100878.4480996
+      },
+      {
+        "seed": 20300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2890727579.840915,
+        "mean_day_cost_krw": 2890727579.840915
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 3,
+        "cost_krw": 450563358.3036813,
+        "mean_day_cost_krw": 150187786.1012271
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 15,
+        "cost_krw": 3562523558.1975627,
+        "mean_day_cost_krw": 237501570.54650417
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 4,
+        "cost_krw": 1918437426.4379685,
+        "mean_day_cost_krw": 479609356.6094921
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 7813238996.16082,
+        "mean_day_cost_krw": 1562647799.232164
+      },
+      {
+        "seed": 20400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2812760839.8381743,
+        "mean_day_cost_krw": 2812760839.8381743
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 1371610054.7383623,
+        "mean_day_cost_krw": 171451256.8422953
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 1593456592.4255955,
+        "mean_day_cost_krw": 265576098.73759925
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 12,
+        "cost_krw": 6868059421.551655,
+        "mean_day_cost_krw": 572338285.1293045
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1405814691.7103424,
+        "mean_day_cost_krw": 1405814691.7103424
+      },
+      {
+        "seed": 20500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 3097480511.8345757,
+        "mean_day_cost_krw": 3097480511.8345757
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 11,
+        "cost_krw": 4117532618.3863993,
+        "mean_day_cost_krw": 374321147.1260363
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 5,
+        "cost_krw": 2367519651.9222217,
+        "mean_day_cost_krw": 473503930.38444436
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 6285033272.105037,
+        "mean_day_cost_krw": 628503327.2105037
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 2948108528.3764234,
+        "mean_day_cost_krw": 2948108528.3764234
+      },
+      {
+        "seed": 20600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 3518080616.776514,
+        "mean_day_cost_krw": 3518080616.776514
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 12,
+        "cost_krw": 6089187245.193091,
+        "mean_day_cost_krw": 507432270.4327576
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 4,
+        "cost_krw": 376796610.50039697,
+        "mean_day_cost_krw": 94199152.62509924
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 9,
+        "cost_krw": 9202470653.3851,
+        "mean_day_cost_krw": 1022496739.2650111
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 4792220987.008918,
+        "mean_day_cost_krw": 2396110493.504459
+      },
+      {
+        "seed": 20700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2447307703.4881263,
+        "mean_day_cost_krw": 2447307703.4881263
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 7,
+        "cost_krw": 7078743226.590205,
+        "mean_day_cost_krw": 1011249032.3700293
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 9570858879.004774,
+        "mean_day_cost_krw": 870078079.9095249
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 11838340694.365808,
+        "mean_day_cost_krw": 2367668138.873162
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 7531062807.697675,
+        "mean_day_cost_krw": 3765531403.8488374
+      },
+      {
+        "seed": 20800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 20058346745.119762,
+        "mean_day_cost_krw": 6686115581.706588
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 3606745601.3781285,
+        "mean_day_cost_krw": 601124266.8963548
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 6668158314.728272,
+        "mean_day_cost_krw": 606196210.429843
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 7855781787.21586,
+        "mean_day_cost_krw": 1309296964.5359766
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 7104052703.546473,
+        "mean_day_cost_krw": 3552026351.7732363
+      },
+      {
+        "seed": 20900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 14035843130.76199,
+        "mean_day_cost_krw": 4678614376.920663
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 1163486149.6041768,
+        "mean_day_cost_krw": 116348614.96041767
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 840352040.4139057,
+        "mean_day_cost_krw": 120050291.48770082
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 1298854518.936573,
+        "mean_day_cost_krw": 216475753.1560955
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 1,
+        "cost_krw": 1931703645.3172216,
+        "mean_day_cost_krw": 1931703645.3172216
+      },
+      {
+        "seed": 21000000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 4,
+        "cost_krw": 10176393714.986425,
+        "mean_day_cost_krw": 2544098428.7466063
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 2430059188.6208467,
+        "mean_day_cost_krw": 243005918.8620847
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 1744887116.8850288,
+        "mean_day_cost_krw": 290814519.4808381
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 2727799427.3764844,
+        "mean_day_cost_krw": 389685632.48235494
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3911156073.5040245,
+        "mean_day_cost_krw": 1303718691.168008
+      },
+      {
+        "seed": 21100000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 7657802487.90373,
+        "mean_day_cost_krw": 3828901243.951865
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 9,
+        "cost_krw": 736588445.6449616,
+        "mean_day_cost_krw": 81843160.62721795
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 6,
+        "cost_krw": 619150949.5329671,
+        "mean_day_cost_krw": 103191824.92216118
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 1686123904.4626172,
+        "mean_day_cost_krw": 240874843.4946596
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 3783857302.294539,
+        "mean_day_cost_krw": 1261285767.431513
+      },
+      {
+        "seed": 21200000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 3,
+        "cost_krw": 7775664370.774867,
+        "mean_day_cost_krw": 2591888123.5916224
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 5143783831.892698,
+        "mean_day_cost_krw": 1285945957.9731746
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 11919188235.347809,
+        "mean_day_cost_krw": 1083562566.8498008
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 5,
+        "cost_krw": 8910717039.389727,
+        "mean_day_cost_krw": 1782143407.8779454
+      },
+      {
+        "seed": 21300000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 8,
+        "cost_krw": 38911998409.85837,
+        "mean_day_cost_krw": 4863999801.232296
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 1641611070.6390805,
+        "mean_day_cost_krw": 273601845.10651344
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 10,
+        "cost_krw": 8528450987.472417,
+        "mean_day_cost_krw": 852845098.7472417
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 10282175941.84363,
+        "mean_day_cost_krw": 1468882277.4062328
+      },
+      {
+        "seed": 21400000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 5,
+        "cost_krw": 13189388702.006832,
+        "mean_day_cost_krw": 2637877740.401366
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 4,
+        "cost_krw": 6682442684.306269,
+        "mean_day_cost_krw": 1670610671.0765672
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 7,
+        "cost_krw": 9275961249.534847,
+        "mean_day_cost_krw": 1325137321.362121
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 10,
+        "cost_krw": 12797991403.153437,
+        "mean_day_cost_krw": 1279799140.3153436
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 6,
+        "cost_krw": 35157570724.345505,
+        "mean_day_cost_krw": 5859595120.724251
+      },
+      {
+        "seed": 21500000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 14521202589.065546,
+        "mean_day_cost_krw": 14521202589.065546
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 5,
+        "cost_krw": 1354581883.8433897,
+        "mean_day_cost_krw": 270916376.76867795
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 9,
+        "cost_krw": 3253749891.5695558,
+        "mean_day_cost_krw": 361527765.72995067
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 6830058298.032177,
+        "mean_day_cost_krw": 975722614.0045967
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 2552985705.6083517,
+        "mean_day_cost_krw": 1276492852.8041759
+      },
+      {
+        "seed": 21600000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 5,
+        "cost_krw": 15154758319.174099,
+        "mean_day_cost_krw": 3030951663.83482
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 6,
+        "cost_krw": 3729762153.287306,
+        "mean_day_cost_krw": 621627025.5478843
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 11,
+        "cost_krw": 8349445491.400482,
+        "mean_day_cost_krw": 759040499.2182256
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 8619026543.933073,
+        "mean_day_cost_krw": 1231289506.2761533
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 3,
+        "cost_krw": 9761683861.72725,
+        "mean_day_cost_krw": 3253894620.57575
+      },
+      {
+        "seed": 21700000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2447782555.00019,
+        "mean_day_cost_krw": 2447782555.00019
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 8,
+        "cost_krw": 9331641148.024117,
+        "mean_day_cost_krw": 1166455143.5030146
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 19172399392.4678,
+        "mean_day_cost_krw": 2396549924.058475
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 6,
+        "cost_krw": 23798794383.019363,
+        "mean_day_cost_krw": 3966465730.503227
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 4,
+        "cost_krw": 14010362297.770334,
+        "mean_day_cost_krw": 3502590574.4425836
+      },
+      {
+        "seed": 21800000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 2,
+        "cost_krw": 13054536830.738731,
+        "mean_day_cost_krw": 6527268415.369366
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 3500,
+        "days": 10,
+        "cost_krw": 3933963828.8687363,
+        "mean_day_cost_krw": 393396382.8868736
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 5000,
+        "days": 8,
+        "cost_krw": 3694217041.651301,
+        "mean_day_cost_krw": 461777130.2064126
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 7500,
+        "days": 7,
+        "cost_krw": 9994322888.103186,
+        "mean_day_cost_krw": 1427760412.5861695
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 12500,
+        "days": 2,
+        "cost_krw": 5439726191.40789,
+        "mean_day_cost_krw": 2719863095.703945
+      },
+      {
+        "seed": 21900000,
+        "arm": "RL_SPACE",
+        "daily_requested_trucks": 15000,
+        "days": 1,
+        "cost_krw": 2404301772.9832077,
+        "mean_day_cost_krw": 2404301772.9832077
+      }
+    ],
+    "pooled": [
+      {
+        "daily_requested_trucks": 3500,
+        "arm": "NO_REALLOC",
+        "months": 20,
+        "days": 155,
+        "total_cost_krw": 55753935227.59822,
+        "pooled_mean_day_cost_krw": 359702807.9199885,
+        "equal_month_mean_day_cost_krw": 304977818.6202731
+      },
+      {
+        "daily_requested_trucks": 3500,
+        "arm": "RL",
+        "months": 20,
+        "days": 155,
+        "total_cost_krw": 43140906758.35534,
+        "pooled_mean_day_cost_krw": 278328430.6990667,
+        "equal_month_mean_day_cost_krw": 347453845.67496306
+      },
+      {
+        "daily_requested_trucks": 3500,
+        "arm": "RL_SPACE",
+        "months": 20,
+        "days": 155,
+        "total_cost_krw": 68809993015.38895,
+        "pooled_mean_day_cost_krw": 443935438.808961,
+        "equal_month_mean_day_cost_krw": 505297397.1053573
+      },
+      {
+        "daily_requested_trucks": 3500,
+        "arm": "RL_TIME",
+        "months": 20,
+        "days": 155,
+        "total_cost_krw": 81985773235.34799,
+        "pooled_mean_day_cost_krw": 528940472.48611605,
+        "equal_month_mean_day_cost_krw": 596697687.6502957
+      },
+      {
+        "daily_requested_trucks": 5000,
+        "arm": "NO_REALLOC",
+        "months": 20,
+        "days": 166,
+        "total_cost_krw": 50018090616.04109,
+        "pooled_mean_day_cost_krw": 301313798.8918138,
+        "equal_month_mean_day_cost_krw": 327116577.52567023
+      },
+      {
+        "daily_requested_trucks": 5000,
+        "arm": "RL",
+        "months": 20,
+        "days": 166,
+        "total_cost_krw": 51802242396.74056,
+        "pooled_mean_day_cost_krw": 312061701.1851841,
+        "equal_month_mean_day_cost_krw": 316107855.3514543
+      },
+      {
+        "daily_requested_trucks": 5000,
+        "arm": "RL_SPACE",
+        "months": 20,
+        "days": 166,
+        "total_cost_krw": 112799223944.0889,
+        "pooled_mean_day_cost_krw": 679513397.2535475,
+        "equal_month_mean_day_cost_krw": 637044532.6328042
+      },
+      {
+        "daily_requested_trucks": 5000,
+        "arm": "RL_TIME",
+        "months": 20,
+        "days": 166,
+        "total_cost_krw": 105763743100.67447,
+        "pooled_mean_day_cost_krw": 637130982.5341835,
+        "equal_month_mean_day_cost_krw": 766717663.6174989
+      },
+      {
+        "daily_requested_trucks": 7500,
+        "arm": "NO_REALLOC",
+        "months": 20,
+        "days": 137,
+        "total_cost_krw": 57419910430.41196,
+        "pooled_mean_day_cost_krw": 419123433.79862744,
+        "equal_month_mean_day_cost_krw": 441616481.8647682
+      },
+      {
+        "daily_requested_trucks": 7500,
+        "arm": "RL",
+        "months": 20,
+        "days": 137,
+        "total_cost_krw": 68891357200.387,
+        "pooled_mean_day_cost_krw": 502856621.900635,
+        "equal_month_mean_day_cost_krw": 502222918.7133732
+      },
+      {
+        "daily_requested_trucks": 7500,
+        "arm": "RL_SPACE",
+        "months": 20,
+        "days": 137,
+        "total_cost_krw": 154077019981.47916,
+        "pooled_mean_day_cost_krw": 1124649780.8867092,
+        "equal_month_mean_day_cost_krw": 1182288916.7862153
+      },
+      {
+        "daily_requested_trucks": 7500,
+        "arm": "RL_TIME",
+        "months": 20,
+        "days": 137,
+        "total_cost_krw": 151197052944.70505,
+        "pooled_mean_day_cost_krw": 1103628123.6839786,
+        "equal_month_mean_day_cost_krw": 1192018394.2885435
+      },
+      {
+        "daily_requested_trucks": 12500,
+        "arm": "NO_REALLOC",
+        "months": 20,
+        "days": 64,
+        "total_cost_krw": 116208514877.4749,
+        "pooled_mean_day_cost_krw": 1815758044.9605453,
+        "equal_month_mean_day_cost_krw": 2651025543.6077476
+      },
+      {
+        "daily_requested_trucks": 12500,
+        "arm": "RL",
+        "months": 20,
+        "days": 64,
+        "total_cost_krw": 126740244351.93678,
+        "pooled_mean_day_cost_krw": 1980316317.9990122,
+        "equal_month_mean_day_cost_krw": 1820448997.0389469
+      },
+      {
+        "daily_requested_trucks": 12500,
+        "arm": "RL_SPACE",
+        "months": 20,
+        "days": 64,
+        "total_cost_krw": 194334653142.71387,
+        "pooled_mean_day_cost_krw": 3036478955.354904,
+        "equal_month_mean_day_cost_krw": 2732886068.3654394
+      },
+      {
+        "daily_requested_trucks": 12500,
+        "arm": "RL_TIME",
+        "months": 20,
+        "days": 64,
+        "total_cost_krw": 178591949361.8195,
+        "pooled_mean_day_cost_krw": 2790499208.7784295,
+        "equal_month_mean_day_cost_krw": 2097325304.4441552
+      },
+      {
+        "daily_requested_trucks": 15000,
+        "arm": "NO_REALLOC",
+        "months": 18,
+        "days": 38,
+        "total_cost_krw": 156060013483.5876,
+        "pooled_mean_day_cost_krw": 4106842460.09441,
+        "equal_month_mean_day_cost_krw": 3449655454.116643
+      },
+      {
+        "daily_requested_trucks": 15000,
+        "arm": "RL",
+        "months": 18,
+        "days": 38,
+        "total_cost_krw": 96999819839.6726,
+        "pooled_mean_day_cost_krw": 2552626837.8861213,
+        "equal_month_mean_day_cost_krw": 2603105497.663128
+      },
+      {
+        "daily_requested_trucks": 15000,
+        "arm": "RL_SPACE",
+        "months": 18,
+        "days": 38,
+        "total_cost_krw": 146722189348.07486,
+        "pooled_mean_day_cost_krw": 3861110246.00197,
+        "equal_month_mean_day_cost_krw": 4089853245.053456
+      },
+      {
+        "daily_requested_trucks": 15000,
+        "arm": "RL_TIME",
+        "months": 18,
+        "days": 38,
+        "total_cost_krw": 170437066626.3444,
+        "pooled_mean_day_cost_krw": 4485185963.851169,
+        "equal_month_mean_day_cost_krw": 4780632173.804313
+      }
+    ],
+    "confidence_intervals": null
+  },
+  "evidence": [
+    {
+      "seed": 20000000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20000000/NO_REALLOC",
+      "result_sha256": "525eddec05314d3dee215966ac4901abe2ad3bc8254bd9fd223249865c87ffea",
+      "completion_sha256": "8d7b9e788c4e61735330cdc41a8a93bb76ed5b4966c625ef728b92660193b4cb",
+      "manifest_sha256": "7da2d41043c173bad7d03feca89daee0c2048ef93090dedc034d5472b4e6c60b",
+      "audit_sha256": "d860fefa74b25664a5b2c9be788f869df1432cf613bb88b9439ea9b0ce40623e",
+      "reused": false
+    },
+    {
+      "seed": 20000000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20000000/RL",
+      "result_sha256": "3e20d1e62b73f75ec7cf1ead315bfe01e89b0104151e1b94807f9ebce02da70e",
+      "completion_sha256": "d3572f9d0adc9b51c2d5f714d844d5390ef7a7ceb28d037b510b5f55277cadeb",
+      "manifest_sha256": "13bbfb44f8d2dc8d84149886e169b2e3b83a80dd104486a52ed6d503d77e7baf",
+      "audit_sha256": "5568899f24eb72a436463f1a19dc74a82a228e350c80d678c91945270015376f",
+      "reused": false
+    },
+    {
+      "seed": 20000000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20000000/RL_TIME",
+      "result_sha256": "70caf4ce9605a451536d0512978e4b8dadb7188289580a021c6d02db4f60d587",
+      "completion_sha256": "38de304315a02cff7a31a4a814819e781009e847f2dcdc8f7c3deca54cfd31a9",
+      "manifest_sha256": "c08db39b77b91205963a12167f9f5894fa34a9053ed36a349718dd2ca2f04c4b",
+      "audit_sha256": "8af11d9ce6bc470db9cd8b7f674df5dbcaf0b06c3acb48b89a93e8fb9ec49f24",
+      "reused": false
+    },
+    {
+      "seed": 20100000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20100000/NO_REALLOC",
+      "result_sha256": "98d6c91769b1cf9784b450c3db6638c727f203d65e30ca5888e05620ccd9dc20",
+      "completion_sha256": "9522b0181ffaf021091cce29db0c0aef8ecd1461ee5932f08f24624e86688a98",
+      "manifest_sha256": "4b9e7cc5b168127e890017e458a39d061878c95a6406198d6564a68b9127cf0f",
+      "audit_sha256": "d83140aef14d22328809b81bbff35c0ba03a8c8e0a67a67e8d553befbb7913a5",
+      "reused": false
+    },
+    {
+      "seed": 20100000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20100000/RL",
+      "result_sha256": "d6c04a6e5b3d6ac3c7f81d366b2237512f84bab06cc66c701bbf4198909edecb",
+      "completion_sha256": "5395e3079222787262ea6c5b2139516f27c81fac3c1ee12411ece5e751647e36",
+      "manifest_sha256": "387b3a59592e92d35d19bf33452afb34f049147d8217a005a2e3b37d398ef80d",
+      "audit_sha256": "1c6721c1b28ebe486c2fb46b04f364b939c52f70a19df741f204d6b51f38a0c4",
+      "reused": false
+    },
+    {
+      "seed": 20100000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20100000/RL_TIME",
+      "result_sha256": "1c92116357be17e7ba5adcd9b398a89784297abc1685b06c4892d5710780d768",
+      "completion_sha256": "42d14d2f3de905776cdda62add5da7a6c0c5f14ba070135cdcb38e46681a6493",
+      "manifest_sha256": "acb4de29f689914fba76352a6b0e2c66511654d97d81237682a1f180dcc09960",
+      "audit_sha256": "e9a14f896b4b25f9f87721ad350da54a1118cd838889600dfbe3bfad75d4d31f",
+      "reused": false
+    },
+    {
+      "seed": 20200000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20200000/NO_REALLOC",
+      "result_sha256": "cdd18110f0d39523b57ccca6e90236a1516febdfe430a92d384ff02c76cb3d99",
+      "completion_sha256": "e1c60651d9f411ed91e6b8749f09d80d30bdad7693a3f47da0521a02b8c57a19",
+      "manifest_sha256": "ae11570d7738bf902d8e14280199def6ef0f45a4bf1f7fb3eb3a6c3ecb9914d5",
+      "audit_sha256": "9dd8be884ed2877f99bc7270648275af23ff4c14a30e5aec6d1131b2c4dc827f",
+      "reused": false
+    },
+    {
+      "seed": 20200000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20200000/RL",
+      "result_sha256": "646423f7540501dc45a0d3b944c3a5e3ea1824b104d238f775aced39cbbf8378",
+      "completion_sha256": "a6e9d8d1446651577fe40d4c057eeb9e46f5d30902ed631172d8caf05417594c",
+      "manifest_sha256": "c47c5b262cc2b5577599e1aecf03494382c8016f8b21ce6c55f425318224d5a1",
+      "audit_sha256": "0c4f22e57442f4c85c7c3cd6e19955fb0ed46c79f3e2d082810f93b81a665ef5",
+      "reused": false
+    },
+    {
+      "seed": 20200000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20200000/RL_TIME",
+      "result_sha256": "68aa853f0a84cb2b6c9cd4fd381c07594172c490c85d4d42f6b418b3e5e9f131",
+      "completion_sha256": "3472b1e0fc18abac01e8405fabdeb0f51581db9f57d1496ca5bd8501ed6dbfb3",
+      "manifest_sha256": "d471c638f240c05c74445a4e5d14caaea3e0fc0ca1228690aafc7f74f3a44f6b",
+      "audit_sha256": "3dc4befe84d71f7a94b0184aa828ba549c99cb0e5393c4575621c1b0585f02ff",
+      "reused": false
+    },
+    {
+      "seed": 20300000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20300000/NO_REALLOC",
+      "result_sha256": "f1273e00206f780652ea5a1388d7f02b86e64c14a63051b266373b20ba67a9bd",
+      "completion_sha256": "01f971881f17bd030c78c04c1d5e08c8806c13de4ad976aa02c8330272e73cdb",
+      "manifest_sha256": "b55e9bf65e53d3dcf346beae66b947471007974f721b6fafe2334e86fcf0197e",
+      "audit_sha256": "a803211445cc2b2082a17503215709d327a71c8b193d6756a1055a6ccaa5c06f",
+      "reused": true
+    },
+    {
+      "seed": 20300000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20300000/RL",
+      "result_sha256": "e6c7794f8631023c706292637fa4fa98329d0e5ecb38ce8f35d82055f031db09",
+      "completion_sha256": "e47723592ccbdeab12629d681cbda9c1869059740b8835e1e64f1ef54c061c65",
+      "manifest_sha256": "ab4d9fd2e0234c64eb7eba500a4f674dfb5a4ceb37686e1fdcbf711c5d5536c5",
+      "audit_sha256": "f1fddcaf1591417b5207998caf56f2fe0b90fe9251850611fe257bdd8891eb23",
+      "reused": false
+    },
+    {
+      "seed": 20300000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20300000/RL_TIME",
+      "result_sha256": "dd97f134fb7331a68ddfb1d1171dac19f98a32c0324fff6ea6caac07889ce5df",
+      "completion_sha256": "88d728d0d26b912d5430dcf596295b0d921a70d73a14b31044f57d81606fb131",
+      "manifest_sha256": "7b88079ead9efce98fd56e1bda14a74d23ffe5407c00350faf812669e4c16548",
+      "audit_sha256": "2b45b5e4d7383883aede292fa75e727e06a1d8caf846a08bd1dc4e832630623d",
+      "reused": false
+    },
+    {
+      "seed": 20400000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20400000/NO_REALLOC",
+      "result_sha256": "cc8e97dfaf1f0d7d76c258f30ee5bd2c5283b5ad3ee885ce09c491c2157897ac",
+      "completion_sha256": "dc581c44367c9736fa5feee2075038cd918ea9574a86afdfe4f30855d17c5c5d",
+      "manifest_sha256": "557e6e913a1795e624123639de747da9610bbe462c83a1435e133d27da28b160",
+      "audit_sha256": "6ccefc0854df088041be2853b4010860fdb7689bac0c57983c4026ff29df3eb6",
+      "reused": false
+    },
+    {
+      "seed": 20400000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20400000/RL",
+      "result_sha256": "36805c92578b522c1da35050b174bc6c5b45509e443f2ee54c69564f99bee73e",
+      "completion_sha256": "9120e57934a0d058f04d656b33d4add3f80bf2949cfad86b4bda282c95ff0d26",
+      "manifest_sha256": "4b7f6716ee8a592fc7273e1c8a459956093ef86e8ad4fdf6cb42c33d3bc922a7",
+      "audit_sha256": "ad94076a86bf6995e309c01059dae0e3837166cd5824a6a3ef5f5123ba90b592",
+      "reused": false
+    },
+    {
+      "seed": 20400000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20400000/RL_TIME",
+      "result_sha256": "50c14bea513a1070b4635554e23653f47449e3c920f8967e41cdaae8c037a531",
+      "completion_sha256": "a110a4ffd458cdffda6ef358a287e4bde161ed9a48878731a538a3fd984e7465",
+      "manifest_sha256": "4223972d1f4df076696f167b6af3f53c359baef20e9518abd6f6c282fdd53b98",
+      "audit_sha256": "6923fd0fced3e1bb07dd97e431f95056475c3c3b0f789b7b85f66d98a2403d8d",
+      "reused": false
+    },
+    {
+      "seed": 20500000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20500000/NO_REALLOC",
+      "result_sha256": "21cdb1a27e2d25e97bb68e3725aebe8fd330ece1314016ed3aba609af06389dc",
+      "completion_sha256": "c9dbdec4751e9147756149e63c0bd68caa5c7a6221f0e28e128853f45c69a520",
+      "manifest_sha256": "2d1b83230fb874303bebbc1174c859ce1488e53e6b5fee4187bada5d43e9dc96",
+      "audit_sha256": "713747d69275e50e8b7ef3e327cada3a4806725c25ec7c3f8bb26ffcdf94fdc3",
+      "reused": false
+    },
+    {
+      "seed": 20500000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20500000/RL",
+      "result_sha256": "52375f4172face648d45efb829792f93748a00fc668d152df0a7c1378207556a",
+      "completion_sha256": "dda23ba2383dc9bbc5d2cf5ac3beac0f43230961deb9b4da9069055816783870",
+      "manifest_sha256": "73454ed83ca05611ba19195e25fe992937bd7d9aa4ab6b8de2c4f16b68728c48",
+      "audit_sha256": "6c352f2a7ab81cdbfcaadf93fa941a351da55853d05b9f1d2979e5af9e393f05",
+      "reused": false
+    },
+    {
+      "seed": 20500000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20500000/RL_TIME",
+      "result_sha256": "71e248a08b4e63173b7ebe7e4e92f3ed0c0705f5ff5c2bfc13f2e3cd176c8f7c",
+      "completion_sha256": "0b5957753bc78491f00343ed619dabdd6eadeffc44f37915908937f9a7655fe9",
+      "manifest_sha256": "fa37087c795d2f1d6406d1988a2b5bf73d568ab49ddee514a2c994678a4926a0",
+      "audit_sha256": "00848bd68d0f0800f6891961a8f3683cdcddca69bb10343e6a1111edd562f283",
+      "reused": false
+    },
+    {
+      "seed": 20600000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20600000/NO_REALLOC",
+      "result_sha256": "b92d466dd578955ded93bd01fd35e81ce84cdbf1c6a21c8a0d0763f821deabc9",
+      "completion_sha256": "de6e051b79d8f499d6c698144e4164746240cceaed9ccc3968600b80026b8953",
+      "manifest_sha256": "97994c59102e22b39753558fa1cb0f3cf59503e3f19c4e91e8272152fe18e7e1",
+      "audit_sha256": "ef4b085cf4accf2b6a4c511c0913681704e188ac20688e7253c4caec48000235",
+      "reused": false
+    },
+    {
+      "seed": 20600000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20600000/RL",
+      "result_sha256": "2f3175c66bb57e3ea719082e51d1145559ba1d8015d0c9f038ffcc3eef0bca3c",
+      "completion_sha256": "a02f35ee3221e051f2146bd0c19eb45fa9531f8c7c1a64059b8953123164338c",
+      "manifest_sha256": "cb3132bc676a2b3071b78f1939b6adbb81e0e2fa09994dd9a68c3e86b5b67ef5",
+      "audit_sha256": "764cbf33e8a3ff5b4faa0cef3ec3caff8c5b95bb8a0bf51cd40c80e05140ed69",
+      "reused": false
+    },
+    {
+      "seed": 20600000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20600000/RL_TIME",
+      "result_sha256": "04c2ea246298907aee85d88919f41ddfbde35a27a6e68d245fb9cb30e3ab17c0",
+      "completion_sha256": "0231018a15660810b0203954b0f6984baa835d5c4bf109b8ccba0860d0aa3d77",
+      "manifest_sha256": "582bb21e75b7406043ea87452d213faa35b3744f763a12f68661b40cc9988c98",
+      "audit_sha256": "77846a5c3b0730894d0f91b2548dff0d780d7fc53d90ccc4f591be0e85c845e0",
+      "reused": false
+    },
+    {
+      "seed": 20700000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20700000/NO_REALLOC",
+      "result_sha256": "75951b8f1a16b70b725f778f8669b735ad9bf294471c0eab9cfd247b8331967f",
+      "completion_sha256": "9c66c1d89875c9b5c3fa6f545ba82528772329827c0fd93f12f4a9f9a40ba745",
+      "manifest_sha256": "05978ab329c121b9b72c104fc46ff07eb8367fd78ae5a757f4935c741c69ecc7",
+      "audit_sha256": "312234a96d7187b2b2f058704fd63198b18906a5d6fd60e7ec9a139be43dc273",
+      "reused": false
+    },
+    {
+      "seed": 20700000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20700000/RL",
+      "result_sha256": "9a6b46c897e7c0b6e124f994ce3065d08e29dc5b9a2ae155eff465024ba92339",
+      "completion_sha256": "bb37e32b6ced8332852256cdc15798aadbf644c63689259ed42340aa24346624",
+      "manifest_sha256": "d765c7ece815163237ce43e0fd23ee348be1be1d8e3641fcade957148f42043f",
+      "audit_sha256": "cf3cf860b8a6246c3077c0622e183719f6413a48bc29c3d990af0bbdde369a87",
+      "reused": false
+    },
+    {
+      "seed": 20700000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20700000/RL_TIME",
+      "result_sha256": "1c13e23f507cc0e242a75275ec9013dd3f9e5e59cfdaecc8775692d6f9226b1c",
+      "completion_sha256": "3f03f9dc881bb199de9ca38b0b0cd593771a10b5dbcfd716b13aeb6fdbb233af",
+      "manifest_sha256": "e2558238f47ef425011d91c81369c1d51d00269ee318dec6ac7a5c6964e13346",
+      "audit_sha256": "cc0b5f2edea9adfd96a9006dcf50e03f49276640c6f8fc99b235d16199c5825a",
+      "reused": false
+    },
+    {
+      "seed": 20800000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20800000/NO_REALLOC",
+      "result_sha256": "4be57811645d17518024b9a57f81e43b69887efbb802bb70af25465e31c37811",
+      "completion_sha256": "a19ee2b77a762298789f4ac720ac869c2ed5f0146e843fc08006a63bb057338c",
+      "manifest_sha256": "8416219c5ada544d27a7cef44ce32afc760317ad48702468c147bbee1a74c115",
+      "audit_sha256": "91c83bfd491010d78db4475191c43691316c606dba592a47219de75f9623c9be",
+      "reused": false
+    },
+    {
+      "seed": 20800000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20800000/RL",
+      "result_sha256": "09dbd94ab7d09dd1839995e24303ca77014b77cc44d710ef6e0bfdeaf84afda8",
+      "completion_sha256": "c3789b362a21bbf9d408a380984554025dff4420427bf5f22748cb6ec7e95117",
+      "manifest_sha256": "d4c45a62326ca3332d87cb7502e2a1575db73bdb74446e1380883819e2c08625",
+      "audit_sha256": "ba52c35183f92af954105fa45f2d7815a96c6e3d2b8e8c6cfbaf5add9de6ae5f",
+      "reused": false
+    },
+    {
+      "seed": 20800000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20800000/RL_TIME",
+      "result_sha256": "ee72cb576f6c07b16222fc11bd20f1e164a594f5c360293d78b8785be3f761e2",
+      "completion_sha256": "8c1e9494a55129f45a382b017670d3af8af140fa39d62eac46854f6fb3fff1ab",
+      "manifest_sha256": "51557567df910c9ba558a4440f94096edfac616ec925c6ee6a49c8e476bd9614",
+      "audit_sha256": "05e7febb27ca1865128c9ca502c902016be7b7bff93cd901eb23ca02afe5e11e",
+      "reused": false
+    },
+    {
+      "seed": 20900000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20900000/NO_REALLOC",
+      "result_sha256": "6bb3e78c90f7f9b99f39f901ecc57ecaf85c653a703b9f8eafbb552918292ea4",
+      "completion_sha256": "091181f8af5da582a1b62f3bf719ab48317dcd542038343914ccfb021354e78e",
+      "manifest_sha256": "a0784bb38efb6d1a36d5e9965d63fe69a781283bb46b167c251d69b0b4ebe928",
+      "audit_sha256": "7edf79619478f0e3c92acf7388f5c8fc760acdbe36158fa53d6b0fd412155476",
+      "reused": false
+    },
+    {
+      "seed": 20900000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20900000/RL",
+      "result_sha256": "d11470c2e7610fc0cb74a7207a1a47944ba5f3d21cba1b65fb451212208387d9",
+      "completion_sha256": "4deaddef925e009524b0fdafde52106191ddddc921d10283f0e91cecbaf1e2e5",
+      "manifest_sha256": "d84a3e25ddf5c5857afa07e82b71242e66646eda0445c7d1073811d926a49ea2",
+      "audit_sha256": "804d2e3360294105c3ceb87bc598fa9bb0d37c66d2b9a1f8f6a632e053c99898",
+      "reused": false
+    },
+    {
+      "seed": 20900000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/20900000/RL_TIME",
+      "result_sha256": "384427aac6fe4f788b9636b7adbc7042288db18dd8167f22b875f43fd2b22a61",
+      "completion_sha256": "d9e3a3dbdd045c4b490fefd5d626d39b74bd89da40ac6d7a0ea528d82e7f18b0",
+      "manifest_sha256": "b0a108d8a19cb47e1ef047365d721268afd9078b17257e65fdd7c15846f952d9",
+      "audit_sha256": "855c424b68f06e4ef0d10e60bdca231351b3b5a96eb8577aa71bf9c64be055f8",
+      "reused": false
+    },
+    {
+      "seed": 21000000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21000000/NO_REALLOC",
+      "result_sha256": "8cb5e10d695194732a09bd364b59f8aba6126bad5cdad36f9f35ff98526643e7",
+      "completion_sha256": "3d7d193e5aa69e3bd3c643f5d5d969c2ca9618425949a01cccedcf5e4b16c62d",
+      "manifest_sha256": "b09159f57bd6f0e42dbdf9eb7e7246a69ea9725a0f9b8962acf069f564f4f9a7",
+      "audit_sha256": "c6fdb07e030f13ce6a211e696e95b5ac1ea938e1200978e471204f22fe7e60fe",
+      "reused": false
+    },
+    {
+      "seed": 21000000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21000000/RL",
+      "result_sha256": "fa3c3833a69d3c3446dc4c177caefd630e12f9a310b83f9ffe204407bcb082d9",
+      "completion_sha256": "b328014da29ce234324d26714606468dd4d6ef19042a0fd719c452e1c91ac057",
+      "manifest_sha256": "18e454edf13c8593b9f22284fb87427ee5a81dda6681df46866a4ae22062891a",
+      "audit_sha256": "9ccad35d30b721bb70bba685f6772b628c0ce78a0369bae2e72ff1979fc0d1d5",
+      "reused": false
+    },
+    {
+      "seed": 21000000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21000000/RL_TIME",
+      "result_sha256": "9b2f78193560a9b8c6a76014d92a832f41d5e9b7656d96743d8dc2ba1e85a6c1",
+      "completion_sha256": "0d8ac8ff1798537b69531398a6338cfb7c1266ed75d920fed95cfedb4caea0b2",
+      "manifest_sha256": "cd59c2a659deaa918d8ac3666e03991e7a80853175da989fd3f75d3985b8ad40",
+      "audit_sha256": "9f61fde88556567b6ab5fef37a6f93dfb77d335b944c4e1c63ec70b8d238fc13",
+      "reused": false
+    },
+    {
+      "seed": 21100000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21100000/NO_REALLOC",
+      "result_sha256": "f03453f4d75763ed6f1e391ab1b34579e61b2fbb52c3ddd862bbcd987915d6ee",
+      "completion_sha256": "d146402456ec8f32d018e48685210a8e027b96ddfc6a8d65b731a452cf8f5ece",
+      "manifest_sha256": "922de841b3cf1028bfea30c4f1aefd297f0e676d284e2957ff28e755eb340a3b",
+      "audit_sha256": "1fc9cd43a518936808f69b42acdcb999651792a32d36a9360e40cf761b62ab64",
+      "reused": false
+    },
+    {
+      "seed": 21100000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21100000/RL",
+      "result_sha256": "3fa3b013df5c9e5d0ca33763ee54050908f8c232831f1ae470f98a1f3236c5fb",
+      "completion_sha256": "e46aaa279ad0566d2e31d4fb6e6a3189af967cc0f5eaef3149859f3469695dbf",
+      "manifest_sha256": "38f31f0aaa8a530439d8650de757b626bf4271f74c4ba7cae26693ad0b6f435b",
+      "audit_sha256": "35cf4468fd6addbac96f2c103a67a895ef23d41c0d07dbf4ec03abb3f2caa803",
+      "reused": false
+    },
+    {
+      "seed": 21100000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21100000/RL_TIME",
+      "result_sha256": "d79dc3e9a40b8d6591542ee459869b29a2c0283963f33a23b2a78e741d4f1173",
+      "completion_sha256": "0b248aa5a84b71e9b1f792f784ebe84360dff4c3a74698334cb4493666a4a5e0",
+      "manifest_sha256": "470a5702f44636cd22ad9b383759045e4e3c7539fb2efa9bdd467e46f0740e35",
+      "audit_sha256": "f63aadf6559571db91b296bb57a0f321651c052f7da4fa44e3cdebc02ed29630",
+      "reused": false
+    },
+    {
+      "seed": 21200000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21200000/NO_REALLOC",
+      "result_sha256": "a635aed64524700e6143eaec78ac3070d90917dde27cb9fd7a28316bcd1def0b",
+      "completion_sha256": "a154c0f84e79dbb5b1a4a0d5510e83ab0de0e1b7dc41d64e020b125bd8b3b203",
+      "manifest_sha256": "526ff06f02b3fabcb7b7634a89e026fff4158fd62a00d6b48e5b29538e28c3a9",
+      "audit_sha256": "adb6946d4bee4ccd1fbc3c0d5723358a487300d6a563c61552b87dd7b702befa",
+      "reused": false
+    },
+    {
+      "seed": 21200000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21200000/RL",
+      "result_sha256": "03c2310957b77183002b7692d14e2ceee5a13c69d32477baec22db3271c16b46",
+      "completion_sha256": "21e2d9da98b9d6725aa6c27b0894d5c526ac85d806bb13559bb0f83473932d65",
+      "manifest_sha256": "92bf1515e393b6e747bcb54b458aa0531cbc45024426b13554ca1f7dea810244",
+      "audit_sha256": "3beb28fd50fbc46ddadd93d4ee748c4b4cc91f3fea55e810539d87b1c41835d1",
+      "reused": false
+    },
+    {
+      "seed": 21200000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21200000/RL_TIME",
+      "result_sha256": "1aad43db133231155ee2f5a4cda585179350c454150f0b37d03e9d06de3bd072",
+      "completion_sha256": "2d3436c88554bf308f3f44eda481a14605ff777d9c0ce2cbeb2c4753fdbb1884",
+      "manifest_sha256": "1fbbf995717eb8f8b535b267c9a30d3e0c147c625250e8de975ed8980e845cbc",
+      "audit_sha256": "c64af08ef5bb50e0f6ad9806aca659ebc33a194db4b4da21727f0dfdcf4c15bb",
+      "reused": false
+    },
+    {
+      "seed": 21300000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21300000/NO_REALLOC",
+      "result_sha256": "347c7af3fe62428fd8715897a626e63a65f5a0b116e2b3c3de5d0bede8faffd5",
+      "completion_sha256": "1e688f10fdded019b31c52f8667c5d75ca33b4e39d9e5eef07f54999b754343a",
+      "manifest_sha256": "b63ca0420aa570dc015d32be37e1cda6e2e4ff3d045a447057baca9ed9175f46",
+      "audit_sha256": "c75275601353c8e08cce230495c1054ddf42611e1f300bbd39f9f608f69af8f5",
+      "reused": false
+    },
+    {
+      "seed": 21300000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21300000/RL",
+      "result_sha256": "f529cd08a0201e9f211d4dc26b3145f13120970864a98ab710ea9fc1de8b895c",
+      "completion_sha256": "37e68c584aac22473595dd8c470770c5deb2fa2d4c089035ba915b09515df746",
+      "manifest_sha256": "90b16140524046a8d1079b6d9422ed46311c6b6bc0dd8954266bf374604f3acd",
+      "audit_sha256": "7e0c0c0c56f8528f4018857b73d5500c5f45ff93932252b3298a3a773530462b",
+      "reused": false
+    },
+    {
+      "seed": 21300000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21300000/RL_TIME",
+      "result_sha256": "e7eea25ba3e6af9e2cf9b26a7c5117024cf819bcce060a56d4cf89224d450292",
+      "completion_sha256": "d9be357a28ef36c3ae25144002eca116d27e98c37fdfe62b24f26e19c622d57b",
+      "manifest_sha256": "32141152100d2c00bdfd686c4402684058e7d76bab5a2a8a8c73f7cc6f99ec7c",
+      "audit_sha256": "ae597e5bdccf2d7b5a69568a03b14329b4bc4eaa615358a602bb94cf3ef2e9c3",
+      "reused": false
+    },
+    {
+      "seed": 21400000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21400000/NO_REALLOC",
+      "result_sha256": "693d47958fe8bb00ff39fa11c63779d63c27a3fde1368091a8c7ce29100f5450",
+      "completion_sha256": "c159f664e0f006bd5849df45509baf0d5a9d34bdbdef3de12d8a1ffeb7c01ab9",
+      "manifest_sha256": "e3676ada489c5b3ed93428191d4c79d3cd8fc8ff1724b380e2c616e7949280d4",
+      "audit_sha256": "627a4b5886b9196ab571d13f8e41a0212cd06d0605d302a788fbf6a0a7c5434a",
+      "reused": false
+    },
+    {
+      "seed": 21400000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21400000/RL",
+      "result_sha256": "3dd7f1b7cf0f5a45a7b8561fc9af06ca4368e487f5702db54b42bad88d0d2ae2",
+      "completion_sha256": "bddf0ca16f51910dabd0cdabe10f2bbe6608a17fe26a4a92d1247e3b8290a577",
+      "manifest_sha256": "55108aece17198a5b77e6a7c14e7b7cf8144ade8b279e2acbd88af614c63705d",
+      "audit_sha256": "46890b3f1e6b9db7067ea78d86185d2ee6a1cc5c04a53d4114a6f169804dd398",
+      "reused": false
+    },
+    {
+      "seed": 21400000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21400000/RL_TIME",
+      "result_sha256": "19d23ae408807a4d446faf42c2272c573d05b92ef39c558e1939a16ba6d330cf",
+      "completion_sha256": "9d43eaf6eb1fdfe53b1852493d2bbf8981fa2b3f2d3afc4295e0c9e77ee45cbc",
+      "manifest_sha256": "072caaa82539fcaff2db94735c4859dfa1786ddb55d86718757202237e57f0ba",
+      "audit_sha256": "43e6ae6495958f300090947843186139a1c29acfc5fcd101980f3852d896b8f9",
+      "reused": false
+    },
+    {
+      "seed": 21500000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21500000/NO_REALLOC",
+      "result_sha256": "86d233e66c42ddbec1a51f382e01ce1e2d5d40683435ce8d1f32aed356a5c71c",
+      "completion_sha256": "66360aa8f5708444f7c1aa9345fe2c07ed5b4705b986d4242859c1e9ac357b57",
+      "manifest_sha256": "a778dd4624a5cda10ec866e256131487ebf090d724ce27f393c5d44e60157fe2",
+      "audit_sha256": "595bae386c93950a5888cf171c4979e8414fb24a1e8570824ea218711b04ceab",
+      "reused": false
+    },
+    {
+      "seed": 21500000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21500000/RL",
+      "result_sha256": "c3aceb1a332869e303e599e517378da604a2f392945b8e4f41fb76311394f2cd",
+      "completion_sha256": "b89588c2272f204cce8ef0c48309c2d39eb63a75fe5c1de31fcbb7594c88dd89",
+      "manifest_sha256": "0d433514633458003f191c335c15e954fde5f1ed0833ab5b07e1eea1fc48054f",
+      "audit_sha256": "48b4bc27d6dce286cf330a435eb1753934843051392950b989269353d973d8af",
+      "reused": false
+    },
+    {
+      "seed": 21500000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21500000/RL_TIME",
+      "result_sha256": "8d77853ead2b2e85c92a81fa9d753aa1496d019fe6e2008bdea4e21ef8ab849b",
+      "completion_sha256": "71f689b6e90ac19059508c757583342b41b291cef83f8a41fa6e09fbe6a6d638",
+      "manifest_sha256": "f3e000af083e5eb871682e07aad558176bd586f270243efb2eb6fc807ed3d33b",
+      "audit_sha256": "7bd195e77891c3964174e4932fdf7f25b54d3f50b4c68d2e9b4dfe25ba7c7ad5",
+      "reused": false
+    },
+    {
+      "seed": 21600000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21600000/NO_REALLOC",
+      "result_sha256": "429a8377a43cdd4496b711d4176684c62d57611dfb28722cda6575cb5d87c6f8",
+      "completion_sha256": "a4c9573914e11dc958c1c97a9650730b07db1be94d24cf446d0993a97c48ceb6",
+      "manifest_sha256": "1720b4a000e6c69c24a9a7552bd99ba125473878023e9a48c242912b678ef734",
+      "audit_sha256": "689b4c6b0151495dd39585c59bc0bf6e41e384da498e1c8492b2db4a2eaee07d",
+      "reused": false
+    },
+    {
+      "seed": 21600000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21600000/RL",
+      "result_sha256": "b960a2bce8b7b41a9f051e2a50299bf9868fa0a7df97c4bce4438f8b3d6bee52",
+      "completion_sha256": "ec6882bc0da9a31c37ead3a943286a5b4ffa19961985c60c366e368fe17cd492",
+      "manifest_sha256": "885cf0741d260e6948361ed557dff2b14326fc8034ef10eab64b7286fc4137ac",
+      "audit_sha256": "6ec57d4eafa29e33200dedd4eb4a565c84a64950c4d27308e1505e6b297ee6ea",
+      "reused": false
+    },
+    {
+      "seed": 21600000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21600000/RL_TIME",
+      "result_sha256": "79f7bbbde0d4a6e9c0957458af1f2fb70fc943f5d9035669e2f55279e748643f",
+      "completion_sha256": "6c2f0ffb55879b9362dd45559702125ca9840c3433ce9f34aaeea3626d7b4e8d",
+      "manifest_sha256": "484e5d60848dd0df764c155cd1b6d99e0e4cbee0f88fa681222aea0de5293f90",
+      "audit_sha256": "5fceab757263959a7fb137e21e5f33bde96148400cc1f575d6117f6915f4b945",
+      "reused": false
+    },
+    {
+      "seed": 21700000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21700000/NO_REALLOC",
+      "result_sha256": "d9905057fdd0541c32b15ec8bbbba1a392c1a3769ce0ec254284387d1000d68d",
+      "completion_sha256": "77ed566cefe43222fe96b11d9b8c1ce30e53e38ce2afa0f4a2477541576adb0a",
+      "manifest_sha256": "aebf89d562b26355f5d55152a388b712b5de4d4fd895fa85b738c0b63edfe085",
+      "audit_sha256": "22e8e481cabe85cbe0916d7f9eb171574d4d45a572d7a9592b8ac4ea03795148",
+      "reused": false
+    },
+    {
+      "seed": 21700000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21700000/RL",
+      "result_sha256": "876f580c28434de8ba4f0ae3069f5efaf1377479f51b669cdd9876863d75b51c",
+      "completion_sha256": "a709ca8b7d17c83b146ca6a97c4a00e35a9f031590bc1873d0f22a1b898a5e4c",
+      "manifest_sha256": "2d3e3777958ef162de2064c3c3726f018746e10c55b9bbec63b9e8a0535bee61",
+      "audit_sha256": "df2c015164990b940cabaf4152077affdb6f7d07b5ead74f540281930bad2678",
+      "reused": false
+    },
+    {
+      "seed": 21700000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21700000/RL_TIME",
+      "result_sha256": "c2a1feac7f0c3fa256ae1063b8541276830d4f9f5505a1cf4aab95e73cfb2612",
+      "completion_sha256": "500eb422605c3a6eb4aae1aa5f7d5449390e5f5bd3a1fe98f787e93ea0f2ac36",
+      "manifest_sha256": "7d10e14c6ea05bc63bc5cef9a166c9fe55505a9fd4c10f4c6a9b0cf8dd49389b",
+      "audit_sha256": "4995e78dd090f9fc6516c4ed900fb908c79f6cf2052e357cf59e2c5cf5b27cfa",
+      "reused": false
+    },
+    {
+      "seed": 21800000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21800000/NO_REALLOC",
+      "result_sha256": "46e9a68b7c24bfeaebb3bc9c580e085fa3a62ea9a17ea358ee3e14a7b5623574",
+      "completion_sha256": "2238ebe46c3eb2bcf90a3611ec08c023f52cacab4b316ae0673b36518d0b69d7",
+      "manifest_sha256": "7f9a17ba1dec68835f5aed75e5cd170e660f0b4366a73f1da811f60542d4a50d",
+      "audit_sha256": "bf9b6267e8054d178b3958a46facb216fc3001e75df3c1211545c32e12504c16",
+      "reused": false
+    },
+    {
+      "seed": 21800000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21800000/RL",
+      "result_sha256": "32e549ef9724be63d44ee8b3d5cd8a9e2369f954b71200e9061618124f3a6668",
+      "completion_sha256": "644020c86764016d1e7b4df12d95c9bd80679543458f4238f16b746e57e0da42",
+      "manifest_sha256": "b1bf2b99aedf2cafc3039681b179bdb3292d67b644d2fa5615783ca3b1d83820",
+      "audit_sha256": "89743b6623654fbce310e01549681022874c846d617fa43ec5abd9331266e7f9",
+      "reused": false
+    },
+    {
+      "seed": 21800000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21800000/RL_TIME",
+      "result_sha256": "16bf0b04d3351f3694355a361246f8a23d7fe2060bb18a6f622be249782aceaf",
+      "completion_sha256": "0f4abbd9b152dd26f9117f3576561445a0b95f1a733f52fb7c6622c431a79a31",
+      "manifest_sha256": "c44f64a66093120e14a65294b4c6505173d02e5692b8a8fb7fc1bf82f83297dc",
+      "audit_sha256": "0f12a712f7baaca429b57c386fa17c0f00fbed51eda9313a9c65e78b759d31d2",
+      "reused": false
+    },
+    {
+      "seed": 21900000,
+      "arm": "NO_REALLOC",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21900000/NO_REALLOC",
+      "result_sha256": "e68c3fc3c88acfb080ff4617fc2226e28eff20d16e06a35ebaed1676ac1525d1",
+      "completion_sha256": "128534e3d7c335664e974388081d3e92c6e680294c7f0fc778d27a4b14824638",
+      "manifest_sha256": "6ab986ac47ef694a768449ab27df6dbedd256741a6a54638bfef73564c9390f6",
+      "audit_sha256": "2c34812f9dbb33d17a757cc0e194cfa3510a02996ba4e59ff9d34f98844a22d7",
+      "reused": false
+    },
+    {
+      "seed": 21900000,
+      "arm": "RL",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21900000/RL",
+      "result_sha256": "73185372e0bfdbd17b2b23f2d2fcd78df734dbbb7a674f3ea1c80578a99aa9c1",
+      "completion_sha256": "eee50d7ed8d45119cd3c6b24792b5efe248956e40806ae0b0e9d9598640d56fe",
+      "manifest_sha256": "5dac1196afdce49d9f61f195af3777d8ca12127a7075f228cba92788fa1833ec",
+      "audit_sha256": "9db26338b0badaa6879009be7e5c5ea5c31683c1ac693ab56e3d1c347bd49d31",
+      "reused": false
+    },
+    {
+      "seed": 21900000,
+      "arm": "RL_TIME",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_independent_eval/run-7e2fb14/months/21900000/RL_TIME",
+      "result_sha256": "0d4629d563de02ca2ea92185f12211a660b2d762bb588908743afa574b69c5c7",
+      "completion_sha256": "938a99e6de4d326bd8fe12b4a1e69e77d0f4da6dc9e791b48084d77ef15e197e",
+      "manifest_sha256": "1f7f21b1cdd2b3669312df643a61f03bed3ad089bb71ba98eff9613e38cf97da",
+      "audit_sha256": "a7b586e2259d06e3669a95d28135be64c354580662df19bb1842917814d4b603",
+      "reused": false
+    },
+    {
+      "seed": 20000000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20000000/RL_SPACE",
+      "result_sha256": "b385420d222cc22911eeefd2d80b06dec70cf288d47431510128b104885ac51c",
+      "completion_sha256": "9620b676c909430d46c990d7172dc7e51522f9b74eb1ddeeb647fdcbe35f4d59",
+      "manifest_sha256": "421536f8ad90f486b9f07ed4eef8eee91720f3a6b7a862de297ff6e056b7a3f0",
+      "audit_sha256": "62cfdd4fa5c7ba7018ff185144b71031d9037dc419289d3b4a877e68dfb0fd49",
+      "reused": false
+    },
+    {
+      "seed": 20100000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20100000/RL_SPACE",
+      "result_sha256": "01dabe9e837074234813df3a64473d72f0f6c780aa81bf62c98b8d66279352e5",
+      "completion_sha256": "7ba76d1241b7a0caecc88788ce8eaffb09d3173a0912e394d8d38a1c59c194cf",
+      "manifest_sha256": "e5e03917cc5fe7759117b0a209ba2fed494498d2810b60611f38144f81923d2f",
+      "audit_sha256": "5e84fac59a91c493edae018b68a9474845b130516ee0ee924b5d9faa400322fc",
+      "reused": false
+    },
+    {
+      "seed": 20200000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20200000/RL_SPACE",
+      "result_sha256": "1b9f4ad10524fb6b0a10270e1255298b0fea09591f2f808a3c6822bfef52b0d6",
+      "completion_sha256": "4af8df559ddacb200a2ec54b8013bde1a6ca1cccd7568ae5d8a2605f86bb52b9",
+      "manifest_sha256": "aead6fb5b39c2ef861094d573c51129654eebdae929f4b1a2fecc41af165219e",
+      "audit_sha256": "739d0ed32d639960304c19b5802c17ac89312d747766e43bc1aa45ad7f02b376",
+      "reused": false
+    },
+    {
+      "seed": 20300000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20300000/RL_SPACE",
+      "result_sha256": "fa5b17d6a58b9b9b32be670a22801680fe43acaa2d04930f038f4bbd683f1dea",
+      "completion_sha256": "feedd555b1cf3752c72b85c800aff944761a989dd6d515aaaf8fc47679e6372c",
+      "manifest_sha256": "13bc5c9fb23815dd3d3aa4f2ec0528663148b237f96406ec93db51ca225b6fa9",
+      "audit_sha256": "5537e476118517867cc740b6fabbf108e81653e09cb2a31d3d0e985b5ce379a1",
+      "reused": false
+    },
+    {
+      "seed": 20400000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20400000/RL_SPACE",
+      "result_sha256": "9862899dc79a2cae34ef64de7c1052c5ddb20434bb3d0c5ee027aadd3cff1803",
+      "completion_sha256": "3d7bc1ce545b0f6c6000038393d7749f6cabf257f9a02c374c711b9ec1fcebda",
+      "manifest_sha256": "6da57328197d9c143fe99ae1a04bbcb7ed2bb24788886794d7d86cfc14494422",
+      "audit_sha256": "b25e7be3c8f341383195b00cd126461fe5f3742ee62853b5a2d50dab715e6b0e",
+      "reused": false
+    },
+    {
+      "seed": 20500000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20500000/RL_SPACE",
+      "result_sha256": "26c2675b4160c1b911794d33ceec8c6a97696abc9fea2cee20047ca404915bba",
+      "completion_sha256": "2c90528b183713953bc93bd5042f9b38e940a741bf32fbbc54b1e56ae6239fb1",
+      "manifest_sha256": "80b4aff3067f6e82b97f5fbad4a34d91faa93eb161f1d600d21a4ea649171982",
+      "audit_sha256": "b7e2c350acd5ed950a6b32b6e4d0cb0eabe07f01617ee6522c607c05b177774c",
+      "reused": false
+    },
+    {
+      "seed": 20600000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20600000/RL_SPACE",
+      "result_sha256": "187b6fe899b402ec4593d1d1029750df9c9f4d8df9f8c378ee1d63e6f17b6f8d",
+      "completion_sha256": "8a9bd5b543a36e4003556978039814bdf6f14a420bc70cece635239d7c3fa14c",
+      "manifest_sha256": "1312b1c1e83cc3344d18ef4ab1a8f7e9261b7392ea77729e5f927e49c1ec9b90",
+      "audit_sha256": "015ecd816008f33eee8d8ba189ae9de794287bb0d8d74fde20c3c74f5d686c49",
+      "reused": false
+    },
+    {
+      "seed": 20700000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20700000/RL_SPACE",
+      "result_sha256": "ee33d1cdb553d282f885bf95a7da305a5f1c3f5b09a4971ef422a979f4e2fd19",
+      "completion_sha256": "b6de9fa65f4463817a2ca02bc0c6e5e3e75275f995c209b02a13a44b9ebefd2f",
+      "manifest_sha256": "19025104803916fda79e593b94b15991c880a4ffc6f2ea8e1a6d9e24baaf86a8",
+      "audit_sha256": "078fbce8cc9a6db27ad5e78f2f37b3eaa519024a89d99593263f54c41e02ced4",
+      "reused": false
+    },
+    {
+      "seed": 20800000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20800000/RL_SPACE",
+      "result_sha256": "828015c903e6451407c80caef53fb20a9cb220944f8f9f372ba0f17a5862e11f",
+      "completion_sha256": "f10b0d2640427400a69b762d62ba9a751ed5c8b9ce181d27c4e07144f520806a",
+      "manifest_sha256": "0832e2d5db5ccced00a751463829288d22a0abfa1db23fd7ce4b17d5271c99c5",
+      "audit_sha256": "502f0bf960351913729cd73997a69f65a2af8fc655b09fdc710d552922fd8a85",
+      "reused": false
+    },
+    {
+      "seed": 20900000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/20900000/RL_SPACE",
+      "result_sha256": "75e9d07638b3eebf97834dd6d4306ae956aa3764edbae8c06da00326df49de2b",
+      "completion_sha256": "d2323aedf9ce001039daa6450c01d15db84fc4e329a7a5a0b2d07e78ecad9434",
+      "manifest_sha256": "f44b59b1b700778629b5b21b5fe8cd13ff4d6dba9dbc8772e09fa1066b640a85",
+      "audit_sha256": "bfea26ef70f21bd5b814d6873f4c23c9dfcb66bc22cd826ac97906048ce37b5a",
+      "reused": false
+    },
+    {
+      "seed": 21000000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21000000/RL_SPACE",
+      "result_sha256": "f14bb830320caf396efbd6719a3b766ac4d6911eab155ac39f07c7804a747c43",
+      "completion_sha256": "ed1369820a70cbaeb164c39dbaed412fbdfd55d8f426e689f2d53f7cf3ef0ca9",
+      "manifest_sha256": "ca26abde5bb84f0e93ee481ef065a16d17d5b1df309907ff91d7c026ad09daed",
+      "audit_sha256": "da85f6631a297aa66dee95a2e0bba851fac410270c4f53fdb86feaf847b5159a",
+      "reused": false
+    },
+    {
+      "seed": 21100000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21100000/RL_SPACE",
+      "result_sha256": "3283f05856a556b3c5216a987fca11fcb679973c30d0a72f27aba33657eab9a5",
+      "completion_sha256": "41c91727446485415783cf647b1c975b78a873a4322b7b64e0905b9ae08a2d59",
+      "manifest_sha256": "d8fb0efd134a0b7f5e9426f7be9ae34f8ae58ecb42587249dab742f6bf61eb88",
+      "audit_sha256": "30596625aed37e13e7f6a17129baf570b8875e7ab84771947541fc9b715b61ee",
+      "reused": false
+    },
+    {
+      "seed": 21200000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21200000/RL_SPACE",
+      "result_sha256": "881708a8835758156972a992c40d841ea638b549e4738ec229887ccc35da0a79",
+      "completion_sha256": "b5a211cf80f0638fc4f90d3376717cf0197a822c8014230423fd50476094125c",
+      "manifest_sha256": "2055b6ce6145f8c08757d76d898c4900cbff099f46560324cc11e002865d4add",
+      "audit_sha256": "eaa795f97a724f8b87951b8e9dc147eade63b349c35af7fb738d6692c4873771",
+      "reused": false
+    },
+    {
+      "seed": 21300000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21300000/RL_SPACE",
+      "result_sha256": "f02eeb74b266bd2b93e3df61153a265434d2dc444826c2d45af0d5d552c65bf5",
+      "completion_sha256": "733e31c43d9ead973b2c2668080b724501aeab2f8aa37d973282cb8faf238f43",
+      "manifest_sha256": "855a1622bfed89c9188e2790f9e37905b36ea3a98af7ffff2ecf30c7cfaa4f05",
+      "audit_sha256": "bf1ef00207042d8d42fe2f27d1d95cf971d748fd0f33e09e33ac5d812715b395",
+      "reused": false
+    },
+    {
+      "seed": 21400000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21400000/RL_SPACE",
+      "result_sha256": "861e44bdd4bfc7374325e626744a1a269afc0b2ce83c8785ac00e3e13e85d08f",
+      "completion_sha256": "431485478c63c81346366680942f0ce0a4056ea22edadbe2d09eab3d18216fc3",
+      "manifest_sha256": "13bc97fb8228e9fd87c252473060567b03387c3a5ad5bd1ed968f1425c271c5a",
+      "audit_sha256": "e6a6f235900e78512c662b409a5495978c1a8c9f201f13891fdc5f6bfe58ce6a",
+      "reused": false
+    },
+    {
+      "seed": 21500000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21500000/RL_SPACE",
+      "result_sha256": "d740c2ddd8fbb34253059f8a3bb9afa25749663e7000594cdfcf8a9890996597",
+      "completion_sha256": "b942975db3ccf477390e930a8744d7d7629f19f1eca58d90762cbcd7a9eb7535",
+      "manifest_sha256": "d584012fbc2b4e33cf9d5907941dda6358e68529d2326803ed148a9a1edb407a",
+      "audit_sha256": "ff410a188ccb6c279fb24f2d09e2a07321b4519833996920b7a41c8c4c4781e5",
+      "reused": false
+    },
+    {
+      "seed": 21600000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21600000/RL_SPACE",
+      "result_sha256": "4e2c0a6e89bd4a478f8ae13ba593d13f3804408ce902e823181cd8d489eac04b",
+      "completion_sha256": "ba26502829c0744bca4b61a39792e943b02a566be74b4cff1b845a2cad8bd94d",
+      "manifest_sha256": "a9f8f5c3957406eec52c8df8a0ccd88414a2a661defa7876e0ed2c978ca3d0ce",
+      "audit_sha256": "32ecdde6e8084d001575ca3bb96931c100b109ba04099e7eb2bcd73ff137aa4c",
+      "reused": false
+    },
+    {
+      "seed": 21700000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21700000/RL_SPACE",
+      "result_sha256": "591b486a2dd695fe205a97931156e50c870ac76c05042f5c104c71b0bde4c6e7",
+      "completion_sha256": "ab95a65c145de9be537e9086a24e80d1a418e99693e21513319e8ca5a1f43011",
+      "manifest_sha256": "1545aa5d37665e7e1f11104116e2f8109b167e037fe484df744c2b317020e611",
+      "audit_sha256": "04c0c6ad397000c085b014642c82ea65a116bc9a0331c270e8485ae33b12d323",
+      "reused": false
+    },
+    {
+      "seed": 21800000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21800000/RL_SPACE",
+      "result_sha256": "e6be387ee153f78e3ee8937eecf3c9b5dcf240e37327a1cb74de488d1230cdd7",
+      "completion_sha256": "82ea9c57665cb628bf44b93275a8a9946c4b545603124deb8bc093fc50f95d44",
+      "manifest_sha256": "1f972b044d578e4c262e3eea6243d3ee04e88fff978923797ed9599e64c9f2d8",
+      "audit_sha256": "7e67892d12be764cdbe3bbcab907184d15fb746e876dac85f1935389d1546572",
+      "reused": false
+    },
+    {
+      "seed": 21900000,
+      "arm": "RL_SPACE",
+      "folder": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/\uac15\ud654\ud559\uc2b5-\ud310\ub9e4/outputs/reports/yr317_v3_block_only/run-de630ec/months/21900000/RL_SPACE",
+      "result_sha256": "2133bcd05be1dfc55ab6c1d4368a04c7d663e5a9eb4b1a59c74de553c4f08a6b",
+      "completion_sha256": "500cef2f242cac5f98920213e124593f8d3b3fa574875a88beb432eff65de6b5",
+      "manifest_sha256": "f2d28d04e07b6bd6240b92e20ba1c75c797fe70db8ac6f20eb21ba56fb64e85f",
+      "audit_sha256": "a007cc566ea8d321ab86fb882e8577c01d40c82aab3a6064ca96fa596d26c3b4",
+      "reused": false
+    }
+  ],
+  "all_requested_work_completed": false,
+  "claim_eligible": false,
+  "new_training_runs": 0
+}
