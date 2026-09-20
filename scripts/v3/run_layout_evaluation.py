@@ -24,7 +24,8 @@ for name in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS'):
 
 from independent_eval_checks import audit_run, month_row
 from layout_experiment_io import (ARMS, ENVIRONMENTS, build_eval_input, digest, operational_outcomes,
-                                  plan_for, read, recording_checks, save, save_result, sha, validate_config)
+                                  plan_for, read, recording_checks, save, save_result, sha, spec_digest,
+                                  validate_config)
 
 
 def now():
@@ -99,7 +100,7 @@ def execute(args, cfg, config_hash, prereg, folder):
     weights = [network_identity(n) for n in (seller, buyer)]
     runtime = runtime_identity()
     spec = cfg['environments'][args.environment]['environment_spec']
-    spec_sha = digest(spec)
+    spec_sha = spec_digest(spec)
     job = dict(_label=f'{args.environment}/{args.arm}', arm=args.arm, seed=seed, days=days,
         seller_net=seller, buyer_net=buyer, workers=1, explore=0,
         admission_mode='PRESERVE', supply_mode='COUNT_BALANCED', capture_requests=True,

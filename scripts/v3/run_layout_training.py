@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 for name in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS'):
     os.environ[name] = '1'
 
-from layout_experiment_io import (ENVIRONMENTS, TRAIN_ARM, digest, plan_for, read, save, sha,
+from layout_experiment_io import (ENVIRONMENTS, TRAIN_ARM, plan_for, read, save, sha, spec_digest,
                                   training_checks, validate_config)
 
 
@@ -68,7 +68,7 @@ def execute(args, cfg, config_hash, prereg, folder):
     p = cfg[phase]
     seed, days = plan_for(cfg, phase, 'train')
     spec = cfg['environments'][args.environment]['environment_spec']
-    spec_sha = digest(spec)
+    spec_sha = spec_digest(spec)
     workers = max(1, len(args.cpus) - 1)
     started = time.monotonic()
     progress = dict(at=now(), state='preparing', environment=args.environment, phase=phase,

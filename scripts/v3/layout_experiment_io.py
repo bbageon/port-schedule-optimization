@@ -26,6 +26,11 @@ def digest(value):
                                     ensure_ascii=True, allow_nan=False).encode()).hexdigest()
 
 
+def spec_digest(spec):
+    """Environment identity: None for the legacy layout (matches the training manifest)."""
+    return None if spec is None else digest(spec)
+
+
 def band(seed):
     return (int(seed) // 100_000) * 100_000
 
