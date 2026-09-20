@@ -1,0 +1,82 @@
+{
+  "at": "2026-09-20T04:10:59.456733+00:00",
+  "state": "completed",
+  "pid": 41799,
+  "cpu": 3,
+  "environment": "vertical",
+  "arm": "NO_REALLOC",
+  "seed": 99194002,
+  "input_hashes": {
+    "schedule_sha256": "78ce0e1badadb540712a8403e1ad0cecb005ecfbe788c4144984c24be2c382ac",
+    "initial_scenarios_sha256": "e30f63e755c5d0932ba832362914639a51e07bc7b6b25329d9a53e69dbba8d69",
+    "vessels_sha256": "04a68a4862478d0fa1f317f7ad4cc317a576d4abb2c8fa0cdf93f8cefdf392c8"
+  },
+  "result_sha256": "e5d1f48894dc40545e9fdcfd60b859dab2b9330b1d0f307861849babb3db8a12",
+  "manifest_sha256": "7d9a5c1d0ddf5df017784efa28fb9bad1f65002a3322983478d3674205426679",
+  "audit": {
+    "passed": true,
+    "checks": {
+      "recording": true,
+      "links": true,
+      "daily": true,
+      "runner": true,
+      "no_truck_loss": true,
+      "no_vessel_loss": true
+    },
+    "truck_unfinished": 0,
+    "vessel_unfinished": 704,
+    "unbound_at_cutoff": 0,
+    "all_trucks_completed": true,
+    "all_vessels_completed": false
+  },
+  "month": {
+    "seed": 99194002,
+    "arm": "NO_REALLOC",
+    "cost_28d_krw": 10430232.774992669,
+    "cost_30d_krw": 28714728.234194677,
+    "requested": 180,
+    "completed": 180,
+    "censored": 0,
+    "unbound_at_cutoff": 0,
+    "unfinished_vessel_jobs": 704,
+    "vessel_all_completed": false,
+    "requested_identity_sha256": "29aff9e8e89e4f5d26da2046eeddbe87bd9827f00e79f1eff1cc82c117f47319",
+    "elapsed_s": 199.20936031918973,
+    "spatial": 0,
+    "temporal": 0
+  },
+  "operational_outcomes": {
+    "all_trucks_completed": true,
+    "truck_unfinished": 0,
+    "unbound_at_cutoff": 0,
+    "vessel_unfinished": 704,
+    "all_vessels_completed": false,
+    "structurally_late_vessel_streams": 0,
+    "maximum_structural_min_overrun_s": 0.0,
+    "scope": "Observed completion/capacity outcomes; separate from input and recording validity"
+  },
+  "identity": {
+    "source_commit": "01dbd2d3f8f0e1f0478f92c65bae39883488a545",
+    "config_sha256": "fbde40d67be4959dd36dc8bf1fc2f0077be63009d4dac90b78203afd33780a90",
+    "prereg_sha256": "f87863b46f9c445515b1a79405cc2f87cf3c8022c27ecb14bfea72fe1a263855",
+    "checkpoint_sha256": "d7627ca08b8b0b1275edb7cdc26afce2ef56b5baa82447d3c7ad00af51da6202",
+    "training_completion_sha256": "e9307b2951d126a221602d0bf1afd65ec46edf67e72cad77232b74176a97b657",
+    "environment_spec_sha256": "b069270012d1ecf7e3a3f9f8ce5610c4ad382cee80e8d8f860421a138168f355",
+    "pair_contract_sha256": "198cfc97aa80d1a90fe24e119df0117d29dc258d352fb3a8511adb633a64ad66",
+    "runtime_source_sha256": "b239b077061a7a2e1817c6d087b78285456d79f921e86b1969068a9d55a52189",
+    "network_identities": [
+      {
+        "class": "yard_rl.v3.actors.nets.SellerNet",
+        "training": true,
+        "state_sha256": "e0aa9bfbff3031629c3eed4c5bbf19693f60bfcb347226a5c367395f2d756c28"
+      },
+      {
+        "class": "yard_rl.v3.actors.nets.BuyerNet",
+        "training": true,
+        "state_sha256": "5ca6590c18571fa601c67258a3582cfcfb76f56c9f5cdbab8b0b8ea814dcac5d"
+      }
+    ],
+    "requested_identity_sha256": "29aff9e8e89e4f5d26da2046eeddbe87bd9827f00e79f1eff1cc82c117f47319",
+    "runtime_schedule_sha256": "25106fa8e41a0155561183d0ee2d0175841efe53b5a7e52c912505ee3b73e0d5"
+  }
+}

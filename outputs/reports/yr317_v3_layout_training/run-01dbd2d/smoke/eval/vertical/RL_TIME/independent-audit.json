@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "checks": {
+    "recording": true,
+    "links": true,
+    "daily": true,
+    "runner": true,
+    "no_truck_loss": true,
+    "no_vessel_loss": true
+  },
+  "links": {
+    "passed": true,
+    "checks": {
+      "file_hash": true,
+      "removal_count": true,
+      "physical_chain": true,
+      "no_reuse_or_future_supply": true,
+      "stock_identity": true
+    },
+    "bad_jobs": []
+  },
+  "daily": {
+    "passed": true,
+    "checks": {
+      "daily_rows": true,
+      "final_rows_match": true,
+      "file_hashes": true,
+      "sample_grid": true,
+      "block_sums": true,
+      "midnight_links": true,
+      "queues_match_request_events": true,
+      "day_0": true,
+      "day_1": true,
+      "day_2": true
+    },
+    "queues": {
+      "passed": true,
+      "mismatches": [],
+      "mismatch_count": 0,
+      "same_time_starts": 0,
+      "timing": "arrivals <= t, service starts < t; snapshot precedes dispatch at t"
+    },
+    "day_rows": 3,
+    "state_rows": 865
+  },
+  "result_sha256": "fb7f1e9c840a9d333ca4a6cc13d91f3e9a1e4909018553b643d36145cbb045b2"
+}
