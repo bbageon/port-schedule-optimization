@@ -1,0 +1,93 @@
+{
+  "schema": "yr317.layout-training.v1",
+  "source_commit": "31b092e2fe8e669b406430acced54caa03e1102b",
+  "prereg": "outputs/reports/yr317_v3_layout_training/prereg.md",
+  "prereg_sha256": "f87863b46f9c445515b1a79405cc2f87cf3c8022c27ecb14bfea72fe1a263855",
+  "contract": {
+    "admission_mode": "PRESERVE",
+    "supply_mode": "COUNT_BALANCED",
+    "train_arm": "RL_TIME",
+    "eval_arms": [
+      "NO_REALLOC",
+      "RL_TIME"
+    ],
+    "checkpoint_selection": "final_day",
+    "eval_seed_rule": "first seed from 30,000,000 stepping 100,000 whose five measurement days cover quiet(3,500), moderate(5,000/7,500) and congested(12,500/15,000)"
+  },
+  "main": {
+    "train_seed": 9950000,
+    "eval_seed": 30300000,
+    "n_days": 7,
+    "init_seed": 9950001,
+    "labels_per_day": 64
+  },
+  "smoke": {
+    "train_seed": 9949000,
+    "eval_seed": 99194002,
+    "loads": [
+      60,
+      60,
+      60
+    ],
+    "init_seed": 9949001,
+    "labels_per_day": 4
+  },
+  "environments": {
+    "legacy": {
+      "environment_spec": null
+    },
+    "vertical": {
+      "environment_spec": {
+        "kind": "VERTICAL_END",
+        "geometry": {
+          "n_blocks": 21,
+          "bay_count": 24,
+          "row_count": 10,
+          "tier_max": 6,
+          "bay_length_m": 6.5,
+          "row_width_m": 3.1,
+          "block_gap_m": 13.0,
+          "land_road_clearance_m": 26.0,
+          "water_road_clearance_m": 26.0,
+          "gate_approach_m": 1000.0,
+          "quay_approach_m": 1000.0,
+          "speed_mps": 5.0
+        },
+        "discharge_pipeline_capacity": 3,
+        "source_exit_mean_s": 300.0
+      }
+    }
+  },
+  "resources": {
+    "train_cpus": {
+      "legacy": [
+        0,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9
+      ],
+      "vertical": [
+        10,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ]
+    },
+    "eval_cpus": {
+      "legacy/NO_REALLOC": 0,
+      "legacy/RL_TIME": 2,
+      "vertical/NO_REALLOC": 3,
+      "vertical/RL_TIME": 4
+    },
+    "cpu_limit": 20,
+    "memory_reserve_gib": 12
+  }
+}
