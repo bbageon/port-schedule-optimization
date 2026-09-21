@@ -11,6 +11,10 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
+| YR-317-l | Paper | **저장 기록 재분석·원고 수치 정정 (시뮬레이션 0시간)** | 🔴 | 공변량 균형·행동 대체·완료 보정·창 비교·문턱 곡선을 추가 실행 0시간으로. 원고 "seven seeds"→six 정정 포함. [spec](../docs/dashboard-task-specs/YR-317-l-v3-saved-evidence-reanalysis.md) |
+| YR-318 | Exp | **확증 캠페인 — 수정 엔진·새 대역 20시드 × 6팔 (규칙 SLOT_LL 포함)** | 🔴 | 동결 규약의 주판정 축은 규칙 대비인데 현재 80건에 규칙 팔이 0개다. NOVETO로 R1-4b도 닫는다. 120실행 약 3.5일. [spec](../docs/dashboard-task-specs/YR-318-v3-confirmatory-campaign.md) |
+| YR-317-n | RL | **독립 학습 반복 3판 (PRESERVE 계약)** | 🟠 | 80건이 학습 1회·체크포인트 1개에서 나왔고 학습은 LEGACY·평가는 PRESERVE였다. ckpt_init 보존으로 무학습 대조군도 확보. [spec](../docs/dashboard-task-specs/YR-317-n-v3-training-replication.md) |
+| YR-317-m | Exp | **블록 변경 시 대상 미결 원인 진단 (읽기 전용)** | 🟠 | 공간 부정 결론이 정책 탓인지 접수계약 탓인지 확정. [spec](../docs/dashboard-task-specs/YR-317-m-v3-unbound-target-diagnosis.md) |
 | YR-317-k | Sim | **교착 시 비켜서기 후보 추가 (시뮬레이터 결함 수정)** | 🔴 | j 진단 결과. 수정 후 기존 80건 재실행 범위는 사용자 결정(수정만/정지 9실행/전체). [spec](../docs/dashboard-task-specs/YR-317-k-v3-deadlock-move-aside.md) |
 | YR-317-h4 | Sim | **합성 환경 실측 보정 (턴타임·크레인 가동률·처리량 목표 사전등록)** | 🟠 | 수직 환경은 한가한 날 턴타임 3시간·크레인 5.8건/시간으로 현실 밖. 두 환경을 같은 서비스 수준 목표에 맞춘 뒤에야 환경 간 비교·h3 반복이 의미 있음. 환경 현실성 게이트 직접 보정. [spec](../docs/dashboard-task-specs/YR-317-h4-v3-environment-calibration.md) |
 | YR-317-h3 | Sim | **구조별 학습·평가 반복 (시드 3개·14일)** | 🟡 | h2가 1시드 사례라 방향 일관성을 반복으로 확인. 수직 학습만 약 38시간이라 일정·코어 배정 선행. [spec](../docs/dashboard-task-specs/YR-317-h3-v3-layout-training-replication.md) |
