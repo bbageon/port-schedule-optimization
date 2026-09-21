@@ -159,8 +159,7 @@ No reallocation, Full, and Time-only comprise the original 60 runs.
 Block-only adds the same 20 seeds, totalling 80 runs, under a separate
 17 September registration after one baseline month and partial results
 were available. All variants share the checkpoint; action restrictions
-are not separately optimised policies. The comparison families remain
-separate.
+are not separately optimised policies.
 
 For policy $p$ and seed $s$, let $C_{p,s}$ be the cost over the
 28 measurement days. The two original primary differences are
@@ -169,13 +168,15 @@ D_s^{B}=C_{\mathrm{baseline},s}-C_{\mathrm{Full},s},\qquad
 D_s^{T}=C_{\mathrm{Time},s}-C_{\mathrm{Full},s}.
 \end{equation}
 Positive values favour Full. We resample the 20 paired months
-20{,}000 times (seed 9{,}900{,}721), retaining within-month dependence.
-Each primary mean difference has a 97.5\% percentile interval;
-secondary intervals are descriptive 95\%. The separate Block-only
-family uses seed 9{,}900{,}723 and 97.5\% intervals for baseline minus
-Block-only and Block-only minus Full. Two separate families do not
-provide one four-claim error guarantee. Supplementary 30-day totals
-are not longer simulations. Per-seed costs, percentage savings,
+20{,}000 times (seed 9{,}900{,}721), retaining within-month dependence:
+each draw takes 20 months with replacement and recomputes the mean
+difference, and the interval spans the central 97.5\% of those means, so
+an interval excluding zero means the sign does not depend on which
+months were drawn. Each primary mean difference has a 97.5\% percentile
+interval; secondary intervals are descriptive 95\%. The separate
+Block-only family uses seed 9{,}900{,}723 and 97.5\% intervals for
+baseline minus Block-only and Block-only minus Full; two families do not
+provide one four-claim error guarantee. Per-seed costs, percentage savings,
 aggregate ratios, wins/ties/losses, and residuals require complete
 matched sets with no outcome-based sample changes; results are in
 Sect.~\ref{sec:exp-independent}. Daily records (volume, backlog, block

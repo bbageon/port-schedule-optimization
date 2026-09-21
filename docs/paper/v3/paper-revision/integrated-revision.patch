@@ -506,7 +506,7 @@
  the dwell time of truck $i$, $m$ the additional crane working time, $R$
  the number of rehandles, and $T_v$ the policy-related idle time of
  vessel $v$:
-@@ -408,217 +363,244 @@
+@@ -408,217 +363,245 @@
  derived from the safe trucking freight rate~\cite{ref24}, whereas the
  conversion to an hourly dwell-cost coefficient is a design choice.
  Structural vessel time that the policy cannot change is recorded
@@ -576,8 +576,7 @@
 +Block-only adds the same 20 seeds, totalling 80 runs, under a separate
 +17 September registration after one baseline month and partial results
 +were available. All variants share the checkpoint; action restrictions
-+are not separately optimised policies. The comparison families remain
-+separate.
++are not separately optimised policies.
 +
 +For policy $p$ and seed $s$, let $C_{p,s}$ be the cost over the
 +28 measurement days. The two original primary differences are
@@ -586,13 +585,15 @@
 +D_s^{T}=C_{\mathrm{Time},s}-C_{\mathrm{Full},s}.
 +\end{equation}
 +Positive values favour Full. We resample the 20 paired months
-+20{,}000 times (seed 9{,}900{,}721), retaining within-month dependence.
-+Each primary mean difference has a 97.5\% percentile interval;
-+secondary intervals are descriptive 95\%. The separate Block-only
-+family uses seed 9{,}900{,}723 and 97.5\% intervals for baseline minus
-+Block-only and Block-only minus Full. Two separate families do not
-+provide one four-claim error guarantee. Supplementary 30-day totals
-+are not longer simulations. Per-seed costs, percentage savings,
++20{,}000 times (seed 9{,}900{,}721), retaining within-month dependence:
++each draw takes 20 months with replacement and recomputes the mean
++difference, and the interval spans the central 97.5\% of those means, so
++an interval excluding zero means the sign does not depend on which
++months were drawn. Each primary mean difference has a 97.5\% percentile
++interval; secondary intervals are descriptive 95\%. The separate
++Block-only family uses seed 9{,}900{,}723 and 97.5\% intervals for
++baseline minus Block-only and Block-only minus Full; two families do not
++provide one four-claim error guarantee. Per-seed costs, percentage savings,
 +aggregate ratios, wins/ties/losses, and residuals require complete
 +matched sets with no outcome-based sample changes; results are in
 +Sect.~\ref{sec:exp-independent}. Daily records (volume, backlog, block
@@ -945,7 +946,7 @@
  \begin{credits}
  \subsubsection{\ackname}
  This work was supported by the Public-Private Joint Technology
-@@ -633,7 +615,8 @@
+@@ -633,7 +616,8 @@
  
  % =====================================================================
  \small
@@ -955,7 +956,7 @@
  \setlength{\itemsep}{0pt}
  \setlength{\parsep}{0pt}
  \setlength{\topsep}{2pt}
-@@ -648,9 +631,13 @@
+@@ -648,9 +632,13 @@
  \bibitem{ref10} Wolpert, D.H., Tumer, K.: Optimal payoff functions for members of collectives. Adv. Complex Syst. \textbf{4}(2--3), 265--279 (2001)
  \bibitem{ref11} Foerster, J.N., Farquhar, G., Afouras, T., Nardelli, N., Whiteson, S.: Counterfactual multi-agent policy gradients. In: Proc. 32nd AAAI Conf. Artif. Intell. pp. 2974--2982. AAAI Press (2018)
  \bibitem{ref13} Kourounioti, I., Polydoropoulou, A.: Application of aggregate container terminal data for the development of time-of-day models predicting truck arrivals. Eur. J. Transp. Infrastruct. Res. \textbf{18}(1), 76--90 (2018)
