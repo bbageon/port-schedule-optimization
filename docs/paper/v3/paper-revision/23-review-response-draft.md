@@ -33,7 +33,7 @@ We also disclose an environmental change: `PRESERVE` retains declared demand ins
 
 The revision cites truck appointment and collaborative scheduling literature and identifies booking quotas, carrier-approved change windows, notice requirements, and cargo/vessel deadlines as deployment conditions requiring terminal and carrier data. Their integration into an operational feasibility layer and the associated economic evaluation are described as future work. The reported terminal-cost reduction is therefore not presented as verified net savings for terminal operators and carriers together.
 
-**Evidence and location.** E4; related work, §3.2 (p. 4), §4 (p. 6), and §6 (p. 11).
+**Evidence and location.** E4; related work, §3.2 (p. 3), §4 (p. 6), and §6 (p. 11).
 
 **Outstanding.** This is a partial response: no experiment with realistic appointment quotas or added rescheduling charges is supplied. Benefit retention and a break-even change charge remain unestablished.
 
@@ -45,7 +45,7 @@ The revision cites truck appointment and collaborative scheduling literature and
 
 The KEEP target is [K − C(a)]/(2S) and therefore depends on the alternative used in its comparison. We now distinguish ranking changed candidates, deciding between KEEP and a change, acceptance errors, and the ordering of competing proposals. The commitment procedure sorts consented proposals using predicted acceptance costs; under resource contention, that ordering can affect the committed set and is not merely a harmless tie-breaking convention.
 
-**Evidence and location.** E5; §3.3 (p. 4), §3.2 (p. 4), §5.3 (p. 9), and §5.4 (p. 10).
+**Evidence and location.** E5; §3.3 (p. 4), §3.2 (p. 3), §5.3 (p. 9), and §5.5 (p. 10).
 
 **Outstanding.** Full-candidate validation against simulated costs, including selection regret, rank agreement, missed beneficial changes, and harmful changes, has not been completed. Existing small counterfactual wiring checks do not establish candidate-ranking accuracy. The explanatory correction is not presented as a substitute for that empirical validation.
 
@@ -69,7 +69,7 @@ The independent protocol now includes Block-only alongside the other three polic
 
 **Response.** We have separated the proposed architectural role from the evidence needed to justify it. The acceptance mechanism both permits or rejects a proposal and supplies scores used to order competing proposals. Turning off the veto while retaining those scores is not equivalent to removing the acceptance network. The current four-policy independent comparison retains the acceptance mechanism in the learned policies and therefore does not isolate its contribution. The first-iteration comparison is also not an acceptance-network ablation.
 
-**Evidence and location.** E5 and E6; §3.3 (p. 4), §3.2 (p. 4), §5.3 (p. 9), and §5.4 (p. 10).
+**Evidence and location.** E5 and E6; §3.3 (p. 4), §3.2 (p. 3), §5.3 (p. 9), and §5.5 (p. 10).
 
 **Outstanding.** An independent multi-seed comparison isolating the veto and a complete network-removal comparison are unavailable. Earlier request-accounting diagnostics containing a no-veto condition are not substituted for this independent component evaluation.
 
@@ -81,7 +81,7 @@ The independent protocol now includes Block-only alongside the other three polic
 
 We distinguish three different quantities that had to remain explicit: the 60-second policy review interval, the three-hour counterfactual observation horizon, and the continuous monthly evaluation period. The 28-day and 30-day totals are two windows from the same run, not a completed robustness test at different counterfactual horizons or longer operating horizons. Low recorded costs are interpreted together with work left unfinished at the cutoff.
 
-**Evidence and location.** E1, E3, E6, and E7; §4 (p. 6), §4.1 (p. 7), §5.2 (p. 9), §5.4 (p. 10), and §6 (p. 11).
+**Evidence and location.** E1, E3, E6, and E7; §4 (p. 6), §4.1 (p. 7), §5.2 (p. 9), §5.5 (p. 10), and §6 (p. 11).
 
 **Outstanding.** The independent evaluation is pending. New peak-width, cost-weight, counterfactual-horizon, and extended-operation performance comparisons are not reported as completed. A mathematical inspection of the arrival curve is not a simulation-cost sensitivity result.
 
@@ -93,7 +93,7 @@ We distinguish three different quantities that had to remain explicit: the 60-se
 
 The scope of the missing timing evidence is stated explicitly: candidate construction, proposal inference, acceptance inference, conflict checks, and commitment must be measured as an end-to-end decision cycle, with component timings reported without double-counting nested calls. Whole-month elapsed time and CPU bottleneck samples are not offered as substitutes for this measurement. Communication and human response times remain outside the implemented policy path.
 
-**Evidence and location.** E1, E3, and E8; §4.1 (p. 7), §5.4 (p. 10), and §6 (p. 11).
+**Evidence and location.** E1, E3, and E8; §4.1 (p. 7), §5.5 (p. 10), and §6 (p. 11).
 
 **Outstanding.** A measured end-to-end online latency distribution and its hardware-qualified relation to the review interval remain unavailable. Reproduction metadata alone does not validate real-time deployment.
 
@@ -105,7 +105,7 @@ The scope of the missing timing evidence is stated explicitly: candidate constru
 
 We also clarify what the policy consumes. The networks receive order records and yard-state summaries only (Sect. 3.3); no layout geometry enters them, so the method needs no layout-specific inputs. We therefore do not claim validation of parallel or perpendicular terminals. As a robustness check we trained and evaluated the same procedure in a second synthetic environment with different transfer and crane dynamics; there, the environment-specific time-only policy was cheaper than no reallocation on all five measurement days of one seed while unfinished work increased, and that environment is uncalibrated. We report this only as evidence that the learning procedure adapts to different dynamics, not as a layout comparison. Replication of a particular operating terminal is outside the present scope. The architecture is presented as a simulation-based decision-support concept with unresolved external-validity limitations.
 
-**Evidence and location.** E1–E3 and E9; §4 (p. 6), §4.1 (p. 7), §5.4 (p. 10), and §6 (p. 11).
+**Evidence and location.** E1–E3 and E9; §4 (p. 6), §4.1 (p. 7), §5.5 (p. 10), and §6 (p. 11).
 
 **Outstanding.** The complete independent results and calibration of the simulator against operating-terminal measurements (turn time, crane utilisation, throughput) are not supplied by this draft. Additional seeds alone would not resolve the absence of field evidence.
 

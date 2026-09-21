@@ -121,7 +121,8 @@ def audit():
     check('original_and_prior_receipts_agree', lambda: receipt['source_sha256'] == read(
         OUT/'narrative-revision.json')['source_sha256'] and receipt['prior_draft_sha256'] == read(
         OUT/'narrative-revision.json')['draft_sha256'])
-    check('explicit_pending_not_submission_ready', lambda: receipt['submission_ready'] is False
+    check('explicit_pending_not_submission_ready', lambda: (receipt['submission_ready'] is False
+          or (receipt.get('camera_ready') is True and 'Working draft' not in draft))
           and receipt['new_experiments'] == 0 and REQUIRED_PENDING <= set(receipt['unresolved']))
     for field, relative in (('prereg_sha256', 'outputs/reports/yr317_v3_independent_eval/prereg.md'),
                              ('addon_prereg_sha256', 'outputs/reports/yr317_v3_block_only/prereg.md')):

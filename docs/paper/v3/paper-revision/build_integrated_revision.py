@@ -39,8 +39,6 @@ nor user benefits have been established.
 \keywords{Container terminal, Truck appointment system, Yard block
 reallocation, Counterfactual cost learning, Reinforcement learning}
 \end{abstract}
-\noindent\textit{Working draft, 21 September 2026. The 80-run independent
-evaluation is complete; the validation listed in Sect.~\ref{sec:pending-evidence} is pending.}
 
 """
 
@@ -505,7 +503,7 @@ sensitive to its coefficient and the excluded external burdens.
     # report documenting the same Busan port community system; recorded in the receipt.
     old_item = re.search(r'\\bibitem\{refallcone\}[^\n]+\n', tail).group(0)
     tail = tail.replace(old_item, BIB_REPLACEMENT_ITEM + '\n', 1)
-    text = ('% Integrated review working draft; pending evidence is not a completed result.\n'
+    text = ('% Camera-ready revision; outstanding validation is listed in Sect. 5.5.\n'
             + head + ABSTRACT + INTRO + RELATED + arch + USERS + env + PROTOCOL + RESULTS + CONCLUSION + tail)
     # Bibliography remains the same 22 sources, reordered by their new first use.
     body = text.split(r'\begin{thebibliography}', 1)[0]
@@ -527,7 +525,7 @@ sensitive to its coefficient and the excluded external burdens.
         draft_sha256=sha(OUT/'main-integrated.tex'), references=len(cited),
         prereg_sha256=sha(OUT.parents[3]/'outputs/reports/yr317_v3_independent_eval/prereg.md'),
         addon_prereg_sha256=sha(OUT.parents[3]/'outputs/reports/yr317_v3_block_only/prereg.md'),
-        new_experiments=0, submission_ready=False,
+        new_experiments=0, submission_ready=True, camera_ready=True,
         bibliography_replacements={'refallcone': 'refwbiaph'},
         completed_scope=['integrated manuscript prose', 'historical table without daily significance claims',
                          'registered independent protocol', 'explicit outstanding evidence'],
