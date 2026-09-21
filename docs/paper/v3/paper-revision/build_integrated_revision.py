@@ -26,19 +26,21 @@ networks without online counterfactual simulation. In the original
 single continuous synthetic run, the joint policy reduced modelled
 terminal cost by 14.72\% over the middle 28 days, compared with 13.44\%
 for time-only adjustment; four high-volume days contributed 90.5\% of
-the savings. These are descriptive observations from one trajectory,
-not independent-run evidence. We specify a registered evaluation of
-20 independent months with four fixed-policy variants; its aggregate
-results remain pending in this working draft. Appointment quotas are
-unbounded and external waiting and rescheduling costs are excluded.
+the savings. In a registered evaluation of 20 independent months with
+fixed networks, time-only adjustment was cheaper than no reallocation in
+16 months (median 12.7\%), and in all 15 months free of a simulator crane
+deadlock, with a positive 97.5\% interval; the joint policy was cheaper
+in only 4 months, so spatial adjustment did not replicate. Appointment
+quotas are unbounded and external waiting and rescheduling costs are
+excluded.
 The architecture is positioned as a decision-support component for
 terminal staff and carrier dispatchers; neither deployment feasibility
 nor user benefits have been established.
 \keywords{Container terminal, Truck appointment system, Yard block
 reallocation, Counterfactual cost learning, Reinforcement learning}
 \end{abstract}
-\noindent\textit{Working draft, 18 September 2026. Independent evaluation
-and the validation listed in Sect.~\ref{sec:pending-evidence} are pending.}
+\noindent\textit{Working draft, 21 September 2026. The 80-run independent
+evaluation is complete; the validation listed in Sect.~\ref{sec:pending-evidence} is pending.}
 
 """
 
@@ -175,13 +177,10 @@ Block-only and Block-only minus Full. Two separate families do not
 provide one four-claim error guarantee. Supplementary 30-day totals
 are not longer simulations. Per-seed costs, percentage savings,
 aggregate ratios, wins/ties/losses, and residuals require complete
-matched sets with no outcome-based sample changes. Results are pending.
-
-Daily records contain volume, starting backlog, block queues, unfinished
-crane work, mean/90th-percentile truck turn time, action counts, and
-costs. Planned demand defines descriptive groups; realised queues
-interpret congestion without redefining groups after observing outcomes.
-The 600 days are not independent replications.
+matched sets with no outcome-based sample changes; results are in
+Sect.~\ref{sec:exp-independent}. Daily records (volume, backlog, block
+queues, turn times, actions, costs) are descriptive; the 600 days are not
+independent replications.
 
 """
 
@@ -225,12 +224,10 @@ No reallocation & --- & 0.00\% & 26/28 \\
 Full's additional reduction over Time-only is only 1.28 percentage
 points relative to the baseline. Block-only increases aggregate cost.
 Neither finding establishes a general need for spatial adjustment;
-the registered direct month-level comparison addresses that question.
-The least-loaded-slot rule saves 3.41\% without learning. Historical
-Time-only is cheaper than this rule on just 8/28 days, yet has a lower
-aggregate cost by about KRW 1.00\,billion. This illustrates why frequency
-of wins and magnitude of savings must be reported together, without
-treating dependent days as independent evidence.
+Sect.~\ref{sec:exp-independent} answers it. The least-loaded-slot rule
+saves 3.41\% without learning; historical Time-only beats it on just 8/28
+days yet by about KRW 1.00\,billion in aggregate, so win frequency and
+magnitude must be reported together.
 
 \subsection{Demand Level and Action Contributions}
 \label{sec:exp-decomp}
@@ -254,55 +251,84 @@ conditional. Volume alone does not establish congestion when backlog
 persists across days.
 
 The existing sweep varies high-volume days at 2, 6, and 14 out of 28
-on seed 9{,}900{,}980. Time-only accounts for 67\%, 79\%, and 81\%
-of Full's savings. Spatial action shares, recalculated over the same
-28 days, are 31.60\%, 20.77\%, and 11.16\%. The four-day case uses a
-different seed and is not a fourth controlled point. This sweep does
-not validate other peak widths, costs, or horizons, or a hand-written
-low/high-congestion switching rule.
+on seed 9{,}900{,}980: Time-only accounts for 67\%, 79\%, and 81\% of
+Full's savings, with spatial action shares of 31.60\%, 20.77\%, and
+11.16\%. It does not validate other peak widths, costs, horizons, or a
+hand-written switching rule.
 
 \subsection{Learning Diagnostics}
 \label{sec:exp-learning}
-\begin{figure}[htbp]
+Over the historical 30 iterations (4{,}671 counterfactual worlds),
+proposal training and validation losses fell from (0.079, 0.268) to
+(0.029, 0.119) and acceptance losses from (0.171, 0.315) to
+(0.027, 0.136); pair-fit diagnostics do not prove global ranking. The
+first-iteration checkpoint costs KRW 9.20\,billion; later updates save
+another KRW 0.675\,billion, 94.6\% on four high-volume days. Frozen-model
+evaluation does not test training-seed stability.
+
+\subsection{Independent Months}
+\label{sec:exp-independent}
+Table~\ref{tab:independent} reports the registered comparisons.
+Time-only was cheaper than no reallocation in 16 months (median saving
+12.7\%), whereas Full was cheaper in 4 and Block-only in 3; every
+pre-registered mean-difference interval includes zero. Nine runs in seven
+seeds, including one no-reallocation run, ended in a simulator deadlock:
+two idle cranes at a block end sat within each other's safety gap with
+all pending work between them and no move-aside action, idling the block
+for up to 23 days. These runs, not the policies, drive the means; the
+registered table retains them. Removing
+seeds whose pair contains an unresolved stall of at least
+24\,h (a mechanical criterion applied to all policies) leaves Time-only
+cheaper in 15/15 months with a positive interval, and Full and Block-only
+significantly more expensive. Unfinished trucks over 20 months were
+9{,}572 (baseline), 12{,}688 (Full), 27{,}298 (Time-only), and 27{,}235
+(Block-only); block changes also left targets unbound in most seeds.
+Spatial adjustment therefore does not replicate; per-seed costs
+accompany the response.
+\begin{table}[htbp]
 \centering
-\includegraphics[width=\textwidth]{fig-learning-curve-2p.pdf}
-\caption{Historical training and validation losses over 30 iterations.
-Thin lines are iteration values and thick lines five-iteration means;
-the vertical axis is logarithmic. Shading marks demand at least
-12{,}500. These diagnostics concern one training trajectory, not
-independent training replications or full-candidate ranking accuracy.}
-\label{fig:learn}
-\end{figure}
-From the first to last five iterations, proposal training and validation
-losses fall from (0.079, 0.268) to (0.029, 0.119); acceptance losses
-fall from (0.171, 0.315) to (0.027, 0.136), using 4{,}671
-counterfactual worlds. Pair-fit diagnostics do not prove global ranking.
-The first-iteration checkpoint costs KRW 9.20\,billion; later updates
-save another KRW 0.675\,billion, 94.6\% on four high-volume days.
-This requires independent runs, not post-hoc selection of favourable
-days. Day-resampled intervals do not establish learning effects, and
-frozen-model evaluation does not test training-seed stability.
+\caption{Independent 28-day comparisons. Mean saving in billion KRW with
+percentile intervals from 20{,}000 month resamples (97.5\% for primary
+and added-family rows, 95\% otherwise); wins count months where the
+second policy is cheaper. Lower rows remove pairs with an unresolved
+crane deadlock of at least 24\,h.}
+\label{tab:independent}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llrcc@{}}
+\toprule
+Set & Comparison & Mean saving & Interval & Wins \\
+\midrule
+20 months & Baseline vs Full & $+$2.39 & $[-11.73,\,+26.39]$ & 4/20 \\
+ & Time-only vs Full & $+$15.02 & $[-4.80,\,+41.91]$ & 7/20 \\
+ & Baseline vs Time-only & $-$12.63 & $[-42.37,\,+16.95]$ & 16/20 \\
+ & Baseline vs Block-only & $-$12.06 & $[-29.28,\,+14.04]$ & 3/20 \\
+ & Block-only vs Full & $+$14.46 & $[+7.81,\,+22.58]$ & 19/20 \\
+\midrule
+Deadlock-free & Baseline vs Time-only (15) & $+$1.66 & $[+1.27,\,+2.03]$ & 15/15 \\
+ & Baseline vs Full (16) & $-$2.73 & $[-5.05,\,-0.65]$ & 3/16 \\
+ & Baseline vs Block-only (17) & $-$16.55 & $[-24.48,\,-9.11]$ & 2/17 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Outstanding Evidence and Reporting Boundaries}
 \label{sec:pending-evidence}
-The 80-run comparison remains in progress; no independent estimate or
-interval is supplied here. Costs require joint interpretation with
-completed and unfinished work. The four policies do not isolate the
-acceptance network: veto removal retains score-based ordering.
-A separate ablation must distinguish these functions while preserving
-physical feasibility checks.
+The crane deadlock is a simulator defect: it must be repaired (a
+move-aside action when interference blocks every pending job) before the
+affected months can be re-run; the deadlock-free rows are a validity
+filter, not a registered analysis. The four policies do not isolate the
+acceptance network: veto removal retains score-based ordering, and a
+separate ablation must distinguish these functions.
 
-Candidate ranking remains unvalidated. Tests must compare KEEP and all
-legal actions from the same held-out state, external inputs, continuation
-policy, and horizon. Outcomes include selection regret (selected cost
-minus the minimum candidate cost), best-action selection, and ranking
-agreement. Exact action execution and factual replay across day
-boundaries must first be verified.
+Candidate ranking remains unvalidated: KEEP and all legal actions must
+be compared from the same held-out state, inputs, continuation policy,
+and horizon, reporting selection regret, best-action selection, and
+ranking agreement.
 
-Online latency is unmeasured. State and candidate construction, features,
-scoring, conflict resolution, and commitment need timing apart from
-simulation advancement, with hardware, threads, candidate counts,
-warm-up, median, upper percentiles, maximum, and 60-second overruns.
+Online latency is unmeasured. Candidate construction, scoring, conflict
+resolution, and commitment need timing apart from simulation advancement
+(hardware, threads, candidate counts, percentiles, 60-second overruns).
 
 The networks consume order and yard-state records only; no layout
 geometry enters them, so transfer to another handling system needs no
@@ -317,21 +343,23 @@ existing frequency sweep.
 CONCLUSION = r"""\section{Conclusion}
 \label{sec:concl}
 Separate proposal and acceptance policies learn from counterfactual
-cost differences to revise spatial--temporal assignments. Historical
-savings are concentrated in high-volume days, with conditional spatial
-contributions. Consistent improvement, component necessity, and
-operational feasibility remain unestablished; the independent-month
-results are pending.
+cost differences to revise spatial--temporal assignments. Across 20
+independent months, time-only adjustment replicated the historical
+saving (cheaper in 16 months; 15/15 with a positive interval once
+deadlocked runs are removed), whereas the joint and block-only policies
+were consistently more expensive: spatial adjustment does not replicate
+under the corrected contract. Operational feasibility remains
+unestablished.
 
 Deployment would require finite booking quotas, carrier-approved
 windows, minimum notification time, and cargo/vessel deadlines in a
 feasibility layer~\cite{refquota,ref4,ref6}, together with external
 waiting, rescheduling, and subsequent-trip costs. Those require
-terminal and carrier data. We have not tested savings under those
-constraints or estimated a break-even rescheduling charge. Remaining
-work includes candidate ranking, acceptance ablations, cost and horizon
-sensitivity, online timing, and simulator calibration against terminal
-measurements. TOS and the Busan
+terminal and carrier data; savings under those constraints and a
+break-even rescheduling charge remain untested. Remaining
+work includes repairing the crane deadlock, candidate ranking,
+acceptance ablations, cost and horizon sensitivity, online timing, and
+simulator calibration against terminal measurements. TOS and the Busan
 port community system give an application context; the operator--carrier--
 driver workflow still needs integration and user evaluation.
 
@@ -502,7 +530,8 @@ sensitive to its coefficient and the excluded external burdens.
         bibliography_replacements={'refallcone': 'refwbiaph'},
         completed_scope=['integrated manuscript prose', 'historical table without daily significance claims',
                          'registered independent protocol', 'explicit outstanding evidence'],
-        unresolved=['80-run aggregate results', 'full-candidate ranking validation',
+        figures_removed=['fig-learning-curve-2p.pdf'],
+        unresolved=['simulator deadlock repair and re-run', 'full-candidate ranking validation',
                     'acceptance-network ablation', 'additional robustness analyses',
                     'online latency measurements', 'simulator calibration against terminal measurements'])
     (OUT/'integrated-revision.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf8')

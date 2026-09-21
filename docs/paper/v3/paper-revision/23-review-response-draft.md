@@ -21,7 +21,9 @@ We also disclose an environmental change: `PRESERVE` retains declared demand ins
 
 **Evidence and location.** E1–E3; §4.1 (p. 7), §5.1 (p. 8), and §5.4 (p. 10).
 
-**Outstanding.** The complete independent comparison and its intervals are pending. The revised protocol and record checks do not by themselves establish consistent cost savings or satisfactory work completion.
+**Result.** The 80 runs are complete (Table 3, §5.4). Time-only was cheaper than no reallocation in 16/20 months (median 12.7%); Full in 4/20 and Block-only in 3/20; every pre-registered mean-difference interval includes zero. Nine runs in seven seeds, including one baseline run, ended in a simulator crane deadlock (two idle cranes trapped within the safety gap at a block end with no move-aside action) that inflates monthly cost 5–10 fold. With pairs containing an unresolved deadlock of at least 24 h removed by a mechanical criterion, Time-only is cheaper in 15/15 months with a 97.5% interval of [+1.27, +2.03] billion KRW, while Full and Block-only are significantly more expensive. Per-seed costs: [32-독립시드별-결과표.md](32-독립시드별-결과표.md); deadlock diagnosis: [31-정지-결함-진단.md](31-정지-결함-진단.md).
+
+**Outstanding.** The deadlock is a simulator defect that must be repaired before the affected months can be re-run; the deadlock-free rows are a validity filter, not a registered analysis. Unfinished work remains higher under every learned policy.
 
 ### Reviewer 1, comment 2 — appointment limits and rescheduling costs
 
@@ -57,7 +59,9 @@ The independent protocol now includes Block-only alongside the other three polic
 
 **Evidence and location.** E1, E2, and E6; §4.1 (p. 7), §5.2 (p. 9), and §5.4 (p. 10).
 
-**Outstanding.** The complete independent comparison is pending. No new claim that spatial adjustment reliably improves total cost, or that a simple load-based switching rule is sufficient, is made.
+**Result.** Spatial adjustment does not replicate: Full was cheaper than the baseline in 4/20 months and Block-only in 3/20, and with deadlocked pairs removed both are significantly more expensive (Table 3). Block changes also left request targets unbound in most seeds under the corrected contract. The manuscript now reports this as a negative result and makes time-only adjustment the main claim.
+
+**Outstanding.** Whether the unbound targets stem from the block-change policy or from the request-preservation contract is not yet diagnosed; no claim that spatial adjustment improves total cost is made.
 
 ### Reviewer 1, comment 4b — contribution of the acceptance network
 

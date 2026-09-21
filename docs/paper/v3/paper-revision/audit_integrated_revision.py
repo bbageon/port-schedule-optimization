@@ -15,7 +15,7 @@ RESPONSE = '23-review-response-draft.md'
 REQUIRED_LABELS = {'sec:arch-models', 'sec:arch-commit', 'sec:user-context',
     'sec:env', 'sec:independent-protocol', 'sec:exp-paired', 'sec:exp-decomp',
     'sec:exp-learning', 'sec:pending-evidence', 'sec:concl'}
-REQUIRED_PENDING = {'80-run aggregate results', 'full-candidate ranking validation',
+REQUIRED_PENDING = {'simulator deadlock repair and re-run', 'full-candidate ranking validation',
     'acceptance-network ablation', 'additional robustness analyses',
     'online latency measurements', 'simulator calibration against terminal measurements'}
 
@@ -153,7 +153,10 @@ def audit():
         extract = lambda text: re.findall(r'\\includegraphics(?:\[[^]]*\])?\{([^}]+)\}', uncomment(text))
         figures = extract(draft)
         details['figures'] = figures
-        if not figures or figures != extract(source) or figures != extract(prior):
+        removed = receipt.get('figures_removed', [])
+        details['figures_removed'] = removed
+        expected = [f for f in extract(source) if f not in removed]
+        if not figures or figures != expected or figures != [f for f in extract(prior) if f not in removed]:
             return False
         return all(sha(OUT/'figures'/name) == sha(OUT.parent/'submissionv2/figures'/name) for name in figures)
     check('original_figure_files_and_sequence_preserved', figures_preserved)
@@ -173,11 +176,15 @@ def audit():
     pending = re.search(r'\\label\{sec:pending-evidence\}(.*?)(?=\\section\{|\Z)', uncomment(draft), re.S)
     pending_text = pending.group(1).lower() if pending else ''
     checks['pending_evidence_explicit_in_manuscript'] = bool(pending) and all(
-        token in pending_text for token in ('80', 'in progress', 'ranking', 'acceptance', 'latency', 'simulator', 'calibrat'))
+        token in pending_text for token in ('deadlock', 'ranking', 'acceptance', 'latency', 'simulator', 'calibrat'))
     protocol = re.search(r'\\label\{sec:independent-protocol\}(.*?)(?=\\section\{|\Z)', uncomment(draft), re.S)
     protocol_text = re.sub(r'[{}\\\s]', '', protocol.group(1)).lower() if protocol else ''
     checks['registered_monthly_statistics_present'] = bool(protocol) and all(
         token in protocol_text for token in ('20,000', '9,900,721', '9,900,723', '97.5%', '95%', '80', 'paired', 'month'))
+    independent = re.search(r'\\label\{sec:exp-independent\}(.*?)(?=\\subsection\{|\\section\{|\Z)', uncomment(draft), re.S)
+    independent_text = independent.group(1) if independent else ''
+    checks['independent_results_reported_with_deadlock_disclosure'] = bool(independent) and all(
+        token in independent_text for token in ('16 months', '4 and Block-only in 3', 'deadlock', '15/15', 'tab:independent'))
 
     broken = []
     for target in re.findall(r'\]\(([^)]+)\)', response):

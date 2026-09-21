@@ -10,7 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-317 | Paper | **12쪽 통합 초안 완료·네 정책 독립 결과 대기** | 🟠 | 9/19 KST 목표. i·b·f 문서 범위 완료, 진행 중 80개 실행의 최종 통계·후보 검증 등은 미완료. 제출 완료본이 아니다. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) |
+| YR-317 | Paper | **독립 결과 반영 완료 — 주 주장 시간 조정(16/20·교착 제외 15/15), 블록 조정 부정적 결과 공개, 12쪽·검사 통과** | 🟠 | 교착 수정·재실행(k), 후보 순위(c), 처리시간(e), 환경 보정(h4) 잔여. 제출 완료본 아님. [spec](../docs/dashboard-task-specs/YR-317-v3-review-response.md) · [통합 결과](../../docs/paper/v3/paper-revision/24-전체리뷰-원고통합.md) · [독립 결과](../../docs/paper/v3/paper-revision/30-독립반복-최종결과.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-317-k | Sim | **교착 시 비켜서기 후보 추가 (시뮬레이터 결함 수정)** | 🔴 | j 진단 결과. 수정 후 기존 80건 재실행 범위는 사용자 결정(수정만/정지 9실행/전체). [spec](../docs/dashboard-task-specs/YR-317-k-v3-deadlock-move-aside.md) |
 | YR-317-h4 | Sim | **합성 환경 실측 보정 (턴타임·크레인 가동률·처리량 목표 사전등록)** | 🟠 | 수직 환경은 한가한 날 턴타임 3시간·크레인 5.8건/시간으로 현실 밖. 두 환경을 같은 서비스 수준 목표에 맞춘 뒤에야 환경 간 비교·h3 반복이 의미 있음. 환경 현실성 게이트 직접 보정. [spec](../docs/dashboard-task-specs/YR-317-h4-v3-environment-calibration.md) |
