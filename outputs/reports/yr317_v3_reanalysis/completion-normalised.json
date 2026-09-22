@@ -1,0 +1,108 @@
+{
+ "question": "Normalising by trucks actually completed, is the time-only saving still there?",
+ "results": {
+  "all_20": {
+   "n": 20,
+   "arms": {
+    "NO_REALLOC": {
+     "cost_krw": 435460464635.1138,
+     "completed": 4028428,
+     "requested": 4038000,
+     "censored": 9572,
+     "unbound": 7655,
+     "unfinished_vessel": 24683,
+     "completion_rate_pct": 99.76295195641407,
+     "cost_per_completed_krw": 108096.87169166577
+    },
+    "RL": {
+     "cost_krw": 387574570547.0923,
+     "completed": 4025312,
+     "requested": 4038000,
+     "censored": 12688,
+     "unbound": 8965,
+     "unfinished_vessel": 22336,
+     "completion_rate_pct": 99.68578504210005,
+     "cost_per_completed_krw": 96284.35523683438,
+     "saving_per_completed_pct": 10.927713512862123,
+     "wins_per_completed": "4/20"
+    },
+    "RL_TIME": {
+     "cost_krw": 687975585268.8914,
+     "completed": 4010702,
+     "requested": 4038000,
+     "censored": 27298,
+     "unbound": 19808,
+     "unfinished_vessel": 35801,
+     "completion_rate_pct": 99.32397226349678,
+     "cost_per_completed_krw": 171534.95454633413,
+     "saving_per_completed_pct": -58.68632631258598,
+     "wins_per_completed": "16/20"
+    },
+    "RL_SPACE": {
+     "cost_krw": 676743079431.7457,
+     "completed": 4010765,
+     "requested": 4038000,
+     "censored": 27235,
+     "unbound": 33047,
+     "unfinished_vessel": 29419,
+     "completion_rate_pct": 99.32553244180288,
+     "cost_per_completed_krw": 168731.6707490331,
+     "saving_per_completed_pct": -56.093019259910974,
+     "wins_per_completed": "3/20"
+    }
+   }
+  },
+  "deadlock_free": {
+   "n": 14,
+   "arms": {
+    "NO_REALLOC": {
+     "cost_krw": 171349192531.85956,
+     "completed": 2766431,
+     "requested": 2766500,
+     "censored": 69,
+     "unbound": 0,
+     "unfinished_vessel": 8832,
+     "completion_rate_pct": 99.99750587384783,
+     "cost_per_completed_krw": 61938.7190686699
+    },
+    "RL": {
+     "cost_krw": 209120023579.14246,
+     "completed": 2763369,
+     "requested": 2766500,
+     "censored": 3131,
+     "unbound": 3795,
+     "unfinished_vessel": 9386,
+     "completion_rate_pct": 99.88682450750045,
+     "cost_per_completed_krw": 75675.75071557307,
+     "saving_per_completed_pct": -22.178423857415044,
+     "wins_per_completed": "3/14"
+    },
+    "RL_TIME": {
+     "cost_krw": 148054208415.27307,
+     "completed": 2766324,
+     "requested": 2766500,
+     "censored": 176,
+     "unbound": 22,
+     "unfinished_vessel": 9124,
+     "completion_rate_pct": 99.99363817097415,
+     "cost_per_completed_krw": 53520.19807342635,
+     "saving_per_completed_pct": 13.591693728619335,
+     "wins_per_completed": "14/14"
+    },
+    "RL_SPACE": {
+     "cost_krw": 410250680859.20184,
+     "completed": 2750317,
+     "requested": 2766500,
+     "censored": 16183,
+     "unbound": 21991,
+     "unfinished_vessel": 15939,
+     "completion_rate_pct": 99.41503705042473,
+     "cost_per_completed_krw": 149164.87112547457,
+     "saving_per_completed_pct": -140.82653527287064,
+     "wins_per_completed": "2/14"
+    }
+   }
+  }
+ },
+ "verdict": "시간정책은 같은 비율의 수요를 끝내고 완료 1대당 더 싸다 — 절감이 미완료 작업의 착시가 아니다. / Time-only completes the same share of demand and is cheaper per completed truck."
+}

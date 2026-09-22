@@ -23,14 +23,14 @@ acceptance networks learn pair-centred cost scores from simulation
 branches with delayed consequences; a central procedure checks mutual
 acceptance and simulated resource feasibility. Evaluation uses fixed
 networks without online counterfactual simulation. In the original
-single continuous synthetic run, the joint policy reduced modelled
-terminal cost by 14.72\% over the middle 28 days, compared with 13.44\%
-for time-only adjustment; four high-volume days contributed 90.5\% of
-the savings. In a registered evaluation of 20 independent months with
-fixed networks, time-only adjustment was cheaper than no reallocation in
-16 months (median 12.7\%), and in all 15 months free of a simulator crane
-deadlock, with a positive 97.5\% interval; the joint policy was cheaper
-in only 4 months, so spatial adjustment did not replicate. Appointment
+single continuous synthetic run the joint policy reduced modelled
+terminal cost by 14.72\% over the middle 28 days against 13.44\% for
+time-only adjustment. In a registered evaluation of 20 independent
+months, time-only adjustment was cheaper than no reallocation in
+16 months (median 12.7\%), and in all 14 months free of a simulator crane
+deadlock, at the same completion rate and with a positive 97.5\%
+interval; the joint policy was cheaper in only 4 months, so spatial
+adjustment did not replicate. Appointment
 quotas are unbounded and external waiting and rescheduling costs are
 excluded.
 The architecture is positioned as a decision-support component for
@@ -68,12 +68,11 @@ decision-support users; field and human benefits remain untested.
 
 RELATED = r"""\section{Related Work}
 \label{sec:related}
-Appointment models redistribute arrivals~\cite{ref4}, while
-collaborative scheduling represents the interests of carriers and
-terminals~\cite{ref6}. Empirical time-of-day models motivate nonuniform
-arrival profiles~\cite{ref13}. Appointment quotas influence truck turn
-time and crane utilisation and require balancing terminal and trucker
-interests~\cite{refquota}. Our unbounded-quota experiments therefore
+Appointment models redistribute arrivals~\cite{ref4} and collaborative
+scheduling represents carrier and terminal interests~\cite{ref6}, while
+empirical time-of-day models motivate nonuniform arrival
+profiles~\cite{ref13}. Appointment quotas trade truck turn time against
+crane utilisation~\cite{refquota}, so our unbounded-quota experiments
 address adjustment potential under stated assumptions.
 
 Yard research studies crane sequencing~\cite{ref7},
@@ -86,13 +85,13 @@ within a comparison.
 
 Difference rewards and counterfactual multi-agent learning isolate an
 actor's contribution to a shared outcome~\cite{ref10,ref11}. Here the
-baseline comes from a simulation branch, and the target is a finite-
-horizon cost difference. Unlike temporal-difference targets in deep
-Q-learning~\cite{refmnih}, it does not bootstrap from the network's own
-future estimates. Small multilayer perceptrons~\cite{refhornik} map
-current observations and candidate features to scalar scores. General
-approximation capacity does not guarantee correct candidate ordering;
-Sect.~\ref{sec:arch-models} states the conditions and remaining gap.
+baseline comes from a simulation branch and the target is a
+finite-horizon cost difference, so unlike temporal-difference targets in
+deep Q-learning~\cite{refmnih} it does not bootstrap from the network's
+own future estimates. Small multilayer perceptrons~\cite{refhornik} map
+observations and candidate features to scalar scores; approximation
+capacity alone does not guarantee correct candidate ordering, and
+Sect.~\ref{sec:arch-models} states the remaining gap.
 
 """
 
@@ -110,19 +109,18 @@ system with vehicle booking, documented by the World Bank and IAPH as a
 digitalization case~\cite{refwbiaph}, motivate this proposed application;
 integration is untested.
 
-A planner would compare the original and recommended block/time and
-observed congestion, then accept, modify, or reject the recommendation.
-A carrier dispatcher would check vehicle availability and subsequent
-jobs, negotiate an acceptable window, or decline. The driver would
-receive the agreed assignment and report execution difficulties.
-Operator review precedes carrier agreement and driver notification;
-without agreement, the original assignment remains pending review.
-Human response deadlines are separate from the 60-second review interval.
+A planner would compare the original and recommended block/time against
+observed congestion and accept, modify, or reject; a carrier dispatcher
+would check vehicle availability and subsequent jobs and negotiate or
+decline; the driver would receive the agreed assignment and report
+execution difficulties. Operator review precedes carrier agreement and
+driver notification, and without agreement the original assignment
+stands. Human response deadlines are separate from the 60-second review
+interval.
 
-Network acceptance is not human consent, and scores are not calibrated
-monetary savings or confidence probabilities. The evaluated decision
-engine supplies no evidence about interfaces, usability, or human
-acceptance; these require integration and user evaluation.
+Network acceptance is not human consent, and scores are neither
+calibrated savings nor confidence probabilities. The evaluated engine
+supplies no evidence about interfaces, usability, or human acceptance.
 
 """
 
@@ -141,23 +139,23 @@ days plus the existing two-hour closing interval. Arrival curves,
 daily-volume probabilities, truck attributes, and initial inventory
 are preserved and matched within seeds. Weights are fixed; exploration,
 updates, and training branches are disabled. This evaluates variation
-across environments for one model, not across training runs.
+across environments for one model, not across training runs, and those
+weights were trained under the legacy admission contract, before the
+correction described next.
 
-Legacy admission could omit requests lacking stock or reservations.
-The revision registers all requests and shares a fixed correction to
+Legacy admission could omit requests lacking stock or reservations; the
+revision registers all requests and shares a fixed correction to
 selected vessel loading/discharging directions across policies,
-recording both input versions.
-Historical and revised costs are not pooled. Completed, unfinished,
-and unbound requests and vessel work accompany costs; valid records
-do not imply full service. Outbound jobs retain their block, but
-synthetic targets may be rebound within it rather than representing
-fixed customer-container identities.
+recording both input versions. Historical and revised costs are not
+pooled, and completed, unfinished and unbound work accompanies every
+cost. Outbound jobs retain their block, but synthetic targets may be
+rebound within it rather than representing fixed container identities.
 
-No reallocation, Full, and Time-only comprise the original 60 runs.
-Block-only adds the same 20 seeds, totalling 80 runs, under a separate
-17 September registration after one baseline month and partial results
-were available. All variants share the checkpoint; action restrictions
-are not separately optimised policies.
+No reallocation, Full, and Time-only comprise the original 60 runs;
+Block-only adds the same 20 seeds, totalling 80, under a separate
+17 September registration made after one baseline month and partial
+results were available. All variants share the checkpoint, and action
+restrictions are not separately optimised policies.
 
 For policy $p$ and seed $s$, let $C_{p,s}$ be the cost over the
 28 measurement days. The two original primary differences are
@@ -187,10 +185,9 @@ RESULTS = r"""\section{Results and Evidence Status}
 \label{sec:exp}
 \subsection{Historical Cost Comparison}
 \label{sec:exp-paired}
-Table~\ref{tab:main} preserves the legacy single-run results:
-approximately KRW 10.00\,billion without reallocation and
-KRW 8.52\,billion with Full over 28 days. They use the historical
-contract, not the ongoing independent evaluation.
+Table~\ref{tab:main} preserves the legacy single-run results under the
+historical contract: KRW 10.00\,billion without reallocation against
+8.52 with Full over 28 days.
 \begin{table}[htbp]
 \centering
 \caption{Historical 28-day comparison. Positive reduction means lower
@@ -221,39 +218,34 @@ No reallocation & --- & 0.00\% & 26/28 \\
 \end{table}
 
 Full's additional reduction over Time-only is only 1.28 percentage
-points relative to the baseline. Block-only increases aggregate cost.
-Neither finding establishes a general need for spatial adjustment;
-Sect.~\ref{sec:exp-independent} answers it. The least-loaded-slot rule
-saves 3.41\% without learning; historical Time-only beats it on just 8/28
-days yet by about KRW 1.00\,billion in aggregate, so win frequency and
-magnitude must be reported together.
+points, and Block-only increases aggregate cost, so neither established
+a general need for spatial adjustment; Sect.~\ref{sec:exp-independent}
+answers it. The least-loaded-slot rule saves 3.41\% without learning,
+and historical Time-only beats it on just 8/28 days yet by about
+KRW 1.00\,billion in aggregate: win frequency and magnitude must be read
+together.
 
 \subsection{Demand Level and Action Contributions}
 \label{sec:exp-decomp}
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{fig-decomposition.pdf}
+\includegraphics[width=0.82\textwidth]{fig-decomposition.pdf}
 \caption{Historical cost reduction by planned demand, in million KRW.
 Bars compare each restricted policy with no reallocation; the diamond
-compares Full with the first-iteration checkpoint. The shaded demand
-levels contain four days. Groups have unequal numbers of dependent
-days; their totals are descriptive, not comparable daily averages.}
+compares Full with the first-iteration checkpoint. Shaded demand levels
+contain four dependent days, so totals are descriptive.}
 \label{fig:decomp}
 \end{figure}
-Four high-volume days contribute 90.5\% of historical savings.
-Time-only and Block-only save 1.344 and $-0.131$ billion KRW,
-respectively. The interaction residual of 0.258 billion KRW is
-arithmetic, not a verified component effect. Block-only saves cost at
-3{,}500 and 5{,}000 trucks but loses at 15{,}000, where Time-only beats
-Full by approximately KRW 25\,million. Spatial benefits are therefore
-conditional. Volume alone does not establish congestion when backlog
-persists across days.
+Four high-volume days contribute 90.5\% of historical savings, with
+Time-only and Block-only at 1.344 and $-0.131$ billion KRW; the
+0.258 billion residual is arithmetic, not a verified component effect.
+Block-only saves at 3{,}500 and 5{,}000 trucks but loses at 15{,}000,
+so spatial benefits were already conditional. Volume alone does not
+establish congestion when backlog persists across days.
 
-The existing sweep varies high-volume days at 2, 6, and 14 out of 28
-on seed 9{,}900{,}980: Time-only accounts for 67\%, 79\%, and 81\% of
-Full's savings, with spatial action shares of 31.60\%, 20.77\%, and
-11.16\%. It does not validate other peak widths, costs, horizons, or a
-hand-written switching rule.
+An existing sweep (2, 6, and 14 high-volume days out of 28, seed
+9{,}900{,}980) puts Time-only at 67\%, 79\%, and 81\% of Full's savings;
+it validates no other peak width, cost, or horizon.
 
 \subsection{Learning Diagnostics}
 \label{sec:exp-learning}
@@ -261,36 +253,48 @@ Over the historical 30 iterations (4{,}671 counterfactual worlds),
 proposal training and validation losses fell from (0.079, 0.268) to
 (0.029, 0.119) and acceptance losses from (0.171, 0.315) to
 (0.027, 0.136); pair-fit diagnostics do not prove global ranking. The
-first-iteration checkpoint costs KRW 9.20\,billion; later updates save
-another KRW 0.675\,billion, 94.6\% on four high-volume days. Frozen-model
-evaluation does not test training-seed stability.
+first-iteration checkpoint costs KRW 9.20\,billion and later updates
+save another KRW 0.675\,billion, 94.6\% of it on four high-volume days.
 
 \subsection{Independent Months}
 \label{sec:exp-independent}
 Table~\ref{tab:independent} reports the registered comparisons.
 Time-only was cheaper than no reallocation in 16 months (median saving
 12.7\%), whereas Full was cheaper in 4 and Block-only in 3; every
-pre-registered mean-difference interval includes zero. Nine runs in seven
-seeds, including one no-reallocation run, ended in a simulator deadlock:
+pre-registered mean-difference interval includes zero. Nine runs in six
+seeds, two of them no-reallocation runs, ended in a simulator deadlock:
 two idle cranes at a block end sat within each other's safety gap with
 all pending work between them and no move-aside action, idling the block
-for up to 23 days. These runs, not the policies, drive the means; the
-registered table retains them. Removing
-seeds whose pair contains an unresolved stall of at least
-24\,h (a mechanical criterion applied to all policies) leaves Time-only
-cheaper in 15/15 months with a positive interval, and Full and Block-only
-significantly more expensive. Unfinished trucks over 20 months were
-9{,}572 (baseline), 12{,}688 (Full), 27{,}298 (Time-only), and 27{,}235
-(Block-only); block changes also left targets unbound in most seeds.
-Spatial adjustment therefore does not replicate; per-seed costs
-accompany the response.
+for as long as 23.5 days. These runs, not the policies, drive the means;
+the registered table retains them. On the 14 seeds where no arm stalled
+for 24\,h or more, a mechanical criterion applied to every policy,
+Time-only is cheaper in 14/14 months while Full and Block-only are
+significantly more expensive. That subset is not neutral: the six removed
+seeds average 7.2\% more requested trucks (211{,}917 against 197{,}607),
+so the filter discards the busiest months.
+
+Three checks bound the Time-only saving. It is not an artefact of
+unfinished work: on those seeds the policy completes 99.99\% of demand
+against the baseline's 100.00\%, at KRW 53{,}520 per completed truck
+against 61{,}939, cheaper in 14/14 months. The 30-day window agrees
+(14/14, median 14.19\%). And the omitted external cost bounds it: over
+1.60 million changed appointments, a rescheduling charge above about
+KRW 14{,}600 each, or KRW 17{,}700 per deferred hour at a mean deferral
+of 49 minutes, would erase it.
+
+The spatial result has a mechanism: enabling block changes makes the
+policy give up 305{,}093 temporal adjustments for 393{,}404 spatial
+ones, turning a KRW 23.3\,billion saving into a KRW 37.8\,billion loss
+on the same seeds, and leaves targets unbound in most seeds. Spatial
+adjustment therefore does not replicate for this trained model and
+simulator revision. Per-seed costs accompany the response.
 \begin{table}[htbp]
 \centering
 \caption{Independent 28-day comparisons. Mean saving in billion KRW with
 percentile intervals from 20{,}000 month resamples (97.5\% for primary
 and added-family rows, 95\% otherwise); wins count months where the
-second policy is cheaper. Lower rows remove pairs with an unresolved
-crane deadlock of at least 24\,h.}
+second policy is cheaper. Lower rows keep only the 14 seeds in which no
+arm stalled for 24\,h or more, and use a separate resampling seed.}
 \label{tab:independent}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -304,30 +308,33 @@ Set & Comparison & Mean saving & Interval & Wins \\
  & Baseline vs Block-only & $-$12.06 & $[-29.28,\,+14.04]$ & 3/20 \\
  & Block-only vs Full & $+$14.46 & $[+7.81,\,+22.58]$ & 19/20 \\
 \midrule
-Deadlock-free & Baseline vs Time-only (15) & $+$1.66 & $[+1.27,\,+2.03]$ & 15/15 \\
- & Baseline vs Full (16) & $-$2.73 & $[-5.05,\,-0.65]$ & 3/16 \\
- & Baseline vs Block-only (17) & $-$16.55 & $[-24.48,\,-9.11]$ & 2/17 \\
+Deadlock-free & Baseline vs Time-only & $+$1.66 & $[+1.24,\,+2.07]$ & 14/14 \\
+14 seeds & Baseline vs Full & $-$2.70 & $[-5.32,\,-0.36]$ & 3/14 \\
+ & Baseline vs Block-only & $-$17.06 & $[-25.49,\,-9.44]$ & 2/14 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Outstanding Evidence and Reporting Boundaries}
 \label{sec:pending-evidence}
-The crane deadlock is a simulator defect: it must be repaired (a
-move-aside action when interference blocks every pending job) before the
-affected months can be re-run; the deadlock-free rows are a validity
-filter, not a registered analysis. The four policies do not isolate the
+The crane deadlock is a simulator defect, and repair (a move-aside
+action when interference blocks every pending job) must precede any
+re-run. The deadlock-free rows are a validity filter, not a registered
+analysis, and they drop the busiest months, so they may flatter a policy
+whose savings concentrate in congestion. The evaluation also varies one
+axis: one set of trained weights, produced under a different admission
+contract, applied to 20 environments, so training-seed stability is
+untested. The four policies do not isolate the
 acceptance network: veto removal retains score-based ordering, and a
 separate ablation must distinguish these functions.
 
-Candidate ranking remains unvalidated: KEEP and all legal actions must
-be compared from the same held-out state, inputs, continuation policy,
-and horizon, reporting selection regret, best-action selection, and
+Candidate ranking remains unvalidated: KEEP and every legal action must
+be compared from one held-out state, reporting selection regret and
 ranking agreement.
 
-Online latency is unmeasured. Candidate construction, scoring, conflict
-resolution, and commitment need timing apart from simulation advancement
-(hardware, threads, candidate counts, percentiles, 60-second overruns).
+Online latency is unmeasured: candidate construction, scoring, conflict
+resolution, and commitment need timing apart from simulation
+advancement, with percentiles and 60-second overruns.
 
 The networks consume order and yard-state records only; no layout
 geometry enters them, so transfer to another handling system needs no
@@ -344,23 +351,22 @@ CONCLUSION = r"""\section{Conclusion}
 Separate proposal and acceptance policies learn from counterfactual
 cost differences to revise spatial--temporal assignments. Across 20
 independent months, time-only adjustment replicated the historical
-saving (cheaper in 16 months; 15/15 with a positive interval once
+saving (cheaper in 16 months; 14/14 with a positive interval once
 deadlocked runs are removed), whereas the joint and block-only policies
-were consistently more expensive: spatial adjustment does not replicate
-under the corrected contract. Operational feasibility remains
+were consistently more expensive: for this trained model and simulator
+revision, spatial adjustment does not replicate. Operational feasibility remains
 unestablished.
 
 Deployment would require finite booking quotas, carrier-approved
 windows, minimum notification time, and cargo/vessel deadlines in a
 feasibility layer~\cite{refquota,ref4,ref6}, together with external
-waiting, rescheduling, and subsequent-trip costs. Those require
-terminal and carrier data; savings under those constraints and a
-break-even rescheduling charge remain untested. Remaining
-work includes repairing the crane deadlock, candidate ranking,
-acceptance ablations, cost and horizon sensitivity, online timing, and
-simulator calibration against terminal measurements. TOS and the Busan
-port community system give an application context; the operator--carrier--
-driver workflow still needs integration and user evaluation.
+waiting and rescheduling costs; Sect.~\ref{sec:exp-independent} bounds
+the charge that would erase the saving but does not test behaviour under
+a binding quota. Remaining work includes repairing the crane deadlock,
+candidate ranking, acceptance ablations, online timing, and simulator
+calibration. TOS and the Busan port community system give an application
+context; the operator--carrier--driver workflow still needs integration
+and user evaluation.
 
 """
 
@@ -370,6 +376,8 @@ def build():
     head = source[source.index(r'\documentclass'):source.index(r'\begin{abstract}')]
     arch = source[source.index(r'\section{Proposed Architecture}'):source.index(r'\subsection{Intended Users')]
     arch = arch.replace(r'\begin{figure}[bp]', r'\begin{figure}[htbp]')
+    arch = arch.replace(r'[width=\textwidth]{system-architecture.png}',
+                        r'[width=0.88\textwidth]{system-architecture.png}')
     a, b = arch.index(r'\caption{'), arch.index(r'\label{fig:arch}')
     arch = arch[:a] + r"""\caption{(a) Every 60\,s, the online path checks eligibility,
 proposal, acceptance, and commitment. (b) The simulator links gate,
@@ -512,6 +520,8 @@ sensitive to its coefficient and the excluded external burdens.
     assert set(cited) == set(entries), (set(entries)-set(cited), set(cited)-set(entries))
     a, b = text.index(r'\bibitem{'), text.index(r'\end{thebibliography}')
     text = text[:a] + '\n'.join(entries[k] for k in cited) + '\n' + text[b:]
+    # Camera-ready fit: tighten reference leading only (no reference is dropped).
+    text = text.replace(r'\setlength{\itemsep}{0pt}', r'\setlength{\itemsep}{-1.6pt}', 1)
     positions = {k: i for i, k in enumerate(cited)}
     text = re.sub(r'\\cite\{([^}]+)\}', lambda m: r'\cite{' + ','.join(sorted(
         (k.strip() for k in m.group(1).split(',')), key=positions.get)) + '}', text)

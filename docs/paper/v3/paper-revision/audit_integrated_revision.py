@@ -185,7 +185,7 @@ def audit():
     independent = re.search(r'\\label\{sec:exp-independent\}(.*?)(?=\\subsection\{|\\section\{|\Z)', uncomment(draft), re.S)
     independent_text = independent.group(1) if independent else ''
     checks['independent_results_reported_with_deadlock_disclosure'] = bool(independent) and all(
-        token in independent_text for token in ('16 months', '4 and Block-only in 3', 'deadlock', '15/15', 'tab:independent'))
+        token in independent_text for token in ('16 months', '4 and Block-only in 3', 'deadlock', '14/14', 'tab:independent'))
 
     broken = []
     for target in re.findall(r'\]\(([^)]+)\)', response):
@@ -245,11 +245,15 @@ def audit():
         details['page_limit_status'] = 'within_target' if details['target_page_limit_met'] else 'over_target_requires_decision'
         return bool(page_texts) and all(text.strip() for text in page_texts) and not outside
     check('final_pdf_readable_without_text_outside_page', inspect_pdf)
+    # The venue limit is 12 pages, so exceeding it fails the audit rather than warning.
+    checks['within_twelve_page_limit'] = bool(details.get('target_page_limit_met'))
+    camera_ready = receipt.get('camera_ready') is True and receipt.get('submission_ready') is True
     return dict(schema='yr317.integrated-document-validation.v1', at=datetime.now(timezone.utc).isoformat(),
         checks=checks, passed=all(checks.values()), exceptions=exceptions, details=details,
-        target_pages=12, target_page_limit_is_hard_failure=False,
+        target_pages=12, target_page_limit_is_hard_failure=True,
         scientific_validation='Document consistency only; pending experiments and historical costs are not newly validated performance.',
-        new_experiments=0, submission_ready=False)
+        new_experiments=0, submission_ready=camera_ready,
+        outstanding_validation=receipt.get('unresolved', []))
 
 
 def main():
@@ -257,7 +261,8 @@ def main():
     (OUT/'integrated-validation.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(dict(passed=result['passed'], failed_checks=[k for k,v in result['checks'].items() if not v],
         exceptions=result['exceptions'], pdf_pages=result['details'].get('pdf_pages'),
-        page_limit_status=result['details'].get('page_limit_status', 'missing_pdf'), submission_ready=False), ensure_ascii=False))
+        page_limit_status=result['details'].get('page_limit_status', 'missing_pdf'),
+        submission_ready=result['submission_ready']), ensure_ascii=False))
     return int(not result['passed'])
 
 

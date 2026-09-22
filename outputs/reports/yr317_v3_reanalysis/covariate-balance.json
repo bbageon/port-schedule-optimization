@@ -1,0 +1,65 @@
+{
+ "question": "Do the seeds removed by the 24h unresolved-stall filter differ in inputs fixed before any policy ran?",
+ "excluded": {
+  "seeds": [
+   20000000,
+   20200000,
+   20800000,
+   21000000,
+   21500000,
+   21800000
+  ],
+  "n": 6,
+  "requested_mean": 211916.66666666666,
+  "requested_median": 205750.0,
+  "heavy_days_mean": 6.666666666666667,
+  "load_day_counts": {
+   "3500": 49,
+   "5000": 50,
+   "7500": 41,
+   "12500": 23,
+   "15000": 17
+  },
+  "baseline_cost_28d_median_krw": 17853095038.19263,
+  "baseline_unfinished_vessel_median": 1847.5
+ },
+ "retained": {
+  "seeds": [
+   20100000,
+   20300000,
+   20400000,
+   20500000,
+   20600000,
+   20700000,
+   20900000,
+   21100000,
+   21200000,
+   21300000,
+   21400000,
+   21600000,
+   21700000,
+   21900000
+  ],
+  "n": 14,
+  "requested_mean": 197607.14285714287,
+  "requested_median": 195750.0,
+  "heavy_days_mean": 4.928571428571429,
+  "load_day_counts": {
+   "3500": 114,
+   "5000": 131,
+   "7500": 106,
+   "12500": 47,
+   "15000": 22
+  },
+  "baseline_cost_28d_median_krw": 11526542695.197868,
+  "baseline_unfinished_vessel_median": 350.0
+ },
+ "requested_difference_pct": 7.241400084342419,
+ "requested_standardised_mean_difference": 0.8119867202160292,
+ "busiest_three_seeds": [
+  21500000,
+  20200000,
+  21600000
+ ],
+ "verdict": "필터가 더 바쁜 달을 걷어낸다 — 중립적 제외가 아니라 한계로 적어야 한다. / The filter removes the busier months; report it as a limitation, not a neutral exclusion."
+}

@@ -19,11 +19,13 @@ The protocol resamples 20 paired months 20,000 times. In the original three-poli
 
 We also disclose an environmental change: `PRESERVE` retains declared demand instead of excluding requests when immediate admission conditions fail, while `COUNT_BALANCED` adjusts selected vessel loading/discharging directions to address the identified quantity imbalance. Truck arrival curves, daily volumes, and initial inventory are retained, and the revised vessel plan is shared across policies. This is a fixed-model evaluation under the corrected admission/supply contract, not an exact repetition of the original environment or a retraining result. Unfinished work remains an outcome and is not a reason to remove a seed.
 
-**Evidence and location.** E1–E3; §4.1 (p. 7), §5.1 (p. 8), and §5.4 (p. 10).
+**Evidence and location.** E1–E3; §4.1 (p. 7), §5.1 (p. 8), and §5.4 (p. 9).
 
 **Result.** The 80 runs are complete (Table 3, §5.4). Time-only was cheaper than no reallocation in 16/20 months (median 12.7%); Full in 4/20 and Block-only in 3/20; every pre-registered mean-difference interval includes zero. Nine runs in seven seeds, including one baseline run, ended in a simulator crane deadlock (two idle cranes trapped within the safety gap at a block end with no move-aside action) that inflates monthly cost 5–10 fold. With pairs containing an unresolved deadlock of at least 24 h removed by a mechanical criterion, Time-only is cheaper in 15/15 months with a 97.5% interval of [+1.27, +2.03] billion KRW, while Full and Block-only are significantly more expensive. Per-seed costs: [32-독립시드별-결과표.md](32-독립시드별-결과표.md); deadlock diagnosis: [31-정지-결함-진단.md](31-정지-결함-진단.md).
 
-**Outstanding.** The deadlock is a simulator defect that must be repaired before the affected months can be re-run; the deadlock-free rows are a validity filter, not a registered analysis. Unfinished work remains higher under every learned policy.
+Two properties of that filter are disclosed rather than smoothed over. It is not covariate-neutral: the six removed seeds average 7.2% more requested trucks (211,917 against 197,607), so it discards the busiest months, which is the regime in which savings concentrate. And the comparison varies one axis only: a single set of trained weights, produced under the legacy admission contract, is applied to 20 environments, so training-seed stability is untested.
+
+**Outstanding.** The deadlock is a simulator defect that must be repaired before the affected months can be re-run; the deadlock-free rows are a validity filter, not a registered analysis. Unfinished work remains higher under every learned policy, and independent training replication has not been performed.
 
 ### Reviewer 1, comment 2 — appointment limits and rescheduling costs
 
@@ -31,9 +33,9 @@ We also disclose an environmental change: `PRESERVE` retains declared demand ins
 
 **Response.** We have clarified the distinction between modeled terminal costs and executable transport schedules. Block-capacity checks are applied, but appointment-slot quotas remain unbounded in the reported evaluations. The temporal candidate range does not establish carrier availability, an operational minimum notice period, or compatibility with subsequent trips. The present objective measures truck time from actual gate entry to exit or the evaluation cutoff; it does not add outside-gate waiting, rescheduling charges, or subsequent-trip disruption. The code audit confirms that recording a deferral does not mean its external cost is included in the objective.
 
-The revision cites truck appointment and collaborative scheduling literature and identifies booking quotas, carrier-approved change windows, notice requirements, and cargo/vessel deadlines as deployment conditions requiring terminal and carrier data. Their integration into an operational feasibility layer and the associated economic evaluation are described as future work. The reported terminal-cost reduction is therefore not presented as verified net savings for terminal operators and carriers together.
+We can now bound the omission quantitatively. On the deadlock-free seeds the time-only policy changes 1.60 million appointments by a mean of 49 minutes to save KRW 23.3 billion, so an external rescheduling charge above roughly KRW 14,600 per changed appointment, or KRW 17,700 per deferred hour, would erase the modelled benefit (§5.4, p. 9). This is an upper bound: it assumes no carrier declines and prices only the changes the policy actually made. The revision also cites truck appointment and collaborative scheduling literature and identifies booking quotas, carrier-approved change windows, notice requirements, and cargo/vessel deadlines as deployment conditions requiring terminal and carrier data. The reported terminal-cost reduction is therefore not presented as verified net savings for operators and carriers together.
 
-**Evidence and location.** E4; related work, §3.2 (p. 3), §4 (p. 6), and §6 (p. 11).
+**Evidence and location.** E4 and E11; related work, §3.2 (p. 3), §4 (p. 5), §5.4 (p. 9), and §6 (p. 11).
 
 **Outstanding.** This is a partial response: no experiment with realistic appointment quotas or added rescheduling charges is supplied. Benefit retention and a break-even change charge remain unestablished.
 
@@ -57,9 +59,9 @@ The KEEP target is [K − C(a)]/(2S) and therefore depends on the alternative us
 
 The independent protocol now includes Block-only alongside the other three policies. Full versus Time-only tests the incremental effect of permitting spatial actions in the fixed model; Block-only versus the baseline tests spatial changes in isolation. These restricted policies share the same learned weights and are not separately optimized policies. The later addition and its separate statistical comparison family are disclosed above.
 
-**Evidence and location.** E1, E2, and E6; §4.1 (p. 7), §5.2 (p. 9), and §5.4 (p. 10).
+**Evidence and location.** E1, E2, and E6; §4.1 (p. 7), §5.2 (p. 8), and §5.4 (p. 9).
 
-**Result.** Spatial adjustment does not replicate: Full was cheaper than the baseline in 4/20 months and Block-only in 3/20, and with deadlocked pairs removed both are significantly more expensive (Table 3). Block changes also left request targets unbound in most seeds under the corrected contract. The manuscript now reports this as a negative result and makes time-only adjustment the main claim.
+**Result.** Spatial adjustment does not replicate: Full was cheaper than the baseline in 4/20 months and Block-only in 3/20, and with deadlocked pairs removed both are significantly more expensive (Table 3). The mechanism is action substitution: enabling block changes makes the policy give up 305,093 temporal adjustments for 393,404 spatial ones, turning a KRW 23.3 billion saving into a KRW 37.8 billion loss on the same seeds, and block changes leave request targets unbound in most seeds. The manuscript reports this as a negative result and makes time-only adjustment the main claim.
 
 **Outstanding.** Whether the unbound targets stem from the block-change policy or from the request-preservation contract is not yet diagnosed; no claim that spatial adjustment improves total cost is made.
 
@@ -81,7 +83,7 @@ The independent protocol now includes Block-only alongside the other three polic
 
 We distinguish three different quantities that had to remain explicit: the 60-second policy review interval, the three-hour counterfactual observation horizon, and the continuous monthly evaluation period. The 28-day and 30-day totals are two windows from the same run, not a completed robustness test at different counterfactual horizons or longer operating horizons. Low recorded costs are interpreted together with work left unfinished at the cutoff.
 
-**Evidence and location.** E1, E3, E6, and E7; §4 (p. 6), §4.1 (p. 7), §5.2 (p. 9), §5.5 (p. 10), and §6 (p. 11).
+**Evidence and location.** E1, E3, E6, and E7; §4 (p. 5), §4.1 (p. 7), §5.2 (p. 8), §5.5 (p. 10), and §6 (p. 11).
 
 **Outstanding.** The independent evaluation is pending. New peak-width, cost-weight, counterfactual-horizon, and extended-operation performance comparisons are not reported as completed. A mathematical inspection of the arrival curve is not a simulation-cost sensitivity result.
 
@@ -105,7 +107,7 @@ The scope of the missing timing evidence is stated explicitly: candidate constru
 
 We also clarify what the policy consumes. The networks receive order records and yard-state summaries only (Sect. 3.3); no layout geometry enters them, so the method needs no layout-specific inputs. We therefore do not claim validation of parallel or perpendicular terminals. As a robustness check we trained and evaluated the same procedure in a second synthetic environment with different transfer and crane dynamics; there, the environment-specific time-only policy was cheaper than no reallocation on all five measurement days of one seed while unfinished work increased, and that environment is uncalibrated. We report this only as evidence that the learning procedure adapts to different dynamics, not as a layout comparison. Replication of a particular operating terminal is outside the present scope. The architecture is presented as a simulation-based decision-support concept with unresolved external-validity limitations.
 
-**Evidence and location.** E1–E3 and E9; §4 (p. 6), §4.1 (p. 7), §5.5 (p. 10), and §6 (p. 11).
+**Evidence and location.** E1–E3 and E9; §4 (p. 5), §4.1 (p. 7), §5.5 (p. 10), and §6 (p. 11).
 
 **Outstanding.** The complete independent results and calibration of the simulator against operating-terminal measurements (turn time, crane utilisation, throughput) are not supplied by this draft. Additional seeds alone would not resolve the absence of field evidence.
 
@@ -136,6 +138,7 @@ The section cites Busan New Port truck-waiting research, Korean TOS research, an
 | E7 | [피크 폭 검토](19-피크폭-비용민감도-검토.md) | 도착곡선의 수학적 성질과 비용 민감도 설계. 폭을 바꾼 비용 실험은 미실행 |
 | E8 | [온라인 시간·재현성 명세](../../../../.claude/docs/dashboard-task-specs/YR-317-e-v3-review-runtime-reproduction.md), [원자료 검사·통계 코드](../../../../scripts/v3/independent_eval_checks.py) | 실행 메타데이터·검산·집계 코드 존재. 전체 온라인 처리시간 분포는 미측정 |
 | E9 | [수평·수직 정의](04-수평-수직환경-정의.md), [수직형 전이 사례](27-수직형-단일시드-보완실험.md), [구조별 학습 사례](28-구조별-학습-평가-결과.md), [배치 무관 표현 수정안](29-배치무관-표현-수정안.md) | 정책은 배치 정보를 쓰지 않음을 명시. 두 번째 합성 환경 사례는 미보정 단일 시드이며 배치 비교로 쓰지 않음 |
+| E11 | [저장 기록 재분석](../../../../outputs/reports/yr317_v3_reanalysis/results.md), [공변량 균형](../../../../outputs/reports/yr317_v3_reanalysis/covariate-balance.json), [행동 대체](../../../../outputs/reports/yr317_v3_reanalysis/action-substitution.json), [완료 보정](../../../../outputs/reports/yr317_v3_reanalysis/completion-normalised.json), [손익분기](../../../../outputs/reports/yr317_v3_reanalysis/breakeven-rescheduling.json) | 저장된 80건만 재계산(시뮬레이션 0시간). 제외 필터 편향·행동 대체·완료 보정·창 비교·문턱 곡선·손익분기 외부비용. 사후 재분석이며 사전등록 표를 대체하지 않는다 |
 | E10 | [TOS·올컨e 사용 맥락](05-TOS-올컨e-사용맥락.md), [문헌 목록](06-문헌목록.md), [부분 원고 반영](10-문헌-사용맥락-원고반영.md) | 문헌 인용과 제안 사용자 흐름 반영. 실제 연동·사용자 효과 검증은 아님 |
 
 ## 최종 제출 전 대조할 항목

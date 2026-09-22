@@ -1,0 +1,68 @@
+{
+ "question": "When the spatial axis is enabled, how many temporal actions are given up and what does that cost?",
+ "results": {
+  "all_20": {
+   "n": 20,
+   "arms": {
+    "RL": {
+     "temporal": 1902258,
+     "spatial": 549536,
+     "total_actions": 2451794,
+     "saving_krw": 47885894088.021484,
+     "krw_per_1000_actions": 19530961.446198776
+    },
+    "RL_TIME": {
+     "temporal": 2329791,
+     "spatial": 0,
+     "total_actions": 2329791,
+     "saving_krw": -252515120633.7776,
+     "krw_per_1000_actions": -108385310.37066312
+    },
+    "RL_SPACE": {
+     "temporal": 0,
+     "spatial": 668001,
+     "total_actions": 668001,
+     "saving_krw": -241282614796.63196,
+     "krw_per_1000_actions": -361200978.43660706
+    },
+    "substitution_full_vs_time_only": {
+     "temporal_given_up": 427533,
+     "spatial_added": 549536,
+     "saving_lost_krw": -300401014721.7991
+    }
+   }
+  },
+  "deadlock_free": {
+   "n": 14,
+   "arms": {
+    "RL": {
+     "temporal": 1291682,
+     "spatial": 393404,
+     "total_actions": 1685086,
+     "saving_krw": -37770831047.2829,
+     "krw_per_1000_actions": -22414779.451780442
+    },
+    "RL_TIME": {
+     "temporal": 1596775,
+     "spatial": 0,
+     "total_actions": 1596775,
+     "saving_krw": 23294984116.586487,
+     "krw_per_1000_actions": 14588770.563533679
+    },
+    "RL_SPACE": {
+     "temporal": 0,
+     "spatial": 477269,
+     "total_actions": 477269,
+     "saving_krw": -238901488327.3423,
+     "krw_per_1000_actions": -500559408.4831453
+    },
+    "substitution_full_vs_time_only": {
+     "temporal_given_up": 305093,
+     "spatial_added": 393404,
+     "saving_lost_krw": 61065815163.869385
+    }
+   }
+  }
+ },
+ "verdict": "전체정책은 이득을 내던 시간 변경을 블록 변경으로 바꾸고 절감을 잃는다 — 공간 축 부정 결과의 기전이다. / Full trades paying temporal actions for spatial ones and loses the saving."
+}
