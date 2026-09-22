@@ -37,8 +37,8 @@ def prepare_spec(path, *, base=20_000_000, count=20, created_date='2026-09-16'):
     prior, inputs, skipped = set(), {}, []
     patterns = [ROOT / "outputs/v3", ROOT / "outputs/reports/yr317_v3_request_audit"]
     regex = re.compile(r'"(?:seed|seed_base|base_seed|environment_seed|init_seed)"\s*:\s*(\d+)')
-    for base in patterns:
-        for source in sorted(base.rglob("*")):
+    for folder in patterns:            # `base` 는 대역 시작값이므로 이름을 가리면 안 된다
+        for source in sorted(folder.rglob("*")):
             if not source.is_file() or source.suffix not in (".json", ".jsonl"):
                 continue
             if source.stat().st_size > 20_000_000:
@@ -110,8 +110,11 @@ def build_bank(args):
             raise ValueError(f"Source changed after input preregistration: {name}")
     if not 1 <= args.workers <= spec["max_workers"]:
         raise ValueError("Worker budget exceeded")
-    cpus = list(range(args.workers))
-    if not set(cpus) <= os.sched_getaffinity(0):
+    # 호출자가 taskset 으로 고른 코어를 존중한다. 예전에는 0..workers-1 을 고정으로
+    # 요구해 다른 작업이 그 코어를 쓰고 있으면 실행 자체가 불가능했다. 예산(workers)은
+    # 그대로 지킨다.
+    cpus = sorted(os.sched_getaffinity(0))[:args.workers]
+    if len(cpus) < args.workers:
         raise ValueError("Requested CPU IDs unavailable")
     os.sched_setaffinity(0, set(cpus))
     available_kib = int(re.search(r"MemAvailable:\s+(\d+)", Path("/proc/meminfo").read_text()).group(1))
