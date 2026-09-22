@@ -126,7 +126,7 @@ def deferral_ledger(mbt) -> list[dict]:
                      "n_deferrals": rec.entry_deferrals,
                      "deferred_total_s": rec.entry_deferred_s,
                      "original_appointment_s": appt,
-                     "actual_gate_in_s": rec.a_gate_in,
-                     "driver_outside_wait_s": (None if appt is None or rec.a_gate_in is None
-                                               else rec.a_gate_in - appt)})
+                     "actual_gate_in_s": rec.gate_in_s,
+                     "driver_outside_wait_s": (None if appt is None or rec.gate_in_s is None
+                                               else rec.gate_in_s - appt)})
     return rows

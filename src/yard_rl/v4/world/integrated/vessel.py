@@ -21,10 +21,20 @@ class VesselWorkType(str, Enum):
 class VesselPlan:
     """PLANNED — 정책 가시. completion 결측 가능(→SYMPTOM)."""
 
-    planned_start_s: float
-    planned_completion_s: float | None
+    #: ★본선 작업 스키마 — 공식 용어 대응 (사용자 지시 2026-09-22)
+    #:      ETA 입항 예정 · ETB 접안 예정   ← **이 무대에 없다** (아래 참조)
+    #:      ETW 본선 작업 시작 예정        = `planned_start_s`
+    #:      ETC 본선 작업 완료 예정        = `planned_completion_s`
+    #:      ETD 출항 예정                 = `etd_s`
+    #:
+    #: ⚠️ ETA·ETB 가 없는 것은 빠뜨린 게 아니라 **설계 결정**이다. 정박 대기·접이안은
+    #:    야드 정책이 어찌할 수 없는 구간이라 "구조적 유휴" 로 묶어 Φ 에서 뺀다
+    #:    (`vessels.py` · `c_vessel_structural`). 넣으려면 시뮬레이션 범위를 넓히는
+    #:    일이므로 별도로 등록해야 한다.
+    planned_start_s: float              # ETW
+    planned_completion_s: float | None  # ETC
     completion_basis: CompletionBasis | None
-    etd_s: float | None
+    etd_s: float | None                 # ETD
     total_moves: int
     sts_move_interval_s: float          # assumed cadence = 3600/목표생산성
     quay_buffer_cap: int = 3            # assumed STS 홀딩 버퍼

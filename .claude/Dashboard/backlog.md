@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-322 | Sim | **본선 ETA(입항 예정)·ETB(접안 예정)를 무대에 넣을까** | 🟡 | 공식 본선 스키마는 ETA → ETB → ETW → ETC → ETD 인데 v4 에는 **ETW·ETC·ETD 만** 있다(`planned_start_s`·`planned_completion_s`·`etd_s`). 빠뜨린 게 아니라 **설계 결정**이다 — 정박 대기·접이안은 야드 정책이 어찌할 수 없어 *구조적 유휴*(`c_vessel_structural`)로 묶어 Φ 에서 뺐다. **넣는다면 묻는 것**: ①대기 중인 배의 비용을 정책 탓으로 볼 근거가 있나(야드가 늦어 접안이 밀리는 경로가 실제로 있나) ②없다면 진단 열로만 남길 것인가. ⚠️ 넣으면 Φ 의 정의가 바뀌어 **기존 판정과 비교 불가**가 된다([[YR-307]] 본선 단가 인상과 같은 성격). 시뮬 범위 확장이라 단일축 실험으로 따로 등록 · [spec](../docs/dashboard-task-specs/YR-322-vessel-eta-etb.md) |
 | YR-317-c | Exp | **전체 후보 순위·KEEP·수락 점수 검사** | 🟠 | 공통 KEEP 조건·300상태 예산안 구체화. a·g 이후 정확한 후보 분기와 수락·정렬을 분리 검증. [spec](../docs/dashboard-task-specs/YR-317-c-v3-review-ranking-validation.md) |
 | YR-318 | Exp | **확증 캠페인 — 수정 엔진·새 대역 20시드 × 6팔 (규칙 SLOT_LL 포함)** | 🔴 | 동결 규약의 주판정 축은 규칙 대비인데 현재 80건에 규칙 팔이 0개다. NOVETO로 R1-4b도 닫는다. 120실행 약 3.5일. [spec](../docs/dashboard-task-specs/YR-318-v3-confirmatory-campaign.md) |
 | YR-317-n | RL | **독립 학습 반복 3판 (PRESERVE 계약)** | 🟠 | 80건이 학습 1회·체크포인트 1개에서 나왔고 학습은 LEGACY·평가는 PRESERVE였다. ckpt_init 보존으로 무학습 대조군도 확보. [spec](../docs/dashboard-task-specs/YR-317-n-v3-training-replication.md) |

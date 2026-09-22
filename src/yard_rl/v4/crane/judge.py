@@ -38,6 +38,11 @@ from ..stage.month import plan_month
 RULE_ARMS = ("SF_SPT", "FIFO", "LIFO", "SPT", "NEAREST", "LWKR", "RANDOM")
 N_JUDGE_DAYS = 28
 SPLIT_KEYS = ("c_wait", "c_vessel", "c_rehandle", "c_move")
+#: ★성과지표 — **턴타임 = 게이트 아웃 − 게이트 인** (사용자 지시 2026-09-22).
+#:  비용 총액이 아니라 이것을 앞에 놓는다: 비용은 단위가 크고 항목 구성에 따라
+#:  흔들리지만 턴타임은 **현장에서 쓰는 잣대**다. 정의는 `schema/lifecycle.py`.
+TURN_KEYS = ("mean_turn_time_s", "p50_turn_time_s", "p90_turn_time_s",
+             "n_trucks", "n_censored", "over_ratio")
 
 # ──────────────────────────────────────────────────────────── 작업자
 _NET = None
@@ -73,6 +78,7 @@ def run_cell(job: dict) -> dict:
     return {"day": job["day"], "load": job["load"], "label": job["label"],
             "seed": job["seed"], "arm": job["arm"], "phi": r.phi_krw,
             "split": {k: float(b.get(k, 0.0)) for k in SPLIT_KEYS},
+            "turn": {k: float(b.get(k, 0.0)) for k in TURN_KEYS},
             "admitted": r.admitted, "policy_exceptions": r.policy_exceptions,
             "rollout_calls": rollout_calls()}
 
@@ -168,13 +174,22 @@ def judge(*, ckpt: str, seed: int, out_dir: str | Path, workers: int = 10,
     # ── 통계
     phi = {arm: {} for arm in meta["arms"]}
     split = {arm: {} for arm in meta["arms"]}
+    turn = {arm: {} for arm in meta["arms"]}
     for c in cells:
         phi[c["arm"]][c["day"]] = c["phi"]
         split[c["arm"]][c["day"]] = c["split"]
+        turn[c["arm"]][c["day"]] = c.get("turn", {})
     strata = {d.index: d.label for d in days}
     stats = {}
+    #: ★턴타임 짝비교 — 비용과 **같은 방식**으로(날마다 짝지어 부호검정·윌콕슨).
+    tt = {arm: {d: v.get("mean_turn_time_s", 0.0) for d, v in turn[arm].items()}
+          for arm in meta["arms"]}
+    p90 = {arm: {d: v.get("p90_turn_time_s", 0.0) for d, v in turn[arm].items()}
+           for arm in meta["arms"]}
     for arm in arms:
         s = paired_summary(phi[RL_CRANE], phi[arm], strata)
+        s["turn_mean"] = paired_summary(tt[RL_CRANE], tt[arm], strata)
+        s["turn_p90"] = paired_summary(p90[RL_CRANE], p90[arm], strata)
         # 부하 구간별 · 항목별 평균 차이
         by_label: dict = {}
         for k in s["days"]:
@@ -204,7 +219,19 @@ def render_report(res: dict) -> str:
         for k, v in res["guard_failures"].items():
             L.append(f"- {k}: {'; '.join(v)}")
         L.append("")
-    L += ["## 학습 − 규칙 (음수 = 학습이 쌌다)", "",
+    #: ★턴타임을 **앞에** 둔다 — 성과지표가 이것이다 (사용자 지시 2026-09-22)
+    L += ["## ① 턴타임 — 게이트 아웃 − 게이트 인 (음수 = 학습이 짧다)", "",
+          "| 규칙 | 짧은 날 | 부호검정 p | 평균 턴타임 감소 | 90분위 감소 |",
+          "|---|---|---|---|---|"]
+    for arm, s in st.items():
+        a, b = s.get("turn_mean"), s.get("turn_p90")
+        if a is None:
+            L.append(f"| {arm} | (이 실행에는 턴타임 기록 없음) | | | |")
+            continue
+        L.append(f"| {arm} | {a['sign']['win']}/{a['sign']['n']} | {a['sign']['p']:.4f} | "
+                 f"{a['mean_diff_krw']/60:+.1f}분 ({a['median_ratio']:+.2%}) | "
+                 f"{b['mean_diff_krw']/60:+.1f}분 ({b['median_ratio']:+.2%}) |")
+    L += ["", "## ② 비용 — 학습 − 규칙 (음수 = 학습이 쌌다)", "",
           "| 규칙 | 이긴 날 | 부호검정 p | 윌콕슨 p | 감소율 중앙 | 평균 | 95% 구간(하루 평균 차이·백만원) |",
           "|---|---|---|---|---|---|---|"]
     for arm, s in st.items():
@@ -212,12 +239,12 @@ def render_report(res: dict) -> str:
         L.append(f"| {arm} | {s['sign']['win']}/{s['sign']['n']} | {s['sign']['p']:.4f} | "
                  f"{s['wilcoxon']['p']:.4f} | {s['median_ratio']:+.2%} | {s['mean_ratio']:+.2%} | "
                  f"[{b['lo']/1e6:+.1f}, {b['hi']/1e6:+.1f}] |")
-    L += ["", "## 부하 구간별 평균 격차 (학습 − 규칙)", "",
+    L += ["", "## ③ 부하 구간별 평균 비용 격차 (학습 − 규칙)", "",
           "| 규칙 | " + " | ".join(next(iter(st.values()))["by_label_mean_ratio"]) + " |",
           "|---|" + "---|" * len(next(iter(st.values()))["by_label_mean_ratio"])]
     for arm, s in st.items():
         L.append(f"| {arm} | " + " | ".join(f"{v:+.2%}" for v in s["by_label_mean_ratio"].values()) + " |")
-    L += ["", "## 항목별 하루 평균 차이 (학습 − 규칙 · 백만원)", "",
+    L += ["", "## ④ 비용 항목별 하루 평균 차이 (학습 − 규칙 · 백만원)", "",
           "| 규칙 | 트럭 대기 | 본선 유휴 | 파내기 | 이동 |", "|---|---|---|---|---|"]
     for arm, s in st.items():
         d = s["split_mean_diff_krw"]

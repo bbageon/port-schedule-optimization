@@ -229,7 +229,7 @@ def inject_vessel(mbt: MultiBlockTerminal, bid: str, row: dict, *,
         if not (j.is_vessel_linked and j.service_mode == ServiceMode.STORE):
             sim.queue.push(j.release_time, EventKind.JOB_RELEASED, jid)
         mbt.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
-                                      flow=j.flow.value, a_gate_in=None))
+                                      flow=j.flow.value, gate_in_s=None))
     sim._refresh_rates()                     # STS 대기 요율에 새 배가 잡히게
     return VesselAdmission(vessel_key=key, block=bid, work=work.value,
                            asked_moves=asked, moves=moves, start_s=start,

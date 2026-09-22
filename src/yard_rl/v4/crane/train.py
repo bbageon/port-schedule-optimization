@@ -159,7 +159,10 @@ def evaluate(net, *, loads=EVAL_LOADS, seed_base: int = EVAL_SEED_BASE,
         #:  합계만 보면 "붐비는 날에 진다" 가 배 때문인지 트럭 때문인지 모른다.
         def _split(b):
             return {"truck": b.get("c_wait", 0.0), "vessel": b.get("c_vessel", 0.0),
-                    "rehandle": b.get("c_rehandle", 0.0), "move": b.get("c_move", 0.0)}
+                    "rehandle": b.get("c_rehandle", 0.0), "move": b.get("c_move", 0.0),
+                    #: ★턴타임 = 게이트 아웃 − 게이트 인 — 성과지표 (2026-09-22)
+                    "turn_mean_s": b.get("mean_turn_time_s", 0.0),
+                    "turn_p90_s": b.get("p90_turn_time_s", 0.0)}
         rows.append({"load": load, "seed": seed,
                      "phi_rl": rl.phi_krw, "phi_rule": rule.phi_krw,
                      "gap": rl.phi_krw - rule.phi_krw,
@@ -179,13 +182,26 @@ def _eval_line(it: int, ev: dict) -> str:
 
 
 def split_table(ev: dict) -> str:
-    """부하별 **본선 / 트럭** 격차 — 어느 쪽에서 지고 이기는지."""
-    out = ["    부하    트럭대기(학습−규칙)   본선유휴(학습−규칙)   파내기      합계"]
+    """★턴타임을 앞에, 비용 항목을 뒤에 — 성과지표가 턴타임이다 (사용자 지시 2026-09-22).
+
+    비용 총액은 단위가 크고 항목 구성에 따라 흔들리지만, 턴타임은 현장에서 쓰는 잣대다.
+    """
+    out = ["  ■ 턴타임 (게이트 아웃 − 게이트 인 · 음수 = 학습이 짧다)",
+           "    부하      학습 평균    규칙 평균        차이      90분위 차이"]
     for r in ev["rows"]:
         a, b = r["split_rl"], r["split_rule"]
-        d = {k: a[k] - b[k] for k in a}
+        out.append(f"  {r['load']:>7,}  {a['turn_mean_s'] / 60:>8.1f}분  "
+                   f"{b['turn_mean_s'] / 60:>8.1f}분  "
+                   f"{(a['turn_mean_s'] - b['turn_mean_s']) / 60:>+8.1f}분  "
+                   f"{(a['turn_p90_s'] - b['turn_p90_s']) / 60:>+9.1f}분")
+    out += ["", "  ■ 비용 항목 (학습 − 규칙)",
+            "    부하    트럭대기          본선유휴        파내기          합계"]
+    for r in ev["rows"]:
+        a, b = r["split_rl"], r["split_rule"]
+        d = {k: a[k] - b[k] for k in ("truck", "vessel", "rehandle")}
         out.append(f"  {r['load']:>7,}  {d['truck']:>+14,.0f}원  {d['vessel']:>+14,.0f}원  "
-                   f"{d['rehandle']:>+10,.0f}원  {r['gap']:>+14,.0f}원 ({r['gap_ratio']:+.2%})")
+                   f"{d['rehandle']:>+10,.0f}원  {r['gap']:>+14,.0f}원 "
+                   f"({r['gap_ratio']:+.2%})")
     return "\n".join(out)
 
 

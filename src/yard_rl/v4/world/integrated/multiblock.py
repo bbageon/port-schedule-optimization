@@ -38,10 +38,22 @@ class JobRecord:
     version: int = 0                  # 낙관적 동시성 (prepare 시점 대비 변경 감지)
     transfer_count: int = 0
     transfer_history: tuple[tuple[str, str, float], ...] = ()   # (src, dst, t)
-    a_gate_in: float | None = None    # A — 터미널 보유 (이송 무관)
-    b_block_arrival: float | None = None
-    c_job_done: float | None = None
-    o_gate_out: float | None = None
+    #: ★트럭 작업 스키마 — `schema/lifecycle.py` 와 **같은 이름·같은 뜻**이다
+    #:  (사용자 지시 2026-09-22 · 전에는 A/B/C/O 문자 코드였다).
+    #:      게이트 진입 → 블록 도착 → 작업 완료 → 게이트 아웃
+    #:  이 원장은 **블록을 옮겨도** 한 레코드로 잇는다(재배정층이 쓴다) — 블록별
+    #:  `TimeLedger` 와 달리 터미널 전역이다.
+    #:  ⚠️ "작업 시작" 은 여기 없다. 터미널이 그 이벤트를 전송하지 않기 때문이다
+    #:  (실데이터에도 없다 · `schema/lifecycle.py` 머리말) — 시뮬레이터 내부 관측으로만
+    #:  쓰고 크레인 점유 계산에 들어간다.
+    gate_in_s: float | None = None
+    block_in_s: float | None = None
+    #: ★작업 시작 — 사용자 스키마의 여섯 번째 칸 (2026-09-22).
+    #:  ⚠️ **터미널이 전송하지 않는 값**이다(실데이터에도 없다). 시뮬레이터 내부
+    #:  관측이라 정책 입력으로 쓰면 정보 경계를 넘는다 — **보고·분해 전용**이다.
+    service_start_s: float | None = None
+    job_done_s: float | None = None
+    gate_out_s: float | None = None
     locked: bool = False              # block-in/배정 이후 = 재배정 금지
     # YR-161 시간 판매(재예약) — 진입 전 이연 이력. 비용 원점은 job.appointment_gate_time
     # (최초 통지 시각)이 보존하므로 이연이 장부에서 시간을 지우지 못한다.
@@ -51,7 +63,7 @@ class JobRecord:
     @property
     def reassignable(self) -> bool:
         return (not self.locked and self.flow == JobFlow.GATE_IN.value
-                and self.b_block_arrival is None)
+                and self.block_in_s is None)
 
 
 class TerminalLedger:
@@ -73,25 +85,55 @@ class TerminalLedger:
                 tl = getattr(sim, "time_ledger", None)
                 r = tl.records.get(jid) if tl is not None else None
                 if r is not None:
-                    rec.b_block_arrival = r.block_arrival if r.block_arrival is not None \
-                        else rec.b_block_arrival
-                    rec.c_job_done = r.job_done if r.job_done is not None else rec.c_job_done
-                    rec.o_gate_out = r.gate_out if r.gate_out is not None else rec.o_gate_out
+                    rec.block_in_s = r.block_arrival if r.block_arrival is not None \
+                        else rec.block_in_s
+                    rec.service_start_s = (r.service_start if r.service_start is not None
+                                           else rec.service_start_s)
+                    rec.job_done_s = r.job_done if r.job_done is not None else rec.job_done_s
+                    rec.gate_out_s = r.gate_out if r.gate_out is not None else rec.gate_out_s
                 if j.status in (JobStatus.WAITING, JobStatus.ASSIGNED, JobStatus.RUNNING,
                                 JobStatus.DONE):
                     rec.locked = True
 
-    def a_to_o_samples_s(self, end: float) -> list[float]:
-        """터미널 턴타임 A→O (미완료는 end−A 검열 — 미완료가 이득 보지 않게)."""
+    def turn_time_samples_s(self, end: float) -> list[float]:
+        """★**턴타임 = 게이트 아웃 − 게이트 인** — 정책의 성과지표 (사용자 지시 2026-09-22).
+
+        미완료 트럭은 `end − 게이트인` 으로 검열한다 — 안 그러면 **못 나간 트럭이
+        표본에서 빠져** 정책이 이득을 본다.
+        """
         out = []
         for r in self.records.values():
-            if r.a_gate_in is None:
+            if r.gate_in_s is None:
                 continue
-            if r.o_gate_out is not None:
-                out.append(r.o_gate_out - r.a_gate_in)
+            if r.gate_out_s is not None:
+                out.append(r.gate_out_s - r.gate_in_s)
             else:
-                out.append(max(0.0, end - r.a_gate_in))
+                out.append(max(0.0, end - r.gate_in_s))
         return out
+
+    def turn_time_parts_s(self) -> dict:
+        """★턴타임을 네 토막으로 가른다 — **어디서 길어졌나**를 보려고.
+
+            게이트인 ─진입─► 블록도착 ─대기─► 작업시작 ─작업─► 작업완료 ─반출─► 게이트아웃
+
+        완주한 트럭(다섯 시각이 다 찍힌 것)만 센다 — 중간에 끊긴 트럭을 섞으면
+        토막의 합이 턴타임과 안 맞는다. `n` 이 전체보다 작으면 그만큼 검열된 것이다.
+        """
+        keys = ("gate_in_s", "block_in_s", "service_start_s", "job_done_s", "gate_out_s")
+        names = ("진입", "대기", "작업", "반출")
+        acc = {k: 0.0 for k in names}
+        n = 0
+        for r in self.records.values():
+            t = [getattr(r, k) for k in keys]
+            if any(x is None for x in t):
+                continue
+            n += 1
+            for i, nm in enumerate(names):
+                acc[nm] += t[i + 1] - t[i]
+        if n == 0:
+            return {"n": 0, **{k: 0.0 for k in names}, "턴타임": 0.0}
+        out = {k: v / n for k, v in acc.items()}
+        return {"n": n, **out, "턴타임": sum(out.values())}
 
 
 # ---------------------------------------------------------------- 2단계 transaction (계약 ⑤)
@@ -137,7 +179,7 @@ class MultiBlockTerminal:
             for jid, j in sim.jobs.items():
                 self.ledger.register(JobRecord(
                     job_id=jid, origin_block=bid, owner=bid, flow=j.flow.value,
-                    a_gate_in=getattr(j, "actual_gate_in", None)))
+                    gate_in_s=getattr(j, "actual_gate_in", None)))
         self._schedule_review_epochs()
 
     # -------------------------------------------------- 공용 시계 (계약 ①②)
@@ -210,7 +252,7 @@ class MultiBlockTerminal:
                 "end": max(s.end for s in self.blocks.values())}
 
     def _sync_locks(self, sim) -> None:
-        """검증 major-6: 원장 `locked`/`b_block_arrival` 을 **런 중에** 갱신.
+        """검증 major-6: 원장 `locked`/`block_in_s` 을 **런 중에** 갱신.
 
         (기존엔 harvest 가 종료 시 1회라 `reassignable` 이 항상 True — 실제 창 방어는
         `status != PLANNED` 검사가 하고 있었다. 원장 수준 lock 계약을 실제로 살린다.)
@@ -224,7 +266,7 @@ class MultiBlockTerminal:
                 rec.locked = True
                 r = tl.records.get(jid) if tl is not None else None
                 if r is not None and r.block_arrival is not None:
-                    rec.b_block_arrival = r.block_arrival
+                    rec.block_in_s = r.block_arrival
 
     # -------------------------------------------------- 용량 (계약 ⑥)
     def free_slots(self, bid: str) -> int:
@@ -288,7 +330,7 @@ class MultiBlockTerminal:
             tl._a_idx += 1
             tl._n_inside += 1
         self.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
-                                       flow=job.flow.value, a_gate_in=gate_in_s))
+                                       flow=job.flow.value, gate_in_s=gate_in_s))
 
     # -------------------------------------------------- 시간 판매 (YR-161 — 진입 전 재예약)
     def defer_admitted_entry(self, job_id: str, delta_s: float, *,
@@ -313,13 +355,13 @@ class MultiBlockTerminal:
             raise TransferError(f"{job_id}: 이연량은 양수여야 함 ({delta_s})")
         if rec.entry_deferrals >= max_deferrals:
             raise TransferError(f"{job_id}: 이연 상한 초과 ({rec.entry_deferrals})")
-        if rec.a_gate_in is None or rec.a_gate_in <= self.now + 1e-6:
+        if rec.gate_in_s is None or rec.gate_in_s <= self.now + 1e-6:
             raise TransferError(f"{job_id}: 이미 gate-in — 진입 전에만 재예약 가능")
         sim = self.blocks[rec.owner]
         j = sim.jobs.get(job_id)
         if j is None or j.status != JobStatus.PLANNED:
             raise TransferError(f"{job_id}: 상태 위반 (PLANNED 아님)")
-        old_a = rec.a_gate_in
+        old_a = rec.gate_in_s
         new_a = old_a + delta_s
         new_arr = j.actual_block_arrival + delta_s
         if new_arr > sim.end:
@@ -360,7 +402,7 @@ class MultiBlockTerminal:
             if k < tl._a_idx:
                 tl._a_idx += 1
                 tl._n_inside += 1
-        rec.a_gate_in = new_a
+        rec.gate_in_s = new_a
         rec.version += 1
         rec.entry_deferrals += 1
         rec.entry_deferred_s += delta_s
@@ -387,14 +429,14 @@ class MultiBlockTerminal:
         j = src_sim.jobs.get(job_id)
         if j is None or j.status != JobStatus.PLANNED:
             raise TransferError(f"{job_id}: 소스 상태 위반")
-        if rec.a_gate_in is None or rec.a_gate_in > self.now + 1e-6:
+        if rec.gate_in_s is None or rec.gate_in_s > self.now + 1e-6:
             raise TransferError(f"{job_id}: gate-in 전 (창 밖)")
         # 검증 major-4: 장부 유무 비대칭이면 이송 시 트럭 시간이 통째로 증발 — fail-closed
         if (src_sim.time_ledger is None) != (self.blocks[dst].time_ledger is None):
             raise TransferError(f"{job_id}: 블록 간 time_ledger 비대칭 (장부 유실 위험)")
         if self.free_slots(dst) <= self.capacity_margin:
             raise TransferError(f"{dst}: 용량 부족 (free={self.free_slots(dst)})")
-        arr = rec.a_gate_in + travel_s + route_s
+        arr = rec.gate_in_s + travel_s + route_s
         if arr <= self.blocks[dst].clock + 1e-9 or arr > self.blocks[dst].end:
             raise TransferError(f"{job_id}: 도착시각 무효 {arr:.1f}")
         self._reserved_inbound[dst] += 1                     # 예약 (rollback 대상)
@@ -410,7 +452,7 @@ class MultiBlockTerminal:
                                   max_transfers: int = 1) -> TransferTxn:
         """YR-151 0A — **게이트 진입 전** 원자 재배정 준비 (기존 prepare_transfer 의 대칭).
 
-        기존 경로는 `a_gate_in <= now` (이미 게이트를 통과)만 허용한다. 여기서는 반대로
+        기존 경로는 `gate_in_s <= now` (이미 게이트를 통과)만 허용한다. 여기서는 반대로
         **아직 게이트에 들어오지 않은** 작업만 허용한다. 트럭은 여전히 같은 시각에 게이트로
         들어오므로 **A(actual_gate_in)는 바뀌지 않고** 목적지만 바뀐다 — 따라서 블록 도착은
         `A + (게이트→새 블록 주행)` 이고, A→O 장부의 A 는 값 그대로 블록 장부만 옮겨간다.
@@ -435,15 +477,15 @@ class MultiBlockTerminal:
         if j is None or j.status != JobStatus.PLANNED:
             raise TransferError(f"{job_id}: 소스 상태 위반")
         # ★기존 경로와 정반대 창: 아직 게이트 진입 전이어야 한다.
-        if rec.a_gate_in is not None and rec.a_gate_in <= self.now + 1e-6:
+        if rec.gate_in_s is not None and rec.gate_in_s <= self.now + 1e-6:
             raise TransferError(f"{job_id}: 이미 gate-in (PRE_GATE 창 밖)")
-        if rec.a_gate_in is None:
+        if rec.gate_in_s is None:
             raise TransferError(f"{job_id}: gate-in 결측 — 장부 이관 불가")
         if (src_sim.time_ledger is None) != (self.blocks[dst].time_ledger is None):
             raise TransferError(f"{job_id}: 블록 간 time_ledger 비대칭 (장부 유실 위험)")
         if self.free_slots(dst) <= self.capacity_margin:
             raise TransferError(f"{dst}: 용량 부족 (free={self.free_slots(dst)})")
-        arr = rec.a_gate_in + travel_s          # 게이트에서 새 블록으로 직행 (재라우팅 아님)
+        arr = rec.gate_in_s + travel_s          # 게이트에서 새 블록으로 직행 (재라우팅 아님)
         if arr <= self.blocks[dst].clock + 1e-9 or arr > self.blocks[dst].end:
             raise TransferError(f"{job_id}: 도착시각 무효 {arr:.1f}")
         self._reserved_inbound[dst] += 1

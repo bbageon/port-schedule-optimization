@@ -54,7 +54,7 @@ def _run(pkg):
         bl._apply(sim, pol.decide(sim, dp, gb))
 
     out = mbt.run(exec_policy, review_fn=ann.review)
-    turns = sorted(mbt.ledger.a_to_o_samples_s(ts.OBS_24H.observe_s))
+    turns = sorted(mbt.ledger.turn_time_samples_s(ts.OBS_24H.observe_s))
     return {"terminal_total": out["terminal_total"],
             "route_cost_s": out["route_cost_s"],
             "end": out["end"], "admitted": ann.n_admitted,
