@@ -58,11 +58,19 @@ class PPOConfig:
 class PPORuntime:
     def __init__(self, policy: BlockPolicy, *, config=None, seed=302,
                  training=True, stop_s=None, on_update=None, learning_window_s=None,
-                 on_boundary=None):
+                 on_boundary=None, sample_actions=None):
         if stop_s is not None and (not math.isfinite(stop_s) or stop_s <= 0):
             raise ValueError("stop_s must be finite and positive")
         self.policy, self.config = policy, config or PPOConfig()
         self.training, self.stop_s, self.on_update = bool(training), stop_s, on_update
+        #: ★행동을 **추첨으로 뽑을지**(True) **최고점만 고를지**(False) — [[YR-319]].
+        #:
+        #: 예전에는 `training` 하나가 둘을 겸했다: 학습 중이면 추첨, 고정 운영이면 최고점.
+        #: 그래서 [[YR-306]] 비교가 **가중치 고정**과 **최고점 선택**을 **한꺼번에** 바꿨고,
+        #: 172배 격차가 어느 쪽 탓인지 귀속이 안 됐다. 이 칸이 둘을 가른다.
+        #: 기본값은 `training` 을 그대로 따라가므로 **기존 실행의 동작은 바뀌지 않는다.**
+        self.sample_actions = (bool(training) if sample_actions is None
+                               else bool(sample_actions))
         if learning_window_s is not None:
             start, end = learning_window_s
             if not (math.isfinite(start) and math.isfinite(end) and 0 <= start < end):
@@ -124,7 +132,7 @@ class PPORuntime:
         with torch.no_grad():
             dist = self.policy.distribution(x, mask)
             action = (int(torch.multinomial(dist.probs, 1, generator=self.action_rng))
-                      if self.training else int(dist.probs.argmax()))
+                      if self.sample_actions else int(dist.probs.argmax()))
             logp = float(dist.log_prob(torch.tensor(action)))
         if self.collecting_at(self.time_s):
             self.pending[self.index[bid]].append(Choice(role, t, x, mask, action, logp))

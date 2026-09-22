@@ -89,6 +89,35 @@ def test_checkpoint_roundtrip_and_v4_rejected(tmp_path):
         load_policy(tmp_path / "legacy.pt")
 
 
+def test_sample_actions_defaults_to_training_and_can_be_split():
+    """★YR-319 — 고르는 방식이 학습 여부와 **따로** 켜져야 한다.
+
+    YR-306 비교는 `training=False` 하나로 **가중치 고정**과 **최고점 선택**을
+    한꺼번에 바꿔 172배 격차의 귀속을 막았다. 기본값은 예전 그대로여야 하고
+    (기존 실행 재현), 명시하면 갈려야 한다.
+    """
+    assert PPORuntime(BlockPolicy()).sample_actions is True
+    assert PPORuntime(BlockPolicy(), training=False).sample_actions is False
+    frozen_sampling = PPORuntime(BlockPolicy(), training=False, sample_actions=True)
+    assert frozen_sampling.training is False and frozen_sampling.sample_actions is True
+
+
+def test_frozen_sampling_explores_while_argmax_repeats_one_action():
+    """같은 가중치라도 추첨은 여러 행동을 내고 최고점 선택은 늘 한 가지만 낸다."""
+    def picks(**kwargs):
+        torch.manual_seed(5)
+        rt = PPORuntime(BlockPolicy(), training=False, **kwargs)
+        rt.time_s, rt.index, rt.pending = 0.0, {"b": 0}, [[]]
+        rows = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5]]
+        return {rt.select("crane", "b", 0.0, rows) for _ in range(60)}
+
+    assert len(picks(sample_actions=True)) > 1
+    assert len(picks(sample_actions=False)) == 1
+    # 갱신도 수집도 없다 — 가중치는 여전히 얼어 있다.
+    assert not PPORuntime(BlockPolicy(), training=False,
+                          sample_actions=True).collecting_at(0.0)
+
+
 def test_boundary_telescopes_cost_and_preserves_zero_time_choices():
     rt = PPORuntime(BlockPolicy(), config=PPOConfig(rollout_intervals=99), training=False)
     rt.bids = ["b"]
