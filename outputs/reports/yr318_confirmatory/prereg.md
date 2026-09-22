@@ -102,13 +102,27 @@
 - 실패·부분 자료도 남긴다. "실행기 준비 / 대기열 등록 / 160건 종료 / 논문 주장 확정"을
   서로 다른 사건으로 기록한다.
 
-## 고정 지문 (실행 직전 채운다)
+## 고정 지문
+
+시드 은행과 공급 보정은 `d83c082` 고정 체크아웃에서 만들고 지문을 대조한 뒤 옮겼다
+(커밋 `752f52f`). 학습 3판은 끝난 뒤 설정 생성기가 지문을 읽어 설정에 박는다.
 
 | 항목 | 경로 | SHA-256 |
 |---|---|---|
-| 시드 은행 요약 | `outputs/reports/yr318_seed_bank/run-*/summary.json` | *(실행 직전)* |
-| 공급 보정 입력 | `outputs/reports/yr318_supply_balance/input-*/` | *(실행 직전)* |
-| 학습 1판 | `outputs/v3/month-n1/ckpt_029.pt` | *(실행 직전)* |
-| 학습 2판 | `outputs/v3/month-n2/ckpt_029.pt` | *(실행 직전)* |
-| 학습 3판 | `outputs/v3/month-n3/ckpt_029.pt` | *(실행 직전)* |
-| 이 문서 | `outputs/reports/yr318_confirmatory/prereg.md` | *(실행 직전)* |
+| 시드 은행 요약 | `outputs/reports/yr318_seed_bank/run-d83c082/summary.json` | `2798ea10…fe8bd` |
+| 공급 보정 요약 | `outputs/reports/yr318_supply_balance/input-d83c082/summary.json` | `8b7f0b11…0acb5` |
+| 학습 1·2·3판 | `outputs/v3/month-n1|n2|n3/ckpt_029.pt` | *(학습 종료 후 설정에 기록)* |
+| 이 문서(채우기 전) | `outputs/reports/yr318_confirmatory/prereg.md` | `e02f033d…96848` |
+
+⚠️ **재현 시 줄바꿈 주의.** 위 지문은 모두 **LF** 바이트 기준이다. 이 저장소는
+`core.autocrlf=true` 로 쓰이고 있어 Windows 로 다시 체크아웃하면 텍스트 증거 파일이
+CRLF 로 바뀌어 지문이 **달라진다**(`.json.gz` 같은 이진 파일은 무관). 재현하려면
+`git -c core.autocrlf=input checkout` 로 받는다. 이 성질은 기존 80건 캠페인의 증거에도
+똑같이 적용된다 — 이번에 새로 생긴 문제가 아니라 이번에 **발견**한 것이다.
+
+## 어디서 돌리는가
+
+- 코드: `d83c082` 이후의 커밋에서 만든 **깨끗한 고정 체크아웃**(`/home/geonu/yr318-v3-*`).
+  실행기가 시작 시 `git status --porcelain` 이 비어 있기를 요구한다.
+- 입력과 결과: `--workspace` 와 `--out` 을 **원래 작업 폴더**로 준다. 그래야 결과 파일이
+  쌓여도 고정 체크아웃이 계속 깨끗하고, 실행 도중에 멈추지 않는다.
