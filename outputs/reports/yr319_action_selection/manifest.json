@@ -1,0 +1,386 @@
+{
+  "task": "YR-319",
+  "purpose": "DIAGNOSTIC_ONLY; isolate action selection from weight freezing",
+  "checkpoint_arm": "final",
+  "code": {
+    "git_head": "adaa5f25fbb3149c184007356010be2e54a51e5a",
+    "git_dirty": false,
+    "source_sha256": "5ba775e04e371ffa7d1d56e46a2473b4ed2eee63fe475b77d9213fafbb98c8b7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr319-source-adaa5f2",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 4683,
+    "torch_threads": 1
+  },
+  "source_original": {
+    "git_head": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+    "git_dirty": false,
+    "source_sha256": "02c5c0dd043a89eb01f50d3354711cc71cb8e83df0f1b0c857607c62d15c8fc7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-source-4549ae9",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 2228,
+    "torch_threads": 1
+  },
+  "seed": 9900306,
+  "days": [
+    {
+      "index": 0,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9901306,
+      "t0": 0.0,
+      "train": false,
+      "n_days": 30
+    },
+    {
+      "index": 1,
+      "load": 12500,
+      "label": "혼잡",
+      "seed": 9902306,
+      "t0": 86400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 2,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9903306,
+      "t0": 172800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 3,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9904306,
+      "t0": 259200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 4,
+      "load": 12500,
+      "label": "혼잡",
+      "seed": 9905306,
+      "t0": 345600.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 5,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9906306,
+      "t0": 432000.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 6,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9907306,
+      "t0": 518400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 7,
+      "load": 12500,
+      "label": "혼잡",
+      "seed": 9908306,
+      "t0": 604800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 8,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9909306,
+      "t0": 691200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 9,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9910306,
+      "t0": 777600.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 10,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9911306,
+      "t0": 864000.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 11,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9912306,
+      "t0": 950400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 12,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9913306,
+      "t0": 1036800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 13,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9914306,
+      "t0": 1123200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 14,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9915306,
+      "t0": 1209600.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 15,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9916306,
+      "t0": 1296000.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 16,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9917306,
+      "t0": 1382400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 17,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9918306,
+      "t0": 1468800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 18,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9919306,
+      "t0": 1555200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 19,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9920306,
+      "t0": 1641600.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 20,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9921306,
+      "t0": 1728000.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 21,
+      "load": 12500,
+      "label": "혼잡",
+      "seed": 9922306,
+      "t0": 1814400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 22,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9923306,
+      "t0": 1900800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 23,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9924306,
+      "t0": 1987200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 24,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9925306,
+      "t0": 2073600.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 25,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9926306,
+      "t0": 2160000.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 26,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9927306,
+      "t0": 2246400.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 27,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9928306,
+      "t0": 2332800.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 28,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9929306,
+      "t0": 2419200.0,
+      "train": true,
+      "n_days": 30
+    },
+    {
+      "index": 29,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9930306,
+      "t0": 2505600.0,
+      "train": false,
+      "n_days": 30
+    }
+  ],
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "training": false,
+  "action_mode": "sample",
+  "compared_against": "YR-306 argmax run with the same checkpoint",
+  "checkpoint": {
+    "path": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-30d-4549ae9/final.pt",
+    "sha256": "4e65b0ea9cd709da6e5f6d5ee2c8c4f1e3e1b432caec96f95a4062c571273f5c",
+    "observer_only": false
+  },
+  "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+  "fixed_seed": {
+    "path": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr306_seed_regeneration/seed-9900306/seed-data.json.gz",
+    "sha256": "efdb45e2ec8feafed6987cf48dfe022ca2959dad8c4f1d56bee680456081af7a"
+  },
+  "measurement_window_s": [
+    86400.0,
+    2505600.0
+  ],
+  "input_scope": "training-input reuse, not held-out generalization",
+  "abort_rule": {
+    "metric": "daily cohort mean turn time (gate-out minus gate-in)",
+    "ratio": 3.0,
+    "baseline": "YR-306 rule arm, same day",
+    "baseline_sha256": "036365aa1a8b84659b80f98c3c006926bd73531a21fc7ca6440a9d18ef85db07",
+    "evidence": "healthy sampling run peaked at 1.95x; broken argmax runs crossed 3x on day 1 and day 3"
+  },
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "original_files_sha256": {
+    "admissions.json": "1f39a7508d8576028cf809e39d7c12469ca1c28cf942211b73b558df0eac3581",
+    "cargo-status.json": "8a2b3982c212b8ad2cb6e5df7f9d0e052901935ced2dc0428f32c83c023bacf5",
+    "cohort_live.json": "ef260b7b6f5c86fda1c7cdb256a030fb93c44f102c3d42109ce65fe45f59be9a",
+    "cohort_reports.json": "8606d93bd9b62d292282124672e61bfb858b9e0f8496ade123db5ab2d8996c20",
+    "container_contract.json": "afa2681a12b087dd5c960a369fa24e280b83a0e3ebc9748de332381c051bf165",
+    "days.json": "f7acd0b09bbd3a7f971db6d76c4a76e09673ed35acd8a3455ddf9f446ccf0437",
+    "day_01.pt": "785d6cb23b2a05a047c60021691a3978850af1f75c50d83a406388f2ae0efbc6",
+    "day_02.pt": "0017e2f3bfba0a75163750b6e123c3cd58d0e2666a162dd9a761ff7693787b78",
+    "day_03.pt": "5f95bb112da365066687fdf983926458d09bafc942846a2c23bf73e5b5b14fc5",
+    "day_04.pt": "d013a4184504d6324714a7ea310e3d278ba42ee89240853926a46953135beacd",
+    "day_05.pt": "33cfb60a9c86414635ce620fc2135d3497c48eb803c89774107b9803e3d3e129",
+    "day_06.pt": "a7aa4b6cb52ae38f611aeed23c869c91bdd35456717b2345409420d1d9170731",
+    "day_07.pt": "598eefa948a61f6f74a6a48de711f0bf96046c27bf84c048ef375820ce00a175",
+    "day_08.pt": "033bd01f2fe0fafcb6f260b8b13ddedb6fd54dec1e384c9d75b69e9dbf4d9f4c",
+    "day_09.pt": "a3f996ef872425a0590b6c5201068ba02ce90396187e5d54a0794bfb6bfe17dd",
+    "day_10.pt": "bc2f3a3c3eb407774572bc78f04df9c78d87d8d8c89cdea383028b987acdca74",
+    "day_11.pt": "5c65e193e5f86f35452b1ac12420bc79309de16774caa4012399efef0a9c502e",
+    "day_12.pt": "fb0b878482a36e2cdc25a2f395fb1896eedca2579da6e40450cde0daccaae7b2",
+    "day_13.pt": "17e50385a19b449b7173044c2b8eae2ac9de23789992c109b3da071cfa6f357c",
+    "day_14.pt": "a5a2258860d7c32c2fe1700a22e642220669924c45382b47dd5b87bf54f92b52",
+    "day_15.pt": "c2ac69b4e22abd6d55ba56aee8d6a5365caca9a12492b4456ff0bc533202ab0d",
+    "day_16.pt": "510838e90a49a3d7567a3c32fbcb88b1e73ced5ed531c824fba16c62a4ace251",
+    "day_17.pt": "c118324618f2ebec693e3146ebdde4b027b797a379c5a306e1cea1b4fafdedce",
+    "day_18.pt": "9c266b5c00572b084bce41df3919eaedff1c397325f602a6fe22a350ba4722fc",
+    "day_19.pt": "084d526afee7a590a88b03cb8583c332a30024c830d8034d93986d3108d88326",
+    "day_20.pt": "171942bce3c37376654183aabd14cab167927f86b9e4fc952e4f73568add6ad0",
+    "day_21.pt": "0e17c1e39f4342920e2d88867a5b74620473dc206803cbf90e7134458c9193a9",
+    "day_22.pt": "2102a399c7703151106306e46e0c6142c8174328c8d9d51ed8d241ded7b17e0f",
+    "day_23.pt": "3e692dca03dc51812e6d061a1380ef64861cf0800ce80022fc9487fc7f800c2c",
+    "day_24.pt": "c265750e0cf8014bdf3ad51de7ef9e130013a59cd6978b66429a4268943e3144",
+    "day_25.pt": "c1c925741b811a72217a3c0782178b9c0797426d2e74d31ad099e5cab38a0465",
+    "day_26.pt": "97269f2e8e2ca3dbf959cfedb17749ee7c735c836b2d9eeaa0cbe22b55c3cdec",
+    "day_27.pt": "6b267d500fbe345d30ab407ae6f8036c800d66ab26274278c297b0bd511ed88a",
+    "day_28.pt": "07671a0c9013dd7836166f248bf00650eba25d62c0e1d8dd6a4b01796eed5871",
+    "day_29.pt": "e555ceef4e946d64fc76ca68b5776985bef7063020f96f4a7dd61c50625dd2d0",
+    "day_30.pt": "5dd71424954e03dbdf54152718e9804dd50bb5ae9ef67982546a4b9e2d3969df",
+    "events.jsonl": "77bab17f66680384b82a8fd49e8fdea9a61d341dd4bf1ea535b660175e7f5d35",
+    "final.pt": "4e65b0ea9cd709da6e5f6d5ee2c8c4f1e3e1b432caec96f95a4062c571273f5c",
+    "initial.pt": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c",
+    "manifest.json": "a3f771cfd2e7fa37d9852446529c8652adb7da495a7c6585f0f6de640a5efae7",
+    "month_result.json": "4dace1459175f72c03db3551209ba968e6cfe968dcd51a406bb0e99fdc255308",
+    "report.json": "3490140c60fa149e6a84e50fa1ab1d4b8c055a958db3672ade6270e6d3f61de2",
+    "status.json": "6ca0b00382d974b497a213d004fef2c6c3d3f2a6ef5cf7a254e02e4174548bc9"
+  }
+}

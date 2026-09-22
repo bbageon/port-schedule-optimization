@@ -1,0 +1,986 @@
+[
+  {
+    "day": 1,
+    "load": 3500,
+    "time_s": 86400.0,
+    "training": false,
+    "measurement_day": false,
+    "interval_cost_krw": 89468202.7421228,
+    "cost_krw": 89468202.7421228,
+    "cost_breakdown": {
+      "phi_krw": 89468202.7421228,
+      "c_wait": 82589675.02747622,
+      "c_move": 332881.25,
+      "c_rehandle": 4954000.0,
+      "c_vessel": 1591646.4646465818,
+      "n_trucks": 3426,
+      "n_censored": 99,
+      "mean_turn_time_s": 1618.9639156139608,
+      "over_ratio": 0.03064798598949212,
+      "p50_turn_time_s": 912.4351192354952,
+      "p90_turn_time_s": 1480.0384143923002,
+      "p99_turn_time_s": 26008.242544389315
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 15865,
+      "completed_exits": 1975,
+      "physical_inventory": 13890,
+      "expected_inventory": 13890,
+      "pending_admissions": 214,
+      "dependent_reroutes": 9,
+      "remote_vessel_handoffs": 0,
+      "completed_jobs": {
+        "GATE_IN": 1357,
+        "GATE_OUT": 1975,
+        "VESSEL_DISCHARGE": 900
+      },
+      "active_unfinished_jobs": {
+        "GATE_OUT": 489,
+        "GATE_IN": 263,
+        "VESSEL_DISCHARGE": 2270
+      },
+      "active_unfinished_vessels": 4,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 3005,
+      "buyer": 3005,
+      "crane": 11597
+    },
+    "crane_actions": {
+      "SERVE": 4237,
+      "WAIT": 7019,
+      "REPOSITION": 290,
+      "PRE_REHANDLE": 51
+    }
+  },
+  {
+    "day": 2,
+    "load": 12500,
+    "time_s": 172800.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 2081501267.9953845,
+    "cost_krw": 2170969470.7375073,
+    "cost_breakdown": {
+      "phi_krw": 2170969470.7375073,
+      "c_wait": 2144618402.840997,
+      "c_move": 1178477.0833333333,
+      "c_rehandle": 18440000.0,
+      "c_vessel": 6732590.81317693,
+      "n_trucks": 15833,
+      "n_censored": 2016,
+      "mean_turn_time_s": 7327.295193970796,
+      "over_ratio": 0.45013579233247014,
+      "p50_turn_time_s": 3012.603772615548,
+      "p90_turn_time_s": 19628.937999999995,
+      "p99_turn_time_s": 49565.38399999999
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 21273,
+      "completed_exits": 7563,
+      "physical_inventory": 13710,
+      "expected_inventory": 13710,
+      "pending_admissions": 1399,
+      "dependent_reroutes": 585,
+      "remote_vessel_handoffs": 0,
+      "completed_jobs": {
+        "GATE_IN": 6325,
+        "GATE_OUT": 7528,
+        "VESSEL_DISCHARGE": 1340,
+        "VESSEL_LOAD": 35
+      },
+      "active_unfinished_jobs": {
+        "VESSEL_LOAD": 1321,
+        "GATE_OUT": 1986,
+        "GATE_IN": 318,
+        "VESSEL_DISCHARGE": 3188
+      },
+      "active_unfinished_vessels": 5,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 13707,
+      "buyer": 13676,
+      "crane": 26764
+    },
+    "crane_actions": {
+      "SERVE": 15265,
+      "WAIT": 10882,
+      "REPOSITION": 504,
+      "PRE_REHANDLE": 113
+    }
+  },
+  {
+    "day": 3,
+    "load": 3500,
+    "time_s": 259200.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 1323015389.2706294,
+    "cost_krw": 3493984860.0081367,
+    "cost_breakdown": {
+      "phi_krw": 3493984860.0081367,
+      "c_wait": 3443747336.3354554,
+      "c_move": 1832458.3333333333,
+      "c_rehandle": 26854000.0,
+      "c_vessel": 21551065.33934771,
+      "n_trucks": 19448,
+      "n_censored": 298,
+      "mean_turn_time_s": 9168.883275132483,
+      "over_ratio": 0.394847799259564,
+      "p50_turn_time_s": 2588.8985151500965,
+      "p90_turn_time_s": 20808.447151320433,
+      "p99_turn_time_s": 114498.47519216439
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 25956,
+      "completed_exits": 11704,
+      "physical_inventory": 14252,
+      "expected_inventory": 14252,
+      "pending_admissions": 1665,
+      "dependent_reroutes": 1007,
+      "remote_vessel_handoffs": 98,
+      "completed_jobs": {
+        "GATE_IN": 7977,
+        "GATE_OUT": 11182,
+        "VESSEL_DISCHARGE": 4371,
+        "VESSEL_LOAD": 522
+      },
+      "active_unfinished_jobs": {
+        "VESSEL_LOAD": 2753,
+        "GATE_OUT": 416,
+        "GATE_IN": 73,
+        "VESSEL_DISCHARGE": 1404
+      },
+      "active_unfinished_vessels": 9,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 16670,
+      "buyer": 16634,
+      "crane": 59995
+    },
+    "crane_actions": {
+      "SERVE": 24067,
+      "WAIT": 34419,
+      "REPOSITION": 1268,
+      "PRE_REHANDLE": 241
+    }
+  },
+  {
+    "day": 4,
+    "load": 3500,
+    "time_s": 345600.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 318603608.1722541,
+    "cost_krw": 3812588468.180391,
+    "cost_breakdown": {
+      "phi_krw": 3812588468.180391,
+      "c_wait": 3728768138.4301615,
+      "c_move": 2397200.0,
+      "c_rehandle": 33316000.0,
+      "c_vessel": 48107129.75022939,
+      "n_trucks": 22934,
+      "n_censored": 210,
+      "mean_turn_time_s": 8489.21619483553,
+      "over_ratio": 0.34791139792447895,
+      "p50_turn_time_s": 2430.1520654132037,
+      "p90_turn_time_s": 18781.084960633103,
+      "p99_turn_time_s": 114880.57460050666
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 29490,
+      "completed_exits": 15664,
+      "physical_inventory": 13826,
+      "expected_inventory": 13826,
+      "pending_admissions": 2042,
+      "dependent_reroutes": 1428,
+      "remote_vessel_handoffs": 284,
+      "completed_jobs": {
+        "GATE_IN": 9323,
+        "GATE_OUT": 13407,
+        "VESSEL_DISCHARGE": 6559,
+        "VESSEL_LOAD": 2257
+      },
+      "active_unfinished_jobs": {
+        "GATE_IN": 278,
+        "GATE_OUT": 616,
+        "VESSEL_LOAD": 4138,
+        "VESSEL_DISCHARGE": 2140
+      },
+      "active_unfinished_vessels": 19,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 19666,
+      "buyer": 19628,
+      "crane": 102060
+    },
+    "crane_actions": {
+      "SERVE": 31561,
+      "WAIT": 68723,
+      "REPOSITION": 1497,
+      "PRE_REHANDLE": 279
+    }
+  },
+  {
+    "day": 5,
+    "load": 12500,
+    "time_s": 432000.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 2459818394.8597093,
+    "cost_krw": 6272406863.0401,
+    "cost_breakdown": {
+      "phi_krw": 6272406863.0401,
+      "c_wait": 6144057962.090624,
+      "c_move": 3335258.3333333335,
+      "c_rehandle": 46908000.0,
+      "c_vessel": 78105642.61614299,
+      "n_trucks": 35387,
+      "n_censored": 2583,
+      "mean_turn_time_s": 9096.301665263507,
+      "over_ratio": 0.41317432955605166,
+      "p50_turn_time_s": 2789.2650441367878,
+      "p90_turn_time_s": 22422.342999999993,
+      "p99_turn_time_s": 107679.71000000002
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 35078,
+      "completed_exits": 21986,
+      "physical_inventory": 13092,
+      "expected_inventory": 13092,
+      "pending_admissions": 3843,
+      "dependent_reroutes": 2823,
+      "remote_vessel_handoffs": 357,
+      "completed_jobs": {
+        "GATE_IN": 14290,
+        "GATE_OUT": 18545,
+        "VESSEL_DISCHARGE": 7180,
+        "VESSEL_LOAD": 3441
+      },
+      "active_unfinished_jobs": {
+        "GATE_OUT": 2389,
+        "VESSEL_LOAD": 3295,
+        "GATE_IN": 432,
+        "VESSEL_DISCHARGE": 4030
+      },
+      "active_unfinished_vessels": 19,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 30409,
+      "buyer": 30325,
+      "crane": 127548
+    },
+    "crane_actions": {
+      "SERVE": 43491,
+      "WAIT": 82197,
+      "REPOSITION": 1564,
+      "PRE_REHANDLE": 296
+    }
+  },
+  {
+    "day": 6,
+    "load": 3500,
+    "time_s": 518400.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 2658403573.9528084,
+    "cost_krw": 8930810436.992908,
+    "cost_breakdown": {
+      "phi_krw": 8930810436.992908,
+      "c_wait": 8755991500.8444,
+      "c_move": 3983741.6666666665,
+      "c_rehandle": 57196000.0,
+      "c_vessel": 113639194.48184164,
+      "n_trucks": 38952,
+      "n_censored": 970,
+      "mean_turn_time_s": 11396.220822952093,
+      "over_ratio": 0.39748921749845967,
+      "p50_turn_time_s": 2699.7503212847223,
+      "p90_turn_time_s": 26693.33329205471,
+      "p99_turn_time_s": 129963.01899999997
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 39989,
+      "completed_exits": 27210,
+      "physical_inventory": 12779,
+      "expected_inventory": 12779,
+      "pending_admissions": 4455,
+      "dependent_reroutes": 3330,
+      "remote_vessel_handoffs": 570,
+      "completed_jobs": {
+        "GATE_IN": 16265,
+        "GATE_OUT": 21732,
+        "VESSEL_DISCHARGE": 10116,
+        "VESSEL_LOAD": 5478
+      },
+      "active_unfinished_jobs": {
+        "GATE_OUT": 1122,
+        "VESSEL_DISCHARGE": 6149,
+        "VESSEL_LOAD": 2205,
+        "GATE_IN": 135
+      },
+      "active_unfinished_vessels": 28,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 33413,
+      "buyer": 33312,
+      "crane": 160440
+    },
+    "crane_actions": {
+      "SERVE": 53608,
+      "WAIT": 104876,
+      "REPOSITION": 1637,
+      "PRE_REHANDLE": 319
+    }
+  },
+  {
+    "day": 7,
+    "load": 5000,
+    "time_s": 604800.0,
+    "training": false,
+    "measurement_day": true,
+    "interval_cost_krw": 1786802623.6191616,
+    "cost_krw": 10717613060.61207,
+    "cost_breakdown": {
+      "phi_krw": 10717613060.61207,
+      "c_wait": 10492546568.765825,
+      "c_move": 4629516.666666667,
+      "c_rehandle": 66172000.0,
+      "c_vessel": 154264975.1795791,
+      "n_trucks": 43929,
+      "n_censored": 1044,
+      "mean_turn_time_s": 12011.676874905115,
+      "over_ratio": 0.3736939151813153,
+      "p50_turn_time_s": 2603.231097308395,
+      "p90_turn_time_s": 27091.05191361846,
+      "p99_turn_time_s": 158960.76486049686
+    },
+    "cargo": {
+      "planned_sources": 161371,
+      "planned_exits": 146963,
+      "ready_sources": 45296,
+      "completed_exits": 31366,
+      "physical_inventory": 13930,
+      "expected_inventory": 13930,
+      "pending_admissions": 5327,
+      "dependent_reroutes": 4173,
+      "remote_vessel_handoffs": 924,
+      "completed_jobs": {
+        "GATE_IN": 18317,
+        "GATE_OUT": 24576,
+        "VESSEL_DISCHARGE": 13371,
+        "VESSEL_LOAD": 6790
+      },
+      "active_unfinished_jobs": {
+        "VESSEL_DISCHARGE": 4758,
+        "GATE_OUT": 1412,
+        "VESSEL_LOAD": 2123,
+        "GATE_IN": 265
+      },
+      "active_unfinished_vessels": 23,
+      "routing_examples": [
+        {
+          "job": "D00-D-00621",
+          "source": "Y09",
+          "destination": "Y08",
+          "time_s": 20760.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01008",
+          "source": "Y19",
+          "destination": "Y03",
+          "time_s": 24960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01508",
+          "source": "Y18",
+          "destination": "Y04",
+          "time_s": 42420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03319",
+          "source": "Y20",
+          "destination": "Y01",
+          "time_s": 57900.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-03012",
+          "source": "Y20",
+          "destination": "Y02",
+          "time_s": 66420.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00022",
+          "source": "Y14",
+          "destination": "Y09",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00027",
+          "source": "Y20",
+          "destination": "Y07",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00195",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00691",
+          "source": "Y17",
+          "destination": "Y03",
+          "time_s": 86400.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D01-D-00951",
+          "source": "Y11",
+          "destination": "Y04",
+          "time_s": 86640.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0,
+    "policy_digest": "581403461afbca17f288a1fc7e93439daa0387a4db8aab2037bfd5573983ccd5",
+    "physical_invariants_checked": true,
+    "roles": {
+      "seller": 37710,
+      "buyer": 37592,
+      "crane": 195190
+    },
+    "crane_actions": {
+      "SERVE": 63076,
+      "WAIT": 129529,
+      "REPOSITION": 2137,
+      "PRE_REHANDLE": 448
+    }
+  }
+]

@@ -1,0 +1,206 @@
+{
+  "generation": "v5",
+  "algorithm": "shared-block-PPO",
+  "time_s": 604800.0,
+  "blocks": 21,
+  "intervals": 10080,
+  "roles": {
+    "seller": 37790,
+    "buyer": 37671,
+    "crane": 195190
+  },
+  "crane_actions": {
+    "SERVE": 63076,
+    "WAIT": 129529,
+    "REPOSITION": 2137,
+    "PRE_REHANDLE": 448
+  },
+  "cost_krw": 10717613060.61207,
+  "initial_cost_krw": 0.0,
+  "team_reward": -10717.613060612075,
+  "learning_window_s": null,
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "truncated": false,
+  "updates": [],
+  "traded_edges": 37059,
+  "txn_failed": 0,
+  "n_space": 9389,
+  "n_time": 27670,
+  "cost_breakdown": {
+    "phi_krw": 10717613060.61207,
+    "c_wait": 10492546568.765825,
+    "c_move": 4629516.666666667,
+    "c_rehandle": 66172000.0,
+    "c_vessel": 154264975.1795791,
+    "n_trucks": 43929,
+    "n_censored": 1044,
+    "mean_turn_time_s": 12011.676874905115,
+    "over_ratio": 0.3736939151813153,
+    "p50_turn_time_s": 2603.231097308395,
+    "p90_turn_time_s": 27091.05191361846,
+    "p99_turn_time_s": 158960.76486049686
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "state": "diverged",
+  "task": "YR-319",
+  "checkpoint_arm": "final",
+  "action_mode": "sample",
+  "training": false,
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "checks": {
+    "frozen_policy": true,
+    "no_updates": true,
+    "no_counterfactual": true,
+    "sampled_actions": true,
+    "original_files_preserved": true,
+    "seed_preserved": true,
+    "physical_invariants": true
+  },
+  "aborted": {
+    "day": 7,
+    "observed_turn_time_s": 6334.487343147886,
+    "rule_turn_time_s": 1566.300059372309,
+    "ratio": 4.044236163590785
+  },
+  "trade_ledger": {
+    "SPACE_ok": 9389,
+    "TIME_ok": 27670
+  },
+  "measurement_cost_krw": 10628144857.869947,
+  "cargo": {
+    "planned_sources": 161371,
+    "planned_exits": 146963,
+    "ready_sources": 45296,
+    "completed_exits": 31366,
+    "physical_inventory": 13930,
+    "expected_inventory": 13930,
+    "pending_admissions": 5327,
+    "dependent_reroutes": 4175,
+    "remote_vessel_handoffs": 924,
+    "completed_jobs": {
+      "GATE_IN": 18317,
+      "GATE_OUT": 24576,
+      "VESSEL_DISCHARGE": 13371,
+      "VESSEL_LOAD": 6790
+    },
+    "active_unfinished_jobs": {
+      "VESSEL_DISCHARGE": 4758,
+      "GATE_OUT": 1412,
+      "VESSEL_LOAD": 2123,
+      "GATE_IN": 265
+    },
+    "active_unfinished_vessels": 23,
+    "routing_examples": [
+      {
+        "job": "D00-D-00621",
+        "source": "Y09",
+        "destination": "Y08",
+        "time_s": 20760.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01008",
+        "source": "Y19",
+        "destination": "Y03",
+        "time_s": 24960.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01508",
+        "source": "Y18",
+        "destination": "Y04",
+        "time_s": 42420.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-03319",
+        "source": "Y20",
+        "destination": "Y01",
+        "time_s": 57900.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-03012",
+        "source": "Y20",
+        "destination": "Y02",
+        "time_s": 66420.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D01-D-00022",
+        "source": "Y14",
+        "destination": "Y09",
+        "time_s": 86400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D01-D-00027",
+        "source": "Y20",
+        "destination": "Y07",
+        "time_s": 86400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D01-D-00195",
+        "source": "Y21",
+        "destination": "Y04",
+        "time_s": 86400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D01-D-00691",
+        "source": "Y17",
+        "destination": "Y03",
+        "time_s": 86400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D01-D-00951",
+        "source": "Y11",
+        "destination": "Y04",
+        "time_s": 86640.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      }
+    ]
+  },
+  "completed_days": 7,
+  "code": {
+    "git_head": "adaa5f25fbb3149c184007356010be2e54a51e5a",
+    "git_dirty": false,
+    "source_sha256": "5ba775e04e371ffa7d1d56e46a2473b4ed2eee63fe475b77d9213fafbb98c8b7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr319-source-adaa5f2",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 4683,
+    "torch_threads": 1
+  },
+  "final_checkpoint": {
+    "path": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-30d-4549ae9/final.pt",
+    "sha256": "4e65b0ea9cd709da6e5f6d5ee2c8c4f1e3e1b432caec96f95a4062c571273f5c"
+  }
+}
