@@ -1,0 +1,202 @@
+{
+  "generation": "v5",
+  "algorithm": "shared-block-PPO",
+  "time_s": 2599200.0,
+  "blocks": 21,
+  "intervals": 43201,
+  "roles": {
+    "seller": 151921,
+    "buyer": 139569,
+    "crane": 527041
+  },
+  "crane_actions": {
+    "WAIT": 166960,
+    "PRE_REHANDLE": 20254,
+    "SERVE": 293952,
+    "REPOSITION": 45875
+  },
+  "cost_krw": 13326908578.4727,
+  "initial_cost_krw": 0.0,
+  "team_reward": -13326.908578472783,
+  "learning_window_s": null,
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "truncated": true,
+  "updates": [],
+  "traded_edges": 69519,
+  "txn_failed": 0,
+  "n_space": 22262,
+  "n_time": 47257,
+  "cost_breakdown": {
+    "phi_krw": 13326908578.4727,
+    "c_wait": 12750424315.4015,
+    "c_move": 31455219.791666668,
+    "c_rehandle": 354262000.0,
+    "c_vessel": 190767043.2795331,
+    "n_trucks": 177500,
+    "n_censored": 8,
+    "mean_turn_time_s": 4277.890000107883,
+    "over_ratio": 0.2552281690140845,
+    "p50_turn_time_s": 1766.501672227867,
+    "p90_turn_time_s": 8830.791859222663,
+    "p99_turn_time_s": 43083.304488433525
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "state": "completed",
+  "task": "YR-319",
+  "checkpoint_arm": "initial",
+  "action_mode": "sample",
+  "training": false,
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "checks": {
+    "frozen_policy": true,
+    "no_updates": true,
+    "no_counterfactual": true,
+    "sampled_actions": true,
+    "original_files_preserved": true,
+    "seed_preserved": true,
+    "all_trucks": true,
+    "all_days": true,
+    "no_policy_exceptions": true,
+    "fixed_end": true,
+    "physical_invariants": true
+  },
+  "aborted": null,
+  "trade_ledger": {
+    "SPACE_ok": 22262,
+    "TIME_ok": 47257
+  },
+  "measurement_cost_krw": 13145198001.94557,
+  "cargo": {
+    "planned_sources": 161371,
+    "planned_exits": 146963,
+    "ready_sources": 160773,
+    "completed_exits": 146775,
+    "physical_inventory": 13998,
+    "expected_inventory": 13998,
+    "pending_admissions": 8607,
+    "dependent_reroutes": 15826,
+    "remote_vessel_handoffs": 5979,
+    "completed_jobs": {
+      "GATE_OUT": 102288,
+      "GATE_IN": 75205,
+      "VESSEL_DISCHARGE": 71960,
+      "VESSEL_LOAD": 44487
+    },
+    "active_unfinished_jobs": {
+      "VESSEL_LOAD": 183,
+      "VESSEL_DISCHARGE": 596,
+      "GATE_OUT": 5,
+      "GATE_IN": 2
+    },
+    "active_unfinished_vessels": 11,
+    "routing_examples": [
+      {
+        "job": "D00-D-01008",
+        "source": "Y19",
+        "destination": "Y16",
+        "time_s": 24960.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-00594",
+        "source": "Y06",
+        "destination": "Y08",
+        "time_s": 29940.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-00943",
+        "source": "Y11",
+        "destination": "Y19",
+        "time_s": 32700.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01571",
+        "source": "Y17",
+        "destination": "Y13",
+        "time_s": 38700.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01689",
+        "source": "Y08",
+        "destination": "Y15",
+        "time_s": 41400.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01666",
+        "source": "Y03",
+        "destination": "Y19",
+        "time_s": 42660.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01805",
+        "source": "Y16",
+        "destination": "Y19",
+        "time_s": 46260.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02986",
+        "source": "Y03",
+        "destination": "Y17",
+        "time_s": 49320.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02233",
+        "source": "Y01",
+        "destination": "Y20",
+        "time_s": 50640.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02288",
+        "source": "Y21",
+        "destination": "Y18",
+        "time_s": 53460.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      }
+    ]
+  },
+  "completed_days": 30,
+  "code": {
+    "git_head": "adaa5f25fbb3149c184007356010be2e54a51e5a",
+    "git_dirty": false,
+    "source_sha256": "5ba775e04e371ffa7d1d56e46a2473b4ed2eee63fe475b77d9213fafbb98c8b7",
+    "worktree": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr319-source-adaa5f2",
+    "python": "3.12.13",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.3",
+    "pid": 71963,
+    "torch_threads": 1
+  },
+  "initial_checkpoint": {
+    "path": "/mnt/c/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/v5/yr306-wait-30d-4549ae9/initial.pt",
+    "sha256": "98b25fba79b6f1afe1b7ddc12eb8e8a8358230f6d6f0306b43a8e541380f1b3c"
+  }
+}
