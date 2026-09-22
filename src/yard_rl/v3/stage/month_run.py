@@ -135,6 +135,8 @@ class MonthResult:
     container_links: list = field(default_factory=list)
     daily_observation: dict = field(default_factory=dict)
     environment_manifest: dict = field(default_factory=dict)
+    candidate_pruning: str = "legacy"
+    online_latency: dict = field(default_factory=dict)
 
     @property
     def train_days(self) -> list:
@@ -216,7 +218,9 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
               capture_daily: bool = False, daily_sample_s: float = 300.0,
               on_observation=None, expected_input: dict | None = None,
               environment_spec: dict | None = None,
-              layout_training: bool = False) -> MonthResult:
+              layout_training: bool = False,
+              candidate_pruning: str = "legacy",
+              measure_latency: bool = False) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -233,6 +237,8 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
     """
     if arm not in ARMS:
         raise NotImplementedError(f"알 수 없는 재배치 팔 {arm!r} — 쓸 수 있는 팔: {ARMS}")
+    if candidate_pruning not in ("legacy", "feasible_first"):
+        raise ValueError("candidate_pruning must be 'legacy' or 'feasible_first'")
     training_requested = (bool(labels_per_day) or on_fit is not None
                           or explore_of_day is not None or explore != 0)
     if layout_training and (environment_spec is None or not training_requested):
@@ -336,6 +342,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
                episode_end_s=month_s,
                cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None))
     ctx.vessel_meta = meta
+    ctx.measure_latency = bool(measure_latency)
     if trigger_top_k is not None:
         ctx.trigger_top_k = float(trigger_top_k)
     market = ctx.make_market(mbt)
@@ -406,6 +413,7 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
 
     res = MonthResult(plan=[d.as_dict() for d in days], supply_plan_audit=supply_audit)
     res.environment_manifest = environment_manifest
+    res.candidate_pruning = candidate_pruning
     archive: dict[str, float] = {}
     tape = _MonthTape(meta, archive)
     state = {"day": 0, "snap": 0.0, "traded": 0, "space": 0, "time": 0,
@@ -591,15 +599,17 @@ def run_month(*, seed: int, arm: str = "RL", seller_net=None, buyer_net=None,
             state["day"] += 1
             state["snap"] = t + SNAP_S
 
-    if environment is None:
+    if environment is None and candidate_pruning == "legacy":
         exec_policy, exc = _rule_policy(dispatcher, seed=seed)
     else:
-        from ..layouts.candidates import FeasibleCandidateGenerator
+        # Layout environments always use it; the default yard opts in (YR-317-k).
+        from ..layouts.candidates import FeasibleFirstCandidateGenerator
         exec_policy, exc = _rule_policy(
-            dispatcher, seed=seed, candidate_generator_cls=FeasibleCandidateGenerator)
+            dispatcher, seed=seed, candidate_generator_cls=FeasibleFirstCandidateGenerator)
     mbt.run(exec_policy, review_fn=review)
     tape.snap(mbt, month_s)
     bridge._sync(mbt, month_s)
+    res.online_latency = bridge.latency_summary()
     close_day(mbt, days[-1], month_s, opened["cur"])
 
     # ★배수 구간(마지막 날 뒤 2시간)에 끝난 트럭까지 흡수한다. 이걸 안 하면

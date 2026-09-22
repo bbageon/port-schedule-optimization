@@ -1,0 +1,203 @@
+{
+ "legacy_default": {
+  "YC-L": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  }
+ },
+ "legacy_default__yields_cleared": {
+  "YC-L": {
+   "total": 12,
+   "by_kind": {
+    "SERVE": {
+     "n": 11,
+     "feasible": 0
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 12,
+   "by_kind": {
+    "SERVE": {
+     "n": 11,
+     "feasible": 0
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  }
+ },
+ "feasible_first": {
+  "YC-L": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  }
+ },
+ "feasible_first__yields_cleared": {
+  "YC-L": {
+   "total": 12,
+   "by_kind": {
+    "SERVE": {
+     "n": 11,
+     "feasible": 0
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 12,
+   "by_kind": {
+    "SERVE": {
+     "n": 8,
+     "feasible": 0
+    },
+    "REPOSITION": {
+     "n": 3,
+     "feasible": 3
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": [
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:4",
+     "target_bay": 4.0
+    },
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:5",
+     "target_bay": 5.0
+    },
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:6",
+     "target_bay": 6.0
+    }
+   ]
+  }
+ },
+ "legacy_budget_200": {
+  "YC-L": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 1,
+   "by_kind": {
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  }
+ },
+ "legacy_budget_200__yields_cleared": {
+  "YC-L": {
+   "total": 178,
+   "by_kind": {
+    "SERVE": {
+     "n": 174,
+     "feasible": 0
+    },
+    "REPOSITION": {
+     "n": 3,
+     "feasible": 0
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": []
+  },
+  "YC-W": {
+   "total": 178,
+   "by_kind": {
+    "SERVE": {
+     "n": 174,
+     "feasible": 0
+    },
+    "REPOSITION": {
+     "n": 3,
+     "feasible": 3
+    },
+    "WAIT": {
+     "n": 1,
+     "feasible": 1
+    }
+   },
+   "executable": [
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:4",
+     "target_bay": 4.0
+    },
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:5",
+     "target_bay": 5.0
+    },
+    {
+     "kind": "REPOSITION",
+     "job": "REPO:YC-W:6",
+     "target_bay": 6.0
+    }
+   ]
+  }
+ },
+ "reading": "If legacy_default offers only WAIT while feasible_first or legacy_budget_200 offers an executable REPOSITION, the escape candidate was generated and then pruned out by the candidate budget, not missing from the generator."
+}

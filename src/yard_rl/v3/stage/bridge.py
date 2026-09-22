@@ -43,7 +43,7 @@ class MarketBridge:
                  arm: str = "RL", grid_s: float = EPOCH_S,
                  slot_capacity: dict[int, int] | None = None,
                  cf_horizon_s: float | None = None,
-                 on_decision=None):
+                 on_decision=None, measure_latency: bool = False):
         self.market = market
         self.layout = layout
         self.orders = orders
@@ -56,6 +56,10 @@ class MarketBridge:
         self.cf_horizon_s = None if cf_horizon_s is None else float(cf_horizon_s)
         self.slot_steps = (self.SLOT_STEPS_LEGACY if cf_horizon_s is None
                            else self.SLOT_STEPS_HORIZON)
+        #: YR-317-e 온라인 처리시간 계측 (opt-in — 끄면 기존 경로와 완전히 같다).
+        #: 학습용 스냅샷 복제는 **제외**한다: 평가 시 존재하지 않는 비용이기 때문이다.
+        self.latency = dict(epochs=0, decided_epochs=0, sync_s=0.0, decide_s=0.0,
+                            commit_s=0.0, online_s=0.0, samples=[]) if measure_latency else None
         self.on_decision = on_decision      # 교사 훅 — 없으면 라벨을 안 만든다
         #: ★분기 세계에 넘길 **기록·오더 묶음**을 고르는 훅 ([[YR-239]]).
         #: 기본(None)은 전부 넘긴다 — 하루 무대에서는 수천 건이라 문제가 없다.
@@ -174,7 +178,14 @@ class MarketBridge:
 
     # ------------------------------------------------------------------ review
     def review(self, mbt, t: float) -> None:
-        self._sync(mbt, t)
+        if self.latency is None:
+            self._sync(mbt, t)
+        else:
+            from time import perf_counter
+            mark = perf_counter()
+            self._sync(mbt, t)
+            self.latency['sync_s'] += perf_counter() - mark
+            self.latency['epochs'] += 1
         if self.arm == "NO_REALLOC" or not epoch_on_grid(t, self.grid_s):
             return
 
@@ -193,13 +204,57 @@ class MarketBridge:
                    "orders": dict(src_o),
                    "decided": set(self.market.decided)}
 
-        res = self.market.step(
-            mbt, t, orders=self.orders, records=self.records, end_s=self.end_s,
-            time_slots_of=self._time_slots, quay_of=self.layout.quay_to_block_s,
-            slot_capacity_left=self._slot_left, epoch_s=self.grid_s)
-        applied = () if (res.resolve is None or not res.resolve.trades) \
-            else self._confirm(mbt, t, res)
+        if self.latency is None:
+            res = self.market.step(
+                mbt, t, orders=self.orders, records=self.records, end_s=self.end_s,
+                time_slots_of=self._time_slots, quay_of=self.layout.quay_to_block_s,
+                slot_capacity_left=self._slot_left, epoch_s=self.grid_s)
+            applied = () if (res.resolve is None or not res.resolve.trades) \
+                else self._confirm(mbt, t, res)
+        else:
+            from time import perf_counter
+            mark = perf_counter()
+            res = self.market.step(
+                mbt, t, orders=self.orders, records=self.records, end_s=self.end_s,
+                time_slots_of=self._time_slots, quay_of=self.layout.quay_to_block_s,
+                slot_capacity_left=self._slot_left, epoch_s=self.grid_s)
+            decide_s = perf_counter() - mark
+            mark = perf_counter()
+            applied = () if (res.resolve is None or not res.resolve.trades) \
+                else self._confirm(mbt, t, res)
+            commit_s = perf_counter() - mark
+            self._record_latency(decide_s, commit_s)
         self._note_decisions(mbt, t, res, applied=applied, pre=pre)
+
+    def _record_latency(self, decide_s: float, commit_s: float) -> None:
+        """한 결정 주기의 온라인 시간. 후보 구성·채점·경합 해소가 `decide_s`,
+        확정이 `commit_s` 다. 표본은 백분위 계산용으로 그대로 모은다 (60초 주기라
+        30일이면 43,200개 — 메모리는 수 MB)."""
+        lat = self.latency
+        lat['decided_epochs'] += 1
+        lat['decide_s'] += decide_s
+        lat['commit_s'] += commit_s
+        lat['online_s'] += decide_s + commit_s
+        lat['samples'].append(round(decide_s + commit_s, 9))
+
+    def latency_summary(self) -> dict:
+        """p50/p90/p95/p99·최대·60초 초과 건수. 계측을 안 켰으면 빈 표."""
+        lat = self.latency
+        if not lat or not lat['samples']:
+            return {}
+        ordered = sorted(lat['samples'])
+        n = len(ordered)
+        def q(p):
+            return ordered[min(n - 1, int(p * n))]
+        return dict(scope='per 60 s review cycle: proposal, acceptance, conflict '
+                          'resolution and commitment; excludes simulation advancement '
+                          'and training-only snapshots',
+                    epochs=lat['epochs'], decided_epochs=n,
+                    mean_s=lat['online_s'] / n, p50_s=q(0.50), p90_s=q(0.90),
+                    p95_s=q(0.95), p99_s=q(0.99), max_s=ordered[-1],
+                    over_60s=sum(1 for x in ordered if x > 60.0),
+                    decide_share=lat['decide_s'] / lat['online_s'] if lat['online_s'] else None,
+                    sync_s_total=lat['sync_s'])
 
     def _wants_snapshot(self, mbt, t: float) -> bool:
         """이 epoch 에 라벨을 만들 일이 있는가 — **복제 전에** 싸게 판단한다.

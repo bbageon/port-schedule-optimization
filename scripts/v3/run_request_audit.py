@@ -53,6 +53,10 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         job["admission_mode"] = args.admission_mode
     if getattr(args, "supply_mode", "ORIGINAL") != "ORIGINAL":
         job["supply_mode"] = args.supply_mode
+    if getattr(args, "candidate_pruning", "legacy") != "legacy":
+        job["candidate_pruning"] = args.candidate_pruning
+    if getattr(args, "measure_latency", False):
+        job["measure_latency"] = True
     diagnostics = getattr(args, "diagnose_admissions", False)
     if diagnostics:
         job["diagnose_admissions"] = True
@@ -116,6 +120,7 @@ def run_one(label, arm, seed, days, args, checkpoint_hash):
         "requested_identity_sha256": digest(requested_identity),
         "request_ledger_sha256": sha(ledger_path), "recording_checks": checks,
         "claim_eligible": False, "repro": stamp,
+        "candidate_pruning": res.candidate_pruning, "online_latency": res.online_latency,
         "supply_plan_audit": res.supply_plan_audit}
     if job['capture_daily']:
         daily_path = out / 'daily-final.jsonl'

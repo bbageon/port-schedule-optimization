@@ -7,6 +7,66 @@ from pathlib import Path
 
 ARMS = ('NO_REALLOC', 'RL', 'RL_TIME')
 SEEDS = tuple(range(20_000_000, 22_000_000, 100_000))
+FROZEN_SCHEMA = 'yr317.independent-evaluation.v1'
+DIAGNOSTIC_BAND = 9_900_000
+
+
+def campaign_specs(cfg):
+    """설정이 선언한 (시드, 팔 사양).
+
+    사양 하나가 결과표의 한 열이다: `label`(고유 이름) · `arm`(엔진 팔) ·
+    `checkpoint`(가중치). 팔 하나를 **서로 다른 학습 판**으로 여러 열 두려면
+    label 만 다르게 준다 — 학습 시드 안정성을 한 캠페인 안에서 재는 방법이다.
+    기존 20x3 설계는 글자 하나 못 바꾼다.
+    """
+    seeds = tuple(cfg['seeds'])
+    if cfg.get('schema') == FROZEN_SCHEMA:
+        if seeds != SEEDS or tuple(cfg['arms']) != ARMS:
+            raise ValueError('Expected the preregistered 20 x 3 design')
+        return seeds, tuple(dict(label=a, arm=a, checkpoint=cfg['checkpoint'],
+                                 checkpoint_sha256=cfg['checkpoint_sha256']) for a in ARMS)
+    if not seeds or len(set(seeds)) != len(seeds):
+        raise ValueError('seeds must be a non-empty set of distinct values')
+    if any(s // 100_000 * 100_000 == DIAGNOSTIC_BAND for s in seeds):
+        raise ValueError('Diagnostic band seeds cannot carry a confirmatory campaign')
+    if set(seeds) & set(SEEDS):
+        raise ValueError('Seeds already used for judgement cannot be reused')
+    raw = cfg.get('arm_specs')
+    if raw is None:
+        raw = [dict(label=a, arm=a) for a in cfg.get('arms', ())]
+    specs = tuple(dict(label=item['label'], arm=item['arm'],
+                       checkpoint=item.get('checkpoint', cfg.get('checkpoint')),
+                       checkpoint_sha256=item.get('checkpoint_sha256',
+                                                  cfg.get('checkpoint_sha256')))
+                  for item in raw)
+    labels = [item['label'] for item in specs]
+    if not specs or len(set(labels)) != len(labels):
+        raise ValueError('arms must be a non-empty set of distinct values')
+    # A label becomes a directory name under outputs/, on a Windows filesystem
+    # reached through WSL. Catch an unusable one now, not six hours into a run.
+    import re as _re
+    illegal = [item for item in labels if not _re.fullmatch(r'[A-Za-z0-9_.-]{1,48}', item)]
+    if illegal:
+        raise ValueError(f'Arm labels must be filename-safe: {illegal}')
+    import sys
+    src = str(Path(__file__).resolve().parents[2] / 'src')
+    if src not in sys.path:
+        sys.path.insert(0, src)
+    from yard_rl.v3.stage.episode import ARMS as ENGINE_ARMS
+    unknown = sorted({item['arm'] for item in specs} - set(ENGINE_ARMS))
+    if unknown:
+        raise ValueError(f'Unknown arms: {unknown}')
+    missing = [item['label'] for item in specs
+               if not item['checkpoint'] or not item['checkpoint_sha256']]
+    if missing:
+        raise ValueError(f'These arms declare no weights: {missing}')
+    return seeds, specs
+
+
+def campaign_contract(cfg):
+    """설정이 선언한 (시드, 열 이름). 열 이름은 결과표와 비교쌍이 쓰는 이름이다."""
+    seeds, specs = campaign_specs(cfg)
+    return seeds, tuple(item['label'] for item in specs)
 
 
 def read(path):

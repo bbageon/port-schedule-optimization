@@ -789,8 +789,10 @@
 +pre-registered mean-difference interval includes zero. Nine runs in six
 +seeds, two of them no-reallocation runs, ended in a simulator deadlock:
 +two idle cranes at a block end sat within each other's safety gap with
-+all pending work between them and no move-aside action, idling the block
-+for as long as 23.5 days. These runs, not the policies, drive the means;
++all pending work between them, and the feasible move-aside reposition
++the generator emits was discarded once higher-scoring blocked jobs
++filled the candidate budget, idling the block for as long as 23.5
++days. These runs, not the policies, drive the means;
 +the registered table retains them. On the 14 seeds where no arm stalled
 +for 24\,h or more, a mechanical criterion applied to every policy,
 +Time-only is cheaper in 14/14 months while Full and Block-only are
@@ -870,9 +872,9 @@
 +
 +\subsection{Outstanding Evidence and Reporting Boundaries}
 +\label{sec:pending-evidence}
-+The crane deadlock is a simulator defect, and repair (a move-aside
-+action when interference blocks every pending job) must precede any
-+re-run. The deadlock-free rows are a validity filter, not a registered
++The repair, ranking feasible candidates ahead of blocked ones, is
++implemented and tested; it alters the candidate set whenever the budget
++binds, so the re-run needs fresh pre-registration. The deadlock-free rows are a validity filter, not a registered
 +analysis, and they drop the busiest months, so they may flatter a policy
 +whose savings concentrate in congestion. The evaluation also varies one
 +axis: one set of trained weights, produced under a different admission
@@ -883,9 +885,7 @@
 +
 +Candidate ranking remains unvalidated: KEEP and every legal action must
 +be compared from one held-out state, reporting selection regret and
-+ranking agreement.
-+
-+Online latency is unmeasured: candidate construction, scoring, conflict
++ranking agreement. Online latency is likewise unmeasured: candidate construction, scoring, conflict
 +resolution, and commitment need timing apart from simulation
 +advancement, with percentiles and 60-second overruns.
 +

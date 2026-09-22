@@ -1,0 +1,265 @@
+{
+ "safety_gap_bay": 2.0,
+ "corridors": [
+  [
+   1.0,
+   2.0
+  ],
+  [
+   1.0,
+   3.0
+  ],
+  [
+   1.0,
+   4.0
+  ]
+ ],
+ "cranes": {
+  "YC-L": {
+   "position_bay": 1.0,
+   "idle": true,
+   "yielded": true,
+   "service_bay_min": 1,
+   "service_bay_max": 24,
+   "escape_bays": [
+    4.0,
+    5.0,
+    6.0
+   ],
+   "per_corridor": [
+    {
+     "corridor": [
+      1.0,
+      2.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": true,
+       "still_overlaps": true
+      },
+      {
+       "raw": 4.0,
+       "clamped": 4.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    },
+    {
+     "corridor": [
+      1.0,
+      3.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": true,
+       "still_overlaps": true
+      },
+      {
+       "raw": 5.0,
+       "clamped": 5.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    },
+    {
+     "corridor": [
+      1.0,
+      4.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": true,
+       "still_overlaps": true
+      },
+      {
+       "raw": 6.0,
+       "clamped": 6.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    }
+   ],
+   "generated": [
+    {
+     "kind": "WAIT",
+     "job": null,
+     "feasible": true,
+     "reason": null
+    }
+   ],
+   "escape_plans": [
+    {
+     "target": 4.0,
+     "plan_present": true,
+     "corridor": [
+      1.0,
+      4.0
+     ],
+     "reject": "CRANE_INTERFERENCE"
+    },
+    {
+     "target": 5.0,
+     "plan_present": true,
+     "corridor": [
+      1.0,
+      5.0
+     ],
+     "reject": "CRANE_INTERFERENCE"
+    },
+    {
+     "target": 6.0,
+     "plan_present": true,
+     "corridor": [
+      1.0,
+      6.0
+     ],
+     "reject": "CRANE_INTERFERENCE"
+    }
+   ]
+  },
+  "YC-W": {
+   "position_bay": 3.0,
+   "idle": true,
+   "yielded": true,
+   "service_bay_min": 1,
+   "service_bay_max": 24,
+   "escape_bays": [
+    4.0,
+    5.0,
+    6.0
+   ],
+   "per_corridor": [
+    {
+     "corridor": [
+      1.0,
+      2.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": false,
+       "still_overlaps": true
+      },
+      {
+       "raw": 4.0,
+       "clamped": 4.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    },
+    {
+     "corridor": [
+      1.0,
+      3.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": false,
+       "still_overlaps": true
+      },
+      {
+       "raw": 5.0,
+       "clamped": 5.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    },
+    {
+     "corridor": [
+      1.0,
+      4.0
+     ],
+     "this_crane_blocks": true,
+     "targets": [
+      {
+       "raw": -1.0,
+       "clamped": 1.0,
+       "same_as_now": false,
+       "still_overlaps": true
+      },
+      {
+       "raw": 6.0,
+       "clamped": 6.0,
+       "same_as_now": false,
+       "still_overlaps": false
+      }
+     ]
+    }
+   ],
+   "generated": [
+    {
+     "kind": "WAIT",
+     "job": null,
+     "feasible": true,
+     "reason": null
+    }
+   ],
+   "escape_plans": [
+    {
+     "target": 4.0,
+     "plan_present": true,
+     "corridor": [
+      3.0,
+      4.0
+     ],
+     "reject": null
+    },
+    {
+     "target": 5.0,
+     "plan_present": true,
+     "corridor": [
+      3.0,
+      5.0
+     ],
+     "reject": null
+    },
+    {
+     "target": 6.0,
+     "plan_present": true,
+     "corridor": [
+      3.0,
+      6.0
+     ],
+     "reject": null
+    }
+   ]
+  }
+ },
+ "overlap_boundary_probe": [
+  [
+   1.0,
+   false
+  ],
+  [
+   1.9,
+   false
+  ],
+  [
+   2.0,
+   false
+  ],
+  [
+   2.1,
+   true
+  ]
+ ]
+}

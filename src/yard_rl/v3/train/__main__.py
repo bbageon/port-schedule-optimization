@@ -31,6 +31,10 @@ def main(argv=None) -> int:
     ap.add_argument("--days", type=int, default=N_DAYS, help="달 길이 (기본 30)")
     ap.add_argument("--admission-mode", choices=("LEGACY", "PRESERVE"), default="LEGACY",
                     help="요청 처리 계약: 기존 방식 또는 요청을 보존하는 보정 방식")
+    ap.add_argument("--candidate-pruning", choices=("legacy", "feasible_first"),
+                    default="legacy",
+                    help="후보 가지치기. feasible_first 는 실행 가능한 후보를 막힌 후보보다 "
+                         "앞세운다 (교착 수정 — YR-317-k). 기존 결과 재현은 legacy")
     ap.add_argument("--init-seed", type=int, default=None,
                     help="망 초기화 시드 (생략하면 --seed). 학습 전 가중치를 별도 저장한다")
     ap.add_argument("--labels", type=int, default=LABELS_PER_ITER,
@@ -81,6 +85,7 @@ def main(argv=None) -> int:
     run_month_training(seed=a.seed, n_days=a.days, labels_per_day=a.labels,
                        out_dir=a.out, workers=a.workers, days=days, init_seed=a.init_seed,
                        admission_mode=a.admission_mode, arm=a.arm, supply_mode=a.supply_mode,
+                       candidate_pruning=a.candidate_pruning,
                        environment_spec=environment_spec)
     print(f"■ 총 {(time.time() - t0) / 3600:.2f}시간 · 결과 {a.out}")
     return 0

@@ -170,7 +170,8 @@ class _Ctx:
         b = MarketBridge(market, self.layout, orders=orders, records=records,
                          end_s=self.episode_end_s, arm=self.arm,
                          grid_s=self.grid_s, cf_horizon_s=self.cf_horizon_s,
-                         on_decision=on_decision)
+                         on_decision=on_decision,
+                         measure_latency=getattr(self, 'measure_latency', False))
         if getattr(self, "_no_time", False):
             b.no_time = True         # ★[[YR-232]] 진단 — 이연 후보를 안 낸다
         return b

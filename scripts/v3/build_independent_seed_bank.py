@@ -31,7 +31,7 @@ def source_sha(path):
     return hashlib.sha256(raw).hexdigest()
 
 
-def prepare_spec(path):
+def prepare_spec(path, *, base=20_000_000, count=20, created_date='2026-09-16'):
     if path.exists():
         raise FileExistsError(path)
     prior, inputs, skipped = set(), {}, []
@@ -49,7 +49,7 @@ def prepare_spec(path):
             if found:
                 prior.update(found)
                 inputs[source.relative_to(ROOT).as_posix()] = file_sha(source)
-    seeds = [20_000_000 + 100_000 * i for i in range(20)]
+    seeds = [base + 100_000 * i for i in range(count)]
     # Conservatively reserve every observed seed's daily/background offset family.
     reserved = sorted({s + offset * 1000 for s in prior for offset in range(52)})
     domains = validate_seeds(seeds, prior_seeds=reserved)
@@ -58,13 +58,14 @@ def prepare_spec(path):
     for p in sorted((ROOT / "configs").rglob("*")):
         if p.is_file():
             source_hashes[p.relative_to(ROOT).as_posix()] = source_sha(p)
-    spec = {"schema": "yard_rl.v3.independent-seed-bank-spec.v1", "created_date": "2026-09-16",
+    spec = {"schema": "yard_rl.v3.independent-seed-bank-spec.v1", "created_date": created_date,
         "seeds": seeds, "seed_domains": domains, "generator_contract": generator_contract(),
         "prior_observed_seeds": sorted(prior), "prior_reserved_numeric_seeds": reserved,
         "prior_input_sha256": inputs, "prior_files_too_large_to_scan": skipped,
         "source_contract": source_hashes, "max_workers": 14,
         "selection_rule": "fixed arithmetic sequence; no rejection/replacement by load or performance",
-        "scope": "20 input months; final policy evaluation budget is a separate preregistration",
+        "scope": f"{count} input months; final policy evaluation budget is a separate preregistration",
+        "band_base": base,
         "performance_evaluation_started": False, "new_training_runs": 0}
     path.parent.mkdir(parents=True, exist_ok=True)
     save(path, spec)
@@ -167,9 +168,14 @@ def main():
     p.add_argument("--prepare-spec", action="store_true")
     p.add_argument("--out", type=Path)
     p.add_argument("--workers", type=int, default=14)
+    p.add_argument("--base", type=int, default=20_000_000,
+                   help="시드 대역의 시작값. 기존 판정 대역은 20,000,000")
+    p.add_argument("--count", type=int, default=20, help="달 수")
+    p.add_argument("--created-date", default="2026-09-16")
     args = p.parse_args()
     if args.prepare_spec:
-        prepare_spec(args.spec)
+        prepare_spec(args.spec, base=args.base, count=args.count,
+                     created_date=args.created_date)
     else:
         if args.out is None:
             p.error("--out is required for generation")

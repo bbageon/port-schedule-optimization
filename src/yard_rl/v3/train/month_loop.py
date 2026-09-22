@@ -61,6 +61,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                        days=None, log=print, init_seed: int | None = None,
                        admission_mode: str = "LEGACY", arm: str = "RL",
                        supply_mode: str = "ORIGINAL",
+                       candidate_pruning: str = "legacy",
                        environment_spec: dict | None = None) -> tuple[TrainState, object]:
     """30일을 한 번에 굴리며 **날마다** 학생을 갱신한다.
 
@@ -102,6 +103,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
     manifest = {"schema": "yard_rl.v3.month-training.v1", "seed": seed,
                 "init_seed": init_seed, "admission_mode": admission_mode,
                 "arm": arm, "supply_mode": supply_mode,
+                "candidate_pruning": candidate_pruning,
                 "environment_spec": environment_spec, "environment_spec_sha256": env_sha,
                 "plan": [asdict(d) for d in days],
                 "labels_per_day": labels_per_day, "workers": workers,
@@ -117,6 +119,7 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                              "init_seed": init_seed, "environment_seed": seed,
                              "admission_mode": admission_mode, "arm": arm,
                              "supply_mode": supply_mode,
+                             "candidate_pruning": candidate_pruning,
                              "environment_spec_sha256": env_sha}},
                out / "ckpt_init.pt")
     write_json(out / "training_manifest.json", manifest)
@@ -199,13 +202,15 @@ def run_month_training(*, seed: int = DIAGNOSTIC_BASE + 700,
                     explore_of_day=lambda d: explore_of(d, n_days=n),
                     on_fit=on_fit, on_day=on_day, admission_mode=admission_mode,
                     supply_mode=supply_mode, environment_spec=environment_spec,
+                    candidate_pruning=candidate_pruning,
                     layout_training=environment_spec is not None)
 
     log(f"■ 끝 — {(time.time() - t_start)/3600:.2f}시간")
     _report_by_load(res, log)
     (out / "month.json").write_text(
         json.dumps({"seed": seed, "admission_mode": admission_mode, "arm": arm,
-                    "supply_mode": supply_mode, "environment_spec_sha256": env_sha,
+                    "supply_mode": supply_mode, "candidate_pruning": candidate_pruning,
+                    "environment_spec_sha256": env_sha,
                     "plan": res.plan,
                     "days": [d.as_dict() for d in res.days],
                     "live": [d.as_dict() for d in res.live]},

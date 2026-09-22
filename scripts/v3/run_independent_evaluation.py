@@ -18,14 +18,14 @@ from types import SimpleNamespace
 for key in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS'):
     os.environ[key] = '1'
 from run_request_audit import ROOT, now, run_one
-from independent_eval_checks import (ARMS, SEEDS, audit_run, month_row,
+from independent_eval_checks import (ARMS, FROZEN_SCHEMA, SEEDS, audit_run,
+    campaign_contract, campaign_specs, month_row,
     paired_summary, read, save, sha, smoke_summary, supply_preflight, write_report)
 
 
 def verified_config(args):
     cfg = read(args.config)
-    if tuple(cfg['seeds']) != SEEDS or tuple(cfg['arms']) != ARMS:
-        raise ValueError('Expected the preregistered 20 x 3 design')
+    campaign_contract(cfg)
     if cfg['workers_max'] > 16 or cfg['cpu_limit'] != 20:
         raise ValueError('CPU/memory budget changed')
     for name, expected in cfg['files'].items():
@@ -76,13 +76,17 @@ def child(args, cfg):
     else:
         days = plan_month(args.seed)
         expected = expected_month(args, cfg, args.seed)
-    job = SimpleNamespace(out=str(folder), checkpoint=str(args.workspace / cfg['checkpoint']),
+    spec = {item['label']: item for item in campaign_specs(cfg)[1]}[args.arm]
+    job = SimpleNamespace(out=str(folder), checkpoint=str(args.workspace / spec['checkpoint']),
         prereg=str(args.workspace / cfg['prereg']), admission_mode='PRESERVE',
         supply_mode='COUNT_BALANCED', diagnose_admissions=True, isolated_progress=True,
         capture_daily=True, daily_sample_s=300.0, experiment='YR-317-d',
+        candidate_pruning=cfg.get('candidate_pruning', 'legacy'),
+        measure_latency=bool(cfg.get('measure_latency', False)),
         purpose='frozen-policy independent monthly evaluation' if not args.smoke else 'diagnostic wiring check',
         expected_input=expected)
-    result = run_one(args.arm, args.arm, args.seed, days, job, cfg['checkpoint_sha256'])
+    result = run_one(spec['label'], spec['arm'], args.seed, days, job,
+                     spec['checkpoint_sha256'])
     audit = audit_run(folder / args.arm)
     if not audit['passed']:
         raise RuntimeError('Saved run audit failed; evidence preserved')
@@ -173,11 +177,22 @@ def run_jobs(args, cfg, jobs, *, smoke=False, retained=()):
 
 
 def supervise(args, cfg):
-    smoke = run_jobs(args, cfg, [(9_900_722, arm) for arm in ARMS], smoke=True)
+    smoke = run_jobs(args, cfg, [(9_900_722, arm) for arm in campaign_contract(cfg)[1]],
+                     smoke=True)
     validation = smoke_summary(smoke)
     save(args.out / 'smoke-summary.json', validation)
     if not validation['passed']:
         raise RuntimeError('Diagnostic wiring/recording check failed')
+    if cfg.get('schema') != FROZEN_SCHEMA:
+        # The frozen campaign waited on a supply diagnosis pinned to its one
+        # checkpoint; a campaign with several checkpoints cannot reuse that
+        # certificate. It re-derives every month's frozen input hashes instead,
+        # which is the check that actually protects this run's inputs.
+        verified = {seed: expected_month(args, cfg, seed) for seed in campaign_contract(cfg)[0]}
+        save(args.out / 'input-preflight.json', dict(at=now(), months=len(verified),
+            inputs=verified, supply_inputs=cfg['supply_inputs'], bank=cfg['bank'],
+            scope='Frozen-input hash agreement only; not a performance or physics verdict.'))
+        return campaign(args, cfg)
     supply = args.workspace / cfg['supply_run']
     while True:
         status = read(supply / 'progress.json')
@@ -194,10 +209,15 @@ def supervise(args, cfg):
     save(args.out / 'supply-preflight.json', verdict)
     if not verdict['passed']:
         raise RuntimeError('Supply/input/physical record checks failed; independent evaluation not started')
+    return campaign(args, cfg)
+
+
+def campaign(args, cfg):
     verified_config(args)
+    seeds, arms = campaign_contract(cfg)
     # Round-robin by month, preserving all policies and all seeds including losses.
     retained = []
-    jobs = [(s, a) for s in SEEDS for a in ARMS]
+    jobs = [(s, a) for s in seeds for a in arms]
     if args.recover_from is not None:
         from recover_independent_evaluation import recover_completed
         retained = recover_completed(args, cfg)
@@ -206,10 +226,20 @@ def supervise(args, cfg):
     completed = run_jobs(args, cfg, jobs, retained=retained)
     rows = [c['month'] for c in completed]
     save(args.out / 'month-results.json', sorted(rows, key=lambda r: (r['seed'], r['arm'])))
-    summary = paired_summary(rows)
+    if cfg.get('schema') == FROZEN_SCHEMA:
+        summary = paired_summary(rows)
+        write_report(args.out / 'results.md', rows, summary)
+    else:
+        from campaign_checks import campaign_summary, write_campaign_report
+        summary = campaign_summary(rows, seeds=seeds, arms=arms,
+            comparisons=[tuple(pair) for pair in cfg['comparisons']],
+            derived={name: tuple(sources)
+                     for name, sources in cfg.get('derived_columns', {}).items()},
+            primary=cfg['primary_comparisons'], bootstrap_seed=cfg['bootstrap_seed'])
+        write_campaign_report(args.out / 'results.md', rows, summary)
     save(args.out / 'summary.json', summary)
-    write_report(args.out / 'results.md', rows, summary)
-    save(args.out / 'progress.json', dict(at=now(), state='completed', independent_runs=60,
+    save(args.out / 'progress.json', dict(at=now(), state='completed',
+        independent_runs=len(rows),
         new_training_runs=0, claim_eligible=False, summary='summary.json'))
 
 
@@ -220,7 +250,7 @@ def main():
     p.add_argument('--out', required=True, type=Path)
     p.add_argument('--launch', action='store_true')
     p.add_argument('--seed', type=int)
-    p.add_argument('--arm', choices=ARMS)
+    p.add_argument('--arm')          # 설정이 선언한 팔 — campaign_contract 가 검사한다
     p.add_argument('--cpu', type=int)
     p.add_argument('--smoke', action='store_true')
     p.add_argument('--recover-from', type=Path,
@@ -250,7 +280,9 @@ def main():
                 stdin=subprocess.DEVNULL, start_new_session=True)
         receipt = dict(at=now(), pid=proc.pid, source_commit=subprocess.check_output(
             ['git', 'rev-parse', 'HEAD'], text=True).strip(), config_sha256=sha(args.config),
-            checkpoint_sha256=cfg['checkpoint_sha256'], planned_independent_runs=60,
+            weights={item['label']: item['checkpoint_sha256']
+                     for item in campaign_specs(cfg)[1]},
+            planned_independent_runs=len(campaign_specs(cfg)[0]) * len(campaign_specs(cfg)[1]),
             source_checkout=str(ROOT), state='queued_after_supply', new_training_runs=0)
         save(args.out / 'launch.json', receipt)
         print(json.dumps(receipt))
