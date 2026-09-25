@@ -9,8 +9,6 @@ v4 의 반사실 교사는 **신호 대 잡음을 2만 배** 올려 주지만 �
 계산의 **94% 가 세계 복제**이고 결정의 **0.43%** 만 라벨이 된다. v5 는 복제를 없앴지만
 보상이 **공유 팀 보상**이라 누구 덕인지 못 가린다.
 
-v6 는 셋을 한꺼번에 노린다:
-
 | | v4 | v5 | **v6** |
 |---|---|---|---|
 | 세계 복제 | 결정마다 | 없음 | 없음 |
@@ -18,66 +16,91 @@ v6 는 셋을 한꺼번에 노린다:
 | 신용 배분 | 반사실 (정확·비쌈) | 공유 팀 보상 | **반사실 (망 안에서)** |
 | 계산 | CPU 프로세스 10~20 | CPU | **GPU 배치 수천** |
 
-## 무엇이 바뀌었나 — 네 가지
+## 무엇이 바뀌었나
 
-    파이썬 객체 세계 (v5)          배열 세계 (v6)
+    파이썬 객체 세계 (v5)          배열 세계 (v6 `gpu/`)
     ────────────────────────────────────────────────────────
-    heapq 우선순위 큐          →   (시각·종류·대상·순번) 배열 + argmin
-    dict[job_id] → Job         →   길이 고정 배열, 빈 칸은 -1
+    heapq 우선순위 큐          →   (시각·종류·대상·순번) 배열, v5 와 같은 3단 키
+    dict[job_id] → Job         →   길이 고정 배열, 빈 칸은 -1 / +inf
     if 조건: A else: B         →   둘 다 계산하고 where 로 고름
+    찾을 때까지 훑기(find_slot) →   격자 전수 계산 + 3단 argmin
+    blocker 를 하나씩 치우기    →   고정 길이 scan (M−1 단)
     sim.assign(...) 제자리 수정 →   상태를 받아 새 상태를 돌려주는 순수 함수
 
-## ★전체 오더를 한 번에 (사용자 지시 2026-09-25)
+### 파일
 
-오더가 배열이면 **전 오더의 특징이 행렬 하나**가 된다. 망에 한 번 넣으면 모든 점수가
-한 번에 나온다:
+| 파일 | 무엇 | v5 대응 |
+|---|---|---|
+| `events.py` | 사건 큐 (3단 키 · 넘침 표시) | `integrated/events.py` |
+| `geom.py` | 블록 기하·스펙 상수 (jit static) | `BlockGeometry`·`CraneSpec` |
+| `state.py` | `BlockWorld` — 오더·크레인·스택·컨테이너·예약·계획·KPI·장부·비용 13항·레인·로그 | `engine.py` 상태 전부 |
+| `exact.py` | `mul_exact` — 곱을 실체화해 FMA 융합을 막는다 (아래) | — |
+| `travel.py` | `move_container` (10항 좌결합 순서 그대로) | `sim/travel_time.py` |
+| `stack_ops.py` | `find_slot`·`blockers_above`·`rehandle_capacity_ok`·`place`·`remove` | `sim/stack.py` |
+| `reserve.py` | `reject_code` (5-lock 순서 고정)·`reserve`·`release` | `reservation.py` |
+| `plan.py` | `plan_serve` — STORE / RETRIEVE(재조작 scan) | `engine._plan` |
+| `host_convert.py` | 시나리오 → 배열 · 배열 → v5 비교용 dict · 사건 로그 복원 | `engine.reset` |
+| `engine_step.py` | `advance`·처리기·`decide`·`step`·`run`(lax.scan) | `run_until_decision`·`assign`·`_complete` |
+| `policy.py` | 전 오더를 한 번의 순전파로 · `Q = V + A` · 반사실 기준선 | (신규) |
 
-    v4·v5 :  for 후보 in 후보들:  점수 = 망(후보)      ← 20~28회 호출
-    v6    :  점수들 = 망(전 오더 행렬)                  ← **1회**
+## ★조각 1 — 단일 블록 엔진이 v5 와 **같은 답**을 낸다 (2026-09-25)
 
-그리고 점수가 전부 나와 있으므로 **반사실 기준선이 공짜로 따라온다** —
-*"내가 고른 것 − 후보 평균"* 을 시뮬레이션 없이 얻는다. v4 가 세계 둘을 굴려 하던 일이다.
+v5 `TerminalSimulator` 를 규칙 정책(첫 후보·마지막 후보·둘째는 WAIT) 으로 끝까지 돌린 답과
+배열 엔진(`run` jit) 의 답을 **`==` 로** 대조한다 — 사건 로그 전열(시각·종류·대상)+해시,
+결정열, 오더 상태, 계획 이동표, 크레인, KPI, 격자, 위반 0, 실수 전 항목(시각·주행거리·
+대기 적분·장부 적분·비용 13항). 무대 12종(§10 시나리오·혼잡·검열·fixture 본선 제거판).
 
-망은 **가치와 우위를 갈라서** 낸다(`Q = V + A`, `A` 는 평균 0 으로 못박음). 이 구조가
-정확히 우리 문제 때문에 발명됐다 — 원 논문 동기가 *"행동 격차 0.04 vs 상태 가치 15"*
-(0.27%)인데 **우리 비는 0.003% 로 100배 더 심하다**([[YR-326]]).
+    tests/v6/test_gpu_*.py  130 건  (CPU x64 · 220초)
+    그중 GPU(RTX 5090)에서  49 건  (core 17 + 동등성 32 · 244초) — **GPU 도 비트 단위 일치**
 
-## 실측 (RTX 5090 · 드라이버 595.95 · JAX 0.11.2 cuda12)
+각 단계가 **v5 를 실제로 불러** 같은 입력의 답을 받는다(기대값 손기입 없음):
+find_slot 5야드×300질의 · 이동시간 500건 비트 동일 · 예약 거절 6,000질의 · 계획 여러 시점.
 
-    후보 64개짜리 결정을 세계 N 개에서 동시에:
+### ⚠️ FMA — 플래그로는 못 막는다
 
-      세계     1회 시간    초당 결정수
-         1     0.092ms         10,853
-       128     0.066ms      1,949,898
-     1,024     0.067ms     15,287,790
-     8,192     0.474ms     17,267,126
+`XLA_FLAGS=--xla_allow_excess_precision=false` 를 켜도 **CPU 는 `x*y+z` 를 한 번에 반올림**
+(FMA)한다 — v5(파이썬)는 두 번 반올림하므로 대기 적분·find_slot 비용의 마지막 비트가 갈린다.
+`exact.mul_exact` 가 `optimization_barrier` 로 곱을 실체화해 두 번 반올림을 강제한다.
+`test_gpu_core` 의 `[fma probe]` 가 백엔드마다 매번 찍는다:
 
-**세계 1,024개까지는 1개와 시간이 같다** — 가속기가 노는 구간이라 공짜로 늘어난다.
+    cpu  plain=FMA        guarded=two-round   ← 보호 필요
+    gpu  plain=two-round  guarded=two-round   ← 이 패턴에선 융합 안 함 (실측)
 
-### ⚠️ 부동소수점 — 값은 다르고 **순서는 같다**
+### 부동소수점 규약
 
-GPU 와 CPU 는 더하는 순서가 달라 결과가 미세하게 어긋난다 (상대 오차 **5.8e-4**).
-그런데 정책은 점수로 **줄을 세워** 고르므로, 순서가 같으면 같은 정책이다 —
-실측 **1등 100% · 상위 3등 100% 일치**.
-
-**그래서 규약**: 학습은 GPU(빠름), **판정은 CPU**(정확)로 다시 잰다. 학습이 진행돼
-후보 간 격차가 좁아지면 이 잡음이 순서를 뒤집을 수 있기 때문이다.
+동등성은 **float64(x64)** 에서만 — v5 는 `_EPS=1e-9` 비교이고 하루 끝(86,400초)에서 float32
+이웃 간격은 7.8ms 다. `TIME_DTYPE` 이 float64 인데 x64 가 꺼져 있으면 `empty_queue` 가
+큰 소리로 실패한다(조용히 float32 로 내려앉는 함정). 학습 모드 float32 는 별도 결정.
 
 ## 지금 어디까지 왔나
 
-    ✅ 사건 큐        배열판 — 힙과 같은 순서(시각순·동시각은 넣은 순서) · 넘침 표시
-    ✅ 세계 상태      오더·크레인 배열, 비용 네 항, 턴타임 검열
-    ✅ 정책망         전 오더 한 번에 · 가치/우위 분해 · 반사실 기준선
-    ✅ 배치(vmap)     하나씩 돌린 것과 같은 답
-    ⬜ **세계를 굴리는 규칙**  ← 아직 v5 것을 쓴다. 이게 가장 큰 덩어리다
-    ⬜ 학습 루프       배열 세계 위에서
-    ⬜ v5 동등성 확인  조각마다 같은 답을 내는지
+    ✅ 골격 (사건 큐 · 상태 · 정책망 · vmap)
+    ✅ 조각 1  단일 블록 엔진 — 크레인 1대 · 트럭 오더 · 스택 · 재조작 · 예약 · 비용 적분
+    ⬜ 조각 2  다중 크레인 — 간섭 · 순차 예약 · 교착 탈출 · 장비 고장
+    ⬜ 조각 3  PRE_ADVICE — ETA wake · PRE_REHANDLE / REPOSITION / WAIT 후보
+    ⬜ 조각 4  본선 · 이송 — STS · 양하 해제 · 이송차
+    ⬜ 조각 5  비용 Φ 4항 (원화)
+    ⬜ 조각 6  다중블록 조정자 · 조각 7 결정 계층 · 조각 8 학습 루프 (30일 무대 포함)
 
-**⚠️ 지금 v6 는 v5 를 대체하지 않는다.** `gpu/` 밖은 전부 v5 사본이고, 규칙을 한 조각씩
-옮기며 조각마다 v5 와 대조한다. 전부 옮기기 전까지 **v5 경로가 정본**이다.
+**⚠️ 지금 v6 는 v5 를 대체하지 않는다.** `gpu/` 밖은 전부 v5 사본이다. 정답 궤적
+(`outputs/reports/yr327_v6_port/ground_truth/`)의 블록 Y01 은 본선 240건이라 **조각 2·3·4 가
+되어야** 재현할 수 있다. 전부 옮기기 전까지 v5 가 정본이고 v6 로 판정하지 않는다.
+
+### 알려진 한계 (조각 1)
+
+- K≥2: 정책을 배정 scan **앞에서** 한 번 부르므로 두 크레인이 같은 오더를 고르면 위반 16.
+  v5 `ReferenceDispatcher`(순차 재선택)와 같으려면 조각 2 가 정책 호출을 scan 안으로.
+- 비트 일치를 위해 대기 꼬리·장부 적분을 v5 삽입 순서 그대로 N·2N 단 scan 으로 돈다 —
+  CPU 실측 N=256 스텝당 10.8ms. 학습 모드(float32)에서는 닫힌 식으로 바꿔도 된다.
+- `reserve.py` 와 `state.py` 가 `ReservationArrays` 를 따로 정의 — 통일 예정.
+- Windows 파이썬엔 jax 가 없어 시험이 `importorskip` 으로 조용히 건너뛴다 — **WSL venv 로만**.
 
 ## 돌려 보기
 
-    PYTHONPATH=src XLA_PYTHON_CLIENT_PREALLOCATE=false \
-        python scripts/v6/bench_gpu.py          # 정확성·속도
-    PYTHONPATH=src JAX_PLATFORMS=cpu pytest tests/v6/test_gpu_core.py -q
+    # CPU x64 전체 (WSL venv ~/.venvs/yard-rl)
+    PYTHONPATH=src JAX_PLATFORMS=cpu pytest tests/v6/test_gpu_*.py -q -s
+    # GPU
+    PYTHONPATH=src XLA_PYTHON_CLIENT_PREALLOCATE=false pytest tests/v6/test_gpu_engine_equiv.py -q -s
+    # 정답 궤적 · 정책망 벤치
+    PYTHONPATH=src python scripts/v6/dump_ground_truth.py --load 300
+    PYTHONPATH=src XLA_PYTHON_CLIENT_PREALLOCATE=false python scripts/v6/bench_gpu.py

@@ -20,6 +20,7 @@ jnp = jax.numpy
 
 from yard_rl.v6.gpu.events import (PRIO, empty_queue, n_pending, next_event,
                                    peek_time, push_event)
+from yard_rl.v6.gpu.exact import FMA_PROBE, mul_exact, sum_seq
 from yard_rl.v6.gpu.policy import (ORDER_FEATURES, choose,
                                    counterfactual_advantage, init_params,
                                    q_values, q_values_batch)
@@ -188,18 +189,55 @@ def test_batch_matches_one_at_a_time():
         assert abs(float(vb[i]) - float(v1)) < 1e-5
 
 
+# ───────────────────────────────────────────────── ★FMA — 플래그가 아니라 barrier 가 방어 (exact.py 머리말)
+def test_mul_exact_keeps_two_roundings_under_jit(capsys):
+    """★회귀 감시 — `a*b + c` 를 XLA 가 한 번에 반올림(FMA)해도 `mul_exact(a,b) + c` 는 파이썬처럼 두 번 반올림.
+
+    검출 입력 a = b = 1+2^-27, c = −1: 두 번 반올림 1.4901161193847656e-08 · FMA 1.4901161249358807e-08.
+    plain 판이 융합하는지는 **보고만** 한다 (백엔드·XLA 판마다 다르다) — 단언은 barrier 판에만.
+    """
+    a, b, c, two_round, fused = FMA_PROBE
+    assert a * b + c == two_round                              # 파이썬(두 번 반올림) 기준값 확인
+    plain = jax.jit(lambda x, y, z: x * y + z)
+    guarded = jax.jit(lambda x, y, z: mul_exact(x, y) + z)
+    xs = (jnp.float64(a), jnp.float64(b), jnp.float64(c))
+    got_plain, got_guard = float(plain(*xs)), float(guarded(*xs))
+    vec = (jnp.full((64,), a), jnp.full((64,), b), jnp.full((64,), c))
+    got_plain_v, got_guard_v = float(plain(*vec)[0]), float(guarded(*vec)[0])
+    with capsys.disabled():
+        print(f"\n[fma probe] backend={jax.default_backend()} plain={'FMA' if got_plain == fused else 'two-round'} "
+              f"plain-vec={'FMA' if got_plain_v == fused else 'two-round'} guarded=two-round:{got_guard == two_round}")
+    assert got_guard == two_round and got_guard_v == two_round, (got_guard, got_guard_v, two_round)
+    assert got_plain in (two_round, fused)                     # 그 밖의 값이면 검출 자체가 깨진 것
+
+
+def test_sum_seq_matches_python_left_fold():
+    """`sum_seq` 는 파이썬 `sum()`/`+=` 와 같은 왼쪽 결합 — 순서를 바꾸면 갈리는 입력으로 확인한다."""
+    xs = [1e16, 1.0, -1e16, 1.0, 3.0 ** -20, 1e-3]
+    want = 0.0
+    for x in xs:
+        want += x
+    got = float(jax.jit(lambda v: sum_seq(v))(jnp.asarray(xs, jnp.float64)))
+    assert got == want
+    assert float(sum_seq(jnp.asarray(xs[:1]))) == xs[0]
+    assert float(sum_seq([])) == 0.0
+
+
 # ───────────────────────────────────────────────── 성과지표
 def test_turn_time_and_censoring():
-    """턴타임 = 게이트 아웃 − 게이트 인. **못 나간 오더는 검열**한다."""
-    w = empty_world(3, 1, end_s=1_000.0)
+    """턴타임 = 게이트 아웃 − 게이트 인. **못 나간 오더는 검열**한다 — v5 `terminal_turntime_samples_s` 규칙:
+    O ≤ end 면 O−A · 그 밖에 A < end 면 end−A · A ≥ end 면 표본 아님."""
+    w = empty_world(5, 1, end_s=1_000.0)
     o = w.orders._replace(
-        gate_in_s=jnp.array([100.0, 200.0, jnp.inf], jnp.float32),
-        gate_out_s=jnp.array([460.0, jnp.inf, jnp.inf], jnp.float32))
+        gate_in_s=jnp.array([100.0, 200.0, jnp.inf, 300.0, 1_000.0], jnp.float64),
+        gate_out_s=jnp.array([460.0, jnp.inf, jnp.inf, 1_500.0, jnp.inf], jnp.float64))
     assert float(turn_time_s(o)[0]) == 360.0
     c = censored_turn_time_s(o, 1_000.0)
     assert float(c[0]) == 360.0
     assert float(c[1]) == 800.0, "못 나간 오더는 end − 게이트인 으로 세야 한다"
     assert bool(jnp.isnan(c[2])), "안 들어온 오더는 표본이 아니다"
+    assert float(c[3]) == 700.0, "O > end 인 오더는 end − 게이트인 으로 검열한다 (O−A 가 아니다)"
+    assert bool(jnp.isnan(c[4])), "A ≥ end 인 오더는 표본이 아니다 (등록됐어도)"
 
 
 def test_ranking_is_what_must_match_not_raw_values():
