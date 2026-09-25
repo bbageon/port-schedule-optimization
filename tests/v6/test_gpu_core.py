@@ -14,11 +14,12 @@ import heapq
 
 import pytest
 
-jnp = pytest.importorskip("jax.numpy")
 jax = pytest.importorskip("jax")
+jax.config.update("jax_enable_x64", True)   # ★사건 시각은 float64 — events.py 머리말
+jnp = jax.numpy
 
-from yard_rl.v6.gpu.events import (empty_queue, n_pending, next_event, peek_time,
-                                   push_event)
+from yard_rl.v6.gpu.events import (PRIO, empty_queue, n_pending, next_event,
+                                   peek_time, push_event)
 from yard_rl.v6.gpu.policy import (ORDER_FEATURES, choose,
                                    counterfactual_advantage, init_params,
                                    q_values, q_values_batch)
@@ -26,25 +27,66 @@ from yard_rl.v6.gpu.state import (censored_turn_time_s, empty_world, turn_time_s
 
 
 # ───────────────────────────────────────────────── 사건 큐
-def test_queue_matches_heap_order():
-    """★힙과 같은 순서를 낸다 — 시각순, 동시각은 **넣은 순서**."""
-    rows = [(30.0, 1, 7), (10.0, 2, 3), (10.0, 3, 4), (20.0, 4, 5), (10.0, 5, 6)]
-    q = empty_queue(16)
-    for t, k, tg in rows:
-        q = push_event(q, t, k, tg)
-
+def _heap_order(rows):
+    """v5 힙과 같은 키 (시각, 우선순위, 넣은 순서) 로 꺼낸 순서."""
     heap: list = []
     for i, (t, k, tg) in enumerate(rows):
-        heapq.heappush(heap, (t, i, k, tg))
-
-    got, want = [], []
+        heapq.heappush(heap, (t, int(PRIO[k]), i, k, tg))
+    out = []
     while heap:
+        t, _, _, k, tg = heapq.heappop(heap)
+        out.append((t, k, tg))
+    return out
+
+
+def _array_order(rows, cap=None):
+    q = empty_queue(cap or len(rows) + 2)
+    for t, k, tg in rows:
+        q = push_event(q, t, k, tg)
+    assert int(q.overflow) == 0
+    out = []
+    while True:
         q, t, k, tg, alive = next_event(q)
-        assert bool(alive)
-        got.append((float(t), int(k), int(tg)))
-        ht, _, hk, htg = heapq.heappop(heap)
-        want.append((ht, hk, htg))
+        if not bool(alive):
+            break
+        out.append((float(t), int(k), int(tg)))
+    return out
+
+
+def test_queue_matches_heap_order():
+    """★힙과 같은 순서 — 시각순 · 같은 시각은 **우선순위** · 그것도 같으면 **넣은 순서**."""
+    rows = [(30.0, 5, 7), (10.0, 5, 3), (10.0, 0, 4), (20.0, 3, 5), (10.0, 5, 6),
+            (10.0, 11, 1), (10.0, 0, 9)]
+    got, want = _array_order(rows), _heap_order(rows)
     assert got == want, f"힙과 순서가 다르다\n  배열 {got}\n  힙   {want}"
+    # 같은 시각 10.0 에서 완료(우선 0)가 도착(3)보다, 도착이 지평(7)보다 먼저
+    kinds_at_10 = [k for t, k, _ in got if t == 10.0]
+    assert kinds_at_10 == [0, 0, 5, 5, 11]
+
+
+def test_seq_survives_large_times():
+    """★회귀 — 예전 단일 키(시각+순번×1e-9)는 t=1 초부터 순번을 잃었다.
+
+    같은 시각·같은 종류의 사건 200개를 넣고 **넣은 순서 그대로** 나와야 한다.
+    t=1 · 100 · 86,400(하루 끝) 세 시각에서 본다.
+    """
+    for t in (1.0, 100.0, 86_400.0):
+        rows = [(t, 5, i) for i in range(200)]
+        got = _array_order(rows, cap=256)
+        assert [tg for _, _, tg in got] == list(range(200)), f"t={t} 에서 순번이 흐트러졌다"
+
+
+def test_millisecond_spacing_near_day_end():
+    """★하루 끝(86,400 초) 근처의 1ms 간격 — float32 는 이웃 간격이 7.8ms 라 못 담는다."""
+    rows = [(86_400.0 - 0.001 * i, 5, i) for i in range(50)]     # 내림차순으로 넣는다
+    got = _array_order(rows, cap=64)
+    assert [tg for _, _, tg in got] == list(range(49, -1, -1)), "1ms 간격이 뭉개졌다"
+
+
+def test_time_dtype_is_float64():
+    """★x64 가 꺼져 조용히 float32 로 내려앉으면 안 된다 — empty_queue 가 잡는다."""
+    q = empty_queue(4)
+    assert q.time.dtype == jnp.float64
 
 
 def test_empty_queue_reports_not_alive():
@@ -73,6 +115,10 @@ def test_popped_slot_is_reused():
     q = push_event(q, 7.0, 3, 3)          # 빈 자리에 들어가야 한다
     assert int(q.overflow) == 0
     assert int(n_pending(q)) == 2
+    q = push_event(q, 6.0, 2, 8)          # 남은 칸 없음 → 넘침
+    assert int(q.overflow) == 1
+    q, t, k, tg, _ = next_event(q)
+    assert (float(t), int(tg)) == (6.0, 2)
 
 
 # ───────────────────────────────────────────────── 정책망
