@@ -9,6 +9,16 @@
             동등성 시험용. 다중블록 문맥이 없으니 게이트 승인은 시나리오에 적힌 대로.
 
     PYTHONPATH=src python scripts/v6/dump_ground_truth.py --load 30 --seed 9900777
+
+■ 정책·정보수준 (조각 3·4 통합, 2026-09-26) — block 모드의 결정 규칙을 고른다
+  --policy sf_spt     (기본) ResolverPolicy(ServiceFirstSPTPreference) + CandidateGenerator(LEGACY_DEFAULT) —
+                      SERVE·PRE_REHANDLE·REPOSITION·WAIT 를 공동 resolver 가 고른다 (배열판: engine_step joint 규약 +
+                      dispatch.make_resolver("sf_spt")). 기존 파일 이름은 이 조합일 때만 그대로다.
+  --policy reference  ReferenceDispatcher.run 의미 — 크레인 순 live SERVE 후보 · 본선 우선→최장대기→job_id
+                      (배열판: 순차 규약 + dispatch.policy_reference)
+  --policy first      크레인 순 live SERVE 후보 중 job_id 가 가장 작은 것 (배열판: engine_step.first_by_id)
+  --info-level        InformationLevel 이름 (기본 PRE_ADVICE; BLOCK_ARRIVAL 이면 ETA wake·PRE 후보가 없다)
+  결과 파일: block_<블록>_load<L>_seed<S>[_<policy>_<level>].json — sf_spt·PRE_ADVICE 조합만 접미사 없음(기존 이름 보존)
 """
 from __future__ import annotations
 
@@ -24,6 +34,7 @@ from yard_rl.v6.world.integrated import (baselines as bl, candidates as cd,
                                           terminal_stream as ts, yard_layout as yl)
 
 LVL = InformationLevel.PRE_ADVICE
+POLICIES = ("sf_spt", "reference", "first")
 
 
 def _build(load: int, seed: int):
@@ -34,22 +45,49 @@ def _build(load: int, seed: int):
     return prof, built
 
 
-def _sim(prof, scn):
+def _sim(prof, scn, level=LVL):
     s = eng.TerminalSimulator(prof, scn, check_invariants=True)
-    s.info_level = LVL
+    s.info_level = level
     return s
 
 
-def _rule_policy():
+def _rule_policy(level=LVL):
     """규칙(작업 우선·최단작업) — v5 판정의 바닥. 망 없음, 난수 없음."""
     gens: dict[int, object] = {}
     pol = bl.ResolverPolicy(bl.ServiceFirstSPTPreference(), "SF")
 
     def exec_policy(sim, dp):
         g = gens.setdefault(id(sim), cd.CandidateGenerator(config=pc.LEGACY_DEFAULT))
-        gb = {c: g.generate(sim, c, LVL) for c in dp.crane_ids}
+        gb = {c: g.generate(sim, c, level) for c in dp.crane_ids}
         bl._apply(sim, pol.decide(sim, dp, gb))
     return exec_policy
+
+
+def _serve_policy(select):
+    """순차 규약 — ReferenceDispatcher.run (dispatcher.py:19-32): 크레인 순서대로 live SERVE 후보를 뽑아 하나씩 assign."""
+    from yard_rl.v6.world.contract.schema import CandidateKind
+
+    def exec_policy(sim, dp):
+        for cid in dp.crane_ids:
+            cands = sim.candidates_for(cid)
+            if cands:
+                sim.assign(cid, eng.CraneAssignment(cid, CandidateKind.SERVE, job_ref=select(sim, cid, cands)))
+            else:
+                sim.assign(cid, eng.CraneAssignment(cid, CandidateKind.WAIT))
+        sim.close_decision()
+    return exec_policy
+
+
+def make_policy(name: str, level=LVL):
+    """--policy 이름 → exec_policy(sim, dp)."""
+    if name == "sf_spt":
+        return _rule_policy(level)
+    if name == "reference":
+        from yard_rl.v6.world.integrated.dispatcher import ReferenceDispatcher
+        return _serve_policy(ReferenceDispatcher().select)
+    if name == "first":
+        return _serve_policy(lambda sim, cid, cands: cands[0])
+    raise ValueError(f"모르는 정책 {name!r} — {POLICIES}")
 
 
 def _block_dump(bid: str, s) -> dict:
@@ -92,13 +130,14 @@ def run_terminal(load: int, seed: int) -> dict:
     }
 
 
-def run_block(load: int, seed: int, block: str | None) -> dict:
+def run_block(load: int, seed: int, block: str | None, policy: str = "sf_spt",
+              level: InformationLevel = LVL) -> dict:
     """블록 하나를 **엔진만으로** — 다중블록 루프 없이 결정 루프를 직접 돈다."""
     prof, built = _build(load, seed)
     scns = built["scenarios"]
     bid = block or max(scns, key=lambda b: len(scns[b].jobs))   # 기본: 일이 제일 많은 블록
-    s = _sim(prof, scns[bid])
-    pol = _rule_policy()
+    s = _sim(prof, scns[bid], level)
+    pol = make_policy(policy, level)
     t0 = time.perf_counter()
     n_dec = n_rev = 0
     while True:
@@ -114,8 +153,15 @@ def run_block(load: int, seed: int, block: str | None) -> dict:
     d = _block_dump(bid, s)
     d.update({"mode": "block", "load": load, "seed": seed, "wall_s": round(secs, 3),
               "n_decisions": n_dec, "n_review_epochs": n_rev,
-              "scenario_jobs": len(scns[bid].jobs)})
+              "scenario_jobs": len(scns[bid].jobs),
+              "policy": policy, "info_level": level.name})
     return d
+
+
+def block_truth_name(block: str, load: int, seed: int, policy: str = "sf_spt", level=LVL) -> str:
+    """결과 파일 이름 — sf_spt·PRE_ADVICE 조합은 기존 이름 그대로 (block_Y01_load30_seed9900777.json)."""
+    suffix = "" if (policy == "sf_spt" and level == InformationLevel.PRE_ADVICE) else f"_{policy}_{level.name}"
+    return f"block_{block}_load{load}_seed{seed}{suffix}.json"
 
 
 def main(argv=None) -> int:
@@ -125,8 +171,12 @@ def main(argv=None) -> int:
     ap.add_argument("--mode", choices=("terminal", "block", "both"), default="both")
     ap.add_argument("--block", default=None, help="block 모드에서 굴릴 블록 (기본: 일 제일 많은 곳)")
     ap.add_argument("--out", default="outputs/v6/ground_truth")
+    ap.add_argument("--policy", choices=POLICIES, default="sf_spt", help="block 모드의 결정 규칙 (머리말)")
+    ap.add_argument("--info-level", default="PRE_ADVICE", choices=[m.name for m in InformationLevel],
+                    help="block 모드의 정보수준 (InformationLevel 이름)")
     a = ap.parse_args(argv)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    level = InformationLevel[a.info_level]
 
     if a.mode in ("terminal", "both"):
         r = run_terminal(a.load, a.seed)
@@ -137,10 +187,10 @@ def main(argv=None) -> int:
               f"비용 {r['terminal_total']:,.0f}  승인 {r['admitted']}  턴 {r['n_turns']}  "
               f"사건 {ev}  → {p}")
     if a.mode in ("block", "both"):
-        r = run_block(a.load, a.seed, a.block)
-        p = out / f"block_{r['block']}_load{a.load}_seed{a.seed}.json"
+        r = run_block(a.load, a.seed, a.block, a.policy, level)
+        p = out / block_truth_name(r["block"], a.load, a.seed, a.policy, level)
         p.write_text(json.dumps(r, ensure_ascii=False), encoding="utf-8")
-        print(f"■ block {r['block']}  일 {r['n_jobs']}  크레인 {r['n_cranes']}  {r['wall_s']}s  "
+        print(f"■ block {r['block']}  정책 {a.policy}/{level.name}  일 {r['n_jobs']}  크레인 {r['n_cranes']}  {r['wall_s']}s  "
               f"결정 {r['n_decisions']}  사건 {r['n_events']}  해시 {r['event_hash']}  "
               f"재처리 {r['kpis']['rehandle_count']}  미완 {r['unfinished']}  → {p}")
         kinds: dict[str, int] = {}

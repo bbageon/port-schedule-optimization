@@ -26,7 +26,7 @@ REPORT_TESTS='zz_report or escape_paths or replan_actually or k3_and_stair or ti
 SKIP_TESTS='python_loop'     # eager 27스텝 ≈80초 — 88초 창에선 완주 불가 (정상 환경에선 돈다)
 FRESH=0; REPORT=0; FILES=()
 for a in "$@"; do case "$a" in --fresh) FRESH=1;; --report) REPORT=1;; *) FILES+=("$a");; esac; done
-[ ${#FILES[@]} -eq 0 ] && FILES=(test_gpu_core.py test_gpu_state.py test_gpu_travel.py test_gpu_stack.py test_gpu_reserve.py test_gpu_plan.py test_gpu_convert.py test_gpu_phi.py test_gpu_escape.py test_gpu_dispatch.py test_gpu_engine_equiv.py)
+[ ${#FILES[@]} -eq 0 ] && FILES=(test_gpu_core.py test_gpu_state.py test_gpu_travel.py test_gpu_stack.py test_gpu_reserve.py test_gpu_plan.py test_gpu_convert.py test_gpu_phi.py test_gpu_exact.py test_gpu_escape.py test_gpu_dispatch.py test_gpu_wake.py test_gpu_cands3.py test_gpu_vessel.py test_gpu_engine_equiv.py test_gpu_y01.py)
 if [ $FRESH -eq 1 ]; then : > "$OUT"; rm -f "$WORK_WIN"/report_*.json "$WORK_WIN"/merged.json "$WORK_WIN"/chunk_*.log; fi
 
 fresh() {  # 배포판을 새로 띄우고 응답할 때까지 기다린다
@@ -36,7 +36,9 @@ collect() {  # $1 = 파일 → node id 목록 (집계·건너뛰기 시험 제�
   fresh || return 1
   wsl.exe -e bash -lc "cd '$REPO' && PYTHONPATH=src JAX_PLATFORMS=cpu $PY -m pytest --co -q '$1' -p no:cacheprovider -k 'not ($REPORT_TESTS or $SKIP_TESTS)' 2>/dev/null | grep '::'" 2>/dev/null | tr -d '\0\r'; }
 run_chunk() {  # $1 label, $2.. node ids → "<초>s <요약>" 또는 "DIED ..."
-  local label="$1"; shift; local ids="$*"; fresh || { echo "DIED(boot)"; return; }; local t0=$(date +%s)
+  local label="$1"; shift; local ids=""; local id
+  for id in "$@"; do ids+=" '$id'"; done   # ★node id 에 공백·괄호가 있어도(파라미터 id) 하나로 넘긴다
+  fresh || { echo "DIED(boot)"; return; }; local t0=$(date +%s)
   wsl.exe -e bash -lc "cd '$REPO' && PYTHONPATH=src:tests/v6 REPORT_TAG=$label REPORT_DIR='$WORK' JAX_PLATFORMS=cpu $PY -u -m pytest $ids -q -p no:cacheprovider -p report_dump > '$WORK/chunk_$label.log' 2>&1; echo EXIT=\$? >> '$WORK/chunk_$label.log'" > /dev/null 2>&1
   local t1=$(date +%s); local log; log=$(tr -d '\0\r' < "$WORK_WIN/chunk_$label.log" 2>/dev/null)
   if echo "$log" | grep -qE '^EXIT='; then echo "$((t1-t0))s $(echo "$log" | grep -E '[0-9]+ passed|[0-9]+ failed|[0-9]+ error|no tests ran' | tail -1)"; else echo "DIED $((t1-t0))s"; fi; }
@@ -55,8 +57,9 @@ run_ids() {  # $1 label, $2 조각 크기, $3.. ids — 죽으면 반으로 쪼�
 
 #: 파일별 조각 크기 — 2026-09-26 실측(CPU x64)으로 조각당 ≤50초가 되게
 declare -A SIZE=( [test_gpu_core.py]=9 [test_gpu_state.py]=12 [test_gpu_travel.py]=10 [test_gpu_stack.py]=6
-  [test_gpu_reserve.py]=4 [test_gpu_plan.py]=4 [test_gpu_convert.py]=8 [test_gpu_phi.py]=8
-  [test_gpu_escape.py]=16 [test_gpu_dispatch.py]=5 [test_gpu_engine_equiv.py]=3 )
+  [test_gpu_reserve.py]=4 [test_gpu_plan.py]=4 [test_gpu_convert.py]=8 [test_gpu_phi.py]=8 [test_gpu_exact.py]=30
+  [test_gpu_escape.py]=16 [test_gpu_dispatch.py]=5 [test_gpu_wake.py]=40 [test_gpu_cands3.py]=6 [test_gpu_vessel.py]=20
+  [test_gpu_engine_equiv.py]=3 [test_gpu_y01.py]=2 )
 
 if [ $REPORT -eq 0 ]; then
   echo "■ 시작 $(date +%T): ${FILES[*]}" >> "$OUT"
@@ -77,7 +80,7 @@ for p in sorted(glob.glob(os.path.join(d, "report_*.json"))):
 json.dump(merged, open(os.path.join(d, "merged.json"), "w", encoding="utf-8"), ensure_ascii=False)
 print("  병합:", {k: len(v) for k, v in merged.items()})
 PY
-  for f in test_gpu_plan.py test_gpu_escape.py test_gpu_dispatch.py test_gpu_engine_equiv.py; do
+  for f in test_gpu_plan.py test_gpu_exact.py test_gpu_escape.py test_gpu_dispatch.py test_gpu_wake.py test_gpu_cands3.py test_gpu_vessel.py test_gpu_engine_equiv.py test_gpu_y01.py; do
     fresh || continue; NCHUNK=$((NCHUNK+1))
     wsl.exe -e bash -lc "cd '$REPO' && PYTHONPATH=src:tests/v6 REPORT_LOAD='$WORK/merged.json' JAX_PLATFORMS=cpu $PY -u -m pytest 'tests/v6/$f' -q -p no:cacheprovider -p report_dump -k '$REPORT_TESTS' > '$WORK/chunk_rep_$f.log' 2>&1; echo EXIT=\$? >> '$WORK/chunk_rep_$f.log'" > /dev/null 2>&1
     log=$(tr -d '\0\r' < "$WORK_WIN/chunk_rep_$f.log" 2>/dev/null)

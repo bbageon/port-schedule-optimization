@@ -1,0 +1,693 @@
+{
+ "mods": [
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\wake.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_wake.py"
+   ],
+   "tests": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_wake.py",
+     "passed": 38,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "WSL venv · CPU x64 · 한 세션 12초 (PYTHONPATH=src:tests/v6 JAX_PLATFORMS=cpu pytest tests/v6/test_gpu_wake.py -s). 방법: v5 를 PRE_ADVICE 로 실제로 굴리며 `_consume_due_wakes`·`schedule_defer_wake` 호출을 전부 가로채(monkeypatch) 그 순간 상태를 배열로 옮겨 fired·wake_idx·armed·defer 목록·yielded·로그 전열·next_wake_time(앞/뒤)·창 규칙·eta_opportunity·candidates_for·_decision_cranes 를 == 로 대조. 집계(zz_report): 무대 18 · 호출 303 · 발화 28 · ETA_WAKE 40 · DEFER_WAKE 6 · 한 호출 다중 wake 9 · armed 항만으로 열린 결정 43(그중 유휴화 시점 22) · 음수 gap 기회 40 · yielded 해제 9 · DEFER 예약 24회 중 수용 6(거부 경로 18) · PRE_REHANDLE 실행 무대 4 · REPOSITION 실행 무대 1 · GATE_IN 무대 1. 무대: test_yr050 무대 6종(blocked-target×5 정책변형 · busy-at-wake · no-eta · neg-gap×2 · gate-in-eta) + 조각 1 §10 무대에 provided_eta 부여 3종 + crowded + 조각 2 prof_k2 무작위 4시드. 그 밖에 seed_wakes==v5 _eta_wakes==host_convert(6무대+넘침 보고), schedule_defer_wake 무작위 60단계×2정보수준(v5 직접 호출 대조), n_wake=n_defer=0(Y01 꼴) 무동작, jit/vmap 잎 비트 동일. 불일치 0건. GPU 는 이 환경(WSL CPU 만)에서 못 돌렸다."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "candidates.py:81-83 (iter_pre_rehandle_jobs) vs piece3_spec array_technique",
+     "what": "명세는 PRE 게이트를 '0 < eta−clock ≤ horizon' 으로 적었으나 v5 코드는 `eta − now > horizon` 만 거른다 — ETA 가 이미 지난(음수 gap) 미도착 트럭도 선제 기회다. `eta_opportunity_mask` 는 v5 를 따랐다 (`eta <= now` 배제는 REPOSITION 쪽 165행에만 있다).",
+     "why": "v5 코드가 정본. test_yr050 negative_gap 시험이 그 경로를 요구하고, 시험 무대 y50-neg-gap 에서 v5 `_decision_cranes` 가 실제로 음수 gap 으로 결정을 연다(집계 neg_gap=40). 명세대로 하면 그 결정들이 사라져 불일치."
+    },
+    {
+     "v5_line_ref": "engine.py:339-347 / 359-382",
+     "what": "명세 files_to_port 의 '339-382 (wake 스케줄·소비)' 중 339-347 은 schedule_defer_wake, 359-382 가 _consume_due_wakes 다 (349-357 이 _next_wake_time).",
+     "why": "줄 번호 표기 차이일 뿐 — 세 함수 모두 옮겼다."
+    },
+    {
+     "v5_line_ref": "engine.py:179, 346",
+     "what": "v5 `_defer_wakes` 는 무한 리스트인데 배열판은 D(n_defer) 칸 고정 — 창 안 예약인데 칸이 없으면 `overflow` +1 (조용히 버리지 않음). D=0 이면 창 안 예약 자체가 넘침.",
+     "why": "고정 크기 배열 규약(state.py 머리말: 넘치면 표시). 시험이 넘침 표시와 창 밖 무시(넘침 아님)를 구분해 확인."
+    },
+    {
+     "v5_line_ref": "engine.py:166-171",
+     "what": "`seed_wakes` 는 WakeArrays 하나가 아니라 `(WakeArrays, dropped)` 를 돌려준다 — W 보다 wake 가 많으면 뒤쪽을 잘라 담고 잘린 수를 dropped 로 보고.",
+     "why": "명세 '조용히 자르지 않는다' 규약. 호스트는 `n_wakes` 로 W 를 정하고 dropped≠0 이면 실격 처리."
+    },
+    {
+     "v5_line_ref": "engine.py:699 (REPOSITION 의 assigned_job = 'REPO:<crane>:<bay>')",
+     "what": "시험 전용: REPOSITION 실행 중인 크레인을 배열로 옮길 때 `cranes.assigned = N`(오더 칸 수)을 '오더 없는 바쁨' 표식으로 넣었다 (assigned ≥ 0 → 유휴 아님, 어떤 표도 그 번호로 읽지 않음).",
+     "why": "test_gpu_escape.world_from_sim 이 오더 표에서 못 찾아 KeyError. 통합판의 REPOSITION 표현은 dispatch/candidates 담당 몫이라 시험 안에서만 규약을 두었다 (open_issues)."
+    }
+   ],
+   "public_api": [
+    "from yard_rl.v6.gpu import wake as WK   # 전부 순수 함수 · jit/vmap 가능 · pre_advice 는 static bool (info_level == PRE_ADVICE)",
+    "WK.wake_times(o: OrderArrays, *, horizon_s, end_s) -> (t (N,) f64 [+inf=자격 없음], valid (N,) bool)   # 166-171행 조건: GATE_OUT & 대상 & ETA & max(0, eta−horizon) < end",
+    "WK.n_wakes(o: OrderArrays, *, horizon_s, end_s) -> () int32   # 호스트가 W(n_wake) 를 정할 때",
+    "WK.seed_wakes(o: OrderArrays, k: int, *, horizon_s, end_s, n_wake: int, n_defer: int = 0, n_review: int = 0) -> (WakeArrays, dropped () int32)   # reset 172-179행: (시각, 오더번호) 안정 정렬 · wake_idx 0 · armed 전부 False · defer 비움; dropped≠0 이면 실격",
+    "WK.schedule_defer_wake(world: BlockWorld, t) -> BlockWorld   # 339-347행: clock+EPS < t ≤ end+EPS 만 정렬 삽입, 칸 없으면 overflow+1",
+    "WK.next_wake_time(world: BlockWorld, *, pre_advice: bool) -> () f64   # 349-357행 `_next_wake_time` (+inf = None); ETA 는 pre_advice 만, DEFER 는 항상",
+    "WK.next_wake_in_window(world: BlockWorld, *, pre_advice: bool) -> () f64   # 306-308행 + 311-313행: wt > end+EPS → +inf — advance 목표(wt)로 쓴다",
+    "WK.consume_due_wakes(world: BlockWorld, *, pre_advice: bool) -> (BlockWorld, fired () bool)   # 359-382행: DEFER 접두 pop → ETA 접두 소비, 로그 (clock,14,-1)들 뒤 (clock,13,오더)들, fired 면 armed 전부 True · yielded 전부 False; 로그 칸 부족은 overflow 에 가산",
+    "WK.eta_opportunity_mask(world: BlockWorld, g: Geom, *, horizon_s, pre_advice: bool) -> (K,) bool   # candidates.py:57-86·183-197 `eta_opportunity` (plan 전 게이트, 음수 gap 포함)",
+    "WK.open_with_armed(cand (K,N) bool, eligible (K,) bool, armed (K,) bool, eta_opp (K,) bool) -> (K,) bool   # 453-464행 `_decision_cranes` = eligible & (any(cand,1) | (armed & eta_opp)); cand·eligible 은 escape.candidate_matrices 의 것",
+    "통합 순서 (engine_step.step 에 넣을 자리, v5 276-336행): due_now 사건 처리 → [W] w', fired = consume_due_wakes(w, pre_advice); fired 면 그 스텝 끝(결정 없음, 291-292행 continue) → [D] open_D = open_with_armed(m.cand, m.eligible, w.wake.eta_armed, eta_opportunity_mask(w, g, horizon_s=profile.decision_horizon_s, pre_advice)); is_D = any(open_D) & clock < end−EPS; close_decision(consume_armed=is_D) 는 이미 297행을 한다 → [X] 탈출 → wt = next_wake_in_window(w, pre_advice) → [F] ~nt_ok & wt==inf → finalize → [A] wt<inf & (~nt_ok | wt < nt − EPS) → advance(w, wt) 만 하고 스텝 끝 (333-335행) → [E] 사건 하나. wt == nt (EPS 안) 면 사건이 먼저(E), 다음 스텝의 W 가 같은 시각에 소비한다.",
+    "호스트: to_block_world(..., n_wake=W, n_defer=D) 가 이미 같은 wake 시드를 넣는다(시험이 seed_wakes 와 == 로 확인). Y01 처럼 ETA 트럭이 없으면 n_wake=0·n_defer=0 으로 두면 모든 함수가 무동작(시험됨)."
+   ],
+   "open_issues": [
+    "engine_step.step 통합(담당 밖): 국면 W(consume 발화 시 스텝 종료)·A(wt 로 advance)·D 개방(open_with_armed) 을 위 '통합 순서' 대로 넣어야 한다. step 에 static 인자 pre_advice·horizon_s 가 추가된다. 조각 1·2 무대는 n_wake=0 이라 답이 그대로여야 한다(회귀 시험 필요).",
+    "REPOSITION 실행 중 크레인의 배열 표현(dispatch/candidates 담당): v5 는 assigned_job='REPO:…' 로 바쁨을 표시하는데 `cranes.assigned` 는 오더 번호다. 시험은 assigned=N 표식을 썼다 — 통합판 규약(예: plan.kind==PK_REPOSITION & assigned=-1 을 '바쁨'으로 읽도록 idle_mask 변경, 또는 표식 번호 채택)을 정해야 escape.idle_mask·candidate_matrices·refresh_rates(loads) 가 v5 와 같아진다.",
+    "PRE 게이트 공유(candidates 담당): v5 는 `iter_pre_rehandle_jobs` 를 결정 개방(eta_opportunity)과 PRE 후보 발행이 **같이** 쓴다('열렸는데 후보 없음' 어긋남 차단). 배열판도 `wake.eta_opportunity_mask` 의 (K,N) 내부 마스크를 PRE 후보 행에 그대로 써야 한다 — 두 곳에 따로 구현하면 명세의 '0<eta−clock' 처럼 갈릴 수 있다. 필요하면 mask 를 (K,N) 으로 돌려주는 변형을 붙이면 된다(any 만 빼면 됨).",
+    "scripts/v6/verify_chunked.sh (담당 밖): FILES 기본 목록과 SIZE 표에 test_gpu_wake.py 를 넣고(조각 12 정도, 파일 전체 12초), --report 단계 목록에도 넣어야 zz_report 가 돈다. 지금은 zz_report 가 스스로 무대를 채우므로 파일을 통째로 돌려도 된다.",
+    "src/yard_rl/v6/README.md 파일 표(담당 밖): `wake.py` 행 추가 — 'ETA wake·armed·DEFER wake·결정 개방(armed 항)·eta_opportunity | engine.py:159-179, 339-382, 453-464'.",
+    "WakeArrays.review_s/review_idx(review epochs, engine.py:314-322 · 다중블록 조정자) 는 손대지 않았다 — 조각 6 몫.",
+    "GPU 비트 일치 미확인 — 이 환경은 WSL CPU 만. wake.py 에 곱셈·나눗셈이 없어 FMA/재결합 위험은 없다.",
+    "정답 궤적 Y01 은 ETA_WAKE·DEFER_WAKE 가 0건(본선 240건, ETA 트럭 없음)이라 이 조각은 Y01 재현에 관여하지 않는다 — n_wake=n_defer=0 무동작 경로만 관여(시험됨). 조각 3 의 PRE/REPO/WAIT 후보·조각 4 가 Y01 의 관건이다."
+   ],
+   "y01_replay": "해당 없음 (통합·수정 단계가 아닌 조각 3 깨우기 구현 단계). 참고: Y01 정답 궤적(1,318 사건, 해시 6668fa4902c4efe4)에는 ETA_WAKE·DEFER_WAKE 가 0건이라 이 파일의 함수는 Y01 에서 n_wake=n_defer=0 무동작 경로만 밟는다(무동작이 시험으로 확인됨)."
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\cands3.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_cands3.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_cands3.py",
+     "passed": 18,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "CPU x64 (WSL venv, 한 세션 40초) 18/18 통과. GPU(CudaDevice, XLA_PYTHON_CLIENT_PREALLOCATE=false) 로 eta-basic·crowded-eta·dead-first-eta·jit/vmap 4건 재확인 통과. 내용: (a) 무대 14종(K=2·10×4×4) — 결정마다 v5 를 가로채 `_decision_cranes` 개방·eta_opportunity·교착 술어·원시 목록(_serve/_pre_rehandle/_reposition 의 종류·오더·bay·feasible·거절 코드·mandatory·score `==`·계획 dur/rehandles/corridor/end/lane/slots/loaded/empty/moves `==`)·목표 bay 집합(_future_target_bays ∪ _escape_bays)·generate().items 의 candidate_id·DEFER 재료 전부 대조, PRE_ADVICE 12 + BLOCK_ARRIVAL 2, 선호 Baseline·ServiceFirstSPT. 집계: 결정 356 · PRE feasible 47 · REPO feasible 537 · 탈출 목표 4 · mandatory 8 · prune 로 잘린 결정-크레인 121 · PLAN_FAILED mandatory 1 · 거절 코드 0/2/3/4 전부 출현. (b) 정답 궤적 Y01 시험(test_y01_ground_truth_candidates_match_every_decision): dump_ground_truth.run_block 과 같은 절차로 v5 를 굴리며 결정 237회 · 후보 2,126건 전부 일치, 구동기 사건 해시 6668fa4902c4efe4 = 정답. (c) eager == jit == vmap 잎 전부 비트 동일. (d) n_esc<N 의 overflow 규약. 시험 안 된 것: SLOT_CONFLICT(5)·DOUBLE_RESERVE(1) 코드가 후보 목록에 실린 사례 없음(eligible 크레인은 구조상 1 이 불가), Y01 에는 ETA wake·PRE 가 0 건(본선 240건 전부라 provided_eta 없음 — PRE·ETA 경로는 소무대로만 검증)."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "candidates.py:334-363 (_escape_bays) · engine.py:449",
+     "what": "REPO 목표 bay 행렬 폭 R = B + 2·E (E 기본 = N). 정수 목표(ETA·release 주도)는 bay 1..B 의 (B,) 마스크로, 탈출 목표는 통로(막힌 오더)마다 lo−gap·hi+gap 둘 → 2E 열. 합쳐 정렬·인접중복 제거(파이썬 set→sorted). n_esc<N 이면 E 칸 뒤 통로는 버리고 deadlock 일 때만 esc_overflow 비트.",
+     "why": "명세 hard_parts 의 '정렬+인접중복 제거 고정 길이 R_max' 를 정확히 담는 최소 폭. 정수 목표는 B 개를 넘을 수 없고 탈출 목표는 통로 수(≤N)×2 라 이 폭이면 조용히 잘리는 일이 없다. Y01(B=24·N=256)에서 R=536, 결정당 계산은 ms 단위."
+    },
+    {
+     "v5_line_ref": "engine.py:618-647 (_plan PRE 경로)",
+     "what": "PRE_REHANDLE 계획의 blocker scan 을 cands3.plan_pre_core 에 다시 적었다 — plan._plan_retrieve 의 scan 본문과 같고 대상 반출(648-663행)만 없다.",
+     "why": "plan.py 는 다른 담당 파일이라 scan 을 공개 함수로 뽑을 수 없었다. 두 벌이 된 것은 open_issues 에 적었다 (plan.py 가 blocker_scan 을 공개하면 여기서 부르면 된다)."
+    },
+    {
+     "v5_line_ref": "candidates.py:521-523 (_order_key) · 413행 job_id=f\"REPO:{cid}:{int(tb)}\"",
+     "what": "REPO 후보의 정렬 키(job_id 문자열)를 정수 int(tb) 의 문자열 순위표(_str_rank_table, 길이 B+1)로 재현했다 (\"10\"<\"2\").",
+     "why": "candidate_id 가 v5 generate().items 위치와 같아야 정책(조각 7)의 마지막 tie-break 가 같다. 문자열 정렬을 배열로 직접 할 수 없어 정적 표로 굽는다. Y01 237결정 전부 일치로 검증."
+    },
+    {
+     "v5_line_ref": "engine.py:699 yc.state.assigned_job = plan.job_id (REPOSITION 이면 \"REPO:<cid>:<bay>\")",
+     "what": "REPOSITION 실행 중 크레인의 cranes.assigned 값으로 BUSY_NO_ORDER = 1<<30 을 **제안**했다 (시험이 이 값을 쓴다). 확정은 통합자 몫.",
+     "why": "배열 세계는 assigned 가 오더 번호(int32)라 문자열을 못 담고, 엔진의 유휴 판정은 전부 assigned<0 이라 0 이상 아무 값이면 되지만 from_block_world 의 tables.job() 이 None 을 돌려주도록 범위 밖 값이어야 한다. 기존 test_gpu_escape.world_from_sim 이 이 경우 KeyError 를 내므로 시험은 번호표를 감싸 처리했다."
+    },
+    {
+     "v5_line_ref": "profile.py:32 decision_horizon_s",
+     "what": "결정 지평 horizon_s 를 candidates3 의 traced 인자로 받는다 (Geom 에 없다).",
+     "why": "geom.py 는 다른 담당 파일. 통합 시 Geom 에 decision_horizon_s 를 넣고 static 으로 바꾸는 것을 권한다 (open_issues)."
+    },
+    {
+     "v5_line_ref": "candidates.py:206-232 (vessel_prep·bound_repo·safety_only·prepo_one_shot)",
+     "what": "LEGACY_DEFAULT 경로만 옮겼다: vessel_prep=False·bound_repo=False·safety_only=False·prepo_one_shot=False·block_pre_rehandle=False·k_max=12·mandatory_wait_frac=0.8·wait_mode=WAIT. DEFER 는 재료 함수 defer_wait 만 (LEGACY 는 안 쓴다).",
+     "why": "정답 궤적 Y01 이 LEGACY_DEFAULT 라 그 경로가 정본이고, 명세(policy_config 의 bool 4개 → static 인자)는 후속 static 플래그로 더할 수 있게 구조를 남겼다."
+    }
+   ],
+   "public_api": [
+    "candidates3(world: BlockWorld, g: Geom, *, horizon_s, pre_advice: bool, n_esc: int | None = None) -> CandOut3   # g·pre_advice·n_esc static, horizon_s traced 스칼라(v5 profile.decision_horizon_s); 결정 시작 시점(전 크레인 generate 호출 시점)의 세계를 준다",
+    "CandOut3 (NamedTuple): m: CandMats(escape.candidate_matrices 그대로) · eligible (K,) · mandatory (N,) · serve_raw/serve (K,N) · serve_score (K,N) · pre_gate (K,N) · P_pre: PlanOut (K,N, kind=PK_PRE_REHANDLE) · pre_code (K,N) · pre_raw/pre (K,N) · pre_score · repo_bay (K,R) f64 정렬(+inf 빈칸) · repo_valid/repo_escape (K,R) · P_repo: PlanOut (K,R, kind=PK_REPOSITION) · repo_code · repo_raw/repo (K,R) · repo_score · esc_overflow () · eta_opp (K,) · open (K,) [= _decision_cranes: eligible & (any serve | (wake.eta_armed & eta_opp)) — armed 소진 전 값으로 부를 것] · deadlock () · blocked (K,N)",
+    "flat_view(out: CandOut3) -> FlatCands   # (K, C=N+R+1): 열 [0,N) SERVE/PRE(오더) · [N,N+R) REPO(목표 bay) · [N+R] WAIT; raw·feasible·mandatory·kind(PK_*)·job·bay·score·code(-1=PLAN_FAILED)·plan_ok·dur·rehandles·lo·hi·end_bay·end_row·lane·loaded_m·empty_m·n_moves",
+    "prune(flat: FlatCands, g: Geom, *, k_max: int = 12) -> PruneOut(keep (K,C) bool, candidate_id (K,C) int32 [= v5 generate().items 위치, WAIT 은 n_kept], n_kept (K,) int32, rest_rank (K,C))",
+    "defer_wait(world, g, pre_advice: bool, *, t_max: float = 600.0) -> DeferOut(trigger_s, trigger_kind 0 ETA·1 RELEASE·-1, trigger_job, defer_until)   # YR-147 DEFER 재료 (LEGACY 미사용)",
+    "plan_pre(world, k, n, g) -> PlanOut · plan_pre_core(stacks, conts, excluded0, spec7, cur_bay, cur_row, bay_min, bay_max, target_cont, g) -> PlanOut   # PRE_REHANDLE 계획 (blocker 만, 트럭 위치잡기 없음, lane = 대상 bay)",
+    "plan_repo(cranes: CraneArrays, k, tb, g) -> PlanOut   # 빈 주행 계획 (dur = estimate_reach_s, corridor (min,max), slots 없음, lane -1, empty_m = dist)",
+    "pre_gate(world, g, horizon_s, pre_advice) -> (K,N) bool · future_bays(world, g, horizon_s, pre_advice) -> (m_eta, m_rel, bay) · escape_targets(world, g, m, deadlock, blocked, n_esc) -> (bay (K,2E), valid, overflow) · repo_targets(...) -> (bay (K,R), valid, is_escape, overflow)",
+    "n_repo_cols(g, n_orders, n_esc=None) -> int   # R = B + 2·E",
+    "상수: K_MAX=12 · MANDATORY_WAIT_FRAC=0.8 · DEFER_T_MAX=600.0 · REPO_SCORE_BASE=-1000.0 · REPO_MIN_MOVE=1.0 · BUSY_NO_ORDER=1<<30 (REPO 실행 중 cranes.assigned 제안값)",
+    "jit 예: jax.jit(lambda w, hz: candidates3(w, g, horizon_s=hz, pre_advice=True))  — 시험 all3_jit 참조; Y01 규모(K=2·N=256·B24·R10·T6·R_repo=536) CPU 컴파일+237결정 실행 2.2초"
+   ],
+   "open_issues": [
+    "[통합자] REPOSITION 실행 중 크레인의 cranes.assigned 표현을 확정할 것 — 제안 BUSY_NO_ORDER(1<<30). 아울러 assign 경로에 PRE/REPO 분기(engine.py:699-713: REPO 는 is_loaded=False·오더 상태 불변·token None, PRE 는 오더 PLANNED 잔존·token=job_id) 와 완료 경로(915행 kind 가드는 h_completed 에 이미 있음)를 더해야 한다. host_convert.from_block_world 는 REPO 크레인의 assigned_job 을 v5 문자열 \"REPO:<cid>:<bay>\" 로 되돌려야 대조가 맞는다.",
+    "[통합자·gpu/wake.py 담당] eta_opportunity 게이트가 두 벌이다 — cands3.pre_gate/eta_opp/open 과 wake.eta_opportunity_mask/open_with_armed. 둘 다 v5 iter_pre_rehandle_jobs 를 따르지만 한 벌로 합쳐야 한다 (candidates3 는 PRE 후보를 만들며 어차피 게이트를 계산하므로 wake 쪽이 이것을 받는 편이 계산 사본이 없다). 합치기 전 두 마스크의 동일성 시험을 권한다.",
+    "[plan.py 담당] blocker scan 을 공개 함수(예: blocker_scan → _Carry)로 뽑아 주면 cands3.plan_pre_core 의 사본 ~60줄을 지울 수 있다. 지금은 두 벌이 같은 본문이라 한쪽 수정이 다른 쪽에 반영되지 않는다.",
+    "[geom.py 담당] Geom 에 decision_horizon_s 를 넣어 주면 candidates3 의 horizon_s 인자를 없애고 static 으로 굽는다.",
+    "[test_gpu_escape.py 담당] world_from_sim 이 REPO 실행 중 크레인(assigned_job=\"REPO:…\")에서 KeyError 를 낸다 — 조각 3 통합 뒤 lockstep 에 그대로 쓰려면 번호표 처리를 넣어야 한다 (내 시험은 _Tables/_JobIndex 로 감쌌다).",
+    "[정답 궤적 관찰] Y01 은 본선 240건뿐이라(외부트럭 0) ETA wake·PRE_REHANDLE 이 0 건이고, 조각 3 중 실제로 쓰이는 것은 release 주도 REPO(3회 선택)·prune(114 결정-크레인에서 12 초과 잘림)·WAIT 이다. 또 v5 KpiTracker.positioning_count/pre_rehandle_count 는 어디서도 올리지 않는다(Y01 진실: REPO 3회 실행인데 positioning_count 0) — 배열판도 0 으로 둬야 정답과 맞는다 (state.py 주석의 '조각 3 이 올린다' 는 v5 와 다르다).",
+    "[시험 공백] SLOT_CONFLICT(5) 가 후보 목록에 실린 사례가 무대에 없다(계획이 예약 칸을 제외하므로 생기기 어렵다). DEFER 모드(DEFER_ALL/DEFER_TRIGGER)는 재료 값만 대조했고 wake 예약·소비는 wake 담당.",
+    "[환경] tests/v6/test_gpu_cands3.py 전체가 한 WSL 세션(≈40초)에 돈다. scripts/v6/verify_chunked.sh 의 파일 목록·SIZE 표·REPORT_TESTS 에는 아직 없다 (스크립트는 내 담당이 아님) — 전체 회귀에 넣으려면 SIZE 6 정도로 등록하면 된다. 다른 담당 파일은 건드리지 않았으므로 기존 315건 회귀는 구조상 영향 없음(재실행은 하지 않았다)."
+   ],
+   "y01_replay": "통합 전 단계라 배열 엔진으로 사건을 진행하지는 않았다. 대신 정답을 만든 절차(ResolverPolicy(ServiceFirstSPT)+CandidateGenerator(LEGACY_DEFAULT), PRE_ADVICE)로 v5 를 굴리며 결정 237회마다 candidates3+flat_view+prune 를 v5 generate().items 와 대조: 후보 2,126건 전부(candidate_id·feasible·mandatory·score·계획) 일치, 처음 갈리는 사건 없음. 구동기의 사건 1,318건 해시 6668fa4902c4efe4 = 정답 (시험 test_y01_ground_truth_candidates_match_every_decision 로 고정)."
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\vessel.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_vessel.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_vessel.py",
+     "passed": 17,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "CPU x64 한 세션 12.4초 (WSL venv, JAX_PLATFORMS=cpu). 무대 4종(base·a·b·c) × ①처리기 lockstep(v5 _handle 앞뒤 상태 가로채기, 사건마다 배·이송·push 열·오더 status/deadline·비용·berth·yielded ==) · ②_advance 적분+rate×dt(mul_exact) 증분 · ③_refresh_rates 요율 · ④_finalize clearout(base, c-cut) · ⑤재현(배열 상태 이어 가며 v5 사건 로그 추적 — 본선 사건 354건(c) 시각·종류·대상 정확, 끝 비용 4항·berth·남은 큐 ==) + 단위 3건(push_if·링버퍼 넘침·jit==eager). 불일치 0건·처음 갈리는 사건 없음. GPU(CUDA 1장)에서도 재현 시험 4무대 통과(비트 동일). (a) 막힘 경로: STS blocked·pending 대기·TRANSFER_ARRIVE 재개 실제 발생(sts_wait 3480, transfer_wait 8924.8) · (b) 적하 굶김 sts_wait 1080.7 · (c) 사전식 '-100'<'-11' 해제 순서·vessel_delay 15554.9·depart_delay 14054.9·PLAN_CHANGE 5행(None 세팅·basis None·마감 쌍·모르는 배·빈 data) 전부 v5 와 같음."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "piece4_spec hard_parts ②",
+     "what": "'push_event 를 inf 면 무시로 확장' 대신 vessel.py 의 `push_if(q, cond, …)` (tree_where 로 push 결과/원큐 선택)를 썼다.",
+     "why": "events.py 는 담당 밖 파일이라 고치지 않았다. 효과는 같다 — 넣지 않을 때 칸·순번을 먹지 않는다 (단위 시험 test_push_if_false_leaves_queue_untouched)."
+    },
+    {
+     "v5_line_ref": "engine.py:1001-1006 · spec 'release_rank 열'",
+     "what": "release_rank (N,) 열을 OrderArrays 가 아니라 VesselArrays 안에 뒀다 (`VesselArrays.release_rank`).",
+     "why": "state.py 가 담당 밖. host_convert 번호(n = sorted(job_id) 순위)에서는 rank == n 이지만 사전식≠번호 세계를 위해 열을 유지; 호스트 `release_rank_from_ids(job_ids, n_orders)` 가 굽는다. 무대 (c) 가 '-100' 이 '-11' 보다 먼저 해제됨을 v5 와 대조."
+    },
+    {
+     "v5_line_ref": "engine.py:1048-1065 · spec event_kinds 9 '선박 번호 + 주입 사건 행 번호(aux 표)'",
+     "what": "PLAN_CHANGE 사건의 target 은 지금 host_convert 가 시드하는 대로 **선박 번호**로 두고, 표(PlanChangeArrays)에서 '그 배의 첫 미소비 행'(consumed 마스크)을 적용한다.",
+     "why": "같은 배의 행은 시드 정렬(time, kind, target) 순이고 사건도 그 순서로 오므로 행 번호를 큐에 실을 필요가 없다 — host_convert 의 시드·payload 복원을 바꾸지 않아도 된다. 키 없음(NaN/-2)과 None 세팅(+inf/-1)을 구분해 v5 `upd.get(키, 기존)` 의미를 그대로 둔다."
+    },
+    {
+     "v5_line_ref": "engine.py:936-942, 959-964",
+     "what": "`yard_handover_cap`(YR-088 opt-in) 분기(_discharge_pipeline·양하 적재 완료가 STS 를 재개)는 옮기지 않았다.",
+     "why": "Y01 정답(_sim 기본 None)·fixtures·terminal_stream 전부 None. 필요해지면 (V,) 열 하나와 can 판정 한 항."
+    },
+    {
+     "v5_line_ref": "vessel_cost.py",
+     "what": "본선 surrogate 비용(softplus·projected_completion·overrun_cost)은 옮기지 않았다. 엔진이 실제로 적립하는 vessel_delay/depart_delay/berth_overrun(1024-1039·1072-1080행)만 옮겼다.",
+     "why": "vessel_cost.py 는 정책 측(ExecutionQ·resolver, 조각 7) 계산이고 엔진 상태·사건열에 영향이 없다."
+    },
+    {
+     "v5_line_ref": "spec equivalence_test '비용 상대 1e-9'",
+     "what": "비용·적분·시각 전부 허용오차 없이 == 로 댔다.",
+     "why": "조각 1·2 규약(비트 일치)과 통일. 실제로 갈린 항목 0."
+    },
+    {
+     "v5_line_ref": "spec files_to_port 'engine.py:948-1065'",
+     "what": "명세 줄 참조와 v5 코드는 일치했다 (948 start · 959 can · 966 sts_move · 991 request · 995 release · 1008 arrive · 1024 finish · 1048 plan_change). 다른 점 없음.",
+     "why": "확인 보고."
+    }
+   ],
+   "public_api": [
+    "class VesselArrays(NamedTuple): is_discharge,total_moves,cadence_s,buffer_cap,planned_start_s,planned_completion_s,completion_basis,etd_s (V,) 계획 · started,remaining,buffer,blocked_since_s,wait_accum_s,done,actual_completion_s,alive (V,) 진행 · release_rank (N,) int32 — 빈 시각 +inf, None basis -1",
+    "class TransferArrays(NamedTuple): busy_until (U,) f64, move_time_s () f64, pend_time (P,) f64, pend_vessel (P,) int32, head () int32, tail () int32, wait_accum_s () f64, overflow () int32 — 링버퍼, 대기 수 = tail−head",
+    "class PlanChangeArrays(NamedTuple): vessel (I,) int32, time_s (I,) f64, completion (I,) f64 [NaN=키없음·+inf=None], basis (I,) int32 [-2 키없음·-1 None·0..3], etd (I,) f64, dl_job (I,J) int32, dl_s (I,J) f64, consumed (I,) bool",
+    "class VesselWorld(NamedTuple): clock,end_s,queue,orders,cranes,cost,kpi,vessels,transfer,plan_change,violation — 통합 전 시험용; 통합자는 BlockWorld 에 `vessels`·`transfer`·`plan_change` 세 칸을 같은 이름으로 더한다 (처리기는 duck-typed `world._replace`)",
+    "attach(world, vessels, transfer, plan_change) -> VesselWorld",
+    "push_if(q: EventArray, cond, time, kind, target) -> EventArray  # cond 거짓이면 큐 그대로 (칸·순번 안 먹음)",
+    "h_vessel_start(world, v) -> world   # kind 8",
+    "h_sts_move(world, v) -> world       # kind 4 (transfer_request 뒤 STS_MOVE push — seq 순서 v5 그대로)",
+    "h_transfer_arrive(world, v) -> world  # kind 3 (push 순서: VESSEL_RELEASED → pending 재배차 TRANSFER_ARRIVE → STS_MOVE 재개; yielded 해제)",
+    "h_vessel_released(world, n) -> world  # kind 7 (engine_step.h_released 와 같은 일)",
+    "h_plan_change(world, v) -> world    # kind 9 (v=-1 또는 미소비 행 없음 → 무동작)",
+    "on_load_completed(world, n, cond) -> world  # h_completed 의 935행 자리: SERVE 완료 오더 n 이 VESSEL_LOAD & 배 있음 → transfer_request",
+    "transfer_request(world, v, cond) -> world · dispatch_pending(world, cond) -> world  # transfer.py request/dispatch_pending + push",
+    "integrate_vessel_wait(vessels, transfer, dt) -> (vessels, transfer)  # advance 의 `go` 안 (806-811행 · transfer.integrate); 곱은 mul_exact",
+    "vessel_rates(vessels, transfer) -> (sts_wait () f64, transfer_wait () f64)  # refresh_rates 의 rate[0], rate[1]",
+    "clearout_vessels(world) -> world   # _fin 의 advance 뒤 (1072-1080행, 배 번호 순 += scan)",
+    "can_sts_process(vessels) -> (V,) bool · pending_count(transfer) -> () int32",
+    "empty_vessels(v, n_orders) · empty_transfer(u, p, move_time_s) · empty_plan_change(i, j)",
+    "[호스트] release_rank_from_ids(job_ids, n_orders) -> (N,) int32",
+    "[호스트] vessel_arrays_from_scenario(scenario, job_ids, vessel_ids, n_orders, *, v_max=None) -> VesselArrays  # job_ids/vessel_ids = host_convert.IdTables 의 것",
+    "[호스트] vessel_arrays_from_v5(sim_vessels_dict, job_ids, vessel_ids, n_orders, *, v_max=None) -> VesselArrays",
+    "[호스트] transfer_arrays_from_profile(profile, *, p_cap) -> TransferArrays · transfer_arrays_from_v5(sim.transfer, vessel_ids, *, p_cap)",
+    "[호스트] plan_change_from_scenario(scenario, job_ids, vessel_ids, *, i_max=None, j_max=None) -> PlanChangeArrays",
+    "[호스트] vessels_to_v5(vessels, vessel_ids) -> dict[vid, dict] · transfer_to_v5(transfer, vessel_ids) -> dict · pending_entries(transfer, vessel_ids) -> list[(t, vid)]",
+    "상수: EPS=1e-9 · BASIS_NAMES=('TOS_TARGET','PLAN_COMPUTED','ATD_MINUS_BUFFER','OPERATOR_TEMP') · BASIS_NONE=-1 · BASIS_ABSENT=-2"
+   ],
+   "open_issues": [
+    "통합(담당 밖 파일): state.py BlockWorld 에 `vessels: VesselArrays`·`transfer: TransferArrays`·`plan_change: PlanChangeArrays` 세 칸 추가 + empty_block_world 인자(v_max·u·p_cap·i_max·j_max); engine_step._handlers 3/4/8/9 를 h_transfer_arrive/h_sts_move/h_vessel_start/h_plan_change 로 교체(V_UNSUPPORTED_EVENT 2048 표시 제거), 7 은 h_released 유지 가능; h_completed 에 `on_load_completed(new, n, nvalid)`; advance 의 `go` 안에 integrate_vessel_wait(dt); refresh_rates 의 z,z 를 vessel_rates 로; _fin 의 advance 뒤 clearout_vessels; host_convert.to_block_world 가 세 배열을 만들고(p_cap ≥ Σtotal_moves 권장) from_block_world 가 vessels_to_v5/transfer_to_v5 를 내보내면 조각 1 compare ⑨ 의 cost.sts_wait/transfer_wait/vessel_delay/depart_delay·berth_overrun 이 그대로 대조된다.",
+    "Y01 정답 재현은 여기서 하지 않았다 — 통합 전(처리기 단위 + 본선 사슬 재현)이고 Y01 은 PRE_ADVICE(조각 3)도 필요. 통합 뒤 확인할 것: JOB_RELEASED(호스트 시드, start+k·cadence 곱셈)와 STS_MOVE(누적 가산)가 같은 시각에 놓일 때의 큐 순서(우선순위 3 vs 2, 시각 비트가 갈리면 시각순) — 산술을 v5 그대로 두었으므로 맞아야 하지만 통합 동등성 시험만이 확정한다.",
+    "yard_handover_cap(YR-088 opt-in) 미이식 — 필요 시 (V,) 파이프라인 열 + can 판정 한 항 + h_completed 양하 분기.",
+    "vessel_cost.py(정책 측 surrogate 비용) 미이식 — 조각 7 몫.",
+    "README(src/yard_rl/v6/README.md) 의 '조각 4' 표·파일표 갱신은 담당 밖 — 통합자가 vessel.py 행을 추가.",
+    "작업 트리에 다른 담당의 미커밋 변경(exact.py 수정, cands3.py·wake.py·test_gpu_wake.py·test_gpu_exact.py)이 함께 있다 — 내 시험은 그 상태에서 통과했고, 내 파일 2개 외에는 손대지 않았다. git commit 하지 않았다."
+   ],
+   "y01_replay": "해당 없음(통합·수정 단계 아님 — 처리기 단위 구현). 대신 v5 를 실제로 굴린 4무대에서 본선 사건 사슬(base 14·a 26·b 20·c 354건)을 배열 큐가 스스로 만들어 v5 사건열과 시각·종류·대상 전부 일치, 처음 갈리는 사건 없음; 끝 비용 sts_wait/transfer_wait/vessel_delay/depart_delay·berth_overrun 비트 일치. Y01(본선 240·해시 6668fa4902c4efe4)은 통합자가 세 칸을 BlockWorld 에 붙이고 조각 3 과 합친 뒤 dump_ground_truth 와 대조해야 한다."
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\exact.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_exact.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_exact.py",
+     "passed": 26,
+     "failed": 0,
+     "skipped": 1,
+     "notes": "WSL venv · CPU x64 · 파이썬 3.12.13 · jax 0.11.2 · 한 세션 2.9초. 기대값 손기입 없이 파이썬 sum() 을 실제로 불러 비트(struct.pack) 비교(−0.0≠+0.0, NaN 은 NaN 끼리). ① 무작위 60항×50회: 전부 일치, 그중 41/50 회는 순차 += 와 sum() 이 실제로 갈린 입력(보정을 건드렸다는 증거) ② 마스크 20종·앞쪽 꺼진 마스크·전부 False ③ 길이 0/1/2 (−0.0→+0.0, nan, ±inf, 1e308, 최소 정규수) ④ nan/inf/넘침 18사례 ⑤ jit==eager==sum(), vmap(B=12,n=32)+마스크, jit(vmap) ⑥ v5 자리 모양 탐침: censored_exposure(40항) 20회 중 18회 · 레인 평균 L=3~8 60회 중 10회 · 크레인 부하 K=3 30회 중 0회 순차합이 sum() 과 갈림 (sum_python 은 전부 일치) ⑦ sum_seq≠sum() 못박기, np.float64 항이면 sum() 도 순차임을 확인. 건너뜀 1건 = 비정규 수 탐침: XLA CPU 가 5e-324·1e-320 을 0 으로 씻어(FTZ/DAZ) 한 항짜리부터 갈림 → 씻는 백엔드면 skip, 안 씻는 백엔드(GPU)면 대조."
+    },
+    {
+     "file": "tests/v6/test_gpu_core.py",
+     "passed": 2,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "-k 'sum_seq or mul_exact' 회귀 확인(기존 exact 함수 동작 불변). engine_step·phi import 확인. GPU(CUDA) 실행은 못 함(환경)."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "what": "비정규 수(5e-324·1e-320 등) 경계는 단언하지 않고 백엔드 탐침 시험(test_subnormal_probe)으로 분리 — XLA CPU 에서는 skip, 씻지 않는 백엔드에서만 sum() 과 대조",
+     "why": "실측: XLA CPU 실행기가 비정규 수를 0 으로 씻는다(FTZ/DAZ). sum_python([1e-320]) = 0.0 으로 한 항짜리 `0 + x0` 부터 갈리므로 합산 알고리즘이 아니라 컴파일된 모든 연산의 성질. v5 값 영역(초·원·비율)엔 비정규 수가 없어 동등성 무관. 나머지 NaN/inf/넘침 경계 18사례는 전부 비트 일치 단언."
+    },
+    {
+     "what": "sum_seq 는 동작을 바꾸지 않고 주석만 정정 (첫 항 xs[0] 그대로 시작 → xs[0] = −0.0 일 때 파이썬 `acc=0.0; acc+=x` 와 부호가 다름을 docstring 에 명기)",
+     "why": "담당은 '주석 정정'이고, sum_seq 는 engine_step·phi 가 이미 쓰는 통과 경로라 동작 변경은 통합자 몫. 부호 차이는 v5 자리(max(0.0,·) 결과·원화)에서 −0.0 이 안 생겨 실질 영향 없음."
+    },
+    {
+     "what": "scripts/v6/verify_chunked.sh --fresh/--report 를 돌리지 않고 wsl.exe 직접 세션(80초) 3회로 검증",
+     "why": "이 파일은 한 세션 3초에 완주하므로 조각 분할이 불필요. --fresh 는 공유 outputs/v6/verify 를 지우고 조각마다 wsl --terminate 를 반복해 동시 작업 중인 다른 담당의 WSL 세션을 끊는다. 집계 시험(REPORT)도 이 파일엔 없다. 스크립트 기본 FILES·SIZE 에 test_gpu_exact.py 가 없는 점은 open_issues."
+    },
+    {
+     "what": "NaN 비교는 NaN 끼리 같다고 본다(부호·페이로드 미비교)",
+     "why": "v5 는 NaN 페이로드를 쓰지 않고, XLA 상수 접기가 NaN 부호를 정규화할 수 있어 비트 비교는 거짓 실패를 낸다. 그 외 모든 값은 비트 비교(−0.0 ≠ +0.0)."
+    }
+   ],
+   "public_api": [
+    "from yard_rl.v6.gpu.exact import sum_python  —  sum_python(xs, mask=None) -> jnp.ndarray (() float64). xs: (n,) 실수 배열 또는 파이썬 시퀀스(정적 n≥0, 순서 = v5 가 더한 순서). mask: (n,) bool 또는 None(전부). False 칸은 목록에 없는 것처럼 건너뛰고 첫 True 칸에 `0 + x0` 규칙(−0.0→+0.0). 빈 목록/전부 False → 0.0. jit·vmap 가능: jax.jit(sum_python)(x, m) · jax.vmap(sum_python)(X, M) · jax.jit(jax.vmap(lambda x: sum_python(x)))(X). eager lax.scan 은 호출마다 재컴파일되므로 반복 호출은 jit 판으로.",
+    "적용 규칙 (exact.py 머리말): v5 `sum(...)` 이고 항이 파이썬 float → sum_python · 항이 int → 아무 방법(정확) · 항이 np.float64 → sum_seq (CPython 이 그 항부터 보정 없는 일반 덧셈으로 떨어짐, 실측 sum([np.float64(0.1)]*10)=0.9999999999999999) · v5 `+=` 루프/`a+b+c` 식 → sum_seq 또는 lax.scan `+=`. 2항까지는 sum_python == 순차합(보정이 t 로 돌아옴), 3항부터 갈릴 수 있음.",
+    "통합 지시 — gpu/state.py:636-649 censored_exposure_s (v5 time_contract.py:141 `sum(end - r.gate_in for r in records.values() if r.gate_in < end and (r.gate_out is None or r.gate_out > end))`): 항 타입 확인 완료 — end = scenario.end_time(float 속성 horizon_s+drain_window_s), gate_in = engine.py:132 `register(j.job_id, j.actual_gate_in or 0.0)` 로 scenario_gen(random.Random, numpy 미사용) 산 파이썬 float → Neumaier 대상. 바꿀 코드: `terms = jnp.where(inside, end_s - o.gate_in_s, 0.0); return sum_python(terms, inside)` (현재 `+=` scan 삭제). 배열 순서는 records 사전 삽입 순서(= engine.py:132 등록 루프 순서)여야 함 — state.py 주석의 '오더 번호(job_id 정렬) 순'이 그 순서와 같은지 통합자가 확인. 탐침: 40항에서 20회 중 18회 순차합이 갈림.",
+    "v5 `sum()` 자리 목록 A — 실수 항, Neumaier(sum_python 대상): ① world/integrated/time_contract.py:141 censored_exposure_s → gpu/state.py:636 (현재 += scan, 바꿔야 함) ② world/integrated/lane.py:50 `sum(vals)/len(vals)` 평균 혼잡 → gpu/engine_step.py:197 lane_mean 이 sum_seq (레인 ≥3 이면 갈릴 수 있음, 탐침 60회 중 10회; 레인 ≤2 는 안전) ③ world/integrated/engine.py:835 `_load_imbalance total = sum(loads)` → gpu/engine_step.py:214 sum_seq (K=2 는 항상 같음, K≥3 은 sum_python; 탐침 K=3 30회 중 0회지만 증명 아님) ④ world/integrated/adapter.py:33 _rehandle_time `sum(m.duration_s)`, :65 `sum(v.sts_wait_accum_s)`, :266 `sum(svc)/len`, :269 `sum(reach_l)/len`, :271 `sum(waits)/len` — 특징(결정 계층·조각 7) ⑤ world/integrated/block_congestion.py:55 · cost_curve_v2.py:130 · actors/classical.py:126 · features/block.py:29 `sum(max(0.0, available_at − now) for cranes)` — K≥3 만 의미 ⑥ world/integrated/multiblock.py:209 · stage/cargo_runtime.py:276 · stage/month_engine.py:110 `sum(totals.values())` 터미널 총비용(다중블록·조각 6) ⑦ world/contract/cost.py:60 `_q(sum(tmp.contributions().values()))` 13항 정규화 총비용 · validate.py:230 — 현재 gpu 는 호스트에서 v5 함수를 부름(자동으로 맞음), 배열로 옮기면 sum_python ⑧ stage/episode.py:278 · stage/month.py:404 `sum(w)/max(1,sts)` 본선 유휴 — gpu/phi.vessel_idle_by_ship 이 이미 보정합(단 −0.0 첫 항 구멍, open_issues) ⑨ world/integrated/engine.py:1155-1156 _pstdev — 호출자 없음(이식 불필요) ⑩ world/integrated/yard_layout.py:126 mean_gate_time_s — 호스트 배치 상수 검증, 이식 대상 아님 ⑪ slot_plan.py:276 · terminal_stream.py:130,137,141,234 — 진단/스트림 생성 호스트 측, 이식 대상 아님 ⑫ adapter.py:41 · lane.py:47 `sum(1.0 for …)` 는 실수 1.0 개수합 — 정확(방법 무관).",
+    "v5 `sum()` 자리 목록 B — 정수 항(개수 세기, 방법 무관 정확): engine.py:816,821,1144 · adapter.py:58,59,63,131 · baselines.py:74,493,514(514 는 sts_wait_accum_s 실수→A⑤ 준용) · block_congestion.py:56 · cost_curve_v2.py:134,144 · multiblock.py:237 · slot_plan.py:219 · stage/month.py:164-166,221-234 · stage/vessels.py:274,312-314 · ppo/·eval/·train/ 의 개수합. 예외로 adapter.py:266-277 · baselines.py:505,525 는 실수 평균(A④ 와 같이 sum_python).",
+    "탐침 상수(시험이 상시 감시): XLA 가 jit 한 `0.0 + w` 를 `w` 로 접는다(−0.0 새어 나옴) → 첫 항 0 은 lax.optimization_barrier(jnp.zeros(())) 뒤에. XLA CPU 는 비정규 수를 0 으로 씻는다(FTZ/DAZ)."
+   ],
+   "open_issues": [
+    "[통합자·state.py] gpu/state.py:636 censored_exposure_s 가 아직 `+=` scan — sum_python(terms, inside) 로 교체 필요(공개 API 항목의 코드 참조). 탐침 40항에서 20회 중 18회 순차합이 v5 sum() 과 갈림.",
+    "[engine_step.py 담당] gpu/engine_step.py:197 lane_mean `sum_seq(vals)` ↔ v5 lane.py:50 `sum(vals)` (파이썬 float, Neumaier). 레인 3개 이상이면 마지막 비트가 갈릴 수 있음(탐침 L=3~8 60회 중 10회). 조각 1·2 동등성이 통과한 것은 무대 레인 수·값(load/(1+deg) 가 정확히 표현되는 경우)이 보정을 안 건드린 것으로 보임 — Y01 재현 시 확인. 같은 파일 :214 `sum_seq(loads)` 는 K=2 안전, K≥3 은 sum_python.",
+    "[phi.py 담당] gpu/phi.py:141 vessel_idle_by_ship `nf = jnp.where(first, 0.0 + w, t)` — XLA 가 `0.0 + w` 를 `w` 로 접어 첫 스트림 유휴가 −0.0 이면 −0.0 (파이썬 +0.0). 부호만의 차이고 vessel_idle_krw 의 max(0,·) 뒤엔 무관하나, 규약대로 장벽 0 (`lax.optimization_barrier(jnp.zeros(()))+w`) 또는 배별 sum_python 으로 정리 권장.",
+    "[test_gpu_core.py] test_sum_seq_matches_python_left_fold 의 이름·docstring 이 '파이썬 sum()' 과 같다고 적었으나 실제 비교 대상은 `+=` 루프 — 3.12 sum() 과는 다르므로 문구를 '+= 루프' 로 고쳐야 오해가 없음.",
+    "[verify_chunked.sh · README] scripts/v6/verify_chunked.sh 의 기본 FILES 목록·SIZE 표에 test_gpu_exact.py 추가 필요(`[test_gpu_exact.py]=27`, 한 세션 3초). src/yard_rl/v6/README.md 파일 표의 exact.py 설명과 '함정 셋' 표에 sum_python 완료·비정규 수 씻김(FTZ/DAZ, 모든 컴파일 연산 공통)·`0.0+w` 접힘을 추가.",
+    "[환경] 검증에 wsl.exe --terminate 를 3회 썼다 — 동시 작업 중인 다른 담당의 WSL 세션이 있었다면 끊겼을 수 있음(지시된 절차상 불가피). GPU 백엔드 실행은 못 했음(비정규 수 탐침은 GPU 에서 skip 대신 실제 대조가 돌아감).",
+    "[적용 조건] sum_python 은 항이 전부 파이썬 float 인 v5 자리에만 맞다 — 항에 int 가 섞이면 CPython 은 그 항을 보정 갱신 없이 더하고, np.float64 가 섞이면 그 항부터 보정 없는 일반 덧셈으로 떨어진다. 목록 A 의 자리들은 scenario_gen·terminal_stream 이 random.Random 만 쓰고 numpy 를 import 하지 않아 파이썬 float 로 판단했으나, 통합자가 자리마다 한 번 `type(x) is float` 를 확인하면 확실하다."
+   ],
+   "y01_replay": "해당 없음 — 이번 담당(sumfix)은 도우미 함수·시험만이라 엔진을 돌리지 않았다. Y01 재현은 통합 단계에서 state.censored_exposure_s(및 engine_step.py:197 lane_mean) 를 sum_python 으로 바꾼 뒤 판정한다."
+  }
+ ],
+ "integ": {
+  "files_written": [
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\state.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\host_convert.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\scripts\\v6\\dump_ground_truth.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_y01.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\reports\\yr327_v6_port\\ground_truth\\block_Y01_load30_seed9900777_reference_BLOCK_ARRIVAL.json",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\reports\\yr327_v6_port\\ground_truth\\block_Y01_load30_seed9900777_reference_PRE_ADVICE.json",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\reports\\yr327_v6_port\\ground_truth\\block_Y01_load30_seed9900777_first_BLOCK_ARRIVAL.json",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\reports\\yr327_v6_port\\ground_truth\\block_Y01_load30_seed9900777_sf_spt_BLOCK_ARRIVAL.json"
+  ],
+  "tests": [
+   {
+    "file": "tests/v6/test_gpu_y01.py",
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "신규. 정답 궤적 Y01 다섯 조합 재현 + zz_report. sf_spt/PRE_ADVICE(원본 해시 6668fa4902c4efe4·사건 1,318·결정 237·REPO 실행 3) · sf_spt/BLOCK_ARRIVAL(같은 해시) · reference/BLOCK_ARRIVAL · reference/PRE_ADVICE · first/BLOCK_ARRIVAL(해시 760af9a960d07bf8·사건 1,321·결정 232) — 사건 로그 전열·해시·비용 13항·KPI 10항·결정 수 == 정답 JSON, 그리고 지금 굴린 v5 와 오더·크레인·격자·배 15열·이송(busy_until·pending·대기 적분)·rate 5항·레인 적분 == , run_while == run 잎 전부. 한 세션 66초(조합당 ≈12초, 컴파일 포함). verify_chunked 조각 4+1 → 5 passed (zz_report 는 스크립트가 집계 시험으로 걸러 수동 실행에서 통과)."
+   },
+   {
+    "file": "tests/v6/test_gpu_engine_equiv.py",
+    "passed": 103,
+    "failed": 0,
+    "skipped": 2,
+    "notes": "조각 실행 98 passed + --report 5 passed(zz_report·escape_paths·replan·k3_and_stair·신규 p3_joint_escape_paths_and_kinds). 건너뜀 2 = python_loop 두 건(스크립트 SKIP 패턴, 종전과 같음). 신규 무대 36: v4-* 8(본선·이송 fixtures K1/K2·stage a(STS 막힘·이송 대기)·b(적하 굶김)·c(사전식 110건·PLAN_CHANGE 4종·선석 초과·출항 지연)) · p3-seq-* 9(PRE_ADVICE 순차 규약: ETA_WAKE 72건·W 스텝 38·A 스텝 19) · p3-joint-* 18(공동 규약 CentralResolver Baseline/SF_SPT+generate: PRE_REHANDLE 실행 15·REPOSITION 실행 13·LOST_CONTENTION 18·탈출 7·prune·waitall 유한·엄격증가) · 집계 1. 기존 조각 1·2 무대(spec10·fixture·crowded·random·k2 27무대·k3) 전부 그대로 통과, float 불일치 0."
+   },
+   {
+    "file": "tests/v6/test_gpu_core.py",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 (verify_chunked --fresh)"
+   },
+   {
+    "file": "tests/v6/test_gpu_state.py",
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 — BlockWorld 세 칸(vessels·transfer·plan_change)·LogArrays.aux 추가 뒤에도 pytree/jit/vmap 시험 통과"
+   },
+   {
+    "file": "tests/v6/test_gpu_travel.py",
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀"
+   },
+   {
+    "file": "tests/v6/test_gpu_stack.py",
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀"
+   },
+   {
+    "file": "tests/v6/test_gpu_reserve.py",
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀"
+   },
+   {
+    "file": "tests/v6/test_gpu_plan.py",
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 9 + 집계 1"
+   },
+   {
+    "file": "tests/v6/test_gpu_convert.py",
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 — DISPATCH 로그 역변환은 aux 없음(-1)일 때 종전 오더표 역조회로 대체해 기존 시험 그대로"
+   },
+   {
+    "file": "tests/v6/test_gpu_phi.py",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀"
+   },
+   {
+    "file": "tests/v6/test_gpu_escape.py",
+    "passed": 89,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 88 + 집계 1"
+   },
+   {
+    "file": "tests/v6/test_gpu_dispatch.py",
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "회귀 43 + 집계 1 (decide_seq 의 DecideOut 6칸 확장 반영)"
+   },
+   {
+    "file": "tests/v6/test_gpu_exact.py",
+    "passed": 26,
+    "failed": 0,
+    "skipped": 1,
+    "notes": "파일 통째 한 세션 3초: 26 passed 1 skipped(비정규 수 탐침, XLA CPU). ⚠ verify_chunked 조각 실행은 27건 중 7건만 돌았다 — 파라미터 id 에 공백이 든 node id('[1e+16, -1e+16, …]')를 스크립트가 따옴표 없이 넘겨 pytest 인자 오류(chunk 2~6 'no tests ran'). 스크립트 담당 밖 → open_issues."
+   },
+   {
+    "file": "tests/v6/test_gpu_wake.py",
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "다른 담당 파일 — 통합 뒤 회귀 통과"
+   },
+   {
+    "file": "tests/v6/test_gpu_vessel.py",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "다른 담당 파일 — BlockWorld 통합 뒤 회귀 통과"
+   },
+   {
+    "file": "tests/v6/test_gpu_cands3.py",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "다른 담당 파일 — 회귀 통과 (Y01 후보 대조 포함)"
+   }
+  ],
+  "deviations_from_spec": [
+   {
+    "v5_line_ref": "engine.py:276-336",
+    "what": "결정 규약이 둘이다 — step 에 static `joint` 를 두어 순차 규약(assign_scan, policy_fn(params,x,mask)→오더 번호, ReferenceDispatcher 의미)과 공동 규약(decide_joint: candidates3→flat_view→prune→policy_fn(params,world,c3,fl,pr,open)→(choice,lost,flags)→apply_choices, CentralResolver+generate 의미)이 공존한다.",
+    "why": "조각 1·2 시험은 크레인 순 live SERVE 후보에 정책을 scan 안에서 부르는 규약이고, 정답 궤적 Y01(SF_SPT) 은 결정 시작 시점의 4종 후보를 공동 resolver 가 고르는 규약이라 한 정책 서명으로 둘을 다 재현할 수 없다. K=1·2 기존 시험이 그대로여야 한다는 요구를 지키면서 Y01 을 재현하려면 둘 다 필요했다."
+   },
+   {
+    "v5_line_ref": "resolver.py:48-114 · baselines.py:34-37 (조각 7 몫)",
+    "what": "SF_SPT 정답 재현을 위해 v5 CentralResolver(선호 규칙 Baseline/ServiceFirstSPT + dry_run_commit 공동 검사 + LOST_CONTENTION) 를 dispatch.resolve_central 로 배열화했다 — 지시서가 '조각 7 몫이면 그렇게 보고' 라 한 부분을 시도해 완료.",
+    "why": "원본 해시 6668fa4902c4efe4 는 이 resolver 가 REPO 3회를 고르는 궤적이라 resolver 없이는 재현 불가. 문자열 정렬 키(job_id·'REPO:<cid>:<int>'·token)는 호스트 순위표(resolver_params)로 굽고, 쌍 목록은 K·(k_max+1) 고정 길이 scan(넘치면 V_RESOLVER_TRUNC 131072) 으로 두었다."
+   },
+   {
+    "v5_line_ref": "engine.py:699 · candidates.py:413",
+    "what": "REPOSITION 실행 중 크레인은 cranes.assigned = cands3.BUSY_NO_ORDER(1<<30) 로 확정 (모듈 단계 제안 채택). from_block_world 는 활성 계획 end_bay 로 v5 문자열 'REPO:<cid>:<int(bay)>' 를 되돌린다.",
+    "why": "assigned 는 오더 번호(int32)라 문자열을 못 담고, 엔진의 유휴 판정은 전부 assigned<0 이라 0 이상이면서 오더 번호 범위 밖이면 충분하다."
+   },
+   {
+    "v5_line_ref": "engine.py:721",
+    "what": "state.LogArrays 에 `aux` 열을 더했다 — DISPATCH 줄에 배정 내용(오더 번호 ≥0 · REPO 는 −(2+int(bay))) 을 직접 적는다. aux=-1 이면 종전 오더표 역조회.",
+    "why": "PRE_REHANDLE 은 오더가 PLANNED 잔존, REPOSITION 은 오더가 없어 종전의 (service_s==t & assigned_crane==k) 역조회로는 v5 payload 'crane:job' 을 못 만든다."
+   },
+   {
+    "v5_line_ref": "engine.py:134-138",
+    "what": "배·이송차가 없는 세계도 V=1·U=1 가짜 칸(alive False · busy_until +inf)을 갖는다 (empty_block_world / to_block_world). IdTables.n_units 로 실제 수를 기억해 from_block_world 가 잘라낸다.",
+    "why": "빈 배열(V=0·U=0)을 처리기가 색인하면 컴파일이 안 된다. n_units=0 프로파일(기존 two-cranes-smoke)에서 v5 _free_index None ⇔ 가짜 유닛 영원히 바쁨."
+   },
+   {
+    "v5_line_ref": "kpis.py:39-40",
+    "what": "KpiArrays.pre_rehandle_count/positioning_count 는 0 으로 둔다 (state.py 주석의 '조각 3 이 올린다' 를 v5 대로 정정).",
+    "why": "v5 KpiTracker 는 두 값을 어디서도 올리지 않는다 — 정답 Y01 도 REPO 3회 실행에 positioning_count 0."
+   },
+   {
+    "v5_line_ref": "lane.py:50 · engine.py:835 · time_contract.py:141",
+    "what": "lane_mean(Σvals/L)·imbalance(Σloads)·censored_exposure_s 의 합을 sum_seq/`+=` scan 에서 exact.sum_python(파이썬 3.12 Neumaier 보정합) 으로 바꿨다.",
+    "why": "v5 는 파이썬 float 항을 sum() 으로 더한다 — 2항까지는 순차합과 같지만 L=3·K=3 부터 갈릴 수 있다. 기존 k3/레인 3 무대 포함 전부 비트 일치 유지."
+   },
+   {
+    "v5_line_ref": "candidates.py:81-83 (piece3_spec 'PRE 게이트 0<eta−clock≤horizon')",
+    "what": "명세와 달리 v5 코드대로 eta−now>horizon 만 거른다(음수 gap 도 기회) — wake/cands3 담당 결정을 그대로 통합했고 p3-seq/joint-neg-gap 무대가 v5 와 == .",
+    "why": "v5 코드가 정본(지시). test_yr050 negative_gap 규약."
+   },
+   {
+    "v5_line_ref": "piece4_spec hard_parts 'push_event 를 inf 면 무시로 확장'",
+    "what": "events.py 를 고치지 않고 vessel.push_if(tree_where) 를 그대로 썼다.",
+    "why": "events.py 는 담당 밖. 효과 동일(칸·순번 안 먹음), 시험 통과."
+   },
+   {
+    "v5_line_ref": "engine.py:291-292 · 333-335",
+    "what": "wake 소비(W)와 wake 시각 전진(A)은 각각 별도 스텝으로 끝난다 (StepTrace.woke/advanced). W 가 발화한 스텝엔 결정을 열지 않는다.",
+    "why": "v5 continue 순회와 스텝 경계를 맞춰 결정 수·로그 순서를 같게 (명세 hard_parts ③). 조각 1·2 무대(W=0·D=0)에서는 정적으로 빠져 컴파일·답이 그대로."
+   },
+   {
+    "v5_line_ref": "scripts/v6/dump_ground_truth.py",
+    "what": "--policy {sf_spt,reference,first} · --info-level 옵션 추가. sf_spt/PRE_ADVICE 조합만 기존 파일 이름, 나머지는 _<policy>_<level> 접미사.",
+    "why": "기존 정답 파일·cands3 시험이 읽는 이름을 보존하면서 새 조합을 나란히 둔다. 기본 실행이 원본 해시를 그대로 내는 것을 확인했다."
+   },
+   {
+    "v5_line_ref": "tests/v6 verify_chunked.sh REPORT_TESTS 패턴",
+    "what": "조각 3 집계 시험 이름을 test_p3_joint_escape_paths_and_kinds_exercised 로 두어 스크립트의 'escape_paths' 패턴에 걸리게 했다.",
+    "why": "이 시험은 REPORT 병합 뒤에만 뜻이 있고(안 그러면 18무대 재실행 ≈90초로 88초 창 초과), 스크립트는 담당 밖이라 패턴을 못 고친다."
+   }
+  ],
+  "public_api": [
+   "engine_step.step(world, _, *, params, g, policy_fn, check=True, pre_advice=False, horizon_s=0.0, joint=False) -> (world, StepTrace)  # static: pre_advice(정보수준 PRE_ADVICE)·horizon_s(profile.decision_horizon_s)·joint(결정 규약). 국면 E/W/D/X/F/A/E (머리말)",
+   "engine_step.run / run_jit / run_while / run_while_jit / run_python(world0, params, g, policy_fn, S_max, check=True, pre_advice=False, horizon_s=0.0, joint=False)  # run_jit static_argnames 에 세 인자 추가",
+   "engine_step.decide(world, params, g, policy_fn, *, check=True, pre_advice=False, horizon_s=0.0, joint=False) -> DecideOut(world, decided, open, pick, kind (K,) PK_*, bay (K,) f64)  # 개방 = wake.open_with_armed(cand, eligible, wake.eta_armed, eta_opportunity_mask)",
+   "engine_step.decide_joint(world, params, g, policy_fn, *, check, pre_advice, horizon_s) -> DecideOut  # cands3.candidates3 → (탈출이면 recandidates) → flat_view → prune → policy_fn(params, world, c3, fl, pr, open_) → (choice (K,) int32 [-1 WAIT], lost (K,) bool, flags () int32) → apply_choices → close_decision",
+   "engine_step.recandidates(c3, world, elig, g, *, horizon_s, pre_advice) -> CandOut3  # eligible 의존 마스크·교착 술어·REPO 목표·개방을 yielded 해제 뒤 상태로 다시 (X 결정용)",
+   "engine_step.apply_choices(world, fl, pr, choice, open_, lost, g) -> (world, pick (K,), kind (K,), bay (K,))  # 크레인 순 scan: kind 별 live 재계획(plan_serve/plan_pre/plan_repo) → reserve → 크레인(REPO 는 assigned=BUSY_NO_ORDER·is_loaded False)·계획·오더(SERVE 만)·비용·JOB_COMPLETED push·DISPATCH 로그(aux); WAIT → yielded(+lost 면 yield_count); 목록 밖 선택 V_DECISION_COVERAGE",
+   "engine_step.close_decision(world, open_, pick, g, *, consume_armed, check=True, kind=None, bay=None) -> world",
+   "engine_step.log_event(world, t, kind, target, aux=-1) -> world · engine_step.repo_aux(bay) -> int32 (= −(2+floor(bay)))",
+   "engine_step.h_completed: plan.kind 로 갈린다 (SERVE 만 오더 DONE·served; PRE/REPO 는 크레인·KPI·비용만) + vessel.on_load_completed(적하 반출 완료 → 이송 요청)",
+   "engine_step._handlers: 3→vessel.h_transfer_arrive · 4→h_sts_move · 7→h_vessel_released · 8→h_vessel_start · 9→h_plan_change (V_UNSUPPORTED_EVENT 는 더 켜지지 않음)",
+   "engine_step.advance: go 안에서 vessel.integrate_vessel_wait · refresh_rates: rate[0:2]=vessel.vessel_rates · _fin: advance 뒤 vessel.clearout_vessels · lane_mean/imbalance: exact.sum_python",
+   "engine_step.StepTrace: + pick_kind (K,) int32 · pick_bay (K,) f64 · woke () bool · advanced () bool",
+   "engine_step.finish: overflow 합에 transfer.overflow 포함",
+   "state.BlockWorld: + vessels: vessel.VesselArrays · transfer: vessel.TransferArrays · plan_change: vessel.PlanChangeArrays (wake 뒤) · state.LogArrays: + aux (E,) int32 · state.V_RESOLVER_TRUNC = 131072",
+   "state.empty_block_world(g, *, n_orders, n_cranes, n_conts, q_cap, log_cap, end_s, n_wake=0, n_defer=0, n_review=0, v_max=0, n_units=0, p_cap=0, move_time_s=0.0, i_max=0, j_max=0)  # v_max/n_units 0 → 가짜 칸 1",
+   "state.censored_exposure_s(o, end_s) -> () f64  # exact.sum_python(terms, inside)",
+   "host_convert.to_block_world(profile, scenario, *, n_max, q_cap, log_cap, n_wake=None, n_defer=0, n_review=0, c_max=None, v_max=None, p_cap=None) -> (BlockWorld, IdTables)  # n_wake None = 시드 wake 수 자동 · 본선·이송·PLAN_CHANGE 배열 생성 · p_cap 기본 max(8, Σtotal_moves)",
+   "host_convert.IdTables: + n_units: int = 0 · host_convert.repo_job_id(cid, bay) -> 'REPO:<cid>:<int(bay)>'",
+   "host_convert.from_block_world(world, tables) -> dict  # + 'vessels'(vessels_to_v5) · 'transfer'(busy_until[:n_units]·pending·transfer_wait_accum_s·overflow) · REPO 중 크레인 assigned_job/plan_job 을 v5 문자열로 · overflow 에 transfer.overflow 포함",
+   "host_convert.event_log_from_arrays: DISPATCH payload 를 aux 로 (aux=-1 이면 종전 역조회)",
+   "dispatch.policy_reference(params=is_vessel (N,), x, mask) -> (K,) int32  # ReferenceDispatcher.select (순차 규약)",
+   "dispatch.ResolverParams(name_rank_job (N,), name_rank_repo (K,B+1), tok_rank (N,)) · dispatch.resolver_params(tables, g) · dispatch.repo_names(crane_ids, B)",
+   "dispatch.resolve_central(params, world, c3, fl, pr, open_, g, *, pref='baseline'|'sf_spt', count_lost=True, k_max=12) -> (choice, lost, flags)  # v5 CentralResolver.resolve: 쌍 완전순서 키 + 그리디 + dry_run_joint",
+   "dispatch.dry_run_joint(world, fl, trial (K,), g) -> () bool  # v5 dry_run_commit (kind 별 계획·scratch 예약)",
+   "dispatch.make_resolver(pref, g, *, count_lost=True, k_max=12) -> policy_fn(params, world, c3, fl, pr, open_)  # count_lost=False = baselines._apply(정답 Y01 구동), True = resolver.apply(yield_count)",
+   "dispatch.decide_seq: DecideOut 6칸 반환",
+   "scripts/v6/dump_ground_truth.py: --policy {sf_spt,reference,first} · --info-level <InformationLevel 이름> · make_policy(name, level) · run_block(load, seed, block, policy, level) · block_truth_name(block, load, seed, policy, level) · _sim(prof, scn, level=LVL)",
+   "tests/v6/test_gpu_engine_equiv.py: run_v5(prof, scn, chooser, level=BA) · run_array(..., level=BA, joint=False) · _run_and_compare(..., level=BA) · compare(sim, v5_dec|None, ...) (배·이송 대조 추가) · run_v5_joint(prof, scn, level, pref, *, count_lost, waitall) · compare_joint_decisions · V4_STAGES · P3_SEQ_STAGES · P3_JOINT_STAGES"
+  ],
+  "open_issues": [
+   "[verify_chunked.sh · 담당 밖] ① FILES 기본 목록·SIZE 표·--report 파일 목록에 test_gpu_exact.py(27)·test_gpu_wake.py(12)·test_gpu_vessel.py(4)·test_gpu_cands3.py(4)·test_gpu_y01.py(4) 를 등록해야 한다 (지금은 파일 인자로 넘겨야 돌고, 그 파일들의 zz_report 는 --report 에서 안 돈다). ② node id 에 공백이 든 파라미터(test_gpu_exact 의 '[1e+16, -1e+16, …]')를 따옴표 없이 넘겨 pytest 인자 오류 → chunk 2~6 이 'no tests ran' 으로 조용히 빠졌다(20건). 파일 통째 실행은 26 passed 1 skipped. run_chunk 의 $ids 를 배열로 넘기면 된다.",
+   "[README · 담당 밖] src/yard_rl/v6/README.md: '지금 어디까지 왔나' 의 조각 3·4 ⬜ → ✅, 파일 표에 wake.py·cands3.py·vessel.py 행, 두 결정 규약(joint)·aux 로그 열·가짜 V/U 칸·sum_python 적용 자리(lane_mean·imbalance·censored_exposure_s), Y01 재현 결과(sf_spt 6668fa4902c4efe4 · reference 760af9a960d07bf8) 를 적어야 한다. 알려진 한계의 '조각 4 사건은 위반 2048' 문구 삭제.",
+   "[DEFER wake 미연결] wait_mode=DEFER_ALL/DEFER_TRIGGER 는 정책이 schedule_defer_wake(defer_until) 를 불러야 하는데 엔진의 공동 규약 policy_fn 반환값에 defer_until 이 없다 (LEGACY WAIT 만 이식). 필요하면 (choice, lost, flags, defer_until (K,)) 로 넓히고 apply_choices 의 WAIT 분기에서 wake.schedule_defer_wake 를 부르면 된다 (cands3.defer_wait 가 재료를 준다).",
+   "[policy_reference 의 누적대기] 순차 규약 정책은 누적대기를 정책 특징 f0=cum/3600 (float32) 로 읽는다 — 소수 초 도착 무대에서는 v5 정렬과 갈릴 수 있다(정수 초·외부트럭 없는 무대·Y01 은 무관). float64 재료를 정책에 넘기는 서명 확장은 조각 7 과 함께.",
+   "[eta_opportunity 게이트 두 벌] 순차 규약은 wake.eta_opportunity_mask, 공동 규약은 cands3.pre_gate/eta_opp 를 쓴다 — 둘 다 v5 iter_pre_rehandle_jobs 를 따르고 각 시험에서 v5 와 == 이지만 한 벌로 합치는 편이 좋다(cands3 가 계산하는 (K,N) 게이트를 wake 가 받게).",
+   "[cands3.py · plan.py 담당] PRE_REHANDLE blocker scan 이 plan._plan_retrieve 와 두 벌(cands3.plan_pre_core). candidates3 의 horizon_s 가 traced 인자(Geom 에 decision_horizon_s 없음) — step 은 static float 로 받아 넘긴다.",
+   "[성능·학습 경로] decide_joint 는 결정이 안 열려도 try_decide 가 참이면 candidates3(K·N SERVE/PRE 계획 + K·R REPO) 를 계산한다; recandidates 는 lax.cond 라 vmap 아래서는 두 갈래 다 돈다. Y01 규모 CPU: run_jit 컴파일+실행 ≈6초(joint)·5초(순차). GPU 비트 일치는 미확인(이 환경은 WSL CPU 만).",
+   "[resolve_central 절단] 쌍 scan 길이 K·(k_max+1)=26(K=2) — mandatory 초과로 실린 후보가 더 많으면 V_RESOLVER_TRUNC(131072) 로 표시하고 뒤를 안 본다. 그런 무대는 없었다(시험 공백).",
+   "[미이식 유지] yard_handover_cap(YR-088 opt-in)·vessel_cost.py(정책 측 surrogate)·review epochs(다중블록 조정자, 조각 6)·escape_mode 'delayed' 는 그대로 미이식.",
+   "[다른 담당 미커밋 변경] 작업 트리에 exact.py 수정과 cands3.py·vessel.py·wake.py 및 그 시험(test_gpu_cands3/vessel/wake/exact.py)이 미커밋 상태로 있다 — 내 파일 7개 + 정답 JSON 4개와 함께 한 커밋으로 묶어야 한다 (지시대로 git commit 하지 않았다). 내가 고친 파일은 CRLF→LF 로 정규화했다.",
+   "[정답 파일] outputs/reports/yr327_v6_port/ground_truth/ 에 새 조합 4개(reference/first × BLOCK_ARRIVAL/PRE_ADVICE, sf_spt/BLOCK_ARRIVAL)를 추가했다 — 원본 block_Y01_load30_seed9900777.json 은 그대로(기본 실행이 같은 해시를 냄을 확인)."
+  ],
+  "y01_replay": "★재현 성공 — 다섯 조합 전부 v5 정답과 사건 로그 전열·해시·비용 13항(비트)·KPI 10항·결정 수가 같고, 지금 굴린 v5 와 오더·크레인·격자·배·이송·rate 까지 == (tests/v6/test_gpu_y01.py 6 passed). ① 원본 궤적 sf_spt/PRE_ADVICE(ResolverPolicy(ServiceFirstSPT)+CandidateGenerator(LEGACY_DEFAULT)+baselines._apply): 배열판 공동 규약(joint=True · cands3 후보 → dispatch.make_resolver('sf_spt', count_lost=False) → apply_choices) 으로 사건 1,318건 전부 일치, 해시 6668fa4902c4efe4 일치, 결정 237, REPOSITION 실행 3회(DISPATCH 'REPO:<cid>:<bay>' 재현), 재조작 259, sts_wait 11564.934482758661·transfer_wait 3169.613697317902·lane_cong·interference·imbalance 전부 비트 일치, vessel_delay_s 2871.9626436782855 일치 — 처음 갈리는 사건 없음. sf_spt/BLOCK_ARRIVAL 도 같은 해시(외부트럭 0 이라 정보수준이 답을 못 바꿈). ② reference/BLOCK_ARRIVAL · reference/PRE_ADVICE · first/BLOCK_ARRIVAL(새로 덤프, ReferenceDispatcher 의미): 순차 규약(joint=False · dispatch.policy_reference / first_by_id)으로 사건 1,321건 전부 일치, 해시 760af9a960d07bf8 일치, 결정 232 — 처음 갈리는 사건 없음. 한 조합 ≈6초(N=256·S_max=2304 컴파일+실행, WSL CPU x64), run_while(학습 경로) 최종 세계도 run 과 잎 전부 비트 동일. 정답을 만든 v5 절차(dump_ground_truth 기본 실행)가 지금도 원본 해시를 내는 것도 확인했다."
+ },
+ "verdicts": [
+  {
+   "lens": "동등성 — 조각 3·4 배열 엔진이 v5 와 같은 답인가. 직접 재실행 결과: ① Y01 재현 성공(내 세션 67초, tests/v6/test_gpu_y01.py 6 passed — sf_spt/PRE_ADVICE 해시 6668fa4902c4efe4·사건 1,318·결정 237·REPO 3, reference/first 해시 760af9a960d07bf8·사건 1,321·결정 232). ② 시험은 v5 를 실제로 부른다 (run_v5·run_v5_joint·D._sim 이 TerminalSimulator 를 만들어 run_until_decision 을 돌리고, wake/vessel/cands3 시험은 v5 내부 함수를 가로챈다 — 기대값 손기입 없음). ③ v5 쪽 발동 수(내 탐침 + 병합 REPORT, 통합 무대 35종): ETA_WAKE 72(순차 31·공동 41)·W 스텝 38·A 스텝 19·PRE_REHANDLE 실행 15·REPOSITION 실행 13·LOST_CONTENTION 18·prune 7·탈출 7 / 본선 8무대 전부 STS 막힘(양하 버퍼 cap 도달은 v4-stage-a-k1 에서만 2회, 적하 굶김은 전 무대)·이송 대기 2무대·PLAN_CHANGE 5행(모르는 배·빈 data 포함)·양하 사전식 해제('-100' 이 '-11' 보다 먼저)·선석 초과 15,554.9초·출항 지연 14,054.9초. **DEFER_WAKE 는 통합 무대 35종 전부 0건·schedule_defer_wake 호출 0회.** Y01 자체는 ETA_WAKE·PRE·PLAN_CHANGE 0건(본선 240건만)이라 조각 3 의 wake·PRE 는 소무대로만 검증된다. ④ 내가 다시 돌린 통합 무대: v4-stage-c-k1·p3-seq-blocked(-early)·p3-joint-eta-basic·v4-stage-a-k1 전부 통과, exact+wake 파일 통째 64 passed 1 skipped. ⑤ 명세↔v5 차이 확인: candidates.py:81-83 은 `eta - now > horizon` 만 거른다(음수 gap 도 기회) — 구현자 보고대로 v5 코드가 정본이고 명세가 틀렸다; engine.py 339-382·948-1065 줄 참조도 v5 와 일치. 핵심 주장(Y01 재현·v5 동등)은 반박되지 않았고, 아래는 덮이지 않은 구멍이다.",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+     "problem": "조각 3 범위의 DEFER wake(유한 대기 뒤 자동 재개방) 가 통합 엔진에 연결돼 있지 않다 — 공동 규약 policy_fn 반환값에 defer_until 이 없고 apply_choices 의 WAIT 분기가 wake.schedule_defer_wake 를 부르지 않는다. 그래서 통합 엔진은 DEFER_WAKE 사건을 만들 수 없고, 이 경로의 v5 동등성은 단위 시험(함수 하나씩)으로만 확인됐다.",
+     "evidence": "grep: schedule_defer_wake 는 gpu/wake.py 안에만 있고 engine_step.py·dispatch.py·cands3.py 에 호출자가 없다. 내 v5 탐침(probe_v5_paths.py, 통합 무대 35종 v5 구동): 전 무대 DEFER_WAKE=0·schedule_defer_wake 호출 0회. 단위 시험만 있음: test_gpu_wake zz_report 'defer=6 · sched=24/6'(v5 를 직접 불러 대조), test_gpu_cands3 는 defer_wait 재료값만 대조. piece3_spec files_to_port 에 candidates.py:371-456(_wait DEFER)·policy_config wait_mode 가 들어 있다. 구현 보고의 open_issues 에도 '[DEFER wake 미연결]' 로 자인. Y01(LEGACY_DEFAULT, wait_mode=WAIT) 에는 영향 없음.",
+     "severity": "보통",
+     "fix": "policy_fn 반환을 (choice, lost, flags, defer_until (K,) f64[NaN=없음]) 로 넓히고 apply_choices 의 WAIT 분기에서 wake.schedule_defer_wake(world, defer_until[k]) 를 부른다(cands3.defer_wait 가 재료). 통합 무대 1종 추가: v5 를 CandidateGenerator(config=replace(LEGACY_DEFAULT, wait_mode='DEFER_ALL')) + baselines._apply(내부에서 schedule_defer_wake 호출) 로 굴려 사건열(DEFER_WAKE 포함)·결정열·상태를 == 로 대조하고 zz_report 에 'DEFER_WAKE ≥ 1' 단언을 넣는다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_y01.py",
+     "problem": "조각 3·4 통합 엔진(Y01 포함)의 GPU 비트 일치가 확인되지 않았고, 보고의 '이 환경은 WSL CPU 만' 은 사실과 다르다 — WSL 안에 CUDA GPU 가 있고 jax 기본 백엔드가 gpu 다. README 는 조각 1·2·5 를 GPU 비트 일치라고 적어 두었는데 조각 3·4 만 CPU 근거뿐이다.",
+     "evidence": "WSL venv: jax.devices() → [CudaDevice(id=0)], default_backend gpu, nvidia-smi RTX 5090(다른 프로세스가 8,381 MiB 사용 중). 작은 GPU 시험은 통과: test_gpu_vessel -k 'jit_equals_eager or push_if' 2 passed(CUDA), test_gpu_engine_equiv 소무대 1건 통과(CUDA). 그러나 Y01 규모·3무대 GPU 실행은 시작 7~18초 뒤 세션 전체가 죽었다(wsl rc=1) — 마지막 시도의 XLA 로그: 'F0926 subprocess_compilation.cc:286 Check failed: DeleteFile(/tmp/tempfile-…) NOT_FOUND'(ptxas 임시파일이 사라짐 = 세션이 밑에서 걷힌 증상). 같은 죽음이 CPU 실행에도 간헐적으로 왔다(cpu_clearout 16초·equiv_c 6초 뒤 사망, 재시도는 통과). 따라서 GPU 상태는 '없음' 이 아니라 '미확인' 이다.",
+     "severity": "보통",
+     "fix": "WSL 불안정이 해소된 세션(또는 XLA 가 /tmp 서브프로세스 ptxas 를 안 쓰게 하는 플래그)에서 tests/v6/test_gpu_y01.py 와 test_gpu_engine_equiv -k 'v4- or p3-' 를 JAX_PLATFORMS 없이(XLA_PYTHON_CLIENT_PREALLOCATE=false) 한 번 돌려 해시·비용 13항 비트 일치를 README '★v5 와 같은 답' 표에 조각 3·4 GPU 열로 적는다. 그 전까지 README·보고에 'GPU 미확인' 으로 정정."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\scripts\\v6\\verify_chunked.sh",
+     "problem": "조각 실행 스크립트가 test_gpu_exact.py 27건 중 20건을 '조용히' 안 돌리고도 총계에 실패 0 으로 넣었다(공백이 든 파라미터 node id 를 따옴표 없이 넘겨 pytest 인자 오류 → 요약 줄 없음 → tally 가 0/0 으로 셈). 또 기본 FILES·SIZE·--report 목록에 새 파일 5개(exact·wake·vessel·cands3·y01)가 없어 인자 없이 --fresh 를 돌리면 조각 3·4 시험이 통째로 빠지고, --report 도 그 파일들의 zz_report 를 안 돈다.",
+     "evidence": "outputs/v6/verify/verify_chunked.out: '[test_gpu_exact #2] 4건 0s '(빈 요약)·'#3 no tests ran'·'#4~#6' 빈 요약, 그런데 총계 '통과 424 · 실패 0 · 완주 못한 조각 0'. 스크립트 29행 FILES 기본값·57행 SIZE·--report 루프(plan/escape/dispatch/engine_equiv 4개만)에 새 파일 없음. 병합 dict 에는 test_gpu_wake 18·vessel 4·cands3 15·y01 5 가 있으나 --report 가 그 파일을 실행하지 않는다. 내가 파일 통째로 돌린 결과: test_gpu_exact + test_gpu_wake 64 passed 1 skipped(13.98초) — 시험 자체는 통과.",
+     "severity": "낮음",
+     "fix": "run_chunk 가 node id 를 배열(\"$@\")로 받아 각각 따옴표로 넘기고, 요약 줄이 없는 조각은 DIED 로 세어 총계에 드러낸다. FILES 기본값·SIZE([test_gpu_exact.py]=27 [test_gpu_wake.py]=12 [test_gpu_vessel.py]=4 [test_gpu_cands3.py]=4 [test_gpu_y01.py]=4)·--report 파일 목록에 5개를 등록한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+     "problem": "종료 시점에 배가 미완이면 선석 초과를 정산하는 clearout 경로(engine_step._fin → vessel.clearout_vessels, v5 _finalize 1072-1080행)가 통합 무대·Y01 어디서도 발동하지 않았다 — 본선 8무대와 Y01 모두 끝에서 배가 전부 done 이라, 통합 엔진 안의 호출 순서(advance→clearout→검열)는 단위 시험(test_gpu_vessel.test_finalize_clearout, 함수만 호출)으로만 확인된 상태였다.",
+     "evidence": "내 v5 탐침: v4 8무대 전부 unfinished=[]·clearout_fired=[], Y01 completed_vessel 240/240. 그래서 test_gpu_vessel._stage_c_unfinished(지평 3000·양하 110 moves 미완·pc 2500)를 engine_equiv._run_and_compare 에 직접 넣어 통합 엔진으로 완주 대조했다(probe_clearout.py): 미완 배 2척(V-DISC-0·V-LOAD-1), vessel_delay 2300.0 == v5, berth_overrun 2300.0 == v5, 실수 불일치 0(maxerr 0.0), 122스텝 — 통과. 즉 답은 같지만 스위트에는 없다.",
+     "severity": "낮음",
+     "fix": "V4_STAGES 에 'v4-stage-c-cut-k1'(= test_gpu_vessel._stage_c_unfinished + 'first') 을 추가하고 그 무대에서 `any(not v.done for v in sim.vessels.values())` 와 episode_raw()['vessel_delay'] > 0 을 단언해 통합 clearout 이 상시 대조되게 한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+     "problem": "Y01 의 reference 조합 2개와 first 조합은 사건 해시·비용 13항이 완전히 같다(760af9a960d07bf8) — 본선 작업만 있어 '본선 우선→최장대기→job_id' 규칙이 job_id 순과 구별되지 않으므로, 이 세 조합은 policy_reference 의 규칙을 차등 검증하지 못한다. 순차 규약 정책의 알려진 위험(누적대기를 float32 특징 f0=cum/3600 으로 읽음)은 트럭이 있는 순차 무대가 전부 정수 초 도착(int_arrivals=True)이라 시험 설계상 가려져 있다.",
+     "evidence": "정답 JSON 세 파일(reference_BLOCK_ARRIVAL·reference_PRE_ADVICE·first_BLOCK_ARRIVAL) 해시·n_events 1321·n_decisions 232·cost_raw 전 항목 동일(내 파이썬 대조). test_gpu_engine_equiv._p3_seq_stage 의 random 무대: random_scenario(seed, int_arrivals=True). 구현 보고 open_issues '[policy_reference 의 누적대기]' 자인.",
+     "severity": "낮음",
+     "fix": "순차 규약 무대 1종을 소수 초 도착(예: 도착 1150.3·1150.7 처럼 누적대기 차가 float32 에서 뭉개지는 값)으로 만들어 policy_reference 와 v5 ReferenceDispatcher 를 대조하거나, policy_fn 서명을 float64 재료로 넓힐 때까지 README 알려진 한계에 '순차 규약 정책은 정수 초 도착에서만 검증' 을 적는다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\wake.py",
+     "problem": "결정 개방의 ETA 게이트(v5 iter_pre_rehandle_jobs)가 두 벌이다 — 순차 규약은 wake.eta_opportunity_mask, 공동 규약은 cands3.pre_gate/eta_opp 를 쓰며 둘 사이 동일성 시험이 없다. 지금은 같지만 한쪽만 고치면 규약에 따라 답이 갈린다.",
+     "evidence": "코드 대조: wake 는 `(eta<inf) & ~((eta−clock)>horizon)`, cands3 는 `(eta<inf) & ((eta−clock)<=hz)` (NaN 없으면 동치) · 둘 다 GATE_OUT·PLANNED·대상 실재/가용·n_block>0·담당 구간·rehandle_capacity_ok 를 같은 순서로 AND — v5 candidates.py:50-78 과 일치. 각각은 자기 무대에서 v5 와 == (test_gpu_wake·test_gpu_cands3·engine_equiv p3-seq/joint). 구현 보고 open_issues 두 곳에서 자인.",
+     "severity": "낮음",
+     "fix": "wake.eta_opportunity_mask 를 지우고 cands3.pre_gate(world,g,hz,pre_advice).any(axis=1) 을 순차 규약 decide 에서도 쓰거나, 최소한 p3 무대의 모든 결정 시점에서 두 마스크가 같음을 단언하는 시험 1건을 test_gpu_wake 에 둔다."
+    }
+   ],
+   "missing": [
+    "DEFER wake 통합 경로 — 엔진이 schedule_defer_wake 를 부르지 못해 통합 무대 35종 전부 DEFER_WAKE 0건 (단위 시험만).",
+    "조각 3·4 통합 엔진·Y01 의 GPU 비트 일치 — GPU 는 있으나(CudaDevice RTX 5090) Y01 규모 GPU 실행이 WSL 세션 사망(간헐, XLA /tmp 임시파일 소실 FATAL)으로 완주 불가. 소무대 1건·vessel 단위 2건만 GPU 통과.",
+    "종료 시점 미완 배 clearout 의 통합 무대 — 스위트에 없음 (내 탐침 1회 통과: vessel_delay 2300 == v5).",
+    "SLOT_CONFLICT(5) 거절 코드가 후보 목록에 실린 사례 없음 · V_RESOLVER_TRUNC(쌍 26 초과) 경로 미발동 (전 무대 violation 0) — 구현 보고 자인, 무대 없음.",
+    "DEFER_ALL/DEFER_TRIGGER 대기 모드 — 후보 재료(defer_wait)만 v5 와 대조, 실제 정책 실행·wake 예약·소비의 통합 대조 없음.",
+    "미이식 유지분: yard_handover_cap(YR-088)·vessel_cost.py(정책 측)·review epochs(조각 6)·escape_mode 'delayed' — Y01·현 무대 무관하나 v5 와 다른 답을 낼 수 있는 입력은 실격 표시가 아니라 '무시' 되는 곳이 있는지(예: yard_handover_cap≠None 프로파일) 호스트가 거부하는지 확인 안 됨.",
+    "policy_reference(순차 규약)의 소수 초 도착 무대 없음 — 누적대기 float32 특징의 v5 정렬 불일치 가능성이 시험으로 가려져 있음.",
+    "verify_chunked.sh 기본 목록에 새 시험 파일 5개 미등록 — 인자 없이 돌리면 조각 3·4 회귀가 통째로 빠짐; test_gpu_exact 20건이 조각 실행에서 조용히 누락됐던 이력.",
+    "Y01 자체에는 ETA_WAKE·PRE_REHANDLE·DEFER·PLAN_CHANGE·외부트럭이 0건 — 정답 궤적이 조각 3 의 wake/PRE 와 조각 4 의 PLAN_CHANGE·사전식(≥100 moves) 경로를 덮지 않으므로, 그 경로의 정본 근거는 소무대 대조(engine_equiv v4/p3 무대)뿐이다. terminal 모드 정답(terminal_load300_seed9900777.json, 21블록·이송 포함)은 아직 재현 대상이 아니다(조각 6)."
+   ]
+  },
+  {
+   "lens": "벡터화 — 조각 3·4 통합 뒤 run/run_while 가 jit+scan 으로 컴파일되는가, 후보 행렬 (K, N+R+1) 확장이 계산량을 얼마나 키웠는가(N=8·64·256 실측), vmap 이 되는가. 결론: 셋 다 사실이다 — 반박 안 됨. ① 컴파일: Y01(N=256·B24·C=793) run_jit joint 컴파일 ≈4.6초·재실행 1.58초(1,313스텝·결정 237), run_while_jit 도 같은 답(test_gpu_y01 sf_spt/reference PRE_ADVICE 2건 직접 실행 통과 27초). jit(vmap(run_while, joint)) N=8·B=4 컴파일+실행 8.5초, 재실행 0.03초, 4세계 전부 terminal·violation 0. ② 확장 비용(CPU x64·K=2·같은 무대 eta-basic 를 N 칸으로 패딩·B10): 조각2 candidates → candidates3+flat_view+prune 실행시간 N=8 0.41→0.39ms(×0.9) · N=64 0.66→0.72ms(×1.1) · N=256 0.76→1.71ms(×2.2, C=779). decide seq→joint 0.92→0.95 · 1.15→1.28 · 1.30→2.50ms. 결정이 실제로 열리는 세계의 step seq→joint 0.86→1.06(N=8) · 1.07→1.52ms(N=64). Y01 실제(B=24): candidates 2.5→candidates3 2.8ms(×1.1, K·N plan_serve 가 지배) · decide joint 4.1ms · 전체 run seq 1.19초(0.52ms/스텝)→joint 1.58초(0.68ms/스텝, ×1.33). 즉 CPU 단일 세계에서 확장은 후보 단계 ×1.1~2.2, 전체 ×1.3 — 병목 아님. ③ vmap: vmap(step joint) 가 단일 step 과 잎 전부 비트 동일(N=8·32, 결정 8스텝 REPO/PRE/SERVE/WAIT 포함, 다른 잎 0). 다만 cond 가 select 로 풀리는 대가가 joint 에 집중된다 — 세계당 step: CPU B=1 joint/seq = 2.01/0.83(N=8) · 2.36/1.04(N=64) · 3.95/1.78ms(N=256) ≈ ×2.2~2.4 (비vmap joint step 은 0.74~0.87ms); GPU(CUDA) N=64 B=1 8.47/3.89ms, B=64 0.15/0.06ms/세계, N=256 B=64 0.27/0.07ms/세계(×3.6). 배치 효율은 좋다(N=8 joint B=1→16 세계당 2.01→0.22ms). 원인 분해(N=64·B=1·vmap): GPU candidates3+flat+prune 1.60 → +resolve_central 5.31 → decide joint 6.39ms — resolver 의 26단 cond-scan 이 스텝의 44%; CPU 0.56 → 1.13 → 1.75ms. 비vmap 이면 같은 단계가 GPU 3.16·CPU 0.70ms(cond 가 실제로 건너뜀).",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+     "problem": "resolve_central 의 쌍 scan(길이 L=K·(k_max+1)=26) 안 `lax.cond(consider, dry_run_joint)` 가 vmap 아래서는 select 로 풀려 26단 전부 dry_run_joint(크레인 K단 scan × 계획 3종 plan_serve+plan_pre+plan_repo, 각각 M−1단 blocker scan)를 돈다 — 직렬 사슬이라 GPU 배치에서 joint 스텝 시간의 44% 를 차지하고, joint 스텝이 seq 스텝의 2.2~3.6배가 된다(정책이 고르는 것과 무관한 v5 baseline 재현 비용). v5 는 chosen[k] 로 앞쪽 몇 쌍만 실제로 검사한다.",
+     "evidence": "dispatch.py:362 `ok = lax.cond(consider, lambda: dry_run_joint(world, fl, trial, g), …)` · :366-372 `lax.scan(body, carry0, order[:L])` L=K·(k_max+1) · :258-270 `_plan_of_kind` 가 세 계획을 다 계산하고 tree_where · :273-295 dry_run_joint 의 K단 scan. 실측(N=64·B=1·vmap): GPU candidates3+flat+prune 1.60ms → +resolve 5.31ms(+3.7ms) → decide joint 6.39ms(decide seq 1.97ms, ×3.2), step joint 8.47 vs seq 3.89ms; 비vmap 이면 resolve 단계 3.16ms(cond 건너뜀). CPU: 0.56 → 1.13 → 1.75ms, 비vmap 0.70ms. N=256·B=64 GPU 세계당 joint 0.27 vs seq 0.07ms.",
+     "severity": "보통",
+     "fix": "assign_scan 의 '단계 0 은 scan 밖' 기법을 그대로 적용: dry_run_joint 의 k=0(scratch res == world.res)은 candidates3 가 이미 계산한 계획을 (k, col) 로 gather 해 쓰고(FlatCands 에 slots·mv_* 를 보존하거나 CandOut3 의 P 트리를 넘긴다), 재계획은 앞 크레인이 하나라도 수용된 뒤에만(any_acc carry) 하도록 한다; 또는 후보 쌍 K·C 전부의 dry-run 을 scan 밖에서 한 번에 벡터화하고 scan 은 수용/거절 표만 갱신한다. 학습 정책(조각 7·8)이 resolve_central 을 쓰지 않으면 이 비용은 baseline 평가 배치에만 남으니, 최소한 README 에 'joint+resolver 는 vmap 에서 ×2.2~3.6' 을 적어 둔다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+     "problem": "vmap 동등성 시험 4건이 전부 first_by_id·joint=False·pre_advice=False(조각 1·2 경로)만 덮는다 — 공동 규약(joint=True: candidates3·resolve_central 의 cond-scan·recandidates 의 lax.cond·apply_choices)·PRE_ADVICE 의 W/A 국면·본선 처리기(switch 3/4/8/9)가 vmap 에서 select 로 풀릴 때 단일 판과 같은지 확인하는 시험이 없다. 학습 경로(vmap+while_loop)가 실제로 쓸 규약이 바로 그것이다. 내가 직접 잰 바로는 다른 잎 0(결함은 못 찾음)이지만 회귀 방어가 없다.",
+     "evidence": "test_gpu_engine_equiv.py:890 · :915 · :1395 · :1528 모두 `jax.vmap(lambda w: ES.run(_while)(w, None, g, first_by_id, s_max))` (joint·pre_advice 기본값 False). test_gpu_cands3.py:620-647 test_jit_eager_vmap_agree 는 후보 함수만. 내 검증(scratchpad bench_c3.py vcheck): eta-basic N=8 결정 스텝 1·6·9·12(kind REPO·PRE·SERVE·WAIT) 와 crowded-eta N=32 결정 스텝 1·6·18·20 에서 vmap(step joint) B=3 의 [0] 과 단일 step 의 잎 전부 ==, 다른 잎 합계 0; jit(vmap(run_while joint)) N=8 B=4 S=64 → steps 25·terminal True·viol 0.",
+     "severity": "보통",
+     "fix": "test_run_while_matches_run_single_and_vmap 를 본떠 `test_joint_vmap_batch_matches_single_worlds` 를 추가: cands3 STAGES 의 eta-basic·crowded-eta(+ v4 본선 무대 하나)를 to_block_world 로 만들어 `jax.jit(jax.vmap(lambda w, p: ES.run_while(w, p, g, make_resolver('sf_spt', g, count_lost=False), s_max, True, True, hz, True), in_axes=(0, None)))` 의 세계 i 와 run_jit(joint) 단일 판을 잎 전부 == 로 대조(종료 시각이 다른 세계 둘을 섞어 while_loop 의 any 술어도 확인). 한 세션 ≈15초."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+     "problem": "step 의 마무리가 `lax.switch(idx, [_identity, _adv, _event, _fin])` 4갈래로 늘었는데 W=D=0(wake 칸 없음 — Y01·조각 1·2 무대 전부)이면 next_wake_in_window 가 상수 +inf 라 is_A 는 정적으로 거짓인데도 `_adv`(advance 한 벌 더) 갈래가 그래프에 남는다. jit 단일 실행은 갈래 하나만 돌지만 vmap 아래서는 switch 가 전 갈래 계산 후 select 라 advance 가 3벌(adv·event·fin) 돈다 — advance 는 README 가 GPU 스텝 시간의 ≈90% 로 잰 N·2N 단 직렬 scan 이다. W/D 크기는 static 이므로 갈래 자체를 뺄 수 있다.",
+     "evidence": "engine_step.py:1088-1093 `_adv` · :1098-1099 `idx = jnp.where(decided|terminal|woke, 0, jnp.where(is_A, 1, …)); lax.switch(idx, [_identity, _adv, _event, _fin], w_d)` (W_/D_ 무관) · :1036-1041 W 국면만 `if (pre_advice and W_ > 0) or D_ > 0` 로 정적 분기. wake.py:150-156 `_next_eta`/`_first_defer` 가 W==0·D==0 이면 `jnp.asarray(EMPTY_TIME)` 상수 → is_A 상수 False 지만 switch 인덱스는 traced. 실측 advance 단독 N=256 CPU 0.70ms(비vmap)·0.67ms(vmap B=1) — step seq vmap B=1 N=256 1.78ms 의 큰 몫. (갈래 하나의 몫을 따로 잰 수치는 없음 — HLO 미확인, 아래 missing.)",
+     "severity": "낮음",
+     "fix": "W 국면과 같은 정적 조건으로 갈래를 고른다: `has_wake = (pre_advice and W_ > 0) or D_ > 0`; has_wake 가 아니면 `idx = where(decided|terminal, 0, where(nt_ok, 1, 2))` 로 `[_identity, _event, _fin]` 3갈래 switch(조각 2 구조 그대로), has_wake 일 때만 4갈래. 답은 그대로이고 조각 1·2 무대·Y01 의 vmap 스텝에서 advance 한 벌이 빠진다. 바꾼 뒤 test_vmap_batch_matches_single_worlds·test_gpu_y01 로 잎 비트 동일 확인."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\cands3.py",
+     "problem": "REPO 열 폭 R = B + 2·E 의 E 기본값이 N 이라 평면 행렬이 C = 3N + B + 1 (N=256 이면 C=779, Y01 793) 로 오더 칸의 3배다. 정수 목표는 B 개를 못 넘고 탈출 목표는 교착일 때만·통로마다 2개인데(실제 무대 최대 4개), 이 폭이 prune 의 크레인별 lexsort 2회(5키)·resolve_central 의 K·C lexsort(11키)·repo_targets 의 (R×2E) 비교(N=256 이면 크레인당 27만 비교)·P_repo/repo_code K·R vmap 을 전부 3배로 키운다. 실측으로는 N=256 에서 candidates3 → +flat+prune 이 +0.4ms(1.31→1.71ms) 라 지금은 작지만, N 에 비례해 자란다.",
+     "evidence": "cands3.py:101-104 `n_repo_cols: E = int(n_orders) if n_esc is None else …; return B + 2*E` · :352-375 repo_targets 의 `jnp.sort(vals)`(K, B+2E) 와 `is_esc = … (v[:, None] == eb[None, :])`(R×2E) · :559-592 prune 의 `jnp.lexsort` 2회/크레인 · dispatch.py:340 `jnp.lexsort(tuple(kk.reshape(-1) …))` K·C · engine_step.py:975 candidates3 호출이 n_esc 를 안 넘김(기본 N). 실측 N=8/64/256: C=35/203/779, candidates3+flat+prune 0.39/0.72/1.71ms, candidates(조각2) 0.41/0.66/0.76ms. 보고서 자체가 '탈출 목표 4·Y01 R=536' 이라 적었다.",
+     "severity": "낮음",
+     "fix": "step/decide_joint 가 candidates3 에 static `n_esc` 를 작은 값(예: 8 — 조각 2 무대 최대 통로 수 ≤ 4, cands3 집계 탈출 목표 4)으로 넘기고 esc_overflow(이미 있음)를 violation 비트로 올려 실격 처리한다 → R = B + 16, C ≈ N + B + 17 로 정렬·비교 폭이 N=256 에서 3배 줄어든다. 값은 그대로(넘침 없는 한 같은 집합)이므로 test_gpu_cands3 의 Y01 후보 대조로 확인. 또는 프로파일별 상한을 Geom 에 두어 컴파일 상수로 굽는다."
+    }
+   ],
+   "missing": [
+    "GPU 에서 joint 경로의 **답** 대조는 못 했다 — GPU 는 시간만 쟀다(CUDA 1장, N=64·256). 조각 3·4 통합판의 GPU 비트 일치(test_gpu_y01 을 JAX_PLATFORMS 없이)는 다른 담당도 미확인.",
+    "`_adv` 갈래·P_pre(pre_advice=False 일 때) 가 XLA 에서 실제로 DCE 되는지 HLO 로 확인하지 않았다 — pre_advice=False 의 candidates3 가 PRE_ADVICE 보다 0.13ms 빠른 것(N=256) 만 봤다.",
+    "vmap(run_while joint) 은 같은 세계 4개로만 돌렸다 — 종료 시각이 다른 세계를 섞은 while_loop any-술어 검증은 seq 시험(test_run_while_matches_run_single_and_vmap)뿐.",
+    "recandidates(lax.cond, engine_step.py:987) 와 apply_choices 의 3종 계획(engine_step.py:912-915) 이 vmap 에서 더 도는 몫은 따로 재지 않았다(K·R plan_repo·K×3 계획이라 K·N 규모 대비 작다고 판단).",
+    "Y01 규모(N=256·B24)의 vmap 은 B=64 까지만(GPU 세계당 joint 0.27ms·seq 0.07ms) — B=수천에서의 메모리·시간은 미측정.",
+    "환경 관찰: 이 실행 중 같은 scratchpad 의 다른 담당이 wslrun.sh(fresh() 가 `wsl --terminate Ubuntu`) 로 동시에 WSL 을 쓰고 있어(02:49:51 프로세스 목록 확인) 내 세션이 무작위로 죽었고 내 terminate 도 남의 세션을 끊었다 — 이후 terminate 없이 재시도 러너(scratchpad/retry_c3.sh)로 한 세션 ≤15초 작업만 돌렸다. scripts/v6/verify_chunked.sh 의 fresh() 도 같은 문제를 낸다(동시 실행 금지 또는 잠금 파일 필요).",
+    "측정 스크립트·원자료: scratchpad/bench_c3.py, out_y01.txt, out_256.txt, r_*.log (프로젝트 파일은 수정·추가하지 않았다)."
+   ]
+  },
+  {
+   "lens": "완전성 — 명세 piece3/piece4 의 files_to_port·hard_parts·event_kinds 와 v5 줄(engine.py 159-179·276-336·339-382·453-464·552-576·679-722·846-1066·1072-1080, candidates.py 전체, transfer.py, vessel.py, resolver.py, baselines._apply, reservation.py)을 v6 gpu/(wake.py·cands3.py·vessel.py·engine_step.py·dispatch.py·state.py·host_convert.py·escape.py)와 한 항목씩 대조했다. 직접 돌린 시험(WSL CPU x64, 세션당 ≤80초): Y01 정답 재현 sf_spt/PRE_ADVICE·reference/PRE_ADVICE·first/BLOCK_ARRIVAL·sf_spt/BLOCK_ARRIVAL 각 1 passed(해시·비용 13항·KPI·결정 수 일치), test_gpu_vessel 17 passed, test_gpu_wake 38 passed(zz_report 포함), test_gpu_cands3 12 passed(Y01 후보 대조 포함; 나머지 6건은 WSL 세션 사망으로 미완), engine_equiv 조각 3·4 무대 9건 passed(v4-stage-c-k1·v4-fixture-k2·v4-stage-a-k1·p3-seq-blocked/neg-gap/gate-in-eta·p3-joint-dead-first-eta/crowded-eta/blocked). 판정: 핵심 주장(Y01 재현·v5 비트 일치·위반 2048 미발생·sum() 목록 A①②③ sum_python 전환)은 사실이고 반박되지 않는다. 다만 명세 files_to_port 에 적힌 두 축이 빠졌고(policy_config 플래그·DEFER 예약 배선), v5 에는 있으나 배열판에 없는 규칙 하나(clearout 의 배 순회 순서 = 시나리오 삽입 순서)를 탐침으로 실증했다(2/40 시드에서 vessel_delay·berth_overrun 마지막 비트 갈림). 그 밖은 문서·스크립트 정합과 사본 두 벌 문제다.",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\cands3.py",
+     "problem": "명세 piece3 files_to_port 의 'integrated/policy_config.py (wait_mode·bool 4개 → static 인자)' 와 '371-456 (_reposition·_wait DEFER)' 가 옮겨지지 않았다. cands3 는 LEGACY_DEFAULT 한 경로만 있고(safety_only·bound_repo·prepo_one_shot·vessel_prep·block_pre_rehandle 분기 없음), DEFER 는 재료 함수 defer_wait 만 있을 뿐 엔진이 wake.schedule_defer_wake 를 한 번도 부르지 않는다 — wait_mode=DEFER_ALL/DEFER_TRIGGER 이면 v5 는 baselines._apply 가 sim.schedule_defer_wake(defer_until) 로 DEFER_WAKE 를 예약해 재개방하는데 배열판은 무기한 WAIT 로 굳는다(사건열에 DEFER_WAKE 가 안 생기고 결정 수가 달라진다).",
+     "evidence": "outputs/v6/piece3_spec.md:8-9 (files_to_port); v5 candidates.py:266-267(block_pre_rehandle)·319-331(vessel_prep, iter_vessel_prep_jobs 173-203)·371-423(_reposition 의 safety_only/bound_repo/prepo_one_shot 분기, PREPO:<jid>:<bay>)·444-456(_wait DEFER: defer_until=min(trigger, now+600)); baselines.py `_apply` 160-163 `if du is not None: sim.schedule_defer_wake(du)`; cands3.py 머리말 3-6행 'LEGACY_DEFAULT … 만' 및 595-622 defer_wait(호출자 없음); engine_step.py apply_choices 903-967 의 WAIT 분기(930-931행)에 예약 호출 없음 — `grep schedule_defer_wake|defer_until|defer_wait src/yard_rl/v6/gpu/engine_step.py dispatch.py` = 0건; 구현 보고 open_issues 도 '[DEFER wake 미연결]' 로 인정. Y01(LEGACY)에는 영향 없음.",
+     "severity": "보통",
+     "fix": "① 공동 규약 policy_fn 반환을 (choice, lost, flags, defer_until (K,) f64[+inf=없음]) 로 넓히고 apply_choices 의 WAIT 분기에서 `w = wake.schedule_defer_wake(w, defer_until[k])` (cond 로 +inf 면 무동작) — 재료는 cands3.defer_wait; ② candidates3 에 static 플래그 safety_only(targets=탈출만)·bound_repo(PREPO 후보: iter_eta_reposition_jobs 결속·|bay−pos|≤1 소멸·job_id 'PREPO:<jid>:<bay>' 순위표)·prepo_one_shot(실행 이력 (N,) bool)·vessel_prep(VESSEL_LOAD PLANNED 대상의 release_time 지평 게이트, is_vessel=True)·block_pre_rehandle(pre 행 전부 False) 를 더하고 무대마다 v5 CandidateGenerator(config=…) 와 == 대조; 우선순위는 낮게 두되(정답 Y01 무관) 명세 항목이므로 open_issues 가 아니라 Dashboard row 로 등록.",
+     "line": null
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\vessel.py",
+     "problem": "`clearout_vessels` 가 배 번호(= sorted(vessel_id)) 순으로 `+=` scan 하는데, v5 `_finalize` 의 clearout 은 `self.vessels.values()` = **시나리오 삽입 순서**(engine.py:138 dict 는 scenario.vessels 순)로 더한다. 삽입 순서가 정렬 순서와 다르면(scenario_gen 은 'V-LOAD-0','V-DISC-1',… 으로 만들고 terminal_stream 은 홀수 번째 블록에 offset=1 을 준다; month_engine 은 도착 순으로 삽입) 미완 배가 3척 이상이거나 앞서 vessel_delay 가 적립된 상태에서 2척 이상이면 덧셈 결합 순서가 달라 vessel_delay·berth_overrun 의 마지막 비트가 갈린다. 실제 엔진으로 탐침: 4척(삽입 [V-LOAD-0,V-DISC-1,V-LOAD-2,V-DISC-3] vs 배열 [V-DISC-1,V-DISC-3,V-LOAD-0,V-LOAD-2]) 40시드 중 2시드 불일치 — seed 22: v5 10792.041376456498 vs v6 10792.041376456496, seed 25: 11970.09226408486 vs 11970.092264084862 (berth_overrun 도 같이). Y01 은 vessel_delay 0·배 2척·정렬 순이라 무관하고 조각 4 시험 무대도 전부 ≤2척 정렬 순이라 잡히지 않았다.",
+     "evidence": "v5 engine.py:1072-1080 `for v in self.vessels.values(): … cost.accrue('vessel_delay', end−pc); kpis.add_berth_overrun(end−pc)` · engine.py:138 `self.vessels = {v.vessel_id: … for v in self.scenario.vessels}` (삽입 순) · scenario_gen.py:392-423 `vid = f\"V-{work.value[:4]}-{v}\"` + offset 교대 · terminal_stream.py:296 `vessel_type_offset=layout.ids.index(b) % 2` · stage/month_engine.py:224 `sim.vessels[key] = VesselProcess(...)`; v6 vessel.py:478-500 `lax.scan(body, …, (amt, cond))` 배 번호 순, host_convert.py:198 `vessel_ids = sorted(...)`; 탐침 스크립트 (scratchpad probe_clearout_order.py, WSL CPU x64) 출력 'differ 2/40 seeds'. 파이썬 float 무작위 3항에서 (x+a)+b≠(x+b)+a 는 약 24%.",
+     "severity": "보통",
+     "fix": "host_convert 가 시나리오 삽입 순서 순열 `clearout_order (V,) int32` 를 VesselArrays 에 실어(빈 칸은 -1) `clearout_vessels` 의 scan 이 `amt[order]`·`cond[order]` 로 그 순서를 밟게 한다 (다중블록·월 무대에서는 도착 순 삽입이 정본이므로 조각 6 의 배 추가 경로도 같은 열을 갱신). 시험: 배 ≥3척·삽입≠정렬 무대(예: fixtures 에 'V-LOAD-0','V-DISC-1','V-LOAD-2' 를 그 순서로 두고 전부 미완 clearout) 를 test_gpu_vessel ④ 와 engine_equiv v4 에 추가해 vessel_delay·berth_overrun == 로 고정.",
+     "line": 478
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\vessel.py",
+     "problem": "명세 piece4 files_to_port '929-942 (완료의 본선 훅)' 중 936-942행(yard_handover_cap 모드: 양하 적재 완료 → _discharge_pipeline −1 → 막힌 STS 재개)과 959-964·977-979행(파이프라인 만재면 STS 정지, STS 뽑기마다 +1)이 옮겨지지 않았다. 기본 None 이라 Y01·fixtures 는 무관하지만 opt-in 을 켜면 v5 는 STS 가 야드 적재 역압력으로 멈추고 배열판은 멈추지 않아 STS_MOVE 사건열·sts_wait 가 갈린다.",
+     "evidence": "v5 engine.py:936-942 `elif (self.yard_handover_cap is not None and j.flow == VESSEL_DISCHARGE …): _discharge_pipeline[vid] −1; … queue.push(clock, STS_MOVE, vid)` · 959-964 `_can_sts_process`: `_discharge_pipeline.get(vid,0) >= yard_handover_cap → False` · 977-979 `_discharge_pipeline[vid] += 1`; v6 vessel.py 머리말 29-30행 '옮기지 않았다' · can_sts_process 264-266 에 파이프라인 항 없음 · on_load_completed 446-454 에 양하 분기 없음. 구현 보고 deviations 에 명시.",
+     "severity": "낮음",
+     "fix": "VesselArrays 에 `pipeline (V,) int32`·Geom/static 에 `handover_cap (None=off)` 를 두고 can_sts_process 에 `~(is_discharge & has_cap & pipeline ≥ cap)` 항, h_sts_move 의 양하 분기에 pipeline+1, on_load_completed 에 VESSEL_DISCHARGE 분기(pipeline−1 → blocked&~done&can 이면 blocked 해제 + STS_MOVE 를 clock 에 push_if). 시험은 fixtures 무대에 yard_handover_cap=1 을 켜 v5 와 사건열 대조.",
+     "line": 264
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "sum() 자리 목록 A⑧(stage/episode.py:278 `sum(w)/max(1,sts)` 본선 유휴)의 배열판 `vessel_idle_by_ship` 에 첫 항을 `0.0 + w` 로 두는 구멍이 남아 있다 — XLA 가 `0.0 + w` 를 `w` 로 접어 첫 스트림 유휴가 −0.0 이면 파이썬 sum() 의 +0.0 과 부호가 다르다 (exact.py 탐침이 확인한 접힘). 조각 5 몫이지만 '목록 전부 sum_python 으로' 라는 이번 점검 항목에서 유일하게 남은 자리다. A①(state.censored_exposure_s)·A②(engine_step.lane_mean)·A③(engine_step imbalance)은 sum_python 으로 바뀐 것을 확인했다.",
+     "evidence": "gpu/phi.py:139 `nf = jnp.where(first, 0.0 + w, t)` (137행은 barrier 를 쓰지만 139행은 안 씀); 구현 보고 sumfix open_issues '[phi.py 담당]' 항목; gpu/engine_step.py:233·252, gpu/state.py:678 은 sum_python. phi.py:192 `sum_seq([wait, move, rehab, vessel])` 은 v5 가 `+` 사슬이라 sum() 자리가 아니다(정상).",
+     "severity": "낮음",
+     "fix": "139행을 `lax.optimization_barrier(jnp.zeros((), TIME_DTYPE)) + w` 로 바꾸거나 배별 마스크로 `exact.sum_python(stream_wait_s, mask)` 를 쓴다; test_gpu_phi 에 첫 항 −0.0 사례를 넣어 v5 sum() 과 비트 대조.",
+     "line": 139
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\README.md",
+     "problem": "'위반 2048 이 사라졌는지': 엔진은 더 이상 켜지 않지만(정상) 문서·내보내기·회귀 스크립트가 옛 상태다 — README 는 조각 3·4 를 ⬜ 로 두고 '조각 4 사건은 위반 2048 로 실격 표시' 라 적혀 있고, engine_step 은 쓰지 않는 V_UNSUPPORTED_EVENT 를 import·__all__ 로 내보내며, scripts/v6/verify_chunked.sh 의 기본 FILES·SIZE 표·--report 파일 목록에 test_gpu_wake/vessel/cands3/y01/exact 가 없어 전체 회귀(--fresh 무인자)에서 5 파일 ≈ 100건이 통째로 빠진다(zz_report 도 안 돈다).",
+     "evidence": "README.md:85-86 '⬜ 조각 3 / ⬜ 조각 4', :95 '조각 4 사건(STS·이송·본선)은 위반 2048 로 실격 표시'; engine_step.py:161 import V_UNSUPPORTED_EVENT · :164 __all__ 포함 · 본문 사용처 0건(grep); state.py:133·148 상수·이름표만 유지(무해); verify_chunked.sh:29 FILES 기본 목록 11개 · :78 SIZE 표 · :80 `for f in test_gpu_plan.py test_gpu_escape.py test_gpu_dispatch.py test_gpu_engine_equiv.py` — 새 파일 없음. 구현 보고 open_issues 가 인정.",
+     "severity": "낮음",
+     "fix": "README '지금 어디까지 왔나' 조각 3·4 ✅ + 파일 표에 wake.py·cands3.py·vessel.py 행 + 한계 문구 삭제 + Y01 해시(6668fa4902c4efe4/760af9a960d07bf8) 기록; engine_step 의 V_UNSUPPORTED_EVENT import/__all__ 제거(state 상수는 이름표 호환으로 둠); verify_chunked.sh FILES 에 5 파일 추가·SIZE([exact]=27 [wake]=12 [vessel]=6 [cands3]=4 [y01]=1)·--report 목록에 wake/cands3/y01 추가, run_chunk 의 $ids 를 배열로 넘겨 공백 든 node id 도 인용.",
+     "line": 95
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\wake.py",
+     "problem": "같은 v5 규칙이 두 벌로 구현돼 있다 — PRE 게이트(iter_pre_rehandle_jobs)가 wake.eta_opportunity_mask 와 cands3.pre_gate 에, PRE_REHANDLE 의 blocker scan(engine.py:618-647)이 cands3.plan_pre_core 와 plan._plan_retrieve 에. v5 는 결정 개방과 후보 발행이 **같은 함수**를 읽어 '열렸는데 후보 없음' 어긋남을 구조적으로 막는데(candidates.py:28-31 주석), 배열판은 순차 규약(decide)이 wake 판을, 공동 규약(decide_joint)이 cands3 판을 읽는다. 지금은 둘 다 v5 와 == 이지만 두 판의 동일성을 직접 대조하는 시험이 없어 한쪽만 고치면 조용히 갈린다.",
+     "evidence": "wake.py:237-270 vs cands3.py:249-278 (조건 나열이 같음: block≥0·GATE_OUT·PLANNED·대상 실재·가용·blocker>0·eta 있음·eta−clock≤horizon·구간·rehandle_capacity_ok); cands3.py:138-211 plan_pre_core 머리말 '`plan._plan_retrieve` 의 blocker scan 과 같은 본문'; engine_step.py:832 (decide → wake 판) vs :977 (decide_joint → cands3 판). 구현 보고 open_issues 두 곳에서 인정.",
+     "severity": "낮음",
+     "fix": "cands3.pre_gate 를 (K,N) 정본으로 두고 wake.eta_opportunity_mask 는 `jnp.any(pre_gate(...), axis=1)` 로 감싸거나 반대로 한 벌만 남긴다; plan.py 가 blocker scan 을 `blocker_scan(...) -> _Carry` 로 공개하면 plan_pre_core 사본 ~60줄 삭제. 삭제 전 test_gpu_wake·test_gpu_cands3 에 두 마스크 == 단언을 한 줄 넣어 잠근다.",
+     "line": 237
+    }
+   ],
+   "missing": [
+    "GPU 비트 일치 미확인 — 이 환경은 WSL CPU x64 뿐이라 조각 3·4 새 코드(wake·cands3·vessel·apply_choices·resolve_central)의 CUDA 실행은 한 번도 돌리지 못했다(구현 보고도 cands3·vessel 일부만 GPU 확인).",
+    "정답 Y01 다섯 조합 중 reference/BLOCK_ARRIVAL 은 직접 돌리지 않았다(나머지 넷은 각 1 passed 확인). engine_equiv 조각 3·4 무대 36건 중 9건만 직접 확인(v4 3·p3-seq 3·p3-joint 3) — 나머지는 구현 보고의 verify_chunked 결과에 의존.",
+    "test_gpu_cands3 18건 중 6건(eta-random·spt 무대 일부)은 WSL 세션이 12초 만에 죽어 미완 — 이 기계의 WSL 은 시간과 무관하게(uptime 5.9e6 s 유지) 비결정적으로 세션을 끊는다(vw·c3·y01f 세 번). verify_chunked 의 조각 재시도가 이를 가리므로 집계 신뢰에는 'DIED' 줄 확인이 필요하다.",
+    "resolve_central 의 문자열 전순서에서 REPO 이름('REPO:<cid>:<b>')이 오더 id 보다 앞서는 경우(오더 id 첫 글자 > 'R', baseline 선호에서 REPO 가 SERVE 앞에 정렬됨)를 밟는 무대가 없다 — 모든 무대·Y01 의 오더 id 가 'J-…' 라 REPO 가 항상 뒤다. 순위표(resolver_params)는 구조상 맞지만 시험 공백.",
+    "배 ≥3척·삽입 순서≠정렬 순서 무대가 시험 묶음에 없다(finding 2 는 탐침으로만 실증). 다중블록·월 무대(조각 6)로 가면 정상 경로다.",
+    "DEFER 모드(DEFER_ALL/DEFER_TRIGGER)·policy_config 플래그 4개·vessel_prep·block_pre_rehandle 의 end-to-end 동등성 시험 없음(finding 1).",
+    "resolve_central 의 V_RESOLVER_TRUNC(쌍 > K·(k_max+1)) 경로와 SLOT_CONFLICT(5) 코드가 후보 목록에 실린 무대 없음(구현 보고 인정). REPO 두 크레인 동시 배정(토큰 None 둘)은 v5 job_taken(None)=None·v6 token<0 무시로 같지만 직접 대조한 무대는 확인 못 함.",
+    "escape_mode 'delayed'·review_epochs(다중블록 조정자)·vessel_cost.py(정책 측 surrogate)·KpiTracker.pre_rehandle_count/positioning_count(v5 도 안 올림)는 범위 밖으로 두었다 — 명세도 조각 6·7 몫으로 둔다."
+   ]
+  }
+ ],
+ "critical": [],
+ "fix": null
+}

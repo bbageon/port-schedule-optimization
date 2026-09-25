@@ -36,6 +36,17 @@ v5 는 `dict[job_id] → Job`, `list` 스택, 문자열 식별자를 쓴다. 배
     event_log                          LogArrays                 engine.py:157
     _pending/_assigned                 DecisionArrays            engine.py:146, 155
     _eta_wakes/_defer_wakes            WakeArrays (조각 3)       engine.py:166-179
+    vessels (VesselProcess dict)       vessel.VesselArrays (조각 4)   integrated/vessel.py:20-54
+    transfer (TransferFleet)           vessel.TransferArrays (조각 4) integrated/transfer.py
+    injected PLAN_CHANGE               vessel.PlanChangeArrays (조각 4) scenario.py:14-22
+
+  ★조각 3·4 통합 (2026-09-26): `BlockWorld` 에 `vessels`·`transfer`·`plan_change` 세 칸이 있다. 그 형은
+    `gpu/vessel.py` 가 정의한다 — 이 파일은 순환 import 를 피해 **호출 시점에** 그 모듈을 불러 빈 배열을 만든다
+    (`empty_block_world`). 배가 없는 세계도 V=1·U=1 의 **가짜 칸**(alive False · busy_until +inf) 을 갖는다 —
+    처리기가 빈 배열을 색인하지 않게 하기 위해서다 (호스트 `IdTables.n_units`·`vessel_ids` 가 실제 수를 안다).
+  ★사건 로그에 `aux` 열이 있다 — DISPATCH 줄의 **무엇을** 배정했나 (오더 번호 ≥ 0 · REPOSITION 은 −(2+bay)).
+    v5 는 payload 문자열 "crane:job" 에 그 정보가 있고, PRE_REHANDLE(오더는 PLANNED 잔존)·REPOSITION(오더 없음)은
+    오더 표에서 되찾을 수 없어 로그가 직접 든다 (host_convert.event_log_from_arrays).
 
   ★두 종류의 열을 **나눠 둔다** — `stage`(라이프사이클 6단, 정책 관측·시장용) 와
     `status`(v5 JobStatus 7단, 엔진 진실). 정책이 보는 열과 엔진이 굴리는 열이 섞이면
@@ -126,6 +137,8 @@ V_LEDGER_UNREGISTERED = 8192 # 장부 모드인데 등록 안 된 트럭이 블�
 V_CRANE_ORDER_SWAP = 16384   # 레일 순서(rail_order)가 뒤집혔다 = 크레인이 서로를 관통했다 (CRANE_ORDER_SWAP)
 V_CRANE_MIN_GAP = 32768      # 레일 이웃 크레인 간격 < safety_gap (CRANE_MIN_GAP)
 V_PAIRWISE_LOCK = 65536      # 활성 예약 쌍이 토큰·레인·통로·칸을 공유 (TOKEN_DOUBLE·LANE_DOUBLE·CORRIDOR_OVERLAP·SLOT_DOUBLE)
+#: 조각 3·7 결정 계층 (dispatch.resolve_central) — 실린 후보 쌍이 고정 길이 scan 보다 많아 뒤가 잘렸다 (조용히 자르지 않는다)
+V_RESOLVER_TRUNC = 131072
 #: 비트 → 이름 (진단·보고용 역표). `violation_names(v)` 로 푼다.
 VIOLATION_NAMES: dict[int, str] = {
     V_NOT_TOP: "NOT_TOP", V_TIER: "TIER", V_SIZE: "SIZE", V_PLAN_POSTCOND: "PLAN_POSTCOND",
@@ -135,7 +148,7 @@ VIOLATION_NAMES: dict[int, str] = {
     V_UNSUPPORTED_EVENT: "UNSUPPORTED_EVENT", V_OVERFLOW: "OVERFLOW",
     V_LEDGER_UNREGISTERED: "LEDGER_UNREGISTERED",
     V_CRANE_ORDER_SWAP: "CRANE_ORDER_SWAP", V_CRANE_MIN_GAP: "CRANE_MIN_GAP",
-    V_PAIRWISE_LOCK: "PAIRWISE_LOCK",
+    V_PAIRWISE_LOCK: "PAIRWISE_LOCK", V_RESOLVER_TRUNC: "RESOLVER_TRUNC",
 }
 
 
@@ -330,8 +343,9 @@ class KpiArrays(NamedTuple):
     completed_ves: jnp.ndarray  # () int32
     berth_overrun: jnp.ndarray  # () f64
     vessel_delay_s: jnp.ndarray  # () f64  본선 야드작업 마감 지각 합 (kpis.py:90-96; 반박 검증 누락분)
-    pre_rehandle_count: jnp.ndarray  # () int32  선재조작 수 (kpis.py:39) — 조각 3 이 올린다 (지금은 0)
-    positioning_count: jnp.ndarray   # () int32  REPOSITION 수 (kpis.py:40) — 조각 3 이 올린다 (지금은 0)
+    pre_rehandle_count: jnp.ndarray  # () int32  선재조작 수 (kpis.py:39) — ★v5 는 어디서도 올리지 않는다 (항상 0;
+                                     #           정답 궤적 Y01 도 REPO 3회 실행에 positioning_count 0). 배열판도 0 으로 둔다.
+    positioning_count: jnp.ndarray   # () int32  REPOSITION 수 (kpis.py:40) — 위와 같이 v5 가 안 올리므로 0
 
 
 class LedgerArrays(NamedTuple):
@@ -365,6 +379,7 @@ class LogArrays(NamedTuple):
     kind: jnp.ndarray    # (E,) int32  0..11 큐 종류 + 12..15 로그 전용 (-1 = 빈 칸)
     target: jnp.ndarray  # (E,) int32  대상 (오더·크레인 번호). ★DEADLOCK_ESCAPE(15) 는 유휴 크레인 **비트마스크**(bit k) —
                          #             int32 라 블록당 K ≤ 31 (escape.crane_bits; 다중블록은 블록별 K 라 실무상 무관)
+    aux: jnp.ndarray     # (E,) int32  보조 — DISPATCH(12) 의 배정 내용: 오더 번호(SERVE·PRE_REHANDLE) · −(2+int(bay)) (REPOSITION) · 그 밖 -1
     n: jnp.ndarray       # ()   int32  적힌 수 (E 를 넘으면 world.overflow++)
 
     @property
@@ -420,6 +435,10 @@ class BlockWorld(NamedTuple):
     log: LogArrays
     decision: DecisionArrays
     wake: WakeArrays
+    #: 조각 4 — 본선·이송·계획변경 (형은 gpu/vessel.py: VesselArrays · TransferArrays · PlanChangeArrays)
+    vessels: "VesselArrays"
+    transfer: "TransferArrays"
+    plan_change: "PlanChangeArrays"
     violation: jnp.ndarray         # () int32  위반 비트합 V_* (0 이어야 정상)
     overflow: jnp.ndarray          # () int32  칸 부족 수 (0 이어야 정상)
 
@@ -538,7 +557,7 @@ def empty_lanes(n_lanes: int) -> LaneArrays:
 
 def empty_log(capacity: int) -> LogArrays:
     return LogArrays(t=_f64((capacity,)), kind=_i32((capacity,)), target=_i32((capacity,)),
-                     n=_i32((), 0))
+                     aux=_i32((capacity,)), n=_i32((), 0))
 
 
 def empty_decision(k: int) -> DecisionArrays:
@@ -555,13 +574,23 @@ def empty_wake(k: int, *, n_wake: int = 0, n_defer: int = 0, n_review: int = 0) 
 
 def empty_block_world(g: Geom, *, n_orders: int, n_cranes: int, n_conts: int,
                       q_cap: int, log_cap: int, end_s: float,
-                      n_wake: int = 0, n_defer: int = 0, n_review: int = 0) -> BlockWorld:
+                      n_wake: int = 0, n_defer: int = 0, n_review: int = 0,
+                      v_max: int = 0, n_units: int = 0, p_cap: int = 0, move_time_s: float = 0.0,
+                      i_max: int = 0, j_max: int = 0) -> BlockWorld:
     """빈 단일 블록 세계. 격자 모양은 `g` 에서, 나머지 칸 수는 인자로 **미리 정한다**.
 
+    조각 4 칸 수: v_max 배 · n_units 이송차 · p_cap 대기 링버퍼 · i_max PLAN_CHANGE 행 · j_max 행당 마감 쌍.
+    v_max·n_units 가 0 이면 **가짜 칸 하나**(alive False · busy_until +inf)를 둔다 (머리말 ★) — 배가 없는 세계에서도
+    처리기가 빈 배열을 색인하지 않고, 이송 요청은 언제나 대기 링버퍼로 간다(v5 n_units=0 의 `_free_index` None).
     ★x64 가 꺼져 있으면 여기서 실패한다 (events.empty_queue 와 같은 규약).
     """
+    from .vessel import empty_plan_change, empty_transfer, empty_vessels   # 호출 시점 import (순환 방지, 머리말 ★)
     check_x64()
     b, r, t = int(g.bay_count), int(g.row_count), int(g.tier_max)
+    ves = empty_vessels(max(1, int(v_max)), n_orders)
+    tr = empty_transfer(max(1, int(n_units)), max(1, int(p_cap)), float(move_time_s))
+    if int(n_units) <= 0:
+        tr = tr._replace(busy_until=jnp.full((1,), EMPTY_TIME, TIME_DTYPE))   # 가짜 유닛 — 영원히 바쁨
     return BlockWorld(
         clock=_f64((), 0.0), end_s=_f64((), float(end_s)), terminal=_bool(()),
         last_decision_at=_f64((), -jnp.inf), escape_at=_f64((), -jnp.inf),
@@ -575,6 +604,7 @@ def empty_block_world(g: Geom, *, n_orders: int, n_cranes: int, n_conts: int,
         lane=empty_lanes(int(g.n_lanes)), log=empty_log(log_cap),
         decision=empty_decision(n_cranes),
         wake=empty_wake(n_cranes, n_wake=n_wake, n_defer=n_defer, n_review=n_review),
+        vessels=ves, transfer=tr, plan_change=empty_plan_change(int(i_max), int(j_max)),
         violation=_i32((), 0), overflow=_i32((), 0))
 
 
@@ -635,17 +665,17 @@ def censored_turn_time_s(o: OrderArrays, end_s) -> jnp.ndarray:
 
 def censored_exposure_s(o: OrderArrays, end_s) -> jnp.ndarray:
     """종료시점 터미널 안(O 미확정 또는 O > end) 트럭의 `end − A` 합 — v5 `censored_exposure_s`
-    (time_contract.py:136-142). v5 는 오더 번호(job_id 정렬) 순으로 `sum()` 하므로 같은 순서로 더한다."""
+    (time_contract.py:136-142) `sum(end − r.gate_in for …)`.
+
+    ★파이썬 3.12 `sum()` 은 **Neumaier 보정합**이다 (exact.py 머리말 실측 2) — 항이 파이썬 float(end = 시나리오
+    `horizon_s + drain_window_s`, gate_in = engine.py:132 `actual_gate_in or 0.0`, 둘 다 random.Random 산 float) 이므로
+    `exact.sum_python` 으로 더한다 (순차 `+=` 는 3항부터 마지막 비트가 갈릴 수 있다 — 탐침 40항 20회 중 18회).
+    순서 = records 사전 삽입 순서 = engine.py:131 `sorted(_v2, key=job_id)` = 오더 번호 순 (host_convert 번호 규칙)."""
+    from .exact import sum_python
     end_s = jnp.asarray(end_s, TIME_DTYPE)
     inside = (o.gate_in_s < end_s) & ((o.gate_out_s >= EMPTY_TIME) | (o.gate_out_s > end_s))
     terms = jnp.where(inside, end_s - o.gate_in_s, 0.0)
-
-    def body(acc, x):
-        t, on = x
-        return jnp.where(on, acc + t, acc), None      # 파이썬 sum 의 `+=` 순서 (0.0 시작)
-
-    acc, _ = jax.lax.scan(body, jnp.asarray(0.0, TIME_DTYPE), (terms, inside))
-    return acc
+    return sum_python(terms, inside)
 
 
 def block_turn_time_s(o: OrderArrays, end_s) -> jnp.ndarray:

@@ -4,19 +4,42 @@ v5 `world/integrated/engine.py` 의 `run_until_decision`(276-336행) 한 순회�
 **한 스텝**이다. v5 는 파이썬 while 루프·dict·예외로 굴러가고, 여기서는 고정 크기 배열을
 받아 고정 크기 배열을 돌려주는 함수 하나(`step`)가 `lax.scan` 으로 S_max 번 돈다.
 
-■ 한 스텝의 네 국면 (명세 step_structure — 서로 배타) — v5 순서: 동시각 사건 소진 → (wake, 조각 3) → 결정 → 탈출 → 종료/사건
+■ 한 스텝의 여섯 국면 (명세 step_structure — 서로 배타) — v5 순서: 동시각 사건 소진 → wake → 결정 → 탈출 → 종료/전진/사건
     nt = min(queue.time); alive = nt<inf; inwin = nt ≤ end+EPS      (282-287행)
     due_now = alive & inwin & (nt ≤ clock+EPS)                          (288행)
-    [D 결정]  ~due_now & 열린 크레인 있음 & clock < end−EPS  → 결정 (293-299행)
-    [X 탈출]  ~due_now & ~D & 간섭 교착 (escape.try_escape)   → 유휴 전원에게 결정 (302-305행, immediate)
-    [E 사건]  ~D & ~X & alive & inwin                         → 사건 하나 처리 (336행)
-    [F 종료]  ~D & ~X & ~(alive & inwin)                      → _finalize (323-332행)
-  v5 가 "동시각 사건을 다 소진한 뒤에만" 결정을 여는 규칙이 `~due_now` 한 항으로 재현된다.
-  깨우기(W)는 조각 3 몫이라 여기 없다. D 와 X 는 `decide` 하나가 담당한다 — 같은 (K,N) 후보 행렬
+    [E 사건]  due_now                                          → 사건 하나 처리 (289행)
+    [W 깨우기] ~due_now & wake 도래 (wake.consume_due_wakes)   → 로그·armed·yield 해제, **그 스텝 끝** (291-292행 continue)
+    [D 결정]  ~due_now & ~W & 열린 크레인 있음 & clock < end−EPS  → 결정 (293-299행; 개방 = wake.open_with_armed)
+    [X 탈출]  ~due_now & ~W & ~D & 간섭 교착 (escape.try_escape) → 유휴 전원에게 결정 (302-305행, immediate)
+    wt = wake.next_wake_in_window (306-308행)
+    [F 종료]  ~D & ~X & ~(alive & inwin) & wt 없음              → _finalize (323-332행)
+    [A 전진]  ~D & ~X & wt 있음 & (nt 없음 | wt < nt−EPS)       → advance(wt) 만 (333-335행; 로그·rate 갱신 없음)
+    [E 사건]  ~D & ~X & 그 밖                                   → 사건 하나 처리 (336행)
+  v5 가 "동시각 사건을 다 소진한 뒤에만" 결정을 여는 규칙이 `~due_now` 한 항으로 재현된다. W 가 발화한 스텝에서는
+  결정을 열지 않는다 (v5 는 continue 뒤 소비를 다시 시도(False)한 뒤에야 결정을 본다 — 상태는 같아 답도 같지만 스텝
+  경계를 v5 순회와 맞춘다). D 와 X 는 `decide` 하나가 담당한다 — 같은 (K,N) 후보 행렬
   (`escape.candidate_matrices`)을 한 번 만들어 D 의 개방과 X 의 술어가 나눠 쓴다 (명세 hard_parts ①).
+  ★조각 3·4 통합 (2026-09-26): `step` 의 static 인자 `pre_advice`(정보수준 PRE_ADVICE)·`horizon_s`(결정 지평)·
+    `joint`(결정 계층 — 아래 ■ 두 결정 규약). 조각 1·2 무대(W=0·D=0·pre_advice=False·joint=False)에서는 W·A 국면이
+    정적으로 빠지고 개방 조건의 armed 항이 0 이라 답이 그대로다 (회귀 시험).
   ★D·X 를 한 번에 건너뛰는 지름길: 유휴·비양보 크레인이 없고 **작업 중 크레인이 있으면** v5 도 후보를 안 세고
     (`_decision_cranes` 빈 튜플) 탈출 술어 ①(430행)에서 즉시 () 다 — 그때만 행렬을 안 만든다. 전원 유휴인데
     모두 양보/고장이면 탈출이 발화할 수 있으므로(down-both·regain 무대) 행렬을 만든다.
+
+■ ★두 결정 규약 (조각 3 통합) — static `joint`
+    joint=False  **순차** (`assign_scan`, 아래) — v5 `ReferenceDispatcher.run`: 크레인 순서대로 live SERVE 후보를 다시 뽑아
+                 정책을 부른다. 후보는 SERVE 뿐 (candidates_for). policy_fn(params, x, mask) → (K,) 오더 번호 (-1 WAIT).
+    joint=True   **공동** (`decide_joint`·`apply_choices`) — v5 `CandidateGenerator.generate`(SERVE·PRE_REHANDLE·REPOSITION·
+                 WAIT, cands3.candidates3 + flat_view + prune) 를 결정 시작 시점에 **한 번** 만들고 정책이 크레인 전원의 답을
+                 한꺼번에 낸 뒤(v5 CentralResolver.resolve → dispatch.resolve_central), `baselines._apply`/`resolver.apply`
+                 (크레인 순 assign 679-722행) 로 적용한다. policy_fn(params, world, c3, flat, prune, open) → (choice (K,) 열 번호
+                 [-1 = WAIT], lost (K,) bool [WAIT 사유 LOST_CONTENTION → yield_count], flags () int32 [violation 에 OR]).
+                 배정 시 계획은 **그 kind 로 live 재계획** (694행 `_plan(cid, ref)`): SERVE plan_serve · PRE plan_pre ·
+                 REPO plan_repo → reserve(2차 방어선) → 크레인·계획·비용·큐·로그. REPO 는 오더가 없어 `cranes.assigned =
+                 cands3.BUSY_NO_ORDER` (유휴 판정은 전부 `assigned<0` 이라 충분), is_loaded False, 오더 상태 불변 (699-713행).
+                 PRE 는 오더 PLANNED 잔존·token = 오더 번호. 완료(`h_completed`)는 kind 로 갈린다 (915행 가드).
+    X(탈출) 결정은 두 규약 모두 yielded 해제 **뒤** 후보를 본다 — joint 는 `_recandidates` 가 eligible 의존 마스크·교착
+    술어·REPO 목표(`_escape_bays` 는 generate 시점의 술어를 읽는다, candidates.py:347)를 해제 뒤 상태로 다시 센다.
 
 ■ ★결정 국면 (§8 · 조각 2) — v5 `_decision_cranes`→`ReferenceDispatcher.run`(dispatcher.py:19-32)→`assign`
     결정 시작 시점 (K,N):  cand0[k,n] = eligible[k] & dispatchable[k,n] & ~taken[n] & plan_ok[k,n] & (reject_code==0)
@@ -78,7 +101,10 @@ v5 `world/integrated/engine.py` 의 `run_until_decision`(276-336행) 한 순회�
     5 BLOCK_ARRIVAL  WAITING·waiting·B=clock·(장부) in_block + yielded 해제 (847-853행)
     6/7 *_RELEASED   RELEASED + yielded 해제 (854-856, 877-881행)
     10/11            로그만 (882-883행)
-    3/4/8/9          본선·이송 — 조각 4. 대상이 있으면 V_UNSUPPORTED_EVENT(2048) 로 실격 표시.
+    3 TRANSFER_ARRIVE · 4 STS_MOVE · 8 VESSEL_START · 9 PLAN_CHANGE — 조각 4 `gpu/vessel.py` 처리기 (948-1065행).
+                     7 VESSEL_RELEASED 도 vessel.h_vessel_released (h_released 와 같은 일). 완료의 본선 훅(929-935행)은
+                     h_completed 가 `vessel.on_load_completed` 로, STS 대기 적분·요율(806-811·816-817행)은 advance·
+                     refresh_rates 가, clearout(1072-1080행)은 _fin 이 부른다. V_UNSUPPORTED_EVENT(2048) 는 더 켜지지 않는다.
 
 ■ 빈칸·위반 규약
     없는 번호 -1 은 `.at[-1]` 이 마지막 칸을 고치므로 **clip + where** 로 막는다 (`_set1`).
@@ -100,6 +126,10 @@ v5 `world/integrated/engine.py` 의 `run_until_decision`(276-336행) 한 순회�
     상수로 나누는 식(`Σvals/L`, `I/shift_len`)은 XLA 가 역수 곱으로 바꿀 수 있어 `exact.div_const`
     (optimization_barrier 뒤 나눗셈) 로 둔다. 조각 1 무대(L=1·K=1)에서는 값이 0 또는 x/1 이라
     영향이 없지만, 조각 2 부터 마지막 비트를 지킨다.
+
+■ ★파이썬 3.12 `sum()` (exact.py 머리말 실측 2) — v5 가 `sum(실수 목록)` 인 자리는 `exact.sum_python`(Neumaier 보정합)
+    lane.py:50 `sum(vals)/len(vals)` (lane_mean) · engine.py:835 `sum(loads)` (imbalance) — 둘 다 항이 파이썬 float.
+    2항까지는 순차합과 같고(K=2·L≤2) 3항부터 갈릴 수 있다(L=3·K=3 무대가 이 경로를 밟는다).
 """
 from __future__ import annotations
 
@@ -110,26 +140,32 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
-from .escape import candidate_matrices, try_escape
+from . import vessel as VS
+from .cands3 import (BUSY_NO_ORDER, REPO_MIN_MOVE, REPO_SCORE_BASE, CandOut3, candidates3, flat_view,
+                     plan_pre, plan_repo, prune, repo_targets)
+from .escape import candidate_matrices, deadlock_predicate, try_escape
 from .events import EMPTY_ID, EMPTY_TIME, TIME_DTYPE, next_event, push_event
-from .exact import div_const, mul_exact, sum_seq
+from .exact import div_const, mul_exact, sum_python
 from .geom import Geom
 from .plan import PlanOut, plan_serve
-from .reserve import (OK, corridor_overlaps, lane_occupancy, reject_code_over_orders, release,
+from .reserve import (OK, corridor_overlaps, lane_occupancy, reject_code, reject_code_over_orders, release,
                       reserve, set_idle_position)
 from .stack_ops import blockers_above, find_slot, place, rehandle_capacity_ok, remove
 from .state import (C_CRANE_TRAVEL, C_EMPTY_TRAVEL, C_LONG_WAIT, C_REHANDLE, C_TRUCK_WAIT,
                     CR_HANDLING, CR_IDLE, EV_JOB_COMPLETED, JS_DONE, JS_RELEASED, JS_RUNNING,
-                    JS_WAITING, LOG_DISPATCH, MV_RETRIEVE, MV_STORE, N_COST, PK_SERVE, PK_WAIT,
+                    JS_WAITING, LOG_DISPATCH, MV_RETRIEVE, MV_STORE, N_COST, PK_PRE_REHANDLE, PK_REPOSITION,
+                    PK_SERVE, PK_WAIT,
                     RATE_IDX, V_BUSY_NO_EVENT, V_COMPLETE_NO_PLAN, V_CRANE_MIN_GAP,
                     V_CRANE_ORDER_SWAP, V_DECISION_COVERAGE, V_LEDGER_UNREGISTERED, V_NEG_COST,
                     V_OVERFLOW, V_PAIRWISE_LOCK, V_RESERVE_REJECT, V_STEPS_EXHAUSTED,
                     V_TIME_BACKWARD, V_UNSUPPORTED_EVENT, BlockWorld)
+from .wake import consume_due_wakes, eta_opportunity_mask, next_wake_in_window, open_with_armed
 
 __all__ = ["EPS", "ADVANCE_UNROLL", "V_UNSUPPORTED_EVENT", "StepTrace", "DecideOut", "AssignTrace",
            "tree_where", "ledger_mode", "lane_mean", "refresh_rates", "advance", "log_event", "h_arrival",
            "h_released", "h_completed", "h_down", "h_up", "h_noop", "dispatchable", "features",
            "first_by_id", "plan_row", "assign_scan", "check_invariants", "close_decision", "decide",
+           "recandidates", "apply_choices", "decide_joint", "repo_aux",
            "step", "run", "run_jit", "run_while", "run_while_jit", "run_python", "cut", "finish",
            "ACTIVE_FEATURES"]
 
@@ -194,28 +230,29 @@ def lane_mean(res, adj, g: Geom) -> jnp.ndarray:
     nbr = jnp.sum(adj & occ[None, :], axis=1).astype(F)                 # 47-48행 인접 점유 수 (정수 합 → 정확)
     load = occ.astype(F) + nbr
     vals = load / (1.0 + deg)                                           # 49행
-    return _const_div(sum_seq(vals), float(L))                          # 50행 sum(vals)/len(vals) — 왼쪽부터 차례로
+    return _const_div(sum_python(vals), float(L))                       # 50행 sum(vals)/len(vals) — 파이썬 3.12 보정합
 
 
 def refresh_rates(world: BlockWorld, g: Geom) -> BlockWorld:
     """v5 `_refresh_rates` (815-822행) — rate 5항 [sts_wait, transfer_wait, lane_cong, interference, imbalance].
 
-    sts_wait·transfer_wait 는 본선·이송(조각 4) 몫 → 0. set_rate 의 `max(0.0, ·)` 를 그대로 둔다.
-    imbalance = load_imbalance()/shift_len (824-838행): K<2 또는 Σload≤0 이면 0.
+    sts_wait·transfer_wait 는 `vessel.vessel_rates` (816-818행 — 막힌 배 수 · 이송 대기 요청 수). set_rate 의
+    `max(0.0, ·)` 를 그대로 둔다. imbalance = load_imbalance()/shift_len (824-838행): K<2 또는 Σload≤0 이면 0.
     """
     cr = world.cranes
     K = cr.k
     z = jnp.asarray(0.0, F)
+    sts_r, tw_r = VS.vessel_rates(world.vessels, world.transfer)         # 816-818행
     lane_r = lane_mean(world.res, world.lane.adj, g)                    # 819-820행
     interf = jnp.sum(cr.yielded).astype(F)                              # 821행
     if K < 2:
         imb = z                                                         # 836행 len(loads) < 2
     else:
         loads = jnp.where(cr.assigned >= 0, jnp.maximum(0.0, cr.available_at - world.clock), 0.0)   # 833행
-        total = sum_seq(loads)                                          # 835행 sum(loads) — 왼쪽부터 차례로 (jnp.sum 축소 순서 미규정)
+        total = sum_python(loads)                                       # 835행 sum(loads) — 파이썬 3.12 보정합 (항은 float)
         imb = jnp.where(total <= 0.0, 0.0, (jnp.max(loads) - jnp.min(loads)) / total)             # 836-838행
     imb_rate = _const_div(imb, g.shift_len_s)                           # 822행
-    rate = jnp.stack([z, z, lane_r, interf, imb_rate]).astype(F)
+    rate = jnp.stack([sts_r, tw_r, lane_r, interf, imb_rate]).astype(F)
     rate = jnp.maximum(0.0, rate)                                       # cost.py:53 set_rate
     return world._replace(cost=world.cost._replace(rate=rate))
 
@@ -349,6 +386,8 @@ def advance(world: BlockWorld, t, g: Geom) -> BlockWorld:
     # 비용 truck_wait/long_wait (797-805행): 증분 = 적분 뒤 − 적분 전 (v5 와 같은 반올림)
     d_wait = jnp.where(lm, block_area - ld.block_area, queue_area - kp.queue_area)
     d_long = jnp.where(lm, block_tail - ld.block_tail, tail_area - kp.tail_area)
+    # 이송 대기 적분 (806행 transfer.integrate) · STS 대기 적분 (809-811행) — vessel.integrate_vessel_wait
+    ves2, tr2 = VS.integrate_vessel_wait(world.vessels, world.transfer, dt)
     # 레인 혼잡 적분 (806-808행; lane.py:52-56)
     mean = lane_mean(world.res, world.lane.adj, g)
     cong = world.lane.cong_area_s + mul_exact(mean, dt)                 # 56행 mean * dt
@@ -364,7 +403,8 @@ def advance(world: BlockWorld, t, g: Geom) -> BlockWorld:
         kpi=kp._replace(queue_area=queue_area, tail_area=tail_area),
         ledger=ld._replace(block_area=block_area, block_tail=block_tail, terminal_area=terminal_area),
         lane=world.lane._replace(cong_area_s=cong),
-        cost=world.cost._replace(pending=pending, episode=episode))
+        cost=world.cost._replace(pending=pending, episode=episode),
+        vessels=ves2, transfer=tr2)
     w2 = tree_where(go, new, world)
     viol = (world.violation
             | jnp.where(backward, V_TIME_BACKWARD, 0).astype(jnp.int32)
@@ -373,16 +413,24 @@ def advance(world: BlockWorld, t, g: Geom) -> BlockWorld:
 
 
 # ───────────────────────────────────────────────── 로그 (engine.py:157, 845, 721)
-def log_event(world: BlockWorld, t, kind, target) -> BlockWorld:
-    """event_log.append((t, kind, target)). 칸이 없으면 overflow++ (조용히 버리지 않는다)."""
+def log_event(world: BlockWorld, t, kind, target, aux=EMPTY_ID) -> BlockWorld:
+    """event_log.append((t, kind, target[, aux])). 칸이 없으면 overflow++ (조용히 버리지 않는다).
+
+    aux (state.LogArrays.aux): DISPATCH 의 배정 내용 — 오더 번호(SERVE·PRE) 또는 `repo_aux(bay)` (REPOSITION)."""
     lg = world.log
     E = lg.capacity
     has = lg.n < E
     i = jnp.clip(lg.n, 0, E - 1)
     put = lambda arr, v: jnp.where(has, arr.at[i].set(jnp.asarray(v, arr.dtype)), arr)
     lg2 = lg._replace(t=put(lg.t, t), kind=put(lg.kind, kind), target=put(lg.target, target),
-                      n=lg.n + jnp.where(has, 1, 0).astype(jnp.int32))
+                      aux=put(lg.aux, aux), n=lg.n + jnp.where(has, 1, 0).astype(jnp.int32))
     return world._replace(log=lg2, overflow=world.overflow + jnp.where(has, 0, 1).astype(jnp.int32))
+
+
+def repo_aux(bay) -> jnp.ndarray:
+    """REPOSITION DISPATCH 로그의 aux = −(2 + int(bay)) — v5 payload "REPO:<cid>:<int(tb)>" (candidates.py:413) 의 bay.
+    bay ≥ 1 이라 int() 절사 = floor."""
+    return (-(2 + jnp.floor(jnp.asarray(bay, F)).astype(jnp.int32))).astype(jnp.int32)
 
 
 # ───────────────────────────────────────────────── 처리기 (§7)
@@ -453,8 +501,8 @@ def h_completed(world: BlockWorld, k) -> BlockWorld:
     # 901-903행 예약 해제 · 위치 · idle 장벽
     res = release(world.res, kc)
     res = set_idle_position(res, kc, pl.end_bay[kc])
-    is_serve = pl.kind[kc] == PK_SERVE                                   # 915행
-    n = pl.job[kc]
+    is_serve = pl.kind[kc] == PK_SERVE                                   # 915행 kind 가드 — PRE_REHANDLE(대상 잔존·오더 미완료)
+    n = pl.job[kc]                                                       #   · REPOSITION(오더 없음, job=-1) 은 오더를 건드리지 않는다
     nc = jnp.clip(n, 0, N - 1)
     nvalid = is_serve & (n >= 0) & (n < N)
     is_ext = o.is_external[nc]
@@ -492,6 +540,7 @@ def h_completed(world: BlockWorld, k) -> BlockWorld:
     pl2 = pl._replace(kind=pl.kind.at[kc].set(EMPTY_ID), job=pl.job.at[kc].set(EMPTY_ID),
                       n_moves=pl.n_moves.at[kc].set(0))
     new = world._replace(stacks=stacks, conts=conts, res=res, cranes=cr2, kpi=kp2, orders=o2, plan=pl2)
+    new = VS.on_load_completed(new, n, nvalid)                           # 929-932행 적하 반출 완료 → 이송 요청 (조각 4)
     w2 = tree_where(has_plan, new, world)
     viol = (world.violation
             | jnp.where(valid & ~has_plan, V_COMPLETE_NO_PLAN, 0).astype(jnp.int32)
@@ -528,26 +577,19 @@ def h_noop(world: BlockWorld, _) -> BlockWorld:
     return world
 
 
-def h_unsupported(world: BlockWorld, target) -> BlockWorld:
-    """TRANSFER_ARRIVE · STS_MOVE · VESSEL_START · PLAN_CHANGE — 조각 4. 대상이 있으면 실격 표시.
-    (PLAN_CHANGE 의 대상이 모르는 선박(-1)이면 v5 도 무동작 1049-1051행.)"""
-    flag = _i32(target) >= 0
-    return world._replace(violation=world.violation | jnp.where(flag, V_UNSUPPORTED_EVENT, 0).astype(jnp.int32))
-
-
 def _handlers(g: Geom):
-    """kind 0..11 → 처리기 (w, target) → w. lax.switch 의 branch 목록."""
+    """kind 0..11 → 처리기 (w, target) → w. lax.switch 의 branch 목록. 3/4/7/8/9 는 조각 4 `gpu/vessel.py`."""
     return [
         lambda w, t: h_completed(w, t),      # 0 JOB_COMPLETED
         h_down,                              # 1 EQUIPMENT_DOWN
         h_up,                                # 2 EQUIPMENT_UP
-        h_unsupported,                       # 3 TRANSFER_ARRIVE (조각 4)
-        h_unsupported,                       # 4 STS_MOVE (조각 4)
+        VS.h_transfer_arrive,                # 3 TRANSFER_ARRIVE (1008-1022행)
+        VS.h_sts_move,                       # 4 STS_MOVE (966-989행)
         h_arrival,                           # 5 BLOCK_ARRIVAL
         h_released,                          # 6 JOB_RELEASED
-        h_released,                          # 7 VESSEL_RELEASED
-        h_unsupported,                       # 8 VESSEL_START (조각 4)
-        h_unsupported,                       # 9 PLAN_CHANGE (조각 4)
+        VS.h_vessel_released,                # 7 VESSEL_RELEASED (877-881행)
+        VS.h_vessel_start,                   # 8 VESSEL_START (948-957행)
+        VS.h_plan_change,                    # 9 PLAN_CHANGE (1048-1065행; 모르는 선박 -1 은 무동작)
         h_noop,                              # 10 ETA_UPDATED
         h_noop,                              # 11 HORIZON
     ]
@@ -623,7 +665,9 @@ class DecideOut(NamedTuple):
     world: BlockWorld
     decided: jnp.ndarray   # () bool  열린 크레인이 하나라도 있었나
     open: jnp.ndarray      # (K,) bool 이번 결정에서 물은 크레인 (v5 TerminalDecision.crane_ids)
-    pick: jnp.ndarray      # (K,) int32 답 (-1 = WAIT; 안 물은 크레인도 -1)
+    pick: jnp.ndarray      # (K,) int32 답 — 오더 번호 (SERVE·PRE_REHANDLE); -1 = WAIT/REPOSITION/안 물음
+    kind: jnp.ndarray      # (K,) int32 답의 종류 PK_* (안 물은 크레인 -1) — 조각 3
+    bay: jnp.ndarray       # (K,) f64   REPOSITION 목표 bay (그 밖 NaN) — 조각 3
 
 
 def plan_row(world: BlockWorld, k, g: Geom) -> PlanOut:
@@ -734,7 +778,7 @@ def assign_scan(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, P0: 
         cost2 = w.cost._replace(pending=acc(w.cost.pending), episode=acc(w.cost.episode))
         q2 = push_event(w.queue, rel, EV_JOB_COMPLETED, k)               # 720행
         w_ok = w._replace(res=res2, plan=pl2, cranes=cr2, orders=o2, cost=cost2, queue=q2)
-        w_ok = log_event(w_ok, w.clock, LOG_DISPATCH, k)                 # 721행
+        w_ok = log_event(w_ok, w.clock, LOG_DISPATCH, k, nc)             # 721행 (aux = 오더 번호)
         w_no = w._replace(cranes=cr_y)
         w2 = tree_where(ok, w_ok, w_no)._replace(violation=viol)
         ys = (n, cand_k, taken, P_k.ok, code_k, jnp.where(serve, code2, EMPTY_ID).astype(jnp.int32),
@@ -751,30 +795,42 @@ def assign_scan(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, P0: 
     return w2, pick, trace
 
 
-def close_decision(world: BlockWorld, open_, pick, g: Geom, *, consume_armed, check: bool = True) -> BlockWorld:
+def close_decision(world: BlockWorld, open_, pick, g: Geom, *, consume_armed, check: bool = True,
+                   kind=None, bay=None) -> BlockWorld:
     """결정 마무리 — 결정 장부(295-296행 `_pending`·`_assigned`)·`last_decision_at`(298행)·
     eta_armed 소진(297행, **정상 결정만** — consume_armed)·`close_decision` 의 `_refresh_rates`(729행)·
-    check 면 불변식 검사(730-731행 → violation 비트)."""
+    check 면 불변식 검사(730-731행 → violation 비트).
+    kind/bay (K,) 를 주면(공동 규약) 장부의 act_kind/act_bay 에 그대로, 없으면 SERVE/WAIT (순차 규약)."""
     K = world.k
+    if kind is None:
+        kind = jnp.where(open_, jnp.where(pick >= 0, PK_SERVE, PK_WAIT), EMPTY_ID).astype(jnp.int32)
+    if bay is None:
+        bay = jnp.full((K,), jnp.nan, F)
     dec = world.decision._replace(
-        pending=open_, answered=open_,
-        act_kind=jnp.where(open_, jnp.where(pick >= 0, PK_SERVE, PK_WAIT), EMPTY_ID).astype(jnp.int32),
-        act_job=pick, act_bay=jnp.full((K,), jnp.nan, F))
+        pending=open_, answered=open_, act_kind=jnp.asarray(kind, jnp.int32),
+        act_job=pick, act_bay=jnp.asarray(bay, F))
     armed = jnp.where(consume_armed, world.wake.eta_armed & ~open_, world.wake.eta_armed)   # 297행 (탈출은 안 건드림)
     w2 = world._replace(last_decision_at=world.clock,                    # 298행 (탈출은 404행이 이미 같은 값)
                         decision=dec, wake=world.wake._replace(eta_armed=armed))
     return _checked(refresh_rates(w2, g), g, check)                      # 729행 · 730-731행
 
 
-def decide(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, check: bool = True) -> DecideOut:
+def decide(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, check: bool = True,
+           pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False) -> DecideOut:
     """결정 국면 한 번 = D(정상, 293-299행) 또는 X(탈출, 302-305행) — 둘은 배타이고 같은 (K,N) 행렬을 쓴다.
 
-    D: open = any(cand0) 인 크레인 (`_decision_cranes`).  X: D 가 안 열렸을 때 `escape.try_escape` 가 발화하면
-    open = 유휴 전원 (yielded 해제 뒤). 둘 다 `assign_scan` → `close_decision`. 아무것도 안 열리면 세계를
-    그대로 돌려준다 (decided=False) — 단, 술어까지 참인데 유휴가 없으면 v5 398행처럼 yielded 만 해제된 세계.
+    D: open = `_decision_cranes` (453-464행) = eligible & (SERVE 후보 있음 | (armed & eta_opportunity)) —
+       `wake.open_with_armed`; armed 항은 pre_advice 일 때만 산다 (eta_opportunity_mask).
+    X: D 가 안 열렸을 때 `escape.try_escape` 가 발화하면 open = 유휴 전원 (yielded 해제 뒤).
+    둘 다 `assign_scan` → `close_decision`. 아무것도 안 열리면 세계를 그대로 돌려준다 (decided=False) — 단, 술어까지
+    참인데 유휴가 없으면 v5 398행처럼 yielded 만 해제된 세계. joint=True 면 `decide_joint` (머리말 ■ 두 결정 규약).
     """
+    if joint:
+        return decide_joint(world, params, g, policy_fn, check=check, pre_advice=pre_advice, horizon_s=horizon_s)
+    K = world.k
     m = candidate_matrices(world, g)                                     # (K,N) 한 번 — D 개방 + X 술어 (hard_parts ①)
-    open_D = jnp.any(m.cand, axis=1)                                     # 460행
+    eta_opp = eta_opportunity_mask(world, g, horizon_s=horizon_s, pre_advice=pre_advice)   # candidates.py:154-170
+    open_D = open_with_armed(m.cand, m.eligible, world.wake.eta_armed, eta_opp)           # 453-464행
     is_D = jnp.any(open_D) & (world.clock < world.end_s - EPS)           # 294행
     esc = try_escape(world, m)                                           # 302-305행 — deadlock 은 any(cand) 와 배타
     fired = ~is_D & esc.fired
@@ -783,7 +839,160 @@ def decide(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, check: bo
     decided = is_D | fired
     w2, pick, _ = assign_scan(w_in, params, g, policy_fn, P0=m.P, disp=m.disp, open_=open_)
     w2 = close_decision(w2, open_, pick, g, consume_armed=is_D, check=check)
-    return DecideOut(tree_where(decided, w2, w_in), decided, open_, pick)
+    kind = jnp.where(open_, jnp.where(pick >= 0, PK_SERVE, PK_WAIT), EMPTY_ID).astype(jnp.int32)
+    return DecideOut(tree_where(decided, w2, w_in), decided, open_, pick, kind, jnp.full((K,), jnp.nan, F))
+
+
+# ───────────────────────────────────────────────── 공동 결정 규약 (조각 3 · cands3) — 머리말 ■ 두 결정 규약
+def recandidates(c3: CandOut3, world: BlockWorld, elig, g: Geom, *, horizon_s, pre_advice: bool) -> CandOut3:
+    """`candidates3` 결과에서 **eligible 에 의존하는 것만** 다른 eligible 로 다시 센다 — 탈출(X) 결정용.
+
+    v5 X 경로: `_try_escape` 가 yielded 를 전부 지운 **뒤** 정책이 generate() 를 부른다 (candidates.py:263 eligible ·
+    347행 `_escape_bays` 의 술어 `interference_deadlock_corridors` 도 그 시점). 계획·거절 코드·게이트는 yielded 와 무관하므로
+    그대로 두고 원시 마스크(serve/pre/repo raw)·교착 술어·REPO 목표 집합(escape 목표가 술어에 달렸다)·개방만 다시 계산한다.
+    elig == c3.eligible 이면 결과는 c3 와 같다 (같은 함수·같은 입력).
+    """
+    m = c3.m
+    o, cr = world.orders, world.cranes
+    K, N = world.k, world.n
+    B, R_, _ = world.stacks.shape
+    gap = jnp.asarray(g.gap, F)
+    e = jnp.asarray(elig, bool)
+    has_ref = (o.target_cont >= 0) | o.is_store
+    serve_raw = e[:, None] & m.disp & has_ref[None, :] & (m.P.ok | c3.mandatory[None, :])
+    serve = e[:, None] & m.feasible & (m.code == OK)
+    pre_raw = e[:, None] & c3.pre_gate & c3.P_pre.ok
+    pre = pre_raw & (c3.pre_code == OK)
+    busy = jnp.any(cr.assigned >= 0)
+    deadlock = ~busy & ~jnp.any(serve) & jnp.any(c3.blocked)             # 430-436행 (해제 뒤 후보로)
+    rb, rvalid, resc, ovf = repo_targets(world, g, m, deadlock, c3.blocked, horizon_s, pre_advice)
+    f_repo = jax.vmap(partial(plan_repo, g=g), in_axes=(None, None, 0))
+    P_repo = jax.vmap(f_repo, in_axes=(None, 0, 0))(cr, jnp.arange(K, dtype=jnp.int32), rb)
+    zero_slots = jnp.zeros((B, R_), bool)
+    rcode_fn = jax.vmap(reject_code, in_axes=(None, None, None, 0, 0, None, None, None))
+    repo_code = jax.vmap(rcode_fn, in_axes=(None, 0, None, 0, 0, None, None, None))(
+        world.res, jnp.arange(K, dtype=jnp.int32), jnp.int32(EMPTY_ID), P_repo.lo, P_repo.hi,
+        jnp.int32(EMPTY_ID), zero_slots, gap)
+    far = jnp.abs(rb - cr.bay[:, None]) > REPO_MIN_MOVE
+    repo_raw = e[:, None] & rvalid & (resc | far) & P_repo.ok
+    repo = repo_raw & (repo_code == OK)
+    open_ = e & (jnp.any(serve, axis=1) | (world.wake.eta_armed & c3.eta_opp))
+    return c3._replace(eligible=e, serve_raw=serve_raw, serve=serve, pre_raw=pre_raw, pre=pre,
+                       repo_bay=rb, repo_valid=rvalid, repo_escape=resc, P_repo=P_repo, repo_code=repo_code,
+                       repo_raw=repo_raw, repo=repo, repo_score=jnp.asarray(REPO_SCORE_BASE, F) + rb,
+                       esc_overflow=ovf, open=open_, deadlock=deadlock)
+
+
+def apply_choices(world: BlockWorld, fl, pr, choice, open_, lost, g: Geom):
+    """공동 결정의 적용 — v5 `baselines._apply`/`resolver.apply` (크레인 순 sorted) → `assign` (679-722행).
+
+    choice (K,) int32 = 평면 후보 열 번호 (cands3.flat_view; -1 = WAIT). 열마다 kind·오더·bay 를 읽어 그 kind 로
+    **live 재계획** (694행 — 앞 크레인의 예약이 반영된다) → reserve (697행 2차 방어선) → 크레인·계획·오더(SERVE 만)·비용·
+    JOB_COMPLETED push·DISPATCH 로그(aux). WAIT → yielded (686행), lost[k] 면 yield_count+1 (687-688행).
+    정책이 실린 후보(prune.keep & feasible) 밖 열을 고르면 V_DECISION_COVERAGE 를 켜고 건너뛴다 (v5 는 NOT_DISPATCHABLE
+    /예약 예외). 반환 (세계', pick (K,) 오더 번호 [-1], kind (K,) PK_* [-1], bay (K,) REPO 목표 [NaN]).
+    """
+    K, N = world.k, world.n
+    B, R_, _ = world.stacks.shape
+    C = fl.raw.shape[1]
+    gap = jnp.asarray(g.gap, F)
+    zero_ex = jnp.zeros((B, R_), bool)
+    choice = jnp.asarray(choice, jnp.int32)
+    lost = jnp.zeros((K,), bool) if lost is None else jnp.asarray(lost, bool)
+
+    def body(w, k):
+        a = open_[k]
+        c = choice[k]
+        cc = jnp.clip(c, 0, C - 1)
+        in_set = (c >= 0) & (c < C) & pr.keep[k, cc] & fl.feasible[k, cc]
+        kind = jnp.where(in_set, fl.kind[k, cc], PK_WAIT).astype(jnp.int32)
+        is_wait = a & ((c < 0) | (kind == PK_WAIT))
+        off = a & (c >= 0) & ~in_set                                     # 목록 밖 → 512
+        work = a & ~is_wait & in_set
+        job = fl.job[k, cc]
+        bay = fl.bay[k, cc]
+        nc = jnp.clip(job, 0, N - 1)
+        is_repo = kind == PK_REPOSITION
+        is_pre = kind == PK_PRE_REHANDLE
+        # 694행 `_plan(cid, ref)` — 그 kind 로 live 재계획 (carry 의 예약표)
+        P_s = plan_serve(w, k, nc, zero_ex, g)
+        P_p = plan_pre(w, k, nc, g)
+        P_r = plan_repo(w.cranes, k, jnp.where(jnp.isnan(bay), w.cranes.bay[k], bay), g)
+        P = tree_where(is_repo, P_r, tree_where(is_pre, P_p, P_s))
+        token = jnp.where(is_repo, EMPTY_ID, nc).astype(jnp.int32)
+        rel = w.clock + P.dur                                            # 701행 start_s + duration_s
+        res2, code2 = reserve(w.res, k, token, P.lo, P.hi, P.lane, P.slots, rel, gap)   # 697행
+        ok = work & P.ok & (code2 == OK)
+        viol = (w.violation
+                | jnp.where(work & ~ok, V_RESERVE_REJECT, 0).astype(jnp.int32)
+                | jnp.where(off, V_DECISION_COVERAGE, 0).astype(jnp.int32))
+        cr_, o_, pl_ = w.cranes, w.orders, w.plan
+        cr_y = cr_._replace(yielded=cr_.yielded.at[k].set(cr_.yielded[k] | is_wait),          # 686행
+                            yield_count=cr_.yield_count.at[k].add(jnp.where(is_wait & lost[k], 1, 0).astype(jnp.int32)))
+        pl2 = pl_._replace(                                              # 698행 _active_plans[crane] = plan
+            kind=pl_.kind.at[k].set(kind), job=pl_.job.at[k].set(jnp.where(is_repo, EMPTY_ID, nc)),
+            lo=pl_.lo.at[k].set(P.lo), hi=pl_.hi.at[k].set(P.hi), dur=pl_.dur.at[k].set(P.dur),
+            end_bay=pl_.end_bay.at[k].set(P.end_bay), end_row=pl_.end_row.at[k].set(P.end_row),
+            rehandles=pl_.rehandles.at[k].set(P.rehandles),
+            loaded_m=pl_.loaded_m.at[k].set(P.loaded_m), empty_m=pl_.empty_m.at[k].set(P.empty_m),
+            n_moves=pl_.n_moves.at[k].set(P.n_moves), start_s=pl_.start_s.at[k].set(w.clock),
+            mv_cont=pl_.mv_cont.at[k].set(P.mv_cont), mv_src=pl_.mv_src.at[k].set(P.mv_src),
+            mv_dst=pl_.mv_dst.at[k].set(P.mv_dst), mv_kind=pl_.mv_kind.at[k].set(P.mv_kind))
+        cr2 = cr_y._replace(                                             # 699-702행
+            assigned=cr_.assigned.at[k].set(jnp.where(is_repo, BUSY_NO_ORDER, nc).astype(jnp.int32)),
+            status=cr_.status.at[k].set(CR_HANDLING),
+            available_at=cr_.available_at.at[k].set(rel),
+            is_loaded=cr_.is_loaded.at[k].set(~is_repo))
+        is_serve = kind == PK_SERVE
+        is_ext = o_.is_external[nc]
+        o2 = o_._replace(                                                # 705-713행 (SERVE 만)
+            status=o_.status.at[nc].set(jnp.where(is_serve, JS_RUNNING, o_.status[nc])),
+            assigned_crane=o_.assigned_crane.at[nc].set(jnp.where(is_serve, k, o_.assigned_crane[nc])),
+            service_s=o_.service_s.at[nc].set(jnp.where(is_serve, w.clock, o_.service_s[nc])),
+            waiting=o_.waiting.at[nc].set(jnp.where(is_serve & is_ext, False, o_.waiting[nc])),
+            wait_sample_s=o_.wait_sample_s.at[nc].set(
+                jnp.where(is_serve & is_ext, w.clock - o_.block_in_s[nc], o_.wait_sample_s[nc])))
+        reh = P.rehandles.astype(F)                                      # 718행 float(plan.rehandles)
+        acc = lambda v: (v.at[C_CRANE_TRAVEL].add(P.loaded_m).at[C_EMPTY_TRAVEL].add(P.empty_m)
+                         .at[C_REHANDLE].add(reh))                       # 714-719행
+        cost2 = w.cost._replace(pending=acc(w.cost.pending), episode=acc(w.cost.episode))
+        q2 = push_event(w.queue, rel, EV_JOB_COMPLETED, k)               # 720행
+        w_ok = w._replace(res=res2, plan=pl2, cranes=cr2, orders=o2, cost=cost2, queue=q2)
+        w_ok = log_event(w_ok, w.clock, LOG_DISPATCH, k, jnp.where(is_repo, repo_aux(bay), nc))   # 721행
+        w_no = w._replace(cranes=cr_y)
+        w2 = tree_where(ok, w_ok, w_no)._replace(violation=viol)
+        pick = jnp.where(ok & ~is_repo, nc, EMPTY_ID).astype(jnp.int32)
+        kind_out = jnp.where(a, jnp.where(ok, kind, PK_WAIT), EMPTY_ID).astype(jnp.int32)
+        bay_out = jnp.where(ok & is_repo, P.end_bay, jnp.nan)
+        return w2, (pick, kind_out, bay_out)
+
+    w2, (pick, kind, bay) = lax.scan(body, world, jnp.arange(K, dtype=jnp.int32))   # 크레인 순 = sorted(crane_id)
+    return w2, pick, kind, bay
+
+
+def decide_joint(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, check: bool = True,
+                 pre_advice: bool = False, horizon_s: float = 0.0) -> DecideOut:
+    """공동 규약의 결정 국면 — `candidates3` 한 번 (D 개방 + X 술어) → 정책(전 크레인 한 번) → `apply_choices` → 마무리."""
+    K = world.k
+    c3 = candidates3(world, g, horizon_s=horizon_s, pre_advice=pre_advice)
+    open_D = c3.open                                                     # 453-464행 (_decision_cranes)
+    is_D = jnp.any(open_D) & (world.clock < world.end_s - EPS)           # 294행
+    esc = try_escape(world, c3.m)                                        # 302-305행
+    fired = ~is_D & esc.fired
+    w_in = tree_where(is_D, world, esc.world)
+    open_ = jnp.where(is_D, open_D, esc.open)
+    decided = is_D | fired
+    # X: yielded 해제 뒤의 eligible 로 원시 마스크·술어·REPO 목표를 다시 센다 (v5 는 generate 가 해제 뒤 상태를 읽는다)
+    elig_x = c3.m.idle & ~w_in.cranes.yielded
+    c3x = lax.cond(fired, lambda: recandidates(c3, w_in, elig_x, g, horizon_s=horizon_s, pre_advice=pre_advice),
+                   lambda: c3)
+    fl = flat_view(c3x)
+    pr = prune(fl, g)
+    choice, lost, flags = policy_fn(params, w_in, c3x, fl, pr, open_)
+    w2, pick, kind, bay = apply_choices(w_in, fl, pr, choice, open_, lost, g)
+    w2 = w2._replace(violation=w2.violation | jnp.asarray(flags, jnp.int32))
+    w2 = close_decision(w2, open_, pick, g, consume_armed=is_D, check=check, kind=kind, bay=bay)
+    return DecideOut(tree_where(decided, w2, w_in), decided, open_, pick, kind, bay)
 
 
 # ───────────────────────────────────────────────── 스텝 · 실행 (§9)
@@ -796,7 +1005,11 @@ class StepTrace(NamedTuple):
     kind: jnp.ndarray         # () int32 꺼낸 사건 종류 (-1 = 없음)
     target: jnp.ndarray       # () int32
     open: jnp.ndarray         # (K,) bool
-    pick: jnp.ndarray         # (K,) int32
+    pick: jnp.ndarray         # (K,) int32   오더 번호 (SERVE·PRE) · -1 (WAIT·REPO·안 물음)
+    pick_kind: jnp.ndarray    # (K,) int32   답의 종류 PK_* (-1 = 안 물음) — 조각 3
+    pick_bay: jnp.ndarray     # (K,) f64     REPOSITION 목표 bay (NaN) — 조각 3
+    woke: jnp.ndarray         # () bool      이 스텝이 W(깨우기) 로 끝났나 — 조각 3
+    advanced: jnp.ndarray     # () bool      이 스텝이 A(wake 시각 전진) 로 끝났나 — 조각 3
     plan_job: jnp.ndarray     # (K,) int32   결정 뒤 활성 계획 (kind<0 이면 없음)
     plan_kind: jnp.ndarray    # (K,) int32
     plan_n_moves: jnp.ndarray # (K,) int32
@@ -808,33 +1021,47 @@ class StepTrace(NamedTuple):
     plan_mv_kind: jnp.ndarray    # (K,M) int32
 
 
-def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: bool = True):
+def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: bool = True,
+         pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
     """한 스텝 = `run_until_decision` 한 순회 (머리말). 반환 (세계', StepTrace). terminal 이면 항등.
-    check (static): 결정 마무리·사건 처리 뒤 불변식 검사 (v5 `check_invariants` 플래그)."""
+    check (static): 결정 마무리·사건 처리 뒤 불변식 검사 (v5 `check_invariants` 플래그).
+    pre_advice · horizon_s · joint (static): 정보수준 PRE_ADVICE · 결정 지평(profile.decision_horizon_s) · 결정 규약 (머리말)."""
     K = world.k
     raw_nt = jnp.min(world.queue.time)                                   # 282행 peek_time
     alive = raw_nt < EMPTY_TIME
     inwin = raw_nt <= world.end_s + EPS                                  # 287행 평가창 밖 사건은 없는 것
     nt_ok = alive & inwin
     due_now = nt_ok & (raw_nt <= world.clock + EPS)                      # 288행
-    cr = world.cranes
+    # [W] 깨우기 (291-292행) — 동시각 사건을 다 소진한 뒤 · 결정 전. 발화하면 이 스텝은 여기서 끝난다.
+    W_, D_ = world.wake.eta_wake_s.shape[0], world.wake.defer_wake_s.shape[0]
+    if (pre_advice and W_ > 0) or D_ > 0:
+        w_c, fired_c = consume_due_wakes(world, pre_advice=pre_advice)
+        woke = fired_c & ~due_now & ~world.terminal
+        w_w = tree_where(woke, w_c, world)
+    else:
+        w_w, woke = world, jnp.zeros((), bool)
+    cr = w_w.cranes
     any_eligible = jnp.any((cr.assigned < 0) & ~cr.down & ~cr.yielded)   # 453-456행 idle & ~yielded
     any_busy = jnp.any(cr.assigned >= 0)                                 # 430행 탈출 술어 ①
     # ★지름길 (머리말): 유휴·비양보 크레인이 없고 작업 중이 있으면 v5 도 후보를 안 세고 탈출 술어 ①에서 () 다.
     #   전원 유휴(모두 양보/고장)면 탈출이 발화할 수 있으므로 행렬을 만든다. 시각 조건은 D(294행)·X(390행) 공통.
-    try_decide = (~world.terminal & ~due_now & (world.clock < world.end_s - EPS)
+    try_decide = (~world.terminal & ~due_now & ~woke & (world.clock < world.end_s - EPS)
                   & (any_eligible | ~any_busy))
 
     def _decide(w):
-        d = decide(w, params, g, policy_fn, check=check)
-        return d.world, d.decided, d.open, d.pick
+        d = decide(w, params, g, policy_fn, check=check, pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
+        return d.world, d.decided, d.open, d.pick, d.kind, d.bay
 
     def _skip(w):
-        return w, jnp.zeros((), bool), jnp.zeros((K,), bool), jnp.full((K,), EMPTY_ID, jnp.int32)
+        return (w, jnp.zeros((), bool), jnp.zeros((K,), bool), jnp.full((K,), EMPTY_ID, jnp.int32),
+                jnp.full((K,), EMPTY_ID, jnp.int32), jnp.full((K,), jnp.nan, F))
 
-    w_d, decided, open_, pick = lax.cond(try_decide, _decide, _skip, world)
+    w_d, decided, open_, pick, pkind, pbay = lax.cond(try_decide, _decide, _skip, w_w)
     escaped = decided & (w_d.escape_count > world.escape_count)
     handlers = _handlers(g)
+    # 306-308행 다음 wake 시각 (평가창 안) — A 국면의 전진 목표
+    wt = next_wake_in_window(w_d, pre_advice=pre_advice)
+    is_A = (wt < EMPTY_TIME) & (~nt_ok | (wt < raw_nt - EPS))            # 333행
 
     def _event(w):
         """국면 E — `_process_next_event` (776-782행)."""
@@ -849,6 +1076,7 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
     def _fin(w):
         """국면 F — 323-332행 검사 + `_finalize` (1068-1084행)."""
         w1 = advance(w, jnp.maximum(w.clock, w.end_s), g)                # 1071행
+        w1 = VS.clearout_vessels(w1)                                     # 1072-1080행 미완 배 선석 초과 정산 (조각 4)
         busy = jnp.any(w1.cranes.assigned >= 0) & ~alive                 # 324-325행 RuntimeError
         o = w1.orders
         ws = jnp.where(o.waiting & jnp.isnan(o.wait_sample_s),
@@ -860,16 +1088,20 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
                          violation=w1.violation | jnp.where(busy, V_BUSY_NO_EVENT, 0).astype(jnp.int32))
         return w1, jnp.int32(EMPTY_ID), jnp.int32(EMPTY_ID)
 
-    def _e_or_f(w):
-        return lax.cond(nt_ok, _event, _fin, w)
+    def _adv(w):
+        """국면 A — 334행 `_advance(wt)` 만 (로그·rate 갱신 없음; 다음 스텝의 W 가 소비한다)."""
+        return advance(w, wt, g), jnp.int32(EMPTY_ID), jnp.int32(EMPTY_ID)
 
     def _identity(w):
         return w, jnp.int32(EMPTY_ID), jnp.int32(EMPTY_ID)
 
-    w_out, kind, tgt = lax.cond(decided | world.terminal, _identity, _e_or_f, w_d)
+    idx = jnp.where(decided | world.terminal | woke, 0, jnp.where(is_A, 1, jnp.where(nt_ok, 2, 3)))
+    w_out, kind, tgt = lax.switch(idx, [_identity, _adv, _event, _fin], w_d)
+    advanced = (idx == 1)
     w_out = w_out._replace(steps=world.steps + jnp.where(world.terminal, 0, 1).astype(jnp.int32))
     pl = w_out.plan
     trace = StepTrace(clock=w_out.clock, decided=decided, escaped=escaped, kind=kind, target=tgt, open=open_, pick=pick,
+                      pick_kind=pkind, pick_bay=pbay, woke=woke, advanced=advanced,
                       plan_job=pl.job, plan_kind=pl.kind, plan_n_moves=pl.n_moves, plan_dur=pl.dur,
                       plan_rehandles=pl.rehandles, plan_mv_cont=pl.mv_cont, plan_mv_src=pl.mv_src,
                       plan_mv_dst=pl.mv_dst, plan_mv_kind=pl.mv_kind)
@@ -879,37 +1111,41 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
 def finish(w: BlockWorld) -> BlockWorld:
     """실행 끝 마무리 — 스텝 소진(256)·칸 부족(4096) 을 violation 한 열로 모은다.
 
-    큐 넘침은 `queue.overflow` 에, 로그 넘침은 `world.overflow` 에 따로 쌓이므로 학습 루프가
-    `violation` 만 봐도 실격을 놓치지 않게 여기서 합친다 (명세 '0 이 아니면 실격').
+    큐 넘침은 `queue.overflow` 에, 로그·wake 넘침은 `world.overflow` 에, 이송 대기 링버퍼 넘침은 `transfer.overflow`
+    에 따로 쌓이므로 학습 루프가 `violation` 만 봐도 실격을 놓치지 않게 여기서 합친다 (명세 '0 이 아니면 실격').
     """
-    total_overflow = w.overflow + w.queue.overflow
+    total_overflow = w.overflow + w.queue.overflow + w.transfer.overflow   # 이송 대기 링버퍼 넘침도 실격 (조각 4)
     viol = (w.violation
             | jnp.where(w.terminal, 0, V_STEPS_EXHAUSTED).astype(jnp.int32)
             | jnp.where(total_overflow > 0, V_OVERFLOW, 0).astype(jnp.int32))
     return w._replace(violation=viol)
 
 
-def run(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True):
+def run(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
+        pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
     """끝까지 굴린다 — `lax.scan(step, w0, None, length=S_max)`. 끝나기 전에 스텝이 소진되면 violation |= 256,
     큐/로그 칸이 모자랐으면 |= 4096 (`finish`).
 
-    반환 (세계, StepTrace 각 열 앞에 (S_max,)). jit 은 `run_jit` (g·policy_fn·S_max·check 가 static).
+    반환 (세계, StepTrace 각 열 앞에 (S_max,)). jit 은 `run_jit` (g·policy_fn·S_max·check·pre_advice·horizon_s·joint 가 static).
     """
-    f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check)
+    f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check,
+                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
     w, trace = lax.scan(lambda w, x: f(w, x), world0, None, length=int(S_max))
     return finish(w), trace
 
 
-run_jit = jax.jit(run, static_argnames=("g", "policy_fn", "S_max", "check"))
+run_jit = jax.jit(run, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint"))
 
 
-def run_while(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True):
+def run_while(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
+              pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
     """학습 경로 — `lax.while_loop` 로 terminal 까지만 돈다 (흔적 없음; 머리말 ■ 실행 두 경로).
 
     vmap 아래서는 술어가 배치 any 로 바뀌어 **살아 있는 세계가 하나라도 있으면** 계속, 끝난 세계는 `step` 이
     항등이라 그대로다. S_max 를 넘기면 `finish` 가 256 을 켠다. 반환 세계 = `run` 의 세계와 잎 전부 비트 동일.
     """
-    f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check)
+    f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check,
+                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
 
     def cond(s):
         i, w = s
@@ -924,10 +1160,11 @@ def run_while(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: i
     return finish(w)
 
 
-run_while_jit = jax.jit(run_while, static_argnames=("g", "policy_fn", "S_max", "check"))
+run_while_jit = jax.jit(run_while, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint"))
 
 
-def run_python(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True):
+def run_python(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
+               pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
     """jit **없이** 파이썬 루프로 `step` 을 반복 — 시험 4) jit 유무가 답을 바꾸지 않는지.
 
     terminal 이 되면 멈춘다. 반환 (세계, StepTrace 각 열 앞에 (사용한 스텝 수,)).
@@ -935,7 +1172,8 @@ def run_python(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: 
     w = world0
     traces = []
     for _ in range(int(S_max)):
-        w, tr = step(w, None, params=params, g=g, policy_fn=policy_fn, check=check)
+        w, tr = step(w, None, params=params, g=g, policy_fn=policy_fn, check=check,
+                     pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
         traces.append(tr)
         if bool(w.terminal):
             break

@@ -26,16 +26,21 @@ v5 `TerminalSimulator.reset()` (integrated/engine.py:93-243) 이 객체로 만�
 ■ ★위치 산식은 파이썬 float 로 계산한다 — `lo + (k + 0.5) * (hi - lo) / n` (113행) 을 numpy 로
   옮기면 결합 순서는 같아도 dtype 승격이 끼어들 수 있다. v5 가 파이썬 float 로 낸 값을 그대로 담는다.
 
-■ 사건 로그 역변환 (`event_log_from_arrays`) — 배열 (t, kind, target) → v5 (t, kind_name, payload)
+■ 사건 로그 역변환 (`event_log_from_arrays`) — 배열 (t, kind, target, aux) → v5 (t, kind_name, payload)
     큐 사건 0..11   payload = 대상 문자열 (크레인·오더·선박, HORIZON 은 "HORIZON")   engine.py:845
-    12 DISPATCH     "crane:job" — target 은 크레인뿐이라 오더는 **오더 표에서 되찾는다**
-                    (service_s == t 이고 assigned_crane == k 인 오더; v5 는 완료 뒤에도 두 값을
-                    지우지 않는다, engine.py:706-708·919-921). 못 찾으면 "crane:None" (REPOSITION 꼴)
+    12 DISPATCH     "crane:job" — target 은 크레인, **aux 가 무엇을 배정했나** (state.LogArrays.aux):
+                    aux ≥ 0 → 오더 id (SERVE·PRE_REHANDLE — PRE 는 오더가 PLANNED 잔존이라 오더 표로는 못 찾는다),
+                    aux ≤ −2 → "REPO:<crane>:<bay>" (bay = −aux−2; v5 는 job_id=f"REPO:{cid}:{int(tb)}" 413행)
     13 ETA_WAKE     payload = 오더 id (engine.py:377)     14 DEFER_WAKE  payload = "" (370행)
     15 DEADLOCK_ESCAPE  target 은 유휴 크레인 **비트마스크** (bit k = 크레인 k) → ",".join(정렬 id) (408행)
 
-■ 담당 밖 — 여기서는 만들지 않는다
-    선박 상태 배열(조각 4)·PLAN_CHANGE 의 data(조각 4)·ETA wake 는 `n_wake>0` 일 때만 채운다(조각 3).
+■ 조각 3·4 통합 (2026-09-26) — 여기서 같이 만든다
+    ETA wake     `n_wake=None`(기본) 이면 시드될 wake 수만큼 칸을 잡는다 (engine.py:166-171 조건 그대로; 0 이면 W=0).
+    본선·이송    `vessel.vessel_arrays_from_scenario`·`transfer_arrays_from_profile`·`plan_change_from_scenario`
+                 (engine.py:134-138 reset). 배가 없으면 V=1 가짜 칸 (state.py 머리말), 이송차 0 대면 U=1 가짜 유닛.
+                 p_cap(대기 링버퍼) 기본 = max(8, Σ total_moves) — 한 배의 요청이 전부 밀려도 넘치지 않는 폭.
+    REPOSITION 중 크레인  `cranes.assigned = cands3.BUSY_NO_ORDER` (오더 번호 아님) → `from_block_world` 가 활성 계획의
+                 end_bay 로 v5 문자열 "REPO:<cid>:<int(bay)>" 를 되돌린다 (engine.py:699 assigned_job = plan.job_id).
 """
 from __future__ import annotations
 
@@ -52,11 +57,13 @@ from .stack_ops import SIZE_INDEX, from_v5_stacks, to_v5_piles
 from .state import (CR_IDLE, EV_BLOCK_ARRIVAL, EV_EQUIPMENT_DOWN, EV_EQUIPMENT_UP,
                     EV_HORIZON, EV_JOB_RELEASED, EV_PLAN_CHANGE, EV_VESSEL_START,
                     JS_PLANNED, LOG_DEADLOCK_ESCAPE, LOG_DEFER_WAKE, LOG_DISPATCH,
-                    LOG_ETA_WAKE, COST_TERMS, RATE_TERMS, BlockWorld, empty_block_world,
+                    LOG_ETA_WAKE, COST_TERMS, PK_REPOSITION, RATE_TERMS, BlockWorld, empty_block_world,
                     violation_names)
+from .vessel import (plan_change_from_scenario, transfer_arrays_from_profile, transfer_to_v5,
+                     vessel_arrays_from_scenario, vessels_to_v5)
 
 __all__ = ["IdTables", "to_block_world", "from_block_world", "event_log_from_arrays",
-           "queue_entries", "event_stream_hash", "EV_NAMES", "FLOW_NAMES", "STATUS_NAMES"]
+           "queue_entries", "event_stream_hash", "repo_job_id", "EV_NAMES", "FLOW_NAMES", "STATUS_NAMES"]
 
 #: v5 enum 이름 — 선언 순 (domain/enums.py). 배열 정수 ↔ 문자열 복원용.
 EV_NAMES: tuple[str, ...] = (
@@ -90,6 +97,7 @@ class IdTables:
     n0: int                       # 실제 오더 수 (≤ N)
     c0: int                       # 초기 컨테이너 수
     ledger_mode: bool             # 시간계약 v2 장부 활성 (engine.py:127-129)
+    n_units: int = 0              # 실제 이송차 수 (profile.transfer.n_units; 배열 U 는 max(1, ·) — 조각 4)
 
     # 역표 — 자주 쓰이므로 속성으로 (frozen 이라 dict 필드 대신 매번 만든다; 크기 작음)
     @property
@@ -147,9 +155,21 @@ def _or(v, empty):
 
 
 # ───────────────────────────────────────────────── v5 → 배열
+def _wake_seeds(profile, scenario, job_ids) -> list[tuple[float, str]]:
+    """engine.py:166-171 — (시각, job_id) 정렬 목록 (GATE_OUT · 대상 있음 · provided_eta 있음 · max(0, eta−horizon) < end)."""
+    horizon = float(profile.decision_horizon_s)
+    end = float(scenario.end_time)
+    return sorted((max(0.0, j.provided_eta - horizon), j.job_id)
+                  for j in scenario.jobs
+                  if j.flow.value == "GATE_OUT" and j.target_container is not None
+                  and j.provided_eta is not None
+                  and max(0.0, j.provided_eta - horizon) < end)
+
+
 def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
-                   n_wake: int = 0, n_defer: int = 0, n_review: int = 0,
-                   c_max: int | None = None) -> tuple[BlockWorld, IdTables]:
+                   n_wake: int | None = None, n_defer: int = 0, n_review: int = 0,
+                   c_max: int | None = None, v_max: int | None = None,
+                   p_cap: int | None = None) -> tuple[BlockWorld, IdTables]:
     """v5 `IntegratedProfile` + `TerminalScenario` → reset 직후의 `BlockWorld` 와 번호표.
 
     n_max  오더 칸 N (실제 수보다 크면 뒤는 빈 칸 block=-1)
@@ -159,6 +179,8 @@ def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
            `vmap` 으로 쌓으려면 모양이 같아야 하므로 공통 상한을 준다 — 뒤 칸은 'PAD_#i' 예비칸
            (좌표 -1·alive False). 반입 예비칸 번호 C0+n 은 세계별 값이라 그대로다. 같은 프로파일
            (K·L·B·R·T 동일)이어야 쌓인다.
+    n_wake ETA wake 칸 W (기본 None = 시드될 수만큼; 모자라면 여기서 실패). n_defer DEFER 칸 D (LEGACY 는 0).
+    v_max  배 칸 V (기본 = 실제 수, 0 이면 가짜 1칸) · p_cap 이송 대기 링버퍼 (기본 max(8, Σ total_moves)).
     """
     _validate_v5(profile, scenario)                                   # 94행
     g = Geom.from_profile(profile)
@@ -207,9 +229,25 @@ def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
     ext_v2 = [j for j in jobs if j.is_external_truck and j.exit_travel_s is not None]
     ledger_mode = bool(ext_v2)
 
+    wakes = _wake_seeds(profile, scenario, job_ids)                  # 166-171행
+    if n_wake is None:
+        n_wake = len(wakes)
+    if len(wakes) > n_wake:
+        raise ValueError(f"ETA wake {len(wakes)} 건 > n_wake {n_wake}")
+    n_units = int(profile.transfer.n_units)
+    if p_cap is None:
+        p_cap = max(8, sum(int(v.plan.total_moves) for v in scenario.vessels))
+    V = len(vessel_ids) if v_max is None else int(v_max)
+    if len(vessel_ids) > V:
+        raise ValueError(f"배 {len(vessel_ids)} 척 > v_max {V}")
+    pc_rows = [ie for ie in scenario.injected_events if ie.kind == "PLAN_CHANGE"]
+    j_max = max([len(list(dict(ie.data or ()).get("job_deadlines", ()))) for ie in pc_rows] + [0])
     world = empty_block_world(g, n_orders=n_max, n_cranes=K, n_conts=len(cont_ids),
                               q_cap=q_cap, log_cap=log_cap, end_s=float(scenario.end_time),
-                              n_wake=n_wake, n_defer=n_defer, n_review=n_review)   # 144행 end
+                              n_wake=n_wake, n_defer=n_defer, n_review=n_review,
+                              v_max=V, n_units=n_units, p_cap=int(p_cap),
+                              move_time_s=float(profile.transfer.move_time_s),
+                              i_max=len(pc_rows), j_max=j_max)                     # 144행 end
 
     # ── 오더 (domain/models.py:28-56 → OrderArrays 엔진 열) ──────────
     o = {f: np.asarray(getattr(world.orders, f)).copy() for f in world.orders._fields}
@@ -315,18 +353,9 @@ def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
         raise ValueError(f"시드 사건 {len(seeds)} 건 > q_cap {q_cap} — 큐 칸을 늘려라")
     queue = _seed_queue(q_cap, seeds)
 
-    # ── ETA wake (166-171행) — 조각 3; n_wake>0 일 때만 채운다 ──────
+    # ── ETA wake (166-171행) — 조각 3 ─────────────────────────────
     wake = world.wake
     if n_wake > 0:
-        horizon = float(profile.decision_horizon_s)
-        end = float(scenario.end_time)
-        wakes = sorted((max(0.0, j.provided_eta - horizon), j.job_id)
-                       for j in scenario.jobs
-                       if j.flow.value == "GATE_OUT" and j.target_container is not None
-                       and j.provided_eta is not None
-                       and max(0.0, j.provided_eta - horizon) < end)
-        if len(wakes) > n_wake:
-            raise ValueError(f"ETA wake {len(wakes)} 건 > n_wake {n_wake}")
         ws = np.full((n_wake,), EMPTY_TIME, np.float64)
         wj = np.full((n_wake,), EMPTY_ID, np.int32)
         jidx = {j: i for i, j in enumerate(job_ids)}
@@ -334,12 +363,20 @@ def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
             ws[i], wj[i] = t, jidx[jid]
         wake = wake._replace(eta_wake_s=jnp.asarray(ws), eta_wake_job=jnp.asarray(wj))
 
-    # rate 는 reset 의 `_refresh_rates` (196행) 결과 = 전부 0 (empty_cost 기본값 그대로)
+    # ── 본선·이송·계획변경 (134-138행) — 조각 4 ────────────────────
+    vessels = vessel_arrays_from_scenario(scenario, job_ids, vessel_ids, n_max, v_max=max(1, V))
+    transfer = world.transfer
+    if n_units > 0:
+        transfer = transfer_arrays_from_profile(profile, p_cap=int(p_cap))
+    plan_change = plan_change_from_scenario(scenario, job_ids, vessel_ids, i_max=len(pc_rows), j_max=j_max)
+
+    # rate 는 reset 의 `_refresh_rates` (196행) 결과 = 전부 0 (예약·양보·본선 없음)
     world = world._replace(orders=orders, cranes=cranes, stacks=stacks, conts=conts, res=res,
-                           lane=lane, queue=queue, wake=wake)
+                           lane=lane, queue=queue, wake=wake, vessels=vessels, transfer=transfer,
+                           plan_change=plan_change)
     tables = IdTables(job_ids=job_ids, cont_ids=cont_ids, crane_ids=crane_ids,
                       vessel_ids=vessel_ids, lane_ids=lane_ids, n0=n0, c0=c0,
-                      ledger_mode=ledger_mode)
+                      ledger_mode=ledger_mode, n_units=n_units)
     return world, tables
 
 
@@ -394,24 +431,35 @@ def queue_entries(queue: EventArray, tables: IdTables) -> list[tuple[float, int,
     return out
 
 
+def repo_job_id(cid: str, bay: float) -> str:
+    """v5 REPOSITION 후보의 job_id — candidates.py:413 `f"REPO:{cid}:{int(tb)}"` (int 는 절사)."""
+    return f"REPO:{cid}:{int(bay)}"
+
+
 def event_log_from_arrays(world: BlockWorld, tables: IdTables) -> list[tuple[float, str, str]]:
-    """로그 배열 (t, kind, target) → v5 `event_log` 의 (time, kind_name, payload) 목록 (머리말 참조)."""
+    """로그 배열 (t, kind, target, aux) → v5 `event_log` 의 (time, kind_name, payload) 목록 (머리말 참조)."""
     log = world.log
     n = int(log.n)
     t = np.asarray(log.t)[:n]; kind = np.asarray(log.kind)[:n]; target = np.asarray(log.target)[:n]
+    aux = np.asarray(log.aux)[:n]
     service_s = np.asarray(world.orders.service_s)
     assigned = np.asarray(world.orders.assigned_crane)
     out: list[tuple[float, str, str]] = []
     for i in range(n):
-        k, tg, ti = int(kind[i]), int(target[i]), float(t[i])
+        k, tg, ti, ax = int(kind[i]), int(target[i]), float(t[i]), int(aux[i])
         if k < 0:
             continue
         if k < LOG_DISPATCH:
             out.append((ti, EV_NAMES[k], _payload(k, tg, tables)))
         elif k == LOG_DISPATCH:
             cid = tables.crane(tg) or ""
-            hit = np.nonzero((assigned == tg) & (service_s == ti))[0]
-            jid = tables.job(int(hit[0])) if hit.size else None
+            if ax >= 0:
+                jid = tables.job(ax)
+            elif ax <= -2:
+                jid = repo_job_id(cid, -ax - 2)
+            else:                                                    # aux 없음(-1, 손으로 만든 로그) — 오더 표에서 되찾는다
+                hit = np.nonzero((assigned == tg) & (service_s == ti))[0]   # (service_s == t & assigned_crane == k)
+                jid = tables.job(int(hit[0])) if hit.size else None
             out.append((ti, "DISPATCH", f"{cid}:{jid}"))
         elif k == LOG_ETA_WAKE:
             out.append((ti, "ETA_WAKE", tables.job(tg) or ""))
@@ -468,10 +516,13 @@ def from_block_world(world: BlockWorld, tables: IdTables) -> dict[str, Any]:
         }
     cranes: dict[str, dict] = {}
     for k in range(K):
+        a_job = tables.job(int(cr.assigned[k]))
+        if int(cr.assigned[k]) >= 0 and a_job is None and int(pl.kind[k]) == PK_REPOSITION:
+            a_job = repo_job_id(tables.crane_ids[k], _f(pl.end_bay[k]))      # engine.py:699 assigned_job = plan.job_id
         cranes[tables.crane_ids[k]] = {
             "position_bay": _f(cr.bay[k]), "trolley_row": _f(cr.row[k]),
             "available_at": _f(cr.available_at[k]),
-            "assigned_job": tables.job(int(cr.assigned[k])),
+            "assigned_job": a_job,
             "status": CRANE_STATUS_NAMES[int(cr.status[k])],
             "down": bool(cr.down[k]), "down_pending": bool(cr.down_pending[k]),
             "yielded": bool(cr.yielded[k]), "is_loaded": bool(cr.is_loaded[k]),
@@ -479,7 +530,9 @@ def from_block_world(world: BlockWorld, tables: IdTables) -> dict[str, Any]:
             "recent_completions": int(cr.completions[k]), "served_count": int(cr.served[k]),
             "loaded_travel_m": _f(cr.loaded_m[k]), "empty_travel_m": _f(cr.empty_m[k]),
             "service_bay_min": int(cr.bay_min[k]), "service_bay_max": int(cr.bay_max[k]),
-            "plan_kind": int(pl.kind[k]), "plan_job": tables.job(int(pl.job[k])),
+            "plan_kind": int(pl.kind[k]),
+            "plan_job": (repo_job_id(tables.crane_ids[k], _f(pl.end_bay[k])) if int(pl.kind[k]) == PK_REPOSITION
+                         else tables.job(int(pl.job[k]))),
         }
     containers: dict[str, tuple[int, int, int]] = {}
     cb, crow, ct, alive = (np.asarray(world.conts.c_bay), np.asarray(world.conts.c_row),
@@ -527,7 +580,17 @@ def from_block_world(world: BlockWorld, tables: IdTables) -> dict[str, Any]:
         "cost_pending": {t: _f(cs.pending[i]) for i, t in enumerate(COST_TERMS)},
         "cost_rate": {t: _f(cs.rate[i]) for i, t in enumerate(RATE_TERMS)},
         "lane_cong_area_s": _f(world.lane.cong_area_s),
+        # 조각 4 — 배·이송차 (vessel.py 호스트 함수; 가짜 칸은 vessel_ids 밖이라 안 나온다)
+        "vessels": vessels_to_v5(world.vessels, tables.vessel_ids),
+        "transfer": _transfer_view(world, tables),
         "violation": int(world.violation), "violation_names": violation_names(int(world.violation)),
-        "overflow": int(world.overflow) + int(world.queue.overflow),
+        "overflow": int(world.overflow) + int(world.queue.overflow) + int(world.transfer.overflow),
         "steps": int(world.steps),
     }
+
+
+def _transfer_view(world: BlockWorld, tables: IdTables) -> dict:
+    """transfer_to_v5 에서 가짜 유닛(n_units=0 일 때의 U=1 +inf) 을 뺀다."""
+    d = transfer_to_v5(world.transfer, tables.vessel_ids)
+    d["busy_until"] = d["busy_until"][:tables.n_units]
+    return d

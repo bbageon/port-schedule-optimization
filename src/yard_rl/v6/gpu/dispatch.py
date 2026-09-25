@@ -50,6 +50,22 @@ v5 정본 의미 = `integrated/dispatcher.py:19-32` `ReferenceDispatcher.run` +
     이고 계산은 엔진 것 하나뿐이다. 엔진 `decide` 와 `decide_seq` 의 잎 전부 동일은 그래서 항등이며, 시험이 그래도
     대조하는 것은 두 겉옷이 같은 인자를 넘기는지(open_override·check) 를 지키기 위해서다.
 
+■ ★공동 결정 계층 (조각 3 통합 · 조각 7 의 앞부분) — `resolve_central` = v5 `resolver.CentralResolver.resolve`(48-77행)
+    입력은 엔진의 공동 규약 (engine_step 머리말 ■ 두 결정 규약): 결정 시작 시점의 cands3 후보(flat_view·prune) · 물은 크레인.
+    ① 쌍 = (크레인 k, 실린 후보 열 c) 중 feasible (53행 `gc.feasible`, WAIT 포함)
+    ② 완전순서 키 `_pair_key` (79-82행) = (mandatory?0:1,) + 선호.rank + (kind_rank, crane_id, token, candidate_id)
+         BaselinePreference.rank (resolver.py:27-33)  WAIT → (2, 0.0, "") · 그 밖 (본선?0:1, −cum_wait(외부트럭만), job_id)
+         ServiceFirstSPTPreference.rank (baselines.py:34-37) = (SERVE?0:1, 소요[계획 없음 inf]) + Baseline.rank
+       문자열 키(job_id · REPO 이름 "REPO:<cid>:<int(bay)>" · token) 는 호스트가 **정수 순위표**로 굽는다 (`resolver_params`).
+    ③ 정렬 순으로 그리디 (59-76행): 이미 답한 크레인 건너뜀 · 토큰이 잡혔으면 DUP_JOB 거절 · 아니면 지금까지 고른 것 +
+       이 쌍을 `dry_run_joint`(= engine.dry_run_commit 738-763행: 크레인 순으로 scratch 예약표에 그 kind 의 계획을 투영)
+       으로 **공동** 검사 → 전원 실행가능이면 수용 (단조), 아니면 JOINT_CONFLICT 거절.
+    ④ 마무리 (84-114행): 안 고른/WAIT 고른 크레인은 WAIT, 사유 NO_FEASIBLE(거절 없음)/LOST_CONTENTION(거절 있음) —
+       `count_lost` 면 lost[k]=거절 있음 (resolver.apply 122행이 yield_reason 을 넘겨 yield_count 가 오른다; baselines._apply
+       166행은 안 넘긴다 → 정답 궤적 Y01 구동은 count_lost=False).
+    고정 길이: 쌍은 K·(k_max+1) 개까지 scan (실린 후보 ≤ k_max−1 + WAIT; mandatory 초과로 더 실리면 V_RESOLVER_TRUNC).
+    dry_run 은 `lax.cond` 로 고려 대상 쌍에서만 돈다 (vmap 아래서는 전부 계산).
+
 ■ `dry_run` — v5 `dry_run_commit` (engine.py:738-763, 조각 7 resolver 의 joint-feasibility 오라클, 불변식 D-ORACLE)
     choices (K,) int32 (-1 = 그 크레인 선택 없음) 를 **크레인 번호 순**으로 scratch 예약표(carry)에 투영한다:
       plan = _plan(k, n, extra_exclude=scratch.reserved_slots)  (752행)  → 불성립이면 NO_PLAN(6)
@@ -67,15 +83,19 @@ import jax.numpy as jnp
 from jax import lax
 
 from . import engine_step as ES
+from .cands3 import K_MAX, plan_pre, plan_repo
 from .engine_step import DecideOut, plan_row, tree_where
 from .escape import candidate_matrices, deadlock_predicate
-from .events import EMPTY_ID, TIME_DTYPE
+from .events import EMPTY_ID, EMPTY_TIME, TIME_DTYPE
 from .geom import Geom
 from .plan import PlanOut, plan_serve
 from .reserve import OK, reject_code, reserve
-from .state import BlockWorld
+from .state import (PK_PRE_REHANDLE, PK_REPOSITION, PK_SERVE, PK_WAIT, PK_WAIT as _PK_WAIT, V_RESOLVER_TRUNC,
+                    BlockWorld)
 
-__all__ = ["CandOut", "DispatchOut", "NO_PLAN", "candidates", "dispatch", "decide_seq", "dry_run", "plan_row"]
+__all__ = ["CandOut", "DispatchOut", "NO_PLAN", "candidates", "dispatch", "decide_seq", "dry_run", "plan_row",
+           "ResolverParams", "resolver_params", "repo_names", "dry_run_joint", "resolve_central", "make_resolver",
+           "policy_reference"]
 
 F = TIME_DTYPE
 #: `dry_run` 사유 코드 — reserve.py 의 5-lock 코드(0..5) 뒤에 v5 'NO_PLAN' (engine.py:754) 을 잇는다
@@ -151,7 +171,9 @@ def decide_seq(world: BlockWorld, params, g: Geom, policy_fn: Callable, *,
     """
     d = dispatch(world, params, g, policy_fn, open_override=open_override, with_trace=False)
     w2 = ES.close_decision(d.world, d.open, d.pick, g, consume_armed=(open_override is None), check=check)
-    return DecideOut(tree_where(d.decided, w2, world), d.decided, d.open, d.pick)
+    K = world.k
+    kind = jnp.where(d.open, jnp.where(d.pick >= 0, PK_SERVE, PK_WAIT), EMPTY_ID).astype(jnp.int32)
+    return DecideOut(tree_where(d.decided, w2, world), d.decided, d.open, d.pick, kind, jnp.full((K,), jnp.nan, F))
 
 
 # ───────────────────────────────────────────────── dry-run 오라클 (738-763행)
@@ -180,3 +202,186 @@ def dry_run(world: BlockWorld, choices, g: Geom):
 
     _, (plans, reasons) = lax.scan(body, world.res, jnp.arange(K, dtype=jnp.int32))   # 748행 sorted(choices)
     return plans, reasons
+
+
+# ───────────────────────────────────────────────── 참조 정책 (ReferenceDispatcher.select) — 순차 규약용
+def policy_reference(params, x, mask) -> jnp.ndarray:
+    """v5 `ReferenceDispatcher.select` (dispatcher.py:14-17) 의 배열판 — min by (0 if 본선 else 1, −누적대기, 오더 번호).
+
+    행마다 독립 (K,N) → (K,). params = (is_vessel (N,) bool, cum (N,) f64) 를 호스트가 결정 시점마다 줄 수 없으므로
+    누적대기는 정책 특징 f0 = cum/3600 (**float32**) 로 읽는다 — 도착이 정수 초이거나 외부트럭이 없는 무대(정답 궤적 Y01)
+    에서는 v5 와 같은 순서다. params = is_vessel (N,) bool.
+    """
+    ves = jnp.asarray(params, bool)
+    k1 = jnp.where(ves, 0, 1).astype(jnp.int32)[None, :]
+    cum = x[..., 0]
+    m1 = mask & (k1 == jnp.min(jnp.where(mask, k1, 9), axis=1, keepdims=True))
+    m2 = m1 & (cum == jnp.max(jnp.where(m1, cum, -jnp.inf), axis=1, keepdims=True))
+    return jnp.where(jnp.any(mask, axis=1), jnp.argmax(m2, axis=1), EMPTY_ID).astype(jnp.int32)
+
+
+# ───────────────────────────────────────────────── 공동 결정 계층 (머리말 ■ ★공동 결정 계층)
+class ResolverParams(NamedTuple):
+    """문자열 키의 정수 순위표 — 호스트 `resolver_params` 가 굽는다 (jit 안에서는 gather 만)."""
+
+    name_rank_job: jnp.ndarray    # (N,)     int32  오더 id 의 순위 — 전체 이름 집합(오더 id ∪ 모든 REPO 이름) 안에서
+    name_rank_repo: jnp.ndarray   # (K,B+1)  int32  "REPO:<cid>:<b>" 의 순위 (같은 집합) — b = int(bay) ∈ [0, B]
+    tok_rank: jnp.ndarray         # (N,)     int32  token(=오더 id) 의 순위 — 오더 id 끼리 ("" 는 -1)
+
+
+def repo_names(crane_ids, B: int) -> list[str]:
+    """v5 REPO 후보 이름 전부 — candidates.py:413 `f"REPO:{cid}:{int(tb)}"`, bay 절사값 0..B."""
+    return [f"REPO:{cid}:{b}" for cid in crane_ids for b in range(B + 1)]
+
+
+def resolver_params(tables, g: Geom) -> ResolverParams:
+    """host_convert.IdTables + Geom → 순위표. 오더 번호 n 은 sorted(job_id) 순위라 tok_rank[n] = n (빈 칸은 그 뒤)."""
+    import numpy as np
+    K, B = len(tables.crane_ids), int(g.bay_count)
+    N = len(tables.job_ids)
+    names = sorted(set(tables.job_ids) | set(repo_names(tables.crane_ids, B)))
+    rank = {nm: i for i, nm in enumerate(names)}
+    nj = np.asarray([rank[j] for j in tables.job_ids], np.int32)
+    nr = np.asarray([[rank[f"REPO:{cid}:{b}"] for b in range(B + 1)] for cid in tables.crane_ids], np.int32)
+    tk = np.arange(N, dtype=np.int32)
+    return ResolverParams(name_rank_job=jnp.asarray(nj), name_rank_repo=jnp.asarray(nr), tok_rank=jnp.asarray(tk))
+
+
+def _pad_orders(arr, n_max: int, fill):
+    """(N0,) 순위표를 오더 칸 N 에 맞춘다 (빈 칸은 fill)."""
+    n0 = int(arr.shape[0])
+    if n0 >= n_max:
+        return arr[:n_max]
+    return jnp.concatenate([arr, jnp.full((n_max - n0,), fill, arr.dtype)])
+
+
+def _plan_of_kind(world: BlockWorld, k, kind, job, bay, g: Geom):
+    """열 하나의 kind 로 계획 — SERVE plan_serve · PRE plan_pre · REPO plan_repo (모두 계산하고 고른다)."""
+    B, R_, _ = world.stacks.shape
+    N = world.n
+    nc = jnp.clip(job, 0, N - 1)
+    is_repo = kind == PK_REPOSITION
+    is_pre = kind == PK_PRE_REHANDLE
+    P_s = plan_serve(world, k, nc, jnp.zeros((B, R_), bool), g)
+    P_p = plan_pre(world, k, nc, g)
+    P_r = plan_repo(world.cranes, k, jnp.where(jnp.isnan(bay), world.cranes.bay[k], bay), g)
+    P = tree_where(is_repo, P_r, tree_where(is_pre, P_p, P_s))
+    token = jnp.where(is_repo, EMPTY_ID, nc).astype(jnp.int32)
+    return P, token
+
+
+def dry_run_joint(world: BlockWorld, fl, trial, g: Geom) -> jnp.ndarray:
+    """v5 `dry_run_commit` (738-763행) 을 kind 있는 열 선택 trial (K,) 에 — 전원(job_ref 있는 크레인) 실행가능하면 True.
+
+    크레인 순으로: 그 kind 의 계획을 scratch 예약표(=live 예약 ∪ 앞서 수용된 것) 로 세우고 (752행 extra_exclude) →
+    scratch.reject_reason (757행) → 수용이면 scratch.reserve (760행). WAIT/-1 은 건너뛴다 (750행). () bool.
+    """
+    K = world.k
+    C = fl.raw.shape[1]
+    gap = jnp.asarray(g.gap, F)
+
+    def body(res, k):
+        c = trial[k]
+        cc = jnp.clip(c, 0, C - 1)
+        kind = fl.kind[k, cc]
+        has = (c >= 0) & (c < C) & (kind != PK_WAIT)                     # job_ref is not None
+        P, token = _plan_of_kind(world._replace(res=res), k, kind, fl.job[k, cc], fl.bay[k, cc], g)
+        code = reject_code(res, k, token, P.lo, P.hi, P.lane, P.slots, gap)
+        acc = has & P.ok & (code == OK)
+        res2, _ = reserve(res, k, token, P.lo, P.hi, P.lane, P.slots, world.clock + P.dur, gap)
+        return tree_where(acc, res2, res), (~has) | acc
+
+    _, oks = lax.scan(body, world.res, jnp.arange(K, dtype=jnp.int32))
+    return jnp.all(oks)
+
+
+def resolve_central(params: ResolverParams, world: BlockWorld, c3, fl, pr, open_, g: Geom, *,
+                    pref: str = "baseline", count_lost: bool = True, k_max: int = K_MAX):
+    """v5 `CentralResolver.resolve` (머리말 ■ ★공동 결정 계층) → (choice (K,) 열 번호 [-1 WAIT], lost (K,), flags () int32).
+
+    pref: "baseline" (BaselinePreference) · "sf_spt" (ServiceFirstSPTPreference — 정답 궤적 Y01 의 규칙).
+    """
+    K, C = fl.raw.shape
+    N = world.n
+    B = int(g.bay_count)
+    o = world.orders
+    clock = world.clock
+    kind = fl.kind
+    is_wait = kind == PK_WAIT
+    is_serve = kind == PK_SERVE
+    is_pre = kind == PK_PRE_REHANDLE
+    is_repo = kind == PK_REPOSITION
+    jc = jnp.clip(fl.job, 0, N - 1)
+    open_ = jnp.asarray(open_, bool)
+    valid = pr.keep & fl.feasible & open_[:, None]                       # 53행 (결정 대상 크레인의 feasible 후보)
+    # BaselinePreference.rank (resolver.py:27-33)
+    ref_vessel = is_serve & o.is_vessel[jc]                              # PRE/REPO 의 JobRef.is_vessel=False
+    ref_ext = (is_serve & o.is_external[jc]) | is_pre                    # PRE 의 JobRef.is_external=True
+    arrived = o.is_external & (o.block_in_s < EMPTY_TIME) & (o.block_in_s <= clock)
+    cum = jnp.where(arrived, clock - o.block_in_s, 0.0)                  # engine.py:258-265 cum_wait
+    cum_key = jnp.where(is_wait, 0.0, jnp.where(ref_ext, -cum[jc], 0.0))
+    cum_key = jnp.where(cum_key == 0.0, 0.0, cum_key)                    # −0.0 → +0.0 (파이썬 정렬은 둘을 같게 본다)
+    ves_key = jnp.where(is_wait, 2, jnp.where(ref_vessel, 0, 1)).astype(jnp.int32)
+    nrj = _pad_orders(params.name_rank_job, N, jnp.int32(1 << 30))
+    tkr = _pad_orders(params.tok_rank, N, jnp.int32(1 << 30))
+    bay_i = jnp.clip(jnp.floor(jnp.where(jnp.isnan(fl.bay), 0.0, fl.bay)).astype(jnp.int32), 0, B)
+    k_idx = jnp.broadcast_to(jnp.arange(K, dtype=jnp.int32)[:, None], (K, C))
+    name_key = jnp.where(is_wait, -1, jnp.where(is_repo, params.name_rank_repo[k_idx, bay_i], nrj[jc])).astype(jnp.int32)
+    # _pair_key 의 꼬리 (resolver.py:79-82)
+    mand_key = jnp.where(fl.mandatory, 0, 1).astype(jnp.int32)
+    kind_rank = jnp.where(is_serve, 0, jnp.where(is_pre, 1, jnp.where(is_repo, 2, 3))).astype(jnp.int32)
+    tok_key = jnp.where(is_serve | is_pre, tkr[jc], -1).astype(jnp.int32)   # REPO/WAIT token "" → 가장 앞
+    cid_key = pr.candidate_id
+    keys = [cid_key, tok_key, k_idx, kind_rank, name_key, cum_key, ves_key]
+    if pref == "sf_spt":                                                 # baselines.py:34-37 (앞에 (SERVE?0:1, 소요))
+        dur_key = jnp.where(fl.plan_ok, fl.dur, jnp.inf)
+        dur_key = jnp.where(dur_key == 0.0, 0.0, dur_key)
+        keys += [dur_key, jnp.where(is_serve, 0, 1).astype(jnp.int32)]
+    elif pref != "baseline":
+        raise ValueError(f"모르는 선호 {pref!r}")
+    keys += [mand_key, (~valid).astype(jnp.int32)]                       # 가장 앞: mandatory · 그보다 앞: 유효 쌍 먼저
+    order = jnp.lexsort(tuple(kk.reshape(-1) for kk in keys))           # (K·C,) 정렬 순 (마지막 키가 최우선)
+    L = int(K) * (int(k_max) + 1)
+    L = min(L, int(K) * int(C))
+    n_valid = jnp.sum(valid).astype(jnp.int32)
+    flags = jnp.where(n_valid > L, V_RESOLVER_TRUNC, 0).astype(jnp.int32)
+    valid_f = valid.reshape(-1)
+    tok_f = jnp.where((is_serve | is_pre), jc, EMPTY_ID).astype(jnp.int32).reshape(-1)   # 토큰 = 오더 번호
+
+    def body(carry, p):
+        choice, chosen, taken, rejects = carry
+        p = jnp.asarray(p, jnp.int32)                                    # lexsort 는 x64 에서 int64 — scatter dtype 맞춤
+        k = p // C
+        c = p % C
+        v = valid_f[p]
+        tok = tok_f[p]
+        tk = jnp.clip(tok, 0, N - 1)
+        dup = v & ~chosen[k] & (tok >= 0) & taken[tk]                    # 65-67행 DUP_JOB
+        consider = v & ~chosen[k] & ~dup
+        trial = choice.at[k].set(c)
+        ok = lax.cond(consider, lambda: dry_run_joint(world, fl, trial, g), lambda: jnp.zeros((), bool))   # 68-71행
+        accept = consider & ok
+        choice = jnp.where(accept, trial, choice)
+        chosen = chosen.at[k].set(chosen[k] | accept)
+        taken = taken.at[tk].set(taken[tk] | (accept & (tok >= 0)))
+        rejects = rejects.at[k].add(jnp.where(dup | (consider & ~ok), 1, 0).astype(jnp.int32))   # 66·76행
+        return (choice, chosen, taken, rejects), None
+
+    carry0 = (jnp.full((K,), EMPTY_ID, jnp.int32), jnp.zeros((K,), bool), jnp.zeros((N,), bool),
+              jnp.zeros((K,), jnp.int32))
+    (choice, chosen, _, rejects), _ = lax.scan(body, carry0, order[:L])
+    cc = jnp.clip(choice, 0, C - 1)
+    final_wait = ~chosen | is_wait[jnp.arange(K), cc]                    # 93행 gc None 또는 WAIT
+    lost = final_wait & (rejects > 0) if count_lost else jnp.zeros((K,), bool)   # 96행 LOST_CONTENTION
+    return choice, lost, flags
+
+
+def make_resolver(pref: str, g: Geom, *, count_lost: bool = True, k_max: int = K_MAX):
+    """엔진 공동 규약의 policy_fn — `resolve_central` 을 static 인자로 묶는다 (jit/scan 안에서 호출됨).
+
+    policy_fn(params: ResolverParams, world, c3, fl, pr, open_) → (choice, lost, flags).
+    """
+    def policy_fn(params, world, c3, fl, pr, open_):
+        return resolve_central(params, world, c3, fl, pr, open_, g, pref=pref, count_lost=count_lost, k_max=k_max)
+    policy_fn.__name__ = f"resolver_{pref}{'_lost' if count_lost else ''}"
+    return policy_fn

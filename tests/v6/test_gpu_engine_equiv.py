@@ -50,6 +50,18 @@
   안 죽었다 ↔ 배열 불변식 비트(16384·32768·65536) 0 이 결정·사건마다 대조된다.
   + `run_while`(학습 경로 while_loop) 세계 == `run`(scan) 세계, advance 의 unroll=1 판 == unroll=16 판 (잎 전부 비트).
 
+■ 조각 3·4 무대 (2026-09-26 통합 — 파일 끝 '조각 3·4')
+  v4-*      본선·이송 (조각 4): fixtures 전체(본선 2척·이송 2대) K=1/K=2 · stage a(양하 5·YT 1대 600초 → 버퍼 만재 STS 막힘) ·
+            stage b(적하 5 를 트럭 5대와 섞어 굶김) · stage c(양하 110 사전식 해제 '-100'<'-11' · cadence 3600/27.5 · PLAN_CHANGE
+            키 4종 · 선석 초과·출항 지연). 비교 = 조각 1 전 항목 + 배 15열·이송(busy_until·pending·대기 적분)·rate sts/transfer.
+  p3-seq-*  PRE_ADVICE + 순차 규약(ReferenceDispatcher 의미, SERVE 만): test_gpu_wake 무대(blocked·busy-at-wake·neg-gap·
+            gate-in-eta·crowded/random + ETA) — 사건열에 ETA_WAKE 포함 정확 · wake 로 열린 결정(전원 WAIT) · A 국면(wake 시각
+            전진) 실제 발생.
+  p3-joint-* PRE_ADVICE + 공동 규약(CentralResolver(Baseline/ServiceFirstSPT) + generate, resolver.apply): test_gpu_cands3
+            무대(eta-basic·crowded-eta(prune)·dead-first-eta(탈출 REPO)·plan-failed-mandatory·eta-random·spt·block-arrival) —
+            PRE_REHANDLE·REPOSITION 이 **실제로 실행**되고 결정열(크레인·종류·오더/REPO 이름)·상태 전부가 v5 와 같다.
+  p3-waitall 전원 WAIT 정책 — 결정 수 유한·시각 엄격 증가 (test_yr050:147-161 규약).
+
 기대값은 손으로 적지 않는다 — v5 를 같은 규칙 정책으로 끝까지 돌려 얻는다.
 실행: WSL venv · x64 CPU. `XLA_FLAGS=--xla_allow_excess_precision=false` 는 관례로 붙이지만 **FMA 를 막지
 못한다** (실측) — 동등성은 gpu/exact.py 의 optimization_barrier 규약이 지킨다.
@@ -78,8 +90,9 @@ from yard_rl.v6.gpu.escape import candidate_matrices, try_escape                
 from yard_rl.v6.gpu.geom import Geom                                                # noqa: E402
 from yard_rl.v6.gpu.reserve import OK as RC_OK, REASON_TO_CODE                      # noqa: E402
 from yard_rl.v6.gpu.host_convert import (event_log_from_arrays, event_stream_hash,  # noqa: E402
-                                         from_block_world, to_block_world)
+                                         from_block_world, repo_job_id, to_block_world)
 from yard_rl.v6.gpu.state import (COST_TERMS, EMPTY_ID, MV_REHANDLE, MV_RETRIEVE, MV_STORE,   # noqa: E402
+                                  PK_PRE_REHANDLE, PK_REPOSITION, PK_SERVE, PK_WAIT,
                                   V_CRANE_MIN_GAP, V_CRANE_ORDER_SWAP, V_DECISION_COVERAGE,
                                   V_LEDGER_UNREGISTERED, V_PAIRWISE_LOCK, V_RESERVE_REJECT,
                                   V_STEPS_EXHAUSTED, block_turn_time_s, censored_exposure_s,
@@ -87,7 +100,7 @@ from yard_rl.v6.gpu.state import (COST_TERMS, EMPTY_ID, MV_REHANDLE, MV_RETRIEVE
 # v5 정본
 from yard_rl.v6.world.contract.schema import COST_TERMS as V5_COST_TERMS, CandidateKind   # noqa: E402
 from yard_rl.v6.world.contract.state import LaneGraph                               # noqa: E402
-from yard_rl.v6.world.domain.enums import ContainerSize, JobFlow, LoadStatus        # noqa: E402
+from yard_rl.v6.world.domain.enums import ContainerSize, InformationLevel, JobFlow, LoadStatus   # noqa: E402
 from yard_rl.v6.world.domain.models import BlockGeometry, Container, Job           # noqa: E402
 from yard_rl.v6.world.integrated import fixtures                                    # noqa: E402
 from yard_rl.v6.world.integrated.dispatcher import ReferenceDispatcher              # noqa: E402
@@ -99,6 +112,8 @@ from yard_rl.v6.world.sim.constraints import ConstraintViolation                
 
 FT20, FT40, FT45 = ContainerSize.FT20, ContainerSize.FT40, ContainerSize.FT45
 MV_NAME = {MV_REHANDLE: "REHANDLE", MV_RETRIEVE: "RETRIEVE", MV_STORE: "STORE"}
+KIND_NAME = {PK_SERVE: "SERVE", PK_PRE_REHANDLE: "PRE_REHANDLE", PK_REPOSITION: "REPOSITION", PK_WAIT: "WAIT"}
+BA, PA = InformationLevel.BLOCK_ARRIVAL, InformationLevel.PRE_ADVICE
 
 #: 시험 전체 집계 (마지막 시험이 보고) — 무대별 (스텝 수, find_slot 질의 수, 정확 동률 수, 실수 최대 오차, WAIT 수 …)
 REPORT: dict[str, dict] = {}
@@ -398,12 +413,13 @@ def _v5_assign(sim, cid, chooser):
     return (cid, ref.job_id, _v5_moves(p), p.duration_s, p.rehandles)
 
 
-def run_v5(prof, scn, chooser=chooser_first):
+def run_v5(prof, scn, chooser=chooser_first, level=BA):
     """v5 **정본 의미** 구동 = `ReferenceDispatcher.run` (dispatcher.py:19-32): 결정마다 크레인 순서(정렬됨)대로
     live 후보를 다시 뽑아 하나씩 assign 한다 — 앞 크레인의 예약이 뒤 크레인 후보에 반영된다. K=1 에서는 조각 1 의
     '후보를 모아 commit_decisions' 구동과 같은 답이다 (크레인 하나면 live == 시작 시점).
+    level: 정보수준 (PRE_ADVICE 면 ETA wake 가 결정을 연다 — 순차 규약은 SERVE 후보가 없으면 WAIT).
     반환 (sim, 결정열 [(t, crane_ids, [(crane, job|None, moves, dur, rehandles)])], 동률 계수)."""
-    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    sim = TerminalSimulator(prof, scn, check_invariants=True, info_level=level)
     decisions = []
     tc = _TieCounter()
     with tc.watching(sim):
@@ -423,12 +439,15 @@ def _caps(scn, prof):
     return dict(n_max=n_max, q_cap=max(32, 4 * n_max), log_cap=s_max + n_max), s_max
 
 
-def run_array(prof, scn, *, use_jit=True, policy_fn=first_by_id, params_fn=lambda w: None):
+def run_array(prof, scn, *, use_jit=True, policy_fn=first_by_id, params_fn=lambda w: None, level=BA, joint=False):
+    """level=PRE_ADVICE 면 step 의 pre_advice=True·horizon_s=profile.decision_horizon_s. joint 면 공동 규약
+    (params_fn 은 (w0, tb, g) 를 받는다)."""
     caps, s_max = _caps(scn, prof)
     w0, tb = to_block_world(prof, scn, **caps)
     g = Geom.from_profile(prof)
     runner = run_jit if use_jit else run_python
-    w, trace = runner(w0, params_fn(w0), g, policy_fn, s_max)
+    params = params_fn(w0, tb, g) if joint else params_fn(w0)
+    w, trace = runner(w0, params, g, policy_fn, s_max, True, level == PA, float(prof.decision_horizon_s), joint)
     return w, trace, tb
 
 
@@ -503,14 +522,17 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
     if n_norm == 0:
         assert event_stream_hash(w, tb) == sim.event_stream_hash(), f"[{label}] ① 해시"
     REPORT.setdefault(label, {})["log_payload_normalized"] = n_norm
-    # ② 결정열 (시각·크레인·오더/WAIT)
-    ar_dec = _array_decisions(w, trace, tb)
-    v5_short = [(round(t, 6), cs, [(c, j) for (c, j, *_r) in rec]) for (t, cs, rec) in v5_dec]
-    ar_short = [(round(t, 6), cs, [(c, j) for (c, j, *_r) in rec]) for (t, cs, rec) in ar_dec]
-    diff = _first_diff(v5_short, ar_short)
-    if diff is not None:
-        i, x, y = diff
-        pytest.fail(f"[{label}] ② 결정열이 {i}번째에서 갈린다: v5={x} arr={y}")
+    # ② 결정열 (시각·크레인·오더/WAIT) — 순차 규약만 (공동 규약은 compare_joint_decisions 가 종류까지 본다)
+    ar_dec = _array_decisions(w, trace, tb) if v5_dec is not None else []
+    if v5_dec is not None:
+        v5_short = [(round(t, 6), cs, [(c, j) for (c, j, *_r) in rec]) for (t, cs, rec) in v5_dec]
+        ar_short = [(round(t, 6), cs, [(c, j) for (c, j, *_r) in rec]) for (t, cs, rec) in ar_dec]
+        diff = _first_diff(v5_short, ar_short)
+        if diff is not None:
+            i, x, y = diff
+            pytest.fail(f"[{label}] ② 결정열이 {i}번째에서 갈린다: v5={x} arr={y}")
+    else:
+        v5_dec = []
     # ③ 오더 status/assigned_crane/rehandles
     for jid, j in sim.jobs.items():
         a = d["jobs"][jid]
@@ -529,6 +551,13 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
         got = (a["position_bay"], a["trolley_row"], a["served_count"], a["recent_completions"], a["down"], a["down_pending"], a["yielded"], a["assigned_job"], a["recent_yield_count"])
         exp = (yc.state.position_bay, yc.state.trolley_row, yc.served_count, yc.recent_completions, yc.down, yc.down_pending, yc.yielded, yc.state.assigned_job, yc.recent_yield_count)
         assert got == exp, f"[{label}] ⑤ 크레인 {cid}: arr={got} v5={exp}"
+    # ⑤-b 배·이송 (조각 4) — 배 15열 · 이송차 busy_until·pending·대기 적분 (배 없는 무대는 둘 다 빈 값)
+    v5_ves = _v5_vessels_view(sim, tb.vessel_ids)
+    assert d["vessels"] == v5_ves, f"[{label}] ⑤ 배\n  arr={d['vessels']}\n  v5 ={v5_ves}"
+    tr = sim.transfer
+    assert d["transfer"]["busy_until"] == list(tr.busy_until), f"[{label}] ⑤ 이송 busy_until arr={d['transfer']['busy_until']} v5={tr.busy_until}"
+    assert d["transfer"]["pending"] == list(tr.pending), f"[{label}] ⑤ 이송 pending arr={d['transfer']['pending']} v5={tr.pending}"
+    assert d["transfer"]["transfer_wait_accum_s"] == tr.transfer_wait_accum_s, f"[{label}] ⑤ 이송 대기 적분"
     # ⑥ kpi 정수
     ks = sim.kpis.snapshot()
     got6 = (d["kpi"]["rehandle_count"], d["kpi"]["completed_external"], d["kpi"]["completed_vessel"],
@@ -615,10 +644,29 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
     return max(errs) if errs else 0.0
 
 
-def _run_and_compare(prof, scn, label, *, use_jit=True, policy="first"):
+def _v5_vessels_view(sim, vessel_ids) -> dict:
+    """v5 VesselProcess → host_convert(vessels_to_v5) 와 같은 모양."""
+    out = {}
+    for vid in vessel_ids:
+        v = sim.vessels[vid]
+        p = v.plan
+        out[vid] = {
+            "work_type": v.work_type.value, "total_moves": p.total_moves,
+            "sts_move_interval_s": p.sts_move_interval_s, "quay_buffer_cap": p.quay_buffer_cap,
+            "planned_start_s": p.planned_start_s, "planned_completion_s": p.planned_completion_s,
+            "completion_basis": (None if p.completion_basis is None else p.completion_basis.value),
+            "etd_s": p.etd_s, "started": v.started, "remaining_moves": v.remaining_moves,
+            "buffer_level": v.buffer_level, "sts_blocked_since_s": v.sts_blocked_since_s,
+            "sts_wait_accum_s": v.sts_wait_accum_s, "done": v.done,
+            "actual_completion_s": v.truth.actual_completion_s,
+        }
+    return out
+
+
+def _run_and_compare(prof, scn, label, *, use_jit=True, policy="first", level=BA):
     chooser, policy_fn, params_fn = POLICIES[policy]
-    sim, dec, tc = run_v5(prof, scn, chooser)
-    w, trace, tb = run_array(prof, scn, use_jit=use_jit, policy_fn=policy_fn, params_fn=params_fn)
+    sim, dec, tc = run_v5(prof, scn, chooser, level)
+    w, trace, tb = run_array(prof, scn, use_jit=use_jit, policy_fn=policy_fn, params_fn=params_fn, level=level)
     err = compare(sim, dec, w, trace, tb, label)
     n_wait = sum(1 for (_, _, rec) in dec for (_, j, *_r) in rec if j is None)
     times = [t for (t, _, _) in sim.event_log]
@@ -633,7 +681,12 @@ def _run_and_compare(prof, scn, label, *, use_jit=True, policy="first"):
         backlog=sim.unfinished_backlog(), interference=sim.cost.episode_raw()["interference"],
         imbalance=sim.cost.episode_raw()["imbalance"],
         K=len(tb.crane_ids), escapes=sim.deadlock_escape_count,
-        multi_open=sum(1 for (_, cs, _) in dec if len(cs) >= 2))
+        multi_open=sum(1 for (_, cs, _) in dec if len(cs) >= 2),
+        eta_wakes=sum(1 for (_, k, _) in sim.event_log if k == "ETA_WAKE"),
+        advanced=int(np.asarray(trace.advanced)[:int(w.steps)].sum()),
+        woke=int(np.asarray(trace.woke)[:int(w.steps)].sum()),
+        vessels=len(tb.vessel_ids), sts_wait=sim.cost.episode_raw()["sts_wait"],
+        transfer_wait=sim.cost.episode_raw()["transfer_wait"])
     return sim, w, trace, tb
 
 
@@ -1537,6 +1590,316 @@ def test_lost_contention_increments_yield_count():
         assert (dd["cranes"][cid]["recent_yield_count"], dd["cranes"][cid]["yielded"]) == (yc.recent_yield_count, yc.yielded)
 
 
+# ═════════════════════════════════════════════════ 조각 3·4 — PRE_ADVICE(wake·PRE·REPO·공동 규약) · 본선·이송
+def _load_test(name: str):
+    """tests/v6/<name>.py 를 **호출 시점에** 불러온다 (tests/ 에 __init__ 이 없다; 위에서 부르면 test_gpu_escape 가
+    이 파일을 되불러 순환)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"{name}.py")
+    spec = importlib.util.spec_from_file_location(f"_{name}_for_equiv", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_LAZY: dict[str, object] = {}
+
+
+def _lazy(name: str):
+    if name not in _LAZY:
+        _LAZY[name] = _load_test(name)
+    return _LAZY[name]
+
+
+# ── 조각 4 무대 (test_gpu_vessel 의 빌더 재사용) ──
+def _v4_stage(name: str):
+    V = _lazy("test_gpu_vessel")
+    if name == "v4-fixture-k1":
+        return V.stage_base() + ("first",)
+    if name == "v4-stage-a-k1":
+        return V.stage_a() + ("first",)
+    if name == "v4-stage-b-k1":
+        return V.stage_b() + ("first",)
+    if name == "v4-stage-c-k1":
+        return V.stage_c() + ("first",)
+    if name == "v4-stage-b-k1-ref":
+        return V.stage_b() + ("ref",)
+    if name == "v4-fixture-k2":
+        return fixtures.build_integrated_profile(), fixtures.build_minimal_terminal_scenario(), "first"
+    if name == "v4-fixture-k2-ref":
+        return fixtures.build_integrated_profile(), fixtures.build_minimal_terminal_scenario(), "ref"
+    if name == "v4-stage-b-k2":
+        _, scn = V.stage_b()
+        return fixtures.build_integrated_profile(), scn, "first"
+    raise KeyError(name)
+
+
+V4_STAGES = ["v4-fixture-k1", "v4-stage-a-k1", "v4-stage-b-k1", "v4-stage-c-k1", "v4-stage-b-k1-ref",
+             "v4-fixture-k2", "v4-fixture-k2-ref", "v4-stage-b-k2"]
+
+
+@pytest.mark.parametrize("stage", V4_STAGES, ids=V4_STAGES)
+def test_v4_vessel_equivalence(stage):
+    """본선·이송 처리기가 엔진에 끼워진 채로 완주 — 조각 1 전 항목 + 배·이송 열 == v5."""
+    prof, scn, policy = _v4_stage(stage)
+    assert scn.vessels, "본선이 없는 무대"
+    sim, w, trace, tb = _run_and_compare(prof, scn, stage, policy=policy)
+    kinds = {k for (_, k, _) in sim.event_log}
+    assert {"VESSEL_START", "STS_MOVE", "TRANSFER_ARRIVE", "VESSEL_RELEASED"} <= kinds, kinds
+    if stage in ("v4-stage-a-k1", "v4-stage-b-k1", "v4-stage-b-k1-ref", "v4-stage-b-k2", "v4-stage-c-k1"):
+        assert sim.cost.episode_raw()["sts_wait"] > 0, "무대가 STS 막힘을 만들지 못했다"
+    if stage == "v4-stage-a-k1":
+        assert sim.cost.episode_raw()["transfer_wait"] > 0, "무대가 이송 대기를 만들지 못했다"
+    if stage == "v4-stage-c-k1":
+        assert sim.cost.episode_raw()["vessel_delay"] > 0 and sim.cost.episode_raw()["depart_delay"] > 0
+        assert sim.kpis.snapshot().berth_overrun_s > 0
+        assert "PLAN_CHANGE" in kinds
+        rel = [p for (_, k, p) in sim.event_log if k == "VESSEL_RELEASED"]
+        assert "J-V-DISC-0-100" in rel and rel.index("J-V-DISC-0-100") < rel.index("J-V-DISC-0-11"), "사전식 해제 순서"
+
+
+# ── 조각 3 무대 — 순차 규약 (ReferenceDispatcher 의미 · PRE_ADVICE) ──
+def _p3_seq_stage(name: str):
+    W = _lazy("test_gpu_wake")
+    prof = W.PROF                                                         # fixtures 프로파일 (K=2 · 1..40 · 지평 1800)
+    if name == "p3-seq-blocked":
+        return prof, W.blocked_target_sc(2500.0, 3000.0), "ref"           # wake 700 = 2500 − 1800 (test_yr050)
+    if name == "p3-seq-blocked-early":
+        return prof, W.blocked_target_sc(900.0, 1500.0, sid="blocked-early"), "ref"   # wake 0 (max(0, 900−1800))
+    if name == "p3-seq-busy-at-wake":
+        return prof, W.busy_at_wake_sc(), "ref"
+    if name == "p3-seq-neg-gap":
+        return prof, W.neg_gap_sc(), "ref"
+    if name == "p3-seq-gate-in-eta":
+        return prof, W.gate_in_eta_sc(), "ref"
+    if name == "p3-seq-crowded-eta":
+        return piece1_profile(), W.with_eta(crowded_scenario(), 300.0, "crowded-eta"), "first"
+    if name == "p3-seq-crowded-eta-k2":
+        return profile_k2(lanes=2), W.with_eta(crowded_scenario(), 600.0, "crowded-eta-k2"), "first"
+    if name.startswith("p3-seq-random-"):
+        seed = int(name.split("-")[-1][1:])
+        rng = random.Random(seed)
+        scn = W.with_eta(random_scenario(seed, int_arrivals=True), lambda j, r: float(r.randint(-600, 900)),
+                         f"random-eta-{seed}", rng=rng)
+        return profile_k2(lanes=2), scn, "first"
+    raise KeyError(name)
+
+
+P3_SEQ_STAGES = ["p3-seq-blocked", "p3-seq-blocked-early", "p3-seq-busy-at-wake", "p3-seq-neg-gap", "p3-seq-gate-in-eta",
+                 "p3-seq-crowded-eta", "p3-seq-crowded-eta-k2", "p3-seq-random-s3", "p3-seq-random-s14"]
+
+
+@pytest.mark.parametrize("stage", P3_SEQ_STAGES, ids=P3_SEQ_STAGES)
+def test_p3_pre_advice_sequential_equivalence(stage):
+    """PRE_ADVICE + 순차 규약: ETA wake 가 결정을 열고(armed & eta_opportunity) SERVE 후보가 없으면 WAIT — 사건열(ETA_WAKE
+    포함)·결정열·상태 전부 == v5. W·A 국면이 실제로 밟혔는지 집계."""
+    prof, scn, policy = _p3_seq_stage(stage)
+    sim, w, trace, tb = _run_and_compare(prof, scn, stage, policy=policy, level=PA)
+    r = REPORT[stage]
+    if stage != "p3-seq-gate-in-eta":
+        assert r["eta_wakes"] >= 1, "ETA_WAKE 가 없다"
+    if stage in ("p3-seq-blocked", "p3-seq-busy-at-wake"):                 # neg-gap 은 wake 0 (시계 전진 없이 소비)
+        assert r["advanced"] >= 1, "wake 시각으로의 전진(A 국면)이 없었다"
+    if stage == "p3-seq-gate-in-eta":
+        wakes = [p for (_, k, p) in sim.event_log if k == "ETA_WAKE"]
+        assert wakes == ["J-OUT-T"], wakes                              # GATE_IN 의 ETA 는 시드되지 않는다
+    if stage == "p3-seq-blocked":
+        t_wake = next(t for (t, k, _) in sim.event_log if k == "ETA_WAKE")
+        assert t_wake == 700.0
+        dec_t = [t for (t, _, rec) in _array_decisions(w, trace, tb)]
+        assert 700.0 in dec_t, dec_t                                    # wake 로 열린 결정 (SERVE 없음 → WAIT)
+
+
+# ── 조각 3 무대 — 공동 규약 (CentralResolver + generate · PRE/REPO 실행) ──
+_RESOLVERS: dict[tuple, object] = {}
+
+
+def _resolver_fn(pref: str, g, count_lost: bool):
+    key = (pref, g, count_lost)
+    if key not in _RESOLVERS:
+        _RESOLVERS[key] = DP.make_resolver(pref, g, count_lost=count_lost)
+    return _RESOLVERS[key]
+
+
+def policy_waitall_joint(params, world, c3, fl, pr, open_):
+    K = open_.shape[0]
+    return jnp.full((K,), EMPTY_ID, jnp.int32), jnp.zeros((K,), bool), jnp.int32(0)
+
+
+def run_v5_joint(prof, scn, level, pref: str, *, count_lost: bool = True, waitall: bool = False):
+    """v5 공동 규약 구동 — CentralResolver(선호) + CandidateGenerator(LEGACY_DEFAULT) + resolver.apply (yield_reason 전달 →
+    LOST_CONTENTION 이면 yield_count). waitall 이면 전원 WAIT commit (test_yr050:147-161).
+    반환 (sim, 결정열 [(t, crane_ids, [(crane, 종류, 오더/REPO 이름|None)])], 통계)."""
+    from yard_rl.v6.world.integrated.baselines import ServiceFirstSPTPreference
+    from yard_rl.v6.world.integrated.candidates import CandidateGenerator
+    from yard_rl.v6.world.integrated.policy_config import LEGACY_DEFAULT
+    from yard_rl.v6.world.integrated.resolver import BaselinePreference, CentralResolver
+    prefs = {"baseline": BaselinePreference, "sf_spt": ServiceFirstSPTPreference}
+    sim = TerminalSimulator(prof, scn, check_invariants=True, info_level=level)
+    gen = CandidateGenerator(config=LEGACY_DEFAULT)
+    resolver = CentralResolver(prefs[pref]())
+    decisions = []
+    st = dict(lost=0, pruned=0, items=0)
+    prev = None
+    while (dp := sim.run_until_decision()) is not None:
+        assert prev is None or dp.time > prev, f"같은 시각 {dp.time} 재결정 — wake 1회성 위반"
+        prev = dp.time
+        if waitall:
+            assert len(decisions) < 200, "결정 폭주 — 재질문 무한루프 의심"
+            sim.commit_decisions([CraneAssignment(c, CandidateKind.WAIT) for c in dp.crane_ids])
+            decisions.append((dp.time, tuple(dp.crane_ids), [(c, "WAIT", None) for c in dp.crane_ids]))
+            continue
+        gb = {c: gen.generate(sim, c, level) for c in dp.crane_ids}
+        for c in dp.crane_ids:
+            raw = gen._serve(sim, c, sim.now) + gen._pre_rehandle(sim, c, sim.now, level) + gen._reposition(sim, c, sim.now, level)
+            st["pruned"] += int(len(raw) + 1 > len(gb[c].items))
+            st["items"] += len(gb[c].items)
+        resn = resolver.resolve(sim, dp, gb)
+        rec = []
+        for r in resn.resolutions:
+            if r.action == CandidateKind.WAIT:
+                rec.append((r.crane_id, "WAIT", None))
+                st["lost"] += int(r.yield_reason == "LOST_CONTENTION")
+            else:
+                gc = gb[r.crane_id].items[r.chosen_candidate_id]
+                rec.append((r.crane_id, r.action.value, gc.job_ref.job_id))
+        if count_lost:
+            resolver.apply(sim, resn, gb)
+        else:
+            from yard_rl.v6.world.integrated.baselines import _apply
+            _apply(sim, {r.crane_id: (gb[r.crane_id].items[r.chosen_candidate_id] if r.chosen_candidate_id is not None
+                                      else next(g for g in gb[r.crane_id].items if g.kind == CandidateKind.WAIT))
+                         for r in resn.resolutions})
+        decisions.append((dp.time, tuple(dp.crane_ids), rec))
+    assert sim.terminal
+    return sim, decisions, st
+
+
+def _array_joint_decisions(w, trace, tb):
+    """StepTrace → [(t, crane_ids, [(crane, 종류 이름, 오더/REPO 이름|None)])]."""
+    n_steps = int(w.steps)
+    tr = jax.tree_util.tree_map(lambda a: np.asarray(a)[:n_steps], trace)
+    K = len(tb.crane_ids)
+    out = []
+    for i in range(n_steps):
+        if not tr.decided[i]:
+            continue
+        rec = []
+        ks = [k for k in range(K) if tr.open[i][k]]
+        for k in ks:
+            kind = int(tr.pick_kind[i][k])
+            cid = tb.crane_ids[k]
+            if kind == PK_WAIT or kind < 0:
+                rec.append((cid, "WAIT", None))
+            elif kind == PK_REPOSITION:
+                rec.append((cid, "REPOSITION", repo_job_id(cid, float(tr.pick_bay[i][k]))))
+            else:
+                rec.append((cid, KIND_NAME[kind], tb.job_ids[int(tr.pick[i][k])]))
+        out.append((float(tr.clock[i]), tuple(tb.crane_ids[k] for k in ks), rec))
+    return out
+
+
+def compare_joint_decisions(v5_dec, w, trace, tb, label):
+    ar = _array_joint_decisions(w, trace, tb)
+    v5s = [(round(t, 6), cs, rec) for (t, cs, rec) in v5_dec]
+    ars = [(round(t, 6), cs, rec) for (t, cs, rec) in ar]
+    diff = _first_diff(v5s, ars)
+    if diff is not None:
+        i, x, y = diff
+        pytest.fail(f"[{label}] ② 공동 결정열이 {i}번째에서 갈린다:\n  v5 ={x}\n  arr={y}")
+    return ar
+
+
+def _p3_joint_stage(name: str):
+    C = _lazy("test_gpu_cands3")
+    key = name[len("p3-joint-"):]
+    if key == "waitall-blocked":
+        W = _lazy("test_gpu_wake")
+        return W.PROF, W.blocked_target_sc(2500.0, 3000.0), PA, "baseline", True
+    if key == "waitall-crowded":
+        return C.prof_k2(2.0), C.crowded_eta_scenario(), PA, "baseline", True
+    if key == "blocked":
+        W = _lazy("test_gpu_wake")
+        return W.PROF, W.blocked_target_sc(2500.0, 3000.0), PA, "baseline", False
+    if key == "neg-gap":
+        W = _lazy("test_gpu_wake")
+        return W.PROF, W.neg_gap_sc(), PA, "baseline", False
+    prof, scn, level, pref = C.STAGES[key]()
+    return prof, scn, level, {"baseline": "baseline", "spt": "sf_spt"}[pref], False
+
+
+P3_JOINT_STAGES = ["p3-joint-blocked", "p3-joint-neg-gap", "p3-joint-eta-basic", "p3-joint-crowded-eta",
+                   "p3-joint-dead-first-eta", "p3-joint-plan-failed-mandatory",
+                   "p3-joint-eta-random-s1", "p3-joint-eta-random-s2", "p3-joint-eta-random-s3", "p3-joint-eta-random-s4",
+                   "p3-joint-eta-random-s5", "p3-joint-eta-random-s6", "p3-joint-spt-s7", "p3-joint-spt-s8",
+                   "p3-joint-block-arrival-s9", "p3-joint-block-arrival-s10",
+                   "p3-joint-waitall-blocked", "p3-joint-waitall-crowded"]
+
+
+@pytest.mark.parametrize("stage", P3_JOINT_STAGES, ids=P3_JOINT_STAGES)
+def test_p3_joint_resolver_equivalence(stage):
+    """공동 규약 — v5 CentralResolver(선호)+generate 로 완주한 것과 (a) 사건열(ETA_WAKE·DISPATCH 의 PRE/REPO payload 포함)
+    (b) 결정열(크레인·종류·오더/REPO 이름) (c) 상태 전부 == . PRE_REHANDLE·REPOSITION 이 실제로 실행되는 무대를 포함한다."""
+    prof, scn, level, pref, waitall = _p3_joint_stage(stage)
+    sim, dec, st = run_v5_joint(prof, scn, level, pref, count_lost=True, waitall=waitall)
+    caps, s_max = _caps(scn, prof)
+    g = Geom.from_profile(prof)
+    if waitall:
+        policy_fn, params_fn = policy_waitall_joint, (lambda w0, tb, g_: None)
+    else:
+        policy_fn, params_fn = _resolver_fn(pref, g, True), (lambda w0, tb, g_: DP.resolver_params(tb, g_))
+    w, trace, tb = run_array(prof, scn, policy_fn=policy_fn, params_fn=params_fn, level=level, joint=True)
+    ar_dec = compare_joint_decisions(dec, w, trace, tb, stage)
+    err = compare(sim, None, w, trace, tb, stage)
+    kinds: dict[str, int] = {}
+    for (_, _, rec) in dec:
+        for (_, kd, _) in rec:
+            kinds[kd] = kinds.get(kd, 0) + 1
+    n_wait = kinds.get("WAIT", 0)
+    times = [t for (t, _, _) in sim.event_log]
+    same = sum(1 for t in set(times) if len({k for (tt, k, _) in sim.event_log if tt == t and k != "DISPATCH"}) >= 2)
+    REPORT[stage] = dict(
+        steps=int(w.steps), decisions=len(dec), waits=n_wait, events=len(sim.event_log), same_time=same,
+        find_slot_calls=0, exact_ties=0, max_float_err=err,
+        nonzero_cost={k: round(v, 3) for k, v in sim.cost.episode_raw().items() if v},
+        backlog=sim.unfinished_backlog(), interference=sim.cost.episode_raw()["interference"],
+        imbalance=sim.cost.episode_raw()["imbalance"], K=len(tb.crane_ids), escapes=sim.deadlock_escape_count,
+        multi_open=sum(1 for (_, cs, _) in dec if len(cs) >= 2),
+        eta_wakes=sum(1 for (_, k, _) in sim.event_log if k == "ETA_WAKE"),
+        advanced=int(np.asarray(trace.advanced)[:int(w.steps)].sum()), woke=int(np.asarray(trace.woke)[:int(w.steps)].sum()),
+        joint_decisions=len(dec), kinds=kinds, pre_exec=kinds.get("PRE_REHANDLE", 0), repo_exec=kinds.get("REPOSITION", 0),
+        lost=st["lost"], pruned=st["pruned"], vessels=0, sts_wait=0.0, transfer_wait=0.0, pref=pref)
+    if stage == "p3-joint-blocked":
+        assert kinds.get("PRE_REHANDLE", 0) >= 1, kinds                 # 도착(3000) 전 700 에 선제 재조작
+        t_pre = next(t for (t, _, rec) in dec for (_, kd, _) in rec if kd == "PRE_REHANDLE")
+        assert t_pre == 700.0 and sim.jobs["J-OUT-T"].status.name == "DONE"
+        assert sim.kpis.snapshot().rehandle_count == 1 and sim.jobs["J-OUT-T"].rehandle_count == 0   # test_yr050:69-76 규약
+    if stage == "p3-joint-dead-first-eta":
+        assert sim.deadlock_escape_count >= 1 and kinds.get("REPOSITION", 0) >= 1, (sim.deadlock_escape_count, kinds)
+    if stage == "p3-joint-crowded-eta":
+        assert st["pruned"] >= 1 and kinds.get("PRE_REHANDLE", 0) + kinds.get("REPOSITION", 0) >= 1, (st, kinds)
+    if waitall:
+        assert 1 <= len(dec) < 200 and all(b > a for a, b in zip([t for (t, _, _) in dec], [t for (t, _, _) in dec][1:]))
+        assert all(kd == "WAIT" for (_, _, rec) in dec for (_, kd, _) in rec)
+
+
+def test_p3_joint_escape_paths_and_kinds_exercised():
+    """조각 3 경로 집계 — 공동 무대 전체에서 PRE_REHANDLE 실행 ≥ 3 · REPOSITION 실행 ≥ 3 · LOST_CONTENTION ≥ 1 · prune ≥ 1 ·
+    ETA_WAKE ≥ 5 · A 국면 ≥ 3 · 탈출 ≥ 1 · spt 선호 무대 ≥ 2. (이름의 escape_paths 는 verify_chunked.sh 의 집계 시험 패턴 —
+    조각 실행에서 빠지고 --report 에서 병합 REPORT 로 돈다; REPORT 가 비면 무대를 직접 돌린다 ≈ 90초.)"""
+    for lab in P3_JOINT_STAGES:
+        if lab not in REPORT:
+            test_p3_joint_resolver_equivalence(lab)
+    rs = [REPORT[l] for l in P3_JOINT_STAGES]
+    assert sum(r["pre_exec"] for r in rs) >= 3, [r["kinds"] for r in rs]
+    assert sum(r["repo_exec"] for r in rs) >= 3, [r["kinds"] for r in rs]
+    assert sum(r["lost"] for r in rs) >= 1, "LOST_CONTENTION(yield_count) 경로가 안 밟혔다"
+    assert sum(r["pruned"] for r in rs) >= 1
+    assert sum(r["eta_wakes"] for r in rs) >= 5
+    assert sum(r["advanced"] for r in rs) >= 3
+    assert sum(r["escapes"] for r in rs) >= 1
+    assert sum(1 for r in rs if r["pref"] == "sf_spt") >= 2
+
+
 # ───────────────────────────────────────────────── ⑧ 보고 (동률·WAIT·동시각·backlog 가 시험됐는지)
 def test_zz_report(capsys):
     """마지막 — 무대별 스텝·결정·WAIT·find_slot 질의·정확 동률·실수 불일치. 공백이 다시 생기지 않게 단언한다."""
@@ -1578,6 +1941,18 @@ def test_zz_report(capsys):
             print(f"  lockstep: live rows(all open cranes)={sum(r['live_rows'] for r in lock.values())} · plan_changed(any/pick/checked)="
                   f"{sum(r['plan_changed_any'] for r in lock.values())}/{sum(r['plan_changed_pick'] for r in lock.values())}/"
                   f"{sum(r['plan_changed_checked'] for r in lock.values())} · invariant checks={sum(r['invariant_checks'] for r in lock.values())}")
+        p34 = {k: r for k, r in REPORT.items() if k.startswith(("v4-", "p3-"))}
+        if p34:
+            print(f"[piece 3/4 report]  stages={len(p34)} · vessel stages={sum(1 for r in p34.values() if r.get('vessels', 0))} "
+                  f"(sts_wait>0: {sum(1 for r in p34.values() if r.get('sts_wait', 0) > 0)} · transfer_wait>0: "
+                  f"{sum(1 for r in p34.values() if r.get('transfer_wait', 0) > 0)}) · ETA_WAKE total={sum(r.get('eta_wakes', 0) for r in p34.values())} "
+                  f"· W steps={sum(r.get('woke', 0) for r in p34.values())} · A steps={sum(r.get('advanced', 0) for r in p34.values())} "
+                  f"· PRE exec={sum(r.get('pre_exec', 0) for r in p34.values())} · REPO exec={sum(r.get('repo_exec', 0) for r in p34.values())} "
+                  f"· escapes={sum(r.get('escapes', 0) for r in p34.values())} · lost={sum(r.get('lost', 0) for r in p34.values())}")
+            for k, r in p34.items():
+                if "joint_decisions" in r:
+                    print(f"  {k:28s} dec={r['joint_decisions']} kinds={r['kinds']} wakes={r['eta_wakes']} A={r['advanced']} "
+                          f"escapes={r['escapes']} lost={r['lost']} pruned={r.get('pruned', '-')}")
     assert total_ties > 0, "어느 무대에서도 find_slot 정확 동률이 없었다 — tie-break 규칙이 시험되지 않았다"
     assert total_waits >= 1, "WAIT 결정이 한 번도 없었다 — yielded 경로가 시험되지 않았다"
     assert total_same >= 1, "같은 시각에 종류가 다른 사건이 한 번도 없었다 — 큐 우선순위가 엔진 수준에서 시험되지 않았다"
