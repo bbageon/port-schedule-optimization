@@ -1,0 +1,496 @@
+"""통합 터미널 시나리오 생성기 — seed 결정론 (YR-039 §4).
+
+RNG 는 여기에만 존재하고 엔진은 결정론 입력만 소비한다 (YR-036 계약).
+fixture(build_minimal_terminal_scenario)의 형태 계약을 따르되 규모·구성을
+매개변수화한다. 전 항목 assumed — 실측 캘리브레이션은 YR-002/009 후.
+"""
+from __future__ import annotations
+
+import random
+from dataclasses import dataclass
+
+from ..contract.vessel import CompletionBasis
+from ..domain.enums import ContainerSize, JobFlow, LoadStatus
+from ..domain.models import Container, Job
+from ..sim.travel_time import move_container
+from .profile import IntegratedProfile
+from .scenario import TerminalScenario
+from .vessel import VesselPlan, VesselProcess, VesselWorkType
+
+
+@dataclass(frozen=True)
+class TerminalGenParams:
+    """기본값은 **평균조건 μ** — gaussian=True 면 seed 별로 TruncatedNormal(μ,σ,±2σ) 추출 (YR-043).
+
+    본선 악화 축은 본 트랙에서 분리한다 (사용자 결정): 스트레스 시나리오 제외·λ_vessel=1.0 중립·
+    본선 KPI 기록만. 고부하/타이트 deadline 축은 YR-041.
+    """
+
+    n_external: int = 40             # 외부트럭 (반입/반출 혼합) — μ
+    gate_out_share: float = 0.6
+    n_vessels: int = 2               # DISCHARGE(RISK)·LOAD(SYMPTOM) 교대
+    vessel_moves: int = 15           # 본선당 계획 move 수 — μ
+    fill_ratio: float = 0.30         # 초기 장치율 (전 슬롯 대비) — μ
+    horizon_s: float = 14_400.0      # 4h 도착 구간
+    drain_window_s: float = 7_200.0
+    size_mix_ft40: float = 0.7
+    sts_move_interval_s: float = 144.0   # STS 간격 — μ
+    gaussian: bool = True            # 평균조건 가우시안 변주 (YR-043)
+    sigma_frac: float = 0.12         # σ ≈ 10~15% of μ (assumed)
+    # YR-048: 제공 ETA 오차 — 단일야드 관행(io/scenario_gen §18.2 EMPIRICAL)과 동일하게
+    # eta = 실제도착 ± uniform(eta_error_s). 0 이면 PERFECT. 품질 매트릭스는 YR-019.
+    eta_error_s: float = 300.0
+    # YR-002 재기준화 (D5): 도착 피크 — 0.0 이면 기존 stratified-uniform 과 바이트 동일.
+    # amp>0 이면 [center−width/2, center+width/2]·horizon 창의 도착률이 (1+amp)배.
+    # 형태 근거는 문헌(부산신항 반출입 주간 피크·8h 주기 — 결정자료 §5-6), 강도는 assumed.
+    arrival_peak_amp: float = 0.0
+    arrival_peak_center_frac: float = 0.5
+    arrival_peak_width_frac: float = 0.25
+    # 게이트→블록 순주행 μ (기존 하드코딩 600s 를 파라미터화 — 기본값 동일, 문헌은 210s 대)
+    gate_travel_mu_s: float = 600.0
+    # YR-077: 돌발 고장 주입 — 0(기본)이면 injected_events=[] 바이트 동일. n>0 이면
+    # 전용 스트림(fault:{seed})으로 크레인 정지 n회 (시작 15~75% 지평·고정 지속).
+    fault_outages: int = 0
+    fault_outage_dur_s: float = 900.0
+    # YR-041/본선 스트레스 (부산 근사): 본선 작업창 배율. 완료마감 = start + moves×cadence×배율.
+    # 기본 2.0 = 기존 바이트 동일(넉넉). 낮출수록 ETD 압력↑(1.0~1.3 스트레스). etd = ×(배율+1).
+    vessel_deadline_mult: float = 2.0
+    # YR-089 시간계약 v2 (opt-in — False 면 기존 생성 바이트 동일). 예약(T_appt)이 1차 정보이고
+    # 실제 진입 A = T_appt + 준수오차, 블록도착 B = A + 게이트·내부주행, 예측 ETA = 예약 기반.
+    # 분포 전부 assumed (실측은 YR-082 Level 3 운영로그 — spec 자료 한계 조항).
+    time_contract_v2: bool = False
+    appt_window_s: float = 3600.0          # VBS 예약창 폭 (체인포털 — 터미널별 상이, assumed)
+    appt_adherence_sigma_s: float = 600.0  # 예약 준수오차 σ (signed 정규, ±2σ 절단, assumed)
+    exit_travel_mu_s: float = 300.0        # 작업완료→출문 μ (assumed)
+    # YR-103 게이트→블록 시간계약 (opt-in — False 면 기존 바이트 동일·전용 스트림 미소비).
+    # ON: B−A 지원범위 180~420s(3~7분, 사용자 계약), 중심 300·σ60 절단정규(assumed, D5),
+    # 전용 난수열 g2b:{seed}. 예측(estimated)도 중심값 300 사용. v2 위에서만 유효.
+    gate_block_contract: bool = False
+    # YR-109 본선 마감 물리 정합 (opt-in — False 면 기존 바이트 동일).
+    # 문제: planned_completion = start + moves·cadence·dmult 인데 STS 물리 최소완료가
+    # start + moves·cadence 이므로 **dmult<1 은 야드가 무한히 빨라도 달성 불가**다.
+    # 그 차이는 정책과 무관한 상수 선석초과로 남아 ①vessel_delay 를 총비용의 ~70% 로
+    # 밀어올리고 ②slack_s<0 을 초기조건으로 만든다 (설계감사 2026-07-27).
+    # ON 이면 계획완료가 **물리 최소완료 아래로 내려가지 못하게** 한다.
+    #
+    # **YR-106-b 게이트 A 정정 (2026-07-28)**: 초판은 하한을 STS cadence 만으로 봤다
+    # (dmult≥1.0 클램프). 그러나 적하(LOAD)는 첫 박스가 **야드크레인→야드트랙터**를 거쳐
+    # 안벽에 도착해야 첫 STS move 가 가능하다 — dmult=1.0 클램프 후에도 145.1s 초과가
+    # 남는 것을 실측했다(고load·852000). 이제 `phys_min_completion_s` 로 **YC→YT→STS
+    # 전체 사슬**을 반영한다(STS 단독 하한을 포함하므로 구 클램프를 포섭).
+    vessel_deadline_achievable: bool = False
+    # YR-150 (2026-08-08): 본선 작업종류 교대의 시작 위상 — 블록당 1 process 구성에서
+    # 블록 index 를 넣어 터미널 전체로 양하/적하를 교대시킨다. 기본 0 = 기존 바이트 동일.
+    vessel_type_offset: int = 0
+
+    def __post_init__(self) -> None:
+        if self.n_external < 1 or self.n_vessels < 0 or self.vessel_moves < 1:
+            raise ValueError("n_external>=1, n_vessels>=0, vessel_moves>=1")
+        if not (0.0 <= self.gate_out_share <= 1.0 and 0.0 < self.fill_ratio < 0.9):
+            raise ValueError("share/fill_ratio 범위 위반")
+        if self.horizon_s <= 0 or self.drain_window_s <= 0:
+            raise ValueError("horizon/drain 은 양수")
+        if not (0.0 <= self.sigma_frac < 0.5):
+            raise ValueError("sigma_frac 은 [0,0.5)")
+        if self.eta_error_s < 0:
+            raise ValueError("eta_error_s 는 0 이상")
+        if self.arrival_peak_amp < 0:
+            raise ValueError("arrival_peak_amp 는 0 이상")
+        if not (0.0 <= self.arrival_peak_center_frac <= 1.0
+                and 0.0 < self.arrival_peak_width_frac <= 1.0):
+            raise ValueError("peak center∈[0,1]·width∈(0,1] 위반")
+        if self.gate_travel_mu_s <= 0:
+            raise ValueError("gate_travel_mu_s 는 양수")
+        if self.fault_outages < 0 or self.fault_outage_dur_s <= 0:
+            raise ValueError("fault_outages≥0·fault_outage_dur_s>0")
+        if self.vessel_deadline_mult <= 0:
+            raise ValueError("vessel_deadline_mult 은 양수")
+        if self.appt_window_s <= 0 or self.exit_travel_mu_s <= 0:
+            raise ValueError("appt_window_s·exit_travel_mu_s 는 양수")
+        if self.appt_adherence_sigma_s < 0:
+            raise ValueError("appt_adherence_sigma_s 는 0 이상")
+
+
+# YR-103 게이트→블록 시간계약 상수 (spec: 180~420s 지원범위·중심 300·σ60, D5 assumed)
+GATE_BLOCK_MIN_S = 180.0
+GATE_BLOCK_MAX_S = 420.0
+GATE_BLOCK_MEAN_S = 300.0
+GATE_BLOCK_SIGMA_S = 60.0
+
+
+def trunc_normal(rng: random.Random, mu: float, sigma_frac: float, *,
+                 lo: float | None = None, hi: float | None = None) -> float:
+    """TruncatedNormal(μ, σ=sigma_frac·μ) 를 ±2σ 에서 절단 (YR-043 평균조건).
+
+    RNG 는 시나리오 생성에만 — 엔진은 결정론 입력만 소비 (YR-036 계약).
+    """
+    if sigma_frac <= 0 or mu == 0:
+        return mu
+    sigma = abs(mu) * sigma_frac
+    lo = mu - 2.0 * sigma if lo is None else max(lo, mu - 2.0 * sigma)
+    hi = mu + 2.0 * sigma if hi is None else min(hi, mu + 2.0 * sigma)
+    for _ in range(16):                      # 절단 재추출 (유한 시도 — 결정론)
+        x = rng.gauss(mu, sigma)
+        if lo <= x <= hi:
+            return x
+    return min(hi, max(lo, mu))              # fallback: μ clamp
+
+
+def _peak_warp(u: float, amp: float, center: float, width: float) -> float:
+    """stratified-uniform 분위 u∈[0,1] 를 피크 밀도의 역CDF 로 사상 (YR-002 D5).
+
+    도착률 = 창 밖 1, 창 안 (1+amp) 인 구간상수 밀도. amp=0 이면 항등(u 그대로)
+    — 추가 난수 소비 없음 → 기존 seed 시나리오 바이트 동일 보존이 계약이다.
+    """
+    if amp <= 0.0:
+        return u
+    a = max(0.0, center - width / 2.0)
+    b = min(1.0, center + width / 2.0)
+    w = b - a
+    total = 1.0 + amp * w                      # 정규화 전 총질량
+    m = u * total
+    if m < a:
+        return m
+    if m < a + (1.0 + amp) * w:
+        return a + (m - a) / (1.0 + amp)
+    return b + (m - a - (1.0 + amp) * w)
+
+
+def calibrated_load_params(level: str = "mid", **overrides) -> TerminalGenParams:
+    """문헌 보정 부하 프리셋 (YR-002 재기준화 — 결정자료 §5-6·§5-8).
+
+    문헌: 외부트럭 4~10대/h/크레인 × 크레인 2기 × 도착창 4h →
+    현행 40대(=5/h/크레인)는 하한권. mid=7/h/크레인(56대)·high=상한 10(80대)·
+    current=기존 40 대조용. 피크 창(중앙 1h, 2배)·게이트 순주행 210s(문헌 §5-7,
+    프로파일 yaml 과 정합) 동반. 강도·창폭은 assumed (형태만 문헌).
+    """
+    n_ext = {"current": 40, "mid": 56, "high": 80}
+    if level not in n_ext:
+        raise ValueError(f"level 은 {sorted(n_ext)} 중 하나: {level!r}")
+    base = dict(n_external=n_ext[level], arrival_peak_amp=1.0,
+                arrival_peak_center_frac=0.5, arrival_peak_width_frac=0.25,
+                gate_travel_mu_s=210.0)
+    base.update(overrides)
+    return TerminalGenParams(**base)
+
+
+def busan_scenario_params(kind: str = "normal", **overrides) -> TerminalGenParams:
+    """부산 근사 본선/트럭 긴장 시나리오 (PoC·일반화용 — 문헌 근사, 실측 아님).
+
+    본선/트럭이 크레인 한 대를 두고 밀치는 4셀. base = calibrated_load_params('high')
+    (문헌 부하·피크·gate 210s) 위에 본선 스트레스 손잡이. 파라미터는 문헌상 그럴듯한
+    가정값 (부산 특정 선석 스케줄 비공개 — D5). YR-041 본선 λ·YR-009 turn-time 정합.
+
+    - normal   : 본선 1척·느슨 마감(기존)                              → 기준
+    - vessel_rush : 본선 대물량·빡빡 ETD(배율 1.15)·높은 STS 수요       → 본선 보호력
+    - coincident : 트럭 피크(2배)가 본선 작업 중 겹침·중간 마감(1.4)    → 트럭↔본선 트레이드오프
+    - saturation : 고부하·고장치율·본선 (초과수요)                     → 붕괴 거동
+    """
+    base = dict(calibrated_load_params("high").__dict__)
+    base.pop("gaussian", None)                       # 아래서 명시
+    presets = {
+        "normal": {},
+        "vessel_rush": {"n_vessels": 2, "vessel_moves": 24, "sts_move_interval_s": 110.0,
+                        "vessel_deadline_mult": 1.15},
+        "coincident": {"n_vessels": 2, "vessel_moves": 20, "vessel_deadline_mult": 1.4,
+                       "arrival_peak_amp": 2.0, "arrival_peak_width_frac": 0.2},
+        "saturation": {"n_external": 112, "fill_ratio": 0.65, "vessel_moves": 20,
+                       "vessel_deadline_mult": 1.3},
+    }
+    if kind not in presets:
+        raise ValueError(f"kind 은 {sorted(presets)} 중: {kind!r}")
+    base.update(presets[kind])
+    base.update(overrides)
+    return TerminalGenParams(**base)
+
+
+def _place_containers(rng: random.Random, profile: IntegratedProfile,
+                      params: TerminalGenParams) -> dict[str, Container]:
+    """초기 스택 — 슬롯 충돌·공중적재 없음 (아래부터 채움).
+
+    YR-092(외부감사 결함3): 규격은 **pile(적치열)당 1회 추첨** — 실행 적재규칙(stack.py
+    place(): 빈 바닥 또는 같은 규격 위에만)과 동일 계약. 이전엔 tier 마다 독립 추첨이라
+    시작상태부터 혼합규격 pile(전 seed·mid/high 평균 ~75개)이 생겨 재조작 용량검사의
+    "blocker 동일규격" 가정을 깼다. size_mix_ft40 은 이제 pile 단위 혼합비로 해석된다.
+    """
+    g = profile.block
+    containers: dict[str, Container] = {}
+    heights: dict[tuple[int, int], int] = {}
+    pile_size: dict[tuple[int, int], ContainerSize] = {}
+    n_slots = g.bay_count * g.row_count * g.tier_max
+    target = max(params.n_external + params.n_vessels * params.vessel_moves,
+                 int(n_slots * params.fill_ratio))
+    cells = [(b, r) for b in range(1, g.bay_count + 1)
+             for r in range(1, g.row_count + 1)]
+    idx = 0
+    while len(containers) < min(target, n_slots - g.bay_count):  # 여유 슬롯 보존
+        b, r = cells[rng.randrange(len(cells))]
+        h = heights.get((b, r), 0)
+        if h >= g.tier_max:
+            continue
+        idx += 1
+        cid = f"C{idx:04d}"
+        size = pile_size.get((b, r))
+        if size is None:                     # 새 pile — 규격 1회 추첨 후 pile 전체 고정
+            size = (ContainerSize.FT40 if rng.random() < params.size_mix_ft40
+                    else ContainerSize.FT20)
+            pile_size[(b, r)] = size
+        containers[cid] = Container(container_id=cid, size=size,
+                                    load_status=LoadStatus.FULL, block=g.block_id,
+                                    bay=b, row=r, tier=h + 1)
+        heights[(b, r)] = h + 1
+    return containers
+
+
+# ---------------------------------------------------------------- YR-106-b 게이트 A
+def _min_yc_cycle_s(profile: IntegratedProfile, c: Container) -> float:
+    """컨테이너 1개를 인계행까지 빼는 **정책 무관 최소** 야드크레인 1사이클.
+
+    전제(모두 하한 방향): ①크레인이 이미 해당 bay·row 에 있다(주행 0) ②재조작 0
+    ③가장 빠른 크레인. 실제는 이보다 느릴 수만 있다.
+    """
+    g = profile.block
+    src = (c.bay, c.row, c.tier)
+    dst = (c.bay, g.transfer_row, 1)
+    return min(move_container(spec, g, float(c.bay), float(c.row), src, dst).duration_s
+               for spec in profile.cranes)
+
+
+def phys_min_completion_s(profile: IntegratedProfile, *, work: VesselWorkType,
+                          start_s: float, moves: int, cadence_s: float,
+                          load_targets: list[Container] | None = None) -> float:
+    """**정책과 무관한** 최소 본선 완료시각 — YC→YT→STS 전체 사슬.
+
+    엔진 인과(engine `_vessel_start`/`_sts_move`/`_transfer_arrive`)에서 유도:
+      · STS move k 는 `start + k·cadence` 이전에 못 온다 (첫 move 가 start+cadence).
+      · **적하(LOAD)** 는 `buffer_level > 0` 이라야 처리 가능하고 버퍼는 야드 반출 완료 →
+        야드트랙터 도착으로만 찬다. 따라서 첫 박스 리드타임
+        `lead = min(YC 1사이클) + YT 편도` 가 반드시 앞에 붙는다.
+      · **양하(DISCHARGE)** 는 안벽 버퍼(cap)로 뽑아내므로 리드타임 0. 다만 버퍼를 비우는
+        야드트랙터 공급간격이 cadence 보다 느리면 그쪽이 율속이 된다.
+      · 야드 공급 최소 간격 = `YT 편도 / 대수` (fleet 전량을 이 본선에 몰아줘도 이 이상 불가).
+
+    ⇒ `start + max(moves·cadence, lead + (moves−1)·max(cadence, 야드간격))`
+
+    야드 **경합**(다른 트럭·본선과의 크레인 다툼)은 정책이 바꿀 수 있으므로 **넣지 않는다** —
+    여기 들어가는 항은 어떤 정책으로도 못 줄이는 것만이다.
+    """
+    yard_interval = profile.transfer.move_time_s / max(1, profile.transfer.n_units)
+    sts_only = start_s + moves * cadence_s
+    if work != VesselWorkType.LOAD or not load_targets:
+        return max(sts_only, start_s + moves * max(cadence_s, yard_interval))
+    lead = min(_min_yc_cycle_s(profile, c) for c in load_targets) + profile.transfer.move_time_s
+    chain = start_s + lead + (moves - 1) * max(cadence_s, yard_interval)
+    return max(sts_only, chain)
+
+
+def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
+                               params: TerminalGenParams | None = None
+                               ) -> TerminalScenario:
+    params = params or TerminalGenParams()
+    rng = random.Random(seed)
+    if params.gaussian:
+        # 평균조건 가우시안 (YR-043): 기본값을 μ 로 seed 별 TruncatedNormal 추출.
+        # 축 — 트럭 물량·장치율·본선 물량·STS 간격 (ETA 오차·작업시간은 아래 job 생성에서).
+        from dataclasses import replace as _rep
+        sf = params.sigma_frac
+        params = _rep(
+            params,
+            n_external=max(1, round(trunc_normal(rng, params.n_external, sf))),
+            fill_ratio=min(0.85, max(0.05, trunc_normal(rng, params.fill_ratio, sf))),
+            vessel_moves=max(1, round(trunc_normal(rng, params.vessel_moves, sf))),
+            sts_move_interval_s=max(10.0, trunc_normal(rng, params.sts_move_interval_s, sf)),
+            gaussian=False)     # 이하 결정론 소비 (재추출 금지)
+    containers = _place_containers(rng, profile, params)
+    # 대상 예약: top-of-stack 부터 소진 (재조작은 자연 발생 — blocker 위 배치 반출도 섞임)
+    free_targets = sorted(containers)
+    rng.shuffle(free_targets)
+    jobs: list[Job] = []
+
+    # ---- 외부트럭 (도착 horizon 내 균등 + jitter)
+    # YR-048: 제공 ETA 주입 — 없으면 PRE_ADVICE 레벨에서도 PRE_REHANDLE(선제 재조작) 후보가
+    # 전혀 생성되지 않아 H2(ETA 선제정리) 축이 통째로 비활성이 된다 (YR-047 리뷰 파생 발견).
+    # **전용 RNG 스트림**을 쓰는 이유: 기존 draw 열(도착·대상·본선)을 밀지 않아 같은 seed 의
+    # 시나리오 구조가 이전과 바이트 동일하게 유지되고, 변화가 정확히 "ETA 추가"로 한정된다.
+    eta_rng = random.Random(f"eta:{seed}")
+    # YR-080 단계2: 양하 inbound 규격 전용 스트림 — eta 스트림과 같은 이유(격리)로 분리.
+    vdis_rng = random.Random(f"vdis:{seed}")
+    # YR-089 v2: 예약 준수·게이트/내부이동·출문 — 서로 다른 난수 흐름 (spec 계약). v1 draw 열은
+    # 그대로 소비해 스트림 정렬 보존 → v2 OFF 시 바이트 동일, ON 시 변화가 정확히 v2 필드로 한정.
+    adh_rng = random.Random(f"adh:{seed}")
+    gtx_rng = random.Random(f"gtx:{seed}")
+    exit_rng = random.Random(f"exit:{seed}")
+    g2b_rng = random.Random(f"g2b:{seed}")   # YR-103 전용 (OFF 면 draw 0 = 바이트 동일)
+    for i in range(params.n_external):
+        # 기존 수식 보존 (부동소수점 결합 순서까지 — 골든 계약). 피크는 opt-in 후처리.
+        arrival = params.horizon_s * (i + rng.random()) / params.n_external
+        if params.arrival_peak_amp > 0.0:
+            arrival = params.horizon_s * _peak_warp(
+                arrival / params.horizon_s, params.arrival_peak_amp,
+                params.arrival_peak_center_frac, params.arrival_peak_width_frac)
+        # 게이트→블록 소요 μ (기본 600s — YR-043 평균조건 가우시안, YR-002 D5 파라미터화)
+        gate_travel = trunc_normal(rng, params.gate_travel_mu_s,
+                                   params.sigma_frac or 0.12, lo=60.0)
+        gate_in = max(0.0, arrival - gate_travel)
+        eta = max(0.0, arrival + eta_rng.uniform(-params.eta_error_s, params.eta_error_s))
+        v2: dict = {}
+        if params.time_contract_v2:
+            # 예약이 1차 — 기존 도착 공식(피크 포함)을 **예약 게이트 시각**으로 재해석.
+            appt = arrival
+            sig = params.appt_adherence_sigma_s
+            delta = max(-2.0 * sig, min(2.0 * sig, adh_rng.gauss(0.0, sig))) if sig > 0 else 0.0
+            a_in = max(0.0, appt + delta)                       # 실제 진입 = 예약 + 준수오차
+            if params.gate_block_contract:
+                # YR-103: 180~420s 계약 — 전용 스트림(gtx 미소비), σ/μ=0.2 → ±2σ=[180,420]
+                travel2 = trunc_normal(g2b_rng, GATE_BLOCK_MEAN_S,
+                                       GATE_BLOCK_SIGMA_S / GATE_BLOCK_MEAN_S,
+                                       lo=GATE_BLOCK_MIN_S, hi=GATE_BLOCK_MAX_S)
+            else:
+                travel2 = trunc_normal(gtx_rng, params.gate_travel_mu_s,
+                                       params.sigma_frac or 0.12, lo=60.0)
+            b_arr = a_in + travel2                              # 실제 블록도착
+            exit_t = trunc_normal(exit_rng, params.exit_travel_mu_s,
+                                  params.sigma_frac or 0.12, lo=60.0)
+            # 예측 = 예약 + 준수예측 0(준수 가정, assumed) + 기대 주행 — 실현 draw 미참조 (누출 0)
+            est = appt + 0.0 + (GATE_BLOCK_MEAN_S if params.gate_block_contract
+                                else params.gate_travel_mu_s)
+            v2 = {"actual_gate_in": a_in, "actual_block_arrival": b_arr,
+                  "provided_eta": est,                          # deprecated alias == estimated
+                  "appointment_window_start": appt - params.appt_window_s / 2.0,
+                  "appointment_window_end": appt + params.appt_window_s / 2.0,
+                  "appointment_gate_time": appt,
+                  "estimated_block_arrival": est, "exit_travel_s": exit_t}
+        if rng.random() < params.gate_out_share and free_targets:
+            target = free_targets.pop()
+            jobs.append(Job(job_id=f"J-OUT-{i:03d}", flow=JobFlow.GATE_OUT,
+                            release_time=0.0, actual_gate_in=gate_in,
+                            actual_block_arrival=arrival, provided_eta=eta,
+                            target_container=target))
+        else:
+            jobs.append(Job(job_id=f"J-IN-{i:03d}", flow=JobFlow.GATE_IN,
+                            release_time=0.0, actual_gate_in=gate_in,
+                            actual_block_arrival=arrival, provided_eta=eta,
+                            inbound_size=(ContainerSize.FT40
+                                          if rng.random() < params.size_mix_ft40
+                                          else ContainerSize.FT20),
+                            inbound_load=LoadStatus.FULL))
+        for k_, v_ in v2.items():               # YR-089 v2 재해석 (v1 경로는 v2 빈 dict)
+            setattr(jobs[-1], k_, v_)
+
+    # ---- 본선 (DISCHARGE=RISK 완결근거 / LOAD=SYMPTOM 결측 — fixture 계약)
+    vessels: list[VesselProcess] = []
+    for v in range(params.n_vessels):
+        start = params.horizon_s * (0.1 + 0.7 * v / max(1, params.n_vessels))
+        cadence = params.sts_move_interval_s     # 평균조건 가우시안 추출값 (YR-043)
+        n_moves = params.vessel_moves
+        # YR-150 정정(2026-08-08): 블록당 n_vessels=1 로 만들면 v=0 뿐이라 전 블록이
+        # 양하(DISCHARGE)만 갖게 된다 — offset 으로 블록 간 교대를 살린다(기본 0 = 바이트 동일).
+        work = (VesselWorkType.DISCHARGE
+                if (v + params.vessel_type_offset) % 2 == 0 else VesselWorkType.LOAD)
+        vid = f"V-{work.value[:4]}-{v}"
+        dmult = params.vessel_deadline_mult
+        # YR-080 단계3: 1박스=1야드작업 **전량 정합** — STS move 수 == 본선연계 야드 job 수.
+        # 적하는 야드 재고 한도로 clamp(생성기 재고 보장상 통상 미발동), 계획시각도 실물량 기준.
+        eff_moves = (n_moves if work == VesselWorkType.DISCHARGE
+                     else min(n_moves, len(free_targets)))
+        pc = start + eff_moves * cadence * dmult
+        etd = start + eff_moves * cadence * (dmult + 1.0)
+        phys_min = None
+        if params.vessel_deadline_achievable:
+            # YR-106-b 게이트 A: 계획완료를 **YC→YT→STS 전체 사슬 하한** 위로 올린다.
+            # (적하는 free_targets 끝에서 pop 되므로 실제로 쓰일 대상만 본다.)
+            tgt = ([containers[t] for t in free_targets[-eff_moves:]]
+                   if work == VesselWorkType.LOAD else None)
+            phys_min = phys_min_completion_s(profile, work=work, start_s=start,
+                                             moves=eff_moves, cadence_s=cadence,
+                                             load_targets=tgt)
+            if phys_min > pc:                  # 클램프가 실제로 발동할 때만 식을 갈아끼운다
+                pc = phys_min                  # (OFF 경로의 부동소수점 결합순서 보존 = 골든)
+                etd = pc + eff_moves * cadence          # ETD 간격은 기존과 동일(=M·cadence)
+        if work == VesselWorkType.DISCHARGE:
+            plan = VesselPlan(planned_start_s=start, planned_completion_s=pc,
+                              completion_basis=CompletionBasis.PLAN_COMPUTED, etd_s=etd,
+                              total_moves=eff_moves, sts_move_interval_s=cadence,
+                              phys_min_completion_s=phys_min)
+        else:
+            # YR-080 결정3 (사용자 승인 2026-07-22): 적하도 계획 선석 종료시각 부여 —
+            # 선석 초과비용 계산 가능. completion_basis=None 유지 → 관측 축(RISK/SYMPTOM)은
+            # SYMPTOM 그대로 (resolve_mode: basis 없으면 RISK 금지).
+            plan = VesselPlan(planned_start_s=start, planned_completion_s=pc,
+                              completion_basis=None, etd_s=etd,
+                              total_moves=eff_moves, sts_move_interval_s=cadence,
+                              phys_min_completion_s=phys_min)
+        vessels.append(VesselProcess(vid, work, plan))
+        flow = (JobFlow.VESSEL_DISCHARGE if work == VesselWorkType.DISCHARGE
+                else JobFlow.VESSEL_LOAD)
+        if work == VesselWorkType.DISCHARGE:
+            # YR-080 단계2: 양하 = 선박→야드 **신규 반입(STORE)**. 야드 재고(free_targets)를
+            # 소비하지 않고 inbound 규격을 전용 RNG 스트림(vdis:{seed})으로 추출 — 기존
+            # draw 열(트럭·적하)을 밀지 않아 본선 없는 시나리오가 바이트 불변(스냅샷 계약).
+            # release_time 은 참고용 — 실제 해제는 박스 물리 도착(VESSEL_RELEASED, engine).
+            for m in range(eff_moves):
+                jobs.append(Job(
+                    job_id=f"J-{vid}-{m:02d}", flow=flow,
+                    release_time=start + m * cadence,
+                    actual_gate_in=None, actual_block_arrival=None,
+                    target_container=None,
+                    inbound_size=(ContainerSize.FT40
+                                  if vdis_rng.random() < params.size_mix_ft40
+                                  else ContainerSize.FT20),
+                    inbound_load=LoadStatus.FULL,
+                    deadline=pc + 1800.0,
+                    priority_class=1, vessel_id=vid))
+        else:
+            for m in range(eff_moves):
+                target = free_targets.pop()
+                jobs.append(Job(
+                    job_id=f"J-{vid}-{m:02d}", flow=flow,
+                    release_time=start + m * cadence,
+                    actual_gate_in=None, actual_block_arrival=None,
+                    target_container=target,
+                    deadline=pc + 1800.0,
+                    priority_class=1, vessel_id=vid))
+
+    jobs.sort(key=lambda j: j.job_id)
+    # eta_error_s 박제 — YR-019 품질축 arm 정체성 (리뷰 반영). 부하 현실화(YR-002 D5)
+    # 필드는 비기본일 때만 추가 — 기본 시나리오 meta 는 기존과 완전 동일 유지.
+    meta: dict = {"generator": "terminal-gen-v1", "assumed": True,
+                  "eta_error_s": params.eta_error_s}
+    if params.arrival_peak_amp > 0.0:
+        meta["arrival_peak"] = (params.arrival_peak_amp,
+                                params.arrival_peak_center_frac,
+                                params.arrival_peak_width_frac)
+    if params.gate_travel_mu_s != 600.0:
+        meta["gate_travel_mu_s"] = params.gate_travel_mu_s
+    if params.vessel_deadline_achievable:          # YR-109 계약 박제
+        # 값을 **버전 문자열**로 둔다 — YR-109 초판(True = STS 단독 하한)과 게이트 A 정정판을
+        # 원자료에서 구분하기 위함. 구 원자료(legacy_vs_achievable.json)는 True 로 남아 있다.
+        meta["vessel_deadline_achievable"] = "chain-v2"
+    if params.vessel_deadline_mult != 2.0:
+        meta["vessel_deadline_mult"] = params.vessel_deadline_mult
+    if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)
+        meta["time_contract"] = "truck-time-v2"
+        if params.gate_block_contract:           # YR-103 계약 박제
+            meta["gate_block_contract"] = "180-420s-v1"
+        meta["appt_window_s"] = params.appt_window_s
+        meta["appt_adherence_sigma_s"] = params.appt_adherence_sigma_s
+        meta["exit_travel_mu_s"] = params.exit_travel_mu_s
+    injected: list = []
+    if params.fault_outages > 0:                 # YR-077 — 전용 스트림, 기존 draw 불변
+        from .scenario import InjectedEvent
+        frng = random.Random(f"fault:{seed}")
+        crane_ids = sorted(c.crane_id for c in profile.cranes)
+        for _ in range(params.fault_outages):
+            t0f = params.horizon_s * frng.uniform(0.15, 0.75)
+            cid = crane_ids[frng.randrange(len(crane_ids))]
+            injected.append(InjectedEvent(t0f, "EQUIPMENT_DOWN", cid))
+            injected.append(InjectedEvent(t0f + params.fault_outage_dur_s,
+                                          "EQUIPMENT_UP", cid))
+        injected.sort(key=lambda e: e.time)
+        meta["fault_outages"] = (params.fault_outages, params.fault_outage_dur_s)
+    return TerminalScenario(
+        scenario_id=f"gen-t{params.n_external}v{params.n_vessels}-s{seed}",
+        seed=seed, horizon_s=params.horizon_s,
+        drain_window_s=params.drain_window_s,
+        containers=containers, jobs=jobs, vessels=vessels,
+        injected_events=injected, meta=meta)
