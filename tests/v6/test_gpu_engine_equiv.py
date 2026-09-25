@@ -29,6 +29,27 @@
   turntime O > end (end−A 검열) · A ≥ end (표본 제외) — 턴타임 표본 규칙
   vl-deadline 선박 없는 VESSEL_LOAD 2건(마감 100·5000) — vessel_delay_s 적립 경로 (v5 는 JOB_RELEASED 로 시드)
 
+■ 조각 2 무대 (크레인 2대 — 순차 배정·간섭·교착 탈출·장비 고장·interference/imbalance rate)
+  k2-spec   조각 1 §10 무대 + YC-B(service 1..10) → 초기 위치 1+(k+0.5)·9/2 = 3.25 / 7.75 · 오더 8건(동시각 도착 짝 2 이상)
+            · 주입 EQUIPMENT_DOWN(2000,'YC-B')/UP(2600) (변형: 작업 중 DOWN 310/400 · 레인 1개/2개 · gap 2/3)
+  k2-fixture fixtures.build_minimal_terminal_scenario 의 본선 제거판을 크레인 2대(YC-A·YC-B 1..40) 그대로
+  k2-random 무작위 야드·오더 10 시드 (정책 first/ref 번갈아 · gap 2/3 번갈아 · 정수 초 도착)
+  k2-replan ★재계획이 계획을 **실제로 바꾸는** 설계 무대 (반박 검증 2026-09-25 동등성 렌즈가 지적한 시험 공백):
+            gap 1 · 레인 2 · bay 4/7/9 만재 · bay 5·8 row1 = 대상+blocker · bay 6·10 row1 빈칸 · 둘 다 300초 도착 —
+            YC-A 가 J-OUT-1 예약 {(5,1),(6,1)} 뒤 YC-B 의 J-OUT-2 재조작 목적지가 (6,1)→(10,1) 로 바뀌어 둘 다 SERVE.
+            lockstep 이 결정마다 v5 `_plan` 을 배정 전후로 대조해 `plan_changed_pick` 을 세고 보고가 ≥1 을 단언한다.
+  k2-stair  계단식·부분 겹침 담당구간 YC-A 1..6 · YC-B 5..10 (초기 위치 = service_bay_min 각각 · rail_order = (pos,id) 정렬
+            · 그룹 크기 1 → 등간격 분산 없음, engine.py:105-118) — 다른 구간 크레인의 통로·유휴 점 장벽 상호작용.
+  k3-random 크레인 3대 같은 구간 1..10 (초기 2.5/5.5/8.5 · 레인 3) — refresh_rates 의 sum_seq 결합 순서 보호가 K≥3 에서만
+            의미가 있고, 배정 scan 의 단계 1..K−1 이 둘 이상이다.
+  v5 구동은 **정본 의미** `ReferenceDispatcher.run`(dispatcher.py:19-32) — 크레인 순서대로 live 후보를 다시 뽑아
+  하나씩 assign 한다 (`run_v5`; K=1 에서는 조각 1 구동과 같다). 배열은 `run_jit` 한 번 + 엔진 `step` 을 한 스텝씩
+  돌리는 lockstep(`lockstep_engine`) 두 경로로 대조하고, 결정마다 (K,N) reject 코드열·물은 크레인·**열린 크레인 전원의
+  live 후보 행**(dispatch.cand_live)·답·탈출 여부·결정 뒤 예약표/토큰/idle 장벽/rate 5항/yielded/down/recent_yield_count
+  를 v5 와 맞춘다. 끝에는 두 경로의 최종 세계 잎이 비트 같음도 본다. v5 는 check_invariants=True 로 돌므로 v5 가
+  안 죽었다 ↔ 배열 불변식 비트(16384·32768·65536) 0 이 결정·사건마다 대조된다.
+  + `run_while`(학습 경로 while_loop) 세계 == `run`(scan) 세계, advance 의 unroll=1 판 == unroll=16 판 (잎 전부 비트).
+
 기대값은 손으로 적지 않는다 — v5 를 같은 규칙 정책으로 끝까지 돌려 얻는다.
 실행: WSL venv · x64 CPU. `XLA_FLAGS=--xla_allow_excess_precision=false` 는 관례로 붙이지만 **FMA 를 막지
 못한다** (실측) — 동등성은 gpu/exact.py 의 optimization_barrier 규약이 지킨다.
@@ -41,6 +62,7 @@ import os
 import random
 from contextlib import contextmanager
 from dataclasses import replace
+from functools import partial
 
 import numpy as np
 import pytest
@@ -50,12 +72,16 @@ jax.config.update("jax_enable_x64", True)   # ★float64 — engine_step.py 머�
 jnp = jax.numpy
 
 from yard_rl.v6.gpu import engine_step as ES                                        # noqa: E402
+from yard_rl.v6.gpu import dispatch as DP                                           # noqa: E402
 from yard_rl.v6.gpu.engine_step import first_by_id, run_jit, run_python             # noqa: E402
+from yard_rl.v6.gpu.escape import candidate_matrices, try_escape                    # noqa: E402
 from yard_rl.v6.gpu.geom import Geom                                                # noqa: E402
+from yard_rl.v6.gpu.reserve import OK as RC_OK, REASON_TO_CODE                      # noqa: E402
 from yard_rl.v6.gpu.host_convert import (event_log_from_arrays, event_stream_hash,  # noqa: E402
                                          from_block_world, to_block_world)
 from yard_rl.v6.gpu.state import (COST_TERMS, EMPTY_ID, MV_REHANDLE, MV_RETRIEVE, MV_STORE,   # noqa: E402
-                                  V_DECISION_COVERAGE, V_LEDGER_UNREGISTERED, V_RESERVE_REJECT,
+                                  V_CRANE_MIN_GAP, V_CRANE_ORDER_SWAP, V_DECISION_COVERAGE,
+                                  V_LEDGER_UNREGISTERED, V_PAIRWISE_LOCK, V_RESERVE_REJECT,
                                   V_STEPS_EXHAUSTED, block_turn_time_s, censored_exposure_s,
                                   censored_turn_time_s, violation_names)
 # v5 정본
@@ -64,9 +90,12 @@ from yard_rl.v6.world.contract.state import LaneGraph                           
 from yard_rl.v6.world.domain.enums import ContainerSize, JobFlow, LoadStatus        # noqa: E402
 from yard_rl.v6.world.domain.models import BlockGeometry, Container, Job           # noqa: E402
 from yard_rl.v6.world.integrated import fixtures                                    # noqa: E402
+from yard_rl.v6.world.integrated.dispatcher import ReferenceDispatcher              # noqa: E402
 from yard_rl.v6.world.integrated.engine import CraneAssignment, TerminalSimulator   # noqa: E402
 from yard_rl.v6.world.integrated.profile import TransferFleetSpec                   # noqa: E402
-from yard_rl.v6.world.integrated.scenario import TerminalScenario                   # noqa: E402
+from yard_rl.v6.world.integrated.reservation import Corridor, Reservation           # noqa: E402
+from yard_rl.v6.world.integrated.scenario import InjectedEvent, TerminalScenario    # noqa: E402
+from yard_rl.v6.world.sim.constraints import ConstraintViolation                     # noqa: E402
 
 FT20, FT40, FT45 = ContainerSize.FT20, ContainerSize.FT40, ContainerSize.FT45
 MV_NAME = {MV_REHANDLE: "REHANDLE", MV_RETRIEVE: "RETRIEVE", MV_STORE: "STORE"}
@@ -151,9 +180,13 @@ def crowded_scenario(horizon_s: float = 7200.0) -> TerminalScenario:
     return _scn(f"crowded-{int(horizon_s)}", containers, jobs, horizon=horizon_s)
 
 
-def random_scenario(seed: int, B: int = 10, R: int = 4, T: int = 4) -> TerminalScenario:
-    """무작위 야드(칸 35%·단일 규격 pile)·반출 3~7·반입 1~4·장부 모드 60%·지평/drain 섞음."""
+def random_scenario(seed: int, B: int = 10, R: int = 4, T: int = 4, *, int_arrivals: bool = False) -> TerminalScenario:
+    """무작위 야드(칸 35%·단일 규격 pile)·반출 3~7·반입 1~4·장부 모드 60%·지평/drain 섞음.
+    int_arrivals 면 도착을 정수 초로 (ref 정책이 대기 시간을 float32 특징으로 읽어도 순서가 v5 와 같도록)."""
     rng = random.Random(seed)
+
+    def _arr():
+        return float(rng.randint(0, 2500)) if int_arrivals else round(rng.uniform(0.0, 2500.0), 3)
     containers = {}
     n = 0
     for bay in range(1, B + 1):
@@ -168,13 +201,13 @@ def random_scenario(seed: int, B: int = 10, R: int = 4, T: int = 4) -> TerminalS
     targets = rng.sample(sorted(containers), min(len(containers), rng.randint(3, 7)))
     jobs = []
     for i, tgt in enumerate(targets):
-        arr = round(rng.uniform(0.0, 2500.0), 3)
+        arr = _arr()
         jobs.append(_out(f"J-OUT-{i:02d}", tgt, max(0.0, arr - rng.uniform(0.0, 600.0)), arr, ex))
     for i in range(rng.randint(1, 4)):
-        arr = round(rng.uniform(0.0, 2500.0), 3)
+        arr = _arr()
         jobs.append(_in(f"J-IN-{i:02d}", max(0.0, arr - rng.uniform(0.0, 600.0)), arr,
                         rng.choices([FT20, FT40, FT45], weights=[2, 6, 1])[0], ex))
-    return TerminalScenario(scenario_id=f"random-{seed}", seed=seed,
+    return TerminalScenario(scenario_id=f"random-{seed}{'-int' if int_arrivals else ''}", seed=seed,
                             horizon_s=rng.choice([1800.0, 3600.0, 7200.0]),
                             drain_window_s=rng.choice([0.0, 600.0]),
                             containers=containers, jobs=jobs, vessels=[], injected_events=[])
@@ -249,19 +282,42 @@ def vessel_deadline_scenario() -> TerminalScenario:
 
 
 # ───────────────────────────────────────────────── 정책 (v5 chooser ↔ 배열 policy_fn 짝)
-def chooser_first(cands):
+# chooser(sim, crane_id, live 후보) → JobRef | None(WAIT).  v5 는 크레인마다 live 후보로 부른다 (dispatcher.py:26-31).
+def chooser_first(sim, cid, cands):
     return cands[0] if cands else None
 
 
-def chooser_last(cands):
+def chooser_last(sim, cid, cands):
     return cands[-1] if cands else None
 
 
-def chooser_wait2(cands):
+def chooser_wait2(sim, cid, cands):
     """후보가 정확히 2개면 WAIT, 아니면 마지막 후보."""
     if not cands or len(cands) == 2:
         return None
     return cands[-1]
+
+
+_REF = ReferenceDispatcher()
+
+
+def chooser_ref(sim, cid, cands):
+    """v5 ReferenceDispatcher.select — 본선 우선 → 최장 트럭대기 → job_id (dispatcher.py:14-17)."""
+    return _REF.select(sim, cid, cands) if cands else None
+
+
+def policy_ref(params, x, mask):
+    """ReferenceDispatcher.select 의 배열판 — min by (0 if 본선 else 1, −누적대기, 오더 번호). 행마다 독립.
+
+    누적대기(engine.py:258-265 cum_wait)는 정책 입력 특징 f0 = cum/3600 **float32** 로 읽는다 — 그래서 도착이
+    정수 초인 무대(k2-spec·k2-random(int_arrivals))에서만 v5 와 같은 순서가 보장된다. params = is_vessel (N,).
+    """
+    ves = params
+    k1 = jnp.where(ves, 0, 1).astype(jnp.int32)[None, :]
+    cum = x[..., 0]
+    m1 = mask & (k1 == jnp.min(jnp.where(mask, k1, 9), axis=1, keepdims=True))
+    m2 = m1 & (cum == jnp.max(jnp.where(m1, cum, -jnp.inf), axis=1, keepdims=True))
+    return jnp.where(jnp.any(mask, axis=1), jnp.argmax(m2, axis=1), EMPTY_ID).astype(jnp.int32)
 
 
 def policy_last(params, x, mask):
@@ -277,8 +333,11 @@ def policy_wait2(params, x, mask):
     return jnp.where(n_c == 2, EMPTY_ID, jnp.where(n_c > 0, last, EMPTY_ID)).astype(jnp.int32)
 
 
-POLICIES = {"first": (chooser_first, first_by_id), "last": (chooser_last, policy_last),
-            "wait2": (chooser_wait2, policy_wait2)}
+#: 이름 → (v5 chooser, 배열 policy_fn, params_fn(w0) → params)
+POLICIES = {"first": (chooser_first, first_by_id, lambda w: None),
+            "last": (chooser_last, policy_last, lambda w: None),
+            "wait2": (chooser_wait2, policy_wait2, lambda w: None),
+            "ref": (chooser_ref, policy_ref, lambda w: w.orders.is_vessel)}
 
 
 # ───────────────────────────────────────────────── v5 쪽 도구
@@ -328,26 +387,29 @@ def _v5_moves(plan):
             for m in plan.moves]
 
 
+def _v5_assign(sim, cid, chooser):
+    """크레인 하나: live 후보(candidates_for) → chooser → assign. 반환 결정 기록 (crane, job|None, moves, dur, rehandles)."""
+    ref = chooser(sim, cid, sim.candidates_for(cid))                    # dispatcher.py:26 live (앞 배정 반영)
+    if ref is None:
+        sim.assign(cid, CraneAssignment(cid, CandidateKind.WAIT))       # 27-28행
+        return (cid, None, [], None, None)
+    sim.assign(cid, CraneAssignment(cid, CandidateKind.SERVE, job_ref=ref))   # 30-31행
+    p = sim.active_plan(cid)
+    return (cid, ref.job_id, _v5_moves(p), p.duration_s, p.rehandles)
+
+
 def run_v5(prof, scn, chooser=chooser_first):
-    """명세 §10 구동 (기본 first-by-id). 반환 (sim, 결정열 [(t, crane_ids, [(crane, job|None, moves, dur, rehandles)])], 동률 계수)."""
+    """v5 **정본 의미** 구동 = `ReferenceDispatcher.run` (dispatcher.py:19-32): 결정마다 크레인 순서(정렬됨)대로
+    live 후보를 다시 뽑아 하나씩 assign 한다 — 앞 크레인의 예약이 뒤 크레인 후보에 반영된다. K=1 에서는 조각 1 의
+    '후보를 모아 commit_decisions' 구동과 같은 답이다 (크레인 하나면 live == 시작 시점).
+    반환 (sim, 결정열 [(t, crane_ids, [(crane, job|None, moves, dur, rehandles)])], 동률 계수)."""
     sim = TerminalSimulator(prof, scn, check_invariants=True)
     decisions = []
     tc = _TieCounter()
     with tc.watching(sim):
         while (dp := sim.run_until_decision()) is not None:
-            assigns = []
-            for c in dp.crane_ids:
-                ref = chooser(sim.candidates_for(c))
-                assigns.append(CraneAssignment(c, CandidateKind.SERVE, ref) if ref is not None
-                               else CraneAssignment(c, CandidateKind.WAIT))
-            sim.commit_decisions(assigns)
-            rec = []
-            for a in assigns:
-                if a.action == CandidateKind.SERVE:
-                    p = sim.active_plan(a.crane_id)
-                    rec.append((a.crane_id, a.job_ref.job_id, _v5_moves(p), p.duration_s, p.rehandles))
-                else:
-                    rec.append((a.crane_id, None, [], None, None))
+            rec = [_v5_assign(sim, c, chooser) for c in dp.crane_ids]
+            sim.close_decision()
             decisions.append((dp.time, tuple(dp.crane_ids), rec))
     return sim, decisions, tc
 
@@ -361,12 +423,12 @@ def _caps(scn, prof):
     return dict(n_max=n_max, q_cap=max(32, 4 * n_max), log_cap=s_max + n_max), s_max
 
 
-def run_array(prof, scn, *, use_jit=True, policy_fn=first_by_id):
+def run_array(prof, scn, *, use_jit=True, policy_fn=first_by_id, params_fn=lambda w: None):
     caps, s_max = _caps(scn, prof)
     w0, tb = to_block_world(prof, scn, **caps)
     g = Geom.from_profile(prof)
     runner = run_jit if use_jit else run_python
-    w, trace = runner(w0, None, g, policy_fn, s_max)
+    w, trace = runner(w0, params_fn(w0), g, policy_fn, s_max)
     return w, trace, tb
 
 
@@ -464,8 +526,8 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
     # ⑤ 크레인
     for cid in sim.fleet.ids():
         yc, a = sim.fleet.get(cid), d["cranes"][cid]
-        got = (a["position_bay"], a["trolley_row"], a["served_count"], a["recent_completions"], a["down"], a["down_pending"], a["yielded"], a["assigned_job"])
-        exp = (yc.state.position_bay, yc.state.trolley_row, yc.served_count, yc.recent_completions, yc.down, yc.down_pending, yc.yielded, yc.state.assigned_job)
+        got = (a["position_bay"], a["trolley_row"], a["served_count"], a["recent_completions"], a["down"], a["down_pending"], a["yielded"], a["assigned_job"], a["recent_yield_count"])
+        exp = (yc.state.position_bay, yc.state.trolley_row, yc.served_count, yc.recent_completions, yc.down, yc.down_pending, yc.yielded, yc.state.assigned_job, yc.recent_yield_count)
         assert got == exp, f"[{label}] ⑤ 크레인 {cid}: arr={got} v5={exp}"
     # ⑥ kpi 정수
     ks = sim.kpis.snapshot()
@@ -476,10 +538,14 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
     # ⑦ 격자
     assert d["piles"] == {k: v for k, v in sim.stacks._stacks.items() if v}, f"[{label}] ⑦ piles"
     assert d["containers"] == {cid: (c.bay, c.row, c.tier) for cid, c in sim.stacks.containers.items()}, f"[{label}] ⑦ 컨테이너 좌표"
-    # ⑧ 실격 없음·종료
+    # ⑧ 실격 없음·종료 · (조각 2) 레일 순서·탈출 표식·발화 횟수
     assert d["violation"] == 0 and d["overflow"] == 0 and d["terminal"], \
         f"[{label}] ⑧ violation={d['violation']} {d['violation_names']} overflow={d['overflow']} terminal={d['terminal']}"
     assert sim.terminal and d["clock"] == sim.clock and d["last_decision_at"] == sim._last_decision_at
+    assert d["rail_order"] == sim._rail_order, f"[{label}] ⑧ rail_order arr={d['rail_order']} v5={sim._rail_order}"
+    assert d["escape_count"] == sim.deadlock_escape_count, \
+        f"[{label}] ⑧ escape_count arr={d['escape_count']} v5={sim.deadlock_escape_count}"
+    assert d["escape_at"] == sim._escape_at, f"[{label}] ⑧ escape_at arr={d['escape_at']} v5={sim._escape_at}"
     # ⑨ 실수 — 전부 비트 동일(==). 갈린 항목은 모아서 한 번에 보고한다.
     bad: list[tuple[str, object, object, float]] = []
     errs: list[float] = []
@@ -550,9 +616,9 @@ def compare(sim, v5_dec, w, trace, tb, label: str) -> float:
 
 
 def _run_and_compare(prof, scn, label, *, use_jit=True, policy="first"):
-    chooser, policy_fn = POLICIES[policy]
+    chooser, policy_fn, params_fn = POLICIES[policy]
     sim, dec, tc = run_v5(prof, scn, chooser)
-    w, trace, tb = run_array(prof, scn, use_jit=use_jit, policy_fn=policy_fn)
+    w, trace, tb = run_array(prof, scn, use_jit=use_jit, policy_fn=policy_fn, params_fn=params_fn)
     err = compare(sim, dec, w, trace, tb, label)
     n_wait = sum(1 for (_, _, rec) in dec for (_, j, *_r) in rec if j is None)
     times = [t for (t, _, _) in sim.event_log]
@@ -564,7 +630,10 @@ def _run_and_compare(prof, scn, label, *, use_jit=True, policy="first"):
         steps=int(w.steps), decisions=len(dec), waits=n_wait, events=len(sim.event_log),
         same_time=same_time_kinds, find_slot_calls=tc.calls, exact_ties=tc.ties, max_float_err=err,
         nonzero_cost={k: round(v, 3) for k, v in sim.cost.episode_raw().items() if v},
-        backlog=sim.unfinished_backlog(), interference=sim.cost.episode_raw()["interference"])
+        backlog=sim.unfinished_backlog(), interference=sim.cost.episode_raw()["interference"],
+        imbalance=sim.cost.episode_raw()["imbalance"],
+        K=len(tb.crane_ids), escapes=sim.deadlock_escape_count,
+        multi_open=sum(1 for (_, cs, _) in dec if len(cs) >= 2))
     return sim, w, trace, tb
 
 
@@ -826,6 +895,648 @@ def test_two_cranes_smoke_runs_to_terminal():
     REPORT["two-cranes-smoke"] = {"violation": int(w.violation), "steps": int(w.steps)}
 
 
+# ═════════════════════════════════════════════════ 조각 2 — 크레인 2대 (머리말 '조각 2 무대')
+def profile_k2(lanes: int = 1, gap: float = 2.0, lo: int = 1, hi: int = 10):
+    """조각 1 §10 프로파일 + YC-B(service lo..hi) — 같은 담당구간 2대 → 초기 위치 lo+(k+0.5)(hi−lo)/2 (engine.py:105-113).
+    lanes=1 이면 §10 그대로(레인 하나 → 두 번째 예약은 늘 LANE_CONFLICT), lanes=2 면 L1·L2(인접 없음) 로 병행 작업이 가능."""
+    base = piece1_profile()
+    return replace(base,
+                   cranes=(replace(fixtures._spec("YC-A"), service_bay_min=lo, service_bay_max=hi),
+                           replace(fixtures._spec("YC-B"), service_bay_min=lo, service_bay_max=hi)),
+                   lane_graph=LaneGraph(tuple(f"L{i + 1}" for i in range(lanes)), ()),
+                   safety_gap_bay=gap)
+
+
+def piece2_scenario(down_up: tuple[float, float] = (2000.0, 2600.0)) -> TerminalScenario:
+    """§10 오더 5건 (동시각 짝: 300 ×2 · 1500 ×2) + 3건 (2100 ×2 짝 — YC-B 고장 중 도착 · 3000) = 8건,
+    주입 EQUIPMENT_DOWN(down_up[0], 'YC-B') / UP(down_up[1]). 도착은 전부 정수 초 (ref 정책용)."""
+    base = piece1_scenario()
+    containers = dict(base.containers)
+    containers["C4"] = _c("C4", 2, 3, 1)
+    containers["C5"] = _c("C5", 9, 1, 1)
+    containers["C6"] = _c("C6", 9, 1, 2)          # C5 위 blocker — 반출 시 재조작 1
+    jobs = list(base.jobs) + [_out("J-OUT-4", "C4", 1600.0, 2100.0), _in("J-IN-3", 1700.0, 2100.0, FT40),
+                              _out("J-OUT-5", "C5", 2500.0, 3000.0)]
+    inj = [InjectedEvent(down_up[0], "EQUIPMENT_DOWN", "YC-B"), InjectedEvent(down_up[1], "EQUIPMENT_UP", "YC-B")]
+    return TerminalScenario(scenario_id=f"piece2-{int(down_up[0])}", seed=0, horizon_s=7200.0, drain_window_s=0.0,
+                            containers=containers, jobs=jobs, vessels=[], injected_events=inj)
+
+
+def fixture_scenario_k2() -> TerminalScenario:
+    """fixtures 시나리오의 본선 제거판 — 크레인 2대(YC-A·YC-B 1..40)·주입 DOWN(2000,'YC-B')/UP(2600)·PLAN_CHANGE 는 그대로."""
+    base = fixtures.build_minimal_terminal_scenario()
+    return TerminalScenario(scenario_id="fixture-k2", seed=0, horizon_s=base.horizon_s,
+                            drain_window_s=base.drain_window_s, containers=dict(base.containers),
+                            jobs=[j for j in base.jobs if j.vessel_id is None], vessels=[],
+                            injected_events=list(base.injected_events))
+
+
+#: 무작위 K=2 무대 (seed, gap, 정수 초 도착, 정책) — v5 를 먼저 굴려 고른 것 (2026-09-25 탐색: gap 2/3/4 × 시드 1..24 ×
+#: 정수/소수 도착 × first/ref = 288 조합 중 107 에서 DEADLOCK_ESCAPE 발화). 앞 9개는 발화 무대(1~9회), 뒤 3개는 미발화.
+#: ref 정책은 소수 도착(3자리)이면 대기 특징 float32 동률 위험이 있어 정수 도착 무대에만 얹는다 (policy_ref 머리말).
+K2_RANDOM = [(21, 4.0, False, "first"), (14, 4.0, True, "first"), (12, 4.0, True, "ref"), (24, 4.0, True, "ref"),
+             (14, 3.0, True, "first"), (16, 3.0, False, "first"), (9, 3.0, True, "ref"), (1, 3.0, True, "ref"),
+             (12, 2.0, True, "first"),
+             (2, 2.0, True, "first"), (3, 2.0, True, "ref"), (5, 3.0, True, "first")]
+
+
+def random_k2_name(seed, gap, ints, policy):
+    return f"k2-random-s{seed}-g{int(gap)}-{'int' if ints else 'dec'}-{policy}"
+
+
+def random_k2_stage(seed: int, gap: float, ints: bool, policy: str):
+    """(profile, scenario, 정책 이름) — 레인 2 · 같은 구간 1..10 (초기 3.25/7.75)."""
+    return profile_k2(lanes=2, gap=gap), random_scenario(seed, int_arrivals=ints), policy
+
+
+def dead_first_scenario(injected=()) -> TerminalScenario:
+    """(test_gpu_escape 의 설계 무대) 첫 도착(300초)이 bay 5 = 3.25/7.75 · gap 3 의 사각지대 → 결정 0회 뒤 곧바로 교착.
+    600초에 bay 2·bay 9 도착 → 둘 다 정상 배정되고 크레인이 움직인 뒤 bay 5 가 풀린다."""
+    containers = {"C1": _c("C1", 5, 1, 1), "C2": _c("C2", 2, 1, 1), "C3": _c("C3", 9, 1, 1)}
+    jobs = [_out("J-OUT-1", "C1", 0.0, 300.0), _out("J-OUT-2", "C2", 100.0, 600.0), _out("J-OUT-3", "C3", 100.0, 600.0)]
+    return TerminalScenario(scenario_id="dead-first", seed=0, horizon_s=3600.0, drain_window_s=0.0,
+                            containers=containers, jobs=jobs, vessels=[], injected_events=list(injected))
+
+
+def down_scenario(targets: tuple[str, ...]) -> TerminalScenario:
+    """dead-first 에 고장(200초)·복구(1000초) 주입 — down-one: 유휴 하나만 결정 대상 · down-both: 술어 참인데 esc 비어 미발화."""
+    inj = [InjectedEvent(200.0, "EQUIPMENT_DOWN", t) for t in targets] + \
+          [InjectedEvent(1000.0, "EQUIPMENT_UP", t) for t in targets]
+    return replace(dead_first_scenario(inj), scenario_id=f"down-{'-'.join(targets)}")
+
+
+def replan_scenario() -> TerminalScenario:
+    """★재계획이 뒤 크레인의 계획을 실제로 바꾸는 무대 (머리말 k2-replan; profile_k2(lanes=2, gap=1.0) 와 짝).
+
+    bay 4 만재 · bay 5 row1 = TA(1)+BA(2), row2-4 만재 · bay 6 row1 빈칸, row2-4 만재 · bay 7 만재 · bay 8 row1 = TB(1)+BB(2),
+    row2-4 만재 · bay 9 만재 · bay 10 row1 빈칸, row2-4 만재 · bay 1-3 빈 야드. J-OUT-1(TA)·J-OUT-2(TB) 둘 다 300초.
+    결정 시작: YC-A 후보 {J-OUT-1} (J-OUT-2 통로 [3.25,8] 이 YC-B 점 장벽 7.75 와 겹침) · YC-B 후보 {J-OUT-1, J-OUT-2}
+    (J-OUT-2 재조작 목적지 (6,1), 동률 13.0 → bay 6 < 10). YC-A 가 J-OUT-1 예약(통로 [3.25,6]·칸 {(5,1),(6,1)}·L1) →
+    YC-B live: J-OUT-1 taken · J-OUT-2 **재계획** → (6,1) 제외 → 목적지 (10,1)·통로 [7.75,10]·L2 → SERVE.
+    재계획이 없었다면(P0 그대로) 통로 [6,8] 이 [3.25,6]+gap 과 겹쳐 CRANE_INTERFERENCE → WAIT 였을 것."""
+    cont = {}
+    n = 0
+
+    def full(bay, rows=(1, 2, 3, 4)):
+        nonlocal n
+        for r in rows:
+            for t in (1, 2, 3, 4):
+                cont[f"F{n:03d}"] = _c(f"F{n:03d}", bay, r, t)
+                n += 1
+    full(4); full(5, (2, 3, 4)); full(6, (2, 3, 4)); full(7); full(8, (2, 3, 4)); full(9); full(10, (2, 3, 4))
+    cont["TA"] = _c("TA", 5, 1, 1); cont["BA"] = _c("BA", 5, 1, 2)
+    cont["TB"] = _c("TB", 8, 1, 1); cont["BB"] = _c("BB", 8, 1, 2)
+    jobs = [_out("J-OUT-1", "TA", 0.0, 300.0), _out("J-OUT-2", "TB", 0.0, 300.0)]
+    return TerminalScenario(scenario_id="replan", seed=0, horizon_s=3600.0, drain_window_s=0.0,
+                            containers=cont, jobs=jobs, vessels=[], injected_events=[])
+
+
+def profile_k2_stair(lanes: int = 2, gap: float = 2.0):
+    """계단식·부분 겹침 담당구간 — YC-A 1..6 · YC-B 5..10 (머리말 k2-stair). 그룹 크기 1 이라 초기 위치 = service_bay_min."""
+    base = piece1_profile()
+    return replace(base,
+                   cranes=(replace(fixtures._spec("YC-A"), service_bay_min=1, service_bay_max=6),
+                           replace(fixtures._spec("YC-B"), service_bay_min=5, service_bay_max=10)),
+                   lane_graph=LaneGraph(tuple(f"L{i + 1}" for i in range(lanes)), ()),
+                   safety_gap_bay=gap)
+
+
+def profile_k3(lanes: int = 3, gap: float = 2.0):
+    """크레인 3대 같은 구간 1..10 (머리말 k3-random) — 초기 위치 1+(k+0.5)·9/3 = 2.5 / 5.5 / 8.5."""
+    base = piece1_profile()
+    return replace(base,
+                   cranes=tuple(replace(fixtures._spec(cid), service_bay_min=1, service_bay_max=10)
+                                for cid in ("YC-A", "YC-B", "YC-C")),
+                   lane_graph=LaneGraph(tuple(f"L{i + 1}" for i in range(lanes)), ()),
+                   safety_gap_bay=gap)
+
+
+def _v5_plan_key(p):
+    """v5 JobPlan → 비교 튜플 (moves · corridor · slots · lane · dur · rehandles)."""
+    return (_v5_moves(p), (float(p.corridor[0]), float(p.corridor[1])), frozenset(p.slots), p.lane_id,
+            p.duration_s, p.rehandles)
+
+
+def _arr_plan_key(P, k, n, tb):
+    """배열 (K,N) PlanOut 의 (k,n) 칸 → 같은 모양의 튜플."""
+    moves = []
+    for m in range(int(P.n_moves[k, n])):
+        moves.append((tb.cont_ids[int(P.mv_cont[k, n, m])], tuple(int(v) for v in P.mv_src[k, n, m]),
+                      tuple(int(v) for v in P.mv_dst[k, n, m]), MV_NAME[int(P.mv_kind[k, n, m])]))
+    lane = tb.lane_ids[int(P.lane[k, n])] if int(P.lane[k, n]) >= 0 else None
+    slots = frozenset((int(b) + 1, int(r) + 1) for b, r in np.argwhere(np.asarray(P.slots[k, n])))
+    return (moves, (float(P.lo[k, n]), float(P.hi[k, n])), slots, lane, float(P.dur[k, n]), int(P.rehandles[k, n]))
+
+
+def v5_pair_table(sim, tb):
+    """크레인×오더 전 쌍을 v5 함수로 — candidates_for(477-490행) 의 단계별 결과 (disp · feasible · reject 코드)."""
+    K, n0 = len(tb.crane_ids), tb.n0
+    disp = np.zeros((K, n0), bool)
+    feas = np.zeros((K, n0), bool)
+    code = np.full((K, n0), -1, np.int32)
+    for n, jid in enumerate(tb.job_ids):
+        j = sim.jobs[jid]
+        taken = sim.reservations.job_taken(jid) is not None
+        for k, cid in enumerate(tb.crane_ids):
+            d = bool(sim._dispatchable(j, cid))
+            disp[k, n] = d
+            if not d or taken:
+                continue
+            yc, spec = sim.fleet.get(cid), sim.fleet.spec(cid)
+            ref = sim._jobref(j, spec, yc)
+            if ref is None:
+                continue
+            plan = sim._plan(cid, ref)
+            if plan is None:
+                continue
+            feas[k, n] = True
+            code[k, n] = REASON_TO_CODE[sim.reservations.reject_reason(sim._reservation(plan))]
+    return disp, feas, code
+
+
+def _v5_reservations(sim, tb):
+    out = {}
+    for cid, r in sim.reservations._by_crane.items():
+        out[cid] = {"job_token": r.job_token, "corridor": (r.corridor.lo, r.corridor.hi),
+                    "lane_id": r.lane_id, "release_at": r.release_at, "slots": frozenset(r.slots)}
+    return out
+
+
+def _leaf_diff(a, b) -> list[str]:
+    names = [str(p) for p, _ in jax.tree_util.tree_leaves_with_path(a)]
+    la, lb = jax.tree_util.tree_leaves(a), jax.tree_util.tree_leaves(b)
+    assert len(la) == len(lb)
+    return [names[i] for i, (x, y) in enumerate(zip(la, lb))
+            if not np.array_equal(np.asarray(x), np.asarray(y), equal_nan=True)]
+
+
+def lockstep_engine(prof, scn, policy: str, label: str):
+    """엔진 `step` 을 한 스텝씩 돌리며 v5 와 **결정마다** 나란히 대조한다 (run_jit 과 별개의 두 번째 경로).
+
+    결정 시점마다: 시각 · 물은 크레인 · 탈출 여부 · (K,N) reject 코드열(disp/feasible/code 전 쌍, 결정 시작 시점) ·
+    열린 크레인 **전원**의 live 후보 행(dispatch.cand_live — 앞 크레인 예약이 반영된 재계산) · 크레인별 답 ·
+    재계획이 계획을 바꾼 결정(v5 `_plan` 배정 전후 대조 → plan_changed_*; 바뀐 계획은 배열 live 계획과 == 대조) ·
+    결정 뒤 예약표/토큰 역표/idle 장벽/rate 5항(interference·imbalance 포함)/yielded/down/down_pending/
+    last_decision_at/escape_count · 불변식 비트 0. 결정 세계에서는 엔진 `decide` 와 겉옷 `dispatch.decide_seq` 의 결과
+    잎 전부가 비트 같은지도 본다 (같은 인자를 넘기는지). 끝에는 조각 1 `compare` 전 항목.
+    반환 (sim, 최종 세계, tables, 집계).
+    """
+    chooser, policy_fn, params_fn = POLICIES[policy]
+    caps, s_max = _caps(scn, prof)
+    w, tb = to_block_world(prof, scn, **caps)
+    g = Geom.from_profile(prof)
+    K = len(tb.crane_ids)
+    params = params_fn(w)
+    step_jit = jax.jit(partial(ES.step, params=params, g=g, policy_fn=policy_fn))
+    cand_jit = jax.jit(partial(candidate_matrices, g=g))
+    dec_engine = jax.jit(partial(ES.decide, params=params, g=g, policy_fn=policy_fn))
+    dec_module = jax.jit(partial(DP.decide_seq, params=params, g=g, policy_fn=policy_fn))
+    disp_trace = jax.jit(partial(DP.dispatch, params=params, g=g, policy_fn=policy_fn, with_trace=True))
+    inv_jit = jax.jit(partial(ES.check_invariants, g=g))
+    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    v5_dec, traces = [], []
+    st = dict(decisions=0, escapes=0, waits=0, multi_open=0, codes={}, code4_pairs=0, code3_pairs=0,
+              regained=0, decide_vs_module=0, live_rows=0, plan_changed_any=0, plan_changed_pick=0,
+              plan_changed_checked=0, invariant_checks=0)
+    while True:
+        esc_before = sim._escape_count
+        dp = sim.run_until_decision()
+        tr = None
+        while not bool(w.terminal):                                     # 결정 스텝이 나올 때까지 사건만 처리
+            w_pre = w
+            w, tr = step_jit(w, None)
+            traces.append(tr)
+            if bool(tr.decided):
+                break
+        if dp is None:
+            assert bool(w.terminal), f"[{label}] v5 는 끝났는데 배열은 아직 (clock={float(w.clock)})"
+            break
+        assert tr is not None and bool(tr.decided), f"[{label}] 배열은 끝났는데 v5 는 결정 {dp}"
+        v5_esc = sim._escape_count > esc_before
+        # ① 시각·탈출·물은 크레인
+        assert float(w.clock) == dp.time, f"[{label}] 결정 시각 v5={dp.time!r} arr={float(w.clock)!r}"
+        assert bool(tr.escaped) == v5_esc, f"[{label}] t={dp.time} 탈출 v5={v5_esc} arr={bool(tr.escaped)}"
+        open_ids = tuple(tb.crane_ids[k] for k in range(K) if bool(tr.open[k]))
+        assert open_ids == tuple(dp.crane_ids), f"[{label}] t={dp.time} 물은 크레인 v5={dp.crane_ids} arr={open_ids}"
+        # ② reject 코드열 — 결정 시작 시점 (K,N) 전 쌍 (yielded 와 무관 · 탈출의 해제 전후 같다)
+        m = cand_jit(w_pre)
+        disp5, feas5, code5 = v5_pair_table(sim, tb)
+        n0 = tb.n0
+        dispa, feasa, codea = np.asarray(m.disp)[:, :n0], np.asarray(m.feasible)[:, :n0], np.asarray(m.code)[:, :n0]
+        assert np.array_equal(dispa, disp5), f"[{label}] t={dp.time} dispatchable 다름 {np.argwhere(dispa != disp5).tolist()}"
+        assert np.array_equal(feasa, feas5), f"[{label}] t={dp.time} 계획 성립 다름 {np.argwhere(feasa != feas5).tolist()}"
+        both = feasa & feas5
+        if not np.array_equal(np.where(both, codea, -1), np.where(both, code5, -1)):
+            pairs = [(k, n, int(codea[k, n]), int(code5[k, n])) for k, n in np.argwhere(both & (codea != code5))]
+            pytest.fail(f"[{label}] t={dp.time} reject 코드 다름 (k,n,arr,v5)={pairs}")
+        for c in code5[feas5]:
+            st["codes"][int(c)] = st["codes"].get(int(c), 0) + 1
+        st["code4_pairs"] += int((code5[feas5] == 4).sum())
+        st["code3_pairs"] += int((code5[feas5] == 3).sum())
+        # ③ 엔진 decide == 모듈 decide_seq (잎 전부) — 탈출이면 해제 뒤 세계 + open_override
+        out_e = dec_engine(w_pre)
+        if v5_esc:
+            e = try_escape(w_pre, m)
+            w_in, out_m = e.world, dec_module(e.world, open_override=e.open)
+        else:
+            w_in, out_m = w_pre, dec_module(w_pre)
+        bad = _leaf_diff(out_e.world, out_m.world)
+        assert not bad, f"[{label}] t={dp.time} 엔진 decide 와 dispatch.decide_seq 가 다른 잎 {bad}"
+        assert np.array_equal(np.asarray(out_e.pick), np.asarray(out_m.pick))
+        bad = _leaf_diff(out_e.world._replace(steps=w.steps), w)         # step 은 steps 만 +1
+        assert not bad, f"[{label}] t={dp.time} step 의 결정 세계 ≠ decide 단독: {bad}"
+        st["decide_vs_module"] += 1
+        # ④ 열린 크레인 **전원**의 live 후보 행 (앞 크레인 예약 반영) = v5 candidates_for 순차 · 크레인별 답 · 재계획 대조
+        dl = disp_trace(w_in, open_override=jnp.asarray(tr.open))       # 엔진과 같은 open 으로 단계별 흔적만 뽑는다
+        assert np.array_equal(np.asarray(dl.pick), np.asarray(tr.pick)), f"[{label}] t={dp.time} dispatch 흔적의 답 ≠ 엔진 답"
+        plan0 = {cid: {r.job_id: _v5_plan_key(sim._plan(cid, r)) for r in sim.candidates_for(cid)} for cid in dp.crane_ids}
+        rec = []
+        for i, cid in enumerate(dp.crane_ids):
+            k = tb.crane_index[cid]
+            cands5 = sim.candidates_for(cid)
+            live5 = [r.job_id for r in cands5]
+            rowa = [tb.job_ids[n] for n in range(n0) if bool(dl.cand_live[k, n])]
+            assert live5 == rowa, f"[{label}] t={dp.time} {cid}(#{i}) live 후보 v5={live5} arr={rowa}"
+            assert not np.asarray(dl.cand_live[k])[n0:].any(), f"[{label}] t={dp.time} {cid} 빈 오더 칸이 후보로 살아 있다"
+            st["live_rows"] += 1
+            if i == 0:
+                rowa0 = [tb.job_ids[n] for n in range(n0) if bool(feasa[k, n]) and int(codea[k, n]) == RC_OK]
+                assert live5 == rowa0, f"[{label}] t={dp.time} {cid} 첫 크레인 후보 ≠ 시작 시점 행 v5={live5} arr={rowa0}"
+            if v5_esc and live5:
+                st["regained"] += 1
+            if i >= 1:                                                   # 재계획(694행 live reserved_slots)이 계획을 바꿨나
+                changed = {r.job_id for r in cands5
+                           if r.job_id in plan0[cid] and _v5_plan_key(sim._plan(cid, r)) != plan0[cid][r.job_id]}
+                st["plan_changed_any"] += int(bool(changed))
+                for jid in changed:                                      # 바뀐 계획 = 배열 단계 k 의 live 계획 (P_live)
+                    n = tb.job_index[jid]
+                    k5 = _v5_plan_key(sim._plan(cid, next(r for r in cands5 if r.job_id == jid)))
+                    ka = _arr_plan_key(dl.P_live, k, n, tb)
+                    assert k5 == ka, f"[{label}] t={dp.time} {cid}:{jid} 재계획 결과 다름\n  v5 ={k5}\n  arr={ka}"
+                    st["plan_changed_checked"] += 1
+            ref_pre = chooser(sim, cid, cands5)
+            if i >= 1 and ref_pre is not None and ref_pre.job_id in plan0[cid] \
+                    and _v5_plan_key(sim._plan(cid, ref_pre)) != plan0[cid][ref_pre.job_id]:
+                st["plan_changed_pick"] += 1
+            r5 = _v5_assign(sim, cid, chooser)
+            rec.append(r5)
+            pick = int(tr.pick[k])
+            got = tb.job(pick) if pick >= 0 else None
+            assert got == r5[1], f"[{label}] t={dp.time} {cid} 답 v5={r5[1]} arr={got} (live={live5})"
+            st["waits"] += int(r5[1] is None)
+        sim.close_decision()
+        v5_dec.append((dp.time, tuple(dp.crane_ids), rec))
+        st["decisions"] += 1
+        st["escapes"] += int(v5_esc)
+        st["multi_open"] += int(len(open_ids) >= 2)
+        # ⑤ 결정 뒤 상태 — 예약표·토큰·idle 장벽·rate 5항(==)·크레인 표식·탈출 표식
+        d = from_block_world(w, tb)
+        assert d["violation"] == 0, f"[{label}] t={dp.time} violation {d['violation_names']}"
+        assert d["reservations"] == _v5_reservations(sim, tb), \
+            f"[{label}] t={dp.time} 예약표\n  v5 ={_v5_reservations(sim, tb)}\n  arr={d['reservations']}"
+        assert d["idle_positions"] == sim.reservations.idle_positions()
+        owner = {tb.job_ids[n]: tb.crane_ids[int(kk)] for n, kk in enumerate(np.asarray(w.res.token_owner)[:n0]) if kk >= 0}
+        assert owner == dict(sim.reservations._tokens), f"[{label}] t={dp.time} 토큰 역표 v5={sim.reservations._tokens} arr={owner}"
+        for t, v in sim.cost._rate.items():
+            assert d["cost_rate"][t] == v, f"[{label}] t={dp.time} rate.{t} arr={d['cost_rate'][t]!r} v5={v!r}"
+        for cid in tb.crane_ids:
+            yc, a = sim.fleet.get(cid), d["cranes"][cid]
+            got = (a["yielded"], a["down"], a["down_pending"], a["assigned_job"], a["available_at"], a["recent_yield_count"])
+            exp = (yc.yielded, yc.down, yc.down_pending, yc.state.assigned_job, yc.state.available_at, yc.recent_yield_count)
+            assert got == exp, f"[{label}] t={dp.time} 크레인 {cid} arr={got} v5={exp}"
+        assert d["last_decision_at"] == sim._last_decision_at and d["escape_at"] == sim._escape_at
+        assert d["escape_count"] == sim._escape_count
+        # ⑥ 불변식 — v5 close_decision 의 check_invariants 가 안 던졌다 ↔ 배열 비트 0 (레일 순서·간격·예약 쌍)
+        assert int(inv_jit(w)) == 0, f"[{label}] t={dp.time} 불변식 비트 {violation_names(int(inv_jit(w)))}"
+        st["invariant_checks"] += 1
+    trace = jax.tree_util.tree_map(lambda *xs: jnp.stack(xs), *traces)
+    w = ES.finish(w)
+    compare(sim, v5_dec, w, trace, tb, label)
+    st.update(K=K, policy=policy, steps=int(w.steps), events=len(sim.event_log), backlog=sim.unfinished_backlog(),
+              interference=sim.cost.episode_raw()["interference"], imbalance=sim.cost.episode_raw()["imbalance"])
+    REPORT[label] = {"lockstep": st}
+    return sim, w, tb, st
+
+
+def _k2_stage(name: str):
+    """이름 → (profile, scenario, 정책)."""
+    if name.startswith("k2-spec"):
+        _, _, lanes, gap, down, policy = name.split("-")
+        return profile_k2(lanes=int(lanes[1:]), gap=float(gap[1:])), \
+            piece2_scenario({"d2000": (2000.0, 2600.0), "d310": (310.0, 400.0)}[down]), policy
+    if name == "k2-fixture":
+        return fixtures.build_integrated_profile(), fixture_scenario_k2(), "first"
+    if name == "k2-dead-first":
+        return profile_k2(lanes=2, gap=3.0), dead_first_scenario(), "ref"
+    if name == "k2-down-one":
+        return profile_k2(lanes=2, gap=3.0), down_scenario(("YC-B",)), "ref"
+    if name == "k2-down-both":
+        return profile_k2(lanes=2, gap=3.0), down_scenario(("YC-A", "YC-B")), "ref"
+    if name.startswith("k2-random-"):
+        for (seed, gap, ints, policy) in K2_RANDOM:
+            if random_k2_name(seed, gap, ints, policy) == name:
+                return random_k2_stage(seed, gap, ints, policy)
+    if name.startswith("k2-replan-"):
+        return profile_k2(lanes=2, gap=1.0), replan_scenario(), name.split("-")[-1]
+    if name.startswith("k2-stair-"):
+        _, _, seed, policy = name.split("-")
+        return profile_k2_stair(), random_scenario(int(seed[1:]), int_arrivals=True), policy
+    if name.startswith("k3-random-"):
+        _, _, seed, policy = name.split("-")
+        return profile_k3(), random_scenario(int(seed[1:]), int_arrivals=True), policy
+    raise KeyError(name)
+
+
+#: 계단식(K=2)·크레인 3대 무대 — v5 를 먼저 굴려 2대 이상 동시 개방이 있는 시드를 골랐다 (2026-09-25).
+K2_STAIR = ["k2-stair-s4-first", "k2-stair-s10-ref"]        # v5: 동시 개방 5·8 · 탈출 1·4
+K3_STAGES = ["k3-random-s4-first", "k3-random-s5-ref"]      # v5: 동시 개방 4·6 · 탈출 0·5 · backlog 0·2
+K2_STAGES = ["k2-spec-l1-g2-d2000-first", "k2-spec-l2-g2-d2000-first", "k2-spec-l2-g3-d2000-ref",
+             "k2-spec-l2-g2-d310-first", "k2-spec-l1-g3-d310-ref", "k2-fixture",
+             "k2-dead-first", "k2-down-one", "k2-down-both"] + \
+            [random_k2_name(*r) for r in K2_RANDOM] + \
+            ["k2-replan-first", "k2-replan-ref"] + K2_STAIR + K3_STAGES
+
+
+@pytest.mark.parametrize("stage", K2_STAGES, ids=K2_STAGES)
+def test_k2_equivalence_run_and_lockstep(stage):
+    """크레인 2대 — (a) run_jit 완주 vs v5 (조각 1 compare 전 항목 + rail_order·escape) · (b) 엔진 step lockstep
+    (결정마다 reject 코드열·답·상태) · (c) 두 경로의 최종 세계 잎 전부 비트 동일."""
+    prof, scn, policy = _k2_stage(stage)
+    sim, w_run, trace, tb = _run_and_compare(prof, scn, stage, policy=policy)
+    assert len(tb.crane_ids) == (3 if stage.startswith("k3-") else 2)
+    sim2, w_lock, _, st = lockstep_engine(prof, scn, policy, f"{stage}#lockstep")
+    bad = _leaf_diff(w_run, w_lock)
+    assert not bad, f"[{stage}] run_jit 세계와 lockstep 세계가 다른 잎 {bad}"
+    assert sim.event_stream_hash() == sim2.event_stream_hash()
+    REPORT[stage].update(escapes=sim.deadlock_escape_count, code4=st["code4_pairs"], code3=st["code3_pairs"],
+                         imbalance=st["imbalance"])
+
+
+def test_k2_spec_initial_positions_rail_order_and_paths():
+    """k2-spec 의 성질 — 초기 위치 1+(k+0.5)·9/2 = 3.25/7.75 · rail_order (YC-A, YC-B) · 실제로 밟은 경로:
+    YC-B 유휴 중 DOWN(2000) → down, 작업 중 DOWN(310) → down_pending → 완료 후 down · 2대 동시 결정 · imbalance>0."""
+    prof, scn = profile_k2(lanes=2), piece2_scenario()
+    caps, _ = _caps(scn, prof)
+    w0, tb = to_block_world(prof, scn, **caps)
+    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    pos = [1 + (k + 0.5) * 9 / 2 for k in range(2)]
+    assert [float(b) for b in w0.cranes.bay] == pos == [sim.fleet.get(c).state.position_bay for c in tb.crane_ids] == [3.25, 7.75]
+    assert from_block_world(w0, tb)["rail_order"] == sim._rail_order == ("YC-A", "YC-B")
+    assert dict(from_block_world(w0, tb)["idle_positions"]) == sim.reservations.idle_positions()
+    for lab in ("k2-spec-l2-g2-d2000-first", "k2-spec-l2-g2-d310-first"):
+        if lab not in REPORT:
+            _run_and_compare(*_k2_stage(lab)[:2], lab, policy=_k2_stage(lab)[2])
+    r_idle, r_busy = REPORT["k2-spec-l2-g2-d2000-first"], REPORT["k2-spec-l2-g2-d310-first"]
+    assert r_idle["multi_open"] >= 1 and r_busy["multi_open"] >= 1, "2대가 동시에 열린 결정이 없다"
+    assert r_idle["imbalance"] > 0, "imbalance rate 가 0 — 두 크레인 부하 차이가 생기지 않았다"
+    # 작업 중 DOWN(310/400) 이 실제로 down_pending 경로를 밟았는지 — v5 를 직접 굴려 확인
+    sim_b, _, _ = run_v5(prof, piece2_scenario((310.0, 400.0)))
+    log = sim_b.event_log
+    t_down = next(t for (t, k, p) in log if k == "EQUIPMENT_DOWN")
+    assert any(k == "DISPATCH" and p.startswith("YC-B:") and t < t_down for (t, k, p) in log), "310초 전에 YC-B 가 작업을 잡지 않았다"
+
+
+def _ensure_k2(lab: str) -> dict:
+    if lab not in REPORT:
+        prof, scn, policy = _k2_stage(lab)
+        _run_and_compare(prof, scn, lab, policy=policy)
+    return REPORT[lab]
+
+
+def test_k2_escape_paths_are_exercised():
+    """X 국면이 실제로 밟혔는지 — v5 DEADLOCK_ESCAPE 가 발화한 무대 ≥ 5 (그 무대들의 배열 답은 compare ①·⑧ 가 이미 맞췄다),
+    설계 무대: dead-first(결정 0회 뒤 300초 발화 · 둘 다 대상) · down-one(YC-A 만 대상) · down-both(술어 참·esc 비어 미발화)."""
+    fired = {k: r["escapes"] for k in K2_STAGES if (r := _ensure_k2(k))["escapes"] > 0}
+    assert len(fired) >= 5, f"탈출 발화 무대가 5개 미만: {fired}"
+    prof, scn, _ = _k2_stage("k2-dead-first")
+    sim, dec, _ = run_v5(prof, scn, chooser_ref)
+    assert sim.deadlock_escape_count >= 1 and dec[0][0] == 300.0 and dec[0][1] == ("YC-A", "YC-B")
+    assert [k for (_, k, _) in sim.event_log if k in ("DEADLOCK_ESCAPE", "DISPATCH")][0] == "DEADLOCK_ESCAPE"
+    assert all(j is None for (_, j, *_r) in dec[0][2])            # 탈출 결정 = 전원 WAIT (SERVE 후보 없음)
+    assert sim.cost.episode_raw()["interference"] > 0              # WAIT → yielded 가 rate 로 적립
+    prof, scn, _ = _k2_stage("k2-down-one")
+    sim1, dec1, _ = run_v5(prof, scn, chooser_ref)
+    assert sim1.deadlock_escape_count >= 1 and any(cs == ("YC-A",) for (_, cs, _) in dec1)
+    prof, scn, _ = _k2_stage("k2-down-both")
+    sim2, dec2, _ = run_v5(prof, scn, chooser_ref)
+    assert sim2.deadlock_escape_count == 0 and all(t >= 1000.0 for (t, _, _) in dec2)   # 둘 다 고장 → 복구 뒤에야 결정
+    assert REPORT["k2-dead-first"]["escapes"] >= 1 and REPORT["k2-down-one"]["escapes"] >= 1 and REPORT["k2-down-both"]["escapes"] == 0
+
+
+def test_k2_python_loop_matches_jit():
+    """시험 4) 의 K=2 판 — jit 없이 파이썬 루프로 step 을 반복해도 잎 전부(비트) 같다."""
+    prof, scn = profile_k2(lanes=2), piece2_scenario()
+    w_j, _, tb = run_array(prof, scn, use_jit=True)
+    w_p, tr_p, _ = run_array(prof, scn, use_jit=False)
+    bad = _leaf_diff(w_j, w_p)
+    assert not bad, f"jit 판과 파이썬 루프 판이 다른 잎: {bad}"
+
+
+def test_k2_vmap_batch_matches_single_worlds():
+    """K=2 세계 둘(spec d2000 · d310)을 vmap(run) 으로 — cond(결정/탈출/사건/종료)가 select 로 풀려도 단일 판과 잎 전부 같다."""
+    prof = profile_k2(lanes=2)
+    caps, s_max = dict(n_max=8, q_cap=32, log_cap=328), 320
+    g = Geom.from_profile(prof)
+    worlds = [to_block_world(prof, s, **caps)[0] for s in (piece2_scenario(), piece2_scenario((310.0, 400.0)))]
+    batched = jax.tree_util.tree_map(lambda *xs: jnp.stack(xs), *worlds)
+    run_b = jax.jit(jax.vmap(lambda w: ES.run(w, None, g, first_by_id, s_max)))
+    wb, _ = run_b(batched)
+    names = [str(p) for p, _ in jax.tree_util.tree_leaves_with_path(worlds[0])]
+    for i, w0 in enumerate(worlds):
+        ws, _ = run_jit(w0, None, g, first_by_id, s_max)
+        lb = [np.asarray(l)[i] for l in jax.tree_util.tree_leaves(wb)]
+        ls = [np.asarray(l) for l in jax.tree_util.tree_leaves(ws)]
+        bad = [names[j] for j, (a, b) in enumerate(zip(lb, ls)) if not np.array_equal(a, b, equal_nan=True)]
+        assert not bad, f"세계 {i}: vmap 판과 단일 판이 다른 잎 {bad}"
+        assert bool(ws.terminal) and int(ws.violation) == 0
+
+
+def test_k2_replan_actually_changes_plan():
+    """k2-replan 무대의 설계 의도 — v5 만으로: 첫 결정에서 둘 다 열리고 둘 다 SERVE, YC-B 의 J-OUT-2 재조작 목적지가
+    시작 시점 (6,1) 에서 배정 시점 (10,1) 로 바뀐다 (lockstep 의 plan_changed_pick 이 이 무대에서 ≥1)."""
+    prof, scn, _ = _k2_stage("k2-replan-first")
+    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    dp = sim.run_until_decision()
+    assert dp is not None and tuple(dp.crane_ids) == ("YC-A", "YC-B")
+    refB = {r.job_id: r for r in sim.candidates_for("YC-B")}
+    dst0 = tuple(sim._plan("YC-B", refB["J-OUT-2"]).moves[0].dst)
+    sim.assign("YC-A", CraneAssignment("YC-A", CandidateKind.SERVE, job_ref=sim.candidates_for("YC-A")[0]))
+    liveB = sim.candidates_for("YC-B")
+    assert [r.job_id for r in liveB] == ["J-OUT-2"], [r.job_id for r in liveB]
+    dst1 = tuple(sim._plan("YC-B", liveB[0]).moves[0].dst)
+    assert dst0[:2] == (6, 1) and dst1[:2] == (10, 1), (dst0, dst1)
+    for lab in ("k2-replan-first", "k2-replan-ref"):
+        if f"{lab}#lockstep" not in REPORT:
+            lockstep_engine(*_k2_stage(lab), f"{lab}#lockstep")
+        st = REPORT[f"{lab}#lockstep"]["lockstep"]
+        assert st["plan_changed_pick"] >= 1 and st["plan_changed_checked"] >= 1, st
+
+
+def test_k3_and_stair_stages_exercise_multi_crane_paths():
+    """K=3·계단식 무대가 실제로 다중 크레인 경로를 밟았는지 — 2대 이상 동시 개방 · K=3 imbalance>0 · 계단식 c4 거절."""
+    for lab in K3_STAGES + K2_STAIR:
+        _ensure_k2(lab)
+        if f"{lab}#lockstep" not in REPORT:
+            lockstep_engine(*_k2_stage(lab), f"{lab}#lockstep")
+    k3 = [REPORT[l] for l in K3_STAGES]
+    assert all(r["K"] == 3 for r in k3)
+    assert sum(r["multi_open"] for r in k3) >= 1, "K=3 무대에서 2대 이상 동시 개방이 없다"
+    assert any(r["imbalance"] > 0 for r in k3), "K=3 무대에서 imbalance rate 가 0 — sum_seq 결합 순서가 시험되지 않았다"
+    st3 = [REPORT[f"{l}#lockstep"]["lockstep"] for l in K3_STAGES]
+    assert sum(s["live_rows"] for s in st3) >= 3
+    stair = [REPORT[f"{l}#lockstep"]["lockstep"] for l in K2_STAIR]
+    assert sum(s["code4_pairs"] for s in stair) >= 1, "계단식 무대에서 CRANE_INTERFERENCE 가 한 번도 안 나왔다"
+    assert sum(REPORT[l]["multi_open"] for l in K2_STAIR) >= 1
+
+
+# ───────────────────────────────────────────────── ⑦-b 조각 2 고침 (반박 검증 2026-09-25) — 불변식 · 학습 경로 · unroll · yield_count
+def test_invariant_bits_detect_rail_swap_gap_and_pairwise():
+    """`check_invariants` = v5 1107-1137행: 정상 세계 0 · bay 맞바꿈 → CRANE_ORDER_SWAP(v5 도 같은 코드로 던진다) ·
+    간격 < gap → CRANE_MIN_GAP · rail_order 순열을 그대로 읽는지(역순열 함정) · 활성 예약 쌍 레인/통로/토큰/칸 겹침 → PAIRWISE_LOCK."""
+    prof, scn = profile_k2(lanes=2), piece2_scenario()
+    caps, _ = _caps(scn, prof)
+    w0, tb = to_block_world(prof, scn, **caps)
+    g = Geom.from_profile(prof)
+    chk = jax.jit(partial(ES.check_invariants, g=g))
+    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    sim.check_invariants()
+    assert int(chk(w0)) == 0
+    cr = w0.cranes
+    a, b = sim.fleet.get("YC-A"), sim.fleet.get("YC-B")
+    pa, pb = a.state.position_bay, b.state.position_bay
+    # ① 순서 뒤집힘
+    assert int(chk(w0._replace(cranes=cr._replace(bay=cr.bay[::-1])))) & V_CRANE_ORDER_SWAP
+    a.state.position_bay, b.state.position_bay = pb, pa
+    with pytest.raises(ConstraintViolation, match="CRANE_ORDER_SWAP"):
+        sim.check_invariants()
+    a.state.position_bay, b.state.position_bay = pa, pb
+    # ② 최소 간격
+    w_gap = w0._replace(cranes=cr._replace(bay=cr.bay.at[1].set(cr.bay[0] + g.gap / 2)))
+    assert int(chk(w_gap)) == V_CRANE_MIN_GAP, violation_names(int(chk(w_gap)))
+    b.state.position_bay = pa + prof.safety_gap_bay / 2
+    with pytest.raises(ConstraintViolation, match="CRANE_MIN_GAP"):
+        sim.check_invariants()
+    b.state.position_bay = pb
+    # ③ rail_order 는 '자리 i 의 크레인 번호' 순열 — 자리를 바꾸면 정상 bay 에서도 SWAP (역순열로 읽으면 K=2 에서 못 잡는다)
+    w_ro = w0._replace(cranes=cr._replace(rail_order=jnp.array([1, 0], jnp.int32)))
+    assert int(chk(w_ro)) & V_CRANE_ORDER_SWAP
+    # ④ 활성 예약 쌍 — 레인 공유 / 통로 겹침 / 토큰 공유 / 칸 공유 각각, 그리고 겹치지 않는 쌍은 통과
+    res = w0.res
+    B, R, _ = w0.stacks.shape
+    def mk(lo, hi, lane, tok, slot_a=None, slot_b=None):
+        slots = jnp.zeros((2, B, R), bool)
+        if slot_a is not None:
+            slots = slots.at[0, slot_a[0], slot_a[1]].set(True)
+        if slot_b is not None:
+            slots = slots.at[1, slot_b[0], slot_b[1]].set(True)
+        return w0._replace(res=res._replace(active=jnp.array([True, True]), token=jnp.array(tok, jnp.int32),
+                                            lo=jnp.array(lo, jnp.float64), hi=jnp.array(hi, jnp.float64),
+                                            lane=jnp.array(lane, jnp.int32), slots=slots))
+    assert int(chk(mk([1.0, 6.0], [2.0, 8.0], [0, 1], [0, 1]))) == 0                 # 떨어진 통로·다른 레인·다른 토큰
+    assert int(chk(mk([1.0, 6.0], [2.0, 8.0], [0, 0], [0, 1]))) == V_PAIRWISE_LOCK    # LANE_DOUBLE
+    assert int(chk(mk([1.0, 3.5], [2.0, 8.0], [0, 1], [0, 1]))) == V_PAIRWISE_LOCK    # CORRIDOR_OVERLAP (gap 2: 2+2 > 3.5)
+    assert int(chk(mk([1.0, 6.0], [2.0, 8.0], [0, 1], [0, 0]))) == V_PAIRWISE_LOCK    # TOKEN_DOUBLE
+    assert int(chk(mk([1.0, 6.0], [2.0, 8.0], [0, 1], [0, 1], (0, 0), (0, 0)))) == V_PAIRWISE_LOCK   # SLOT_DOUBLE
+    # v5 의 같은 검사 (_assert_pairwise_resources) 가 같은 입력에서 던진다
+    sim.reservations._by_crane["YC-A"] = Reservation("YC-A", "J-OUT-1", Corridor(1.0, 2.0), frozenset(), "L1", 100.0)
+    sim.reservations._by_crane["YC-B"] = Reservation("YC-B", "J-OUT-2", Corridor(6.0, 8.0), frozenset(), "L1", 100.0)
+    with pytest.raises(ConstraintViolation, match="LANE_DOUBLE"):
+        sim._assert_pairwise_resources()
+    sim.reservations._by_crane["YC-B"] = Reservation("YC-B", "J-OUT-2", Corridor(3.5, 8.0), frozenset(), "L2", 100.0)
+    with pytest.raises(ConstraintViolation, match="CORRIDOR_OVERLAP"):
+        sim._assert_pairwise_resources()
+    sim.reservations._by_crane["YC-B"] = Reservation("YC-B", "J-OUT-2", Corridor(6.0, 8.0), frozenset(), "L2", 100.0)
+    sim._assert_pairwise_resources()
+    # ⑤ 엔진 경로: 결정·사건 뒤 검사가 실제로 들어간다 — 첫 스텝부터 rail_order 를 뒤집어 넣으면 첫 결정/사건에서 비트가 켜진다
+    w_bad, tr = run_jit(w_ro, None, g, first_by_id, 64)
+    assert int(w_bad.violation) & V_CRANE_ORDER_SWAP
+    w_off, _ = run_jit(w_ro, None, g, first_by_id, 64, False)              # check=False 면 검사하지 않는다
+    assert not (int(w_off.violation) & (V_CRANE_ORDER_SWAP | V_CRANE_MIN_GAP | V_PAIRWISE_LOCK))
+
+
+def test_run_while_matches_run_single_and_vmap():
+    """학습 경로 `run_while`(lax.while_loop) 의 최종 세계 == `run`(lax.scan) 의 세계 — 단일 · vmap(세계 2개, 종료 시각 다름)."""
+    prof = profile_k2(lanes=2)
+    caps, s_max = dict(n_max=16, q_cap=64, log_cap=400), 384
+    g = Geom.from_profile(prof)
+    scns = [piece2_scenario(), random_scenario(14, int_arrivals=True)]           # 오더 수·종료 시점이 다른 두 세계
+    c_max = max(len(s.containers) for s in scns) + caps["n_max"] + 3
+    worlds = [to_block_world(prof, s, c_max=c_max, **caps)[0] for s in scns]
+    singles = []
+    for w0 in worlds:
+        ws, _ = run_jit(w0, None, g, first_by_id, s_max)
+        ww = ES.run_while_jit(w0, None, g, first_by_id, s_max)
+        bad = _leaf_diff(ws, ww)
+        assert not bad, f"run_while 와 run 이 다른 잎 {bad}"
+        assert bool(ww.terminal) and int(ww.violation) == 0 and int(ww.steps) == int(ws.steps)
+        singles.append(ws)
+    assert _leaf_diff(singles[0], singles[1]), "두 세계의 궤적이 같다 — 배치 안 종료 시점 차이가 시험되지 않는다"
+    batched = jax.tree_util.tree_map(lambda *xs: jnp.stack(xs), *worlds)
+    wb = jax.jit(jax.vmap(lambda w: ES.run_while(w, None, g, first_by_id, s_max)))(batched)
+    names = [str(p) for p, _ in jax.tree_util.tree_leaves_with_path(worlds[0])]
+    for i, ws in enumerate(singles):
+        lb = [np.asarray(l)[i] for l in jax.tree_util.tree_leaves(wb)]
+        ls = [np.asarray(l) for l in jax.tree_util.tree_leaves(ws)]
+        bad = [names[j] for j, (a, b) in enumerate(zip(lb, ls)) if not np.array_equal(a, b, equal_nan=True)]
+        assert not bad, f"세계 {i}: vmap(run_while) 판과 단일 판이 다른 잎 {bad}"
+
+
+def test_advance_unroll_is_bit_identical():
+    """advance 의 N·2N 단 scan 을 unroll=1(조각 1 원판)·16(기본)·전부 로 펴도 최종 세계 잎 전부 비트 동일 —
+    같은 순서·같은 반올림이라는 주장을 시험으로 고정한다 (장부 모드라 terminal_walk 도 실제로 돈다)."""
+    prof, scn = profile_k2(lanes=2), piece2_scenario()
+    caps, s_max = _caps(scn, prof)
+    w0, tb = to_block_world(prof, scn, **caps)
+    g = Geom.from_profile(prof)
+    assert bool(ES.ledger_mode(w0.orders))
+    saved = ES.ADVANCE_UNROLL
+    outs = {}
+    try:
+        for u in (1, 16, 10_000):
+            ES.ADVANCE_UNROLL = u
+            f = jax.jit(lambda w: ES.run(w, None, g, first_by_id, s_max))   # 새 함수 → 새 추적 (전역이 바뀌었으므로)
+            outs[u], _ = f(w0)
+    finally:
+        ES.ADVANCE_UNROLL = saved
+    assert saved == 16
+    for u in (16, 10_000):
+        bad = _leaf_diff(outs[1], outs[u])
+        assert not bad, f"unroll={u} 판이 unroll=1 판과 다른 잎 {bad}"
+    assert bool(outs[1].terminal) and int(outs[1].violation) == 0 and float(outs[1].ledger.terminal_area) > 0
+
+
+def test_lost_contention_increments_yield_count():
+    """assign 687-688행: WAIT + yield_reason=LOST_CONTENTION → recent_yield_count+1. 배열은 `lost` 마스크로 같은 규칙,
+    정본 구동(lost=None)에서는 0 그대로 — v5 를 같은 결정에서 같은 사유로 돌려 대조."""
+    prof, scn = profile_k2(lanes=2), piece2_scenario()
+    caps, _ = _caps(scn, prof)
+    w, tb = to_block_world(prof, scn, **caps)
+    g = Geom.from_profile(prof)
+    step_jit = jax.jit(partial(ES.step, params=None, g=g, policy_fn=first_by_id))
+    while True:
+        w_pre = w
+        w, tr = step_jit(w, None)
+        if bool(tr.decided):
+            break
+    assert int(jnp.sum(tr.open)) == 2                                    # 300초 — 둘 다 열린다
+    wait_all = lambda params, x, mask: jnp.full((mask.shape[0],), EMPTY_ID, jnp.int32)
+    d0 = DP.dispatch(w_pre, None, g, wait_all)
+    d1 = DP.dispatch(w_pre, None, g, wait_all, lost=jnp.array([True, False]))
+    assert [int(v) for v in d0.world.cranes.yield_count] == [0, 0]
+    assert [int(v) for v in d1.world.cranes.yield_count] == [1, 0]
+    assert [bool(v) for v in d1.world.cranes.yielded] == [True, True]
+    sim = TerminalSimulator(prof, scn, check_invariants=True)
+    dp = sim.run_until_decision()
+    assert tuple(dp.crane_ids) == ("YC-A", "YC-B")
+    sim.assign("YC-A", CraneAssignment("YC-A", CandidateKind.WAIT, yield_reason="LOST_CONTENTION"))
+    sim.assign("YC-B", CraneAssignment("YC-B", CandidateKind.WAIT))
+    sim.close_decision()
+    dd = from_block_world(d1.world, tb)
+    for cid in ("YC-A", "YC-B"):
+        yc = sim.fleet.get(cid)
+        assert (dd["cranes"][cid]["recent_yield_count"], dd["cranes"][cid]["yielded"]) == (yc.recent_yield_count, yc.yielded)
+
+
 # ───────────────────────────────────────────────── ⑧ 보고 (동률·WAIT·동시각·backlog 가 시험됐는지)
 def test_zz_report(capsys):
     """마지막 — 무대별 스텝·결정·WAIT·find_slot 질의·정확 동률·실수 불일치. 공백이 다시 생기지 않게 단언한다."""
@@ -839,6 +1550,8 @@ def test_zz_report(capsys):
     with capsys.disabled():
         print("\n[engine equiv report]  (maxerr 는 == 통과 뒤의 실제 차 = 0 이어야 정상)")
         for k, r in REPORT.items():
+            if "lockstep" in r:
+                continue
             if "decisions" not in r:
                 print(f"  {k:24s} {r}")
                 continue
@@ -848,8 +1561,35 @@ def test_zz_report(capsys):
                   f"norm={r.get('log_payload_normalized', 0)} cost≠0={r['nonzero_cost']}")
         print(f"  exact ties total = {total_ties} · WAIT total = {total_waits} · same-time steps = {total_same} "
               f"· backlog>0 stages = {n_backlog} · float mismatches = {total_mismatch}")
+        k2 = {k: r for k, r in stages.items() if r.get("K", 1) >= 2}
+        lock = {k: r["lockstep"] for k, r in REPORT.items() if "lockstep" in r}
+        if k2:
+            codes = {}
+            for r in lock.values():
+                for c, n in r["codes"].items():
+                    codes[c] = codes.get(c, 0) + n
+            print(f"[piece 2 report]  K>=2 stages={len(k2)} (K=3: {sum(1 for r in k2.values() if r['K'] == 3)}) · escapes(v5 DEADLOCK_ESCAPE)={sum(r['escapes'] for r in k2.values())} "
+                  f"in {sum(1 for r in k2.values() if r['escapes'])} stages · multi-open decisions={sum(r['multi_open'] for r in k2.values())} "
+                  f"· interference>0 stages={sum(1 for r in k2.values() if r['interference'] > 0)} "
+                  f"· imbalance>0 stages={sum(1 for r in k2.values() if r['imbalance'] > 0)}")
+            print(f"  lockstep: decisions={sum(r['decisions'] for r in lock.values())} · decide==decide_seq checks="
+                  f"{sum(r['decide_vs_module'] for r in lock.values())} · reject codes over feasible pairs (0 OK · 3 LANE · 4 INTERF)={dict(sorted(codes.items()))} "
+                  f"· regained-after-escape={sum(r['regained'] for r in lock.values())} · WAIT={sum(r['waits'] for r in lock.values())}")
+            print(f"  lockstep: live rows(all open cranes)={sum(r['live_rows'] for r in lock.values())} · plan_changed(any/pick/checked)="
+                  f"{sum(r['plan_changed_any'] for r in lock.values())}/{sum(r['plan_changed_pick'] for r in lock.values())}/"
+                  f"{sum(r['plan_changed_checked'] for r in lock.values())} · invariant checks={sum(r['invariant_checks'] for r in lock.values())}")
     assert total_ties > 0, "어느 무대에서도 find_slot 정확 동률이 없었다 — tie-break 규칙이 시험되지 않았다"
     assert total_waits >= 1, "WAIT 결정이 한 번도 없었다 — yielded 경로가 시험되지 않았다"
     assert total_same >= 1, "같은 시각에 종류가 다른 사건이 한 번도 없었다 — 큐 우선순위가 엔진 수준에서 시험되지 않았다"
     assert n_backlog >= 1, "미배차 잔존(backlog>0) 무대가 없었다"
     assert total_mismatch == 0
+    if k2:
+        assert sum(r["escapes"] for r in k2.values()) >= 1, "K=2 무대에서 탈출이 한 번도 발화하지 않았다"
+        assert sum(r["multi_open"] for r in k2.values()) >= 3, "2대가 동시에 열린 결정이 너무 적다"
+        assert codes.get(4, 0) >= 1 and codes.get(3, 0) >= 1, f"c3/c4 거절 코드가 엔진 경로에서 안 나왔다: {codes}"
+        assert any(r["interference"] > 0 for r in k2.values()), "interference rate 가 어느 K=2 무대에서도 0"
+        assert sum(r["plan_changed_pick"] for r in lock.values()) >= 1, "재계획이 계획을 실제로 바꾼 결정이 없다 — 재계획 분기가 차등 시험되지 않았다"
+        assert sum(r["plan_changed_checked"] for r in lock.values()) >= 1
+        assert sum(r["live_rows"] for r in lock.values()) >= sum(r["decisions"] for r in lock.values())
+        assert any(r["K"] == 3 for r in k2.values()), "엔진 수준 K=3 무대가 없다"
+        assert sum(r["invariant_checks"] for r in lock.values()) >= 1

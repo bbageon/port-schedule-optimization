@@ -504,6 +504,9 @@ def from_block_world(world: BlockWorld, tables: IdTables) -> dict[str, Any]:
     return {
         "clock": _f(world.clock), "end": _f(world.end_s), "terminal": bool(world.terminal),
         "last_decision_at": (None if _f(world.last_decision_at) == -np.inf else _f(world.last_decision_at)),
+        # 조각 2 탈출 표식 (engine.py:181-184) — None 은 -inf
+        "escape_at": (None if _f(world.escape_at) == -np.inf else _f(world.escape_at)),
+        "escape_count": int(world.escape_count),
         "jobs": jobs, "cranes": cranes,
         "piles": to_v5_piles(world.stacks, list(tables.cont_ids)),
         "containers": containers,

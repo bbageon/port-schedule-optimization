@@ -1,0 +1,578 @@
+{
+ "mods": [
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_dispatch.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\reserve.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\state.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_dispatch.py",
+     "passed": 34,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "WSL venv · CPU x64 · 104초. ① ReservationArrays 통일 규약 1건 ② lockstep 동등성 30무대(seed 0..29: K=seed%3+1 ∈{1,2,3} · 격자 3종(10×4×4/L1, 12×3×4/L2, 10×4×3/L3) · 오더 5~10 · 같은 구간(등간격 분산) 60%/계단식 40% · 동시각 도착 짝 60% · 고장/복구 주입 40% · 장부 60% · 선박없는 VESSEL_LOAD 30% · 정책 reference(v5 ReferenceDispatcher.select)/first/last/wait2 순환). 결정마다 v5 를 한 크레인씩 배정하며 대조: 결정 시각·물은 크레인·live 후보 집합·(크레인,오더) 거절사유 범주·정책 답·수용 계획(dur/rehandles/corridor/end/lane/slots/moves ==)·예약표·토큰 역표·idle 장벽·last_decision_at·escape_count; 끝나면 조각 1 compare(사건 로그 전열·결정열·오더·계획·크레인·kpi·격자·실수 비트 동일) 재사용 → 실수 불일치 0. K=1 무대 74 결정에서 decide_seq 와 조각 1 decide 의 세계 잎 전부 비트 동일. ③ 구조: K=3 결정에서 정책이 크레인마다(3회) 불리고 mask 는 k 행만 참 ④ 조각 1 한계 재현: 두 크레인이 같은 첫 후보를 보는 결정에서 조각 1 decide 는 DUP_JOB(16), decide_seq 는 위반 0·중복 없음 ⑤ 보고. 집계: 다중 크레인 동시 개방 결정 76 · live 후보≠cand0 74 · 앞 크레인이 잡아 뒤 크레인 후보에서 빠진 오더 76 · 탈출 결정 8 · WAIT 113 · 거절 범주 {CRANE_INTERFERENCE 117, LANE_CONFLICT 143, NOT_DISPATCHABLE 2129, OK 419}. 불일치 0건 (처음 갈린 지점 없음)."
+    },
+    {
+     "file": "tests/v6/test_gpu_core.py, test_gpu_state.py, test_gpu_travel.py, test_gpu_stack.py, test_gpu_reserve.py, test_gpu_plan.py, test_gpu_convert.py, test_gpu_engine_equiv.py (조각 1 회귀)",
+     "passed": 130,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "ReservationArrays 통일(state.py 정본·reserve.py import) 뒤 조각 1 전체 130건 회귀 없음 (WSL CPU x64 · 237초 · float mismatches 0)."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "engine.py:694 (assign 의 _plan 재호출)",
+     "what": "단계 ④ 의 '재계획' 은 plan_serve 를 다시 부르지 않고 단계 ① 에서 만든 live 계획 행 P_k[pick] 을 그대로 쓴다.",
+     "why": "candidates_for 와 assign 사이에 상태가 변하지 않으므로(deferred commit) 같은 예약표로 같은 계획이 나온다 — 시험이 계획 전 항목을 v5 active_plan 과 == 로 대조해 확인. 결정당 N 개 계획을 아낀다."
+    },
+    {
+     "v5_line_ref": "engine.py:588 (_plan 이 live reserved_slots 을 읽음)",
+     "what": "단계 k 의 live 계획을 항상 재계산하지 않고, 앞 크레인 중 수용된 배정이 없으면(any_acc 거짓) 결정 시작 시점 계획표 P0[k] 를 lax.cond 로 재사용한다.",
+     "why": "예약 칸이 자라지 않았으면 두 계획이 같다. K=1 은 항상 재사용이라 조각 1 과 계산량이 같다. vmap 아래서는 cond 가 select 로 풀려 양쪽을 다 계산한다(open_issues)."
+    },
+    {
+     "v5_line_ref": "engine.py:479, 456 (dispatchable · eligible)",
+     "what": "dispatchable(K,N)·eligible(K) 은 결정 시작 시점에 한 번만 계산하고 단계마다 다시 계산하지 않는다 — 이번 결정에서 앞 크레인이 잡은 오더는 taken_live(carry.token_owner) 가 가린다.",
+     "why": "결정 중 바뀌는 오더 상태는 '방금 잡힌 오더'(RUNNING·assigned) 뿐이고 그건 token_owner 와 1:1 이다. 스택·크레인 위치는 결정 중 불변. 시험의 거절사유 범주 대조가 v5 판정 순서(_dispatchable → job_taken → plan → reject_reason)와 같음을 확인."
+    },
+    {
+     "v5_line_ref": "engine.py:495-497, 481 · candidates_for 의 job_taken",
+     "what": "시험의 거절사유 범주에서 v5 'TAKEN' 은 나올 수 없어 배열판은 (dispatchable 거짓 ∨ taken_live) 를 NOT_DISPATCHABLE 로 묶고, '앞 크레인이 잡아 빠진 오더' 는 별도 통계(76건)로 센다.",
+     "why": "토큰이 잡힌 오더는 같은 assign 에서 RUNNING·assigned_crane 이 되므로 v5 도 _dispatchable 이 먼저 거른다(첫 실행에서 실측: v5 NOT_DISPATCHABLE ↔ 배열 TAKEN 으로 갈려 범주 사다리를 v5 에 맞춤). 후보 집합 자체는 처음부터 일치했다."
+    },
+    {
+     "v5_line_ref": "piece2_spec.md equivalence_test 항",
+     "what": "명세가 적은 고정 무대(조각 1 무대 + YC-B(1..10) · 오더 8 · DOWN 2000/UP 2600) 대신 무작위 30 무대(K 1·2·3, 주입 40%)로 대조했고, 'reject_reason 50조 단위시험' 은 새로 만들지 않았다.",
+     "why": "담당 지시가 K∈{1,2,3}·무작위 오더 6~10·무작위 격자 30무대였다. 5-lock 단위 대조는 기존 tests/v6/test_gpu_reserve.py(K∈{1,2,3}·예약 상태 200×질의, 6,000건)가 이미 하고 있어 중복을 피했다. 고정 무대는 통합 단계의 run 수준 시험에서 붙이면 된다."
+    },
+    {
+     "v5_line_ref": "engine.py:384-411 (_try_escape)",
+     "what": "교착 탈출은 엔진에 넣지 않고 시험의 구동 루프가 v5 _try_escape 를 호스트에서 흉내 낸다(술어 = dispatch.candidates().deadlock, 결정 = decide_seq(open_override=유휴 전원)).",
+     "why": "탈출은 조각 2 의 다른 담당(escape.py 작업 중)이다. 이 무대(같은 구간 2~3대·gap 2)에서 v5 가 실제로 8회 발화하므로 lockstep 이 끊기지 않게 하려면 필요했다. 시험 발판이지 엔진 통합이 아니며, 통합 뒤 엔진 탈출 함수로 바꿔 끼우면 된다."
+    }
+   ],
+   "public_api": [
+    "yard_rl.v6.gpu.dispatch.candidates(world: BlockWorld, g: Geom) -> CandOut  — 결정 시작 시점 (K,N) 후보 행렬을 한 번에: eligible (K,) bool · disp (K,N) bool · taken (N,) bool · P: PlanOut (K,N) · code (K,N) int32(5-lock 코드) · cand (K,N) bool · open (K,) bool(= v5 _decision_cranes) · blocked (K,N) bool(= disp & ~taken & P.ok & code==CRANE_INTERFERENCE, eligible 무관) · deadlock () bool(= ~any(assigned) & ~any(cand) & any(blocked), engine.py:430-450). 탈출 담당이 술어·통로(P.lo/P.hi ∘ blocked)로 재사용 가능.",
+    "yard_rl.v6.gpu.dispatch.dispatch(world: BlockWorld, params, g: Geom, policy_fn, *, open_override: (K,) bool | None = None, with_trace: bool = False) -> DispatchOut(world, decided (), open (K,), pick (K,) int32(-1=WAIT), cand0 (K,N), cand_live (K,N), taken_live (K,N), plan_ok_live (K,N), code_live (K,N) int32, commit_code (K,) int32(수용 0 · WAIT/미개방/후보밖 -1), deadlock (), P_live: PlanOut (K,N) | None)  — 크레인 번호 순 lax.scan 배정(정책 호출이 scan 안). jit: jax.jit(dispatch, static_argnames=('g','policy_fn','with_trace')); open_override 는 traced 배열 또는 None(둘은 따로 추적됨). vmap 가능(두 세계 배치 = 단일 판 잎 전부 비트 동일 확인). 세계에는 배정만 반영(결정 장부·rate 는 decide_seq).",
+    "yard_rl.v6.gpu.dispatch.decide_seq(world: BlockWorld, params, g: Geom, policy_fn, *, open_override=None) -> engine_step.DecideOut(world, decided, open, pick)  — 조각 1 engine_step.decide 의 드롭인(같은 반환형). dispatch 뒤 결정 장부(DecisionArrays)·last_decision_at=clock·eta_armed 소진(open_override 없을 때만; _try_escape 는 armed 를 안 건드림)·refresh_rates(close_decision) 까지. 열린 크레인이 없으면 세계 그대로. 통합: step 의 `decide(w, params, g, policy_fn)` 자리에 `decide_seq(w, params, g, policy_fn)` 을 넣으면 된다(순환 import 주의 — open_issues).",
+    "yard_rl.v6.gpu.dispatch.plan_row(world: BlockWorld, k, g: Geom) -> PlanOut (N,)  — 크레인 k 의 오더 N 전부 계획(예약 칸 제외 = world.res 의 현재 예약표). 단계 k 의 live 계획 재계산에 쓴다.",
+    "정책 서명 규약(조각 1 과 동일): policy_fn(params, x: (K,N,F) float32, mask: (K,N) bool) -> (K,) int32.  scan 단계 k 에서는 mask 의 k 행만 참(나머지 행 전부 거짓), x 는 k 행만 live 계획으로 갱신된 것이며 답은 [k] 만 쓴다 → 정책은 행마다 독립이어야 한다(first_by_id·policy.choose_batch 모두 그렇다). 후보가 하나도 없는 크레인은 정책을 묻지 않고 WAIT(v5 dispatcher.py:27-28). 후보 밖 답은 V_DECISION_COVERAGE(512)+건너뜀, reserve 거절은 V_RESERVE_REJECT(16) 방어 비트.",
+    "yard_rl.v6.gpu.state.ReservationArrays  — 유일한 정의(NamedTuple, 열 동일, `.k` 속성 추가). yard_rl.v6.gpu.reserve 는 이것을 import 해 재수출한다(`from .reserve import ReservationArrays, empty_reservations` 그대로 유효). state.empty_reservations 의 release_at·idle_pos 기본값이 0.0 → +inf(미등록)로 바뀜(호스트 to_block_world 가 idle_pos 를 전부 덮어써 조각 1 답 불변 — 130건 회귀 통과). engine_step._as_res/_ResR 는 이제 항등이라 통합 시 지워도 된다."
+   ],
+   "open_issues": [
+    "통합 시 순환 import: dispatch.py 가 engine_step 의 dispatchable·features·log_event·refresh_rates·tree_where·DecideOut 을 import 한다. engine_step 이 dispatch 를 import 하려면(step 에서 decide_seq 호출) 그 여섯을 dispatch.py 또는 공용 모듈로 옮기거나 step/decide 안에서 늦게 import 해야 한다(engine_step 은 이번 담당이 읽기 전용이라 손대지 않음).",
+    "engine_step.step 의 지름길 `any_eligible`(유휴·비양보 크레인이 없으면 결정 국면을 건너뜀)은 v5 와 달리 탈출 판정도 건너뛴다 — v5 는 모든 유휴 크레인이 yielded 여도 _try_escape 가 발화할 수 있다(candidates_for 가 [] 라 교착 술어 ②가 참). 시험의 구동 루프는 이 지름길 없이 v5 순서를 따랐다. 탈출 통합 시 이 지름길을 빼거나 탈출 판정을 앞에 둘 것.",
+    "계산량: 결정당 plan_serve_all 1회(K·N) + 앞 크레인 수용 뒤 크레인마다 N 계획 재계산(최대 (K−1)·N). vmap 아래서는 lax.cond 가 select 로 풀려 재계산 분기가 항상 실행되므로 ~2·K·N 계획/결정. 실측 CPU x64 K=2·N=16·10×4×4 결정당 0.6ms(jit), vmap 2세계 컴파일 2.0초. N=1,024·K=2·M=6 학습 규모는 미측정(조각 1 의 미결과 같음).",
+    "엔진 경로에서 구조적으로 나올 수 없는 거절 코드: DUP_JOB(토큰 잡힌 오더는 _dispatchable 이 먼저 거름) · DOUBLE_RESERVE(열린 크레인은 예약이 없음) · SLOT_CONFLICT(같은 칸 ⇒ 같은 bay ⇒ 통로 겹침이 먼저 CRANE_INTERFERENCE). 30 무대에서 실제로 관측된 첫 사유는 LANE_CONFLICT 143 · CRANE_INTERFERENCE 117 뿐이며 NO_PLAN 도 0 이었다(무대가 '재조작 칸 부족' 계획 실패를 만들지 못함 — 조각 1 dup-range-cap 무대가 K=1 에서 담당). 5-lock 순서 자체는 test_gpu_reserve 6,000 질의가 지킨다.",
+    "src/yard_rl/v6/README.md 91-95행 '알려진 한계'(K≥2 정책 호출이 scan 앞 · ReservationArrays 통일 예정)가 이제 사실과 다르다 — 담당 파일이 아니라 갱신하지 않았음. 통합자가 조각 2 항으로 고쳐야 한다.",
+    "tests/v6/test_gpu_dispatch.py 의 `_escape_arrays`(v5 _try_escape 호스트 흉내)와 `advance_to_decision`(step 의 E/F 국면 사본)은 시험 발판이다. 엔진에 탈출·통합 step 이 들어오면 이 둘을 엔진 함수로 바꿔 끼워 사본 표류를 막을 것.",
+    "정책 입력 x: 단계 k 에서 k 행만 live 계획(P_k)로 다시 계산하고 다른 행은 결정 시작 시점 P0 의 특징이다. 행 독립 정책에는 영향이 없지만, 행 간 정보를 섞는 정책(조각 7 resolver 류)을 넣는다면 이 규약을 다시 정해야 한다.",
+    "같은 작업트리에서 다른 담당이 escape.py·phi.py 를 병행 작성 중이다(git status 에 보임). escape.py 는 reserve 의 코드 상수와 plan_serve_all 만 쓰므로 ReservationArrays 통일의 영향은 없음을 확인했다."
+   ]
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\escape.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_escape.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_escape.py",
+     "passed": 89,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "CPU x64 89/89 (54초) · GPU cuda:0 RTX 5090 89/89 (301초, 같은 집계). 무대 79개: K=2 무작위(gap3·4 × 시드 1..21, gap2 × 1..12) + 설계 5(dead-first·down-both·down-one·dead-first-waitall·regain) + 조각 1 K=1 무대 19. v5 `_try_escape` 호출 1,269회를 전부 가로채 그 순간의 v5 상태를 배열로 옮기고 대조: ① (K,N) dispatchable·feasible(계획 성립)·reject 코드 전 쌍 + 크레인별 candidates_for 완전 일치 ② deadlock == (v5 통로 비어있지 않음), 통로 집합 일치 ③ fired·결정 대상(pending)·escape_at·last_decision_at·escape_count·yielded·event_log 전열 일치. 발화 74회(escape>0 무대 29), 술어 거짓 무대 49(≥20), 같은시각 재발화 차단(escape_at==clock) 80회, last_decision_at 표식 차단 2회, 술어 참·유휴 없음(둘 다 고장) 미발화 2회, 유휴 일부만 결정 대상 4회, yielded 해제 뒤 후보 되찾음 1회. 변환기 검증: reset 직후 to_block_world 와 동일(3무대) + dead-first 에서 조각 1 엔진(ES.step)이 사건만 처리해 도달한 세계와 변환기 세계가 동일. jit·vmap(세계 2개 stack) 결과가 eager 와 잎 전부 동일. 기대값 손기입 없음."
+    },
+    {
+     "file": "tests/v6/test_gpu_core.py, test_gpu_convert.py, test_gpu_engine_equiv.py, test_gpu_plan.py, test_gpu_reserve.py, test_gpu_stack.py, test_gpu_state.py, test_gpu_travel.py (조각 1 회귀)",
+     "passed": 130,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "CPU x64 236초. 회귀 없음. 이 실행은 동료(key=dispatch)가 작업 중인 reserve.py/state.py 의 ReservationArrays 통일 변경이 이미 들어간 작업트리에서 돌았고 그래도 전부 통과."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "engine.py:325-329",
+     "what": "escape_mode 'delayed'(finalize 직전 호출)는 옮기지 않았다 — try_escape 는 302-305행 즉시 호출 자리만 담당",
+     "why": "과제 지시(immediate 만). immediate 모드에서 328행 호출은 같은 시각·같은 상태를 다시 묻는 것이라 항상 무동작임을 코드로 확인했고, 시험의 hook 은 그 호출도 가로채 배열판이 '미발화'로 일치함을 대조했다"
+    },
+    {
+     "v5_line_ref": "engine.py:449-450",
+     "what": "interference_deadlock_corridors 의 반환(sorted(set(통로))) 대신 blocked_corridors 가 오더 축 (N,) lo·hi + has 마스크를 돌려준다",
+     "why": "명세 array_technique('통로 = (N,2) + 마스크, 정렬·중복제거 대신'). 시험은 호스트에서 sorted(set) 으로 접어 v5 튜플과 정확 일치를 확인. 조각 2 엔진은 술어값만 쓰고 통로는 조각 3(REPOSITION) 몫"
+    },
+    {
+     "v5_line_ref": "engine.py:479-489 (engine_step.decide 550-560행)",
+     "what": "candidate_matrices 가 engine_step.decide 의 후보 행렬 계산(idle·eligible·dispatchable·taken·plan_serve_all·reject_code·cand)을 같은 식으로 다시 적는다",
+     "why": "engine_step.py 는 내 담당 파일이 아니라 decide 를 고칠 수 없었다. hard_parts 1('행렬을 한 번 만들어 재사용')을 이루려면 통합 단계에서 decide 가 이 함수를 쓰도록 바꾸면 된다(계산은 동일). dispatchable·log_event·tree_where 는 복사하지 않고 engine_step 에서 **호출 시점 import** 로 가져온다 — engine_step 이 escape 를 import 해도 순환이 안 생기게"
+    },
+    {
+     "v5_line_ref": "engine.py:35",
+     "what": "EPS=1e-9 를 escape.py 에 다시 정의",
+     "why": "engine_step.EPS 를 모듈 상단에서 import 하면 통합 뒤 순환 import. 같은 값이며 주석으로 출처를 남김"
+    },
+    {
+     "v5_line_ref": "engine.py:406-407",
+     "what": "발화 시 decision 배열을 pending=유휴 전원, answered=전부 False, act_kind/act_job=-1, act_bay=NaN 으로 초기화한다",
+     "why": "v5 `_pending = esc; _assigned = {}` 의 배열 표현. answered·act_* 는 통합 단계의 배정 scan(close_decision)이 채운다"
+    },
+    {
+     "v5_line_ref": "engine.py:408",
+     "what": "DEADLOCK_ESCAPE 로그의 target 은 유휴 크레인 비트마스크(bit k)",
+     "why": "조각 1 이 정한 규약(host_convert 가 ','.join(정렬 id) 로 복원). K>31 이면 int32 부족 — 단일 블록 K≤2 라 문제 없음"
+    },
+    {
+     "v5_line_ref": "dispatcher.py:19-32",
+     "what": "시험의 v5 구동 정책은 ReferenceDispatcher 의미(크레인 순차 · 앞 배정 반영한 live 후보 재선택)이고, 조각 1 시험(run_v5: 정책을 commit 앞에서 한 번 부름)과 다르다",
+     "why": "K=2 에서 조각 1 방식은 두 크레인이 같은 오더를 골라 DUP_JOB 예외로 죽는다(피스 1 미결). 정본 의미(dispatcher.py)로 완주시켜야 교착이 실제로 발생·해소되는 궤적을 얻는다. 배열판 배정 scan 의 K=2 의미는 dispatch 담당 몫이며 이 시험은 그것에 의존하지 않는다(상태를 v5 에서 직접 옮김)"
+    }
+   ],
+   "public_api": [
+    "escape.candidate_matrices(world: BlockWorld, g: Geom) -> CandMats  — (K,N) 후보 행렬을 한 번 만든다. CandMats(P: PlanOut[각 열 앞 (K,N)], disp (K,N) bool, taken (N,) bool, code (K,N) int32 [reserve 5-lock 코드], feasible (K,N) bool [= disp & ~taken & P.ok, 전 크레인], idle (K,) bool [assigned<0 & ~down], eligible (K,) bool [idle & ~yielded], cand (K,N) bool [= eligible & feasible & code==OK]). jit: jax.jit(candidate_matrices, static_argnames='g'). decide(D)와 try_escape(X)가 같은 m 을 쓴다",
+    "escape.deadlock_predicate(world: BlockWorld, m: CandMats) -> (deadlock () bool, blocked (K,N) bool)  — v5 interference_deadlock_corridors() 가 비어있지 않은가. deadlock = ~any(assigned>=0) & ~any(m.cand) & any(m.feasible & m.code==CRANE_INTERFERENCE)",
+    "escape.try_escape(world: BlockWorld, m: CandMats) -> EscapeOut(world: BlockWorld, fired () bool, open (K,) bool, cand (K,N) bool, deadlock () bool, blocked (K,N) bool)  — v5 _try_escape 한 번 (순수·jit·vmap 가능). fired 면 world 는 yielded 전부 해제 · escape_at=last_decision_at=clock · escape_count+1 · decision.pending=open(유휴 전원)·answered=False · 로그 (clock, LOG_DEADLOCK_ESCAPE=15, crane_bits(open)) 가 반영된 세계. fired 아니면 원래 세계(단, 시각·표식·술어를 통과하고 유휴만 없으면 v5 398행처럼 yielded 만 해제). cand 는 yielded 해제 **뒤** 정책이 볼 후보(open & feasible & code==OK) — 정책 호출은 m.cand 가 아니라 이것으로",
+    "escape.blocked_corridors(m: CandMats, blocked (K,N) bool) -> (lo (N,) f64, hi (N,) f64, has (N,) bool)  — 막힌 오더마다 크레인 번호 순 첫 간섭 크레인의 통로(449행 break). 정렬·중복제거는 호스트/조각 3 몫",
+    "escape.idle_mask(cr: CraneArrays) -> (K,) bool  — v5 YcRuntime.idle",
+    "escape.crane_bits(mask (K,) bool) -> () int32  — 로그 target 비트마스크 (bit k)",
+    "escape.EPS = 1e-9  (v5 _EPS)",
+    "통합 배선(step 안, D 가 안 열린 뒤 · E/F 앞): m = candidate_matrices(w, g); open_D = any(m.cand, 1); D 열리면 정상 결정(open_D, m.cand); 아니면 esc = try_escape(w, m); esc.fired 면 pick = policy_fn(params, features(w, m.P, g), esc.cand); pick = where(esc.open, pick, -1) → 배정 scan(open=esc.open, cand=esc.cand) → refresh_rates(close_decision). 시각 조건(clock<end−EPS)은 try_escape 안에 있으므로 호출 조건은 ~terminal & ~due_now & ~decided 면 된다",
+    "시험 도우미(재사용 가능): test_gpu_escape.world_from_sim(sim, w0, tb, g) — v5 진행 중 상태 → BlockWorld(술어가 읽는 열만) · run_v5_hooked(prof, scn, chooser, w0, tb, g) -> (sim, [Rec]) — _try_escape 호출마다 기록 · prof_k2(gap, lo=1, hi=10) · dead_first_scenario(injected=()) · down_scenario(targets) · chooser_ref / chooser_first / chooser_wait2 / chooser_wait_until(t)"
+   ],
+   "open_issues": [
+    "통합(engine_step.step) 배선은 미구현 — engine_step.py 가 담당 밖. decide 는 open 을 any(cand) 로 정하므로 탈출 결정(후보 없는 크레인도 묻고 WAIT→yielded)에 그대로 못 쓴다: decide 를 (world, params, g, policy_fn, *, mats, open, cand) 를 받는 꼴로 나누거나 배정 scan 을 함수로 분리해야 한다. 또 D 의 any_eligible 지름길로 m 계산을 건너뛰면 X 가 못 돈다(③ 은 고장·양보 크레인 쌍도 센다) — m 은 ~terminal & ~due_now & clock<end−EPS 일 때 항상 만든다",
+    "탈출 결정의 마무리는 정상 결정과 다르다: v5 는 297행 eta_armed 갱신을 탈출 경로에서 하지 않는다(통합 시 그 줄을 X 에 적용하지 말 것). last_decision_at 은 try_escape 가 이미 clock 으로 놓았다(decide 후처리가 다시 놓아도 같은 값). refresh_rates(close_decision)는 필요하다 — WAIT 로 생긴 yielded 가 interference rate 에 잡힌다",
+    "규약 확인 필요(통합·정책 담당): 탈출이 열렸을 때 정책은 EscapeOut.cand(해제 뒤 후보)를 봐야 한다. 양보 중이던 크레인이 후보를 되찾는 경로(regain 무대: 600초까지 WAIT → 700초 EQUIPMENT_DOWN 은 yielded 를 안 지움 → 탈출 발화 → YC-A 가 후보를 되찾음)는 설계 무대 1회만 실측됐다. 무작위 무대 + ReferenceDispatcher 는 후보가 있으면 WAIT 하지 않아 last_decision_at 표식 차단(2회)·되찾음(1회) 경로는 설계 무대에서만 나온다",
+    "SERVE/WAIT 뿐인 조각 2 에서는 탈출이 열려도 전원 WAIT 로 답하고, 다음 사건이 yielded 를 지우면 같은 교착이 사건 시각마다 다시 발화한다(v5 실측: gap3/4 시드 21 에서 8·9회) — 정상 v5 동작이며 조각 3(REPOSITION)이 풀 몫. blocked_corridors 의 lo/hi 가 그 입력",
+    "DEADLOCK_ESCAPE 로그 target 비트마스크는 K≤31 까지만 (int32). 다중블록 K 합산이 아니라 블록당 K 이므로 실무상 문제 없음",
+    "README(src/yard_rl/v6/README.md) 파일표·진행 현황에 escape.py 를 아직 안 적었다 — 담당 밖 파일이라 통합/README 담당이 '조각 2 교착 탈출 ✅' 와 함께 갱신할 것",
+    "시험 변환기 world_from_sim 은 queue·plan·kpi·ledger·cost·lane·wake 를 채우지 않는다(술어가 안 읽음). 술어·탈출 대조에는 충분하지만, 통합 뒤 엔진 수준 K=2 동등성(탈출 결정 뒤 비용·rate 까지)은 dispatch 담당의 배정 scan 과 함께 test_gpu_engine_equiv 확장으로 따로 확인해야 한다",
+    "GPU 에서 이 시험은 301초(CPU 54초) — 호출 1,269회를 작은 jit 로 하나씩 보내는 구조라 느리다. 결과는 CPU 와 동일. 학습 경로 성능과는 무관",
+    "state.py 위반 비트표는 건드리지 않았다 — 탈출 경로에 v5 예외 자리가 없어 새 비트가 필요 없었다. git commit 은 하지 않았다(규칙 3): 두 파일 모두 untracked 상태"
+   ]
+  }
+ ],
+ "integ": {
+  "files_written": [
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\host_convert.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py"
+  ],
+  "tests": [
+   {
+    "file": "tests/v6/test_gpu_engine_equiv.py",
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "CPU x64 406초. 조각 1 무대 32건 그대로 통과(회귀 없음) + 조각 2 신규 25건: K=2 무대 21종(k2-spec 5변형[레인1/2·gap2/3·DOWN 2000/310·first/ref]·k2-fixture 본선 제거판·설계 3종 dead-first/down-one/down-both·무작위 12종) 각각 (a) run_jit 완주 vs v5 정본 구동(ReferenceDispatcher.run 의미) — 조각 1 compare 전 항목(사건 로그 전열·결정열·오더·계획 moves·크레인 down/down_pending·kpi·격자·실수 비트 동일 = 비용 13항·rate 5항 포함) + rail_order·escape_at·escape_count, (b) 엔진 step 한 스텝씩 lockstep — 결정마다 (K,N) reject 코드열(disp/feasible/code 전 쌍)·물은 크레인·탈출 여부·첫 크레인 live 후보·크레인별 답·결정 뒤 예약표/토큰 역표/idle 장벽/rate 5항(==)/yielded/down/last_decision_at/escape_count, 그리고 엔진 decide 와 모듈 dispatch.decide_seq 의 결과 잎 전부 비트 동일(142 결정 전부), (c) 두 경로 최종 세계 잎 전부 동일. 집계: v5 DEADLOCK_ESCAPE 36회(11 무대)·2대 동시 결정 75회·interference>0 21/21·imbalance>0 21/21·feasible 쌍 reject 코드 {OK 175, DOUBLE 7(작업 중 크레인 행), LANE 3, INTERF 271}·실수 불일치 0·초기 위치 3.25/7.75 = 1+(k+0.5)·9/2 확인. **어디서도 v5 와 갈리지 않았다(처음 갈리는 지점 없음)**. 추가: K=2 파이썬 루프 = jit 잎 동일, K=2 vmap 2세계 = 단일 판 잎 동일. GPU(RTX, 306초) 부분집합 13건(k2-spec 5·설계 3·무작위 3·k2-vmap·spec10) 도 통과 = GPU 비트 일치."
+   },
+   {
+    "file": "tests/v6/test_gpu_convert.py + test_gpu_core.py + test_gpu_plan.py + test_gpu_reserve.py + test_gpu_stack.py + test_gpu_state.py + test_gpu_travel.py + test_gpu_phi.py",
+    "passed": 114,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "CPU x64 143초. 조각 1 단위 시험 전부 회귀 없음 (state.empty_reservations 의 idle_pos +inf 통일 뒤에도 통과)."
+   },
+   {
+    "file": "tests/v6/test_gpu_escape.py",
+    "passed": 89,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "CPU 55초. 탈출 모듈 시험 — 통합된 engine_step.step 을 쓰는 dead-first 궤적 대조 포함 전부 통과 (79 무대·1,269 호출·발화 74)."
+   },
+   {
+    "file": "tests/v6/test_gpu_dispatch.py",
+    "passed": 33,
+    "failed": 1,
+    "skipped": 0,
+    "notes": "CPU 110초. 실패 1 = test_same_order_chosen_twice_is_resolved_not_dup_job — '조각 1 decide 가 DUP_JOB(16) 을 낸다' 를 단언하는 시험인데, 통합으로 decide 가 순차 재선택을 하게 되어 위반 0 이 되므로 **설계상** 실패(담당 밖 파일이라 못 고침 — open_issues). lockstep 30 무대·구조 시험·ReservationArrays 통일 시험은 전부 통과(K=1 decide↔decide_seq 대조 74건 포함)."
+   }
+  ],
+  "deviations_from_spec": [
+   {
+    "v5_line_ref": "dispatcher.py:19-32 · engine.py:733-736",
+    "what": "decide 의 배정을 gpu/dispatch.py 의 함수를 호출해 바꾸지 않고, engine_step 안에 같은 식의 배정 scan `assign_scan`(정책 호출이 scan 안·live 재계획·token_owner 가림)을 두었다. dispatch.py 는 손대지 않았고 그대로 유효하다.",
+    "why": "dispatch.py 는 담당 밖이며 engine_step 을 import 해 순환이 생기고, dispatch.dispatch 는 안에서 candidates()(K·N 계획)를 다시 계산해 결정당 (K,N) 행렬이 두 번 만들어진다(hard_parts ① 위배). 두 사본의 표류는 lockstep 이 결정마다(142회) 엔진 decide 와 dispatch.decide_seq 의 결과 잎 전부를 비트 대조해 막는다."
+   },
+   {
+    "v5_line_ref": "engine.py:293-305",
+    "what": "D(정상 결정)와 X(탈출)를 `decide` 하나로 합쳤다 — candidate_matrices 를 한 번 만들어 open_D 와 try_escape 술어가 나눠 쓰고, is_D 로 open/cand/세계를 골라 **배정 scan 을 한 번만** 돈다(D 와 X 는 배타: deadlock 은 ~any(cand)).",
+    "why": "모듈 단계 제안(decide 를 (mats, open, cand) 인자로 나누기)과 같은 목적이되, vmap 아래서 cond 가 select 로 풀려도 scan 이 한 번만 계산되게(2·K·N → K·N+(K−1)·N)."
+   },
+   {
+    "v5_line_ref": "engine.py:430, 453-456",
+    "what": "step 의 `any_eligible` 지름길을 빼지 않고 `any_eligible | ~any_busy` 로 넓혔다.",
+    "why": "유휴·비양보가 없어도 작업 중 크레인이 있으면 v5 도 _decision_cranes 가 빈 튜플이고 탈출 술어 ①에서 () 라 행렬이 필요 없다. 전원 유휴인데 모두 양보/고장이면(down-both·regain) 행렬을 만든다 — 결과 불변·계산 절약."
+   },
+   {
+    "v5_line_ref": "engine.py:835",
+    "what": "load_imbalance 의 `sum(loads)` 를 jnp.sum 대신 exact.sum_seq(왼쪽부터 차례로)로.",
+    "why": "jnp.sum 은 축소 순서가 규정돼 있지 않다(GPU 트리). K=2 는 같지만 K≥3 에서 마지막 비트를 지키기 위해."
+   },
+   {
+    "v5_line_ref": "engine.py:325-329",
+    "what": "escape_mode 'delayed'(finalize 직전 호출)는 옮기지 않았다 — immediate(302-305행)만.",
+    "why": "탈출 모듈 담당 지시가 immediate 뿐이었고, immediate 모드에서 328행 호출은 같은 시각·같은 상태를 다시 묻는 것이라 항상 무동작(escape_at 표식). 시험 무대 전부 immediate."
+   },
+   {
+    "v5_line_ref": "piece2_spec equivalence_test",
+    "what": "'reject_reason 50조 단위시험(random.Random(0))' 은 새로 만들지 않았다.",
+    "why": "test_gpu_reserve.py 가 K∈{1,2,3}·예약 상태 200×질의 6,000건으로 5-lock 을 이미 대조하고, 이번 lockstep 이 엔진 경로에서 결정 시작 시점 (K,N) 전 쌍 코드열(feasible 쌍 456건, 코드 0/1/3/4)을 v5 와 맞춘다."
+   },
+   {
+    "v5_line_ref": "piece2_spec equivalence_test",
+    "what": "k2-spec 무대를 명세 그대로(§10 프로파일 = 레인 1개)와 레인 2개(L1·L2) 두 판으로 만들었고, DOWN 시각도 (2000,2600) 외에 (310,400) 작업 중 고장 변형을 더했다. 정책은 first-by-id 와 ReferenceDispatcher.select 배열판(ref) 둘 다.",
+    "why": "레인 1개면 두 번째 예약이 항상 LANE_CONFLICT 라 간섭·불균형 경로가 약하다. 작업 중 DOWN 은 down_pending→완료 후 down 경로(943-944행)를 K=2 에서 실제로 밟게 한다(YC-B 가 300초에 배정된 뒤 310초 고장 — v5 로그로 확인)."
+   },
+   {
+    "v5_line_ref": "engine.py:258-265",
+    "what": "배열판 ref 정책(policy_ref)은 누적대기를 정책 입력 특징 f0=cum/3600(float32)로 읽는다 — 그래서 ref 정책은 도착이 정수 초인 무대에만 얹었다(random_scenario(int_arrivals=True)·k2-spec).",
+    "why": "policy_fn 서명 (params, x, mask) 에는 clock 이 없다. 소수 3자리 도착은 float32 반올림으로 v5 와 동률이 갈릴 수 있어 무대 쪽에서 막았다."
+   },
+   {
+    "v5_line_ref": "piece2_spec equivalence_test",
+    "what": "'무작위 K=2 무대 10개(시드 고정)' 대신 v5 를 먼저 굴려 고른 12개(seed,gap,정수/소수,정책) — 발화 9 + 미발화 3 — 와 설계 무대 3(dead-first·down-one·down-both)을 썼다.",
+    "why": "처음 임의 시드 10개(gap 2/3 번갈아)는 전부 통과했지만 v5 탈출이 한 번도 발화하지 않아 X 국면이 시험되지 않았다(탐색 288 조합 중 107 발화 — 시험 주석에 기록)."
+   },
+   {
+    "v5_line_ref": "reservation.py:25-54",
+    "what": "engine_step._as_res 를 지우지 않고 항등 함수로 남겼다(_ResR 은 제거).",
+    "why": "test_gpu_dispatch.py(담당 밖)가 `ES._as_res` 가 항등임을 단언한다."
+   }
+  ],
+  "public_api": [
+   "yard_rl.v6.gpu.engine_step.decide(world, params, g, policy_fn) -> DecideOut  — 이제 D(정상)+X(탈출)를 한 번에: candidate_matrices 1회 → open_D=any(cand) 또는 try_escape 발화 시 유휴 전원 → assign_scan → close_decision. 서명·반환형 불변(dispatch.decide_seq 와 잎 전부 비트 동일 — lockstep 142회 확인). 아무것도 안 열리면 세계 그대로(술어 참·유휴 없음이면 yielded 만 해제).",
+   "yard_rl.v6.gpu.engine_step.assign_scan(world, params, g, policy_fn, *, P0: PlanOut(K,N), disp (K,N) bool, open_ (K,) bool) -> (world, pick (K,) int32)  — 크레인 번호 순 lax.scan; 단계 k 에서 앞 크레인 수용이 있으면 plan_row 로 live 재계획, reject 5-lock 재판정, token_owner 로 잡힌 오더 가림, **정책을 그때 호출**(mask 는 k 행만 참). eligible 은 world 에서 다시 읽음(탈출이면 해제 뒤). WAIT→yielded, SERVE→reserve·크레인·오더·계획·비용·큐·DISPATCH 로그. 방어 비트 16/512.",
+   "yard_rl.v6.gpu.engine_step.close_decision(world, open_, pick, g, *, consume_armed) -> BlockWorld  — 결정 장부(pending=answered=open, act_kind/act_job)·last_decision_at=clock·eta_armed 소진(consume_armed 일 때만 = 정상 결정)·refresh_rates.",
+   "yard_rl.v6.gpu.engine_step.plan_row(world, k, g) -> PlanOut (N,)  — 크레인 k 의 오더 N 계획(현재 예약표 제외).",
+   "yard_rl.v6.gpu.engine_step.step(world, _, *, params, g, policy_fn) -> (world, StepTrace)  — 국면 D/X/E/F. 결정 판정 조건 = ~terminal & ~due_now & clock<end−EPS & (any_eligible | ~any_busy). StepTrace 에 `escaped` () bool 열 추가(escape_count 상승). run/run_jit/run_python/finish/cut 서명 불변.",
+   "yard_rl.v6.gpu.engine_step.refresh_rates — imbalance 의 Σload 를 sum_seq 로(결합 순서 v5 와 동일); interference=Σyielded·imbalance=(max−min)/Σ/shift_len 은 조각 1 그대로 K≥2 에서 v5 와 비트 일치 확인.",
+   "yard_rl.v6.gpu.host_convert.from_block_world(...) 반환 dict 에 키 추가: 'escape_at' (None|float), 'escape_count' (int). 나머지 키 불변. K≥2 초기 위치·rail_order·주입 DOWN/UP 대상 변환은 조각 1 구현이 그대로 맞았다(추가 변경 없음).",
+   "tests/v6/test_gpu_engine_equiv.py 도우미(재사용 가능): run_v5(prof, scn, chooser(sim,cid,cands)) — v5 정본 순차 구동 · POLICIES[name] = (chooser, policy_fn, params_fn) with 'first'/'last'/'wait2'/'ref' · policy_ref · profile_k2(lanes, gap, lo, hi) · piece2_scenario(down_up) · fixture_scenario_k2() · dead_first_scenario/down_scenario · K2_RANDOM/random_k2_stage/random_k2_name · random_scenario(..., int_arrivals=) · K2_STAGES/_k2_stage(name) · v5_pair_table(sim, tb) · lockstep_engine(prof, scn, policy, label) · _leaf_diff(a, b) · compare 에 rail_order·escape_at·escape_count 대조 추가."
+  ],
+  "open_issues": [
+   "tests/v6/test_gpu_dispatch.py::test_same_order_chosen_twice_is_resolved_not_dup_job 가 이제 실패한다 — '조각 1 decide 가 DUP_JOB(16)을 켠다' 를 단언하는 시험인데 통합으로 decide 가 순차 재선택을 해 위반 0 이 된다(설계상). 담당 밖 파일이라 못 고쳤다. 고침 제안: `assert int(d1.world.violation) == 0 and not _leaf_diff(d1.world, d2.world)` (decide == decide_seq) 로 바꾸기.",
+   "src/yard_rl/v6/README.md(담당 밖) 91-95행 '알려진 한계'(K≥2 정책 호출이 scan 앞 · ReservationArrays 통일 예정)가 사실과 다르다. 파일표에 dispatch.py·escape.py 가 없고 진행 현황 '⬜ 조각 2' 는 '✅ 조각 2 다중 크레인 — 순차 배정 scan(정책 호출 scan 안)·간섭·교착 탈출(immediate)·장비 고장·interference/imbalance rate — v5 와 비트 일치(K=2 무대 21종·GPU 포함)' 로 갱신해야 한다. 시험 수: test_gpu_*.py 전체 = 57+114+89+34 = 294건(그중 dispatch 1건 위 항목).",
+   "배정 scan 사본이 둘이다: gpu/dispatch.py:dispatch(모듈 단계)와 engine_step.assign_scan(엔진). 표류는 lockstep 의 decide↔decide_seq 잎 대조(142회)가 막지만, dispatch 담당이 dispatch.py 를 engine_step.assign_scan 에 위임하게 바꾸면 사본이 사라진다(dispatch.py → engine_step import 방향은 이미 그렇다).",
+   "성능 미측정(조각 1 미결 계승): 결정 스텝당 candidate_matrices(K·N 계획, 각 (M−1) find_slot) + scan 재계획 최대 (K−1)·N. vmap 아래서는 cond 가 select 로 풀려 사건 스텝에서도 decide(행렬+try_escape+scan)가 계산된다. N=1,024·K=2·M=6 학습 규모는 재 볼 것. GPU 에서 한 스텝씩 부르는 lockstep 은 느리다(13 시험 306초) — run_jit 경로 성능과는 무관.",
+   "'yielded 크레인이 탈출 뒤 후보를 되찾는' 경로(regain)는 엔진 수준 무대에서 0회 — 후보가 있는데 WAIT 하는 시각 의존 정책(chooser_wait_until)이 배열 정책 서명(clock 없음)으로 표현이 안 돼 넣지 못했다. 모듈 수준(test_gpu_escape regain 무대)에서만 검증됨.",
+   "policy_ref(배열판 ReferenceDispatcher.select)는 누적대기를 float32 특징 f0 로 읽어 소수 초 도착에서 v5 와 동률이 갈릴 수 있다 — 시험은 정수 초 무대에만 썼다. 정본 정책은 first_by_id.",
+   "escape_mode 'delayed' 미이식(immediate 만). K>31 이면 DEADLOCK_ESCAPE 로그 target 비트마스크(int32)가 모자란다(단일 블록 K≤2 라 무관).",
+   "엔진 경로에서 관측된 reject 코드는 OK/DOUBLE_RESERVE(작업 중 크레인 행)/LANE_CONFLICT/CRANE_INTERFERENCE 뿐 — DUP_JOB·SLOT_CONFLICT 는 구조상 못 나온다(모듈 단계 결론과 같음). 5-lock 순서 자체는 test_gpu_reserve 6,000 질의가 지킨다.",
+   "git commit 은 하지 않았다(규칙 3). 작업트리에 담당 파일 3개 변경 + 다른 담당의 reserve.py/state.py 수정·dispatch.py/escape.py/test_gpu_dispatch.py/test_gpu_escape.py 신규(untracked)가 함께 있다. StepTrace 에 열이 추가됐으므로 StepTrace 를 위치 인자로 만드는 외부 코드가 있으면 갱신 필요(현재 없음)."
+  ]
+ },
+ "verdicts": [
+  {
+   "lens": "동등성 — K=2 배열 엔진이 v5 ReferenceDispatcher 구동과 같은 답인가. 시험 3종을 WSL venv(CPU x64)에서 직접 돌리고(test_gpu_engine_equiv 57/57 · 547초, 조각 1 단위 114/114 · 167초, test_gpu_dispatch+escape 122 통과/1 실패 = 설계상 예상된 test_same_order_chosen_twice…; 합계 293/294), 시험이 v5 를 실제로 부르는지 코드로 확인했다(run_v5·lockstep_engine 이 TerminalSimulator.run_until_decision → 크레인별 live candidates_for → assign → close_decision 을 그대로 밟고, 기대값 손기입 없음). 그 위에 v5 를 같은 21 무대(+dispatch 30 무대)에 다시 돌려 메커니즘 발동 횟수를 직접 셌고, 배열 엔진 assign_scan 의 정책 mask 행을 jax.debug.callback 으로 가로채 크레인 전원의 live 후보를 v5 와 대조했다(217행 전부 일치). 집계(엔진 K=2 21무대·142결정): 2대 동시 개방 75 · 순차 재선택(live≠cand0) 36(첫 후보가 바뀐 36) · 두 크레인이 같은 오더를 원한 결정 35 · 앞 크레인의 새 통로 때문에 뒤 크레인이 WAIT 5 · 사건 사이 상태에서 작업 중 크레인 통로 때문에 유휴 크레인이 못 열린 상태 17(레인 20) · 유휴 점 장벽 간섭으로 안 열림 54 + 탈출 발화 36(11무대) · 둘 다 SERVE 한 결정 5 · 동시각 도착 짝 18(설계·spec 무대 9종; 무작위 K=2 엔진 무대는 0) · DOWN/UP 9+9(고장 중 결정 9, 작업 중 DOWN→down_pending 은 d310 무대 2종). dispatch 30무대(240결정): 재선택 74 · 같은 오더 56 · 앞 통로로 WAIT 0 · 사건 사이 통로 차단 24 · 탈출 8 · 둘 다 SERVE 11. 결론: 시험된 범위에서 배열 엔진은 v5 와 비트 단위로 같고 핵심 메커니즘(순차 재선택·간섭 대기·탈출·고장)은 실제로 발동됐다. 단 '재계획이 계획을 실제로 바꾸는' 사례는 382 결정 전부에서 0 이라 그 분기는 차등 시험이 안 됐다 — 내가 만든 무대에서는 배열이 v5 와 일치했으므로 버그가 아니라 시험 공백이다.",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+     "problem": "명세 hard_parts ②(앞 크레인 예약 칸이 뒤 크레인 exclude 가 되어 **재계획**, engine.py:588·694)가 엔진 수준에서 차등 시험되지 않았다. 21 K=2 무대 142 결정과 dispatch 30 무대 240 결정 어디서도 뒤 크레인의 live 계획(moves·corridor·slots·dur)이 결정 시작 시점 계획과 달라진 적이 없다(plan_changed_any=0·plan_changed_pick=0). assign_scan 의 `lax.cond(any_acc, plan_row(w,k,g), P0[k])` 재계산 분기는 실행은 되지만 P0 와 같은 값을 내므로, 이 분기가 낡은 예약표를 읽는 버그가 있어도 294건 전부 통과한다.",
+     "evidence": "v5 를 같은 무대에 재구동해 결정 시작 시점 후보별 `_plan` 과 배정 차례의 `_plan` 을 튜플로 대조(refute_k2_counts.py·refute_dispatch_counts.py): 엔진 21무대 TOTAL plan_changed_any=0 plan_changed_pick=0 (둘 다 SERVE 한 결정 5/75), dispatch 30무대 TOTAL plan_changed_any=0 second_serve=11. 재계획이 실제로 바뀌는 무대를 만들어(1..10·gap 1·레인 2, bay 4/7/9 만재, bay 5 row1 TA+BA, bay 8 row1 TB+BB, bay 6/10 row1 빈칸, 둘 다 300초 도착) v5 로 확인: YC-A 가 J-OUT-1 예약{(5,1),(6,1)} 뒤 YC-B 의 J-OUT-2 재조작 목적지가 (6,1)→(10,1) 로 바뀌어 둘 다 SERVE (plan_changed_pick=1) — 배열 엔진은 이 무대에서도 run_jit compare 전 항목 + lockstep(decide==decide_seq) 통과, float_mismatches=0, first·ref 정책 모두.",
+     "severity": "보통",
+     "fix": "위 'replan' 무대(refute_replan_stage.py 의 replan_scenario + profile_k2(lanes=2, gap=1.0))를 K2_STAGES 에 추가하고, lockstep_engine 에서 크레인 i≥1 마다 v5 `_plan` 을 배정 전후로 비교해 `plan_changed` 를 집계한 뒤 test_zz_report 에서 `sum(plan_changed) >= 1` 을 단언한다(재계획이 실제로 바뀐 결정에서 계획 moves == 를 대조하는 것이 이 분기의 유일한 차등 검증이다)."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+     "problem": "piece2_spec files_to_port 의 `engine.py:1107-1121 (레일 순서·간격 검사 → violation 비트, 시험 모드)` 가 이식되지 않았다. 배열 세계에는 `rail_order` 필드(state.py:223)만 있고 CRANE_ORDER_SWAP / CRANE_MIN_GAP 에 해당하는 위반 비트·검사가 없다(gpu/*.py 에 ORDER_SWAP·MIN_GAP 검색 0건). v5 는 check_invariants=True 로 매 close_decision·사건 뒤 이 검사를 하므로 시험된 무대에서는 v5 가 안 죽었다는 사실이 곧 배열도 무사함을 뜻하지만, v5 없이 도는 학습 모드에서 통로 판정 버그(관통·간격 위반)를 배열 엔진 스스로 잡을 길이 없다. `_assert_pairwise_resources`(4-lock 쌍별 상시 검사)도 같은 부류.",
+     "evidence": "grep -rn 'ORDER_SWAP|MIN_GAP|rail_order' src/yard_rl/v6/gpu/*.py → state.py 두 줄(필드 정의·초기값)뿐. engine_step.py 머리말 위반 비트 목록(16~8192)에도 없음. piece2_spec.md 13행이 이식 대상으로 명시.",
+     "severity": "보통",
+     "fix": "state.py 에 V_RAIL_ORDER(예: 16384) 비트를 추가(VIOLATION_NAMES 갱신)하고, close_decision·h_completed 끝에서 rail_order 인접 쌍 (a,b) 에 대해 `bay[a] > bay[b]+EPS | (bay[b]-bay[a]) < gap-EPS` 이면 켠다(고정 길이 K-1 벡터 연산). 선택적으로 활성 예약 쌍별 통로·레인·칸 겹침 검사도 같은 비트로. K=2 21무대에서 비트 0 유지, 그리고 rail_order 를 일부러 뒤집은 세계에서 비트가 켜지는 단위시험 1건."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+     "problem": "lockstep_engine 의 ④ 는 `if i == 0:` 일 때만 live 후보 집합을 v5 와 대조하고, 둘째 크레인은 정책의 답(pick)만 대조한다(1077-1084행). first 정책에서는 배열 live 행에 잘못된 '둘째 이후' 후보가 섞여도 첫 후보만 같으면 통과하므로, 순차 재선택(앞 예약이 반영된 후보 재계산)의 집합 수준 동등성은 엔진 시험이 직접 보장하지 않는다(test_gpu_dispatch 의 다른 30무대에서 dispatch 모듈이 대조하고, 엔진↔모듈 잎 동일로 간접 연결될 뿐).",
+     "evidence": "배열 엔진 ES.decide 의 policy_fn 을 spy 로 감싸 jax.debug.callback 으로 scan 단계마다 mask 를 가로채 v5 candidates_for(live) 와 대조(refute_k2_counts.py --spy): 21무대 142결정·열린 크레인 217행 전부 일치, 다른 행이 살아 있는 경우 0 (spy_rows=217 spy_bad=0). 즉 현재 코드는 맞지만 커밋된 시험에는 이 대조가 없다.",
+     "severity": "낮음",
+     "fix": "lockstep_engine 에서 `DP.dispatch(w_pre, params, g, policy_fn, open_override=…, with_trace=True).cand_live[k]`(엔진 decide 와 잎 동일임이 같은 결정에서 확인됨) 또는 위 callback spy 로 열린 크레인 **전원**의 live 행을 `live5` 와 == 로 대조하고 i==0 조건을 뺀다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_dispatch.py",
+     "problem": "test_same_order_chosen_twice_is_resolved_not_dup_job(573행)이 통합 뒤 실패한다 — '조각 1 decide 가 DUP_JOB(16) 을 켠다' 를 단언하는데 통합된 decide 는 순차 재선택을 해 위반 0 이 된다. 동등성 문제는 아니지만 test_gpu_*.py 전체가 녹색이 아니다(보고서도 인정).",
+     "evidence": "실행: tests/v6/test_gpu_dispatch.py + test_gpu_escape.py → 1 failed, 122 passed (190초). 실패 메시지 `AssertionError: 조각 1 decide 가 DUP_JOB 을 안 냈다`, d1.world.violation == 0, pick=[2,-1].",
+     "severity": "낮음",
+     "fix": "단언을 `assert int(d1.world.violation) == 0 and not _leaf_diff(d1.world, d2.world) and len(picks)==len(set(picks))` 로 바꿔 '엔진 decide 도 이제 재선택한다' 를 시험하게 한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\README.md",
+     "problem": "README 가 사실과 다르다: 79행 '⬜ 조각 2', 91-92행 'K≥2 정책을 scan 앞에서 한 번 부르므로 위반 16', 95행 'ReservationArrays 통일 예정', 53행 시험 130건. 파일표에 dispatch.py·escape.py 없음.",
+     "evidence": "engine_step.assign_scan 은 정책을 scan 안에서 크레인마다 부르고(README 91행 반대), reserve.py 는 state.ReservationArrays 를 import 해 재수출(95행 반대). 실측 시험 수 57+114+89+34=294.",
+     "severity": "낮음",
+     "fix": "진행 현황을 '✅ 조각 2 다중 크레인 — 순차 배정 scan(정책 호출 scan 안)·간섭·교착 탈출(immediate)·장비 고장·interference/imbalance rate — v5 와 비트 일치(K=2 21무대)' 로, 알려진 한계 91-92·95행 삭제, 파일표에 dispatch.py·escape.py 추가, 시험 수 294(그중 dispatch 1건 설계 실패→고침 후 갱신)."
+    }
+   ],
+   "missing": [
+    "GPU(RTX) 비트 일치 주장(engine_equiv 13건·escape 89건)은 규칙 4(WSL CPU)대로 CPU 에서만 재검증했다 — GPU 결과는 보고서 값을 그대로 둔 것이지 내가 확인한 것이 아니다.",
+    "엔진 수준 K=3 무대가 없다(K2_STAGES 전부 K=2, vmap 도 K=2 세계 2개). refresh_rates 의 sum_seq 결합 순서 보호는 K≥3 에서만 의미가 있는데 그 경우가 엔진 시험에 없다(dispatch 모듈 시험에는 K=3 무대 10종 있음).",
+    "'양보 중이던 크레인이 탈출 뒤 후보를 되찾는(regain)' 경로는 엔진 수준 0회(lockstep regained-after-escape=0) — 모듈 시험 설계 무대 1회뿐. 시각 의존 정책(chooser_wait_until)이 배열 정책 서명으로 표현이 안 돼 못 넣은 것.",
+    "policy_ref(배열판 ReferenceDispatcher.select)는 누적대기를 float32 특징으로 읽어 소수 초 도착에서 v5 와 동률이 갈릴 수 있다 — 정수 초 무대에만 얹었으므로 소수 도착 + ref 정책 조합은 미검증(정본 정책은 first_by_id).",
+    "동시각 도착 짝은 spec·설계 무대(9종·18짝)에만 있고 무작위 K=2 엔진 무대(random_scenario)는 짝을 만들지 않는다 — 무작위 야드에서 동시각 짝 + 2대 개방 조합은 dispatch 모듈 무대(60% 주입)에서만 시험됨.",
+    "escape_mode 'delayed'(engine.py:325-329) 미이식(immediate 만) — 보고서가 인정한 편차이며 immediate 모드에서 328행 호출이 항상 무동작임은 코드로 확인했다.",
+    "엔진 경로에서 NO_PLAN(재조작 칸 부족 계획 실패)·SLOT_CONFLICT·DUP_JOB 거절은 K=2 무대에서 0건 — 5-lock 순서는 test_gpu_reserve 6,000 질의가 지키지만 K=2 엔진 궤적에서 c2·c5 는 구조상 나올 수 없고 NO_PLAN 도 안 나왔다.",
+    "학습 규모(N=1,024·K=2·M=6·B=256) 컴파일·스텝 시간 미측정(조각 1 미결 계승) — 동등성 렌즈 밖이라 재지 않았다.",
+    "반박 검증에 쓴 스크립트(scratchpad: refute_k2_counts.py·refute_dispatch_counts.py·refute_blocked_states.py·refute_replan_stage.py)는 저장소에 넣지 않았다 — finding 1·3 의 고침에 그대로 옮겨 쓸 수 있다."
+   ]
+  },
+  {
+   "lens": "벡터화 — 정책 호출이 배정 scan 안에 들어간 뒤에도 run 이 jit+lax.scan 으로 컴파일되는가 · 결정당 plan 재계산 비용 · vmap 으로 세계 B 개 쌓기 · 조각 1 실측과 비교. 【실측 환경】 WSL venv jax 0.11.2 x64, CPU(코어 16-23 고정, 다른 작업 동시 실행이라 절대값 ±30% 노이즈) · GPU RTX 5090. 스크립트는 scratchpad 의 bench_piece2.py·probe_scan.py·probe_trip.py·probe_advance.py·probe_unroll.py·probe_policy_cost.py. 【확인된 것】 (1) 구조: run(정책망) 의 jaxpr 은 scan(S_max=768) ⊃ cond(try_decide) ⊃ scan(K=2)[dot_general=정책망 순전파, 4 곱] ⊃ cond(any_acc) ⊃ scan(M−1=3) 이고, 컴파일된 HLO 는 custom-call 0 · while 9(trip count [K, 3, 3, 4, N, N, 2N, 2N, S_max]) · conditional 5(단일)/0(vmap, 전부 select). K=1 은 K 루프가 접혀 while 7 · plan_row 가 사라진다(조각 1 과 같은 계산량 — 보고의 주장 확인). (2) vmap 판 = 단일 판 잎 전부 비트 동일: first_by_id 와 **실제 정책망 choose_batch** 둘 다, K=2 N=64 B=8 · K=3 N=64 B=4, CPU·GPU 모두 다른 잎 0 · 다른 pick 0 · violation 0. (3) 시험 직접 실행: test_gpu_engine_equiv -k 'vmap|python_loop|two_cranes|k2_spec_initial|off_candidate' 8 통과 · test_gpu_dispatch 33 통과/1 실패(test_same_order_chosen_twice… — 보고대로 '조각 1 decide 가 DUP_JOB 을 안 냈다' 로 설계상 실패) · test_gpu_escape -k 'jit|vmap|design|convert' 4 통과; 같은 작업트리의 동료 실행 로그(run_equiv.log·run_disp_esc.log)는 equiv 57 통과(547초)·dispatch+escape 122 통과/1 실패. (4) 조각 1 비교: crowded n_max=256 K=1 판당 11.3 ms(실스텝 38/S_max 2304) 로 조각 1 의 10.8 ms 재현(회귀 없음), K=2 21.9 ms. 단일 세계 CPU 실스텝당: N=8 0.05/0.07/0.09 ms(K=1/2/3) · N=64 0.08/0.11–0.14/0.26 · N=256 0.13/0.33/0.75 · 학습 규모(24×10×6·N=1024·K=2·M=6) 5.1 ms(판당 13.1초, 실스텝 2544/8448, 결정 760, 컴파일 2.1초). 【반박된 것】 ① README·과제문의 \"N=256 스텝당 10.8 ms\" 는 스텝당이 아니라 판당(실스텝당 0.30 ms). ② 보고 3 의 \"vmap 아래 K·N+(K−1)·N 계획\" 은 2·K·N — k=0 의 plan_row 도 계산된다(K 루프 trip count 가 HLO 에 남음). ③ GPU 학습 경로 성능: vmap 스텝 시간이 B 에 거의 무관하게 N=64 7–11 ms · N=256 32 ms · N=1024 ≈102 ms 이고 그 90% 가 advance 의 N·2N 단 직렬 scan(3N 회 커널 왕복)이라, N=256 에서 B=128 도 CPU 코어 1개보다 세계당 3× 느리고 N=64 B=1024 에서야 코어 1개의 2.5–3×. 정책 scan 이나 K·N 계획은 GPU 에서 병목이 아니다(candidate_matrices 1.4 ms @N=1024). 고침(scan unroll)은 CPU 에서 잎 비트 동일·vmap 2.4× 개선까지 확인했으나 GPU 실측은 WSL 이 GPU 초기화 중 세 차례 재시작해 못 했다.",
+   "refuted": true,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py (advance 의 _tail_accumulate N 단 scan · _terminal_walk 2N 단 scan)",
+     "problem": "GPU 에서 스텝 시간의 약 90% 가 대기 꼬리·터미널 점유 적분의 N 단·2N 단 **직렬** lax.scan 이다 — 반복마다 커널 왕복(≈12 µs)이 3N 번 일어나 스텝 시간이 N 에 비례해 커지고, vmap 으로 세계 B 개를 쌓아도 스텝 시간이 거의 줄지 않는다(지연 지배). 조각 2 의 다중 크레인 scan·K·N 계획은 GPU 병목이 아니다. 결과적으로 학습 규모(N=1024, S_max 8448)에서는 배치 한 판이 B 와 무관하게 약 14 분이고, N=256 에서 B=128 까지 쌓아도 세계당 비용이 CPU 코어 하나의 순차 실행보다 3배 느리다 — v6 의 전제('GPU 배치 수천' 으로 빨라진다)가 이 고침 없이는 성립하지 않는다.",
+     "evidence": "probe_advance.py(GPU): advance 4.07 / 15.6 / 48.8 ms (N=64/256/1024) 중 tail_accumulate 1.26/3.78/12.2 + terminal_walk 2.75/9.82/36.4 ms = 4.0/13.6/48.6 ms(≈전부); 같은 세계에서 candidate_matrices 1.33/1.44/1.40 ms · h_completed 1.5 ms · step 단일 4.9/17.0/54.0 ms · step vmap B=1 9.2/25.9/102 ms. CPU 에서는 같은 두 scan 이 0.01–0.09 ms(스텝의 1–2%). bench_piece2.py(GPU, K=2): vmap(run) N=64 B=1/8/32/128/256/1024 = 5.48/6.99/7.01/7.32/7.74/8.77 s(스텝당 7–11 ms 로 평탄) → 세계당 7139/1138/285/74.5/39.4/11.2 µs/스텝; N=256 B=32/128 = 74.5/76.4 s(스텝당 32 ms) → 1010/259 µs/스텝/세계. CPU 단일 세계는 S_max 스텝당 28–34 µs(N=64)·82 µs(N=256) → GPU 가 코어 1개와 같아지는 B ≈ 300(N=64)·≈ 400(N=256); 24 코어 박스 대비는 B ≫ 1024 필요. GPU 단일 판 run 은 N=256 에서 7.1 s vs CPU 0.19 s(37×), 실스텝당 12.3 ms vs 0.33 ms. 고침 검증(probe_unroll.py, CPU): 두 scan 을 unroll=16·전부 로 바꾼 monkeypatch 판이 원본과 run 단일·vmap B=8 의 잎 전부 비트 동일(N=64 둘 다·N=256 unroll=16), CPU vmap B=8 N=64 3346→1373 ms(−59%), 단일 37→24 ms; 전체 unroll 은 컴파일 4.5→24.6 s. GPU 실측은 WSL(dxg ioctl 실패·distro 재시작 3회)로 못 함.",
+     "severity": "높음",
+     "fix": "학습 경로에서 이 두 scan 의 커널 수를 N 에서 상수로 내린다. (a) 동등성(x64) 모드는 `lax.scan(body, carry, order, unroll=U)` 로 같은 순서·같은 반올림을 지키며 커널 왕복을 N/U 로 — U=16·64 를 GPU 에서 재어 채택(CPU 에서 잎 비트 동일 확인됨, 스크립트 scratchpad/probe_unroll.py); 컴파일 시간이 문제면 U=16. (b) 학습 모드(float32·동등성 불필요)는 README 93-94행이 예고한 대로 닫힌 식(마스크 합·정렬 없는 세그먼트 합)으로 바꾼다. (c) 같은 부류의 M−1·M·K scan 은 3·4·2 단이라 영향이 작지만 unroll=True 로 함께 접어도 된다. (d) README '알려진 한계' 에 'GPU 스텝 지연 ≈ 3.7 + 0.09·N ms(scan 직렬 깊이)·손익분기 B' 를 실측치로 적는다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py (step 의 lax.cond(try_decide) · assign_scan 의 lax.cond(any_acc) · run 의 lax.scan length=S_max)",
+     "problem": "vmap 아래서는 cond 두 겹이 select 로 풀려 **모든 스텝·모든 세계**에서 결정 국면 전체(candidate_matrices K·N 계획 + K 회 plan_row = 결정당 2·K·N 계획 + try_escape + 정책 K 회) 와 12 처리기·finalize 를 계산하고, 끝난 세계도 S_max 까지 같은 비용을 낸다(실제 사용 스텝은 S_max 의 8–30%). 보고 3 의 '2·K·N → K·N+(K−1)·N' 주장은 틀렸다 — k=0 의 any_acc 가 scan carry 라 XLA 가 정적으로 없애지 못해 k=0 에서도 plan_row 를 계산한다(K=1 만 루프가 접혀 사라짐). CPU 에서는 vmap 이 어떤 B 에서도 순차 단일 실행보다 느리다(조각 1 의 미결이 조각 2 에서 재계획 분기만큼 더 커짐).",
+     "evidence": "probe_trip.py: 컴파일된 HLO 의 while trip count — K=2 decide 단일 [2,3,3]·vmap [2,3,3](K 루프 잔존, conditional 1→0), K=3 [3,3,3], K=1 [3](K 루프·plan_row 소거, while 7 vs 9). bench_piece2.py(CPU, K=2): N=64 단일 run 26.0 ms(재측정 21.7) vs vmap B=1 406 ms(15.6×), B=8 1959 ms(세계당 245 ms = 순차 단일 55 ms 의 4.4×), B=32 5326 ms(세계당 166 ms vs 45.6 ms, 3.6×); N=256 단일 204 ms vs vmap B=1 3129 ms(15.4×); N=1024(24×10×6) decide 단일(cond) 7.2 ms vs decide vmap B=1 12.5 ms, step 단일 7.5 vs vmap 13.3 ms. 사용 스텝/S_max: 26/320·190/768·575/2304·2544/8448 (≈3N, 8–30%). 정책망 포함 CPU vmap N=64 B=8 473 µs/스텝/세계.",
+     "severity": "보통",
+     "fix": "① 학습 경로용 run 을 `lax.while_loop(lambda s: (s.i < S_max) & jnp.any(~s.w.terminal), …)` 로 두어 배치가 전부 끝나면 멈추고, S_max 기본값을 실측(≈3N)에 맞춰 4N+64 로 내린다(동등성 경로의 scan 은 그대로 두고 두 경로의 잎 동일을 시험으로 고정). ② assign_scan 의 k=0 단계를 scan 밖으로 빼서(P0 행·x0 그대로, any_acc=False 상수) vmap 에서 N 계획을 절약 — K=2 면 scan 계획의 절반. ③ 보고·주석의 계획 수를 '결정당 2·K·N(vmap) / K·N+(K−1)·N·[앞 수용]' 으로 정정."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\README.md (94행) · .claude/docs/dashboard-task-specs/YR-327-v6-gpu-array-world.md (99행) · 과제문",
+     "problem": "'CPU 실측 N=256 스텝당 10.8 ms' 는 단위가 틀렸다 — 조각 1 보고(piece1_impl_wf_bd785f09.json 802행 '실측 N=256 crowded 38스텝 warm 20 ms → 10.8 ms')의 10.8 ms 는 crowded 무대(오더 12)를 n_max=256 으로 채운 **한 판 전체**(S_max 2304 스텝, 실스텝 38)의 warm 시간이다. 이 문구가 과제문의 비교 기준으로 그대로 옮겨졌고, 스텝당으로 읽으면 CPU 엔진이 실제보다 36–2000배 느린 것으로 오해된다.",
+     "evidence": "bench_piece2.py --crowded (CPU x64): crowded n_max=256 K=1 warm min 11.30 ms · med 11.85 ms, steps 38/2304 → 실스텝당 0.30 ms · S_max 스텝당 4.9 µs; K=2 21.94 ms(41 스텝). 조각 2 통합 뒤 K=1 값이 조각 1 과 같아 회귀 없음. README 91-95행 '알려진 한계' 의 K≥2 정책 호출 위치·ReservationArrays 통일 항목도 이미 사실과 다르다(보고들이 open_issues 로 적어 둠).",
+     "severity": "보통",
+     "fix": "문구를 '판당 10.8 ms (crowded 오더 12 를 n_max=256 으로 채움 · S_max 2304 · 실스텝 38; 실스텝당 0.3 ms)' 로 고치고, 조각 2 값(K=2 21.9 ms/판; 단일 세계 실스텝당 N=64 0.11 · N=256 0.33 · N=1024 5.1 ms)과 GPU 값(finding 1)을 같은 표에 둔다. 91-95행 '알려진 한계' 는 조각 2 항으로 갱신."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\README.md (돌려 보기 · 진행 현황) · tests/v6/test_gpu_engine_equiv.py (GPU 실행 관례)",
+     "problem": "GPU 는 단일 세계·소배치에서 커널 실행 지연이 지배해 CPU 보다 스텝당 약 100배 느리다 — 동등성 lockstep 시험이 GPU 에서 306초 걸린 이유이고, 'GPU 도 비트 일치' 확인 외의 GPU 실행(디버그·lockstep·정답 궤적 생성)은 시간 낭비다. 손익분기 B 가 문서에 없어 학습 배치 크기를 정할 근거가 없다.",
+     "evidence": "bench_piece2.py(GPU, 단일 run_jit): N=8 127/140/167 ms(K=1/2/3, S_max 스텝당 0.40–0.52 ms) · N=64 841/884/994 ms(1.1–1.3 ms) · N=256 6.6/7.1/7.5 s(2.9–3.3 ms, 실스텝당 12–14 ms) vs CPU 1.2–2.3 ms · 16–49 ms · 70–407 ms. crowded-256 GPU 1.36 s vs CPU 11.3 ms(120×). vmap 손익분기(finding 1 의 표): N=64 B≈300 · N=256 B≈400 에서 CPU 코어 1개와 같아짐; B=1024(N=64) 에서 코어 1개의 2.5–3×.",
+     "severity": "낮음",
+     "fix": "README '돌려 보기' 에 '동등성·lockstep·디버그는 CPU x64, GPU 는 finding 1 고침 뒤 B ≥ 수백 배치 학습 전용' 과 스텝 지연/세계당 처리량 표를 적고, GPU 동등성 시험은 지금처럼 부분집합만 유지한다. bench_gpu.py(정책망만 재는 것)를 bench_piece2.py 식의 엔진 벤치(단일·vmap B 스윕·advance 분해)로 바꿔 두면 다음 조각마다 회귀를 잡을 수 있다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py (assign_scan 의 정책 호출 x_k·mask (K,N) 전체 전달) · policy.py choose_batch",
+     "problem": "실제 정책망(choose_batch)을 scan 안에서 부르면 CPU 단일 판이 first_by_id 보다 N=64 +22%, N=256 2.4배 느려졌다. 곱 자체는 무시할 크기(policy_call 0.07 ms)라 원인이 분리되지 않았다(params 추적·트리 크기·궤적 차이 후보). 또 정책이 결정마다 K 번 불리며 매번 (K,N,F) 전체를 받으므로 순전파가 K² 배 중복이다(행 k 만 쓴다).",
+     "evidence": "같은 코어(16-23) 연속 재측정: K=2 N=256 first 188–189 ms vs choose_batch 453 ms(스텝 575→586·결정 154→161·탈출 0→1); N=64 21.7 vs 26.5 ms. probe_policy_cost.py(부하 중이라 노이즈 큼): first(params None) 315 → first(params 추적·미사용) 368 → 정책망 곱만(답은 first) 360 → choose_batch 506 ms; 단일 스레드 XLA 플래그로는 개선 없음(322/484/541/690). probe_scan.py: decide 의 dot_general 4개(K 루프 본문에 1회 순전파, 반복마다 (K,N,F) 전체). GPU 에서는 policy_call 0.15–1.5 ms(지연)이고 vmap 정책망 B=8 판이 단일과 잎 비트 동일.",
+     "severity": "낮음",
+     "fix": "부하 없는 상태에서 세 변형(params None / 추적·미사용 / 정책망)을 다시 재어 원인을 분리한다. 중복 순전파는 규약을 'x_k (1,N,F)·mask (1,N) 행 하나' 로 바꾸고(정책이 행 독립이라는 현 규약과 동치) policy.choose 를 그대로 vmap 없이 부르면 없어진다 — 시험은 decide↔decide_seq 잎 대조가 그대로 잡는다. 성능이 목적이 아니면 낮은 우선순위."
+    }
+   ],
+   "missing": [
+    "GPU 에서의 고침 실측 — advance 두 scan 의 unroll(16·64·전부) 판의 스텝 시간·컴파일 시간·잎 비트 동일(CPU 에서만 확인). 실행 스크립트 scratchpad/probe_unroll.py 는 준비돼 있으나 WSL 이 GPU 초기화 중 세 차례 재시작(dmesg dxgk ioctl 실패·journal 'uncleanly shut down')해 실행 못 함.",
+    "학습 규모(24×10×6 · N=1024 · K=2 · M=6)의 GPU 실측(단일·vmap B 스윕) — CPU 단일 13.1 s/판과 GPU step vmap B=1 102 ms(→ 배치 한 판 ≈ 14 분) 만 있고, N=1024 에서 스텝 시간이 B 에 평탄한지(N=64·256 에서만 확인)와 B≥1000 의 메모리(StepTrace ≈ 400 B/스텝/세계 → 8448×1024 ≈ 3.5 GB) 는 미측정.",
+    "정책망(choose_batch) 의 GPU vmap 처리량 · 컴파일된 vmap HLO 의 fusion/커널 수·memory_analysis(probe_kernels.py 준비됨, 미실행).",
+    "정책망 포함 시 CPU 단일 판 2.4× 느려짐의 원인 분리(부하 없는 재측정 필요 — 이번 측정은 v3 학습·동료 pytest 와 동시 실행).",
+    "다른 프로파일(K·격자·레인)의 세계는 vmap 으로 못 쌓는다는 조각 1 한계는 그대로다(같은 프로파일·c_max 통일만 확인) — 다중블록(조각 6)에서 블록별 K 가 다르면 별도 설계 필요.",
+    "CPU 절대값은 다른 작업과 동시 실행이라 ±30% 노이즈(같은 설정 189 vs 315 ms 관측) — 비율·순서(단일 vs vmap, N·K 스케일)는 일관되나 문서에 옮길 때는 재측정 권장."
+   ]
+  },
+  {
+   "lens": "완전성 — v5 engine.py 384-450·733-763·815-838·943-944·1044-1046·1107-1121, dispatcher.py 19-32, reservation.py 65-76, cranes.py 의 규칙이 v6 gpu/ 에 줄 단위로 전부 있는가 (K≥2 에서만 켜지는 경로 대조)",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+     "problem": "레일 순서·최소 간격 불변식(engine.py:1107-1121 CRANE_ORDER_SWAP·CRANE_MIN_GAP)과 활성 예약 쌍별 검사(1123-1137 _assert_pairwise_resources: TOKEN_DOUBLE·LANE_DOUBLE·CORRIDOR_OVERLAP·SLOT_DOUBLE)가 v6 에 없다. 명세 piece2_spec.md files_to_port 13행이 '1107-1121 → violation 비트, 시험 모드' 로 명시했고, 조각 1 미결(36행)이 'rail_order 순열 의미를 조각 2 의 CRANE_ORDER_SWAP 검사가 명시적으로 맞출 것' 이라 넘겼는데 구현·보고 어디에도 없다. CraneArrays.rail_order 열은 host_convert 가 채우고 되돌리기만 할 뿐 gpu/ 안에서 읽는 함수가 하나도 없다(탐침 확인). K≥2 의 핵심 물리(비통과 레일)를 v6 단독(학습) 경로에서 검증할 수단이 없고, 예약 corridor 판정에 결함이 생겨도 조용히 지나간다.",
+     "evidence": "탐침(WSL CPU x64): profile_k2(lanes=2)+piece2_scenario → v6 rail_order=['YC-A','YC-B'], bay=[3.25,7.75]. 두 크레인 bay 를 맞바꾸면 v5 sim.check_invariants() 는 `ConstraintViolation [CRANE_ORDER_SWAP] YC-A(7.75) > YC-B(3.25)` 를 던지지만 v6 는 검사 함수 자체가 없어 violation 에 레일 비트가 생기지 않는다(finish 는 256=STEPS_EXHAUSTED 만). `grep -rn 'ORDER_SWAP\\|MIN_GAP\\|_assert_pairwise' src/yard_rl/v6/gpu/` 0건; rail_order 를 읽는 gpu 모듈(state·host_convert 제외) = []. state.py VIOLATION_NAMES 에도 해당 비트가 없다. 동등성 시험은 v5 쪽 check_invariants=True 로만 지켜진다(test_gpu_engine_equiv.py:392,807,1015).",
+     "severity": "보통",
+     "fix": "state.py 비트표에 V_CRANE_ORDER_SWAP=16384·V_CRANE_MIN_GAP=32768(필요시 V_PAIRWISE_LOCK) 을 추가하고, engine_step(또는 gpu/invariants.py)에 `check_rail(world, g) -> int32` 를 둔다: rail_order[i]=k 순열 그대로 `pa=bay[rail_order[i]], pb=bay[rail_order[i+1]]`(K−1 쌍, 마스크) 로 `pa > pb+EPS` → SWAP, `pb−pa < gap−EPS` → MIN_GAP (역순열로 읽지 말 것 — K=2 에서 우연히 같아 못 잡는다). 활성 예약 쌍별(active[i]&active[j], i<j)로 token/lane/corridor overlaps/slots 겹침 검사를 더한다. v5 처럼 시험 모드 static 플래그(check: bool) 로 close_decision 뒤(730행)·사건 처리 뒤(781행)에서 violation 에 OR 하고, test_gpu_engine_equiv lockstep 에서 v5 check_invariants 통과 ↔ v6 비트 0 을 대조한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+     "problem": "assign 의 687-688행 `yield_reason == 'LOST_CONTENTION' → recent_yield_count += 1`(cranes.py:19) 이 코드에 없다. CraneArrays.yield_count 열은 있으나 assign_scan(WAIT 경로 612행)·dispatch.py 어디서도 올리지 않고, policy_fn 서명(params, x, mask)→(K,) 에는 양보 사유를 전달할 통로가 없다. host_convert.from_block_world 는 이 죽은 열을 'recent_yield_count' 로 내보낸다(항상 0). v5 에서 LOST_CONTENTION 은 resolver.py:96 만 세우므로 ReferenceDispatcher 정본 구동에서는 v5 도 0 이라 이번 동등성은 깨지지 않지만, 렌즈가 지목한 규칙이 누락됐고 조각 7(resolver) 이 이 열을 COORD 특징(schema.py:171)으로 쓸 때 조용히 0 이 된다.",
+     "evidence": "grep: `yield_count` 는 state.py:209,470 정의·host_convert.py:478 읽기뿐, 증가 코드 0건. v5: engine.py:685-690, resolver.py:96-98 만 yield_reason 설정. test_gpu_engine_equiv compare(515-516행)는 recent_yield_count 를 대조하지 않는다.",
+     "severity": "낮음",
+     "fix": "assign_scan 에 선택 인자 `lost (K,) bool | None` 을 두고 `yield_count = yield_count.at[k].add(where(wait & lost[k], 1, 0))` 로 687-688행을 옮기거나, 당장은 engine_step 머리말·state.py 주석에 '조각 7 resolver 가 채운다(지금은 항상 0)' 를 명시하고 compare 에 recent_yield_count 대조(0==0)를 넣어 잊히지 않게 한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+     "problem": "명세 files_to_port 10행의 engine.py:738-763 dry_run_commit(임의 joint choices{crane→ref|None} 을 crane_id 순으로 _plan(extra_exclude=scratch.reserved_slots)→reject_reason 으로 투영해 plans·reasons(NO_PLAN/거절사유) 를 돌려주고 라이브 상태를 안 바꾸는 오라클, D-ORACLE 불변식)에 대응하는 함수가 없다. dispatch(with_trace=True) 는 순수 함수라 세계를 버리면 dry-run 이 되지만, 정책이 아닌 고정 선택을 넣는 입구가 없고 후보 밖 선택은 사유 대신 V_DECISION_COVERAGE(512) 비트로 세계에 찍혀 '사유 맵' 이 안 나온다. 보고서 deviations 에도 이 생략이 적혀 있지 않다.",
+     "evidence": "grep -rn 'dry_run' src/yard_rl/v6/gpu/ 0건. dispatch.py:150-233 은 policy_fn 호출 고정, off→viol|=512 (184,194행). v5 738-763 은 reasons[cid]='NO_PLAN'|reject_reason 를 모아 CommitProjection 반환.",
+     "severity": "낮음",
+     "fix": "assign_scan/dispatch 의 단계 본문에서 정책 호출을 뺀 `dry_run(world, choices (K,) int32, g) -> (plans: PlanOut(K), reasons (K,) int32)` 를 추가한다: reasons = -1(선택 없음)·NO_PLAN 코드(예: 6)·reject 5-lock 코드, 수용 시 carry.res 만 갱신하고 세계는 반환하지 않는다. 조각 7 착수 전이라도 명세 항목이므로 보고서 deviations 에 '미이식·조각 7' 을 명시할 것."
+    }
+   ],
+   "missing": [
+    "시험 실행 확인 미완: 반박자 세션에서 WSL CPU x64 로 tests/v6/test_gpu_engine_equiv.py(보고 57건)·test_gpu_escape.py(89)·test_gpu_dispatch.py(34, 1건 설계상 실패 보고) 를 백그라운드로 띄웠으나 구조화 출력 강제 시점까지 종료 로그를 받지 못했다(로그 파일 scratchpad/equiv.log·escdisp.log). 보고된 통과 수는 구현자 주장 그대로이며 이 세션이 재확인한 것은 아니다 — 통합자가 위 세 파일 + 조각 1 130건을 한 번에 다시 돌려 확정할 것.",
+    "엔진 수준 K=2 무대 21종 전부가 같은 담당구간(profile_k2: YC-A·YC-B 모두 lo..hi, test_gpu_engine_equiv.py:885-893)이다. 계단식·비겹침 구간(초기 위치 = service_bay_min 각각, rail_order=(pos,id) 정렬, 그룹 크기 1 → 등간격 분산 미적용, engine.py:105-118)은 모듈 단계(test_gpu_dispatch make_stage 계단식 40%)와 t=0 변환(test_gpu_convert)에서만 대조됐고 엔진 lockstep(탈출·rate 포함)에서는 0 무대. 서로 다른 구간 크레인의 corridor·idle 점 장벽 상호작용을 엔진 수준 무대 1개 이상(예: YC-A 1..6, YC-B 5..10) 추가할 것.",
+    "src/yard_rl/v6/README.md 91-95행 '알려진 한계'(K≥2 정책 호출이 scan 앞·ReservationArrays 통일 예정)가 사실과 반대이고, 파일표에 dispatch.py·escape.py 가 없으며 진행 현황이 '⬜ 조각 2' 다 — 세 담당 모두 담당 밖이라 미갱신. 통합 커밋에서 함께 고쳐야 한다.",
+    "같은 (K,N) 계산의 사본이 셋이다: 후보 행렬 dispatch.candidates ↔ escape.candidate_matrices, 배정 scan dispatch.dispatch ↔ engine_step.assign_scan. 지금은 lockstep 의 decide↔decide_seq 잎 대조(142회)가 표류를 막지만, dispatch.py 를 engine_step.assign_scan·escape.candidate_matrices 에 위임하게 바꿔 사본을 없애는 것이 맞다(순환 import 방향은 이미 dispatch→engine_step).",
+    "tests/v6/test_gpu_dispatch.py::test_same_order_chosen_twice_is_resolved_not_dup_job 은 '조각 1 decide 가 DUP_JOB(16)을 낸다' 를 단언해 통합 뒤 설계상 실패한다 — 보고된 고침(`violation==0 and decide==decide_seq`)으로 바꿔야 회귀 스위트가 초록이 된다.",
+    "escape_mode 'delayed'(engine.py:325-329) 미이식은 타당함을 코드로 확인했다: immediate 모드에서 328행 재호출은 303행과 같은 시각·같은 상태(첫 호출이 399행 _clear_yields 를 했어도 esc 가 비었다는 것은 idle 이 없다는 뜻이라 ② 후보도 그대로 없음)라 항상 None. 단 README/명세에 '지연 모드는 v6 에 없다' 를 적어 둘 것.",
+    "cranes.py:23-24 recent_empty_travel_s·last_move_dir 는 CraneArrays 에 없으나 v5 엔진이 쓰는 곳이 없고(adapter.py 관측·fixtures 만) 항상 0.0 이라 누락이 아니다 — 조각 7 관측 계층에서 필요해지면 그때 추가.",
+    "yielded 해제 규칙 8곳(engine.py:381 wake·399 탈출·853 도착·856 해제·874 UP·881 본선해제·945 완료·1022 이송도착)을 대조: 조각 2 범위 6곳(399·853·856·874·881·945)은 escape.try_escape·h_arrival·h_released·h_up·h_completed 에 전부 있고 EQUIPMENT_DOWN 은 v5 처럼 해제하지 않는다(h_down). 381 은 조각 3, 1022 는 조각 4 몫(h_unsupported).",
+    "DEADLOCK_ESCAPE 로그 target 비트마스크는 int32 라 K≤31 — 다중블록에서 블록당 K 이므로 실무상 무관하지만 state.py LogArrays 주석에 상한을 적을 것."
+   ]
+  }
+ ],
+ "critical": [
+  {
+   "lens": "벡터화 — 정책 호출이 배정 scan 안에 들어간 뒤에도 run 이 jit+lax.scan 으로 컴파일되는가 · 결정당 plan 재계산 비용 · vmap 으로 세계 B 개 쌓기 · 조각 1 실측과 비교. 【실측 환경】 WSL venv jax 0.11.2 x64, CPU(코어 16-23 고정, 다른 작업 동시 실행이라 절대값 ±30% 노이즈) · GPU RTX 5090. 스크립트는 scratchpad 의 bench_piece2.py·probe_scan.py·probe_trip.py·probe_advance.py·probe_unroll.py·probe_policy_cost.py. 【확인된 것】 (1) 구조: run(정책망) 의 jaxpr 은 scan(S_max=768) ⊃ cond(try_decide) ⊃ scan(K=2)[dot_general=정책망 순전파, 4 곱] ⊃ cond(any_acc) ⊃ scan(M−1=3) 이고, 컴파일된 HLO 는 custom-call 0 · while 9(trip count [K, 3, 3, 4, N, N, 2N, 2N, S_max]) · conditional 5(단일)/0(vmap, 전부 select). K=1 은 K 루프가 접혀 while 7 · plan_row 가 사라진다(조각 1 과 같은 계산량 — 보고의 주장 확인). (2) vmap 판 = 단일 판 잎 전부 비트 동일: first_by_id 와 **실제 정책망 choose_batch** 둘 다, K=2 N=64 B=8 · K=3 N=64 B=4, CPU·GPU 모두 다른 잎 0 · 다른 pick 0 · violation 0. (3) 시험 직접 실행: test_gpu_engine_equiv -k 'vmap|python_loop|two_cranes|k2_spec_initial|off_candidate' 8 통과 · test_gpu_dispatch 33 통과/1 실패(test_same_order_chosen_twice… — 보고대로 '조각 1 decide 가 DUP_JOB 을 안 냈다' 로 설계상 실패) · test_gpu_escape -k 'jit|vmap|design|convert' 4 통과; 같은 작업트리의 동료 실행 로그(run_equiv.log·run_disp_esc.log)는 equiv 57 통과(547초)·dispatch+escape 122 통과/1 실패. (4) 조각 1 비교: crowded n_max=256 K=1 판당 11.3 ms(실스텝 38/S_max 2304) 로 조각 1 의 10.8 ms 재현(회귀 없음), K=2 21.9 ms. 단일 세계 CPU 실스텝당: N=8 0.05/0.07/0.09 ms(K=1/2/3) · N=64 0.08/0.11–0.14/0.26 · N=256 0.13/0.33/0.75 · 학습 규모(24×10×6·N=1024·K=2·M=6) 5.1 ms(판당 13.1초, 실스텝 2544/8448, 결정 760, 컴파일 2.1초). 【반박된 것】 ① README·과제문의 \"N=256 스텝당 10.8 ms\" 는 스텝당이 아니라 판당(실스텝당 0.30 ms). ② 보고 3 의 \"vmap 아래 K·N+(K−1)·N 계획\" 은 2·K·N — k=0 의 plan_row 도 계산된다(K 루프 trip count 가 HLO 에 남음). ③ GPU 학습 경로 성능: vmap 스텝 시간이 B 에 거의 무관하게 N=64 7–11 ms · N=256 32 ms · N=1024 ≈102 ms 이고 그 90% 가 advance 의 N·2N 단 직렬 scan(3N 회 커널 왕복)이라, N=256 에서 B=128 도 CPU 코어 1개보다 세계당 3× 느리고 N=64 B=1024 에서야 코어 1개의 2.5–3×. 정책 scan 이나 K·N 계획은 GPU 에서 병목이 아니다(candidate_matrices 1.4 ms @N=1024). 고침(scan unroll)은 CPU 에서 잎 비트 동일·vmap 2.4× 개선까지 확인했으나 GPU 실측은 WSL 이 GPU 초기화 중 세 차례 재시작해 못 했다.",
+   "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py (advance 의 _tail_accumulate N 단 scan · _terminal_walk 2N 단 scan)",
+   "problem": "GPU 에서 스텝 시간의 약 90% 가 대기 꼬리·터미널 점유 적분의 N 단·2N 단 **직렬** lax.scan 이다 — 반복마다 커널 왕복(≈12 µs)이 3N 번 일어나 스텝 시간이 N 에 비례해 커지고, vmap 으로 세계 B 개를 쌓아도 스텝 시간이 거의 줄지 않는다(지연 지배). 조각 2 의 다중 크레인 scan·K·N 계획은 GPU 병목이 아니다. 결과적으로 학습 규모(N=1024, S_max 8448)에서는 배치 한 판이 B 와 무관하게 약 14 분이고, N=256 에서 B=128 까지 쌓아도 세계당 비용이 CPU 코어 하나의 순차 실행보다 3배 느리다 — v6 의 전제('GPU 배치 수천' 으로 빨라진다)가 이 고침 없이는 성립하지 않는다.",
+   "evidence": "probe_advance.py(GPU): advance 4.07 / 15.6 / 48.8 ms (N=64/256/1024) 중 tail_accumulate 1.26/3.78/12.2 + terminal_walk 2.75/9.82/36.4 ms = 4.0/13.6/48.6 ms(≈전부); 같은 세계에서 candidate_matrices 1.33/1.44/1.40 ms · h_completed 1.5 ms · step 단일 4.9/17.0/54.0 ms · step vmap B=1 9.2/25.9/102 ms. CPU 에서는 같은 두 scan 이 0.01–0.09 ms(스텝의 1–2%). bench_piece2.py(GPU, K=2): vmap(run) N=64 B=1/8/32/128/256/1024 = 5.48/6.99/7.01/7.32/7.74/8.77 s(스텝당 7–11 ms 로 평탄) → 세계당 7139/1138/285/74.5/39.4/11.2 µs/스텝; N=256 B=32/128 = 74.5/76.4 s(스텝당 32 ms) → 1010/259 µs/스텝/세계. CPU 단일 세계는 S_max 스텝당 28–34 µs(N=64)·82 µs(N=256) → GPU 가 코어 1개와 같아지는 B ≈ 300(N=64)·≈ 400(N=256); 24 코어 박스 대비는 B ≫ 1024 필요. GPU 단일 판 run 은 N=256 에서 7.1 s vs CPU 0.19 s(37×), 실스텝당 12.3 ms vs 0.33 ms. 고침 검증(probe_unroll.py, CPU): 두 scan 을 unroll=16·전부 로 바꾼 monkeypatch 판이 원본과 run 단일·vmap B=8 의 잎 전부 비트 동일(N=64 둘 다·N=256 unroll=16), CPU vmap B=8 N=64 3346→1373 ms(−59%), 단일 37→24 ms; 전체 unroll 은 컴파일 4.5→24.6 s. GPU 실측은 WSL(dxg ioctl 실패·distro 재시작 3회)로 못 함.",
+   "severity": "높음",
+   "fix": "학습 경로에서 이 두 scan 의 커널 수를 N 에서 상수로 내린다. (a) 동등성(x64) 모드는 `lax.scan(body, carry, order, unroll=U)` 로 같은 순서·같은 반올림을 지키며 커널 왕복을 N/U 로 — U=16·64 를 GPU 에서 재어 채택(CPU 에서 잎 비트 동일 확인됨, 스크립트 scratchpad/probe_unroll.py); 컴파일 시간이 문제면 U=16. (b) 학습 모드(float32·동등성 불필요)는 README 93-94행이 예고한 대로 닫힌 식(마스크 합·정렬 없는 세그먼트 합)으로 바꾼다. (c) 같은 부류의 M−1·M·K scan 은 3·4·2 단이라 영향이 작지만 unroll=True 로 함께 접어도 된다. (d) README '알려진 한계' 에 'GPU 스텝 지연 ≈ 3.7 + 0.09·N ms(scan 직렬 깊이)·손익분기 B' 를 실측치로 적는다."
+  }
+ ],
+ "fix": {
+  "files_written": [
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\dispatch.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\state.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\reserve.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_engine_equiv.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_dispatch.py"
+  ],
+  "tests": [
+   {
+    "file": "tests/v6/test_gpu_core.py",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "조각 1 회귀 없음 (fma probe 포함). WSL CPU x64."
+   },
+   {
+    "file": "tests/v6/test_gpu_state.py + tests/v6/test_gpu_travel.py",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "한 세션에서 함께 실행 (5.9초). 새 위반 비트 3개(16384·32768·65536) 이름표 추가 뒤 상태 시험 통과."
+   },
+   {
+    "file": "tests/v6/test_gpu_stack.py",
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "조각 1 회귀 없음."
+   },
+   {
+    "file": "tests/v6/test_gpu_reserve.py",
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "reserve.py 에 corridor_overlaps 공개 이름만 추가 — 6,000 질의 거절 코드 시험 그대로 통과 (54초)."
+   },
+   {
+    "file": "tests/v6/test_gpu_phi.py",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "조각 5 회귀 없음."
+   },
+   {
+    "file": "tests/v6/test_gpu_plan.py",
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "조각 1 회귀 없음 (53초)."
+   },
+   {
+    "file": "tests/v6/test_gpu_convert.py",
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "조각 1 회귀 없음."
+   },
+   {
+    "file": "tests/v6/test_gpu_escape.py",
+    "passed": 89,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "WSL 세션 한계(아래 open_issues) 때문에 4조각(-k gap3 / gap4 / gap2·dead·down·regain / k1·converter·jit_and_vmap·wait_all)으로 나눠 돌렸고, 전체 집계 단언 test_zz_report 는 각 조각의 REPORT 를 JSON 으로 덤프·병합해 실제 시험 함수 그대로 실행(플러그인 report_dump.py) — 통과. 89 = 79 every_call + 10."
+   },
+   {
+    "file": "tests/v6/test_gpu_dispatch.py",
+    "passed": 44,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "lockstep 30 무대(3조각) + 새 dry_run 시험 10 시드 + 기타 3 + zz_report(병합 REPORT). 통합 전 설계상 실패였던 test_same_order_chosen_twice 는 '엔진 decide 도 재선택한다(위반 0·잎 동일·중복 없음)' 로 바꿔 통과. dry_run vs v5 dry_run_commit: 370 선택 대조, DUP_JOB 100·거절 129·수용 241·NO_PLAN 0 (plans 계획 튜플 == v5)."
+   },
+   {
+    "file": "tests/v6/test_gpu_engine_equiv.py",
+    "passed": 68,
+    "failed": 0,
+    "skipped": 1,
+    "notes": "69건 = 조각 1 무대 33 + K≥2 lockstep 무대 27(기존 21 + 재계획 2 + 계단식 2 + K=3 2) + 새 단위 4(불변식·run_while·unroll 비트동일·yield_count) + 보고/경로 4(zz_report·escape_paths·replan_actually·k3_and_stair, 병합 REPORT 위에서 실제 시험 코드 실행) + python_loop 1. 68 통과, 0 실패. test_k2_python_loop_matches_jit 만 pytest 로 완주 못 함(eager 27스텝이 ≈80초라 WSL 세션 한계 88초를 넘김) — 같은 검사를 두 세션으로 나눈 스크립트(scratchpad/pyloop_split.py: eager 13+14 스텝 → jit 과 잎 140개 전부 ==)로 통과 확인. 병합 집계: lockstep 27무대·결정 177·열린 크레인 전원 live 후보 행 대조 287·불변식 검사 177(비트 0)·탈출 46·WAIT 149·2대 이상 동시 개방 100·거절코드 {0:223, 1:7, 3:3, 4:328}·재계획이 계획을 바꾼 결정 2(replan 무대 first/ref 각 1, 바뀐 계획 == 배열 live 계획 2)·K=3 무대 2·실수 불일치 0."
+   }
+  ],
+  "deviations_from_spec": [
+   {
+    "v5_line_ref": "engine.py:892-900 (JOB_COMPLETED 이동 M 단 scan)",
+    "what": "finding 1 의 선택 항목 (c) 'M 단 scan 도 unroll=True' 는 켜지 않았다 (COMPLETE_UNROLL=False 로 두고 스위치만 남김).",
+    "why": "jax 0.11.2 XLA CPU 에서 ADVANCE_UNROLL=16 과 함께 켜면 fusion_compiler.cc:614 `llvm_module != nullptr` RET_CHECK 로 컴파일이 죽는다(N=16·K=2 crowded 무대에서 재현, 12 이하 또는 M scan 미펼침이면 정상). M ≤ 6 이라 GPU 이득도 작다."
+   },
+   {
+    "v5_line_ref": "engine.py:733-736 (commit_decisions crane_id 순)",
+    "what": "assign_scan 의 단계 0 을 lax.scan 밖으로 뺐다(본문을 replan=False/True 두 번 추적). 반환도 (세계, pick) 에서 (세계, pick, AssignTrace) 3-튜플로 바뀌었다.",
+    "why": "반박 검증 벡터화 렌즈: any_acc 가 scan carry 라 vmap 아래 k=0 에서도 plan_row 가 계산돼 결정당 2·K·N 계획이었다 → K·N+(K−1)·N. 의미·답은 같다(lockstep decide==decide_seq·run==lockstep·vmap==단일·eager==jit 전부 비트 동일)."
+   },
+   {
+    "v5_line_ref": "dispatcher.py:19-32 / engine.py:738-763",
+    "what": "gpu/dispatch.py 의 candidates·dispatch·decide_seq 가 자체 scan 사본 대신 escape.candidate_matrices·engine_step.assign_scan·close_decision 에 위임한다. 그래서 lockstep 의 '엔진 decide == decide_seq' 대조는 이제 인자 배관 확인이 됐다. dry_run(v5 dry_run_commit) 을 새로 이식(사유 코드 -1/0/1..5/NO_PLAN=6).",
+    "why": "완전성 렌즈 지적(같은 (K,N) 계산 사본 셋 → 표류 위험)과 files_to_port 10행(dry_run_commit 미이식)."
+   },
+   {
+    "v5_line_ref": "engine.py:1107-1137 (check_invariants · _assert_pairwise_resources)",
+    "what": "check_invariants 를 v5 처럼 static 플래그 check(기본 True)로 close_decision·사건 처리 뒤에 두었다(step/run/run_jit/run_python/decide/decide_seq 에 check 인자 추가). OUT_OF_RANGE·스택/계획/예약 동기 검사(1088-1106행)는 넣지 않았다.",
+    "why": "명세는 '레일 순서·간격 → violation 비트, 시험 모드' 만 요구. 스택·계획 동기 검사는 배열 구조상 예외 자리가 이미 다른 비트(1·2·4·128)로 덮인다."
+   },
+   {
+    "v5_line_ref": "engine.py:276-336 (run_until_decision)",
+    "what": "학습 경로용 run_while/run_while_jit(lax.while_loop, 흔적 없음) 을 추가했지만 S_max 기본값은 4N+64 로 내리지 않았다(호출자 인자 그대로, 시험은 명세식 8N+256 유지).",
+    "why": "S_max 는 호출자(학습 루프) 결정 사항이고 명세 §10 식을 시험이 그대로 쓴다. run_while == run 잎 동일은 단일·vmap 시험으로 고정."
+   },
+   {
+    "v5_line_ref": "src/yard_rl/v6/README.md",
+    "what": "README(진행 현황 '⬜ 조각 2'·알려진 한계 91-95행·파일표·'N=256 스텝당 10.8ms' 단위 오류·GPU 손익분기표)는 고치지 않았다.",
+    "why": "담당 파일 범위(gpu/*.py·tests/v6/test_gpu_*.py) 밖 — 통합 커밋에서 함께 고쳐야 한다(open_issues)."
+   },
+   {
+    "v5_line_ref": "finding 1 (d) GPU 실측",
+    "what": "고침 뒤 GPU 재측정(bench_unroll_gpu.py)은 완주하지 못했다. 근거 수치는 통합 전 같은 변환을 monkeypatch 로 잰 probe_unroll_gpu.log(RTX 5090, N=64 K=2: step 6.04→2.51ms, vmap(run) B=8 6541→897ms, 잎 비트 동일) 이다.",
+    "why": "이 환경에서 WSL Ubuntu 인스턴스가 부팅 약 88초 뒤 종료돼 GPU 컴파일+측정을 한 세션에 못 담았다(open_issues)."
+   },
+   {
+    "v5_line_ref": "engine.py:325-329 (escape_mode 'delayed')",
+    "what": "지연 탈출 모드는 여전히 이식하지 않았다(immediate 만).",
+    "why": "이전 보고·반박 검증이 확인한 대로 immediate 에서 328행 재호출은 항상 무동작 — 조각 2 편차로 남긴다."
+   },
+   {
+    "v5_line_ref": "규칙 4 (시험 실행)",
+    "what": "tests/v6/test_gpu_*.py 를 한 번에 돌리지 못하고 ≤85초 조각(pytest -k / node id)으로 나눠 WSL 세션마다 돌렸다. 전체 집계 단언(zz_report 3종·escape_paths·k3_and_stair)은 조각별 REPORT 를 JSON 으로 병합해 실제 시험 함수를 실행했다(scratchpad/report_dump.py·run_chunk.sh·merge_reports.py).",
+    "why": "환경 문제(open_issues 1): 어떤 세션이든 distro 부팅 약 88초 뒤 죽는다. 조각 분할은 시험 의미를 바꾸지 않는다(각 시험은 독립·REPORT 는 순수 집계)."
+   }
+  ],
+  "public_api": [
+   "engine_step.ADVANCE_UNROLL = 16 · COMPLETE_UNROLL = False — advance 의 N·2N 단 scan unroll 폭(잎 비트 동일, 커널 수만 감소) · M 단 scan 펼침 스위치",
+   "engine_step._tail_accumulate(tail0, block_tail0, o, ov, unroll=None) · _terminal_walk(area0, lo, hi, gate_in, gate_out, unroll=None)",
+   "engine_step.check_invariants(world, g) -> int32 비트 (V_CRANE_ORDER_SWAP 16384 · V_CRANE_MIN_GAP 32768 · V_PAIRWISE_LOCK 65536; K=1 이면 0)",
+   "engine_step.AssignTrace(cand_live, taken_live, plan_ok_live, code_live, commit_code, P_live|None)",
+   "engine_step.assign_scan(world, params, g, policy_fn, *, P0, disp, open_, lost=None, with_trace=False) -> (world, pick (K,), AssignTrace)  ★반환이 3-튜플로 바뀜",
+   "engine_step.close_decision(world, open_, pick, g, *, consume_armed, check=True)",
+   "engine_step.decide(world, params, g, policy_fn, *, check=True) -> DecideOut",
+   "engine_step.step(world, _, *, params, g, policy_fn, check=True)",
+   "engine_step.run(world0, params, g, policy_fn, S_max, check=True) · run_jit (static: g, policy_fn, S_max, check) · run_python(..., check=True)",
+   "engine_step.run_while(world0, params, g, policy_fn, S_max, check=True) -> world · run_while_jit — 학습 경로(lax.while_loop, 배치 전부 terminal 이면 멈춤, run 과 잎 비트 동일)",
+   "dispatch.NO_PLAN = 6 · dispatch.dry_run(world, choices (K,) int32, g) -> (plans PlanOut (K,), reasons (K,) int32: -1 없음 · 0 수용 · 1..5 거절 · 6 NO_PLAN) — v5 dry_run_commit",
+   "dispatch.candidates(world, g) -> CandOut (escape.candidate_matrices 겉옷) · dispatch.dispatch(world, params, g, policy_fn, *, open_override=None, with_trace=False, lost=None) -> DispatchOut (assign_scan 위임) · dispatch.decide_seq(world, params, g, policy_fn, *, open_override=None, check=True)",
+   "reserve.corridor_overlaps(a_lo, a_hi, b_lo, b_hi, gap) — v5 Corridor.overlaps 공개 이름",
+   "state.V_CRANE_ORDER_SWAP · V_CRANE_MIN_GAP · V_PAIRWISE_LOCK (VIOLATION_NAMES 갱신) · CraneArrays.yield_count / LogArrays.target(K ≤ 31) 주석",
+   "tests: test_gpu_engine_equiv — replan_scenario() · profile_k2_stair() · profile_k3() · K2_STAIR · K3_STAGES · K2_STAGES(27) · lockstep_engine 집계 키 live_rows/plan_changed_any/plan_changed_pick/plan_changed_checked/invariant_checks; test_gpu_dispatch — test_dry_run_matches_v5_dry_run_commit[seed]"
+  ],
+  "open_issues": [
+   "【환경·치명】 이 기계의 WSL Ubuntu 인스턴스가 약 22:20 이후 **부팅 약 88초 뒤 예외 없이 종료**된다(Wsl/Service/E_UNEXPECTED). 부하·메모리와 무관(sleep 만 하는 세션도 90초에 죽음, 세션 2개가 같은 순간 죽음 = distro 수준), 외부 `wsl --terminate/--shutdown` 프로세스는 0.5초 폴링 감시에 안 잡혔고, VM 커널은 재부팅 안 됨(uptime 68일), 호스트 메모리 80GB 여유, docker-desktop distro 는 살아 있음, journal 은 'Session logged out → 사용자 세션 종료 → systemd-shutdown' 순서만 보여줌. 원인 미상 — 사용자가 `wsl --shutdown`(docker-desktop 도 재시작됨) 또는 재부팅으로 확인해 볼 것. 이 때문에 모든 시험을 ≤85초 조각으로 나눠 돌렸다(방법은 deviations 8). 참고: dmesg 에 약 21:50 다른 python 프로세스(RSS 54GB, uvicorn 이 OOM 유발)가 OOM 으로 죽은 기록이 있다 — 내 작업과 무관하나 WSL 안에 큰 작업이 있었음.",
+   "test_k2_python_loop_matches_jit 는 pytest 로는 이 환경에서 완주 불가(eager 27스텝 ≈80초 > 88초). 같은 검사(jit vs eager 잎 140개 ==)를 두 세션으로 나눈 스크립트로 통과 확인했다 — 환경이 회복되면 그대로 다시 돌릴 것. eager 스텝당 ≈3초는 cond 분기 재추적·재컴파일 비용(조각 1 때부터 알려진 것)이며 unroll·불변식으로 조금 더 커졌다.",
+   "고침 뒤 GPU 실측 미완(RTX 5090 세션이 88초 안에 컴파일+측정을 못 마침). 통합 전 동일 변환의 실측(probe_unroll_gpu.log: N=64 K=2 step 6.04→2.51ms, vmap(run) B=8 6.5s→0.9s, 잎 비트 동일)을 근거로 썼다. 환경 회복 뒤 scratchpad/bench_unroll_gpu.py 64 256 으로 unroll=1/16·run_while 을 재고 README 손익분기표(finding 1 (d))에 적을 것.",
+   "src/yard_rl/v6/README.md 는 담당 밖이라 미수정 — 통합 커밋에서: 진행 현황 '✅ 조각 2', 알려진 한계 91-95행 삭제/갱신(정책 호출은 scan 안·ReservationArrays 통일됨·'N=256 스텝당 10.8ms' 는 판당 값), 파일표에 dispatch.py·escape.py, 시험 수 316(114+89+44+69), 'delayed 탈출 모드 없음', GPU 스텝 지연·손익분기, XLA CPU unroll 버그(COMPLETE_UNROLL) 를 적어야 한다.",
+   "jax 0.11.2 XLA CPU 버그: ADVANCE_UNROLL=16 + M 단 scan unroll=True 조합에서 fusion_compiler RET_CHECK 로 컴파일 실패(재현 스크립트 scratchpad/probe_xla_fail.py). 지금은 M scan 을 안 펼쳐 우회. jax 판올림 시 재확인.",
+   "정책망(choose_batch)을 scan 안에서 K 번 부르며 매번 (K,N,F) 전체를 넘기는 K² 중복 순전파(벡터화 렌즈 낮음)는 손대지 않았다 — 규약을 'k 행 하나' 로 바꾸는 것은 policy.py 와 함께 별도 작업.",
+   "gpu/dispatch.py·gpu/escape.py·tests/v6/test_gpu_dispatch.py·test_gpu_escape.py 는 아직 git 미추적(??) 이다 — 규칙 3(commit 금지)대로 커밋하지 않았으니 통합자가 add 할 것. engine_step._as_res 는 항등 호환용으로 남겨 두었다(test_gpu_dispatch 가 참조).",
+   "vmap 시험은 K=2 세계만(K=3 세계의 vmap·run_while 은 미시험). K=3 엔진 lockstep 2무대는 통과(sum_seq 결합 순서 보호가 실제로 쓰이는 imbalance>0 확인).",
+   "재계획이 계획을 바꾸는 결정은 설계 무대 2건(replan first/ref)뿐 — 무작위·계단식·K=3 무대에서는 0. 분기는 차등 시험됐지만 표본이 작다.",
+   "lockstep 의 'regained-after-escape' 는 여전히 0(모듈 시험 설계 무대에만 있음) — 시각 의존 정책이 배열 정책 서명으로 표현이 안 되는 기존 한계."
+  ]
+ }
+}

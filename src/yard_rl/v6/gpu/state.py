@@ -122,6 +122,10 @@ V_BUSY_NO_EVENT = 1024   # 큐는 비었는데 작업 중 크레인이 있다 (e
 V_UNSUPPORTED_EVENT = 2048   # 본선·이송·계획변경 사건이 실제 대상과 함께 왔다 (조각 4 전)
 V_OVERFLOW = 4096            # 큐·로그 칸 부족 (world.overflow + queue.overflow > 0) — run 끝에서 켠다
 V_LEDGER_UNREGISTERED = 8192 # 장부 모드인데 등록 안 된 트럭이 블록에 도착 (time_contract.py:61 KeyError)
+#: 조각 2 불변식 (engine.py:1107-1137 check_invariants — v5 는 ConstraintViolation 을 던진다; engine_step.check_invariants)
+V_CRANE_ORDER_SWAP = 16384   # 레일 순서(rail_order)가 뒤집혔다 = 크레인이 서로를 관통했다 (CRANE_ORDER_SWAP)
+V_CRANE_MIN_GAP = 32768      # 레일 이웃 크레인 간격 < safety_gap (CRANE_MIN_GAP)
+V_PAIRWISE_LOCK = 65536      # 활성 예약 쌍이 토큰·레인·통로·칸을 공유 (TOKEN_DOUBLE·LANE_DOUBLE·CORRIDOR_OVERLAP·SLOT_DOUBLE)
 #: 비트 → 이름 (진단·보고용 역표). `violation_names(v)` 로 푼다.
 VIOLATION_NAMES: dict[int, str] = {
     V_NOT_TOP: "NOT_TOP", V_TIER: "TIER", V_SIZE: "SIZE", V_PLAN_POSTCOND: "PLAN_POSTCOND",
@@ -130,6 +134,8 @@ VIOLATION_NAMES: dict[int, str] = {
     V_DECISION_COVERAGE: "DECISION_COVERAGE", V_BUSY_NO_EVENT: "BUSY_NO_EVENT",
     V_UNSUPPORTED_EVENT: "UNSUPPORTED_EVENT", V_OVERFLOW: "OVERFLOW",
     V_LEDGER_UNREGISTERED: "LEDGER_UNREGISTERED",
+    V_CRANE_ORDER_SWAP: "CRANE_ORDER_SWAP", V_CRANE_MIN_GAP: "CRANE_MIN_GAP",
+    V_PAIRWISE_LOCK: "PAIRWISE_LOCK",
 }
 
 
@@ -206,7 +212,9 @@ class CraneArrays(NamedTuple):
     down: jnp.ndarray          # (K,) bool    고장
     down_pending: jnp.ndarray  # (K,) bool    작업 중 고장 → 완료 후 DOWN (비선점)
     yielded: jnp.ndarray       # (K,) bool    WAIT 후 다음 상태변경까지 결정 제외
-    yield_count: jnp.ndarray   # (K,) int32   경합 패배 양보 누적 (recent_yield_count)
+    yield_count: jnp.ndarray   # (K,) int32   경합 패배 양보 누적 (recent_yield_count, engine.py:687-688) — v5 는 resolver
+                               #              (resolver.py:96) 가 yield_reason='LOST_CONTENTION' 을 세울 때만 올린다. 배열판은
+                               #              `assign_scan(lost=…)` 이 같은 규칙으로 올리고, 정본 구동(ReferenceDispatcher)에서는 항상 0.
     completions: jnp.ndarray   # (K,) int32   recent_completions
     served: jnp.ndarray        # (K,) int32   served_count
     is_loaded: jnp.ndarray     # (K,) bool
@@ -257,17 +265,30 @@ class ContArrays(NamedTuple):
 
 # ─────────────────────────────────────────────────── 예약
 class ReservationArrays(NamedTuple):
-    """크레인별 예약 한 건 — v5 ReservationTable (reservation.py:25-54, 101-117)."""
+    """크레인별 예약 한 건 — v5 ReservationTable (reservation.py:25-54, 101-117).
+
+    ★이 클래스가 **유일한** 정의다 (조각 2 · key=dispatch 에서 통일). `gpu/reserve.py` 는 여기서
+    import 해 쓰고, 예약 판정·갱신 함수(`reject_code`·`reserve`·`release`…)는 그쪽에 있다.
+    (조각 1 에는 reserve.py 에 같은 이름의 사본이 따로 있어 pytree 형이 달랐고, 엔진이 매 호출
+    `_as_res` 로 바꿔 넣어야 했다.)
+
+    빈 칸 규약: `active` 가 거짓인 행의 lo/hi/lane/token/release_at/slots 는 읽지 않는다.
+    `idle_pos` 는 +inf 가 '미등록'(장벽 없음) — v5 `_idle_pos` 에 없는 크레인.
+    """
 
     active: jnp.ndarray       # (K,) bool
     token: jnp.ndarray        # (K,) int32  작업 토큰 = 오더 번호 (-1)
     lo: jnp.ndarray           # (K,) f64    통로 [lo, hi] (Corridor)
     hi: jnp.ndarray           # (K,) f64
     lane: jnp.ndarray         # (K,) int32  레인 (-1 = 없음)
-    release_at: jnp.ndarray   # (K,) f64
+    release_at: jnp.ndarray   # (K,) f64    해제 예정 시각 (기록용 — 판정엔 안 쓴다; 빈 칸 +inf)
     slots: jnp.ndarray        # (K,B,R) bool  예약 칸 마스크 (frozenset slots)
     token_owner: jnp.ndarray  # (N,) int32   토큰 → 크레인 역표 (_tokens; -1 = 없음)
-    idle_pos: jnp.ndarray     # (K,) f64     예약 없는 크레인의 현재 bay 장벽 (YR-091, reservation.py:40-42)
+    idle_pos: jnp.ndarray     # (K,) f64     예약 없는 크레인의 현재 bay 장벽 (YR-091, reservation.py:40-42; +inf = 미등록)
+
+    @property
+    def k(self) -> int:
+        return int(self.active.shape[0])
 
 
 # ─────────────────────────────────────────────────── 계획
@@ -342,7 +363,8 @@ class LogArrays(NamedTuple):
 
     t: jnp.ndarray       # (E,) f64
     kind: jnp.ndarray    # (E,) int32  0..11 큐 종류 + 12..15 로그 전용 (-1 = 빈 칸)
-    target: jnp.ndarray  # (E,) int32
+    target: jnp.ndarray  # (E,) int32  대상 (오더·크레인 번호). ★DEADLOCK_ESCAPE(15) 는 유휴 크레인 **비트마스크**(bit k) —
+                         #             int32 라 블록당 K ≤ 31 (escape.crane_bits; 다중블록은 블록별 K 라 실무상 무관)
     n: jnp.ndarray       # ()   int32  적힌 수 (E 를 넘으면 world.overflow++)
 
     @property
@@ -472,10 +494,15 @@ def empty_conts(c: int) -> ContArrays:
 
 
 def empty_reservations(k: int, n: int, b: int, r: int) -> ReservationArrays:
+    """빈 예약표 — v5 `ReservationTable(gap)` 직후와 같다 (idle_pos 도 비어 있음 = +inf).
+
+    (조각 1 의 state 판은 release_at·idle_pos 를 0.0 으로 뒀다 — idle_pos 0.0 은 'bay 0 에 장벽'
+    으로 읽히므로 reserve.py 판의 +inf 로 통일했다. 호스트 `to_block_world` 는 어차피 전 크레인의
+    idle_pos 를 덮어쓴다(engine.py:114-115).)"""
     return ReservationArrays(
         active=_bool((k,)), token=_i32((k,)), lo=_f64((k,), 0.0), hi=_f64((k,), 0.0),
-        lane=_i32((k,)), release_at=_f64((k,), 0.0), slots=_bool((k, b, r)),
-        token_owner=_i32((n,)), idle_pos=_f64((k,), 0.0))
+        lane=_i32((k,)), release_at=_f64((k,)), slots=_bool((k, b, r)),
+        token_owner=_i32((n,)), idle_pos=_f64((k,)))
 
 
 def empty_plans(k: int, m: int) -> PlanArrays:

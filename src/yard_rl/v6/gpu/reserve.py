@@ -29,18 +29,24 @@ v5 는 `ReservationTable` 이 세 개의 dict 를 든다 — 크레인별 예약
   `arr.at[-1].set(v)` 는 JAX 에서 **마지막 칸**을 고친다. 토큰 -1(없음)을 그대로 색인에
   쓰면 엉뚱한 오더가 잡힌 것으로 기록된다. 그래서 token_owner 갱신은 색인이 아니라
   `(arange(N) == token) & valid` 마스크로 한다.
+
+■ 자료형은 `state.ReservationArrays` **하나뿐** (조각 2 통일)
+  조각 1 에는 이 파일에 같은 이름의 사본이 있어 `world.res` 와 pytree 형이 달랐다. 지금은
+  state.py 의 클래스를 import 해 그대로 받고 그대로 돌려준다 — 엔진의 `_as_res` 변환은 항등이다.
 """
 from __future__ import annotations
-
-from typing import NamedTuple
 
 import jax
 import jax.numpy as jnp
 
 from .events import TIME_DTYPE
+from .state import EMPTY_ID, EMPTY_TIME, ReservationArrays, empty_reservations
 
-EMPTY_ID = -1
-EMPTY_TIME = jnp.inf
+__all__ = ["ReservationArrays", "empty_reservations", "COORD_DTYPE",
+           "OK", "DOUBLE_RESERVE", "DUP_JOB", "LANE_CONFLICT", "CRANE_INTERFERENCE", "SLOT_CONFLICT",
+           "REASON_TO_CODE", "CODE_TO_REASON", "corridor_overlaps", "reject_code", "can_reserve",
+           "reject_code_over_orders", "reserve", "release", "set_idle_position", "reserved_slots",
+           "lane_occupancy", "orphan_count"]
 
 #: ★거절 코드 — v5 문자열 이유와 1:1 (순서가 곧 판정 순서)
 OK, DOUBLE_RESERVE, DUP_JOB, LANE_CONFLICT, CRANE_INTERFERENCE, SLOT_CONFLICT = 0, 1, 2, 3, 4, 5
@@ -53,38 +59,6 @@ CODE_TO_REASON = {v: k for k, v in REASON_TO_CODE.items()}
 COORD_DTYPE = TIME_DTYPE
 
 
-class ReservationArrays(NamedTuple):
-    """크레인 K 대 · 오더 N 개 · 격자 B×R 의 예약표 하나."""
-
-    active: jnp.ndarray       # (K,) bool         예약이 있나 (v5 `cid in _by_crane`)
-    token: jnp.ndarray        # (K,) int32        잡은 작업 토큰(=오더 번호), -1 = None
-    lo: jnp.ndarray           # (K,) f64          통로 [lo, hi] — bay 축
-    hi: jnp.ndarray           # (K,) f64
-    lane: jnp.ndarray         # (K,) int32        레인 번호, -1 = None
-    release_at: jnp.ndarray   # (K,) f64          해제 예정 시각 (기록용 — 판정엔 안 쓴다)
-    slots: jnp.ndarray        # (K,B,R) bool      예약 칸 (frozenset slots 의 마스크판)
-    token_owner: jnp.ndarray  # (N,) int32        토큰→크레인 역표 (v5 `_tokens`), -1 = 없음
-    idle_pos: jnp.ndarray     # (K,) f64          예약 없는 크레인의 현재 bay 장벽 (YR-091), +inf = 미등록
-
-    @property
-    def k(self) -> int:
-        return int(self.active.shape[0])
-
-
-def empty_reservations(k: int, n: int, b: int, r: int) -> ReservationArrays:
-    """빈 예약표 — v5 `ReservationTable(gap)` 직후와 같다 (idle_pos 도 비어 있음)."""
-    return ReservationArrays(
-        active=jnp.zeros((k,), bool),
-        token=jnp.full((k,), EMPTY_ID, jnp.int32),
-        lo=jnp.zeros((k,), COORD_DTYPE),
-        hi=jnp.zeros((k,), COORD_DTYPE),
-        lane=jnp.full((k,), EMPTY_ID, jnp.int32),
-        release_at=jnp.full((k,), EMPTY_TIME, TIME_DTYPE),
-        slots=jnp.zeros((k, b, r), bool),
-        token_owner=jnp.full((n,), EMPTY_ID, jnp.int32),
-        idle_pos=jnp.full((k,), EMPTY_TIME, COORD_DTYPE))
-
-
 # ───────────────────────────────────────────────── 판정
 def _overlaps(a_lo, a_hi, b_lo, b_hi, gap):
     """v5 `Corridor.overlaps` (reservation.py:21-22) 그대로 — a 가 기존, b 가 질의.
@@ -92,6 +66,10 @@ def _overlaps(a_lo, a_hi, b_lo, b_hi, gap):
         not (a.hi + gap <= b.lo  or  b.hi + gap <= a.lo)
     """
     return ~((a_hi + gap <= b_lo) | (b_hi + gap <= a_lo))
+
+
+#: 공개 이름 — 엔진의 불변식 검사(engine_step.check_invariants, v5 1123-1137행 CORRIDOR_OVERLAP)가 같은 식을 쓴다.
+corridor_overlaps = _overlaps
 
 
 def reject_code(res: ReservationArrays, k, token, lo, hi, lane, slots, gap) -> jnp.ndarray:

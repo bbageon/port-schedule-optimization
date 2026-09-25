@@ -33,16 +33,16 @@ GPU·CPU 상대오차 5.8e-4 이나 **순서 100% 일치** → **규약: 학습�
 
 | # | 조각 | 상태 |
 |---|---|---|
-| 1 | **단일 블록 엔진** — 크레인 1대·트럭 오더·스택·find_slot·예약·완료·비용 적분 | ✅ 3단계 |
-| 2 | 다중 크레인 — 간섭·안전거리·레인·순차 예약·교착 탈출·장비 고장 | ⬜ |
+| 1 | **단일 블록 엔진** — 크레인 1대·트럭 오더·스택·find_slot·예약·완료·비용 적분 | ✅ `51195dda` |
+| 2 | **다중 크레인** — 순차 배정·간섭·안전거리·레인·교착 탈출·장비 고장 | ✅ 3단계 (이번) |
 | 3 | PRE_ADVICE — ETA wake·PRE_REHANDLE/REPOSITION/WAIT 후보 | ⬜ |
 | 4 | 본선·이송 — STS·양하 해제(job_id **사전식** 정렬)·이송차·계획 변경 | ⬜ |
-| 5 | 비용 Φ 4항(원화)·검열·분위수(보간 금지) | ⬜ |
+| 5 | **비용 Φ 4항(원화)**·검열·분위수(보간 금지) | ✅ `cffe4d27` |
 | 6 | 다중블록 조정자 — 블록 vmap × 에폭 scan·트럭 투입·원장·`free_targets`(기본 경로) | ⬜ |
 | 7 | 결정 계층 — 후보표·resolver 정렬키·37특징 정책·반사실 우위 | ⬜ |
 | 8 | 학습 루프 — ⚠️ **30일 무대(run_month)가 계획에 없었다** — 범위 재정의 | ⬜ |
 
-### ★반박 검증이 찾은 것과 결정
+### ★반박 검증이 찾은 것과 결정 (설계 단계)
 
 | 판정 | 발견 | 처리 |
 |---|---|---|
@@ -65,70 +65,66 @@ GPU·CPU 상대오차 5.8e-4 이나 **순서 100% 일치** → **규약: 학습�
 
 v5 내부 비용은 **13항**, Φ 는 기록에서 다시 계산한 **4항**(`reward/phi.py`). `KRW_VESSEL_GT_HOUR=2.99`(v5 값, v4 는 35.88).
 
-## ★3단계 — 조각 1 완료 (워크플로 `wf_bd785f09` · 에이전트 11 · 113분)
+## 3단계 — 조각 1 · 5 · 2 구현 (전부 v5 와 **`==`**, 기대값 손기입 없음)
 
-    기반 ∥  state(BlockWorld 잎 70여 개·비용 13항·위반 비트) · travel · stack_ops · reserve
-    조립 ∥  plan(STORE/RETRIEVE 재조작 scan) · host_convert(시나리오→배열, 배열→v5 dict, 로그 복원)
-    엔진    engine_step(advance·처리기 6·decide·step·run lax.scan) + 동등성 시험
-    검증    세 렌즈 전부 반박(높음 3) → 수정 → 재시험
+### 조각 1 — 단일 블록 엔진 (`51195dda` · `wf_bd785f09` · 에이전트 11 · 113분)
 
-### 결과 — v5 와 **같은 답** (직접 재확인 2026-09-25)
+기반 4 ∥ → 조립 2 ∥ → 엔진 → 세 렌즈 전부 반박(높음 3) → 수정. **130건**(CPU) · GPU 49건.
+v5 `TerminalSimulator` 를 규칙 정책 3종으로 끝까지 돌린 답과 배열 엔진(jit)을 대조 — 사건 로그
+전열+해시·결정열·오더·계획 이동표·크레인·KPI·격자·위반 0·실수 전 항목. 무대 12종.
+★**FMA — 플래그로는 못 막는다**: `--xla_allow_excess_precision=false` 를 켜도 CPU 는 `x*y+z` 를
+한 번에 반올림. `exact.mul_exact` 로 해결(GPU 는 이 패턴 융합 안 함 — 실측).
 
-    tests/v6/test_gpu_*.py   130 건 통과  (CPU x64 · 220초)
-    그중 GPU(RTX 5090)       49 건 통과  (core 17 + 동등성 32 · 244초)  ← GPU 도 비트 일치
+### 조각 5 — Φ 원화 4항 (`cffe4d27` · `wf_a4bd510b` · 에이전트 3 · 29분)
 
-동등성 시험: v5 `TerminalSimulator` 를 규칙 정책 3종(첫 후보·마지막·둘째 WAIT)으로 끝까지 돌린
-답과 배열 엔진(jit)을 **`==`** 로 대조 — 사건 로그 전열+해시 · 결정열 · 오더 · 계획 이동표 · 크레인 ·
-KPI · 격자 · 위반 0 · 실수 전 항목(시각·주행·대기 적분·장부 적분·비용 13항). 무대 12종.
-단위: find_slot 5야드×300질의 · 이동시간 500건 비트 동일 · 예약 거절 6,000질의 · reset 재현 2무대.
+`gpu/phi.py`. **16건**, CPU·GPU. ★함정 둘: **Python 3.12 `sum()` 은 보정합**(v5 가 `sum(list)` 인 곳은
+순차 `+=` 와 3항부터 갈림 — 조각 1 `state.censored_exposure_s` 후속) · **XLA 상수 재결합**
+(`K*v/3600` → `v*(K/3600)`, 4,000점 중 1,251점, GPU 도 같음 → 곱 실체화 + 나눗셈 장벽).
 
-### ★FMA — 플래그로는 못 막는다 (반박 검증 높음 → 수정)
+### ★조각 2 — 다중 크레인 (이번 · `wf_d88b3e99` · 에이전트 7 · **4시간 22분** · 도구 542)
 
-`XLA_FLAGS=--xla_allow_excess_precision=false` 를 켜도 CPU 는 `x*y+z` 를 한 번에 반올림한다.
-대기 적분·find_slot 비용이 v5(두 번 반올림)와 마지막 비트에서 갈렸다. `exact.mul_exact`
-(`optimization_barrier`)로 곱을 실체화해 해결. `[fma probe]` 실측: cpu `plain=FMA guarded=two-round` ·
-**gpu `plain=two-round guarded=two-round`** (GPU 는 이 패턴을 융합 안 함).
+    모듈 ∥  dispatch.py(순차 배정 scan — 정책 호출이 scan **안**, v5 ReferenceDispatcher 의미)
+            escape.py(교착 술어·탈출 개방 immediate)
+    통합    engine_step 에 엮음 · 장비 고장/복구 · 간섭/불균형 rate · K=2 동등성
+    검증    동등성·완전성 통과, **벡터화 반박(높음)** → 수정
 
-수정 단계가 더 고친 것: 장부 적분을 닫힌 식 대신 v5 경계 순차 적분 그대로(2N 단 scan) · 꼬리
-적분을 v5 dict 삽입 순서(N 단 scan) · 후보 밖 선택 → 위반 512 · 검열 규칙을 v5
-`terminal_turntime_samples_s` 와 동일 · 허용오차 1e-6 제거(전부 `==`).
+**대조**: 순차 배정 30무대(K∈{1,2,3}, 결정 시각·live 후보·거절 사유·계획·예약표 == , 불일치 0) ·
+v5 `_try_escape` **1,269회를 가로채** 그 순간 상태를 옮겨 술어·탈출 결과 대조(79무대) · 엔진 lockstep
+K=2·3 27무대(조각 1 전 항목 + 초기 위치·rail_order·거절 코드열·down/down_pending·rate·escape_count).
+**시험**: 동등성 68 · 탈출 89 · 배정 44 (+조각 1 회귀 130 · 조각 5 16) ≈ **315건**.
 
-### 알려진 한계 → 다음 조각
+**★벡터화 반박(높음) → 수정**: GPU 스텝 시간의 **약 90%** 가 비트 일치용 **N·2N 단 직렬 scan**
+(대기 꼬리·터미널 점유 적분을 v5 삽입 순서로) — 커널 왕복 지연이 N 에 비례하고 vmap 이득이 없다.
+수정: `ADVANCE_UNROLL=16` · `run_while`(while_loop) 학습 경로 · assign_scan 단계 0 분리 · `dry_run`
+이식 · `check_invariants` 플래그. 실측 N=64·K=2 스텝 6.0→2.5ms, vmap B=8 6.5→0.9s.
+**학습 모드는 닫힌 식으로 바꿔야 한다** — 조각 8.
 
-- **K≥2**: 정책을 배정 scan 앞에서 한 번 부름 → 같은 오더 선택 시 위반 16. 조각 2 가 scan 안으로.
-- 비트 일치용 N·2N 단 scan: CPU N=256 스텝당 10.8ms. 학습 모드는 닫힌 식으로.
-- `reserve.py`·`state.py` 의 `ReservationArrays` 중복 정의 — 통일.
-- 조각 4 사건(STS·이송·본선)은 위반 2048 로 실격 표시만 — Y01 정답 재현은 조각 2·3·4 뒤.
-- Windows 파이썬엔 jax 없음 → `importorskip` 으로 조용히 skip. **WSL venv 로만** 돌린다.
+**직접 재확인(2026-09-26)**: 환경 문제(아래)로 `scripts/v6/verify_chunked.sh` 85초 조각 58개 —
+**CPU 314건 통과 · 0 실패**(`python_loop` 1건은 창 안에 못 끝나 건너뜀). GPU: K=2 명세 무대·
+**탈출 발동 무대** 통과(각 35초). 증거 `outputs/reports/yr327_v6_port/piece2_verify_chunked_cpu.txt`.
 
-## 조각 5 — Φ 원화 4항 완료 (워크플로 `wf_a4bd510b` · 에이전트 3 · 29분)
+### ⚠️ 환경 — WSL 이 부팅 88초 뒤 죽는다 (2026-09-25 22:20 ~)
 
-`gpu/phi.py` = v5 `reward/phi.terminal_cost_krw` 의 배열판(jit·vmap). `tests/v6/test_gpu_phi.py` **16건** —
-손입력 6건×end 3종·본선 2척(A) · v5 무대 41시점 원료 대조(B) · 무작위 기록 300건×end 5종(C) 전부 **`==`**.
-CPU·GPU 양쪽 통과. 높음·치명 없음(수정 단계 생략).
-
-### ★새로 찾은 함정 둘 (반박 검증 보통)
-
-| 함정 | 무엇 | 처리 |
-|---|---|---|
-| **Python 3.12 `sum()` 은 보정합** | v5 가 `sum(list)` 로 더하는 곳은 Neumaier 보정합이라 순차 `+=` 와 **3항부터 마지막 비트가 갈린다** (검열 60대 무작위 50회 중 35회). 조각 1 의 `state.censored_exposure_s` 가 순차 scan 이라 틀렸고, 트럭이 적어 시험이 못 잡았다 | phi 의 `vessel_idle_by_ship` 은 CPython 알고리즘을 그대로 옮겨 `==`. **후속**: `state.py`·`exact.sum_seq` 를 보정합 scan 으로 (조각 2 가 state.py 수정 중이라 뒤에) |
-| **XLA 상수 재결합** | jit 한 `K*v/3600` 을 `v*(K/3600)` 으로 바꿔 4,000점 중 **1,251점**이 파이썬과 갈린다 — FMA 와 별개 | `mul_exact` + 나눗셈 장벽(`_div_c`)으로 0점. `[div probe]` 가 상시 보고 |
+배포판 내부(systemd `running`·메모리 64GB 중 8GB)·Windows 이벤트·호스트 프로세스·예약 작업에 원인
+없음. `wsl --terminate` 로는 안 고쳐짐. 정석 `wsl --shutdown`(VM 재시작)은 **2개월째 가동 중인 Docker
+컨테이너 3개**(`motiongpt`·`mdm`·`momask`)를 멈추므로 **사용자 결정 대기**. 그동안
+`scripts/v6/verify_chunked.sh` + `tests/v6/report_dump.py`(조각별 REPORT 병합)로 전체 검증.
 
 ### 후속 (조각 6·8 전에)
 
-- 엔진 `OrderArrays` → Φ 직접 경로: `host_convert` 는 job_id 알파벳순, v5 Φ 는 **명단(schedule) 순**으로 더한다 — 순서 차이가 합의 마지막 비트를 바꿀 수 있다. Φ 에 순열 인자를 주거나 변환기가 명단 순을 기록.
-- 무효 기록(O<A · A 없음)은 v5 가 0 으로 묶거나 건너뛰는데 배열판은 음수/−inf 표본 — 정상 기록엔 없으나 phi 에 두 줄 보정.
-- 명세 ③④(`_CounterTape` 격자 사진 · `ppo/runtime.read_cost` 플래그판)는 조각 8 로.
+- `state.censored_exposure_s`·`exact.sum_seq` 를 보정합 scan 으로 (v5 `sum()` 규칙).
+- 엔진 `OrderArrays` → Φ 직접 경로의 합산 순서(`host_convert` 는 job_id 순, v5 Φ 는 명단 순).
+- 정책망 K² 중복 순전파(scan 안에서 (K,N,F) 전체를 K 번) → "k 행 하나" 규약.
+- 탈출 `delayed` 모드 · `_CounterTape` 격자 사진 · `ppo/runtime.read_cost` 플래그판.
 
 ## 어디까지 왔나
 
-    ✅ 골격 · 설계 확정 · 치명 결함 수정 · 정답 궤적 · **조각 1 (v5 동등, CPU·GPU)** · **조각 5 (Φ, CPU·GPU)**
-    🟠 조각 2 (다중 크레인 — 워크플로 진행 중)
-    ⬜ 조각 3 → 4 (Y01 정답 재현) → 6 → 7 → 8
+    ✅ 골격 · 설계 확정 · 치명 결함 수정 · 정답 궤적 · 조각 1 · 조각 5 · **조각 2** (전부 CPU·GPU 비트 일치)
+    ⬜ 조각 3 + 4 (한 워크플로 → Y01 정답 `6668fa49…` 재현) → 6 → 7 → 8
 
 **지금 v6 는 v5 를 대체하지 않는다.** 전부 옮기기 전까지 v5 가 정본이며 v6 로 판정하지 않는다.
 
 ## 증거
 
-`outputs/reports/yr327_v6_port/` — 설계 JSON · 조각 1 명세 · 구현 워크플로 결과 JSON · 정답 궤적 · GPU 벤치.
-커밋: `c06baafb`(골격) · `f2341b82`(큐 수정) · `ef56d04d`(설계 확정) · `51195dda`(조각 1) · 조각 5 (이번).
+`outputs/reports/yr327_v6_port/` — 설계 JSON · 조각 1/2/5 명세·구현 워크플로 JSON · 정답 궤적 · GPU 벤치 · 조각 2 분할 검증 로그.
+커밋: `c06baafb`(골격) · `f2341b82`(큐) · `ef56d04d`(설계) · `51195dda`(조각 1) · `cffe4d27`(조각 5) · 조각 2 (이번).
