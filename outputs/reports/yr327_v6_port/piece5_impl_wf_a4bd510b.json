@@ -1,0 +1,174 @@
+{
+ "impl": {
+  "files_written": [
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_phi.py"
+  ],
+  "tests": [
+   {
+    "file": "tests/v6/test_gpu_phi.py",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "WSL venv · CPU x64 · jax 0.11.2 · Python 3.12.13. A단계: 손입력 6건(O>end 검열·O 없음·완료 2·A>end 제외·A 없음) × end∈{3600,7200,10800} + 본선 2척 + YC 123.4 + 재조작 3 — 먼저 v5 를 불러 명세 손계산값(7200: wait 280,000.00 · move 2056.67 · rehandle 6000 · vessel 36129.17 · total 324185.83 · n 4 · 검열 2 · p50 6700 · p90=p99 7000) 확인 → 배열판과 열두 키 전부 == (비트 일치, 허용오차 없음). 배치(vmap) 3세계 == 단일 == v5. A==end 경계·기록 0건·표본 0건 == . B단계: test_cargo_capacity_wait.world() 무대 2종(반입 1건 / 반입+반출 2건)을 v5 로 굴려 검토 격자 41회마다 원료를 뽑아 같은 t 의 v5 Φ(= runtime.read_cost 의 cost_breakdown 과 동일 확인)와 == , Φ 비감소, 시점 41개를 (T,N) 배치로 한 번에 계산해도 == . C단계: 무작위 기록 300건 × end 5종 × 시드 3 (경계 A==end·A>end·O==end·O>end·None 섞음, 소수점 시각) — 합 300항 순서까지 == . 단가 elementwise 1,000점 == . 나눗셈 탐침: jit 한 평범한 K·v/3600 은 4000점 중 1251점이 파이썬과 갈림(XLA 가 v·(K/3600) 상수 재결합, plain==재결합 4000/4000) — 장벽판(mul_exact+_div_c) 0점 갈림. vessel_idle_by_ship 은 파이썬 sum() 과 == ."
+   },
+   {
+    "file": "tests/v6/test_gpu_core.py",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "기존 시험 회귀 없음. [fma probe] cpu plain=FMA guarded=two-round:True."
+   }
+  ],
+  "deviations_from_spec": [
+   {
+    "what": "검열은 state.censored_turn_time_s 를 재사용하되 `A == end_s` 경계 한 칸만 phi 쪽에서 0 으로 되살린다 (tt = where(isnan(tt) & (A == end), 0, tt)).",
+    "why": "v5 Φ 는 lifecycle.censored_turn_time_s(max(0, min(O,end)−A)) + `A > end 면 진단 제외` 규칙이라 정확히 창 끝에 게이트 진입한 미출문 트럭을 턴타임 0 의 검열 표본으로 센다(n_trucks·n_censored·분위수에 들어감). state 판(v5 terminal_turntime_samples_s 규칙)은 `A < end` 라 NaN 으로 뺀다. B단계 무대 t=60 에서 실제로 생기는 경우(v5: n=1·검열 1·p50 0)라 보정 없이는 동등성이 깨진다. 대기 원화는 0 이라 어느 쪽이든 같다."
+   },
+   {
+    "what": "명세 hard_parts 의 '★gpu/state.py:137-141 은 O 가 있으면 end_s 로 안 자른다 → 고쳐야 한다' 는 수정하지 않았다.",
+    "why": "현재 state.py(609-624행)는 이미 `O ≤ end → O−A, 그 밖에 A < end → end−A` 로 자른다(조각 1 이 맞춰 둠). 명세의 손계산 사례(A=500,O=9000,end=7200 → 6700)가 그대로 통과했다. state.py 는 다른 워크플로가 수정 중이라 읽기만 했다."
+   },
+   {
+    "what": "vessel_idle_by_ship (스트림→배 유휴 표) 을 segment_sum 이 아니라 **Neumaier 보정합** scan 으로 구현했다.",
+    "why": "v5 vessel_idle_of/month_vessel_idle 은 `sum(w) / max(1, sts)` 인데 Python 3.12 의 `sum()` 은 실수 목록을 Neumaier 보정합으로 더한다 — 순차 `+=` 로는 3항부터 마지막 비트가 갈렸다(실측: 40 스트림·4척 중 1척). CPython 알고리즘(첫 항 `0 + w0`, 이후 t=f+x; c+=…; 끝에 c≠0·유한이면 f+c)을 그대로 옮겨 == 를 얻었다. Φ 본체의 세 합(wait·tt_sum·vessel)은 v5 가 `+=` 루프라 보정 없이 순차 scan 이다."
+   },
+   {
+    "what": "B단계 원료를 JSON 파일로 저장하지 않고 같은 실행 안에서 메모리로 대조했다. 허용오차 |Δ|≤1e-9·max(1,Φ) 대신 `==` 를 썼다.",
+    "why": "== 가 전부 통과해 완화가 필요 없었다(명세: '정수·분위 비트 일치, 원화 합 == 를 먼저 시도'). 갈리면 |Δ| 를 키별로 실패 메시지에 낸다(_diff)."
+   },
+   {
+    "what": "상수 나눗셈에 exact.div_const 대신 phi.py 안의 `_div_c`(분모를 같은 모양으로 펼쳐 장벽 뒤에 두고 travel.div_exact 로 나눔)를 썼다.",
+    "why": "div_const 는 0-차원 분모라 (N,) 벡터·vmap 아래서 `divide(a, broadcast(c))` 패턴이 생긴다. 탐침에서 XLA 가 `(K·v)/3600` 을 `v·(K/3600)` 으로 재결합해 31% 가 갈리는 것을 확인했고, mul_exact + _div_c 경로는 0 갈림이었다. exact.py 는 담당 밖이라 phi.py 에 국소로 두었다."
+   },
+   {
+    "what": "호스트 변환 orders_from_records(v5 기록 사전 → OrderArrays, 사전 순서 = 배열 순서) 를 host_convert.py 가 아니라 gpu/phi.py 에 두었다.",
+    "why": "담당 파일 제한. 뒤에 ppo/runtime.read_cost 플래그판(명세 항목 4)을 옮길 때 host_convert 로 옮겨도 된다."
+   },
+   {
+    "what": "C단계(무작위 기록 300건 × end 5종 × 시드 3) 와 나눗셈 탐침·단가 elementwise 시험을 추가했다.",
+    "why": "B단계 무대는 트럭 1~2대·본선 없음이라 합산 순서(300항)와 본선·경계 조합을 못 누른다. 기대값은 전부 v5(또는 krw.py 원식)를 실제로 불러 얻는다."
+   }
+  ],
+  "public_api": [
+   "yard_rl.v6.gpu.phi.PhiArrays(NamedTuple): wait, move, rehandle, vessel, total, n_trucks, n_censored, mean_turn_time_s, over_ratio, p50_turn_time_s, p90_turn_time_s, p99_turn_time_s — .as_dict(i=None) 이 v5 PhiBreakdown.as_dict() 와 같은 12 키(PHI_KEYS)·파이썬 스칼라를 낸다 (배치면 i 번째)",
+   "yard_rl.v6.gpu.phi.terminal_cost_krw(o: OrderArrays, end_s, *, vessel_gt=None, vessel_idle_s=None, vessel_mask=None, yc_extra_move_s=0.0, rehandles=0, truck_mask=None) -> PhiArrays — v5 reward.phi.terminal_cost_krw 의 배열판 (jit 가능; truck_mask 기본 o.is_external; 배열 순서 = v5 기록 사전 순서)",
+   "yard_rl.v6.gpu.phi.terminal_cost_krw_batch(o (B,N), end_s (B,), *, vessel_gt/vessel_idle_s/vessel_mask (B,V), yc_extra_move_s (B,), rehandles (B,), truck_mask (B,N)) -> PhiArrays (잎마다 앞축 B) — vmap 판",
+   "yard_rl.v6.gpu.phi.truck_wait_krw(turn_time_s) / vessel_idle_krw(gt, idle_s) — krw.py 단가의 elementwise 배열판 (비트 일치)",
+   "yard_rl.v6.gpu.phi.vessel_idle_by_ship(stream_wait_s (S,), stream_ship (S,) int32 (-1 = 표에 없음), ship_sts (V,) int32, n_ships: int) -> (V,) f64 — `sum(w)/max(1,sts)` (Python 3.12 sum() 의 Neumaier 보정합 그대로)",
+   "yard_rl.v6.gpu.phi.orders_from_records(records: dict[str, ExecutionRecord], *, n_max=None) -> OrderArrays — 호스트 변환 (None → +inf, is_external=True, block=0; 칸 부족이면 ValueError)",
+   "yard_rl.v6.gpu.phi.PHI_KEYS — v5 as_dict 키 12개 순서"
+  ],
+  "open_issues": [
+   "★state.py 소유자에게: `gpu/state.py:censored_exposure_s` 는 v5 `time_contract.censored_exposure_s` 의 `sum(...)` 을 순차 `+=` scan 으로 옮겼는데, venv 가 Python 3.12.13 이라 `sum()` 이 Neumaier 보정합이다. 검열 트럭 60대 무작위 무대 50회 중 32회 마지막 비트가 갈렸다(순차 += 와는 항상 일치). 기존 engine 동등성 시험은 검열 트럭이 적어 못 잡은 것으로 보인다. 같은 이유로 `exact.sum_seq` 의 '파이썬 sum() 과 같은 순서' 주석도 실수 3항 이상에서는 참이 아니다. 해법은 vessel_idle_by_ship 처럼 보정합 scan 으로 옮기거나, v5 쪽 대상을 '순차 +=' 로 명시하는 것 — 담당 밖이라 손대지 않았다.",
+   "★exact.py/README 소유자에게: XLA(CPU, jax 0.11.2)가 jit 한 `K * v / 3600.0` 을 `v * (K/3600)` 으로 **상수 재결합**한다 — 4,000점 중 1,251점이 파이썬과 갈리고 plain 값이 재결합식과 4000/4000 일치. FMA 와 별개의 함정이며 `mul_exact` 장벽이 곱을 숨겨 막힌다. exact.py 머리말·README 의 FMA 항목 옆에 적어 두면 좋겠다(시험 test_division_by_constant_probe 가 상시 보고).",
+   "outputs/v6/piece5_spec.md 의 hard_parts 첫 항('state.py:137-141 은 O 가 있으면 end_s 로 안 자른다')은 현 코드와 맞지 않는다(이미 잘림). 대신 실제 차이는 `A == end` 경계(phi.py 머리말) 였다 — 명세 갱신 권장.",
+   "명세 files_to_port 중 ③ stage/episode.py _CounterTape → 고정 격자 사진 배열, ④ ppo/runtime.py read_cost·boundary 플래그판은 이번 범위(gpu/phi.py) 밖이라 하지 않았다. orders_from_records + terminal_cost_krw 로 read_cost 를 바로 대체할 수 있다.",
+   "GPU 에서는 돌리지 않았다(지시 명령이 JAX_PLATFORMS=cpu). 정렬·scan·vmap 뿐이라 백엔드 의존은 없어야 하지만 GPU 비트 일치는 미확인.",
+   "git commit 은 지시대로 하지 않았다. 작업 트리에 다른 워크플로의 수정(gpu/state.py·reserve.py 변경, dispatch.py·escape.py 신규)이 섞여 있으니 커밋 시 담당 2파일만 골라 담아야 한다."
+  ]
+ },
+ "verdicts": [
+  {
+   "lens": "동등성 — 배열 Φ(gpu/phi.py) 가 v5 reward/phi.terminal_cost_krw 와 같은 답인가",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "생애주기가 깨진 기록(O < A, 또는 A 없이 O 만 있음)에서 v5 와 다르게 군다. v5 는 `max(0, min(O,end) − A)` 로 0 에 묶고 A 없는 기록은 건너뛰지만, 배열판은 state.censored_turn_time_s 의 `O − A` 를 그대로 써서 음수·−inf 턴타임이 표본에 들어간다. 대기 원화(항1)는 truck_wait_krw 의 max(0,·) 이 막아 같지만 진단 열(n_trucks·mean·p50)이 갈린다. v5 `lifecycle.validate` 는 eps=1e-6 안의 역전을 허용하므로 O ∈ [A−1e-6, A) 는 v5 가 받아들이는 입력이다 — 다만 엔진은 단조 시계로 찍으므로 실제로는 사실상 못 만난다.",
+     "evidence": "탐침(scratchpad/probe_phi2.py [4], end=6000): O<A(A=5000,O=3000) → v5 n=1 mean=0.0 / 배열 n=1 mean=−2000 p50=−2000 · A>end·O≤end(A=7000,O=3000) → v5 n=0 / 배열 n=1 mean=−4000 · A=None·O=3000 → v5 n=0 / 배열 n=1 mean=−inf. 유효 기록(O≥A)에서는 2,940회(jit+eager)·마스크 300회·이질 배치 12세계·퇴화 8종 전부 == .",
+     "severity": "낮음",
+     "fix": "phi.py 의 `tt` 보정 직후 v5 규칙을 그대로 비춘다: `tt = jnp.where(jnp.isnan(tt), tt, jnp.maximum(0.0, tt))` 와 `in_sample &= (a < EMPTY_TIME)`. state.py 는 담당 밖이니 phi.py 안에서만. 시험에 무효 기록 3건을 '두 판이 같이 0 / 제외' 로 고정하는 케이스 1개 추가."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\state.py",
+     "problem": "(담당 밖 — 구현 보고의 open_issue 를 직접 확인) `censored_exposure_s` 는 v5 `time_contract.censored_exposure_s` 의 `sum(...)` 을 순차 `+=` scan 으로 옮겼는데, venv 가 Python 3.12.13 이라 v5 의 `sum()` 은 Neumaier 보정합이다. 검열 트럭이 3대 이상이면 마지막 비트가 갈린다. 같은 이유로 exact.py `sum_seq` 의 '파이썬 sum() 과 같은 순서' 주석도 실수 3항 이상에선 거짓이다. phi.py 자체는 이 함수를 쓰지 않는다(Φ 의 세 합은 v5 가 `+=` 루프라 순차가 맞고, vessel_idle_by_ship 은 보정합으로 맞춰 둠 — month_vessel_idle 가짜 무대 20회 == 확인).",
+     "evidence": "탐침(probe_phi.py [4]): 검열 트럭 60대 무작위 50회에서 배열≠sum() 35회, 순차+=≠sum() 35회 (배열 = 순차). test_gpu_phi 의 [sum probe] 도 40 스트림·4척 중 1척이 sum()≠순차 라고 보고.",
+     "severity": "보통",
+     "fix": "state.py 소유자에게 전달: `censored_exposure_s` 를 vessel_idle_by_ship 과 같은 Neumaier scan(첫 항 0+x0, 이후 t=f+x; c+=…; 끝에 c≠0·유한이면 f+c) 으로 바꾸거나, v5 대상을 '순차 +=' 로 명시하고 조각 1 동등성 시험에 검열 트럭 ≥3 무대를 넣어 잡히게 한다. exact.py 머리말·sum_seq 주석의 'sum() 과 같다' 문구는 '`+=` 체인과 같다' 로 고친다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_phi.py",
+     "problem": "B단계(v5 무대를 실제로 굴린 원료)는 항1 검열과 항2 YC 빈 주행(반출 무대 18시점, c_move 155.73원)만 발동한다 — 검토 41시점 어디에도 1시간 초과 트럭·본선 유휴·재조작>0 이 없다. 초과대기·본선·재조작·분위수 보간 금지는 A단계 손입력과 C단계 무작위 기록으로만 v5 와 대조된다(Φ 식 동등성으로는 충분하지만 '무대 계수기 → 배열' 경로, 특히 stream→배 유휴 표 `vessel_idle_by_ship` ↔ `month_vessel_idle` 는 실제 본선 무대에서 한 번도 안 눌렸다).",
+     "evidence": "probe_phi3.py: [B] 1시간 초과 시점 0 · 본선 있는 시점 0 · 재조작>0 시점 0 (pickup 판도 재조작 0). A단계는 6700·7000 > 3600 으로 초과 발동, p50=6700(보간이면 4850)으로 보간 금지 판별됨. C단계는 tt 최대 ~32000·본선 5척. 내 탐침 [3] 은 가짜 mbt·archive 로 month_vessel_idle 20회 == .",
+     "severity": "낮음",
+     "fix": "test_cargo_capacity_wait.world(reserved_moves=N) 이 inject_vessel 로 본선을 넣어 주므로 B단계에 그 변형 1종을 더해 month_vessel_idle 실제 표를 vessel_idle_by_ship 로 재현한 값과 == 로 묶는다. 초과대기·재조작은 조각 5 범위 밖 무대라 A·C 로 갈음해도 된다고 본다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\v6\\piece5_spec.md",
+     "problem": "hard_parts 첫 항('★gpu/state.py:137-141 은 O 가 있으면 end_s 로 안 자른다 → 손계산 사례가 먼저 깨져야 정상') 은 현 코드와 맞지 않는다. HEAD 51195dda 의 state.censored_turn_time_s 는 이미 `O≤end → O−A, 그 밖에 A<end → end−A` 로 자르고(작업 트리 diff 는 ReservationArrays 만 건드림), 실제 차이는 `A == end` 경계 한 칸(v5 는 턴타임 0 검열 표본으로 셈, state 판은 NaN)이었다.",
+     "evidence": "git show HEAD:src/yard_rl/v6/gpu/state.py 591-606행 확인. probe_phi3.py [B t=60]: v5 n=1·검열 1·p50 0.0, A=[60.0], state 판 tt=[nan] — phi.py 의 보정이 없으면 B단계 t=60 이 갈린다(보정이 실제로 하중을 진다).",
+     "severity": "낮음",
+     "fix": "명세 hard_parts 를 'A == end 경계: v5 Φ 는 표본으로 센다(phi.py 에서 0 으로 되살림)' 로 갱신하고 '먼저 깨져야 정상' 문구를 지운다."
+    }
+   ],
+   "missing": [
+    "GPU 백엔드 실행 없음(지시가 JAX_PLATFORMS=cpu) — 정렬·scan·vmap 뿐이라 백엔드 의존은 없어야 하나 GPU 비트 일치는 미확인 (조각 1 은 GPU 도 == 였음).",
+    "vessel_mask 부분 마스크(표의 일부만 켬)·truck_mask 명시 인자는 제출 시험에 없다 — 내 탐침으로 truck_mask 300회 == 확인, vessel_mask 부분은 미확인.",
+    "_fill 의 API 견고성: vessel_gt 를 주고 vessel_idle_s 를 None 으로 두면 jnp.asarray(None) 에서 죽는다(동등성 아님·호출 규약 문제).",
+    "Neumaier scan 의 첫 항 `0.0 + w` 는 XLA 가 `x + 0 → x` 로 단순화할 수 있어 w = −0.0 일 때만 파이썬(+0.0)과 부호가 다르다 — 유휴 적립은 음수가 안 나오고 == 비교는 부호 0 을 같게 보므로 실효 없음.",
+    "명세 files_to_port ③(stage/episode.py _CounterTape → 고정 격자 사진 배열)·④(ppo/runtime.read_cost·boundary 플래그판)는 이번 범위(gpu/phi.py) 밖으로 남았다 — 구현 보고에 명시됨.",
+    "제출 시험 실행 결과 직접 확인: tests/v6/test_gpu_phi.py 16 passed · tests/v6/test_gpu_core.py 17 passed (WSL venv · CPU x64 · 14.3초), 보고의 [div probe] 1251/4000 · [sum probe] 1/4 · [fma probe] plain=FMA guarded=two-round 출력 그대로 재현됨. git commit 없음·담당 2파일만 신규(untracked) 확인."
+   ]
+  },
+  {
+   "lens": "완전성 — v5 reward/phi.py·krw.py 를 줄 단위로 gpu/phi.py 와 대조 (항·단가·상수·as_dict 키 12개), mul_exact/장벽 나눗셈 적용 여부, OrderArrays 열(gate_in_s·gate_out_s·is_external) 읽기가 조각 1 규약과 맞는지. 시험은 WSL venv 에서 직접 실행 (33 passed = phi 16 + core 17, 14.9초) 하고 추가 탐침 3건을 v5 를 불러 돌렸다.",
+   "refuted": false,
+   "findings": [
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "\"합은 v5 누적 순서 그대로\" 라는 약속이 orders_from_records(기록 사전 → 배열) 경로에서만 지켜진다. 엔진이 만든 OrderArrays 는 host_convert.py:176 이 오더를 job_id 알파벳순으로 정렬해 넣는데, v5 Φ 가 실제로 읽는 bridge.records 는 stage/orders.py:82 의 명단(schedule) 순서다. 두 순서가 다르면 트럭 대기 합(항1, N개 더하기)의 마지막 비트가 갈린다 — 즉 다음 단계(엔진 배열에서 바로 Φ 계산)에서 == 가 깨질 수 있다. 순열 인자도, 순서를 검사하는 장치도 없다.",
+     "evidence": "탐침: 기록 300건의 순서만 섞어 v5 terminal_cost_krw 를 두 번 부르면 c_wait 가 5.96e-08 차이 (== 아님). 배열판은 넣은 순서를 따라 '섞은 v5' 와는 == , '원순서 v5' 와는 ≠. phi.py 머리말·terminal_cost_krw docstring 이 '배열 순서 = v5 기록 사전의 삽입 순서여야' 라고 적어 두었을 뿐 강제는 없다. B단계 무대는 트럭 1~2대라 이 문제가 드러날 수 없다.",
+     "severity": "보통",
+     "fix": "terminal_cost_krw 에 선택 인자 order(기록 순서 index, (N,) int32) 를 두어 scan 을 o[order] 순으로 돌리거나, read_cost 판(명세 ④)을 옮길 때 host_convert 가 schedule 순 index 열을 같이 내도록 하고 그 순서로 합산하는 시험(기록 순 ≠ job_id 순인 무대)을 추가한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\state.py",
+     "problem": "(구현자 open_issue 실측 확인 — phi.py 담당 밖) censored_exposure_s 는 v5 time_contract.py:141 의 sum(...) 을 순차 += scan 으로 옮겼는데, 이 venv 의 Python 3.12.13 은 실수 sum() 을 보정합(Neumaier: 더할 때 잃어버린 작은 조각을 따로 모아 끝에 더함)으로 계산한다. 검열 트럭이 3대 이상이면 마지막 비트가 갈릴 수 있어 조각 1 의 '비트 일치' 주장에 구멍이 있다. exact.py sum_seq 의 '파이썬 sum() 과 같은 순서' 주석도 실수 3항 이상에서는 틀렸다.",
+     "evidence": "탐침(WSL venv): 0~86400 사이 실수 60개를 200회 뽑아 순차 += 와 sum() 을 비교 → 135/200 회가 다름. phi.py 의 vessel_idle_by_ship 은 이미 CPython 알고리즘(첫 항 0+w0 · t=f+x · c 누적 · 끝에 f+c)을 그대로 옮겨 test_vessel_idle_by_ship_matches_python_sum 에서 == 를 얻었으므로 같은 방법이 통한다. Φ 본체 세 합(wait·tt_sum·vessel)은 v5 가 += 루프라 phi.py 는 영향 없다.",
+     "severity": "보통",
+     "fix": "state.py 소유자가 censored_exposure_s 를 phi.vessel_idle_by_ship 와 같은 보정합 scan 으로 바꾸고, 검열 트럭 ≥ 3 인 무대로 v5 censored_exposure_s 와 == 시험을 추가한다. exact.py 머리말 주석도 'sum() 은 3.12 부터 보정합' 으로 고친다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "게이트 진입(A) 없이 게이트 아웃(O)만 있는 기록을 v5 는 '아직 무대 밖' 으로 건너뛰는데(lifecycle.py:139 A None → None), 배열판은 표본으로 센다: state.censored_turn_time_s 의 left 분기가 O 만 보고 O−A = 50−inf = −inf 를 내고, phi 의 in_sample 은 NaN 만 거르므로 n_trucks 1 · mean/p50 −inf 가 된다. 라이프사이클 위반 기록이라 엔진 경로(gate_out_s 는 장부 등록된 오더에만 찍힘)에서는 안 생기지만 orders_from_records 는 검증 없이 어떤 ExecutionRecord 든 받는다.",
+     "evidence": "탐침: {'y': ExecutionRecord(gate_in_s=None, gate_out_s=50.0)}, end=200 → v5 n_trucks 0, 배열 n_trucks 1.",
+     "severity": "낮음",
+     "fix": "_phi_core 에서 in_sample = truck_mask & ~isnan(tt) & (a < EMPTY_TIME) 로 A 없는 칸을 명시적으로 뺀다 (state.py 를 안 고치고 phi 쪽에서 막을 수 있다)."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "v5 censored_turn_time_s 는 마지막에 max(0, ·) 로 턴타임을 0 아래로 못 내려가게 하는데(lifecycle.py:142), 배열판(state 판 재사용)은 O ≤ end 분기에서 O−A 를 그대로 쓴다. O < A 인 기록(시각 역전, 라이프사이클 위반)이면 대기 원화는 같지만(단가 함수 안의 max 가 막음) tt_sum·mean·p50 이 음수로 갈린다. 정상 기록에서는 안 생기므로 정보성.",
+     "evidence": "탐침: {'x': (A=100, O=50)}, end=200 → c_wait 는 둘 다 0.0. v5 는 tt=max(0,50−100)=0 이라 mean 0, 배열은 tt=−50.",
+     "severity": "낮음",
+     "fix": "검열 뒤 tt = jnp.maximum(0.0, tt) 한 줄 (NaN 은 그대로 전파되고 0 이상 값은 비트 그대로라 정상 입력의 == 에 영향 없다) — 또는 orders_from_records 에서 lifecycle.validate 를 호출해 위반 기록을 큰 소리로 거른다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_phi.py",
+     "problem": "항4(본선 유휴) 의 원료 함수 vessel_idle_by_ship 은 v5 vessel_idle_of / month_vessel_idle 을 실제로 부르지 않고 시험 안에서 다시 쓴 파이썬 식 sum(w)/max(1,sts) 과만 대조한다. B단계 무대 2종은 본선 0척이라(시험이 스스로 '본선이 없어야 한다' 고 단언) 항4 는 손입력(A·C단계)로만 v5 와 대조됐다. 규칙 4('v5 를 실제로 불러') 의 정신에서 항4 원료 쪽이 약하다. 스트림→배 묶기·정렬 순서(vessel_idle_of 는 블록·배 정렬순, month_vessel_idle 은 archive 먼저) 는 호출자 몫으로 남아 어느 쪽도 시험되지 않았다.",
+     "evidence": "test_vessel_idle_by_ship_matches_python_sum: want = [sum(per.get(i, [])) / max(1, ships[n]) ...] (재구현). test_stage_b_…: assert all(not r['vessel'] for r in rows). v5 원식은 episode.py:279 / month.py:404 로 재구현과 글자 그대로 같긴 하다.",
+     "severity": "낮음",
+     "fix": "test_cargo_capacity_wait.world(reserved_moves=N) 처럼 본선을 넣은 무대를 굴려 month_vessel_idle(m, meta, archive) 표를 뽑고, 같은 스트림 순서로 vessel_idle_by_ship 을 불러 배별 유휴 초와 c_vessel 을 == 로 대조하는 시험을 추가한다."
+    },
+    {
+     "file": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\phi.py",
+     "problem": "krw.py 대조 결과(정보성): 상수 6개는 krw.py 에서 import 해 단일 출처를 지켰고 값·결합 순서 모두 맞다. 다만 단가 함수 4개 중 truck_wait_krw·vessel_idle_krw 만 배열판 이름으로 노출되고 yc_move_krw·rehandle_krw 는 _phi_core 안에 인라인이라 따로 시험·재사용이 안 된다. vessel_krw_per_hour·vessel_rho 는 미이식(Φ 에 안 쓰여 문제는 아님). 곱은 전부 mul_exact, 상수 나눗셈은 _div_c 로 통과했고(단가×시간 5곳 확인), 분위수는 정렬 후 index 원소 자체로 보간 없음 — 이 부분은 반박할 것이 없다.",
+     "evidence": "phi.py truck_wait_krw / vessel_idle_krw / _phi_core 의 move·rehab 줄 대조. exact.py·travel.py 규약과 일치. test_truck_wait_and_vessel_krw_elementwise_match_v5 1,005+500점 ==, div probe guarded 0/4000 갈림.",
+     "severity": "낮음",
+     "fix": "yc_move_krw(extra_move_s)·rehandle_krw(n) 을 모듈 수준 함수로 빼서 _phi_core 가 부르게 하고 __all__ 에 넣으면 krw.py 와 1:1 대응이 완성된다 (동작 변화 없음)."
+    }
+   ],
+   "missing": [
+    "명세 files_to_port ③ (stage/episode.py:225-310): yc_empty_travel_s(빈 갠트리 m ÷ 갠트리 속도, max(1e-9, v)) · rehandles_of(Σ kpis.rehandle_count) · _CounterTape(격자 사진 배열 + searchsorted) 의 배열판 — 미이식. 구현자가 범위 밖으로 명시했고 KpiArrays 에 empty_m·rehandles 열은 있으니 다음 조각 후보.",
+    "명세 files_to_port ④ (ppo/runtime.py:115-121, 152-196): read_cost·boundary 플래그판(Φ 차이 delta < −1e-5 불변식, reward = −delta / reward_scale_krw) — 미이식. orders_from_records + terminal_cost_krw 로 대체 가능하다고 했으나 시험으로 보인 적은 없다.",
+    "엔진 OrderArrays → Φ 직접 경로가 시험되지 않았다: 시험 3단계 전부 orders_from_records(v5 기록 → 배열) 경로다. truck_mask 기본값 is_external 이 v5 bridge.records 의 키 집합(= schedule 명단)과 같다는 가정, 그리고 job_id 정렬순 ≠ schedule 순 문제(finding 1)는 엔진 배열을 넣어 봐야 드러난다.",
+    "GPU 백엔드 비트 일치 미확인 — 지시대로 JAX_PLATFORMS=cpu 로만 돌렸다. jnp.sort·lax.scan·vmap 뿐이라 백엔드 의존은 없어야 하나 README 가 GPU 실측을 조각 1 의 기준으로 삼고 있으므로 같은 급의 확인이 필요하다.",
+    "본선 있는 v5 무대에서 항4 원료 대조 없음 (finding 5) — c_vessel 은 손입력 2척(A단계)·무작위 5척(C단계)로만 v5 와 == 확인.",
+    "명세 B단계의 '원료 JSON 저장' 은 하지 않았다(메모리 대조) — 재현용 산출물 파일이 없어 나중에 v5 를 다시 굴리지 않고는 같은 원료로 재시험할 수 없다.",
+    "git commit 없음(지시대로). 작업 트리에 다른 워크플로의 state.py·reserve.py 수정과 dispatch.py·escape.py 신규가 섞여 있어 커밋 시 phi.py·test_gpu_phi.py 2파일만 골라야 한다. state.py 의 현재 diff 는 ReservationArrays 만 건드려 phi 가 쓰는 censored_turn_time_s·EMPTY_TIME·empty_orders 에는 영향이 없음을 확인했다."
+   ]
+  }
+ ],
+ "critical": [],
+ "fix": null
+}
