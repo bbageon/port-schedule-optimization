@@ -15,6 +15,10 @@ v5 `world/integrated/engine.py` 의 `run_until_decision`(276-336행) 한 순회�
     [F 종료]  ~D & ~X & ~(alive & inwin) & wt 없음              → _finalize (323-332행)
     [A 전진]  ~D & ~X & wt 있음 & (nt 없음 | wt < nt−EPS)       → advance(wt) 만 (333-335행; 로그·rate 갱신 없음)
     [E 사건]  ~D & ~X & 그 밖                                   → 사건 하나 처리 (336행)
+    [R 검토]  ~D & ~X & ~W & ~due_now & 검토 시각 ep 가 (nt 없음 | ep ≤ nt+EPS) & (wt 없음 | ep ≤ wt+EPS) (314-322행)
+              → review_idx+1 · ep > clock+EPS 면 advance(ep) 만 · **그 스텝 끝** (ReviewEpoch 반환) — static `review=True`
+              일 때만 산다 (조각 6 다중블록 조정자 `gpu/multiblock.py` 가 켠다; 단일 블록 시험은 v5 review_epochs=[] 와 같다).
+              A·E·F 보다 **앞**이고 D·X 보다 뒤 — v5 순서 그대로 (적대검증 critical-1: 결정보다 앞이면 크레인을 놀린다).
   v5 가 "동시각 사건을 다 소진한 뒤에만" 결정을 여는 규칙이 `~due_now` 한 항으로 재현된다. W 가 발화한 스텝에서는
   결정을 열지 않는다 (v5 는 continue 뒤 소비를 다시 시도(False)한 뒤에야 결정을 본다 — 상태는 같아 답도 같지만 스텝
   경계를 v5 순회와 맞춘다). D 와 X 는 `decide` 하나가 담당한다 — 같은 (K,N) 후보 행렬
@@ -1010,6 +1014,7 @@ class StepTrace(NamedTuple):
     pick_bay: jnp.ndarray     # (K,) f64     REPOSITION 목표 bay (NaN) — 조각 3
     woke: jnp.ndarray         # () bool      이 스텝이 W(깨우기) 로 끝났나 — 조각 3
     advanced: jnp.ndarray     # () bool      이 스텝이 A(wake 시각 전진) 로 끝났나 — 조각 3
+    reviewed: jnp.ndarray     # () bool      이 스텝이 R(검토 시각 park) 로 끝났나 — 조각 6 (review=False 면 항상 False)
     plan_job: jnp.ndarray     # (K,) int32   결정 뒤 활성 계획 (kind<0 이면 없음)
     plan_kind: jnp.ndarray    # (K,) int32
     plan_n_moves: jnp.ndarray # (K,) int32
@@ -1022,10 +1027,12 @@ class StepTrace(NamedTuple):
 
 
 def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: bool = True,
-         pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
+         pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False, review: bool = False):
     """한 스텝 = `run_until_decision` 한 순회 (머리말). 반환 (세계', StepTrace). terminal 이면 항등.
     check (static): 결정 마무리·사건 처리 뒤 불변식 검사 (v5 `check_invariants` 플래그).
-    pre_advice · horizon_s · joint (static): 정보수준 PRE_ADVICE · 결정 지평(profile.decision_horizon_s) · 결정 규약 (머리말)."""
+    pre_advice · horizon_s · joint (static): 정보수준 PRE_ADVICE · 결정 지평(profile.decision_horizon_s) · 결정 규약 (머리말).
+    review (static, 조각 6): `wake.review_s`/`review_idx` 의 검토 시각을 소비한다 — [R] 국면 (머리말). False 면 v5 의
+    `review_epochs=[]` 와 같이 그 국면이 정적으로 빠진다 (조각 1~5 시험·정답 궤적 Y01 은 그대로)."""
     K = world.k
     raw_nt = jnp.min(world.queue.time)                                   # 282행 peek_time
     alive = raw_nt < EMPTY_TIME
@@ -1061,6 +1068,19 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
     handlers = _handlers(g)
     # 306-308행 다음 wake 시각 (평가창 안) — A 국면의 전진 목표
     wt = next_wake_in_window(w_d, pre_advice=pre_advice)
+    # [R] 검토 시각 (314-322행) — 결정·탈출이 안 열렸을 때, 다음 사건·wake 보다 이르거나 같으면(EPS) 그 시각으로 park.
+    #   v5 는 review_epochs[0] > end+EPS 면 목록을 통째로 비운다 — 정렬 목록이라 '머리가 유효한가' 한 조건과 같다.
+    Rv = int(world.wake.review_s.shape[0])
+    if review and Rv > 0:
+        wk = w_d.wake
+        ri = wk.review_idx
+        ep = jnp.where(ri < Rv, wk.review_s[jnp.clip(ri, 0, Rv - 1)], EMPTY_TIME)
+        ep_ok = ep <= w_d.end_s + EPS                                    # 314-315행
+        is_R = (~world.terminal & ~due_now & ~woke & ~decided & ep_ok
+                & (~nt_ok | (ep <= raw_nt + EPS)) & (ep <= wt + EPS))    # 318행 (wt=+inf 면 참 = v5 None)
+    else:
+        ep = jnp.asarray(EMPTY_TIME, F)
+        is_R = jnp.zeros((), bool)
     is_A = (wt < EMPTY_TIME) & (~nt_ok | (wt < raw_nt - EPS))            # 333행
 
     def _event(w):
@@ -1095,13 +1115,27 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
     def _identity(w):
         return w, jnp.int32(EMPTY_ID), jnp.int32(EMPTY_ID)
 
-    idx = jnp.where(decided | world.terminal | woke, 0, jnp.where(is_A, 1, jnp.where(nt_ok, 2, 3)))
-    w_out, kind, tgt = lax.switch(idx, [_identity, _adv, _event, _fin], w_d)
+    def _review(w):
+        """국면 R — 319-322행: pop(0) · ep > clock+EPS 면 `_advance(ep)` 만 (로그·rate 갱신 없음) · ReviewEpoch."""
+        w1 = w._replace(wake=w.wake._replace(review_idx=w.wake.review_idx + 1))
+        w2 = tree_where(ep > w.clock + EPS, advance(w1, ep, g), w1)      # 320-321행
+        return w2, jnp.int32(EMPTY_ID), jnp.int32(EMPTY_ID)
+
+    # ★[R] 갈래는 **static 으로** 붙인다 — review=False 인 경로(조각 1~5·학습용 run_while)에서 갈래를 5개로 두면
+    #   vmap 이 switch 를 select 로 접으면서 쓰지도 않는 `_review` 의 advance(world, +inf) 를 매 스텝 계산한다
+    #   (ep = EMPTY_TIME 이라 술어가 상수 True → (N,) 오더 배열 전체를 end_s 까지 적분). 답은 같고 계산만 버린다.
+    _has_R = bool(review and Rv > 0)
+    branches = [_identity, _adv, _event, _fin] + ([_review] if _has_R else [])
+    base = jnp.where(is_A, 1, jnp.where(nt_ok, 2, 3))                 # A / E / F
+    phase = jnp.where(is_R, 4, base) if _has_R else base              # R 은 A·E·F 보다 앞
+    idx = jnp.where(decided | world.terminal | woke, 0, phase)        # 0 = 항등 (D·X·W·terminal)
+    w_out, kind, tgt = lax.switch(idx, branches, w_d)
     advanced = (idx == 1)
+    reviewed = (idx == 4) if _has_R else jnp.zeros((), bool)
     w_out = w_out._replace(steps=world.steps + jnp.where(world.terminal, 0, 1).astype(jnp.int32))
     pl = w_out.plan
     trace = StepTrace(clock=w_out.clock, decided=decided, escaped=escaped, kind=kind, target=tgt, open=open_, pick=pick,
-                      pick_kind=pkind, pick_bay=pbay, woke=woke, advanced=advanced,
+                      pick_kind=pkind, pick_bay=pbay, woke=woke, advanced=advanced, reviewed=reviewed,
                       plan_job=pl.job, plan_kind=pl.kind, plan_n_moves=pl.n_moves, plan_dur=pl.dur,
                       plan_rehandles=pl.rehandles, plan_mv_cont=pl.mv_cont, plan_mv_src=pl.mv_src,
                       plan_mv_dst=pl.mv_dst, plan_mv_kind=pl.mv_kind)
@@ -1122,30 +1156,31 @@ def finish(w: BlockWorld) -> BlockWorld:
 
 
 def run(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
-        pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
+        pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False, review: bool = False):
     """끝까지 굴린다 — `lax.scan(step, w0, None, length=S_max)`. 끝나기 전에 스텝이 소진되면 violation |= 256,
     큐/로그 칸이 모자랐으면 |= 4096 (`finish`).
 
-    반환 (세계, StepTrace 각 열 앞에 (S_max,)). jit 은 `run_jit` (g·policy_fn·S_max·check·pre_advice·horizon_s·joint 가 static).
+    반환 (세계, StepTrace 각 열 앞에 (S_max,)). jit 은 `run_jit` (g·policy_fn·S_max·check·pre_advice·horizon_s·joint·review 가 static).
+    review=True 면 검토 시각마다 [R] 스텝이 하나씩 낀다 (park 는 하지 않는다 — 다음 스텝이 이어 간다; 조정자는 `gpu/multiblock.py`).
     """
     f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check,
-                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
+                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint, review=review)
     w, trace = lax.scan(lambda w, x: f(w, x), world0, None, length=int(S_max))
     return finish(w), trace
 
 
-run_jit = jax.jit(run, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint"))
+run_jit = jax.jit(run, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint", "review"))
 
 
 def run_while(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
-              pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
+              pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False, review: bool = False):
     """학습 경로 — `lax.while_loop` 로 terminal 까지만 돈다 (흔적 없음; 머리말 ■ 실행 두 경로).
 
     vmap 아래서는 술어가 배치 any 로 바뀌어 **살아 있는 세계가 하나라도 있으면** 계속, 끝난 세계는 `step` 이
     항등이라 그대로다. S_max 를 넘기면 `finish` 가 256 을 켠다. 반환 세계 = `run` 의 세계와 잎 전부 비트 동일.
     """
     f = partial(step, params=params, g=g, policy_fn=policy_fn, check=check,
-                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
+                pre_advice=pre_advice, horizon_s=horizon_s, joint=joint, review=review)
 
     def cond(s):
         i, w = s
@@ -1160,11 +1195,11 @@ def run_while(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: i
     return finish(w)
 
 
-run_while_jit = jax.jit(run_while, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint"))
+run_while_jit = jax.jit(run_while, static_argnames=("g", "policy_fn", "S_max", "check", "pre_advice", "horizon_s", "joint", "review"))
 
 
 def run_python(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: int, check: bool = True,
-               pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False):
+               pre_advice: bool = False, horizon_s: float = 0.0, joint: bool = False, review: bool = False):
     """jit **없이** 파이썬 루프로 `step` 을 반복 — 시험 4) jit 유무가 답을 바꾸지 않는지.
 
     terminal 이 되면 멈춘다. 반환 (세계, StepTrace 각 열 앞에 (사용한 스텝 수,)).
@@ -1173,7 +1208,7 @@ def run_python(world0: BlockWorld, params, g: Geom, policy_fn: Callable, S_max: 
     traces = []
     for _ in range(int(S_max)):
         w, tr = step(w, None, params=params, g=g, policy_fn=policy_fn, check=check,
-                     pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
+                     pre_advice=pre_advice, horizon_s=horizon_s, joint=joint, review=review)
         traces.append(tr)
         if bool(w.terminal):
             break

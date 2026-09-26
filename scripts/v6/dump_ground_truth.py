@@ -31,7 +31,7 @@ from yard_rl.v6.world.domain.enums import InformationLevel
 from yard_rl.v6.world.integrated import (baselines as bl, candidates as cd,
                                           engine as eng, multiblock as mb,
                                           policy_config as pc, profiles as pr,
-                                          terminal_stream as ts, yard_layout as yl)
+                                          terminal_stream as ts, time_sell, yard_layout as yl)
 
 LVL = InformationLevel.PRE_ADVICE
 POLICIES = ("sf_spt", "reference", "first")
@@ -110,6 +110,33 @@ def _block_dump(bid: str, s) -> dict:
     }
 
 
+def _job_rows(s) -> dict:
+    """블록 하나의 **오더별 진실** — 배열판 `from_terminal_world` 의 blocks[b]["jobs"] 와 같은 키.
+
+    시각 셋(gate_in·block_arrival·actual_gate_out)의 출처는 **시간 장부 기록**이다 (v5 `time_ledger.records`) —
+    Job 의 actual_* 가 아니라. 배열판도 같은 곳(장부 열)에서 읽는다.
+    """
+    tl = getattr(s, "time_ledger", None)
+    out: dict[str, dict] = {}
+    for jid, j in s.jobs.items():
+        r = tl.records.get(jid) if tl is not None else None
+        out[jid] = {"status": j.status.name, "assigned_crane": j.assigned_crane,
+                    "rehandle_count": j.rehandle_count,
+                    "service_start": j.service_start, "service_end": j.service_end,
+                    "gate_in": (r.gate_in if r else None), "block_arrival": (r.block_arrival if r else None),
+                    "actual_gate_out": (r.gate_out if r else None)}
+    return out
+
+
+def _ledger_areas(s) -> dict:
+    """v5 `TimeLedger` 적분 3항 — 배열판 blocks[b]["ledger"] 와 같은 키."""
+    tl = getattr(s, "time_ledger", None)
+    if tl is None:
+        return {}
+    return {"terminal_area_s": tl.terminal_area_s, "block_area_s": tl.block_area_s,
+            "block_tail_area_s": tl.block_tail_area_s}
+
+
 def run_terminal(load: int, seed: int) -> dict:
     prof, built = _build(load, seed)
     mbt = mb.MultiBlockTerminal(
@@ -120,13 +147,35 @@ def run_terminal(load: int, seed: int) -> dict:
     out = mbt.run(_rule_policy(), review_fn=ann.review)
     secs = time.perf_counter() - t0
     turns = sorted(mbt.ledger.a_to_o_samples_s(ts.OBS_24H.observe_s))
+    truck_ids = {e["job_id"] for e in built["schedule"]}
+    # ★두꺼운 정답 (YR-327 검증 지적) — 21블록 규모에서도 투입 원장·locked·오더 전열·장부 적분을 대조할 수 있게.
+    #   배열판은 v5 를 살아 있는 채로 부르지 못하는 세션이 많아(WSL 80초), 이 세 가지가 정답에 없으면 구조적으로
+    #   대조가 불가능했다. 여기 넣어 두면 배열 쪽 시험은 JSON 만 읽고도 같은 항목을 볼 수 있다.
+    blocks = {}
+    for b, sim in mbt.blocks.items():
+        d = _block_dump(b, sim)
+        d["jobs"] = _job_rows(sim)
+        d["ledger"] = _ledger_areas(sim)
+        blocks[b] = d
+    ann_rows = []
+    for row in ann.ledger:
+        r = {"t": row["t"], "event": row["event"], "job_id": row.get("job_id")}
+        if row["event"] == "ADMIT":
+            r.update({"block": row["block"], "flow": row["flow"], "arrival_s": row["arrival_s"]})
+        elif row["event"] == "SKIP":
+            r["reason"] = row["reason"]
+        ann_rows.append(r)
     return {
         "mode": "terminal", "load": load, "seed": seed, "wall_s": round(secs, 3),
         "terminal_total": out["terminal_total"], "route_cost_s": out["route_cost_s"],
         "end": out["end"], "admitted": ann.n_admitted,
         "n_turns": len(turns), "turn_sum_s": round(sum(turns), 6),
         "turn_samples_s": [round(t, 6) for t in turns],
-        "blocks": {b: _block_dump(b, s) for b, s in mbt.blocks.items()},
+        "totals": out["totals"],
+        "ann_ledger": ann_rows,
+        "locked": {j: r.locked for j, r in sorted(mbt.ledger.records.items()) if j in truck_ids},
+        "deferrals": time_sell.deferral_ledger(mbt),
+        "blocks": blocks,
     }
 
 

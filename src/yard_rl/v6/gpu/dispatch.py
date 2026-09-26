@@ -76,6 +76,7 @@ v5 정본 의미 = `integrated/dispatcher.py:19-32` `ReferenceDispatcher.run` +
 """
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Callable, NamedTuple
 
 import jax
@@ -376,10 +377,16 @@ def resolve_central(params: ResolverParams, world: BlockWorld, c3, fl, pr, open_
     return choice, lost, flags
 
 
+@lru_cache(maxsize=None)
 def make_resolver(pref: str, g: Geom, *, count_lost: bool = True, k_max: int = K_MAX):
     """엔진 공동 규약의 policy_fn — `resolve_central` 을 static 인자로 묶는다 (jit/scan 안에서 호출됨).
 
     policy_fn(params: ResolverParams, world, c3, fl, pr, open_) → (choice, lost, flags).
+
+    ★같은 (pref, g, count_lost, k_max) 면 **같은 함수 객체**를 돌려준다 (lru_cache). `Engine` 이 frozen dataclass 라
+      이 함수의 id 가 jit static 키에 들어가므로, 호출마다 새 클로저를 만들면 환경을 새로 만들 때마다 전체 재추적이
+      일어난다 (B=1·n=1 에서도 2.4초 · 21블록은 그보다 크다). 영속 컴파일 캐시는 컴파일만 건너뛰고 추적은 매번 낸다.
+      인자가 전부 hashable 이라(Geom 은 frozen dataclass) 캐시가 안전하다.
     """
     def policy_fn(params, world, c3, fl, pr, open_):
         return resolve_central(params, world, c3, fl, pr, open_, g, pref=pref, count_lost=count_lost, k_max=k_max)

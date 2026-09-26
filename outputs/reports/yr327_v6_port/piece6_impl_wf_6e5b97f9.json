@@ -1,0 +1,493 @@
+{
+ "mods": [
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\admission.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_admission.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_admission.py::test_admission_matches_v5",
+     "passed": 4,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "v5 ScheduledAnnouncer.review + admit_external_job 를 에폭마다 가로채(review_fn 래핑) 배열판과 == 대조. 통과 무대 4/8: y01-20-600 (121 에폭·M=2·ADMIT 20·6.4초), y01-60-1800 (M=15·ADMIT 60·6.5초), y01y21-20-600 (2블록·ADMIT 20·11.5초), y01y21-60-1800 (2블록·M=9·ADMIT 60·12.3초). 대조 항목: 원장 ADMIT/SKIP 순열·free_slots 전후(전 블록)·큐 전체(시각·종류·대상·seq·counter)·오더 열 11항·시간 장부 A·전역 원장(owner/origin/flow/a_gate_in/version/transfer_count)·jit==eager 잎 전부·numpy 왕복(이어 돌리기 경로 61회). 나머지 4무대(cap·edge·tail·time — SKIP_CAP/DUP/TARGET/EXIT/TAIL/TIME 경로)는 코드·시험이 준비됐고 실행 중 WSL 배포판이 다른 세션의 `wsl --terminate` 로 5~15초마다 죽어 아직 완주 못함(배경 재시도 루프 진행 중 — cap 6회 사망). 실행: 세션당 무대 1~2개, 한 무대 ≈6~13초(컴파일 포함)."
+    },
+    {
+     "file": "tests/v6/test_gpu_admission.py::test_admission_epochs_and_slots_match_v5",
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "admission_epochs_s == v5 admission_epochs(OBS_24H) 1,441 격자 · slot_of == on_grid/round · 실제 명단(20대·lead 600/1800)의 by_epoch 키·순서 == 버킷"
+    },
+    {
+     "file": "tests/v6/test_gpu_admission.py::test_code_of_reason_covers_v5_messages",
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "v5 admit_external_job 소스의 raise 문구 5종이 전부 코드로 분류됨"
+    },
+    {
+     "file": "tests/v6/test_gpu_admission.py::test_terminal300_schedule_buckets_match_v5",
+     "passed": 0,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "정답 무대(21블록·300대·OBS_24H·lead 1800)의 버킷 == v5 by_epoch (호스트 단계, 엔진 없음). 작성됐으나 WSL 창 문제로 아직 미실행 — 미검증"
+    },
+    {
+     "file": "tests/v6/test_gpu_admission.py::test_zz_report",
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "무대별 코드 분포 보고 (REPORT_LOAD 병합 시 8무대 전부 확인)"
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "multiblock.py:285-289, 351-361 (_a_sorted 삽입·포인터 보정)",
+     "what": "시간 장부 A 정렬 리스트·포인터를 만들지 않는다 — gate_in_s 열만 채운다",
+     "why": "명세대로 engine_step._terminal_walk 의 닫힌 식 적분이 A 열에서 직접 경계를 읽는다 (gate_in < lo 가 '이미 소비된 A' — 포인터 보정과 같은 값)"
+    },
+    {
+     "v5_line_ref": "terminal_stream.py:793-797 (by_epoch dict[float])",
+     "what": "버킷 키를 round(…,6) 실수 대신 정수 slot=int(notify // period) 로, (E,B,M) 고정 배열",
+     "why": "격자 시각이 i·60.0 이라 정수와 1:1 — 시험이 by_epoch 키·순서와 == 확인"
+    },
+    {
+     "v5_line_ref": "terminal_stream.py:821-823 (SKIP reason 문자열)",
+     "what": "원장 SKIP 행에 v5 문구 대신 코드(0~6)·reason_code 이름을 둔다",
+     "why": "v5 문구는 값(free=…, gate_in=…)을 섞어 문자열 == 가 불가 — code_of_reason 으로 v5 문구를 코드로 분류해 대조"
+    },
+    {
+     "v5_line_ref": "multiblock.py:259, 262 (블록 없음·time_ledger 없음 raise)",
+     "what": "두 검사는 배열에 없다",
+     "why": "블록 색인은 호스트 구성 계약으로 항상 유효, 장부는 OrderArrays 열이라 항상 켜져 있다(ensure_time_ledger 과 같은 상태 = attach_schedule 이 is_external·exit_travel_s 를 미리 앉혀 ledger_mode 참)"
+    },
+    {
+     "v5_line_ref": "terminal_stream.py:502-506 (estimated_block_arrival·appointment_gate_time·notified_gate_in_s)",
+     "what": "OrderArrays 에 세 열이 없어 provided_eta_s(=est)·gate_in_s(=appointment)·notice_s(=arrival−lead) 로만 표현",
+     "why": "기존 OrderArrays 스키마 유지 (state.py 는 내 담당 아님); 시험이 v5 의 est==provided_eta, appointment==actual_gate_in 을 함께 확인"
+    }
+   ],
+   "public_api": [
+    "admission.attach_schedule(world: BlockWorld, tables: IdTables, entries: Sequence[dict], *, block_idx: int, rows=None) -> (world, tables', row_of_job: dict[str,int])  — 호스트 1회: 블록 b 의 명단 트럭을 오더 표 뒤 칸(n0..)에 정적 속성만 채워 앉힌다(block=-1 · gate_in +inf · inbound_cont=c0+행 · c_size). tables' 는 job_ids/cont_ids('IN_{job_id}')/n0 확장",
+    "admission.schedule_arrays(schedule: Sequence[dict], *, block_index: dict[str,int], row_of_job: dict[str,int], lead_s: float, n_epochs: int, period_s=60.0) -> (ScheduleArrays, info{T,E,B,M,dropped})  — 명단 순서 보존 (T,) 열 + (E,B,M) 버킷",
+    "admission.ScheduleArrays(slot, arrival_s, notify_s, travel_s, travel_base_s, block, row, bucket(E,B,M), epoch_s(E,))  — NamedTuple, jit 인자로 그대로",
+    "admission.admission_epochs_s(observe_s: float, period_s=60.0) -> np.ndarray (E,) f64  — v5 admission_epochs 와 같은 값",
+    "admission.slot_of(t_s: float, period_s=60.0) -> int  — 검토 시각 → 격자 슬롯, 격자 밖 -1 (v5 on_grid)",
+    "admission.admit_epoch(W: BlockWorld[B축], sched: ScheduleArrays, slot, g: Geom, *, margin: int = 2, reserved: (B,) int32 | None = None, end_ann: float = +inf) -> (W', codes (B,M) int32)  — 검토 시각 하나: 전 블록 vmap × 블록 안 명단 오름차순 lax.scan. slot<0 이면 항등. jit 판 admit_epoch_jit (static: g, margin). 통합 조정자는 전 블록이 t 에 park 한 뒤 slot_of(t) 로 호출",
+    "admission.admit_block(world: BlockWorld, b, entries (M,) int32, sched, g, *, margin=2, reserved=0, end_ann=+inf) -> (world', codes (M,))  — 블록 하나 (vmap 없이도 사용 가능)",
+    "admission.free_slots(world: BlockWorld, g: Geom, reserved=0) -> () int32 · free_slots_batch(W, g, reserved=None) -> (B,) int32  — v5 MultiBlockTerminal.free_slots (phys − Σc_alive − pending(block≥0&PLANNED&{GATE_IN,DISCHARGE}) − reserved)",
+    "admission.ledger_rows(codes (B,M), sched, slot: int, t_s: float, schedule) -> list[dict]  — v5 ScheduledAnnouncer.ledger 모양(명단 순서 · 마지막 EPOCH 행; SKIP 은 code/reason_code)",
+    "admission 코드 상수: ADMIT=0 SKIP_TAIL=1 SKIP_DUP=2 SKIP_EXIT=3 SKIP_TIME=4 SKIP_CAP=5 SKIP_TARGET=6 NO_ENTRY=-1 · CODE_NAMES · code_of_reason(v5 문구)->코드 · PERIOD_S=60.0 · CAPACITY_MARGIN=2",
+    "admission.stack_worlds(list[BlockWorld]) -> BlockWorld(B축) · world_at(W, b) · tree_to_numpy(tree) / tree_to_jax(tree)  — 블록 묶음·세션 이어 돌리기 저장/복원",
+    "투입이 채우는 오더 열 (통합·이송·이연 담당이 같은 규약을 쓴다): block=b(=원장 owner·존재 표시) · gate_in_s=arrival(A·시간 장부 등록) · actual_arrival_s=arrival+travel · provided_eta_s=arrival+travel_base · notice_s=max(0,arrival−lead) · travel_s · status=PLANNED · stage=NOTICE + queue push (arrival+travel, BLOCK_ARRIVAL, row)"
+   ],
+   "open_issues": [
+    "★환경: 이 세션 동안 WSL 배포판(Ubuntu)이 5~15초마다 죽었다 — `wsl --list`·Get-Process 로 03:44 에 다른 세션의 wsl.exe 가 동시에 떠 있음을 확인(다른 담당 에이전트들이 규칙 3 의 `wsl.exe --terminate Ubuntu` 를 각자 실행하는 것으로 추정; 배포판 uptime 은 7월부터라 VM 자체는 살아 있음). 그래서 8무대 중 4무대(cap·edge·tail·time)와 terminal300 버킷 시험·GPU 실행이 아직 완주 못함 — 배경 재시도 루프(scratchpad/run_stages_bg.sh, 결과 stages.out)가 돌고 있으니 통합 단계는 `PYTHONPATH=src:tests/v6 JAX_PLATFORMS=cpu pytest 'tests/v6/test_gpu_admission.py::test_admission_matches_v5[cap]' …` 를 무대 하나씩 재실행하면 된다(각 ≈10초). 통합 시 한 세션에 하나의 wsl 사용자만 두거나(터미네이트 금지) `wsl --import-in-place` 로 사본 배포판(30GB vhdx 복사)을 쓰는 것을 권한다.",
+    "GPU(XLA_PYTHON_CLIENT_PREALLOCATE=false) 실행은 스크립트(scratchpad/run_gpu.sh)만 준비 — 같은 이유로 미실행. 코드는 vmap/scan/where 만이라 CPU 와 같은 답이 기대되나 미검증.",
+    "오더 표는 블록별 (B,N_b) 구조(엔진이 `block >= 0` 을 존재 판정으로 씀) — 블록 간 이송(transfer 담당)은 행을 목적 블록 표로 옮겨야 하며 SKIP_DUP(`block>=0`) 판정·transfer_history/version 열은 이 모듈 밖. 이연(defer)이 arrival 을 바꾸면 같은 시각 도착의 stable argsort 순서(engine_step._tail_accumulate: 행 순 = seq 순 가정)가 v5 seq 순과 어긋날 수 있음 — 이연 담당이 확인 필요.",
+    "OrderArrays 에 estimated_block_arrival·appointment_gate_time·notified_gate_in_s 열이 없다(state.py 담당 아님) — 정책·block_congestion(D 특징)이 est 를 읽는다면 provided_eta_s 를 쓰거나 열 추가 필요.",
+    "gpu/__init__.py 의 __all__ 에 admission 을 등록하지 않았다(담당 파일 아님). git commit 도 하지 않았다(규칙 2).",
+    "attach_schedule 은 n_max ≥ 시나리오 작업 + 그 블록 명단 수, c_max ≥ 초기 컨테이너 + n_max 를 요구 — 터미널 300 은 블록당 ≈171 본선 작업 + ≤30 트럭 → n_max 256, 21블록 vmap 을 위해 같은 칸 수로 to_block_world(c_max 공통) 해야 한다(호스트 통합 몫)."
+   ]
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\ledger.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_ledger.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_ledger.py",
+     "passed": 9,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "총 9건 = 통합 2 (load20 · load60-transfer-defer) + 단위 6 + zz_report. 전부 v5 를 실제로 불러 == 대조 (기대값 손기입 없음). ■ CPU x64: 단위 6건 5.6초 / load20 26.0초 (블록별 가로채기 30,261회 · 에폭 1,441 · records 3,620 · 표본 20 · mismatch 0 · harvest 뒤 records 전 필드 diff 0 · a_to_o 목록 순서·정렬열 == · route 0.0==0.0) / load60 25.1초 (records 3,660 · 표본 60 · pre-gate 이송 Y03:D-00000→Y21 @t=0 route 198.0 · 이연 Y16:D-00001 @t=4980 600s · 술어 4건(성공 2 + 상한 거절 2) v5 와 일치 · route_cost_s 198.0==198.0 · mismatch 0 · diff 0). ■ GPU (CUDA · epoch 가로채기 모드 자동): 단위 6건 10.0초 / load20 25.7초 / load60 29.0초 — 전부 mismatch 0 · diff 0 · route 일치. ■ zz_report 는 통합 시험과 같은 조각에서 돌면 통과, 단위만 돌린 조각에서는 skip (report_dump 병합 규약과 같음). ■ 환경: WSL 세션이 이제 7~30초 만에 죽어(03:43~03:50 실측 10/7/26/26초) 통합 시험은 '외부 kill 직후 시작' 으로 2~3회 시도해 통과시켰다 (한 부하 ≈ 25~29초 필요)."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "piece6_spec equivalence_test 2단계 (Y01+Y21 · 40대 · t=1800 이송 · t=2400 이연)",
+     "what": "2단계를 21블록 전체 · 부하 60 으로 하고, 이송/이연 시각을 고정하지 않고 '아직 게이트 전(A > t+1e-6)·PLANNED·미잠금인 첫 반입 트럭이 있는 첫 에폭' 에 try_pre_gate_transfer(dst = free_slots 최대 블록), 그 뒤 에폭에 try_defer_admitted_entry(600s) 를 강제. 성사 ≥1건씩을 단언.",
+     "why": "lead 1800·부하 60 에서는 t=1800/2400 에 투입된 트럭이 있다는 보장이 없어 시험이 헛돌 수 있다. 동적 선택이면 항상 commit·defer 경로가 열리고, 같은 트럭 재시도(이송 상한·이연 상한 거절)까지 v5 와 대조된다."
+    },
+    {
+     "v5_line_ref": "과제문 '원장 = OrderArrays 열 자체(owner=block …)'",
+     "what": "state.py(OrderArrays) 는 담당 밖이라 원장을 별도 NamedTuple `TruckLedger` (N,) 로 두고, owner 열 + `gather_owned(x_bn, owner)` 로 (B,N) 블록 세계의 소유 행을 (N,) 으로 모아 쓰게 했다.",
+     "why": "자기 담당 파일만 수정 규칙. 조정자는 OrderArrays 의 status/block_in_s/done_s/gate_out_s 를 gather_owned 로 넘기면 된다."
+    },
+    {
+     "v5_line_ref": "multiblock.py 212-227 _sync_locks 가로채기",
+     "what": "GPU 에서는 블록별 30k 회 왕복이 세션 창을 넘겨 시험이 에폭마다 전 행 한 번(1,441회) 으로 배열 sync 를 적용·비교한다 (LEDGER_SYNC_MODE=epoch · GPU 기본). CPU 기본은 블록별 가로채기이고, CPU 판이 에폭마다 '전 행 한 번 == 블록별 21번' 도 검증한다.",
+     "why": "park 뒤 블록 상태가 불변이라 두 호출 방식은 같은 답(행 단위 독립·멱등). 조정자의 실제 호출 방식이 '에폭마다 전 블록' 이라 그 경로도 검증된다."
+    },
+    {
+     "v5_line_ref": "multiblock.py 379-399 · 421-448 · 476-488 · 309-332 (prepare/validate/defer 의 raise 순서)",
+     "what": "술어(pre_gate_ok·post_gate_ok·validate_ok·defer_ok)는 원장이 답할 수 있는 검사만 (ok, 첫 실패 코드) 로 낸다. status==PLANNED · free_slots · find_slot · 도착시각 창 · time_ledger 대칭은 조정자 검사.",
+     "why": "블록 상태는 원장 밖. 코드는 진단용이며 조정자 검사가 사이에 끼면 v5 예외 문장 순서와 1:1 이 아니다 (시험은 참/거짓과 상한 거절 코드만 대조)."
+    },
+    {
+     "v5_line_ref": "time_contract.py TruckTimes / multiblock.py 73-79 tl.records.get",
+     "what": "harvest·sync_locks 는 '블록 장부 항목 유무' 를 tl_mask (N,) bool 입력으로 받는다 (장부 모드에서 = is_external & exit_travel_s ≥ 0).",
+     "why": "배열판에는 블록 장부 dict 가 없고 OrderArrays 열뿐이다. 본선 작업(장부 항목 없음)의 B·C·O 가 원장에 새지 않게 명시 마스크로 가른다."
+    }
+   ],
+   "public_api": [
+    "class TruckLedger(NamedTuple)  — (N,) 열: registered bool · origin_block/owner/flow/version/transfer_count int32 · transfer_src/transfer_dst int32 (N,H) · transfer_t f64 (N,H) · a_gate_in/b_block_arrival/c_job_done/o_gate_out f64 (+inf=None) · locked bool · entry_deferrals int32 · entry_deferred_s f64 · reg_seq int32 (등록 순번, -1 미등록) · n_registered () int32 · route_cost_s () f64 · overflow () int32 ; 속성 .n .h",
+    "empty_truck_ledger(n: int, h_max: int = 1) -> TruckLedger",
+    "can_register(L, n) -> (ok () bool, code () int32)   # admit 257행 중복 검사",
+    "register(L, n, origin_block, owner, flow, a_gate_in, ok=True) -> TruckLedger   # admit 290-291 · 초기 137-140 (a_gate_in=+inf 가 None)",
+    "register_rows(L, mask (N,) bool, origin_block, owner, flow, a_gate_in) -> TruckLedger   # 여러 행을 n 오름차순으로 (구성 시)",
+    "sync_locks(L, rows (N,) bool, status (N,) int32, block_in_s (N,) f64, tl_mask (N,) bool) -> TruckLedger   # _sync_locks 212-227 · 블록별(rows=owner==b) 또는 에폭마다 전 행(rows=all)",
+    "harvest(L, status, block_in_s, done_s, gate_out_s, tl_mask) -> TruckLedger   # harvest 66-82 · 입력은 gather_owned 한 (N,) 열",
+    "a_to_o_samples_s(L, end) -> (N,) f64 (NaN = 표본 아님)   # 84-93 · n 순 = 명단 순",
+    "sample_list(L, end) -> list[float]   # v5 a_to_o_samples_s 와 같은 목록 (dict 순서)",
+    "reassignable(L) -> (N,) bool   # JobRecord.reassignable 52-54",
+    "registration_order(L) -> (N,) int32   # v5 records dict 순회 순서 (앞 n_registered 칸 유효)",
+    "commit_transfer(L, n, dst, now, route_s, ok=True) -> TruckLedger   # commit 611-616 · 이력 칸 부족 시 overflow+1",
+    "defer_entry(L, n, delta_s, ok=True) -> TruckLedger   # defer 322-323 · 363-366",
+    "pre_gate_ok(L, n, dst, now, *, n_blocks: int, max_transfers: int = 1) -> (ok, code)   # 421-441 원장 검사",
+    "post_gate_ok(L, n, dst, now, *, n_blocks: int) -> (ok, code)   # 379-391",
+    "validate_ok(L, n, src, seen_version) -> (ok, code)   # 476-480",
+    "defer_ok(L, n, delta_s, now, *, max_deferrals: int = 1) -> (ok, code)   # 309-317",
+    "invariant_errors(L, world_owner (N,) int32) -> () int32   # check_invariants 653-666 (0 이어야 정상)",
+    "gather_owned(x_bn (B,N), owner (N,) int32, fill=None) -> (N,)   # 소유 블록 행 모으기 (owner<0 → 빈값)",
+    "to_numpy(L) -> dict[str, np.ndarray] · from_numpy(d) -> TruckLedger   # npz 저장·복원 (세션 이어 돌리기)",
+    "to_v5_records(L, job_ids, block_ids, flow_names=None, rows=None) -> dict[job_id, dict]   # v5 records 모양 · dict 순서 = 등록 순서",
+    "상수: GATE_EPS=1e-6 · LR_OK/LR_UNREGISTERED/LR_BAD_DST/LR_NOT_REASSIGNABLE/LR_TRANSFER_CAP/LR_ALREADY_GATE_IN/LR_BEFORE_GATE_IN/LR_A_MISSING/LR_STALE/LR_DELTA_NONPOS/LR_DEFER_CAP/LR_DUPLICATE · LR_NAMES"
+   ],
+   "open_issues": [
+    "★원장 표현이 세 개 겹친다 — 담당 밖 파일이라 손대지 않았다: gpu/transfer_txn.py `TxnLedger`(owner·origin·version·transfer_count·hist_src/dst/t·locked·entry_deferrals·entry_deferred_s·reserved_inbound·cont_base·route_cost_s·txn_seq·open_txn) 와 gpu/host_terminal.py `TerminalLedgerArrays`(registered·owner·row·origin·…·a_gate_in·reserved_inbound·route_cost_s·txn_seq) 와 이 파일의 `TruckLedger`. 통합 시 하나로 합쳐야 한다. TruckLedger 만 갖는 것: registered/a·b·c·o 시각/reg_seq(dict 순서)/harvest/a_to_o 표본/v5 records 전 필드 대조. TxnLedger 만 갖는 것: reserved_inbound·txn_seq·open_txn(조정자 트랜잭션 상태 — 원장 열이 아니라 그대로 두어도 됨). 이름 대응: origin↔origin_block · hist_*↔transfer_* · hist_overflow↔overflow.",
+    "transfer_txn.py `sync_locks` 는 b_block_arrival 을 두지 않고, `reassignable` 에 v5 의 `b_block_arrival is None` 항(54행)이 없다 — 트럭은 B 가 lock 과 동시에만 생겨 실무상 같지만 v5 records 전 필드 대조(harvest 뒤 b/c/o)는 TruckLedger 쪽 함수로 해야 한다.",
+    "조정자 규약 (통합 시 지킬 것): ① sync_locks 는 v5 처럼 **모든 ReviewEpoch 에 전 블록** 적용 — 마지막 에폭(86400) 뒤 RELEASED 된 본선 작업은 harvest 가 잠그지 않아 v5 에서 unlocked 로 남는다(시험이 이 경계를 실제로 대조: load20 에서 RELEASED 3건). ② harvest 는 run 끝에 한 번, status/B/C/O 는 gather_owned(…, owner). ③ commit 의 now = 에폭 t (mbt.now = min live clock = t). ④ tl_mask = is_external & exit_travel_s ≥ 0 (ensure_time_ledger 로 전 블록 장부 모드). ⑤ 블록 번호 = layout.ids 순 · 오더 n = v5 records 삽입 순(블록순×sim.jobs 순 → 명단 순) 이면 reg_seq == n.",
+    "scripts/v6/verify_chunked.sh 의 SIZE 표·기본 파일 목록·--report 파일 목록에 test_gpu_ledger.py 가 없다 (담당 밖). 권장: SIZE 1 (통합 2건은 각 ≈25~29초 · 단위 6건은 한 조각 6초). src/yard_rl/v6/README.md 파일 표에도 ledger.py 행 추가 필요.",
+    "WSL 세션 창이 README 의 ~88초에서 **7~30초** 로 줄었다(03:43~03:50 실측). 통합 시험(≈25~29초)은 '배포판이 외부 kill 로 Stopped 된 직후 시작' 해야 통과한다 — 임시 스크립트로 2~3회 시도해 통과했고, 그 절차를 verify_chunked.sh 의 fresh() 에 넣을지는 통합 몫.",
+    "터미널 부하 300 정답(terminal_load300_seed9900777.json 의 turn_samples_s 300건·turn_sum_s) 은 조정자 없이는 이 원장만으로 낼 수 없다 — sample_list(L, 86400.0) 가 v5 a_to_o_samples_s 와 목록 그대로(순서 포함) 같음을 부하 20·60 에서 확인했으므로, 조정자가 붙으면 sorted(sample_list) 와 round(sum(sorted),6)(파이썬 sum = Neumaier 보정합 → exact.sum_python) 으로 대조하면 된다.",
+    "git commit 하지 않았다 (규칙). 두 파일은 untracked 상태."
+   ]
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\transfer_txn.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_transfer_txn.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_transfer_txn.py",
+     "passed": 6,
+     "failed": 0,
+     "skipped": 0,
+     "notes": "CPU x64 (JAX_PLATFORMS=cpu) 한 세션 10.1초 (6 passed) · test_gpu_state.py 와 같이 돌려도 18 passed 11.4초. GPU(RTX, XLA_PYTHON_CLIENT_PREALLOCATE=false)는 세션을 넷으로 나눠 전부 통과: forced 7.0s · random(TXN_EPOCH_STEP=2400, 3 에폭) 34.3s · staged+spare 18.1s · ledger 10.7s — GPU 에서 random 12 에폭 전체(198 질의)는 질의당 장치 왕복 때문에 80초 창을 넘겨 env TXN_EPOCH_STEP 로 걸음을 키웠다(CPU 는 전체). 내용: ① forced — v5 무대(Y01+Y21·40대·lead 1800)를 실제로 굴려 t=1800 에 try_pre_gate_transfer 1건(Y01:D-00010 → Y21, route 220 s, 새 도착 2319.415), t=2400 에 try_defer 1건(Y01:D-00014, Δ600) 강제 → 오더 행 전열·큐(시각·종류·대상·순번 정렬열+카운터)·컨테이너 규격·원장(owner/version/transfer_history/entry_deferrals/entry_deferred_s/route_cost_s=220) 이 v5 재변환과 == , v5 estimated_block_arrival == provided_eta 확인. ② random — 검토 시각 12곳 × 의도 목록(성공·미등록·부적격·자격·상한·이미 gate-in·gate-in 전·용량·도착·음수Δ·창밖·되돌림)+무작위 = 198 질의를 v5·배열 lockstep 으로, 판정(ok·코드)과 상태 == ; 나온 사유: pre OK 11·미등록 12·부적격 14·lock/자격 14·이송 상한 32·이미 gate-in 2·용량 8·도착시각 무효 2, post OK 7·gate-in 전 12·…, defer OK 9·미등록 10·이미 gate-in 12·양수 12·상한 22·창밖 12. ③ staged — deepcopy 무대에서 prepare→(version+1|lock|status→RELEASED|rollback|이중 commit)→commit: stale·준비 후 lock·준비 후 상태 변경·닫힌 트랜잭션×2·OK; lock 해제 조작 → 소스 상태 위반, A 조작+이연 → 상태 위반; 야드 조작(빈 칸 FT20·FT40 칸 만재, 344상자, free 160) → 규격 적합 슬롯 없음 — 전부 v5 코드·상태 == . ③b spare-row — dst 사본의 다른 행(8→39)으로 이송(dst_row) 뒤 행 번호를 되돌려 v5 와 잎 전부 == , 빈 행 없음(-1)은 R_NO_SPARE_ROW 로 무변경(txn_seq 만 v5 처럼 소모). ④ 300초마다 25곳: free_slots (B,)·sync_locks(잠금 지우고 재계산)·reassignable·check_invariants·terminal_now == v5. 구조상 불가한 사유 셋(time_ledger 비대칭·소스 장부 A 부재·시간 장부 항목 없음)과 gate-in 결측은 이 무대에서 안 나온다(v5 도 못 낸다)."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "multiblock.py:41-54 JobRecord.a_gate_in·flow·b_block_arrival",
+     "what": "원장에 a_gate_in·flow·b_block_arrival 열을 두지 않고 OrderArrays 열에서 파생한다 (a = orders.gate_in_s[owner,row], flow = orders.flow[owner,row], reassignable = ~locked & flow==GATE_IN).",
+     "why": "명세 '원장 = OrderArrays 열 자체' — 중복 열은 드리프트 원인. v5 는 b_block_arrival 을 _sync_locks 가 lock 과 함께만 채우므로 ~locked 에 포함된다(harvest 는 런 끝 1회). 손으로 rec.locked=False 만 풀면 v5 는 b 때문에 'lock/자격 위반', 배열은 '소스 상태 위반'이 되는데 이는 자연 런에서 생기지 않는 조작 — 시험 ③(f) 는 v5 쪽 b 도 None 으로 맞춰 대조했다."
+    },
+    {
+     "v5_line_ref": "multiblock.py:341-348 notified_gate_in_s·estimated_block_arrival",
+     "what": "이연 시 notified_gate_in_s·estimated_block_arrival 을 따로 갱신하지 않는다 — gate_in_s 한 열이 actual_gate_in·notified_gate_in_s·장부 A 를 대표하고, provided_eta_s 한 열이 provided_eta·estimated_block_arrival 을 대표한다. notice_s(통지·appointment 원점)는 건드리지 않는다.",
+     "why": "OrderArrays 에 그 열이 없고 v5 에서 세 값(또는 두 값)은 _job_from_entry 이후 항상 같은 값으로 함께 움직인다(시험이 v5 estimated_block_arrival == provided_eta 를 단언). 비용 은닉 금지 계약(302-304행) 대로 통지 원점은 불변."
+    },
+    {
+     "v5_line_ref": "multiblock.py:130·562·625-629 _open_txn set",
+     "what": "열린 트랜잭션 집합을 고정 칸 open_txn (MAX_OPEN=4 기본) 으로, 칸 부족은 open_overflow 계수로 표시. transfer_history 도 고정 칸(max_t) + hist_overflow.",
+     "why": "set/tuple 은 배열이 안 된다. 조용히 자르지 않고 0 이어야 정상인 계수를 둔다 (칸 수 계약). 시험은 max_t=8 (진입 후 이송은 v5 에 상한이 없어 한 트럭이 여러 번 옮겨진다 — 실제로 2회 발생)."
+    },
+    {
+     "v5_line_ref": "multiblock.py:556-620 commit (dict 소유 이동)",
+     "what": "배열판 전용 거절 코드 R_NO_SPARE_ROW(23): dst 사본에 앉을 행(dst_row)이 -1 이면 commit 을 거절한다.",
+     "why": "v5 dict 는 자리가 무한이지만 배열은 여분 행이 있어야 한다(host_terminal.py 규약 n_spare). 칸 부족을 조용히 넘기지 않는다. 전역 행 규약(dst_row=None)에서는 발생하지 않는다."
+    },
+    {
+     "v5_line_ref": "multiblock.py:653-666 check_invariants '보존 위반'",
+     "what": "check_invariants 는 등록 트럭의 (owner,row) 실재·유일성만 검사하고 '블록에 있는데 원장에 없는 작업' 은 검사하지 않는다.",
+     "why": "블록별 행 규약(host_terminal)에서는 본선 작업이 원장 밖이라 그 검사가 성립하지 않는다."
+    },
+    {
+     "v5_line_ref": "piece6_spec equivalence_test 2단계 (lead 600)",
+     "what": "시험 무대의 통지 리드를 600 이 아니라 1800(정답 궤적과 같은 값)으로 두었다.",
+     "why": "진입 전 후보 창이 lead 폭이라 600 이면 t=1800 에 반입 후보가 없을 수 있다(40대·반입 40%·2블록). 1800 이면 매 검토 시각에 후보가 있어 강제 1건·의도 질의가 결정론적으로 성립한다."
+    }
+   ],
+   "public_api": [
+    "모듈 yard_rl.v6.gpu.transfer_txn (순수 함수 · jit 가능 · static 은 g·k0 뿐; capacity_margin/max_transfers/max_deferrals/travel/route/now/job/dst/dst_row 는 traced)",
+    "class TxnLedger(NamedTuple): owner (N,)i32 · row (N,)i32 [owner 사본의 행; 전역 행 규약이면 =n] · origin (N,)i32 · version (N,)i32 · transfer_count (N,)i32 · hist_src/hist_dst (N,T)i32 · hist_t (N,T)f64 · locked (N,)bool · entry_deferrals (N,)i32 · entry_deferred_s (N,)f64 · reserved_inbound (B,)i32 · cont_base (B,)i32 [블록별 c0] · route_cost_s ()f64 · txn_seq ()i32 · open_txn (MAX_OPEN,)i32 · open_overflow ()i32 · hist_overflow ()i32",
+    "class TransferTxn(NamedTuple): job src dst seen_version new_arrival_s prepared_at_s route_s txn_id (전부 0-d; txn_id=-1 = 없음/닫힘)",
+    "empty_txn_ledger(n, b, *, max_t=1, max_open=4) -> TxnLedger ; register_job(ledger, n, block, row=None) -> TxnLedger ; no_txn() -> TransferTxn",
+    "terminal_now(worlds) -> ()f64  (v5 MultiBlockTerminal.now) ; live_mask(worlds) -> (B,R)bool ; first_free_row(worlds, b, min_row=0) -> ()i32 (-1 없음) ; free_slots(worlds, ledger) -> (B,)i32 ; sync_locks(worlds, ledger, blocks=None) -> TxnLedger ; reassignable(worlds, ledger, n) -> ()bool ; remove_block_arrival(queue_row, n) -> EventArray ; check_invariants(worlds, ledger) -> ()bool",
+    "prepare_transfer(worlds, ledger, now, job, dst, *, route_s, travel_s, capacity_margin=2) -> (ledger', TransferTxn, code)",
+    "prepare_pre_gate_transfer(worlds, ledger, now, job, dst, *, travel_s, route_delta_s=0.0, capacity_margin=2, max_transfers=1) -> (ledger', TransferTxn, code)",
+    "validate(worlds, ledger, txn, g: Geom, *, k0=0) -> code ()i32   [k0 = profile.cranes[0] 의 정렬 크레인 번호]",
+    "commit(worlds, ledger, txn, now, g, *, k0=0, dst_row=None) -> (worlds', ledger', code)   [dst_row=None 전역 행 규약 · 블록별 규약은 first_free_row(worlds, d, n_used_d)]",
+    "rollback(ledger, txn) -> ledger'  (멱등 release)",
+    "try_transfer(worlds, ledger, now, job, dst, *, route_s, travel_s, g, k0=0, capacity_margin=2, dst_row=None) -> (worlds', ledger', ok ()bool, code ()i32)",
+    "try_pre_gate_transfer(worlds, ledger, now, job, dst, *, travel_s, route_delta_s=0.0, g, k0=0, capacity_margin=2, max_transfers=1, dst_row=None) -> (worlds', ledger', ok, code)",
+    "defer_admitted_entry(worlds, ledger, now, job, delta_s, *, max_deferrals=1) -> (worlds', ledger', code) ; try_defer_admitted_entry(...) -> (worlds', ledger', ok, code)",
+    "거절 코드 OK=0 · R_UNREGISTERED 1 · R_BAD_DST 2 · R_NOT_REASSIGNABLE 3 · R_MAX_TRANSFERS 4 · R_SRC_STATUS 5 · R_ALREADY_GATE_IN 6 · R_NO_GATE_IN 7 · R_BEFORE_GATE_IN 8 · R_LEDGER_ASYM 9 · R_CAPACITY 10 · R_BAD_ARRIVAL 11 · R_STALE 12 · R_LOCKED_AFTER 13 · R_STATUS_AFTER 14 · R_NO_SLOT 15 · R_CLOSED_TXN 16 · R_NONPOSITIVE_DELTA 17 · R_MAX_DEFERRALS 18 · R_STATUS 19 · R_OUT_OF_WINDOW 20 · R_LEDGER_A_MISSING 21 · R_NO_LEDGER_RECORD 22 · R_NO_SPARE_ROW 23 ; REASONS/REASON_NAMES ; reason_code(v5 예외 문구) -> code",
+    "호스트: txn_ledger_from_v5(mbt, job_index, block_index, cont_base, *, n, max_t=1, max_open=4, row_of=None) -> TxnLedger ; txn_ledger_to_v5(ledger, job_ids, block_ids) -> dict(records{job:{owner,row,origin_block,version,transfer_count,transfer_history,locked,entry_deferrals,entry_deferred_s}}, reserved_inbound, route_cost_s, txn_seq, open_txn, open_overflow, hist_overflow)",
+    "세계 계약: worlds = BlockWorld 를 앞축 B 로 쌓은 것. 트럭은 owner 사본의 row 에만 살고(orders.block[b,r]>=0) 다른 사본은 빈 행(empty_orders 기본값). 이송 = 행 복사 뒤 원본 비움 + inbound_cont[d,dst_row]=cont_base[d]+dst_row + conts.c_size[d,그 칸]=규격 + 큐 BLOCK_ARRIVAL 제거/재push(대상 = 각 사본의 행 번호) + 원장 갱신. 실수 연산은 덧셈뿐(FMA 무관) · 허용오차 1e-6(창)·1e-9(도착) v5 그대로."
+   ],
+   "open_issues": [
+    "★행 번호 규약 불일치 — 병렬 담당 파일들이 두 갈래다: gpu/host_terminal.py(convert)·gpu/admission.py(admit)는 블록별 행 + 여분 행(n_spare, TerminalLedgerArrays.row), gpu/ledger.py(ledger)는 전역 N 행(TruckLedger). 본 모듈은 둘 다 받게 (owner,row) 로 일반화했다 — 블록별 규약이면 commit/try_* 에 dst_row=first_free_row(worlds, d, tables.n_used[d]) 를 넘기고 ledger.row 를 유지해야 한다(시험 ③b 가 이 경로를 대조). 통합 단계가 원장 타입 하나를 골라야 한다: TxnLedger 는 locked·open_txn·cont_base 를 갖고, TerminalLedgerArrays 는 locked/open_txn/cont_base 가 없으며, TruckLedger 는 row 가 없다. 원장 열 이름(owner/version/transfer_count/hist_*/entry_*)은 세 판이 같아 병합은 기계적이다.",
+    "gpu/ledger.py 도 pre_gate_ok/post_gate_ok/validate_ok/defer_ok/commit_transfer/defer_entry 를 구현했다(원장 검사만, 코드 번호 체계 LR_* 가 다름). 본 모듈의 R_* 는 v5 예외 순서와 1:1 이고 블록 상태 검사(status·용량·find_slot·도착 창)를 포함한 완전한 판정이다 — 통합 시 하나만 남기길 권한다(중복 코드).",
+    "src 사본의 c_size[cont_base[s]+src_row] 는 이송 뒤 그대로 둔다(place 는 살아 있는 오더 예비칸만 읽음). 조정자가 c_size 로 '예비칸 비어 있음' 을 판정하는 코드를 쓴다면 비워야 한다.",
+    "sync_locks 호출 시점: v5 는 블록이 ReviewEpoch 를 돌려줄 때(park 직후) _sync_locks 를 부르고 끝난 블록은 안 부른다. 조정자는 검토 시각마다 sync_locks(worlds, ledger, blocks=~terminal) 를 review 전에 불러야 v5 와 같은 locked 이 된다(시험 ④ 는 전 블록 판으로 대조 — 이 무대에서는 같다).",
+    "GPU 에서 random 시험 전체(198 질의)는 80초 창을 넘긴다(질의당 장치 왕복). TXN_EPOCH_STEP=2400 으로 통과 확인. verify_chunked.sh 의 파일 목록·SIZE 표에 test_gpu_transfer_txn.py(조각 3)를 추가해야 자동 회귀에 든다(스크립트는 내 담당 아님).",
+    "README(src/yard_rl/v6/README.md) 파일 표에 transfer_txn.py 줄 추가 필요(내 담당 아님). gpu/__init__.py 는 모듈을 열거하지 않아 손댈 것 없음.",
+    "git commit 하지 않았다(규칙). 변경은 위 두 파일뿐이며 v5(world/·stage/) 무수정."
+   ],
+   "ladder": "해당 없음 — 조각 6 의 txn 담당(이송/이연 원자 확정)만 구현·시험했고 통합·터미널 300 재현은 통합 단계 몫. 참고 시간: 2블록·40대 v5 무대 한 번 굴리기 ≈2초, 배열 함수 jit 컴파일 포함 시험 파일 전체 CPU 10초 / GPU 4세션 합 ≈70초."
+  },
+  {
+   "files_written": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\host_terminal.py",
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_host_terminal.py"
+   ],
+   "tests": [
+    {
+     "file": "tests/v6/test_gpu_host_terminal.py",
+     "passed": 20,
+     "failed": 0,
+     "skipped": 1,
+     "notes": "무대 = dump_ground_truth.run_terminal 과 같은 구성(build_diurnal seed 9900777 · OBS_24H · load 30 과 300 · 21블록 · ensure_time_ledger · admission_epochs · ScheduledAnnouncer lead 1800). 기대값 손기입 없음 — v5 MultiBlockTerminal 을 실제로 만들어 reset 직후 상태를 읽어 == 로 대조. ① 블록 번호(삽입순=정렬순)·행 번호(sorted namespaced id, 트럭 앞)·반입 예비칸 이름 IN_{Y01:…} ② 격자·컨테이너 좌표·크레인 위치/레일/idle 장벽 ③ 큐 시드 (time·priority·kind·payload·seq 순서, payload namespaced) ④ 본선 작업 행 15열 == sim.jobs · 트럭 행은 block −1·gate_in +inf 이면서 정적 열 == _job_from_entry 의 Job · ledger_mode == (time_ledger is not None) ⑤ 배 15열·이송·ETA wake·review_s == sim.review_epochs ⑥ 명단 배열 == ann.by_epoch (에폭별 순서 포함) · SKIP_TAIL · 검토 시각 == admission_epochs ⑦ 원장 초기값 · from_terminal_world 초기 dict(n_jobs·빈 로그 해시·unfinished·cost_raw) ⑧ npz 저장·복원 잎 전부 비트 동일 ⑨ ★터미널 세계의 Y01 조각(트럭 행 15개가 '없는 오더')을 run_jit(SF_SPT·PRE_ADVICE·joint) 으로 끝까지 굴린 결과 == 같은 namespaced 시나리오를 트럭 없이 굴린 v5 (사건 1,318 · 결정 237 · 해시 770ff39e6f508b58 · 비용 13항 · KPI · closed_end) — CPU 7.1초, GPU(RTX 5090) 15.4초 같은 해시 ⑩ 원장 갱신(투입 2·이송 1 흉내) 뒤 행→id 사상·IN_ 이름·턴타임 표본(O−A / max(0, observe−A))·n_jobs. skipped 1 = ⑨ 의 load30 변형(설계상 load300 만). 변환 소요: CPU x64 load30 2.1초 · load300 1.6초 (21블록 · 잎 209개 · n_max 255 · c_max 1191 · E 1441) · GPU 7~8초. 공식 실행: scripts/v6/verify_chunked.sh --fresh test_gpu_host_terminal.py → 조각 5 · 통과 17 · 실패 0 (⑩ 추가 전), 그 뒤 한 세션 전체 실행 20 passed 1 skipped 36초."
+    }
+   ],
+   "deviations_from_spec": [
+    {
+     "v5_line_ref": "multiblock.py:243-291 admit_external_job · engine_step.py:214 ledger_mode",
+     "what": "트럭 행을 투입 시점에 복사하지 않고 변환 때 미리 채워 둔다(정적 열 전부 = _job_from_entry 의 Job) — 다만 block=-1·gate_in_s=+inf 로 '없는 오더'. 투입 = block·gate_in·큐 push·원장 등록만.",
+     "why": "배열 ledger_mode 가 any(is_external & exit_travel≥0) 라 미리 채운 행이 v5 ensure_time_ledger(빈 장부를 처음부터) 와 같은 장부 모드를 만든다. 엔진의 모든 오더 마스크가 block≥0 을 보므로 보이지 않음 — 시험 ⑨ 가 Y01 전 궤적으로 확인."
+    },
+    {
+     "v5_line_ref": "engine.py:477 · 1001 · candidates.py:62,127,185,280,432 (sorted(self.jobs)) · multiblock.py:669-690 _namespace_jobs",
+     "what": "블록 안 행 번호 = sorted(namespaced job_id) 순위 → 트럭(\"Y01:D-…\")이 본선 작업(\"Y01:J-V-…\")보다 앞 번호. 과제 문구의 '기존 to_block_world 를 블록마다 부른다' 는 지키되, 본선 작업 id 를 namespaced 로 바꾸고 트럭 Job 을 함께 넣어 정렬시킨 뒤 큐·wake 를 본선 작업만으로 다시 시드.",
+     "why": "배열 엔진의 job_id tie-break 가 오더 번호 n 그 자체(cands3.py:573 name_rank=n · first_by_id · release_rank) 라, 투입 뒤 v5 sorted(jobs) 순서와 같으려면 트럭이 앞이어야 한다. 정답 payload 도 namespaced(\"Y01:D-00035\")."
+    },
+    {
+     "v5_line_ref": "multiblock.py:135-140 (본선 작업 JobRecord 등록)",
+     "what": "전역 원장 배열은 트럭 S 건만 든다 — 본선 작업의 JobRecord 는 배열로 두지 않는다.",
+     "why": "a_gate_in=None·flow 가 GATE_IN 아님이라 턴 표본·이송·이연 어디에도 영향이 없다. check_invariants 의 '보존 위반' 계수만 잃는다(문서화)."
+    },
+    {
+     "v5_line_ref": "과제 서명 to_terminal_world(profile, built, *, n_max, q_cap, log_cap, ...)",
+     "what": "n_max·q_cap·log_cap 을 선택 인자로(기본 = 필요 최대 + n_spare / max(32,4N) / 9N+256). 모자라면 조용히 자르지 않고 ValueError.",
+     "why": "블록마다 오더 수가 달라 호출자가 최대값을 계산해야 하는 부담을 없앰(과제 '최대값으로 맞추고 빈 칸 마스크')."
+    },
+    {
+     "v5_line_ref": "host_convert.IdTables.n0",
+     "what": "블록별 IdTables.n0 = 사용 행 수(트럭+본선 작업), job_ids 는 namespaced. 여분 행(n_spare)은 이름 없음.",
+     "why": "from_block_world·resolver_params 가 n0/job_ids 로 행을 세므로 트럭 행까지 포함해야 payload·순위표가 맞는다. 이송으로 들어온 트럭은 block_tables(tw, tables, b) 가 원장 기준으로 이름을 되살린다."
+    }
+   ],
+   "public_api": [
+    "to_terminal_world(profile, built: dict, *, lead_s: float, n_max: int | None = None, q_cap: int | None = None, log_cap: int | None = None, extra_review_epochs=(), end_s: float | None = None, period_s: float = 60.0, observe_s: float | None = None, layout=None, n_spare: int = 0, max_transfers: int = 1, capacity_margin: int = 2) -> tuple[TerminalWorld, TerminalTables]   # built = terminal_stream.build_diurnal(...) 결과, extra_review_epochs = admission_epochs(OBS_24H)",
+    "TerminalWorld(NamedTuple): blocks: BlockWorld (잎마다 앞에 (B,)) · sched: ScheduleArrays · epochs: EpochArrays · ledger: TerminalLedgerArrays · epoch_idx: () int32 (이어 돌리기 커서) · 속성 b",
+    "ScheduleArrays(NamedTuple, S=명단 수): block row flow size target_cont inbound_cont (S,) int32 · arrival_s block_in_s eta_s travel_s travel_base_s exit_travel_s notice_s (S,) f64 · notify_epoch (S,) int32 (epochs.t 칸, -1 없음) · tail_skip (S,) bool",
+    "EpochArrays(NamedTuple): t (E,) f64 정렬 · on_grid (E,) bool · n_valid (B,) int32 (블록별 유효 접두 개수) · period_s () f64",
+    "TerminalLedgerArrays(NamedTuple): registered (S,) bool · owner row origin version transfer_count (S,) int32 · transfer_src transfer_dst (S,T) int32 · transfer_t (S,T) f64 · a_gate_in (S,) f64 · entry_deferrals (S,) int32 · entry_deferred_s (S,) f64 · reserved_inbound (B,) int32 · route_cost_s () f64 · txn_seq () int32",
+    "TerminalTables(frozen dataclass): block_ids · tables: tuple[IdTables] (블록별, namespaced job_ids, n0=사용 행 수) · n_trucks n_vessel_jobs n_used · truck_ids · n_max c_max v_max p_cap n_wake n_review q_cap log_cap · lead_s period_s end_s observe_s horizon_s · gate_to_block_s (B,) · block_to_block_s (B,B) · phys_capacity capacity_margin max_transfers · block_index · truck_index",
+    "from_terminal_world(tw: TerminalWorld, tables: TerminalTables, *, totals=None) -> dict   # run_terminal 모양: terminal_total route_cost_s end admitted n_turns turn_sum_s turn_samples_s totals epoch_idx blocks{bid: block n_jobs end_s clock_s n_cranes event_hash n_events events cost_raw kpis deadlock_escapes unfinished jobs cranes piles containers vessels transfer ledger violation violation_names overflow terminal queue}",
+    "block_slice(tw, b: int) -> BlockWorld   # 잎마다 x[b]",
+    "stack_blocks(worlds: list[BlockWorld]) -> BlockWorld   # jnp.stack (모양 다르면 실패)",
+    "block_row_ids(tw, tables, b) -> tuple[str | None, ...]   # 원장 기준 행→job_id (이송 반영)",
+    "block_tables(tw, tables, b) -> IdTables   # 현재 번호표 (여분 행의 트럭 이름·IN_ 이름 반영) — dispatch.resolver_params 는 반드시 이 namespaced 표로",
+    "review_epochs_v5(scenarios: dict, extra_review_epochs=()) -> tuple[list[float], dict[str, int]]   # v5 _schedule_review_epochs 그대로",
+    "on_grid(t: float, grid_s: float = 60.0) -> bool",
+    "terminal_world_to_numpy(tw) -> dict[str, np.ndarray] · terminal_world_from_numpy(template: TerminalWorld, arrays) -> TerminalWorld · save_terminal_world(path, tw) · load_terminal_world(path, template) -> TerminalWorld   # npz 한 파일, 잎 순서 = tree_flatten, 모양/dtype 불일치는 ValueError",
+    "DEFAULT_PERIOD_S = 60.0 · CAPACITY_MARGIN = 2",
+    "tests/v6/test_gpu_host_terminal.py: make_v5_terminal(prof, built, *, lead_s=1800.0) -> (MultiBlockTerminal, ScheduledAnnouncer)   # v5 비교 골격 (실행 전)"
+   ],
+   "open_issues": [
+    "[통합·engine_step 담당] 검토 시각 소비: blocks.wake.review_s/review_idx 는 채워 두었지만 engine_step.step 에 [R] 국면이 없다. v5 는 에폭마다 _advance(ep) 로 적분 구간을 쪼개므로(engine.py:314-322, 784-813) 배열 엔진도 '현재 시각 사건·wake·결정 소진 뒤, ep ≤ min(nt, wt)+EPS 이면 advance(ep) 하고 코드 1 반환' 을 넣어야 비용·장부 적분이 비트 일치한다. 에폭 사이 블록은 독립이므로 vmap 병렬은 그대로.",
+    "[통합·dispatch 담당] resolver 순위표는 반드시 TerminalTables.tables[b] (namespaced) 로 — REPO 이름과 오더 이름의 순서가 블록 단독(\"J-V…\"<\"REPO\")과 터미널(\"Y01:J-V…\">\"REPO\")에서 다르다. 이송으로 여분 행에 들어온 트럭은 정적 순위표에 없다 → 이송 뒤 block_tables 로 재생성하거나 OrderArrays 에 이름 순위 열을 두어야 한다.",
+    "[cands3·engine_step 담당] job_id tie-break 가 오더 번호 n 이라, 이송된 트럭(예: \"Y01:D-…\" 이 Y21 여분 행)은 v5 sorted(jobs) 순서(\"Y01:\"<\"Y21:\")와 어긋난다. 터미널 300(이송 0건)은 정확하지만 이송 동등성(piece6_spec 2단계)에는 이름 순위 열이 필요.",
+    "[환경] GPU 실행은 5회 중 3회 WSL 인스턴스가 ~7초 안에 Stopped 로 죽었다(코드 아님 — 같은 명령이 재시도에서 통과, 해시 동일). GPU 변환 7~8초(작은 host→device 복사 수백 회) vs CPU 1.6~2.1초 — 필요하면 잎마다 numpy 로 다 만든 뒤 jnp.asarray 한 번으로 줄일 수 있다.",
+    "[README 담당] src/yard_rl/v6/README.md 파일 표에 host_terminal.py (터미널 변환기) 줄 추가 필요 — 내 담당 파일이 아니라 손대지 않음.",
+    "[호스트] from_terminal_world 의 turn_samples 는 등록 트럭의 소유 블록 행 gate_out_s 를 읽는다 — 조정자가 이송 뒤 ledger.owner/row 를 갱신하지 않으면 표본이 옛 행을 읽는다. v5 a_to_o_samples_s 와 같이 O>observe_s 도 O−A 로 둔다(검열 안 함).",
+    "[호스트] scenarios 에 처음부터 있는 외부트럭(diurnal 은 0건)이 있으면 review_epochs 에 gate-in 시각이 합쳐져 격자 밖 에폭이 생긴다 — 조정자는 epochs.on_grid 로 announcer 가드를 걸어야 한다 (notify_epoch 는 그 경우에도 올바른 칸을 가리킨다).",
+    "다른 담당의 미추적 파일(gpu/admission.py·ledger.py·transfer_txn.py 와 그 시험)이 작업 트리에 있다 — 건드리지 않았다. git commit 은 하지 않았다."
+   ],
+   "ladder": "해당 없음 (key=convert 변환기 단계). 참고 수치: 정답 터미널 300 은 21블록·사건 20,720·블록별 해시 21개이며, 본 변환기는 reset 직후 상태와 명단·에폭·원장을 만들 뿐 조정자 run 은 통합 단계 몫. 조각 검증: 터미널 세계 Y01 조각 단독 run == v5 namespaced 블록 단독 run (해시 770ff39e6f508b58, CPU 7초 · GPU 15초)."
+  }
+ ],
+ "integ": {
+  "files_written": [
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\multiblock.py (신규 · 조정자 482줄)",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\src\\yard_rl\\v6\\gpu\\engine_step.py (수정 · [R] 검토 국면 + static `review` 인자 + StepTrace.reviewed — 43줄 추가/14줄 변경)",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\tests\\v6\\test_gpu_terminal_equiv.py (신규 · 사다리 ①②③ 515줄)",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\reports\\yr327_v6_port\\ground_truth\\terminal_load30_seed9900777.json (신규 · scripts/v6/dump_ground_truth.py --mode terminal --load 30 으로 v5 가 만든 부하 30 정답 — 21블록 · 사건 19,796 · 턴 30)",
+   "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\강화학습-판매\\outputs\\v6\\verify\\terminal_equiv\\load30_done.json · load300_done.json · outputs\\v6\\verify\\terminal_equiv_cpu\\load300_done.json (사다리 ③ 결과 기록 · git 무시 영역)"
+  ],
+  "tests": [
+   {
+    "file": "tests/v6/test_gpu_terminal_equiv.py::test_ladder1_y01_20_matches_v5",
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "CPU x64 통과 (44.5s · 컴파일 18.8s 포함) · GPU 통과 (63.7s, 영속 캐시 2회차). 사건 71/71 == · 해시 · 비용 13항 · KPI · 원장 141행(ADMIT 20) · 턴 표본 20 == 합 16719.491429 · locked 20/20 · 오더 상태/시각 == · 55|66 에폭으로 나눠 numpy 저장·복원해 이어 돌린 결과가 한 번에 돌린 결과와 잎 전부 ==."
+   },
+   {
+    "file": "tests/v6/test_gpu_terminal_equiv.py::test_ladder2_y01_y21_transfer_and_defer_match_v5",
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "CPU 통과 (25.5s) · GPU 통과 (48.4s). 이송 Y01:D-00010 Y01→Y21 @1800 (route 220s) · 이연 Y01:D-00014 @2400 (600s): 두 시각의 후보 집합 == · owner/version/transfer_count/transfer_history/entry_deferrals/entry_deferred_s/a_gate_in/locked == · route_cost_s 220 == · 같은 트럭 재시도 거절 코드 R_MAX_TRANSFERS/R_MAX_DEFERRALS == v5 · 끝에 사건 144(Y01 70 + Y21 74) == · 해시 · 턴 40 == 합 36634.209701."
+   },
+   {
+    "file": "tests/v6/test_gpu_terminal_equiv.py::test_ladder3_terminal_ground_truth[load300]",
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "GPU(RTX 5090) 통과 — 세션 4개 이어 돌리기 (보존된 최선 102 ms/에폭 · 완주 세션 171) · CPU x64 통과 — 세션 약 25개 중 13개 유효 (보존된 최선 412 ms/에폭 · 완주 세션 400). ★정정(2026-09-26 검증): 예전 판에 적힌 'GPU 41 · CPU 250 ms/에폭 단독' 은 남은 로그(scratchpad/*.log 23건 · outputs/v6/verify/**/done.json)에 한 건도 없다 — 재현 가능한 값으로 바꿨다. 정답 JSON 대비 event_hash 21/21 · 사건 20,720 전열 == · cost_raw 13항 · KPI 10항 · n_jobs · unfinished 전 블록 == · admitted 300 · n_turns 300 · turn_samples_s == · turn_sum_s 334078.47377 == · terminal_total/route_cost_s/end ==. 이어 돌리기 중간 세션은 pytest.skip('이어 돌리기 e/E') 로 끝난다(집계엔 안 셈)."
+   },
+   {
+    "file": "tests/v6/test_gpu_terminal_equiv.py::test_ladder3_terminal_ground_truth[load30]",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "GPU 통과 — 세션 4개. 21/21 해시 · 사건 19,796 · admitted 30 · 턴 30 · 합 28196.313356 == 정답 JSON (이 정답은 이번에 v5 덤프 스크립트로 새로 만듦)."
+   },
+   {
+    "file": "tests/v6/test_gpu_terminal_equiv.py::test_zz_report",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "매 호출마다 통과 (REPORT 출력)."
+   },
+   {
+    "file": "회귀 1 (engine_step 변경 영향): tests/v6/test_gpu_y01.py · test_gpu_engine_equiv.py · test_gpu_wake.py · test_gpu_host_terminal.py",
+    "passed": 159,
+    "failed": 0,
+    "skipped": 1,
+    "notes": "세션 조각 러너(scratchpad/reg_chunks.sh · terminate 없이 probe 만)로 CPU x64: y01 5/5 조합 (해시 6668fa4902c4efe4 유지) · engine_equiv 98 · wake 37 · host_terminal 19 (+1 은 load30 ⑨ 설계상 skip). verify_chunked.sh 와 같은 제외: python_loop(eager 80초) 와 REPORT 병합 집계 시험(zz_report·escape_paths·replan_actually·k3_and_stair·ties_were_exercised)은 안 돌림."
+   },
+   {
+    "file": "회귀 2: tests/v6/test_gpu_dispatch.py · test_gpu_vessel.py · test_gpu_escape.py · test_gpu_cands3.py · test_gpu_core.py",
+    "passed": 181,
+    "failed": 0,
+    "skipped": 0,
+    "notes": "dispatch 43 · vessel 16 · escape 88 · cands3 17 · core 17 — 전부 통과 (같은 제외 규칙)."
+   }
+  ],
+  "ladder": "사다리 ① (Y01 · 20대 · lead 600 · 121 에폭): 첫 실행부터 v5 와 일치 — 블록 event_log 71/71 전열 · 해시 · 비용 13항 · KPI · announcer 원장 141행(ADMIT 20, SKIP 0) 순열 · a_to_o 표본 20건 정렬열 · 합 16719.491429 · locked 20/20 · 오더별 status/assigned/rehandles/S·C·A·B·O 전부 ==. 나눠 돌리기(55|66 에폭, numpy 저장·복원)도 한 번에 돌린 결과와 잎 전부 비트 동일. 처음 갈린 지점: 없음. CPU 44.5s(컴파일 18.8s) · GPU 63.7s.\n사다리 ② (Y01+Y21 · 40대 · lead 1800): 이송 Y01:D-00010 Y01→Y21 @t=1800 (route_delta 220s) · 이연 Y01:D-00014 @t=2400 (+600s) — v5 훅이 고른 (t·트럭·목적지)를 배열 run_python 의 review_fn 이 재생. 두 시각의 후보 집합(등록·미lock·PLANNED·A>t+1e-6) ==, 원장 8항 ==, 재시도 거절 코드 == v5, 끝에 사건 144(Y01 70 + Y21 74)·해시·턴 40(합 36634.209701)·route_cost_s 220 ==. 처음 갈린 지점: 개발 중 1회 — 이연 뒤 원장 a_gate_in 이 배열은 옛 값(2556.179) v5 는 새 값(3156.179): TxnLedger 가 A 를 열로 안 들고 OrderArrays 에서 파생하는데 브리지(with_txn_ledger)가 되돌릴 때 A 를 안 읽었음 → 등록 트럭의 A 를 (새) 소유 행 gate_in_s 에서 다시 읽게 고쳐 해소. 그 뒤 처음 갈린 지점 없음. CPU 25.5s · GPU 48.4s.\n사다리 ③ 터미널 300 (정답 JSON terminal_load300_seed9900777.json): 블록별 event_hash 21/21 · 사건 20,720 전열 == · cost_raw 13항·KPI 10항·n_jobs·unfinished 21블록 전부 == · admitted 300 · n_turns 300 · turn_samples_s 300건 == · turn_sum_s 334078.47377 == · terminal_total 0/route 0/end 93600 ==. 처음 갈린 지점: 없음. 터미널 30(정답 새로 덤프): 21/21 · 19,796 사건 · 30 턴 · 합 28196.313356 ==. 소요·방법: 한 세션에 안 든다 — 검토 에폭 단위 이어 돌리기(상태 pickle + jax 영속 컴파일 캐시를 /mnt/c 아래 outputs/v6/verify/terminal_equiv*/ 에; /tmp 는 배포판 재시작에 사라짐). GPU(RTX 5090): 보존된 최선 102 ms/에폭·완주 세션 171 → 40초 예산 세션 4개(load30 4개). CPU x64: 보존된 최선 412 ms/에폭·완주 세션 400 (겹치면 ~700) → 30~45초 예산 세션 약 25개(13개 유효, 나머지는 ~90초 배포판 사망으로 유실) ≈ 25분. 최종 세션(남은 에폭+finish_run 컴파일 ~15s+from_run)은 from_run 을 numpy 로 먼저 내리도록 고친 뒤(잎마다 장치 왕복이 분 단위였음) 30~40초에 든다.\n★v5 대비 속도 (2026-09-26 검증에서 처음 잰 것 — 보고서에 빠져 있었다): **단일 터미널은 v5 파이썬이 더 빠르다.** 같은 무대(터미널 300 · 21블록 · 사건 20,720)를 v5 정본 루프는 16~17초에 완주하고, 배열판은 1,441 에폭 × 102~171 ms = GPU 147~246초 · × 400~412 ms = CPU 576~673초다 → GPU 8.6~14배 · CPU 34~39배 느리다. 원인은 lane 이 21개뿐이라 GPU 가 노는 것(같은 엔진 B=1024 실측 11.2 µs/step/world vs 지금 2.33 ms/블록·스텝)이며, 조각 6 의 목적인 **동등성 확인에는 무관하지만 성능 근거로 인용하면 안 된다**. 이득은 세계를 쌓을 때(조각 8) 난다 — 손익분기(세계 몇 개부터 v5×코어수 다중프로세스를 이기나)를 조각 8 의 첫 실측 항목으로 둔다.\n★사다리 ③ 두껍게 (2026-09-26 검증 반영): 정답 JSON 이 event/hash/cost/KPI/턴만 담아 21블록 규모에서는 투입 원장·locked·오더 전열·시간장부 적분이 한 번도 대조되지 않았다. `scripts/v6/dump_ground_truth.run_terminal` 에 ann_ledger(1,741행)·locked(전건)·블록별 jobs(status·크레인·재처리·S·C·A·B·O)·ledger(적분 3항)·totals·deferrals 를 추가하고 정답 두 개를 다시 덤프했다(기존 11항 + 21블록 전 항목 재귀 일치 — wall_s 만 다름). 사다리 ③은 세션을 넘어 에폭 코드를 모아 투입 원장 전행까지 대조하고, 끝에 `check_invariants(conserve=True)` 를 건다.",
+  "deviations_from_spec": [
+   {
+    "v5_line_ref": "multiblock.py:169-211 · engine.py:314-322",
+    "what": "블록 엔진의 검토 시각 소비([R] 국면)를 engine_step.step 의 static 인자 `review`(기본 False) 로 opt-in 했다 — 조정자만 켠다.",
+    "why": "host_terminal 이 review_s 를 채워 두므로 항상 켜면 단일 블록 시험(정답 궤적 Y01·host_terminal ⑨)이 v5 review_epochs=[] 와 달리 적분 구간이 쪼개져 비트가 갈릴 수 있다. v5 도 review_epochs 미설정이면 그 경로가 없다. 회귀 340건 통과로 확인."
+   },
+   {
+    "v5_line_ref": "piece6_spec equivalence_test 2단계 (lead 600)",
+    "what": "사다리 ② 의 통지 리드를 600 이 아니라 1800 으로 두고, 이송·이연 시각을 고정하지 않고 't ≥ 1800/2400 의 첫 검토 시각에 첫 후보' 로 동적 선택했다.",
+    "why": "lead 600·40대에서는 t=1800 에 '게이트 진입 전 반입 트럭' 후보가 없을 수 있어 시험이 헛돈다(transfer_txn 담당 실측). 1800 이면 매 검토 시각에 후보가 있고, v5 가 고른 (t·트럭·목적지)를 배열이 재생하므로 같은 입력 대조가 성립한다."
+   },
+   {
+    "v5_line_ref": "piece6_spec 비교 ③④⑤ 허용오차",
+    "what": "표본·totals·적분을 허용오차 없이 == 로 대조한다.",
+    "why": "조각 1~5 규약(비트 일치)과 같게 — 통과했으므로 더 엄격한 쪽을 택했다."
+   },
+   {
+    "v5_line_ref": "과제 '담당 파일: state.py(TerminalWorld 등)'",
+    "what": "state.py 는 손대지 않았다. TerminalWorld/TerminalLedgerArrays 는 host_terminal.py(변환 담당) 에 이미 있어 그대로 쓰고, 조정자 상태는 multiblock.TerminalRun(tw+adm+params+locked+open_txn+계수) 로 감쌌다.",
+    "why": "다른 담당이 이미 정의·시험한 형을 옮기면 그쪽 시험이 깨진다. 원장 세 표현(TerminalLedgerArrays·TxnLedger·TruckLedger) 중 TerminalLedgerArrays 를 정본으로 두고 이송·이연 때만 TxnLedger 로 브리지(txn_ledger/with_txn_ledger)했다 — 열 이름이 같아 기계적."
+   },
+   {
+    "v5_line_ref": "multiblock.py:363 rec.a_gate_in = new_a",
+    "what": "브리지가 이송·이연 뒤 등록 트럭의 a_gate_in 을 orders.gate_in_s[owner,row] 에서 다시 읽는다 (명세 '원장 = OrderArrays 열' 방향).",
+    "why": "사다리 ② 에서 처음 갈린 지점 — TxnLedger 가 A 를 열로 안 들기 때문."
+   },
+   {
+    "v5_line_ref": "piece6_spec array_technique",
+    "what": "이송·이연은 scan 안이 아니라 호스트 루프(run_python 의 review_fn)에서 순차로 한다. 투입·sync_locks·원장 등록만 scan 안.",
+    "why": "이송은 두 블록을 함께 쓰는 유일한 블록 간 경로라 명세대로 '검토 시각의 순차 처리'가 맞고, 정책(무엇을 옮길지)은 조각 7 몫이다. 순수 함수(transfer_txn)라 나중에 scan 안으로 넣을 수 있다."
+   },
+   {
+    "v5_line_ref": "run 루프 guard 2,000,000",
+    "what": "에폭당·마무리 while_loop 상한(steps_per_epoch/steps_final = 8N+256)을 두고 걸리면 exhausted+1 · V_STEPS_EXHAUSTED 를 켠다 (조용히 안 넘김). 실측 0.",
+    "why": "고정 길이 배열 규약."
+   },
+   {
+    "v5_line_ref": "규칙 2",
+    "what": "git commit 하지 않았다. 새 정답 JSON(terminal_load30)도 untracked.",
+    "why": "규칙."
+   },
+   "[2026-09-26 검증 반영] piece6_spec files_to_port 의 `stage/cargo_runtime.py (CargoTerminal)` 와 `cargo_moves.move_dependent` 는 **이식하지 않았다** — 조각 6 의 조정자는 `MultiBlockTerminal` 전용이다. 30일 경로(stage/month_run.py:281)는 CargoTerminal 을 쓰므로 이 조정자로 돌릴 수 없다(전역 큐 4단 키·affected 마스크·원격 본선 인계·끝의 재고 등식이 모두 미이식). Dashboard backlog 로 넘긴다.",
+   "[2026-09-26 검증 반영] 통지 스케줄러는 `terminal_stream.ScheduledAnnouncer`(전원 같은 리드)만 옮겼다. `stage/orders.V3Announcer` 의 트럭별 리드는 **이번에 지원했다**(lead_s 를 (S,) 열로; 명단의 `e[\"lead_s\"]` 가 있으면 그것이 정본) 그러나 `retarget`/`resolve_entry` 호스트 훅과 SKIP 사유 NO_TARGET·CONTAINER_ID_CHANGED 는 여전히 미이식이다 — `to_terminal_world` 가 그 훅을 받으면 **fail-loud 로 거절**한다(조용히 무시 금지). 따라서 하루 에피소드 경로(stage/episode.py:351)는 그 훅을 쓰지 않을 때만 돌릴 수 있다.",
+   "[2026-09-26 검증 반영] SKIP_DUP 판정이 v5 와 같은 의미가 되도록 고쳤다 — v5 는 **터미널 전역 원장** (`jid in self.ledger.records`)을 보는데 배열은 목적 블록 자기 행만 봤다. 이제 `admit_block(registered=…)` 로 전역 원장을 함께 본다(조정자가 넘긴다). 현 명명 규약(`{block}:{job}`)에서는 두 판정이 같은 답이라 사다리는 안 갈렸다.",
+   "[2026-09-26 검증 반영] v5 `Job.appointment_gate_time`(이연 비용의 원점)에 대응하는 열이 없었고, transfer_txn 머리말은 `notice_s`(= max(0, 도착 − lead))가 그 자리라고 **잘못** 적고 있었다. `OrderArrays.appt_s` 열을 새로 두고 투입 때 gate_in 과 같은 값으로 한 번 찍은 뒤 defer/commit 이 건드리지 않게 했다. `from_terminal_world` 가 `deferrals`(기사 외부대기 = gate_in − appt) 를 v5 `time_sell.deferral_ledger` 모양으로 돌려준다.",
+   "[2026-09-26 검증 반영] `_sync_locks` 를 terminal 블록에도 적용하고 있었다(v5 는 ReviewEpoch 를 돌려준 블록만, multiblock.py:203). owner 기준 `~terminal` 마스크를 씌웠다 — 21블록 end 가 전부 93,600 이라 사다리는 안 갈렸지만 블록마다 end 가 다른 무대에서는 갈린다.",
+   "[2026-09-26 검증 반영] `transfer_txn._issue` 가 open_txn 슬롯이 꽉 찼을 때도 `reserved_inbound` 를 올려 예약이 영구히 새는 구멍이 있었다(현 공개 API 로는 도달 불가, 조각 7 이 견적을 여럿 열면 바로 밟는다). 슬롯이 없으면 prepare 자체를 실패시킨다(새 코드 R_NO_TXN_SLOT · 상태 무변경).",
+   "[2026-09-26 검증 반영] `transfer_txn.check_invariants` 가 v5 세 검사 중 '보존'(len(seen)==len(records))을 못 잡았다. `conserve=True`(조정자 기본)에서 '살아 있는 외부트럭 행 수 == 등록 수' 를 함께 본다 — commit 이 src 행을 비우지 못하거나 원장 밖 유령 행이 남으면 잡힌다.",
+   "[2026-09-26 검증 반영·미해결] `gpu/cands3.py:573` 의 `name_rank = 행 번호` 는 이송으로 여분 행에 앉은 트럭에서 v5 `sorted(job_id)` 와 어긋난다. 사다리 ②는 이송 1건·동점 없음, 사다리 ③은 이송 0건이라 안 갈렸다. `OrderArrays` 에 이름 순위 열을 두는 것이 정공법이지만 조각 1~5 의 비트 일치를 건드리므로 이번에 하지 않았다 — open_issues 로 남긴다.",
+   "[2026-09-26 검증 반영·미해결] `gpu/ledger.py`(TruckLedger, 445줄)는 조정자가 쓰지 않는다 — 원장 정본은 `host_terminal.TerminalLedgerArrays`, 이송 때만 `transfer_txn.TxnLedger` 브리지다. 파일 머리말에 '조정자 경로 밖 · 참조 구현' 을 못 박고 남겼다(삭제는 별도 작업)."
+  ],
+  "public_api": [
+   "gpu.multiblock.Engine(g, policy_fn, check=True, pre_advice=True, horizon_s=0.0, joint=True, margin=2, end_ann=+inf, steps_per_epoch=2304, steps_final=4096, k0=0, max_transfers=1)  — frozen dataclass · jit static",
+   "gpu.multiblock.TerminalRun(NamedTuple): tw: host_terminal.TerminalWorld · adm: admission.ScheduleArrays · params · locked (S,) bool · open_txn (MAX_OPEN,) i32 · open_overflow/hist_overflow/n_admitted () i32 · exhausted (B,) i32 ; 속성 .b .n_epochs",
+   "gpu.multiblock.make_run(tw, tt, *, params=None, max_open=4) -> TerminalRun  — 변환 직후 세계 → 조정자 상태 (투입 버킷은 tw.sched 에서 admission.schedule_arrays 로; dropped≠0 이면 ValueError)",
+   "gpu.multiblock.terminal_resolver_params(tt, g, tw=None) -> dispatch.ResolverParams (B,…)  — 블록별 namespaced 순위표를 n_max 로 채워 쌓음 (tw 를 주면 block_tables 기준)",
+   "gpu.multiblock.run_to_epoch(W, params, eng, *, max_steps) -> (W', parked (B,) bool, n_iter, stuck (B,) bool)  — vmap(step, review=True) × while_loop, park/terminal 블록은 마스크",
+   "gpu.multiblock.review_epoch(run, e, eng) -> (run', codes (B,M) i32)  — sync_locks(전 블록) → admission.admit_epoch → 원장 registered/a_gate_in 등록 → epoch_idx=e+1",
+   "gpu.multiblock.epoch_step(run, e, eng) -> (run', codes) · epoch_step_jit",
+   "gpu.multiblock.run_epochs(run, e0, n, eng) -> (run', codes (n,B,M)) · run_epochs_jit (static n·eng)  — lax.scan(에폭) 조각",
+   "gpu.multiblock.finish_run(run, eng) -> run' · finish_run_jit  — 마지막 에폭 뒤 terminal 까지 + engine_step.finish + harvest(locked)",
+   "gpu.multiblock.run_all(run, eng, *, chunk=None) -> (run', codes (E,B,M))",
+   "gpu.multiblock.run_python(run, eng, *, review_fn=None, e0=0, e1=None, finish=True) -> (run', [codes…])  — review_fn(run, e, t) -> run' 을 투입 뒤에 (이송·이연 강제용)",
+   "gpu.multiblock.txn_ledger(run, tt) -> transfer_txn.TxnLedger · with_txn_ledger(run, X, worlds=None) -> run'  — 원장 브리지 (a_gate_in 은 소유 행 gate_in_s 에서 재파생)",
+   "gpu.multiblock.try_pre_gate_transfer(run, tt, eng, now, s, dst, *, travel_s, route_delta_s=0.0) -> (run', ok, code) · try_transfer(run, tt, eng, now, s, dst, *, route_s, travel_s) · try_defer_admitted_entry(run, tt, now, s, delta_s, *, max_deferrals=1)  — 수신 행 = dst 첫 여분 행(first_free_row) · 성사 시 두 블록 resolver 순위표 재생성",
+   "gpu.multiblock.check_invariants(run, tt) -> bool · epoch_time(run, e) -> f64 · from_run(run, tt) -> dict (run_terminal 모양 + admitted/exhausted/open_overflow/hist_overflow/locked; 잎을 numpy 로 내려 빠름)",
+   "gpu.multiblock.save_run(path, run) · load_run(path) -> TerminalRun (pickle, 템플릿 불필요) · tree_to_numpy/tree_to_jax",
+   "gpu.engine_step.step(..., review: bool = False) · run/run_while/run_python(..., review=False) · run_jit/run_while_jit static 'review' 추가 · StepTrace.reviewed () bool  — [R] 국면: ~D&~X&~W&~due_now & ep≤end+EPS & (nt 없음|ep≤nt+EPS) & (wt 없음|ep≤wt+EPS) → review_idx+1 · ep>clock+EPS 면 advance(ep) 만",
+   "tests/v6/test_gpu_terminal_equiv.py: 환경변수 TERMINAL_SESSION_S(에폭 예산 초, 기본 40) · TERMINAL_STATE_DIR(상태·캐시, 기본 outputs/v6/verify/terminal_equiv) · TERMINAL_LOADS(기본 '30,300'); 중간 세션은 skip('이어 돌리기 e/E'), 완료 시 load{L}_done.json"
+  ],
+  "open_issues": [
+   "[환경] 이 세션 동안 Ubuntu 배포판이 90~95초 뒤 죽는 일이 반복됐고(E_UNEXPECTED 도 1회), Windows 에 claude.exe 4개·wsl.exe 4개가 동시에 떠 있었다 — 다른 담당의 verify_chunked.sh(fresh 의 terminate)로 추정. 그래서 한 세션 시험은 85초 안, 사다리 ③은 세션 이어 돌리기가 필수다. 내 루프 드라이버(scratchpad/loop_ladder3.sh: probe 실패 때만 terminate·재시도 · reg_chunks.sh: terminate 없는 조각 회귀)는 스크립트 담당 파일이 아니라 저장소에 넣지 않았다 — verify_chunked.sh 에 (a) test_gpu_terminal_equiv.py SIZE 1(①≈45s·②≈30s), (b) 사다리 ③용 'TERMINAL_SESSION_S=35 로 통과할 때까지 반복' 모드, (c) test_gpu_admission/transfer_txn/ledger 파일 등록을 권한다.",
+   "[성능] CPU x64 250 ms/에폭(21블록 vmap 단독): vmap 아래서는 lax.cond(try_decide) 가 select 가 되어 매 스텝 모든 블록의 결정(candidates3+resolver scan)을 계산한다(단일 블록 1.3 ms/스텝 vs vmap 4.3 ms/블록·스텝). 동등성엔 무관하나 학습 모드(조각 8)에서는 배치 수준 cond(any(try_decide)) 로 step 을 재구성하거나, 이송이 없는 런은 블록 묶음(B 부분집합)으로 나눠 도는 길(블록 간 독립 — 머리말 ★) 을 권한다. GPU 는 보존된 최선 102 ms/에폭. ★정정(2026-09-26 검증): '배치 수준 cond(any(try_decide))' 의 이득 상한은 **1.9배(48%)** 다 — v5 궤적으로 세어 보면 while 반복 3,002 중 '21블록 중 어느 하나라도 결정하는' 반복이 1,560(52.0%)이라 건너뛸 수 있는 반복이 48.0% 뿐이다(블록별로 접으면 16배지만 vmap 에서는 불가능). 더 큰 지렛대는 ①검토 에폭 축소(1,441 중 투입이 실제 있는 에폭 295 = 20.5% — v5 비트 일치를 깨므로 학습 전용 스위치로만) ②세계 batch 로 lane 채우기 순이다.",
+   "[cands3·dispatch] 이송으로 여분 행에 앉은 트럭(예 'Y01:D-00010' 이 Y21 의 행 n≥n_used)은 cands3.prune 의 name_rank=n·tok_rank=n 규약에서 v5 sorted(job_id) 순위('Y01:'<'Y21:')와 다르다 — 동점(같은 kind·score·bay)일 때만 후보 순서가 갈린다. 조정자는 이송 뒤 ResolverParams(name_rank_job·tok_rank)만 block_tables 로 다시 굽는다(_refresh_params). 사다리 ② 는 갈리지 않았지만 구조적 위험이라 OrderArrays 에 이름 순위 열을 두는 것을 권한다(cands3/state 담당).",
+   "[호스트] 이송을 쓰려면 to_terminal_world(n_spare≥1) 이어야 한다(기본 0 이면 commit 이 R_NO_SPARE_ROW). 사다리 ② 는 n_spare=2.",
+   "[문서] src/yard_rl/v6/README.md 파일 표·'지금 어디까지' 에 multiblock.py(조정자)·host_terminal/admission/ledger/transfer_txn 줄과 조각 6 결과(터미널 300 21/21) 추가 필요 · gpu/__init__.py __all__ 미갱신 — 담당 파일이 아니라 손대지 않았다.",
+   "[시험 범위] 회귀에서 verify_chunked 규약대로 python_loop(eager 80초)와 REPORT 병합 집계 시험(zz_report·escape_paths·replan_actually·k3_and_stair·ties_were_exercised)은 돌리지 않았다; 조각별 시험 340건은 전부 통과. 사다리 ①은 GPU 에서 첫 세션에 안 들어(변환 8s+컴파일 2회) 영속 캐시가 있는 두 번째 세션에서 통과했다 — 시험 모듈이 import 시 캐시(outputs/v6/verify/terminal_equiv/jax_cache)를 켠다.",
+   "[정답 파일] outputs/reports/yr327_v6_port/ground_truth/terminal_load30_seed9900777.json 을 새로 만들었다(untracked) — 커밋 시 함께 넣어야 load30 시험이 skip 되지 않는다. 사다리 ③ 상태·캐시 디렉터리(outputs/v6/verify/terminal_equiv, _cpu)는 git 무시 영역이며 done.json 만 남기고 지워도 된다.",
+   "[원장 표현] TerminalLedgerArrays(정본)·TxnLedger(이송)·TruckLedger(ledger.py, 미사용) 세 판이 남아 있다 — 통합 시 TruckLedger 의 harvest/a_to_o 는 from_terminal_world + locked 로 대체됐으므로 ledger.py 는 제거 또는 TxnLedger 와 병합을 권한다(둘 다 담당 밖).",
+   "git commit 하지 않았다(규칙 2). 변경: engine_step.py(M) · multiblock.py(신규) · test_gpu_terminal_equiv.py(신규) · terminal_load30 정답 JSON(신규). v5(world/·stage/·ppo/) 무수정."
+  ],
+  "verified_2026_09_26": {
+   "환경": "WSL Ubuntu 가 90초쯤마다 저절로 죽어 한 번에 ≤70초짜리 명령으로 나눠 돌렸다 (terminate 금지 준수).",
+   "정답 재생성": "scripts/v6/dump_ground_truth.py --mode terminal --load 30|300 을 Windows 파이썬(v5 전용)으로 다시 돌려 저장소 정답과 재귀 비교 — wall_s 를 뺀 전 항목·21블록 전부 일치. 그 위에 두꺼운 항목을 얹어 갱신했다.",
+   "다시 돌린 사다리": {
+    "사다리 ① Y01·20대·lead 600": "통과 (GPU 54.5s · CPU 48.1s). 저장·복원 왕복을 **dtype + float 비트**(view uint64) 로 바꾸고 분할점 셋(55|66 · 66|55 · 121)에서 잎 전부 비트 동일 · 투입 코드 동일.",
+    "사다리 ② Y01+Y21·40대 (이송 1 · 이연 1)": "통과 (CPU 18.0s). 이연 원장을 v5 `time_sell.deferral_ledger` 와 항목까지 대조하도록 추가 — 기사 외부 대기 600.0s (예약 원점 열 appt_s 가 살아 있다는 증거).",
+    "사다리 ③ 터미널 30": "통과 (GPU · 3세션 · 70 ms/에폭). 21/21 해시 · 사건 19,796 · admitted 30 · 턴 30 합 28196.313356 · **오더 전열 3,630행** · **투입 원장 1,471행** · **locked 30** · 시간장부 적분 3항 · 불변식(보존) 통과.",
+    "사다리 ③ 터미널 300": "통과 (GPU · 5세션 · 92 ms/에폭). 21/21 해시 · 사건 20,720 · admitted 300 · 턴 300 합 334078.47377 · **오더 전열 3,900행** · **투입 원장 1,741행** · **locked 300** · 시간장부 적분 3항 · 불변식(보존) 통과."
+   },
+   "다시 돌린 시험": {
+    "test_gpu_admission.py": "무대 9 (기존 8 + 새 leadmix) + 호스트도구 4 = 전부 통과. SKIP 사유가 실제로 발화: cap SKIP_CAP 6 · edge DUP 1·EXIT 1·TARGET 1 · tail TAIL 1 · time TIME 1 · leadmix SKIP_CAP>0.",
+    "test_gpu_transfer_txn.py": "6건 통과 (R_NO_TXN_SLOT 추가 · check_invariants 보존식 추가 뒤).",
+    "test_gpu_ledger.py": "9건 통과.",
+    "test_gpu_host_terminal.py": "20 통과·1 건너뜀 (잎 209 → 210 — appt_s 열).",
+    "test_gpu_state.py · test_gpu_core.py": "29건 통과.",
+    "test_gpu_y01.py[sf_spt-PRE_ADVICE]": "통과 — 조각 1~5 정답 궤적이 appt_s 열 추가·switch 갈래 static 화 뒤에도 그대로."
+   },
+   "새 실측 (보존 가능)": {
+    "GPU RTX 5090 · 터미널 30": "70 ms/에폭 (완주 세션 · 1,441 에폭)",
+    "GPU RTX 5090 · 터미널 300": "92 ms/에폭 (세션별 73~95 · 완주 · 1,441 에폭)",
+    "해석": "예전 보고의 'GPU 41 ms/에폭' 은 재현되지 않았다. 지금 재현 가능한 최선은 70(load30)·73(load300) 이다. v5 파이썬은 같은 load300 을 16.4초에 완주한다 → 배열판 GPU 는 여전히 8배 남짓 느리다."
+   },
+   "정답 파일": "outputs/reports/yr327_v6_port/ground_truth/terminal_load{30,300}_seed9900777.json 을 두껍게 다시 덤프했다 (ann_ledger · locked · 블록별 jobs · ledger 적분 · totals · deferrals 추가). 기존 항목은 재귀 비교로 wall_s 만 다르다 — 정답 값 자체는 파이썬 3.12↔3.13 을 넘어 재현된다. load30 은 untracked 였으니 **커밋에 함께 넣어야** load30 시험이 조용히 skip 되지 않는다.",
+   "에폭 안 순차 의존 (검증 지적 H2)": {
+    "문제": "정답 무대(터미널 300 · 전원 리드 1800)는 (에폭,블록) 300칸이 **전부 1건**이라 '앞 투입이 뒤 투입의 free_slots 를 줄인다' 는 경로가 한 번도 발동하지 않았다 — 내가 v5 명단으로 직접 세어 확인(최대 1 · 2대 이상 칸 0).",
+    "고침 A (블록 2개 규모)": "cap 무대(margin = 초기 여유 − 3)를 완주시켰다 — 같은 에폭·같은 블록 4번째 반입부터 SKIP_CAP, 60대 중 6건 거절. 새 leadmix 무대(트럭별 리드 + 같은 margin)도 SKIP_CAP > 0.",
+    "고침 B (21블록 규모)": "같은 명단에 트럭별 리드를 심어 통지 시각을 흩뜨린 무대를 새 시험으로 넣었다 — 같은 v5 명단에서 (에폭,블록) 칸이 293개로 줄고 **2~3대가 든 칸이 6개** 생긴다(리드 264가지). 배열 버킷이 v5 `V3Announcer.by_epoch` 와 에폭마다 같은 항목·같은 순서임을 확인 (test_terminal300_crowded_buckets_match_v3announcer · 통과)."
+   },
+   "두 축 교차 (검증 지적)": "지적: 원장·locked·오더 전열·장부 적분을 살아 있는 v5 와 대조하는 유일한 무대(사다리 ①)의 블록에는 **본선 작업이 0건**이고, 본선 3,600건이 있는 사다리 ③은 그 넷을 보지 않아 두 축이 교차하지 않았다. → 정답을 두껍게 해서 사다리 ③이 그 넷을 본다: load30 오더 전열 3,630행(본선 3,600 + 트럭 30) · load300 3,900행(본선 3,600 + 트럭 300) · 투입 원장 1,471/1,741행 · locked 30/300 · 블록별 시간장부 적분 3항 · 끝에 불변식(보존). 이제 **본선을 포함한 21블록 규모**에서 넷 다 대조된다.",
+   "아직 못 돌린 단언 둘": "WSL Ubuntu 의 **사용자 세션**이 80분 넘게 `Wsl/Service/E_UNEXPECTED` 로 굳었다(`wsl -d Ubuntu --system` 과 docker-desktop 은 정상 응답 → VM·서비스는 멀쩡하고 사용자 namespace 만 죽은 알려진 증상; 복구 수단 `wsl --terminate` 는 과제문이 금지). 그래서 마지막에 **덧붙인** 두 단언만 실행하지 못했다 — ①사다리 ②의 이연 원장 대조(사다리 ② 자체는 이 단언을 붙이기 전에 통과) ②새 시험 `test_gpu_host_terminal.py::test_per_truck_lead_matches_v3announcer`. 대신 v5 쪽 기대값을 직접 확인해 두었다: 이연 원장 = driver_outside_wait_s 600.0 · original_appointment_s 2556.179 · actual_gate_in_s 3156.179 (v5 time_sell.deferral_ledger 실행) / 리드 무대 = 트럭 40·리드 35가지·버킷 17개 전부 검토 시각 안·한 버킷 최대 21대. 또 `appt_s` 열 값은 투입 무대 9개가 v5 `Job.appointment_gate_time` 과 `==` 로 대조해 통과했고, 새 fail-loud 검사 (est == provided_eta)는 v5 로 5무대 430건을 세어 어긋남 0 이라 발화하지 않는다. 다음 살아 있는 세션에서 그 두 node id 만 돌리면 된다."
+  }
+ },
+ "verdicts": [],
+ "critical": [],
+ "fix": null
+}

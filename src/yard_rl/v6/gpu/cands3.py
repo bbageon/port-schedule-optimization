@@ -570,6 +570,12 @@ def prune(flat: FlatCands, g: Geom, *, k_max: int = K_MAX) -> PruneOut:
                           jnp.where(flat.kind == PK_REPOSITION, 2, 3))).astype(jnp.int32)
     str_rank = _str_rank_table(B)
     bay_i = jnp.clip(jnp.where(jnp.isnan(flat.bay), 0.0, flat.bay).astype(jnp.int32), 0, B)   # int(tb) — 양수라 절사
+    # ⚠️ 이름 순위 = **행 번호**. 변환 직후에는 행이 `sorted(job_id)` 순이라 v5 와 같지만, **이송으로 여분 행
+    #    (n ≥ n_used)에 앉은 트럭**은 항상 맨 뒤 순위가 되어 v5 `sorted(job_id)` 와 어긋난다 ("Y01:D-00010" 은
+    #    "Y21:J-V-…" 보다 앞이어야 한다). nr 은 동점 깨기만이 아니라 아래 lexsort 의 **1차 키(kind 다음)** 라
+    #    동점이 없어도 후보 순서·budget 절단이 달라질 수 있다. 정공법은 OrderArrays 에 이름 순위 열을 두고
+    #    이송 때 호스트가 다시 굽는 것(`multiblock._refresh_params` 와 같은 자리)이다 — 조각 1~5 의 비트 일치를
+    #    건드리므로 아직 안 했다. 사다리 ②(이송 1건)·③(이송 0건)에서는 갈리지 않는다. (2026-09-26 검증)
     name_rank = jnp.where(flat.job >= 0, flat.job, str_rank[bay_i]).astype(jnp.int32)   # job_id 문자열 순서
     bay_key = jnp.where(jnp.isnan(flat.bay), -1.0, flat.bay)                    # order_key 셋째 (523행 -1.0)
     neg = -flat.score

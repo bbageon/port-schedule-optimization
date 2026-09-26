@@ -273,6 +273,8 @@ def to_block_world(profile, scenario, *, n_max: int, q_cap: int, log_cap: int,
         o["deadline_s"][n] = _or(j.deadline, EMPTY_TIME)
         o["exit_travel_s"][n] = _or(j.exit_travel_s, -1.0)
         o["actual_arrival_s"][n] = _or(j.actual_block_arrival, EMPTY_TIME)
+        #: v5 `Job.appointment_gate_time` (models.py:41) — 예약 원점. 없으면 +inf.
+        o["appt_s"][n] = _or(getattr(j, "appointment_gate_time", None), EMPTY_TIME)
         # 131-132행: 장부 등록 = 외부트럭·exit_travel 있음 → A = actual_gate_in or 0.0
         if ledger_mode and j.is_external_truck and j.exit_travel_s is not None:
             o["gate_in_s"][n] = float(j.actual_gate_in or 0.0)

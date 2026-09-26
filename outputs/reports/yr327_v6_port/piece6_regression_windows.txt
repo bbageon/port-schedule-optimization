@@ -1,0 +1,32 @@
+    설계 정본: `.claude/docs/architecture/03-결정층.md` §3-1
+    
+    ■ 이게 v3 의 핵심 변화다
+      v2 는 받는 쪽에 **거부권이 없어** 중앙이 붐비는 블록에 밀어넣을 수 있었다.
+      거절권이 생기면 그 떠넘기기가 **구조적으로** 막힌다.
+    
+    ■ 다른 Buyer 의 응답은 못 본다
+      동시 결정이라 구조적으로 불가능하다. 경쟁 입찰이 아니라 **각자 자기 값만 보고**
+      응답한다.
+    
+    ■ 시간 축의 Buyer 는 "목표 슬롯" 이다
+      블록이 안 바뀌어 상대가 없어 보이지만, 실제 VBS 예약 슬롯에는 용량이 있어
+      차면 거절한다. 그래야 "상호 동의가 있어야 거래" 가 **양 축에서** 성립한다.
+    
+    ■ 두 세계를 어떻게 가르나
+      같은 망으로 두 행을 채점한다 — `BUY` 행은 offer 특징을 그대로 담고, `REJECT`
+      행은 **offer 특징을 0 으로 지운다**(그 offer 를 안 받은 나). 수신 부담이 전부
+      offer 특징(주행 차이·출발 혼잡·슬롯 적재)에 들어 있으므로 이 대비가 곧
+      "받았을 때 vs 안 받았을 때" 다.
+    """
+    from __future__ import annotations
+    
+>   import torch
+E   ModuleNotFoundError: No module named 'torch'
+
+src\yard_rl\v6\actors\buyer.py:25: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/v6/test_gpu_phi.py::test_stage_b_cargo_stage_matches_v5_at_every_review[inbound-1]
+FAILED tests/v6/test_gpu_phi.py::test_stage_b_cargo_stage_matches_v5_at_every_review[inbound+pickup-2]
+2 failed, 462 passed, 1 skipped in 1699.19s (0:28:19)
+
+[exited with code 0]

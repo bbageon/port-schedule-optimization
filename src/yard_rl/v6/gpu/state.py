@@ -178,6 +178,11 @@ class OrderArrays(NamedTuple):
     #: ★시각 다섯 — 사용자 스키마 그대로 (2026-09-22). 아직 안 온 단계는 +inf
     notice_s: jnp.ndarray     # (N,) f64  통지 (Truck ETA)
     gate_in_s: jnp.ndarray    # (N,) f64  게이트 진입 A — reset 에 시나리오 값 (engine.py:132)
+    #: ★예약 원점 — v5 `Job.appointment_gate_time` (models.py:41 · terminal_stream._job_from_entry 503행).
+    #  투입 때 그 시각의 gate_in 과 **같은 값**으로 한 번 찍히고, 이연(defer)·이송(commit)이 **절대 건드리지 않는다**
+    #  (v5 비용 은닉 금지 계약 — multiblock.py:302-304). 이연 기사 외부대기 = gate_in_s − appt_s 가 이 열로만 계상된다.
+    #  `notice_s`(통지 = max(0, A − lead))와 다른 값이다 — 둘을 섞으면 이연 비용이 lead 만큼 부풀어 오른다.
+    appt_s: jnp.ndarray       # (N,) f64  최초 예약 진입시각 (+inf = 없음 · 미투입)
     block_in_s: jnp.ndarray   # (N,) f64  블록 도착 B (engine.py:852)
     service_s: jnp.ndarray    # (N,) f64  작업 시작 S (내부 관측 — 정책 입력 금지, engine.py:713)
     done_s: jnp.ndarray       # (N,) f64  작업 완료 C (engine.py:920)
@@ -196,6 +201,11 @@ class OrderArrays(NamedTuple):
     assigned_crane: jnp.ndarray  # (N,) int32  맡은 크레인 (-1, engine.py:708)
     rehandles: jnp.ndarray       # (N,) int32  재조작 횟수 (engine.py:921)
     release_s: jnp.ndarray       # (N,) f64  해제 시각
+    #: ★v5 `Job.estimated_block_arrival` 과 `Job.provided_eta` 를 **합친 한 열**이다. v5 는 둘을 따로 들고
+    #  commit(587-595행)·defer(345-348행)에서 각각 밀어 준다 — 구판에서 두 값이 이송 뒤 어긋나 정책이 보는 세계가
+    #  갈렸던 적이 있어서다(게이트 D). 지금 생성기(`_job_from_entry`)는 둘을 같은 값으로 만들므로 한 열로 충분하고,
+    #  `host_terminal.to_terminal_world` 가 그 동일성을 fail-loud 로 검사한다. **두 값이 갈리는 생성기가 들어오면
+    #  열을 분리해야 한다** (`block_congestion` 은 estimated_block_arrival 을, `cost_curve_v2` 는 appointment 를 읽는다).
     provided_eta_s: jnp.ndarray  # (N,) f64  제공 ETA (+inf = None)
     deadline_s: jnp.ndarray      # (N,) f64  마감 (+inf = None)
     exit_travel_s: jnp.ndarray   # (N,) f64  완료→출문 소요. ★-1 = None (장부 모드 판별, engine.py:127-133)
@@ -477,7 +487,7 @@ def empty_orders(n: int) -> OrderArrays:
     """빈 오더 N 칸. 없는 오더는 block=-1 로 판별한다."""
     return OrderArrays(
         block=_i32((n,)), flow=_i32((n,)), stage=_i32((n,), ST_NOTICE),
-        notice_s=_f64((n,)), gate_in_s=_f64((n,)), block_in_s=_f64((n,)),
+        notice_s=_f64((n,)), gate_in_s=_f64((n,)), appt_s=_f64((n,)), block_in_s=_f64((n,)),
         service_s=_f64((n,)), done_s=_f64((n,)), gate_out_s=_f64((n,)),
         duration_s=_f64((n,), 0.0), travel_s=_f64((n,), 0.0),
         status=_i32((n,), JS_PLANNED), is_external=_bool((n,)), is_vessel=_bool((n,)),

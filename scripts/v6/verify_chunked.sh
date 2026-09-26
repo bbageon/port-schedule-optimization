@@ -30,8 +30,11 @@ for a in "$@"; do case "$a" in --fresh) FRESH=1;; --report) REPORT=1;; *) FILES+
 if [ $FRESH -eq 1 ]; then : > "$OUT"; rm -f "$WORK_WIN"/report_*.json "$WORK_WIN"/merged.json "$WORK_WIN"/chunk_*.log; fi
 
 fresh() {  # 배포판을 새로 띄우고 응답할 때까지 기다린다
-  wsl.exe --terminate Ubuntu > /dev/null 2>&1; local n=0
-  until wsl.exe -e bash -lc "echo alive" 2>/dev/null | tr -d ' \0\r' | grep -q alive; do n=$((n+1)); [ $n -gt 40 ] && return 1; sleep 3; done; return 0; }
+  # ★`wsl --terminate` 를 부르지 않는다 — 여러 담당이 동시에 돌 때 **서로의 세션을 죽인다**
+  #   (지난 워크플로에서 4초마다 서로를 끊었다). 이 기계의 Ubuntu 는 저절로 죽고 저절로 다시 뜨므로,
+  #   같은 명령을 백오프로 다시 부르면 새 배포판이 열린다.
+  local n=0
+  until wsl.exe -e bash -lc "echo alive" 2>/dev/null | tr -d ' \0\r' | grep -q alive; do n=$((n+1)); [ $n -gt 60 ] && return 1; sleep $(( n < 10 ? 3 : 7 )); done; return 0; }
 collect() {  # $1 = 파일 → node id 목록 (집계·건너뛰기 시험 제외)
   fresh || return 1
   wsl.exe -e bash -lc "cd '$REPO' && PYTHONPATH=src JAX_PLATFORMS=cpu $PY -m pytest --co -q '$1' -p no:cacheprovider -k 'not ($REPORT_TESTS or $SKIP_TESTS)' 2>/dev/null | grep '::'" 2>/dev/null | tr -d '\0\r'; }
