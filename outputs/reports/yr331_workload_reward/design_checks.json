@@ -1,0 +1,162 @@
+{
+  "schema": "yard_rl.design_arithmetic.v1",
+  "task": "YR-331",
+  "date": "2026-09-26",
+  "claim_scope": "DESIGN_ARITHMETIC_ONLY_NO_PORT_PERFORMANCE_CLAIM",
+  "port_simulations": 0,
+  "training_runs": 0,
+  "runtime_reward_modified": false,
+  "checks_passed": 23,
+  "checks": [
+    {
+      "name": "queue_inverse_2_minutes",
+      "passed": true
+    },
+    {
+      "name": "queue_inverse_5_minutes",
+      "passed": true
+    },
+    {
+      "name": "queue_inverse_10_minutes",
+      "passed": true
+    },
+    {
+      "name": "capacity_is_not_admission_rate",
+      "passed": true
+    },
+    {
+      "name": "helpful_buy_improves_both_sides_total",
+      "passed": true
+    },
+    {
+      "name": "one_minute_shaping_example",
+      "passed": true
+    },
+    {
+      "name": "balanced_target_is_maximum",
+      "passed": true
+    },
+    {
+      "name": "unnecessary_trade_is_worse",
+      "passed": true
+    },
+    {
+      "name": "overloaded_pair_can_still_benefit_from_buy",
+      "passed": true
+    },
+    {
+      "name": "no_demand_has_no_fill_incentive",
+      "passed": true
+    },
+    {
+      "name": "low_balanced_demand_has_no_fill_incentive",
+      "passed": true
+    },
+    {
+      "name": "surplus_is_not_erased",
+      "passed": true
+    },
+    {
+      "name": "different_capacities_split_proportionally",
+      "passed": true
+    },
+    {
+      "name": "fixed_vessel_work_cannot_be_transferred",
+      "passed": true
+    },
+    {
+      "name": "known_outage_creates_no_new_capacity",
+      "passed": true
+    },
+    {
+      "name": "water_level_conservation_81_cases",
+      "passed": true
+    },
+    {
+      "name": "all_complete_path_returns_differ_by_same_constant",
+      "passed": true
+    },
+    {
+      "name": "shaping_preserves_best_base_policy_in_toy",
+      "passed": true
+    },
+    {
+      "name": "return_proof_includes_wait_and_transfer_loops",
+      "passed": true
+    },
+    {
+      "name": "variable_time_discount_and_truncation_bootstrap",
+      "passed": true
+    },
+    {
+      "name": "dropping_terminal_potential_would_change_objective",
+      "passed": true
+    },
+    {
+      "name": "invalid_capacity_workload_nonfinite_rejected",
+      "passed": true
+    },
+    {
+      "name": "historical_trades_are_space_plus_time",
+      "passed": true
+    }
+  ],
+  "literature_input": {
+    "service_containers_per_2min": 0.633,
+    "service_cv": 0.42687,
+    "service_min": 3.1595576619273302,
+    "service_rate_per_hour": 18.99
+  },
+  "illustrations_not_calibrated_v6_targets": [
+    {
+      "assumed_queue_limit_min": 2,
+      "load_limit": 0.5171108134990607,
+      "admissions_per_hour": 9.819934348347163
+    },
+    {
+      "assumed_queue_limit_min": 5,
+      "load_limit": 0.728051825847464,
+      "admissions_per_hour": 13.825704172843341
+    },
+    {
+      "assumed_queue_limit_min": 10,
+      "load_limit": 0.8426273042944368,
+      "admissions_per_hour": 16.001492508551355
+    }
+  ],
+  "transfer_example": {
+    "potential_before": -0.25,
+    "potential_after": -0.09,
+    "same_time_delta": 0.16,
+    "one_minute_shaping_eta_1": 0.16009
+  },
+  "allocation_cases": 81,
+  "toy_paths": 1441,
+  "max_return_identity_error": 1.73749903353837e-14,
+  "historical_v5_report": {
+    "path": "outputs/v5/yr306-wait-30d-4549ae9/report.json",
+    "sha256": "3490140c60fa149e6a84e50fa1ab1d4b8c055a958db3672ade6270e6d3f61de2",
+    "code_commit": "4549ae97db4aad834cad02698fad8c8b8c880f99",
+    "excerpt_sha256": "1d5cb90fd5be6243e0818a9c749b6a6c1220333b3c1d2a4cd13a8736cab05a86",
+    "original_verified_this_run": true,
+    "traded_edges": 111714,
+    "space": 17023,
+    "time": 94691,
+    "not_v6_gpu_evidence": true
+  },
+  "source_sha256": {
+    "src/yard_rl/v6/ppo/runtime.py": "3e357f6717e08bf9a74dad05f1bdbbdc286ed192f06d7699596d19f3af12cada",
+    "src/yard_rl/v6/reward/phi.py": "1dde767db6889fa98eba325fac01a708ee7bc2d5078d96ebfcae8d0c048c1fbe",
+    "src/yard_rl/v6/reward/krw.py": "8526082bc0e59efd9fdfa18563ae8610cfbec2b6f8d01048abd552b2821f4492",
+    "src/yard_rl/v6/actors/buyer.py": "49be9a1ce1a8da684a312bedce9dcd65ccf3dad9d686e928f148d33d93a08433"
+  },
+  "calculator_sha256": "8a5a1fee0ce6d69baba06ee390ebe3894e1ad6b6513a09d7d53857f73bf75b07",
+  "workspace_head_when_checked": "03c188aee1c7cdd6d3b0a0be3682057d4aa9d5e0",
+  "note": "Checks run with design edits and unrelated GPU edits present; no clean simulation run claimed.",
+  "research_gate": {
+    "allowed": false,
+    "reason": "저장된 scenario PASS 재계산 실패",
+    "gate_commit": "7af37f760ab373eb663a6b7a88320c46698ea3bc",
+    "permission_scope": "user-requested literature/design only; no learning experiment"
+  }
+}
