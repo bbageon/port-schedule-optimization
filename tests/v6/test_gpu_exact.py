@@ -13,6 +13,8 @@
   ⑥ v5 자리 모양 — end−A (censored_exposure_s) · load/(1+deg) (lane.py:50) · 크레인 부하 K=3 (engine.py:835) 에서
      `sum()` ≠ 순차 `+=` 인 경우가 실제로 생기는지 보고한다 (통합자가 sum_seq → sum_python 판단에 쓴다)
   ⑦ `sum_seq` 는 `+=` 이지 `sum()` 이 아니다 — 갈리는 입력을 하나 못박아 둔다. np.float64 항은 `sum()` 도 순차다.
+  ⑧ `div_const` — 파이썬 `a / c` 와 비트 동일. **배열 분자**도(2026-09-26 검증 반박: 0차원 분모가 장벽 뒤에서
+     다시 브로드캐스트돼 배열에서 역수 곱이 됐다 — 3.0÷10 이 0.3 대신 0.30000000000000004).
 
 실행: WSL venv · CPU x64 (Windows 파이썬엔 jax 가 없다). 한 세션 80초 안에 끝난다.
 """
@@ -30,7 +32,7 @@ jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)   # ★float64 — 마지막 비트가 시험 대상
 jnp = jax.numpy
 
-from yard_rl.v6.gpu.exact import sum_python, sum_seq   # noqa: E402
+from yard_rl.v6.gpu.exact import div_const, sum_python, sum_seq   # noqa: E402
 
 PY312 = sys.version_info >= (3, 12)
 
@@ -263,3 +265,43 @@ def test_numpy_float64_items_make_python_sum_sequential():
     assert float(sum(xs)) == float(sum_seq(jnp.asarray(xs, jnp.float64)))
     if PY312:
         assert float(sum(xs)) != float(_JIT(jnp.asarray(xs, jnp.float64), None))
+
+
+# ───────────────────────────────────────────────── ⑧ div_const — 배열 분자도 파이썬과 비트 동일
+_DIV_CASES = [10.0, 3600.0, 100.0, 6.0, 1000.0]
+
+
+@pytest.mark.parametrize("c", _DIV_CASES)
+def test_div_const_matches_python_for_arrays_not_just_scalars(c):
+    """★`exact.div_const` 가 **배열 분자**에서도 파이썬 `a / c` 와 비트 동일한가 (eager·jit·vmap·scan).
+
+    2026-09-26 검증 반박: 전에는 분모가 0차원이라 `optimization_barrier` **뒤에** 브로드캐스트가 새로 생겨
+    XLA 가 `배열 / broadcast(상수)` 를 역수 곱으로 바꿨다. 스칼라 분자만 맞고 배열은 마지막 비트가 갈렸다
+    (`v5feat.cand_rehandles_10` 이 그 자리). 기대값은 손으로 적지 않는다 — 파이썬 나눗셈을 실제로 계산해 댄다.
+    """
+    xs = [3.0, 1.0, 7.0, 9.0, 0.0, -3.0, 1e-8, 1e12, 2.0 ** 52 + 1.0]
+    want = [x / c for x in xs]
+    a = jnp.asarray(xs, jnp.float64)
+    eager = [float(v) for v in div_const(a, c)]
+    jitted = [float(v) for v in jax.jit(lambda z: div_const(z, c))(a)]
+    vmapped = [float(v) for v in jax.jit(jax.vmap(lambda z: div_const(z, c)))(a)]
+    scanned = [float(v) for v in jax.jit(
+        lambda z: jax.lax.scan(lambda _, x: (None, div_const(x, c)), None, z)[1])(a)]
+    for name, got in (("eager", eager), ("jit", jitted), ("vmap", vmapped), ("scan", scanned)):
+        bad = [(i, xs[i], want[i].hex(), got[i].hex()) for i in range(len(xs)) if _bits(got[i]) != _bits(want[i])]
+        assert not bad, f"div_const({name}) ÷{c} 가 파이썬과 갈린다 (i, a, 파이썬, 배열): {bad}"
+    # 스칼라 분자도 그대로 (예전 동작이 맞았던 경로가 깨지지 않았다)
+    for x in xs:
+        assert _bits(float(div_const(jnp.asarray(x, jnp.float64), c))) == _bits(x / c)
+
+
+def test_div_const_has_no_bypass_copies_left():
+    """`phi._div_c` · `v5feat._div` 가 **같은 함수의 이름표**인가 — 우회 사본이 다시 늘지 않게."""
+    from yard_rl.v6.gpu import phi as PH
+    from yard_rl.v6.gpu import v5feat as VF
+    a = jnp.asarray([3.0, 1.0, 7.0], jnp.float64)
+    for c in (10.0, 3600.0, 100.0):
+        want = [(x / c) for x in (3.0, 1.0, 7.0)]
+        for fn, nm in ((PH._div_c, "phi._div_c"), (VF._div, "v5feat._div")):
+            got = [float(v) for v in jax.jit(lambda z, fn=fn: fn(z, c))(a)]
+            assert [_bits(v) for v in got] == [_bits(v) for v in want], f"{nm} ÷{c} 가 갈린다 {got} vs {want}"

@@ -27,8 +27,11 @@
     mul_exact(a, b)          곱을 장벽 뒤에 실체화 → 뒤따르는 덧셈과 융합되지 않는다
     sum_seq(xs)              파이썬 `acc += x` 루프와 같은 **왼쪽부터 차례로** 더하기 (정적 길이, 보정 없음)
     sum_python(xs, mask)     파이썬 3.12 `sum(실수 목록)` 과 **비트 동일** (Neumaier 보정합, 동적 마스크)
-    div_const(a, c)          파이썬 상수로 나누기 — 역수 곱으로 바뀌지 않게 분모를 장벽 뒤에
-    (vmap 아래 나눗셈은 travel.div_exact — broadcast 분모의 역수 곱 변환을 막는다)
+    div_const(a, c)          파이썬 상수로 나누기 — 분모를 **분자와 같은 모양으로 펼쳐** 장벽 뒤에 두고
+                             `travel.div_exact` 로 나눈다 (스칼라·배열·vmap·scan 네 경로 모두 파이썬과 비트 동일).
+                             ⚠️ 0차원 분모만 장벽 뒤에 두면 장벽 **뒤에서** 브로드캐스트가 새로 생겨
+                             배열 분자에서 역수 곱이 된다 — 2026-09-26 에 그 결함을 고쳤다 (아래 함수 참조).
+    (분모가 상수가 아닌 나눗셈은 travel.div_exact — broadcast 분모의 역수 곱 변환을 막는다)
 
   어느 것을 쓰나 — v5 코드가 어떻게 더했는지로 고른다:
     v5 `acc += x` / `a + b + c` 식                     → sum_seq (또는 마스크가 동적이면 lax.scan `+=`)
@@ -124,6 +127,21 @@ def sum_python(xs, mask=None):
 
 
 def div_const(a, c: float, dtype=jnp.float64):
-    """`a / c` (c 는 파이썬 상수) — XLA 가 `a * (1/c)` 로 바꾸지 못하게 분모를 장벽 뒤에 둔다."""
-    d = lax.optimization_barrier(jnp.asarray(float(c), dtype))
-    return a / d
+    """`a / c` (c 는 파이썬 상수) — 파이썬 `a / c` 와 **비트 동일**. 분자가 배열이어도 된다.
+
+    ★2026-09-26 수정 (검증 반박) — 전에는 분모를 **0차원** 스칼라로 장벽 뒤에 두었는데, 그러면
+      장벽 **뒤에서** 브로드캐스트가 새로 생겨 XLA 가 `배열 / broadcast(상수)` 를 도로 **역수 곱**으로
+      바꿨다. 스칼라 분자는 맞았지만 배열 분자는 마지막 비트가 갈렸다:
+
+          float64 [3.0, 1.0, 7.0] ÷ 10.0  →  0.30000000000000004 · 0.1 · 0.7000000000000001
+          (파이썬은 0.3 · 0.1 · 0.7)
+
+      그래서 `phi._div_c`·`v5feat._div` 가 각자 우회 사본을 만들었다. 지금은 여기 한 곳이 옳고
+      두 사본은 이 함수를 부른다: **분모를 분자와 같은 모양으로 펼쳐** 장벽 뒤에 두고
+      `travel.div_exact`(0 나눗셈·vmap 방어까지 든 나눗셈) 로 나눈다. eager·jit·vmap·`lax.scan`
+      네 경로 모두 파이썬과 같다.
+    """
+    from .travel import div_exact                      # 순환 수입 방어 (travel 은 exact 를 쓴다)
+    a = jnp.asarray(a, dtype)
+    d = lax.optimization_barrier(jnp.full(jnp.shape(a), float(c), dtype))
+    return div_exact(a, d)

@@ -36,7 +36,7 @@ from jax import lax
 from ..reward.krw import (KRW_OVERTIME_START_S, KRW_REHANDLE_EACH, KRW_TRUCK_HOUR,
                           KRW_TRUCK_OVER_HOUR, KRW_VESSEL_GT_HOUR, KRW_YC_MOVE_HOUR)
 from .events import TIME_DTYPE
-from .exact import mul_exact, sum_seq
+from .exact import div_const, mul_exact, sum_seq
 from .state import EMPTY_TIME, OrderArrays, censored_turn_time_s, empty_orders
 from .travel import div_exact
 
@@ -85,11 +85,10 @@ class PhiArrays(NamedTuple):
 def _div_c(a, c: float):
     """`a / c` (c 는 파이썬 상수) — 분모를 `a` 와 같은 모양으로 펼쳐 장벽 뒤에 둔다.
 
-    `exact.div_const` 는 0-차원 분모라 (N,) 벡터를 나누면 `divide(a, broadcast(c))` 가 되고, vmap 아래서는
-    한 번 더 펼쳐진다. 같은 모양의 장벽 출력으로 나누면 XLA 가 상수도 broadcast 도 못 본다.
+    ★2026-09-26: `exact.div_const` 가 같은 식으로 고쳐졌으므로 이 함수는 그 얇은 이름표다 (사본 없음).
+    전에는 `div_const` 의 0-차원 분모가 (N,) 벡터에서 `divide(a, broadcast(c))` 로 접혀 역수 곱이 됐다.
     """
-    d = lax.optimization_barrier(jnp.full(jnp.shape(a), float(c), TIME_DTYPE))
-    return div_exact(a, d)
+    return div_const(jnp.asarray(a, TIME_DTYPE), float(c), dtype=TIME_DTYPE)
 
 
 def _sum_in_order(terms, on):

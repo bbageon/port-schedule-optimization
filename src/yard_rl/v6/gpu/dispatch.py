@@ -66,6 +66,53 @@ v5 정본 의미 = `integrated/dispatcher.py:19-32` `ReferenceDispatcher.run` +
     고정 길이: 쌍은 K·(k_max+1) 개까지 scan (실린 후보 ≤ k_max−1 + WAIT; mandatory 초과로 더 실리면 V_RESOLVER_TRUNC).
     dry_run 은 `lax.cond` 로 고려 대상 쌍에서만 돈다 (vmap 아래서는 전부 계산).
 
+■ ★학습 정책망 (조각 7 통합) — `make_v5net_policy` = v5 `ppo/crane.CraneActor.__call__` (crane.py:64-81)
+    규칙 resolver 가 "전 쌍을 줄 세워 그리디" 인 것과 달리, 학습 경로는 **크레인마다 마스크를 주고 망이 고른다**:
+
+        bf = block_state(bid, now)                                  # 블록 요약 8칸 — 결정당 한 번 (crane.py:70)
+        for cid in sorted(dp.crane_ids):                            # 크레인 사전순 = 번호순
+            items = generate(sim, cid, PRE_ADVICE).items            # 결정 시작 시점 후보 (sim 불변)
+            mask  = joint_mask(sim, items, selected)                # 앞 크레인 약속과 함께 성립하나 (20-36행)
+            rows  = [candidate_row(sim, gc, bf, selected) …]        # 24칸 × 후보 수 (39-56행)
+            idx   = select("crane", …, rows, mask)                  # encode → 37칸 → tanh 망 → probs.argmax
+            selected[cid] = items[idx]
+        _apply(sim, selected)                                       # 크레인 순 assign (baselines.py:159-169)
+
+    배열판은 그 세 조각을 이미 있는 모듈로 엮는다 (**새 계산 없음**):
+      `v5feat.block_row`(8칸) + `v5feat.features`(24 → 37칸) · `v5cond.joint_mask_items`(마스크) ·
+      `v5cond.sequential_conditional`(크레인 순 scan) · `v5net.actor_scores`/`greedy_action`(망·최고점 선택).
+    돌려주는 것은 공동 규약 그대로 `(choice (K,) 열 번호, lost (K,) bool, flags ())` 라
+    `engine_step.decide_joint` 에 규칙 resolver 자리에 그대로 꽂힌다.
+
+    ★이 층만은 v5 와 **비트 일치가 불가능**하다 (v5net.py 머리말 측정): v5 는 float32 · torch(MKL GEMM·libm tanh),
+      배열판은 float64 · XLA 다. 동등성 기준은 **"결정(argmax)이 같다"** 이고, 시험이 결정마다 1·2위 점수 격차의
+      최소값을 함께 기록하고 **단언**한다 (최소격차 ≥ 20 × |Δ|).
+      ⚠️ 이것은 증명된 성질이 아니라 **측정된 확률**이다 — 망 2,600벌 × 85만 2,800 결정 재생 대조에서 뒤집힘
+         **4건(4.7e-06/결정)**, 최악 여유 **0.17배**였다 (직접 실행 2026-09-26 · `outputs/v6/net_flip_rate.json`).
+         하루 8,350 호출이면 하루가 갈릴 확률 ≈3.8%, 30일 ≈69% 다. 그래서 조각 8 의
+         체크포인트 대조는 '해시 일치' 가 아니라 **'첫 갈린 결정까지의 접두사 일치 + 그 지점의 격차 기록'** 으로
+         판정해야 한다 (측정 스크립트 `scripts/v6/probe_net_flip_rate.py`).
+    ★`params` 는 `V5NetParams(net, end_s, reserve_s)` 다 — 블록 요약 8칸이 **터미널 층 값 둘**을 읽기 때문이다
+      (`end_s` = `MarketBridge.end_s`, `reserve_s` = 오더별 `Order.in_out_reserve_s`; v5feat.py 머리말).
+    ★지금은 **블록 하나** 무대에서만 v5 와 대조됐다 (`tests/v6/test_gpu_v5policy_equiv.py`). 21블록
+      조정자(`multiblock.py`) 에 꽂으려면 두 가지가 더 필요하다 (조각 8):
+        ① `V5NetParams` 를 블록축으로 쌓기 — `end_s` 는 전 블록 같은 값이지만 `reserve_s` 는 (B,N) 이고,
+           트럭이 **승인될 때** 그 칸이 채워져야 한다 (`_admission_schedule` 경로).
+        ② 블록 요약 8칸 중 넷(블록 안·오는 중·곧 올 통지·줄 선 대수) 이 v5 에서는 `ExecutionRecord`
+           (=`MarketBridge._sync` 가 `값 ≤ t` 로 걸러 찍은 기록) 에서 온다 — 배열 쪽 원장(`gpu/ledger.py`)
+           열과 그 넷을 잇는 자리가 아직 없다. 블록 Y01 단독 무대는 외부트럭 0 이라 그 넷이 전부 0 이어서
+           지금 대조에서는 안 밟힌다 (터미널 정답 궤적에서는 5,118 번 중 612·13·121·580 번 밟힌다).
+    ★예외 대체(`stage/episode.py:212-216` "한 크레인 실패 = 전원 WAIT")는 기본 **끈다** — v5 `CraneActor` 는
+      예외를 일부러 전파하고(crane.py:81), 마스크가 곧 예약 가능 집합이라 구조상 실패가 안 난다. 실패가 나면
+      엔진이 위반 비트(16·512)로 크게 알리는 쪽이 낫다. `guard=True` 로 규칙 정책과 같은 대체를 켤 수 있다.
+      ⚠️ 과제 명세가 가리킨 `episode.py:212-216` 은 **학습 경로의 정본이 아니다** — v5 학습 드라이버는
+         `stage/month_run.py:541-544` 에서 `exec_policy = ppo.execute` 로 갈아끼우므로 `_rule_policy` 의
+         try/except 를 거치지 않고 예외가 그대로 전파된다. 그래서 `guard=False` 가 옳다.
+      ⚠️ **발동 사례 0건** — 무대 8종·Y01 3벌·터미널 2벌에서 v5 예외 0, 배열 `guard=True` 도 실제 거동이
+         밟히지 않는다. `guard=True` 경로의 거동은 인위적으로 빈 마스크를 만든 단위 시험 하나
+         (`test_gpu_v5policy_equiv.test_guard_all_wait_substitutes_when_decision_would_raise`)로만 확인된다 —
+         "v5 의 이 규칙을 재현했다" 가 아니라 "발동 0건 · 합성 시험으로만 밟았다" 가 정확한 문장이다.
+
 ■ `dry_run` — v5 `dry_run_commit` (engine.py:738-763, 조각 7 resolver 의 joint-feasibility 오라클, 불변식 D-ORACLE)
     choices (K,) int32 (-1 = 그 크레인 선택 없음) 를 **크레인 번호 순**으로 scratch 예약표(carry)에 투영한다:
       plan = _plan(k, n, extra_exclude=scratch.reserved_slots)  (752행)  → 불성립이면 NO_PLAN(6)
@@ -91,12 +138,13 @@ from .events import EMPTY_ID, EMPTY_TIME, TIME_DTYPE
 from .geom import Geom
 from .plan import PlanOut, plan_serve
 from .reserve import OK, reject_code, reserve
-from .state import (PK_PRE_REHANDLE, PK_REPOSITION, PK_SERVE, PK_WAIT, PK_WAIT as _PK_WAIT, V_RESOLVER_TRUNC,
+from .state import (PK_PRE_REHANDLE, PK_REPOSITION, PK_SERVE, PK_WAIT, PK_WAIT as _PK_WAIT,
+                    V_NET_NONFINITE, V_RESOLVER_TRUNC,
                     BlockWorld)
 
 __all__ = ["CandOut", "DispatchOut", "NO_PLAN", "candidates", "dispatch", "decide_seq", "dry_run", "plan_row",
            "ResolverParams", "resolver_params", "repo_names", "dry_run_joint", "resolve_central", "make_resolver",
-           "policy_reference"]
+           "policy_reference", "V5NetParams", "v5net_params", "make_v5net_policy", "make_v5net_pick"]
 
 F = TIME_DTYPE
 #: `dry_run` 사유 코드 — reserve.py 의 5-lock 코드(0..5) 뒤에 v5 'NO_PLAN' (engine.py:754) 을 잇는다
@@ -301,47 +349,26 @@ def resolve_central(params: ResolverParams, world: BlockWorld, c3, fl, pr, open_
     """v5 `CentralResolver.resolve` (머리말 ■ ★공동 결정 계층) → (choice (K,) 열 번호 [-1 WAIT], lost (K,), flags () int32).
 
     pref: "baseline" (BaselinePreference) · "sf_spt" (ServiceFirstSPTPreference — 정답 궤적 Y01 의 규칙).
+      ⚠️ `v5cond.PREF_NAMES` 의 "fifo" 는 **실현 도착시각을 읽는 오라클**(YR-107) 이라 여기서는 거절한다 —
+         진단으로 쓰려면 `v5cond.pair_order` 를 직접 부른다.
+
+    ★2026-09-26 (검증 반박 · 사본 제거): `_pair_key` 의 정렬 열을 여기서 **다시 펼치지 않고**
+      `v5cond.pair_order`(= `pair_key_cols` = `pref_cols`) 하나를 부른다. 전에는 같은 식이 두 파일에
+      적혀 있었고(README '사본 없음' 규약 위반), 생산 호출자는 이쪽뿐이라 v5cond 판은 시험만 밟았다.
     """
     K, C = fl.raw.shape
     N = world.n
-    B = int(g.bay_count)
-    o = world.orders
-    clock = world.clock
     kind = fl.kind
     is_wait = kind == PK_WAIT
     is_serve = kind == PK_SERVE
     is_pre = kind == PK_PRE_REHANDLE
-    is_repo = kind == PK_REPOSITION
     jc = jnp.clip(fl.job, 0, N - 1)
     open_ = jnp.asarray(open_, bool)
     valid = pr.keep & fl.feasible & open_[:, None]                       # 53행 (결정 대상 크레인의 feasible 후보)
-    # BaselinePreference.rank (resolver.py:27-33)
-    ref_vessel = is_serve & o.is_vessel[jc]                              # PRE/REPO 의 JobRef.is_vessel=False
-    ref_ext = (is_serve & o.is_external[jc]) | is_pre                    # PRE 의 JobRef.is_external=True
-    arrived = o.is_external & (o.block_in_s < EMPTY_TIME) & (o.block_in_s <= clock)
-    cum = jnp.where(arrived, clock - o.block_in_s, 0.0)                  # engine.py:258-265 cum_wait
-    cum_key = jnp.where(is_wait, 0.0, jnp.where(ref_ext, -cum[jc], 0.0))
-    cum_key = jnp.where(cum_key == 0.0, 0.0, cum_key)                    # −0.0 → +0.0 (파이썬 정렬은 둘을 같게 본다)
-    ves_key = jnp.where(is_wait, 2, jnp.where(ref_vessel, 0, 1)).astype(jnp.int32)
-    nrj = _pad_orders(params.name_rank_job, N, jnp.int32(1 << 30))
-    tkr = _pad_orders(params.tok_rank, N, jnp.int32(1 << 30))
-    bay_i = jnp.clip(jnp.floor(jnp.where(jnp.isnan(fl.bay), 0.0, fl.bay)).astype(jnp.int32), 0, B)
-    k_idx = jnp.broadcast_to(jnp.arange(K, dtype=jnp.int32)[:, None], (K, C))
-    name_key = jnp.where(is_wait, -1, jnp.where(is_repo, params.name_rank_repo[k_idx, bay_i], nrj[jc])).astype(jnp.int32)
-    # _pair_key 의 꼬리 (resolver.py:79-82)
-    mand_key = jnp.where(fl.mandatory, 0, 1).astype(jnp.int32)
-    kind_rank = jnp.where(is_serve, 0, jnp.where(is_pre, 1, jnp.where(is_repo, 2, 3))).astype(jnp.int32)
-    tok_key = jnp.where(is_serve | is_pre, tkr[jc], -1).astype(jnp.int32)   # REPO/WAIT token "" → 가장 앞
-    cid_key = pr.candidate_id
-    keys = [cid_key, tok_key, k_idx, kind_rank, name_key, cum_key, ves_key]
-    if pref == "sf_spt":                                                 # baselines.py:34-37 (앞에 (SERVE?0:1, 소요))
-        dur_key = jnp.where(fl.plan_ok, fl.dur, jnp.inf)
-        dur_key = jnp.where(dur_key == 0.0, 0.0, dur_key)
-        keys += [dur_key, jnp.where(is_serve, 0, 1).astype(jnp.int32)]
-    elif pref != "baseline":
-        raise ValueError(f"모르는 선호 {pref!r}")
-    keys += [mand_key, (~valid).astype(jnp.int32)]                       # 가장 앞: mandatory · 그보다 앞: 유효 쌍 먼저
-    order = jnp.lexsort(tuple(kk.reshape(-1) for kk in keys))           # (K·C,) 정렬 순 (마지막 키가 최우선)
+    if pref not in ("baseline", "sf_spt"):                               # fifo 는 미래정보 — 배포 경로 금지
+        raise ValueError(f"모르는 선호 {pref!r} — resolve_central 은 'baseline'·'sf_spt' 만 (fifo 는 미래정보)")
+    from . import v5cond as VC                                          # 지연 수입 — v5cond 가 이 파일을 쓴다
+    order = VC.pair_order(pref, params, world, fl, pr, valid, g)        # (K·C,) 정렬 순 (resolver.py:53-54)
     L = int(K) * (int(k_max) + 1)
     L = min(L, int(K) * int(C))
     n_valid = jnp.sum(valid).astype(jnp.int32)
@@ -391,4 +418,116 @@ def make_resolver(pref: str, g: Geom, *, count_lost: bool = True, k_max: int = K
     def policy_fn(params, world, c3, fl, pr, open_):
         return resolve_central(params, world, c3, fl, pr, open_, g, pref=pref, count_lost=count_lost, k_max=k_max)
     policy_fn.__name__ = f"resolver_{pref}{'_lost' if count_lost else ''}"
+    return policy_fn
+
+# ───────────────────────────────────────────────── ★학습 정책망 (머리말 ■ ★학습 정책망)
+class V5NetParams(NamedTuple):
+    """학습 정책 경로의 `params` — 망 가중치 + 블록 요약이 읽는 **터미널 층 값 둘**.
+
+    `end_s` 는 `MarketBridge.end_s`(에피소드 끝) 로 `world.end_s`(블록 평가창) 와 **다른 값**이고,
+    `reserve_s` 는 오더별 `Order.in_out_reserve_s`(= `round(도착예정,3)`; 그 블록 소속이 아니면 +inf) 다.
+    둘 다 블록 안에서 추측하면 조용히 틀린 0 이 나오므로 밖에서 받는다 (v5feat.py 머리말).
+    """
+
+    net: object            # gpu/v5net.V5PolicyParams (가중치 8장 · (in,out) 방향)
+    end_s: jnp.ndarray     # ()   f64
+    reserve_s: jnp.ndarray # (N,) f64
+
+
+def v5net_params(state_dict, world: BlockWorld, *, end_s, reserve_s=None) -> V5NetParams:
+    """torch `state_dict`(또는 체크포인트 통째) + 터미널 층 값 → `V5NetParams`.
+
+    `reserve_s` 를 안 주면 전부 +inf (통지된 예정이 없는 무대 — 블록 Y01 은 외부트럭 0 이라 이게 맞다).
+    """
+    from . import v5net as VN
+    r = (jnp.full((world.n,), jnp.inf, F) if reserve_s is None else jnp.asarray(reserve_s, F))
+    if r.shape != (world.n,):
+        raise ValueError(f"reserve_s 는 (N={world.n},) 여야 한다 — 받은 모양 {r.shape}")
+    return V5NetParams(net=VN.load_v5_params(state_dict), end_s=jnp.asarray(end_s, F), reserve_s=r)
+
+
+@lru_cache(maxsize=None)
+def make_v5net_pick(g: Geom, *, k_max: int = K_MAX, crane_order: tuple[int, ...] | None = None,
+                    v5_cast: bool = True):
+    """`v5cond.sequential_conditional` 의 `pick_fn` 자리에 들어가는 **망 한 번** — 진단·시험이 직접 쓴다.
+
+    돌려주는 함수는 `pick(params, world, fl, pr, block) -> pick_fn` 이다 (닫힘을 두 단으로 나눠
+    `lru_cache` 가 세계·후보에 묶이지 않게 한다).
+    `pick_fn(k, prior, sel, mask, item_col) -> (items 색인 () int32, 위반 비트 () int32)`.
+
+    ■ 알려진 낭비 두 가지 (2026-09-26 벡터화 렌즈 실측 · **동등성에는 무해** · 조각 8 에서 정리)
+      ① `VF.features` 가 **전 크레인 K 줄**을 만들고 `fo.x[k]` 한 줄만 쓴다 (1회 216~258 µs × K).
+         'k 행 하나만 만들기' 의 이득은 정책 비용의 13.3%(K=2·N=256) ~ 30.7%(K=4·N=256), 하루 전체로 약 2%.
+      ② `sequential_conditional` 이 **안 물은 크레인까지** K 단계를 다 돈다 (v5 는 `dp.crane_ids` 만 순회).
+         실측 30% 의 슬롯이 v5 가 묻지도 않는 크레인 몫이다.
+      ③ ★그러나 정책 비용의 **90%** 는 둘 다 아니고 `v5cond.joint_mask_items` 의 후보별 `dry_run_joint`
+         (결정당 K²·I 계획) 이다. 망 순전파 자체는 하루 계산의 0.33~1.2% 다. 조각 8 의 첫 항목은
+         (K,Amax) 실행가능 행렬이고, 그 다음이 '배치 cond' 다 (`outputs/v6/piece8_spec.md`).
+
+    ⚠️ `crane_order` 는 **여기서 쓰이지 않는다** — 그 순열이 들어가는 곳은 블록 요약(`block_row`) 한 군데뿐이고
+       그 계산은 결정당 한 번 `make_v5net_policy` 가 한다. 인자로 받는 이유는 둘이다: ① `make_v5net_policy`
+       와 서명을 맞춰 부르는 쪽이 같은 인자를 그대로 넘길 수 있게 ② `lru_cache` 키를 두 함수가 함께 갈라
+       (같은 g·다른 crane_order) 두 정책이 같은 `bind` 를 공유하지 않게.
+    """
+    from . import v5feat as VF
+    from . import v5net as VN
+    from . import v5cond as VC
+    I = VC.item_max(k_max)
+
+    def bind(params: V5NetParams, world: BlockWorld, fl, pr, block):
+        K = world.k
+
+        def pick_fn(k, prior, sel, mask, item_col):
+            # ★칸 19~23 = **크레인 사전순 바로 앞에서 물은 크레인**의 선택 (ppo/crane.py:53)
+            pk_i = jnp.clip(jnp.asarray(prior, jnp.int32), 0, K - 1)
+            pcol = jnp.where(jnp.asarray(prior, jnp.int32) >= 0, sel[pk_i], jnp.int32(-1))
+            pkind, pbay = VF.prior_from_choice(fl, pk_i, pcol)
+            fo = VF.features(world, g, fl, pr, block=block,
+                             prior_kind=jnp.full((K,), pkind, jnp.int32),
+                             prior_end_bay=jnp.full((K,), pbay, F),
+                             c_max=I, role="crane")
+            x = fo.x[k]                                          # (I,37) — 행 i = candidate_id i
+            #: ★v5 `encode` 의 유한성 거부 (ppo/model.py:17-18 — 비유한 값이면 ValueError 를 던지고
+            #:   `ppo/crane.py:81` 이 그 예외를 일부러 전파한다). jit 안에서는 던질 수 없으므로 위반 비트로
+            #:   크게 알린다 — 조용히 이상한 결정을 내는 것이 최악이다. 지금 무대에서는 한 번도 안 켜진다
+            #:   (available_at 초기값 0 · vessel_slack 은 [−2,2] 로 자름 · 안 실린 행은 0 으로 지움).
+            viol = jnp.where(VN.all_finite(x), 0, V_NET_NONFINITE).astype(jnp.int32)
+            if v5_cast:
+                #: ★v5 는 특징을 float32 로 깎아 넣는다 (model.py:14) — 그 값을 float64 로 올려 계산한다
+                x = jnp.asarray(VF.as_net_input(x), F)
+            act = VN.greedy_action(VN.actor_scores(params.net, x), mask)   # runtime.py:135 probs.argmax
+            return act, viol
+
+        return pick_fn
+
+    return bind
+
+
+@lru_cache(maxsize=None)
+def make_v5net_policy(g: Geom, *, k_max: int = K_MAX, crane_order: tuple[int, ...] | None = None,
+                      v5_cast: bool = True, guard: bool = False):
+    """엔진 공동 규약의 `policy_fn` — v5 `CraneActor.__call__` 의 배열판 (머리말 ■ ★학습 정책망).
+
+    policy_fn(params: V5NetParams, world, c3, fl, pr, open_) → (choice (K,) 열 번호[-1 WAIT], lost (K,), flags ()).
+
+    `crane_order` 는 `sim.profile.cranes` 나열 순서를 배열 크레인 번호로 옮긴 정적 순열이다 — v5 가 크레인
+    여유 합을 그 순서로 `sum()` 하므로(보정합) 블록 요약 칸 2 의 마지막 비트가 여기 달렸다. None = 번호 순.
+    `lost` 는 항상 거짓이다 — `_apply`(baselines.py:166) 는 `yield_reason` 을 넘기지 않아 `yield_count` 가
+    오르지 않는다 (resolver.apply 122행과 다르다).
+    ★같은 인자면 **같은 함수 객체**를 돌려준다 (`make_resolver` 와 같은 이유 — jit static 키에 id 가 든다).
+    """
+    from . import v5cond as VC
+    from . import v5feat as VF
+    bind = make_v5net_pick(g, k_max=k_max, crane_order=crane_order, v5_cast=v5_cast)
+
+    def policy_fn(params, world, c3, fl, pr, open_):
+        block = VF.block_row(world, g, end_s=params.end_s, reserve_s=params.reserve_s,
+                             crane_order=crane_order)            # crane.py:70 — 결정당 한 번, 전 크레인 공유
+        out = VC.sequential_conditional(world, fl, pr, open_, bind(params, world, fl, pr, block), g,
+                                        k_max=k_max)
+        return out.choice, jnp.zeros((world.k,), bool), out.flags
+
+    policy_fn.__name__ = f"v5net{'_guard' if guard else ''}"
+    if guard:
+        return VC.guard_all_wait(policy_fn, g)
     return policy_fn

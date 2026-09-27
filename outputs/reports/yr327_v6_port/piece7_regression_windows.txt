@@ -1,0 +1,16 @@
+  (b) Y01-seed1h64             무작위 시드 1                         hash=2e9a95eb857f386c 사건 1340 결정 255 망호출 373 REPO 8 재조작 257 행동 {'REPOSITION': 8, 'SERVE': 240, 'WAIT': 125}
+  (b) Y01-seed20260927h64      무작위 기본 시드                        hash=6e17d340c781b8cf 사건 1325 결정 245 망호출 354 REPO 0 재조작 255 행동 {'SERVE': 240, 'WAIT': 114}
+  (c) 경합                       {'dup_code': 3, 'interf_code': 1183, 'dup_masked': 33, 'joint_blocked': 86, 'lost': 19, 'decisions': 227, 'k2_decisions': 99}
+  (d) 터미널-ckpt-policy          {'net': '실제 학습 체크포인트 yr302-final-train', 'blocks': 21, 'events': 19774, 'unfinished': 5, 'net_calls': 5345, 'actions': {'PRE_REHANDLE': 1, 'REPOSITION': 48, 'SERVE': 3626, 'WAIT': 1670}, 'block_row_nonzero': {'inside': 115, 'pipeline': 9, 'announced_soon': 106, 'waiting': 80}, 'block_row_calls': 3597}
+  (d) 터미널-seed20260927h64      {'net': '무작위 기본 시드', 'blocks': 21, 'events': 21119, 'unfinished': 44, 'net_calls': 8350, 'actions': {'SERVE': 3588, 'WAIT': 4762}, 'block_row_nonzero': {'inside': 612, 'pipeline': 13, 'announced_soon': 121, 'waiting': 580}, 'block_row_calls': 5118}
+  (e) 하루-s101                  {'hash': '8fc37b3fb57cb0f9', 'events': 248, 'decisions': 118, 'steps': 259, 'net_calls': 223, 'actions': {'PRE_REHANDLE': 6, 'REPOSITION': 72, 'SERVE': 22, 'WAIT': 123}, 'escapes': 1, 'rehandles': 16, 'trucks': 22, 'unfinished': 6, 'block_row_nonzero': {'block_inside_10': 118, 'block_pipeline_10': 48, 'block_crane_backlog_h': 11, 'block_occupancy': 118, 'block_vessel_slack_h_clip2': 118, 'block_announced_soon_10': 111, 'block_clock_frac': 117, 'block_waiting_10': 116}}
+  (e) 하루-s1234                 {'hash': 'd66c019bbda68397', 'events': 133, 'decisions': 32, 'steps': 115, 'net_calls': 51, 'actions': {'PRE_REHANDLE': 6, 'REPOSITION': 8, 'SERVE': 28, 'WAIT': 9}, 'escapes': 2, 'rehandles': 15, 'trucks': 22, 'unfinished': 0, 'block_row_nonzero': {'block_inside_10': 32, 'block_pipeline_10': 19, 'block_crane_backlog_h': 5, 'block_occupancy': 32, 'block_vessel_slack_h_clip2': 32, 'block_announced_soon_10': 30, 'block_clock_frac': 31, 'block_waiting_10': 25}}
+  (e) 하루-s20260927             {'hash': '2a6d0728646f4b75', 'events': 102, 'decisions': 42, 'steps': 110, 'net_calls': 60, 'actions': {'SERVE': 27, 'WAIT': 33}, 'escapes': 1, 'rehandles': 12, 'trucks': 22, 'unfinished': 1, 'block_row_nonzero': {'block_inside_10': 42, 'block_pipeline_10': 25, 'block_crane_backlog_h': 8, 'block_occupancy': 42, 'block_vessel_slack_h_clip2': 42, 'block_announced_soon_10': 39, 'block_clock_frac': 41, 'block_waiting_10': 41}}
+  (f) vmap                     {'B': 3, 'tags': ['seed1h64', 'seed20260927h64', 'ckpt-policy'], 'hashes': ['2e9a95eb857f386c', '6e17d340c781b8cf', 'f24fc7b880fdee0d']}
+  ★결정이 갈릴 여지: 1·2위 최소격차 2.685e-05 vs 점수 |Δ| 최댓값 5.342e-08 → 502.6 배 여유 (요구 20 배 이상)
+  ⚠️ 이 여유는 **이 표본의 성질**이다 — 층 자체의 갈림 확률은 4.7e-06/결정이고 (망 2,600벌 × 85.28만 결정에서 뒤집힘 4건) 최악 여유는 0.17배까지 내려간다. scripts/v6/probe_net_flip_rate.py --nets 2600 으로 다시 잴 수 있다.
+.
+692 passed, 2 skipped in 4202.55s (1:10:02)
+■ 끝 00:01:43 — 로그: outputs/v6/verify/windows_tests.out
+
+[exited with code 0]

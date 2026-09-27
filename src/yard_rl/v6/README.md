@@ -54,7 +54,10 @@ v4 의 반사실 교사는 **신호 대 잡음을 2만 배** 올려 주지만 �
 | `host_terminal.py` | 터미널 변환기 — 블록 축 `(B,…)` 묶음·전역 원장·명단 배열 | `MultiBlockTerminal.__init__` |
 | `multiblock.py` | **조정자** — 21블록 vmap × 검토 에폭 scan × while(다음 에폭까지) | `MultiBlockTerminal.run` |
 | `ledger.py` | (참조 구현 — 조정자 경로 밖. 원장 정본은 `host_terminal.TerminalLedgerArrays`) | `ledger` 필드 대조용 |
-| `policy.py` | 전 오더를 한 번의 순전파로 · `Q = V + A` · 반사실 기준선 | (신규) |
+| `policy.py` | 전 오더를 한 번의 순전파로 · `Q = V + A` · 반사실 기준선 | (신규 · [[YR-326]] 새 축) |
+| `v5net.py` | **학습 정책망** — tanh·37칸·행동점수+상태가치, torch `state_dict` 전치 적재 | `ppo/model.BlockPolicy` |
+| `v5feat.py` | 37칸 특징 (블록 요약 8 + 후보 16 + 패딩 8 + 역할 5) — 인코딩 **정본** | `features/block.py`·`ppo/crane.candidate_row` |
+| `v5cond.py` | 순차 조건부 `joint_mask` · 선호 정렬키 **정본** · "한 크레인 실패 = 전원 WAIT" | `ppo/crane.py`·`baselines.py:28-60` |
 
 ## ★블록 하나가 v5 와 **완전히 같은 답** — 조각 1·2·3·4·5 (2026-09-25/26)
 
@@ -105,7 +108,8 @@ GPU 스텝 시간의 **약 90%** 가 대기 꼬리·터미널 점유 적분의 *
     ✅ 골격 · 조각 1 단일 블록 · 2 다중 크레인 · 3 PRE_ADVICE · 4 본선·이송 · 5 Φ  — **블록 하나 완성**
     🟡 조각 6  다중블록 조정자 — 21블록 vmap × 검토 에폭 scan · 게이트 투입 · 원장 · 이송 확정
                (사다리 ①②③ 통과 · 아래 "조각 6 은 어디까지 같은가" 참조 — CargoTerminal(30일) 은 범위 밖)
-    ⬜ 조각 7  결정 계층 — 37특징 정책·반사실 우위 (SF_SPT 등 규칙 resolver 는 이미 됨)
+    🟡 조각 7  학습 정책망 — tanh·37칸 망 + 순차 조건부. **같은 가중치 → 같은 결정** (아래 절 참조)
+               (블록 하나 무대에서 확인 · 터미널 21블록 배열 대조는 조각 8)
     ⬜ 조각 8  학습 루프 — 60초 구간 보상·PPO · **30일 무대(run_month)** 포함 · 학습 모드 닫힌 식
 
 **⚠️ 지금 v6 는 v5 를 대체하지 않는다.** 블록 *하나*가 같을 뿐, 터미널 전체(21블록·게이트·이송 확정·
@@ -128,9 +132,23 @@ GPU 가 노는 것이고(같은 엔진 B=1024 실측 11.2 µs/step/world vs 지�
 오더 칸 패딩 27%(블록별 본선 척수가 1 또는 2라 n_used 134 / 255) · vmap 아래 cond→select 로 결정이
 필요 없는 94%(63,042 중 결정 3,905 = 6.2%)도 계산. "배치 cond" 처방의 상한은 1.9배(48%)다.
 
+### 조각 7 — 학습 정책망은 어디까지 같은가 (2026-09-26)
+
+**상세는 `.claude/docs/dashboard-task-specs/YR-327-v6-gpu-array-world.md` 의 "조각 7" 절** (200줄 규약).
+요약: (a) 결정마다 블록 요약 8칸·후보 37칸(f32·f64)·마스크·선택 ==(무대 8종 × 망 2벌) · (b) 하루 Y01 3벌 ·
+(e) **외부트럭 22대 하루** 3벌(사건·해시·비용·KPI·오더 **원장 세 칸 A·B·O**·**결정마다 블록 요약**) ·
+(f) 망 B=3 vmap == 낱개. **⚠️ 이 층만 비트 일치 불가**(torch float32·MKL GEMM·libm tanh 대 XLA float64)이고
+기준 "결정(argmax)이 같다" 는 *측정된 확률*이다 — 망 2,600벌 × 85.28만 결정에서 **뒤집힘 4건 = 4.7e-06/결정**,
+최악 여유 **0.17배**(`scripts/v6/probe_net_flip_rate.py --nets 2600`) ⇒ 30일 대조가 ≈69% 확률로 해시 불일치다
+→ **조각 8 은 '첫 갈린 결정까지의 접두사 일치'** 로 판정한다. 성능: 망 순전파는 하루의 0.3~1.2%뿐이고 정책
+비용의 **90%** 가 `joint_mask` 의 `dry_run` · vmap 은 CPU 에서 세계당 1.63배 손해(GPU 재측정 필요).
+
 ### 알려진 한계
 
-- DEFER wake(유한 대기 뒤 재개방)는 단위 시험만 — 정책 반환에 `defer_until` 이 없어 통합 엔진이 못 만든다(조각 7).
+- DEFER wake 는 단위 시험만 — 정책 반환에 `defer_until` 이 없다. 학습 경로는 `LEGACY_DEFAULT`(wait_mode
+  ='WAIT')라 **구조상 안 밟힌다** → 후보 설정을 넓히는 조각의 몫 (조각 7 배정이었던 것을 2026-09-26 정정).
+- `CandidateGenerator` 의 `vessel_prep`·`block_pre_rehandle` 미이식 (`policy_config` 플래그가 아니라 생성 인자).
+  `vessel_prep=True` 면 특징 칸 12·13 이 갈리므로 `v5feat.cand_rows(vessel_prep=True)` 는 **크게 실패한다**.
 - 후보 설정은 `LEGACY_DEFAULT` 한 경로만 (safety_only·bound_repo 등 `policy_config` 플래그 미이식).
 - 탈출 `delayed` 모드 · `yard_handover_cap`(opt-in) · `vessel_cost.py`(정책 측 surrogate) 미이식.
 - 조각 6 은 `MultiBlockTerminal` 전용 — 30일 경로의 `stage/cargo_runtime.CargoTerminal`(전역 큐 4단 키·
@@ -140,7 +158,10 @@ GPU 가 노는 것이고(같은 엔진 B=1024 실측 11.2 µs/step/world vs 지�
 - `gpu/cands3.py` 의 이름 순위가 행 번호라, **이송으로 여분 행에 앉은 트럭**은 v5 `sorted(job_id)` 와
   어긋날 수 있다(동점이 생겨야 갈린다; 사다리 ②는 이송 1건, ③은 0건이라 아직 안 밟혔다).
 - `gpu/ledger.py`(TruckLedger)는 조정자 경로 밖의 참조 구현이다 — 원장 정본은 `TerminalLedgerArrays`.
-- 정책망을 scan 안에서 K 번 부르며 (K,N,F) 전체를 넘긴다 — K² 중복 순전파(조각 7 과 함께).
+- **(2026-09-26 정정)** "정책망 K² 중복 순전파" 는 사실이 아니다 — 통합 경로는 망에 **한 줄(I,37)** 만 넘긴다.
+  남은 낭비는 ① 순차 조건부의 **결정당 K²·I 계획**(`dry_run`; 정책 비용의 90%) ② `features` 가 K 줄을 만들고
+  한 줄만 씀(13~31%) ③ 안 물은 크레인까지 K 단계(30%). 처방은 조각 8 의 (K,Amax) 실행가능 행렬 하나
+  (`piece8_spec_from_piece7.md`). "(K,M) 점수 미리 계산" 은 **원리상 불가**(칸 19~23 이 앞 선택에 의존).
 - `test_k2_python_loop_matches_jit`(eager ≈80초)는 아래 환경에서 완주 불가 — 나눠서 통과 확인.
 - 시험은 jax 없는 파이썬에서 `importorskip` 으로 **조용히 건너뛴다** — 통과 수를 반드시 확인한다
   (아나콘다 base 에는 jax 가 없다; `.venv-jax` 를 써야 한다).

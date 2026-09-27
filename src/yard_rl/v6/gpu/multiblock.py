@@ -425,9 +425,21 @@ _J_FREE_ROW = jax.jit(TX.first_free_row)
 
 
 def _refresh_params(run: TerminalRun, tt: HT.TerminalTables, eng: Engine, blocks) -> TerminalRun:
-    """이송 뒤 두 블록의 resolver 순위표를 원장 기준 번호표(block_tables)로 다시 굽는다 (여분 행의 트럭 이름)."""
-    if run.params is None or not isinstance(run.params, DP.ResolverParams):
+    """이송 뒤 두 블록의 resolver 순위표를 원장 기준 번호표(block_tables)로 다시 굽는다 (여분 행의 트럭 이름).
+
+    ★2026-09-26 (조각 7 검증 반박): 전에는 `ResolverParams` 가 아니면 **조용히 그냥 돌려줬다**. 그래서
+      학습 정책망의 `V5NetParams` 를 넘기면 아무 일도 안 일어난 채 지나가고, 그 안의 `reserve_s` 가
+      블록 축으로 쌓여야 한다는 사실(조각 8 의 과제)을 아무도 모르게 된다. 지금은 **크게 실패한다** —
+      `V5NetParams` 로 21블록을 돌리려면 `reserve_s` 를 (B,N) 으로 쌓고 트럭 승인 때 채우는 자리를
+      먼저 만들어야 한다 (`outputs/v6/piece8_spec_from_piece7.md` ③).
+    """
+    if run.params is None:
         return run
+    if not isinstance(run.params, DP.ResolverParams):
+        raise NotImplementedError(
+            f"이송 뒤 순위표 재굽기가 {type(run.params).__name__} 를 모른다 — 학습 정책망(V5NetParams)으로 "
+            f"21블록을 돌리려면 reserve_s 를 (B,N) 으로 쌓고 트럭 승인 시각에 채우는 자리가 먼저 필요하다 "
+            f"(조각 8). 조용히 통과시키면 이송한 트럭의 이름 순위가 v5 와 어긋난 채 학습이 돈다.")
     p = run.params
     for b in blocks:
         q = DP.resolver_params(HT.block_tables(run.tw, tt, b), eng.g)

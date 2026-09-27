@@ -16,9 +16,12 @@
 #     .venv-jax/Scripts/python.exe -m pip install "jax[cpu]==0.11.2"
 #
 # 사용 (Git Bash):
-#     scripts/v6/run_tests_windows.sh                 # 사다리(터미널 30·300) 빼고 전부
+#     scripts/v6/run_tests_windows.sh                 # 사다리(터미널 30·300) 빼고 전부 (약 55분)
 #     scripts/v6/run_tests_windows.sh --ladder        # 사다리까지 (느리다 — 1,441 에폭 × 2)
 #     scripts/v6/run_tests_windows.sh tests/v6/test_gpu_y01.py   # 파일 지정
+#
+# ⏱ 소요: 조각 1~6 (20파일) 약 24분 + **조각 7 (4파일) 약 32분** = 약 55분. 조각 7 이 오래 걸리는 이유는
+#   v5 torch 망을 결정마다 실제로 굴려 대조하기 때문이다 (무대 8종 × 망 2벌 × 결정 최대 240).
 #
 # ⚠️ Windows 는 PYTHONPATH 구분자가 `;` 다 (`:` 이 아니다). 경로에 한글이 있어 PYTHONIOENCODING 을 준다.
 set -u
@@ -37,7 +40,11 @@ if [ ${#FILES[@]} -eq 0 ]; then
          tests/v6/test_gpu_escape.py tests/v6/test_gpu_dispatch.py tests/v6/test_gpu_wake.py
          tests/v6/test_gpu_cands3.py tests/v6/test_gpu_vessel.py tests/v6/test_gpu_engine_equiv.py
          tests/v6/test_gpu_y01.py tests/v6/test_gpu_admission.py tests/v6/test_gpu_ledger.py
-         tests/v6/test_gpu_transfer_txn.py tests/v6/test_gpu_host_terminal.py)
+         tests/v6/test_gpu_transfer_txn.py tests/v6/test_gpu_host_terminal.py
+         #: ★조각 7 — 학습 정책망 (2026-09-26 추가). 이 네 줄이 없던 동안 표준 회귀는 조각 7 을
+         #:   **0건** 돌렸다 (검증 반박 3/4). 네 파일 합계는 느리다(≈32분) — 사다리는 따로 `--ladder`.
+         tests/v6/test_gpu_v5net.py tests/v6/test_gpu_v5feat.py tests/v6/test_gpu_v5cond.py
+         tests/v6/test_gpu_v5policy_equiv.py)
 fi
 
 echo "■ v6 시험 (Windows · CPU x64) $(date +%T)"

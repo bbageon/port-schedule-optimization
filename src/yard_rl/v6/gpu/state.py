@@ -139,6 +139,10 @@ V_CRANE_MIN_GAP = 32768      # 레일 이웃 크레인 간격 < safety_gap (CRAN
 V_PAIRWISE_LOCK = 65536      # 활성 예약 쌍이 토큰·레인·통로·칸을 공유 (TOKEN_DOUBLE·LANE_DOUBLE·CORRIDOR_OVERLAP·SLOT_DOUBLE)
 #: 조각 3·7 결정 계층 (dispatch.resolve_central) — 실린 후보 쌍이 고정 길이 scan 보다 많아 뒤가 잘렸다 (조용히 자르지 않는다)
 V_RESOLVER_TRUNC = 131072
+#: 조각 7 학습 정책망 — 망에 넣을 37칸에 **비유한 값**(NaN·inf)이 섞였다. v5 `ppo/model.encode` (17-18행) 는
+#:   이때 ValueError 를 던지고 학습 드라이버가 그 예외를 일부러 전파한다 (ppo/crane.py:81). jit 안에서는
+#:   던질 수 없으므로 **조용히 이상한 결정을 내지 말고 이 비트로 크게 알린다** (dispatch.make_v5net_pick).
+V_NET_NONFINITE = 262144
 #: 비트 → 이름 (진단·보고용 역표). `violation_names(v)` 로 푼다.
 VIOLATION_NAMES: dict[int, str] = {
     V_NOT_TOP: "NOT_TOP", V_TIER: "TIER", V_SIZE: "SIZE", V_PLAN_POSTCOND: "PLAN_POSTCOND",
@@ -149,6 +153,7 @@ VIOLATION_NAMES: dict[int, str] = {
     V_LEDGER_UNREGISTERED: "LEDGER_UNREGISTERED",
     V_CRANE_ORDER_SWAP: "CRANE_ORDER_SWAP", V_CRANE_MIN_GAP: "CRANE_MIN_GAP",
     V_PAIRWISE_LOCK: "PAIRWISE_LOCK", V_RESOLVER_TRUNC: "RESOLVER_TRUNC",
+    V_NET_NONFINITE: "NET_NONFINITE",
 }
 
 
