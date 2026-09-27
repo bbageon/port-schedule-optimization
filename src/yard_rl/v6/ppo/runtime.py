@@ -58,7 +58,7 @@ class PPOConfig:
 class PPORuntime:
     def __init__(self, policy: BlockPolicy, *, config=None, seed=302,
                  training=True, stop_s=None, on_update=None, learning_window_s=None,
-                 on_boundary=None, sample_actions=None):
+                 on_boundary=None, sample_actions=None, workload=None):
         if stop_s is not None and (not math.isfinite(stop_s) or stop_s <= 0):
             raise ValueError("stop_s must be finite and positive")
         self.policy, self.config = policy, config or PPOConfig()
@@ -85,6 +85,10 @@ class PPORuntime:
         self.time_s, self.initial_cost, self.cost_krw = None, None, 0.0
         self.total_reward, self.intervals = 0.0, 0
         self.learning_reward, self.learning_intervals = 0.0, 0
+        self.workload = workload
+        self.potential = None
+        self.shaping_reward = self.learning_shaping_reward = 0.0
+        self.last_shaping_reward = 0.0
         self.execute = CraneActor(self)
         self.truncated = False
         self.bound = False
@@ -103,6 +107,8 @@ class PPORuntime:
         self.index = {b: i for i, b in enumerate(self.bids)}
         self.block_of = {id(mbt.blocks[b]): b for b in self.bids}
         self.bound = True
+        if self.workload is not None:
+            self.workload.bind(mbt, bridge)
 
     def block_state(self, bid, t):
         return block_features(self.mbt, bid, t, n_cands=None,
@@ -158,6 +164,7 @@ class PPORuntime:
         with torch.no_grad():
             bootstrap = self.policy.value(states).numpy().copy()
         cost = self.read_cost(t)
+        next_potential = (0.0 if terminated else self.workload.snapshot(t)) if self.workload else 0.0
         if not math.isfinite(cost):
             raise FloatingPointError("Non-finite environment cost")
         if self.initial_cost is None:
@@ -170,16 +177,23 @@ class PPORuntime:
             if delta < -1e-5:
                 raise RuntimeError("Cumulative cost fell: lost/pruned accounting data")
             reward = -delta / self.config.reward_scale_krw
+            shaping = (self.workload.config.eta * (
+                self.config.gamma ** ((t - self.time_s) / self.config.time_unit_s)
+                * next_potential - self.potential)) if self.workload else 0.0
+            self.last_shaping_reward = shaping
+            self.shaping_reward += shaping
             self.total_reward += reward
             self.intervals += 1
             if self.collecting_at(self.time_s):
                 self.learning_reward += reward
+                self.learning_shaping_reward += shaping
                 self.learning_intervals += 1
                 self.buffer.append(Interval(self.time_s, t, self.states, self.values,
-                                             self.pending, reward, terminated))
+                                             self.pending, reward + shaping, terminated))
         elif not final:
             return  # Repeated reviews must not erase decisions or charge cost twice.
         self.time_s, self.cost_krw = float(t), cost
+        self.potential = next_potential
         should_stop = self.stop_s is not None and t >= self.stop_s - 1e-6
         if (len(self.buffer) >= self.config.rollout_intervals or final or should_stop
                 or not self.collecting_at(t)):
@@ -208,6 +222,10 @@ class PPORuntime:
                 "learning_window_s": self.learning_window_s,
                 "learning_intervals": self.learning_intervals,
                 "learning_reward": self.learning_reward,
+                "shaping_reward": self.shaping_reward,
+                "learning_shaping_reward": self.learning_shaping_reward,
+                "learning_training_reward": self.learning_reward + self.learning_shaping_reward,
+                "workload": self.workload.report() if self.workload else None,
                 "truncated": self.truncated, "updates": self.updates,
                 "traded_edges": self.bridge.traded_edges, "txn_failed": self.bridge.txn_failed,
                 "n_space": self.bridge.n_space, "n_time": self.bridge.n_time,
