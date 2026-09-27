@@ -1,0 +1,102 @@
+{
+  "frozen": {
+    "config": {
+      "service_s": {
+        "GATE_OUT": 326.4209070800527,
+        "GATE_IN": 152.4163721405386,
+        "VESSEL_DISCHARGE": 133.51906939329683,
+        "VESSEL_LOAD": 214.5826604782134
+      },
+      "capacity_fraction": {
+        "YC-W": 0.8696858580156736,
+        "YC-L": 0.8860421673839171
+      },
+      "safe_fraction": 0.6701553815705414,
+      "horizon_s": 900.0,
+      "eta": 1.0
+    },
+    "service_stats": {
+      "GATE_OUT": {
+        "n": 9377,
+        "mean_s": 326.4209070800527,
+        "cv": 0.4725830446181665
+      },
+      "GATE_IN": {
+        "n": 6623,
+        "mean_s": 152.4163721405386,
+        "cv": 0.10454678064317315
+      },
+      "VESSEL_DISCHARGE": {
+        "n": 6695,
+        "mean_s": 133.51906939329683,
+        "cv": 0.1446685236869265
+      },
+      "VESSEL_LOAD": {
+        "n": 4267,
+        "mean_s": 214.5826604782134,
+        "cv": 0.45272635200865485
+      }
+    },
+    "productive_occupied_s": {
+      "YC-W": 2911896.804070878,
+      "YC-L": 2967940.056154205
+    },
+    "nonproductive_ready_queue_s": {
+      "YC-L": 381720.0,
+      "YC-W": 436320.0
+    },
+    "capacity_estimator": "60-second reference-policy sampling; includes joint blocking and pre-work",
+    "safe_fraction_scope": "M/G/1 diagnostic approximation, not empirically certified queue guarantee"
+  },
+  "runs": {
+    "calibration": {
+      "seed": 9911000,
+      "completed_jobs": 26962,
+      "horizons": {
+        "300": {
+          "mean_realized_output_fraction": 0.6807173430411311,
+          "p90_realized_output_fraction": 1.6145406195266399,
+          "fraction_windows_above_provisional_cap": 0.4693287037037037
+        },
+        "900": {
+          "mean_realized_output_fraction": 0.6807173430411311,
+          "p90_realized_output_fraction": 1.2940797444503942,
+          "fraction_windows_above_provisional_cap": 0.5151289682539683
+        },
+        "1800": {
+          "mean_realized_output_fraction": 0.6807173430411311,
+          "p90_realized_output_fraction": 1.2342161361276696,
+          "fraction_windows_above_provisional_cap": 0.535218253968254
+        }
+      },
+      "measured_cohort": {
+        "requested": 5000,
+        "completed": 5000,
+        "unfinished": 0,
+        "original_request_wait_krw": 98417554.43611984,
+        "actual_gate_wait_krw": 98417554.43611984,
+        "deferred_count": 0,
+        "defer_mean_s": 0.0,
+        "request_to_exit_mean_s": 1679.9776649153653,
+        "request_to_exit_p90_s": 2824.166461817003,
+        "block_queue_mean_s": 816.9655954375206
+      },
+      "invariants": true,
+      "admitted": 16000,
+      "skipped": 0,
+      "mean_queue_budget_300s_met": false
+    },
+    "validation": {
+      "status": "failed",
+      "failure": {
+        "error": "ContainerContractError('Insufficient real planned supply; generation refused')",
+        "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train\\src\\yard_rl\\v6\\ppo\\workload_experiment.py\", line 81, in run\n    document, audit = build_fixed_seed(built, ships, seed=args.seed)\n                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train\\src\\yard_rl\\v6\\stage\\fixed_seed.py\", line 125, in build_fixed_seed\n    raise ContainerContractError('Insufficient real planned supply; generation refused', report=shortages)\nyard_rl.v6.stage.container_contract.ContainerContractError: Insufficient real planned supply; generation refused\n",
+        "wall_s": 0.7997439000755548,
+        "time_s": null
+      }
+    }
+  },
+  "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+  "safe_cap_validated": false,
+  "interpretation": "Observed output fractions are throughput, not input demand or a controlled capacity sweep. Measured mean service and reference capacity are frozen; the queue formula is provisional. Passing mean queue in one cohort would not establish a per-crane admission guarantee or optimum."
+}

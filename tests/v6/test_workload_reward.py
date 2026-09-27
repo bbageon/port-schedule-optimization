@@ -119,7 +119,7 @@ def test_original_request_audit_does_not_charge_notice_leadtime(tmp_path):
     assert delayed['original_request_wait_krw'] > 0 and delayed['actual_gate_wait_krw'] == 0
 
 
-def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container_input):
+def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container_input, tmp_path):
     import torch
     from yard_rl.v6.ppo.runtime import DebugStop
     from yard_rl.v6.stage.month import plan_days
@@ -138,3 +138,13 @@ def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container
     assert results[1].workload.last['conservation_error_s'] < 1e-8
     for key, value in results[0].policy.state_dict().items():
         assert torch.equal(value, results[1].policy.state_dict()[key])
+    import gzip
+    import json
+    from yard_rl.v6.ppo.workload_observer import Observer
+    rt = results[1]
+    rt.original_requests = {k: (request, notice) for k, (notice, request) in rt.workload.original.items()}
+    Observer(tmp_path, []).finish(rt)
+    with gzip.open(tmp_path/'execution-records.json.gz', 'rt', encoding='utf-8') as source:
+        events = json.load(source)
+    assert len(events) == len(rt.bridge.records)
+    assert all(e['original_requested_gate_s'] >= e['original_notice_s'] for e in events)

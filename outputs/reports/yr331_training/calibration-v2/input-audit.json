@@ -1,0 +1,54 @@
+{
+  "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+  "passed": true,
+  "contract": {
+    "schema": "yard_rl.v6.container_contract.v2",
+    "passed": true,
+    "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+    "truck_orders": 16000,
+    "vessel_streams": 30,
+    "source_containers": 26986,
+    "fixed_exit_containers": 14352,
+    "violations": {},
+    "examples": {},
+    "planned_waiting_exits": 0,
+    "planned_waiting_examples": [],
+    "identity_sha256": "73883e0d361df4cb7547ee163328479d3b64935c39d91124a4c9e87367c51a00"
+  },
+  "truck_orders": 16000,
+  "sources": 26986,
+  "exits": 14352,
+  "ending_unassigned_sources": 12634,
+  "source_exit_counts": {
+    "GATE_IN->GATE_OUT": 1650,
+    "GATE_IN->VESSEL_LOAD": 848,
+    "INITIAL->GATE_OUT": 5846,
+    "INITIAL->VESSEL_LOAD": 2653,
+    "VESSEL_DISCHARGE->GATE_OUT": 1881,
+    "VESSEL_DISCHARGE->VESSEL_LOAD": 1474
+  },
+  "source_size_counts": {
+    "FT20": 8841,
+    "FT40": 18145
+  },
+  "planned_waiting_exits": 0,
+  "waiting_examples": [],
+  "max_planned_wait_lower_bound_s": 0,
+  "planned_source_to_demand_s": {
+    "minimum": 3.0334505796199664,
+    "median": 118782.09036685032,
+    "maximum": 259495.4549806001,
+    "meaning": "planned time difference, NOT actual yard dwell"
+  },
+  "empty_execution_records": true,
+  "physical_execution_verified": false,
+  "ready_for_training": false,
+  "scope": "fixed-identity input validity only; no policy performance or operational realism claim",
+  "artifact": {
+    "path": "seed-data.json.gz",
+    "sha256": "b0966a6addaff3302c987559d0a9fda4304b803254f1d509edb2196d0ce04d0d",
+    "bytes": 1805485,
+    "content_sha256": "f4c590585eb669b86052eac292c574355da100695f25ea196205503c91887c54",
+    "uncompressed_bytes": 16820799
+  }
+}

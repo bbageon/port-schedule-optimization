@@ -1,0 +1,83 @@
+{
+  "generation": "v6",
+  "scope": "CPU diagnostic pilot",
+  "code": {
+    "git_head": "373f0140d4e9ef2e32a7afa3dc200a3300d6fae7",
+    "git_dirty": false,
+    "source_sha256": "249b787c5a81cb3b3944af100d7aa7ede3a4d65835ac7606414720af8c4f5dd8",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 23224,
+    "torch_threads": 1
+  },
+  "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+  "arguments": {
+    "mode": "calibrate",
+    "arm": "rule",
+    "seed": 9911000,
+    "init_seed": null,
+    "loads": [
+      3500,
+      5000,
+      7500
+    ],
+    "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2",
+    "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+    "calibration": null,
+    "checkpoint": null,
+    "seed_bundle": null,
+    "stop_s": null
+  },
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "learning_window_s": [
+    86400,
+    172800
+  ],
+  "calibration_sha256": null,
+  "checkpoint_sha256": null,
+  "days": [
+    {
+      "index": 0,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9912000,
+      "t0": 0.0,
+      "train": false,
+      "n_days": 3
+    },
+    {
+      "index": 1,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9913000,
+      "t0": 86400.0,
+      "train": true,
+      "n_days": 3
+    },
+    {
+      "index": 2,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9914000,
+      "t0": 172800.0,
+      "train": false,
+      "n_days": 3
+    }
+  ]
+}

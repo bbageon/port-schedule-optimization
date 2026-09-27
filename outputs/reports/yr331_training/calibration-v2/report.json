@@ -1,0 +1,649 @@
+{
+  "generation": "v6",
+  "algorithm": "shared-block-PPO",
+  "time_s": 266400.0,
+  "blocks": 21,
+  "intervals": 4321,
+  "roles": {
+    "seller": 13795
+  },
+  "crane_actions": {},
+  "cost_krw": 365728539.3564754,
+  "initial_cost_krw": 0.0,
+  "team_reward": -365.7285393564757,
+  "learning_window_s": [
+    86400.0,
+    172800.0
+  ],
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "shaping_reward": 0.0,
+  "learning_shaping_reward": 0.0,
+  "learning_training_reward": 0.0,
+  "workload": null,
+  "truncated": true,
+  "updates": [],
+  "traded_edges": 0,
+  "txn_failed": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "cost_breakdown": {
+    "phi_krw": 365728539.3564754,
+    "c_wait": 321200764.63475114,
+    "c_move": 1912828.125,
+    "c_rehandle": 30534000.0,
+    "c_vessel": 12080946.596724275,
+    "n_trucks": 16000,
+    "n_censored": 0,
+    "mean_turn_time_s": 1670.4297624413146,
+    "over_ratio": 0.0563125,
+    "p50_turn_time_s": 1133.3198537609424,
+    "p90_turn_time_s": 2829.149945652811,
+    "p99_turn_time_s": 7661.9093256907945
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "status": "complete",
+  "wall_s": 389.3621642002836,
+  "mode": "calibrate",
+  "arm": "rule",
+  "seed": 9911000,
+  "optimizer_updates": 0,
+  "telemetry": {
+    "days": [
+      {
+        "time_s": 0.0,
+        "cost_krw": 0.0,
+        "c_vessel": 0.0,
+        "cargo": {
+          "planned_sources": 26986,
+          "planned_exits": 14352,
+          "ready_sources": 13608,
+          "completed_exits": 0,
+          "physical_inventory": 13608,
+          "expected_inventory": 13608,
+          "pending_admissions": 7,
+          "dependent_reroutes": 0,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {},
+          "active_unfinished_jobs": {
+            "GATE_OUT": 111,
+            "GATE_IN": 68
+          },
+          "active_unfinished_vessels": 0,
+          "routing_examples": []
+        },
+        "request": {
+          "requested": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "original_request_wait_krw": 0.0,
+          "actual_gate_wait_krw": 0.0,
+          "deferred_count": 0,
+          "defer_mean_s": 0,
+          "request_to_exit_mean_s": 0,
+          "request_to_exit_p90_s": 0,
+          "block_queue_mean_s": 0
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 86400.0,
+        "cost_krw": 50844220.502501205,
+        "c_vessel": 1299630.6818182534,
+        "cargo": {
+          "planned_sources": 26986,
+          "planned_exits": 14352,
+          "ready_sources": 17469,
+          "completed_exits": 2075,
+          "physical_inventory": 15394,
+          "expected_inventory": 15394,
+          "pending_admissions": 81,
+          "dependent_reroutes": 0,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {
+            "GATE_OUT": 2075,
+            "GATE_IN": 1417,
+            "VESSEL_DISCHARGE": 2444
+          },
+          "active_unfinished_jobs": {
+            "GATE_OUT": 139,
+            "GATE_IN": 100,
+            "VESSEL_DISCHARGE": 62
+          },
+          "active_unfinished_vessels": 2,
+          "routing_examples": []
+        },
+        "request": {
+          "requested": 3500,
+          "completed": 3487,
+          "unfinished": 13,
+          "original_request_wait_krw": 43575072.112349615,
+          "actual_gate_wait_krw": 43575072.112349615,
+          "deferred_count": 0,
+          "defer_mean_s": 0.0,
+          "request_to_exit_mean_s": 1104.5730815391018,
+          "request_to_exit_p90_s": 1699.415943892716,
+          "block_queue_mean_s": 251.91628726525192
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 172800.0,
+        "cost_krw": 165665706.16707417,
+        "c_vessel": 6076549.3960830225,
+        "cargo": {
+          "planned_sources": 26986,
+          "planned_exits": 14352,
+          "ready_sources": 22904,
+          "completed_exits": 7059,
+          "physical_inventory": 15845,
+          "expected_inventory": 15845,
+          "pending_admissions": 238,
+          "dependent_reroutes": 0,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {
+            "GATE_OUT": 5077,
+            "GATE_IN": 3408,
+            "VESSEL_DISCHARGE": 5888,
+            "VESSEL_LOAD": 1982
+          },
+          "active_unfinished_jobs": {
+            "GATE_OUT": 220,
+            "GATE_IN": 133,
+            "VESSEL_DISCHARGE": 79,
+            "VESSEL_LOAD": 291
+          },
+          "active_unfinished_vessels": 7,
+          "routing_examples": []
+        },
+        "request": {
+          "requested": 8500,
+          "completed": 8479,
+          "unfinished": 21,
+          "original_request_wait_krw": 141835732.8126577,
+          "actual_gate_wait_krw": 141835732.8126578,
+          "deferred_count": 0,
+          "defer_mean_s": 0.0,
+          "request_to_exit_mean_s": 1441.7525141570575,
+          "request_to_exit_p90_s": 2563.055188982282,
+          "block_queue_mean_s": 583.8397247489474
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 259200.0,
+        "cost_krw": 364787872.3498129,
+        "c_vessel": 11906614.974886063,
+        "cargo": {
+          "planned_sources": 26986,
+          "planned_exits": 14352,
+          "ready_sources": 26840,
+          "completed_exits": 13253,
+          "physical_inventory": 13587,
+          "expected_inventory": 13587,
+          "pending_admissions": 382,
+          "dependent_reroutes": 0,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {
+            "GATE_OUT": 9359,
+            "GATE_IN": 6612,
+            "VESSEL_DISCHARGE": 6620,
+            "VESSEL_LOAD": 3894
+          },
+          "active_unfinished_jobs": {
+            "GATE_OUT": 18,
+            "GATE_IN": 11,
+            "VESSEL_LOAD": 1081,
+            "VESSEL_DISCHARGE": 135
+          },
+          "active_unfinished_vessels": 8,
+          "routing_examples": []
+        },
+        "request": {
+          "requested": 16000,
+          "completed": 15960,
+          "unfinished": 40,
+          "original_request_wait_krw": 320881295.9165935,
+          "actual_gate_wait_krw": 320881295.91659355,
+          "deferred_count": 0,
+          "defer_mean_s": 0.0,
+          "request_to_exit_mean_s": 1668.632750901678,
+          "request_to_exit_p90_s": 2828.2885273913957,
+          "block_queue_mean_s": 815.4162906613833
+        },
+        "updates": 0
+      }
+    ],
+    "measured_cohorts": [
+      {
+        "requested": 5000,
+        "completed": 5000,
+        "unfinished": 0,
+        "original_request_wait_krw": 98417554.43611984,
+        "actual_gate_wait_krw": 98417554.43611984,
+        "deferred_count": 0,
+        "defer_mean_s": 0.0,
+        "request_to_exit_mean_s": 1679.9776649153653,
+        "request_to_exit_p90_s": 2824.166461817003,
+        "block_queue_mean_s": 816.9655954375206
+      }
+    ],
+    "whole": {
+      "requested": 16000,
+      "completed": 16000,
+      "unfinished": 0,
+      "original_request_wait_krw": 321200764.6347511,
+      "actual_gate_wait_krw": 321200764.63475114,
+      "deferred_count": 0,
+      "defer_mean_s": 0.0,
+      "request_to_exit_mean_s": 1670.4297624413143,
+      "request_to_exit_p90_s": 2829.0211258353943,
+      "block_queue_mean_s": 815.6576525309118
+    },
+    "realized_service_jobs": 26962,
+    "idle_ready_s": {
+      "YC-L": 381720.0,
+      "YC-W": 436320.0
+    },
+    "max_conservation_error_s": 0.0,
+    "max_abs_shaping_reward": 0.0
+  },
+  "cargo": {
+    "planned_sources": 26986,
+    "planned_exits": 14352,
+    "ready_sources": 26926,
+    "completed_exits": 13644,
+    "physical_inventory": 13282,
+    "expected_inventory": 13282,
+    "pending_admissions": 382,
+    "dependent_reroutes": 0,
+    "remote_vessel_handoffs": 0,
+    "completed_jobs": {
+      "GATE_OUT": 9377,
+      "GATE_IN": 6623,
+      "VESSEL_DISCHARGE": 6695,
+      "VESSEL_LOAD": 4267
+    },
+    "active_unfinished_jobs": {
+      "VESSEL_LOAD": 708,
+      "VESSEL_DISCHARGE": 60
+    },
+    "active_unfinished_vessels": 7,
+    "routing_examples": []
+  },
+  "parameter_l2_change": 0.0,
+  "cf_calls": 0,
+  "invariants": true,
+  "admission": {
+    "admitted": 16000,
+    "skipped": 0,
+    "truck_failures": [],
+    "vessels": [
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s0",
+        "day": 0,
+        "block": "Y03",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 290,
+        "asked": 290,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s1",
+        "day": 0,
+        "block": "Y08",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s1",
+        "day": 0,
+        "block": "Y10",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 290,
+        "asked": 290,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s1",
+        "day": 0,
+        "block": "Y11",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 291,
+        "asked": 291,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s0",
+        "day": 0,
+        "block": "Y15",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 291,
+        "asked": 291,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s3",
+        "day": 0,
+        "block": "Y19",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s2",
+        "day": 0,
+        "block": "Y20",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s0",
+        "day": 0,
+        "block": "Y21",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s1",
+        "day": 1,
+        "block": "Y01",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 314,
+        "asked": 314,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s3",
+        "day": 1,
+        "block": "Y02",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 314,
+        "asked": 314,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s0",
+        "day": 1,
+        "block": "Y03",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 314,
+        "asked": 314,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s0",
+        "day": 1,
+        "block": "Y04",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 280,
+        "asked": 280,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s1",
+        "day": 1,
+        "block": "Y05",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s4",
+        "day": 1,
+        "block": "Y06",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s2",
+        "day": 1,
+        "block": "Y08",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s1",
+        "day": 1,
+        "block": "Y10",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 444,
+        "asked": 444,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s0",
+        "day": 1,
+        "block": "Y11",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s5",
+        "day": 1,
+        "block": "Y12",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s1",
+        "day": 1,
+        "block": "Y13",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 280,
+        "asked": 280,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s0",
+        "day": 1,
+        "block": "Y16",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 444,
+        "asked": 444,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s2",
+        "day": 1,
+        "block": "Y18",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 314,
+        "asked": 314,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-L1-s3",
+        "day": 1,
+        "block": "Y20",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 505,
+        "asked": 505,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s0",
+        "day": 2,
+        "block": "Y02",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 415,
+        "asked": 415,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s0",
+        "day": 2,
+        "block": "Y06",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 542,
+        "asked": 542,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s3",
+        "day": 2,
+        "block": "Y10",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 542,
+        "asked": 542,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s1",
+        "day": 2,
+        "block": "Y16",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 246,
+        "asked": 246,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s1",
+        "day": 2,
+        "block": "Y18",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 415,
+        "asked": 415,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s1",
+        "day": 2,
+        "block": "Y19",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 542,
+        "asked": 542,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s0",
+        "day": 2,
+        "block": "Y20",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 246,
+        "asked": 246,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s2",
+        "day": 2,
+        "block": "Y21",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 542,
+        "asked": 542,
+        "why": ""
+      }
+    ],
+    "vessel_failed": 0,
+    "time_s": 259140.0
+  },
+  "source_stamp": {
+    "git_head": "373f0140d4e9ef2e32a7afa3dc200a3300d6fae7",
+    "git_dirty": false,
+    "source_sha256": "249b787c5a81cb3b3944af100d7aa7ede3a4d65835ac7606414720af8c4f5dd8",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 23224,
+    "torch_threads": 1
+  },
+  "seed_artifact": {
+    "path": "seed-data.json.gz",
+    "sha256": "b0966a6addaff3302c987559d0a9fda4304b803254f1d509edb2196d0ce04d0d",
+    "bytes": 1805485,
+    "content_sha256": "f4c590585eb669b86052eac292c574355da100695f25ea196205503c91887c54",
+    "uncompressed_bytes": 16820799
+  },
+  "checkpoint_sha256": "7a4bab423445457210fe5b823a81d16a704714d10e42693982d173a11120ac42"
+}
