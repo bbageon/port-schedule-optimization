@@ -93,7 +93,20 @@ class Observer:
         write_json(self.output / 'workload-samples.json', self.potentials)
         periods = [(d.t0, d.t1) for d in self.days if d.is_train]
         cohorts = [self.request_metrics(rt, rt.time_s, p) for p in periods]
+        market = rt.bridge.market
+        trades = []
+        for lo, hi in periods:
+            seller = [r for r in market.seller.trail if lo <= r['t'] < hi]
+            buyer = [r for r in market.buyer.trail if lo <= r['t'] < hi]
+            ledger = [r for r in rt.bridge.ledger if lo <= r['t'] < hi]
+            trades.append(dict(start_s=lo, end_s=hi, seller_decisions=len(seller),
+                buyer_calls=len(buyer), buyer_accepts=sum(r['action'] == 'BUY' for r in buyer),
+                committed_space=sum(r['ok'] and r['kind'] == 'SPACE' for r in ledger),
+                committed_time=sum(r['ok'] and r['kind'] == 'TIME' for r in ledger),
+                completed_traded_jobs=sum(r['ok'] and rt.bridge.records[r['doc_key']].job_done_s is not None
+                                         for r in ledger)))
         return dict(days=self.day_snapshots, measured_cohorts=cohorts,
+                    measured_trades=trades,
                     whole=self.request_metrics(rt, rt.time_s),
                     realized_service_jobs=len(self.rows), idle_ready_s=dict(self.idle_ready),
                     max_conservation_error_s=self.max_conservation_error,

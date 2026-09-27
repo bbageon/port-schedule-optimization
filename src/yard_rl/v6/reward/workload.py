@@ -114,7 +114,7 @@ class WorkloadMeter:
             expected += weight
             n_jobs += 1
 
-        for key in tuple(self.known):
+        for key in sorted(self.known):
             rec = self.bridge.records[key]
             if rec.job_done_s is not None and rec.job_done_s <= t:
                 self.known.remove(key)
