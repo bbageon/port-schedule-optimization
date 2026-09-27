@@ -1,0 +1,81 @@
+{
+  "code": {
+    "git_head": "bfae72a3cb83cf8c83d3f11efb6831b16f2158c5",
+    "git_dirty": false,
+    "source_sha256": "ba1615194374e9bdeeaac12d8336bfafaa1860ad3baf4227942eed578c7ae872",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 9828,
+    "torch_threads": 1
+  },
+  "seed": 9911000,
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "prereg": ".claude/docs/dashboard-task-specs/YR-331-d-reward-normalization.md",
+  "prereg_sha256": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+  "input_sha256": "b0966a6addaff3302c987559d0a9fda4304b803254f1d509edb2196d0ce04d0d",
+  "input_audit": {
+    "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+    "passed": true,
+    "contract": {
+      "schema": "yard_rl.v6.container_contract.v2",
+      "passed": true,
+      "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+      "truck_orders": 16000,
+      "vessel_streams": 30,
+      "source_containers": 26986,
+      "fixed_exit_containers": 14352,
+      "violations": {},
+      "examples": {},
+      "planned_waiting_exits": 0,
+      "planned_waiting_examples": [],
+      "identity_sha256": "73883e0d361df4cb7547ee163328479d3b64935c39d91124a4c9e87367c51a00"
+    },
+    "truck_orders": 16000,
+    "sources": 26986,
+    "exits": 14352,
+    "ending_unassigned_sources": 12634,
+    "source_exit_counts": {
+      "GATE_IN->GATE_OUT": 1650,
+      "GATE_IN->VESSEL_LOAD": 848,
+      "INITIAL->GATE_OUT": 5846,
+      "INITIAL->VESSEL_LOAD": 2653,
+      "VESSEL_DISCHARGE->GATE_OUT": 1881,
+      "VESSEL_DISCHARGE->VESSEL_LOAD": 1474
+    },
+    "source_size_counts": {
+      "FT20": 8841,
+      "FT40": 18145
+    },
+    "planned_waiting_exits": 0,
+    "waiting_examples": [],
+    "max_planned_wait_lower_bound_s": 0,
+    "planned_source_to_demand_s": {
+      "minimum": 3.0334505796199664,
+      "median": 118782.09036685032,
+      "maximum": 259495.4549806001,
+      "meaning": "planned time difference, NOT actual yard dwell"
+    },
+    "empty_execution_records": true,
+    "physical_execution_verified": false,
+    "ready_for_training": false,
+    "scope": "fixed-identity input validity only; no policy performance or operational realism claim"
+  },
+  "rule": "KEEP+SF_SPT",
+  "scope": "reward-unit calibration, not capacity validation"
+}

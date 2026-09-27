@@ -63,6 +63,8 @@ def main(argv=None):
     parser.add_argument("--seconds", type=float, default=7200)
     parser.add_argument("--rollout-intervals", type=int, default=60)
     parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--reward-scale-krw", type=float,
+                        help="Explicit historical scale for replay; default uses frozen reference data")
     parser.add_argument("--checkpoint", type=Path, help="Existing v5 weights for a new world")
     parser.add_argument("--eval", action="store_true", help="Greedy execution, no optimizer updates")
     parser.add_argument("--output", type=Path, required=True, help="NEW output directory")
@@ -71,7 +73,8 @@ def main(argv=None):
         parser.error("output already exists; choose a new directory")
     if args.eval and args.checkpoint is None:
         parser.error("--eval requires --checkpoint")
-    config = PPOConfig(rollout_intervals=args.rollout_intervals, epochs=args.epochs)
+    config = PPOConfig(rollout_intervals=args.rollout_intervals, epochs=args.epochs,
+                       reward_scale_krw=args.reward_scale_krw)
     policy = load_policy(args.checkpoint) if args.checkpoint else None
     runtime, report = run_debug(seed=args.seed, load=args.load, duration_s=args.seconds,
                                 config=config, policy=policy, training=not args.eval,

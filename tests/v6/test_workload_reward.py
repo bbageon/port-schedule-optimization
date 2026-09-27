@@ -79,8 +79,9 @@ def test_runtime_cost_separate_and_truncation_bootstraps_potential(terminated):
     rt.boundary(0)
     rt.boundary(60, terminated=terminated)
     expected = 2 * ((0 if terminated else .999 * -2) + 1)
-    assert rt.buffer[0].reward == pytest.approx(-.006 + expected)
-    assert rt.total_reward == pytest.approx(-.006)
+    cost_reward = -6000 / rt.config.reward_scale_krw
+    assert rt.buffer[0].reward == pytest.approx(cost_reward + expected)
+    assert rt.total_reward == pytest.approx(cost_reward)
     assert rt.learning_shaping_reward == pytest.approx(expected)
 
 
@@ -98,7 +99,7 @@ def test_shape_disabled_preserves_cost_reward():
     rt.read_cost = lambda t: t * 100
     rt.boundary(0)
     rt.boundary(60)
-    assert rt.buffer[0].reward == -.006
+    assert rt.buffer[0].reward == pytest.approx(-6000 / rt.config.reward_scale_krw)
     assert rt.shaping_reward == 0
 
 

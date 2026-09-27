@@ -10,6 +10,7 @@ import torch
 
 from ..features.block import block_features
 from ..reward.phi import terminal_cost_krw
+from ..reward.scaling import default_reward_scale, scaling_report
 from ..stage.episode import rehandles_of, yc_empty_travel_s
 from ..stage.month import month_vessel_idle
 from .buffer import Choice, Interval
@@ -31,7 +32,7 @@ class PPOConfig:
     gamma: float = 0.999
     gae_lambda: float = 0.95
     time_unit_s: float = 60.0
-    reward_scale_krw: float = 1_000_000.0
+    reward_scale_krw: float | None = None  # None derives the scale from the frozen reference.
     clip: float = 0.2
     value_coef: float = 0.5
     entropy_coef: float = 0.001
@@ -42,8 +43,12 @@ class PPOConfig:
         counts = (self.rollout_intervals, self.epochs, self.minibatch_size)
         if any(not isinstance(v, int) or isinstance(v, bool) for v in counts):
             raise ValueError("Batch sizes and epochs must be positive integers")
-        if any(not math.isfinite(float(v)) for v in asdict(self).values()):
+        if any(not math.isfinite(float(v)) for k, v in asdict(self).items()
+               if not (k == 'reward_scale_krw' and v is None)):
             raise ValueError("PPO configuration must be finite")
+        if self.reward_scale_krw is None:
+            object.__setattr__(self, 'reward_scale_krw', default_reward_scale(
+                gamma=self.gamma, time_unit_s=self.time_unit_s))
         if min(self.rollout_intervals, self.epochs, self.minibatch_size) < 1:
             raise ValueError("Batch sizes and epochs must be positive")
         if min(self.learning_rate, self.time_unit_s, self.reward_scale_krw,
@@ -62,6 +67,10 @@ class PPORuntime:
         if stop_s is not None and (not math.isfinite(stop_s) or stop_s <= 0):
             raise ValueError("stop_s must be finite and positive")
         self.policy, self.config = policy, config or PPOConfig()
+        checkpoint_scale = getattr(policy, 'checkpoint_reward_scale_krw', None)
+        if checkpoint_scale is not None and checkpoint_scale != self.config.reward_scale_krw:
+            raise ValueError('Checkpoint reward scale differs: use its explicit config for replay '
+                             'or train a fresh policy with the new reference scale')
         self.training, self.stop_s, self.on_update = bool(training), stop_s, on_update
         #: ★행동을 **추첨으로 뽑을지**(True) **최고점만 고를지**(False) — [[YR-319]].
         #:
@@ -230,4 +239,6 @@ class PPORuntime:
                 "traded_edges": self.bridge.traded_edges, "txn_failed": self.bridge.txn_failed,
                 "n_space": self.bridge.n_space, "n_time": self.bridge.n_time,
                 "cost_breakdown": self.cost_breakdown,
-                "config": asdict(self.config)}
+                "config": asdict(self.config),
+                "reward_normalization": scaling_report(self.config.reward_scale_krw,
+                    gamma=self.config.gamma, time_unit_s=self.config.time_unit_s)}

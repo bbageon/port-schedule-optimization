@@ -50,7 +50,11 @@ def run(args):
     if out.exists():
         raise FileExistsError(out)
     days = plan_days(args.seed, loads=args.loads)
-    config = PPOConfig()
+    config = PPOConfig(reward_scale_krw=args.reward_scale_krw)
+    registration = json.loads(prereg.read_text(encoding='utf-8'))
+    if registration.get('schema') == 'yr331.pilot.v1' and config.reward_scale_krw != 1_000_000.:
+        raise ValueError('YR-331-b preregistered a historical scale: use --reward-scale-krw 1000000 '
+                         'for replay or provide a new preregistration for the new formula')
     if args.calibration:
         frozen = json.loads(Path(args.calibration).read_text(encoding='utf-8'))['config']
         workload = WorkloadMeter(WorkloadConfig(**frozen)) if args.arm == 'workload' else None
@@ -137,6 +141,8 @@ def main():
     p.add_argument('--arm', choices=['rule', 'cost', 'workload'], required=True)
     p.add_argument('--seed', type=int, required=True)
     p.add_argument('--init-seed', type=int)
+    p.add_argument('--reward-scale-krw', type=float,
+                   help='Explicit historical scale for replay; default uses frozen reference data')
     p.add_argument('--loads', type=int, nargs='+', required=True)
     p.add_argument('--output', required=True)
     p.add_argument('--prereg', default='docs/research/v6-workload-reward/training-prereg.json')

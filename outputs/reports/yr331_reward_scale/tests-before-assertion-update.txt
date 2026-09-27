@@ -1,0 +1,278 @@
+...............FF.F..F.................FF............................... [ 94%]
+....                                                                     [100%]
+================================== FAILURES ===================================
+____ test_runtime_cost_separate_and_truncation_bootstraps_potential[False] ____
+
+terminated = False
+
+    @pytest.mark.parametrize('terminated', [False, True])
+    def test_runtime_cost_separate_and_truncation_bootstraps_potential(terminated):
+        rt = PPORuntime(BlockPolicy(), config=PPOConfig(rollout_intervals=60))
+        rt.bids = ['A']
+        rt.states_at = lambda t: encode([[0.0] * 9], 'state')
+        rt.read_cost = lambda t: t * 100
+        rt.workload = SimpleNamespace(config=SimpleNamespace(eta=2), snapshot=lambda t: -1-t/60)
+        rt.boundary(0)
+        rt.boundary(60, terminated=terminated)
+        expected = 2 * ((0 if terminated else .999 * -2) + 1)
+>       assert rt.buffer[0].reward == pytest.approx(-.006 + expected)
+E       assert -1.996159485578997 == -2.002 ± 2.0e-06
+E         
+E         comparison failed
+E         Obtained: -1.996159485578997
+E         Expected: -2.002 ± 2.0e-06
+
+tests\v6\test_workload_reward.py:82: AssertionError
+____ test_runtime_cost_separate_and_truncation_bootstraps_potential[True] _____
+
+terminated = True
+
+    @pytest.mark.parametrize('terminated', [False, True])
+    def test_runtime_cost_separate_and_truncation_bootstraps_potential(terminated):
+        rt = PPORuntime(BlockPolicy(), config=PPOConfig(rollout_intervals=60))
+        rt.bids = ['A']
+        rt.states_at = lambda t: encode([[0.0] * 9], 'state')
+        rt.read_cost = lambda t: t * 100
+        rt.workload = SimpleNamespace(config=SimpleNamespace(eta=2), snapshot=lambda t: -1-t/60)
+        rt.boundary(0)
+        rt.boundary(60, terminated=terminated)
+        expected = 2 * ((0 if terminated else .999 * -2) + 1)
+>       assert rt.buffer[0].reward == pytest.approx(-.006 + expected)
+E       assert 1.999840514421003 == 1.994 ± 2.0e-06
+E         
+E         comparison failed
+E         Obtained: 1.999840514421003
+E         Expected: 1.994 ± 2.0e-06
+
+tests\v6\test_workload_reward.py:82: AssertionError
+__________________ test_shape_disabled_preserves_cost_reward __________________
+
+    def test_shape_disabled_preserves_cost_reward():
+        rt = PPORuntime(BlockPolicy())
+        rt.bids = ['A']
+        rt.states_at = lambda t: encode([[0.0] * 9], 'state')
+        rt.read_cost = lambda t: t * 100
+        rt.boundary(0)
+        rt.boundary(60)
+>       assert rt.buffer[0].reward == -.006
+E       assert -0.00015948557899703324 == -0.006
+E        +  where -0.00015948557899703324 = Interval(start_s=0.0, end_s=60, states=tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0....      0.]]), values=array([0.17726958], dtype=float32), choices=[[]], reward=-0.00015948557899703324, terminated=False).reward
+
+tests\v6\test_workload_reward.py:101: AssertionError
+____ test_learning_window_excludes_edges_but_keeps_sampling_and_bootstrap _____
+
+    def test_learning_window_excludes_edges_but_keeps_sampling_and_bootstrap():
+        rt = PPORuntime(BlockPolicy(), learning_window_s=(60, 180))
+        rt.bids, rt.index = ["b"], {"b": 0}
+        rt.states_at = lambda t: encode([[t / 3600]], "state")
+        rt.read_cost = lambda t: 100 + 2 * t
+        batches, bootstraps, hooks = [], [], []
+        def collect(bootstrap):
+            if rt.buffer:
+                batches.append(list(rt.buffer))
+                bootstraps.append(bootstrap.copy())
+                rt.buffer.clear()
+        rt._update = collect
+        rt.on_boundary = lambda r: hooks.append((r.time_s, len(batches)))
+        for t in (0, 60, 120, 180, 240):
+            rt.boundary(t)
+            before = rt.action_rng.get_state().clone()
+            rt.select("seller", "b", t, [[0], [1]])
+            assert not torch.equal(before, rt.action_rng.get_state())
+            assert len(rt.pending[0]) == int(60 <= t < 180)
+        rt.finish(300)
+        assert [[r.start_s for r in batch] for batch in batches] == [[60, 120]]
+        assert rt.intervals == 5 and rt.learning_intervals == 2
+>       assert rt.total_reward == pytest.approx(-600 / 1e6)
+E       assert -1.5948557899703327e-05 == -0.0006 ± 6.0e-10
+E         
+E         comparison failed
+E         Obtained: -1.5948557899703327e-05
+E         Expected: -0.0006 ± 6.0e-10
+
+tests\v6\test_ppo_continuous.py:40: AssertionError
+____________ test_real_three_day_run_window_checkpoints_no_clones _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022306640AF0>
+tmp_path = WindowsPath('C:/Users/geonu/AppData/Local/Temp/pytest-of-geonu/pytest-70/test_real_three_day_run_window0')
+fixed_container_input = None
+
+    def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path, fixed_container_input):
+        monkeypatch.setattr(continuous, "code_stamp", lambda: {"pid": os.getpid(), "test_only": True})
+        def forbidden(*args, **kwargs):
+            raise AssertionError("No counterfactual world is allowed")
+        monkeypatch.setattr(TerminalSimulator, "__deepcopy__", forbidden, raising=False)
+        monkeypatch.setattr(BranchPool, "__enter__", forbidden)
+        identities = set()
+        original = PPORuntime._update
+        def checked(self, bootstrap):
+            identities.add((id(self.mbt), tuple(id(s) for s in self.mbt.blocks.values())))
+            original(self, bootstrap)
+        monkeypatch.setattr(PPORuntime, "_update", checked)
+        out = tmp_path / "three-day"
+        rt, report = continuous.run_continuous(output=out, n_days=3, load=60)
+        assert len(identities) == 1
+        assert report["counterfactual_worlds"] == 0 and report["state"] == "completed"
+        assert rt.learning_intervals == 1440 and len(rt.updates) == 24
+        days = json.loads((out / "days.json").read_text())
+        assert [d["updates"] for d in days] == [0, 24, 0]
+        assert [d["train"] for d in days] == [False, True, False]
+>       assert days[1]["interval_cost_krw"] == pytest.approx(-rt.learning_reward * 1e6)
+E       assert 7959239.979209583 == 211563.99941009586 ± 0.211564
+E         
+E         comparison failed
+E         Obtained: 7959239.979209583
+E         Expected: 211563.99941009586 ± 0.211564
+
+tests\v6\test_ppo_continuous.py:129: AssertionError
+---------------------------- Captured stdout call -----------------------------
+{"event": "start", "wall_seconds": 0.005259800003841519, "code": {"pid": 31528, "test_only": true}, "config": {"rollout_intervals": 60, "epochs": 2, "minibatch_size": 64, "learning_rate": 0.0003, "gamma": 0.999, "gae_lambda": 0.95, "time_unit_s": 60.0, "reward_scale_krw": 37620956.31299437, "clip": 0.2, "value_coef": 0.5, "entropy_coef": 0.001, "max_grad_norm": 0.5, "target_kl": 0.03}, "n_days": 3, "learning_days": 1}
+{"event": "container_contract", "wall_seconds": 0.20531360000313725, "passed": true, "violations": {}, "identity_sha256": "a2fd399b219d0ce2918e9482db0e9f321e284921325155aff2a7c094e37b9831"}
+{"event": "progress", "wall_seconds": 0.7080553000050713, "state": "running", "phase": "warmup", "time_s": 0.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 0.0, "roles": {}, "admitted": 4, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 1.0207871000020532, "state": "running", "phase": "warmup", "time_s": 3600.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 26017.74444444444, "roles": {"seller": 2, "buyer": 2, "crane": 2}, "admitted": 5, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 1.3318872000018018, "state": "running", "phase": "warmup", "time_s": 7200.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 103967.9167696149, "roles": {"seller": 2, "buyer": 2, "crane": 4}, "admitted": 6, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 1.7550818000017898, "state": "running", "phase": "warmup", "time_s": 10800.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 280209.19892756164, "roles": {"seller": 4, "buyer": 4, "crane": 61}, "admitted": 9, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 2.300966300004802, "state": "running", "phase": "warmup", "time_s": 14400.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 492778.7453922088, "roles": {"seller": 4, "buyer": 4, "crane": 138}, "admitted": 9, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 2.8443248000039603, "state": "running", "phase": "warmup", "time_s": 18000.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 783268.9353292121, "roles": {"seller": 6, "buyer": 5, "crane": 226}, "admitted": 10, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 3.732139700005064, "state": "running", "phase": "warmup", "time_s": 21600.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 1360469.9099549646, "roles": {"seller": 6, "buyer": 5, "crane": 468}, "admitted": 12, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 4.846439100001589, "state": "running", "phase": "warmup", "time_s": 25200.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 1988961.2269317575, "roles": {"seller": 8, "buyer": 7, "crane": 694}, "admitted": 15, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 6.0963750000009895, "state": "running", "phase": "warmup", "time_s": 28800.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 2579118.445028702, "roles": {"seller": 10, "buyer": 9, "crane": 929}, "admitted": 18, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 7.651752900004794, "state": "running", "phase": "warmup", "time_s": 32400.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 3202610.9326873836, "roles": {"seller": 14, "buyer": 13, "crane": 1178}, "admitted": 21, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 9.222717299999204, "state": "running", "phase": "warmup", "time_s": 36000.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 3808138.320761107, "roles": {"seller": 17, "buyer": 16, "crane": 1420}, "admitted": 26, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 11.078310900003999, "state": "running", "phase": "warmup", "time_s": 39600.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 4285886.194492251, "roles": {"seller": 20, "buyer": 19, "crane": 1693}, "admitted": 29, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 12.875046900000598, "state": "running", "phase": "warmup", "time_s": 43200.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 4733036.2533105, "roles": {"seller": 24, "buyer": 23, "crane": 1971}, "admitted": 35, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 14.59926870000345, "state": "running", "phase": "warmup", "time_s": 46800.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 5179888.496405762, "roles": {"seller": 28, "buyer": 27, "crane": 2232}, "admitted": 38, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 16.721662700001616, "state": "running", "phase": "warmup", "time_s": 50400.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 5669901.611858021, "roles": {"seller": 33, "buyer": 32, "crane": 2610}, "admitted": 38, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 18.787553200003458, "state": "running", "phase": "warmup", "time_s": 54000.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 6165227.095452204, "roles": {"seller": 37, "buyer": 36, "crane": 2963}, "admitted": 44, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 21.09483580000233, "state": "running", "phase": "warmup", "time_s": 57600.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 6632892.500072448, "roles": {"seller": 41, "buyer": 39, "crane": 3346}, "admitted": 47, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 23.383821200004604, "state": "running", "phase": "warmup", "time_s": 61200.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 6985798.452010704, "roles": {"seller": 45, "buyer": 43, "crane": 3739}, "admitted": 51, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 25.429336699999112, "state": "running", "phase": "warmup", "time_s": 64800.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 7379766.357269827, "roles": {"seller": 48, "buyer": 46, "crane": 4107}, "admitted": 53, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 27.300186600004963, "state": "running", "phase": "warmup", "time_s": 68400.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 7790916.891494733, "roles": {"seller": 49, "buyer": 47, "crane": 4451}, "admitted": 54, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 29.2228740999999, "state": "running", "phase": "warmup", "time_s": 72000.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 8185669.083792238, "roles": {"seller": 51, "buyer": 48, "crane": 4755}, "admitted": 56, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 31.173130800001672, "state": "running", "phase": "warmup", "time_s": 75600.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 8582464.73034482, "roles": {"seller": 53, "buyer": 50, "crane": 5045}, "admitted": 58, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 33.005099300004076, "state": "running", "phase": "warmup", "time_s": 79200.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 9032106.075347895, "roles": {"seller": 54, "buyer": 51, "crane": 5347}, "admitted": 59, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 34.44589790000464, "state": "running", "phase": "warmup", "time_s": 82800.0, "day": 1, "completed_days": 0, "updates": 0, "learning_intervals": 0, "cost_krw": 9501805.223283963, "roles": {"seller": 56, "buyer": 53, "crane": 5624}, "admitted": 60, "skipped": 0, "vessel_failed": 0}
+{"event": "day", "wall_seconds": 35.55246910000278, "day": 1, "train": false, "load": 60, "time_s": 86400.0, "interval_cost_krw": 10003670.628604319, "cost_krw": 10003670.628604319, "updates": 0, "learning_reward": 0.0, "roles": {"seller": 56, "buyer": 53, "crane": 5859}, "crane_actions": {"WAIT": 2681, "SERVE": 3075, "REPOSITION": 97, "PRE_REHANDLE": 6}, "physical_invariants_checked": true, "checkpoint": {"path": "day_01.pt", "sha256": "431604ee96e2bdef15c2d9d695ff021a0f214c36f90f7522eb6db8bacb089188", "scope": "weights-and-optimizer; no physical-world resume", "pending_intervals": 0}}
+{"event": "progress", "wall_seconds": 35.55427549999877, "state": "running", "phase": "training", "time_s": 86400.0, "day": 2, "completed_days": 1, "updates": 0, "learning_intervals": 0, "cost_krw": 10003670.628604319, "roles": {"seller": 56, "buyer": 53, "crane": 5859}, "admitted": 63, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 36.262974800003576, "loss": -0.023146980605088175, "early_stopped": false, "max_kl": 0.0026815433520823717, "max_grad_norm_before_clip": 0.9113130569458008, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 109, "micro_actions": 168, "index": 1, "time_s": 90000.0, "cost_krw": 10514735.537626393}
+{"event": "progress", "wall_seconds": 36.265347700005805, "state": "running", "phase": "training", "time_s": 90000.0, "day": 2, "completed_days": 1, "updates": 1, "learning_intervals": 60, "cost_krw": 10514735.537626393, "roles": {"seller": 56, "buyer": 53, "crane": 6027}, "admitted": 65, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 36.62190810000175, "loss": 0.02446147659809981, "early_stopped": false, "max_kl": 0.006508782505989075, "max_grad_norm_before_clip": 1.5613253116607666, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 57, "micro_actions": 92, "index": 2, "time_s": 93600.0, "cost_krw": 10979952.153043758}
+{"event": "progress", "wall_seconds": 36.623588800001016, "state": "running", "phase": "training", "time_s": 93600.0, "day": 2, "completed_days": 1, "updates": 2, "learning_intervals": 120, "cost_krw": 10979952.153043758, "roles": {"seller": 56, "buyer": 53, "crane": 6119}, "admitted": 66, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 36.78426010000112, "loss": 0.005458656760771419, "early_stopped": false, "max_kl": 0.0003165602684020996, "max_grad_norm_before_clip": 1.0534552335739136, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 9, "micro_actions": 14, "index": 3, "time_s": 97200.0, "cost_krw": 11325875.471578004}
+{"event": "progress", "wall_seconds": 36.785894100001315, "state": "running", "phase": "training", "time_s": 97200.0, "day": 2, "completed_days": 1, "updates": 3, "learning_intervals": 180, "cost_krw": 11325875.471578004, "roles": {"seller": 56, "buyer": 53, "crane": 6133}, "admitted": 68, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 36.91262950000237, "loss": -2.3076787589104696e-05, "early_stopped": false, "max_kl": 8.440017700195312e-05, "max_grad_norm_before_clip": 0.006622684188187122, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 1, "micro_actions": 2, "index": 4, "time_s": 100800.0, "cost_krw": 11585071.022150153}
+{"event": "progress", "wall_seconds": 36.9149866000007, "state": "running", "phase": "training", "time_s": 100800.0, "day": 2, "completed_days": 1, "updates": 4, "learning_intervals": 240, "cost_krw": 11585071.022150153, "roles": {"seller": 57, "buyer": 54, "crane": 6133}, "admitted": 71, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.0536557000014, "loss": -0.029286243566920687, "early_stopped": false, "max_kl": 0.0022432804107666016, "max_grad_norm_before_clip": 4.464314937591553, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 5, "micro_actions": 10, "index": 5, "time_s": 104400.0, "cost_krw": 11784156.721587243}
+{"event": "progress", "wall_seconds": 37.055015199999616, "state": "running", "phase": "training", "time_s": 104400.0, "day": 2, "completed_days": 1, "updates": 5, "learning_intervals": 300, "cost_krw": 11784156.721587243, "roles": {"seller": 59, "buyer": 56, "crane": 6139}, "admitted": 73, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.1691479000001, "loss": 0.00029458249857867714, "early_stopped": false, "max_kl": 1.3113021850585938e-06, "max_grad_norm_before_clip": 0.005856189411133528, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 1, "micro_actions": 2, "index": 6, "time_s": 108000.0, "cost_krw": 12003373.62251179}
+{"event": "progress", "wall_seconds": 37.171250500003225, "state": "running", "phase": "training", "time_s": 108000.0, "day": 2, "completed_days": 1, "updates": 6, "learning_intervals": 360, "cost_krw": 12003373.62251179, "roles": {"seller": 59, "buyer": 56, "crane": 6141}, "admitted": 73, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.30215400000452, "loss": 3.233528457684543e-05, "early_stopped": false, "max_kl": 0.0, "max_grad_norm_before_clip": 0.0061236415058374405, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 1, "micro_actions": 2, "index": 7, "time_s": 111600.0, "cost_krw": 12243373.62251179}
+{"event": "progress", "wall_seconds": 37.303670400004194, "state": "running", "phase": "training", "time_s": 111600.0, "day": 2, "completed_days": 1, "updates": 7, "learning_intervals": 420, "cost_krw": 12243373.62251179, "roles": {"seller": 60, "buyer": 57, "crane": 6141}, "admitted": 74, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.44189159999951, "loss": 0.01401962225801725, "early_stopped": false, "max_kl": 0.00010728836059570312, "max_grad_norm_before_clip": 0.5281004309654236, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 5, "micro_actions": 8, "index": 8, "time_s": 115200.0, "cost_krw": 12491808.380296165}
+{"event": "progress", "wall_seconds": 37.44384749999881, "state": "running", "phase": "training", "time_s": 115200.0, "day": 2, "completed_days": 1, "updates": 8, "learning_intervals": 480, "cost_krw": 12491808.380296165, "roles": {"seller": 63, "buyer": 60, "crane": 6143}, "admitted": 78, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.59622800000216, "loss": 0.014801547334442944, "early_stopped": false, "max_kl": 0.0001271367073059082, "max_grad_norm_before_clip": 0.9780414700508118, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 9, "micro_actions": 15, "index": 9, "time_s": 118800.0, "cost_krw": 12764619.843680669}
+{"event": "progress", "wall_seconds": 37.597932800003036, "state": "running", "phase": "training", "time_s": 118800.0, "day": 2, "completed_days": 1, "updates": 9, "learning_intervals": 540, "cost_krw": 12764619.843680669, "roles": {"seller": 67, "buyer": 64, "crane": 6150}, "admitted": 81, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.75743800000055, "loss": -0.044840314381232815, "early_stopped": false, "max_kl": 0.0029791593551635742, "max_grad_norm_before_clip": 1.5461618900299072, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 14, "micro_actions": 20, "index": 10, "time_s": 122400.0, "cost_krw": 13075851.41143263}
+{"event": "progress", "wall_seconds": 37.7599618000022, "state": "running", "phase": "training", "time_s": 122400.0, "day": 2, "completed_days": 1, "updates": 10, "learning_intervals": 600, "cost_krw": 13075851.41143263, "roles": {"seller": 71, "buyer": 67, "crane": 6163}, "admitted": 85, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 37.88638080000237, "loss": 0.004012846412867077, "early_stopped": false, "max_kl": 0.0020691752433776855, "max_grad_norm_before_clip": 0.7897833585739136, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 7, "micro_actions": 11, "index": 11, "time_s": 126000.0, "cost_krw": 13356440.886148516}
+{"event": "progress", "wall_seconds": 37.88785270000517, "state": "running", "phase": "training", "time_s": 126000.0, "day": 2, "completed_days": 1, "updates": 11, "learning_intervals": 660, "cost_krw": 13356440.886148516, "roles": {"seller": 73, "buyer": 69, "crane": 6170}, "admitted": 88, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.04187169999932, "loss": 0.015019197278668628, "early_stopped": false, "max_kl": 0.0007708072662353516, "max_grad_norm_before_clip": 1.1466293334960938, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 10, "micro_actions": 18, "index": 12, "time_s": 129600.0, "cost_krw": 13649273.917883554}
+{"event": "progress", "wall_seconds": 38.04438890000165, "state": "running", "phase": "training", "time_s": 129600.0, "day": 2, "completed_days": 1, "updates": 12, "learning_intervals": 720, "cost_krw": 13649273.917883554, "roles": {"seller": 76, "buyer": 72, "crane": 6182}, "admitted": 96, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.19300600000133, "loss": 0.021878571672125702, "early_stopped": false, "max_kl": 0.0007889270782470703, "max_grad_norm_before_clip": 1.2014516592025757, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 12, "micro_actions": 18, "index": 13, "time_s": 133200.0, "cost_krw": 13938068.895268403}
+{"event": "progress", "wall_seconds": 38.19475610000518, "state": "running", "phase": "training", "time_s": 133200.0, "day": 2, "completed_days": 1, "updates": 13, "learning_intervals": 780, "cost_krw": 13938068.895268403, "roles": {"seller": 80, "buyer": 75, "crane": 6193}, "admitted": 99, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.33446180000465, "loss": 0.01752010123090173, "early_stopped": false, "max_kl": 0.020956873893737793, "max_grad_norm_before_clip": 2.2856462001800537, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 11, "micro_actions": 19, "index": 14, "time_s": 136800.0, "cost_krw": 14244923.259051597}
+{"event": "progress", "wall_seconds": 38.336156800003664, "state": "running", "phase": "training", "time_s": 136800.0, "day": 2, "completed_days": 1, "updates": 14, "learning_intervals": 840, "cost_krw": 14244923.259051597, "roles": {"seller": 84, "buyer": 79, "crane": 6204}, "admitted": 102, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.47297840000101, "loss": -0.0268862138821234, "early_stopped": false, "max_kl": 0.002143681049346924, "max_grad_norm_before_clip": 1.9185389280319214, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 12, "micro_actions": 22, "index": 15, "time_s": 140400.0, "cost_krw": 14587515.23932921}
+{"event": "progress", "wall_seconds": 38.474621900000784, "state": "running", "phase": "training", "time_s": 140400.0, "day": 2, "completed_days": 1, "updates": 15, "learning_intervals": 900, "cost_krw": 14587515.23932921, "roles": {"seller": 86, "buyer": 81, "crane": 6222}, "admitted": 106, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.61337700000149, "loss": -0.015215832575462685, "early_stopped": false, "max_kl": 0.00048345327377319336, "max_grad_norm_before_clip": 2.055546522140503, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 12, "micro_actions": 20, "index": 16, "time_s": 144000.0, "cost_krw": 14897700.191848794}
+{"event": "progress", "wall_seconds": 38.6150609000033, "state": "running", "phase": "training", "time_s": 144000.0, "day": 2, "completed_days": 1, "updates": 16, "learning_intervals": 960, "cost_krw": 14897700.191848794, "roles": {"seller": 90, "buyer": 85, "crane": 6234}, "admitted": 110, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.73644649999915, "loss": -0.003870977100385886, "early_stopped": false, "max_kl": 0.0004347264766693115, "max_grad_norm_before_clip": 1.9226418733596802, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 9, "micro_actions": 14, "index": 17, "time_s": 147600.0, "cost_krw": 15199797.83650015}
+{"event": "progress", "wall_seconds": 38.73812310000358, "state": "running", "phase": "training", "time_s": 147600.0, "day": 2, "completed_days": 1, "updates": 17, "learning_intervals": 1020, "cost_krw": 15199797.83650015, "roles": {"seller": 93, "buyer": 88, "crane": 6242}, "admitted": 112, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.87030070000037, "loss": 0.03800380516093753, "early_stopped": false, "max_kl": 0.0003471970558166504, "max_grad_norm_before_clip": 0.8200654983520508, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 9, "micro_actions": 13, "index": 18, "time_s": 151200.0, "cost_krw": 15537955.290070787}
+{"event": "progress", "wall_seconds": 38.87193340000522, "state": "running", "phase": "training", "time_s": 151200.0, "day": 2, "completed_days": 1, "updates": 18, "learning_intervals": 1080, "cost_krw": 15537955.290070787, "roles": {"seller": 97, "buyer": 92, "crane": 6247}, "admitted": 115, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 38.98566969999956, "loss": -0.008985361894329458, "early_stopped": false, "max_kl": 0.017195820808410645, "max_grad_norm_before_clip": 1.6286213397979736, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 5, "micro_actions": 8, "index": 19, "time_s": 154800.0, "cost_krw": 15905026.880285142}
+{"event": "progress", "wall_seconds": 38.98766910000268, "state": "running", "phase": "training", "time_s": 154800.0, "day": 2, "completed_days": 1, "updates": 19, "learning_intervals": 1140, "cost_krw": 15905026.880285142, "roles": {"seller": 99, "buyer": 92, "crane": 6253}, "admitted": 116, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 39.117090700005065, "loss": 0.007883939380192828, "early_stopped": false, "max_kl": 0.0004076957702636719, "max_grad_norm_before_clip": 0.6895665526390076, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 4, "micro_actions": 6, "index": 20, "time_s": 158400.0, "cost_krw": 16291892.999871446}
+{"event": "progress", "wall_seconds": 39.1186949000039, "state": "running", "phase": "training", "time_s": 158400.0, "day": 2, "completed_days": 1, "updates": 20, "learning_intervals": 1200, "cost_krw": 16291892.999871446, "roles": {"seller": 101, "buyer": 94, "crane": 6255}, "admitted": 118, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 39.24044720000529, "loss": -0.001693778745327279, "early_stopped": false, "max_kl": 0.00031191110610961914, "max_grad_norm_before_clip": 0.7454132437705994, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 4, "micro_actions": 6, "index": 21, "time_s": 162000.0, "cost_krw": 16704347.143259468}
+{"event": "progress", "wall_seconds": 39.24329720000242, "state": "running", "phase": "training", "time_s": 162000.0, "day": 2, "completed_days": 1, "updates": 21, "learning_intervals": 1260, "cost_krw": 16704347.143259468, "roles": {"seller": 103, "buyer": 95, "crane": 6258}, "admitted": 119, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 39.395667500000854, "loss": -0.0008805735856597608, "early_stopped": false, "max_kl": 0.00010585784912109375, "max_grad_norm_before_clip": 0.7291978597640991, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 6, "micro_actions": 10, "index": 22, "time_s": 165600.0, "cost_krw": 17123487.527325213}
+{"event": "progress", "wall_seconds": 39.39788590000535, "state": "running", "phase": "training", "time_s": 165600.0, "day": 2, "completed_days": 1, "updates": 22, "learning_intervals": 1320, "cost_krw": 17123487.527325213, "roles": {"seller": 104, "buyer": 96, "crane": 6266}, "admitted": 119, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 39.565452599999844, "loss": -0.03124969763870098, "early_stopped": false, "max_kl": 0.0001017451286315918, "max_grad_norm_before_clip": 0.680509626865387, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 8, "micro_actions": 13, "index": 23, "time_s": 169200.0, "cost_krw": 17555411.75225835}
+{"event": "progress", "wall_seconds": 39.56711830000131, "state": "running", "phase": "training", "time_s": 169200.0, "day": 2, "completed_days": 1, "updates": 23, "learning_intervals": 1380, "cost_krw": 17555411.75225835, "roles": {"seller": 105, "buyer": 97, "crane": 6277}, "admitted": 119, "skipped": 0, "vessel_failed": 0}
+{"event": "update", "wall_seconds": 39.72494710000319, "loss": -0.0032288366682095672, "early_stopped": false, "max_kl": 0.01874721050262451, "max_grad_norm_before_clip": 3.4678869247436523, "minibatches": 40, "intervals": 60, "block_samples": 1260, "active_block_samples": 4, "micro_actions": 7, "index": 24, "time_s": 172800.0, "cost_krw": 17962910.607813902}
+{"event": "day", "wall_seconds": 39.753222400002414, "day": 2, "train": true, "load": 60, "time_s": 172800.0, "interval_cost_krw": 7959239.979209583, "cost_krw": 17962910.607813902, "updates": 24, "learning_reward": -0.21156399941009585, "roles": {"seller": 50, "buyer": 45, "crane": 423}, "crane_actions": {"WAIT": 211, "SERVE": 212, "REPOSITION": 0, "PRE_REHANDLE": 0}, "physical_invariants_checked": true, "checkpoint": {"path": "day_02.pt", "sha256": "ae5431881cb9464b3e5d0943ac3c30eb712566c35b04b341a9b40c971c1d06e8", "scope": "weights-and-optimizer; no physical-world resume", "pending_intervals": 0}}
+{"event": "progress", "wall_seconds": 39.75679189999937, "state": "running", "phase": "cooldown", "time_s": 172800.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 17962910.607813902, "roles": {"seller": 106, "buyer": 98, "crane": 6282}, "admitted": 123, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 39.83022580000397, "state": "running", "phase": "cooldown", "time_s": 176400.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 18211786.91032447, "roles": {"seller": 108, "buyer": 100, "crane": 6284}, "admitted": 125, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 39.8967660000053, "state": "running", "phase": "cooldown", "time_s": 180000.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 18467698.37450724, "roles": {"seller": 108, "buyer": 100, "crane": 6287}, "admitted": 127, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 39.967371400001866, "state": "running", "phase": "cooldown", "time_s": 183600.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 18707698.37450724, "roles": {"seller": 109, "buyer": 101, "crane": 6287}, "admitted": 128, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.038928800000576, "state": "running", "phase": "cooldown", "time_s": 187200.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 18965361.172171123, "roles": {"seller": 110, "buyer": 102, "crane": 6291}, "admitted": 129, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.10852790000354, "state": "running", "phase": "cooldown", "time_s": 190800.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 19213212.686519064, "roles": {"seller": 110, "buyer": 102, "crane": 6292}, "admitted": 131, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.17246210000303, "state": "running", "phase": "cooldown", "time_s": 194400.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 19466572.019852392, "roles": {"seller": 112, "buyer": 103, "crane": 6293}, "admitted": 133, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.23592430000281, "state": "running", "phase": "cooldown", "time_s": 198000.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 19715902.930451587, "roles": {"seller": 112, "buyer": 103, "crane": 6295}, "admitted": 134, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.305337199999485, "state": "running", "phase": "cooldown", "time_s": 201600.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 19976992.719340473, "roles": {"seller": 114, "buyer": 105, "crane": 6298}, "admitted": 136, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.37734150000324, "state": "running", "phase": "cooldown", "time_s": 205200.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 20284286.646145113, "roles": {"seller": 117, "buyer": 108, "crane": 6303}, "admitted": 139, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.4604621000035, "state": "running", "phase": "cooldown", "time_s": 208800.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 20700285.385530412, "roles": {"seller": 122, "buyer": 113, "crane": 6312}, "admitted": 144, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.537478099999134, "state": "running", "phase": "cooldown", "time_s": 212400.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 21006963.651350394, "roles": {"seller": 125, "buyer": 116, "crane": 6321}, "admitted": 148, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.61522420000256, "state": "running", "phase": "cooldown", "time_s": 216000.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 21213580.877146825, "roles": {"seller": 129, "buyer": 120, "crane": 6335}, "admitted": 153, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.69682180000382, "state": "running", "phase": "cooldown", "time_s": 219600.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 21452807.732176617, "roles": {"seller": 133, "buyer": 124, "crane": 6345}, "admitted": 156, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.78530700000556, "state": "running", "phase": "cooldown", "time_s": 223200.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 21677412.082778573, "roles": {"seller": 137, "buyer": 128, "crane": 6356}, "admitted": 161, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.858921400002146, "state": "running", "phase": "cooldown", "time_s": 226800.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 21855842.32509149, "roles": {"seller": 142, "buyer": 133, "crane": 6360}, "admitted": 168, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 40.954181300003256, "state": "running", "phase": "cooldown", "time_s": 230400.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 22061708.1277019, "roles": {"seller": 146, "buyer": 137, "crane": 6367}, "admitted": 170, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.058767599999555, "state": "running", "phase": "cooldown", "time_s": 234000.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 22381528.816195935, "roles": {"seller": 149, "buyer": 140, "crane": 6380}, "admitted": 171, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.182994900002086, "state": "running", "phase": "cooldown", "time_s": 237600.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 22765187.530273788, "roles": {"seller": 151, "buyer": 142, "crane": 6390}, "admitted": 174, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.29624770000373, "state": "running", "phase": "cooldown", "time_s": 241200.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 23187455.128533907, "roles": {"seller": 153, "buyer": 144, "crane": 6396}, "admitted": 177, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.38219580000441, "state": "running", "phase": "cooldown", "time_s": 244800.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 23591683.24805595, "roles": {"seller": 155, "buyer": 146, "crane": 6398}, "admitted": 177, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.46732660000271, "state": "running", "phase": "cooldown", "time_s": 248400.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 23991683.24805595, "roles": {"seller": 157, "buyer": 148, "crane": 6398}, "admitted": 178, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.55814259999897, "state": "running", "phase": "cooldown", "time_s": 252000.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 24418654.954405434, "roles": {"seller": 158, "buyer": 149, "crane": 6409}, "admitted": 178, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.64136420000432, "state": "running", "phase": "cooldown", "time_s": 255600.0, "day": 3, "completed_days": 2, "updates": 24, "learning_intervals": 1440, "cost_krw": 24778716.674098477, "roles": {"seller": 159, "buyer": 150, "crane": 6415}, "admitted": 179, "skipped": 0, "vessel_failed": 0}
+{"event": "day", "wall_seconds": 41.75152789999993, "day": 3, "train": false, "load": 60, "time_s": 259200.0, "interval_cost_krw": 7144939.473189481, "cost_krw": 25107850.081003383, "updates": 0, "learning_reward": 0.0, "roles": {"seller": 54, "buyer": 52, "crane": 136}, "crane_actions": {"WAIT": 76, "SERVE": 59, "REPOSITION": 1, "PRE_REHANDLE": 0}, "physical_invariants_checked": true, "checkpoint": {"path": "day_03.pt", "sha256": "5b1d65ef66d8cd98d7cc6f8afed662b80ada8d51d0feda4b9495973df1beddd5", "scope": "weights-and-optimizer; no physical-world resume", "pending_intervals": 0}}
+{"event": "progress", "wall_seconds": 41.75451040000189, "state": "running", "phase": "drain", "time_s": 259200.0, "day": 3, "completed_days": 3, "updates": 24, "learning_intervals": 1440, "cost_krw": 25107850.081003383, "roles": {"seller": 160, "buyer": 150, "crane": 6418}, "admitted": 180, "skipped": 0, "vessel_failed": 0}
+{"event": "progress", "wall_seconds": 41.763537700004235, "state": "running", "phase": "drain", "time_s": 266400.0, "day": 3, "completed_days": 3, "updates": 24, "learning_intervals": 1440, "cost_krw": 25747850.081003383, "roles": {"seller": 160, "buyer": 150, "crane": 6418}, "admitted": 180, "skipped": 0, "vessel_failed": 0}
+{"event": "completed", "wall_seconds": 41.80323330000101, "time_s": 266400.0, "updates": 24, "counterfactual_worlds": 0}
+________ test_real_engine_all_roles_no_world_clone_continuous_updates _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022304DCD550>
+tmp_path = WindowsPath('C:/Users/geonu/AppData/Local/Temp/pytest-of-geonu/pytest-70/test_real_engine_all_roles_no_0')
+fixed_container_input = None
+
+    def test_real_engine_all_roles_no_world_clone_continuous_updates(monkeypatch, tmp_path, fixed_container_input):
+        def forbidden(*args, **kwargs):
+            raise AssertionError("PPO must not clone a terminal or start a CF worker pool")
+        monkeypatch.setattr(TerminalSimulator, "__deepcopy__", forbidden, raising=False)
+        monkeypatch.setattr(BranchPool, "__enter__", forbidden)
+        seen = []
+        original = PPORuntime._update
+        def checked_update(self, bootstrap):
+            world = (id(self.mbt), tuple(id(self.mbt.blocks[b]) for b in self.bids))
+            before = self.mbt.now
+            jobs = tuple((b, tuple(s.jobs)) for b, s in self.mbt.blocks.items())
+            original(self, bootstrap)
+            assert self.mbt.now == before
+            assert jobs == tuple((b, tuple(s.jobs)) for b, s in self.mbt.blocks.items())
+            seen.append(world)
+        monkeypatch.setattr(PPORuntime, "_update", checked_update)
+        rt, report = run_debug(duration_s=43200, config=PPOConfig(rollout_intervals=120, epochs=1))
+        assert len(set(seen)) == 1 and len(seen) == 6
+        assert report["blocks"] == 21 and report["counterfactual_worlds"] == 0
+        assert all(report["roles"].get(role, 0) > 0 for role in ("seller", "buyer", "crane"))
+        assert all(report["crane_actions"].get(kind, 0) > 0
+                   for kind in ("SERVE", "WAIT", "REPOSITION", "PRE_REHANDLE"))
+        assert report["txn_failed"] == 0 and report["traded_edges"] > 0
+        assert report["engine_end_s"] > report["time_s"] == 43200
+>       assert report["team_reward"] == pytest.approx(-report["cost_krw"] / 1e6)
+E       assert -0.10938061999974781 == -4.115003526498752 ± 4.1e-06
+E         
+E         comparison failed
+E         Obtained: -0.10938061999974781
+E         Expected: -4.115003526498752 ± 4.1e-06
+
+tests\v6\test_ppo_integration.py:41: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/v6/test_workload_reward.py::test_runtime_cost_separate_and_truncation_bootstraps_potential[False]
+FAILED tests/v6/test_workload_reward.py::test_runtime_cost_separate_and_truncation_bootstraps_potential[True]
+FAILED tests/v6/test_workload_reward.py::test_shape_disabled_preserves_cost_reward
+FAILED tests/v6/test_ppo_continuous.py::test_learning_window_excludes_edges_but_keeps_sampling_and_bootstrap
+FAILED tests/v6/test_ppo_continuous.py::test_real_three_day_run_window_checkpoints_no_clones
+FAILED tests/v6/test_ppo_integration.py::test_real_engine_all_roles_no_world_clone_continuous_updates
+6 failed, 70 passed in 87.81s (0:01:27)

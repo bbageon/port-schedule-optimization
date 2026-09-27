@@ -17,5 +17,8 @@ rl = ["torch>=2.2"]  # 함수근사 (YR-012) — 기본 설치는 순수 Python 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"yard_rl.v6.reward" = ["reference_cost_trace.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

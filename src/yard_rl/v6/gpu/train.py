@@ -74,6 +74,7 @@ v5 정본 대응: `ppo/continuous.py:main` → `stage/month_run.run_month(ppo=PP
 from __future__ import annotations
 
 import dataclasses
+import math
 from dataclasses import dataclass
 from functools import partial
 from typing import NamedTuple
@@ -98,6 +99,7 @@ from . import v5net as VN
 from .events import EMPTY_ID, EMPTY_TIME, TIME_DTYPE
 from .geom import Geom
 from .state import V_STEPS_EXHAUSTED
+from ..reward.scaling import default_reward_scale, scaling_report
 
 F = TIME_DTYPE
 #: v5 `ppo/model.ROLES.index("crane")` — 크레인 결정의 역할 번호
@@ -472,7 +474,7 @@ class TrainConfig:
     gamma: float = 0.999
     gae_lambda: float = 0.95
     time_unit_s: float = 60.0
-    reward_scale_krw: float = 1_000_000.0
+    reward_scale_krw: float | None = None
     clip: float = 0.2
     value_coef: float = 0.5
     entropy_coef: float = 0.001
@@ -487,6 +489,13 @@ class TrainConfig:
     sample_actions: bool = False
     #: 추첨 난수 씨 (블록마다 `fold_in` 으로 갈라 쓴다). None 이면 무대 시드를 쓴다.
     sample_seed: int | None = None
+
+    def __post_init__(self):
+        if self.reward_scale_krw is None:
+            object.__setattr__(self, 'reward_scale_krw', default_reward_scale(
+                gamma=self.gamma, time_unit_s=self.time_unit_s))
+        if not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0:
+            raise ValueError('Reward scale must be finite and positive')
 
     def runtime(self) -> PR.RuntimeConfig:
         return PR.RuntimeConfig(n_blocks=self.n_blocks, cmax=self.cmax, amax=self.amax,
@@ -827,6 +836,8 @@ def report(ts: TrainState, cfg: PR.RuntimeConfig, *, month=None, box=None, tcfg=
     d["market"] = "unported"          # 시장(판매자·구매자·중개·매칭)이 배열판에 없다 — 머리말 ⑤
     d["roles"] = {**{r: None for r in UNASKED_ROLES}, **d["roles"]}
     if tcfg is not None:
+        d['reward_normalization'] = scaling_report(tcfg.reward_scale_krw,
+            gamma=tcfg.gamma, time_unit_s=tcfg.time_unit_s)
         #: v5 정본 매니페스트의 `action_mode` 와 같은 이름 (`ppo/continuous.py:62`)
         d["action_mode"] = "sample-all-days" if bool(tcfg.sample_actions) else "argmax"
         #: 실제로 쓴 씨를 적는다 — `sample_seed` 를 안 주면 **무대 시드**를 쓴다 (`month_setup`)

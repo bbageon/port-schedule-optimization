@@ -32,7 +32,7 @@ PPO 갱신(`update`)·GAE(`buffer`)는 **여기서 다시 구현하지 않는다
   `role_counts` 증가(runtime.py:145) 보다 **앞서** 던지기 때문이고, 그 계수기는 보고에 나간다.
 
 ■ 부동소수점 규약 (`exact.py` 머리말)
-  보상의 나눗셈은 `exact.div_const` — `−delta / 1e6` 이 역수 곱으로 접히면 마지막 비트가 갈린다.
+  보상의 나눗셈은 `exact.div_const` — `−delta / scale` 이 역수 곱으로 접히면 마지막 비트가 갈린다.
   Φ 자체의 합산 순서는 `phi.py` 가 이미 지킨다 (조각 5 에서 v5 와 비트 일치 확인).
 
 ■ 이 파일이 **안 하는 것** (다른 담당·다른 조각)
@@ -47,6 +47,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from ..reward.scaling import default_reward_scale
 from typing import NamedTuple
 
 import jax.numpy as jnp
@@ -167,15 +168,17 @@ class RuntimeConfig:
     amax: int = 29                           #: 후보 칸 (판매자 1+20+8 = 29 · 크레인 k_max+1)
     input_dim: int = 37                      #: 망 입력 폭 (`ppo/model.INPUT_DIM`)
     rollout_intervals: int = 60              #: 갱신 한 번에 모으는 구간 수 (`PPOConfig`)
-    reward_scale_krw: float = 1_000_000.0    #: 보상 단위 (`PPOConfig`)
+    reward_scale_krw: float | None = None   #: None = 고정 기준 운전 자료의 반환 표준편차
     training: bool = True                    #: `PPORuntime(training=)`
     stop_s: float | None = None              #: 디버그 절단 시각 (`DebugStop`)
     learning_window_s: tuple[float, float] | None = None    #: 학습창 [시작, 끝)
 
     def __post_init__(self):
+        if self.reward_scale_krw is None:
+            object.__setattr__(self, 'reward_scale_krw', default_reward_scale())
         if min(self.n_blocks, self.cmax, self.amax, self.input_dim, self.rollout_intervals) < 1:
             raise ValueError("칸 크기와 구간 수는 1 이상이어야 한다")
-        if self.reward_scale_krw <= 0:
+        if not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0:
             raise ValueError("reward_scale_krw 는 양수여야 한다")
         if self.stop_s is not None and not (math.isfinite(self.stop_s) and self.stop_s > 0):
             raise ValueError("stop_s 는 유한한 양수여야 한다 (runtime.py:62-63)")

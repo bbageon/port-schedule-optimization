@@ -56,3 +56,12 @@ def reference_scaling(*, gamma=.999, time_unit_s=60.):
 
 def default_reward_scale(*, gamma=.999, time_unit_s=60.):
     return reference_scaling(gamma=gamma, time_unit_s=time_unit_s)['scale_krw']
+
+
+def scaling_report(scale, *, gamma=.999, time_unit_s=60.):
+    reference = reference_scaling(gamma=gamma, time_unit_s=time_unit_s)
+    if scale == reference['scale_krw']:
+        return reference
+    return dict(method='explicit-scale-for-legacy-or-controlled-comparison', scale_krw=scale,
+                reference_scale_krw=reference['scale_krw'],
+                reference_sha256=reference['reference_sha256'])

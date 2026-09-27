@@ -37,8 +37,8 @@ def test_learning_window_excludes_edges_but_keeps_sampling_and_bootstrap():
     rt.finish(300)
     assert [[r.start_s for r in batch] for batch in batches] == [[60, 120]]
     assert rt.intervals == 5 and rt.learning_intervals == 2
-    assert rt.total_reward == pytest.approx(-600 / 1e6)
-    assert rt.learning_reward == pytest.approx(-240 / 1e6)
+    assert rt.total_reward == pytest.approx(-600 / rt.config.reward_scale_krw)
+    assert rt.learning_reward == pytest.approx(-240 / rt.config.reward_scale_krw)
     expected = rt.policy.value(rt.states_at(180)).detach().numpy()
     np.testing.assert_array_equal(bootstraps[0], expected)
     assert not any(r.terminated for r in batches[0])
@@ -126,7 +126,7 @@ def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path, 
     days = json.loads((out / "days.json").read_text())
     assert [d["updates"] for d in days] == [0, 24, 0]
     assert [d["train"] for d in days] == [False, True, False]
-    assert days[1]["interval_cost_krw"] == pytest.approx(-rt.learning_reward * 1e6)
+    assert days[1]["interval_cost_krw"] == pytest.approx(-rt.learning_reward * rt.config.reward_scale_krw)
     policies = [load_policy(out / name).state_dict()
                 for name in ("initial.pt", "day_01.pt", "day_02.pt", "day_03.pt", "final.pt")]
     equal = lambda a, b: all(torch.equal(a[k], b[k]) for k in a)

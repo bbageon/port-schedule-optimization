@@ -38,7 +38,7 @@ def test_real_engine_all_roles_no_world_clone_continuous_updates(monkeypatch, tm
                for kind in ("SERVE", "WAIT", "REPOSITION", "PRE_REHANDLE"))
     assert report["txn_failed"] == 0 and report["traded_edges"] > 0
     assert report["engine_end_s"] > report["time_s"] == 43200
-    assert report["team_reward"] == pytest.approx(-report["cost_krw"] / 1e6)
+    assert report["team_reward"] == pytest.approx(-report["cost_krw"] / rt.config.reward_scale_krw)
     # Vessel supply jobs really progressed; a quiet truck-only smoke is insufficient.
     assert any(v.started and v.remaining_moves < v.plan.total_moves
                for s in rt.mbt.blocks.values() for v in s.vessels.values())

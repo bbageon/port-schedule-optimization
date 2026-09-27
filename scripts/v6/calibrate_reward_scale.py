@@ -63,6 +63,7 @@ def run(args):
             skipped=result.skipped, invariants=True, optimizer_updates=0,
             minute_boundaries=len(rows), final_cost_krw=rt.cost_krw,
             scale=fitted, code=stamp))
+        write_json(out/'status.json', dict(status='complete', time_s=rt.time_s))
         print(json.dumps(fitted), flush=True)
     except BaseException as exc:
         journal.fail(exc, rt)
