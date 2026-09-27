@@ -1,0 +1,452 @@
+{
+  "task": "YR-331-d",
+  "scope": "scoped normalization correction; prior YR-331-b gates unchanged",
+  "result_sha256": "51f8ee6e1e8d8b70965a3b94d33ceb28ba7d7c2c150d770c55e07bb4daddc074",
+  "per_run_source_audits": [
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "bfae72a3cb83cf8c83d3f11efb6831b16f2158c5",
+        "stamp": {
+          "code": {
+            "git_head": "bfae72a3cb83cf8c83d3f11efb6831b16f2158c5",
+            "git_dirty": false,
+            "source_sha256": "ba1615194374e9bdeeaac12d8336bfafaa1860ad3baf4227942eed578c7ae872",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 9828,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "reference": [
+              9911000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_reward_scale\\prereg-executed.md",
+          "params": {
+            "code": {
+              "git_head": "bfae72a3cb83cf8c83d3f11efb6831b16f2158c5",
+              "git_dirty": false,
+              "source_sha256": "ba1615194374e9bdeeaac12d8336bfafaa1860ad3baf4227942eed578c7ae872",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 9828,
+              "torch_threads": 1
+            },
+            "seed": 9911000,
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "prereg": ".claude/docs/dashboard-task-specs/YR-331-d-reward-normalization.md",
+            "prereg_sha256": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+            "input_sha256": "b0966a6addaff3302c987559d0a9fda4304b803254f1d509edb2196d0ce04d0d",
+            "input_audit": {
+              "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+              "passed": true,
+              "contract": {
+                "schema": "yard_rl.v6.container_contract.v2",
+                "passed": true,
+                "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+                "truck_orders": 16000,
+                "vessel_streams": 30,
+                "source_containers": 26986,
+                "fixed_exit_containers": 14352,
+                "violations": {},
+                "examples": {},
+                "planned_waiting_exits": 0,
+                "planned_waiting_examples": [],
+                "identity_sha256": "73883e0d361df4cb7547ee163328479d3b64935c39d91124a4c9e87367c51a00"
+              },
+              "truck_orders": 16000,
+              "sources": 26986,
+              "exits": 14352,
+              "ending_unassigned_sources": 12634,
+              "source_exit_counts": {
+                "GATE_IN->GATE_OUT": 1650,
+                "GATE_IN->VESSEL_LOAD": 848,
+                "INITIAL->GATE_OUT": 5846,
+                "INITIAL->VESSEL_LOAD": 2653,
+                "VESSEL_DISCHARGE->GATE_OUT": 1881,
+                "VESSEL_DISCHARGE->VESSEL_LOAD": 1474
+              },
+              "source_size_counts": {
+                "FT20": 8841,
+                "FT40": 18145
+              },
+              "planned_waiting_exits": 0,
+              "waiting_examples": [],
+              "max_planned_wait_lower_bound_s": 0,
+              "planned_source_to_demand_s": {
+                "minimum": 3.0334505796199664,
+                "median": 118782.09036685032,
+                "maximum": 259495.4549806001,
+                "meaning": "planned time difference, NOT actual yard dwell"
+              },
+              "empty_execution_records": true,
+              "physical_execution_verified": false,
+              "ready_for_training": false,
+              "scope": "fixed-identity input validity only; no policy performance or operational realism claim"
+            },
+            "rule": "KEEP+SF_SPT",
+            "scope": "reward-unit calibration, not capacity validation"
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_reward_scale\\document-check.json": "337f8b8866ce17883d70729a3dec04df1e32612a62d3c74c7095af88c4094af6",
+          "outputs\\reports\\yr331_reward_scale\\package-check.json": "cb336b611ca9849afe5e99073f0b769bed038dbade683ab3e067e42ba7acc94b",
+          "outputs\\reports\\yr331_reward_scale\\prereg-executed.md": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+          "outputs\\reports\\yr331_reward_scale\\probe\\admissions.json": "bc32895fc9062d08f6adb9306ad7d41960affac14a5e03274994aa48da72c0a0",
+          "outputs\\reports\\yr331_reward_scale\\probe\\cargo-status.json": "5eed77a1ba6f90e3c4ee7f7b81c3e8bcf72c6116a121428aba483556110bc033",
+          "outputs\\reports\\yr331_reward_scale\\probe\\container_contract.json": "5a80a7430193cdca0964ba4727619ecf03b3e3c47ee411cc1aff26bb78a879ba",
+          "outputs\\reports\\yr331_reward_scale\\probe\\events.jsonl": "40dac53f838fd7e7a1a079e16d7108d3dc77d2b0e8fd520c1e80c82ead40db63",
+          "outputs\\reports\\yr331_reward_scale\\probe\\input-audit.json": "4295840220aeb42f044edc8f6db939b3b65d4b1d1bf7e9b91e78e8ad28feb0d7",
+          "outputs\\reports\\yr331_reward_scale\\probe\\manifest.json": "0e261781b756ed57800c1760e0c524fcb260908b669970663bf01d0d6d28fbf3",
+          "outputs\\reports\\yr331_reward_scale\\probe\\policy.pt": "39d6ffb96b83c1c0b6e5a4e12622e4162f105e74d3c519dab2a469c291fdf12c",
+          "outputs\\reports\\yr331_reward_scale\\probe\\report.json": "b8070ef4ff98e805b8c4d69cf58e9d9ffa4194d36678a6b8d8ab9f8c1e5fdc38",
+          "outputs\\reports\\yr331_reward_scale\\probe\\seed-data.json.gz": "e6704202cceb41ed3b0cf8cecd029a7fdf5e142598183ffc23eb1eb2100f5af0",
+          "outputs\\reports\\yr331_reward_scale\\probe\\status.json": "836099bf0fadd5b2b5abfa90fb14bda59365ec7ce9c5806cdf1a963fa70fe8e9",
+          "outputs\\reports\\yr331_reward_scale\\reference\\admissions.json": "b542b3d315113f5ee0407b76cbdb0dc1823ad453aac59fb72dc6afacdcb20576",
+          "outputs\\reports\\yr331_reward_scale\\reference\\container_contract.json": "8e377773825040e54549ee5b2376de49647fc7e3e1efc19efca959c8171076dc",
+          "outputs\\reports\\yr331_reward_scale\\reference\\days.json": "db22cac53f7978305d24a3aff359aa83037154475a38b963362ad1d4e6d2726a",
+          "outputs\\reports\\yr331_reward_scale\\reference\\manifest.json": "f4500f5911119dbaf6b818f6e5da948213becac610e6fa6921806a7301b0caa1",
+          "outputs\\reports\\yr331_reward_scale\\reference\\reference_cost_trace.json": "c968fe0c52b7e770c6b549fd91e3308b529934859bae97c073f60dbfd2da04c3",
+          "outputs\\reports\\yr331_reward_scale\\reference\\report.json": "843785dc0ab8f7618a52bb897e6a675d76d80ef056d5e9eb8816d27b8c9fae48",
+          "outputs\\reports\\yr331_reward_scale\\reference\\scale.json": "1d289173cf76a9c8f129f31f47932f72c4a8eed0c5bd9b4b21908e70353faf22",
+          "outputs\\reports\\yr331_reward_scale\\report.md": "dee7bbd12964fdf02af2b632ef563ad5037850ad82440fafc7dfcce35cdcc411",
+          "outputs\\reports\\yr331_reward_scale\\reported-values.json": "edb39c7c8ebed8e3a94de8fba9bc1667b9273d9071152e88f8b71c9364ff1784",
+          "outputs\\reports\\yr331_reward_scale\\result.json": "51f8ee6e1e8d8b70965a3b94d33ceb28ba7d7c2c150d770c55e07bb4daddc074",
+          "outputs\\reports\\yr331_reward_scale\\tests-array.txt": "a789991d95bdb76808dbfac5d32f7abcdaae8e1ff64cf60cb3933b4df5292061",
+          "outputs\\reports\\yr331_reward_scale\\tests-before-assertion-update.txt": "38dab49a3d413a75a34c59950d7251add1d3ef57f1c80bb6c69e6aba2909696c",
+          "outputs\\reports\\yr331_reward_scale\\tests-cpu.txt": "e4953e60280775d96e504c33015f281eea5611da5e651c5091a30ab5af77cc1f"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+        "stamp": {
+          "code": {
+            "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+            "git_dirty": false,
+            "source_sha256": "f6e6fdd76680ab865c54c025f890ace36d8cbe8fbe22f883fe7bb91b88fd65c8",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 34256,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "probe": [
+              9900628
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_reward_scale\\prereg-executed.md",
+          "params": {
+            "code": {
+              "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+              "git_dirty": false,
+              "source_sha256": "f6e6fdd76680ab865c54c025f890ace36d8cbe8fbe22f883fe7bb91b88fd65c8",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 34256,
+              "torch_threads": 1
+            },
+            "seed": 9900628,
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 37620956.31299437,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "stop_s": 21600.0,
+            "learning_window_s": [
+              0.0,
+              21600.0
+            ],
+            "training_during_first_day": true,
+            "prereg_sha256": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+            "scope": "execution check, no performance claim"
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_reward_scale\\document-check.json": "337f8b8866ce17883d70729a3dec04df1e32612a62d3c74c7095af88c4094af6",
+          "outputs\\reports\\yr331_reward_scale\\package-check.json": "cb336b611ca9849afe5e99073f0b769bed038dbade683ab3e067e42ba7acc94b",
+          "outputs\\reports\\yr331_reward_scale\\prereg-executed.md": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+          "outputs\\reports\\yr331_reward_scale\\probe\\admissions.json": "bc32895fc9062d08f6adb9306ad7d41960affac14a5e03274994aa48da72c0a0",
+          "outputs\\reports\\yr331_reward_scale\\probe\\cargo-status.json": "5eed77a1ba6f90e3c4ee7f7b81c3e8bcf72c6116a121428aba483556110bc033",
+          "outputs\\reports\\yr331_reward_scale\\probe\\container_contract.json": "5a80a7430193cdca0964ba4727619ecf03b3e3c47ee411cc1aff26bb78a879ba",
+          "outputs\\reports\\yr331_reward_scale\\probe\\events.jsonl": "40dac53f838fd7e7a1a079e16d7108d3dc77d2b0e8fd520c1e80c82ead40db63",
+          "outputs\\reports\\yr331_reward_scale\\probe\\input-audit.json": "4295840220aeb42f044edc8f6db939b3b65d4b1d1bf7e9b91e78e8ad28feb0d7",
+          "outputs\\reports\\yr331_reward_scale\\probe\\manifest.json": "0e261781b756ed57800c1760e0c524fcb260908b669970663bf01d0d6d28fbf3",
+          "outputs\\reports\\yr331_reward_scale\\probe\\policy.pt": "39d6ffb96b83c1c0b6e5a4e12622e4162f105e74d3c519dab2a469c291fdf12c",
+          "outputs\\reports\\yr331_reward_scale\\probe\\report.json": "b8070ef4ff98e805b8c4d69cf58e9d9ffa4194d36678a6b8d8ab9f8c1e5fdc38",
+          "outputs\\reports\\yr331_reward_scale\\probe\\seed-data.json.gz": "e6704202cceb41ed3b0cf8cecd029a7fdf5e142598183ffc23eb1eb2100f5af0",
+          "outputs\\reports\\yr331_reward_scale\\probe\\status.json": "836099bf0fadd5b2b5abfa90fb14bda59365ec7ce9c5806cdf1a963fa70fe8e9",
+          "outputs\\reports\\yr331_reward_scale\\reference\\admissions.json": "b542b3d315113f5ee0407b76cbdb0dc1823ad453aac59fb72dc6afacdcb20576",
+          "outputs\\reports\\yr331_reward_scale\\reference\\container_contract.json": "8e377773825040e54549ee5b2376de49647fc7e3e1efc19efca959c8171076dc",
+          "outputs\\reports\\yr331_reward_scale\\reference\\days.json": "db22cac53f7978305d24a3aff359aa83037154475a38b963362ad1d4e6d2726a",
+          "outputs\\reports\\yr331_reward_scale\\reference\\manifest.json": "f4500f5911119dbaf6b818f6e5da948213becac610e6fa6921806a7301b0caa1",
+          "outputs\\reports\\yr331_reward_scale\\reference\\reference_cost_trace.json": "c968fe0c52b7e770c6b549fd91e3308b529934859bae97c073f60dbfd2da04c3",
+          "outputs\\reports\\yr331_reward_scale\\reference\\report.json": "843785dc0ab8f7618a52bb897e6a675d76d80ef056d5e9eb8816d27b8c9fae48",
+          "outputs\\reports\\yr331_reward_scale\\reference\\scale.json": "1d289173cf76a9c8f129f31f47932f72c4a8eed0c5bd9b4b21908e70353faf22",
+          "outputs\\reports\\yr331_reward_scale\\report.md": "dee7bbd12964fdf02af2b632ef563ad5037850ad82440fafc7dfcce35cdcc411",
+          "outputs\\reports\\yr331_reward_scale\\reported-values.json": "edb39c7c8ebed8e3a94de8fba9bc1667b9273d9071152e88f8b71c9364ff1784",
+          "outputs\\reports\\yr331_reward_scale\\result.json": "51f8ee6e1e8d8b70965a3b94d33ceb28ba7d7c2c150d770c55e07bb4daddc074",
+          "outputs\\reports\\yr331_reward_scale\\tests-array.txt": "a789991d95bdb76808dbfac5d32f7abcdaae8e1ff64cf60cb3933b4df5292061",
+          "outputs\\reports\\yr331_reward_scale\\tests-before-assertion-update.txt": "38dab49a3d413a75a34c59950d7251add1d3ef57f1c80bb6c69e6aba2909696c",
+          "outputs\\reports\\yr331_reward_scale\\tests-cpu.txt": "e4953e60280775d96e504c33015f281eea5611da5e651c5091a30ab5af77cc1f"
+        }
+      }
+    }
+  ],
+  "unresolved_existing_input_supply_issue": "YR-331-c",
+  "monetary_coefficients_not_validated": true,
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "수식·짧은 학습 실행만 확인했으며 정책 성능 비교는 수행하지 않음",
+      "reasons": [
+        "같은 조건의 기준정책 비교·독립 반복이 없음"
+      ],
+      "evidence": {
+        "performance_evaluated": false
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+            "stamp": {
+              "code": {
+                "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+                "git_dirty": false,
+                "source_sha256": "f6e6fdd76680ab865c54c025f890ace36d8cbe8fbe22f883fe7bb91b88fd65c8",
+                "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+                "python": "3.13.9",
+                "torch": "2.14.0+cpu",
+                "numpy": "2.3.5",
+                "pid": 34256,
+                "torch_threads": 1
+              },
+              "seeds": {
+                "probe": [
+                  9900628
+                ]
+              },
+              "prereg": "outputs\\reports\\yr331_reward_scale\\prereg-executed.md",
+              "params": {
+                "code": {
+                  "git_head": "e2485204968dfe277234c76de16d9a856c3ee177",
+                  "git_dirty": false,
+                  "source_sha256": "f6e6fdd76680ab865c54c025f890ace36d8cbe8fbe22f883fe7bb91b88fd65c8",
+                  "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+                  "python": "3.13.9",
+                  "torch": "2.14.0+cpu",
+                  "numpy": "2.3.5",
+                  "pid": 34256,
+                  "torch_threads": 1
+                },
+                "seed": 9900628,
+                "ppo": {
+                  "rollout_intervals": 60,
+                  "epochs": 2,
+                  "minibatch_size": 64,
+                  "learning_rate": 0.0003,
+                  "gamma": 0.999,
+                  "gae_lambda": 0.95,
+                  "time_unit_s": 60.0,
+                  "reward_scale_krw": 37620956.31299437,
+                  "clip": 0.2,
+                  "value_coef": 0.5,
+                  "entropy_coef": 0.001,
+                  "max_grad_norm": 0.5,
+                  "target_kl": 0.03
+                },
+                "stop_s": 21600.0,
+                "learning_window_s": [
+                  0.0,
+                  21600.0
+                ],
+                "training_during_first_day": true,
+                "prereg_sha256": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+                "scope": "execution check, no performance claim"
+              }
+            },
+            "artifact_hashes": {
+              "outputs\\reports\\yr331_reward_scale\\document-check.json": "337f8b8866ce17883d70729a3dec04df1e32612a62d3c74c7095af88c4094af6",
+              "outputs\\reports\\yr331_reward_scale\\package-check.json": "cb336b611ca9849afe5e99073f0b769bed038dbade683ab3e067e42ba7acc94b",
+              "outputs\\reports\\yr331_reward_scale\\prereg-executed.md": "178684826c0278f7c9fdcfe55fcdc413cd3c9f828d575934b4fe9ba349aba8e3",
+              "outputs\\reports\\yr331_reward_scale\\probe\\admissions.json": "bc32895fc9062d08f6adb9306ad7d41960affac14a5e03274994aa48da72c0a0",
+              "outputs\\reports\\yr331_reward_scale\\probe\\cargo-status.json": "5eed77a1ba6f90e3c4ee7f7b81c3e8bcf72c6116a121428aba483556110bc033",
+              "outputs\\reports\\yr331_reward_scale\\probe\\container_contract.json": "5a80a7430193cdca0964ba4727619ecf03b3e3c47ee411cc1aff26bb78a879ba",
+              "outputs\\reports\\yr331_reward_scale\\probe\\events.jsonl": "40dac53f838fd7e7a1a079e16d7108d3dc77d2b0e8fd520c1e80c82ead40db63",
+              "outputs\\reports\\yr331_reward_scale\\probe\\input-audit.json": "4295840220aeb42f044edc8f6db939b3b65d4b1d1bf7e9b91e78e8ad28feb0d7",
+              "outputs\\reports\\yr331_reward_scale\\probe\\manifest.json": "0e261781b756ed57800c1760e0c524fcb260908b669970663bf01d0d6d28fbf3",
+              "outputs\\reports\\yr331_reward_scale\\probe\\policy.pt": "39d6ffb96b83c1c0b6e5a4e12622e4162f105e74d3c519dab2a469c291fdf12c",
+              "outputs\\reports\\yr331_reward_scale\\probe\\report.json": "b8070ef4ff98e805b8c4d69cf58e9d9ffa4194d36678a6b8d8ab9f8c1e5fdc38",
+              "outputs\\reports\\yr331_reward_scale\\probe\\seed-data.json.gz": "e6704202cceb41ed3b0cf8cecd029a7fdf5e142598183ffc23eb1eb2100f5af0",
+              "outputs\\reports\\yr331_reward_scale\\probe\\status.json": "836099bf0fadd5b2b5abfa90fb14bda59365ec7ce9c5806cdf1a963fa70fe8e9",
+              "outputs\\reports\\yr331_reward_scale\\reference\\admissions.json": "b542b3d315113f5ee0407b76cbdb0dc1823ad453aac59fb72dc6afacdcb20576",
+              "outputs\\reports\\yr331_reward_scale\\reference\\container_contract.json": "8e377773825040e54549ee5b2376de49647fc7e3e1efc19efca959c8171076dc",
+              "outputs\\reports\\yr331_reward_scale\\reference\\days.json": "db22cac53f7978305d24a3aff359aa83037154475a38b963362ad1d4e6d2726a",
+              "outputs\\reports\\yr331_reward_scale\\reference\\manifest.json": "f4500f5911119dbaf6b818f6e5da948213becac610e6fa6921806a7301b0caa1",
+              "outputs\\reports\\yr331_reward_scale\\reference\\reference_cost_trace.json": "c968fe0c52b7e770c6b549fd91e3308b529934859bae97c073f60dbfd2da04c3",
+              "outputs\\reports\\yr331_reward_scale\\reference\\report.json": "843785dc0ab8f7618a52bb897e6a675d76d80ef056d5e9eb8816d27b8c9fae48",
+              "outputs\\reports\\yr331_reward_scale\\reference\\scale.json": "1d289173cf76a9c8f129f31f47932f72c4a8eed0c5bd9b4b21908e70353faf22",
+              "outputs\\reports\\yr331_reward_scale\\report.md": "dee7bbd12964fdf02af2b632ef563ad5037850ad82440fafc7dfcce35cdcc411",
+              "outputs\\reports\\yr331_reward_scale\\reported-values.json": "edb39c7c8ebed8e3a94de8fba9bc1667b9273d9071152e88f8b71c9364ff1784",
+              "outputs\\reports\\yr331_reward_scale\\result.json": "51f8ee6e1e8d8b70965a3b94d33ceb28ba7d7c2c150d770c55e07bb4daddc074",
+              "outputs\\reports\\yr331_reward_scale\\tests-array.txt": "a789991d95bdb76808dbfac5d32f7abcdaae8e1ff64cf60cb3933b4df5292061",
+              "outputs\\reports\\yr331_reward_scale\\tests-before-assertion-update.txt": "38dab49a3d413a75a34c59950d7251add1d3ef57f1c80bb6c69e6aba2909696c",
+              "outputs\\reports\\yr331_reward_scale\\tests-cpu.txt": "e4953e60280775d96e504c33015f281eea5611da5e651c5091a30ab5af77cc1f"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-331-d",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-331-d-reward-normalization.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr331_reward_scale\\result.json",
+              "outputs\\reports\\yr331_reward_scale\\report.md"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-331-d-reward-normalization.md"
+            ],
+            "evidence_commits": [
+              "afa0126e"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "afa0126e",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.005,
+            "reported_values": {
+              "scale_krw": 37620956.31,
+              "tests_passed": 91,
+              "training_updates": 6,
+              "simulation_hours": 6
+            },
+            "raw_values": {
+              "scale_krw": 37620956.31299437,
+              "tests_passed": 91,
+              "training_updates": 6,
+              "simulation_hours": 6.0
+            },
+            "absolute_differences": {
+              "scale_krw": 0.0029943659901618958,
+              "simulation_hours": 0.0,
+              "tests_passed": 0.0,
+              "training_updates": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 미수집: achievable_vessel_deadline",
+        "내부타당성 미수집: deterministic_replay",
+        "내부타당성 미수집: event_time_order",
+        "내부타당성 미수집: information_boundary",
+        "지속운영 검사 미수집: continuous_arrivals",
+        "지속운영 검사 미수집: flow_balance_consistent_with_classification",
+        "지속운영 검사 미수집: load_state_classified",
+        "지속운영 검사 미수집: warmup_excluded",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": true,
+        "internal_checks": {
+          "physical_constraints": true,
+          "ledger_conservation": true
+        },
+        "flow_checks": {
+          "fixed_measurement_window": true
+        },
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
