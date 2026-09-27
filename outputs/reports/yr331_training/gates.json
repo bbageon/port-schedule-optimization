@@ -1,0 +1,3701 @@
+{
+  "task": "YR-331-b",
+  "scope": "scoped v6 pilot, not a replacement for unrelated generation gates",
+  "result_sha256": "38e294421133f4d0783b92596bae6af51ccb25e229342708a6a457f069589fc9",
+  "calibration_validation_failed": true,
+  "internal_scope": "64 focused tests and all executed run guards; complete replay/deadline/flow/anchor audit not collected",
+  "per_run_source_audits": [
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 70208,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9961000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 70208,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "cost",
+              "seed": 9961000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-cost/day_04.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "2c9057f3e895f5922152a445221cd55f7287860402869f5a41a02950842d1ac6",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9962000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9963000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9964000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9961000-cost\\manifest.json": "d3a82fd75ab66ebd505153ed5d12d41dd278274cc8a126addce44e182fec7ec7"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 42840,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9961000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 42840,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "rule",
+              "seed": 9961000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": null,
+              "checkpoint": null,
+              "seed_bundle": null,
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": null,
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9962000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9963000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9964000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9961000-rule\\manifest.json": "535c5b45ef76abef8fb73634cadb4505bb453e230b206a195cc7c0b3997b5375"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 18516,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9961000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 18516,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "workload",
+              "seed": 9961000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-workload/day_04.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "7f7c7e35dc040977c474cb58d1669c4841aff74ba5981580eb6e8aa84af452f8",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9962000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9963000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9964000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9961000-workload\\manifest.json": "27494943faebf53210e40bad960044067579f4c26c497dbab3157f2f93665d00"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 56896,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9971000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 56896,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "cost",
+              "seed": 9971000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-cost/day_04.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "c8a29f5e8764a9be4860348ad9bcc211b2039f2e1c8a6c0935445fb38a976058",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9972000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9973000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9974000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9971000-cost\\manifest.json": "4ddc395fcd4ffbf649458a040befb3243a6f5d26f58b4fa100864206e57b91a7"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 42632,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9971000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 42632,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "rule",
+              "seed": 9971000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": null,
+              "checkpoint": null,
+              "seed_bundle": null,
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": null,
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9972000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9973000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9974000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9971000-rule\\manifest.json": "c03c6235a7360eb99f32558cc5c55c1310ee7d658fddb15034d43c887a678a0d"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 63088,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9971000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 63088,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "workload",
+              "seed": 9971000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-workload/day_04.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "7dd613c5913cd8d57a9728c2c1918860ee88e0213df2b2c5548594970b3fa15d",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9972000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9973000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9974000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9971000-workload\\manifest.json": "237109ace044d003214bd0828dba4f4fe6bc1d41f7d69bf7e287c291aef40be9"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 60744,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9981000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 60744,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "cost",
+              "seed": 9981000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-cost/policy-final.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "393d32b4117276d152c210db2a163a2bc064481cd7324eea587bd4bc4b5057ae",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9982000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9983000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9984000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9981000-cost\\manifest.json": "7a316709d49510baea99b7b92419596f1a76280bc1a41f8fe5b22b9c34b64198"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 40844,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9981000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 40844,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "rule",
+              "seed": 9981000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": null,
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9981000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": null,
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9982000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9983000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9984000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9981000-rule\\manifest.json": "a03e01dfc0ea375c913038422d60c474e85d5a33a1e57330879dd34d1356ce75"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+        "stamp": {
+          "code": {
+            "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+            "git_dirty": false,
+            "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 68304,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9981000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+              "git_dirty": false,
+              "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 68304,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "eval",
+              "arm": "workload",
+              "seed": 9981000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                7500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-workload/day_04.pt",
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule/seed-data.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              172800
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": "6b3f5e09d6b8d10f3e2c1e2625ae86cc637c91a1601ee473e696ab2abd0a5f48",
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9982000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 3
+              },
+              {
+                "index": 1,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9983000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 3
+              },
+              {
+                "index": 2,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9984000,
+                "t0": 172800.0,
+                "train": false,
+                "n_days": 3
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\eval-9981000-workload\\manifest.json": "b549e6150b5749fa430471524f7a484f31b54eed5100321747c494d7bd783660"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 27112,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9931000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 27112,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "cost",
+              "seed": 9931000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9931000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9932000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9933000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9934000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9935000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9936000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9931000-cost\\manifest.json": "fe69405e9c90dd08f4b2618d64764ff34642d4aeca12e7cd4f4a5ea4a8f4c060"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 5892,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9931000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 5892,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "workload",
+              "seed": 9931000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9931000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9932000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9933000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9934000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9935000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9936000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9931000-workload\\manifest.json": "ac694b31c2669367063c5cd184d3ece65527690078d6090ef76e13e659053ead"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 25500,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9941000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 25500,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "cost",
+              "seed": 9941000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9941000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9942000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9943000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9944000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9945000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9946000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9941000-cost\\manifest.json": "6419f79f6ec4a8c6c4d28c77a078be8970f29ab925e4858aea8cb818d1f37dd9"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 64984,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9941000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 64984,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "workload",
+              "seed": 9941000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9941000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9942000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9943000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9944000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9945000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9946000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9941000-workload\\manifest.json": "88fca5c3a0eb4410b2fe58b1d682efe062e3ec201c9e3bdd938c3e15f10969a4"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 21628,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9951000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 21628,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "cost",
+              "seed": 9951000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-cost",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9951000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9952000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9953000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9954000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9955000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9956000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9951000-cost\\manifest.json": "0ec9f70d345b2cf6ecfbc8ae3c19ed09f6d569e7249388f4b1317893cd303b82"
+        }
+      }
+    },
+    {
+      "name": "runtime_evidence",
+      "status": "PASS",
+      "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+      "reasons": [],
+      "evidence": {
+        "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+        "stamp": {
+          "code": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "git_dirty": false,
+            "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+            "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+            "python": "3.13.9",
+            "torch": "2.14.0+cpu",
+            "numpy": "2.3.5",
+            "pid": 57608,
+            "torch_threads": 1
+          },
+          "seeds": {
+            "run": [
+              9951000
+            ]
+          },
+          "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+          "params": {
+            "generation": "v6",
+            "scope": "CPU diagnostic pilot",
+            "code": {
+              "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+              "git_dirty": false,
+              "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+              "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+              "python": "3.13.9",
+              "torch": "2.14.0+cpu",
+              "numpy": "2.3.5",
+              "pid": 57608,
+              "torch_threads": 1
+            },
+            "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+            "arguments": {
+              "mode": "train",
+              "arm": "workload",
+              "seed": 9951000,
+              "init_seed": null,
+              "loads": [
+                3500,
+                5000,
+                7500,
+                12500,
+                3500
+              ],
+              "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-workload",
+              "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+              "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+              "checkpoint": null,
+              "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9951000.json.gz",
+              "stop_s": null
+            },
+            "ppo": {
+              "rollout_intervals": 60,
+              "epochs": 2,
+              "minibatch_size": 64,
+              "learning_rate": 0.0003,
+              "gamma": 0.999,
+              "gae_lambda": 0.95,
+              "time_unit_s": 60.0,
+              "reward_scale_krw": 1000000.0,
+              "clip": 0.2,
+              "value_coef": 0.5,
+              "entropy_coef": 0.001,
+              "max_grad_norm": 0.5,
+              "target_kl": 0.03
+            },
+            "learning_window_s": [
+              86400,
+              345600
+            ],
+            "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+            "checkpoint_sha256": null,
+            "days": [
+              {
+                "index": 0,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9952000,
+                "t0": 0.0,
+                "train": false,
+                "n_days": 5
+              },
+              {
+                "index": 1,
+                "load": 5000,
+                "label": "보통",
+                "seed": 9953000,
+                "t0": 86400.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 2,
+                "load": 7500,
+                "label": "혼잡시작",
+                "seed": 9954000,
+                "t0": 172800.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 3,
+                "load": 12500,
+                "label": "혼잡",
+                "seed": 9955000,
+                "t0": 259200.0,
+                "train": true,
+                "n_days": 5
+              },
+              {
+                "index": 4,
+                "load": 3500,
+                "label": "원활",
+                "seed": 9956000,
+                "t0": 345600.0,
+                "train": false,
+                "n_days": 5
+              }
+            ]
+          }
+        },
+        "artifact_hashes": {
+          "outputs\\reports\\yr331_training\\train-9951000-workload\\manifest.json": "8f6329669b7de3a18778aa931a824b040b4b3b169c4bbae9dd8ce757d1d76db1"
+        }
+      }
+    }
+  ],
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "보상 첫 진단의 서비스 보호 조건 미충족",
+      "reasons": [
+        "9971000:original_request_cost",
+        "9971000:unfinished_trucks",
+        "9971000:unfinished_vessel_jobs",
+        "9971000:vessel_idle",
+        "9981000:unfinished_vessel_jobs"
+      ],
+      "evidence": {
+        "baseline": "SF-SPT",
+        "metric": "terminal_total_cost",
+        "n": 3,
+        "candidate_minus_baseline": 78652766.89032546,
+        "candidate_minus_baseline_ci95_raw": [
+          32631102.579368636,
+          124674431.20128228
+        ],
+        "pilot_guard_results": {
+          "9961000:original_request_cost": true,
+          "9961000:unfinished_trucks": true,
+          "9961000:unfinished_vessel_jobs": true,
+          "9961000:vessel_idle": true,
+          "9971000:original_request_cost": false,
+          "9971000:unfinished_trucks": false,
+          "9971000:unfinished_vessel_jobs": false,
+          "9971000:vessel_idle": false,
+          "9981000:original_request_cost": true,
+          "9981000:unfinished_trucks": true,
+          "9981000:unfinished_vessel_jobs": false,
+          "9981000:vessel_idle": true
+        },
+        "pilot_success": false,
+        "no_posthoc_interest_effect": true
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+            "stamp": {
+              "code": {
+                "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                "git_dirty": false,
+                "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                "python": "3.13.9",
+                "torch": "2.14.0+cpu",
+                "numpy": "2.3.5",
+                "pid": 5892,
+                "torch_threads": 1
+              },
+              "seeds": {
+                "training": [
+                  9931000,
+                  9941000,
+                  9951000
+                ],
+                "evaluation": [
+                  9961000,
+                  9971000,
+                  9981000
+                ]
+              },
+              "prereg": "outputs\\reports\\yr331_training\\prereg-executed.json",
+              "params": {
+                "all_run_manifests": {
+                  "eval-9961000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 70208,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "cost",
+                      "seed": 9961000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-cost/day_04.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "2c9057f3e895f5922152a445221cd55f7287860402869f5a41a02950842d1ac6",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9962000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9963000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9964000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9961000-rule": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 42840,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "rule",
+                      "seed": 9961000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": null,
+                      "checkpoint": null,
+                      "seed_bundle": null,
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": null,
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9962000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9963000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9964000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9961000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 18516,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "workload",
+                      "seed": 9961000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-workload/day_04.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9961000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "7f7c7e35dc040977c474cb58d1669c4841aff74ba5981580eb6e8aa84af452f8",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9962000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9963000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9964000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9971000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 56896,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "cost",
+                      "seed": 9971000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-cost/day_04.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "c8a29f5e8764a9be4860348ad9bcc211b2039f2e1c8a6c0935445fb38a976058",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9972000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9973000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9974000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9971000-rule": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 42632,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "rule",
+                      "seed": 9971000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": null,
+                      "checkpoint": null,
+                      "seed_bundle": null,
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": null,
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9972000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9973000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9974000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9971000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 63088,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "workload",
+                      "seed": 9971000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-workload/day_04.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9971000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "7dd613c5913cd8d57a9728c2c1918860ee88e0213df2b2c5548594970b3fa15d",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9972000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9973000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9974000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9981000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 60744,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "cost",
+                      "seed": 9981000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-cost/policy-final.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "393d32b4117276d152c210db2a163a2bc064481cd7324eea587bd4bc4b5057ae",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9982000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9983000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9984000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9981000-rule": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 40844,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "rule",
+                      "seed": 9981000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": null,
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9981000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": null,
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9982000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9983000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9984000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "eval-9981000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+                      "git_dirty": false,
+                      "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 68304,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "eval",
+                      "arm": "workload",
+                      "seed": 9981000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        7500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-workload/day_04.pt",
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/eval-9981000-rule/seed-data.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      172800
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": "6b3f5e09d6b8d10f3e2c1e2625ae86cc637c91a1601ee473e696ab2abd0a5f48",
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9982000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 1,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9983000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 3
+                      },
+                      {
+                        "index": 2,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9984000,
+                        "t0": 172800.0,
+                        "train": false,
+                        "n_days": 3
+                      }
+                    ]
+                  },
+                  "train-9931000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 27112,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "cost",
+                      "seed": 9931000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9931000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9932000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9933000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9934000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9935000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9936000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  },
+                  "train-9931000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 5892,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "workload",
+                      "seed": 9931000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9931000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9931000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9932000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9933000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9934000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9935000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9936000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  },
+                  "train-9941000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 25500,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "cost",
+                      "seed": 9941000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9941000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9942000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9943000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9944000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9945000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9946000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  },
+                  "train-9941000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 64984,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "workload",
+                      "seed": 9941000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9941000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9941000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9942000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9943000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9944000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9945000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9946000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  },
+                  "train-9951000-cost": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 21628,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "cost",
+                      "seed": 9951000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-cost",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9951000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9952000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9953000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9954000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9955000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9956000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  },
+                  "train-9951000-workload": {
+                    "generation": "v6",
+                    "scope": "CPU diagnostic pilot",
+                    "code": {
+                      "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+                      "git_dirty": false,
+                      "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+                      "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+                      "python": "3.13.9",
+                      "torch": "2.14.0+cpu",
+                      "numpy": "2.3.5",
+                      "pid": 57608,
+                      "torch_threads": 1
+                    },
+                    "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+                    "arguments": {
+                      "mode": "train",
+                      "arm": "workload",
+                      "seed": 9951000,
+                      "init_seed": null,
+                      "loads": [
+                        3500,
+                        5000,
+                        7500,
+                        12500,
+                        3500
+                      ],
+                      "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-workload",
+                      "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+                      "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+                      "checkpoint": null,
+                      "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9951000.json.gz",
+                      "stop_s": null
+                    },
+                    "ppo": {
+                      "rollout_intervals": 60,
+                      "epochs": 2,
+                      "minibatch_size": 64,
+                      "learning_rate": 0.0003,
+                      "gamma": 0.999,
+                      "gae_lambda": 0.95,
+                      "time_unit_s": 60.0,
+                      "reward_scale_krw": 1000000.0,
+                      "clip": 0.2,
+                      "value_coef": 0.5,
+                      "entropy_coef": 0.001,
+                      "max_grad_norm": 0.5,
+                      "target_kl": 0.03
+                    },
+                    "learning_window_s": [
+                      86400,
+                      345600
+                    ],
+                    "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+                    "checkpoint_sha256": null,
+                    "days": [
+                      {
+                        "index": 0,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9952000,
+                        "t0": 0.0,
+                        "train": false,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 1,
+                        "load": 5000,
+                        "label": "보통",
+                        "seed": 9953000,
+                        "t0": 86400.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 2,
+                        "load": 7500,
+                        "label": "혼잡시작",
+                        "seed": 9954000,
+                        "t0": 172800.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 3,
+                        "load": 12500,
+                        "label": "혼잡",
+                        "seed": 9955000,
+                        "t0": 259200.0,
+                        "train": true,
+                        "n_days": 5
+                      },
+                      {
+                        "index": 4,
+                        "load": 3500,
+                        "label": "원활",
+                        "seed": 9956000,
+                        "t0": 345600.0,
+                        "train": false,
+                        "n_days": 5
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "artifact_hashes": {
+              "outputs\\reports\\yr331_training\\calibration-v2\\manifest.json": "be899045ddcf6ec35b8cd92f4738f0168fabc2d513f341d8c8586a8ba6e37ca4",
+              "outputs\\reports\\yr331_training\\calibration-v2\\report.json": "5a4cb12a7fea57bea78dab8cc25f66de0c7d223bef4ffb96a36ae0bf60992e3f",
+              "outputs\\reports\\yr331_training\\calibration-v2\\status.json": "5be4ccd4d0cf5822e40113ab28c73f4937b2c5ab776358b3c13fef0c5660b64d",
+              "outputs\\reports\\yr331_training\\calibration-v2\\days.json": "d85b4b885ff3b484cd961c64859c204ecb938ee222aabfe9d1d135f6267a0414",
+              "outputs\\reports\\yr331_training\\calibration-v2\\day-snapshots.json": "b123de74d72d0fa260f0af7c83c7d94de0446682048b5b863a8c810ce2f150dd",
+              "outputs\\reports\\yr331_training\\calibration-v2\\input-audit.json": "11257fe88df7063a59e019bf4f67c047e1e29c9c7a5fecd62d64099883abe1ff",
+              "outputs\\reports\\yr331_training\\calibration-v2\\admissions.json": "b542b3d315113f5ee0407b76cbdb0dc1823ad453aac59fb72dc6afacdcb20576",
+              "outputs\\reports\\yr331_training\\calibration-v2\\container_contract.json": "8e377773825040e54549ee5b2376de49647fc7e3e1efc19efca959c8171076dc",
+              "outputs\\reports\\yr331_training\\calibration-v2\\month-result.json": "27e9fb2ce5b15994e23d03e7c8c2fd27b8fc1c289e0be0ced6bd3e27ec7e71b9",
+              "outputs\\reports\\yr331_training\\calibration-v2\\seed-data.json.gz": "b0966a6addaff3302c987559d0a9fda4304b803254f1d509edb2196d0ce04d0d",
+              "outputs\\reports\\yr331_training\\calibration-v2\\policy-final.pt": "7a4bab423445457210fe5b823a81d16a704714d10e42693982d173a11120ac42",
+              "outputs\\reports\\yr331_training\\calibration-v2\\calibration.json": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+              "outputs\\reports\\yr331_training\\calibration-v2\\day_01.pt": "2e8f5c4c3cd47d5e275c32bb5d9fdb644c90c8fabeec3b50d908bfc6b406949d",
+              "outputs\\reports\\yr331_training\\calibration-v2\\day_02.pt": "7f1fd30db1a517c61a912b676e9cca7f58c66ba340df952176736c954c51bf78",
+              "outputs\\reports\\yr331_training\\calibration-v2\\day_03.pt": "623ddd43fcb58b27be9bb64a78e40da6390677f0a6f7a3e9ff8f82d146f2f648",
+              "outputs\\reports\\yr331_training\\calibration-v2\\completed-jobs.json.gz": "4e2dd5e789366842c3a8ea28d3ea701b16fbc3b650bf153cd050c40e9b9696a1",
+              "outputs\\reports\\yr331_training\\calibration-v2\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\calibration-v2\\events.jsonl.gz": "5f82c017485c947a83f7976296bfcb5802d5ac318d90f9bf1d3bbda36131a73a",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\manifest.json": "d3a82fd75ab66ebd505153ed5d12d41dd278274cc8a126addce44e182fec7ec7",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\report.json": "9cf847700c86441456e725412a84bd5219c9f7b930aa989c8cc9bbd2dc42c609",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\status.json": "4f48427cdc167520967fd5707aba74fe009cfb53dabbadc4df8efd8e426ae847",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\days.json": "44e80b5f3ce8d14b6e888c38ec2df47a487aebd83040686188bfcbb4741b07d6",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\day-snapshots.json": "fd00c0be26047ed3ad407b35c3a0b818e39610dd185528881123620a40ea694c",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\input-audit.json": "64b4e4397b43f8b36d89be7d721b3add0f3251555979ea9029deb4a2282b96bb",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\admissions.json": "0cbb6b2e232380c8ea42e05ea447c4ad84d23038911468a027f37085bebc705c",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\container_contract.json": "a11f44ebbd1f3f8235e26c5badaf4221cb4584cf2bae4068d8e2979b38d7681c",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\month-result.json": "e909e54050bcb9c3786e4d883c4a5a1c842dfc6cdf68356c89d7c7e8695dadf9",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\seed-data.json.gz": "67fd8a4df5a9da1ee9cf24a27c289ca77a506c4ffaefa67db99ba5e8de99edda",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\execution-records.json.gz": "6b16d11a9aa6b7418e7d9cadd6950ecf4822343dbdbd808ae98bed46e18a2f5c",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\policy-final.pt": "b2969e1c6f3dfac570a0df410897daf314d125f6b0ca5dae42e4d80265a0945f",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\day_01.pt": "939857a3d4f733a1fc3cf717c5158e6e850fb40f2d00e0e152044ee9219092bb",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\day_02.pt": "8a7426904d901b07d061b24742bd0ca034574b6fdf2822546fa58c86846921ab",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\day_03.pt": "ce7b222707e3cfe54970b35c9c14e1f0005f14ad406336fc690ee964e74515ba",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\completed-jobs.json.gz": "8f9ee351d7a28d148af68d351c8a4f479176be975345e38c1820b963340427bd",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\events.jsonl.gz": "18c85a379b0d12f49de32e41c9051267feabc18a4583b6728630e21fb09de944",
+              "outputs\\reports\\yr331_training\\eval-9961000-cost\\trade-ledger.json.gz": "3352f9215fa307eaa309196699e8a2e193756840078712eba61cfeb155ad6ed4",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\manifest.json": "535c5b45ef76abef8fb73634cadb4505bb453e230b206a195cc7c0b3997b5375",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\report.json": "a4ed4c254f2472106831764bacc576cd48667626ec216e8cb372ce3b1f9216b6",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\status.json": "40680f85733284085c7959e2b8a709c04bdd43bd3db9d4da6bdfe477f5dd476f",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\days.json": "88da0129ec290db31de01c969ab3bd82bdd4d936d720141bd528a79d958234f8",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\day-snapshots.json": "d7fa80927b828d2f1a57c8319a74d55db8a027cd194febf87d7735463dfe10be",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\input-audit.json": "64b4e4397b43f8b36d89be7d721b3add0f3251555979ea9029deb4a2282b96bb",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\admissions.json": "0cbb6b2e232380c8ea42e05ea447c4ad84d23038911468a027f37085bebc705c",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\container_contract.json": "a11f44ebbd1f3f8235e26c5badaf4221cb4584cf2bae4068d8e2979b38d7681c",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\month-result.json": "5c1720a6617cac2fc634123b7f6bca8e9ebf96e1f6f40728ec7298b25e2686e5",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\seed-data.json.gz": "67fd8a4df5a9da1ee9cf24a27c289ca77a506c4ffaefa67db99ba5e8de99edda",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\policy-final.pt": "73323cb26d1172a12d2da24ef84c2ed5840de2a2ba8de95a1059a3cc90de6ca2",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\day_01.pt": "42c16d36db62eb4cf9e6282c80a351422f37b169200296e009a6737883c48532",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\day_02.pt": "2462a912551d60791526163902984d2df8a5dc5894b6ce1fc89801a4c02057f1",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\day_03.pt": "0c115f02e17ae90cce26a6c801bd3a3af6035f5f2f0a9a771527b49644b01ab5",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\completed-jobs.json.gz": "fb634942cff244be6183c78d885fd6289f2a4f37f4165dbf650d0871323d87ab",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9961000-rule\\events.jsonl.gz": "b8388bf50765fd02085d6be7660ccf3a9ac6d30fab62429006c7907ff28973fe",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\manifest.json": "27494943faebf53210e40bad960044067579f4c26c497dbab3157f2f93665d00",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\report.json": "597b252dc85a065208e60cca719730a5e756cd6d8f5a1adbe9a08bb7fffd0a80",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\status.json": "891752e60b97a2b14e9a5105e94e05c4fc231d27bef60f753d4b06808c0bc000",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\days.json": "bfcc7a7866b0cd1bb2a9e439489ecb76bae0c1ce3e5c7748dcd8c50e1a2f1a9f",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\day-snapshots.json": "fd00c0be26047ed3ad407b35c3a0b818e39610dd185528881123620a40ea694c",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\input-audit.json": "64b4e4397b43f8b36d89be7d721b3add0f3251555979ea9029deb4a2282b96bb",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\admissions.json": "0cbb6b2e232380c8ea42e05ea447c4ad84d23038911468a027f37085bebc705c",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\container_contract.json": "a11f44ebbd1f3f8235e26c5badaf4221cb4584cf2bae4068d8e2979b38d7681c",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\month-result.json": "e909e54050bcb9c3786e4d883c4a5a1c842dfc6cdf68356c89d7c7e8695dadf9",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\seed-data.json.gz": "67fd8a4df5a9da1ee9cf24a27c289ca77a506c4ffaefa67db99ba5e8de99edda",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\execution-records.json.gz": "bfb75756945d93bed51fc8d32b82855d7c68de236d1bce5a06fe0428c2f0ee88",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\policy-final.pt": "b0c953b6c51583c5801a8e0ced56005e8051568914d91c300ddd44cea4a98154",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\day_01.pt": "1e0bc0cf513c54e571c78554c5e2bd0ac8311dbc998d66ef7550e37ed4ca04de",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\day_02.pt": "1d2f227997366f8dd2245777c3b62dc811db53ed8672afbf801a3d1108aa7bb1",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\day_03.pt": "0747d6e642dac9795e1960ed5be0b0baf18f7d5b649567b539f476374a1138f2",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\completed-jobs.json.gz": "8f9ee351d7a28d148af68d351c8a4f479176be975345e38c1820b963340427bd",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\workload-samples.json.gz": "eae1fb5bb2f029896f9a4f21604860e28c72dfa1b9fb3dafb73cd182eb36eb68",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\events.jsonl.gz": "7dc9f7e26c298c4de05e0b29e392db7ff3b7729be360098c173944959809f2e1",
+              "outputs\\reports\\yr331_training\\eval-9961000-workload\\trade-ledger.json.gz": "3352f9215fa307eaa309196699e8a2e193756840078712eba61cfeb155ad6ed4",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\manifest.json": "4ddc395fcd4ffbf649458a040befb3243a6f5d26f58b4fa100864206e57b91a7",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\report.json": "5e312e02446cda375e59d2107b02e57f41544ab42207b364508357ac4d86c077",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\status.json": "da17020f56426192108ca59ede94db9f0cb1e9bd3270c4536950f2e6a5bb74cc",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\days.json": "bf3e89a0c45fc1a1187e66b294440af1d994cfe6d4e1efd1957f8635f491fbd6",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\day-snapshots.json": "1d03ab7da91e2c46120bfef97ea55d2078197fd542083a1d2f499a356951e2e0",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\input-audit.json": "24c6ad3c756e30f3f8a2273ed7d56071c2893c398568d23883f6c78b5539512f",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\admissions.json": "b1ef9a71451bcd8abad361d6e30dfe0281df2daac63d0cf48a95a8a1337b796e",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\container_contract.json": "df65da2774ba9c5071bea1455312a2680e1cd9ee90f0682682176e78bdc88659",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\month-result.json": "654ac04a3580fa3ebfcb5fceb54ce696dcfbc86ca7b8302884533a38083822d6",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\seed-data.json.gz": "4da0995db31f46864c9770c4827b02d5fee2caf723a62597d0cb142d06c1d18d",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\execution-records.json.gz": "0864e22ee110752ea10c178dc6fd80721bb837d09691069fdf8b022669aecc93",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\policy-final.pt": "abadde2f3a4d3a4c0fbc359c71bc2e2308082abeb0abf2dd9c69618c044f16b0",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\day_01.pt": "3d4795c3dac4e1fb3273c276fd4e261bdca411294d41398b8ed83709c4108f13",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\day_02.pt": "03a4c5861d21599f7dfd714db5fad3bc66cd7c061ee6aa0839ed3688cdd0697e",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\day_03.pt": "d1baca476ba30e6909f83c1b8b789c0dc04fb38d2bbf9de6ac166e244b3657ef",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\completed-jobs.json.gz": "b4f2e4ff1a12890953c2ba4225cc9e9efd11772239a5a5e94b7703c8fa339ed1",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\events.jsonl.gz": "cfb2737e0d8527793dd76233e6061eab4776adc5c89764f2c3eb18680a9c8283",
+              "outputs\\reports\\yr331_training\\eval-9971000-cost\\trade-ledger.json.gz": "c154502bb840ff25d72b4e78d1fac35ada7fb77c1618c17286395a869e78d78a",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\manifest.json": "c03c6235a7360eb99f32558cc5c55c1310ee7d658fddb15034d43c887a678a0d",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\report.json": "4f33772c0182943f813dc95181a7138014ccd1b41d15babc286e6b07e028c80b",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\status.json": "01e0a36c1505824a71b210be4f20f742d5d03d38c20f136e89e1c3001203def4",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\days.json": "5f496508b047954a4d92d614b3f8b982adb31983c80a31120e98e919ce0bfae4",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\day-snapshots.json": "d80a3d46848e1db8548586ec4482f1f22e93e81c773469bb53e3daa7d449a137",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\input-audit.json": "24c6ad3c756e30f3f8a2273ed7d56071c2893c398568d23883f6c78b5539512f",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\admissions.json": "b1ef9a71451bcd8abad361d6e30dfe0281df2daac63d0cf48a95a8a1337b796e",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\container_contract.json": "df65da2774ba9c5071bea1455312a2680e1cd9ee90f0682682176e78bdc88659",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\month-result.json": "1c6c06c43318e469ff84a6126f3ec9cfc5ba3b5da6768fb4cb550f7bf7d0f74b",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\seed-data.json.gz": "4da0995db31f46864c9770c4827b02d5fee2caf723a62597d0cb142d06c1d18d",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\policy-final.pt": "84efc3dc9aa8a7b34836db2ee7b9ae8edbdbe8e21107d0ea2dda187d2a33d232",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\day_01.pt": "daaa89ab9d539fa4d1be40112c9e5bd7394190994e3b611cba0334bca9ecd5d8",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\day_02.pt": "fee46420513a04d3e78a348e3557816a63a6f9e9bed904cad268c6183855305e",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\day_03.pt": "3c2ed8709af221729423d07e2cc3e0f632f379626f78b82264bbff31bb0823a9",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\completed-jobs.json.gz": "4f7c342c17480b1bb0dd26b3bb403f43080bcd82ebc4b9ae4b9c3c3a92ed947d",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9971000-rule\\events.jsonl.gz": "edb4720976e0e790bb1a43c048175b1c1726012808b357b30197a8df384936a8",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\manifest.json": "237109ace044d003214bd0828dba4f4fe6bc1d41f7d69bf7e287c291aef40be9",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\report.json": "ef7c66eb9811eae3d7bcbc663cdeebe88d36dc11c94704d33c635f9701ba0c3a",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\status.json": "b7a7d61e0cf47c517876f01668f0373499eed502b68d520f4ca0fe02980fb999",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\days.json": "1b455d05fae76715784f19b278e2c36735b53f946fb1741fe405101cacc67f39",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\day-snapshots.json": "06c1191abc752ecc6c7b8008274d4eced63ec5cbf168a9f1705fbec7d88a195d",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\input-audit.json": "24c6ad3c756e30f3f8a2273ed7d56071c2893c398568d23883f6c78b5539512f",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\admissions.json": "b1ef9a71451bcd8abad361d6e30dfe0281df2daac63d0cf48a95a8a1337b796e",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\container_contract.json": "df65da2774ba9c5071bea1455312a2680e1cd9ee90f0682682176e78bdc88659",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\month-result.json": "9babea459df3fdd62d5281688c67aca263a7ff8afc24c28ba245e593eff1d636",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\seed-data.json.gz": "4da0995db31f46864c9770c4827b02d5fee2caf723a62597d0cb142d06c1d18d",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\execution-records.json.gz": "1f8398642e54a3ecac0e10f2b620759c0125b34ce5be1ed4f4c5fe930a136db3",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\policy-final.pt": "09bf2e1906e0715e5c99d51bec96e5574bf16766a721432a96e2b31a43c6ca92",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\day_01.pt": "0cde736be915ecfd6fd11f4dd8888ec2bb384ccf5d425189ad0b73570bfae68d",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\day_02.pt": "919ad65ca9952214b3ddeed6debdc591dd7144506a63bf4c86d7627bbe629f6f",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\day_03.pt": "70e60bc669093d6ff6657d87d6b5a8d3f1364c8d918f2c92657053555be213e9",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\completed-jobs.json.gz": "20909fdec71fd2143a78b91ebd3e1f9644db197077dba64b822b1cde5977439b",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\workload-samples.json.gz": "327acf1fdf3432593f6b00fabad66b6c23eb275e68f4dac1d184b6da53a791a6",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\events.jsonl.gz": "14beb6f72765a7e0e83fbfdcfb3c1721bfa82bb7cb3fea138b5732bd91e241ee",
+              "outputs\\reports\\yr331_training\\eval-9971000-workload\\trade-ledger.json.gz": "7abd17288699d158d5b3cd362c1fe01d11fd278195f763a507d88f692a8fe38d",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\manifest.json": "7a316709d49510baea99b7b92419596f1a76280bc1a41f8fe5b22b9c34b64198",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\report.json": "9f08cd32b59b5471498d893b76b08f55352a53ba9ae2dc04dfb29e467e2888c1",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\status.json": "2ca350a6a7f3bbc0761313e6bb3bc5722a755a06dff244b904717d98692dcd44",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\days.json": "5824550437fd2392c0eeb62e7c3bbacbfabfcb785abc035c71cc9725e66c1853",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\day-snapshots.json": "208d20d04a01ae15159fb0358b2cc4834fbfa69dfc2d358ac4f43938d4081504",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\input-audit.json": "2d55a6e37d3935765336f35e3559345965e5e6bffa5a768cd20385c76e216f15",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\admissions.json": "9bbba5ed82e5ebb5f240972549b12311937eb2923aaee50f7e7ec93d7238cc4f",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\container_contract.json": "7ff4393bbc805112034d9b7d9ffd9120344e93468d7e7d12bdf68215790bb02f",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\month-result.json": "7b1bf91087ee4f9032db3c80b5885e64240bcd92dffcd18f4efb518b7968c3c9",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\seed-data.json.gz": "d659396ccb4d9563f6b3b59f6da9f0f3530f4d43c40856c002f37b7bf853ccaf",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\execution-records.json.gz": "a03bbf5483dbb22608f8280e2e5047d19655d9e1409c61bb7b7c7eabeadd2555",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\policy-final.pt": "8aa359cd37c4d438be31989b5c19f6dd6a1d10a06816ae072eed3d642ce558f8",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\day_01.pt": "7e1319c0aaa31e9ee923d8dcbbbb39011e14704bff5cd462ea40c37238d7179f",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\day_02.pt": "d003285d77d98a2c2342149ca77f4c741246b3bf23e38561fef2cfd1880ddfd0",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\day_03.pt": "67e9715d7e263726ba9c74d44f481f2e0e1e7b01360370ba6ef25e96560e61fa",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\completed-jobs.json.gz": "1daba3cf123ff8b5264fac4b79ca645c3c9cb22055fdf9700c81f8d714ba97de",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\events.jsonl.gz": "e9c578334304bc5f25f6a156661116a5ca07e5518e3764c62ad919ed056c9751",
+              "outputs\\reports\\yr331_training\\eval-9981000-cost\\trade-ledger.json.gz": "7f645e6e3780ae8d61a873b723b3e418906565b3e999fdce45fd58e37bcd37d8",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\manifest.json": "a03e01dfc0ea375c913038422d60c474e85d5a33a1e57330879dd34d1356ce75",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\report.json": "78d17d1a17ed68152ddbf2344ee40293bc0b077ac17a297b8fd241a43b838bc4",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\status.json": "a1bb87ad48bca6e7a456c26cedec52e2bf20f8459d7576225c2d4cccd61f11ce",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\days.json": "183b8147150e353089fa2c4dd8a5784dada817cd96bb514fce3147a899f1764f",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\day-snapshots.json": "ef51649a7bbc974a18a0e7cc0035558754fc48a9503a31fee831a697a49dbbd2",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\input-audit.json": "2d55a6e37d3935765336f35e3559345965e5e6bffa5a768cd20385c76e216f15",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\admissions.json": "9bbba5ed82e5ebb5f240972549b12311937eb2923aaee50f7e7ec93d7238cc4f",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\container_contract.json": "7ff4393bbc805112034d9b7d9ffd9120344e93468d7e7d12bdf68215790bb02f",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\month-result.json": "0c604835c1f3b60a74367a3ce157000518280360ddff206d85a3d63eb973e721",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\seed-data.json.gz": "d659396ccb4d9563f6b3b59f6da9f0f3530f4d43c40856c002f37b7bf853ccaf",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\execution-records.json.gz": "fbc9db6728eeda4eaca200e7e9a543ea98e15b24a88fe11176cb467b419417af",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\policy-final.pt": "8a2ea4038730e3821cdc966d5e690b29f4822a3dfef0d7c5aa07f971c6b41338",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\day_01.pt": "f3251e488c718485c12200f005103d405524a580fa2e7f904613819c1b183b67",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\day_02.pt": "80cb50c600f5cc055e8e7e2d222daf0a6ea3ef69e87759aeb2feb4df02971d2b",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\day_03.pt": "2ea159947f6e264145a10845be77990205a48c069d0d3ddd4537bf2e9838439c",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\completed-jobs.json.gz": "3462e985e7d57de780fce729551a9236f25e533cadf18a275f6e7608829511bf",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\events.jsonl.gz": "eb4b558e84991274b1ad164bfa1b2758acedefbb08d7a916651d79ec456378c8",
+              "outputs\\reports\\yr331_training\\eval-9981000-rule\\trade-ledger.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\manifest.json": "b549e6150b5749fa430471524f7a484f31b54eed5100321747c494d7bd783660",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\report.json": "da2fe35fcec3c791b8d459d4483c833363ad79e70cfa21bd253d95ea1c36ff12",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\status.json": "2e610c1e4215aa4d2ef5f2d627650f21bc387dd318b843699b7d36651414828b",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\days.json": "3da1c1110233a5271eb8eab713c33287395486d207ea8fe32e327c7068c41586",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\day-snapshots.json": "7494ed6291ba8477c660225dc563c3e57f4fc7d8ffb546fa36a15928d32dd92a",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\input-audit.json": "2d55a6e37d3935765336f35e3559345965e5e6bffa5a768cd20385c76e216f15",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\admissions.json": "9bbba5ed82e5ebb5f240972549b12311937eb2923aaee50f7e7ec93d7238cc4f",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\container_contract.json": "7ff4393bbc805112034d9b7d9ffd9120344e93468d7e7d12bdf68215790bb02f",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\month-result.json": "5a78b915a874037988341358fcc81012772b915dd8effc05ae94f05cd84528c5",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\seed-data.json.gz": "d659396ccb4d9563f6b3b59f6da9f0f3530f4d43c40856c002f37b7bf853ccaf",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\execution-records.json.gz": "a35a3ef01a156129cf80b00b331ef6d71cf3b8d66a43ce303939c606385b34a3",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\policy-final.pt": "beeb296708df5af83d9544b3440f279b3038d6171aa963819f6e9ac66d682768",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\day_01.pt": "9e3a7977966114a431e17571d6bffd001ad7c32d9002bfae846b691358cb360f",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\day_02.pt": "784e1149517f5b58d3275f0269540afe75d5b9712c54c3921c5470ab373f0671",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\day_03.pt": "67090beca68c412a66f726624d01fea0e603ed953ddca510337ee6ae65b84533",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\completed-jobs.json.gz": "747b88f5f55269002bc2169433bd72c40c377d64e37ac072b962470949ed57f3",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\workload-samples.json.gz": "7f1ad78a193c0d87af831fd44e9dca9691c03e2ca33d0478b9ee79328a304ccd",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\events.jsonl.gz": "8223add09c9ca2fc6bba2e8d74f4cbb50990d296951d690f236fdfbf3da5f5b2",
+              "outputs\\reports\\yr331_training\\eval-9981000-workload\\trade-ledger.json.gz": "3e72a6e3b8a3a9032a5b75993bcab57210011c2a3d3d845503963fcc9f77fa4b",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\manifest.json": "fe69405e9c90dd08f4b2618d64764ff34642d4aeca12e7cd4f4a5ea4a8f4c060",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\report.json": "ab727450730ac785c0c47abe7d055c3a4055ab852a5b633fc334052e27dfadab",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\status.json": "a1df6f20d57c1f3ee7b48af8b5d27aad71c72a3d90ffd49e67c4f53b200be510",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\days.json": "8f2af20118b33bef1dc4a76a4ff54b37e8d0a65dbd3086f82214478655ad21a4",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day-snapshots.json": "00fc544acb8e032cc9b35e371bda7e991573387b002ffa850b2d2381cf1c8f2f",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\input-audit.json": "8561796bf8911b4394653fdaacbab0d53ddefe823bae4573d692594bb01b6d02",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\admissions.json": "b2f4a058e60725e8d80282d304d67408704a2c9fa86fc506996c2d9cc0f5c65a",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\container_contract.json": "345eeae2aa45d8e003a44e5f7110acd5e75d0cc78daf512e9a6402b45f505b18",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\month-result.json": "741ba6c8dae3d2cfdf239e99d50a6e07b9be5262fd716b6585eaa01fcb33474a",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\seed-data.json.gz": "0e010d4303ce94bc5bf60e0ca2babeeef29b73bda16275a76acc9f3bf41a4a78",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\policy-final.pt": "cf164bfb1a0c3077f1a89e0baacbbe0988ad19f3c4fd26610132acbcc4e3c9b9",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day_01.pt": "a47f61eb4c7a8e01984205c82dda787e2294e480023bf876cb98a0e8fe247a6b",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day_02.pt": "d28828a3bbff8287074e2711ddc49fd6f1071bac56f2b32f7a883a4d4a9cee25",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day_03.pt": "f1213aff28fd21c1be5621244a0cb99125efa97659b309bcc564ec190c25dc49",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day_04.pt": "2c9057f3e895f5922152a445221cd55f7287860402869f5a41a02950842d1ac6",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\day_05.pt": "8c8d54551dfdd6ba30f7a6664b4795584fc560712411e0391020fe54d8748ede",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\completed-jobs.json.gz": "5331777dbe9eeebed23104029fdd11fc2e264ff92c39f195c0632a7d5070f3b1",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\train-9931000-cost\\events.jsonl.gz": "7640680e5c78ff5476d64c3152dd741ac01feb5d511acc80033b7e88c5a892b6",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\manifest.json": "ac694b31c2669367063c5cd184d3ece65527690078d6090ef76e13e659053ead",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\report.json": "905cfd636a9ee708cf386b647a27c68a0539099211afe2315462672674b51ce5",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\status.json": "15d5219eb56cae639ea71293b6948a77f22832a68c123dfe0f8bcf0a00ddba54",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\days.json": "399811b9d7e9977539fff2a33a55f12158ee404f2f5ceefb35cc27e80620c400",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day-snapshots.json": "2702dc1f1b224aeb52c3a505ba6a7506a12754b95d0da33d0fd416e2e60d8e1f",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\input-audit.json": "8561796bf8911b4394653fdaacbab0d53ddefe823bae4573d692594bb01b6d02",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\admissions.json": "b2f4a058e60725e8d80282d304d67408704a2c9fa86fc506996c2d9cc0f5c65a",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\container_contract.json": "345eeae2aa45d8e003a44e5f7110acd5e75d0cc78daf512e9a6402b45f505b18",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\month-result.json": "01634f656e18bfbd179a2652f991ef11b5edf73310512e5c09c809b34df83c1c",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\seed-data.json.gz": "0e010d4303ce94bc5bf60e0ca2babeeef29b73bda16275a76acc9f3bf41a4a78",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\policy-final.pt": "7c3107ed0baca5966a5caab7df19394273a80965101924eb036d705ab79d861c",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day_01.pt": "a47f61eb4c7a8e01984205c82dda787e2294e480023bf876cb98a0e8fe247a6b",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day_02.pt": "8282de8c369dcb1cb07fbe1463c4d42cad047ec3a21688fd1acc29036997c42c",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day_03.pt": "ca6997dc3e7e102e2e1b62c01eb1ad50a972cb0ffb6de13df7449d874e314525",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day_04.pt": "7f7c7e35dc040977c474cb58d1669c4841aff74ba5981580eb6e8aa84af452f8",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\day_05.pt": "91fe22abce70ffcbb3ebb71cf931a40b0a7e9eb3ecd3ddbeed0ffcf37a31705e",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\completed-jobs.json.gz": "ca4ef0a0842a6d055521d174bc38f3f7cdcd5a6955602440e8aca2eabbd20ead",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\workload-samples.json.gz": "1ff5ce5a249fac28e908620d96c342cc1efcf3d3b8cab56446c6a4f8d63337af",
+              "outputs\\reports\\yr331_training\\train-9931000-workload\\events.jsonl.gz": "3d8fb096fec89d7da2e386d054e769225ec420737b791fc466460c61e0730892",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\manifest.json": "6419f79f6ec4a8c6c4d28c77a078be8970f29ab925e4858aea8cb818d1f37dd9",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\report.json": "07856d5c2d5454b32bc289e5c5f63887e1c9c44e51c4a66f9dde16a26eb03f5b",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\status.json": "191af36b09d1950821a2b2ab036833e9452018bfe2a95042203f2f63da194a02",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\days.json": "1651daa07d11b939532067c5a0a4b6f72f6165dc0b04e82cb4bb7e298405e87f",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day-snapshots.json": "bef2e19442af81ff9f8ff035dc231f9442a59aa2477492d75b50c6f56797788d",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\input-audit.json": "ab1e1b9c530328570896a89ac172e0e6e08310fadf6eea1de5fd42c873238a01",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\admissions.json": "b5c791fa29f28ee61c1697b2103588d4ebec4c118932739afeeec1a571b64fae",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\container_contract.json": "3713a3340b123ab6f4902f727c31d8f8ec2efb0d3144b3cde506bf5391fd389a",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\month-result.json": "7eb0433d6e6fe37dc3695594f644f7dd2048900ef260698a2979023ce7ff7bac",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\seed-data.json.gz": "9f0b59ac3930b70ca9977656989fe4e82e3675af01b61c7f140a9e01010ef262",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\policy-final.pt": "cbaea8834e2df46073df7456ee0fb91510f69270655b69d93b05b555734e1cc5",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day_01.pt": "f8c46ccf2fec14ad31695da329fdaa0ebba008cb99b79550e87058579e2852e8",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day_02.pt": "b49c2b4bb11379e3e2dbc4ff42063accc362c96dab57b1f053e1e3cf04fb0a0d",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day_03.pt": "d57d427e02b2c5c1540d766c5f8ce0864ed6306e762d4dfad601aac5214a406f",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day_04.pt": "c8a29f5e8764a9be4860348ad9bcc211b2039f2e1c8a6c0935445fb38a976058",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\day_05.pt": "b200d2fe73ef29d2dc45910f14663c822113b3a82402a58132dbb7043d2e3905",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\completed-jobs.json.gz": "b736626ee4207c1216a9c1122467a29533b5f82e6afe25c34e3a8cd873c33ec9",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\train-9941000-cost\\events.jsonl.gz": "6c20c8cc54e75e9e99fe17990f4eec54f24cf20cd50f477e3c44dd2bef098457",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\manifest.json": "88fca5c3a0eb4410b2fe58b1d682efe062e3ec201c9e3bdd938c3e15f10969a4",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\report.json": "7589fb2beffdcf48ec318c4192e3a6f8ef9a564339ba50e34a7f58556e75606d",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\status.json": "c32e23600fab9d5599446d0939ed63f2eed97e2d86eca0f6fae00bee7f1ab73e",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\days.json": "e69995c5d519169ec841ff7a6c08651c9afecd06525f5e073020a8e1942024e0",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day-snapshots.json": "16c7ce2324b69e89e03c3d9b8413afa909f2962d71fc121343c1adb9fc7abf64",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\input-audit.json": "ab1e1b9c530328570896a89ac172e0e6e08310fadf6eea1de5fd42c873238a01",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\admissions.json": "b5c791fa29f28ee61c1697b2103588d4ebec4c118932739afeeec1a571b64fae",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\container_contract.json": "3713a3340b123ab6f4902f727c31d8f8ec2efb0d3144b3cde506bf5391fd389a",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\month-result.json": "43a0ec59cf4ad610cdf83ed0c0755b1c72a725141f5ca339acf9bf336794737a",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\seed-data.json.gz": "9f0b59ac3930b70ca9977656989fe4e82e3675af01b61c7f140a9e01010ef262",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\policy-final.pt": "a29dccf6df4337bf1a8dd5167d2f1f0209a937024420fcd5cc0c79471b97fd02",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day_01.pt": "f8c46ccf2fec14ad31695da329fdaa0ebba008cb99b79550e87058579e2852e8",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day_02.pt": "7c6d8fb322735d8f6c04eb0158745ddef3dd24f2adcf817db19f033a99d895d8",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day_03.pt": "90b0442767938611e0453af31e984e62fc7c7860d1de7a9453f763ef2c3286df",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day_04.pt": "7dd613c5913cd8d57a9728c2c1918860ee88e0213df2b2c5548594970b3fa15d",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\day_05.pt": "a1f8f6b13fcf62d388bdff2e24ccdc370153535b121e644496f82ce3caef39fa",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\completed-jobs.json.gz": "322b0201dd660b869f74d0e6306a3a5521673adb0c339897daa9e48d4d568798",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\workload-samples.json.gz": "7439d7ac800395996deb6970ecf6d4c69487dd81d98b73d903f99906268adf60",
+              "outputs\\reports\\yr331_training\\train-9941000-workload\\events.jsonl.gz": "6726398028b8c7230b6243332fe3ba57f0d8f34094b88073ced3fdaf0111333e",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\manifest.json": "0ec9f70d345b2cf6ecfbc8ae3c19ed09f6d569e7249388f4b1317893cd303b82",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\report.json": "0be206da092eb57d6bf5af753145574b3f3e03ad9cbf3a10f720a3071357d93d",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\status.json": "0eb22aaafa2ed2cf3289ba59239f12dcc1bec00817c0454a08ff0e5caa267785",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\days.json": "4bf1e471f16ce4728a8b0c44d72ba20b2bdb86d60d177fd36d8cd7b1574642fd",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day-snapshots.json": "55079b610584981d98e88576130ed68da749cdbdba62dadcede5d62019b2421c",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\input-audit.json": "df1067e4a896445935b66b54373e7def0db7fcd67d0a09c6154dc501aac3738a",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\admissions.json": "1ece6345cde8ca2541d9f32aaa6b781c69c123732f7ee560da8a36b27d430000",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\container_contract.json": "ede58faaf1f92c36a3d8af56885d9e36d1d252450e99db9f7e43394481768954",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\month-result.json": "c1cf5efe358b3e7b53b8f2d82cd45760c21bbbd09a9dc01a247031e51c5f8a59",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\seed-data.json.gz": "8708f4e15e643372669693b0d84fd7d5d728c011e13651c4bf780fe63bc863cd",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\policy-final.pt": "393d32b4117276d152c210db2a163a2bc064481cd7324eea587bd4bc4b5057ae",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day_01.pt": "4c616c3801c5c7e1219449ba1d7e8a7157cd0f68a08c894fd2b083bb74ba015f",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day_02.pt": "8fb759a541c49313b8ca28fbad99d07a97fd153a574d65b71212b1a53063f4f0",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day_03.pt": "617b60d11cf6f3834dd5515cfab19dbaa5b394310425152db3d0193b10dbd8af",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day_04.pt": "8825e00e6d99db3782fd635f7a5ede85c47c0850918980fd7c58389daa87188a",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\day_05.pt": "7f9050f627fb86502fc1b90e8ff11480146f62f53986653ae201ad6e5fa32465",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\completed-jobs.json.gz": "da541f0e29f3e350b7ae5ab936bf553f4def08b048451b4d24f6cae9820e23fc",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\workload-samples.json.gz": "9ee5a88c8d7dd7955e0f870eb72b92a69d3c4b7d43837f5eca5ead2e24fef6e2",
+              "outputs\\reports\\yr331_training\\train-9951000-cost\\events.jsonl.gz": "788d04fc86408a334ad73302c0837a1feecf8fb2bc114df63adf86617424087c",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\manifest.json": "8f6329669b7de3a18778aa931a824b040b4b3b169c4bbae9dd8ce757d1d76db1",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\report.json": "40243363f5086e20b2c2a5a858e02c394c717fa314133a8de9c8e046ca452c26",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\status.json": "a0615d88d8712bb2083fa6edbba7b01c59e9809c1556a41d05fcb54da64fd2d0",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\days.json": "be32f85d83778ab3965f3d445a9e6fed61be5d4c6605c8f78dca4a53f4b15e0b",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day-snapshots.json": "5f8209af8c69ff5c863939368411be1b93437462051374e30755bbb389ed59cd",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\input-audit.json": "df1067e4a896445935b66b54373e7def0db7fcd67d0a09c6154dc501aac3738a",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\admissions.json": "1ece6345cde8ca2541d9f32aaa6b781c69c123732f7ee560da8a36b27d430000",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\container_contract.json": "ede58faaf1f92c36a3d8af56885d9e36d1d252450e99db9f7e43394481768954",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\month-result.json": "af82f383554ee0fc0a49fb41542376c270e7f82d5cee0c4f32c7356325378963",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\seed-data.json.gz": "8708f4e15e643372669693b0d84fd7d5d728c011e13651c4bf780fe63bc863cd",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\policy-final.pt": "bda587d01981d7fa2c6643e134aab20822624480bc6c472b2351bf26842973d9",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day_01.pt": "4c616c3801c5c7e1219449ba1d7e8a7157cd0f68a08c894fd2b083bb74ba015f",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day_02.pt": "b7ad7c1b4052c4a5c2d63f73d82e4224cd943821b9253f077e0f48f04d424eeb",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day_03.pt": "c46340aa0b1bc871134a24e5a750e322c7cddca66559c0179b1c2824fe9dc50d",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day_04.pt": "6b3f5e09d6b8d10f3e2c1e2625ae86cc637c91a1601ee473e696ab2abd0a5f48",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\day_05.pt": "38c89733f287695d6dcabaada52f4ebcdc918aa7d57163eeb5c720683eebb378",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\completed-jobs.json.gz": "cd682452b747fa6a908589358dc90eecfab6e4285fc8d21fdd70172f28cdee41",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\workload-samples.json.gz": "259f8d519258817454163e2fbaea287bab0ee234356a36958679c72a8f805a03",
+              "outputs\\reports\\yr331_training\\train-9951000-workload\\events.jsonl.gz": "24a8daa1d54395bfc8af512b05bec85c7e72abb4ab2a27ad44c5ed2ae78954f5",
+              "outputs\\reports\\yr331_training\\prereg-executed.json": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+              "outputs\\reports\\yr331_training\\paired-controls.json": "6fdc1ce55f593f56e7101556db3aac5b43271fdee1c27eb167565511cbae01f6",
+              "outputs\\reports\\yr331_training\\checkpoint-audit.json": "bcc1813386ceb0c13ccccdf7c4b46c5e0189ba0ac08add8e9f3757fd04b0d7a5",
+              "outputs\\reports\\yr331_training\\event-audit.json": "033a2735f45f5a1248e67c5edc581fa2f832592e4b04f2884278064560d2c728",
+              "outputs\\reports\\yr331_training\\calibration-audit.json": "1f93e32657b9d766c8152e996135d243fb1d8de3a681b44b084bd952342d7a0f",
+              "outputs\\reports\\yr331_training\\input-preflight.json": "8e097718c4caa42e9b1857f89ee3c3c21fac9e2ad8bac8525c8dae69e2627e81",
+              "outputs\\reports\\yr331_training\\pytest.txt": "99acc1fbaebbe0f566e18230fb089f236ac142b2eac869282092417febbeb012",
+              "outputs\\reports\\yr331_training\\result.json": "38e294421133f4d0783b92596bae6af51ccb25e229342708a6a457f069589fc9",
+              "outputs\\reports\\yr331_training\\reported-values.json": "129fdd3bb359dca2e9a732bedeea48f4207401659f4f9920075e08bf8c482141",
+              "outputs\\reports\\yr331_training\\report.md": "f1b64d4b470f7aa4a2454b9f62a5ba2eab9bf832b518593141af35d3ebb48b4c",
+              "outputs\\reports\\yr331_training\\validation\\failure.json": "65f8656763ebe507dd1b3d1148d840edcb7e9342c901e753c49ac094d9482491",
+              "outputs\\reports\\yr331_training\\validation\\manifest.json": "ec8b215c05fb8694b0345cc58eeb018305e60f72b11578e7536df07cdc62e4bf",
+              "outputs\\reports\\yr331_training\\validation\\status.json": "b47f8c07021f17f7eea227f125653ba650700b5ce8ef1c24756b4fd87b6a3e6e"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-331-b",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-331-b-workload-reward-evaluation.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr331_training\\result.json",
+              "outputs\\reports\\yr331_training\\report.md"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-331-b-workload-reward-evaluation.md"
+            ],
+            "evidence_commits": [
+              "017456088719ab4ddba96c078e6afb475d7ac765"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "017456088719ab4ddba96c078e6afb475d7ac765",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.005,
+            "reported_values": {
+              "mean_cost_reduction_percent": 1.05,
+              "paired_runs": 3.0,
+              "training_updates": 432.0
+            },
+            "raw_values": {
+              "mean_cost_reduction_percent": 1.0547434771032882,
+              "paired_runs": 3.0,
+              "training_updates": 432.0
+            },
+            "absolute_differences": {
+              "mean_cost_reduction_percent": 0.004743477103288152,
+              "paired_runs": 0.0,
+              "training_updates": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 미수집: achievable_vessel_deadline",
+        "내부타당성 미수집: deterministic_replay",
+        "지속운영 검사 미수집: flow_balance_consistent_with_classification",
+        "지속운영 검사 미수집: load_state_classified",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": true,
+        "internal_checks": {
+          "event_time_order": true,
+          "information_boundary": true,
+          "physical_constraints": true,
+          "ledger_conservation": true
+        },
+        "flow_checks": {
+          "continuous_arrivals": true,
+          "warmup_excluded": true,
+          "fixed_measurement_window": true
+        },
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
