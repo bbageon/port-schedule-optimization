@@ -1,0 +1,43 @@
+{
+  "schema": "yr331.pilot.v1",
+  "registered_date": "2026-09-27",
+  "authorization": "User explicitly requested training and checking the revised reward.",
+  "scope": "v6 CPU fixed-cargo H21 simulation pilot, not GPU or operational confirmation",
+  "single_axis": "Frozen potential difference added to unchanged terminal cost PPO reward",
+  "calibration": {
+    "seed": 9911000,
+    "loads": [3500, 5000, 7500],
+    "policy": "KEEP + service-first shortest-processing-time",
+    "service_weights": "Mean realized service duration by flow, calibration only",
+    "capacity_fraction": "By crane role: productive occupied seconds / (productive occupied seconds + idle seconds with ready useful queue); clipped to [0.1, 1]",
+    "safe_fraction": "M/G/1 illustrative inversion with measured mean and CV, assumed mean queue budget 300 seconds; provisional until independent queue validation",
+    "windows_s": [300, 900, 1800],
+    "validation_seed": 9921000,
+    "validation_loads": [3500, 5000, 7500],
+    "limitation": "No universal optimal utilization, no artificial load reductions, no dropping incomplete work"
+  },
+  "pilot": {
+    "training_seeds": [9931000, 9941000, 9951000],
+    "training_loads": [3500, 5000, 7500, 12500, 3500],
+    "learning_days_zero_based": [1, 2, 3],
+    "evaluation_seeds": [9961000, 9971000, 9981000],
+    "evaluation_loads": [3500, 7500, 3500],
+    "measurement_day_zero_based": 1,
+    "arms": ["cost", "workload"],
+    "eta": 1.0,
+    "eta_reason": "First fixed diagnostic magnitude in normalized reward units; not selected on evaluation performance",
+    "horizon_s": 900,
+    "policy_initialization": "same training seed and initial weights in each pair",
+    "action_sampling": "stochastic for both training and frozen evaluation",
+    "rule_reference": "KEEP + SF_SPT on each evaluation seed",
+    "ppo": "PPOConfig defaults, gamma=0.999, cost scale=1000000, 60 intervals per update",
+    "pairing": "each training seed maps to one distinct evaluation seed in list order",
+    "selection": "last checkpoint only; no best-checkpoint selection or post-result retuning",
+    "success": "all three paired held-out terminal costs decrease; original-request cost sensitivity does not worsen; no increased unfinished trucks or vessel work; invariant/admission guards pass",
+    "statistical_scope": "Three pairs are a diagnostic pilot and cannot establish a narrow confidence interval or deployment readiness",
+    "early_stop": "Only engineering smoke failure, nonfinite optimizer, lost workload, violated physical invariants, or unavailable system resources. Performance does not trigger sample removal."
+  },
+  "deferral_audit": "Original public requested gate time, NOT notice time. Report actual gate turnaround and original-request-to-exit separately, including requests deferred past measurement end. Sensitivity cost is a proxy, not a verified driver idle-money tariff.",
+  "workload_adapter": "All 42 full-span H21 cranes; queued jobs split once by fixed capacities, running job belongs to its executing crane. Previously committed one-shot assignments count as fixed. No future realized events enter potential.",
+  "legacy_gate": "YR-153 August gate refers to pre-v6 evidence; its failed revalidation is retained, not relabelled PASS. This explicitly requested pilot gets fresh input/physical/provenance checks and cannot adopt a policy while confirmation gates remain unmet."
+}
