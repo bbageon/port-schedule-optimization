@@ -1,0 +1,21 @@
+{
+ "same": {
+  "device": "gpu",
+  "device_kind": "NVIDIA GeForce RTX 5090",
+  "epochs_total": 1441,
+  "n_max": 242,
+  "steps_per_epoch": 2192,
+  "blocks": 21,
+  "policy": "sf_spt",
+  "one_world_state_mb": 3.46,
+  "rows": [
+   {
+    "worlds": 192,
+    "mode": "same",
+    "error": "JaxRuntimeError: RESOURCE_EXHAUSTED: Out of memory while trying to allocate 3.75GiB with allocator GPU_0_bfc on device 0. [tf-allocator-allocation-error=''] [executable_name='jit_f']",
+    "state_mb": 663.7
+   }
+  ],
+  "jax": "0.11.2"
+ }
+}

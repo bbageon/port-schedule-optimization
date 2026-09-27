@@ -1,0 +1,45 @@
+{
+ "same": {
+  "device": "cpu",
+  "device_kind": "",
+  "epochs_total": 1441,
+  "blocks": 21,
+  "policy": "sf_spt",
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 564.009,
+    "ms_per_epoch_all_worlds": 391.4,
+    "per_world_day_s": 564.009,
+    "compile_plus_first_s": 573.6,
+    "state_mb": 3.5,
+    "block_steps": 49822,
+    "violation": 0,
+    "exhausted": 0,
+    "reps": 1
+   },
+   {
+    "worlds": 4,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 1643.552,
+    "ms_per_epoch_all_worlds": 1140.6,
+    "per_world_day_s": 410.888,
+    "compile_plus_first_s": 1658.5,
+    "state_mb": 13.8,
+    "block_steps": 199288,
+    "violation": 0,
+    "exhausted": 0,
+    "reps": 1
+   }
+  ],
+  "jax": "0.11.2",
+  "note": "JAX_PLATFORMS=cpu · reps=1. B=16 은 재지 않았다 — B=4 에서 이미 1,141 ms/에폭이라 1,441 에폭 × 16세계가 한 시간 반을 넘고, 추세(세계당 564 → 411초 = 1.37배)가 'CPU 는 세계를 쌓아도 거의 안 빨라진다' 를 이미 보인다.",
+  "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — CPU 수치는 그만큼 보수적이다.",
+  "one_world_state_mb": 3.46
+ }
+}

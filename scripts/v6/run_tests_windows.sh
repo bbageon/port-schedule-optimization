@@ -20,7 +20,7 @@
 #     scripts/v6/run_tests_windows.sh --ladder        # 사다리까지 (느리다 — 1,441 에폭 × 2)
 #     scripts/v6/run_tests_windows.sh tests/v6/test_gpu_y01.py   # 파일 지정
 #
-# ⏱ 소요: 조각 1~6 (20파일) 약 24분 + **조각 7 (4파일) 약 32분** = 약 55분. 조각 7 이 오래 걸리는 이유는
+# ⏱ 소요: 조각 1~6 (20파일) 약 24분 + **조각 7 (4파일) 약 32분** + 조각 8 (5파일 · 약 25분) = 약 80분. 조각 7 이 오래 걸리는 이유는
 #   v5 torch 망을 결정마다 실제로 굴려 대조하기 때문이다 (무대 8종 × 망 2벌 × 결정 최대 240).
 #
 # ⚠️ Windows 는 PYTHONPATH 구분자가 `;` 다 (`:` 이 아니다). 경로에 한글이 있어 PYTHONIOENCODING 을 준다.
@@ -44,7 +44,15 @@ if [ ${#FILES[@]} -eq 0 ]; then
          #: ★조각 7 — 학습 정책망 (2026-09-26 추가). 이 네 줄이 없던 동안 표준 회귀는 조각 7 을
          #:   **0건** 돌렸다 (검증 반박 3/4). 네 파일 합계는 느리다(≈32분) — 사다리는 따로 `--ladder`.
          tests/v6/test_gpu_v5net.py tests/v6/test_gpu_v5feat.py tests/v6/test_gpu_v5cond.py
-         tests/v6/test_gpu_v5policy_equiv.py)
+         tests/v6/test_gpu_v5policy_equiv.py
+         #: ★조각 8 — 학습 루프 · 30일 무대 (2026-09-27 통합 단계가 추가). 조각 7 이 겪은 것과 같은
+         #:   사고(회귀 0건)를 막으려고 모듈 담당들이 통합자에게 요청한 항목이다.
+         #:   test_gpu_train_equiv 의 C층(v5 가 멈추는 곳까지 · 814 경계)은 기본 skip 이다 — TRAIN_EQUIV_FULL=1 로 켠다.
+         #:   나머지 층((0)(1)(A)(S)(B)(D)(E)(F))은 기본으로 돈다. (F) 층이 2,881 경계를 완주해 가장 느리다(약 8분).
+         #:   층을 골라 끄려면 TRAIN_EQUIV_SKIP="A,S,B,D,E,F" 처럼 준다.
+         tests/v6/test_gpu_ppo_buffer.py tests/v6/test_gpu_ppo_update.py
+         tests/v6/test_gpu_ppo_runtime.py tests/v6/test_gpu_month.py
+         tests/v6/test_gpu_train_equiv.py)
 fi
 
 echo "■ v6 시험 (Windows · CPU x64) $(date +%T)"

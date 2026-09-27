@@ -115,6 +115,12 @@ class Engine:
     steps_final: int = 4096
     k0: int = 0
     max_transfers: int = 1
+    #: ★`params` 의 vmap in_axes (조각 8) — `None` 이면 전부 0 (잎마다 앞축이 B) = 이전과 같다.
+    #:  학습 정책망은 **가중치를 전 블록이 공유**하고 블록마다 다른 것은 `reserve_s` 하나뿐이라
+    #:  `V5NetParams(net=None, end_s=None, reserve_s=0)` 같은 pytree 접두를 준다 — 그러면 vmap 이
+    #:  가중치를 B 벌 복제하지 않는다 (복제하면 배치 GEMM 이 되어 느리고 메모리도 B 배다).
+    #:  값은 int·None 뿐이라 해시가 되고, Engine 은 그대로 jit static 으로 쓸 수 있다.
+    params_axes: object = None
 
 
 class TerminalRun(NamedTuple):
@@ -221,32 +227,43 @@ def _vstep(eng: Engine, params):
         return jax.vmap(lambda w: f(w, None))
     g = lambda w, p: ES.step(w, None, params=p, g=eng.g, policy_fn=eng.policy_fn, check=eng.check,
                              pre_advice=eng.pre_advice, horizon_s=eng.horizon_s, joint=eng.joint, review=True)
-    return jax.vmap(g, in_axes=(0, 0))
+    ax = 0 if eng.params_axes is None else eng.params_axes
+    return jax.vmap(g, in_axes=(0, ax))
 
 
-def run_to_epoch(W: BlockWorld, params, eng: Engine, *, max_steps: int):
+def run_to_epoch(W: BlockWorld, params, eng: Engine, *, max_steps: int, tape=None, tape_fn=None):
     """전 블록을 **다음 검토 시각까지** (또는 terminal 까지) 굴린다 — v5 179-206행에서 review_fn 이 열리기 직전 상태.
 
     반환 (W', parked (B,) bool, n_iter () int32, stuck (B,) bool [상한에 걸려 park 도 terminal 도 못 한 블록]).
     step 은 park 한 블록·terminal 블록에는 적용하지 않는다 (마스크) — 그 블록의 상태는 그대로다.
+
+    ★학습 기록 (조각 8) — `tape` 와 `tape_fn` 을 주면 while_loop 캐리에 테이프를 함께 실어
+      스텝마다 `tape = tape_fn(tape, tr, active)` 로 결정을 쌓고, 반환이 **다섯 값**이 된다
+      (W', parked, n_iter, stuck, tape'). 둘 다 없으면(기본) 반환 네 값·계산 그대로다 —
+      기존 호출부(조각 1~7)는 한 글자도 안 바뀐다.
     """
     B = int(W.clock.shape[0])
     vstep = _vstep(eng, params)
+    want_tape = tape_fn is not None
 
     def cond(c):
-        i, W_, parked = c
+        i, W_, parked = c[0], c[1], c[2]
         return (i < int(max_steps)) & jnp.any(~parked & ~W_.terminal)
 
     def body(c):
-        i, W_, parked = c
+        i, W_, parked, tp = c
         active = ~parked & ~W_.terminal
         W2, tr = vstep(W_) if params is None else vstep(W_, params)
         W3 = _where_b(active, W2, W_)
         parked2 = parked | (active & tr.reviewed)
-        return i + 1, W3, parked2
+        tp2 = tape_fn(tp, tr, active) if want_tape else tp
+        return i + 1, W3, parked2, tp2
 
-    i, W_out, parked = lax.while_loop(cond, body, (jnp.int32(0), W, jnp.zeros((B,), bool)))
+    i, W_out, parked, tape_out = lax.while_loop(
+        cond, body, (jnp.int32(0), W, jnp.zeros((B,), bool), tape))
     stuck = ~parked & ~W_out.terminal
+    if want_tape:
+        return W_out, parked, i, stuck, tape_out
     return W_out, parked, i, stuck
 
 
@@ -304,12 +321,22 @@ def review_epoch(run: TerminalRun, e, eng: Engine):
     return run._replace(tw=tw2, locked=locked, n_admitted=run.n_admitted + jnp.sum(hit).astype(jnp.int32)), codes
 
 
-def epoch_step(run: TerminalRun, e, eng: Engine):
-    """에폭 하나 = 전 블록을 t_e 까지 → review. 반환 (run', codes (B,M))."""
-    W, parked, _, stuck = run_to_epoch(run.tw.blocks, run.params, eng, max_steps=eng.steps_per_epoch)
+def epoch_step(run: TerminalRun, e, eng: Engine, *, tape=None, tape_fn=None):
+    """에폭 하나 = 전 블록을 t_e 까지 → review. 반환 (run', codes (B,M)).
+
+    ★학습 기록 (조각 8) — `tape`·`tape_fn` 을 주면 반환이 **세 값** (run', codes, tape') 이 된다."""
+    if tape_fn is not None:
+        W, parked, _, stuck, tape = run_to_epoch(run.tw.blocks, run.params, eng,
+                                                 max_steps=eng.steps_per_epoch,
+                                                 tape=tape, tape_fn=tape_fn)
+    else:
+        W, parked, _, stuck = run_to_epoch(run.tw.blocks, run.params, eng, max_steps=eng.steps_per_epoch)
     W = W._replace(violation=W.violation | jnp.where(stuck, V_STEPS_EXHAUSTED, 0).astype(jnp.int32))
     run = run._replace(tw=run.tw._replace(blocks=W), exhausted=run.exhausted + stuck.astype(jnp.int32))
-    return review_epoch(run, e, eng)
+    run2, codes = review_epoch(run, e, eng)
+    if tape_fn is not None:
+        return run2, codes, tape
+    return run2, codes
 
 
 def run_epochs(run: TerminalRun, e0, n: int, eng: Engine):

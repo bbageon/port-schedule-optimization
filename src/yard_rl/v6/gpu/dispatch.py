@@ -432,6 +432,13 @@ class V5NetParams(NamedTuple):
     net: object            # gpu/v5net.V5PolicyParams (가중치 8장 · (in,out) 방향)
     end_s: jnp.ndarray     # ()   f64
     reserve_s: jnp.ndarray # (N,) f64
+    #: ★추첨(sample) 수집용 난수 씨 — 블록마다 한 벌 `(2,) uint32`. `None` = 최고점(argmax) 선택.
+    #:  v5 는 `torch.Generator` 를 하나 들고 결정마다 소비하지만(`runtime.py:134`), 배열판은 그 흐름을
+    #:  재현할 수 없고(규칙 ⑥) jit·vmap 안에서 상태를 이어 나를 수도 없다. 그래서 **계수기 방식**을 쓴다:
+    #:  결정 하나의 키 = `fold_in(fold_in(블록 키, world.steps), 크레인 번호)`. 순수 함수라 같은 자리를
+    #:  두 번 계산해도 같은 표본이고(`sequential_conditional` 이 안 물은 크레인까지 돌아도 무해),
+    #:  `sample_seed` 만 같으면 런 전체가 재현된다.
+    sample_key: object = None
 
 
 def v5net_params(state_dict, world: BlockWorld, *, end_s, reserve_s=None) -> V5NetParams:
@@ -448,7 +455,7 @@ def v5net_params(state_dict, world: BlockWorld, *, end_s, reserve_s=None) -> V5N
 
 @lru_cache(maxsize=None)
 def make_v5net_pick(g: Geom, *, k_max: int = K_MAX, crane_order: tuple[int, ...] | None = None,
-                    v5_cast: bool = True):
+                    v5_cast: bool = True, sample: bool = False):
     """`v5cond.sequential_conditional` 의 `pick_fn` 자리에 들어가는 **망 한 번** — 진단·시험이 직접 쓴다.
 
     돌려주는 함수는 `pick(params, world, fl, pr, block) -> pick_fn` 이다 (닫힘을 두 단으로 나눠
@@ -495,7 +502,15 @@ def make_v5net_pick(g: Geom, *, k_max: int = K_MAX, crane_order: tuple[int, ...]
             if v5_cast:
                 #: ★v5 는 특징을 float32 로 깎아 넣는다 (model.py:14) — 그 값을 float64 로 올려 계산한다
                 x = jnp.asarray(VF.as_net_input(x), F)
-            act = VN.greedy_action(VN.actor_scores(params.net, x), mask)   # runtime.py:135 probs.argmax
+            scores = VN.actor_scores(params.net, x)
+            if sample:
+                #: ★추첨 갈래 (v5 `sample_actions=True` 에 대응 · **표본은 v5 와 다르다**).
+                #:  키는 `(블록 키, world.steps, 크레인 번호)` 로 결정된다 — `V5NetParams.sample_key` 머리말.
+                key = jax.random.fold_in(jax.random.fold_in(params.sample_key, world.steps),
+                                         jnp.asarray(k, jnp.int32))
+                act = VN.sample_action(key, scores, mask)
+            else:
+                act = VN.greedy_action(scores, mask)          # runtime.py:135 probs.argmax
             return act, viol
 
         return pick_fn

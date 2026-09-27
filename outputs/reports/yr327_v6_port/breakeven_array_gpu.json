@@ -1,0 +1,119 @@
+{
+ "same": {
+  "device": "gpu",
+  "device_kind": "NVIDIA GeForce RTX 5090 (32.6GB)",
+  "epochs_total": 1441,
+  "blocks": 21,
+  "policy": "sf_spt",
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 83.057,
+    "ms_per_epoch_all_worlds": 57.6,
+    "per_world_day_s": 83.057,
+    "compile_plus_first_s": 100.1,
+    "state_mb": 3.5,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 2,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 86.34,
+    "ms_per_epoch_all_worlds": 59.9,
+    "per_world_day_s": 43.17,
+    "compile_plus_first_s": 104.4,
+    "state_mb": 6.9,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 4,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 99.801,
+    "ms_per_epoch_all_worlds": 69.3,
+    "per_world_day_s": 24.95,
+    "compile_plus_first_s": 118.3,
+    "state_mb": 13.8,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 8,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 111.905,
+    "ms_per_epoch_all_worlds": 77.7,
+    "per_world_day_s": 13.988,
+    "compile_plus_first_s": 132.3,
+    "state_mb": 27.7,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 16,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 154.848,
+    "ms_per_epoch_all_worlds": 107.5,
+    "per_world_day_s": 9.678,
+    "compile_plus_first_s": 177.4,
+    "state_mb": 55.3,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 32,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 195.98,
+    "ms_per_epoch_all_worlds": 136.0,
+    "per_world_day_s": 6.124,
+    "compile_plus_first_s": 212.6,
+    "state_mb": 110.6,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 64,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 309.257,
+    "ms_per_epoch_all_worlds": 214.6,
+    "per_world_day_s": 4.832,
+    "compile_plus_first_s": 329.3,
+    "state_mb": 221.2,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   },
+   {
+    "worlds": 128,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 555.244,
+    "ms_per_epoch_all_worlds": 385.3,
+    "per_world_day_s": 4.338,
+    "compile_plus_first_s": 582.8,
+    "state_mb": 442.5,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+   }
+  ],
+  "jax": "0.11.2+cuda12",
+  "note": "scripts/v6/bench_breakeven.py --which array --worlds 1,2,4,8,16,32,64,128 --epochs 0 --reps 2 --mode both --tag gpu 의 same 모드 결과. distinct 모드는 같은 답을 더 직접 재는 --which waste 로 대신했다 (로그 outputs/v6/verify/breakeven_array_gpu.log).",
+  "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — GPU 사용률은 96~98% 로 GPU 병목이었으나 호스트 디스패치에 약간의 경쟁이 있었을 수 있다.",
+  "one_world_state_mb": 3.46
+ }
+}

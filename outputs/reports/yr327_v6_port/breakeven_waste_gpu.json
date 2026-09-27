@@ -1,0 +1,94 @@
+{
+ "same": {
+  "device": "gpu",
+  "blocks": 21,
+  "epochs_total": 1441,
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "same",
+    "epochs": 1441,
+    "while_trips": 8108,
+    "computed_block_steps": 170268,
+    "used_block_steps": 49822,
+    "efficiency": 0.29260929828270726,
+    "ragged_factor": 3.4175263939625067,
+    "host_loop_s": 132.1
+   },
+   {
+    "worlds": 4,
+    "mode": "same",
+    "epochs": 1441,
+    "while_trips": 8108,
+    "computed_block_steps": 681072,
+    "used_block_steps": 199288,
+    "efficiency": 0.29260929828270726,
+    "ragged_factor": 3.4175263939625067,
+    "host_loop_s": 137.1
+   },
+   {
+    "worlds": 16,
+    "mode": "same",
+    "epochs": 1441,
+    "while_trips": 8108,
+    "computed_block_steps": 2724288,
+    "used_block_steps": 797152,
+    "efficiency": 0.29260929828270726,
+    "ragged_factor": 3.4175263939625067,
+    "host_loop_s": 184.4
+   },
+   {
+    "order_rows_used": 3600,
+    "order_rows_total": 5082,
+    "order_padding": 0.29161747343565525,
+    "note": "오더 칸 패딩은 정적이다 — 세계를 쌓아도 그대로다"
+   }
+  ]
+ },
+ "distinct": {
+  "device": "gpu",
+  "blocks": 21,
+  "epochs_total": 1441,
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "distinct",
+    "epochs": 1441,
+    "while_trips": 8108,
+    "computed_block_steps": 170268,
+    "used_block_steps": 49822,
+    "efficiency": 0.29260929828270726,
+    "ragged_factor": 3.4175263939625067,
+    "host_loop_s": 116.1
+   },
+   {
+    "worlds": 4,
+    "mode": "distinct",
+    "epochs": 1441,
+    "while_trips": 8941,
+    "computed_block_steps": 751044,
+    "used_block_steps": 199536,
+    "efficiency": 0.2656781759790372,
+    "ragged_factor": 3.7639523694972334,
+    "host_loop_s": 140.1
+   },
+   {
+    "worlds": 16,
+    "mode": "distinct",
+    "epochs": 1441,
+    "while_trips": 9791,
+    "computed_block_steps": 3289776,
+    "used_block_steps": 797509,
+    "efficiency": 0.24242045659035752,
+    "ragged_factor": 4.125064419335707,
+    "host_loop_s": 220.6
+   },
+   {
+    "order_rows_used": 3600,
+    "order_rows_total": 5082,
+    "order_padding": 0.29161747343565525,
+    "note": "오더 칸 패딩은 정적이다 — 세계를 쌓아도 그대로다"
+   }
+  ]
+ }
+}

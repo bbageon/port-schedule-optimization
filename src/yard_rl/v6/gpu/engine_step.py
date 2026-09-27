@@ -672,6 +672,10 @@ class DecideOut(NamedTuple):
     pick: jnp.ndarray      # (K,) int32 답 — 오더 번호 (SERVE·PRE_REHANDLE); -1 = WAIT/REPOSITION/안 물음
     kind: jnp.ndarray      # (K,) int32 답의 종류 PK_* (안 물은 크레인 -1) — 조각 3
     bay: jnp.ndarray       # (K,) f64   REPOSITION 목표 bay (그 밖 NaN) — 조각 3
+    #: ★학습 기록 채널 (조각 8) — `policy_fn` 이 **네 값**을 돌려주면(choice, lost, flags, rec) 그 `rec` 가 그대로 여기
+    #:  실린다. 기본은 `None` = **빈 pytree** 라 잎이 하나도 없다 → 기록을 안 쓰는 경로(조각 1~7 · 시험 692건)는
+    #:  계산도 메모리도 늘지 않는다. 내용은 정책이 정한다 (`gpu/train.DecisionRec`).
+    rec: object = None
 
 
 def plan_row(world: BlockWorld, k, g: Geom) -> PlanOut:
@@ -992,11 +996,14 @@ def decide_joint(world: BlockWorld, params, g: Geom, policy_fn: Callable, *, che
                    lambda: c3)
     fl = flat_view(c3x)
     pr = prune(fl, g)
-    choice, lost, flags = policy_fn(params, w_in, c3x, fl, pr, open_)
+    #: ★정책은 세 값(choice, lost, flags) 또는 **네 값**(+ 학습 기록 `rec`)을 돌려준다 — 조각 8 기록 채널.
+    out = policy_fn(params, w_in, c3x, fl, pr, open_)
+    choice, lost, flags = out[0], out[1], out[2]
+    rec = out[3] if len(out) > 3 else None
     w2, pick, kind, bay = apply_choices(w_in, fl, pr, choice, open_, lost, g)
     w2 = w2._replace(violation=w2.violation | jnp.asarray(flags, jnp.int32))
     w2 = close_decision(w2, open_, pick, g, consume_armed=is_D, check=check, kind=kind, bay=bay)
-    return DecideOut(tree_where(decided, w2, w_in), decided, open_, pick, kind, bay)
+    return DecideOut(tree_where(decided, w2, w_in), decided, open_, pick, kind, bay, rec)
 
 
 # ───────────────────────────────────────────────── 스텝 · 실행 (§9)
@@ -1024,6 +1031,9 @@ class StepTrace(NamedTuple):
     plan_mv_src: jnp.ndarray     # (K,M,3) int32
     plan_mv_dst: jnp.ndarray     # (K,M,3) int32
     plan_mv_kind: jnp.ndarray    # (K,M) int32
+    #: ★학습 기록 (조각 8) — 정책이 4번째 값으로 낸 것. 기본 `None` = 빈 pytree(잎 0개)라 기록을 안 쓰는
+    #:  경로에서는 `lax.scan` 이 쌓을 것도 없고 메모리도 늘지 않는다. 내용은 `gpu/train.DecisionRec`.
+    rec: object = None
 
 
 def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: bool = True,
@@ -1055,15 +1065,24 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
     try_decide = (~world.terminal & ~due_now & ~woke & (world.clock < world.end_s - EPS)
                   & (any_eligible | ~any_busy))
 
+    #: ★학습 기록 채널 (조각 8) — 정책에 `rec_zeros(world)` 가 달려 있으면 '결정 안 함' 갈래도 같은 모양의
+    #:  빈 기록을 내야 `lax.cond` 두 갈래의 pytree 구조가 맞는다. 없으면 `None` = 빈 pytree (잎 0개).
+    _rec_zeros = getattr(policy_fn, "rec_zeros", None)
+    if _rec_zeros is not None and not joint:
+        #: 기록 채널은 **공동 결정 규약**(`decide_joint`)만 지원한다 — 순차 규약(`decide`)의 정책 서명이
+        #: 다르고(크레인 하나씩) 거기서는 `rec` 를 낼 자리가 없다. 조용히 빈 기록을 내지 않고 크게 실패한다.
+        raise ValueError("기록 정책(rec_zeros)은 joint=True 에서만 쓸 수 있다")
+
     def _decide(w):
         d = decide(w, params, g, policy_fn, check=check, pre_advice=pre_advice, horizon_s=horizon_s, joint=joint)
-        return d.world, d.decided, d.open, d.pick, d.kind, d.bay
+        return d.world, d.decided, d.open, d.pick, d.kind, d.bay, d.rec
 
     def _skip(w):
         return (w, jnp.zeros((), bool), jnp.zeros((K,), bool), jnp.full((K,), EMPTY_ID, jnp.int32),
-                jnp.full((K,), EMPTY_ID, jnp.int32), jnp.full((K,), jnp.nan, F))
+                jnp.full((K,), EMPTY_ID, jnp.int32), jnp.full((K,), jnp.nan, F),
+                None if _rec_zeros is None else _rec_zeros(w))
 
-    w_d, decided, open_, pick, pkind, pbay = lax.cond(try_decide, _decide, _skip, w_w)
+    w_d, decided, open_, pick, pkind, pbay, rec = lax.cond(try_decide, _decide, _skip, w_w)
     escaped = decided & (w_d.escape_count > world.escape_count)
     handlers = _handlers(g)
     # 306-308행 다음 wake 시각 (평가창 안) — A 국면의 전진 목표
@@ -1138,7 +1157,7 @@ def step(world: BlockWorld, _, *, params, g: Geom, policy_fn: Callable, check: b
                       pick_kind=pkind, pick_bay=pbay, woke=woke, advanced=advanced, reviewed=reviewed,
                       plan_job=pl.job, plan_kind=pl.kind, plan_n_moves=pl.n_moves, plan_dur=pl.dur,
                       plan_rehandles=pl.rehandles, plan_mv_cont=pl.mv_cont, plan_mv_src=pl.mv_src,
-                      plan_mv_dst=pl.mv_dst, plan_mv_kind=pl.mv_kind)
+                      plan_mv_dst=pl.mv_dst, plan_mv_kind=pl.mv_kind, rec=rec)
     return w_out, trace
 
 

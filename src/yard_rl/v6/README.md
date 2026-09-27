@@ -58,6 +58,11 @@ v4 의 반사실 교사는 **신호 대 잡음을 2만 배** 올려 주지만 �
 | `v5net.py` | **학습 정책망** — tanh·37칸·행동점수+상태가치, torch `state_dict` 전치 적재 | `ppo/model.BlockPolicy` |
 | `v5feat.py` | 37칸 특징 (블록 요약 8 + 후보 16 + 패딩 8 + 역할 5) — 인코딩 **정본** | `features/block.py`·`ppo/crane.candidate_row` |
 | `v5cond.py` | 순차 조건부 `joint_mask` · 선호 정렬키 **정본** · "한 크레인 실패 = 전원 WAIT" | `ppo/crane.py`·`baselines.py:28-60` |
+| `ppo_buffer.py` | 학습 버퍼 고정 칸 `(R,B,Cmax,Amax,37)` + 역방향 GAE(`lax.scan`) | `ppo/buffer.py` |
+| `ppo_update.py` | PPO 갱신 — 미니배치 scan·KL 조기중단·torch 식 클리핑+Adam | `ppo/update.py` |
+| `ppo_runtime.py` | 학습 회계 — 60초 경계·구간 보상·결정 기록·보고 (예외는 위반 비트) | `ppo/runtime.py` |
+| `month.py` | **30일 무대** — 본선 붙이기·날 경계·계수기 사진첩·날별 Φ (기본 갈래만) | `stage/month_run.py`·`month_engine.py` |
+| `train.py` | **학습 드라이버** — 넷을 엮는다 (기록 정책·테이프 합치기·경계·갱신) | `ppo/continuous.py`·`ppo/run.py` |
 
 ## ★블록 하나가 v5 와 **완전히 같은 답** — 조각 1·2·3·4·5 (2026-09-25/26)
 
@@ -110,7 +115,9 @@ GPU 스텝 시간의 **약 90%** 가 대기 꼬리·터미널 점유 적분의 *
                (사다리 ①②③ 통과 · 아래 "조각 6 은 어디까지 같은가" 참조 — CargoTerminal(30일) 은 범위 밖)
     🟡 조각 7  학습 정책망 — tanh·37칸 망 + 순차 조건부. **같은 가중치 → 같은 결정** (아래 절 참조)
                (블록 하나 무대에서 확인 · 터미널 21블록 배열 대조는 조각 8)
-    ⬜ 조각 8  학습 루프 — 60초 구간 보상·PPO · **30일 무대(run_month)** 포함 · 학습 모드 닫힌 식
+    🟡 조각 8  학습 루프 — 60초 구간 보상·PPO·30일 무대 · **학습 켠 닫힌 고리까지 v5 와 같은 답**
+               (시장 결정을 떼어낸 무대에서 · 아래 절) · 추첨(sample) 수집은 배열판 고유 난수로 이식
+               (남은 것: **시장 다리**·**고정 화물 갈래**(연구선의 유일한 경로)·증거 배선·학습 모드 닫힌 식)
 
 **⚠️ 지금 v6 는 v5 를 대체하지 않는다.** 블록 *하나*가 같을 뿐, 터미널 전체(21블록·게이트·이송 확정·
 30일 무대)는 아직 v5 파이썬이다. 전부 옮기기 전까지 v5 가 정본이고 v6 로 판정하지 않는다.
@@ -121,12 +128,9 @@ GPU 스텝 시간의 **약 90%** 가 대기 꼬리·터미널 점유 적분의 *
 `JobRecord.locked` 전건 · 오더별 (status·크레인·재처리·S·C·A·B·O) · 시간장부 적분 3항 · 턴 표본과 합 ·
 이송/이연 원장 8항 · 이연 원장(기사 외부대기). 정답은 `outputs/reports/yr327_v6_port/ground_truth/`.
 
-**★속도 — 단일 터미널은 v5 파이썬이 더 빠르다.** 같은 무대(터미널 300 · 21블록 · 사건 20,720)를
-v5 정본 루프는 **16~17초**에 완주하고, 배열판은 1,441 검토 에폭 × 92 ms(GPU 실측 2026-09-26 · 세션에 따라 70~171) = **133초**,
-× 400~412 ms(CPU) = **576~673초** 다 — GPU 8배 · CPU 34~39배 느리다. 이유는 lane 이 21개뿐이라
-GPU 가 노는 것이고(같은 엔진 B=1024 실측 11.2 µs/step/world vs 지금 2.33 ms/블록·스텝), 조각 6 의
-목적인 **동등성 확인에는 무관하지만 성능 근거로 인용하면 안 된다**. 이득은 **세계를 쌓을 때** 난다 —
-조각 8 의 첫 실측 항목은 "세계 몇 개부터 v5×코어수 다중프로세스를 이기나"(손익분기)다.
+**★속도 — 세계가 하나면 v5 파이썬이 더 빠르다.** 같은 무대(터미널 300 · 21블록 · 사건 20,720)에서
+v5 정본 루프 16~17초 대 배열판 133초(GPU)·576~673초(CPU). lane 이 21개뿐이라 GPU 가 노는 것이고,
+이득은 **세계를 쌓을 때** 난다 — 실측은 조각 8 의 손익분기 표(`README-piece8.md`)를 보라.
 
 곁들여 아는 낭비: 래기드 while 1.85배(에폭당 계산 63,042 블록·스텝 vs 필요 34,187 = 유효율 54.2%) ·
 오더 칸 패딩 27%(블록별 본선 척수가 1 또는 2라 n_used 134 / 255) · vmap 아래 cond→select 로 결정이
@@ -151,50 +155,42 @@ GPU 가 노는 것이고(같은 엔진 B=1024 실측 11.2 µs/step/world vs 지�
   `vessel_prep=True` 면 특징 칸 12·13 이 갈리므로 `v5feat.cand_rows(vessel_prep=True)` 는 **크게 실패한다**.
 - 후보 설정은 `LEGACY_DEFAULT` 한 경로만 (safety_only·bound_repo 등 `policy_config` 플래그 미이식).
 - 탈출 `delayed` 모드 · `yard_handover_cap`(opt-in) · `vessel_cost.py`(정책 측 surrogate) 미이식.
-- 조각 6 은 `MultiBlockTerminal` 전용 — 30일 경로의 `stage/cargo_runtime.CargoTerminal`(전역 큐 4단 키·
-  affected 마스크·원격 본선 인계·끝의 재고 등식)과 `cargo_moves.move_dependent` 는 미이식.
-- 통지 스케줄러는 트럭별 리드까지 지원하지만(`lead_s` 를 (S,) 열로), `V3Announcer` 의 `retarget`/
-  `resolve_entry` 훅과 SKIP 사유 NO_TARGET·CONTAINER_ID_CHANGED 는 미이식 — 훅을 주면 fail-loud 로 거절한다.
-- `gpu/cands3.py` 의 이름 순위가 행 번호라, **이송으로 여분 행에 앉은 트럭**은 v5 `sorted(job_id)` 와
-  어긋날 수 있다(동점이 생겨야 갈린다; 사다리 ②는 이송 1건, ③은 0건이라 아직 안 밟혔다).
+- `stage/cargo_runtime.CargoTerminal`(전역 큐 4단 키·원격 본선 인계·끝의 재고 등식)·`cargo_moves` 미이식.
+- `V3Announcer.resolve_entry` 훅·SKIP 사유 CONTAINER_ID_CHANGED 미이식 (NO_TARGET 은 조각 8 이 재현).
+- `gpu/cands3.py` 의 이름 순위가 행 번호라 **이송으로 여분 행에 앉은 트럭**은 v5 `sorted(job_id)` 와
+  어긋날 수 있다(동점이 생겨야 갈린다 — 사다리 ②·③에서는 아직 안 밟혔다).
 - `gpu/ledger.py`(TruckLedger)는 조정자 경로 밖의 참조 구현이다 — 원장 정본은 `TerminalLedgerArrays`.
-- **(2026-09-26 정정)** "정책망 K² 중복 순전파" 는 사실이 아니다 — 통합 경로는 망에 **한 줄(I,37)** 만 넘긴다.
-  남은 낭비는 ① 순차 조건부의 **결정당 K²·I 계획**(`dry_run`; 정책 비용의 90%) ② `features` 가 K 줄을 만들고
-  한 줄만 씀(13~31%) ③ 안 물은 크레인까지 K 단계(30%). 처방은 조각 8 의 (K,Amax) 실행가능 행렬 하나
-  (`piece8_spec_from_piece7.md`). "(K,M) 점수 미리 계산" 은 **원리상 불가**(칸 19~23 이 앞 선택에 의존).
-- `test_k2_python_loop_matches_jit`(eager ≈80초)는 아래 환경에서 완주 불가 — 나눠서 통과 확인.
-- 시험은 jax 없는 파이썬에서 `importorskip` 으로 **조용히 건너뛴다** — 통과 수를 반드시 확인한다
-  (아나콘다 base 에는 jax 가 없다; `.venv-jax` 를 써야 한다).
+- 정책 비용의 낭비 셋: ① 순차 조건부의 결정당 K²·I 계획(`dry_run`; 90%) ② `features` 가 K 줄을 만들고
+  한 줄만 씀(13~31%) ③ 안 물은 크레인까지 K 단계(30%). "(K,M) 점수 미리 계산" 은 **원리상 불가**.
+- 시험은 jax 없는 파이썬에서 `importorskip` 으로 **조용히 건너뛴다** — 통과 수를 반드시 확인한다.
 
-### ⚠️ 환경 — WSL 이 멈췄고, **Windows 파이썬이 대안이다** (2026-09-26)
+### 조각 8 — 학습 루프 · 30일 무대 · 손익분기 (2026-09-27 · 수정 단계 반영)
 
-이 기계의 WSL(Ubuntu)이 2026-09-25 22:20 부터 **부팅 약 88초 뒤 저절로 종료**되다가, 9-26 11:04 부터는
-**셸 기동 자체가 실패**한다 (`Wsl/Service/E_UNEXPECTED` · 배포판은 `Running` 으로 보이는데 안 뜬다 ·
-`wsl -d docker-desktop` 은 정상 → WSL 서비스가 아니라 Ubuntu 배포판이 깨졌다). 알려진 복구 수단은
-`wsl --shutdown` 뿐이고 **2개월째 가동 중인 Docker 컨테이너 3개**를 멈추므로 사용자 결정 대기.
+**상세는 `README-piece8.md`** (층별 대조 수치 · 남은 구멍 · 손익분기 두 경로). 요약: (0) 기록 채널을
+켜도 궤적 **잎 175개 비트 일치** · (1) 배치 테이프 == 낱개 `select_record` · (A) **갱신 산술** 정수 `==`·
+KL 6.2e-09 · (S) **접합부**(배열이 모은 구간 → 갱신)가 GAE까지 비트 일치 · (B)(C) **갱신 0회**에서
+경계 Φ·**경계별** 계수기 `==`(경계 121·814) · (D) ★**갱신 4회 닫힌 고리**에서 Φ 상대오차 0.0·결정
+52건 낱개 갈림 0 · (E) 추첨 수집의 분포·재현성 · (F) 배열 단독 2,881 경계 완주(날 경계 넘김).
+⚠️ **(D) 는 v5 쪽 시장 결정을 버퍼에서 떼어낸 대조 전용 무대다**(v5 는 시장에도 정책을 물어 학습 표본의
+44.9% 를 거기서 얻는다) → 시장 이식 전에는 "30일 학습 재현" 을 주장하지 않는다. **남은 구멍**: 시장 ·
+**고정 화물 갈래 = 연구선의 유일한 경로** · 증거 배선(체크포인트·장부·완주 게이트·도장) · 성형 보상.
+★**손익분기 답**: **① 굴리기 전용** 표에서 교차점 B* 는 **존재하지 않는다** — 포화 구간의 한계비용이
+2.6~3.8 s/세계·하루인데 v5×24 는 1.294 라 **점근선 자체가 v5 위**다(최고 4.338 = 3.4배 · 다른 시드 보정
+4.1배). **② ★그 표는 학습 경로가 아니다** — 학습 경로는 경계마다 호스트로 돌아와 세계를 쌓을 수 없고,
+같은 무대에서 배열이 v5 단독의 **GPU 21.7배 · CPU 70.6배** 느리다(경계당 GPU 226ms · CPU 1.178s 대
+v5 10.4~16.7ms · 21블록·부하 30 · 두 길이의 차 → 30일이면 GPU 2.7시간·CPU 14.1시간 대 v5 7.5분).
+시장이 없어 연구 팔과는 비교 불가.
+증거·표: `outputs/reports/yr327_v6_port/breakeven.{json,txt}` (`scripts/v6/bench_breakeven.py`).
 
-**★그래서 Windows 파이썬으로 옮겼다** — `jax[cpu]==0.11.2`(WSL venv 와 **같은 버전**)가 그대로 설치되고,
-v5 정본(`world/`·`stage/`)은 애초에 jax 를 안 쓰므로 Windows 에서 돈다. **CPU x64 동등성 시험 전부를
-WSL 없이, 88초 제약 없이** 돌린다:
+### 환경 · 돌려 보기 (2026-09-27 — WSL 복구됨)
 
-    python -m venv --system-site-packages .venv-jax      # 아나콘다 numpy/scipy/pytest 재사용 (1회)
-    .venv-jax/Scripts/python.exe -m pip install "jax[cpu]==0.11.2"
-    scripts/v6/run_tests_windows.sh                      # 사다리 빼고 전부
-    scripts/v6/run_tests_windows.sh --ladder             # 터미널 30·300 (1,441 에폭 × 2)
-
-⚠️ Windows 는 `PYTHONPATH` 구분자가 `;` 다. 경로에 한글이 있어 `PYTHONIOENCODING=utf-8` 이 필요하다.
-⚠️ **GPU 는 Windows 에서 안 된다** (JAX 의 CUDA 는 리눅스만) — GPU 비트 일치·조각 8 손익분기 측정은
-WSL 복구가 필요하다. WSL 이 살아 있을 때는 `scripts/v6/verify_chunked.sh`(85초 조각·REPORT 병합)를 쓴다.
-
-## 돌려 보기
-
-    # 정상 환경 — CPU x64 전체 (WSL venv ~/.venvs/yard-rl)
-    PYTHONPATH=src:tests/v6 JAX_PLATFORMS=cpu pytest tests/v6/test_gpu_*.py -q -s
-    # Y01 정답 재현 (GPU)
-    PYTHONPATH=src:tests/v6 XLA_PYTHON_CLIENT_PREALLOCATE=false pytest tests/v6/test_gpu_y01.py -q
-    # Windows (WSL 불필요 · CPU x64) — 권장
-    scripts/v6/run_tests_windows.sh && scripts/v6/run_tests_windows.sh --ladder
-    # WSL 세션이 짧게 끊기는 환경 — 조각 실행 (Git Bash)
-    scripts/v6/verify_chunked.sh --fresh && scripts/v6/verify_chunked.sh --report
-    # 정답 궤적 새로 뽑기 (정책·정보수준 선택)
+    # GPU (WSL Ubuntu · RTX 5090 · jax 0.11.2+cuda12 · venv ~/.venvs/yard-rl) — CPU 고정은 JAX_PLATFORMS=cpu
+    PYTHONPATH=src:tests/v6 XLA_PYTHON_CLIENT_PREALLOCATE=false ~/.venvs/yard-rl/bin/python -m pytest … -q
+    # Windows (CPU 만 · 권장 · WSL 불필요) — PYTHONPATH 구분자 `;` · 한글 경로라 PYTHONIOENCODING=utf-8
+    scripts/v6/run_tests_windows.sh [--ladder]        # 사다리까지 약 75분 + 사다리
+    scripts/v6/verify_chunked.sh --fresh              # WSL 세션이 짧게 끊기는 환경
+    bash scripts/v6/bench_gpu_chain.sh                # 손익분기·학습경로 (한 번에 하나만 — 점유에 흔들린다)
     PYTHONPATH=src python scripts/v6/dump_ground_truth.py --mode block --policy sf_spt --info-level PRE_ADVICE
+
+⚠️ `wsl --terminate` / `wsl --shutdown` 을 부르지 마라 — 여러 담당이 동시에 돌 때 서로의 세션을 죽인다.
+⚠️ 시험은 jax 없는 파이썬에서 `importorskip` 으로 **조용히 건너뛴다** — 통과 수를 반드시 확인한다.

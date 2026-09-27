@@ -1,0 +1,1047 @@
+{
+ "stage": "터미널30 하루 · 21블록 · seed 9900777 · 정책 sf_spt",
+ "generated": "2026-09-28T00:27:57",
+ "v5": {
+  "single_run_s": [
+   14.448840500001097,
+   14.813494299996819
+  ],
+  "single_mean_s": 14.631167399998958,
+  "parallel": [
+   {
+    "procs": 1,
+    "wall_s": 17.197383500002616,
+    "per_world_day_s": 17.197383500002616,
+    "inner_mean_s": 14.419627399998717,
+    "inner_max_s": 14.419627399998717,
+    "walls_s": [
+     17.31385489999957,
+     17.197383500002616
+    ],
+    "reps": 2,
+    "wall_max_s": 17.31385489999957
+   },
+   {
+    "procs": 4,
+    "wall_s": 18.79708920000121,
+    "per_world_day_s": 4.6992723000003025,
+    "inner_mean_s": 15.42600822500026,
+    "inner_max_s": 15.696128499999759,
+    "walls_s": [
+     18.79708920000121,
+     19.125119199998153
+    ],
+    "reps": 2,
+    "wall_max_s": 19.125119199998153
+   },
+   {
+    "procs": 12,
+    "wall_s": 22.99256040000182,
+    "per_world_day_s": 1.9160467000001518,
+    "inner_mean_s": 18.463962216666914,
+    "inner_max_s": 18.865199699997902,
+    "walls_s": [
+     22.99256040000182,
+     23.05900229999679
+    ],
+    "reps": 2,
+    "wall_max_s": 23.05900229999679
+   },
+   {
+    "procs": 24,
+    "wall_s": 31.055394900002284,
+    "per_world_day_s": 1.293974787500095,
+    "inner_mean_s": 23.101037654166856,
+    "inner_max_s": 24.91833349999797,
+    "walls_s": [
+     31.055394900002284,
+     31.952026099999784
+    ],
+    "reps": 2,
+    "wall_max_s": 31.952026099999784
+   }
+  ],
+  "cpu_count": 24,
+  "load": 30,
+  "seed": 9900777
+ },
+ "array_gpu": {
+  "device": "gpu",
+  "device_kind": "NVIDIA GeForce RTX 5090 (32.6GB)",
+  "epochs_total": 1441,
+  "blocks": 21,
+  "policy": "sf_spt",
+  "jax": "0.11.2+cuda12",
+  "note": "scripts/v6/bench_breakeven.py --which array --worlds 1,2,4,8,16,32,64,128 --epochs 0 --reps 2 --mode both --tag gpu 의 same 모드 결과. distinct 모드는 같은 답을 더 직접 재는 --which waste 로 대신했다 (로그 outputs/v6/verify/breakeven_array_gpu.log).",
+  "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — GPU 사용률은 96~98% 로 GPU 병목이었으나 호스트 디스패치에 약간의 경쟁이 있었을 수 있다.",
+  "one_world_state_mb": 3.46,
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 83.057,
+    "ms_per_epoch_all_worlds": 57.6,
+    "per_world_day_s": 83.057,
+    "compile_plus_first_s": 100.1,
+    "state_mb": 3.5,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 2,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 86.34,
+    "ms_per_epoch_all_worlds": 59.9,
+    "per_world_day_s": 43.17,
+    "compile_plus_first_s": 104.4,
+    "state_mb": 6.9,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 4,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 99.801,
+    "ms_per_epoch_all_worlds": 69.3,
+    "per_world_day_s": 24.95,
+    "compile_plus_first_s": 118.3,
+    "state_mb": 13.8,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 8,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 111.905,
+    "ms_per_epoch_all_worlds": 77.7,
+    "per_world_day_s": 13.988,
+    "compile_plus_first_s": 132.3,
+    "state_mb": 27.7,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 16,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 154.848,
+    "ms_per_epoch_all_worlds": 107.5,
+    "per_world_day_s": 9.678,
+    "compile_plus_first_s": 177.4,
+    "state_mb": 55.3,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 32,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 195.98,
+    "ms_per_epoch_all_worlds": 136.0,
+    "per_world_day_s": 6.124,
+    "compile_plus_first_s": 212.6,
+    "state_mb": 110.6,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 64,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 309.257,
+    "ms_per_epoch_all_worlds": 214.6,
+    "per_world_day_s": 4.832,
+    "compile_plus_first_s": 329.3,
+    "state_mb": 221.2,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   },
+   {
+    "worlds": 128,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 555.244,
+    "ms_per_epoch_all_worlds": 385.3,
+    "per_world_day_s": 4.338,
+    "compile_plus_first_s": 582.8,
+    "state_mb": 442.5,
+    "reps": 2,
+    "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)",
+    "source": "breakeven_array_gpu.json"
+   }
+  ],
+  "mode_shown": "same",
+  "source": "breakeven_array_gpu.json",
+  "sources": [
+   "breakeven_array_gpu.json",
+   "breakeven_array_gpu2.json",
+   "breakeven_array_refute_gpu.json",
+   "breakeven_array_refute_gpu_clean.json",
+   "breakeven_array_refute_gpu_dist.json"
+  ]
+ },
+ "array_gpu_all": {
+  "breakeven_array_gpu.json": {
+   "same": {
+    "device": "gpu",
+    "device_kind": "NVIDIA GeForce RTX 5090 (32.6GB)",
+    "epochs_total": 1441,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "rows": [
+     {
+      "worlds": 1,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 83.057,
+      "ms_per_epoch_all_worlds": 57.6,
+      "per_world_day_s": 83.057,
+      "compile_plus_first_s": 100.1,
+      "state_mb": 3.5,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 2,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 86.34,
+      "ms_per_epoch_all_worlds": 59.9,
+      "per_world_day_s": 43.17,
+      "compile_plus_first_s": 104.4,
+      "state_mb": 6.9,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 4,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 99.801,
+      "ms_per_epoch_all_worlds": 69.3,
+      "per_world_day_s": 24.95,
+      "compile_plus_first_s": 118.3,
+      "state_mb": 13.8,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 8,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 111.905,
+      "ms_per_epoch_all_worlds": 77.7,
+      "per_world_day_s": 13.988,
+      "compile_plus_first_s": 132.3,
+      "state_mb": 27.7,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 16,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 154.848,
+      "ms_per_epoch_all_worlds": 107.5,
+      "per_world_day_s": 9.678,
+      "compile_plus_first_s": 177.4,
+      "state_mb": 55.3,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 32,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 195.98,
+      "ms_per_epoch_all_worlds": 136.0,
+      "per_world_day_s": 6.124,
+      "compile_plus_first_s": 212.6,
+      "state_mb": 110.6,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 64,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 309.257,
+      "ms_per_epoch_all_worlds": 214.6,
+      "per_world_day_s": 4.832,
+      "compile_plus_first_s": 329.3,
+      "state_mb": 221.2,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     },
+     {
+      "worlds": 128,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 555.244,
+      "ms_per_epoch_all_worlds": 385.3,
+      "per_world_day_s": 4.338,
+      "compile_plus_first_s": 582.8,
+      "state_mb": 442.5,
+      "reps": 2,
+      "timing": "반복 2회의 **최솟값** (컴파일·첫 실행은 워밍업으로 버렸다)"
+     }
+    ],
+    "jax": "0.11.2+cuda12",
+    "note": "scripts/v6/bench_breakeven.py --which array --worlds 1,2,4,8,16,32,64,128 --epochs 0 --reps 2 --mode both --tag gpu 의 same 모드 결과. distinct 모드는 같은 답을 더 직접 재는 --which waste 로 대신했다 (로그 outputs/v6/verify/breakeven_array_gpu.log).",
+    "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — GPU 사용률은 96~98% 로 GPU 병목이었으나 호스트 디스패치에 약간의 경쟁이 있었을 수 있다.",
+    "one_world_state_mb": 3.46
+   }
+  },
+  "breakeven_array_gpu2.json": {
+   "same": {
+    "device": "gpu",
+    "device_kind": "NVIDIA GeForce RTX 5090",
+    "epochs_total": 1441,
+    "n_max": 242,
+    "steps_per_epoch": 2192,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "one_world_state_mb": 3.46,
+    "rows": [
+     {
+      "worlds": 192,
+      "mode": "same",
+      "error": "JaxRuntimeError: RESOURCE_EXHAUSTED: Out of memory while trying to allocate 3.75GiB with allocator GPU_0_bfc on device 0. [executable_name='jit_f'] [tf-allocator-allocation-error='']",
+      "state_mb": 663.7
+     }
+    ],
+    "jax": "0.11.2"
+   }
+  },
+  "breakeven_array_refute_gpu.json": {
+   "same": {
+    "device": "gpu",
+    "device_kind": "NVIDIA GeForce RTX 5090",
+    "epochs_total": 1441,
+    "n_max": 242,
+    "steps_per_epoch": 2192,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "one_world_state_mb": 3.46,
+    "rows": [
+     {
+      "worlds": 1,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 49822,
+      "wall_s": 86.90291039099975,
+      "reps_s": [
+       108.80007028399996,
+       86.90291039099975
+      ],
+      "stack_s": 0.37381844599804026,
+      "compile_plus_first_s": 126.76845671800038,
+      "state_mb": 3.5,
+      "ms_per_epoch_all_worlds": 60.30736321374029,
+      "per_world_day_s": 86.90291039099975
+     },
+     {
+      "worlds": 16,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 797152,
+      "wall_s": 229.13367986199955,
+      "reps_s": [
+       229.13367986199955,
+       271.6570844509988
+      ],
+      "stack_s": 1.828986836000695,
+      "compile_plus_first_s": 174.9433291489986,
+      "state_mb": 55.3,
+      "ms_per_epoch_all_worlds": 159.01018727411488,
+      "per_world_day_s": 14.320854991374972
+     },
+     {
+      "worlds": 64,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 3188608,
+      "wall_s": 349.347909676002,
+      "reps_s": [
+       349.347909676002,
+       351.62009284000305
+      ],
+      "stack_s": 5.255250045000139,
+      "compile_plus_first_s": 421.9297605669999,
+      "state_mb": 221.2,
+      "ms_per_epoch_all_worlds": 242.43435785982095,
+      "per_world_day_s": 5.4585610886875315
+     }
+    ],
+    "jax": "0.11.2"
+   }
+  },
+  "breakeven_array_refute_gpu_clean.json": {
+   "same": {
+    "device": "gpu",
+    "device_kind": "NVIDIA GeForce RTX 5090",
+    "epochs_total": 1441,
+    "n_max": 242,
+    "steps_per_epoch": 2192,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "one_world_state_mb": 3.46,
+    "rows": [
+     {
+      "worlds": 8,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 398576,
+      "wall_s": 111.4155323920022,
+      "reps_s": [
+       111.4155323920022,
+       111.78918216599777
+      ],
+      "stack_s": 1.2943590469985793,
+      "compile_plus_first_s": 127.92188655700011,
+      "state_mb": 27.7,
+      "ms_per_epoch_all_worlds": 77.31820429701749,
+      "per_world_day_s": 13.926941549000276
+     },
+     {
+      "worlds": 16,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 797152,
+      "wall_s": 154.78787818099954,
+      "reps_s": [
+       154.84417557500274,
+       154.78787818099954
+      ],
+      "stack_s": 1.772961195998505,
+      "compile_plus_first_s": 171.81113707499753,
+      "state_mb": 55.3,
+      "ms_per_epoch_all_worlds": 107.4169869403189,
+      "per_world_day_s": 9.674242386312471
+     },
+     {
+      "worlds": 32,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 1594304,
+      "wall_s": 194.67491705900102,
+      "reps_s": [
+       194.67491705900102,
+       195.03041672000109
+      ],
+      "stack_s": 2.48541404199932,
+      "compile_plus_first_s": 212.00790810699982,
+      "state_mb": 110.6,
+      "ms_per_epoch_all_worlds": 135.09709719569813,
+      "per_world_day_s": 6.083591158093782
+     }
+    ],
+    "jax": "0.11.2"
+   }
+  },
+  "breakeven_array_refute_gpu_dist.json": {
+   "distinct": {
+    "device": "gpu",
+    "device_kind": "NVIDIA GeForce RTX 5090",
+    "epochs_total": 1441,
+    "n_max": 242,
+    "steps_per_epoch": 2192,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "one_world_state_mb": 3.46,
+    "rows": [
+     {
+      "worlds": 16,
+      "mode": "distinct",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "violation": 0,
+      "exhausted": 0,
+      "block_steps": 797509,
+      "wall_s": 187.36975811500088,
+      "reps_s": [
+       187.48373292599717,
+       187.36975811500088
+      ],
+      "stack_s": 1.591935109001497,
+      "compile_plus_first_s": 204.51555910200113,
+      "state_mb": 55.3,
+      "ms_per_epoch_all_worlds": 130.02759064191594,
+      "per_world_day_s": 11.710609882187555
+     }
+    ],
+    "jax": "0.11.2"
+   }
+  }
+ },
+ "array_gpu_remeasured": [
+  {
+   "source": "breakeven_array_gpu2.json",
+   "mode": "same",
+   "rows": [
+    {
+     "worlds": 192,
+     "wall_s": null,
+     "per_world_day_s": null,
+     "reps_s": null
+    }
+   ]
+  },
+  {
+   "source": "breakeven_array_refute_gpu.json",
+   "mode": "same",
+   "rows": [
+    {
+     "worlds": 1,
+     "wall_s": 86.90291039099975,
+     "per_world_day_s": 86.90291039099975,
+     "reps_s": [
+      108.80007028399996,
+      86.90291039099975
+     ]
+    },
+    {
+     "worlds": 16,
+     "wall_s": 229.13367986199955,
+     "per_world_day_s": 14.320854991374972,
+     "reps_s": [
+      229.13367986199955,
+      271.6570844509988
+     ]
+    },
+    {
+     "worlds": 64,
+     "wall_s": 349.347909676002,
+     "per_world_day_s": 5.4585610886875315,
+     "reps_s": [
+      349.347909676002,
+      351.62009284000305
+     ]
+    }
+   ]
+  },
+  {
+   "source": "breakeven_array_refute_gpu_clean.json",
+   "mode": "same",
+   "rows": [
+    {
+     "worlds": 8,
+     "wall_s": 111.4155323920022,
+     "per_world_day_s": 13.926941549000276,
+     "reps_s": [
+      111.4155323920022,
+      111.78918216599777
+     ]
+    },
+    {
+     "worlds": 16,
+     "wall_s": 154.78787818099954,
+     "per_world_day_s": 9.674242386312471,
+     "reps_s": [
+      154.84417557500274,
+      154.78787818099954
+     ]
+    },
+    {
+     "worlds": 32,
+     "wall_s": 194.67491705900102,
+     "per_world_day_s": 6.083591158093782,
+     "reps_s": [
+      194.67491705900102,
+      195.03041672000109
+     ]
+    }
+   ]
+  },
+  {
+   "source": "breakeven_array_refute_gpu_dist.json",
+   "mode": "distinct",
+   "rows": [
+    {
+     "worlds": 16,
+     "wall_s": 187.36975811500088,
+     "per_world_day_s": 11.710609882187555,
+     "reps_s": [
+      187.48373292599717,
+      187.36975811500088
+     ]
+    }
+   ]
+  }
+ ],
+ "array_gpu_distinct_rows": [
+  {
+   "worlds": 16,
+   "mode": "distinct",
+   "epochs_timed": 1441,
+   "epochs_total": 1441,
+   "violation": 0,
+   "exhausted": 0,
+   "block_steps": 797509,
+   "wall_s": 187.36975811500088,
+   "reps_s": [
+    187.48373292599717,
+    187.36975811500088
+   ],
+   "stack_s": 1.591935109001497,
+   "compile_plus_first_s": 204.51555910200113,
+   "state_mb": 55.3,
+   "ms_per_epoch_all_worlds": 130.02759064191594,
+   "per_world_day_s": 11.710609882187555,
+   "source": "breakeven_array_refute_gpu_dist.json"
+  }
+ ],
+ "breakeven_gpu": {
+  "v5_reference_procs": 24,
+  "v5_per_world_day_s": 1.293974787500095,
+  "array_device": "gpu",
+  "B_star": null,
+  "array_best_per_world_day_s": 4.338,
+  "speedup_at_best": 0.2982883327570528,
+  "marginal": [
+   {
+    "from": 1,
+    "to": 2,
+    "marginal_per_world_day_s": 3.2830000000000013
+   },
+   {
+    "from": 2,
+    "to": 4,
+    "marginal_per_world_day_s": 6.730499999999999
+   },
+   {
+    "from": 4,
+    "to": 8,
+    "marginal_per_world_day_s": 3.026
+   },
+   {
+    "from": 8,
+    "to": 16,
+    "marginal_per_world_day_s": 5.3678750000000015
+   },
+   {
+    "from": 16,
+    "to": 32,
+    "marginal_per_world_day_s": 2.5707499999999985
+   },
+   {
+    "from": 32,
+    "to": 64,
+    "marginal_per_world_day_s": 3.5399062500000005
+   },
+   {
+    "from": 64,
+    "to": 128,
+    "marginal_per_world_day_s": 3.8435468750000004
+   }
+  ],
+  "marginal_min_per_world_day_s": 2.5707499999999985,
+  "marginal_min_all_B_per_world_day_s": 2.5707499999999985,
+  "marginal_basis": "from>=8 세계 (포화 구간)",
+  "marginal_last_per_world_day_s": 3.8435468750000004,
+  "B_star_exists": false,
+  "note": "B* = 배열판 세계·하루당 시간이 v5 다중프로세스 아래로 내려가는 첫 B. `B_star_exists=False` 면 **어떤 B 에서도 없다** — 세계 하나를 더 얹는 값(한계비용)이 이미 v5 다중프로세스보다 크기 때문이다(점근선이 v5 위).",
+  "caveat_mode": "표의 배열 행이 `same`(같은 세계 B벌 복사)이면 **상한**이다 — 서로 다른 시드(연구 실제 무대)는 실측 1.21배 느리다(B=16 · 154.788s 대 187.370s). v5 기준선은 서로 다른 시드 24개이므로 비교가 비대칭이다."
+ },
+ "array_cpu": {
+  "device": "cpu",
+  "device_kind": "",
+  "epochs_total": 1441,
+  "blocks": 21,
+  "policy": "sf_spt",
+  "jax": "0.11.2",
+  "note": "JAX_PLATFORMS=cpu · reps=1. B=16 은 재지 않았다 — B=4 에서 이미 1,141 ms/에폭이라 1,441 에폭 × 16세계가 한 시간 반을 넘고, 추세(세계당 564 → 411초 = 1.37배)가 'CPU 는 세계를 쌓아도 거의 안 빨라진다' 를 이미 보인다.",
+  "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — CPU 수치는 그만큼 보수적이다.",
+  "one_world_state_mb": 3.46,
+  "rows": [
+   {
+    "worlds": 1,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 564.009,
+    "ms_per_epoch_all_worlds": 391.4,
+    "per_world_day_s": 564.009,
+    "compile_plus_first_s": 573.6,
+    "state_mb": 3.5,
+    "block_steps": 49822,
+    "violation": 0,
+    "exhausted": 0,
+    "reps": 1,
+    "source": "breakeven_array_cpu.json"
+   },
+   {
+    "worlds": 4,
+    "mode": "same",
+    "epochs_timed": 1441,
+    "epochs_total": 1441,
+    "wall_s": 1643.552,
+    "ms_per_epoch_all_worlds": 1140.6,
+    "per_world_day_s": 410.888,
+    "compile_plus_first_s": 1658.5,
+    "state_mb": 13.8,
+    "block_steps": 199288,
+    "violation": 0,
+    "exhausted": 0,
+    "reps": 1,
+    "source": "breakeven_array_cpu.json"
+   }
+  ],
+  "mode_shown": "same",
+  "source": "breakeven_array_cpu.json",
+  "sources": [
+   "breakeven_array_cpu.json"
+  ]
+ },
+ "array_cpu_all": {
+  "breakeven_array_cpu.json": {
+   "same": {
+    "device": "cpu",
+    "device_kind": "",
+    "epochs_total": 1441,
+    "blocks": 21,
+    "policy": "sf_spt",
+    "rows": [
+     {
+      "worlds": 1,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 564.009,
+      "ms_per_epoch_all_worlds": 391.4,
+      "per_world_day_s": 564.009,
+      "compile_plus_first_s": 573.6,
+      "state_mb": 3.5,
+      "block_steps": 49822,
+      "violation": 0,
+      "exhausted": 0,
+      "reps": 1
+     },
+     {
+      "worlds": 4,
+      "mode": "same",
+      "epochs_timed": 1441,
+      "epochs_total": 1441,
+      "wall_s": 1643.552,
+      "ms_per_epoch_all_worlds": 1140.6,
+      "per_world_day_s": 410.888,
+      "compile_plus_first_s": 1658.5,
+      "state_mb": 13.8,
+      "block_steps": 199288,
+      "violation": 0,
+      "exhausted": 0,
+      "reps": 1
+     }
+    ],
+    "jax": "0.11.2",
+    "note": "JAX_PLATFORMS=cpu · reps=1. B=16 은 재지 않았다 — B=4 에서 이미 1,141 ms/에폭이라 1,441 에폭 × 16세계가 한 시간 반을 넘고, 추세(세계당 564 → 411초 = 1.37배)가 'CPU 는 세계를 쌓아도 거의 안 빨라진다' 를 이미 보인다.",
+    "caveat": "측정 중 같은 기계에서 CPU 회귀 시험이 돌고 있었다 — CPU 수치는 그만큼 보수적이다.",
+    "one_world_state_mb": 3.46
+   }
+  }
+ },
+ "array_cpu_remeasured": [],
+ "array_cpu_distinct_rows": [],
+ "breakeven_cpu": {
+  "v5_reference_procs": 24,
+  "v5_per_world_day_s": 1.293974787500095,
+  "array_device": "cpu",
+  "B_star": null,
+  "array_best_per_world_day_s": 410.888,
+  "speedup_at_best": 0.0031492153275347423,
+  "marginal": [
+   {
+    "from": 1,
+    "to": 4,
+    "marginal_per_world_day_s": 359.8476666666666
+   }
+  ],
+  "marginal_min_per_world_day_s": 359.8476666666666,
+  "marginal_min_all_B_per_world_day_s": 359.8476666666666,
+  "marginal_basis": "from>=8 세계 (포화 구간)",
+  "marginal_last_per_world_day_s": 359.8476666666666,
+  "B_star_exists": false,
+  "note": "B* = 배열판 세계·하루당 시간이 v5 다중프로세스 아래로 내려가는 첫 B. `B_star_exists=False` 면 **어떤 B 에서도 없다** — 세계 하나를 더 얹는 값(한계비용)이 이미 v5 다중프로세스보다 크기 때문이다(점근선이 v5 위).",
+  "caveat_mode": "표의 배열 행이 `same`(같은 세계 B벌 복사)이면 **상한**이다 — 서로 다른 시드(연구 실제 무대)는 실측 1.21배 느리다(B=16 · 154.788s 대 187.370s). v5 기준선은 서로 다른 시드 24개이므로 비교가 비대칭이다."
+ },
+ "waste_gpu": {
+  "same": {
+   "device": "gpu",
+   "blocks": 21,
+   "epochs_total": 1441,
+   "rows": [
+    {
+     "worlds": 1,
+     "mode": "same",
+     "epochs": 1441,
+     "while_trips": 8108,
+     "computed_block_steps": 170268,
+     "used_block_steps": 49822,
+     "efficiency": 0.29260929828270726,
+     "ragged_factor": 3.4175263939625067,
+     "host_loop_s": 132.1
+    },
+    {
+     "worlds": 4,
+     "mode": "same",
+     "epochs": 1441,
+     "while_trips": 8108,
+     "computed_block_steps": 681072,
+     "used_block_steps": 199288,
+     "efficiency": 0.29260929828270726,
+     "ragged_factor": 3.4175263939625067,
+     "host_loop_s": 137.1
+    },
+    {
+     "worlds": 16,
+     "mode": "same",
+     "epochs": 1441,
+     "while_trips": 8108,
+     "computed_block_steps": 2724288,
+     "used_block_steps": 797152,
+     "efficiency": 0.29260929828270726,
+     "ragged_factor": 3.4175263939625067,
+     "host_loop_s": 184.4
+    },
+    {
+     "order_rows_used": 3600,
+     "order_rows_total": 5082,
+     "order_padding": 0.29161747343565525,
+     "note": "오더 칸 패딩은 정적이다 — 세계를 쌓아도 그대로다"
+    }
+   ]
+  },
+  "distinct": {
+   "device": "gpu",
+   "blocks": 21,
+   "epochs_total": 1441,
+   "rows": [
+    {
+     "worlds": 1,
+     "mode": "distinct",
+     "epochs": 1441,
+     "while_trips": 8108,
+     "computed_block_steps": 170268,
+     "used_block_steps": 49822,
+     "efficiency": 0.29260929828270726,
+     "ragged_factor": 3.4175263939625067,
+     "host_loop_s": 116.1
+    },
+    {
+     "worlds": 4,
+     "mode": "distinct",
+     "epochs": 1441,
+     "while_trips": 8941,
+     "computed_block_steps": 751044,
+     "used_block_steps": 199536,
+     "efficiency": 0.2656781759790372,
+     "ragged_factor": 3.7639523694972334,
+     "host_loop_s": 140.1
+    },
+    {
+     "worlds": 16,
+     "mode": "distinct",
+     "epochs": 1441,
+     "while_trips": 9791,
+     "computed_block_steps": 3289776,
+     "used_block_steps": 797509,
+     "efficiency": 0.24242045659035752,
+     "ragged_factor": 4.125064419335707,
+     "host_loop_s": 220.6
+    },
+    {
+     "order_rows_used": 3600,
+     "order_rows_total": 5082,
+     "order_padding": 0.29161747343565525,
+     "note": "오더 칸 패딩은 정적이다 — 세계를 쌓아도 그대로다"
+    }
+   ]
+  }
+ },
+ "trainpath_gpu": {
+  "stage": "터미널30 · 21블록 · seed 9900777 · 학습 정책망 policy · 학습 켬",
+  "device": "gpu",
+  "boundaries": [
+   100,
+   300
+  ],
+  "rows": {
+   "array": [
+    {
+     "boundaries": 100,
+     "wall_s": 67.44775013899925,
+     "setup_s": 9.059827610995853,
+     "intervals": 99,
+     "updates": 1,
+     "crane": 132,
+     "cost_krw": 309993.03521679755,
+     "flags": [],
+     "device": "gpu"
+    },
+    {
+     "boundaries": 300,
+     "wall_s": 112.58388855199883,
+     "setup_s": 5.742422675997659,
+     "intervals": 299,
+     "updates": 4,
+     "crane": 802,
+     "cost_krw": 1441427.1115064174,
+     "flags": [],
+     "device": "gpu"
+    }
+   ],
+   "v5": [
+    {
+     "boundaries": 100,
+     "wall_s": 0.9309185669990256,
+     "stop": "DebugStop",
+     "intervals": 100,
+     "updates": 2,
+     "crane": 137,
+     "cost_krw": 317174.60175171815
+    },
+    {
+     "boundaries": 300,
+     "wall_s": 3.009240265004337,
+     "stop": "DebugStop",
+     "intervals": 300,
+     "updates": 5,
+     "crane": 791,
+     "cost_krw": 1455321.5022432045
+    }
+   ]
+  },
+  "epochs_per_day": 1441,
+  "array_s_per_boundary": 0.22568069206499786,
+  "v5_s_per_boundary": 0.010391608490026556,
+  "array_per_world_day_s": 325.2058772656619,
+  "v5_per_world_day_s": 14.974307834128266,
+  "array_over_v5": 21.717589945925795
+ },
+ "trainpath_cpu": {
+  "stage": "터미널30 · 21블록 · seed 9900777 · 학습 정책망 policy · 학습 켬",
+  "device": "cpu",
+  "boundaries": [
+   100,
+   300
+  ],
+  "rows": {
+   "array": [
+    {
+     "boundaries": 100,
+     "wall_s": 111.48640590000286,
+     "setup_s": 2.6174735000022338,
+     "intervals": 99,
+     "updates": 1,
+     "crane": 132,
+     "cost_krw": 309993.03521679755,
+     "flags": [],
+     "device": "cpu"
+    },
+    {
+     "boundaries": 300,
+     "wall_s": 347.0001881000062,
+     "setup_s": 1.0835535999940475,
+     "intervals": 299,
+     "updates": 4,
+     "crane": 802,
+     "cost_krw": 1441427.1115064174,
+     "flags": [],
+     "device": "cpu"
+    }
+   ],
+   "v5": [
+    {
+     "boundaries": 100,
+     "wall_s": 1.2209408999988227,
+     "stop": "DebugStop",
+     "intervals": 100,
+     "updates": 2,
+     "crane": 137,
+     "cost_krw": 317174.60175171815
+    },
+    {
+     "boundaries": 300,
+     "wall_s": 4.5591471000007004,
+     "stop": "DebugStop",
+     "intervals": 300,
+     "updates": 5,
+     "crane": 791,
+     "cost_krw": 1455321.5022432045
+    }
+   ]
+  },
+  "epochs_per_day": 1441,
+  "array_s_per_boundary": 1.1775689110000167,
+  "v5_s_per_boundary": 0.01669103100000939,
+  "array_per_world_day_s": 1696.8768007510241,
+  "v5_per_world_day_s": 24.05177567101353,
+  "array_over_v5": 70.55099897659733,
+  "v5_parallel": {
+   "procs": 24,
+   "boundaries": 100,
+   "wall_s": 9.893435899997712,
+   "s_per_boundary_per_world": 0.00412226495833238,
+   "per_world_day_s": 5.94018380495696,
+   "inner_mean_s": 1.6679264750006648
+  },
+  "array_over_v5_parallel": 285.66065570816437
+ },
+ "ragged": [
+  {
+   "worlds": 16,
+   "same_s": 154.848,
+   "distinct_s": 187.36975811500088,
+   "ratio": 1.2100237530675297,
+   "source": [
+    "breakeven_array_gpu.json",
+    "breakeven_array_refute_gpu_dist.json"
+   ]
+  }
+ ]
+}
