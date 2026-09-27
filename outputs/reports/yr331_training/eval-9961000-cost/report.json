@@ -1,0 +1,915 @@
+{
+  "generation": "v6",
+  "algorithm": "shared-block-PPO",
+  "time_s": 266400.0,
+  "blocks": 21,
+  "intervals": 4321,
+  "roles": {
+    "seller": 12448,
+    "buyer": 11460,
+    "crane": 48580
+  },
+  "crane_actions": {
+    "PRE_REHANDLE": 2377,
+    "WAIT": 16790,
+    "SERVE": 24832,
+    "REPOSITION": 4581
+  },
+  "cost_krw": 444128150.2001471,
+  "initial_cost_krw": 0.0,
+  "team_reward": -444.1281502001462,
+  "learning_window_s": [
+    86400.0,
+    172800.0
+  ],
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "shaping_reward": 0.0,
+  "learning_shaping_reward": 0.0,
+  "learning_training_reward": 0.0,
+  "workload": null,
+  "truncated": true,
+  "updates": [],
+  "traded_edges": 5670,
+  "txn_failed": 0,
+  "n_space": 1743,
+  "n_time": 3927,
+  "cost_breakdown": {
+    "phi_krw": 444128150.2001471,
+    "c_wait": 400242700.2442511,
+    "c_move": 2667207.2916666665,
+    "c_rehandle": 29376000.0,
+    "c_vessel": 11842242.664229326,
+    "n_trucks": 14500,
+    "n_censored": 3,
+    "mean_turn_time_s": 2094.4870796426935,
+    "over_ratio": 0.11827586206896552,
+    "p50_turn_time_s": 1313.5221096630776,
+    "p90_turn_time_s": 3945.098875615542,
+    "p99_turn_time_s": 11526.00880862141
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "status": "complete",
+  "wall_s": 585.6662908997387,
+  "mode": "eval",
+  "arm": "cost",
+  "seed": 9961000,
+  "optimizer_updates": 0,
+  "telemetry": {
+    "days": [
+      {
+        "time_s": 0.0,
+        "cost_krw": 0.0,
+        "c_vessel": 0.0,
+        "cargo": {
+          "planned_sources": 27244,
+          "planned_exits": 11446,
+          "ready_sources": 13608,
+          "completed_exits": 0,
+          "physical_inventory": 13608,
+          "expected_inventory": 13608,
+          "pending_admissions": 3,
+          "dependent_reroutes": 0,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {},
+          "active_unfinished_jobs": {
+            "GATE_IN": 51,
+            "GATE_OUT": 102
+          },
+          "active_unfinished_vessels": 0,
+          "routing_examples": []
+        },
+        "request": {
+          "requested": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "original_request_wait_krw": 0.0,
+          "actual_gate_wait_krw": 0.0,
+          "deferred_count": 0,
+          "defer_mean_s": 0,
+          "request_to_exit_mean_s": 0,
+          "request_to_exit_p90_s": 0,
+          "block_queue_mean_s": 0
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 86400.0,
+        "cost_krw": 65884989.69871337,
+        "c_vessel": 1696945.6409970764,
+        "cargo": {
+          "planned_sources": 27244,
+          "planned_exits": 11446,
+          "ready_sources": 18180,
+          "completed_exits": 2052,
+          "physical_inventory": 16128,
+          "expected_inventory": 16128,
+          "pending_admissions": 98,
+          "dependent_reroutes": 29,
+          "remote_vessel_handoffs": 0,
+          "completed_jobs": {
+            "GATE_OUT": 2052,
+            "GATE_IN": 1421,
+            "VESSEL_DISCHARGE": 3151
+          },
+          "active_unfinished_jobs": {
+            "GATE_OUT": 197,
+            "GATE_IN": 162,
+            "VESSEL_DISCHARGE": 325
+          },
+          "active_unfinished_vessels": 6,
+          "routing_examples": [
+            {
+              "job": "D00-D-00249",
+              "source": "Y20",
+              "destination": "Y07",
+              "time_s": 10620.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-00692",
+              "source": "Y10",
+              "destination": "Y09",
+              "time_s": 27840.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01989",
+              "source": "Y08",
+              "destination": "Y07",
+              "time_s": 36960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01143",
+              "source": "Y02",
+              "destination": "Y17",
+              "time_s": 38820.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02358",
+              "source": "Y04",
+              "destination": "Y16",
+              "time_s": 39060.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01564",
+              "source": "Y14",
+              "destination": "Y13",
+              "time_s": 40860.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01521",
+              "source": "Y10",
+              "destination": "Y12",
+              "time_s": 42960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02294",
+              "source": "Y21",
+              "destination": "Y04",
+              "time_s": 43140.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01962",
+              "source": "Y13",
+              "destination": "Y11",
+              "time_s": 43980.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01591",
+              "source": "Y16",
+              "destination": "Y09",
+              "time_s": 44100.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            }
+          ]
+        },
+        "request": {
+          "requested": 3500,
+          "completed": 3469,
+          "unfinished": 31,
+          "original_request_wait_krw": 117067958.07648946,
+          "actual_gate_wait_krw": 57716513.84938296,
+          "deferred_count": 916,
+          "defer_mean_s": 1023.9428571428572,
+          "request_to_exit_mean_s": 2418.148321106451,
+          "request_to_exit_p90_s": 6297.311978609542,
+          "block_queue_mean_s": 596.2334512220804
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 172800.0,
+        "cost_krw": 348362926.3914076,
+        "c_vessel": 6085278.884089326,
+        "cargo": {
+          "planned_sources": 27244,
+          "planned_exits": 11446,
+          "ready_sources": 22884,
+          "completed_exits": 7354,
+          "physical_inventory": 15530,
+          "expected_inventory": 15530,
+          "pending_admissions": 309,
+          "dependent_reroutes": 297,
+          "remote_vessel_handoffs": 74,
+          "completed_jobs": {
+            "GATE_OUT": 6183,
+            "GATE_IN": 4699,
+            "VESSEL_DISCHARGE": 4577,
+            "VESSEL_LOAD": 1171
+          },
+          "active_unfinished_jobs": {
+            "GATE_OUT": 195,
+            "GATE_IN": 79,
+            "VESSEL_LOAD": 791,
+            "VESSEL_DISCHARGE": 489
+          },
+          "active_unfinished_vessels": 5,
+          "routing_examples": [
+            {
+              "job": "D00-D-00249",
+              "source": "Y20",
+              "destination": "Y07",
+              "time_s": 10620.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-00692",
+              "source": "Y10",
+              "destination": "Y09",
+              "time_s": 27840.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01989",
+              "source": "Y08",
+              "destination": "Y07",
+              "time_s": 36960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01143",
+              "source": "Y02",
+              "destination": "Y17",
+              "time_s": 38820.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02358",
+              "source": "Y04",
+              "destination": "Y16",
+              "time_s": 39060.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01564",
+              "source": "Y14",
+              "destination": "Y13",
+              "time_s": 40860.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01521",
+              "source": "Y10",
+              "destination": "Y12",
+              "time_s": 42960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02294",
+              "source": "Y21",
+              "destination": "Y04",
+              "time_s": 43140.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01962",
+              "source": "Y13",
+              "destination": "Y11",
+              "time_s": 43980.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01591",
+              "source": "Y16",
+              "destination": "Y09",
+              "time_s": 44100.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            }
+          ]
+        },
+        "request": {
+          "requested": 11000,
+          "completed": 10872,
+          "unfinished": 128,
+          "original_request_wait_krw": 532271949.64882433,
+          "actual_gate_wait_krw": 321610856.88231826,
+          "deferred_count": 2927,
+          "defer_mean_s": 1068.3,
+          "request_to_exit_mean_s": 3257.381654220878,
+          "request_to_exit_p90_s": 7737.930837551538,
+          "block_queue_mean_s": 1382.827590978168
+        },
+        "updates": 0
+      },
+      {
+        "time_s": 259200.0,
+        "cost_krw": 442547407.8582926,
+        "c_vessel": 11534786.505604634,
+        "cargo": {
+          "planned_sources": 27244,
+          "planned_exits": 11446,
+          "ready_sources": 26928,
+          "completed_exits": 11210,
+          "physical_inventory": 15718,
+          "expected_inventory": 15718,
+          "pending_admissions": 399,
+          "dependent_reroutes": 456,
+          "remote_vessel_handoffs": 155,
+          "completed_jobs": {
+            "GATE_OUT": 8387,
+            "GATE_IN": 6085,
+            "VESSEL_DISCHARGE": 7235,
+            "VESSEL_LOAD": 2823
+          },
+          "active_unfinished_jobs": {
+            "GATE_IN": 1,
+            "VESSEL_DISCHARGE": 315,
+            "GATE_OUT": 27,
+            "VESSEL_LOAD": 209
+          },
+          "active_unfinished_vessels": 8,
+          "routing_examples": [
+            {
+              "job": "D00-D-00249",
+              "source": "Y20",
+              "destination": "Y07",
+              "time_s": 10620.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-00692",
+              "source": "Y10",
+              "destination": "Y09",
+              "time_s": 27840.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01989",
+              "source": "Y08",
+              "destination": "Y07",
+              "time_s": 36960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01143",
+              "source": "Y02",
+              "destination": "Y17",
+              "time_s": 38820.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02358",
+              "source": "Y04",
+              "destination": "Y16",
+              "time_s": 39060.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01564",
+              "source": "Y14",
+              "destination": "Y13",
+              "time_s": 40860.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01521",
+              "source": "Y10",
+              "destination": "Y12",
+              "time_s": 42960.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-02294",
+              "source": "Y21",
+              "destination": "Y04",
+              "time_s": 43140.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01962",
+              "source": "Y13",
+              "destination": "Y11",
+              "time_s": 43980.0,
+              "road_ready_s": null
+            },
+            {
+              "job": "D00-D-01591",
+              "source": "Y16",
+              "destination": "Y09",
+              "time_s": 44100.0,
+              "phase": "at_notice",
+              "road_ready_s": null
+            }
+          ]
+        },
+        "request": {
+          "requested": 14500,
+          "completed": 14464,
+          "unfinished": 36,
+          "original_request_wait_krw": 682459210.8699052,
+          "actual_gate_wait_krw": 399330174.47768795,
+          "deferred_count": 3927,
+          "defer_mean_s": 1091.2344827586207,
+          "request_to_exit_mean_s": 3182.140545307488,
+          "request_to_exit_p90_s": 7559.63535838513,
+          "block_queue_mean_s": 1265.8525238854595
+        },
+        "updates": 0
+      }
+    ],
+    "measured_cohorts": [
+      {
+        "requested": 7500,
+        "completed": 7500,
+        "unfinished": 0,
+        "original_request_wait_krw": 426255511.7302967,
+        "actual_gate_wait_krw": 273314399.68674195,
+        "deferred_count": 2011,
+        "defer_mean_s": 1089.0,
+        "request_to_exit_mean_s": 3720.052513277428,
+        "request_to_exit_p90_s": 8277.689320706477,
+        "block_queue_mean_s": 1796.041082359383
+      }
+    ],
+    "measured_trades": [
+      {
+        "start_s": 86400.0,
+        "end_s": 172800.0,
+        "seller_decisions": 6440,
+        "buyer_calls": 5923,
+        "buyer_accepts": 2965,
+        "committed_space": 954,
+        "committed_time": 2011,
+        "completed_traded_jobs": 2965
+      }
+    ],
+    "whole": {
+      "requested": 14500,
+      "completed": 14497,
+      "unfinished": 3,
+      "original_request_wait_krw": 683422916.0541698,
+      "actual_gate_wait_krw": 400242700.2442511,
+      "deferred_count": 3927,
+      "defer_mean_s": 1091.2344827586207,
+      "request_to_exit_mean_s": 3185.7215624013193,
+      "request_to_exit_p90_s": 7567.345515885476,
+      "block_queue_mean_s": 1267.458798066204
+    },
+    "realized_service_jobs": 24823,
+    "idle_ready_s": {
+      "YC-L": 1156680.0,
+      "YC-W": 1515840.0
+    },
+    "max_conservation_error_s": 0.0,
+    "max_abs_shaping_reward": 0.0
+  },
+  "cargo": {
+    "planned_sources": 27244,
+    "planned_exits": 11446,
+    "ready_sources": 27104,
+    "completed_exits": 11327,
+    "physical_inventory": 15777,
+    "expected_inventory": 15777,
+    "pending_admissions": 399,
+    "dependent_reroutes": 456,
+    "remote_vessel_handoffs": 156,
+    "completed_jobs": {
+      "GATE_OUT": 8411,
+      "GATE_IN": 6086,
+      "VESSEL_DISCHARGE": 7410,
+      "VESSEL_LOAD": 2916
+    },
+    "active_unfinished_jobs": {
+      "VESSEL_LOAD": 116,
+      "GATE_OUT": 3,
+      "VESSEL_DISCHARGE": 140
+    },
+    "active_unfinished_vessels": 6,
+    "routing_examples": [
+      {
+        "job": "D00-D-00249",
+        "source": "Y20",
+        "destination": "Y07",
+        "time_s": 10620.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-00692",
+        "source": "Y10",
+        "destination": "Y09",
+        "time_s": 27840.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01989",
+        "source": "Y08",
+        "destination": "Y07",
+        "time_s": 36960.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01143",
+        "source": "Y02",
+        "destination": "Y17",
+        "time_s": 38820.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02358",
+        "source": "Y04",
+        "destination": "Y16",
+        "time_s": 39060.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01564",
+        "source": "Y14",
+        "destination": "Y13",
+        "time_s": 40860.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01521",
+        "source": "Y10",
+        "destination": "Y12",
+        "time_s": 42960.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-02294",
+        "source": "Y21",
+        "destination": "Y04",
+        "time_s": 43140.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01962",
+        "source": "Y13",
+        "destination": "Y11",
+        "time_s": 43980.0,
+        "road_ready_s": null
+      },
+      {
+        "job": "D00-D-01591",
+        "source": "Y16",
+        "destination": "Y09",
+        "time_s": 44100.0,
+        "phase": "at_notice",
+        "road_ready_s": null
+      }
+    ]
+  },
+  "parameter_l2_change": 0.0,
+  "cf_calls": 0,
+  "invariants": true,
+  "admission": {
+    "admitted": 14500,
+    "skipped": 0,
+    "truck_failures": [],
+    "vessels": [
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s1",
+        "day": 0,
+        "block": "Y05",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 368,
+        "asked": 368,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s1",
+        "day": 0,
+        "block": "Y06",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 258,
+        "asked": 258,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s0",
+        "day": 0,
+        "block": "Y07",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 258,
+        "asked": 258,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s1",
+        "day": 0,
+        "block": "Y09",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s3",
+        "day": 0,
+        "block": "Y11",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s0",
+        "day": 0,
+        "block": "Y14",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s0",
+        "day": 0,
+        "block": "Y18",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 368,
+        "asked": 368,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s2",
+        "day": 0,
+        "block": "Y19",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s1",
+        "day": 1,
+        "block": "Y05",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s0",
+        "day": 1,
+        "block": "Y06",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 303,
+        "asked": 303,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s0",
+        "day": 1,
+        "block": "Y08",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 367,
+        "asked": 367,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s3",
+        "day": 1,
+        "block": "Y09",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s0",
+        "day": 1,
+        "block": "Y10",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s2",
+        "day": 1,
+        "block": "Y11",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s1",
+        "day": 1,
+        "block": "Y13",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 303,
+        "asked": 303,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s1",
+        "day": 1,
+        "block": "Y17",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 367,
+        "asked": 367,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s2",
+        "day": 2,
+        "block": "Y02",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s1",
+        "day": 2,
+        "block": "Y03",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 259,
+        "asked": 259,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s0",
+        "day": 2,
+        "block": "Y08",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s0",
+        "day": 2,
+        "block": "Y11",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 259,
+        "asked": 259,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s1",
+        "day": 2,
+        "block": "Y14",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s3",
+        "day": 2,
+        "block": "Y15",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s1",
+        "day": 2,
+        "block": "Y16",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 448,
+        "asked": 448,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s0",
+        "day": 2,
+        "block": "Y21",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 448,
+        "asked": 448,
+        "why": ""
+      }
+    ],
+    "vessel_failed": 0,
+    "time_s": 258720.0
+  },
+  "source_stamp": {
+    "git_head": "db493e43923a2f09dec98336ecb8c9fdebefc92e",
+    "git_dirty": false,
+    "source_sha256": "a156709e037408951c53155aa816d96d528dd819e6be08b524e81b1b2c296cfa",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-run",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 70208,
+    "torch_threads": 1
+  },
+  "seed_artifact": {
+    "path": "seed-data.json.gz",
+    "sha256": "67fd8a4df5a9da1ee9cf24a27c289ca77a506c4ffaefa67db99ba5e8de99edda",
+    "bytes": 1659389,
+    "content_sha256": "8c1e3bf60021bcf699fd59986e1a3d975b34823badf953112b28251ea6baff3d",
+    "uncompressed_bytes": 15862568
+  },
+  "checkpoint_sha256": "b2969e1c6f3dfac570a0df410897daf314d125f6b0ca5dae42e4d80265a0945f"
+}

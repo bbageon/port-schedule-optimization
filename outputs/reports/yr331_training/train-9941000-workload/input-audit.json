@@ -1,0 +1,171 @@
+{
+  "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+  "passed": true,
+  "contract": {
+    "schema": "yard_rl.v6.container_contract.v2",
+    "passed": true,
+    "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+    "truck_orders": 32000,
+    "vessel_streams": 52,
+    "source_containers": 41086,
+    "fixed_exit_containers": 27158,
+    "violations": {},
+    "examples": {},
+    "planned_waiting_exits": 957,
+    "planned_waiting_examples": [
+      {
+        "source": {
+          "container": "IN_D02-D-03312",
+          "block": "Y17",
+          "source": "D02-D-03312",
+          "earliest_s": 217863.95202574006
+        },
+        "exit": {
+          "container": "IN_D02-D-03312",
+          "block": "Y17",
+          "order": "D02-D-03193",
+          "earliest_s": 217002.11585746633
+        },
+        "planned_wait_lower_bound_s": 861.8361682737304
+      },
+      {
+        "source": {
+          "container": "IN_D02-D-03313",
+          "block": "Y17",
+          "source": "D02-D-03313",
+          "earliest_s": 217868.0528653842
+        },
+        "exit": {
+          "container": "IN_D02-D-03313",
+          "block": "Y17",
+          "order": "D02-D-03210",
+          "earliest_s": 217129.88786722661
+        },
+        "planned_wait_lower_bound_s": 738.1649981575902
+      },
+      {
+        "source": {
+          "container": "IN_D02-D-03439",
+          "block": "Y17",
+          "source": "D02-D-03439",
+          "earliest_s": 218755.84
+        },
+        "exit": {
+          "container": "IN_D02-D-03439",
+          "block": "Y17",
+          "order": "D02-D-03220",
+          "earliest_s": 217197.58406340991
+        },
+        "planned_wait_lower_bound_s": 1558.2559365900815
+      },
+      {
+        "source": {
+          "container": "IN_D02-D-03484",
+          "block": "Y17",
+          "source": "D02-D-03484",
+          "earliest_s": 219091.1098767716
+        },
+        "exit": {
+          "container": "IN_D02-D-03484",
+          "block": "Y17",
+          "order": "D02-D-03230",
+          "earliest_s": 217271.15497839107
+        },
+        "planned_wait_lower_bound_s": 1819.954898380529
+      },
+      {
+        "source": {
+          "container": "IN_D02-D-03550",
+          "block": "Y17",
+          "source": "D02-D-03550",
+          "earliest_s": 219560.57944674787
+        },
+        "exit": {
+          "container": "IN_D02-D-03550",
+          "block": "Y17",
+          "order": "D02-D-03233",
+          "earliest_s": 217286.00194154857
+        },
+        "planned_wait_lower_bound_s": 2274.577505199297
+      }
+    ],
+    "identity_sha256": "3a48f132771b1869c8016a1fb5f753b88bf39bef13de45c22630d07d3c2582b8"
+  },
+  "truck_orders": 32000,
+  "sources": 41086,
+  "exits": 27158,
+  "ending_unassigned_sources": 13928,
+  "source_exit_counts": {
+    "GATE_IN->GATE_OUT": 6077,
+    "GATE_IN->VESSEL_LOAD": 2120,
+    "INITIAL->GATE_OUT": 7473,
+    "INITIAL->VESSEL_LOAD": 4311,
+    "VESSEL_DISCHARGE->GATE_OUT": 4965,
+    "VESSEL_DISCHARGE->VESSEL_LOAD": 2212
+  },
+  "source_size_counts": {
+    "FT20": 13696,
+    "FT40": 27390
+  },
+  "planned_waiting_exits": 957,
+  "waiting_examples": [
+    {
+      "job": "D02-D-03193",
+      "container": "IN_D02-D-03312",
+      "planned_wait_lower_bound_s": 861.8361682737304
+    },
+    {
+      "job": "D02-D-03210",
+      "container": "IN_D02-D-03313",
+      "planned_wait_lower_bound_s": 738.1649981575902
+    },
+    {
+      "job": "D02-D-03220",
+      "container": "IN_D02-D-03439",
+      "planned_wait_lower_bound_s": 1558.2559365900815
+    },
+    {
+      "job": "D02-D-03230",
+      "container": "IN_D02-D-03484",
+      "planned_wait_lower_bound_s": 1819.954898380529
+    },
+    {
+      "job": "D02-D-03233",
+      "container": "IN_D02-D-03550",
+      "planned_wait_lower_bound_s": 2274.577505199297
+    },
+    {
+      "job": "D02-D-03243",
+      "container": "IN_D02-D-03568",
+      "planned_wait_lower_bound_s": 2329.965269746608
+    },
+    {
+      "job": "D02-D-03290",
+      "container": "IN_D02-D-03595",
+      "planned_wait_lower_bound_s": 2177.629580490524
+    },
+    {
+      "job": "D02-D-03355",
+      "container": "IN_D02-D-03606",
+      "planned_wait_lower_bound_s": 1776.3369124539895
+    }
+  ],
+  "max_planned_wait_lower_bound_s": 49527.17711932797,
+  "planned_source_to_demand_s": {
+    "minimum": -49527.17711932797,
+    "median": 106592.34336218445,
+    "maximum": 431796.1772643761,
+    "meaning": "planned time difference, NOT actual yard dwell"
+  },
+  "empty_execution_records": true,
+  "physical_execution_verified": false,
+  "ready_for_training": false,
+  "scope": "fixed-identity input validity only; no policy performance or operational realism claim",
+  "artifact": {
+    "path": "seed-data.json.gz",
+    "sha256": "9f0b59ac3930b70ca9977656989fe4e82e3675af01b61c7f140a9e01010ef262",
+    "bytes": 3463788,
+    "content_sha256": "4456a377e1a23c8c779dc7c40136d86a3baef7fcf13c8876c0c9181b5fe54787",
+    "uncompressed_bytes": 29970230
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "generation": "v6",
+  "scope": "CPU diagnostic pilot",
+  "code": {
+    "git_head": "e5bd8e24135fc86e2da5f98a6b45881c1bb81d48",
+    "git_dirty": false,
+    "source_sha256": "8092d6fbbc039a88c91a33c66df8244755c6b38c517dfd34b08b072b2996660e",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-train",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 57608,
+    "torch_threads": 1
+  },
+  "prereg_sha256": "bfb262cf629ac14c108aafd7e5840c23f3e91f08b04ffb6a20ee0ff71a05f1e1",
+  "arguments": {
+    "mode": "train",
+    "arm": "workload",
+    "seed": 9951000,
+    "init_seed": null,
+    "loads": [
+      3500,
+      5000,
+      7500,
+      12500,
+      3500
+    ],
+    "output": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/train-9951000-workload",
+    "prereg": "docs/research/v6-workload-reward/training-prereg.json",
+    "calibration": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/calibration-v2/calibration.json",
+    "checkpoint": null,
+    "seed_bundle": "C:/Users/geonu/orca/workspaces/port_reinforcement/yr331-runs/preflight-9951000.json.gz",
+    "stop_s": null
+  },
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 1000000.0,
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "learning_window_s": [
+    86400,
+    345600
+  ],
+  "calibration_sha256": "c62c864b4f54e08ec1e6912f6e998fa4cd94ab9ef894223bcc500f19397dc5dd",
+  "checkpoint_sha256": null,
+  "days": [
+    {
+      "index": 0,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9952000,
+      "t0": 0.0,
+      "train": false,
+      "n_days": 5
+    },
+    {
+      "index": 1,
+      "load": 5000,
+      "label": "보통",
+      "seed": 9953000,
+      "t0": 86400.0,
+      "train": true,
+      "n_days": 5
+    },
+    {
+      "index": 2,
+      "load": 7500,
+      "label": "혼잡시작",
+      "seed": 9954000,
+      "t0": 172800.0,
+      "train": true,
+      "n_days": 5
+    },
+    {
+      "index": 3,
+      "load": 12500,
+      "label": "혼잡",
+      "seed": 9955000,
+      "t0": 259200.0,
+      "train": true,
+      "n_days": 5
+    },
+    {
+      "index": 4,
+      "load": 3500,
+      "label": "원활",
+      "seed": 9956000,
+      "t0": 345600.0,
+      "train": false,
+      "n_days": 5
+    }
+  ]
+}
