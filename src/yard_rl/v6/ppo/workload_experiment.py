@@ -125,6 +125,7 @@ def run(args):
         return report
     except Exception as exc:
         write_json(out / 'failure.json', dict(error=repr(exc), traceback=traceback.format_exc(),
+            details=getattr(exc, 'report', None),
             wall_s=time.perf_counter()-start, time_s=rt.time_s if rt else None))
         write_json(out / 'status.json', dict(status='failed', error=repr(exc)))
         raise

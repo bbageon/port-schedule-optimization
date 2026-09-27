@@ -1,5 +1,8 @@
 """Realized telemetry and original-request audit, never fed into policy features."""
 from collections import Counter, defaultdict
+from dataclasses import asdict
+import gzip
+import json
 import math
 
 import numpy as np
@@ -91,6 +94,17 @@ class Observer:
         self(rt)
         write_json(self.output / 'completed-jobs.json', self.rows)
         write_json(self.output / 'workload-samples.json', self.potentials)
+        # Evaluation can be independently re-costed from realized events. These
+        # diagnostics are written after execution and never become model input.
+        with gzip.open(self.output / 'execution-records.json.gz', 'wt', encoding='utf-8') as stream:
+            rows = []
+            for key, rec in sorted(rt.bridge.records.items()):
+                row = {k: v for k, v in asdict(rec).items() if k != '_stamped'}
+                row['original_requested_gate_s'], row['original_notice_s'] = rt.original_requests[key]
+                row['final_requested_gate_s'] = rt.bridge.orders[key].in_out_reserve_s
+                rows.append(row)
+            json.dump(rows, stream, ensure_ascii=False, allow_nan=False)
+        write_json(self.output / 'trade-ledger.json', rt.bridge.ledger)
         periods = [(d.t0, d.t1) for d in self.days if d.is_train]
         cohorts = [self.request_metrics(rt, rt.time_s, p) for p in periods]
         market = rt.bridge.market
