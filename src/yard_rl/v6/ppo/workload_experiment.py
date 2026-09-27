@@ -61,7 +61,7 @@ def run(args):
     torch.manual_seed(args.init_seed or args.seed)
     policy = load_policy(args.checkpoint) if args.checkpoint else BlockPolicy()
     manifest = dict(generation='v6', scope='CPU diagnostic pilot', code=stamp,
-        prereg_sha256=file_sha256(prereg), arguments=vars(args), config=asdict(config),
+        prereg_sha256=file_sha256(prereg), arguments=vars(args), ppo=asdict(config),
         learning_window_s=[86400, (len(days)-1)*86400],
         calibration_sha256=file_sha256(args.calibration) if args.calibration else None,
         checkpoint_sha256=file_sha256(args.checkpoint) if args.checkpoint else None,
