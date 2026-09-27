@@ -117,3 +117,24 @@ def test_original_request_audit_does_not_charge_notice_leadtime(tmp_path):
     delayed = observer.request_metrics(rt, 300)
     assert delayed['requested'] == 1 and delayed['unfinished'] == 1
     assert delayed['original_request_wait_krw'] > 0 and delayed['actual_gate_wait_krw'] == 0
+
+
+def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container_input):
+    import torch
+    from yard_rl.v6.ppo.runtime import DebugStop
+    from yard_rl.v6.stage.month import plan_days
+    from yard_rl.v6.stage.month_run import run_month
+    from yard_rl.v6.world.integrated.profiles import build_h21_profile
+    cfg = replace(config(eta=0), capacity_fraction={c.crane_id: 1 for c in build_h21_profile().cranes})
+    results = []
+    for meter_arg in (None, WorkloadMeter(cfg)):
+        torch.manual_seed(10)
+        rt = PPORuntime(BlockPolicy(), seed=10, stop_s=7200, workload=meter_arg)
+        with pytest.raises(DebugStop):
+            run_month(seed=9909100, days=plan_days(9909100, [60, 60, 60]), ppo=rt)
+        results.append(rt)
+    assert results[0].cost_krw == results[1].cost_krw
+    assert results[0].crane_actions == results[1].crane_actions
+    assert results[1].workload.last['conservation_error_s'] < 1e-8
+    for key, value in results[0].policy.state_dict().items():
+        assert torch.equal(value, results[1].policy.state_dict()[key])
