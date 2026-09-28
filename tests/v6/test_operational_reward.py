@@ -111,3 +111,20 @@ def test_partial_completion_and_each_ledger_are_preserved_at_boundaries():
     assert rt.total_reward == pytest.approx(-normalized_loss(rt.physical,rt.reward_contract))
     rt.read_operational=lambda t: dict.fromkeys(KEYS,0.)
     with pytest.raises(RuntimeError,match='physical ledger decreased'): rt.boundary(180)
+
+
+def test_array_adapter_still_accepts_an_actual_v5_config():
+    from yard_rl.v5.ppo.runtime import PPOConfig as V5Config
+    from yard_rl.v6.gpu.ppo_runtime import RuntimeConfig
+    old = V5Config()
+    adapted = RuntimeConfig.from_ppo_config(old)
+    assert adapted.reward_mode == 'legacy-krw' and adapted.reward_scale_krw == old.reward_scale_krw
+
+
+def test_array_rejects_corrupt_negative_initial_physical_ledger():
+    import jax.numpy as jnp
+    from yard_rl.v6.gpu import ppo_runtime as pr
+    cfg = pr.RuntimeConfig(n_blocks=1,cmax=2,amax=2,reward_mode='operational')
+    state,_ = pr.boundary(pr.new_state(cfg),cfg,0.,0.,jnp.zeros((1,37)),jnp.zeros(1),
+                          physical=jnp.array([-1.,0.,0.,0.]))
+    with pytest.raises(FloatingPointError): pr.raise_on_flags(state.flags)

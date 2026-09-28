@@ -206,11 +206,12 @@ class RuntimeConfig:
         """v5 `PPOConfig` + `PPORuntime.__init__` 인자 → 이 설정. 이름을 손으로 옮기지 않는다."""
         window = (None if learning_window_s is None
                   else (float(learning_window_s[0]), float(learning_window_s[1])))
+        mode = getattr(config, 'reward_mode', 'legacy-krw')
+        ref = reference_config(gamma=config.gamma, time_unit_s=config.time_unit_s) if mode == 'operational' else None
         return cls(n_blocks=int(n_blocks), cmax=int(cmax), amax=int(amax), input_dim=int(input_dim),
                    rollout_intervals=int(config.rollout_intervals),
-                   reward_scale_krw=config.reward_scale_krw, reward_mode=config.reward_mode,
-                   operational_scales=(tuple(reference_config(gamma=config.gamma, time_unit_s=config.time_unit_s)['scales'][k]
-                        for k in KEYS) if config.reward_mode == 'operational' else None),
+                   reward_scale_krw=config.reward_scale_krw, reward_mode=mode,
+                   operational_scales=tuple(ref['scales'][k] for k in KEYS) if ref else None,
                    training=bool(training),
                    stop_s=(None if stop_s is None else float(stop_s)),
                    learning_window_s=window)
@@ -530,6 +531,7 @@ def boundary(st: RuntimeState, cfg: RuntimeConfig, t, cost, states, values,
             raise ValueError('Expected four physical totals')
         dx = physical - st.physical_totals
         new |= jnp.where(jnp.all(jnp.isfinite(physical)), 0, F_COST_NONFINITE)
+        new |= jnp.where(jnp.any(physical < 0), F_COST_FELL, 0)
         new |= jnp.where(advanced & jnp.any(dx < -COST_FELL_EPS), F_COST_FELL, 0)
         terms = [WEIGHTS[i] * div_const(-dx[i], cfg.operational_scales[i], dtype=F) for i in range(4)]
         reward = jnp.where(advanced, sum(terms), 0.)
