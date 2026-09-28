@@ -109,7 +109,9 @@ def run_one(args):
         assert all(np.isfinite(v) for row in rt.updates for v in row.values() if isinstance(v,float))
         journal.save_admissions()
         assert journal.admissions['skipped'] == journal.admissions['vessel_failed'] == 0
-        expected_admitted = sum(d.load for d in days if d.t0 < stop) if training else len(document['schedule'])
+        # The existing announcer admits notified future work before its service day.
+        expected_admitted = (sum((max(0.,e['arrival_s']-e['lead_s'])//60)*60 <= stop
+                                 for e in document['schedule']) if training else len(document['schedule']))
         assert journal.admissions['admitted'] == expected_admitted
         if args.arm == 'rule': assert rt.rule_exceptions['n'] == 0
         save_checkpoint(out/'policy-final.pt',rt)
