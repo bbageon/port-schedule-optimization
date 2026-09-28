@@ -8,7 +8,6 @@ import torch
 
 from .. import V4_BASE_COMMIT
 from .model import BlockPolicy, INPUT_DIM
-from ..reward.scaling import scaling_report
 
 FORMAT = "yard-v5-shared-block-ppo-1"
 
@@ -22,8 +21,7 @@ def save_checkpoint(path, runtime):
                 "hidden": runtime.policy.hidden, "v4_base_commit": V4_BASE_COMMIT,
                 "policy": runtime.policy.state_dict(), "optimizer": runtime.optimizer.state_dict(),
                 "config": asdict(runtime.config), "updates": len(runtime.updates),
-                "reward_normalization": scaling_report(runtime.config.reward_scale_krw,
-                    gamma=runtime.config.gamma, time_unit_s=runtime.config.time_unit_s),
+                "reward_normalization": runtime.reward_contract,
                 "action_rng": runtime.action_rng.get_state(),
                 "scope": "weights-and-optimizer-only; no physical world resume"}, path)
 
@@ -34,5 +32,7 @@ def load_policy(path):
         raise ValueError("Not a compatible v5 unified PPO checkpoint")
     policy = BlockPolicy(hidden=int(data["hidden"]))
     policy.load_state_dict(data["policy"], strict=True)
-    policy.checkpoint_reward_scale_krw = float(data['config']['reward_scale_krw'])
+    policy.checkpoint_reward_mode = data['config'].get('reward_mode', 'legacy-krw')
+    policy.checkpoint_reward_scale_krw = data['config']['reward_scale_krw']
+    policy.checkpoint_reward_contract = data.get('reward_normalization')
     return policy

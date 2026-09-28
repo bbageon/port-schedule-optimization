@@ -71,7 +71,7 @@ def test_committed_assignment_and_active_plan_not_shared_twice():
 
 @pytest.mark.parametrize('terminated', [False, True])
 def test_runtime_cost_separate_and_truncation_bootstraps_potential(terminated):
-    rt = PPORuntime(BlockPolicy(), config=PPOConfig(rollout_intervals=60))
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw', rollout_intervals=60))
     rt.bids = ['A']
     rt.states_at = lambda t: encode([[0.0] * 9], 'state')
     rt.read_cost = lambda t: t * 100
@@ -93,7 +93,7 @@ def test_discounted_round_trip_cannot_farm_shaping():
 
 
 def test_shape_disabled_preserves_cost_reward():
-    rt = PPORuntime(BlockPolicy())
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'))
     rt.bids = ['A']
     rt.states_at = lambda t: encode([[0.0] * 9], 'state')
     rt.read_cost = lambda t: t * 100

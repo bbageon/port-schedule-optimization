@@ -100,6 +100,7 @@ from .events import EMPTY_ID, EMPTY_TIME, TIME_DTYPE
 from .geom import Geom
 from .state import V_STEPS_EXHAUSTED
 from ..reward.scaling import default_reward_scale, scaling_report
+from ..reward.operational import KEYS, reference_config
 
 F = TIME_DTYPE
 #: v5 `ppo/model.ROLES.index("crane")` — 크레인 결정의 역할 번호
@@ -380,6 +381,16 @@ def cost_at(run: MB.TerminalRun, lay, profile, t, *, archive=()) -> PR.CostOut:
                         rehandles=MO.rehandles_of(run))
 
 
+def physical_at(run, lay, profile, t, *, archive=()):
+    """Seconds and counts from execution; never recover them by dividing currency."""
+    orders = boundary_orders(run, t)
+    tt = PH.censored_turn_time_s(orders, jnp.asarray(t, F))
+    truck = jnp.sum(jnp.where(jnp.isfinite(tt), tt, 0.))
+    idle = MO.month_vessel_idle(run, lay, archive=tuple(archive))
+    return jnp.asarray([truck, sum(row[1] for row in idle.values()),
+                        MO.yc_empty_travel_s(run, profile), MO.rehandles_of(run)], F)
+
+
 # ═══════════════════════════════════════════════ ④ 구간 → 갱신 입력
 def intervals_to_batch(rows, *, values_f32: bool = True, feat_f32: bool = True) -> PB.IntervalBatch:
     """`ppo_runtime.IntervalRow` R 개 → `ppo_buffer.IntervalBatch` (칸 이름만 옮긴다).
@@ -475,6 +486,7 @@ class TrainConfig:
     gae_lambda: float = 0.95
     time_unit_s: float = 60.0
     reward_scale_krw: float | None = None
+    reward_mode: str = 'operational'
     clip: float = 0.2
     value_coef: float = 0.5
     entropy_coef: float = 0.001
@@ -491,16 +503,25 @@ class TrainConfig:
     sample_seed: int | None = None
 
     def __post_init__(self):
-        if self.reward_scale_krw is None:
+        if self.reward_mode not in ('operational', 'legacy-krw'):
+            raise ValueError('Unknown reward mode')
+        if self.reward_mode == 'operational':
+            if self.reward_scale_krw is not None:
+                raise ValueError('Operational rewards do not use a KRW scale')
+            reference_config(gamma=self.gamma, time_unit_s=self.time_unit_s)
+        elif self.reward_scale_krw is None:
             object.__setattr__(self, 'reward_scale_krw', default_reward_scale(
                 gamma=self.gamma, time_unit_s=self.time_unit_s))
-        if not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0:
+        if self.reward_mode == 'legacy-krw' and (not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0):
             raise ValueError('Reward scale must be finite and positive')
 
     def runtime(self) -> PR.RuntimeConfig:
+        ref = reference_config(gamma=self.gamma, time_unit_s=self.time_unit_s) if self.reward_mode == 'operational' else None
         return PR.RuntimeConfig(n_blocks=self.n_blocks, cmax=self.cmax, amax=self.amax,
                                 input_dim=VF.INPUT_DIM, rollout_intervals=self.rollout_intervals,
                                 reward_scale_krw=self.reward_scale_krw, training=self.training,
+                                reward_mode=self.reward_mode,
+                                operational_scales=tuple(ref['scales'][k] for k in KEYS) if ref else None,
                                 stop_s=self.stop_s, learning_window_s=self.learning_window_s)
 
     def hyper(self) -> PU.PPOHyper:
@@ -518,7 +539,8 @@ class TrainConfig:
                    minibatch_size=int(config.minibatch_size),
                    learning_rate=float(config.learning_rate), gamma=float(config.gamma),
                    gae_lambda=float(config.gae_lambda), time_unit_s=float(config.time_unit_s),
-                   reward_scale_krw=float(config.reward_scale_krw), clip=float(config.clip),
+                   reward_scale_krw=config.reward_scale_krw, reward_mode=getattr(config, 'reward_mode', 'legacy-krw'),
+                   clip=float(config.clip),
                    value_coef=float(config.value_coef), entropy_coef=float(config.entropy_coef),
                    max_grad_norm=float(config.max_grad_norm), target_kl=float(config.target_kl),
                    training=bool(training), stop_s=stop_s, learning_window_s=learning_window_s,
@@ -599,7 +621,9 @@ def boundary_at(run: MB.TerminalRun, lay, profile, g: Geom, t: float, ts: TrainS
     cost = cost_at(run, lay, profile, t, archive=archive)
     ts.cost_breakdown = cost.phi.as_dict()
     st2, out = PR.boundary(ts.st, cfg, jnp.asarray(t, F), cost.total, states, values,
-                           terminated=terminated, final=final)
+                           terminated=terminated, final=final,
+                           physical=physical_at(run, lay, profile, t, archive=archive)
+                           if cfg.reward_mode == 'operational' else None)
     ts.st = st2
     PR.raise_on_flags(ts.st.flags, where=f"boundary t={float(t):g}")
     if bool(out.advanced) and bool(out.interval.valid):
@@ -779,7 +803,9 @@ def train_month(*, seed: int, days, state_dict=None, net_params=None, tcfg: Trai
         states, values = states_values(ts.params, run, g, end_s=lay.month_s,
                                        reserve_s=ts.params.reserve_s,
                                        crane_order=box["ex"]["crane_order"])
-        st2, out = PR.finish(ts.st, cfg, jnp.asarray(lay.sim_end_s, F), cost.total, states, values)
+        st2, out = PR.finish(ts.st, cfg, jnp.asarray(lay.sim_end_s, F), cost.total, states, values,
+                             physical=physical_at(run, lay, prof, lay.sim_end_s, archive=tape.archive)
+                             if cfg.reward_mode == 'operational' else None)
         ts.st = st2
         ts.cost_breakdown = cost.phi.as_dict()
         tape.snap(run, lay.month_s)
@@ -836,8 +862,9 @@ def report(ts: TrainState, cfg: PR.RuntimeConfig, *, month=None, box=None, tcfg=
     d["market"] = "unported"          # 시장(판매자·구매자·중개·매칭)이 배열판에 없다 — 머리말 ⑤
     d["roles"] = {**{r: None for r in UNASKED_ROLES}, **d["roles"]}
     if tcfg is not None:
-        d['reward_normalization'] = scaling_report(tcfg.reward_scale_krw,
-            gamma=tcfg.gamma, time_unit_s=tcfg.time_unit_s)
+        d['reward_normalization'] = (reference_config(gamma=tcfg.gamma, time_unit_s=tcfg.time_unit_s)
+            if tcfg.reward_mode == 'operational' else scaling_report(tcfg.reward_scale_krw,
+                gamma=tcfg.gamma, time_unit_s=tcfg.time_unit_s))
         #: v5 정본 매니페스트의 `action_mode` 와 같은 이름 (`ppo/continuous.py:62`)
         d["action_mode"] = "sample-all-days" if bool(tcfg.sample_actions) else "argmax"
         #: 실제로 쓴 씨를 적는다 — `sample_seed` 를 안 주면 **무대 시드**를 쓴다 (`month_setup`)

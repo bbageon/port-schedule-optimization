@@ -22,7 +22,7 @@ def run(args):
     torch.manual_seed(9911000)
     stamp = code_stamp()
     document, audit = load_seed_bundle(args.seed_bundle, expected_sha256=file_sha256(args.seed_bundle))
-    config = PPOConfig(reward_scale_krw=1.)  # Reference never learns; physical trace has no money.
+    config = PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1.)  # Reference never learns.
     days = plan_days(9911000, loads=[3500,5000,7500])
     out = Path(args.output)
     manifest = dict(code=stamp, seed=9911000, ppo=asdict(config),

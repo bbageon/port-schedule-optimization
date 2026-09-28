@@ -119,7 +119,7 @@ def test_frozen_sampling_explores_while_argmax_repeats_one_action():
 
 
 def test_boundary_telescopes_cost_and_preserves_zero_time_choices():
-    rt = PPORuntime(BlockPolicy(), config=PPOConfig(rollout_intervals=99), training=False)
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw', rollout_intervals=99), training=False)
     rt.bids = ["b"]
     rt.states_at = lambda t: encode([[t / 3600]], "state")
     rt.read_cost = lambda t: 100 + 2 * t

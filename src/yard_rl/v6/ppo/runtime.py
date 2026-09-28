@@ -11,6 +11,7 @@ import torch
 from ..features.block import block_features
 from ..reward.phi import terminal_cost_krw
 from ..reward.scaling import default_reward_scale, scaling_report
+from ..reward.operational import KEYS, reference_config, runtime_totals, normalized_loss
 from ..stage.episode import rehandles_of, yc_empty_travel_s
 from ..stage.month import month_vessel_idle
 from .buffer import Choice, Interval
@@ -33,6 +34,7 @@ class PPOConfig:
     gae_lambda: float = 0.95
     time_unit_s: float = 60.0
     reward_scale_krw: float | None = None  # None derives the scale from the frozen reference.
+    reward_mode: str = 'operational'
     clip: float = 0.2
     value_coef: float = 0.5
     entropy_coef: float = 0.001
@@ -44,14 +46,20 @@ class PPOConfig:
         if any(not isinstance(v, int) or isinstance(v, bool) for v in counts):
             raise ValueError("Batch sizes and epochs must be positive integers")
         if any(not math.isfinite(float(v)) for k, v in asdict(self).items()
-               if not (k == 'reward_scale_krw' and v is None)):
+               if k != 'reward_mode' and not (k == 'reward_scale_krw' and v is None)):
             raise ValueError("PPO configuration must be finite")
-        if self.reward_scale_krw is None:
+        if self.reward_mode not in ('operational', 'legacy-krw'):
+            raise ValueError('Unknown reward mode')
+        if self.reward_mode == 'operational' and self.reward_scale_krw is not None:
+            raise ValueError('Operational rewards do not use a KRW scale')
+        if self.reward_mode == 'legacy-krw' and self.reward_scale_krw is None:
             object.__setattr__(self, 'reward_scale_krw', default_reward_scale(
                 gamma=self.gamma, time_unit_s=self.time_unit_s))
         if min(self.rollout_intervals, self.epochs, self.minibatch_size) < 1:
             raise ValueError("Batch sizes and epochs must be positive")
-        if min(self.learning_rate, self.time_unit_s, self.reward_scale_krw,
+        if self.reward_scale_krw is not None and self.reward_scale_krw <= 0:
+            raise ValueError('PPO scales must be positive')
+        if min(self.learning_rate, self.time_unit_s,
                self.max_grad_norm, self.target_kl) <= 0:
             raise ValueError("PPO scales must be positive")
         if not (0 < self.gamma <= 1 and 0 <= self.gae_lambda <= 1 and 0 < self.clip < 1):
@@ -67,10 +75,8 @@ class PPORuntime:
         if stop_s is not None and (not math.isfinite(stop_s) or stop_s <= 0):
             raise ValueError("stop_s must be finite and positive")
         self.policy, self.config = policy, config or PPOConfig()
-        checkpoint_scale = getattr(policy, 'checkpoint_reward_scale_krw', None)
-        if checkpoint_scale is not None and checkpoint_scale != self.config.reward_scale_krw:
-            raise ValueError('Checkpoint reward scale differs: use its explicit config for replay '
-                             'or train a fresh policy with the new reference scale')
+        self.reward_contract = reward_contract(self.config)
+        check_reward_contract(policy, self.config, self.reward_contract)
         self.training, self.stop_s, self.on_update = bool(training), stop_s, on_update
         #: ★행동을 **추첨으로 뽑을지**(True) **최고점만 고를지**(False) — [[YR-319]].
         #:
@@ -93,6 +99,8 @@ class PPORuntime:
         self.role_counts, self.crane_actions = Counter(), Counter()
         self.time_s, self.initial_cost, self.cost_krw = None, None, 0.0
         self.total_reward, self.intervals = 0.0, 0
+        self.physical = self.initial_physical = None
+        self.objective = self.initial_objective = 0.
         self.learning_reward, self.learning_intervals = 0.0, 0
         self.workload = workload
         self.potential = None
@@ -135,6 +143,9 @@ class PPORuntime:
         self.cost_breakdown = phi.as_dict()
         return float(phi.total)
 
+    def read_operational(self, t):
+        return runtime_totals(self, t)
+
     def select(self, role, bid, t, rows, mask=None):
         if not math.isfinite(t) or t < 0:
             raise ValueError("Decision time must be finite and nonnegative")
@@ -173,11 +184,15 @@ class PPORuntime:
         with torch.no_grad():
             bootstrap = self.policy.value(states).numpy().copy()
         cost = self.read_cost(t)
+        physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+        objective = (normalized_loss(physical, self.reward_contract) if physical is not None
+                     else cost / self.config.reward_scale_krw)
         next_potential = (0.0 if terminated else self.workload.snapshot(t)) if self.workload else 0.0
         if not math.isfinite(cost):
             raise FloatingPointError("Non-finite environment cost")
         if self.initial_cost is None:
             self.initial_cost = cost
+            self.initial_objective, self.initial_physical = objective, physical
         elif t > self.time_s + 1e-6:
             if self.learning_window_s is not None and any(
                     self.time_s < edge < t for edge in self.learning_window_s):
@@ -185,7 +200,13 @@ class PPORuntime:
             delta = cost - self.cost_krw
             if delta < -1e-5:
                 raise RuntimeError("Cumulative cost fell: lost/pruned accounting data")
-            reward = -delta / self.config.reward_scale_krw
+            if physical is None:
+                reward = -delta / self.config.reward_scale_krw
+            else:
+                changes = {k: physical[k]-self.physical[k] for k in KEYS}
+                if min(changes.values()) < -1e-5:
+                    raise RuntimeError('Cumulative physical ledger decreased')
+                reward = -normalized_loss(changes, self.reward_contract)
             shaping = (self.workload.config.eta * (
                 self.config.gamma ** ((t - self.time_s) / self.config.time_unit_s)
                 * next_potential - self.potential)) if self.workload else 0.0
@@ -202,6 +223,7 @@ class PPORuntime:
         elif not final:
             return  # Repeated reviews must not erase decisions or charge cost twice.
         self.time_s, self.cost_krw = float(t), cost
+        self.objective, self.physical = objective, physical
         self.potential = next_potential
         should_stop = self.stop_s is not None and t >= self.stop_s - 1e-6
         if (len(self.buffer) >= self.config.rollout_intervals or final or should_stop
@@ -223,7 +245,7 @@ class PPORuntime:
         self.truncated = not terminated
 
     def report(self):
-        return {"generation": "v5", "algorithm": "shared-block-PPO",
+        return {"generation": "v6", "algorithm": "shared-block-PPO",
                 "time_s": self.time_s, "blocks": len(self.bids),
                 "intervals": self.intervals, "roles": dict(self.role_counts),
                 "crane_actions": dict(self.crane_actions), "cost_krw": self.cost_krw,
@@ -240,5 +262,26 @@ class PPORuntime:
                 "n_space": self.bridge.n_space, "n_time": self.bridge.n_time,
                 "cost_breakdown": self.cost_breakdown,
                 "config": asdict(self.config),
-                "reward_normalization": scaling_report(self.config.reward_scale_krw,
-                    gamma=self.config.gamma, time_unit_s=self.config.time_unit_s)}
+                "reward_mode": self.config.reward_mode, "physical_totals": self.physical,
+                "initial_physical_totals": self.initial_physical,
+                "objective": self.objective, "initial_objective": self.initial_objective,
+                "reward_normalization": self.reward_contract}
+
+
+def reward_contract(config):
+    if config.reward_mode == 'operational':
+        return reference_config(gamma=config.gamma, time_unit_s=config.time_unit_s)
+    return scaling_report(config.reward_scale_krw, gamma=config.gamma, time_unit_s=config.time_unit_s)
+
+
+def check_reward_contract(policy, config, contract=None):
+    mode = getattr(policy, 'checkpoint_reward_mode', None)
+    if mode is not None and mode != config.reward_mode:
+        raise ValueError('Checkpoint reward mode differs; train fresh or replay its recorded mode')
+    if mode == 'operational':
+        if policy.checkpoint_reward_contract != (contract or reward_contract(config)):
+            raise ValueError('Checkpoint operational reference/weights differ')
+    else:
+        scale = getattr(policy, 'checkpoint_reward_scale_krw', None)
+        if scale is not None and scale != config.reward_scale_krw:
+            raise ValueError('Checkpoint reward scale differs: use its explicit config for replay')

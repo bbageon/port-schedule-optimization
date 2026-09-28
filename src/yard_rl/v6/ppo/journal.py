@@ -38,10 +38,11 @@ class RunJournal:
         self.admissions = {"admitted": 0, "skipped": 0, "truck_failures": [],
                            "vessels": [], "vessel_failed": 0, "time_s": 0}
         self.last_day_cost, self.last_updates, self.last_learning_reward = 0.0, 0, 0.0
+        self.last_objective = 0.
         self.last_roles, self.last_cranes = {}, {}
         write_json(self.output / "manifest.json", manifest)
         self.event("start", {"code": manifest["code"], "config": manifest["ppo"],
-                             "n_days": len(days), "learning_days": len(days) - 2})
+                             "n_days": len(days), "learning_days": manifest.get("learning_days", len(days) - 2)})
         write_json(self.output / "status.json", {"state": "building_world", "day": 0,
                                                   "time_s": 0, "pid": manifest["code"]["pid"]})
         self.save_admissions()
@@ -103,14 +104,16 @@ class RunJournal:
         self.last_time = t
         if t == 0:
             self.last_day_cost = runtime.cost_krw
+            self.last_objective = runtime.objective
         if t > 0 and t % DAY_S == 0 and t <= len(self.days) * DAY_S:
             day = self.days[int(t // DAY_S) - 1]
             for sim in runtime.mbt.blocks.values():
                 sim.check_invariants()
-            row = {"day": day.index + 1, "train": day.is_train, "load": day.load,
+            row = {"day": day.index + 1, "train": runtime.collecting_at(day.t0), "load": day.load,
                    "time_s": t, "interval_cost_krw": runtime.cost_krw - self.last_day_cost,
                    "cost_krw": runtime.cost_krw, "updates": len(runtime.updates) - self.last_updates,
                    "learning_reward": runtime.learning_reward - self.last_learning_reward,
+                   "interval_objective": runtime.objective-self.last_objective,
                    "roles": {k: v - self.last_roles.get(k, 0) for k, v in runtime.role_counts.items()},
                    "crane_actions": {k: v - self.last_cranes.get(k, 0)
                                      for k, v in runtime.crane_actions.items()},
@@ -118,6 +121,7 @@ class RunJournal:
                    "checkpoint": self.checkpoint(f"day_{day.index + 1:02d}.pt", runtime)}
             self.daily.append(row)
             self.last_day_cost, self.last_updates = runtime.cost_krw, len(runtime.updates)
+            self.last_objective = runtime.objective
             self.last_learning_reward = runtime.learning_reward
             self.last_roles, self.last_cranes = dict(runtime.role_counts), dict(runtime.crane_actions)
             write_json(self.output / "days.json", self.daily)
@@ -127,7 +131,7 @@ class RunJournal:
             cargo = getattr(runtime.mbt, 'cargo_report', None)
             if cargo is not None:
                 write_json(self.output / 'cargo-status.json', dict(time_s=t, **cargo()))
-            phase = ("warmup" if t < DAY_S else "training" if runtime.collecting_at(t)
+            phase = ("training" if runtime.collecting_at(t) else "warmup" if t < DAY_S
                      else "cooldown" if t < len(self.days) * DAY_S else "drain")
             state = {"state": "running", "phase": phase, "time_s": t,
                      "day": min(len(self.days), int(t // DAY_S) + 1),

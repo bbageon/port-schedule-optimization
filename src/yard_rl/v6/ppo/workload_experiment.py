@@ -50,7 +50,7 @@ def run(args):
     if out.exists():
         raise FileExistsError(out)
     days = plan_days(args.seed, loads=args.loads)
-    config = PPOConfig(reward_scale_krw=args.reward_scale_krw)
+    config = PPOConfig(reward_mode='legacy-krw', reward_scale_krw=args.reward_scale_krw)
     registration = json.loads(prereg.read_text(encoding='utf-8'))
     if registration.get('schema') == 'yr331.pilot.v1' and config.reward_scale_krw != 1_000_000.:
         raise ValueError('YR-331-b preregistered a historical scale: use --reward-scale-krw 1000000 '

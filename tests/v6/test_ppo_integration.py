@@ -38,7 +38,7 @@ def test_real_engine_all_roles_no_world_clone_continuous_updates(monkeypatch, tm
                for kind in ("SERVE", "WAIT", "REPOSITION", "PRE_REHANDLE"))
     assert report["txn_failed"] == 0 and report["traded_edges"] > 0
     assert report["engine_end_s"] > report["time_s"] == 43200
-    assert report["team_reward"] == pytest.approx(-report["cost_krw"] / rt.config.reward_scale_krw)
+    assert report['team_reward'] == pytest.approx(-(rt.objective-rt.initial_objective))
     # Vessel supply jobs really progressed; a quiet truck-only smoke is insufficient.
     assert any(v.started and v.remaining_moves < v.plan.total_moves
                for s in rt.mbt.blocks.values() for v in s.vessels.values())
@@ -80,5 +80,5 @@ def test_midnight_cleanup_does_not_reset_cost_or_world(fixed_container_input):
         run_month(seed=9900302, days=days, ppo=rt)
     assert rt.time_s == DAY_S + 60
     assert rt.intervals == 1441
-    assert rt.total_reward == pytest.approx(-rt.cost_krw / rt.config.reward_scale_krw)
+    assert rt.total_reward == pytest.approx(-(rt.objective-rt.initial_objective))
     assert len(rt.mbt.blocks) == 21 and rt.cost_krw > 0

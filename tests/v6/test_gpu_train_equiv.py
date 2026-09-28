@@ -584,6 +584,11 @@ def test_B_frozen_rollout_boundaries_match_v5():
     assert rep["roles"]["seller"] is None and rep["roles"]["buyer"] is None, rep["roles"]
     assert rep["market"] == "unported" and rep["traded_edges"] is None, rep["market"]
     assert rep["crane_actions"] == r5["crane_actions"], (rep["crane_actions"], r5["crane_actions"])
+    # Compare the direct physical ledgers and normalized reward, not only KRW diagnostics.
+    from yard_rl.v6.reward.operational import KEYS
+    np.testing.assert_allclose([rep['physical_totals'][k] for k in KEYS],
+                               [r5['physical_totals'][k] for k in KEYS], rtol=1e-10)
+    assert rep['team_reward'] == pytest.approx(r5['team_reward'], rel=1e-10)
     assert r5["roles"].get("seller", 0) > 0, "v5 가 판매자에게 묻지 않았다 — 대조 전제가 바뀌었다"
 
 

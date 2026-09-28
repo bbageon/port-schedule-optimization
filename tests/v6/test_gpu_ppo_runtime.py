@@ -168,7 +168,8 @@ def _run_v5(*, load: int, duration_s: float, window=None, training: bool = True,
     """
     torch.manual_seed(SEED)
     torch.set_num_threads(1)
-    config = PPOConfig(rollout_intervals=60, epochs=2, minibatch_size=64)
+    config = PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1e6,
+                       rollout_intervals=60, epochs=2, minibatch_size=64)
     rt = PPORuntime(BlockPolicy(), config=config, seed=SEED, training=training,
                     stop_s=duration_s, sample_actions=False, learning_window_s=window)
     intervals: list = []
@@ -722,7 +723,7 @@ _S1, _V1 = jnp.zeros((1, 37)), jnp.zeros((1,))
 
 def _stub_v5(**kw) -> PPORuntime:
     """1블록 세계 — 상태·비용을 함수로 갈아끼운 v5 런타임 (`test_ppo_continuous.py:18-45` 꼴)."""
-    rt = PPORuntime(BlockPolicy(), **kw)
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'), **kw)
     rt.bids, rt.index = ["b"], {"b": 0}
     rt.states_at = lambda t: encode([[0.0]], "state")
     rt.read_cost = lambda t: 100.0 + 2.0 * t

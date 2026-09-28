@@ -63,16 +63,15 @@ def make_plan(seed: int, n_days: int, load=None):
     return plan_month(seed, n_days=int(n_days))
 
 
-def load_net(ckpt: str | None, *, net_seed: int, hidden: int, reward_scale_krw=None):
+def load_net(ckpt: str | None, *, net_seed: int, hidden: int, reward_scale_krw=None, reward_mode=None):
     """체크포인트가 있으면 그 가중치, 없으면 **고정 시드 무작위 초기화** (torch 로 만들어 같은 수를 싣는다)."""
     from yard_rl.v6.gpu import v5net as VN
     if ckpt:
         from yard_rl.v6.ppo.checkpoint import load_policy
         pol = load_policy(ckpt)
-        from yard_rl.v6.reward.scaling import default_reward_scale
-        scale = default_reward_scale() if reward_scale_krw is None else reward_scale_krw
-        if pol.checkpoint_reward_scale_krw != scale:
-            raise ValueError('Checkpoint reward scale differs; replay with its explicit recorded scale')
+        from yard_rl.v6.ppo.runtime import PPOConfig, check_reward_contract
+        mode = reward_mode or ('legacy-krw' if reward_scale_krw is not None else 'operational')
+        check_reward_contract(pol, PPOConfig(reward_mode=mode, reward_scale_krw=reward_scale_krw))
         sd = {k: v.detach().cpu().numpy() for k, v in pol.state_dict().items()}
         return VN.load_v5_params(sd), f"ckpt:{Path(ckpt).stem}"
     import torch
@@ -93,6 +92,7 @@ def main(argv=None) -> int:
     ap.add_argument("--cap-moves", type=int, default=None, help="본선 한 척 물량 상한 (시험용)")
     ap.add_argument("--ckpt", default=None, help="v5 체크포인트 (없으면 고정 시드 무작위 초기화)")
     ap.add_argument("--reward-scale-krw", type=float, help="과거 결과 재현용 명시적 눈금; 기본은 고정 기준 자료")
+    ap.add_argument('--reward-mode', choices=['operational', 'legacy-krw'], help='기본: 시간·횟수 직접 정규화')
     ap.add_argument("--net-seed", type=int, default=20_260_927)
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--e0", type=int, default=0,
@@ -117,14 +117,15 @@ def main(argv=None) -> int:
     from yard_rl.v6.stage.month import DAY_S
 
     days = make_plan(args.seed, args.days, args.debug_load)
+    reward_mode = args.reward_mode or ('legacy-krw' if args.reward_scale_krw is not None else 'operational')
     net, net_tag = load_net(args.ckpt, net_seed=args.net_seed, hidden=args.hidden,
-                            reward_scale_krw=args.reward_scale_krw)
+                            reward_scale_krw=args.reward_scale_krw, reward_mode=reward_mode)
     window = None if args.no_learning_window else (DAY_S, (len(days) - 1) * DAY_S)
     training = not args.eval
     #: v5 `PPORuntime.__init__` 의 규칙 그대로 — 안 주면 `sample_actions = bool(training)`
     sample = training if args.sample is None else bool(args.sample)
     tcfg = TR.TrainConfig(training=training, stop_s=args.stop_s, cmax=int(args.cmax),
-                          reward_scale_krw=args.reward_scale_krw,
+                          reward_scale_krw=args.reward_scale_krw, reward_mode=reward_mode,
                           learning_window_s=window, sample_actions=sample,
                           sample_seed=args.sample_seed)
     blocks = tuple(b.strip() for b in args.blocks.split(",")) if args.blocks else None

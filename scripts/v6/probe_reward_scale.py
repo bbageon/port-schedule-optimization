@@ -24,7 +24,7 @@ def run(output):
     torch.set_num_threads(1)
     seed, stop = 9900628, 21600.
     torch.manual_seed(seed)
-    config = PPOConfig()
+    config = PPOConfig(reward_mode='legacy-krw')  # Preserve the YR-331-d historical protocol.
     stamp = code_stamp()
     out = Path(output)
     days = plan_days(seed, loads=[7500, 7500])

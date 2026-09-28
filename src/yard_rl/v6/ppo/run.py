@@ -63,6 +63,8 @@ def main(argv=None):
     parser.add_argument("--seconds", type=float, default=7200)
     parser.add_argument("--rollout-intervals", type=int, default=60)
     parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument('--reward-mode', choices=['operational', 'legacy-krw'],
+                        help='Default: operational seconds/counts; legacy-krw is for historical replay')
     parser.add_argument("--reward-scale-krw", type=float,
                         help="Explicit historical scale for replay; default uses frozen reference data")
     parser.add_argument("--checkpoint", type=Path, help="Existing v5 weights for a new world")
@@ -74,6 +76,7 @@ def main(argv=None):
     if args.eval and args.checkpoint is None:
         parser.error("--eval requires --checkpoint")
     config = PPOConfig(rollout_intervals=args.rollout_intervals, epochs=args.epochs,
+                       reward_mode=args.reward_mode or ('legacy-krw' if args.reward_scale_krw is not None else 'operational'),
                        reward_scale_krw=args.reward_scale_krw)
     policy = load_policy(args.checkpoint) if args.checkpoint else None
     runtime, report = run_debug(seed=args.seed, load=args.load, duration_s=args.seconds,

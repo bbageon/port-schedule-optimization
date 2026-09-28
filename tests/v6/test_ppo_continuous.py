@@ -16,7 +16,7 @@ from yard_rl.v6.world.integrated.engine import TerminalSimulator
 
 
 def test_learning_window_excludes_edges_but_keeps_sampling_and_bootstrap():
-    rt = PPORuntime(BlockPolicy(), learning_window_s=(60, 180))
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'), learning_window_s=(60, 180))
     rt.bids, rt.index = ["b"], {"b": 0}
     rt.states_at = lambda t: encode([[t / 3600]], "state")
     rt.read_cost = lambda t: 100 + 2 * t
@@ -52,7 +52,7 @@ def test_invalid_learning_window(window):
 
 
 def test_crossed_window_boundary_is_not_silently_misattributed():
-    rt = PPORuntime(BlockPolicy(), learning_window_s=(60, 180))
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'), learning_window_s=(60, 180))
     rt.bids = ["b"]
     rt.states_at = lambda t: encode([[0]], "state")
     rt.read_cost = lambda t: t
@@ -126,7 +126,7 @@ def test_real_three_day_run_window_checkpoints_no_clones(monkeypatch, tmp_path, 
     days = json.loads((out / "days.json").read_text())
     assert [d["updates"] for d in days] == [0, 24, 0]
     assert [d["train"] for d in days] == [False, True, False]
-    assert days[1]["interval_cost_krw"] == pytest.approx(-rt.learning_reward * rt.config.reward_scale_krw)
+    assert days[1]['interval_objective'] == pytest.approx(-rt.learning_reward)
     policies = [load_policy(out / name).state_dict()
                 for name in ("initial.pt", "day_01.pt", "day_02.pt", "day_03.pt", "final.pt")]
     equal = lambda a, b: all(torch.equal(a[k], b[k]) for k in a)

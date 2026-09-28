@@ -50,13 +50,13 @@ def test_actual_reference_reproduces_scale_and_honors_discount():
         if raw[n,0] > 86400:
             values.append(acc)
     assert fit['scale_krw'] == pytest.approx(np.std(values), rel=1e-12)
-    assert PPOConfig().reward_scale_krw == fit['scale_krw']
-    assert PPOConfig(gamma=.99).reward_scale_krw == reference_scaling(gamma=.99)['scale_krw']
-    assert PPOConfig(gamma=.99).reward_scale_krw != fit['scale_krw']
+    assert PPOConfig(reward_mode='legacy-krw', ).reward_scale_krw == fit['scale_krw']
+    assert PPOConfig(reward_mode='legacy-krw', gamma=.99).reward_scale_krw == reference_scaling(gamma=.99)['scale_krw']
+    assert PPOConfig(reward_mode='legacy-krw', gamma=.99).reward_scale_krw != fit['scale_krw']
 
 
 def test_cpu_reward_preserves_currency_and_does_not_clip_large_losses():
-    rt = PPORuntime(BlockPolicy(), training=False)
+    rt = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'), training=False)
     rt.bids = ['b']
     rt.states_at = lambda t: encode([[0]], 'state')
     costs = {0: 25., 60: 25.+rt.config.reward_scale_krw*100, 120: 25.+rt.config.reward_scale_krw*300}
@@ -68,16 +68,16 @@ def test_cpu_reward_preserves_currency_and_does_not_clip_large_losses():
 
 
 def test_checkpoint_units_are_explicit_and_mismatched_reuse_is_rejected(tmp_path):
-    old = PPORuntime(BlockPolicy(), config=PPOConfig(reward_scale_krw=1_000_000))
+    old = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1_000_000))
     save_checkpoint(tmp_path/'old.pt', old)
     loaded = load_policy(tmp_path/'old.pt')
-    with pytest.raises(ValueError, match='Checkpoint reward scale differs'):
-        PPORuntime(loaded)
-    replay = PPORuntime(loaded, config=PPOConfig(reward_scale_krw=1_000_000))
+    with pytest.raises(ValueError, match='Checkpoint reward (scale|mode) differs'):
+        PPORuntime(loaded, config=PPOConfig(reward_mode='legacy-krw'))
+    replay = PPORuntime(loaded, config=PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1_000_000))
     assert replay.config.reward_scale_krw == 1_000_000
-    new = PPORuntime(BlockPolicy())
+    new = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw'))
     save_checkpoint(tmp_path/'new.pt', new)
-    reloaded = PPORuntime(load_policy(tmp_path/'new.pt'))
+    reloaded = PPORuntime(load_policy(tmp_path/'new.pt'), config=PPOConfig(reward_mode='legacy-krw'))
     for key, value in new.policy.state_dict().items():
         assert torch.equal(value, reloaded.policy.state_dict()[key])
     data = torch.load(tmp_path/'new.pt', weights_only=True)
@@ -90,10 +90,10 @@ def test_array_and_cpu_use_the_same_reference_at_real_boundaries():
     import jax.numpy as jnp
     from yard_rl.v6.gpu import ppo_runtime as pr
     from yard_rl.v6.gpu.train import TrainConfig
-    cpu = PPOConfig()
+    cpu = PPOConfig(reward_mode='legacy-krw', )
     cfg = pr.RuntimeConfig(n_blocks=1, cmax=2, amax=2, training=False)
-    assert cfg.reward_scale_krw == cpu.reward_scale_krw == TrainConfig().reward_scale_krw
-    assert TrainConfig(gamma=.99).reward_scale_krw == PPOConfig(gamma=.99).reward_scale_krw
+    assert cfg.reward_scale_krw == cpu.reward_scale_krw == TrainConfig(reward_mode='legacy-krw', ).reward_scale_krw
+    assert TrainConfig(reward_mode='legacy-krw', gamma=.99).reward_scale_krw == PPOConfig(reward_mode='legacy-krw', gamma=.99).reward_scale_krw
     st = pr.new_state(cfg)
     states, values = jnp.zeros((1,37)), jnp.zeros(1)
     step = jax.jit(lambda s,t,c: pr.boundary(s,cfg,t,c,states,values))
@@ -107,10 +107,10 @@ def test_array_loader_cannot_silently_reinterpret_old_critic(tmp_path):
     import runpy
     from pathlib import Path
     load_net = runpy.run_path(str(Path(__file__).resolve().parents[2]/'scripts/v6/train_v6.py'))['load_net']
-    old = PPORuntime(BlockPolicy(), config=PPOConfig(reward_scale_krw=1_000_000))
+    old = PPORuntime(BlockPolicy(), config=PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1_000_000))
     path = tmp_path/'old.pt'
     save_checkpoint(path, old)
-    with pytest.raises(ValueError, match='Checkpoint reward scale differs'):
+    with pytest.raises(ValueError, match='Checkpoint reward (scale|mode) differs'):
         load_net(str(path), net_seed=1, hidden=64)
     net, _ = load_net(str(path), net_seed=1, hidden=64, reward_scale_krw=1_000_000)
     assert all(np.isfinite(np.asarray(p)).all() for p in net)

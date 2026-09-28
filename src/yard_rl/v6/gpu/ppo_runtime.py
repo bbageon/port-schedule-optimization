@@ -48,6 +48,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 from ..reward.scaling import default_reward_scale
+from ..reward.operational import KEYS, WEIGHTS, reference_config
 from typing import NamedTuple
 
 import jax.numpy as jnp
@@ -169,16 +170,28 @@ class RuntimeConfig:
     input_dim: int = 37                      #: 망 입력 폭 (`ppo/model.INPUT_DIM`)
     rollout_intervals: int = 60              #: 갱신 한 번에 모으는 구간 수 (`PPOConfig`)
     reward_scale_krw: float | None = None   #: None = 고정 기준 운전 자료의 반환 표준편차
+    reward_mode: str = 'legacy-krw'  # Low-level compatibility kernel; TrainConfig selects the current mode.
+    operational_scales: tuple | None = None
     training: bool = True                    #: `PPORuntime(training=)`
     stop_s: float | None = None              #: 디버그 절단 시각 (`DebugStop`)
     learning_window_s: tuple[float, float] | None = None    #: 학습창 [시작, 끝)
 
     def __post_init__(self):
-        if self.reward_scale_krw is None:
+        if self.reward_mode not in ('operational', 'legacy-krw'):
+            raise ValueError('Unknown reward mode')
+        if self.reward_mode == 'operational':
+            if self.reward_scale_krw is not None:
+                raise ValueError('Operational rewards do not use a KRW scale')
+            if self.operational_scales is None:
+                ref = reference_config()
+                object.__setattr__(self, 'operational_scales', tuple(ref['scales'][k] for k in KEYS))
+            if len(self.operational_scales) != 4 or any(not math.isfinite(s) or s <= 0 for s in self.operational_scales):
+                raise ValueError('Invalid physical scales')
+        elif self.reward_scale_krw is None:
             object.__setattr__(self, 'reward_scale_krw', default_reward_scale())
         if min(self.n_blocks, self.cmax, self.amax, self.input_dim, self.rollout_intervals) < 1:
             raise ValueError("칸 크기와 구간 수는 1 이상이어야 한다")
-        if not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0:
+        if self.reward_mode == 'legacy-krw' and (not math.isfinite(self.reward_scale_krw) or self.reward_scale_krw <= 0):
             raise ValueError("reward_scale_krw 는 양수여야 한다")
         if self.stop_s is not None and not (math.isfinite(self.stop_s) and self.stop_s > 0):
             raise ValueError("stop_s 는 유한한 양수여야 한다 (runtime.py:62-63)")
@@ -195,7 +208,9 @@ class RuntimeConfig:
                   else (float(learning_window_s[0]), float(learning_window_s[1])))
         return cls(n_blocks=int(n_blocks), cmax=int(cmax), amax=int(amax), input_dim=int(input_dim),
                    rollout_intervals=int(config.rollout_intervals),
-                   reward_scale_krw=float(config.reward_scale_krw),
+                   reward_scale_krw=config.reward_scale_krw, reward_mode=config.reward_mode,
+                   operational_scales=(tuple(reference_config(gamma=config.gamma, time_unit_s=config.time_unit_s)['scales'][k]
+                        for k in KEYS) if config.reward_mode == 'operational' else None),
                    training=bool(training),
                    stop_s=(None if stop_s is None else float(stop_s)),
                    learning_window_s=window)
@@ -258,6 +273,8 @@ class RuntimeState(NamedTuple):
     time_s: jnp.ndarray             # () f64    마지막 경계 시각 (+inf = 아직)
     initial_cost: jnp.ndarray       # () f64    첫 경계의 Φ (`initial_cost`)
     cost_krw: jnp.ndarray           # () f64    마지막 경계의 Φ
+    physical_totals: jnp.ndarray    # (4,) f64 cumulative seconds/counts, no currency
+    initial_physical: jnp.ndarray   # (4,) f64
     total_reward: jnp.ndarray       # () f64
     intervals: jnp.ndarray          # () int32
     learning_reward: jnp.ndarray    # () f64
@@ -280,6 +297,7 @@ def new_state(cfg: RuntimeConfig) -> RuntimeState:
     return RuntimeState(
         started=jnp.asarray(False), time_s=jnp.asarray(EMPTY_TIME, F),
         initial_cost=z, cost_krw=z, total_reward=z, intervals=zi,
+        physical_totals=jnp.zeros(4, F), initial_physical=jnp.zeros(4, F),
         learning_reward=z, learning_intervals=zi,
         states=jnp.zeros((b, cfg.input_dim), F), values=jnp.zeros((b,), F),
         pending=empty_pending(cfg), n_buffered=zi, updates=zi,
@@ -459,7 +477,7 @@ def count_crane_action(st: RuntimeState, kind) -> RuntimeState:
 
 # ───────────────────────────────────────────────── ③ 경계 (runtime.py:158-210)
 def boundary(st: RuntimeState, cfg: RuntimeConfig, t, cost, states, values,
-             *, terminated=False, final=False) -> tuple[RuntimeState, BoundaryOut]:
+             *, terminated=False, final=False, physical=None) -> tuple[RuntimeState, BoundaryOut]:
     """`PPORuntime.boundary` — 60초 동기화 경계 한 번.
 
     호출부가 먼저 준비하는 것 (v5 는 `boundary` 안에서 스스로 불렀다):
@@ -504,7 +522,20 @@ def boundary(st: RuntimeState, cfg: RuntimeConfig, t, cost, states, values,
     delta = jnp.where(advanced, delta_raw, 0.0)
     new |= jnp.where(advanced & (delta_raw < -COST_FELL_EPS), F_COST_FELL, 0)
     # ★나눗셈은 div_const — 역수 곱으로 접히면 마지막 비트가 갈린다 (exact.py)
-    reward = jnp.where(advanced, div_const(-delta, cfg.reward_scale_krw, dtype=F), 0.0)
+    if cfg.reward_mode == 'operational':
+        if physical is None:
+            raise ValueError('Operational boundary requires physical totals')
+        physical = jnp.asarray(physical, F)
+        if physical.shape != (4,):
+            raise ValueError('Expected four physical totals')
+        dx = physical - st.physical_totals
+        new |= jnp.where(jnp.all(jnp.isfinite(physical)), 0, F_COST_NONFINITE)
+        new |= jnp.where(advanced & jnp.any(dx < -COST_FELL_EPS), F_COST_FELL, 0)
+        terms = [WEIGHTS[i] * div_const(-dx[i], cfg.operational_scales[i], dtype=F) for i in range(4)]
+        reward = jnp.where(advanced, sum(terms), 0.)
+    else:
+        physical = st.physical_totals
+        reward = jnp.where(advanced, div_const(-delta, cfg.reward_scale_krw, dtype=F), 0.0)
 
     collecting_start = collecting_at(cfg, st.time_s) & st.started
     collected = advanced & collecting_start
@@ -546,6 +577,8 @@ def boundary(st: RuntimeState, cfg: RuntimeConfig, t, cost, states, values,
     st2 = st._replace(
         started=st.started | apply,
         time_s=time_s, initial_cost=initial_cost, cost_krw=cost_krw,
+        physical_totals=jnp.where(apply, physical, st.physical_totals),
+        initial_physical=jnp.where(first, physical, st.initial_physical),
         total_reward=total_reward, intervals=intervals,
         learning_reward=learning_reward, learning_intervals=learning_intervals,
         states=jnp.where(apply, states, st.states),
@@ -580,13 +613,13 @@ def refresh_values(st: RuntimeState, values) -> RuntimeState:
 
 
 def finish(st: RuntimeState, cfg: RuntimeConfig, t, cost, states, values,
-           *, terminated=False) -> tuple[RuntimeState, BoundaryOut]:
+           *, terminated=False, physical=None) -> tuple[RuntimeState, BoundaryOut]:
     """`PPORuntime.finish` (runtime.py:212-214) — 마지막 경계(`final=True`) 뒤 `truncated` 확정.
 
     `terminated=False` 는 "수요 일정이 끝나 시간이 다 된 것" 이라 **잘린 것으로 본다**
     (`month_run.py` 가 그렇게 부른다: 유한한 수요 일정은 시간 제한이다).
     """
-    st2, out = boundary(st, cfg, t, cost, states, values, terminated=terminated, final=True)
+    st2, out = boundary(st, cfg, t, cost, states, values, terminated=terminated, final=True, physical=physical)
     return st2._replace(truncated=~jnp.asarray(terminated, jnp.bool_)), out
 
 
@@ -611,6 +644,9 @@ def report(st: RuntimeState, cfg: RuntimeConfig, *, cost_breakdown=None, bridge=
         "cost_krw": float(st.cost_krw),
         "initial_cost_krw": (None if not bool(st.started) else float(st.initial_cost)),
         "team_reward": float(st.total_reward),
+        "reward_mode": cfg.reward_mode,
+        "physical_totals": (dict(zip(KEYS, map(float, st.physical_totals)))
+                            if cfg.reward_mode == 'operational' else None),
         "learning_window_s": (None if window is None else (float(window[0]), float(window[1]))),
         "learning_intervals": int(st.learning_intervals),
         "learning_reward": float(st.learning_reward),

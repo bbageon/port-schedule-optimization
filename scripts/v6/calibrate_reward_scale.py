@@ -24,7 +24,7 @@ def run(args):
     seed = 9911000
     days = plan_days(seed, loads=[3500, 5000, 7500])
     document, audit = load_seed_bundle(args.seed_bundle, expected_sha256=file_sha256(args.seed_bundle))
-    config = PPOConfig(reward_scale_krw=1.)  # Raw currency accounting; NO optimizer.
+    config = PPOConfig(reward_mode='legacy-krw', reward_scale_krw=1.)  # Raw accounting; NO optimizer.
     out = Path(args.output)
     manifest = dict(code=stamp, seed=seed, ppo=asdict(config),
                     prereg=args.prereg, prereg_sha256=file_sha256(args.prereg),

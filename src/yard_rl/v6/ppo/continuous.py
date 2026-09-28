@@ -98,9 +98,9 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None,
         if runtime.learning_intervals != expected or len(journal.daily) != n_days:
             raise RuntimeError("Learning/day boundaries did not cover exactly the registered window")
         learning_cost = sum(d["interval_cost_krw"] for d in journal.daily if d["train"])
-        if not math.isclose(-runtime.learning_reward * config.reward_scale_krw,
-                            learning_cost, rel_tol=1e-10, abs_tol=1e-4):
-            raise RuntimeError("Learning rewards do not telescope to the calendar-window cost")
+        learning_objective = sum(d['interval_objective'] for d in journal.daily if d['train'])
+        if not math.isclose(-runtime.learning_reward, learning_objective, rel_tol=1e-10, abs_tol=1e-7):
+            raise RuntimeError("Learning rewards do not telescope to the calendar-window objective")
         if any(d["updates"] or d["learning_reward"] for d in journal.daily if not d["train"]):
             raise RuntimeError("Warmup/cooldown leaked into learning")
         if result.skipped or any(not a["ok"] for a in result.vessel_admissions):
@@ -113,6 +113,7 @@ def run_continuous(*, output, seed=9900306, n_days=30, load=None, config=None,
         if document is not None:
             report['cargo'] = runtime.mbt.cargo_report()
         report.update(state="completed", counterfactual_worlds=cf, n_days=n_days,
+                      learning_interval_objective=learning_objective,
                       learning_days=n_days - 2, learning_interval_cost_krw=learning_cost,
                       admitted=result.admitted, skipped=result.skipped,
                       initial_checkpoint=initial, final_checkpoint=final,
@@ -141,8 +142,10 @@ def main(argv=None):
     parser.add_argument("--debug-load", type=int, help="Fixed low load for short wiring tests only")
     parser.add_argument('--seed-bundle', type=Path)
     parser.add_argument('--seed-sha256')
+    parser.add_argument('--reward-mode', choices=['operational', 'legacy-krw'], default='operational')
     args = parser.parse_args(argv)
     run_continuous(output=args.output, seed=args.seed, n_days=args.days, load=args.debug_load,
+                   config=PPOConfig(reward_mode=args.reward_mode),
                    seed_bundle=args.seed_bundle, seed_sha256=args.seed_sha256)
 
 
