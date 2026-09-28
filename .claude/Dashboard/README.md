@@ -5,6 +5,8 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **원화 없는 보상 정규화·학습 완료 (2026-09-28, YR-331-e)**: 시간·횟수 네 항을 별도 기준 통계로 정규화한다. 원화 환산·추가 원화 분모는 없다. CPU 6모델·144회 갱신·9회 평가에서 평균 운영 점수는 이전 보상 대비 3.24% 개선, 규칙 대비 16.47% 악화했다. 한 입력은 이전 대비 잔여 트럭 +10대·본선 +59건으로 **성능 채택 조건 미충족**. 동일 비중은 초기 가정이며 다음은 검증 입력 복구(c)→독립 수용 상한 확인(a)이다. [수식·문헌](../../docs/research/v6-workload-reward/operational-normalization.md) · [결과](../../outputs/reports/yr331_operational/report.md) · [spec](../docs/dashboard-task-specs/YR-331-e-operational-normalization.md)
+
 - **100만원 보상 눈금 교체 (2026-09-28, YR-331-d)**: 고정 기본값을 제거하고 별도 기준 운전의 할인 누적 비용 표준편차로 나눈다(이번 자료 37,620,956.31원). 91검사·6시간 학습 6회 갱신·저장 복원 통과. 네 원화 단가의 타당성·정책 개선은 미확정이며 다음은 검증 입력 공급 복구(c)→독립 수용 상한 확인(a)다. [근거·수식](../../docs/research/v6-workload-reward/normalization.md) · [결과](../../outputs/reports/yr331_reward_scale/report.md) · [spec](../docs/dashboard-task-specs/YR-331-d-reward-normalization.md)
 
 - **적정부하 보상 실제 학습·평가 완료 (2026-09-27, YR-331-b)**: CPU 6모델·총 432회 갱신 후 새 입력 3쌍의 비용 감소율 0.00% / −2.56% / +5.73%. 개선 사례도 본선 잔여 +38건으로 **새 보상 채택 조건 미충족**이며 기존 보상에서도 구매는 발생했다. 관련 시험 64개 통과. 독립 보정 입력의 컨테이너 5개 부족 복구(c)→안전 수용 상한 확인(a)이 남았다. [결과](../../outputs/reports/yr331_training/report.md) · [spec](../docs/dashboard-task-specs/YR-331-b-workload-reward-evaluation.md)

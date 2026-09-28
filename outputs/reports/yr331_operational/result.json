@@ -1,0 +1,257 @@
+{
+  "task": "YR-331-e",
+  "implementation_verified": true,
+  "registered_runs": 15,
+  "completed_runs": 15,
+  "trained_models": 6,
+  "update_attempts": 144,
+  "updates_applied": 144,
+  "frozen_evaluations": 9,
+  "normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  },
+  "pairs": [
+    {
+      "train_seed": 9931000,
+      "eval_seed": 9961000,
+      "objectives": {
+        "operational": 6.782510576995492,
+        "legacy": 6.806511156237733,
+        "rule": 5.809411034297722
+      },
+      "physical": {
+        "operational": {
+          "truck_s": 16916865.80729588,
+          "vessel_s": 72038.69697169834,
+          "empty_s": 66576.25,
+          "rehandles": 6654.0
+        },
+        "legacy": {
+          "truck_s": 18382285.707630727,
+          "vessel_s": 69739.20884366197,
+          "empty_s": 64223.25,
+          "rehandles": 6701.0
+        },
+        "rule": {
+          "truck_s": 14912314.880806651,
+          "vessel_s": 68282.66430899859,
+          "empty_s": 47393.125,
+          "rehandles": 6502.0
+        }
+      },
+      "guards": {
+        "operational": {
+          "original_request_s": 26772849.4892959,
+          "truck_remaining": 33,
+          "vessel_remaining": 465
+        },
+        "legacy": {
+          "original_request_s": 27681046.56763071,
+          "truck_remaining": 39,
+          "vessel_remaining": 476
+        },
+        "rule": {
+          "original_request_s": 14912314.880806647,
+          "truck_remaining": 19,
+          "vessel_remaining": 325
+        }
+      },
+      "comparisons": {
+        "legacy": {
+          "reduction_percent": 0.3526120605891747,
+          "guard_deltas": {
+            "original_request_s": -908197.0783348083,
+            "truck_remaining": -6,
+            "vessel_remaining": -11
+          },
+          "guards_pass": true
+        },
+        "rule": {
+          "reduction_percent": -16.75039925652988,
+          "guard_deltas": {
+            "original_request_s": 11860534.608489253,
+            "truck_remaining": 14,
+            "vessel_remaining": 140
+          },
+          "guards_pass": false
+        }
+      }
+    },
+    {
+      "train_seed": 9941000,
+      "eval_seed": 9971000,
+      "objectives": {
+        "operational": 7.7499826723821625,
+        "legacy": 8.489183799494246,
+        "rule": 6.757039191975668
+      },
+      "physical": {
+        "operational": {
+          "truck_s": 22330534.921266228,
+          "vessel_s": 111087.09689270175,
+          "empty_s": 62653.5,
+          "rehandles": 6666.0
+        },
+        "legacy": {
+          "truck_s": 31069827.289742064,
+          "vessel_s": 122117.47503244889,
+          "empty_s": 57864.625,
+          "rehandles": 6451.0
+        },
+        "rule": {
+          "truck_s": 18402533.92387903,
+          "vessel_s": 104584.82419930625,
+          "empty_s": 47760.375,
+          "rehandles": 6682.0
+        }
+      },
+      "guards": {
+        "operational": {
+          "original_request_s": 31419061.01926635,
+          "truck_remaining": 58,
+          "vessel_remaining": 1424
+        },
+        "legacy": {
+          "original_request_s": 36172127.7977422,
+          "truck_remaining": 83,
+          "vessel_remaining": 1932
+        },
+        "rule": {
+          "original_request_s": 18402533.92387913,
+          "truck_remaining": 23,
+          "vessel_remaining": 990
+        }
+      },
+      "comparisons": {
+        "legacy": {
+          "reduction_percent": 8.707564173084837,
+          "guard_deltas": {
+            "original_request_s": -4753066.778475855,
+            "truck_remaining": -25,
+            "vessel_remaining": -508
+          },
+          "guards_pass": true
+        },
+        "rule": {
+          "reduction_percent": -14.694949255077084,
+          "guard_deltas": {
+            "original_request_s": 13016527.095387217,
+            "truck_remaining": 35,
+            "vessel_remaining": 434
+          },
+          "guards_pass": false
+        }
+      }
+    },
+    {
+      "train_seed": 9951000,
+      "eval_seed": 9981000,
+      "objectives": {
+        "operational": 6.661223334688433,
+        "legacy": 6.608274456747681,
+        "rule": 5.630282134896678
+      },
+      "physical": {
+        "operational": {
+          "truck_s": 21308591.586804725,
+          "vessel_s": 63432.369021376566,
+          "empty_s": 57024.5,
+          "rehandles": 6499.0
+        },
+        "legacy": {
+          "truck_s": 19033181.649077646,
+          "vessel_s": 61131.459693916,
+          "empty_s": 62552.75,
+          "rehandles": 6461.0
+        },
+        "rule": {
+          "truck_s": 16061779.484499924,
+          "vessel_s": 58727.788717692456,
+          "empty_s": 44707.0,
+          "rehandles": 6361.0
+        }
+      },
+      "guards": {
+        "operational": {
+          "original_request_s": 27418512.55380484,
+          "truck_remaining": 41,
+          "vessel_remaining": 861
+        },
+        "legacy": {
+          "original_request_s": 25425573.690077737,
+          "truck_remaining": 31,
+          "vessel_remaining": 802
+        },
+        "rule": {
+          "original_request_s": 16061779.484499943,
+          "truck_remaining": 121,
+          "vessel_remaining": 909
+        }
+      },
+      "comparisons": {
+        "legacy": {
+          "reduction_percent": -0.8012511932927735,
+          "guard_deltas": {
+            "original_request_s": 1992938.863727104,
+            "truck_remaining": 10,
+            "vessel_remaining": 59
+          },
+          "guards_pass": false
+        },
+        "rule": {
+          "reduction_percent": -18.31064900641386,
+          "guard_deltas": {
+            "original_request_s": 11356733.069304898,
+            "truck_remaining": -80,
+            "vessel_remaining": -48
+          },
+          "guards_pass": false
+        }
+      }
+    }
+  ],
+  "mean_objectives": {
+    "operational": 7.0645721946886955,
+    "legacy": 7.30132313749322,
+    "rule": 6.065577453723356
+  },
+  "mean_reduction_percent": {
+    "legacy": 3.2425758776348235,
+    "rule": -16.469903295886624
+  },
+  "numerical_improvement": false,
+  "guards_pass": false,
+  "diagnostic_success": false,
+  "statistical_confirmation": false,
+  "real_terminal_claim": false,
+  "execution_commit": "9a8fce422c9a5e911bbbcfb71dee356ebf4c208f"
+}

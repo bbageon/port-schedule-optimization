@@ -1,0 +1,131 @@
+{
+  "code": {
+    "git_head": "9a8fce422c9a5e911bbbcfb71dee356ebf4c208f",
+    "git_dirty": false,
+    "source_sha256": "8ec92741c9c1848fcd26787888c768eadf341d6b46ff5a31761d08e65b978ac8",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 35016,
+    "torch_threads": 1
+  },
+  "seed": 9931000,
+  "init_seed": 202609281,
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": null,
+    "reward_mode": "operational",
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "arguments": {
+    "campaign": false,
+    "output": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-operational-runs\\campaign\\train-9931000-operational",
+    "mode": "train",
+    "arm": "operational",
+    "seed": 9931000,
+    "init_seed": 202609281,
+    "seed_bundle": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale\\outputs\\reports\\yr331_training\\train-9931000-cost\\seed-data.json.gz",
+    "checkpoint": null
+  },
+  "prereg_sha256": "ca1620ee5d69717e56de60d0ffd067a165a36cac12f6cf10d998867578b4e2eb",
+  "input_sha256": "0e010d4303ce94bc5bf60e0ca2babeeef29b73bda16275a76acc9f3bf41a4a78",
+  "input_audit": {
+    "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+    "passed": true,
+    "contract": {
+      "schema": "yard_rl.v6.container_contract.v2",
+      "passed": true,
+      "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+      "truck_orders": 32000,
+      "vessel_streams": 58,
+      "source_containers": 39934,
+      "fixed_exit_containers": 30346,
+      "violations": {},
+      "examples": {},
+      "planned_waiting_exits": 0,
+      "planned_waiting_examples": [],
+      "identity_sha256": "2d33b45d0fcabe8c37ab6d6a0ced1a4ab69bc5ae9d2481c385be48114b9e26f8"
+    },
+    "truck_orders": 32000,
+    "sources": 39934,
+    "exits": 30346,
+    "ending_unassigned_sources": 9588,
+    "source_exit_counts": {
+      "GATE_IN->GATE_OUT": 4798,
+      "GATE_IN->VESSEL_LOAD": 4407,
+      "INITIAL->GATE_OUT": 7818,
+      "INITIAL->VESSEL_LOAD": 4089,
+      "VESSEL_DISCHARGE->GATE_OUT": 5336,
+      "VESSEL_DISCHARGE->VESSEL_LOAD": 3898
+    },
+    "source_size_counts": {
+      "FT20": 13166,
+      "FT40": 26768
+    },
+    "planned_waiting_exits": 0,
+    "waiting_examples": [],
+    "max_planned_wait_lower_bound_s": 0,
+    "planned_source_to_demand_s": {
+      "minimum": 8.17885804665275,
+      "median": 125998.02477074752,
+      "maximum": 431473.02146497474,
+      "meaning": "planned time difference, NOT actual yard dwell"
+    },
+    "empty_execution_records": true,
+    "physical_execution_verified": false,
+    "ready_for_training": false,
+    "scope": "fixed-identity input validity only; no policy performance or operational realism claim"
+  },
+  "learning_window_s": [
+    86400.0,
+    172800.0
+  ],
+  "learning_days": 1.0,
+  "stop_s": 259200.0,
+  "action_mode": "sample-all-days",
+  "normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  },
+  "initial_parameter_sha256": "d1d0094654624d2fdbcaf22a7ce3df9ee79d744b73b6b544b9fd711cd424859f",
+  "checkpoint_sha256": null
+}

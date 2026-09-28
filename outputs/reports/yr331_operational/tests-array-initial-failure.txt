@@ -1,0 +1,274 @@
+F.FFFFF.FF..F.                                                           [100%]
+================================== FAILURES ===================================
+________________ test_terminated_interval_zeroes_the_bootstrap ________________
+
+    def test_terminated_interval_zeroes_the_bootstrap():
+        """★종료 구간 — v5 는 부트스트랩을 0 으로 바꾸고 구간에 `terminated` 를 적는다 (runtime.py:200)."""
+        rt = _stub_v5()
+        seen = []
+        rt._update = lambda bootstrap: seen.append(np.asarray(bootstrap, np.float64).copy())
+>       rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:698:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A51DD6CF0>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+______________ test_invariant_review_clock_must_not_go_backwards ______________
+
+    def test_invariant_review_clock_must_not_go_backwards():
+        rt = _stub_v5()
+>       rt.boundary(120.0)
+
+tests\v6\test_gpu_ppo_runtime.py:744:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681F110>, t = 120.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+________________ test_invariant_cumulative_cost_must_not_fall _________________
+
+    def test_invariant_cumulative_cost_must_not_fall():
+        """`delta < -1e-5` — 누적 비용이 줄면 회계 자료가 유실됐다는 뜻이다 (runtime.py:177)."""
+        rt = _stub_v5()
+        rt.read_cost = lambda t: 1000.0 - t          # 줄어드는 비용
+>       rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:756:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681F4D0>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+________________________ test_invariant_nonfinite_cost ________________________
+
+    def test_invariant_nonfinite_cost():
+        rt = _stub_v5()
+        rt.read_cost = lambda t: float("inf")
+        with pytest.raises(FloatingPointError):
+>           rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:775:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681FED0>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+________ test_invariant_learning_window_edge_must_have_its_own_review _________
+
+    def test_invariant_learning_window_edge_must_have_its_own_review():
+        """창 경계가 구간 **안쪽**에 들어오면 그 구간 보상이 창 안/밖에 잘못 붙는다."""
+        rt = _stub_v5(learning_window_s=(60.0, 180.0))
+>       rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:787:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681FD90>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+_______________ test_invariant_repeated_review_changes_nothing ________________
+
+    def test_invariant_repeated_review_changes_nothing():
+        """같은 시각을 두 번 물으면 v5 는 **그냥 돌아간다** — 비용을 두 번 계상하거나 결정을 지우면 안 된다."""
+        rt = _stub_v5()
+>       rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:801:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681FED0>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+________________ test_invariant_decision_before_interval_start ________________
+
+    def test_invariant_decision_before_interval_start():
+        rt = _stub_v5()
+>       rt.boundary(120.0)
+
+tests\v6\test_gpu_ppo_runtime.py:834:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681F110>, t = 120.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+______________________ test_invariant_empty_action_mask _______________________
+
+    def test_invariant_empty_action_mask():
+        rt = _stub_v5()
+>       rt.boundary(0.0)
+
+tests\v6\test_gpu_ppo_runtime.py:854:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681EC10>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+_________________________ test_window_stub_matches_v5 _________________________
+
+    def test_window_stub_matches_v5():
+        """v5 회귀시험 `test_ppo_continuous.py:18-45` 와 **같은 입력**을 둘에 먹인다.
+
+        비용을 `100 + 2t`, 상태를 `[[0]]` 로 갈아끼운 1블록 세계 — 엔진 없이 학습창·구간·갱신
+        시점만 본다. 기대값을 적지 않고 v5 를 그 자리에서 함께 굴려 받는다.
+        """
+        window = (60.0, 180.0)
+        times = (0.0, 60.0, 120.0, 180.0, 240.0)
+        rt = _stub_v5(learning_window_s=window)
+        batches, at_times, bootstraps = [], [], []
+
+        def collect(bootstrap):
+            if rt.buffer:
+                batches.append([float(r.start_s) for r in rt.buffer])
+                at_times.append(float(rt.time_s))
+                bootstraps.append(np.asarray(bootstrap, np.float64).copy())
+                rt.buffer.clear()
+        rt._update = collect
+        pend = []
+        for t in times:
+>           rt.boundary(t)
+
+tests\v6\test_gpu_ppo_runtime.py:959:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\yard_rl\v6\ppo\runtime.py:187: in boundary
+    physical = self.read_operational(t) if self.config.reward_mode == 'operational' else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v6\ppo\runtime.py:147: in read_operational
+    return runtime_totals(self, t)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rt = <yard_rl.v6.ppo.runtime.PPORuntime object at 0x0000016A5681F610>, t = 0.0
+
+    def runtime_totals(rt, t):
+>       return physical_totals(rt.bridge.records, end_s=t,
+                               ^^^^^^^^^
+            vessel_idle=month_vessel_idle(rt.mbt, rt.meta, rt.archive),
+            empty_s=yc_empty_travel_s(rt.mbt), rehandles=rehandles_of(rt.mbt))
+E       AttributeError: 'PPORuntime' object has no attribute 'bridge'
+
+src\yard_rl\v6\reward\operational.py:28: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_terminated_interval_zeroes_the_bootstrap
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_review_clock_must_not_go_backwards
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_cumulative_cost_must_not_fall
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_nonfinite_cost - Attr...
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_learning_window_edge_must_have_its_own_review
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_repeated_review_changes_nothing
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_decision_before_interval_start
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_invariant_empty_action_mask - A...
+FAILED tests/v6/test_gpu_ppo_runtime.py::test_window_stub_matches_v5 - Attrib...
+9 failed, 5 passed, 27 deselected in 5.29s

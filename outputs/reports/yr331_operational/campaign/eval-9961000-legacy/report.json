@@ -1,0 +1,511 @@
+{
+  "generation": "v6",
+  "algorithm": "shared-block-PPO",
+  "time_s": 266400.0,
+  "blocks": 21,
+  "intervals": 4321,
+  "roles": {
+    "seller": 12448,
+    "buyer": 11438,
+    "crane": 45638
+  },
+  "crane_actions": {
+    "PRE_REHANDLE": 2282,
+    "WAIT": 14614,
+    "SERVE": 24855,
+    "REPOSITION": 3887
+  },
+  "cost_krw": 416909975.81333447,
+  "initial_cost_krw": 0.0,
+  "team_reward": -11.081854813704762,
+  "learning_window_s": [
+    86400.0,
+    172800.0
+  ],
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "shaping_reward": 0.0,
+  "learning_shaping_reward": 0.0,
+  "learning_training_reward": 0.0,
+  "workload": null,
+  "truncated": true,
+  "updates": [],
+  "traded_edges": 6594,
+  "txn_failed": 0,
+  "n_space": 2400,
+  "n_time": 4194,
+  "cost_breakdown": {
+    "phi_krw": 416909975.81333447,
+    "c_wait": 373495137.1850757,
+    "c_move": 2533022.9166666665,
+    "c_rehandle": 29414000.0,
+    "c_vessel": 11467815.711592095,
+    "n_trucks": 14500,
+    "n_censored": 5,
+    "mean_turn_time_s": 1977.406119667847,
+    "over_ratio": 0.10779310344827586,
+    "p50_turn_time_s": 1233.731798177614,
+    "p90_turn_time_s": 3758.985391646398,
+    "p99_turn_time_s": 10452.825587750413
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": 37620956.31299437,
+    "reward_mode": "legacy-krw",
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "reward_mode": "legacy-krw",
+  "physical_totals": null,
+  "initial_physical_totals": null,
+  "objective": 11.081854813704796,
+  "initial_objective": 0.0,
+  "reward_normalization": {
+    "method": "frozen-reference-discounted-return-std",
+    "scale_krw": 37620956.31299437,
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_exclusive_s": 86400.0,
+    "fit_end_inclusive_s": 259200.0,
+    "mean_discounted_return_krw": -73459930.61766416,
+    "reference_sha256": "c968fe0c52b7e770c6b549fd91e3308b529934859bae97c073f60dbfd2da04c3",
+    "reference_seed": 9911000,
+    "source_commit": "bfae72a3cb83cf8c83d3f11efb6831b16f2158c5"
+  },
+  "status": "complete",
+  "protocol_complete": true,
+  "whole_input_completed": true,
+  "measured_physical": {
+    "truck_s": 18382285.707630727,
+    "vessel_s": 69739.20884366197,
+    "empty_s": 64223.25,
+    "rehandles": 6701.0
+  },
+  "measured_objective": 6.806511156237733,
+  "measured_original_request_s": 27681046.56763071,
+  "evaluation_endpoint": {
+    "physical": {
+      "truck_s": 28588763.4856539,
+      "vessel_s": 173164.87929486227,
+      "empty_s": 151042.125,
+      "rehandles": 14524.0
+    },
+    "objective": 14.504506141356108,
+    "request": {
+      "original_request_s": 45672563.48565381,
+      "requested": 14500,
+      "unfinished": 39
+    },
+    "cargo": {
+      "planned_sources": 27244,
+      "planned_exits": 11446,
+      "ready_sources": 26920,
+      "completed_exits": 11259,
+      "physical_inventory": 15661,
+      "expected_inventory": 15661,
+      "pending_admissions": 393,
+      "dependent_reroutes": 611,
+      "remote_vessel_handoffs": 191,
+      "completed_jobs": {
+        "GATE_IN": 6082,
+        "GATE_OUT": 8383,
+        "VESSEL_DISCHARGE": 7230,
+        "VESSEL_LOAD": 2876
+      },
+      "active_unfinished_jobs": {
+        "GATE_IN": 4,
+        "VESSEL_DISCHARGE": 320,
+        "GATE_OUT": 31,
+        "VESSEL_LOAD": 156
+      },
+      "active_unfinished_vessels": 8,
+      "routing_examples": [
+        {
+          "job": "D00-D-00249",
+          "source": "Y20",
+          "destination": "Y05",
+          "time_s": 10620.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01518",
+          "source": "Y04",
+          "destination": "Y08",
+          "time_s": 30300.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-00917",
+          "source": "Y21",
+          "destination": "Y20",
+          "time_s": 35280.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01143",
+          "source": "Y02",
+          "destination": "Y14",
+          "time_s": 38820.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-02358",
+          "source": "Y04",
+          "destination": "Y17",
+          "time_s": 39060.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-02441",
+          "source": "Y10",
+          "destination": "Y08",
+          "time_s": 39840.0,
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-02583",
+          "source": "Y13",
+          "destination": "Y07",
+          "time_s": 42600.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01521",
+          "source": "Y10",
+          "destination": "Y12",
+          "time_s": 42960.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-02294",
+          "source": "Y21",
+          "destination": "Y04",
+          "time_s": 43140.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        },
+        {
+          "job": "D00-D-01591",
+          "source": "Y16",
+          "destination": "Y18",
+          "time_s": 44100.0,
+          "phase": "at_notice",
+          "road_ready_s": null
+        }
+      ]
+    },
+    "updates": 0
+  },
+  "updates_applied": 0,
+  "mode": "eval",
+  "arm": "legacy",
+  "seed": 9961000,
+  "source": {
+    "git_head": "9a8fce422c9a5e911bbbcfb71dee356ebf4c208f",
+    "git_dirty": false,
+    "source_sha256": "8ec92741c9c1848fcd26787888c768eadf341d6b46ff5a31761d08e65b978ac8",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 18612,
+    "torch_threads": 1
+  },
+  "initial_parameter_sha256": "ef66d1119b9e664e52867b04e7ac6c579ed307df3836e7820a828d2878eaf71c",
+  "final_parameter_sha256": "ef66d1119b9e664e52867b04e7ac6c579ed307df3836e7820a828d2878eaf71c",
+  "parameter_l2_change": 0.0,
+  "admission": {
+    "admitted": 14500,
+    "skipped": 0,
+    "truck_failures": [],
+    "vessels": [
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s1",
+        "day": 0,
+        "block": "Y05",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 368,
+        "asked": 368,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s1",
+        "day": 0,
+        "block": "Y06",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 258,
+        "asked": 258,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s0",
+        "day": 0,
+        "block": "Y07",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 258,
+        "asked": 258,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s1",
+        "day": 0,
+        "block": "Y09",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s3",
+        "day": 0,
+        "block": "Y11",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s0",
+        "day": 0,
+        "block": "Y14",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s0",
+        "day": 0,
+        "block": "Y18",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 368,
+        "asked": 368,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s2",
+        "day": 0,
+        "block": "Y19",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 556,
+        "asked": 556,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s1",
+        "day": 1,
+        "block": "Y05",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s0",
+        "day": 1,
+        "block": "Y06",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 303,
+        "asked": 303,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s0",
+        "day": 1,
+        "block": "Y08",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 367,
+        "asked": 367,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s3",
+        "day": 1,
+        "block": "Y09",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s0",
+        "day": 1,
+        "block": "Y10",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-M1-s2",
+        "day": 1,
+        "block": "Y11",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 553,
+        "asked": 553,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S1-s1",
+        "day": 1,
+        "block": "Y13",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 303,
+        "asked": 303,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D01-S2-s1",
+        "day": 1,
+        "block": "Y17",
+        "time_s": 86400.0,
+        "ok": true,
+        "moves": 367,
+        "asked": 367,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s2",
+        "day": 2,
+        "block": "Y02",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s1",
+        "day": 2,
+        "block": "Y03",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 259,
+        "asked": 259,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s0",
+        "day": 2,
+        "block": "Y08",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S1-s0",
+        "day": 2,
+        "block": "Y11",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 259,
+        "asked": 259,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s1",
+        "day": 2,
+        "block": "Y14",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-M1-s3",
+        "day": 2,
+        "block": "Y15",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 535,
+        "asked": 535,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s1",
+        "day": 2,
+        "block": "Y16",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 448,
+        "asked": 448,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D02-S2-s0",
+        "day": 2,
+        "block": "Y21",
+        "time_s": 172800.0,
+        "ok": true,
+        "moves": 448,
+        "asked": 448,
+        "why": ""
+      }
+    ],
+    "vessel_failed": 0,
+    "time_s": 258720.0
+  },
+  "invariants": true,
+  "checkpoint_reload_exact": true,
+  "cf_calls": 0,
+  "elapsed_s": 460.79713320000155,
+  "performance_claim": false
+}

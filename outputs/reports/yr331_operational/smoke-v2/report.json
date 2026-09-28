@@ -1,0 +1,312 @@
+{
+  "generation": "v6",
+  "algorithm": "shared-block-PPO",
+  "time_s": 7200.0,
+  "blocks": 21,
+  "intervals": 120,
+  "roles": {
+    "seller": 115,
+    "buyer": 108,
+    "crane": 582
+  },
+  "crane_actions": {
+    "SERVE": 233,
+    "WAIT": 316,
+    "REPOSITION": 21,
+    "PRE_REHANDLE": 12
+  },
+  "cost_krw": 1186613.7656560133,
+  "initial_cost_krw": 0.0,
+  "team_reward": -0.06286426327790029,
+  "learning_window_s": [
+    0.0,
+    7200.0
+  ],
+  "learning_intervals": 120,
+  "learning_reward": -0.06286426327790029,
+  "shaping_reward": 0.0,
+  "learning_shaping_reward": 0.0,
+  "learning_training_reward": -0.06286426327790029,
+  "workload": null,
+  "truncated": true,
+  "updates": [
+    {
+      "loss": 0.018405461794463916,
+      "early_stopped": false,
+      "max_kl": 0.0003919866285286844,
+      "max_grad_norm_before_clip": 0.44782111048698425,
+      "minibatches": 40,
+      "intervals": 60,
+      "block_samples": 1260,
+      "active_block_samples": 194,
+      "micro_actions": 377,
+      "index": 1,
+      "time_s": 3600.0,
+      "cost_krw": 527415.8381562454
+    },
+    {
+      "loss": 0.001915745693258941,
+      "early_stopped": false,
+      "max_kl": 0.0005243420600891113,
+      "max_grad_norm_before_clip": 0.3765569031238556,
+      "minibatches": 40,
+      "intervals": 60,
+      "block_samples": 1260,
+      "active_block_samples": 216,
+      "micro_actions": 428,
+      "index": 2,
+      "time_s": 7200.0,
+      "cost_krw": 1186613.7656560133
+    }
+  ],
+  "traded_edges": 50,
+  "txn_failed": 0,
+  "n_space": 14,
+  "n_time": 36,
+  "cost_breakdown": {
+    "phi_krw": 1186613.7656560133,
+    "c_wait": 981622.8723479327,
+    "c_move": 11557.8125,
+    "c_rehandle": 110000.0,
+    "c_vessel": 83433.08080808057,
+    "n_trucks": 89,
+    "n_censored": 16,
+    "mean_turn_time_s": 976.6695484669066,
+    "over_ratio": 0.011235955056179775,
+    "p50_turn_time_s": 863.4660000000003,
+    "p90_turn_time_s": 1539.7314874756034,
+    "p99_turn_time_s": 5022.468697759273
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": null,
+    "reward_mode": "operational",
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "reward_mode": "operational",
+  "physical_totals": {
+    "truck_s": 86923.5898135547,
+    "vessel_s": 1004.5454545454515,
+    "empty_s": 693.46875,
+    "rehandles": 55.0
+  },
+  "initial_physical_totals": {
+    "truck_s": 0.0,
+    "vessel_s": 0,
+    "empty_s": 0.0,
+    "rehandles": 0.0
+  },
+  "objective": 0.06286426327790029,
+  "initial_objective": 0.0,
+  "reward_normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  },
+  "status": "complete",
+  "protocol_complete": true,
+  "whole_input_completed": false,
+  "measured_physical": {
+    "truck_s": 86923.5898135547,
+    "vessel_s": 1004.5454545454515,
+    "empty_s": 693.46875,
+    "rehandles": 55.0
+  },
+  "measured_objective": 0.06286426327790029,
+  "measured_original_request_s": 168230.45981355463,
+  "evaluation_endpoint": {
+    "physical": {
+      "truck_s": 86923.5898135547,
+      "vessel_s": 1004.5454545454515,
+      "empty_s": 693.46875,
+      "rehandles": 55.0
+    },
+    "objective": 0.06286426327790029,
+    "request": {
+      "original_request_s": 168230.45981355463,
+      "requested": 111,
+      "unfinished": 38
+    },
+    "cargo": {
+      "planned_sources": 26986,
+      "planned_exits": 14352,
+      "ready_sources": 13789,
+      "completed_exits": 44,
+      "physical_inventory": 13745,
+      "expected_inventory": 13745,
+      "pending_admissions": 10,
+      "dependent_reroutes": 0,
+      "remote_vessel_handoffs": 0,
+      "completed_jobs": {
+        "GATE_OUT": 44,
+        "GATE_IN": 31,
+        "VESSEL_DISCHARGE": 150
+      },
+      "active_unfinished_jobs": {
+        "GATE_OUT": 156,
+        "GATE_IN": 89,
+        "VESSEL_DISCHARGE": 2356
+      },
+      "active_unfinished_vessels": 8,
+      "routing_examples": []
+    },
+    "updates": 2
+  },
+  "updates_applied": 2,
+  "mode": "smoke",
+  "arm": "operational",
+  "seed": 9911000,
+  "source": {
+    "git_head": "9a8fce422c9a5e911bbbcfb71dee356ebf4c208f",
+    "git_dirty": false,
+    "source_sha256": "8ec92741c9c1848fcd26787888c768eadf341d6b46ff5a31761d08e65b978ac8",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-scale",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 10532,
+    "torch_threads": 1
+  },
+  "initial_parameter_sha256": "c5d18dd65ac6f00f6392713d5e9ccf0a7548f5564ddab3fcec0ad0ded2123d88",
+  "final_parameter_sha256": "61c7cc6a082f66857f005126bb4b0a7294983a38aad3de033bf78d1099015e37",
+  "parameter_l2_change": 0.26144176721572876,
+  "admission": {
+    "admitted": 320,
+    "skipped": 0,
+    "truck_failures": [],
+    "vessels": [
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s0",
+        "day": 0,
+        "block": "Y03",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 290,
+        "asked": 290,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s1",
+        "day": 0,
+        "block": "Y08",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S1-s1",
+        "day": 0,
+        "block": "Y10",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 290,
+        "asked": 290,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s1",
+        "day": 0,
+        "block": "Y11",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 291,
+        "asked": 291,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-S2-s0",
+        "day": 0,
+        "block": "Y15",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 291,
+        "asked": 291,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s3",
+        "day": 0,
+        "block": "Y19",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s2",
+        "day": 0,
+        "block": "Y20",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      },
+      {
+        "kind": "vessel",
+        "key": "D00-M1-s0",
+        "day": 0,
+        "block": "Y21",
+        "time_s": 0.0,
+        "ok": true,
+        "moves": 336,
+        "asked": 336,
+        "why": ""
+      }
+    ],
+    "vessel_failed": 0,
+    "time_s": 7200.0
+  },
+  "invariants": true,
+  "checkpoint_reload_exact": true,
+  "cf_calls": 0,
+  "elapsed_s": 4.105797399999574,
+  "performance_claim": false
+}
