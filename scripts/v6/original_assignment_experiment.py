@@ -141,7 +141,8 @@ def run_one(args):
         assert parameter_hash(restored) == initial_hash
         save_compressed(out/'orders-and-records.json.gz', dict(
             orders=[asdict(order) for order in rt.bridge.orders.values()],
-            records=[asdict(record) for record in rt.bridge.records.values()]))
+            records=[asdict(record) | {'_stamped': sorted(stage.name for stage in record._stamped)}
+                     for record in rt.bridge.records.values()]))
         write_json(out/'physical-trace.json', dict(keys=KEYS, rows=trace))
         first, last = (snapshots[str(int(t))] for t in window)
         measured = {key: last['physical'][key]-first['physical'][key] for key in KEYS}
