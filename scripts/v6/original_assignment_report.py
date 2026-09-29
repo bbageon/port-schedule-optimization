@@ -128,11 +128,15 @@ def audit(root):
             same_crane_weights=True, common_warmup_exact=True, original_assignment_preserved=True))
     means = {arm: statistics.mean(p['objectives'][arm] for p in pairs) for arm in ('original', 'reallocated')}
     reduction = 100*(1-means['reallocated']/means['original'])
+    request_means = {arm: statistics.mean(p['guards'][arm]['original_request_s'] for p in pairs)
+                     for arm in ('original', 'reallocated')}
+    request_increase = 100*(request_means['reallocated']/request_means['original']-1)
     guard_pass = all(p['guards_pass'] for p in pairs)
     result = dict(task='YR-331-f', registered_runs=6, completed_runs=6, frozen_evaluations=6,
         trained_models=0, updates_applied=0, baseline='original input assignments, same frozen learned crane policy',
         original_execution_trace_available=False, normalization=ref, pairs=pairs, mean_objectives=means,
         mean_reduction_percent=reduction, guards_pass=guard_pass, diagnostic_success=reduction > 0 and guard_pass,
+        mean_original_request_s=request_means, original_request_increase_percent=request_increase,
         statistical_confirmation=False, real_terminal_claim=False,
         first_day_equal=True, original_fields_preserved=True,
         execution_commit=next(iter(reports.values()))['source']['git_head'])
@@ -175,7 +179,11 @@ def render(root, result):
     for p in result['pairs']:
         d = p['guard_deltas']
         lines.append(f"| {p['eval_seed']} | {d['original_request_s']/3600:+.2f} | {d['truck_remaining']:+d} | {d['vessel_remaining']:+d} | {'통과' if p['guards_pass'] else '미충족'} |")
-    lines += ['', f"사전 고정 진단 성공 조건: **{'충족' if result['diagnostic_success'] else '미충족'}**. 평균 점수만으로 요청 대기·미처리 악화를 상쇄하지 않는다.", '',
+    request = result['mean_original_request_s']
+    lines += ['', f"최초 예약~출차 누적시간은 세 입력 평균 {request['original']/3600:.2f} → {request['reallocated']/3600:.2f}트럭·시간으로 {result['original_request_increase_percent']:.2f}% 늘었다.",
+        '여러 트럭의 시간을 합친 값이며 미완료는 측정 시각까지 포함한다. 트럭 한 대의 소요시간을 뜻하지 않는다.',
+        '진입 뒤 체류시간이 줄어도 최초 예약부터 센 전체 시간이 늘 수 있다. 보상 점수와 함께 이 차이를 확인해야 한다.', '',
+        f"사전 고정 진단 성공 조건: **{'충족' if result['diagnostic_success'] else '미충족'}**. 평균 점수만으로 요청 대기·미처리 악화를 상쇄하지 않는다.", '',
         '## 기존 보고와의 관계·한계', '',
         '- 과거 16.47% 악화는 KEEP+SF-SPT 대비 결과다. 재배정과 크레인 정책이 함께 달랐으므로 원본 대비 재배정 효과로 해석하지 않는다.',
         '- 이번 결과는 같은 학습 크레인의 원본 배정 유지 대비 효과다. TOS 원본 실행 기록·실제 부산항 성능을 재현한 결과는 아니다.',
@@ -184,13 +192,15 @@ def render(root, result):
         '- 첫날을 공통 원본 운전으로 맞추고 역할별 추첨을 적용했으므로 과거 평가 수치와 직접 이어 붙이지 않는다.',
         '- 고정 입력의 실제 처리 지연은 허용하되 원본 주문은 바꾸지 않는다. 미완료 작업도 요청 시간에 포함한다.',
         '- 기존 검증 입력 공급 부족과 실제 항만 자료 부재는 남아 있다.',
+        '- 최초 짧은 실행 2회는 기록의 집합 필드 저장에서 실패했다. 저장 방식을 고친 뒤 짧은 비교 2회와 본평가 6회를 완료했으며 실패 자료도 보존했다.',
         f"- 실행 코드: `{result['execution_commit']}`. [원자료](result.json) · [실행 전 계약](campaign/prereg-executed.md) · [파일 지문](artifacts.json)", '',
         '## 예정사항', '',
         '- YR-331-c: 독립 검증 입력의 컨테이너 공급 부족을 복구한다. 주문과 실제 공급이 맞아야 다음 판단을 신뢰할 수 있다.',
         '- YR-331-a: 복구한 독립 자료에서 크레인의 안전 수용 상한을 확인한다. 이번 비교를 최적 혼잡도 증명으로 사용하지 않는다.', '']
     (root/'report.md').write_text('\n'.join(lines), encoding='utf-8')
     write_json(root/'reported-values.json', dict(frozen_evaluations=6, updates_applied=0,
-                                               mean_reduction_percent=round(result['mean_reduction_percent'], 2)))
+        mean_reduction_percent=round(result['mean_reduction_percent'], 2),
+        original_request_increase_percent=round(result['original_request_increase_percent'], 2)))
 
 
 def gates(root, board_commit, remote_ref):
@@ -210,7 +220,8 @@ def gates(root, board_commit, remote_ref):
         spec_path=Path('.claude/docs/dashboard-task-specs/YR-331-f-original-assignment-comparison.md'),
         evidence_paths=(root/'result.json', root/'report.md'), evidence_commits=(board_commit,),
         remote_ref=remote_ref, pin_commit=board_commit)
-    raw = {key: result[key] for key in ('frozen_evaluations', 'updates_applied', 'mean_reduction_percent')}
+    raw = {key: result[key] for key in ('frozen_evaluations', 'updates_applied', 'mean_reduction_percent',
+                                      'original_request_increase_percent')}
     alignment = judge_claim_alignment(read(root/'reported-values.json'), raw, absolute_tolerance=.005)
     reliability = combine_reliability(outcomes[-1], dashboard, alignment)
     performance = GateOutcome('performance', GateStatus.INCONCLUSIVE if result['guards_pass'] else GateStatus.FAIL,

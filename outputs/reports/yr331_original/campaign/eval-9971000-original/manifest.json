@@ -1,0 +1,138 @@
+{
+  "code": {
+    "git_head": "a521a1013d554b1f0ceb68dec52ebbd3cda79272",
+    "git_dirty": false,
+    "source_sha256": "ba8125f5f88002dd23a99e7cf7a328d13bdfea3adf93872582b3c4e1c1fe1c7c",
+    "worktree": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "numpy": "2.3.5",
+    "pid": 1968,
+    "torch_threads": 1
+  },
+  "ppo": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": null,
+    "reward_mode": "operational",
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "arguments": {
+    "campaign": false,
+    "smoke": false,
+    "output": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original-runs\\campaign\\eval-9971000-original",
+    "arm": "original",
+    "seed": 9971000,
+    "checkpoint": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original\\outputs\\reports\\yr331_operational\\campaign\\train-9941000-operational\\policy-final.pt",
+    "seed_bundle": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original\\outputs\\reports\\yr331_training\\eval-9971000-cost\\seed-data.json.gz",
+    "prereg": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original-runs\\campaign\\prereg-executed.md"
+  },
+  "seed": 9971000,
+  "arm": "original",
+  "learning_days": 0,
+  "optimizer_updates": 0,
+  "prereg_path": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original-runs\\campaign\\prereg-executed.md",
+  "prereg_sha256": "b5dc5c0492f93ec1390e15051995b9a0d4bb8ac9d2d52990a8d6d9f73eff1d87",
+  "input_path": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original\\outputs\\reports\\yr331_training\\eval-9971000-cost\\seed-data.json.gz",
+  "input_sha256": "4da0995db31f46864c9770c4827b02d5fee2caf723a62597d0cb142d06c1d18d",
+  "input_audit": {
+    "schema": "yard_rl.v6.fixed_cargo_seed.v2",
+    "passed": true,
+    "contract": {
+      "schema": "yard_rl.v6.container_contract.v2",
+      "passed": true,
+      "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+      "truck_orders": 14500,
+      "vessel_streams": 36,
+      "source_containers": 28090,
+      "fixed_exit_containers": 15382,
+      "violations": {},
+      "examples": {},
+      "planned_waiting_exits": 0,
+      "planned_waiting_examples": [],
+      "identity_sha256": "16d76533c0158e5cbfe5eeadf88c4f40c5afcc81618a6b40e299bd5eb856a5d4"
+    },
+    "truck_orders": 14500,
+    "sources": 28090,
+    "exits": 15382,
+    "ending_unassigned_sources": 12708,
+    "source_exit_counts": {
+      "GATE_IN->GATE_OUT": 1217,
+      "GATE_IN->VESSEL_LOAD": 1539,
+      "INITIAL->GATE_OUT": 5399,
+      "INITIAL->VESSEL_LOAD": 3350,
+      "VESSEL_DISCHARGE->GATE_OUT": 1730,
+      "VESSEL_DISCHARGE->VESSEL_LOAD": 2147
+    },
+    "source_size_counts": {
+      "FT20": 9342,
+      "FT40": 18748
+    },
+    "planned_waiting_exits": 0,
+    "waiting_examples": [],
+    "max_planned_wait_lower_bound_s": 0,
+    "planned_source_to_demand_s": {
+      "minimum": 21.39817632501945,
+      "median": 113191.236318227,
+      "maximum": 259353.8829994057,
+      "meaning": "planned time difference, NOT actual yard dwell"
+    },
+    "empty_execution_records": true,
+    "physical_execution_verified": false,
+    "ready_for_training": false,
+    "scope": "fixed-identity input validity only; no policy performance or operational realism claim"
+  },
+  "checkpoint_path": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-original\\outputs\\reports\\yr331_operational\\campaign\\train-9941000-operational\\policy-final.pt",
+  "checkpoint_sha256": "5e4afd6a47d9a74200a67919883a97330bab86e83e3a70868e1ae4bcc7be31aa",
+  "initial_parameter_sha256": "e9a1db76a8cbf1f133fa1e4cbea2a29c34c4dbd4cf160729dbc82dba125d412f",
+  "measurement_window_s": [
+    86400.0,
+    172800.0
+  ],
+  "intervention_s": 86400.0,
+  "endpoint_s": 259200.0,
+  "stop_s": null,
+  "action_mode": "sample; role-local RNG; same learned crane dispatcher",
+  "normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  },
+  "claim_scope": "paired reassignment diagnostic, not original TOS trace"
+}

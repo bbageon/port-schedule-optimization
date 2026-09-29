@@ -5,7 +5,9 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
-- **원화 없는 보상 정규화·학습 완료 (2026-09-28, YR-331-e)**: 시간·횟수 네 항을 별도 기준 통계로 정규화한다. 원화 환산·추가 원화 분모는 없다. CPU 6모델·144회 갱신·9회 평가에서 평균 운영 점수는 이전 보상 대비 3.24% 개선, 규칙 대비 16.47% 악화했다. 한 입력은 이전 대비 잔여 트럭 +10대·본선 +59건으로 **성능 채택 조건 미충족**. 동일 비중은 초기 가정이며 다음은 검증 입력 복구(c)→독립 수용 상한 확인(a)이다. [수식·문헌](../../docs/research/v6-workload-reward/operational-normalization.md) · [결과](../../outputs/reports/yr331_operational/report.md) · [spec](../docs/dashboard-task-specs/YR-331-e-operational-normalization.md)
+- **원본 배정 기준 재평가 완료 (2026-09-29, YR-331-f)**: 사용자 지시에 따라 같은 학습 크레인에서 원본 블록·예약 유지와 재배정 허용을 3쌍·6회 비교했다. 평균 운영 점수는 **0.10% 악화**, 최초 예약~출차 누적시간은 **37.87% 증가**했고 트럭 잔여도 세 쌍 모두 늘었다. 원본 오더 보존·거래 0건·가중치 동결을 검사했으며 재배정 성능 채택 조건 미충족이다. 다음은 검증 입력 공급 복구(c)→독립 수용 상한 확인(a)다. [결과](../../outputs/reports/yr331_original/report.md) · [spec](../docs/dashboard-task-specs/YR-331-f-original-assignment-comparison.md)
+
+- **원화 없는 보상 정규화·학습 완료 (2026-09-28, YR-331-e)**: 시간·횟수 네 항을 고정 기준 통계로 정규화한다. CPU 6모델·144회 갱신·9회 평가의 이전 보상 대비 3.24% 개선·규칙 대비 16.47% 악화는 당시 비교로 보존한다. 규칙 비교는 크레인 정책도 달라 원본 대비 재배정 효과로 해석하지 않으며, 현재 원본 기준 판정은 f다. [수식·문헌](../../docs/research/v6-workload-reward/operational-normalization.md) · [과거 결과](../../outputs/reports/yr331_operational/report.md) · [spec](../docs/dashboard-task-specs/YR-331-e-operational-normalization.md)
 
 - **100만원 보상 눈금 교체 (2026-09-28, YR-331-d)**: 고정 기본값을 제거하고 별도 기준 운전의 할인 누적 비용 표준편차로 나눈다(이번 자료 37,620,956.31원). 91검사·6시간 학습 6회 갱신·저장 복원 통과. 네 원화 단가의 타당성·정책 개선은 미확정이며 다음은 검증 입력 공급 복구(c)→독립 수용 상한 확인(a)다. [근거·수식](../../docs/research/v6-workload-reward/normalization.md) · [결과](../../outputs/reports/yr331_reward_scale/report.md) · [spec](../docs/dashboard-task-specs/YR-331-d-reward-normalization.md)
 

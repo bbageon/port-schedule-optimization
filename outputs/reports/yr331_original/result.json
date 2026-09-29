@@ -1,0 +1,226 @@
+{
+  "task": "YR-331-f",
+  "registered_runs": 6,
+  "completed_runs": 6,
+  "frozen_evaluations": 6,
+  "trained_models": 0,
+  "updates_applied": 0,
+  "baseline": "original input assignments, same frozen learned crane policy",
+  "original_execution_trace_available": false,
+  "normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  },
+  "pairs": [
+    {
+      "eval_seed": 9961000,
+      "objectives": {
+        "original": 6.8398493165835275,
+        "reallocated": 6.763932132523832
+      },
+      "reduction_percent": 1.1099248031039233,
+      "physical": {
+        "original": {
+          "truck_s": 18378065.824579976,
+          "vessel_s": 72979.6943232748,
+          "empty_s": 64910.625,
+          "rehandles": 6537.0
+        },
+        "reallocated": {
+          "truck_s": 16714504.7055786,
+          "vessel_s": 71249.70585392017,
+          "empty_s": 66893.125,
+          "rehandles": 6657.0
+        }
+      },
+      "guards": {
+        "original": {
+          "original_request_s": 18378065.82458,
+          "truck_remaining": 23,
+          "vessel_remaining": 453
+        },
+        "reallocated": {
+          "original_request_s": 26531467.274578623,
+          "truck_remaining": 30,
+          "vessel_remaining": 464
+        }
+      },
+      "guard_deltas": {
+        "original_request_s": 8153401.449998625,
+        "truck_remaining": 7,
+        "vessel_remaining": 11
+      },
+      "guards_pass": false,
+      "reassignments": {
+        "original": {
+          "n_space": 0,
+          "n_time": 0,
+          "traded_edges": 0
+        },
+        "reallocated": {
+          "n_space": 1213,
+          "n_time": 3185,
+          "traded_edges": 4398
+        }
+      },
+      "same_crane_weights": true,
+      "common_warmup_exact": true,
+      "original_assignment_preserved": true
+    },
+    {
+      "eval_seed": 9971000,
+      "objectives": {
+        "original": 7.675115080381817,
+        "reallocated": 7.77929528951504
+      },
+      "reduction_percent": -1.3573765089140544,
+      "physical": {
+        "original": {
+          "truck_s": 22976248.323829412,
+          "vessel_s": 108646.80871823107,
+          "empty_s": 60623.875,
+          "rehandles": 6581.0
+        },
+        "reallocated": {
+          "truck_s": 23187699.687447235,
+          "vessel_s": 113411.37938390259,
+          "empty_s": 60794.5,
+          "rehandles": 6596.0
+        }
+      },
+      "guards": {
+        "original": {
+          "original_request_s": 22976248.323829386,
+          "truck_remaining": 36,
+          "vessel_remaining": 1491
+        },
+        "reallocated": {
+          "original_request_s": 32332404.320447158,
+          "truck_remaining": 51,
+          "vessel_remaining": 1382
+        }
+      },
+      "guard_deltas": {
+        "original_request_s": 9356155.996617772,
+        "truck_remaining": 15,
+        "vessel_remaining": -109
+      },
+      "guards_pass": false,
+      "reassignments": {
+        "original": {
+          "n_space": 0,
+          "n_time": 0,
+          "traded_edges": 0
+        },
+        "reallocated": {
+          "n_space": 1362,
+          "n_time": 3134,
+          "traded_edges": 4496
+        }
+      },
+      "same_crane_weights": true,
+      "common_warmup_exact": true,
+      "original_assignment_preserved": true
+    },
+    {
+      "eval_seed": 9981000,
+      "objectives": {
+        "original": 6.525436060652083,
+        "reallocated": 6.5181989604864095
+      },
+      "reduction_percent": 0.11090600073937473,
+      "physical": {
+        "original": {
+          "truck_s": 20401806.702198792,
+          "vessel_s": 64535.20630380936,
+          "empty_s": 56834.375,
+          "rehandles": 6250.0
+        },
+        "reallocated": {
+          "truck_s": 20532563.630390834,
+          "vessel_s": 62303.99127839875,
+          "empty_s": 57021.25,
+          "rehandles": 6286.0
+        }
+      },
+      "guards": {
+        "original": {
+          "original_request_s": 20401806.70219878,
+          "truck_remaining": 26,
+          "vessel_remaining": 859
+        },
+        "reallocated": {
+          "original_request_s": 26279933.910390876,
+          "truck_remaining": 40,
+          "vessel_remaining": 832
+        }
+      },
+      "guard_deltas": {
+        "original_request_s": 5878127.208192095,
+        "truck_remaining": 14,
+        "vessel_remaining": -27
+      },
+      "guards_pass": false,
+      "reassignments": {
+        "original": {
+          "n_space": 0,
+          "n_time": 0,
+          "traded_edges": 0
+        },
+        "reallocated": {
+          "n_space": 1150,
+          "n_time": 2162,
+          "traded_edges": 3312
+        }
+      },
+      "same_crane_weights": true,
+      "common_warmup_exact": true,
+      "original_assignment_preserved": true
+    }
+  ],
+  "mean_objectives": {
+    "original": 7.013466819205809,
+    "reallocated": 7.0204754608417606
+  },
+  "mean_reduction_percent": -0.09993120116800203,
+  "guards_pass": false,
+  "diagnostic_success": false,
+  "mean_original_request_s": {
+    "original": 20585373.61686939,
+    "reallocated": 28381268.50180555
+  },
+  "original_request_increase_percent": 37.87103906896083,
+  "statistical_confirmation": false,
+  "real_terminal_claim": false,
+  "first_day_equal": true,
+  "original_fields_preserved": true,
+  "execution_commit": "a521a1013d554b1f0ceb68dec52ebbd3cda79272"
+}

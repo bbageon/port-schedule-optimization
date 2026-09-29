@@ -1,0 +1,114 @@
+{
+  "state": "failed",
+  "claim_scope": "NO_PERFORMANCE_CLAIM",
+  "note": "Last synchronized boundary, not the failure-time total",
+  "generation": "v6",
+  "algorithm": "shared-block-PPO",
+  "time_s": 7200.0,
+  "blocks": 21,
+  "intervals": 120,
+  "roles": {
+    "seller": 113,
+    "crane": 218,
+    "buyer": 44
+  },
+  "crane_actions": {
+    "SERVE": 97,
+    "WAIT": 97,
+    "REPOSITION": 11,
+    "PRE_REHANDLE": 13
+  },
+  "cost_krw": 1240920.5648731547,
+  "initial_cost_krw": 0.0,
+  "team_reward": -0.04463650230851458,
+  "learning_window_s": null,
+  "learning_intervals": 0,
+  "learning_reward": 0.0,
+  "shaping_reward": 0.0,
+  "learning_shaping_reward": 0.0,
+  "learning_training_reward": 0.0,
+  "workload": null,
+  "truncated": true,
+  "updates": [],
+  "traded_edges": 15,
+  "txn_failed": 0,
+  "n_space": 4,
+  "n_time": 11,
+  "cost_breakdown": {
+    "phi_krw": 1240920.5648731547,
+    "c_wait": 1071960.148206488,
+    "c_move": 6960.416666666667,
+    "c_rehandle": 162000.0,
+    "c_vessel": 0.0,
+    "n_trucks": 105,
+    "n_censored": 15,
+    "mean_turn_time_s": 918.8229841769901,
+    "over_ratio": 0.0,
+    "p50_turn_time_s": 860.0115625454027,
+    "p90_turn_time_s": 1212.6295678551,
+    "p99_turn_time_s": 2477.1170730178683
+  },
+  "config": {
+    "rollout_intervals": 60,
+    "epochs": 2,
+    "minibatch_size": 64,
+    "learning_rate": 0.0003,
+    "gamma": 0.999,
+    "gae_lambda": 0.95,
+    "time_unit_s": 60.0,
+    "reward_scale_krw": null,
+    "reward_mode": "operational",
+    "clip": 0.2,
+    "value_coef": 0.5,
+    "entropy_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "target_kl": 0.03
+  },
+  "reward_mode": "operational",
+  "physical_totals": {
+    "truck_s": 96476.41333858397,
+    "vessel_s": 0.0,
+    "empty_s": 417.625,
+    "rehandles": 81.0
+  },
+  "initial_physical_totals": {
+    "truck_s": 0.0,
+    "vessel_s": 0,
+    "empty_s": 0.0,
+    "rehandles": 0.0
+  },
+  "objective": 0.04463650230851457,
+  "initial_objective": 0.0,
+  "reward_normalization": {
+    "scales": {
+      "truck_s": 2752293.040596188,
+      "vessel_s": 15890.260680352783,
+      "empty_s": 6921.155043461583,
+      "rehandles": 974.113315579791
+    },
+    "samples": 2880,
+    "gamma": 0.999,
+    "time_unit_s": 60.0,
+    "fit_start_s": 86400.0,
+    "fit_end_s": 259200.0,
+    "discounted_means": {
+      "truck_s": 5385063.588402867,
+      "vessel_s": 38340.37358824252,
+      "empty_s": 24458.68017429103,
+      "rehandles": 3293.991895845647
+    },
+    "method": "frozen-physical-discounted-return-std",
+    "weights": {
+      "truck_s": 0.25,
+      "vessel_s": 0.25,
+      "empty_s": 0.25,
+      "rehandles": 0.25
+    },
+    "reference_sha256": "846fcd616ccbbe6ee00f19436d841058a8bab1db48b384a66c42bf1aa9a60b4c",
+    "reference_seed": 9911000,
+    "source_commit": "b04e1f1a2c8cf81d4a7deda6faa9a9bd81bbcf6d",
+    "currency_used": false,
+    "mean_centered": false,
+    "clipped": false
+  }
+}

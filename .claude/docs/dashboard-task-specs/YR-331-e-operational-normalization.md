@@ -47,3 +47,10 @@
 - 학습 5일 원본을 보존하되 3일에서 끊었으며, 학습일은 5000건·평가일은 7500건이다. 이전 평가 자료를 재사용한 짧은 진단이다.
 - [문헌·수식](../../../docs/research/v6-workload-reward/operational-normalization.md) · [결과표](../../../outputs/reports/yr331_operational/report.md) · [원값](../../../outputs/reports/yr331_operational/result.json) · [파일 지문](../../../outputs/reports/yr331_operational/artifacts.json) · [상세 일지](../strategy-history/2026-09-28-YR-331-운영지표-정규화.md).
 - 다음 등록 순서는 c(검증 입력 공급 부족 복구)→a(독립 수용 상한 확인)다. 이번 결과를 보고 새 비중 탐색이나 반복 수를 추가하지 않았다.
+
+## 후속 비교 기준 정정 — 2026-09-29
+
+사용자가 원본 배정 대비를 요구하여 [f](YR-331-f-original-assignment-comparison.md)를 우선 수행한다.
+위 규칙 대비 16.47% 악화는 크레인 정책도 다른 역사적 비교이며 원본 대비 재배정 효과로 해석하지 않는다.
+원본 입력을 보존하고 같은 학습 크레인에서 재배정만 켜고 끄는 비교를 별도로 기록한다.
+e의 실행 전 계약·원자료·점수를 소급 변경하지 않으며, 해당 15실행의 재현 검증과 새 비교의 판정은 구별한다.
