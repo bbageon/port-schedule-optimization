@@ -7,7 +7,7 @@ v6 시절 설명은 `README-v6.md`·`README-piece8.md`(복사본 · 역사 문�
 ## 한 줄로
 
 판매·구매 재배정을 끄고 **크레인 결정만** 배운다. 트럭은 원래 블록·시각으로 오고,
-크레인 반사실 교사(v4)는 다음 단계 [[YR-332-b]] 에서 다시 붙인다.
+크레인이 "다음에 어느 일감을 할까" 를 고를 때마다 세계 둘을 굴려 정답을 만든다(v4 반사실 교사).
 
 ## v6 와 무엇이 다른가
 
@@ -17,6 +17,7 @@ v6 시절 설명은 `README-v6.md`·`README-piece8.md`(복사본 · 역사 문�
 | 본선 유휴 단가 | 2.99 원/GT·시간 | **35.88** (용선료 근거 · v4 [[YR-307]]) | `reward/krw.py` |
 | 통지 리드타임 | 반입·반출 한 분포(`DIST`) | **`DGT`** — 반입·반출 따로, 통지 전 도착은 리드 0 | `stage/dgt_lead.py` · `stage/orders.py` |
 | 크레인 행동 | 미리 자리잡는 빈 이동 포함 | **끔**(`safety_only`) — 교착 탈출·파내기·쉬기는 남김 | `stage/exec_config.py` |
+| 크레인 학습 | (없음 · PPO 는 시장 쪽) | **v4 반사실 교사** + 입력 9칸 | `crane/` |
 | 물리 세계 `world/` | — | v6 와 **바이트 동일** (시험이 지킨다) | `tests/v7/test_world_clone.py` |
 
 옛 동작은 지우지 않았다 — 비교·회귀용 선택지로 남는다:
@@ -37,11 +38,32 @@ PPO 유산 경로(`ppo/`)는 `run_month(ppo=…)` 일 때 v6 계약(`arm="RL"`)�
 "0시부터 알던 트럭" 으로 눌린다 — 무대에 실제로 담긴 반출 p75 는 약 12시간이다
 (`outputs/reports/yr332_v7_scaffold/scaffold_evidence.json`).
 
+## 크레인 교사 (`crane/`) — v4 에서 옮긴 것
+
+| 파일 | 무엇 |
+|---|---|
+| `features.py` | 입력 9칸 = v4 핵심 8칸 + **줄 선 트럭 수**(`sim.kpis.waiting_count()/10`) |
+| `policy.py` | 2층 64 망 · 실작업 우선 울타리 · 강제 손잡이 `force_once` |
+| `rollout.py` | 결정 하나 → 세계 둘(사실·차점자 강제) · 진단 `TRACE_DECISIONS` |
+| `collect.py` | 쓸 수 있는 결정만 예산을 쓴다 · 버린 것까지 센다 |
+| `teacher.py`·`fit.py` | 짝 중심 정답 · 그날 격차 눈금(하한 1,000원) · Huber |
+| `train.py` | 하루→라벨→갱신 · **고정 평가일 짝비교**(`evaluate`) |
+| `judge.py` | v4 하루 무대 28일 판정기(연속 30일 판정은 [[YR-332-d]] 에서 따로) |
+
+    PYTHONPATH=src python -m yard_rl.v7.crane --iters 20 --workers 6
+
+⚠️ **⑧ `n_cands` 는 이름과 다르다** — v4 에서부터 `gc._siblings` 가 없어 늘 대안식으로 떨어지고,
+그 값은 블록의 WAITING 일감 수(=줄 선 외부 트럭) / 18 이다. 새 ⑨ 와 18대 아래에서 **같은 정보**다
+(하루 전 행에서 100% 일치 · `tests/v7/test_v7_crane_teacher.py::test_n_cands_is_really_the_waiting_queue`).
+v4 연속성을 위해 고치지 않았다 — 고칠지는 별도 결정.
+
 ## 돌려 보기
 
     # WSL · venv ~/.venvs/yard-rl
     PYTHONPATH=src:tests/v7 OMP_NUM_THREADS=1 JAX_PLATFORMS=cpu python -m pytest tests/v7 -q
     PYTHONPATH=src python scripts/v7/scaffold_evidence.py outputs/reports/yr332_v7_scaffold/scaffold_evidence.json
+    PYTHONPATH=src python scripts/v7/probe_crane_scale.py --loads 3500,7500,15000 --labels 12 --workers 2
+    PYTHONPATH=src python scripts/v7/probe_branch_trace.py 1500 10800 8 outputs/reports/yr332_v7_scaffold/branch_trace_1500.json
 
 ## 한계
 

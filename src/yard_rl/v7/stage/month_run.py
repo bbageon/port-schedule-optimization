@@ -205,7 +205,7 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
               branch_days: int = 1, identity_checks: int = 4,
               vessel_deadline_mult: float | None = None, ppo=None,
               on_admission=None, on_container_contract=None, seed_data=None,
-              exec_config=None) -> MonthResult:
+              exec_config=None, crane_net=None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -228,6 +228,12 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
     """
     if arm is None:
         arm = "RL" if ppo is not None else CRANE_ONLY_ARM
+    if dispatcher == "RL_CRANE" and crane_net is None:
+        # ★[[YR-308]] — 망을 시드에 묶는다(run_episode 와 같은 규약). 연속 무대에는
+        #   크레인 교사를 붙이지 않는다 — 판정·평가용으로 망을 **굴리기만** 한다.
+        from ..crane.policy import CraneNet
+        torch.manual_seed(int(seed) + 2)
+        crane_net = CraneNet()
     if lead_mode is None:
         lead_mode = (seed_data["lead_mode"] if seed_data is not None
                      else DEFAULT_LEAD_MODE)
@@ -306,7 +312,7 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
                window_s=window_s, explore=explore, seed=seed,
                episode_end_s=month_s,
                cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None),
-               dispatcher=dispatcher, exec_config=exec_config)
+               dispatcher=dispatcher, exec_config=exec_config, crane_net=crane_net)
     ctx.vessel_meta = meta
     if trigger_top_k is not None:
         ctx.trigger_top_k = float(trigger_top_k)
@@ -552,7 +558,8 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
             state["day"] += 1
             state["snap"] = t + SNAP_S
 
-    exec_policy, exc = _rule_policy(dispatcher, seed=seed, exec_config=exec_config)
+    exec_policy, exc = _rule_policy(dispatcher, seed=seed, exec_config=exec_config,
+                                    crane_net=crane_net)
     if ppo is not None:
         exec_policy = ppo.execute
     mbt.run(exec_policy, review_fn=review)
