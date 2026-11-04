@@ -14,7 +14,8 @@ from ..reward.counterfactual import rollout_calls
 from ..reward.workload import WorkloadConfig, WorkloadMeter
 from ..stage.episode import _rule_policy
 from ..stage.fixed_seed import build_fixed_seed
-from ..stage.month import build_month, plan_days, plan_month_vessels, truck_net_by_block
+from ..stage.month import (build_month, initial_stock_by_block, plan_days, plan_month_vessels,
+                           truck_net_by_block)
 from ..stage.month_run import run_month
 from ..stage.seed_bundle import save_seed_bundle, load_seed_bundle
 from ..world.integrated.terminal_stream import OBS_24H
@@ -81,7 +82,8 @@ def run(args):
         else:
             built = build_month(args.seed, days=days)
             ships = plan_month_vessels(days, terminal_layout(), obs=OBS_24H,
-                                      truck_net=truck_net_by_block(built['schedule']))
+                                      truck_net=truck_net_by_block(built['schedule']),
+                                      initial_stock=initial_stock_by_block(built))
             document, audit = build_fixed_seed(built, ships, seed=args.seed)
         artifact = save_seed_bundle(document, out / 'seed-data.json.gz')
         write_json(out / 'input-audit.json', audit | {'artifact': artifact})

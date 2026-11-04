@@ -284,7 +284,13 @@ def build_month(seed: int, *, days=None, profile=None, layout=None,
 
 
 # ─────────────────────────────────────────────────────────────── 30일 본선
-def plan_month_vessels(days, layout, *, obs=None, truck_net=None) -> dict:
+def initial_stock_by_block(built) -> dict:
+    """첫날 초기 적재 상자 수 — `plan_month_vessels(initial_stock=...)` 의 입력."""
+    return {b: len(s.containers) for b, s in built["day0"]["scenarios"].items()}
+
+
+def plan_month_vessels(days, layout, *, obs=None, truck_net=None,
+                       initial_stock=None) -> dict:
     """날마다 배를 뽑아 **월 시각으로 옮긴다** ([[YR-212]] 선급 3종 그대로).
 
     하루 무대와 같은 함수(`sample_day_vessels`·`plan_streams`)를 날마다 부르고,
@@ -309,9 +315,42 @@ def plan_month_vessels(days, layout, *, obs=None, truck_net=None) -> dict:
     `key`(스트림 고유 이름)·`ship`(배 이름)·`day` 를 더한 것이다.
     """
     from ..world.integrated.terminal_stream import OBS_24H
-    from .vessels import plan_streams, sample_day_vessels
 
     obs = obs or OBS_24H
+    # ★[[YR-331-c]] 재고 보존 — 아래 `net` 은 흐름 수지일 뿐 **실제 재고(초기 적재)를 모른다.**
+    #   시드 9921000 Y08: net(+1) = goal(+1) 이라 첫날 적하 537을 줬는데, 초기 648 −
+    #   적하 537 − 3일 트럭 순반출 116 = **−5** → 원천 971 < 반출 976 으로 생성 거부.
+    #   `initial_stock` 을 주면 계획을 다 세운 뒤 블록별 월말 장부
+    #   (초기 + 반입 + 양하 − 반출 − 적하)를 보고, 모자란 블록은 **그 블록의 마지막 적하
+    #   스트림을 양하로 돌려** 다시 세운다(모자람이 없어질 때까지, 한 번에 한 스트림씩).
+    #   모자람이 없는 계획은 한 줄도 안 바뀐다. 계획 명단만 쓴다(물리 완료·정책 무관).
+    #   주문 삭제·상자 생성·물량 변경은 없다. 적하가 없어 못 고치면 그대로 돌려주고
+    #   `build_fixed_seed` 가 거부한다.
+    forced: set[str] = set()
+    while True:
+        out = _plan_month_vessels_once(days, layout, obs, truck_net, forced)
+        if initial_stock is None:
+            return out
+        end = {b: int(initial_stock.get(b, 0)) for b in layout.ids}
+        for per_day in (truck_net or {}).values():
+            for b, v in per_day.items():
+                end[b] = end.get(b, 0) - v
+        last_load: dict[str, str] = {}
+        for d in sorted(out):
+            for r in out[d]:
+                end[r["block"]] += r["moves"] if r["work"] == "DISCHARGE" else -r["moves"]
+                if r["work"] == "LOAD":
+                    last_load[r["block"]] = r["key"]       # 날·블록 순서라 마지막이 가장 늦다
+        flips = {last_load[b] for b, v in end.items() if v < 0 and b in last_load}
+        if not flips:
+            return out
+        forced |= flips
+
+
+def _plan_month_vessels_once(days, layout, obs, truck_net, forced) -> dict:
+    """`plan_month_vessels` 의 한 번 세우기 — `forced` 스트림은 양하로 고정한다."""
+    from .vessels import plan_streams, sample_day_vessels
+
     # ★블록별 수지 장부 — 양하로 쌓인 만큼 다음엔 적하를 준다.
     #   첫날은 블록 순번으로 반씩 갈라 시작한다(전부 양하로 몰리지 않게).
     net = {b: (1 if i % 2 else -1) for i, b in enumerate(layout.ids)}
@@ -328,13 +367,13 @@ def plan_month_vessels(days, layout, *, obs=None, truck_net=None) -> dict:
                         key=lambda x: x["block"]):        # 결정론 — 블록 순서 고정
             r = dict(r)
             b = r["block"]
-            dis = net.get(b, 0) < goal.get(b, 0)          # 목표에 못 미치면 내린다
+            ship = f"D{d.index:02d}-{r['vessel_id']}"
+            key = f"{ship}-s{r['stream']}"
+            dis = net.get(b, 0) < goal.get(b, 0) or key in forced  # 목표 미달이면 내린다
             r["work"] = "DISCHARGE" if dis else "LOAD"
             r["type_offset"] = 0 if dis else 1            # 두 칸이 같은 말을 하게
             net[b] = net.get(b, 0) + (r["moves"] if dis else -r["moves"])
-            ship = f"D{d.index:02d}-{r['vessel_id']}"
-            r.update(ship=ship, day=d.index,
-                     key=f"{ship}-s{r['stream']}",
+            r.update(ship=ship, day=d.index, key=key,
                      start_s=float(r["start_s"]) + d.t0)
             rows.append(r)
         out[d.index] = rows
