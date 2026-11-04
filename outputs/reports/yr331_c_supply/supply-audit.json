@@ -1,0 +1,399 @@
+{
+ "task": "YR-331-c",
+ "scope": "input generation only; no simulation, policy or reward",
+ "rule": "plan_month_vessels(initial_stock=...): if a block ends the month with planned sources < planned exits, its latest LOAD stream becomes DISCHARGE; repeat until none or no LOAD left",
+ "runs": [
+  {
+   "seed": 9921000,
+   "loads": [
+    3500,
+    5000,
+    7500
+   ],
+   "schedule_sha256": "4d2338d2f963d44d34f4972affbbcefe524a5940fba07bb9b6634f9bd8e9b76f",
+   "truck_orders": 16000,
+   "changed_streams": [
+    {
+     "day": 0,
+     "key": "D00-M1-s2",
+     "block": "Y08",
+     "moves": 537,
+     "legacy": "LOAD",
+     "repaired": "DISCHARGE"
+    }
+   ],
+   "legacy": {
+    "generation": {
+     "passed": false,
+     "error": "Insufficient real planned supply; generation refused",
+     "report": {
+      "Y08": {
+       "sources": 971,
+       "exits": 976,
+       "missing": 5
+      }
+     }
+    },
+    "short_blocks": {
+     "Y08": {
+      "initial": 648,
+      "gate_in": 323,
+      "discharge": 0,
+      "gate_out": 439,
+      "load": 537,
+      "sources": 971,
+      "exits": 976,
+      "spare": -5
+     }
+    },
+    "min_spare": -5
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "2151df9b4cd1d7bd173b298e182ec126a81f053127b838c6863d95f0288b7a90",
+     "sources": 28673,
+     "exits": 14171,
+     "truck_orders": 16000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 236,
+    "max_end_stock": 1069
+   },
+   "plan_identical": false,
+   "ledger_changed_blocks": {
+    "Y08": {
+     "legacy": {
+      "initial": 648,
+      "gate_in": 323,
+      "discharge": 0,
+      "gate_out": 439,
+      "load": 537,
+      "sources": 971,
+      "exits": 976,
+      "spare": -5
+     },
+     "repaired": {
+      "initial": 648,
+      "gate_in": 323,
+      "discharge": 537,
+      "gate_out": 439,
+      "load": 0,
+      "sources": 1508,
+      "exits": 439,
+      "spare": 1069
+     },
+     "truck_net_by_day": [
+      1,
+      44,
+      71
+     ],
+     "legacy_streams": [
+      {
+       "vessel_id": "M1",
+       "vessel_class": "MEDIUM",
+       "gt": 100000,
+       "sts": 4,
+       "stream": 2,
+       "moves": 537,
+       "cadence_s": 130.9090909090909,
+       "start_s": 15724.619653914286,
+       "work": "LOAD",
+       "type_offset": 1,
+       "block": "Y08",
+       "dropped_peers": [],
+       "ship": "D00-M1",
+       "day": 0,
+       "key": "D00-M1-s2"
+      }
+     ]
+    }
+   },
+   "failing_input": {
+    "path": "failing-input-9921000.json.gz",
+    "content_sha256": "0e4cb1084e1e3537d568e3d2d615d6a36cfd0384070a1cbb0618f75a64944864"
+   }
+  },
+  {
+   "seed": 9911000,
+   "loads": [
+    3500,
+    5000,
+    7500
+   ],
+   "schedule_sha256": "111e8e1bf70c459392c23b0259a47a246bd83866418379a4fcf664873815de7d",
+   "truck_orders": 16000,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "e32c2618d19fd9b69214e063923c9c9aa5fdd52f34aa8cd7413cd78bffbf56ae",
+     "sources": 26986,
+     "exits": 14352,
+     "truck_orders": 16000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 270
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "e32c2618d19fd9b69214e063923c9c9aa5fdd52f34aa8cd7413cd78bffbf56ae",
+     "sources": 26986,
+     "exits": 14352,
+     "truck_orders": 16000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 270,
+    "max_end_stock": 1086
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9931000,
+   "loads": [
+    3500,
+    5000,
+    7500,
+    12500,
+    3500
+   ],
+   "schedule_sha256": "b15a119ffe38e909e6ce4f8ad508bfef08846cc8603ff6c520c20659bea65f79",
+   "truck_orders": 32000,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "f498d385e91de254e25caf297e705a0bd662b920ddfec68f97604aef52966f0d",
+     "sources": 39934,
+     "exits": 30346,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 209
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "f498d385e91de254e25caf297e705a0bd662b920ddfec68f97604aef52966f0d",
+     "sources": 39934,
+     "exits": 30346,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 209,
+    "max_end_stock": 847
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9941000,
+   "loads": [
+    3500,
+    5000,
+    7500,
+    12500,
+    3500
+   ],
+   "schedule_sha256": "29ced0c756441c28703f482103ce95786acb85ea5019ce04527d977ce5ad313d",
+   "truck_orders": 32000,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "dcafaaa243dcb391e76b4da02ab0112eec1715f110fd4fa8d40de9223f7418cc",
+     "sources": 41086,
+     "exits": 27158,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 957,
+     "max_planned_wait_lower_bound_s": 49527.17711932797
+    },
+    "short_blocks": {},
+    "min_spare": 234
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "dcafaaa243dcb391e76b4da02ab0112eec1715f110fd4fa8d40de9223f7418cc",
+     "sources": 41086,
+     "exits": 27158,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 957,
+     "max_planned_wait_lower_bound_s": 49527.17711932797
+    },
+    "short_blocks": {},
+    "min_spare": 234,
+    "max_end_stock": 1140
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9951000,
+   "loads": [
+    3500,
+    5000,
+    7500,
+    12500,
+    3500
+   ],
+   "schedule_sha256": "39556ea06ee9dd95ae0cc6b824f3a9f6f53226d446c204d320eddfae7eb7b8c3",
+   "truck_orders": 32000,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "d433c3ad356599ee9dbb358d31410606afac568215c1e6b1f4e3b6ae4043f5af",
+     "sources": 39909,
+     "exits": 27749,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 231
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "d433c3ad356599ee9dbb358d31410606afac568215c1e6b1f4e3b6ae4043f5af",
+     "sources": 39909,
+     "exits": 27749,
+     "truck_orders": 32000,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 231,
+    "max_end_stock": 1055
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9961000,
+   "loads": [
+    3500,
+    7500,
+    3500
+   ],
+   "schedule_sha256": "c1bd806e07a87ecb10fd9204932e5ea562c923d2ab0c92cc36789cf0e82f8e0d",
+   "truck_orders": 14500,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "1a63372a19abd50b71c39ff559f5d6edc8619a0dd9c6e5b411cad38e077f23d2",
+     "sources": 27244,
+     "exits": 11446,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 321
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "1a63372a19abd50b71c39ff559f5d6edc8619a0dd9c6e5b411cad38e077f23d2",
+     "sources": 27244,
+     "exits": 11446,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 321,
+    "max_end_stock": 1093
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9971000,
+   "loads": [
+    3500,
+    7500,
+    3500
+   ],
+   "schedule_sha256": "406f771e3923cfd09f5d49c610314c55de771eea008831f81e6794f76f7eb294",
+   "truck_orders": 14500,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "b2e50593d89ab799dedfbe4994b6b519e9c1f3c2058dab7e923387f80a55d457",
+     "sources": 28090,
+     "exits": 15382,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 60
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "b2e50593d89ab799dedfbe4994b6b519e9c1f3c2058dab7e923387f80a55d457",
+     "sources": 28090,
+     "exits": 15382,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 60,
+    "max_end_stock": 994
+   },
+   "plan_identical": true
+  },
+  {
+   "seed": 9981000,
+   "loads": [
+    3500,
+    7500,
+    3500
+   ],
+   "schedule_sha256": "9ccd2776b1031c562d12d3e14ecbc19592b7ab35b1a39525b38a5526315ef27f",
+   "truck_orders": 14500,
+   "changed_streams": [],
+   "legacy": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "f4287c032b2fe9db56e4bb71826a6570cfa1face667b2b38d5dc2f0a59919443",
+     "sources": 26788,
+     "exits": 14084,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 35
+   },
+   "repaired": {
+    "generation": {
+     "passed": true,
+     "content_sha256": "f4287c032b2fe9db56e4bb71826a6570cfa1face667b2b38d5dc2f0a59919443",
+     "sources": 26788,
+     "exits": 14084,
+     "truck_orders": 14500,
+     "planned_waiting_exits": 0,
+     "max_planned_wait_lower_bound_s": 0
+    },
+    "short_blocks": {},
+    "min_spare": 35,
+    "max_end_stock": 1251
+   },
+   "plan_identical": true
+  }
+ ]
+}

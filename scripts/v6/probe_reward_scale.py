@@ -12,7 +12,8 @@ from yard_rl.v6.ppo.journal import RunJournal, write_json
 from yard_rl.v6.ppo.model import BlockPolicy
 from yard_rl.v6.ppo.provenance import code_stamp, file_sha256
 from yard_rl.v6.ppo.runtime import DebugStop, PPOConfig, PPORuntime
-from yard_rl.v6.stage.month import build_month, plan_days, plan_month_vessels, truck_net_by_block
+from yard_rl.v6.stage.month import (build_month, initial_stock_by_block, plan_days,
+                                    plan_month_vessels, truck_net_by_block)
 from yard_rl.v6.stage.fixed_seed import build_fixed_seed
 from yard_rl.v6.stage.month_run import run_month
 from yard_rl.v6.stage.seed_bundle import save_seed_bundle
@@ -37,7 +38,8 @@ def run(output):
     try:
         built = build_month(seed, days=days)
         ships = plan_month_vessels(days, terminal_layout(), obs=OBS_24H,
-                                  truck_net=truck_net_by_block(built['schedule']))
+                                  truck_net=truck_net_by_block(built['schedule']),
+                                  initial_stock=initial_stock_by_block(built))
         document, audit = build_fixed_seed(built, ships, seed=seed)
         save_seed_bundle(document, out/'seed-data.json.gz')
         write_json(out/'input-audit.json', audit)
