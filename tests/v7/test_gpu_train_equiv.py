@@ -369,7 +369,7 @@ def _v5_tap_run(seconds: float, load: int, config):
     days = [v5m.DayPlan(index=i, load=load, label="v5-debug", seed=SEED + 1000 * (i + 1),
                         t0=i * v5m.DAY_S, n_days=2) for i in range(2)]
     try:
-        run_month(seed=SEED, days=days, ppo=rt)
+        run_month(seed=SEED, days=days, ppo=rt, lead_mode="DIST")  # v7: array side builds with DIST (gpu/train.py)
     except DebugStop:
         pass
     finally:
@@ -522,7 +522,7 @@ def _v5_month_with_ppo(days, *, sd, seconds, training=False, tolerate=False, con
              sample_actions=False, stop_s=seconds)
     stop = None
     try:
-        run_month(seed=SEED, days=days, ppo=rt)
+        run_month(seed=SEED, days=days, ppo=rt, lead_mode="DIST")  # v7: array side builds with DIST (gpu/train.py)
     except DebugStop:
         stop = "DebugStop"
     except BaseException as ex:                       # ★v5 가 스스로 멈춘 자리를 기록한다

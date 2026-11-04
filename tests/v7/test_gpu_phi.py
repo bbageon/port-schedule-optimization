@@ -116,8 +116,10 @@ def test_stage_a_hand_values_confirmed_by_v5():
     assert d["c_wait"] == pytest.approx(280_000.0, rel=1e-9)
     assert d["c_move"] == pytest.approx(2056.67, abs=0.01)
     assert d["c_rehandle"] == 6000.0
-    assert d["c_vessel"] == pytest.approx(36129.17, abs=0.01)
-    assert d["phi_krw"] == pytest.approx(324185.83, abs=0.01)
+    # v7 [[YR-332-a]]: vessel price 2.99 -> 35.88 (x12.0) - v6 hand values 36,129.17 / 324,185.83.
+    #   v7 hand values: vessel 433,550.00 (= 36,129.1667 x 12) and phi 721,606.66.
+    assert d["c_vessel"] == pytest.approx(433550.00, abs=0.01)
+    assert d["phi_krw"] == pytest.approx(721606.66, abs=0.01)
     assert (d["n_trucks"], d["n_censored"]) == (4, 2)
     assert (d["p50_turn_time_s"], d["p90_turn_time_s"], d["p99_turn_time_s"]) == (6700.0, 7000.0, 7000.0)
 

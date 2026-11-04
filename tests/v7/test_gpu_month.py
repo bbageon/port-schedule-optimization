@@ -180,7 +180,9 @@ def _v5_month(prof, layout, days, built, v_by_day, *, on_boundary=None):
             state["day"] += 1
             state["snap"] = t + SNAP_S
 
-    exec_policy, exc = _rule_policy("SF_SPT", seed=SEED)
+    # v7 [[YR-332-a]]: the array world is the v6 copy (LEGACY candidates) - pin the v6 action range.
+    from yard_rl.v7.stage.exec_config import V6_LEGACY
+    exec_policy, exc = _rule_policy("SF_SPT", seed=SEED, exec_config=V6_LEGACY)
     mbt.run(exec_policy, review_fn=review)
     sync(sim_end)
     tape.snap(mbt, month_s)
