@@ -1,0 +1,582 @@
+"""에피소드 하나 — 무대를 세우고 하루를 굴려 Φ 를 낸다.
+
+설계 정본: `.claude/docs/architecture/06-학습과-판정.md` · `06b-대조군.md`
+
+■ `run_episode` 가 곧 `eval/run.py` 의 `episode_fn` 이다
+  판정 셀 하나 = (부하 × 배차 × 재배치 팔 × 날). 여기서 그 한 셀을 돌린다.
+
+■ ★v7 기본은 `NO_REALLOC` — 크레인 전용 ([[YR-332-a]])
+  결정 주체는 크레인뿐이다. 판매·구매 시장을 안 열고 트럭은 원래 블록·시각으로 온다.
+  아래 팔들은 지우지 않았다 — [[YR-332-e]] 에서 재배정을 한 축으로 다시 붙인다.
+  크레인 행동 범위는 `exec_config.V7_CRANE_ONLY`(미리 자리잡는 빈 이동 끔).
+
+■ 재배치 팔 (06b)
+  | 팔 | 지금 |
+  |---|---|
+  | `NO_REALLOC` | ✅ 시장을 아예 안 연다 (기준선 · **v7 기본**) |
+  | `RL` | ✅ Seller·Buyer 학습 망 |
+  | `FCFS`·`SPT`·`LEAST_SLACK`·`NEAREST`·`NETGAIN` | ⏳ [[YR-211]] |
+  고전 규칙 팔은 **조용히 대체하지 않고 즉시 실패**한다 — 안 만든 팔이 다른 팔
+  행세를 하면 대조표 전체가 거짓이 된다.
+
+■ 교사는 학습에서만 붙는다
+  `teacher=None`(기본)이면 반사실이 **한 번도** 안 돌아간다. 판정 하드가드
+  `rollout_calls_during_eval == 0` 이 이걸 검사한다.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+import torch
+
+from ..world.domain.enums import InformationLevel
+from ..world.integrated.baselines import (ResolverPolicy,
+                                          ServiceFirstSPTPreference, _apply,
+                                          _wait_of)
+from ..world.integrated.candidates import CandidateGenerator
+from ..world.integrated.engine import TerminalSimulator
+from ..world.integrated.multiblock import MultiBlockTerminal
+from .exec_config import DEFAULT_EXEC_CONFIG
+from ..world.integrated.profiles import build_h21_profile
+from ..world.integrated.terminal_stream import (OBS_24H, admission_epochs,
+                                                ensure_time_ledger)
+from ..world.integrated.vessel import VESSEL_CLASSES
+from ..actors.classical import (ARM_RULES, RETIRED_ARMS, TRIGGER_TOP_K,
+                                ClassicalMarket)
+from ..dispatch import RL_CRANE, RULE_BASES, make_preference
+from ..world.integrated.yard_layout import terminal_layout
+
+#: 정책에 공개되는 차량 정보 시점 — 사전 반출입정보 + 제공 ETA.
+#: v2 는 `experiments/yr088_joint_rl.LEVEL` 을 빌려 썼다. v3 는 자기 것을 갖는다.
+INFO_LEVEL = InformationLevel.PRE_ADVICE
+
+
+def _sim_from(scn, profile):
+    """시나리오 → 시뮬레이터. **시나리오를 만든 프로파일과 같은 것**을 넘긴다.
+
+    v2 의 `experiments/yr149_load_cells._sim_from` 과 같은 일을 하지만, v3 는
+    실험 스크립트를 임포트하지 않는다(사용자 지시 2026-08-22).
+    """
+    sim = TerminalSimulator(profile, scn, check_invariants=True)
+    sim.info_level = INFO_LEVEL
+    return sim
+from .. import CF_HORIZON_S
+from ..actors import (Buyer, BuyerNet, Market, Resolver, Seller,
+                      SellerNet)
+from ..reward.counterfactual import add_rollout_calls
+from ..reward.phi import terminal_cost_krw
+from .bridge import MarketBridge
+from .orders import EPOCH_S, V3Announcer, build_stage, orders_from_schedule
+from .branchpool import BranchJob, BranchPool, default_workers
+from .rollout import RolloutBudget, SnapshotRollout
+from .vessels import structural_idle_krw
+
+#: 구현된 재배치 팔. 나머지는 [[YR-211]].
+#: 고전 규칙 팔 ([[YR-211]] · `actors/classical.py`) — **주판정 축**이다.
+#: [06 §3] 동결 규약: 주판정 = 규칙 대비, 안 팔기 대비는 판별력 0([[YR-185]]).
+#: ★목록은 `actors/classical.py` 가 **유일한 출처**다 (2026-08-29).
+#: 전에는 여기 따로 적어 두어 `SLOT_LL` 을 더했을 때 조용히 어긋났다.
+RULE_ARMS = ARM_RULES + RETIRED_ARMS   # 제외 팔도 **굴릴 수는** 있다(각주용)
+#: ★진단 팔 ([[YR-232]]) — 학습 망은 그대로 쓰되 **시간 이연 후보를 안 만든다**.
+#: 고전 팔이 공간 이동만 하므로, RL 의 우세가 *"구조가 좋아서"* 인지
+#: *"고를 게 많아서"* 인지 가르는 데 쓴다.
+#: ⚠️ 공간 전용으로 **학습한** 정책이 아니라 **평가에서 제한한** 것이다 —
+#:    "TIME 을 빼면 얼마나 잃나" 를 재는 진단이지 공정한 재학습이 아니다.
+RL_SPACE = "RL_SPACE"      # 공간만 — 고전 팔과 같은 행동 폭
+RL_TIME = "RL_TIME"        # 시간만 — 반대편. 둘을 합쳐야 두 몫이 갈린다
+#: ★구조 절제 ([[YR-254]]) — 망은 그대로 두고 **수신 측 거부권만** 없앤다.
+#: 논문의 핵심 주장이 "제안과 수락을 갈라 두고 **양쪽이 동의해야** 확정" 인데,
+#: 정작 *동의를 없애면 얼마나 나빠지나* 를 잰 적이 없었다. 이 팔이 그 대조군이다.
+#: 용량 제약은 살아 있다 — 없애는 것은 **학습된 거절**뿐이다.
+RL_NOVETO = "RL_NOVETO"
+ARMS = ("NO_REALLOC", "RL", RL_SPACE, RL_TIME, RL_NOVETO) + RULE_ARMS
+#: ★v7 기본 팔 — 크레인 전용(시장을 안 연다) ([[YR-332-a]]).
+CRANE_ONLY_ARM = "NO_REALLOC"
+TODO_ARMS = ()
+
+#: 배차 축 — 크레인 **바닥**. `SF_SPT` 는 현행이고 나머지는 고전 규칙 5종
+#: ([[YR-243]] · `v3/dispatch.py`). 계획법(`JointRolloutGreedy`)은 **뺀다** —
+#: `USES_FUTURE_INFORMATION = True` 오라클이라 바닥이 될 수 없다(사용자 지적
+#: 2026-08-28 · [[YR-213]] 권장안 B 철회).
+#: ★`RL_CRANE` 은 규칙이 아니라 **학습 망**이다 ([[YR-248]] 2단계 · v7 재이식 [[YR-332-b]]).
+DISPATCHERS_READY = ("SF_SPT", RL_CRANE) + tuple(sorted(RULE_BASES))
+
+
+@dataclass
+class EpisodeResult:
+    phi_krw: float = 0.0
+    breakdown: dict = field(default_factory=dict)
+    admitted: int = 0
+    traded_edges: int = 0
+    policy_exceptions: int = 0
+    n_space: int = 0
+    n_time: int = 0
+    txn_failed: int = 0
+    labels: list = field(default_factory=list)
+    identity: list = field(default_factory=list)
+    rollout_worlds: int = 0
+    decisions: int = 0
+    missed_labels: int = 0
+    slot_mode: str = "HORIZON"
+    #: ★크레인층 라벨 ([[YR-308]] · v7 [[YR-332-b]]) — 재배정층 `labels` 와 **따로** 둔다.
+    #:  섞으면 어느 축에서 온 신호인지 못 가린다 (한 번에 한 축).
+    crane_labels: list = field(default_factory=list)
+    crane_stats: dict = field(default_factory=dict)
+
+    def as_dict(self) -> dict:
+        d = {"phi_krw": self.phi_krw, "admitted": self.admitted,
+             "traded_edges": self.traded_edges,
+             "policy_exceptions": self.policy_exceptions,
+             "n_space": self.n_space, "n_time": self.n_time,
+             "txn_failed": self.txn_failed, "n_decisions": self.decisions,
+             "n_labels": len(self.labels), "rollout_worlds": self.rollout_worlds,
+             "missed_labels": self.missed_labels, "slot_mode": self.slot_mode,
+             "n_crane_labels": len(self.crane_labels), "crane": self.crane_stats}
+        d.update(self.breakdown)
+        return d
+
+
+class _Ctx:
+    """분기 세계를 다시 조립하는 재료. 망은 **공유**하고 나머지만 새로 만든다."""
+
+    def __init__(self, *, seller_net, buyer_net, layout, announcer, arm, grid_s,
+                 window_s, explore, seed, episode_end_s, cf_horizon_s,
+                 dispatcher: str = "SF_SPT", exec_config=None, crane_net=None):
+        #: ★크레인 바닥 — 분기 세계도 **같은 것**을 써야 라벨이 정직하다.
+        self.dispatcher = dispatcher
+        #: ★크레인 행동 범위도 분기 세계와 **같아야** 한다 ([[YR-332-a]]).
+        self.exec_config = exec_config
+        #: ★크레인 **망도** 공유한다 ([[YR-308]]). 안 넘기면 분기 세계가
+        #:  `make_preference` 안에서 **무작위 새 망**을 만들어, 라벨이 학습 중인
+        #:  정책이 아니라 딴 정책의 것이 된다 — 판매·구매 망을 공유하는 이유와 같다.
+        self.crane_net = crane_net
+        self.seller_net, self.buyer_net = seller_net, buyer_net
+        self.layout, self.announcer = layout, announcer
+        self.arm, self.grid_s, self.window_s = arm, grid_s, window_s
+        self.explore, self.seed = explore, seed
+        #: ★하루의 끝. 분기 세계도 **이 값을 그대로** 받는다 — rollout 지평(t+H)은
+        #: 시뮬레이션을 어디서 멈출지만 정하고, 선택지 집합과 시계 특징은 하루 기준이다.
+        #: 여기에 t+H 를 주면 분기 세계의 Seller 가 먼 이연 칸을 못 보고 다른 좌표를
+        #: 고른다(2026-08-22 불변식이 잡았다).
+        self.episode_end_s = float(episode_end_s)
+        #: 이연 칸을 묶는 지평 ([[YR-216]]). None = 옛 동작.
+        self.cf_horizon_s = cf_horizon_s
+
+    def make_market(self, mbt, *, decided=()):
+        if self.arm in (RL_SPACE, RL_TIME):
+            self._no_time = (self.arm == RL_SPACE)
+            self._no_space = (self.arm == RL_TIME)
+            self.arm = "RL"          # 시장은 RL 과 같다 — 후보만 막는다
+        if self.arm == RL_NOVETO:
+            self._no_veto = True
+            self.arm = "RL"          # 시장은 RL 과 같다 — 거부권만 뗀다
+        if self.arm in RULE_ARMS:
+            # ★고전 팔 — 학습 망이 아니라 규칙이 고른다. 자리는 같다([[YR-211]]).
+            m = ClassicalMarket(self.arm, self.layout, window_s=self.window_s,
+                                trigger_top_k=getattr(self, "trigger_top_k",
+                                                      TRIGGER_TOP_K))
+        else:
+            seller = Seller(self.seller_net, self.layout, explore=self.explore,
+                            seed=self.seed)
+            seller.no_space = getattr(self, "_no_space", False)
+            buyer = Buyer(self.buyer_net, explore=self.explore, seed=self.seed)
+            buyer.always_buy = getattr(self, "_no_veto", False)
+            m = Market(seller, buyer, Resolver(mbt), window_s=self.window_s)
+        m.decided = set(decided)
+        return m
+
+    def make_bridge(self, market, *, orders, records, on_decision):
+        b = MarketBridge(market, self.layout, orders=orders, records=records,
+                         end_s=self.episode_end_s, arm=self.arm,
+                         grid_s=self.grid_s, cf_horizon_s=self.cf_horizon_s,
+                         on_decision=on_decision)
+        if getattr(self, "_no_time", False):
+            b.no_time = True         # ★[[YR-232]] 진단 — 이연 후보를 안 낸다
+        return b
+
+    def make_exec_policy(self, *, on_crane=None):
+        return _rule_policy(self.dispatcher, seed=self.seed,
+                            exec_config=self.exec_config,
+                            crane_net=self.crane_net, on_crane=on_crane)[0]
+
+    #: 무대가 준 블록→스트림 표 (어느 블록이 어느 배의 몇 번 STS 인가)
+    block_vessel: dict = {}
+
+    def vessel_idle(self, mbt, end_s: float) -> dict:
+        return vessel_idle_of(mbt, end_s, self.block_vessel)
+
+    @staticmethod
+    def yc_extra_move_s(mbt) -> float:
+        return yc_empty_travel_s(mbt)
+
+    @staticmethod
+    def rehandles(mbt) -> int:
+        return rehandles_of(mbt)
+
+
+def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
+                 crane_net=None, on_crane=None):
+    """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
+
+    ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
+    크레인 위에서 만들어져 *"이 결정이 얼마였나"* 가 거짓이 된다. 그래서
+    `_Ctx.dispatcher` 가 이 값을 들고 다닌다.
+
+    `exec_config` — 크레인 행동 범위. 안 주면 v7 기본(`V7_CRANE_ONLY`: 미리 자리잡는
+    빈 이동 끔 · 교착 탈출·파내기·쉬기 유지). v6 행동은 `exec_config.V6_LEGACY`.
+
+    `on_crane(sim, dp, gb, assign)` — ★크레인 **결정 훅** ([[YR-308]]).
+      결정이 정해진 **직후·반영 직전**에 불린다. 이 자리여야 하는 이유:
+        · `gb` (후보 전부) 와 `assign` (고른 것) 을 **둘 다** 볼 수 있다
+        · `sim` 이 아직 **결정 전 상태**라 여기서 뜬 스냅샷이 곧 분기점이다
+      훅이 터지면 조용히 WAIT 로 떨어지지 않도록 `exc["hook"]` 에 따로 센다 —
+      크레인 예외와 섞이면 "정책이 이상하다" 와 "교사가 이상하다" 를 못 가린다.
+
+    `crane_net` — `RL_CRANE` 일 때 쓸 망. 안 주면 무작위 새 망이라 라벨이 거짓이 된다.
+    """
+    cfg = DEFAULT_EXEC_CONFIG if exec_config is None else exec_config
+    gens: dict[int, CandidateGenerator] = {}
+    exc = {"n": 0, "hook": 0}
+    pref = (ServiceFirstSPTPreference() if dispatcher == "SF_SPT"
+            else make_preference(dispatcher, seed=seed, crane_net=crane_net))
+    pol = ResolverPolicy(pref, dispatcher)
+
+    def exec_policy(sim, dp):
+        g = gens.setdefault(id(sim), CandidateGenerator(config=cfg))
+        gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
+        try:
+            assign = pol.decide(sim, dp, gb)
+            if on_crane is not None:
+                try:
+                    on_crane(sim, dp, gb, assign)
+                except Exception:
+                    exc["hook"] += 1        # ★훅 오류는 결정을 안 건드린다
+            _apply(sim, assign)
+        except Exception:
+            exc["n"] += 1
+            _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+    exec_policy.pref = pref                 # 분기 세계가 강제 손잡이를 잡는 자리
+    return exec_policy, exc
+
+
+def _sf_spt_policy():
+    """옛 이름 — 부르는 곳이 남아 있어 유지한다."""
+    return _rule_policy("SF_SPT")
+
+
+def yc_empty_travel_s(mbt) -> float:
+    """항 2 의 원료 — YC **빈 갠트리** 주행 시간(초).
+
+    적재 주행은 생산 사이클이라 세지 않는다(넣으면 "아무것도 안 하기" 가 최적).
+    빈 주행이 곧 "재배치·재조작 때문에 생긴 추가 이동" 이다.
+    """
+    tot = 0.0
+    for sim in mbt.blocks.values():
+        k = getattr(sim, "kpis", None)
+        if k is None:
+            continue
+        v = sim.profile.cranes[0].gantry_speed_mps if sim.profile.cranes else 1.0
+        tot += float(getattr(k, "empty_gantry_m", 0.0)) / max(1e-9, v)
+    return tot
+
+
+def rehandles_of(mbt) -> int:
+    """항 3 의 원료 — 터미널 전체 재조작 횟수(선재조작 포함)."""
+    return sum(int(getattr(getattr(sim, "kpis", None), "rehandle_count", 0))
+               for sim in mbt.blocks.values())
+
+
+def vessel_idle_of(mbt, end_s: float, block_vessel: dict | None = None) -> dict:
+    """항 4 의 원료 — {선박: (GT, 유휴 초)}. **배 단위**로 묶는다 ([[YR-212]]).
+
+    ★스트림 유휴를 그대로 더하면 안 된다. 대형선은 STS 6대라 스트림이 여섯 개이고,
+    각 스트림이 1시간씩 막히면 합은 6시간이지만 **배가 6시간 논 게 아니다** —
+    처리 능력을 6 스트림·시간만큼 잃은 것이고, 그만큼 접안이 길어진다:
+
+        배 유휴 ≈ Σ(스트림 막힌 시간) ÷ STS 대수
+
+    선박 비용은 **배 1척·1시간** 단위(v7 35.88원/GT·시간 · `reward/krw.py`)라 이렇게 환산해야 맞는다.
+
+    `block_vessel` 은 무대가 준 블록→스트림 표다(어느 블록이 어느 배의 몇 번 STS 인지).
+    없으면 기항 물량으로 선급을 되짚는다 — 사본 분기 세계처럼 표를 못 넘기는 자리용
+    대비책이고, 정상 경로에서는 표가 온다.
+    """
+    per_ship: dict[str, list[float]] = {}
+    gt_of: dict[str, float] = {}
+    sts_of: dict[str, int] = {}
+    for bid, sim in sorted(mbt.blocks.items()):
+        for vid, v in sorted(getattr(sim, "vessels", {}).items()):
+            row = (block_vessel or {}).get(bid)
+            if row is not None:
+                key, gt, sts = row["vessel_id"], float(row["gt"]), int(row["sts"])
+            else:
+                moves = int(v.plan.total_moves)
+                cls = min(VESSEL_CLASSES,
+                          key=lambda c: abs(sum(c.moves_range()) / 2.0 - moves))
+                key, gt, sts = f"{bid}:{vid}", float(cls.gt), 1
+            per_ship.setdefault(key, []).append(
+                float(getattr(v, "sts_wait_accum_s", 0.0)))
+            gt_of[key], sts_of[key] = gt, sts
+    return {k: (gt_of[k], sum(w) / max(1, sts_of[k])) for k, w in per_ship.items()}
+
+
+class _CounterTape:
+    """★엔진 계수기를 **epoch 마다 찍어 둔다.**
+
+    항2(YC 빈 주행)·항4(본선 유휴)는 기록이 아니라 **엔진 누적 계수기**라, 하루가
+    끝난 뒤에는 "그때 얼마였나" 를 되짚을 수 없다. 트럭 대기(항1·항3)는 기록에
+    시각이 남아 `end_s` 검열로 잘리지만 계수기는 그렇게 못 자른다.
+
+    분기 세계는 t+H 에서 멈추므로 계수기가 정확히 그 시점 값이다. 실제 궤적에서
+    같은 시점 값을 읽으려면 **지나갈 때 찍어 두는 수밖에 없다.** 이걸 안 하면
+    동일성 불변식이 항상 어긋난다(창 길이가 다른 값을 비교하게 된다).
+    """
+
+    def __init__(self, block_vessel: dict | None = None):
+        self.at: dict[float, tuple[dict, float, int]] = {}
+        self.block_vessel = dict(block_vessel or {})
+
+    def __init_block_vessel__(self, bv):        # 무대 표를 물려받는다
+        self.block_vessel = bv
+
+    def snap(self, mbt, t: float) -> None:
+        self.at[round(t, 6)] = (vessel_idle_of(mbt, t, self.block_vessel),
+                                yc_empty_travel_s(mbt), rehandles_of(mbt))
+
+    def read(self, t: float) -> tuple[dict, float, int]:
+        """`t` 이하의 가장 늦은 기록. 창 끝이 격자 밖이면 직전 격자를 쓴다."""
+        key = round(t, 6)
+        if key in self.at:
+            return self.at[key]
+        keys = [k for k in self.at if k <= key]
+        return self.at[max(keys)] if keys else ({}, 0.0, 0)
+
+
+def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_ARM,
+                seed: int, seller_net=None, buyer_net=None,
+                lead_mode: str = "DGT", window_s: float = 1800.0,
+                explore: float = 0.0, horizon_s: float = CF_HORIZON_S,
+                budget: RolloutBudget | None = None,
+                slot_mode: str = "HORIZON", workers: int = 1,
+                trigger_top_k: float | None = None,
+                obs=None, exec_config=None,
+                crane_net=None, crane_budget: RolloutBudget | None = None) -> EpisodeResult:
+    """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
+
+    `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
+      · `"HORIZON"` : 반사실 창 안에 남는 칸만 (기본)
+      · `"LEGACY"`  : 15·30·60·120분 고정 — **전후 비교 전용**
+
+    `workers` — 반사실 세계를 몇 프로세스에 나눌까 ([[YR-219]]). 1 이면 같은
+    프로세스에서 순차로 돈다. 결과는 **같아야** 한다(세계가 서로 독립이고 탐색이
+    좌표 기반이라 순서에 안 의존한다) — `tests/v5/test_branch_pool.py` 가 검사한다.
+
+    `crane_budget` — 있으면 **크레인 교사**가 붙는다([[YR-308]] · v7 [[YR-332-b]]).
+    크레인 결정을 표본해 세계 둘(실제 선택·차점자)을 굴리고 `crane_labels` 를 채운다.
+    `crane_net` — `dispatcher="RL_CRANE"` 일 때 쓸 망. 안 주면 `seed+2` 로 묶은 새 망.
+    """
+    if slot_mode not in ("HORIZON", "LEGACY"):
+        raise ValueError(f"slot_mode 는 HORIZON|LEGACY — {slot_mode!r}")
+    if arm not in ARMS:
+        raise NotImplementedError(
+            f"알 수 없는 재배치 팔 {arm!r} — 오타가 다른 팔 행세를 하면 "
+            f"대조표 전체가 거짓이 된다. 쓸 수 있는 팔: {ARMS}")
+    if dispatcher not in DISPATCHERS_READY:
+        raise NotImplementedError(
+            f"배차 {dispatcher!r} 은 아직 구현 전이다 — 계획법·얼린 망은 YR-213. "
+            f"지금 쓸 수 있는 배차: {DISPATCHERS_READY}")
+
+    obs = obs or OBS_24H
+    prof, layout = build_h21_profile(), terminal_layout()
+    built = build_stage(load=load, seed=seed, profile=prof, layout=layout,
+                        obs=obs, lead_mode=lead_mode)
+    orders, records = orders_from_schedule(built)
+
+    mbt = MultiBlockTerminal(
+        {b: ensure_time_ledger(_sim_from(s, prof)) for b, s in built["scenarios"].items()},
+        extra_review_epochs=admission_epochs(obs))
+    ann = V3Announcer(built["schedule"], end_s=built["sim_end_s"])
+
+    # ★망 초기화에 시드를 건다. 안 걸면 학습 전 팔이 **실행마다 다른 정책**이 되어
+    #   같은 시드로 돌려도 Φ 가 재현되지 않는다(2026-08-22 실측: 같은 셀이
+    #   102,913,359 ↔ 136,388,850 로 갈렸다). 짝비교의 전제가 깨진다.
+    if seller_net is None or buyer_net is None:
+        torch.manual_seed(int(seed))
+    s_net = seller_net if seller_net is not None else SellerNet()
+    b_net = buyer_net if buyer_net is not None else BuyerNet()
+    #: ★크레인 망도 **시드에 묶는다** ([[YR-308]] · [[YR-304]] 와 같은 함정).
+    #:  안 묶으면 본 세계와 분기 세계가 각자 무작위 망을 만들어 **서로 다른 정책**이
+    #:  된다 — v4 실측: 사실 가지가 실제와 다른 결정을 내 라벨이 통째로 버려졌다.
+    if dispatcher == RL_CRANE and crane_net is None:
+        from ..crane.policy import CraneNet
+        torch.manual_seed(int(seed) + 2)
+        crane_net = CraneNet()
+    ctx = _Ctx(seller_net=s_net, buyer_net=b_net, layout=layout, announcer=ann,
+               arm=arm, grid_s=EPOCH_S, window_s=window_s, explore=explore,
+               seed=seed, episode_end_s=obs.observe_s,
+               cf_horizon_s=(horizon_s if slot_mode == "HORIZON" else None),
+               dispatcher=dispatcher, exec_config=exec_config,
+               crane_net=crane_net)
+    ctx.block_vessel = built.get("block_vessel", {})
+    if trigger_top_k is not None:
+        ctx.trigger_top_k = float(trigger_top_k)   # ★[[YR-232]] 민감도 스윕용
+    market = ctx.make_market(mbt)
+
+    res = EpisodeResult(slot_mode=slot_mode)
+    pending: list[dict] = []
+    tape = _CounterTape(built.get("block_vessel", {}))
+    #: (t, docKey) → 그 결정의 판매·구매 기록. 작업자에게는 안 보낸다(무겁고 불필요).
+    job_meta: dict[tuple, dict] = {}
+    pool = (BranchPool(ctx, horizon_s=horizon_s,
+                       workers=(default_workers() if workers < 0 else workers))
+            if budget else None)
+    if budget is not None and budget.stride <= 0:
+        # 하루에 고르게 흩는다 — 앞부분만 뽑으면 새벽 표본만 남는다.
+        budget.stride = max(1, load // max(1, budget.max_labels))
+
+    def on_decision(m, t, *, seller_entry, buyer_entry, applied, pre=None):
+        # ★계수기는 **모든 결정**에서 돈다. 라벨을 만든 것만 세면 `stride` 가
+        #   영원히 다시 안 맞아 첫 한 건만 뽑힌다(2026-08-22 실측: 3,018 중 1건).
+        if pool is None:
+            return
+        if not budget.take():
+            return
+        if pre is None:
+            res.missed_labels += 1        # peek 이 헛짚었다 — 있으면 안 되는 일
+            return
+        dk = seller_entry["doc_key"]
+        s_alt = "KEEP" if seller_entry["action"] != "KEEP" else "SELL"
+        b_alt = (None if buyer_entry is None else
+                 ("REJECT" if buyer_entry["action"] == "BUY" else "BUY"))
+        # ★분기는 **결정 전 스냅샷**에서 출발한다 — `m` 은 이미 거래가 확정된 뒤다.
+        #   여기서는 **맡기기만** 하고 굴리지 않는다: 세계들이 서로 독립이라
+        #   에피소드가 도는 동안 다른 프로세스에서 굴러도 결과가 같다([[YR-219]]).
+        job_meta[(round(t, 6), dk)] = {"seller": seller_entry, "buyer": buyer_entry,
+                                       "seller_alt": s_alt, "buyer_alt": b_alt}
+        pool.submit(BranchJob(doc_key=dk, t=t, mbt=pre["mbt"],
+                              orders=pre["orders"], records=pre["records"],
+                              decided=pre["decided"],
+                              seller_alt=s_alt, buyer_alt=b_alt))
+
+    def wants_epoch(n_elig: int) -> bool:
+        """복제하기 **전에** 이 epoch 을 라벨링할지 정한다(bridge 가 묻는다)."""
+        return budget.peek(n_elig)
+
+    on_decision.wants_epoch = wants_epoch
+
+    bridge = ctx.make_bridge(market, orders=orders, records=records,
+                             on_decision=(on_decision if budget else None))
+    if pool is not None:
+        pool.__enter__()
+    # ── 크레인층 교사 ([[YR-308]]) — 재배정층과 **완전히 따로** 돈다.
+    #    한 번에 한 축이므로 둘을 동시에 켜는 것은 권하지 않는다(막지는 않는다).
+    crane = None
+    on_crane = None
+    if crane_budget is not None:
+        from ..crane.collect import CraneCollector
+        crane = CraneCollector(ctx, budget=crane_budget, horizon_s=horizon_s,
+                               workers=(default_workers() if workers < 0 else workers))
+        if crane_budget.stride <= 0:
+            # 하루에 고르게 흩는다. 간격은 **라벨이 될 수 있는 결정** 수 기준이다.
+            # v4 실측(창 3시간)에서 부하당 쓸 수 있는 결정이 0.86~3.47배라 1배로 잡았다.
+            # ⚠️ v7 무대(행동 범위·리드타임)에서는 다시 재지 않았다.
+            crane_budget.stride = max(1, load // max(1, crane_budget.max_labels))
+        on_crane = crane.hook(mbt, market, orders, records)
+        crane.pool.__enter__()
+
+    exec_policy, exc = _rule_policy(dispatcher, seed=seed, exec_config=exec_config,
+                                    crane_net=crane_net, on_crane=on_crane)
+    if crane is not None:
+        #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
+        crane.attach(exec_policy.pref)
+
+    def review(m, t):
+        ann.review(m, t)
+        bridge.review(m, t)
+        # ★[[YR-235]] A2 (2026-08-26) — **항상** 찍는다.
+        #   전에는 교사가 있을 때만 찍어서, 판정 경로의 최종 Φ 가 시뮬이 끝난 뒤
+        #   (관측창 + 배수 2시간)의 계수기를 읽었다. 항1 은 관측창에서 검열되는데
+        #   항2/3/4 만 2시간을 더 세는 **창 불일치**였다 (실측 +1.0%).
+        #   관측창 뒤에는 안 찍는다 — 찍으면 그 값이 창끝 값을 덮는다.
+        if t <= obs.observe_s:
+            tape.snap(m, t)
+
+    try:
+        mbt.run(exec_policy, review_fn=review)
+        if pool is not None:
+            # ★작업자가 굴린 몫을 부모 계수기에 되받는다 — 안 그러면 판정 가드가
+            #   "교사 호출 0" 을 잘못 통과시킨다.
+            for r in pool.results():
+                meta = job_meta[(round(r["t"], 6), r["doc_key"])]
+                row = {"doc_key": r["doc_key"], "t": r["t"],
+                       "horizon_s": horizon_s, "worlds": r["worlds"],
+                       "seller": meta["seller"], "seller_alt": meta["seller_alt"],
+                       "seller_alt_coord": r["seller_alt_coord"],
+                       "phi_factual": r["phi_factual"],
+                       "phi_seller_alt": r["phi_seller_alt"],
+                       "_factual_branch": r["factual"]}
+                if "phi_buyer_alt" in r:
+                    row["buyer"] = meta["buyer"]
+                    row["buyer_alt"] = meta["buyer_alt"]
+                    row["phi_buyer_alt"] = r["phi_buyer_alt"]
+                pending.append(row)
+            if pool.workers > 1:
+                add_rollout_calls(pool.n_worlds)
+        if crane is not None:
+            labels = crane.finish()
+            res.crane_labels = labels.samples
+            res.crane_stats = dict(crane.stats, worlds=crane.pool.n_worlds,
+                                   zero=labels.zero,
+                                   #: ★그날 눈금 ([[YR-309]]) — 학습기가 이 값으로 목표를 되돌린다.
+                                   scale=labels.scale,
+                                   median_gap_krw=labels.median_gap_krw,
+                                   floor_bound=labels.floor_bound,
+                                   hook_errors=exc.get("hook", 0))
+            if crane.pool.workers > 1:
+                add_rollout_calls(crane.pool.n_worlds)
+    finally:
+        if pool is not None:
+            pool.close()
+        if crane is not None:
+            crane.close()
+
+    # ── 사건을 끝까지 흡수 (마지막 epoch 이후 완료분)
+    bridge._sync(mbt, obs.observe_s)
+
+    # ★[[YR-235]] A2 — 네 항이 **같은 창**을 재게 한다.
+    #   항1 은 `end_s` 로 검열되고, 항2/3/4 는 **관측창을 지나갈 때 찍어 둔**
+    #   계수기를 읽는다. 시뮬은 배수 2시간을 더 돌지만 그건 안 센다.
+    v_idle, yc_s, reh = tape.read(obs.observe_s)
+    phi = terminal_cost_krw(records, end_s=obs.observe_s, vessel_idle=v_idle,
+                            yc_extra_move_s=yc_s, rehandles=reh)
+    res.phi_krw = phi.total
+    res.breakdown = phi.as_dict()
+    res.admitted = ann.n_admitted
+    res.traded_edges = bridge.traded_edges
+    res.policy_exceptions = exc["n"]
+    res.n_space, res.n_time = bridge.n_space, bridge.n_time
+    res.txn_failed = bridge.txn_failed
+    res.rollout_worlds = pool.n_worlds if pool else 0
+    # 진단 — 구조적 본선 유휴(접이안·검역 등). Φ 에는 안 들어간다(vessels.py 참조).
+    res.breakdown["c_vessel_structural"] = structural_idle_krw(built, obs.observe_s)
+    res.breakdown["n_vessels"] = len(built.get("fleet", []))
+    res.breakdown["n_vessel_streams"] = len(built.get("vessel_schedule", []))
+    res.decisions = len(market.seller.trail)     # 교사 유무와 무관하게 센다
+
+    # ── 동일성 불변식 — factual 가지가 실제 궤적과 **같은 결정**을 냈는가
+    from .rollout import identity_check
+    for i, row in enumerate(pending):
+        w_end = row["t"] + row["horizon_s"]
+        v_idle, yc_s, reh = tape.read(w_end)
+        # 실제 궤적에서 같은 창을 읽은 값 — **라벨이 아니라 절단 폭 진단용**이다.
+        row["phi_read_untruncated"] = terminal_cost_krw(
+            records, end_s=w_end, vessel_idle=v_idle,
+            yc_extra_move_s=yc_s, rehandles=reh).total
+        fact = row.pop("_factual_branch")
+        if i < budget.identity_checks:
+            res.identity.append(identity_check(
+                factual=fact, seller_entry=row["seller"],
+                buyer_entry=row.get("buyer"),
+                phi_read=row["phi_read_untruncated"]))
+    res.labels = pending
+    return res

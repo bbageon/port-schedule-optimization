@@ -19,3 +19,23 @@ v7 로 옮긴다. 크레인이 고를 때마다 세계 둘(실제 선택·차점
 - 줄 길이 칸이 실제로 변하는지(죽은 칸이 아닌지) 확인한다.
 - 망을 바꾸면 결정이 바뀌는지 시험한다(꽂았다와 작동한다를 가른다).
 - `tests/v7` 통과. 커밋·푸시.
+
+## 진행 기록
+
+### 2026-11-04 — 교사 이식 (작업본 커밋 · 푸시 안 함)
+
+- **이식**: v4 `crane/`(features·policy·teacher·rollout·collect·fit·train·judge·__main__)와 `eval/paired.py` 를
+  v7 로 옮겼다. v6 `stage/episode.py` 에서 빠져 있던 배선(`RL_CRANE`·`crane_net`·`crane_budget`·결정 훅
+  `on_crane`·강제 손잡이 `pref`)을 v4 그대로 되살렸고, 연속 무대(`run_month`)도 `RL_CRANE` 을 굴린다(교사 없음).
+- **입력 9칸**: v4 8칸 + ⑨ `queue_trucks` = `sim.kpis.waiting_count()/10`(블록 도착·작업 시작 전 외부 트럭).
+- **⚠️ 발견**: v4 ⑧ `n_cands` 는 없는 속성(`gc._siblings`)을 읽어 늘 대안식으로 떨어지고, 그 값은 WAITING
+  일감 수/18 = **줄 선 트럭 수/18** 이다. 하루 전 행에서 ⑧ = min(⑨·10/18, 1) 이 100% 성립한다. 즉 ⑨ 는 18대
+  이하에서 ⑧ 과 같은 정보다. [[YR-315]] 의 전제("크레인이 줄 길이를 못 본다")를 다시 봐야 한다. 고치지 않았다.
+- **눈금**: `CRANE_ADV_SCALE` 10,000원은 그대로(동결 안 함). 계측 `scripts/v7/probe_crane_scale.py` —
+  격차 중앙 3,500: 30,073원 · 7,500: 83,646원 · 15,000: 10,432원(하루 8~12건). v4 의 1~10배.
+- **시험**: `tests/v7/test_v7_crane_teacher.py` 11건 + v4 에서 옮긴 `test_crane_{policy,teacher,wiring}.py` 31건 통과.
+  사실 분기는 창 끝 30분을 뺀 구간에서 결정 단위로 실제 궤적과 같다(사실불일치 0). 부하 1,500·3시간 창
+  8분기 진단에서 첫 차이는 전부 창 끝 3.6~12분 안(절단 효과).
+- **못 한 것**: 학습이 되는지는 재지 않았다([[YR-332-c]]). v4 판정기(`crane/judge.py`)는 하루 무대 28일 판정이라
+  [[YR-332-d]] 의 연속 30일 판정에는 새로 만들어야 한다. 부하 15,000 은 예산 12건 중 8건만 뽑혔다.
+- 증거: `outputs/reports/yr332_v7_scaffold/` (README B절 · `crane_scale_probe.json` · `branch_trace_1500.json`).
