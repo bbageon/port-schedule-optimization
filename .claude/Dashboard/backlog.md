@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-o | RL | **후보 누락률·전체 후보 기준 비교 계약** | 🟠 | 현재는 계획 계산 뒤 기본 12칸으로 줄인다. 기존 결과 일치와 좋은 후보 보존을 구분하고, 개수 제한 없는 실행 가능 후보 기준으로 누락·선택 손실을 측정한다. [spec](../docs/dashboard-task-specs/YR-332-o-candidate-recall-contract.md) |
 | YR-332-p | RL | **크레인 학습 표적·비교 표본 진단과 개선안 검토** | 🟠 | 현재는 선택·대안의 3시간 비용을 짝 중심으로 각각 회귀한다. 상대 의존 표적·표본 편중을 먼저 재현하고 순위 학습 등은 한 축씩 비교한다. 효과 미검증. [spec](../docs/dashboard-task-specs/YR-332-p-training-target-coverage-review.md) |
 | YR-332-q | RL | **비교 표본 선정 효과 검증** | 🟠 | 6단계 중 5단계. 같은 비교 예산에서 크레인·작업 종류 편중을 줄이고 효과를 비교한다. [spec](../docs/dashboard-task-specs/YR-332-q-training-comparison-sampling.md) |
 | YR-332-r | RL | **작업 방향 입력 한 칸의 효과 검증** | 🟠 | 6단계 중 6단계. 반입/반출·적하/양하 구분이 필요한지 STORE 한 칸만 추가해 비교한다. [spec](../docs/dashboard-task-specs/YR-332-r-crane-flow-information.md) |

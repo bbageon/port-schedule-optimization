@@ -1,0 +1,998 @@
+{
+  "stage": 1,
+  "mechanism": "existence",
+  "commit": "dac998c1a6822e74050cd4129e5df84b8057bb47",
+  "n_pairs": 6,
+  "loads": {
+    "3500": {
+      "legacy": {
+        "wall_seconds": 51.11860629962757,
+        "run_seconds": 50.2605336997658,
+        "generation_seconds": 19.9804236,
+        "selection_seconds": 1.6958912,
+        "p95_ms": 8.8327,
+        "peak_rss_bytes": 279973888,
+        "max_ms": 107.1257,
+        "max_candidates": 12
+      },
+      "existence": {
+        "wall_seconds": 38.87923670001328,
+        "run_seconds": 38.04181019961834,
+        "generation_seconds": 19.691879,
+        "selection_seconds": 1.6332136,
+        "p95_ms": 8.6019,
+        "peak_rss_bytes": 281231360,
+        "max_ms": 37.7034,
+        "max_candidates": 12
+      },
+      "wall_change_pct": -23.943081561876355,
+      "all_repeat_changes_pct": [
+        -23.943081561876355,
+        -24.32193070687445
+      ]
+    },
+    "7500": {
+      "legacy": {
+        "wall_seconds": 78.4706761999987,
+        "run_seconds": 77.54879610007629,
+        "generation_seconds": 31.3081133,
+        "selection_seconds": 2.4988149,
+        "p95_ms": 11.8362,
+        "peak_rss_bytes": 310300672,
+        "max_ms": 126.6615,
+        "max_candidates": 39
+      },
+      "existence": {
+        "wall_seconds": 62.407280900049955,
+        "run_seconds": 61.46677739964798,
+        "generation_seconds": 32.0890739,
+        "selection_seconds": 2.4635292,
+        "p95_ms": 12.0077,
+        "peak_rss_bytes": 309690368,
+        "max_ms": 137.8598,
+        "max_candidates": 39
+      },
+      "wall_change_pct": -20.470570763284712,
+      "all_repeat_changes_pct": [
+        -20.470570763284712,
+        -21.916348894275362
+      ]
+    },
+    "15000": {
+      "legacy": {
+        "wall_seconds": 289.41459230007604,
+        "run_seconds": 288.24805560009554,
+        "generation_seconds": 133.8639185,
+        "selection_seconds": 6.0338131,
+        "p95_ms": 27.0683,
+        "peak_rss_bytes": 369602560,
+        "max_ms": 251.2021,
+        "max_candidates": 176
+      },
+      "existence": {
+        "wall_seconds": 211.4717670995742,
+        "run_seconds": 210.3067695996724,
+        "generation_seconds": 136.7651268,
+        "selection_seconds": 5.7687433,
+        "p95_ms": 28.1125,
+        "peak_rss_bytes": 369704960,
+        "max_ms": 254.9077,
+        "max_candidates": 176
+      },
+      "wall_change_pct": -26.931200870372063,
+      "all_repeat_changes_pct": [
+        -26.931200870372063,
+        -27.8959129464219
+      ]
+    }
+  },
+  "pairs": [
+    {
+      "load": 3500,
+      "seed": 9913490,
+      "repeat": 0,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 51.11860629962757,
+          "run_seconds": 50.2605336997658,
+          "generation_seconds": 19.9804236,
+          "selection_seconds": 1.6958912,
+          "p95_ms": 8.8327,
+          "max_ms": 107.1257,
+          "peak_rss_bytes": 279973888,
+          "max_candidates": 12,
+          "outcomes": {
+            "phi_krw": 108102027.48220778,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 43421908.53199134,
+            "c_move": 674104.1666666666,
+            "c_rehandle": 9250000.0,
+            "c_vessel": 54756014.78354978,
+            "n_trucks": 3500,
+            "n_censored": 14,
+            "mean_turn_time_s": 1114.748246268184,
+            "over_ratio": 0.0034285714285714284,
+            "p50_turn_time_s": 979.8851979696628,
+            "p90_turn_time_s": 1675.1594646928934,
+            "p99_turn_time_s": 2878.519991443878,
+            "c_vessel_structural": 48916746.82342469,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 1394,
+            "GATE_OUT/DONE": 2106,
+            "VESSEL_DISCHARGE/DONE": 1181,
+            "VESSEL_DISCHARGE/PLANNED": 448,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 1505,
+            "VESSEL_LOAD/RELEASED": 121,
+            "VESSEL_LOAD/RUNNING": 6
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 3500,
+            "initial_vessel_jobs": 3264,
+            "input_sha256": "e82d28ea26f3a9dc805d18d32f86e489cff92aa1e7a0a49dc3229f272620bae5"
+          }
+        },
+        "existence": {
+          "wall_seconds": 38.87923670001328,
+          "run_seconds": 38.04181019961834,
+          "generation_seconds": 19.691879,
+          "selection_seconds": 1.6332136,
+          "p95_ms": 8.6019,
+          "max_ms": 37.7034,
+          "peak_rss_bytes": 281231360,
+          "max_candidates": 12,
+          "outcomes": {
+            "phi_krw": 108102027.48220778,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 43421908.53199134,
+            "c_move": 674104.1666666666,
+            "c_rehandle": 9250000.0,
+            "c_vessel": 54756014.78354978,
+            "n_trucks": 3500,
+            "n_censored": 14,
+            "mean_turn_time_s": 1114.748246268184,
+            "over_ratio": 0.0034285714285714284,
+            "p50_turn_time_s": 979.8851979696628,
+            "p90_turn_time_s": 1675.1594646928934,
+            "p99_turn_time_s": 2878.519991443878,
+            "c_vessel_structural": 48916746.82342469,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 1394,
+            "GATE_OUT/DONE": 2106,
+            "VESSEL_DISCHARGE/DONE": 1181,
+            "VESSEL_DISCHARGE/PLANNED": 448,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 1505,
+            "VESSEL_LOAD/RELEASED": 121,
+            "VESSEL_LOAD/RUNNING": 6
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 3500,
+            "initial_vessel_jobs": 3264,
+            "input_sha256": "e82d28ea26f3a9dc805d18d32f86e489cff92aa1e7a0a49dc3229f272620bae5"
+          }
+        }
+      },
+      "wall_change_pct": -23.943081561876355
+    },
+    {
+      "load": 7500,
+      "seed": 9913491,
+      "repeat": 0,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 78.4706761999987,
+          "run_seconds": 77.54879610007629,
+          "generation_seconds": 31.3081133,
+          "selection_seconds": 2.4988149,
+          "p95_ms": 11.8362,
+          "max_ms": 126.6615,
+          "peak_rss_bytes": 310300672,
+          "max_candidates": 39,
+          "outcomes": {
+            "phi_krw": 377927501.3909382,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 266343761.53046334,
+            "c_move": 652139.5833333334,
+            "c_rehandle": 16458000.0,
+            "c_vessel": 94473600.27714153,
+            "n_trucks": 7500,
+            "n_censored": 37,
+            "mean_turn_time_s": 2602.082908999904,
+            "over_ratio": 0.13613333333333333,
+            "p50_turn_time_s": 2165.5028279132603,
+            "p90_turn_time_s": 4282.705918561107,
+            "p99_turn_time_s": 17793.83635944358,
+            "c_vessel_structural": 61072309.63792424,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 2957,
+            "GATE_OUT/DONE": 4543,
+            "VESSEL_DISCHARGE/DONE": 579,
+            "VESSEL_DISCHARGE/PLANNED": 594,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 889,
+            "VESSEL_LOAD/RELEASED": 280,
+            "VESSEL_LOAD/RUNNING": 7
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 7500,
+            "initial_vessel_jobs": 2352,
+            "input_sha256": "4256832fedcc554b2e93d19bbf0e89d553a6674eb02dfc5a140756214e16eefe"
+          }
+        },
+        "existence": {
+          "wall_seconds": 62.407280900049955,
+          "run_seconds": 61.46677739964798,
+          "generation_seconds": 32.0890739,
+          "selection_seconds": 2.4635292,
+          "p95_ms": 12.0077,
+          "max_ms": 137.8598,
+          "peak_rss_bytes": 309690368,
+          "max_candidates": 39,
+          "outcomes": {
+            "phi_krw": 377927501.3909382,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 266343761.53046334,
+            "c_move": 652139.5833333334,
+            "c_rehandle": 16458000.0,
+            "c_vessel": 94473600.27714153,
+            "n_trucks": 7500,
+            "n_censored": 37,
+            "mean_turn_time_s": 2602.082908999904,
+            "over_ratio": 0.13613333333333333,
+            "p50_turn_time_s": 2165.5028279132603,
+            "p90_turn_time_s": 4282.705918561107,
+            "p99_turn_time_s": 17793.83635944358,
+            "c_vessel_structural": 61072309.63792424,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 2957,
+            "GATE_OUT/DONE": 4543,
+            "VESSEL_DISCHARGE/DONE": 579,
+            "VESSEL_DISCHARGE/PLANNED": 594,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 889,
+            "VESSEL_LOAD/RELEASED": 280,
+            "VESSEL_LOAD/RUNNING": 7
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 7500,
+            "initial_vessel_jobs": 2352,
+            "input_sha256": "4256832fedcc554b2e93d19bbf0e89d553a6674eb02dfc5a140756214e16eefe"
+          }
+        }
+      },
+      "wall_change_pct": -20.470570763284712
+    },
+    {
+      "load": 15000,
+      "seed": 9913492,
+      "repeat": 0,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 289.41459230007604,
+          "run_seconds": 288.24805560009554,
+          "generation_seconds": 133.8639185,
+          "selection_seconds": 6.0338131,
+          "p95_ms": 27.0683,
+          "max_ms": 251.2021,
+          "peak_rss_bytes": 369602560,
+          "max_candidates": 176,
+          "outcomes": {
+            "phi_krw": 2861898847.2615433,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 2733353913.168818,
+            "c_move": 942689.5833333334,
+            "c_rehandle": 15810000.0,
+            "c_vessel": 111792244.50939158,
+            "n_trucks": 15000,
+            "n_censored": 2439,
+            "mean_turn_time_s": 9730.879784262988,
+            "over_ratio": 0.7064,
+            "p50_turn_time_s": 6298.095736371375,
+            "p90_turn_time_s": 27497.5622468105,
+            "p99_turn_time_s": 48719.056,
+            "c_vessel_structural": 41987338.11340459,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 5995,
+            "GATE_OUT/DONE": 7615,
+            "GATE_OUT/RUNNING": 42,
+            "GATE_OUT/WAITING": 1348,
+            "VESSEL_DISCHARGE/DONE": 157,
+            "VESSEL_DISCHARGE/PLANNED": 1314,
+            "VESSEL_DISCHARGE/RELEASED": 12,
+            "VESSEL_LOAD/DONE": 184,
+            "VESSEL_LOAD/RELEASED": 1299
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 15000,
+            "initial_vessel_jobs": 2966,
+            "input_sha256": "6204f75bb65a620d50802910b8105458d840d0512d532e6f68c5bcc968d7436a"
+          }
+        },
+        "existence": {
+          "wall_seconds": 211.4717670995742,
+          "run_seconds": 210.3067695996724,
+          "generation_seconds": 136.7651268,
+          "selection_seconds": 5.7687433,
+          "p95_ms": 28.1125,
+          "max_ms": 254.9077,
+          "peak_rss_bytes": 369704960,
+          "max_candidates": 176,
+          "outcomes": {
+            "phi_krw": 2861898847.2615433,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 2733353913.168818,
+            "c_move": 942689.5833333334,
+            "c_rehandle": 15810000.0,
+            "c_vessel": 111792244.50939158,
+            "n_trucks": 15000,
+            "n_censored": 2439,
+            "mean_turn_time_s": 9730.879784262988,
+            "over_ratio": 0.7064,
+            "p50_turn_time_s": 6298.095736371375,
+            "p90_turn_time_s": 27497.5622468105,
+            "p99_turn_time_s": 48719.056,
+            "c_vessel_structural": 41987338.11340459,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 5995,
+            "GATE_OUT/DONE": 7615,
+            "GATE_OUT/RUNNING": 42,
+            "GATE_OUT/WAITING": 1348,
+            "VESSEL_DISCHARGE/DONE": 157,
+            "VESSEL_DISCHARGE/PLANNED": 1314,
+            "VESSEL_DISCHARGE/RELEASED": 12,
+            "VESSEL_LOAD/DONE": 184,
+            "VESSEL_LOAD/RELEASED": 1299
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 15000,
+            "initial_vessel_jobs": 2966,
+            "input_sha256": "6204f75bb65a620d50802910b8105458d840d0512d532e6f68c5bcc968d7436a"
+          }
+        }
+      },
+      "wall_change_pct": -26.931200870372063
+    },
+    {
+      "load": 3500,
+      "seed": 9913490,
+      "repeat": 1,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 51.79021209990606,
+          "run_seconds": 50.93736490001902,
+          "generation_seconds": 20.2472946,
+          "selection_seconds": 1.7051699,
+          "p95_ms": 8.9805,
+          "max_ms": 104.6698,
+          "peak_rss_bytes": 284844032,
+          "max_candidates": 12,
+          "outcomes": {
+            "phi_krw": 108102027.48220778,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 43421908.53199134,
+            "c_move": 674104.1666666666,
+            "c_rehandle": 9250000.0,
+            "c_vessel": 54756014.78354978,
+            "n_trucks": 3500,
+            "n_censored": 14,
+            "mean_turn_time_s": 1114.748246268184,
+            "over_ratio": 0.0034285714285714284,
+            "p50_turn_time_s": 979.8851979696628,
+            "p90_turn_time_s": 1675.1594646928934,
+            "p99_turn_time_s": 2878.519991443878,
+            "c_vessel_structural": 48916746.82342469,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 1394,
+            "GATE_OUT/DONE": 2106,
+            "VESSEL_DISCHARGE/DONE": 1181,
+            "VESSEL_DISCHARGE/PLANNED": 448,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 1505,
+            "VESSEL_LOAD/RELEASED": 121,
+            "VESSEL_LOAD/RUNNING": 6
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 3500,
+            "initial_vessel_jobs": 3264,
+            "input_sha256": "e82d28ea26f3a9dc805d18d32f86e489cff92aa1e7a0a49dc3229f272620bae5"
+          }
+        },
+        "existence": {
+          "wall_seconds": 39.1938326000236,
+          "run_seconds": 38.34621880017221,
+          "generation_seconds": 19.7006754,
+          "selection_seconds": 1.6166658,
+          "p95_ms": 8.5076,
+          "max_ms": 35.5861,
+          "peak_rss_bytes": 280797184,
+          "max_candidates": 12,
+          "outcomes": {
+            "phi_krw": 108102027.48220778,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 43421908.53199134,
+            "c_move": 674104.1666666666,
+            "c_rehandle": 9250000.0,
+            "c_vessel": 54756014.78354978,
+            "n_trucks": 3500,
+            "n_censored": 14,
+            "mean_turn_time_s": 1114.748246268184,
+            "over_ratio": 0.0034285714285714284,
+            "p50_turn_time_s": 979.8851979696628,
+            "p90_turn_time_s": 1675.1594646928934,
+            "p99_turn_time_s": 2878.519991443878,
+            "c_vessel_structural": 48916746.82342469,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 1394,
+            "GATE_OUT/DONE": 2106,
+            "VESSEL_DISCHARGE/DONE": 1181,
+            "VESSEL_DISCHARGE/PLANNED": 448,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 1505,
+            "VESSEL_LOAD/RELEASED": 121,
+            "VESSEL_LOAD/RUNNING": 6
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 3500,
+            "initial_vessel_jobs": 3264,
+            "input_sha256": "e82d28ea26f3a9dc805d18d32f86e489cff92aa1e7a0a49dc3229f272620bae5"
+          }
+        }
+      },
+      "wall_change_pct": -24.32193070687445
+    },
+    {
+      "load": 7500,
+      "seed": 9913491,
+      "repeat": 1,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 78.56736760027707,
+          "run_seconds": 77.65958849992603,
+          "generation_seconds": 31.3455186,
+          "selection_seconds": 2.4863651,
+          "p95_ms": 11.9187,
+          "max_ms": 140.9484,
+          "peak_rss_bytes": 306503680,
+          "max_candidates": 39,
+          "outcomes": {
+            "phi_krw": 377927501.3909382,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 266343761.53046334,
+            "c_move": 652139.5833333334,
+            "c_rehandle": 16458000.0,
+            "c_vessel": 94473600.27714153,
+            "n_trucks": 7500,
+            "n_censored": 37,
+            "mean_turn_time_s": 2602.082908999904,
+            "over_ratio": 0.13613333333333333,
+            "p50_turn_time_s": 2165.5028279132603,
+            "p90_turn_time_s": 4282.705918561107,
+            "p99_turn_time_s": 17793.83635944358,
+            "c_vessel_structural": 61072309.63792424,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 2957,
+            "GATE_OUT/DONE": 4543,
+            "VESSEL_DISCHARGE/DONE": 579,
+            "VESSEL_DISCHARGE/PLANNED": 594,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 889,
+            "VESSEL_LOAD/RELEASED": 280,
+            "VESSEL_LOAD/RUNNING": 7
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 7500,
+            "initial_vessel_jobs": 2352,
+            "input_sha256": "4256832fedcc554b2e93d19bbf0e89d553a6674eb02dfc5a140756214e16eefe"
+          }
+        },
+        "existence": {
+          "wall_seconds": 61.34826919995248,
+          "run_seconds": 60.4196536000818,
+          "generation_seconds": 32.0215115,
+          "selection_seconds": 2.4647702,
+          "p95_ms": 11.9938,
+          "max_ms": 131.4125,
+          "peak_rss_bytes": 306540544,
+          "max_candidates": 39,
+          "outcomes": {
+            "phi_krw": 377927501.3909382,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 266343761.53046334,
+            "c_move": 652139.5833333334,
+            "c_rehandle": 16458000.0,
+            "c_vessel": 94473600.27714153,
+            "n_trucks": 7500,
+            "n_censored": 37,
+            "mean_turn_time_s": 2602.082908999904,
+            "over_ratio": 0.13613333333333333,
+            "p50_turn_time_s": 2165.5028279132603,
+            "p90_turn_time_s": 4282.705918561107,
+            "p99_turn_time_s": 17793.83635944358,
+            "c_vessel_structural": 61072309.63792424,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 2957,
+            "GATE_OUT/DONE": 4543,
+            "VESSEL_DISCHARGE/DONE": 579,
+            "VESSEL_DISCHARGE/PLANNED": 594,
+            "VESSEL_DISCHARGE/RUNNING": 3,
+            "VESSEL_LOAD/DONE": 889,
+            "VESSEL_LOAD/RELEASED": 280,
+            "VESSEL_LOAD/RUNNING": 7
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 7500,
+            "initial_vessel_jobs": 2352,
+            "input_sha256": "4256832fedcc554b2e93d19bbf0e89d553a6674eb02dfc5a140756214e16eefe"
+          }
+        }
+      },
+      "wall_change_pct": -21.916348894275362
+    },
+    {
+      "load": 15000,
+      "seed": 9913492,
+      "repeat": 1,
+      "equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true,
+        "input": true,
+        "model": true
+      },
+      "arms": {
+        "legacy": {
+          "wall_seconds": 291.9249742999673,
+          "run_seconds": 290.77076420001686,
+          "generation_seconds": 135.5354572,
+          "selection_seconds": 6.1957933,
+          "p95_ms": 27.4271,
+          "max_ms": 246.0381,
+          "peak_rss_bytes": 369405952,
+          "max_candidates": 176,
+          "outcomes": {
+            "phi_krw": 2861898847.2615433,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 2733353913.168818,
+            "c_move": 942689.5833333334,
+            "c_rehandle": 15810000.0,
+            "c_vessel": 111792244.50939158,
+            "n_trucks": 15000,
+            "n_censored": 2439,
+            "mean_turn_time_s": 9730.879784262988,
+            "over_ratio": 0.7064,
+            "p50_turn_time_s": 6298.095736371375,
+            "p90_turn_time_s": 27497.5622468105,
+            "p99_turn_time_s": 48719.056,
+            "c_vessel_structural": 41987338.11340459,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 5995,
+            "GATE_OUT/DONE": 7615,
+            "GATE_OUT/RUNNING": 42,
+            "GATE_OUT/WAITING": 1348,
+            "VESSEL_DISCHARGE/DONE": 157,
+            "VESSEL_DISCHARGE/PLANNED": 1314,
+            "VESSEL_DISCHARGE/RELEASED": 12,
+            "VESSEL_LOAD/DONE": 184,
+            "VESSEL_LOAD/RELEASED": 1299
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 15000,
+            "initial_vessel_jobs": 2966,
+            "input_sha256": "6204f75bb65a620d50802910b8105458d840d0512d532e6f68c5bcc968d7436a"
+          }
+        },
+        "existence": {
+          "wall_seconds": 210.4898376003839,
+          "run_seconds": 209.30417610006407,
+          "generation_seconds": 137.3429922,
+          "selection_seconds": 5.8509135,
+          "p95_ms": 28.0459,
+          "max_ms": 249.7671,
+          "peak_rss_bytes": 370429952,
+          "max_candidates": 176,
+          "outcomes": {
+            "phi_krw": 2861898847.2615433,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 2733353913.168818,
+            "c_move": 942689.5833333334,
+            "c_rehandle": 15810000.0,
+            "c_vessel": 111792244.50939158,
+            "n_trucks": 15000,
+            "n_censored": 2439,
+            "mean_turn_time_s": 9730.879784262988,
+            "over_ratio": 0.7064,
+            "p50_turn_time_s": 6298.095736371375,
+            "p90_turn_time_s": 27497.5622468105,
+            "p99_turn_time_s": 48719.056,
+            "c_vessel_structural": 41987338.11340459,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          },
+          "flow_status": {
+            "GATE_IN/DONE": 5995,
+            "GATE_OUT/DONE": 7615,
+            "GATE_OUT/RUNNING": 42,
+            "GATE_OUT/WAITING": 1348,
+            "VESSEL_DISCHARGE/DONE": 157,
+            "VESSEL_DISCHARGE/PLANNED": 1314,
+            "VESSEL_DISCHARGE/RELEASED": 12,
+            "VESSEL_LOAD/DONE": 184,
+            "VESSEL_LOAD/RELEASED": 1299
+          },
+          "metadata": {
+            "blocks": 21,
+            "cranes": 42,
+            "initial_containers": 19656,
+            "truck_orders": 15000,
+            "initial_vessel_jobs": 2966,
+            "input_sha256": "6204f75bb65a620d50802910b8105458d840d0512d532e6f68c5bcc968d7436a"
+          }
+        }
+      },
+      "wall_change_pct": -27.8959129464219
+    }
+  ],
+  "repeat_checks": [
+    {
+      "load": 3500,
+      "seed": 9913490,
+      "arm": "legacy",
+      "equal": true
+    },
+    {
+      "load": 3500,
+      "seed": 9913490,
+      "arm": "existence",
+      "equal": true
+    },
+    {
+      "load": 7500,
+      "seed": 9913491,
+      "arm": "legacy",
+      "equal": true
+    },
+    {
+      "load": 7500,
+      "seed": 9913491,
+      "arm": "existence",
+      "equal": true
+    },
+    {
+      "load": 15000,
+      "seed": 9913492,
+      "arm": "legacy",
+      "equal": true
+    },
+    {
+      "load": 15000,
+      "seed": 9913492,
+      "arm": "existence",
+      "equal": true
+    }
+  ],
+  "interpretation": "timing and candidate diagnostics; no trained-policy performance claim"
+}

@@ -1,6 +1,6 @@
 # YR-332-o — 후보 누락률·전체 후보 기준 비교 계약
 
-- **상태**: backlog
+- **상태**: in-progress
 - 실행 승인: 2026-11-05 사용자 6단계 실험의 2단계. `docs/research/v7-discharge/six-step-prereg.md`.
 - 등록: 2026-11-05. 사용자 요청: 후보 생성·학습 개선을 문헌·상용 시스템과 대조, 재현율 우선.
 - 상위: [[YR-332]], 연계: [[YR-332-n]]·[[YR-332-p]]. 연구 검토 결과이며 구현·효과 검증 전이다.
@@ -73,3 +73,8 @@
 - `src/yard_rl/v7/world/integrated/candidates.py`: `generate`, `_generate`, `_prune`.
 - `outputs/reports/yr332_default_eval/report.md`: 기존 9쌍 동등성의 범위.
 - 이번 등록은 검토 기록이다. 후보 재현율의 실측값이나 새 정책 성능은 아직 없다.
+
+## 순차 실험 착수
+
+2026-11-05. 1단계 보존 확인 후 존재 확인 단축만 사용하고 자리 재사용은 끈다.
+부하 3종·입력 3개씩 9쌍의 기본 12칸/전체 후보 비교. 원자료는 `outputs/reports/yr332_six_steps/stage2/`.

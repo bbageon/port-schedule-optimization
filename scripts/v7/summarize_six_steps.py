@@ -71,6 +71,16 @@ def candidate_summary(folder):
             out[name]['max_candidates']=max(v['max_candidates'] for v in vals)
         out['wall_change_pct']=100*(out[names[1]]['wall_seconds']/out[names[0]]['wall_seconds']-1)
         out['all_repeat_changes_pct']=[p['wall_change_pct'] for p in pairs if p['load']==load]
+        if stage == 2:
+            for name in names:
+                audits=[p['arms'][name]['recall'] for p in primary]
+                totals={k:sum(a.get(k,0) for a in audits) for k in
+                        ('eligible','retained','with_action','top_retained','mandatory',
+                         'joint_checks','independent_top_joint_conflicts','audit_seconds')}
+                totals['recall']=totals['retained']/max(1,totals['eligible'])
+                totals['top_retention']=totals['top_retained']/max(1,totals['with_action'])
+                totals['max_eligible']=max(a['max_eligible'] for a in audits)
+                out[name]['recall']=totals
         loads[str(load)]=out
     result=dict(stage=stage,mechanism=mechanism,commit=stamp['commit'],n_pairs=len(pairs),
                 loads=loads,pairs=pairs,repeat_checks=repeat_checks,
@@ -128,7 +138,32 @@ def learning_summary(folder):
         averages[arm]['initialization_mean_cost_range_pct']=[min(means),max(means)]
         averages[arm]['cost_wins']=sum(r['cost_change_pct']<0 for r in rows)
         averages[arm]['n_cases']=len(rows)
+    paired_changes=[]
+    for before,after in [('initial','pointwise'),('pointwise','pairwise'),
+                         ('pairwise','coverage'),('coverage','flow')]:
+        for (arm,seed,load),d in by_key.items():
+            if arm!=after or (before,seed,load) not in by_key:
+                continue
+            base=by_key[(before,seed,load)]
+            a,b=base['result'],d['result']
+            assert base['probe']['metadata']['input_sha256']==d['probe']['metadata']['input_sha256']
+            vessel_done=lambda x:sum(n for k,n in x['probe']['flow_status_counts'].items()
+                                    if k.startswith('VESSEL_') and k.endswith('/DONE'))
+            paired_changes.append(dict(before=before,after=after,model_seed=seed,load=load,
+                cost_change_pct=100*(b['phi_krw']/a['phi_krw']-1),
+                turn_change_pct=100*(b['mean_turn_time_s']/a['mean_turn_time_s']-1),
+                admitted_change=b['admitted']-a['admitted'],
+                censored_24h_change=b['n_censored']-a['n_censored'],
+                vessel_done_26h_change=vessel_done(d)-vessel_done(base)))
+    direct_averages={}
+    for before,after in sorted({(r['before'],r['after']) for r in paired_changes}):
+        rows=[r for r in paired_changes if (r['before'],r['after'])==(before,after)]
+        direct_averages[f'{before}->{after}']={k:st.mean(r[k] for r in rows) for k in
+            ('cost_change_pct','turn_change_pct','admitted_change','censored_24h_change','vessel_done_26h_change')}
+        direct_averages[f'{before}->{after}'].update(n_cases=len(rows),
+            cost_wins=sum(r['cost_change_pct']<0 for r in rows))
     result=dict(comparisons_vs_rule_all=comparisons,averages=averages,training=stages,
+        direct_comparisons=paired_changes,direct_averages=direct_averages,
         limitations=['three initializations crossed with the same three evaluation days',
                      'three updates per model; not a convergence or significance study',
                      'common behaviour collection; alternative learners not iterated on their own behaviour',
