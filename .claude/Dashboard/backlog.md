@@ -10,7 +10,9 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-n | Infra | **큰 야드 후보 생성 계산 증가 원인 확인·단일축 보정** | 🟠 | 7,500건 한 입력에서 후보 생성 58.30→69.39초로 증가해 선택 계산 절감을 상쇄. 하위 비용을 나눠 원인을 재현하고 같은 작업 결과로 보정한다. [spec](../docs/dashboard-task-specs/YR-332-n-candidate-generation-cost.md) |
+| YR-332-n | Infra | **큰 야드 후보 생성 계산 증가 원인 확인·단일축 보정** | 🟠 | 후보 생성 58.30→69.39초 증가. 전체 상태 대조·계획 계산을 분리 측정하고 변경 사건으로 필요한 계산만 갱신하는 방식을 검증한다. 후보·작업 결과 보존이 먼저다. [spec](../docs/dashboard-task-specs/YR-332-n-candidate-generation-cost.md) |
+| YR-332-o | RL | **후보 누락률·전체 후보 기준 비교 계약** | 🟠 | 현재는 계획 계산 뒤 기본 12칸으로 줄인다. 기존 결과 일치와 좋은 후보 보존을 구분하고, 개수 제한 없는 실행 가능 후보 기준으로 누락·선택 손실을 측정한다. [spec](../docs/dashboard-task-specs/YR-332-o-candidate-recall-contract.md) |
+| YR-332-p | RL | **크레인 학습 표적·비교 표본 진단과 개선안 검토** | 🟠 | 현재는 선택·대안의 3시간 비용을 짝 중심으로 각각 회귀한다. 상대 의존 표적·표본 편중을 먼저 재현하고 순위 학습 등은 한 축씩 비교한다. 효과 미검증. [spec](../docs/dashboard-task-specs/YR-332-p-training-target-coverage-review.md) |
 | YR-332-m | Sim | **기본 하루 환경의 투입 누락·작업 잔여 원인 대조** | 🟠 | 속도 비교 첫 입력은 트럭 3,500건 중 3,299건 투입·두 계산 결과 동일. 누락 사유와 미완료를 분리해 실제 처리 부하를 확인한다. [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md) |
 | YR-332-k | Infra | **구 PPO 보상 시험의 현재 계약 대조** | 🟠 | 변경 전에도 재현되는 None 분모 오류를 정리한다. 전체 회귀 판정의 정확성을 위한 보정. [spec](../docs/dashboard-task-specs/YR-332-k-legacy-ppo-reward-test.md) |
 | YR-332-i | Sim | **양하 운반 용량·시간·본선 마감 보정** | 🔴 | 실행 3대·470초와 문서 가정을 대조하고 실제 인계와 마감을 맞춘다. 새 연결의 현실성 확인이 학습 선결. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) |
