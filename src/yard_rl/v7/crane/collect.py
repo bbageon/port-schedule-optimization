@@ -45,7 +45,11 @@ class CraneCollector:
     """에피소드가 도는 동안 결정을 표본하고, 끝나면 라벨을 조립한다."""
 
     def __init__(self, ctx, *, budget: RolloutBudget, horizon_s: float,
-                 workers: int = 1):
+                 workers: int = 1, sampling='standard', seed=0):
+        if sampling not in ('standard', 'coverage'):
+            raise ValueError(f'unknown crane sampling: {sampling}')
+        from .sampling import CoverageSampler
+        self.sampler = CoverageSampler(seed) if sampling == 'coverage' else None
         self.ctx = ctx
         self.budget = budget
         self.pool = CranePool(ctx, horizon_s=horizon_s, workers=workers)
@@ -87,9 +91,12 @@ class CraneCollector:
             if not self.budget.take():
                 return
             self.stats["sampled"] += 1
-            crane, picked_gc, cands = choices[0]
-            alt_gc = min(cands, key=lambda g: (self._rank(sim, crane, g), g.job_ref.job_id))
             block = bmap[id(sim)]
+            if self.sampler is None:
+                crane, picked_gc, cands = choices[0]
+                alt_gc = min(cands, key=lambda g: (self._rank(sim, crane, g), g.job_ref.job_id))
+            else:
+                crane, picked_gc, alt_gc = self.sampler.select(sim, block, choices, self._rank)
             key = (round(sim.clock, 6), block, crane)
             mode = getattr(self._pref.net, 'feature_mode', 'legacy')
             self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode),
