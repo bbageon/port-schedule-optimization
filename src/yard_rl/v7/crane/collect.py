@@ -37,6 +37,7 @@ from ..stage.rollout import RolloutBudget
 from .features import crane_features
 from .rollout import CraneBranchJob, CranePool
 from .teacher import CraneLabelCollector
+from ..world.domain.enums import ServiceMode
 
 
 class CraneCollector:
@@ -89,7 +90,9 @@ class CraneCollector:
             self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode),
                               crane_features(sim, crane, alt_gc, feature_mode=mode))
             self.flow_rows[key] = tuple(
-                sim.jobs[g.job_ref.job_id].flow.value if g.job_ref.job_id in sim.jobs else ''
+                (sim.jobs[g.job_ref.job_id].flow.value,
+                 sim.jobs[g.job_ref.job_id].service_mode == ServiceMode.STORE)
+                if g.job_ref.job_id in sim.jobs else ('', False)
                 for g in (picked_gc, alt_gc))
             self.pool.submit(CraneBranchJob(
                 key=key, t=sim.clock, crane=crane,
@@ -157,8 +160,8 @@ class CraneCollector:
             out.add(picked_row=picked_row, alt_row=alt_row,
                     phi_factual=r["phi_factual"], phi_alt=r["phi_alt"],
                     crane=r["crane"], job=r["picked_job"])
-            for sample, flow in zip(out.out.samples[-2:], self.flow_rows[r['key']]):
-                sample.flow = flow
+            for sample, (flow, is_store) in zip(out.out.samples[-2:], self.flow_rows[r['key']]):
+                sample.flow, sample.is_store = flow, is_store
                 sample.decision_key = r['key']
             out.out.samples[-1].job = r['alt_job']
             self.stats["labeled"] += 1

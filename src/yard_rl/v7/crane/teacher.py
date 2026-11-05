@@ -49,6 +49,7 @@ class CraneSample:
     base: float = 0.0
     flow: str = ''
     decision_key: tuple = ()
+    is_store: bool = False
 
 
 @dataclass
