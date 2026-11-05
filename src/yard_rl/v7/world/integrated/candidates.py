@@ -12,7 +12,7 @@ resolver 가 소비할 **풍부한 CandidateSet** 을 생성한다.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from ...job_index import job_ids
 
 from ..domain.enums import InformationLevel, JobFlow, JobStatus, ServiceMode
@@ -218,6 +218,7 @@ class GenCandidate:
     defer_until: float | None = None  # 재개방 보장 시각 (엔진 wake 예약)
     defer_trigger: str | None = None  # "ETA"|"RELEASE"|None(관측 trigger 없음)
     defer_trigger_jid: str | None = None  # 기다리는 대상 작업 (YR-146 허가증 — 기록 전용)
+    feasible_serve_count: int | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -271,7 +272,8 @@ class CandidateGenerator:
     def _generate(self, sim, crane_id: str, level: InformationLevel) -> GeneratedCandidates:
         yc = sim.fleet.get(crane_id)
         if not yc.idle or yc.yielded:
-            return GeneratedCandidates(crane_id, (replace(self._wait(), candidate_id=0),))
+            return GeneratedCandidates(crane_id, (replace(self._wait(), candidate_id=0,
+                                                           feasible_serve_count=0),))
         now = sim.now
         pre = ([] if self.block_pre_rehandle
                else self._pre_rehandle(sim, crane_id, now, level))
@@ -281,8 +283,10 @@ class CandidateGenerator:
         if self.observer is not None:
             self.observer.candidates(sim, crane_id, raw, keep)
         items = list(keep) + [self._wait(sim, now, level)]
+        n_serve = sum(g.feasible and g.kind == CandidateKind.SERVE for g in keep)
         return GeneratedCandidates(
-            crane_id, tuple(replace(gc, candidate_id=i) for i, gc in enumerate(items)))
+            crane_id, tuple(replace(gc, candidate_id=i, feasible_serve_count=n_serve)
+                            for i, gc in enumerate(items)))
 
     # -------------------------------------------------------- 4종 생성
     def _serve(self, sim, cid, now) -> list[GenCandidate]:

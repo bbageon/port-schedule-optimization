@@ -83,8 +83,9 @@ class CraneCollector:
             crane, picked_gc, alt_gc = pick
             block = bmap[id(sim)]
             key = (round(sim.clock, 6), block, crane)
-            self.rows[key] = (crane_features(sim, crane, picked_gc),
-                              crane_features(sim, crane, alt_gc))
+            mode = getattr(self._pref.net, 'feature_mode', 'legacy')
+            self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode),
+                              crane_features(sim, crane, alt_gc, feature_mode=mode))
             self.pool.submit(CraneBranchJob(
                 key=key, t=sim.clock, crane=crane,
                 #: ★결정 **직전** 스냅샷. `_pending` 이 열린 채로 뜬다 —

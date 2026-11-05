@@ -33,7 +33,7 @@ def test_physical_corrections_are_explicit_and_scoped():
     assert set(corrections) == {"world/integrated/engine.py", "world/domain/models.py",
                                 "world/integrated/candidates.py", "world/integrated/resolver.py"}
     assert corrections['world/integrated/engine.py']['task'] == 'YR-332-n'
-    assert corrections['world/integrated/candidates.py']['task'] == 'YR-332-o'
+    assert corrections['world/integrated/candidates.py']['task'] == 'YR-332-g'
     assert all(c['task'] == 'YR-332-j' for k, c in corrections.items()
                if k not in ('world/integrated/engine.py', 'world/integrated/candidates.py'))
     assert corrections['world/integrated/engine.py']['prior_task'] == 'YR-332-h'

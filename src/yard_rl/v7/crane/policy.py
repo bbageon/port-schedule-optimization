@@ -102,8 +102,11 @@ class CraneNet(nn.Module):
     보려는 것이지 망 구조의 효과를 보려는 게 아니다.
     """
 
-    def __init__(self, dim: int = CRANE_DIM, hidden: int = 64):
+    def __init__(self, dim: int = CRANE_DIM, hidden: int = 64, *, feature_mode='legacy'):
         super().__init__()
+        if feature_mode not in ('legacy', 'feasible'):
+            raise ValueError(f'unknown feature_mode: {feature_mode}')
+        self.feature_mode = feature_mode
         self.net = nn.Sequential(
             nn.Linear(dim, hidden), nn.ReLU(),
             nn.Linear(hidden, hidden), nn.ReLU(),
@@ -147,7 +150,7 @@ class CranePolicy(BaselinePreference):
             #: 두므로 **필수 작업은 못 제친다**(엔진 계약). 강제가 실제로 먹었는지는
             #: 부르는 쪽이 결과를 읽어 확인한다.
             return (-1, 0.0, ref.job_id)
-        x = crane_features(sim, crane_id, gc)
+        x = crane_features(sim, crane_id, gc, feature_mode=getattr(self.net, 'feature_mode', 'legacy'))
         with torch.no_grad():
             score = float(self.net(torch.tensor([x], dtype=torch.float32))[0])
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
@@ -176,7 +179,8 @@ class CranePolicy(BaselinePreference):
                 keys.append((-1, 0.0, ref.job_id))
                 row_ids.append(None)
                 continue
-            row = tuple(crane_features(sim, cid, gc, common=common))
+            row = tuple(crane_features(sim, cid, gc, common=common,
+                                      feature_mode=getattr(self.net, 'feature_mode', 'legacy')))
             if row not in lookup:
                 lookup[row] = len(rows)
                 rows.append(row)
