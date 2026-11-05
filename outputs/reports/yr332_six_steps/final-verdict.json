@@ -1,0 +1,107 @@
+{
+  "scope": "six preregistered sequential diagnostics completed; no port deployment claim",
+  "completed_stages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "adopted_computation": "decision_probe_shortcircuit=True; preserved observed candidates, choices, events and outcomes; shared slot reuse not adopted",
+  "candidate_recall": "all generated feasible candidates retained; not an optimal-action oracle or infinite-scale guarantee",
+  "feature_meaning": "feature8 measures feasible real work; existing saturation at18 retained and separately registered as YR-332-s",
+  "performance": {
+    "status": "FAIL",
+    "scope": "operational adoption in this bounded diagnostic",
+    "arms": {
+      "coverage": {
+        "status": "FAIL",
+        "baseline": "same-candidate SF_SPT",
+        "case_count": 9,
+        "guard_violations": {
+          "admission_drop": 2,
+          "unfinished_increase": 7,
+          "vessel_completion_drop": 9
+        },
+        "scope": "bounded diagnostic adoption guards; not a statistical confirmation test",
+        "reason": "observed protection failures"
+      },
+      "flow": {
+        "status": "FAIL",
+        "baseline": "same-candidate SF_SPT",
+        "case_count": 9,
+        "guard_violations": {
+          "admission_drop": 0,
+          "unfinished_increase": 7,
+          "vessel_completion_drop": 9
+        },
+        "scope": "bounded diagnostic adoption guards; not a statistical confirmation test",
+        "reason": "observed protection failures"
+      },
+      "initial": {
+        "status": "FAIL",
+        "baseline": "same-candidate SF_SPT",
+        "case_count": 9,
+        "guard_violations": {
+          "admission_drop": 1,
+          "unfinished_increase": 6,
+          "vessel_completion_drop": 9
+        },
+        "scope": "bounded diagnostic adoption guards; not a statistical confirmation test",
+        "reason": "observed protection failures"
+      },
+      "pairwise": {
+        "status": "FAIL",
+        "baseline": "same-candidate SF_SPT",
+        "case_count": 9,
+        "guard_violations": {
+          "admission_drop": 2,
+          "unfinished_increase": 4,
+          "vessel_completion_drop": 9
+        },
+        "scope": "bounded diagnostic adoption guards; not a statistical confirmation test",
+        "reason": "observed protection failures"
+      },
+      "pointwise": {
+        "status": "FAIL",
+        "baseline": "same-candidate SF_SPT",
+        "case_count": 9,
+        "guard_violations": {
+          "admission_drop": 2,
+          "unfinished_increase": 6,
+          "vessel_completion_drop": 9
+        },
+        "scope": "bounded diagnostic adoption guards; not a statistical confirmation test",
+        "reason": "observed protection failures"
+      }
+    }
+  },
+  "realism": {
+    "status": "NOT_PASSED",
+    "open_tasks": [
+      "YR-332-m",
+      "YR-332-f",
+      "YR-332-i"
+    ],
+    "prior_gate_evidence": "authorization.json"
+  },
+  "verification": {
+    "implementation_unique_checks": 160,
+    "artifact_checks": 958,
+    "exact_replayed_updates": 36,
+    "environment_collection_repeated": false
+  },
+  "limitations": [
+    "three initializations crossed with the same three evaluation days",
+    "each training run also uses different training inputs; run variation is not initialization alone",
+    "three updates per model; not a convergence or significance study",
+    "common behaviour collection; alternative learners not iterated on their own behaviour",
+    "external calibration incomplete; unfinished and unadmitted work must be checked separately"
+  ],
+  "evidence": {
+    "result": "learning/stage6-summary.json",
+    "replay": "learning/fit-replay-verification.json",
+    "verification": "verification-final.json"
+  }
+}

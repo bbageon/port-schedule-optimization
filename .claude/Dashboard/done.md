@@ -13,6 +13,7 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-332-r | RL | **6단계 진단 완료; 작업 방향 정보의 운영 채택 미통과** | 2026-11-05 | 입력 한 칸 비용 -0.40%이나 혼잡일 +3.66%·본선 보호 미통과. 저장 자료 재학습 36회 갱신 결과 정확히 재현, 자료 대조 958건 통과. [spec](../docs/dashboard-task-specs/YR-332-r-crane-flow-information.md) · [전체 결과](../../outputs/reports/yr332_six_steps/README.md) · [원자료](../../outputs/reports/yr332_six_steps/learning/stage6-summary.json) |
 | YR-332-q | RL | **비교 대상 변경은 비용 +8.19%로 악화, 미채택** | 2026-11-05 | 같은 수집 경로·198쌍·9평가. 크레인 범위 확대는 작고 본선 보호 9/9 미통과. [spec](../docs/dashboard-task-specs/YR-332-q-training-comparison-sampling.md) · [결과](../../outputs/reports/yr332_six_steps/learning/stage5-report.md) · [원자료](../../outputs/reports/yr332_six_steps/learning/stage5-summary.json) |
 | YR-332-p | RL | **동일 자료 학습 비교 완료, 비용 차이 학습의 운영 채택 미통과** | 2026-11-05 | 198쌍·396미래 실행·33평가. 개별 값 대비 비용 -0.62%이나 같은 후보 규칙보다 +11.88%, 본선 완료 9/9 감소. 3회 갱신 진단. [spec](../docs/dashboard-task-specs/YR-332-p-training-target-coverage-review.md) · [결과](../../outputs/reports/yr332_six_steps/learning/stage4-report.md) · [원자료](../../outputs/reports/yr332_six_steps/learning/stage4-summary.json) |
 | YR-332-g | RL | **8번째 입력 의미 수정 확인; 18개 상한 정보 손실은 남음** | 2026-11-05 | 같은 세 궤적에서 후보·선택·사건·비용 보존. 기다리는 트럭 수를 해당 크레인의 실행 가능 실작업 수로 수정했다. 15,000건의 수정 입력도 59.51% 상한 도달. 단독 성능 향상 주장은 아님. [spec](../docs/dashboard-task-specs/YR-332-g-v7-crane-cell8.md) · [결과](../../outputs/reports/yr332_six_steps/stage3/report.md) · [원자료](../../outputs/reports/yr332_six_steps/stage3/campaign.json) |
