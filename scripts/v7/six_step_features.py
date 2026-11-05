@@ -49,8 +49,17 @@ def campaign(args):
                        + (['--existence-scan'] if args.existence_scan else []),check=True)
         with gzip.open(path,'rt',encoding='utf-8') as f:
             d=json.load(f)
+        reference_equal = None
+        if args.reference_campaign:
+            ref_path=Path(args.reference_campaign)/f'{load}-9913420-0-all.json.gz'
+            with gzip.open(ref_path,'rt',encoding='utf-8') as f:
+                reference=json.load(f)
+            reference_equal={k:d['probe'][k]==v for k,v in reference['probe'].items()
+                             if k.endswith('_sha256')}
+            assert all(reference_equal.values()),reference_equal
         stamp['rows'].append(dict(load=load,path=path.as_posix(),
-            sha256=hashlib.sha256(path.read_bytes()).hexdigest(), audit=d['probe']['feature_audit']))
+            sha256=hashlib.sha256(path.read_bytes()).hexdigest(), audit=d['probe']['feature_audit'],
+            stage2_reference_equal=reference_equal))
         save(out/'campaign.json',stamp)
 
 
@@ -60,6 +69,7 @@ if __name__ == '__main__':
     p.add_argument('--load',type=int,default=3500)
     p.add_argument('--shared-slots',action='store_true')
     p.add_argument('--existence-scan',action='store_true')
+    p.add_argument('--reference-campaign')
     p.add_argument('--out',required=True)
     args=p.parse_args()
     worker(args) if args.worker else campaign(args)
