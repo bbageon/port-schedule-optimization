@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 
 from ..stage.rollout import RolloutBudget
 from .features import crane_features
@@ -51,6 +52,7 @@ class CraneCollector:
         #: 결정 열쇠 → (고른 것의 특징, 대안의 특징). 작업자에게는 안 보낸다.
         self.rows: dict[tuple, tuple[list, list]] = {}
         self.flow_rows = {}
+        self.action_digest = hashlib.sha256()
         #: 회계 — **버린 것까지** 남긴다. 라벨 수만 보면 "64건 뽑았다" 가 실제로
         #: 12건이어도 안 보인다.
         self.stats = {"seen": 0,       # 하루의 전 크레인 결정
@@ -71,6 +73,9 @@ class CraneCollector:
         bmap = {id(s): b for b, s in mbt.blocks.items()}
 
         def on_crane(sim, dp, gb, assign):
+            self.action_digest.update(repr((sim.clock, bmap[id(sim)], [
+                (cid, gc.kind.value, gc.job_ref.job_id if gc.job_ref else None)
+                for cid, gc in sorted(assign.items())])).encode())
             self.stats["seen"] += 1
             # ★① 먼저 쓸 수 있는 결정인지 본다 (머리말 참조 — 이 순서여야 한다)
             choices = self._choices(gb, assign)
@@ -147,6 +152,7 @@ class CraneCollector:
         #: 굴린 결과 원본 — 진단(사실 분기 궤적 대조)용으로 남긴다.
         self.raw = list(self.pool.results())
         self.stats['comparisons'] = self.raw
+        self.stats['main_choices_sha256'] = self.action_digest.hexdigest()
         for r in self.raw:
             if not r["factual_ok"]:
                 # 사실 가지가 실제와 다른 결정을 냈다 = 분기 재조립이 상태를

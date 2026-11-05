@@ -116,6 +116,7 @@ def train_seed(args):
             assert len(ep.crane_labels) >= 4, 'fewer than two valid comparison decisions'
             if stage == 5:
                 standard = gz_read(folder/f'labels-4-{it}.json.gz')['result']
+                assert cs['main_choices_sha256'] == standard['crane']['main_choices_sha256']
                 for key in ('phi_krw','admitted','c_wait','c_vessel','c_move','c_rehandle','n_censored'):
                     assert data['result'][key] == standard[key], (key,'behaviour trajectory changed')
         else:
