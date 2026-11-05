@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.202" timestamp="2026-11-05T10:56:17.127617+09:00" hostname="global05_58"><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward" time="1.070"><failure message="TypeError: unsupported operand type(s) for /: 'float' and 'NoneType'">record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000001795F8D8720&gt;
+
+    def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(record_property):
+        terminal,sim,ann,bridge,rt = world()
+        size = len(sim.stacks.containers)
+        costs = {}
+        def check(m,t):
+            assert len(sim.stacks.containers)==size
+            if t&gt;=360:
+                assert sim.jobs['incoming'].status==JobStatus.WAITING
+                assert sim.jobs['incoming'].service_start is None
+                assert not any(sim._dispatchable(sim.jobs['incoming'],c.crane_id)
+                               for c in sim.profile.cranes)
+            costs[t] = rt.cost_breakdown['c_wait']
+        run(terminal,ann,bridge,rt,check)
+        assert ann.n_admitted==1 and 'incoming' in terminal.ledger.records
+        assert 'IN_incoming' not in sim.stacks.containers
+        assert terminal.orders['incoming'].con_no=='IN_incoming'
+        tt = sim.time_ledger.records['incoming']
+        assert (tt.gate_in,tt.block_arrival,tt.job_done)==(60,360,None)
+        assert costs[0]==0
+        assert costs[600]==pytest.approx(truck_wait_krw(540))
+        assert costs[1200]==pytest.approx(truck_wait_krw(1140))
+        assert costs[1200]&gt;costs[600]&gt;0
+        assert rt.cost_krw==pytest.approx(truck_wait_krw(2460))
+&gt;       assert rt.total_reward==pytest.approx(-rt.cost_krw/rt.config.reward_scale_krw)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported operand type(s) for /: 'float' and 'NoneType'
+
+tests\v7\test_cargo_capacity_wait.py:112: TypeError</failure></testcase></testsuite></testsuites>

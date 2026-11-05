@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.895" timestamp="2026-11-05T10:55:58.612531+09:00" hostname="global05_58"><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'configs\\terminals\\dgt_armg.yaml'">record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x00000207B3D65760&gt;
+
+    def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(record_property):
+&gt;       terminal,sim,ann,bridge,rt = world()
+                                     ^^^^^^^
+
+tests\v7\test_cargo_capacity_wait.py:90:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\v7\test_cargo_capacity_wait.py:25: in world
+    profile, layout = build_h21_profile(), terminal_layout()
+                      ^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v7\world\integrated\profiles.py:133: in build_h21_profile
+    base = build_calibrated_profile()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v7\world\integrated\profiles.py:90: in build_calibrated_profile
+    return replace(build_dgt_approx_profile(), terminal_id="SNP-ARMG-STD")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v7\world\integrated\profiles.py:29: in build_dgt_approx_profile
+    single = load_profile(single_yaml)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+src\yard_rl\v7\world\io\profile_loader.py:13: in load_profile
+    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\anaconda3\Lib\pathlib\_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\anaconda3\Lib\pathlib\_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('configs/terminals/dgt_armg.yaml'), mode = 'r'
+buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+&gt;       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'configs\\terminals\\dgt_armg.yaml'
+
+..\..\..\..\anaconda3\Lib\pathlib\_local.py:537: FileNotFoundError</failure></testcase></testsuite></testsuites>

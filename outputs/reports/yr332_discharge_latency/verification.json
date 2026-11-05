@@ -1,0 +1,154 @@
+{
+  "schema": "yard.v7.discharge-verification.v1",
+  "source_commit": "911a17a7eb044c8dee5b62152ca4a5324acc2c3b",
+  "claim_alignment": {
+    "name": "claim_alignment",
+    "status": "PASS",
+    "summary": "보고 핵심 수치가 원자료와 일치함",
+    "reasons": [],
+    "evidence": {
+      "absolute_tolerance": 0.000501,
+      "reported_values": {
+        "ship_fast": 650.878,
+        "ship_slow": 1200.878,
+        "ship_delay": 550.0,
+        "network_12_scalar": 0.207,
+        "network_12_batch": 0.019,
+        "network_12_chunks1024": 0.022,
+        "network_100_scalar": 1.695,
+        "network_100_batch": 0.027,
+        "network_100_chunks1024": 0.031,
+        "network_1000_scalar": 17.294,
+        "network_1000_batch": 0.106,
+        "network_1000_chunks1024": 0.109,
+        "network_10000_scalar": 189.274,
+        "network_10000_batch": 1.066,
+        "network_10000_chunks1024": 1.108,
+        "pipeline_12_scalar_total": 0.99,
+        "pipeline_12_batch_cached_total": 0.71,
+        "pipeline_12_generation": 0.598,
+        "pipeline_100_scalar_total": 9.796,
+        "pipeline_100_batch_cached_total": 5.127,
+        "pipeline_100_generation": 4.842,
+        "pipeline_1000_scalar_total": 263.282,
+        "pipeline_1000_batch_cached_total": 52.121,
+        "pipeline_1000_generation": 50.142
+      },
+      "raw_values": {
+        "ship_fast": 650.8777777777777,
+        "ship_slow": 1200.8777777777777,
+        "ship_delay": 550.0,
+        "network_12_scalar": 0.20655,
+        "network_12_batch": 0.0187,
+        "network_12_chunks1024": 0.02225,
+        "network_100_scalar": 1.69515,
+        "network_100_batch": 0.02715,
+        "network_100_chunks1024": 0.031,
+        "network_1000_scalar": 17.294,
+        "network_1000_batch": 0.1058,
+        "network_1000_chunks1024": 0.109,
+        "network_10000_scalar": 189.2742,
+        "network_10000_batch": 1.0655999999999999,
+        "network_10000_chunks1024": 1.1084,
+        "pipeline_12_scalar_total": 0.9895,
+        "pipeline_12_batch_cached_total": 0.70965,
+        "pipeline_12_generation": 0.5983,
+        "pipeline_100_scalar_total": 9.79645,
+        "pipeline_100_batch_cached_total": 5.12715,
+        "pipeline_100_generation": 4.8422,
+        "pipeline_1000_scalar_total": 263.2815,
+        "pipeline_1000_batch_cached_total": 52.12094999999999,
+        "pipeline_1000_generation": 50.142300000000006
+      },
+      "absolute_differences": {
+        "network_10000_batch": 0.000400000000000178,
+        "network_10000_chunks1024": 0.00039999999999995595,
+        "network_10000_scalar": 0.0002000000000066393,
+        "network_1000_batch": 0.00019999999999999185,
+        "network_1000_chunks1024": 0.0,
+        "network_1000_scalar": 0.0,
+        "network_100_batch": 0.00015000000000000083,
+        "network_100_chunks1024": 0.0,
+        "network_100_scalar": 0.00014999999999987246,
+        "network_12_batch": 0.0002999999999999982,
+        "network_12_chunks1024": 0.0002500000000000002,
+        "network_12_scalar": 0.0004499999999999782,
+        "pipeline_1000_batch_cached_total": 5.0000000008765255e-05,
+        "pipeline_1000_generation": 0.00030000000000285354,
+        "pipeline_1000_scalar_total": 0.0004999999999881766,
+        "pipeline_100_batch_cached_total": 0.0001500000000005386,
+        "pipeline_100_generation": 0.00020000000000042206,
+        "pipeline_100_scalar_total": 0.0004500000000007276,
+        "pipeline_12_batch_cached_total": 0.00034999999999996145,
+        "pipeline_12_generation": 0.000300000000000078,
+        "pipeline_12_scalar_total": 0.0004999999999999449,
+        "ship_delay": 0.0,
+        "ship_fast": 0.00022222222230539046,
+        "ship_slow": 0.00022222222219170362
+      }
+    }
+  },
+  "source_sha256": {
+    "scripts/v7/benchmark_crane_latency.py": "10cfc3d480bfdf38df5e276a07e9144bd1880d7f8d62ed318e3e9defcc7b1e76",
+    "src/yard_rl/v7/crane/features.py": "2a009b418b01f7a35de8a1795db3306c1aa180ad10dec8c2f79b9e8145f33c81",
+    "src/yard_rl/v7/crane/policy.py": "38f60dbc1ea5d52d79a4ce32d6149df9fc10741e5118c35ac041b689d80d66a5",
+    "src/yard_rl/v7/world/integrated/engine.py": "324ed3bb1605c17940a9aeead1db36924d88a2d715843f17b73dd81be6da0b24",
+    "docs/research/v7-discharge/prereg.md": "2fda1f30ca573c509c6ed6610082fb2ce9f32d7a7256ba21eca12383e8145579",
+    "tests/v7/test_discharge_backpressure.py": "459c008d4fb362fccd41a02b707a9b36ce2a8b2b82dc16ff83b8ea720e14b944"
+  },
+  "artifact_sha256": {
+    "baseline-cargo-check.json": "d85932022ae484c61a8236ab69bbcf9c88d0d53b857f18c3f6aa039464c20358",
+    "baseline-cargo-test.xml": "dc8783ed10ba7da29cc67863ecc68d2cda6fba3b549b24d7e896e18c94390564",
+    "baseline-setup-check.json": "323ae5730cbc1070cf1d3e7f716ff3b231afdecb7fd6ac1b950215490fcb26c8",
+    "baseline-setup-test.xml": "df7198b0be6e3502984cdde5d70288a6ee238340bcf42e008e48826f5903ceb0",
+    "cargo-tests.xml": "2a9a9ffbf591bb51ad21ce6fc313258e1d7130719b9a8d7db415cadd41327d4e",
+    "discharge.json": "85c4632e42653f04469ca7e0d79291c2bc665a1b9967bb3b4dbf886232837a74",
+    "latency.json": "75412b86083e3d78ad3839b8fcc68ed7ebe77f3e340bfba41c5ac6b320c059a8",
+    "report.md": "5f78b6cfd6a31e12087258db28150c62ffd406bfcf871eb88929a334c262cfba",
+    "tests.xml": "e92e5bc4f0f5a5191875e629e55d0e275a143485b070f8bc919bd1072fe97fa9"
+  },
+  "test_suites": {
+    "tests.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "178",
+        "time": "613.810",
+        "timestamp": "2026-11-05T10:42:18.819553+09:00",
+        "hostname": "global05_58"
+      }
+    ],
+    "cargo-tests.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "21",
+        "time": "1.947",
+        "timestamp": "2026-11-05T10:55:07.263749+09:00",
+        "hostname": "global05_58"
+      }
+    ],
+    "baseline-cargo-test.xml": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "1.202",
+        "timestamp": "2026-11-05T10:56:17.127617+09:00",
+        "hostname": "global05_58"
+      }
+    ]
+  },
+  "scope": {
+    "implementation": "PASS within diagnostic cases",
+    "performance": "INCONCLUSIVE: no policy training/comparison",
+    "scenario_validity": "INCONCLUSIVE: fleet, return timing and deadlines uncalibrated",
+    "authorization_for_new_experiment": false
+  }
+}

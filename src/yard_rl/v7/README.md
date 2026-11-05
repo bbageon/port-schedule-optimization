@@ -18,11 +18,23 @@ v6 시절 설명은 `README-v6.md`·`README-piece8.md`(복사본 · 역사 문�
 | 통지 리드타임 | 반입·반출 한 분포(`DIST`) | **`DGT`** — 반입·반출 따로, 통지 전 도착은 리드 0 | `stage/dgt_lead.py` · `stage/orders.py` |
 | 크레인 행동 | 미리 자리잡는 빈 이동 포함 | **끔**(`safety_only`) — 교착 탈출·파내기·쉬기는 남김 | `stage/exec_config.py` |
 | 크레인 학습 | (없음 · PPO 는 시장 쪽) | **v4 반사실 교사** + 입력 9칸 | `crane/` |
-| 물리 세계 `world/` | — | v6 와 **바이트 동일** (시험이 지킨다) | `tests/v7/test_world_clone.py` |
+| 물리 세계 `world/` | — | v6 복사본 + **양하 인계 용량 보정**(YR-332-h) | `tests/v7/test_world_clone.py`의 명시적 예외 |
 
 옛 동작은 지우지 않았다 — 비교·회귀용 선택지로 남는다:
 `arm="RL"`, `lead_mode="DIST"|"FIXED"`, `exec_config=exec_config.V6_LEGACY`.
 PPO 유산 경로(`ppo/`)는 `run_month(ppo=…)` 일 때 v6 계약(`arm="RL"`)을 그대로 쓴다.
+
+## 양하 지연 연결 (2026-11-05)
+
+CPU 하루·연속 크레인 경로는 양하 인출부터 야드 적재 완료까지의 미완 상자 수를 제한한다.
+같은 블록의 모든 선박이 실행 프로파일의 운반차 대수만큼 용량을 공유한다(현재 H21 3대).
+야드 처리가 밀리면 본선도 대기하고 그 시간이 기존 본선 비용에 들어간다.
+
+`discharge_backpressure=False`로 이전 환경을 비교할 수 있다. 결과의 `environment`에
+설정이 기록된다. 구 PPO는 기본 OFF이며 GPU 배열 경로는 새 연결을 구현하지 않았다.
+차량별 왕복 궤적 대신 집계 근사이므로 실제 용량·마감 보정은 별도 과제다.
+[모형·문헌](../../../docs/research/v7-discharge/model.md) ·
+[진단 결과](../../../outputs/reports/yr332_discharge_latency/report.md).
 
 ## DGT 리드타임 — 무엇을 빌렸나
 

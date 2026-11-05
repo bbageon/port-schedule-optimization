@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="21" time="1.947" timestamp="2026-11-05T10:55:07.263749+09:00" hostname="global05_58"><testcase classname="tests.v7.test_cargo_runtime" name="test_pending_cargo_served_only_after_physical_storage[False]" time="0.007" /><testcase classname="tests.v7.test_cargo_runtime" name="test_pending_cargo_served_only_after_physical_storage[True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-False]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-False]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_bad_source_rejected_without_replacing_or_injecting_any_box" time="0.003" /><testcase classname="tests.v7.test_cargo_runtime" name="test_restore_rejects_wrong_seed_or_day_calendar" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_completion_rejects_premature_exit" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_not_yet_announced_pickup_uses_actual_stored_block" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_failed_inbound_transfer_does_not_move_its_dependent" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_waiting_pickup_routes_after_daily_accounting_prune" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_dependent_accounting_failure_does_not_partially_commit_inbound" time="0.003" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward" time="1.133"><failure message="TypeError: unsupported operand type(s) for /: 'float' and 'NoneType'">record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000001B6C06368E0&gt;
+
+    def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(record_property):
+        terminal,sim,ann,bridge,rt = world()
+        size = len(sim.stacks.containers)
+        costs = {}
+        def check(m,t):
+            assert len(sim.stacks.containers)==size
+            if t&gt;=360:
+                assert sim.jobs['incoming'].status==JobStatus.WAITING
+                assert sim.jobs['incoming'].service_start is None
+                assert not any(sim._dispatchable(sim.jobs['incoming'],c.crane_id)
+                               for c in sim.profile.cranes)
+            costs[t] = rt.cost_breakdown['c_wait']
+        run(terminal,ann,bridge,rt,check)
+        assert ann.n_admitted==1 and 'incoming' in terminal.ledger.records
+        assert 'IN_incoming' not in sim.stacks.containers
+        assert terminal.orders['incoming'].con_no=='IN_incoming'
+        tt = sim.time_ledger.records['incoming']
+        assert (tt.gate_in,tt.block_arrival,tt.job_done)==(60,360,None)
+        assert costs[0]==0
+        assert costs[600]==pytest.approx(truck_wait_krw(540))
+        assert costs[1200]==pytest.approx(truck_wait_krw(1140))
+        assert costs[1200]&gt;costs[600]&gt;0
+        assert rt.cost_krw==pytest.approx(truck_wait_krw(2460))
+&gt;       assert rt.total_reward==pytest.approx(-rt.cost_krw/rt.config.reward_scale_krw)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported operand type(s) for /: 'float' and 'NoneType'
+
+tests\v7\test_cargo_capacity_wait.py:112: TypeError</failure></testcase><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_actual_pickup_frees_space_then_same_waiting_inbound_is_stored" time="0.084" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_negative_reservation_balance_does_not_reject_demand" time="0.028" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_actual_934_boxes_and_future_discharge_reservations_keep_new_order" time="0.052" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_capacity_change_does_not_relax_identity_time_or_ledger_checks[duplicate]" time="0.067" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_capacity_change_does_not_relax_identity_time_or_ledger_checks[unknown_source]" time="0.068" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_capacity_change_does_not_relax_identity_time_or_ledger_checks[past_time]" time="0.068" /><testcase classname="tests.v7.test_cargo_capacity_wait" name="test_capacity_change_does_not_relax_identity_time_or_ledger_checks[no_ledger]" time="0.164" /></testsuite></testsuites>

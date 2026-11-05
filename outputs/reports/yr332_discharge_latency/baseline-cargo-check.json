@@ -1,0 +1,20 @@
+{
+  "commit": "5cde800c1f01e9b1d49b0d13e3315b60282acce1",
+  "method": "isolated git archive, no worktree edits",
+  "archived_paths": [
+    "src",
+    "tests/v7/test_cargo_capacity_wait.py",
+    "tests/v7/conftest.py",
+    "pyproject.toml",
+    "configs"
+  ],
+  "temp_directory": "C:\\Users\\geonu\\AppData\\Local\\Temp\\yr332-h-baseline-j9i9r58g",
+  "command": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+    "-c",
+    "import torch,pytest; torch.set_num_threads(1); raise SystemExit(pytest.main(['tests/v7/test_cargo_capacity_wait.py::test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward','-q','--junitxml=C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/outputs/reports/yr332_discharge_latency/baseline-cargo-test.xml']))"
+  ],
+  "exit_code": 1,
+  "stdout": "F                                                                        [100%]\n================================== FAILURES ===================================\n___ test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward ____\n\nrecord_property = <function record_property.<locals>.append_property at 0x000001795F8D8720>\n\n    def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(record_property):\n        terminal,sim,ann,bridge,rt = world()\n        size = len(sim.stacks.containers)\n        costs = {}\n        def check(m,t):\n            assert len(sim.stacks.containers)==size\n            if t>=360:\n                assert sim.jobs['incoming'].status==JobStatus.WAITING\n                assert sim.jobs['incoming'].service_start is None\n                assert not any(sim._dispatchable(sim.jobs['incoming'],c.crane_id)\n                               for c in sim.profile.cranes)\n            costs[t] = rt.cost_breakdown['c_wait']\n        run(terminal,ann,bridge,rt,check)\n        assert ann.n_admitted==1 and 'incoming' in terminal.ledger.records\n        assert 'IN_incoming' not in sim.stacks.containers\n        assert terminal.orders['incoming'].con_no=='IN_incoming'\n        tt = sim.time_ledger.records['incoming']\n        assert (tt.gate_in,tt.block_arrival,tt.job_done)==(60,360,None)\n        assert costs[0]==0\n        assert costs[600]==pytest.approx(truck_wait_krw(540))\n        assert costs[1200]==pytest.approx(truck_wait_krw(1140))\n        assert costs[1200]>costs[600]>0\n        assert rt.cost_krw==pytest.approx(truck_wait_krw(2460))\n>       assert rt.total_reward==pytest.approx(-rt.cost_krw/rt.config.reward_scale_krw)\n                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       TypeError: unsupported operand type(s) for /: 'float' and 'NoneType'\n\ntests\\v7\\test_cargo_capacity_wait.py:112: TypeError\n============================== warnings summary ===============================\ntests/v7/test_cargo_capacity_wait.py::test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward\n  tests\\v7\\test_cargo_capacity_wait.py:89: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')\n    def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(record_property):\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED tests/v7/test_cargo_capacity_wait.py::test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward\n1 failed, 1 warning in 1.20s\n",
+  "stderr": ""
+}

@@ -5,6 +5,8 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **v7 양하 연결·속도 진단 완료 (2026-11-05, YR-332-h)**: 야드 적체가 본선 대기·비용에 전달되고 공유 용량을 지킴을 16조건에서 확인했다. 1,000오더 선택 중앙값은 개별 263.282ms, 일괄 시제품 52.121ms. 관련 178검사 통과·확장 20통과/기존 PPO 1실패(변경 전 재현). 정책 개선·현장 속도 보증은 미확정. 후속은 구 시험 계약(k), 양하 용량·마감 보정(i), 일괄 계산 운영 적용(j). [결과](../../outputs/reports/yr332_discharge_latency/report.md) · [spec](../docs/dashboard-task-specs/YR-332-h-discharge-backpressure-latency.md)
+
 - **원본 배정 기준 재평가 완료 (2026-09-29, YR-331-f)**: 사용자 지시에 따라 같은 학습 크레인에서 원본 블록·예약 유지와 재배정 허용을 3쌍·6회 비교했다. 평균 운영 점수는 **0.10% 악화**, 최초 예약~출차 누적시간은 **37.87% 증가**했고 트럭 잔여도 세 쌍 모두 늘었다. 원본 오더 보존·거래 0건·가중치 동결을 검사했으며 재배정 성능 채택 조건 미충족이다. 다음은 검증 입력 공급 복구(c)→독립 수용 상한 확인(a)다. [결과](../../outputs/reports/yr331_original/report.md) · [spec](../docs/dashboard-task-specs/YR-331-f-original-assignment-comparison.md)
 
 - **원화 없는 보상 정규화·학습 완료 (2026-09-28, YR-331-e)**: 시간·횟수 네 항을 고정 기준 통계로 정규화한다. CPU 6모델·144회 갱신·9회 평가의 이전 보상 대비 3.24% 개선·규칙 대비 16.47% 악화는 당시 비교로 보존한다. 규칙 비교는 크레인 정책도 달라 원본 대비 재배정 효과로 해석하지 않으며, 현재 원본 기준 판정은 f다. [수식·문헌](../../docs/research/v6-workload-reward/operational-normalization.md) · [과거 결과](../../outputs/reports/yr331_operational/report.md) · [spec](../docs/dashboard-task-specs/YR-331-e-operational-normalization.md)
