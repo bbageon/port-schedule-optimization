@@ -227,10 +227,14 @@ class GeneratedCandidates:
 
 
 class CandidateGenerator:
-    def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
+    def __init__(self, *, k_max: int | None = 12, mandatory_wait_frac: float = 0.8,
                  pre_rehandle_min_window_s: float = 600.0,
                  block_pre_rehandle: bool = False, vessel_prep: bool = False,
-                 config: ExecPolicyConfig | None = None, reuse_plans: bool = True):
+                 config: ExecPolicyConfig | None = None, reuse_plans: bool = True,
+                 observer=None):
+        if k_max is not None and (isinstance(k_max, bool) or not isinstance(k_max, int) or k_max < 1):
+            raise ValueError('k_max must be None (all candidates) or a positive integer')
+        self.observer = observer
         self.k_max = k_max
         self.reuse_plans = reuse_plans
         self.mandatory_wait_frac = mandatory_wait_frac
@@ -274,6 +278,8 @@ class CandidateGenerator:
         raw = (self._serve(sim, crane_id, now) + pre
                + self._reposition(sim, crane_id, now, level))
         keep = sorted(self._prune(raw), key=self._order_key)
+        if self.observer is not None:
+            self.observer.candidates(sim, crane_id, raw, keep)
         items = list(keep) + [self._wait(sim, now, level)]
         return GeneratedCandidates(
             crane_id, tuple(replace(gc, candidate_id=i) for i, gc in enumerate(items)))
@@ -515,6 +521,8 @@ class CandidateGenerator:
         "조용한 유실 금지" 의도는 유실 0 이지 크래시가 아니다. 후보 수는 가변이고 Q망은
         후보별 공유 점수 구조(YR-031-b)라 K 확장이 안전하다.
         """
+        if self.k_max is None:
+            return list(raw)
         budget = self.k_max - 1                       # WAIT 1칸 예약
         mand = [c for c in raw if c.mandatory]
         rest = [c for c in raw if not c.mandatory]

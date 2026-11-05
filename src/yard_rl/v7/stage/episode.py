@@ -204,7 +204,8 @@ class _Ctx:
     def make_exec_policy(self, *, on_crane=None):
         return _rule_policy(self.dispatcher, seed=self.seed,
                             exec_config=self.exec_config,
-                            crane_net=self.crane_net, on_crane=on_crane)[0]
+                            crane_net=self.crane_net, on_crane=on_crane,
+                            candidate_cap=getattr(self, 'candidate_cap', 12))[0]
 
     #: 무대가 준 블록→스트림 표 (어느 블록이 어느 배의 몇 번 STS 인가)
     block_vessel: dict = {}
@@ -223,7 +224,7 @@ class _Ctx:
 
 def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
                  crane_net=None, on_crane=None, batched=True, reuse_plans=True,
-                 evaluation_probe=None):
+                 evaluation_probe=None, candidate_cap=12):
     """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
 
     ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
@@ -255,9 +256,14 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
         begin = perf_counter_ns() if evaluation_probe is not None else 0
         g = gens.get(id(sim))
         if g is None:
-            g = gens[id(sim)] = CandidateGenerator(config=cfg, reuse_plans=reuse_plans)
+            observer = evaluation_probe if hasattr(evaluation_probe, 'candidates') else None
+            g = gens[id(sim)] = CandidateGenerator(config=cfg, reuse_plans=reuse_plans,
+                                                   k_max=candidate_cap, observer=observer)
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
         generated = perf_counter_ns() if evaluation_probe is not None else 0
+        if hasattr(evaluation_probe, 'before_select'):
+            evaluation_probe.before_select(sim, dp, gb, pref)
+        select_start = perf_counter_ns() if evaluation_probe is not None else 0
         try:
             assign = pol.decide(sim, dp, gb)
             decided = perf_counter_ns() if evaluation_probe is not None else 0
@@ -275,7 +281,7 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
         # Measurement errors propagate; they must not silently become WAIT actions.
         if evaluation_probe is not None:
             evaluation_probe.decision(sim, dp, gb, assign,
-                                      generated - begin, decided - generated)
+                                      generated - begin, decided - select_start)
     exec_policy.pref = pref                 # 분기 세계가 강제 손잡이를 잡는 자리
     return exec_policy, exc
 
@@ -384,7 +390,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 crane_net=None, crane_budget: RolloutBudget | None = None,
                 discharge_backpressure: bool = True,
                 evaluation_mode: str = "optimized", evaluation_probe=None,
-                reuse_rehandle_slots: bool = False) -> EpisodeResult:
+                reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -462,6 +468,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                dispatcher=dispatcher, exec_config=exec_config,
                crane_net=crane_net)
     ctx.block_vessel = built.get("block_vessel", {})
+    ctx.candidate_cap = candidate_cap
     if trigger_top_k is not None:
         ctx.trigger_top_k = float(trigger_top_k)   # ★[[YR-232]] 민감도 스윕용
     market = ctx.make_market(mbt)
@@ -535,7 +542,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                                     crane_net=crane_net, on_crane=on_crane,
                                     batched=evaluation_mode != "reference",
                                     reuse_plans=evaluation_mode == "optimized",
-                                    evaluation_probe=evaluation_probe)
+                                    evaluation_probe=evaluation_probe, candidate_cap=candidate_cap)
     if crane is not None:
         #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
         crane.attach(exec_policy.pref)
