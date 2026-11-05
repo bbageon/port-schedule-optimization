@@ -167,3 +167,31 @@ def test_evaluation_is_paired():
     assert s1 == s2, f"두 팔이 다른 날을 굴렸다 — 짝비교가 아니다: {s1} vs {s2}"
     assert l1 == l2
     assert {d1, d2} == {RL_CRANE, "SF_SPT"}, f"두 팔이 아니다: {d1} vs {d2}"
+
+
+def test_uncapped_corrected_teacher_matches_serial_and_parallel():
+    """The new runtime contract must survive the real Windows worker boundary."""
+    torch.manual_seed(9913501)
+    net=CraneNet(feature_mode='feasible')
+    results=[]
+    for workers in (1,2):
+        ep=run_episode(load=LOAD,seed=SEED,dispatcher=RL_CRANE,crane_net=net,
+            candidate_cap=None,decision_probe_shortcircuit=True,crane_sampling='coverage',
+            crane_budget=RolloutBudget(max_labels=2),horizon_s=HORIZON,workers=workers)
+        assert ep.policy_exceptions==0
+        assert ep.crane_stats['hook_errors']==ep.crane_stats['factual_mismatch']==0
+        assert ep.crane_labels and all(len(s.row)==9 for s in ep.crane_labels)
+        results.append((ep.phi_krw,ep.crane_labels,ep.crane_stats))
+    assert results[0]==results[1]
+
+
+def test_store_input_teacher_uses_the_same_ten_inputs_as_inference():
+    from yard_rl.v7.crane.policy import add_store_input
+    torch.manual_seed(9913501)
+    net=add_store_input(CraneNet(feature_mode='feasible'))
+    ep=run_episode(load=LOAD,seed=SEED,dispatcher=RL_CRANE,crane_net=net,
+        candidate_cap=None,decision_probe_shortcircuit=True,
+        crane_budget=RolloutBudget(max_labels=2),horizon_s=HORIZON,workers=1)
+    assert ep.crane_stats['hook_errors']==ep.crane_stats['factual_mismatch']==0
+    assert ep.crane_labels and all(len(s.row)==10 for s in ep.crane_labels)
+    assert all(s.row[-1]==float(s.is_store) for s in ep.crane_labels)
