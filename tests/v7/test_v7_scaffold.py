@@ -176,6 +176,8 @@ def test_crane_only_is_the_default_and_trades_nothing(sf_spt_day):
 
 def test_rule_crane_day_completes_with_full_admission(sf_spt_day):
     res, captured, _ = sf_spt_day
+    assert res.environment['discharge_backpressure'] is True
+    assert res.environment['discharge_capacity'] == 3
     assert res.admitted == DAY_LOAD
     assert res.policy_exceptions == 0
     assert res.breakdown["n_trucks"] == DAY_LOAD
@@ -271,6 +273,8 @@ def test_three_day_month_admits_everything_and_trades_nothing(fixed_container_in
     assert res.traded_edges == 0 and res.decisions == 0
     assert res.skipped == 0, res.truck_skips[:5]
     assert res.admitted == captured["n"] == 360
+    assert res.environment['discharge_backpressure'] is True
+    assert res.environment['discharge_capacity'] == 3
     assert res.policy_exceptions == 0
     for rec in captured["records"].values():
         validate(rec)

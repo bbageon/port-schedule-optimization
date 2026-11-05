@@ -51,13 +51,17 @@ from ..world.integrated.yard_layout import terminal_layout
 INFO_LEVEL = InformationLevel.PRE_ADVICE
 
 
-def _sim_from(scn, profile):
+def _sim_from(scn, profile, *, discharge_backpressure: bool = True):
     """시나리오 → 시뮬레이터. **시나리오를 만든 프로파일과 같은 것**을 넘긴다.
 
     v2 의 `experiments/yr149_load_cells._sim_from` 과 같은 일을 하지만, v3 는
     실험 스크립트를 임포트하지 않는다(사용자 지시 2026-08-22).
     """
-    sim = TerminalSimulator(profile, scn, check_invariants=True)
+    # YR-332-h: finite shared discharge WIP, tied to the existing fleet size.
+    # Aggregate handover approximation, not a vehicle-by-vehicle return model.
+    sim = TerminalSimulator(profile, scn, check_invariants=True,
+                            yard_handover_cap=(profile.transfer.n_units
+                                               if discharge_backpressure else None))
     sim.info_level = INFO_LEVEL
     return sim
 from .. import CF_HORIZON_S
@@ -122,6 +126,7 @@ class EpisodeResult:
     #:  섞으면 어느 축에서 온 신호인지 못 가린다 (한 번에 한 축).
     crane_labels: list = field(default_factory=list)
     crane_stats: dict = field(default_factory=dict)
+    environment: dict = field(default_factory=dict)
 
     def as_dict(self) -> dict:
         d = {"phi_krw": self.phi_krw, "admitted": self.admitted,
@@ -131,7 +136,8 @@ class EpisodeResult:
              "txn_failed": self.txn_failed, "n_decisions": self.decisions,
              "n_labels": len(self.labels), "rollout_worlds": self.rollout_worlds,
              "missed_labels": self.missed_labels, "slot_mode": self.slot_mode,
-             "n_crane_labels": len(self.crane_labels), "crane": self.crane_stats}
+             "n_crane_labels": len(self.crane_labels), "crane": self.crane_stats,
+             "environment": self.environment}
         d.update(self.breakdown)
         return d
 
@@ -360,7 +366,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 slot_mode: str = "HORIZON", workers: int = 1,
                 trigger_top_k: float | None = None,
                 obs=None, exec_config=None,
-                crane_net=None, crane_budget: RolloutBudget | None = None) -> EpisodeResult:
+                crane_net=None, crane_budget: RolloutBudget | None = None,
+                discharge_backpressure: bool = True) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -393,7 +400,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     orders, records = orders_from_schedule(built)
 
     mbt = MultiBlockTerminal(
-        {b: ensure_time_ledger(_sim_from(s, prof)) for b, s in built["scenarios"].items()},
+        {b: ensure_time_ledger(_sim_from(s, prof, discharge_backpressure=discharge_backpressure))
+         for b, s in built["scenarios"].items()},
         extra_review_epochs=admission_epochs(obs))
     ann = V3Announcer(built["schedule"], end_s=built["sim_end_s"])
 
@@ -422,7 +430,10 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         ctx.trigger_top_k = float(trigger_top_k)   # ★[[YR-232]] 민감도 스윕용
     market = ctx.make_market(mbt)
 
-    res = EpisodeResult(slot_mode=slot_mode)
+    res = EpisodeResult(slot_mode=slot_mode, environment={
+        "discharge_backpressure": discharge_backpressure,
+        "discharge_capacity": prof.transfer.n_units if discharge_backpressure else None,
+        "discharge_model": "shared-handover-wip-v1" if discharge_backpressure else "legacy-off"})
     pending: list[dict] = []
     tape = _CounterTape(built.get("block_vessel", {}))
     #: (t, docKey) → 그 결정의 판매·구매 기록. 작업자에게는 안 보낸다(무겁고 불필요).

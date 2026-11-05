@@ -113,6 +113,7 @@ class DayReport:
 
 @dataclass
 class MonthResult:
+    environment: dict = field(default_factory=dict)
     days: list = field(default_factory=list)          # DayReport (확정)
     live: list = field(default_factory=list)          # DayReport (잠정 — 중간보고 그대로)
     plan: list = field(default_factory=list)
@@ -205,7 +206,8 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
               branch_days: int = 1, identity_checks: int = 4,
               vessel_deadline_mult: float | None = None, ppo=None,
               on_admission=None, on_container_contract=None, seed_data=None,
-              exec_config=None, crane_net=None) -> MonthResult:
+              exec_config=None, crane_net=None,
+              discharge_backpressure: bool | None = None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -226,6 +228,10 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
       · `lead_mode=None` → 저장된 입력(`seed_data`)이 있으면 **그 입력의 통지 방식**,
         없으면 `DGT`(반입·반출 따로). 저장 입력의 통지 시각은 이미 명단에 박혀 있다.
     """
+    # The v7 crane path uses bounded discharge. Legacy PPO retains its original
+    # environment unless explicitly requested, so old CPU/GPU comparisons stay named.
+    if discharge_backpressure is None:
+        discharge_backpressure = ppo is None
     if arm is None:
         arm = "RL" if ppo is not None else CRANE_ONLY_ARM
     if dispatcher == "RL_CRANE" and crane_net is None:
@@ -289,12 +295,15 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
             for b, s in built["day0"]["scenarios"].items()}
     extra_epochs = tuple(i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1))
     if seed_data is None:
-        mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(s, prof)) for b,s in scns.items()},
+        mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(
+            s, prof, discharge_backpressure=discharge_backpressure)) for b,s in scns.items()},
                             extra_review_epochs=extra_epochs)
     else:
         from .cargo_runtime import CargoBlock, CargoTerminal
         from .episode import INFO_LEVEL
-        blocks = {b: ensure_time_ledger(CargoBlock(prof, s)) for b,s in scns.items()}
+        blocks = {b: ensure_time_ledger(CargoBlock(prof, s,
+            yard_handover_cap=(prof.transfer.n_units if discharge_backpressure else None)))
+            for b,s in scns.items()}
         for s in blocks.values():
             s.info_level = INFO_LEVEL
         mbt = CargoTerminal(blocks, document=seed_data, layout=layout, extra_review_epochs=extra_epochs)
@@ -379,7 +388,10 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
         bridge.branch_records = _near_records
         bridge.branch_orders = _near_orders
 
-    res = MonthResult(plan=[d.as_dict() for d in days])
+    res = MonthResult(plan=[d.as_dict() for d in days], environment={
+        "discharge_backpressure": discharge_backpressure,
+        "discharge_capacity": prof.transfer.n_units if discharge_backpressure else None,
+        "discharge_model": "shared-handover-wip-v1" if discharge_backpressure else "legacy-off"})
     archive: dict[str, float] = {}
     tape = _MonthTape(meta, archive)
     if ppo is not None:

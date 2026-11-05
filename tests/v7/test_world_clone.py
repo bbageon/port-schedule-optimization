@@ -1,8 +1,7 @@
-"""v7 is an independent v6 copy (YR-332-a): the physical world is byte-identical to v6.
+"""v7 retains its pinned v6 base except explicitly registered physical corrections.
 
-v7 changes the stage (arm, lead time, crane action range) and the cost table, never
-`world/`. The manifest pins the v6 world at the declared base commit, so a later edit
-to either the moving v6 tree or the v7 copy cannot silently pass.
+YR-332-h changes only engine.py's opt-in discharge capacity. The original v6
+hashes remain pinned; a separate override records the authorized v7 correction.
 """
 import ast
 import hashlib
@@ -24,7 +23,15 @@ def test_all_v6_source_files_were_copied():
 @pytest.mark.parametrize("rel", sorted(MANIFEST["world_sha256"]))
 def test_physical_world_is_unchanged_from_v6(rel):
     text = (CLONE / rel).read_text(encoding="utf-8").replace("\r\n", "\n").rstrip() + "\n"
-    assert hashlib.sha256(text.encode()).hexdigest() == MANIFEST["world_sha256"][rel]
+    overrides = MANIFEST.get("v7_world_overrides", {})
+    expected = overrides.get(rel, {}).get("sha256", MANIFEST["world_sha256"][rel])
+    assert hashlib.sha256(text.encode()).hexdigest() == expected
+
+
+def test_physical_corrections_are_explicit_and_scoped():
+    corrections = MANIFEST["v7_world_overrides"]
+    assert set(corrections) == {"world/integrated/engine.py"}
+    assert corrections["world/integrated/engine.py"]["task"] == "YR-332-h"
 
 
 def test_copy_manifest_pins_the_declared_base_commit():

@@ -84,6 +84,10 @@ class TerminalSimulator:
         # YR-088 파생: 양하 인계버퍼 역압력 (opt-in). None(기본)=현행(이송 도착 시 quay 버퍼
         # 해제·YC 적재 지연이 STS 에 역압력 안 감) = 골든 바이트 동일. int 면 STS-뽑기~YC-적재
         # 사이 미완 양하 박스를 그 수로 제한 → YC 가 늦으면 STS 가 막힌다(양하 결정권 부여).
+        if yard_handover_cap is not None and (
+                isinstance(yard_handover_cap, bool)
+                or not isinstance(yard_handover_cap, int) or yard_handover_cap <= 0):
+            raise ValueError("yard_handover_cap must be a positive integer or None")
         self.yard_handover_cap = yard_handover_cap
         # YR-099-b: 외부 조정자가 예약하는 정확 결정시점(오름차순). 기본 [] = 골든 불변.
         self.review_epochs: list[float] = []
@@ -934,12 +938,13 @@ class TerminalSimulator:
                 elif (self.yard_handover_cap is not None
                       and j.flow == JobFlow.VESSEL_DISCHARGE and j.vessel_id is not None):
                     vid = j.vessel_id
-                    self._discharge_pipeline[vid] = max(0, self._discharge_pipeline.get(vid, 0) - 1)
-                    v = self.vessels.get(vid)
-                    if (v is not None and not v.done and v.sts_blocked_since_s is not None
-                            and self._can_sts_process(v)):
-                        v.sts_blocked_since_s = None
-                        self.queue.push(self.clock, EventKind.STS_MOVE, vid)
+                    outstanding = self._discharge_pipeline.get(vid, 0)
+                    if outstanding <= 0:
+                        raise ConstraintViolation("DISCHARGE_LEDGER", f"unreserved discharge {vid}")
+                    self._discharge_pipeline[vid] = outstanding - 1
+                    # YR-332-h: one block shares one fleet/capacity, including across
+                    # overlapping calls. Freeing A's slot must also wake blocked B.
+                    self._wake_discharge()
         if yc.down_pending:
             yc.down, yc.down_pending = True, False
         self._clear_yields()
@@ -959,10 +964,22 @@ class TerminalSimulator:
     def _can_sts_process(self, v) -> bool:
         if v.work_type == VesselWorkType.DISCHARGE:
             if (self.yard_handover_cap is not None
-                    and self._discharge_pipeline.get(v.vessel_id, 0) >= self.yard_handover_cap):
+                    and sum(self._discharge_pipeline.values()) >= self.yard_handover_cap):
                 return False                 # 인계버퍼 만재 — YC 적재가 밀림 (역압력)
             return v.buffer_level < v.plan.quay_buffer_cap
         return v.buffer_level > 0
+
+    def _wake_discharge(self):
+        """YR-332-h: reopen blocked streams after shared capacity is released.
+
+        Events recheck capacity when executed; several wakes cannot overbook it.
+        Clearing the blocked flag prevents duplicate wakes before the event runs.
+        """
+        for vid, v in sorted(self.vessels.items()):
+            if (v.work_type == VesselWorkType.DISCHARGE and not v.done
+                    and v.sts_blocked_since_s is not None and self._can_sts_process(v)):
+                v.sts_blocked_since_s = None
+                self.queue.push(self.clock, EventKind.STS_MOVE, vid)
 
     def _sts_move(self, vid: str):
         v = self.vessels[vid]
