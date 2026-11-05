@@ -464,14 +464,16 @@ class TerminalSimulator:
                 continue
             # SERVE 실행가능(전 정보수준). ETA 주도 선제 기회(PRE_ADVICE 한정, YR-050)는
             # wake 로 armed 된 크레인만 연다 — 술어는 후보 생성기와 공유(어긋남 차단).
-            if (self.candidates_for(yc.crane_id)
+            first = (getattr(self, 'decision_probe_shortcircuit', False)
+                     and self.slot_selector is None and self.store_slot_selector is None)
+            if (self.candidates_for(yc.crane_id, first_only=first)
                     or (yc.crane_id in self._eta_armed
                         and eta_opportunity(self, yc.crane_id, self.info_level))):
                 out.append(yc.crane_id)
         return tuple(out)
 
     # ------------------------------------------------------------- candidates
-    def candidates_for(self, crane_id: str) -> list[JobRef]:
+    def candidates_for(self, crane_id: str, *, first_only=False) -> list[JobRef]:
         """이 크레인이 지금 실행 가능하고 예약 성공하는 SERVE 후보 (결정론 정렬).
 
         YR-037 이 mandatory 보존·pruning·pre-rehandle 로 교체할 seam. 여기서는 최소 열거.
@@ -496,6 +498,8 @@ class TerminalSimulator:
             if not self.reservations.can_reserve(self._reservation(plan)):
                 continue
             out.append(ref)
+            if first_only:
+                break
         return out
 
     def _dispatchable(self, j, crane_id: str) -> bool:
@@ -630,9 +634,11 @@ class TerminalSimulator:
                 excl = frozenset(exclude | {(b.bay, b.row)})
                 if self.slot_selector is not None:      # YR-075-a opt-in (오라클/후보)
                     dest = self.slot_selector(self, stk, b, spec, excl)
-                else:
+                elif self.dispatch_cache.rehandle_slots:
                     dest = self.dispatch_cache.rehandle_slot(
                         stk, b.size, spec, float(b.bay), float(b.row), excl)
+                else:
+                    dest = stk.find_slot(b.size, spec, float(b.bay), float(b.row), exclude=excl)
                 if dest is None:
                     return None
                 db, dr = dest

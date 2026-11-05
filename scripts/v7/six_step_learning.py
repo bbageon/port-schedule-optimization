@@ -100,7 +100,8 @@ def train_seed(args):
             kwargs = dict(load=load, seed=seed, dispatcher='RL_CRANE', crane_net=behavior,
                           crane_budget=RolloutBudget(max_labels=24,identity_checks=0),
                           candidate_cap=None, horizon_s=10800., workers=args.workers,
-                          reuse_rehandle_slots=args.shared_slots)
+                          reuse_rehandle_slots=args.shared_slots,
+                          decision_probe_shortcircuit=args.existence_scan)
             if stage == 5:
                 kwargs['crane_sampling'] = 'coverage'
             ep = run_episode(**kwargs)
@@ -157,7 +158,8 @@ def evaluate(args):
     start = time.perf_counter()
     r = run_episode(load=args.load,seed=seed,dispatcher='SF_SPT' if rule else 'RL_CRANE',
         crane_net=net,candidate_cap=12 if args.arm == 'rule_cap12' else None,
-        evaluation_probe=probe,reuse_rehandle_slots=args.shared_slots)
+        evaluation_probe=probe,reuse_rehandle_slots=args.shared_slots,
+        decision_probe_shortcircuit=args.existence_scan)
     assert r.policy_exceptions == 0 and r.rollout_worlds == 0
     d = dict(arm=args.arm, model_seed=None if rule else args.model_seed,load=args.load,seed=seed,
         wall_seconds=time.perf_counter()-start,result=r.as_dict(),probe=probe.result,
@@ -174,7 +176,8 @@ def campaign(args):
     git=lambda *a: subprocess.check_output(['git',*a],encoding='utf-8').strip()
     assert not git('status','--short','--untracked-files=no'),'commit code before campaign'
     stamp=dict(stage=args.stage,commit=git('rev-parse','HEAD'),workers=args.workers,
-               loads=LOADS,model_seeds=MODEL_SEEDS,shared_slots=args.shared_slots,completed=[])
+               loads=LOADS,model_seeds=MODEL_SEEDS,shared_slots=args.shared_slots,
+               existence_scan=args.existence_scan,completed=[])
     stamp['sources']={p.as_posix():sha(p) for p in [Path(__file__),
         Path('docs/research/v7-discharge/six-step-prereg.md'),*Path('src/yard_rl/v7').rglob('*.py')]}
     marker=root/f'campaign-stage-{args.stage}.json'
@@ -184,6 +187,7 @@ def campaign(args):
         stamp=old
     common=[sys.executable,__file__,'--out',str(root),'--stage',str(args.stage),
             '--workers',str(args.workers)]+(['--shared-slots'] if args.shared_slots else [])
+    common += ['--existence-scan'] if args.existence_scan else []
     jobs=[('train',seed,None,None) for seed in MODEL_SEEDS]
     names={4:['initial','pointwise','pairwise'],5:['coverage'],6:['flow']}[args.stage]
     eval_jobs=[('evaluate',seed,arm,load) for seed in MODEL_SEEDS for arm in names for load in LOADS]
@@ -212,6 +216,7 @@ if __name__=='__main__':
     p.add_argument('--arm',default='initial')
     p.add_argument('--workers',type=int,default=4)
     p.add_argument('--shared-slots',action='store_true')
+    p.add_argument('--existence-scan',action='store_true')
     p.add_argument('--out',required=True)
     args=p.parse_args()
     {'campaign':campaign,'train':train_seed,'evaluate':evaluate}[args.operation](args)

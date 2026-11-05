@@ -23,7 +23,7 @@ def worker(args):
     start = time.perf_counter()
     r = run_episode(load=args.load, seed=9913420, dispatcher='RL_CRANE', crane_net=net,
                     candidate_cap=None, evaluation_probe=probe,
-                    reuse_rehandle_slots=args.shared_slots)
+                    reuse_rehandle_slots=args.shared_slots, decision_probe_shortcircuit=args.existence_scan)
     assert r.policy_exceptions == 0
     with gzip.open(args.out, 'wt', encoding='utf-8', newline='\n') as f:
         json.dump(dict(load=args.load, seed=9913420, wall_seconds=time.perf_counter()-start,
@@ -44,7 +44,8 @@ def campaign(args):
     for load in (3500,7500,15000):
         path = out/f'{load}.json.gz'
         subprocess.run([sys.executable, __file__, '--worker', '--load',str(load),'--out',str(path)]
-                       + (['--shared-slots'] if args.shared_slots else []),check=True)
+                       + (['--shared-slots'] if args.shared_slots else [])
+                       + (['--existence-scan'] if args.existence_scan else []),check=True)
         with gzip.open(path,'rt',encoding='utf-8') as f:
             d=json.load(f)
         stamp['rows'].append(dict(load=load,path=path.as_posix(),
@@ -57,6 +58,7 @@ if __name__ == '__main__':
     p.add_argument('--worker',action='store_true')
     p.add_argument('--load',type=int,default=3500)
     p.add_argument('--shared-slots',action='store_true')
+    p.add_argument('--existence-scan',action='store_true')
     p.add_argument('--out',required=True)
     args=p.parse_args()
     worker(args) if args.worker else campaign(args)

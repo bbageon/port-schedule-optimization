@@ -391,7 +391,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 discharge_backpressure: bool = True,
                 evaluation_mode: str = "optimized", evaluation_probe=None,
                 reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12,
-                crane_sampling: str = 'standard') -> EpisodeResult:
+                crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -438,6 +438,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         extra_review_epochs=admission_epochs(obs))
     for sim in mbt.blocks.values():
         sim.dispatch_cache.rehandle_slots = reuse_rehandle_slots
+        sim.decision_probe_shortcircuit = decision_probe_shortcircuit
     if evaluation_mode != "optimized":
         # Diagnostic reference: detach status ownership before using a plain dict.
         for sim in mbt.blocks.values():
