@@ -105,8 +105,8 @@ def test_features_are_not_all_dead():
     seen = [0.0] * CRANE_DIM
     orig = P.crane_features
 
-    def spy(sim, cid, gc):
-        x = orig(sim, cid, gc)
+    def spy(sim, cid, gc, **kwargs):
+        x = orig(sim, cid, gc, **kwargs)
         for i, v in enumerate(x):
             seen[i] = max(seen[i], abs(v))
         return x

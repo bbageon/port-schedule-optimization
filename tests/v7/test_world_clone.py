@@ -1,7 +1,7 @@
 """v7 retains its pinned v6 base except explicitly registered physical corrections.
 
-YR-332-h changes only engine.py's opt-in discharge capacity. The original v6
-hashes remain pinned; a separate override records the authorized v7 correction.
+The original v6 hashes remain pinned; overrides record the authorized discharge
+correction (YR-332-h) and computation-preserving dispatch optimization (YR-332-j).
 """
 import ast
 import hashlib
@@ -30,8 +30,10 @@ def test_physical_world_is_unchanged_from_v6(rel):
 
 def test_physical_corrections_are_explicit_and_scoped():
     corrections = MANIFEST["v7_world_overrides"]
-    assert set(corrections) == {"world/integrated/engine.py"}
-    assert corrections["world/integrated/engine.py"]["task"] == "YR-332-h"
+    assert set(corrections) == {"world/integrated/engine.py", "world/domain/models.py",
+                                "world/integrated/candidates.py", "world/integrated/resolver.py"}
+    assert all(c['task'] == 'YR-332-j' for c in corrections.values())
+    assert corrections['world/integrated/engine.py']['prior_task'] == 'YR-332-h'
 
 
 def test_copy_manifest_pins_the_declared_base_commit():

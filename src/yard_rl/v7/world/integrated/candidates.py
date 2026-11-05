@@ -13,6 +13,7 @@ resolver 가 소비할 **풍부한 CandidateSet** 을 생성한다.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from ...job_index import job_ids
 
 from ..domain.enums import InformationLevel, JobFlow, JobStatus, ServiceMode
 from ..sim.constraints import ConstraintViolation
@@ -59,7 +60,7 @@ def iter_pre_rehandle_jobs(sim, crane_id: str, level):
     spec = sim.fleet.spec(crane_id)
     horizon = sim.profile.decision_horizon_s
     now = sim.now
-    for jid in sorted(sim.jobs):
+    for jid in job_ids(sim, JobStatus.PLANNED):
         j = sim.jobs[jid]
         if j.flow != JobFlow.GATE_OUT or j.status != JobStatus.PLANNED:
             continue
@@ -124,7 +125,7 @@ def iter_eta_reposition_jobs(sim, crane_id: str, level):
     yc = sim.fleet.get(crane_id)
     horizon = sim.profile.decision_horizon_s
     now = sim.now
-    for jid in sorted(sim.jobs):
+    for jid in job_ids(sim, JobStatus.PLANNED):
         j = sim.jobs[jid]
         if not j.is_external_truck:
             continue
@@ -182,7 +183,7 @@ def iter_vessel_prep_jobs(sim, crane_id: str, level):
     spec = sim.fleet.spec(crane_id)
     horizon = sim.profile.decision_horizon_s
     now = sim.now
-    for jid in sorted(sim.jobs):
+    for jid in job_ids(sim, JobStatus.PLANNED):
         j = sim.jobs[jid]
         if j.flow != JobFlow.VESSEL_LOAD or j.status != JobStatus.PLANNED:
             continue
@@ -229,8 +230,9 @@ class CandidateGenerator:
     def __init__(self, *, k_max: int = 12, mandatory_wait_frac: float = 0.8,
                  pre_rehandle_min_window_s: float = 600.0,
                  block_pre_rehandle: bool = False, vessel_prep: bool = False,
-                 config: ExecPolicyConfig | None = None):
+                 config: ExecPolicyConfig | None = None, reuse_plans: bool = True):
         self.k_max = k_max
+        self.reuse_plans = reuse_plans
         self.mandatory_wait_frac = mandatory_wait_frac
         # YR-160 본체 1단계(2026-08-09): 행동 정의 플래그를 **주입**받는다 —
         # `policy_config.ExecPolicyConfig`(duck-typing: wait_mode·safety_only·
@@ -259,6 +261,10 @@ class CandidateGenerator:
         return out
 
     def generate(self, sim, crane_id: str, level: InformationLevel) -> GeneratedCandidates:
+        with sim.dispatch_cache.scope(sim, crane_id, self.reuse_plans):
+            return self._generate(sim, crane_id, level)
+
+    def _generate(self, sim, crane_id: str, level: InformationLevel) -> GeneratedCandidates:
         yc = sim.fleet.get(crane_id)
         if not yc.idle or yc.yielded:
             return GeneratedCandidates(crane_id, (replace(self._wait(), candidate_id=0),))
@@ -277,7 +283,7 @@ class CandidateGenerator:
         yc = sim.fleet.get(cid)
         spec = sim.fleet.spec(cid)
         out = []
-        for jid in sorted(sim.jobs):
+        for jid in job_ids(sim, JobStatus.WAITING, JobStatus.RELEASED):
             j = sim.jobs[jid]
             if not sim._dispatchable(j, cid):
                 continue
@@ -286,7 +292,7 @@ class CandidateGenerator:
                 continue
             cum = sim.cum_wait(jid) if j.is_external_truck else None
             mand = self._is_mandatory(sim, j, cum)
-            plan = sim._plan(cid, ref)
+            plan = sim.dispatch_cache.plan(sim, cid, ref)
             if plan is None:
                 if not mand:
                     continue
@@ -309,7 +315,7 @@ class CandidateGenerator:
                          target_container=j.target_container, lane_id=sim._lane_for(c.bay),
                          eligible_crane_ids=sim.eligible_cranes(c.bay),
                          is_vessel=False, is_external=True)
-            plan = sim._plan(cid, ref)
+            plan = sim.dispatch_cache.plan(sim, cid, ref)
             if plan is None:
                 continue
             reason = self._committed_reason(sim, plan)
@@ -322,7 +328,7 @@ class CandidateGenerator:
                              target_container=j.target_container, lane_id=sim._lane_for(c.bay),
                              eligible_crane_ids=sim.eligible_cranes(c.bay),
                              is_vessel=True, is_external=False)
-                plan = sim._plan(cid, ref)
+                plan = sim.dispatch_cache.plan(sim, cid, ref)
                 if plan is None:
                     continue
                 reason = self._committed_reason(sim, plan)
@@ -395,7 +401,7 @@ class CandidateGenerator:
                              kind=CandidateKind.REPOSITION, target_container=None,
                              lane_id=None, eligible_crane_ids=(cid,), is_vessel=False,
                              is_external=False, reposition_target_bay=tb)
-                plan = sim._plan(cid, ref)
+                plan = sim.dispatch_cache.plan(sim, cid, ref)
                 if plan is None:
                     continue
                 reason = self._committed_reason(sim, plan)
@@ -414,7 +420,7 @@ class CandidateGenerator:
                          kind=CandidateKind.REPOSITION, target_container=None, lane_id=None,
                          eligible_crane_ids=(cid,), is_vessel=False, is_external=False,
                          reposition_target_bay=tb)
-            plan = sim._plan(cid, ref)
+            plan = sim.dispatch_cache.plan(sim, cid, ref)
             if plan is None:
                 continue
             reason = self._committed_reason(sim, plan)
@@ -429,7 +435,7 @@ class CandidateGenerator:
         외부트럭 provided_eta(정보수준 가시성 규칙 재사용)·내부작업 release_time 만 본다.
         실현(actual_*) 미래시각은 절대 읽지 않는다 (YR-147 비누출 계약)."""
         best_t, best_k, best_j = None, None, None
-        for jid in sorted(sim.jobs):
+        for jid in job_ids(sim, JobStatus.PLANNED):
             j = sim.jobs[jid]
             if j.status != JobStatus.PLANNED:
                 continue

@@ -35,6 +35,8 @@
 from __future__ import annotations
 
 from ..world.contract.schema import CandidateKind
+from ..world.domain.enums import JobStatus
+from ..job_index import IndexedJobs
 
 #: 특징 이름 — 순서가 곧 입력 벡터의 자리다. 바꾸면 학습된 망과 어긋난다.
 CRANE_FEATURES: tuple[str, ...] = (
@@ -62,7 +64,7 @@ def queue_trucks(sim) -> int:
     return int(sim.kpis.waiting_count())
 
 
-def crane_features(sim, crane_id: str, gc) -> list[float]:
+def crane_features(sim, crane_id: str, gc, *, common=None) -> list[float]:
     """후보 하나를 **9칸**으로 만든다. 값은 대략 0~2 범위(⑨ 만 줄이 길면 2 를 넘는다).
 
     ⚠️ `rank()` 안에서 후보마다 불린다 — 여기가 느리면 시뮬레이션 전체가 느려진다.
@@ -100,11 +102,15 @@ def crane_features(sim, crane_id: str, gc) -> list[float]:
         reh_h = min(float(getattr(plan, "rehandles", 0) or 0) * 120.0 / 3600.0, 1.0)
 
     # ④ 붐비나 — ⑧ 은 v4 식 그대로(머리말 ⚠️: `_siblings` 는 없어 늘 `_live_cands`)
-    n_cands = float(len(getattr(gc, "_siblings", ()) or ())) or _live_cands(sim, crane_id)
-    queue = float(queue_trucks(sim)) / _QUEUE_REF
+    live, queue = common if common is not None else decision_common(sim, crane_id)
+    n_cands = float(len(getattr(gc, "_siblings", ()) or ())) or live
 
     return [is_v, is_s, wait_h, slack_h, reach_h, svc_h, reh_h,
             min(n_cands / 18.0, 1.0), queue]
+
+
+def decision_common(sim, crane_id=''):
+    return _live_cands(sim, crane_id), float(queue_trucks(sim)) / _QUEUE_REF
 
 
 def _live_cands(sim, crane_id: str) -> float:
@@ -114,6 +120,8 @@ def _live_cands(sim, crane_id: str) -> float:
     실제로는 **WAITING(블록 도착 · 작업 대기) 일감**만 걸린다. v4 와 같은 값을 내려고
     고치지 않는다(머리말 ⚠️).
     """
+    if isinstance(sim.jobs, IndexedJobs):
+        return float(sim.jobs.count(JobStatus.WAITING))
     n = 0
     for j in sim.jobs.values():
         st = getattr(j, "status", None)

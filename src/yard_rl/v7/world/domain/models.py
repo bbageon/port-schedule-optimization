@@ -55,6 +55,26 @@ class Job:
     service_end: float | None = None
     rehandle_count: int = 0
 
+    def __setattr__(self, name, value):
+        old = self.__dict__.get(name)
+        if name == 'job_id' and old is not None and old != value:
+            ref = self.__dict__.get('_job_index_ref')
+            if ref is not None and ref() is not None:
+                raise ValueError('remove job from its owner before renaming it')
+        object.__setattr__(self, name, value)
+        if name == 'status' and old != value:
+            ref = self.__dict__.get('_job_index_ref')
+            owner = ref() if ref else None
+            if owner is not None:
+                owner._changed(self, old, value)
+
+    def __getstate__(self):
+        # Weak ownership is runtime-only; deepcopy/pickle must rebind in the new table.
+        return {k: v for k, v in self.__dict__.items() if k != '_job_index_ref'}
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
     @property
     def is_external_truck(self) -> bool:
         return self.flow in (JobFlow.GATE_IN, JobFlow.GATE_OUT)

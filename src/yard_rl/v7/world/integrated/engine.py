@@ -31,6 +31,8 @@ from dataclasses import dataclass
 from ..contract.schema import CandidateKind
 from ..domain.enums import InformationLevel
 from .candidates import eta_opportunity
+from ...job_index import IndexedJobs, job_ids
+from ...dispatch_cache import DispatchCache
 
 _EPS = 1e-9
 
@@ -98,7 +100,8 @@ class TerminalSimulator:
         self._validate()
         geom = self.profile.block
         self.stacks = YardStacks(geom, copy.deepcopy(self.scenario.containers))
-        self.jobs = {j.job_id: copy.deepcopy(j) for j in self.scenario.jobs}
+        self.jobs = IndexedJobs((j.job_id, copy.deepcopy(j)) for j in self.scenario.jobs)
+        self.dispatch_cache = DispatchCache()
         self.fleet = CraneFleet()
         for spec in self.profile.cranes:
             self.fleet.add(spec, geom.transfer_row)
@@ -478,7 +481,7 @@ class TerminalSimulator:
             return []
         spec = self.fleet.spec(crane_id)
         out: list[JobRef] = []
-        for jid in sorted(self.jobs):
+        for jid in job_ids(self, JobStatus.WAITING, JobStatus.RELEASED):
             j = self.jobs[jid]
             if not self._dispatchable(j, crane_id):
                 continue
@@ -523,8 +526,9 @@ class TerminalSimulator:
         동일해야 하며 위반 시 즉시 발화 (조용한 물리 불일치 계획 방지 — 재조작 seam 관습).
         """
         if self.store_slot_selector is None:
-            return self.stacks.find_slot(j.inbound_size, spec, bay, row,
-                                         exclude=frozenset(exclude))
+            key = (j.inbound_size, spec, bay, row, frozenset(exclude))
+            return self.dispatch_cache.slot(key, lambda: self.stacks.find_slot(
+                j.inbound_size, spec, bay, row, exclude=frozenset(exclude)))
         dest = self.store_slot_selector(self, self.stacks, j, spec, bay, row,
                                         frozenset(exclude))
         if dest is not None:

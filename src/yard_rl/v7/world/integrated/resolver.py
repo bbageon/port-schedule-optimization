@@ -51,7 +51,11 @@ class CentralResolver:
         # WAIT 는 예약을 잡지 않으므로 joint feasibility 에 중립이며, 선택 시 다음 외생 이벤트/
         # 타 크레인 완료까지 대기(engine yielded) → 0초 재결정 루프 없음.
         pairs = [(c, gc) for c in cranes for gc in gen_by_crane[c].items if gc.feasible]
-        pairs.sort(key=lambda cg: self._pair_key(sim, cg[0], cg[1]))
+        batch = getattr(self.preference, 'rank_many', None)
+        ranks = batch(sim, pairs) if batch is not None else [None] * len(pairs)
+        keys = {(c, gc.candidate_id): self._pair_key(sim, c, gc, rank)
+                for (c, gc), rank in zip(pairs, ranks)}
+        pairs.sort(key=lambda cg: keys[(cg[0], cg[1].candidate_id)])
         chosen: dict = {}
         taken_token: set = set()
         rejects: dict = defaultdict(list)
@@ -74,14 +78,14 @@ class CentralResolver:
                     taken_token.add(tok)
             else:
                 rejects[c].append((gc, "JOINT_CONFLICT"))
-        return self._finalize(sim, decision, gen_by_crane, chosen, rejects, contested)
+        return self._finalize(sim, decision, gen_by_crane, chosen, rejects, contested, keys)
 
-    def _pair_key(self, sim, c, gc) -> tuple:
+    def _pair_key(self, sim, c, gc, rank=None) -> tuple:
         tok = (gc.job_ref.token or "") if gc.job_ref else ""
-        return ((0 if gc.mandatory else 1,) + tuple(self.preference.rank(sim, c, gc))
+        return ((0 if gc.mandatory else 1,) + tuple(self.preference.rank(sim, c, gc) if rank is None else rank)
                 + (_KIND_RANK[gc.kind], c, tok, gc.candidate_id))
 
-    def _finalize(self, sim, decision, gen_by_crane, chosen, rejects, contested) -> JointResolution:
+    def _finalize(self, sim, decision, gen_by_crane, chosen, rejects, contested, keys) -> JointResolution:
         resolutions = []
         for c in decision.crane_ids:
             gc = chosen.get(c)
@@ -96,11 +100,11 @@ class CentralResolver:
                 yield_reason = ("NO_FEASIBLE" if not rejects.get(c) else "LOST_CONTENTION")
                 resolutions.append(CraneResolution(
                     c, CandidateKind.WAIT, None, None, yield_reason,
-                    self._pair_key(sim, c, gc) if gc is not None else (), verdicts))
+                    keys[(c, gc.candidate_id)] if gc is not None else (), verdicts))
             else:
                 resolutions.append(CraneResolution(
                     c, gc.kind, gc.candidate_id, gc.job_ref.token,
-                    None, self._pair_key(sim, c, gc), verdicts))
+                    None, keys[(c, gc.candidate_id)], verdicts))
         # 미수용 mandatory token (드롭 아님 — 다음 결정 재생성·최우선)
         chosen_tokens = {g.job_ref.token for g in chosen.values() if g.job_ref and g.job_ref.token}
         deferred = sorted({g.job_ref.token

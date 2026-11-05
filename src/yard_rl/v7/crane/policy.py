@@ -30,7 +30,7 @@ from torch import nn
 
 from ..world.contract.schema import CandidateKind
 from ..world.integrated.resolver import BaselinePreference
-from .features import CRANE_DIM, crane_features
+from .features import CRANE_DIM, crane_features, decision_common
 
 #: 학습 목표 눈금 — 원화를 망이 다루기 좋은 크기로 바꾼다.
 #: ⚠️ 재배정층 `ADV_SCALE` 과 **같은 이유·같은 규약**이다: 조건이 바뀌면 재실측 후 동결.
@@ -122,13 +122,15 @@ class CranePolicy(BaselinePreference):
     USES_FUTURE_INFORMATION = False       # 공개 정보만 본다 (계약)
     name = "RL_CRANE"
 
-    def __init__(self, net: CraneNet | None = None, *, serve_first: bool = True):
+    def __init__(self, net: CraneNet | None = None, *, serve_first: bool = True,
+                 batched: bool = True):
         self.net = net if net is not None else CraneNet()
         self.net.eval()
         #: ★실작업 우선 울타리 — 위 머리말의 [[YR-039]] 퇴화 방지.
         #:  끄면 망이 SERVE/PRE_REHANDLE/REPOSITION 을 완전히 자유롭게 고른다.
         #:  **효과가 실증되기 전에는 켜 둔다.**
         self.serve_first = bool(serve_first)
+        self.batched = batched
         #: ★강제 손잡이 — `{크레인: job_id}`. 반사실 세계에서 *"대신 저걸 했다면"* 을
         #:  만드는 유일한 방법이다. 판매·구매의 `force_once` 와 같은 규약이되,
         #:  **비우는 책임은 부르는 쪽**에 있다 (`crane/rollout.py` 가 결정 하나를
@@ -151,6 +153,49 @@ class CranePolicy(BaselinePreference):
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
         #: `job_id` 를 끝에 두는 것은 **결정론**을 위해서다 — 점수가 같으면 항상 같은 배정.
         return (tier, score, ref.job_id)
+
+    def rank_many(self, sim, pairs):
+        """Per-decision values only: common features once, no global monkeypatch.
+
+        Equal input vectors share computation. Distinct almost-tied vectors are
+        rescored with the original scalar path to protect deterministic ordering.
+        Subclasses overriding rank retain their own contract.
+        """
+        if not self.batched or type(self).rank is not CranePolicy.rank:
+            return [self.rank(sim, cid, gc) for cid, gc in pairs]
+        common = decision_common(sim)
+        rows, lookup, row_ids = [], {}, []
+        keys = []
+        for cid, gc in pairs:
+            ref = gc.job_ref
+            if ref is None:
+                keys.append(_WAIT_KEY)
+                row_ids.append(None)
+                continue
+            if self.force_once.get(cid) == ref.job_id:
+                keys.append((-1, 0.0, ref.job_id))
+                row_ids.append(None)
+                continue
+            row = tuple(crane_features(sim, cid, gc, common=common))
+            if row not in lookup:
+                lookup[row] = len(rows)
+                rows.append(row)
+            row_ids.append(lookup[row])
+            tier = 0 if not self.serve_first or gc.kind == CandidateKind.SERVE else 1
+            keys.append((tier, None, ref.job_id))
+        values = []
+        with torch.no_grad():
+            for start in range(0, len(rows), 1024):
+                values.extend(self.net(torch.tensor(rows[start:start+1024], dtype=torch.float32)).tolist())
+            order = sorted(range(len(values)), key=values.__getitem__)
+            close = set()
+            for a, b in zip(order, order[1:]):
+                if abs(values[a]-values[b]) <= 1e-6 + 1e-5*max(abs(values[a]), abs(values[b])):
+                    close.update((a, b))
+            for i in sorted(close):
+                values[i] = float(self.net(torch.tensor([rows[i]], dtype=torch.float32))[0])
+        return [key if i is None else (key[0], values[i], key[2])
+                for key, i in zip(keys, row_ids)]
 
 
 def to_advantage(phi: float, base: float, scale: float | None = None) -> float:
