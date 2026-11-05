@@ -30,8 +30,20 @@ def candidate_summary(folder):
     names=(('legacy','existence' if mechanism=='existence' else 'shared')
            if stage==1 else ('cap12','all'))
     pairs=[]
+    seen={}
+    repeat_checks=[]
     for row in stamp['rows']:
         a,b=[verified(row['arms'][name]) for name in names]
+        for name,d in zip(names,(a,b)):
+            key=(row['load'],row['seed'],name)
+            hashes={k:v for k,v in d['probe'].items() if k.endswith('_sha256')}
+            hashes['input']=d['probe']['metadata']['input_sha256']
+            hashes['model']=d['model_sha256']
+            if key in seen:
+                assert hashes==seen[key],('repeat changed results',key)
+                repeat_checks.append(dict(load=row['load'],seed=row['seed'],arm=name,equal=True))
+            else:
+                seen[key]=hashes
         assert row['equal']['input'] and row['equal']['model']
         if stage==1:
             assert all(row['equal'].values())
@@ -61,7 +73,7 @@ def candidate_summary(folder):
         out['all_repeat_changes_pct']=[p['wall_change_pct'] for p in pairs if p['load']==load]
         loads[str(load)]=out
     result=dict(stage=stage,mechanism=mechanism,commit=stamp['commit'],n_pairs=len(pairs),
-                loads=loads,pairs=pairs,
+                loads=loads,pairs=pairs,repeat_checks=repeat_checks,
                 interpretation='timing and candidate diagnostics; no trained-policy performance claim')
     save(Path(folder)/'summary.json',result)
     print(json.dumps(dict(stage=stage,mechanism=mechanism,n_pairs=len(pairs),loads=loads),indent=2))
