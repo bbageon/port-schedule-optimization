@@ -117,7 +117,8 @@ class CraneTrainState:
         torch.save({"crane": self.net.state_dict(),
                     "opt": self.trainer.opt.state_dict(),
                     "steps_coef": self.trainer.steps_coef, "it": it,
-                    "feature_mode": getattr(self.net, 'feature_mode', 'legacy')},
+                    "feature_mode": getattr(self.net, 'feature_mode', 'legacy'),
+                    "loss_kind": self.trainer.loss_kind},
                    path / f"crane_{it:03d}.pt")
         #: ⚠️ 이 두 줄은 반드시 **이 함수 안**에 있어야 한다. [[YR-312]] 착수 때 `load` 를
         #:  끼워 넣다가 `return` 뒤로 밀려 죽은 코드가 됐고, 이어 돌린 실행의 회차 기록이
@@ -138,6 +139,7 @@ class CraneTrainState:
         ck = torch.load(path)
         net.load_state_dict(ck["crane"])
         net.feature_mode = ck.get('feature_mode', 'legacy')
+        trainer.loss_kind = ck.get('loss_kind', 'pointwise')
         if "opt" in ck:
             trainer.opt.load_state_dict(ck["opt"])
         else:

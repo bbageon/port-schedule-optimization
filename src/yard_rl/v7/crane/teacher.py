@@ -47,6 +47,8 @@ class CraneSample:
     #:  `add` 때는 원본만 담고 `result` 에서 한꺼번에 목표로 바꾼다.
     phi: float = 0.0
     base: float = 0.0
+    flow: str = ''
+    decision_key: tuple = ()
 
 
 @dataclass

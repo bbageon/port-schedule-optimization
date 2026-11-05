@@ -221,7 +221,9 @@ class CranePool:
             done, _ = wait(self._futs)
             self._done.extend(f.result() for f in done)
             self._futs = []
-        self._done.sort(key=lambda r: (r["t"], r["crane"]))
+        # Include block: crane IDs repeat across blocks, and process completion
+        # order must not decide which labels land in the train/validation split.
+        self._done.sort(key=lambda r: r['key'])
         self.n_worlds = sum(r["worlds"] for r in self._done)
         return self._done
 

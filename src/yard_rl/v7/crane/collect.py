@@ -49,6 +49,7 @@ class CraneCollector:
         self.pool = CranePool(ctx, horizon_s=horizon_s, workers=workers)
         #: 결정 열쇠 → (고른 것의 특징, 대안의 특징). 작업자에게는 안 보낸다.
         self.rows: dict[tuple, tuple[list, list]] = {}
+        self.flow_rows = {}
         #: 회계 — **버린 것까지** 남긴다. 라벨 수만 보면 "64건 뽑았다" 가 실제로
         #: 12건이어도 안 보인다.
         self.stats = {"seen": 0,       # 하루의 전 크레인 결정
@@ -71,8 +72,8 @@ class CraneCollector:
         def on_crane(sim, dp, gb, assign):
             self.stats["seen"] += 1
             # ★① 먼저 쓸 수 있는 결정인지 본다 (머리말 참조 — 이 순서여야 한다)
-            pick = self._labelable(sim, gb, assign)
-            if pick is None:
+            choices = self._choices(gb, assign)
+            if not choices:
                 return
             self.stats["usable"] += 1
             # ★② 계수기는 **쓸 수 있는 결정 전부**에서 돈다. 뽑힌 것만 세면
@@ -80,12 +81,16 @@ class CraneCollector:
             if not self.budget.take():
                 return
             self.stats["sampled"] += 1
-            crane, picked_gc, alt_gc = pick
+            crane, picked_gc, cands = choices[0]
+            alt_gc = min(cands, key=lambda g: (self._rank(sim, crane, g), g.job_ref.job_id))
             block = bmap[id(sim)]
             key = (round(sim.clock, 6), block, crane)
             mode = getattr(self._pref.net, 'feature_mode', 'legacy')
             self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode),
                               crane_features(sim, crane, alt_gc, feature_mode=mode))
+            self.flow_rows[key] = tuple(
+                sim.jobs[g.job_ref.job_id].flow.value if g.job_ref.job_id in sim.jobs else ''
+                for g in (picked_gc, alt_gc))
             self.pool.submit(CraneBranchJob(
                 key=key, t=sim.clock, crane=crane,
                 #: ★결정 **직전** 스냅샷. `_pending` 이 열린 채로 뜬다 —
@@ -97,8 +102,9 @@ class CraneCollector:
                 alt_job=alt_gc.job_ref.job_id))
         return on_crane
 
-    def _labelable(self, sim, gb, assign):
+    def _choices(self, gb, assign):
         """라벨을 만들 수 있는 (크레인, 고른 후보, 대안) — 없으면 `None`."""
+        choices = []
         for crane in sorted(gb):
             gc = assign.get(crane)
             ref = getattr(gc, "job_ref", None)
@@ -110,15 +116,15 @@ class CraneCollector:
                      and g.mandatory == gc.mandatory]   # ③ 같은 필수 등급
             if not cands:                        # ② 비교 대상이 없다
                 continue
-            alt = min(cands, key=lambda g: (self._rank(sim, crane, g),
-                                            g.job_ref.job_id))
-            return crane, gc, alt
+            choices.append((crane, gc, cands))
+        if choices:
+            return choices
         # 여기까지 왔다 = 전 크레인이 WAIT 이거나 대안이 없었다
         if all(getattr(assign.get(c), "job_ref", None) is None for c in gb):
             self.stats["no_pick"] += 1
         else:
             self.stats["no_alt"] += 1
-        return None
+        return []
 
     def _rank(self, sim, crane, gc) -> tuple:
         """정책이 이 후보를 몇 번째로 보나 — **차점자**를 고르는 잣대."""
@@ -137,6 +143,7 @@ class CraneCollector:
         out = CraneLabelCollector()
         #: 굴린 결과 원본 — 진단(사실 분기 궤적 대조)용으로 남긴다.
         self.raw = list(self.pool.results())
+        self.stats['comparisons'] = self.raw
         for r in self.raw:
             if not r["factual_ok"]:
                 # 사실 가지가 실제와 다른 결정을 냈다 = 분기 재조립이 상태를
@@ -150,6 +157,10 @@ class CraneCollector:
             out.add(picked_row=picked_row, alt_row=alt_row,
                     phi_factual=r["phi_factual"], phi_alt=r["phi_alt"],
                     crane=r["crane"], job=r["picked_job"])
+            for sample, flow in zip(out.out.samples[-2:], self.flow_rows[r['key']]):
+                sample.flow = flow
+                sample.decision_key = r['key']
+            out.out.samples[-1].job = r['alt_job']
             self.stats["labeled"] += 1
         out.note_worlds(self.pool.n_worlds)
         return out.result()

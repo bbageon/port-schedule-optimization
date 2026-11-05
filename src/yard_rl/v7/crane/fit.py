@@ -69,6 +69,10 @@ class CraneFitReport:
     scale_krw: float = CRANE_ADV_SCALE
     floor_bound: bool = False     # 하한이 걸렸나 = 그날은 비용 중립에 가까웠다
     zero_ratio: float = 0.0       # 차이가 0 이던 결정 비율
+    loss_kind: str = 'pointwise'
+    val_pair_loss: float = 0.0
+    val_order_accuracy: float = 0.0
+    val_nonzero_pairs: int = 0
 
 
 class CraneTrainer:
@@ -76,7 +80,10 @@ class CraneTrainer:
 
     def __init__(self, net: CraneNet, *, lr: float = LR,
                  minibatch: int = MINIBATCH,
-                 steps_coef: float = FIT_STEPS_PER_SAMPLE):
+                 steps_coef: float = FIT_STEPS_PER_SAMPLE, loss_kind: str = 'pointwise'):
+        if loss_kind not in ('pointwise', 'pairwise'):
+            raise ValueError(f'unknown loss_kind: {loss_kind}')
+        self.loss_kind = loss_kind
         self.net = net
         self.opt = torch.optim.Adam(net.parameters(), lr=lr)
         self.loss_fn = nn.SmoothL1Loss(beta=HUBER_BETA)
@@ -90,8 +97,10 @@ class CraneTrainer:
         한 결정이 표본 둘(고른 것·대안)을 만드는데, 그 둘이 학습·검증으로 갈리면
         **같은 결정을 보고 채점**하는 셈이라 검증이 낙관적으로 나온다.
         """
-        rep = CraneFitReport()
+        rep = CraneFitReport(loss_kind=self.loss_kind)
         samples = labels.samples
+        if len(samples) % 2:
+            raise ValueError('labels must contain complete decision pairs')
         if len(samples) < 4:
             return rep
 
@@ -129,10 +138,17 @@ class CraneTrainer:
         steps = max(50, min(600, int(self.steps_coef * len(tr_idx))))
         rep.steps_coef = self.steps_coef
         for _ in range(steps):
-            b = torch.randint(0, len(tr_idx), (min(self.minibatch, len(tr_idx)),),
-                              generator=rng)
             self.opt.zero_grad()
-            loss = self.loss_fn(self.net(xt[b]), yt[b])
+            if self.loss_kind == 'pointwise':
+                b = torch.randint(0, len(tr_idx), (min(self.minibatch, len(tr_idx)),), generator=rng)
+                loss = self.loss_fn(self.net(xt[b]), yt[b])
+            else:
+                b = torch.randint(0, len(tr_idx)//2,
+                                  (min(max(1, self.minibatch//2), len(tr_idx)//2),), generator=rng)
+                rows = torch.stack((2*b, 2*b+1), dim=1).flatten()
+                pred = self.net(xt[rows]).reshape(-1, 2)
+                target = yt[rows].reshape(-1, 2)
+                loss = self.loss_fn(pred[:, 0]-pred[:, 1], target[:, 0]-target[:, 1])
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.net.parameters(), GRAD_CLIP)
             self.opt.step()
@@ -141,7 +157,16 @@ class CraneTrainer:
 
         self.net.eval()
         with torch.no_grad():
-            rep.val_loss = float(self.loss_fn(self.net(xv), yv))
+            pred = self.net(xv)
+            pg = pred[::2]-pred[1::2]
+            yg = yv[::2]-yv[1::2]
+            rep.val_pair_loss = float(self.loss_fn(pg, yg))
+            rep.val_loss = (float(self.loss_fn(pred, yv)) if self.loss_kind == 'pointwise'
+                            else rep.val_pair_loss)
+            nonzero = yg.abs() > 1e-9
+            rep.val_nonzero_pairs = int(nonzero.sum())
+            rep.val_order_accuracy = (float((pg[nonzero].sign() == yg[nonzero].sign()).float().mean())
+                                      if nonzero.any() else 0.)
         return rep
 
 
