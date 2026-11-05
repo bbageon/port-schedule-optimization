@@ -38,6 +38,7 @@ def checkpoint(path, net, trainer=None, **metadata):
     torch.save(dict(crane=net.state_dict(), feature_mode=net.feature_mode,
                     dim=net.net[0].in_features, hidden=net.net[0].out_features,
                     include_flow=getattr(net,'include_flow',False),
+                    runtime_parameters=dict(candidate_cap=None,feature_mode=net.feature_mode),
                     opt=None if trainer is None else trainer.opt.state_dict(),
                     loss_kind=None if trainer is None else trainer.loss_kind, **metadata), path)
 
@@ -87,6 +88,7 @@ def train_seed(args):
     trainers = {k: CraneTrainer(v, loss_kind='pointwise' if k == 'pointwise' else 'pairwise')
                 for k,v in nets.items()}
     report = dict(stage=stage, model_seed=args.model_seed, rows=[],
+                  python=sys.version,torch=torch.__version__,device='cpu',
                   parameters=dict(candidate_cap=None,feature_mode='feasible',max_pairs=24,
                       horizon_s=10800.,workers=args.workers,shared_slots=args.shared_slots,
                       existence_scan=args.existence_scan,flow_input=stage==6),
@@ -166,6 +168,7 @@ def evaluate(args):
         decision_probe_shortcircuit=args.existence_scan)
     assert r.policy_exceptions == 0 and r.rollout_worlds == 0
     d = dict(arm=args.arm, model_seed=None if rule else args.model_seed,load=args.load,seed=seed,
+        python=sys.version,torch=torch.__version__,device='cpu',
         parameters=dict(candidate_cap=12 if args.arm=='rule_cap12' else None,
                         shared_slots=args.shared_slots,existence_scan=args.existence_scan,teacher=False),
         wall_seconds=time.perf_counter()-start,result=r.as_dict(),probe=probe.result,

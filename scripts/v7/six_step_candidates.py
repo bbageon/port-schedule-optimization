@@ -44,6 +44,7 @@ def worker(args):
     data = dict(load=args.load, seed=args.seed, arm=args.arm, stage=args.stage, wall_seconds=wall,
                 model_sha256=model_hash, result=result.as_dict(), probe=probe.result,
                 memory_before=before, memory_after=memory(), threads=1,
+                python=sys.version, torch=torch.__version__, device='cpu',
                 parameters=dict(candidate_cap=None if args.arm == 'all' else 12,
                     reuse_rehandle_slots=args.arm == 'shared' or args.shared_slots,
                     decision_probe_shortcircuit=args.arm == 'existence' or args.existence_scan,
