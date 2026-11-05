@@ -1,0 +1,2195 @@
+{
+  "schema": "yard.v7.six-step.candidates.v1",
+  "commit": "5780bb15c0683909d676d4f405be34f564b99f34",
+  "stage": 2,
+  "sources": {
+    "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/six_step_candidates.py": "18f40cc7e4cad0dc51485e136e95dae24ebdba4efd441f3e5fdfd584e47e9bc5",
+    "docs/research/v7-discharge/six-step-prereg.md": "1632364b992f885d9afad6659a8c2be04e5b07b6c5fcc138b03c9b70449a1173",
+    "src/yard_rl/v7/candidate_probe.py": "48c174321d502703aaefea0df27ab8489dc278df99aac825cba62231058f9d40",
+    "src/yard_rl/v7/dispatch.py": "f4e33b675ab80b83fe1f3d1172ffbbcb7b20ade8341754adae223b3b97577e4d",
+    "src/yard_rl/v7/dispatch_cache.py": "4766296548843e9513dc246e779d9ae60994dd252c211ab6fae7b3d15d38ad2d",
+    "src/yard_rl/v7/evaluation_probe.py": "33ac85eacc8f02d8545585970cdb4b2863a34450debcf6398ebd8cb106b37737",
+    "src/yard_rl/v7/feature_probe.py": "47e34cebdc670db40f5bcd9138e641261baf4167f78137919eca51dbf929b669",
+    "src/yard_rl/v7/job_index.py": "01cc127fd45930b58dc5f3d9113f4a3b1639cd9968f694e8495d25379ffb455b",
+    "src/yard_rl/v7/__init__.py": "2b7df6903c0dc4d3d4ea1c28f3f8492b14b1a3584600938c0d008f8170532d9c",
+    "src/yard_rl/v7/__main__.py": "d22d91ff7b7ea0968d7bf04a000fe48609789a30fb67f06df854407703a33c5f",
+    "src/yard_rl/v7/actors/buyer.py": "49be9a1ce1a8da684a312bedce9dcd65ccf3dad9d686e928f148d33d93a08433",
+    "src/yard_rl/v7/actors/classical.py": "b45add02f877176b6dd1c7a7e61ec0e88e5b26e4b2e9ec5097e0cfa84fb0b86c",
+    "src/yard_rl/v7/actors/explore.py": "c4682eb59cfc273e83198e741566907a7661b6e2b0bf512178cde0e80925d6b9",
+    "src/yard_rl/v7/actors/market.py": "2ec0489d75f2193ac11f45897d44fd71b5b5ce27e6eed301189d70dd81676f3a",
+    "src/yard_rl/v7/actors/nets.py": "4f220e315e2b01fd0c118d014915290aa9c6f7cf247eaffadb20c9cb46549218",
+    "src/yard_rl/v7/actors/offer.py": "5a3ecbcc75947716734566cc162791c0e6cdd0dd9fb8bf733254d2525ee858ae",
+    "src/yard_rl/v7/actors/resolver.py": "d1ba1eaee5f60cae2f0eef7e76f44f79f9dc886eb755f81bcaf7637cf82cacff",
+    "src/yard_rl/v7/actors/seller.py": "8794fb06f6203b4e551aec22c20626d9676a076e58c9c39a0742f83662662ce4",
+    "src/yard_rl/v7/actors/__init__.py": "354975f9bd692cdc98341f683ef1cb1d15ad7d28ff66fbe765227e9518bcc366",
+    "src/yard_rl/v7/crane/collect.py": "4e36f19a05f37346b8cab08f9767ac5c1fb214b05494c022a40f7ee5fc9d33bd",
+    "src/yard_rl/v7/crane/features.py": "0f489d80bb565ce0cbf53919bd865d0a339d7082f256d4442650537a494c6104",
+    "src/yard_rl/v7/crane/fit.py": "2e24afbbd91a41d3d87155080b96c3e775913e2393c12b95987614c4c389f25a",
+    "src/yard_rl/v7/crane/judge.py": "d2bc1463fe66eaabb7278f721947eefb445e90579a5126c9490bfd761902b19e",
+    "src/yard_rl/v7/crane/policy.py": "9f9905e66ac6c3e356b9313c21cc62af3fdf0d261f7f6cda40b1dc6f8cd635d8",
+    "src/yard_rl/v7/crane/rollout.py": "7c6fc474600f1bcabc19cafece3160d2a146da215ce933e08c71ec3bf91c3c04",
+    "src/yard_rl/v7/crane/sampling.py": "02559bd6ff8511bc757be0db8d6b00719a0e60deeaa72a73d7887d6af4a6ecc9",
+    "src/yard_rl/v7/crane/teacher.py": "156e78c42ab5b3119d6451290100529fbc49f9abb233ad3b2bcbb2a183a6ff24",
+    "src/yard_rl/v7/crane/train.py": "99815ec34f40749137370ecfa90fbd945d701d26010006da9af3142cb880bffe",
+    "src/yard_rl/v7/crane/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/yard_rl/v7/crane/__main__.py": "92865e4a0119ed0d7a612471dc0e433ad844ab6da2ea02faf17ad93258fdece6",
+    "src/yard_rl/v7/eval/guards.py": "f5307b473e55b36f11e0a13f6a84ab0ddbcd6fe939fff0ef82fd296bb40c0466",
+    "src/yard_rl/v7/eval/month_judge.py": "f5e5f1553114885fb92064b55746d63d63025d1b74c022657f0109aa6a940d0b",
+    "src/yard_rl/v7/eval/paired.py": "69759d1055a0a6179068c0c13a597e66e54bfd1062ca9357af6d7e6fa99b10ac",
+    "src/yard_rl/v7/eval/run.py": "04f6eb45ee770d42f5b14ec0247658a056da729ff390923c33f82ac25b695ead",
+    "src/yard_rl/v7/eval/__init__.py": "df00f9fd633d0074ae759e2ead6f49d3083896937402a18d732fa28a3f72afc1",
+    "src/yard_rl/v7/eval/__main__.py": "ca42c07b34e11bb2666405ef2da9e0523ba6af5d1ee365210082ad98cfef2e45",
+    "src/yard_rl/v7/features/block.py": "d37206ed96c8b04c2ad5bac3df77964ba086ce4207fa6ca8175066a0b9ac3033",
+    "src/yard_rl/v7/features/candidate.py": "bbbb3e7ff52391cc1890de88ed29ffbd83f4f738c940359e44d648c3b11e7e0a",
+    "src/yard_rl/v7/features/__init__.py": "953cb79c8a59f049627b4793aca415c95ba36c09e8e260c3ed46b9ecaa68a9bc",
+    "src/yard_rl/v7/gpu/admission.py": "61959282a1a7c0cef94e36b9654216fbde97c845a841633cea6bcede3937ca56",
+    "src/yard_rl/v7/gpu/cands3.py": "a6b248f2eff59d9bb48234bcd58ed457c40fb271f74eedfcafcd61a13cb22bbd",
+    "src/yard_rl/v7/gpu/dispatch.py": "c43a26bb3e8e55b657f2eef06fe3b4c85b4b6d5462f8a5f850b3ab3132888767",
+    "src/yard_rl/v7/gpu/engine_step.py": "bbc283b99f5d6c0ebb1f42cc3f2290c5ed9c78808d2d6546b367fa468550e24e",
+    "src/yard_rl/v7/gpu/escape.py": "30c76f474153fce7237e9a0046fa542a0a6f81d6b66dfe61b183c3ac1ae675a8",
+    "src/yard_rl/v7/gpu/events.py": "f6a4c79b249c928fb6396e767900fc2eace2d7f26d576decb196b6e433ca61b8",
+    "src/yard_rl/v7/gpu/exact.py": "5f18ca4f0b5f6091eb83ec04fdfee68b38a8b70ee36e0b2ac0774bc6a8d33bae",
+    "src/yard_rl/v7/gpu/geom.py": "55cd5a9cf5f1e0e2c4c40a14e8582b075daac561d32f01f55132ab22f3a6d318",
+    "src/yard_rl/v7/gpu/host_convert.py": "586cb4ea1a182e693ae2ac89bb7a5f57197adfb3a9eb554f8ba1a62077753c7c",
+    "src/yard_rl/v7/gpu/host_terminal.py": "7b822c5688870eb97d159f71ae3b95c4b94ad555af160353de21cf087362cccf",
+    "src/yard_rl/v7/gpu/ledger.py": "7b8b732421987b6ae58f4355cbad8fa7af3a71ea7ddc4ee9efbbee5aae291aa2",
+    "src/yard_rl/v7/gpu/month.py": "5c0397203d2a81dbb71afe36022950ab4236ab7ccc5107223e862e5a711b1c1c",
+    "src/yard_rl/v7/gpu/multiblock.py": "25bcdca1ebbb5bd5f7c209986dbb0e38c0422c8cd7b4b2ee588d1960a02b97be",
+    "src/yard_rl/v7/gpu/phi.py": "134601c2a4ba7e17e70f1646ae4b250754f972068fe507c5d4173d3066a9184e",
+    "src/yard_rl/v7/gpu/plan.py": "aaec531d68875ae1480da4d4255af7adbb6ed57bb7783f2723cebe0f8dd982ec",
+    "src/yard_rl/v7/gpu/policy.py": "3dd7040be0f73aa9ec8bcc32d4b8df955df389d544977ae96ac0fc4b39b0f76e",
+    "src/yard_rl/v7/gpu/ppo_buffer.py": "25dd76824d1514a0f56341f3ddfffc0819b84909fd920bbb2203abd594d9e805",
+    "src/yard_rl/v7/gpu/ppo_runtime.py": "45cca3392d7dfd0a934ed0e5fb42f2d77877a15037a49ab88c12ea4328efb8a7",
+    "src/yard_rl/v7/gpu/ppo_update.py": "27987527396a56af1ba4e0d1d40b663fc2f64361a95e52ddf221ef84d75952c8",
+    "src/yard_rl/v7/gpu/reserve.py": "55c9d26aff5cddb749faf387301ca36503098a240d2532c549f62d5ec23f12e7",
+    "src/yard_rl/v7/gpu/stack_ops.py": "9ccb8105065bcaa097ea7622e415b464b8e39b63b3239dc5cf7c992acdbafffd",
+    "src/yard_rl/v7/gpu/state.py": "f495b75092dd084da6b58f4f4dc9c2cb3c9a18ec21f65580cdb64d91cc175dff",
+    "src/yard_rl/v7/gpu/train.py": "6e0ce62cbe490169937f664b9835fe08e9d4edd7978a6bcb9cd762b9cb5b7a6f",
+    "src/yard_rl/v7/gpu/transfer_txn.py": "f4d633116e50b7cf5ae7572e810f40d18d4e304b72ff67ea18c6108695c1e2e4",
+    "src/yard_rl/v7/gpu/travel.py": "fcbf0f20373a709524d6e0e3cd011e50b83efcda1345447a775327a90d0f63e3",
+    "src/yard_rl/v7/gpu/v5cond.py": "9bea9afa58105684cd09945e281e1c11a32995ded764610d00a2da434dcd7f7e",
+    "src/yard_rl/v7/gpu/v5feat.py": "615f85b9c7675d1b2f739acee84feb1bf965ded7c60f6509ef9d9b10278bc3f7",
+    "src/yard_rl/v7/gpu/v5net.py": "cb75744279174c191cdc900b03fb4971f91b0b7fdd1643a609e558c4f8405b86",
+    "src/yard_rl/v7/gpu/vessel.py": "290ab6ba8e56207663d1b8b7aa7b95648872379943cf026cef367b0597673f22",
+    "src/yard_rl/v7/gpu/wake.py": "d075cc6d30966ac74e1ef5a21752c985a0810a3bb5be97b2382570eb65e909e5",
+    "src/yard_rl/v7/gpu/__init__.py": "125d6dac7e5d62d5c7fe86eebfd6c8f45142e8087da1b08815fc7747967afc90",
+    "src/yard_rl/v7/ppo/buffer.py": "a41747511d545e24f297bfe7b5ade175085b2cf3dd65b60d499d0174a6400f52",
+    "src/yard_rl/v7/ppo/checkpoint.py": "2b8dff79b5ca9791cd008a79f01a22ce363b9ae34effab61904e7460939a5710",
+    "src/yard_rl/v7/ppo/continuous.py": "47fb7033f4526f45bba0c4ef1689891958780d780d55ead87174f07435f1f965",
+    "src/yard_rl/v7/ppo/crane.py": "c9f799ca7dc975c93a9426fe9a017f82ed865d5b75d685a9f9e9b71ac7ce3a3b",
+    "src/yard_rl/v7/ppo/journal.py": "d3c036866ce4eec7e271a221cf53c8070e20d8c139de4fbff9b7a5faa7b91658",
+    "src/yard_rl/v7/ppo/model.py": "2722dddfaa9b6f5ad3dda6436744722003162856b94c07129ee277f9f54e7a03",
+    "src/yard_rl/v7/ppo/original_comparison.py": "ce7b620ad7e877d46e6f46c20477d500469554b2fb1db4d5c7bdc0b4e64b9f3c",
+    "src/yard_rl/v7/ppo/provenance.py": "e11b6f27f275c04cc65021362f3a69cb5a91866981b0071a1476b5ea4a0eb3f1",
+    "src/yard_rl/v7/ppo/run.py": "5ae6ff0982c7d15cb648f4a9ded786e56fa358c024921146ffe49fcfb73cad76",
+    "src/yard_rl/v7/ppo/runtime.py": "856383ff1b57b4b02ea03c3e532660befa3a60934faa0dc2f9273addcb4b3b2b",
+    "src/yard_rl/v7/ppo/update.py": "adeb30b7cd2aafdfa62f7838ebd0a25775d930a6388df80130220060e3e0c591",
+    "src/yard_rl/v7/ppo/workload_experiment.py": "44440ca4b6a7d04beb50e983408d782615e89bea57df390890bf543be7ea037b",
+    "src/yard_rl/v7/ppo/workload_observer.py": "8858d438d2388815aa7d27d2273f19132c5c9794d76d3b0614020a7ea5cc9311",
+    "src/yard_rl/v7/ppo/__init__.py": "60733fe5f23e06d7ca41a299df2650ead61348eb2fb08b69eca4096e2620dc06",
+    "src/yard_rl/v7/ppo/__main__.py": "e6a5b8a9b0f5bc30f863a0f88db0d1acf6a56ac41415d9dfd346748a63a015be",
+    "src/yard_rl/v7/reward/counterfactual.py": "ad17c9a679b71fc28bf444ea5224ced0047ff442d97bdb2ae72c1ceaaa227fe7",
+    "src/yard_rl/v7/reward/krw.py": "bc3902dc5042a675aa8862ad1863d7d02e081f920cb48d58f2e4d7e590810a84",
+    "src/yard_rl/v7/reward/operational.py": "ca1e779914bbdf2bd913da1f78cff35bd878a968c5685ea05e997db67d864b1f",
+    "src/yard_rl/v7/reward/phi.py": "1dde767db6889fa98eba325fac01a708ee7bc2d5078d96ebfcae8d0c048c1fbe",
+    "src/yard_rl/v7/reward/scaling.py": "6516fc783431fa6307663450d9df79a74a18b9d6682699c9c215f79d2383ec28",
+    "src/yard_rl/v7/reward/workload.py": "6b33c5a2be7d863f5001e37418a765cdec5c7ecb8e68a2136955d6bd1781c456",
+    "src/yard_rl/v7/reward/__init__.py": "2c81e340ccb5c106778cb7e71a1821d2267ec7e28abe7405ce27901c6a2d6a0c",
+    "src/yard_rl/v7/schema/lifecycle.py": "ca01c1d72b353c79c85ff97c4012d3a1554bbf5f7da9e70e45b563a174e6029c",
+    "src/yard_rl/v7/schema/order.py": "cf3b9beddb6509d2f5b98b216b6cbbdb28082cbdb817ff61f199263a752c0c73",
+    "src/yard_rl/v7/schema/record.py": "de89e7879162ca082b1836427e0ecb98311629669bfb3f1cae1cd3b74a09d25a",
+    "src/yard_rl/v7/schema/__init__.py": "9b1ad22196d9b735c6b4e7cfc21b47c9f8f236b8c1047cca14bdebc1681a5ee4",
+    "src/yard_rl/v7/stage/admission.py": "ea8955fce57704c43c91c4351adcc18c06ce3f930cb83fefb21a3adcc35c877b",
+    "src/yard_rl/v7/stage/branchpool.py": "a1437d25b7bf2d8a647dc01d64af1e67ad683d854fccff76a92b9049a7860e03",
+    "src/yard_rl/v7/stage/bridge.py": "62cca64e617f0b6488eecca2660141cca834b891b7ad89e44ffd5c81f91a9792",
+    "src/yard_rl/v7/stage/cargo_input.py": "b43800715990c3d6e4681d9d11d67576928f60326b5650a000fab2a1e4e8439d",
+    "src/yard_rl/v7/stage/cargo_moves.py": "0d6946cd718b39ac86c6bb5e61e98016eaef60f21c55c1fe6fbf6462051eaf30",
+    "src/yard_rl/v7/stage/cargo_runtime.py": "3d0342420a85d864f7f0847c9b7cd0ee18db4557343461ebbdfb22eaca88b880",
+    "src/yard_rl/v7/stage/container_contract.py": "8ca991b64351328b4035d65f2398798db5dae2c2b2b91514487c181dc3ab8d23",
+    "src/yard_rl/v7/stage/dgt_lead.py": "29903762c63c04377053622921915912dc5cc3043b3c3d7e642e9a6798a9f16e",
+    "src/yard_rl/v7/stage/episode.py": "f0f018694d7794955b95c17be2d1ff1728ae12ed9bb097f1a74df6e1a355e63d",
+    "src/yard_rl/v7/stage/exec_config.py": "cf4bc408ef10a352cf2bf513cdbe09f70e558ee8c48ba51e224d03feefa2251b",
+    "src/yard_rl/v7/stage/fixed_seed.py": "73aa1f9db0b6d026340d789a3cd501f2d9eff87f9ffc6854f5516241c23168b5",
+    "src/yard_rl/v7/stage/month.py": "e51c4a96d152e3b1874f24cba3f865077525c03ded5a40e397dfd523d30f2897",
+    "src/yard_rl/v7/stage/month_engine.py": "877dacafbcfe4b74e79862b8f64b62344dca3daf6133789706f118d7ccc40e50",
+    "src/yard_rl/v7/stage/month_run.py": "267fb5d8fa9efc57d6f0968cb6a02cbc32b8595b11c73f3ebfb718766fbec5ab",
+    "src/yard_rl/v7/stage/orders.py": "ee5f766f73ea83dbfd0a2d99838e5770dda2ded8f5f3329128ed7577e51d65e8",
+    "src/yard_rl/v7/stage/rollout.py": "ba0b863cfae874d9e08ca8d1b8f8ebab553562d7d263289bb2d618cb62362103",
+    "src/yard_rl/v7/stage/seed_bundle.py": "47f55a19ecd92cf02c6fe7a46b52288dc4f3871bd248cd5fcbd699365448a449",
+    "src/yard_rl/v7/stage/seed_inventory.py": "4c92d6e37545db879772e8fcd48f42c45c9534c872d2252b5bdfea8203e1be6a",
+    "src/yard_rl/v7/stage/vessels.py": "3d22f71d8ddfdf0d0773f3eba14d3c9100c4a61a52f756b62c20912e72050f89",
+    "src/yard_rl/v7/stage/__init__.py": "6513ae3e85d08efe96a2212d60669954b56b1bd169c787f5c9cedf2c03283e80",
+    "src/yard_rl/v7/train/fit.py": "0e09d1ee3ff77534aa8b87d491972ea2e8e8f74222cb4b4b4302283ebf8effa2",
+    "src/yard_rl/v7/train/labels.py": "f79b7d82ef69c0d3eb78fd90b08c8ce4ecd6d1e07c2e3f48b2c4bf44fd5bd5bb",
+    "src/yard_rl/v7/train/loop.py": "2369ebdc5d09f378332f0e8171bc1adca5f7532e2fe1912c30f5aa36ef3d4021",
+    "src/yard_rl/v7/train/month_loop.py": "9b5c6b91ac2530fc2025fdd048167d8dd13733381dcad419cfe91e214b7ca2bc",
+    "src/yard_rl/v7/train/__init__.py": "ece0ae375981993106f995f71702391900a8b1e90f5ece292bf0a5d65930cb31",
+    "src/yard_rl/v7/train/__main__.py": "8b8d80b6ffadae3d9da0586e6dcee35065f4eff46b7d66f5bf471e72abdd6137",
+    "src/yard_rl/v7/world/__init__.py": "9176b66e1f301cb59c2a00e06ba5c9d1e452eaf6b90ee61031e11c1a8a8e154b",
+    "src/yard_rl/v7/world/contract/candidate.py": "181e5704d20ad86aa712399943bbbe46e33df18b946fe42c0855b3fce2a1d7c4",
+    "src/yard_rl/v7/world/contract/cost.py": "c9fde1916f850d260bd042f827d14f5bc53d8ed4e1852be4c26a367493cf9657",
+    "src/yard_rl/v7/world/contract/fixtures.py": "365dd62062e0aca0a771552602ac1188741054b2a7ab58a8ddfeeaf858f20383",
+    "src/yard_rl/v7/world/contract/leakage.py": "2e5d3ee288f321f4fa5e58a5de41e3c6ccdfbb6a9c12b56fc9665696d1c35d06",
+    "src/yard_rl/v7/world/contract/schema.py": "11d4c7321dfcb7e2f36c9b95e1a2f034e80ac443c8d203c449f934e66bcfc040",
+    "src/yard_rl/v7/world/contract/serialize.py": "f23300125b9329a5d46e80dc83eca88d69a4b38cdbf0863a23bee08d6a0ada57",
+    "src/yard_rl/v7/world/contract/state.py": "76d73f3bfb1d0b0b726752bcfe862780355bbb11b57c7af9e590cb8d047404cc",
+    "src/yard_rl/v7/world/contract/transition.py": "29335e817e37022ad6e02797c3f79bbdd8796a828311ec26a784c55362bb5c79",
+    "src/yard_rl/v7/world/contract/validate.py": "9314e47e5fe4a8b10da9eecc8738571a695cfdc0f86824b31b0cea1384a6f2d1",
+    "src/yard_rl/v7/world/contract/vectors.py": "6be9e7c170a5fb4df496de663cb21fc3943146d48eeac5bf3d829d0f419dbd53",
+    "src/yard_rl/v7/world/contract/vessel.py": "a5ee1690510380aab50ea1b63188001013c7ddc9e8fe1cb2be4c2453e3989c29",
+    "src/yard_rl/v7/world/contract/__init__.py": "67b8b7eeb85706f06b16bc9b5f508aad771826560761d8fab75963c1e481fdab",
+    "src/yard_rl/v7/world/domain/enums.py": "593e2d89636895487bc30af7f530cc511fab6c931c01ac226cb5735bbb6ce1f3",
+    "src/yard_rl/v7/world/domain/models.py": "9771a56a08651d6d84375d08645555ee3a09bab60bd9bf89f90488360baaffa5",
+    "src/yard_rl/v7/world/domain/validators.py": "4f1f60ce31c19b3a69bbcbd5690bc1b493865835fd4ac13f787a5b0720fa2876",
+    "src/yard_rl/v7/world/domain/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/yard_rl/v7/world/integrated/adapter.py": "b0c275225099748887f892fc30d78dccd540bb9f9de9bf072eafc23dd6f4b98c",
+    "src/yard_rl/v7/world/integrated/audit.py": "d4935ae2838db7e908cf78ce182753f94b5a8c0dc97350b498d20a198d8d16b2",
+    "src/yard_rl/v7/world/integrated/baselines.py": "3489c433249f4f07e5c1e9eaea85286e6380b5b9906de83505d6efb9640375ea",
+    "src/yard_rl/v7/world/integrated/block_congestion.py": "9896f9e353d952b72faefb05db53c1efdcf46ac88f9171d245a8a0624bff3376",
+    "src/yard_rl/v7/world/integrated/candidates.py": "7b5eaba8b9bf3db309ba7fca3e3fc46e329145692651fcb0110a882c797d2839",
+    "src/yard_rl/v7/world/integrated/cost.py": "45e85170cc8b3e183966014f57fd68f2d9c882bfb1bcd062036e9e8b9f163762",
+    "src/yard_rl/v7/world/integrated/cost_config.py": "2853e7bb0e35d422b208b1244faa587979bf63e522885f84f4217e7d7565b2f9",
+    "src/yard_rl/v7/world/integrated/cost_curve.py": "d5c6e7588e6feb095913d06186973c55a33f6fddfe03117651f882ac3f27aa80",
+    "src/yard_rl/v7/world/integrated/cost_curve_v2.py": "99366a2ee4bd6cc55871abb77a979dd68711f3dfcf1817bad8cc8141bb598fcf",
+    "src/yard_rl/v7/world/integrated/cranes.py": "410003259debdfdc475432e94eb5c59fa41aa0c1a94256afac2fec85edae93da",
+    "src/yard_rl/v7/world/integrated/day_plan.py": "32e285d3aa5a22dd0e106f90b7d4d1ca3fdcd6aa492fe564bb007ae80a6dbfbe",
+    "src/yard_rl/v7/world/integrated/dispatcher.py": "75d1576095761a591579c48142416db5bd7e917e6b695af501d3a26e7a5ab344",
+    "src/yard_rl/v7/world/integrated/engine.py": "e606710f37b49ed1b1cc69bd11a241808183b6f02e2e4447774d6257baa4eca4",
+    "src/yard_rl/v7/world/integrated/events.py": "f3cc678e67a91eecb82ef3d89f97d390103a8a3d686650470dfcc86462f9d66a",
+    "src/yard_rl/v7/world/integrated/fixtures.py": "cb2cc6dafc9bd892a0852ee2da060c24171beb6cfbd0d1cfd74a79112f3fa835",
+    "src/yard_rl/v7/world/integrated/jobplan.py": "58a9093c7cb76b429ef80caff030c679aa13b885da1d824a80b99bdc63b49633",
+    "src/yard_rl/v7/world/integrated/lane.py": "21df88b7e07fec882bf89da875ebb91537d6430d336be82f30ea2add428ecf9d",
+    "src/yard_rl/v7/world/integrated/ledger.py": "9e2b17fc0695719998e8dd2c92ca32f1eeb53148a9a662bcf26bbd1e7e7332e5",
+    "src/yard_rl/v7/world/integrated/multiblock.py": "21589a4a850336632a85a27c1055382827db65767b3af107a9663f12a4d646e9",
+    "src/yard_rl/v7/world/integrated/order_schema.py": "74d6c68fe43ecdb36e1745967d1b209d723049f6d45d0bb9fec4f3e293f6d97d",
+    "src/yard_rl/v7/world/integrated/policy_config.py": "0cdc3419b5b60c37745414e6a89d8b1e6717af3e1d9f0a4725b5deb3cac8a24a",
+    "src/yard_rl/v7/world/integrated/profile.py": "df4b28f200b550f844b1478c540f59b186cb61c29d4420f6d3bfd319bd61ec40",
+    "src/yard_rl/v7/world/integrated/profiles.py": "0f230c8573cae8d10903e3fc8ed2f0de8fa0a303db5d28f431854e6dbad7eae8",
+    "src/yard_rl/v7/world/integrated/reservation.py": "bcd8e250fcd94d8ea68f8c57afd9e2f51b72a2559b287b8aace4b3730f2bb49c",
+    "src/yard_rl/v7/world/integrated/resolver.py": "13d1331a3b1e1fc63d1625590a39d17d94845d370111629e5b61196865d128b3",
+    "src/yard_rl/v7/world/integrated/scenario.py": "a1c12cb1adba803aac2ad473642753215d80b3f7f07e9e0bf568f00a62937fb8",
+    "src/yard_rl/v7/world/integrated/scenario_gen.py": "a157f46f718caa9f5b357d7f2f03585bf5fe0a4c4b56464ffdad3dcac355d3e6",
+    "src/yard_rl/v7/world/integrated/slot_plan.py": "ae2620da4ff7f1c2dff4a7ca075341ce2a04a55a0db725e6e077e8ad72382400",
+    "src/yard_rl/v7/world/integrated/terminal_stream.py": "0d4538aa0856434104d177a5c2d627656eaf97741d00c269658bfbe12a5f037b",
+    "src/yard_rl/v7/world/integrated/time_contract.py": "0c77107f08df4a947c9728037ec8871a89a53cee6548c5ac94d1102ff33cad02",
+    "src/yard_rl/v7/world/integrated/time_grid.py": "95bb730fcf2155e077a7bb7fca1fc8a9f82742be4f4b1c254c82afbd4e535503",
+    "src/yard_rl/v7/world/integrated/time_sell.py": "007607067dccaab1b7eecce941eadcaad26f8c998a2e32f8c14e1319ed78d4d3",
+    "src/yard_rl/v7/world/integrated/transfer.py": "067028e28d3b695248d3fa8bcfdc15a40c4b8b3111f4a0a107d64479db1e6f93",
+    "src/yard_rl/v7/world/integrated/vessel.py": "eaf8b2309c2d564a702fac24cdbb4764e16cc4d519f6a970653dd27722e70b2e",
+    "src/yard_rl/v7/world/integrated/vessel_cost.py": "a7e1e77f2d9d667d748ae90fbe436f740e3730b61633797abb6ba3ef58826da4",
+    "src/yard_rl/v7/world/integrated/vessel_signals.py": "43f243d80ef6625544e42334822194d79ea90711f407eb0ea0fd59fddb8614c5",
+    "src/yard_rl/v7/world/integrated/yard_layout.py": "ee423aadc7b68449fb89409dbcfebf38e153044df94d78cc2e4753d4c1b6ad4a",
+    "src/yard_rl/v7/world/integrated/__init__.py": "83cb132a58d8bbef6036c74d0fca740b529d8dec401b7c5878ee63f0c57fcc3a",
+    "src/yard_rl/v7/world/io/profile_loader.py": "c89dd4b082cea5b101d4f3fb279358b40e34e26a3b272384703afdc77a34a34d",
+    "src/yard_rl/v7/world/io/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/yard_rl/v7/world/sim/constraints.py": "122587955fcd486d20ff4c60451391572036c6c2f206417de549a6e95a11bde0",
+    "src/yard_rl/v7/world/sim/kpis.py": "8df58f01d9fd4a08d44f1ceac3c37c246e34ac735e64359ef689e4e2eafdfdbf",
+    "src/yard_rl/v7/world/sim/stack.py": "26cd9efcebc0ea4347f049467e0b1709aab60021c16a886ee8cebe170b17fc58",
+    "src/yard_rl/v7/world/sim/travel_time.py": "d0f2fcda862687d5be0492a4703d7b85a9a2724cc1d4781b95eae5599fb58a76",
+    "src/yard_rl/v7/world/sim/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "rows": [
+    {
+      "load": 3500,
+      "seed": 9913420,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913420-0-cap12.json.gz",
+          "sha256": "5b648eea29b99dea71e0507e3a049ec843b84e34a3779585c667e0a4747103ce",
+          "wall_seconds": 36.8420751998201,
+          "run_seconds": 36.007162699941546,
+          "generation": {
+            "count": 6669,
+            "median_ms": 0.931,
+            "p95_ms": 6.8364,
+            "max_ms": 32.6819,
+            "total_s": 16.2952432
+          },
+          "selection": {
+            "count": 6669,
+            "median_ms": 0.1471,
+            "p95_ms": 0.3068,
+            "max_ms": 6.8358,
+            "total_s": 1.0929954
+          },
+          "decision": {
+            "count": 6669,
+            "median_ms": 1.1278,
+            "p95_ms": 7.0035,
+            "max_ms": 33.0539,
+            "total_s": 17.3882386
+          },
+          "memory": {
+            "rss_bytes": 265830400,
+            "peak_rss_bytes": 282243072,
+            "private_bytes": 1077682176,
+            "peak_commit_bytes": 1107783680
+          },
+          "cache": {
+            "plan_hits": 26540,
+            "plan_misses": 203682,
+            "slot_hits": 20132,
+            "slot_misses": 8941,
+            "invalidations": 8354,
+            "fingerprints": 8717
+          },
+          "recall": {
+            "crane_decisions": 8717,
+            "eligible": 77086,
+            "retained": 20704,
+            "mandatory": 2196,
+            "max_eligible": 118,
+            "with_action": 8716,
+            "top_retained": 7460,
+            "joint_checks": 2047,
+            "independent_top_joint_conflicts": 1920,
+            "recall": 0.2685831409075578,
+            "top_retention": 0.8558972005507114,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4765,
+              "PRE_REHANDLE/retained": 4184,
+              "REPOSITION/eligible": 9,
+              "REPOSITION/retained": 9,
+              "SERVE/eligible": 72312,
+              "SERVE/retained": 16511
+            },
+            "audit_seconds": 1.5620620977133512,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 105571236.46700549,
+            "admitted": 3410,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 46238455.821716554,
+            "c_move": 430936.4583333333,
+            "c_rehandle": 9182000.0,
+            "c_vessel": 49719844.18695561,
+            "n_trucks": 3410,
+            "n_censored": 15,
+            "mean_turn_time_s": 1203.3730864882136,
+            "over_ratio": 0.01407624633431085,
+            "p50_turn_time_s": 929.5551149443636,
+            "p90_turn_time_s": 2315.6655328182533,
+            "p99_turn_time_s": 3963.0700984606156,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913420-0-all.json.gz",
+          "sha256": "7b2ec3ef039fb1da4fb692744554485d571b71c2346516927526ce8377a94217",
+          "wall_seconds": 36.32899850001559,
+          "run_seconds": 35.48738559987396,
+          "generation": {
+            "count": 6244,
+            "median_ms": 0.86105,
+            "p95_ms": 6.9861,
+            "max_ms": 42.3599,
+            "total_s": 14.0437184
+          },
+          "selection": {
+            "count": 6244,
+            "median_ms": 0.16195,
+            "p95_ms": 0.3542,
+            "max_ms": 3.563,
+            "total_s": 1.1886396
+          },
+          "decision": {
+            "count": 6244,
+            "median_ms": 1.0553,
+            "p95_ms": 7.2698,
+            "max_ms": 43.692,
+            "total_s": 15.232358
+          },
+          "memory": {
+            "rss_bytes": 264400896,
+            "peak_rss_bytes": 279994368,
+            "private_bytes": 1078165504,
+            "peak_commit_bytes": 1107812352
+          },
+          "cache": {
+            "plan_hits": 2,
+            "plan_misses": 210860,
+            "slot_hits": 22574,
+            "slot_misses": 10426,
+            "invalidations": 8107,
+            "fingerprints": 8150
+          },
+          "recall": {
+            "crane_decisions": 8150,
+            "eligible": 66137,
+            "retained": 66137,
+            "mandatory": 6473,
+            "max_eligible": 150,
+            "with_action": 8149,
+            "top_retained": 8149,
+            "joint_checks": 1905,
+            "independent_top_joint_conflicts": 1842,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4559,
+              "PRE_REHANDLE/retained": 4559,
+              "REPOSITION/eligible": 9,
+              "REPOSITION/retained": 9,
+              "SERVE/eligible": 61569,
+              "SERVE/retained": 61569
+            },
+            "audit_seconds": 1.547706517856568,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 122817160.18997756,
+            "admitted": 3410,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 61189375.017418906,
+            "c_move": 378178.125,
+            "c_rehandle": 9776000.0,
+            "c_vessel": 51473607.04755865,
+            "n_trucks": 3410,
+            "n_censored": 20,
+            "mean_turn_time_s": 1456.553620141479,
+            "over_ratio": 0.03519061583577713,
+            "p50_turn_time_s": 952.033751757328,
+            "p90_turn_time_s": 2506.2332965865753,
+            "p99_turn_time_s": 10012.372036128705,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 3500,
+      "seed": 9913430,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913430-0-cap12.json.gz",
+          "sha256": "41c0f148f4c3c0f8a0c74a5800928486c49fdc4f6aa73ff8f42af79cbae3d262",
+          "wall_seconds": 37.71069750003517,
+          "run_seconds": 36.86002040002495,
+          "generation": {
+            "count": 6625,
+            "median_ms": 0.9275,
+            "p95_ms": 7.6123,
+            "max_ms": 32.3977,
+            "total_s": 17.9582186
+          },
+          "selection": {
+            "count": 6625,
+            "median_ms": 0.1422,
+            "p95_ms": 0.3234,
+            "max_ms": 0.9501,
+            "total_s": 1.0592002
+          },
+          "decision": {
+            "count": 6625,
+            "median_ms": 1.1182,
+            "p95_ms": 7.7609,
+            "max_ms": 32.6672,
+            "total_s": 19.0174188
+          },
+          "memory": {
+            "rss_bytes": 263229440,
+            "peak_rss_bytes": 282259456,
+            "private_bytes": 1076527104,
+            "peak_commit_bytes": 1107103744
+          },
+          "cache": {
+            "plan_hits": 40104,
+            "plan_misses": 223962,
+            "slot_hits": 20652,
+            "slot_misses": 9191,
+            "invalidations": 8109,
+            "fingerprints": 8620
+          },
+          "recall": {
+            "crane_decisions": 8620,
+            "eligible": 87064,
+            "retained": 20705,
+            "mandatory": 2103,
+            "max_eligible": 135,
+            "with_action": 8620,
+            "top_retained": 6220,
+            "joint_checks": 1995,
+            "independent_top_joint_conflicts": 1819,
+            "recall": 0.23781356243682808,
+            "top_retention": 0.7215777262180975,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4998,
+              "PRE_REHANDLE/retained": 4270,
+              "REPOSITION/eligible": 12,
+              "REPOSITION/retained": 12,
+              "SERVE/eligible": 82054,
+              "SERVE/retained": 16423
+            },
+            "audit_seconds": 1.5715543148107827,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 103353359.55087505,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 47247765.87744774,
+            "c_move": 407211.4583333333,
+            "c_rehandle": 8938000.0,
+            "c_vessel": 46760382.21509398,
+            "n_trucks": 3500,
+            "n_censored": 22,
+            "mean_turn_time_s": 1202.0038791900038,
+            "over_ratio": 0.011142857142857144,
+            "p50_turn_time_s": 931.353069545803,
+            "p90_turn_time_s": 2330.3199626199275,
+            "p99_turn_time_s": 3753.4908351802223,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913430-0-all.json.gz",
+          "sha256": "348dc40ceb67b899bf0540bff91759ae293e1c2945f818c8a61eff5ba6d3c58b",
+          "wall_seconds": 35.71528679970652,
+          "run_seconds": 34.83967030001804,
+          "generation": {
+            "count": 5511,
+            "median_ms": 0.8025,
+            "p95_ms": 9.8202,
+            "max_ms": 108.8651,
+            "total_s": 13.929382
+          },
+          "selection": {
+            "count": 5511,
+            "median_ms": 0.1555,
+            "p95_ms": 0.4772,
+            "max_ms": 15.9624,
+            "total_s": 1.16928
+          },
+          "decision": {
+            "count": 5511,
+            "median_ms": 0.9705,
+            "p95_ms": 10.2415,
+            "max_ms": 109.4818,
+            "total_s": 15.098662
+          },
+          "memory": {
+            "rss_bytes": 266973184,
+            "peak_rss_bytes": 284844032,
+            "private_bytes": 1079992320,
+            "peak_commit_bytes": 1109053440
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 237504,
+            "slot_hits": 21454,
+            "slot_misses": 9632,
+            "invalidations": 7260,
+            "fingerprints": 7302
+          },
+          "recall": {
+            "crane_decisions": 7302,
+            "eligible": 68164,
+            "retained": 68164,
+            "mandatory": 8644,
+            "max_eligible": 218,
+            "with_action": 7302,
+            "top_retained": 7302,
+            "joint_checks": 1791,
+            "independent_top_joint_conflicts": 1716,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4459,
+              "PRE_REHANDLE/retained": 4459,
+              "REPOSITION/eligible": 12,
+              "REPOSITION/retained": 12,
+              "SERVE/eligible": 63693,
+              "SERVE/retained": 63693
+            },
+            "audit_seconds": 1.6818078132346272,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 146920639.95206678,
+            "admitted": 3500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 73987902.03113917,
+            "c_move": 382267.7083333333,
+            "c_rehandle": 11034000.0,
+            "c_vessel": 61516470.21259429,
+            "n_trucks": 3500,
+            "n_censored": 32,
+            "mean_turn_time_s": 1604.3451802900083,
+            "over_ratio": 0.041428571428571426,
+            "p50_turn_time_s": 952.6445381233061,
+            "p90_turn_time_s": 2647.2799973736765,
+            "p99_turn_time_s": 12778.675510838482,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 3500,
+      "seed": 9913440,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913440-0-cap12.json.gz",
+          "sha256": "babec1d3d869159c826e081aed4092feffc0bc5bf23247cc2ba76e7123c32739",
+          "wall_seconds": 34.45752879977226,
+          "run_seconds": 33.62151290010661,
+          "generation": {
+            "count": 6599,
+            "median_ms": 0.9815,
+            "p95_ms": 6.0867,
+            "max_ms": 27.1894,
+            "total_s": 14.5798841
+          },
+          "selection": {
+            "count": 6599,
+            "median_ms": 0.1443,
+            "p95_ms": 0.323,
+            "max_ms": 1.3327,
+            "total_s": 1.0885763
+          },
+          "decision": {
+            "count": 6599,
+            "median_ms": 1.1739,
+            "p95_ms": 6.2466,
+            "max_ms": 27.434,
+            "total_s": 15.6684604
+          },
+          "memory": {
+            "rss_bytes": 263467008,
+            "peak_rss_bytes": 281841664,
+            "private_bytes": 1076031488,
+            "peak_commit_bytes": 1111150592
+          },
+          "cache": {
+            "plan_hits": 26119,
+            "plan_misses": 180292,
+            "slot_hits": 18758,
+            "slot_misses": 7637,
+            "invalidations": 8229,
+            "fingerprints": 8613
+          },
+          "recall": {
+            "crane_decisions": 8613,
+            "eligible": 68083,
+            "retained": 20541,
+            "mandatory": 553,
+            "max_eligible": 107,
+            "with_action": 8613,
+            "top_retained": 7664,
+            "joint_checks": 2014,
+            "independent_top_joint_conflicts": 1851,
+            "recall": 0.30170527150683724,
+            "top_retention": 0.8898177174039243,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4949,
+              "PRE_REHANDLE/retained": 4301,
+              "REPOSITION/eligible": 10,
+              "REPOSITION/retained": 10,
+              "SERVE/eligible": 63124,
+              "SERVE/retained": 16230
+            },
+            "audit_seconds": 1.5468916934914887,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 108496344.53028503,
+            "admitted": 3469,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 40726341.39563172,
+            "c_move": 493417.7083333333,
+            "c_rehandle": 9876000.0,
+            "c_vessel": 57400585.42631998,
+            "n_trucks": 3469,
+            "n_censored": 16,
+            "mean_turn_time_s": 1055.538406717823,
+            "over_ratio": 0.0011530700490054772,
+            "p50_turn_time_s": 916.1337239081186,
+            "p90_turn_time_s": 1519.1416255142904,
+            "p99_turn_time_s": 2968.465544170649,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/3500-9913440-0-all.json.gz",
+          "sha256": "2ee4fa2bccb9595a48f118e519dd60b27d271f5d1f8dba20966641841e90fa44",
+          "wall_seconds": 34.0331325000152,
+          "run_seconds": 33.18057079985738,
+          "generation": {
+            "count": 6137,
+            "median_ms": 0.9093,
+            "p95_ms": 6.6045,
+            "max_ms": 26.5155,
+            "total_s": 12.6299814
+          },
+          "selection": {
+            "count": 6137,
+            "median_ms": 0.1616,
+            "p95_ms": 0.4159,
+            "max_ms": 1.3448,
+            "total_s": 1.2141081
+          },
+          "decision": {
+            "count": 6137,
+            "median_ms": 1.1067,
+            "p95_ms": 6.917,
+            "max_ms": 27.1658,
+            "total_s": 13.8440895
+          },
+          "memory": {
+            "rss_bytes": 262021120,
+            "peak_rss_bytes": 279773184,
+            "private_bytes": 1071013888,
+            "peak_commit_bytes": 1098428416
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 189534,
+            "slot_hits": 18500,
+            "slot_misses": 7615,
+            "invalidations": 7973,
+            "fingerprints": 8015
+          },
+          "recall": {
+            "crane_decisions": 8015,
+            "eligible": 57918,
+            "retained": 57918,
+            "mandatory": 3805,
+            "max_eligible": 120,
+            "with_action": 8015,
+            "top_retained": 8015,
+            "joint_checks": 1878,
+            "independent_top_joint_conflicts": 1764,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 4728,
+              "PRE_REHANDLE/retained": 4728,
+              "REPOSITION/eligible": 10,
+              "REPOSITION/retained": 10,
+              "SERVE/eligible": 53180,
+              "SERVE/retained": 53180
+            },
+            "audit_seconds": 1.5261350176297128,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 119810724.77573442,
+            "admitted": 3469,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 50406548.45161768,
+            "c_move": 441878.125,
+            "c_rehandle": 10410000.0,
+            "c_vessel": 58552298.19911674,
+            "n_trucks": 3469,
+            "n_censored": 22,
+            "mean_turn_time_s": 1203.052075248131,
+            "over_ratio": 0.01989045834534448,
+            "p50_turn_time_s": 918.0147899690273,
+            "p90_turn_time_s": 1628.0929327842314,
+            "p99_turn_time_s": 6117.651529703333,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 7500,
+      "seed": 9913420,
+      "repeat": 0,
+      "order": [
+        "all",
+        "cap12"
+      ],
+      "arms": {
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913420-0-all.json.gz",
+          "sha256": "af2c06f2997282b366d6424c12e8c7f3a0f0f116997ea2a1815722207da16ab2",
+          "wall_seconds": 74.0252955998294,
+          "run_seconds": 73.07627930026501,
+          "generation": {
+            "count": 9063,
+            "median_ms": 1.3879,
+            "p95_ms": 15.119,
+            "max_ms": 180.8626,
+            "total_s": 34.3813185
+          },
+          "selection": {
+            "count": 9063,
+            "median_ms": 0.1706,
+            "p95_ms": 0.538,
+            "max_ms": 2.0619,
+            "total_s": 2.0762015
+          },
+          "decision": {
+            "count": 9063,
+            "median_ms": 1.5694,
+            "p95_ms": 15.5922,
+            "max_ms": 182.9022,
+            "total_s": 36.45752
+          },
+          "memory": {
+            "rss_bytes": 277053440,
+            "peak_rss_bytes": 313884672,
+            "private_bytes": 1084477440,
+            "peak_commit_bytes": 1119571968
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 520595,
+            "slot_hits": 54601,
+            "slot_misses": 20195,
+            "invalidations": 10485,
+            "fingerprints": 10527
+          },
+          "recall": {
+            "crane_decisions": 10527,
+            "eligible": 140861,
+            "retained": 140861,
+            "mandatory": 86506,
+            "max_eligible": 239,
+            "with_action": 10527,
+            "top_retained": 10527,
+            "joint_checks": 1464,
+            "independent_top_joint_conflicts": 1317,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 10290,
+              "PRE_REHANDLE/retained": 10290,
+              "REPOSITION/eligible": 4,
+              "REPOSITION/retained": 4,
+              "SERVE/eligible": 130567,
+              "SERVE/retained": 130567
+            },
+            "audit_seconds": 2.9784515029750764,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 454844098.22460455,
+            "admitted": 7412,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 352970835.6634791,
+            "c_move": 635889.5833333334,
+            "c_rehandle": 16414000.0,
+            "c_vessel": 84823372.97779214,
+            "n_trucks": 7412,
+            "n_censored": 124,
+            "mean_turn_time_s": 3121.609670283379,
+            "over_ratio": 0.1400431732325958,
+            "p50_turn_time_s": 2137.0880088180274,
+            "p90_turn_time_s": 4806.781221182828,
+            "p99_turn_time_s": 32013.090798396872,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913420-0-cap12.json.gz",
+          "sha256": "16e582ab92956f37e5d9ca3beb3c4cec67903e03a0a02dd2557557dc5a096f5c",
+          "wall_seconds": 74.90476759988815,
+          "run_seconds": 73.93783120019361,
+          "generation": {
+            "count": 9761,
+            "median_ms": 1.3847,
+            "p95_ms": 15.4448,
+            "max_ms": 153.8449,
+            "total_s": 41.0001952
+          },
+          "selection": {
+            "count": 9761,
+            "median_ms": 0.15,
+            "p95_ms": 0.3128,
+            "max_ms": 7.0555,
+            "total_s": 1.6671912
+          },
+          "decision": {
+            "count": 9761,
+            "median_ms": 1.5589,
+            "p95_ms": 15.6216,
+            "max_ms": 154.1547,
+            "total_s": 42.6673864
+          },
+          "memory": {
+            "rss_bytes": 275316736,
+            "peak_rss_bytes": 311320576,
+            "private_bytes": 1088458752,
+            "peak_commit_bytes": 1123360768
+          },
+          "cache": {
+            "plan_hits": 69537,
+            "plan_misses": 581890,
+            "slot_hits": 60795,
+            "slot_misses": 20086,
+            "invalidations": 10878,
+            "fingerprints": 11451
+          },
+          "recall": {
+            "crane_decisions": 11451,
+            "eligible": 217202,
+            "retained": 39301,
+            "mandatory": 47130,
+            "max_eligible": 292,
+            "with_action": 11451,
+            "top_retained": 9500,
+            "joint_checks": 1690,
+            "independent_top_joint_conflicts": 1455,
+            "recall": 0.18094216443679156,
+            "top_retention": 0.8296218670858441,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 11473,
+              "PRE_REHANDLE/retained": 5143,
+              "REPOSITION/eligible": 4,
+              "REPOSITION/retained": 4,
+              "SERVE/eligible": 205725,
+              "SERVE/retained": 34154
+            },
+            "audit_seconds": 3.3709791246801615,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 348655076.8679857,
+            "admitted": 7412,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 241925238.12536773,
+            "c_move": 668470.8333333334,
+            "c_rehandle": 15726000.0,
+            "c_vessel": 90335367.90928464,
+            "n_trucks": 7412,
+            "n_censored": 38,
+            "mean_turn_time_s": 2424.035652247449,
+            "over_ratio": 0.11548839719373988,
+            "p50_turn_time_s": 1880.43936488904,
+            "p90_turn_time_s": 3890.6047470763006,
+            "p99_turn_time_s": 16716.895393996274,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 7500,
+      "seed": 9913430,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913430-0-cap12.json.gz",
+          "sha256": "817aec1a7d7b8550eb03573b47532a7666e0840bae214b2fc9d729f1036cfe13",
+          "wall_seconds": 72.62548189982772,
+          "run_seconds": 71.67098690010607,
+          "generation": {
+            "count": 9422,
+            "median_ms": 1.40775,
+            "p95_ms": 16.1068,
+            "max_ms": 175.0323,
+            "total_s": 40.4171042
+          },
+          "selection": {
+            "count": 9422,
+            "median_ms": 0.1497,
+            "p95_ms": 0.3047,
+            "max_ms": 2.1071,
+            "total_s": 1.5838173
+          },
+          "decision": {
+            "count": 9422,
+            "median_ms": 1.5716,
+            "p95_ms": 16.2727,
+            "max_ms": 175.3852,
+            "total_s": 42.0009215
+          },
+          "memory": {
+            "rss_bytes": 272760832,
+            "peak_rss_bytes": 312201216,
+            "private_bytes": 1085321216,
+            "peak_commit_bytes": 1124839424
+          },
+          "cache": {
+            "plan_hits": 77231,
+            "plan_misses": 586669,
+            "slot_hits": 80916,
+            "slot_misses": 21016,
+            "invalidations": 10454,
+            "fingerprints": 11027
+          },
+          "recall": {
+            "crane_decisions": 11027,
+            "eligible": 211548,
+            "retained": 39182,
+            "mandatory": 50551,
+            "max_eligible": 282,
+            "with_action": 11025,
+            "top_retained": 8724,
+            "joint_checks": 1603,
+            "independent_top_joint_conflicts": 1366,
+            "recall": 0.18521564845803318,
+            "top_retention": 0.7912925170068027,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 10836,
+              "PRE_REHANDLE/retained": 4462,
+              "REPOSITION/eligible": 4,
+              "REPOSITION/retained": 4,
+              "SERVE/eligible": 200708,
+              "SERVE/retained": 34716
+            },
+            "audit_seconds": 3.4095141980797052,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 366238304.51026946,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 258998306.73341963,
+            "c_move": 749070.8333333334,
+            "c_rehandle": 16010000.0,
+            "c_vessel": 90480926.9435165,
+            "n_trucks": 7500,
+            "n_censored": 34,
+            "mean_turn_time_s": 2558.0520804169796,
+            "over_ratio": 0.12253333333333333,
+            "p50_turn_time_s": 2185.718926244568,
+            "p90_turn_time_s": 4123.1531509539345,
+            "p99_turn_time_s": 17106.716203470845,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913430-0-all.json.gz",
+          "sha256": "9cb909c08601084683e16e5ef61b47210aae00caff30502a7294f8bfa174d0d1",
+          "wall_seconds": 67.9973931000568,
+          "run_seconds": 67.0552643998526,
+          "generation": {
+            "count": 8340,
+            "median_ms": 1.36325,
+            "p95_ms": 17.4003,
+            "max_ms": 145.8942,
+            "total_s": 30.4283861
+          },
+          "selection": {
+            "count": 8340,
+            "median_ms": 0.169,
+            "p95_ms": 0.7747,
+            "max_ms": 35.7115,
+            "total_s": 2.2093423
+          },
+          "decision": {
+            "count": 8340,
+            "median_ms": 1.54565,
+            "p95_ms": 18.2318,
+            "max_ms": 147.8887,
+            "total_s": 32.6377284
+          },
+          "memory": {
+            "rss_bytes": 272912384,
+            "peak_rss_bytes": 313200640,
+            "private_bytes": 1083961344,
+            "peak_commit_bytes": 1122283520
+          },
+          "cache": {
+            "plan_hits": 1,
+            "plan_misses": 460547,
+            "slot_hits": 62868,
+            "slot_misses": 20439,
+            "invalidations": 9614,
+            "fingerprints": 9657
+          },
+          "recall": {
+            "crane_decisions": 9657,
+            "eligible": 127063,
+            "retained": 127063,
+            "mandatory": 77338,
+            "max_eligible": 322,
+            "with_action": 9656,
+            "top_retained": 9656,
+            "joint_checks": 1316,
+            "independent_top_joint_conflicts": 1177,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 9510,
+              "PRE_REHANDLE/retained": 9510,
+              "REPOSITION/eligible": 3,
+              "REPOSITION/retained": 3,
+              "SERVE/eligible": 117550,
+              "SERVE/retained": 117550
+            },
+            "audit_seconds": 2.955354494508356,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 475568054.95616585,
+            "admitted": 7500,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 364523112.66021156,
+            "c_move": 738508.3333333334,
+            "c_rehandle": 17494000.0,
+            "c_vessel": 92812433.96262099,
+            "n_trucks": 7500,
+            "n_censored": 137,
+            "mean_turn_time_s": 3185.1436914967276,
+            "over_ratio": 0.1436,
+            "p50_turn_time_s": 2174.8945766026154,
+            "p90_turn_time_s": 5148.019305927919,
+            "p99_turn_time_s": 30254.919,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 7500,
+      "seed": 9913440,
+      "repeat": 0,
+      "order": [
+        "all",
+        "cap12"
+      ],
+      "arms": {
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913440-0-all.json.gz",
+          "sha256": "1c18d939c0856b3226b19b5399ca3b1cc3e722d099517cff37886dcd14ecb0c8",
+          "wall_seconds": 71.71559779997915,
+          "run_seconds": 70.77128330012783,
+          "generation": {
+            "count": 9007,
+            "median_ms": 1.414,
+            "p95_ms": 14.7585,
+            "max_ms": 134.9558,
+            "total_s": 32.2207678
+          },
+          "selection": {
+            "count": 9007,
+            "median_ms": 0.1698,
+            "p95_ms": 0.7259,
+            "max_ms": 8.0273,
+            "total_s": 2.2708464
+          },
+          "decision": {
+            "count": 9007,
+            "median_ms": 1.6004,
+            "p95_ms": 15.5025,
+            "max_ms": 135.8086,
+            "total_s": 34.4916142
+          },
+          "memory": {
+            "rss_bytes": 273653760,
+            "peak_rss_bytes": 310243328,
+            "private_bytes": 1084829696,
+            "peak_commit_bytes": 1120550912
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 494892,
+            "slot_hits": 49653,
+            "slot_misses": 17097,
+            "invalidations": 10456,
+            "fingerprints": 10498
+          },
+          "recall": {
+            "crane_decisions": 10498,
+            "eligible": 130662,
+            "retained": 130662,
+            "mandatory": 66338,
+            "max_eligible": 249,
+            "with_action": 10498,
+            "top_retained": 10498,
+            "joint_checks": 1491,
+            "independent_top_joint_conflicts": 1310,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 10029,
+              "PRE_REHANDLE/retained": 10029,
+              "REPOSITION/eligible": 3,
+              "REPOSITION/retained": 3,
+              "SERVE/eligible": 120630,
+              "SERVE/retained": 120630
+            },
+            "audit_seconds": 3.0541090057231486,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 412266739.6425831,
+            "admitted": 7453,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 297670918.28871965,
+            "c_move": 737032.2916666666,
+            "c_rehandle": 17060000.0,
+            "c_vessel": 96798789.06219672,
+            "n_trucks": 7453,
+            "n_censored": 87,
+            "mean_turn_time_s": 2753.586168164444,
+            "over_ratio": 0.19495505165705085,
+            "p50_turn_time_s": 1465.501160778509,
+            "p90_turn_time_s": 5714.171337152795,
+            "p99_turn_time_s": 22089.335825635586,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/7500-9913440-0-cap12.json.gz",
+          "sha256": "64874ef9d920001ead17b420507590385665bd441fdf4fb7d50c8904f300fdc7",
+          "wall_seconds": 71.30528309987858,
+          "run_seconds": 70.21492900000885,
+          "generation": {
+            "count": 9663,
+            "median_ms": 1.4534,
+            "p95_ms": 14.9959,
+            "max_ms": 160.223,
+            "total_s": 37.8112422
+          },
+          "selection": {
+            "count": 9663,
+            "median_ms": 0.151,
+            "p95_ms": 0.3112,
+            "max_ms": 1.3593,
+            "total_s": 1.6421381
+          },
+          "decision": {
+            "count": 9663,
+            "median_ms": 1.6297,
+            "p95_ms": 15.1641,
+            "max_ms": 160.6208,
+            "total_s": 39.4533803
+          },
+          "memory": {
+            "rss_bytes": 276123648,
+            "peak_rss_bytes": 310312960,
+            "private_bytes": 1090170880,
+            "peak_commit_bytes": 1122566144
+          },
+          "cache": {
+            "plan_hits": 55597,
+            "plan_misses": 562617,
+            "slot_hits": 68192,
+            "slot_misses": 18775,
+            "invalidations": 10824,
+            "fingerprints": 11373
+          },
+          "recall": {
+            "crane_decisions": 11373,
+            "eligible": 195613,
+            "retained": 39100,
+            "mandatory": 45645,
+            "max_eligible": 311,
+            "with_action": 11373,
+            "top_retained": 9907,
+            "joint_checks": 1710,
+            "independent_top_joint_conflicts": 1438,
+            "recall": 0.1998844657563659,
+            "top_retention": 0.8710982150707817,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 11202,
+              "PRE_REHANDLE/retained": 4933,
+              "REPOSITION/eligible": 3,
+              "REPOSITION/retained": 3,
+              "SERVE/eligible": 184408,
+              "SERVE/retained": 34164
+            },
+            "audit_seconds": 3.7253217860125005,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 357230025.37631077,
+            "admitted": 7453,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 238556880.76632848,
+            "c_move": 751955.2083333334,
+            "c_rehandle": 16508000.0,
+            "c_vessel": 101413189.40164894,
+            "n_trucks": 7453,
+            "n_censored": 38,
+            "mean_turn_time_s": 2451.0268306100998,
+            "over_ratio": 0.20689655172413793,
+            "p50_turn_time_s": 1745.628444547052,
+            "p90_turn_time_s": 5104.60106735937,
+            "p99_turn_time_s": 9942.235060879008,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 15000,
+      "seed": 9913420,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913420-0-cap12.json.gz",
+          "sha256": "5064307bcf15158ea96c9d3068118d0d4ad005fbbae34228795034f2d17cfb08",
+          "wall_seconds": 221.51284100022167,
+          "run_seconds": 220.29408759996295,
+          "generation": {
+            "count": 13481,
+            "median_ms": 8.5603,
+            "p95_ms": 33.3642,
+            "max_ms": 301.0796,
+            "total_s": 143.5333669
+          },
+          "selection": {
+            "count": 13481,
+            "median_ms": 0.2495,
+            "p95_ms": 0.5991,
+            "max_ms": 5.8207,
+            "total_s": 3.9704936
+          },
+          "decision": {
+            "count": 13481,
+            "median_ms": 8.8643,
+            "p95_ms": 33.8073,
+            "max_ms": 301.5963,
+            "total_s": 147.5038605
+          },
+          "memory": {
+            "rss_bytes": 301051904,
+            "peak_rss_bytes": 372473856,
+            "private_bytes": 1110659072,
+            "peak_commit_bytes": 1182826496
+          },
+          "cache": {
+            "plan_hits": 20613,
+            "plan_misses": 2008778,
+            "slot_hits": 278273,
+            "slot_misses": 40239,
+            "invalidations": 14091,
+            "fingerprints": 14386
+          },
+          "recall": {
+            "crane_decisions": 14386,
+            "eligible": 575963,
+            "retained": 319674,
+            "mandatory": 1226943,
+            "max_eligible": 498,
+            "with_action": 14386,
+            "top_retained": 13680,
+            "joint_checks": 905,
+            "independent_top_joint_conflicts": 802,
+            "recall": 0.5550252359960622,
+            "top_retention": 0.9509245099402197,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 23136,
+              "PRE_REHANDLE/retained": 3453,
+              "REPOSITION/eligible": 2,
+              "REPOSITION/retained": 2,
+              "SERVE/eligible": 552825,
+              "SERVE/retained": 316219
+            },
+            "audit_seconds": 9.675066105555743,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 3311885542.4934297,
+            "admitted": 14798,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 3170910422.411145,
+            "c_move": 689338.5416666666,
+            "c_rehandle": 18214000.0,
+            "c_vessel": 122071781.54061781,
+            "n_trucks": 14798,
+            "n_censored": 3107,
+            "mean_turn_time_s": 10951.470642605029,
+            "over_ratio": 0.32558453845114205,
+            "p50_turn_time_s": 2546.2141820086836,
+            "p90_turn_time_s": 38641.75675661843,
+            "p99_turn_time_s": 52795.351,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913420-0-all.json.gz",
+          "sha256": "f5326bb5d8e115f60173701d9a859914f22fbfe0d2f30198b3250a4ced4c5fa8",
+          "wall_seconds": 235.06186889996752,
+          "run_seconds": 233.88080039992929,
+          "generation": {
+            "count": 13248,
+            "median_ms": 8.5069,
+            "p95_ms": 35.1953,
+            "max_ms": 277.7561,
+            "total_s": 142.9543438
+          },
+          "selection": {
+            "count": 13248,
+            "median_ms": 0.284,
+            "p95_ms": 0.8417,
+            "max_ms": 7.6056,
+            "total_s": 4.7895733
+          },
+          "decision": {
+            "count": 13248,
+            "median_ms": 8.8518,
+            "p95_ms": 36.0416,
+            "max_ms": 279.3459,
+            "total_s": 147.7439171
+          },
+          "memory": {
+            "rss_bytes": 297705472,
+            "peak_rss_bytes": 374845440,
+            "private_bytes": 1107898368,
+            "peak_commit_bytes": 1184260096
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 2001454,
+            "slot_hits": 275825,
+            "slot_misses": 40171,
+            "invalidations": 14018,
+            "fingerprints": 14060
+          },
+          "recall": {
+            "crane_decisions": 14060,
+            "eligible": 505321,
+            "retained": 505321,
+            "mandatory": 1244996,
+            "max_eligible": 239,
+            "with_action": 14060,
+            "top_retained": 14060,
+            "joint_checks": 812,
+            "independent_top_joint_conflicts": 753,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 22163,
+              "PRE_REHANDLE/retained": 22163,
+              "REPOSITION/eligible": 2,
+              "REPOSITION/retained": 2,
+              "SERVE/eligible": 483156,
+              "SERVE/retained": 483156
+            },
+            "audit_seconds": 9.67335157841444,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 3358564442.6234508,
+            "admitted": 14796,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 3222074024.2621174,
+            "c_move": 693103.125,
+            "c_rehandle": 18532000.0,
+            "c_vessel": 117265315.23633325,
+            "n_trucks": 14796,
+            "n_censored": 3211,
+            "mean_turn_time_s": 11110.643282906847,
+            "over_ratio": 0.3329278183292782,
+            "p50_turn_time_s": 2565.7018742939763,
+            "p90_turn_time_s": 39082.268,
+            "p99_turn_time_s": 53908.297999999995,
+            "c_vessel_structural": 52317313.74802534,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 15000,
+      "seed": 9913430,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913430-0-cap12.json.gz",
+          "sha256": "5cf77c5d462ba70a4dd9063f4f17d06ace9fa2a844f9f77211f71a26e672239a",
+          "wall_seconds": 201.47479290002957,
+          "run_seconds": 200.27364449994639,
+          "generation": {
+            "count": 11677,
+            "median_ms": 8.724,
+            "p95_ms": 30.1461,
+            "max_ms": 321.1162,
+            "total_s": 123.4816778
+          },
+          "selection": {
+            "count": 11677,
+            "median_ms": 0.3185,
+            "p95_ms": 0.7618,
+            "max_ms": 4.3533,
+            "total_s": 4.2000625
+          },
+          "decision": {
+            "count": 11677,
+            "median_ms": 9.1447,
+            "p95_ms": 30.6396,
+            "max_ms": 323.441,
+            "total_s": 127.6817403
+          },
+          "memory": {
+            "rss_bytes": 303775744,
+            "peak_rss_bytes": 377696256,
+            "private_bytes": 1120497664,
+            "peak_commit_bytes": 1189851136
+          },
+          "cache": {
+            "plan_hits": 14095,
+            "plan_misses": 2012512,
+            "slot_hits": 1267128,
+            "slot_misses": 39261,
+            "invalidations": 12187,
+            "fingerprints": 12445
+          },
+          "recall": {
+            "crane_decisions": 12445,
+            "eligible": 666250,
+            "retained": 488801,
+            "mandatory": 1374128,
+            "max_eligible": 580,
+            "with_action": 12444,
+            "top_retained": 11934,
+            "joint_checks": 767,
+            "independent_top_joint_conflicts": 664,
+            "recall": 0.7336600375234521,
+            "top_retention": 0.9590163934426229,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 18448,
+              "PRE_REHANDLE/retained": 3657,
+              "REPOSITION/eligible": 3,
+              "REPOSITION/retained": 3,
+              "SERVE/eligible": 647799,
+              "SERVE/retained": 485141
+            },
+            "audit_seconds": 9.774867672473192,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 4193948135.093704,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 4055829159.422801,
+            "c_move": 993525.0,
+            "c_rehandle": 21864000.0,
+            "c_vessel": 115261450.6709033,
+            "n_trucks": 15000,
+            "n_censored": 4532,
+            "mean_turn_time_s": 13520.429154521164,
+            "over_ratio": 0.3917333333333333,
+            "p50_turn_time_s": 2739.4131699982463,
+            "p90_turn_time_s": 42680.234,
+            "p99_turn_time_s": 53050.029,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913430-0-all.json.gz",
+          "sha256": "0cdd4591a8b481210aac38b3f5d5223883e2b2ed04a415a6d7037c6ede90508d",
+          "wall_seconds": 211.06922370009124,
+          "run_seconds": 209.89974910020828,
+          "generation": {
+            "count": 11543,
+            "median_ms": 8.9071,
+            "p95_ms": 31.8982,
+            "max_ms": 275.3746,
+            "total_s": 125.5762468
+          },
+          "selection": {
+            "count": 11543,
+            "median_ms": 0.3408,
+            "p95_ms": 1.0261,
+            "max_ms": 27.3643,
+            "total_s": 4.9147335
+          },
+          "decision": {
+            "count": 11543,
+            "median_ms": 9.3654,
+            "p95_ms": 32.823,
+            "max_ms": 277.9867,
+            "total_s": 130.4909803
+          },
+          "memory": {
+            "rss_bytes": 300146688,
+            "peak_rss_bytes": 377008128,
+            "private_bytes": 1111601152,
+            "peak_commit_bytes": 1185677312
+          },
+          "cache": {
+            "plan_hits": 1,
+            "plan_misses": 2047269,
+            "slot_hits": 1170136,
+            "slot_misses": 39218,
+            "invalidations": 12218,
+            "fingerprints": 12261
+          },
+          "recall": {
+            "crane_decisions": 12261,
+            "eligible": 611413,
+            "retained": 611413,
+            "mandatory": 1398934,
+            "max_eligible": 507,
+            "with_action": 12260,
+            "top_retained": 12260,
+            "joint_checks": 717,
+            "independent_top_joint_conflicts": 631,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 17891,
+              "PRE_REHANDLE/retained": 17891,
+              "REPOSITION/eligible": 3,
+              "REPOSITION/retained": 3,
+              "SERVE/eligible": 593519,
+              "SERVE/retained": 593519
+            },
+            "audit_seconds": 10.147744857240468,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 4221543127.618623,
+            "admitted": 15000,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 4084194903.652265,
+            "c_move": 959318.75,
+            "c_rehandle": 22106000.0,
+            "c_vessel": 114282905.21635789,
+            "n_trucks": 15000,
+            "n_censored": 4526,
+            "mean_turn_time_s": 13608.263047354998,
+            "over_ratio": 0.3947333333333333,
+            "p50_turn_time_s": 2754.70774040791,
+            "p90_turn_time_s": 43226.80284716424,
+            "p99_turn_time_s": 53564.365,
+            "c_vessel_structural": 43977661.115152255,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    },
+    {
+      "load": 15000,
+      "seed": 9913440,
+      "repeat": 0,
+      "order": [
+        "cap12",
+        "all"
+      ],
+      "arms": {
+        "cap12": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913440-0-cap12.json.gz",
+          "sha256": "b3adf28f10bb5977ee09cda2cd78a68f8b32ee3f6f0b0c60e36b327807f00c2e",
+          "wall_seconds": 232.70355409989133,
+          "run_seconds": 231.51660270011052,
+          "generation": {
+            "count": 14069,
+            "median_ms": 8.4596,
+            "p95_ms": 30.4268,
+            "max_ms": 254.9636,
+            "total_s": 146.0806335
+          },
+          "selection": {
+            "count": 14069,
+            "median_ms": 0.281,
+            "p95_ms": 0.5582,
+            "max_ms": 5.9035,
+            "total_s": 4.2465172
+          },
+          "decision": {
+            "count": 14069,
+            "median_ms": 8.7767,
+            "p95_ms": 30.8599,
+            "max_ms": 255.5405,
+            "total_s": 150.3271507
+          },
+          "memory": {
+            "rss_bytes": 303382528,
+            "peak_rss_bytes": 371384320,
+            "private_bytes": 1116745728,
+            "peak_commit_bytes": 1182240768
+          },
+          "cache": {
+            "plan_hits": 14169,
+            "plan_misses": 2142801,
+            "slot_hits": 841751,
+            "slot_misses": 46576,
+            "invalidations": 14618,
+            "fingerprints": 14891
+          },
+          "recall": {
+            "crane_decisions": 14891,
+            "eligible": 712953,
+            "retained": 448413,
+            "mandatory": 1304503,
+            "max_eligible": 531,
+            "with_action": 14891,
+            "top_retained": 14492,
+            "joint_checks": 822,
+            "independent_top_joint_conflicts": 695,
+            "recall": 0.6289516980782744,
+            "top_retention": 0.9732052917869854,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 22738,
+              "PRE_REHANDLE/retained": 3575,
+              "REPOSITION/eligible": 8,
+              "REPOSITION/retained": 8,
+              "SERVE/eligible": 690207,
+              "SERVE/retained": 444830
+            },
+            "audit_seconds": 11.491326815914363,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 3210421188.030476,
+            "admitted": 14910,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 3062862942.666457,
+            "c_move": 623431.25,
+            "c_rehandle": 16856000.0,
+            "c_vessel": 130078814.11401913,
+            "n_trucks": 14910,
+            "n_censored": 2608,
+            "mean_turn_time_s": 10800.268640536071,
+            "over_ratio": 0.7683433936955064,
+            "p50_turn_time_s": 7936.418962717435,
+            "p90_turn_time_s": 27585.762754148687,
+            "p99_turn_time_s": 46392.758,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        },
+        "all": {
+          "path": "outputs/reports/yr332_six_steps/stage2/15000-9913440-0-all.json.gz",
+          "sha256": "0efee99365ceca8741dee0a92a8ef3ed4c17338fbea72cbaecdf7cda826c74ed",
+          "wall_seconds": 239.68222179962322,
+          "run_seconds": 238.47909649973735,
+          "generation": {
+            "count": 13673,
+            "median_ms": 8.4659,
+            "p95_ms": 32.3893,
+            "max_ms": 265.3626,
+            "total_s": 144.5561469
+          },
+          "selection": {
+            "count": 13673,
+            "median_ms": 0.3039,
+            "p95_ms": 0.9067,
+            "max_ms": 4.1101,
+            "total_s": 5.0520584
+          },
+          "decision": {
+            "count": 13673,
+            "median_ms": 8.796,
+            "p95_ms": 33.327,
+            "max_ms": 266.2613,
+            "total_s": 149.6082053
+          },
+          "memory": {
+            "rss_bytes": 300380160,
+            "peak_rss_bytes": 373854208,
+            "private_bytes": 1116168192,
+            "peak_commit_bytes": 1186598912
+          },
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 2104781,
+            "slot_hits": 802833,
+            "slot_misses": 45594,
+            "invalidations": 14357,
+            "fingerprints": 14399
+          },
+          "recall": {
+            "crane_decisions": 14399,
+            "eligible": 631320,
+            "retained": 631320,
+            "mandatory": 1301016,
+            "max_eligible": 463,
+            "with_action": 14399,
+            "top_retained": 14399,
+            "joint_checks": 726,
+            "independent_top_joint_conflicts": 646,
+            "recall": 1.0,
+            "top_retention": 1.0,
+            "by_kind": {
+              "PRE_REHANDLE/eligible": 21550,
+              "PRE_REHANDLE/retained": 21550,
+              "REPOSITION/eligible": 8,
+              "REPOSITION/retained": 8,
+              "SERVE/eligible": 609762,
+              "SERVE/retained": 609762
+            },
+            "audit_seconds": 9.958946482278407,
+            "scope": "generated pre-prune feasible actions; independent small-case oracle tested separately",
+            "joint_scope": "conflicts among independently top-ranked crane actions; not pruning misses"
+          },
+          "result": {
+            "phi_krw": 3251588393.995914,
+            "admitted": 14915,
+            "traded_edges": 0,
+            "policy_exceptions": 0,
+            "n_space": 0,
+            "n_time": 0,
+            "txn_failed": 0,
+            "n_decisions": 0,
+            "n_labels": 0,
+            "rollout_worlds": 0,
+            "missed_labels": 0,
+            "slot_mode": "HORIZON",
+            "n_crane_labels": 0,
+            "crane": {},
+            "environment": {
+              "discharge_backpressure": true,
+              "discharge_capacity": 3,
+              "discharge_model": "shared-handover-wip-v1"
+            },
+            "c_wait": 3104200912.0788646,
+            "c_move": 619504.1666666666,
+            "c_rehandle": 17472000.0,
+            "c_vessel": 129295977.75038277,
+            "n_trucks": 14915,
+            "n_censored": 2738,
+            "mean_turn_time_s": 10907.510866330013,
+            "over_ratio": 0.7576935970499498,
+            "p50_turn_time_s": 7935.677090170902,
+            "p90_turn_time_s": 27864.72462109098,
+            "p99_turn_time_s": 48648.748,
+            "c_vessel_structural": 51657293.885068834,
+            "n_vessels": 3,
+            "n_vessel_streams": 8
+          }
+        }
+      },
+      "equal": {
+        "candidates_sha256": false,
+        "choices_sha256": false,
+        "events_sha256": false,
+        "jobs_sha256": false,
+        "records_sha256": false,
+        "result_sha256": false,
+        "input": true,
+        "model": true
+      }
+    }
+  ],
+  "shared_slots": false,
+  "existence_scan": true,
+  "mechanism": "slots",
+  "parameters": {
+    "observe_hours": 24,
+    "drain_hours": 2,
+    "threads": 1,
+    "teacher": false,
+    "fill": 0.65,
+    "blocks": 21,
+    "cranes": 42,
+    "model": "fixed untrained 9-input"
+  }
+}

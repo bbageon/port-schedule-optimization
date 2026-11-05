@@ -86,7 +86,77 @@ def candidate_summary(folder):
                 loads=loads,pairs=pairs,repeat_checks=repeat_checks,
                 interpretation='timing and candidate diagnostics; no trained-policy performance claim')
     save(Path(folder)/'summary.json',result)
+    if stage==2 and len(pairs)==9:
+        candidate_report(Path(folder),result)
     print(json.dumps(dict(stage=stage,mechanism=mechanism,n_pairs=len(pairs),loads=loads),indent=2))
+
+
+def candidate_report(folder, summary):
+    lines=['# 6단계 실험 2 — 기본 12칸과 전체 후보', '',
+           f'실행 코드 `{summary["commit"]}`. 21블록·42크레인·3물량·입력 3개씩, 총 9쌍·18회.',
+           '두 경로에 존재 확인 단축만 적용했다. 재취급 자리 재사용은 껐다.',
+           '학습 전 고정 9입력 모델이며, 같은 쌍의 입력·모델 동일성을 확인했다.', '',
+           '## 진행사항', '',
+           '| 하루 예약 | 제한 방식 후보 보존 | 모델 최고 순위 보존 | 전체 방식 보존 | 최대 실행 가능 후보 |',
+           '|---|---:|---:|---:|---:|']
+    for load,d in summary['loads'].items():
+        a,b=d['cap12']['recall'],d['all']['recall']
+        lines.append(f'| {int(load):,}건 | {a["recall"]:.2%} | {a["top_retention"]:.2%} | '
+                     f'{b["recall"]:.2%} | {b["max_eligible"]} |')
+    lines+=['', '보존율은 매 결정에서 생성된 실행 가능 행동을 분모로 합산했다.',
+            '같은 작업이 여러 시점에 다시 집계되며, 전체 잠재 오더의 비율이 아니다. 대기 행동은 분모에서 뺀다.',
+            '최고 순위는 현재 모델의 점수 기준이다. 미래 비용의 실제 최선이라는 뜻이 아니다.',
+            '필수 후보는 기존 방식도 12개를 넘어 보존하며, 양쪽 모두 필수 후보 누락은 없었다.', '',
+            '| 하루 예약 | 비용 변화 | 평균 체류 변화 | 투입 변화 | 24시간 미완료 변화 | 26시간 본선 완료 변화 |',
+            '|---|---:|---:|---:|---:|---:|']
+    for load in summary['loads']:
+        rows=[r for r in summary['pairs'] if r['load']==int(load)]
+        metrics=[]
+        for r in rows:
+            aa,bb=[r['arms'][k] for k in ('cap12','all')]
+            a,b=aa['outcomes'],bb['outcomes']
+            vessel=lambda d:sum(n for k,n in d['flow_status'].items()
+                                if k.startswith('VESSEL_') and k.endswith('/DONE'))
+            metrics.append((100*(b['phi_krw']/a['phi_krw']-1),
+                            100*(b['mean_turn_time_s']/a['mean_turn_time_s']-1),
+                            b['admitted']-a['admitted'],b['n_censored']-a['n_censored'],
+                            vessel(bb)-vessel(aa)))
+        m=[st.mean(v[i] for v in metrics) for i in range(5)]
+        lines.append(f'| {int(load):,}건 | {m[0]:+.2f}% | {m[1]:+.2f}% | {m[2]:+.2f}대 | '
+                     f'{m[3]:+.2f}대 | {m[4]:+.2f}건 |')
+    lines+=['', '각 입력에서 제한 방식→전체 후보로 바뀐 비율을 계산한 뒤 세 입력을 평균했다.',
+            '비용·체류·미완료는 증가가 불리하고, 본선 완료는 감소가 불리하다.',
+            '미완료 트럭도 24시간까지의 체류를 평균에 포함하지만 그 이후의 추가 대기는 포함하지 않는다.', '',
+            '| 하루 예약 | 전체 계산 초(제한→전체) | 느린 5% 경계 밀리초 | 최장 결정 밀리초 | 최대 메모리 MiB |',
+            '|---|---:|---:|---:|---:|']
+    for load,d in summary['loads'].items():
+        a,b=d['cap12'],d['all']
+        lines.append(f'| {int(load):,}건 | {a["wall_seconds"]:.2f}→{b["wall_seconds"]:.2f} | '
+                     f'{a["p95_ms"]:.2f}→{b["p95_ms"]:.2f} | {a["max_ms"]:.2f}→{b["max_ms"]:.2f} | '
+                     f'{a["peak_rss_bytes"]/2**20:.1f}→{b["peak_rss_bytes"]/2**20:.1f} |')
+    lines+=['', '시간과 느린 5% 경계·메모리는 입력 세 개 평균, 최장 결정은 세 실행의 최대다.',
+            '전체 시간에는 후보 보존 검사도 포함한다. 검사 시간은 원자료에 따로 보존했다.',
+            '선택과 작업 경로가 달라지므로 이 표를 동일 작업량의 순수 계산 속도 비교로 해석하지 않는다.', '',
+            '| 하루 예약 | 후보 생성 초(제한→전체) | 선택 계산 초(제한→전체) |',
+            '|---|---:|---:|']
+    for load,d in summary['loads'].items():
+        a,b=d['cap12'],d['all']
+        lines.append(f'| {int(load):,}건 | {a["generation_seconds"]:.2f}→{b["generation_seconds"]:.2f} | '
+                     f'{a["selection_seconds"]:.2f}→{b["selection_seconds"]:.2f} |')
+    lines+=['', '이 값도 입력별 다른 작업 경로를 포함한 평균이며, 후보 하나의 계산 비용을 뜻하지 않는다.', '',
+            '## 해석', '',
+            '후보 누락을 없애는 경로는 구현·관측됐으나 후보 확대 자체의 운영 개선을 보장하지 않는다.',
+            '기존 제한은 대기·본선 마감·작업 시간·재취급을 계산한 별도 규칙 점수로 후보를 선별한다.',
+            '상한 해제에는 이 사전 선별을 제거하는 효과도 포함된다. 학습 전 모델이 넓어진 선택을 잘한다는 전제는 없다.',
+            '후속 학습은 전체 후보를 공통 조건으로 사용하며, 이번 결과를 학습 성능으로 주장하지 않는다.',
+            '작은 독립 상태의 실행 가능 작업 열거 시험을 통과했지만, 큰 상태의 모든 물리 행동에 대한 전역 증명은 아니다.',
+            '실제 최선 행동 대비 선택 후회 비용과 결정시간 99% 경계는 이 캠페인에서 측정하지 않았다.',
+            '예약·물리 용량의 현실 보정이 남아 있어 실제 터미널 성능 판정은 미통과다.', '',
+            '## 다음 순서', '',
+            'YR-332-g: 같은 상태에서 8번째 입력이 실제 실행 가능한 실작업 수인지 확인한다.',
+            '기존 트럭 대기 수와 얼마나 달랐는지 먼저 확인하고, 수정 입력의 성능은 재학습 후 판단한다.', '',
+            '원자료: [campaign](campaign.json), [해시 대조·전체 수치](summary.json).']
+    (folder/'report.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
 
 
 def learning_summary(folder):
@@ -123,6 +193,8 @@ def learning_summary(folder):
             stages.append(dict(stage=run['stage'],model_seed=run['model_seed'],
                 pairs=len(samples)//2,unique_cranes=len(cranes),flow_samples=dict(flows),
                 comparison_types=dict(pairs),
+                decision_time_range_s=[min(s['decision_key'][0] for s in samples),
+                                       max(s['decision_key'][0] for s in samples)] if samples else None,
                 zero_pairs=sum(r['stats']['zero'] for r in run['rows']),
                 factual_mismatch=sum(r['stats']['factual_mismatch'] for r in run['rows']),
                 forced_failure=sum(r['stats']['force_failed'] for r in run['rows']),
@@ -164,6 +236,9 @@ def learning_summary(folder):
             cost_wins=sum(r['cost_change_pct']<0 for r in rows))
     result=dict(comparisons_vs_rule_all=comparisons,averages=averages,training=stages,
         direct_comparisons=paired_changes,direct_averages=direct_averages,
+        artifact_sha256={p.as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
+                        for p in sorted(root.rglob('*')) if p.is_file()
+                        and (p.suffix in ('.pt','.gz') or p.name.startswith(('stage-','campaign-stage-')))},
         limitations=['three initializations crossed with the same three evaluation days',
                      'three updates per model; not a convergence or significance study',
                      'common behaviour collection; alternative learners not iterated on their own behaviour',
