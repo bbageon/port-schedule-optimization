@@ -38,7 +38,8 @@ def campaign(args):
     assert not git('status', '--short', '--untracked-files=no')
     stamp = dict(commit=git('rev-parse', 'HEAD'), stage=3, seed=9913420, rows=[],
                  parameters=dict(candidate_cap=None, policy='legacy; feasible shadow only',
-                                 shared_slots=args.shared_slots, loads=[3500,7500,15000]))
+                                 shared_slots=args.shared_slots, existence_scan=args.existence_scan,
+                                 loads=[3500,7500,15000]))
     stamp['sources'] = {p.as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                         for p in [Path(__file__),*Path('src/yard_rl/v7').rglob('*.py')]}
     for load in (3500,7500,15000):

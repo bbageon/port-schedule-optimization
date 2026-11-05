@@ -98,6 +98,8 @@ class CraneCollector:
             else:
                 crane, picked_gc, alt_gc = self.sampler.select(sim, block, choices, self._rank)
             key = (round(sim.clock, 6), block, crane)
+            if key in self.rows:
+                raise RuntimeError(f'duplicate comparison decision key: {key}')
             mode = getattr(getattr(self._pref, 'net', None), 'feature_mode', 'legacy')
             flow = getattr(getattr(self._pref, 'net', None), 'include_flow', False)
             self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode, include_flow=flow),

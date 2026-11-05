@@ -43,7 +43,11 @@ def worker(args):
     assert not result.crane_labels and result.traded_edges == 0
     data = dict(load=args.load, seed=args.seed, arm=args.arm, stage=args.stage, wall_seconds=wall,
                 model_sha256=model_hash, result=result.as_dict(), probe=probe.result,
-                memory_before=before, memory_after=memory(), threads=1)
+                memory_before=before, memory_after=memory(), threads=1,
+                parameters=dict(candidate_cap=None if args.arm == 'all' else 12,
+                    reuse_rehandle_slots=args.arm == 'shared' or args.shared_slots,
+                    decision_probe_shortcircuit=args.arm == 'existence' or args.existence_scan,
+                    feature_mode='legacy',teacher=False,observe_hours=24,drain_hours=2))
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(args.out, 'wt', encoding='utf-8', newline='\n') as f:
         json.dump(data, f, ensure_ascii=False)

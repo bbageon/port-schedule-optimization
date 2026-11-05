@@ -87,6 +87,9 @@ def train_seed(args):
     trainers = {k: CraneTrainer(v, loss_kind='pointwise' if k == 'pointwise' else 'pairwise')
                 for k,v in nets.items()}
     report = dict(stage=stage, model_seed=args.model_seed, rows=[],
+                  parameters=dict(candidate_cap=None,feature_mode='feasible',max_pairs=24,
+                      horizon_s=10800.,workers=args.workers,shared_slots=args.shared_slots,
+                      existence_scan=args.existence_scan,flow_input=stage==6),
                   collection='pointwise behaviour fixed per iteration for all comparisons')
     for it, load in enumerate(LOADS):
         seed = 9913600 + 100*idx + 10*it
@@ -107,6 +110,7 @@ def train_seed(args):
             ep = run_episode(**kwargs)
             data = dict(stage=stage, load=load, seed=seed, model_seed=args.model_seed,
                 behavior_sha256=sha(folder/f'behavior-{it}.pt'),
+                parameters=report['parameters'],
                 seconds=time.perf_counter()-t0, memory=memory(), result=ep.as_dict(),
                 samples=[asdict(s) for s in ep.crane_labels])
             corpus = folder/f'labels-{stage}-{it}.json.gz'
@@ -162,6 +166,8 @@ def evaluate(args):
         decision_probe_shortcircuit=args.existence_scan)
     assert r.policy_exceptions == 0 and r.rollout_worlds == 0
     d = dict(arm=args.arm, model_seed=None if rule else args.model_seed,load=args.load,seed=seed,
+        parameters=dict(candidate_cap=12 if args.arm=='rule_cap12' else None,
+                        shared_slots=args.shared_slots,existence_scan=args.existence_scan,teacher=False),
         wall_seconds=time.perf_counter()-start,result=r.as_dict(),probe=probe.result,
         checkpoint=None if rule else str(model_path),checkpoint_sha256=None if rule else sha(model_path))
     path = root/'evaluation'/f'{args.arm}-{0 if rule else args.model_seed}-{args.load}.json.gz'
