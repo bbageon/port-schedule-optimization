@@ -46,6 +46,13 @@ CPU 하루·연속 크레인 경로는 양하 인출부터 야드 적재 완료�
 [구현 계약](../../../docs/research/v7-discharge/dispatch-reuse.md) ·
 [진단 결과](../../../outputs/reports/yr332_dispatch_reuse/report.md).
 
+기본 하루 평가 `run_episode`는 `evaluation_mode="optimized"`가 기본이다.
+`reference`(개별/전체 탐색/계획 재사용 끔)와 `batch`(일괄 추론만)로 같은 입력을 대조할 수 있다.
+`evaluation_probe=EvaluationProbe()`는 결정 시간·후보/선택/장부 해시를 수집한다.
+대조/계측 설정은 교사와 함께 켜지 못한다. 학습 기본 계약은 그대로다.
+[평가 경로 사용법](../../../docs/research/v7-discharge/evaluation-runtime.md) ·
+[기본 하루 평가 결과](../../../outputs/reports/yr332_default_eval/report.md).
+
 ## DGT 리드타임 — 무엇을 빌렸나
 
 원 표본(1시간·100건 중 통지 있는 71건)에서 **분포 모양만** 빌렸다. 상수표와 출처(sha256)는

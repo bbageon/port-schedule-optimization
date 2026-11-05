@@ -1,0 +1,20 @@
+{
+  "schema": "yard.v7.daily-evaluation-execution-notes.v1",
+  "scope": "Evaluation-speed implementation and bounded comparison only. No learning or policy-quality claim.",
+  "model_search": "No .pt/.pth files were found under outputs/v7 or outputs/v6. Existing v4 crane files use a different input contract; no weight conversion was performed.",
+  "smoke": {
+    "file": "smoke-optimized.json.gz",
+    "load": 300,
+    "purpose": "Integration check during implementation before final commit. Excluded from campaign performance estimates.",
+    "raw_sha256": "f4b0c2cd907ffd60f42a46afa2a601b0c8bc7524db3e4645a222d342b43e615a",
+    "sha256": "1f229a92581bc0c2cc7cb2150f273a8141f26b9e6eb549b5789c7adc4bc7945a"
+  },
+  "campaign": {
+    "source_commit": "86024ad820592b084422f982e1a41f28e84395ef",
+    "prespecified_pairs": 9,
+    "prespecified_runs": 18,
+    "controls": "One fresh process at a time; fixed model per paired input; no simultaneous test/training workload.",
+    "timing_scope": "Decision timing excludes trace hashing and action application. Total wall timing includes observer overhead.",
+    "known_limits": "Default candidate budget retains mandatory overflow. Daily input count is requested trucks, not necessarily admitted trucks."
+  }
+}
