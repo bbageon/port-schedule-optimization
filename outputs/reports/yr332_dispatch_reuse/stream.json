@@ -1,0 +1,1134 @@
+{
+  "schema": "yard.v7.dispatch-stream.v1",
+  "commit": "f04ec119a749b27a1c5bb25fdbbe6440cd9419ff",
+  "tracked_dirty": false,
+  "parameters": {
+    "seeds": [
+      9903321,
+      9903322,
+      9903323
+    ],
+    "repeats": 5,
+    "extra_trucks": 60,
+    "interval_s": 40,
+    "cranes": 2,
+    "candidate_cap": 12,
+    "threads": 1,
+    "horizon_s": 7200.0,
+    "drain_s": 3600.0,
+    "includes": "event processing and dispatch",
+    "excludes": "initialization, IO, real terminal integration"
+  },
+  "rows": [
+    {
+      "seed": 9903321,
+      "same_trajectory_and_cost": true,
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            163.9277,
+            166.174,
+            160.3199,
+            160.173,
+            158.7049
+          ],
+          "median_ms": 160.3199,
+          "trajectory_sha256": "8c9576b073bda8c5871a0ceb32f892c0c7546e4c432ad66d7b8da911542068c2",
+          "decisions": 65,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 34.97267100000001,
+            "n_decisions": 65,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 26.892936875367432,
+            "p95_wait_min": 56.06983796296298,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04288194444444444,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 6.59129899638889,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 28.23758371916667,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 831,
+              "WAIT": 76
+            },
+            "cand_feasible": {
+              "SERVE": 675,
+              "WAIT": 76
+            },
+            "sts_wait_s": 4647.134722222223,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 308.75,
+            "rehandles": 2
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            134.1142,
+            134.0213,
+            135.0344,
+            134.6007,
+            133.1435
+          ],
+          "median_ms": 134.1142,
+          "trajectory_sha256": "8c9576b073bda8c5871a0ceb32f892c0c7546e4c432ad66d7b8da911542068c2",
+          "decisions": 65,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 34.97267100000001,
+            "n_decisions": 65,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 26.892936875367432,
+            "p95_wait_min": 56.06983796296298,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04288194444444444,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 6.59129899638889,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 28.23758371916667,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 831,
+              "WAIT": 76
+            },
+            "cand_feasible": {
+              "SERVE": 675,
+              "WAIT": 76
+            },
+            "sts_wait_s": 4647.134722222223,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 308.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            131.0316,
+            134.5223,
+            142.0632,
+            135.3033,
+            131.648
+          ],
+          "median_ms": 134.5223,
+          "trajectory_sha256": "8c9576b073bda8c5871a0ceb32f892c0c7546e4c432ad66d7b8da911542068c2",
+          "decisions": 65,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 34.97267100000001,
+            "n_decisions": 65,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 26.892936875367432,
+            "p95_wait_min": 56.06983796296298,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04288194444444444,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 6.59129899638889,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 28.23758371916667,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 831,
+              "WAIT": 76
+            },
+            "cand_feasible": {
+              "SERVE": 675,
+              "WAIT": 76
+            },
+            "sts_wait_s": 4647.134722222223,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 308.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            113.0087,
+            110.6763,
+            112.2404,
+            113.647,
+            113.9326
+          ],
+          "median_ms": 113.0087,
+          "trajectory_sha256": "8c9576b073bda8c5871a0ceb32f892c0c7546e4c432ad66d7b8da911542068c2",
+          "decisions": 65,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 20,
+            "plan_misses": 1498,
+            "slot_hits": 5510,
+            "slot_misses": 248,
+            "invalidations": 73,
+            "fingerprints": 76
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 34.97267100000001,
+            "n_decisions": 65,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 26.892936875367432,
+            "p95_wait_min": 56.06983796296298,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 9
+              },
+              "total": 76,
+              "shares": {
+                "SERVE": 0.8816,
+                "WAIT": 0.1184
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04288194444444444,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 6.59129899638889,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 28.23758371916667,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 831,
+              "WAIT": 76
+            },
+            "cand_feasible": {
+              "SERVE": 675,
+              "WAIT": 76
+            },
+            "sts_wait_s": 4647.134722222223,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 308.75,
+            "rehandles": 2
+          }
+        }
+      }
+    },
+    {
+      "seed": 9903322,
+      "same_trajectory_and_cost": true,
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            190.5583,
+            186.283,
+            189.1526,
+            187.1997,
+            191.4638
+          ],
+          "median_ms": 189.1526,
+          "trajectory_sha256": "ea1643f8fc560c2dcea8863656ed0e5faa4f57b843a5bda350d999da4cf4e4cc",
+          "decisions": 68,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 41.04573299999999,
+            "n_decisions": 68,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 29.139096487360376,
+            "p95_wait_min": 70.73594907407409,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04107638888888889,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 10.307702932222224,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 30.596051311388894,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 978,
+              "WAIT": 85
+            },
+            "cand_feasible": {
+              "SERVE": 797,
+              "WAIT": 85
+            },
+            "sts_wait_s": 5242.123611111112,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 295.75,
+            "rehandles": 2
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            163.059,
+            161.7998,
+            165.4367,
+            160.1671,
+            159.7642
+          ],
+          "median_ms": 161.7998,
+          "trajectory_sha256": "ea1643f8fc560c2dcea8863656ed0e5faa4f57b843a5bda350d999da4cf4e4cc",
+          "decisions": 68,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 41.04573299999999,
+            "n_decisions": 68,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 29.139096487360376,
+            "p95_wait_min": 70.73594907407409,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04107638888888889,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 10.307702932222224,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 30.596051311388894,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 978,
+              "WAIT": 85
+            },
+            "cand_feasible": {
+              "SERVE": 797,
+              "WAIT": 85
+            },
+            "sts_wait_s": 5242.123611111112,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 295.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            154.9553,
+            159.3802,
+            156.9351,
+            160.1725,
+            155.3695
+          ],
+          "median_ms": 156.9351,
+          "trajectory_sha256": "ea1643f8fc560c2dcea8863656ed0e5faa4f57b843a5bda350d999da4cf4e4cc",
+          "decisions": 68,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 41.04573299999999,
+            "n_decisions": 68,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 29.139096487360376,
+            "p95_wait_min": 70.73594907407409,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04107638888888889,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 10.307702932222224,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 30.596051311388894,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 978,
+              "WAIT": 85
+            },
+            "cand_feasible": {
+              "SERVE": 797,
+              "WAIT": 85
+            },
+            "sts_wait_s": 5242.123611111112,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 295.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            130.9466,
+            129.9639,
+            130.9689,
+            130.0473,
+            129.6073
+          ],
+          "median_ms": 130.0473,
+          "trajectory_sha256": "ea1643f8fc560c2dcea8863656ed0e5faa4f57b843a5bda350d999da4cf4e4cc",
+          "decisions": 68,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 20,
+            "plan_misses": 1697,
+            "slot_hits": 6692,
+            "slot_misses": 281,
+            "invalidations": 82,
+            "fingerprints": 85
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 41.04573299999999,
+            "n_decisions": 68,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 29.139096487360376,
+            "p95_wait_min": 70.73594907407409,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 18
+              },
+              "total": 85,
+              "shares": {
+                "SERVE": 0.7882,
+                "WAIT": 0.2118
+              },
+              "serve_available": 81,
+              "serve_taken": 67,
+              "serve_when_available": 0.8272
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04107638888888889,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 10.307702932222224,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 30.596051311388894,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 978,
+              "WAIT": 85
+            },
+            "cand_feasible": {
+              "SERVE": 797,
+              "WAIT": 85
+            },
+            "sts_wait_s": 5242.123611111112,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 295.75,
+            "rehandles": 2
+          }
+        }
+      }
+    },
+    {
+      "seed": 9903323,
+      "same_trajectory_and_cost": true,
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            220.9272,
+            212.3726,
+            222.2889,
+            211.3061,
+            214.1868
+          ],
+          "median_ms": 214.1868,
+          "trajectory_sha256": "edee7cb421516d0895f70588168e1191b789ca8ca1de34d3b9e7672ecf8404f4",
+          "decisions": 70,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 37.698843,
+            "n_decisions": 70,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 27.914754923574357,
+            "p95_wait_min": 73.68344907407408,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04649305555555555,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 8.240953318055556,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 29.310492670555554,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 1046,
+              "WAIT": 94
+            },
+            "cand_feasible": {
+              "SERVE": 737,
+              "WAIT": 94
+            },
+            "sts_wait_s": 4814.384722222222,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 334.75,
+            "rehandles": 2
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            190.4313,
+            189.4086,
+            190.3974,
+            185.9483,
+            186.3387
+          ],
+          "median_ms": 189.4086,
+          "trajectory_sha256": "edee7cb421516d0895f70588168e1191b789ca8ca1de34d3b9e7672ecf8404f4",
+          "decisions": 70,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 37.698843,
+            "n_decisions": 70,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 27.914754923574357,
+            "p95_wait_min": 73.68344907407408,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04649305555555555,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 8.240953318055556,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 29.310492670555554,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 1046,
+              "WAIT": 94
+            },
+            "cand_feasible": {
+              "SERVE": 737,
+              "WAIT": 94
+            },
+            "sts_wait_s": 4814.384722222222,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 334.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            192.4018,
+            186.6506,
+            185.0675,
+            188.3958,
+            183.527
+          ],
+          "median_ms": 186.6506,
+          "trajectory_sha256": "edee7cb421516d0895f70588168e1191b789ca8ca1de34d3b9e7672ecf8404f4",
+          "decisions": 70,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 37.698843,
+            "n_decisions": 70,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 27.914754923574357,
+            "p95_wait_min": 73.68344907407408,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04649305555555555,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 8.240953318055556,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 29.310492670555554,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 1046,
+              "WAIT": 94
+            },
+            "cand_feasible": {
+              "SERVE": 737,
+              "WAIT": 94
+            },
+            "sts_wait_s": 4814.384722222222,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 334.75,
+            "rehandles": 2
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            143.5584,
+            145.1075,
+            141.4076,
+            148.1334,
+            145.3057
+          ],
+          "median_ms": 145.1075,
+          "trajectory_sha256": "edee7cb421516d0895f70588168e1191b789ca8ca1de34d3b9e7672ecf8404f4",
+          "decisions": 70,
+          "remaining": 0,
+          "cache": {
+            "plan_hits": 405,
+            "plan_misses": 1691,
+            "slot_hits": 8471,
+            "slot_misses": 241,
+            "invalidations": 77,
+            "fingerprints": 94
+          },
+          "result": {
+            "policy": "RESOLVER",
+            "uses_future_truth": false,
+            "deployable": true,
+            "total_cost": 37.698843,
+            "n_decisions": 70,
+            "combo_truncations": 0,
+            "completion_rate": 1.0,
+            "backlog": 0,
+            "mean_wait_min": 27.914754923574357,
+            "p95_wait_min": 73.68344907407408,
+            "vessel_delay_min": 0.0,
+            "berth_overrun_min": 0.0,
+            "action_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "_mix": {
+              "counts": {
+                "SERVE": 67,
+                "WAIT": 27
+              },
+              "total": 94,
+              "shares": {
+                "SERVE": 0.7128,
+                "WAIT": 0.2872
+              },
+              "serve_available": 73,
+              "serve_taken": 67,
+              "serve_when_available": 0.9178
+            },
+            "term_contrib": {
+              "crane_travel": 0.0009027777777777777,
+              "depart_delay": 0.0,
+              "empty_travel": 0.04649305555555555,
+              "imbalance": 0.0,
+              "interference": 0.0,
+              "lane_cong": 0.0,
+              "long_wait": 8.240953318055556,
+              "rehandle": 0.1,
+              "resequence": 0.0,
+              "sts_wait": 0.0,
+              "transfer_wait": 0.0,
+              "truck_wait": 29.310492670555554,
+              "vessel_delay": 0.0
+            },
+            "cand_listed": {
+              "SERVE": 1046,
+              "WAIT": 94
+            },
+            "cand_feasible": {
+              "SERVE": 737,
+              "WAIT": 94
+            },
+            "sts_wait_s": 4814.384722222222,
+            "transfer_wait_s": 0.0,
+            "loaded_travel_m": 6.5,
+            "empty_travel_m": 334.75,
+            "rehandles": 2
+          }
+        }
+      }
+    }
+  ]
+}

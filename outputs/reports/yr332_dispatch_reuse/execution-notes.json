@@ -1,0 +1,27 @@
+{
+  "schema": "yard.v7.dispatch-reuse-execution-notes.v1",
+  "attempts": [
+    {
+      "artifact": "initial-tests.xml",
+      "result": "31 passed, 1 failed",
+      "cause": "The existing feature observation spy did not forward the new common keyword argument. The running process had loaded the previous spy signature.",
+      "correction": "Forward keyword arguments while retaining all original feature assertions. Included in d5930333."
+    },
+    {
+      "result": "interrupted; not counted as a completed test suite",
+      "cause": "The second, module-scoped feature observation spy in test_v7_crane_teacher.py had the same old signature.",
+      "correction": "Forward keyword arguments without weakening assertions in a27226b5; rerun the complete selected suite."
+    },
+    {
+      "result": "continuous benchmark first export failed before a complete artifact",
+      "cause": "ActionMix object was not JSON serializable.",
+      "correction": "Use its existing as_dict method in f04ec119. No simulator or policy computation changed."
+    },
+    {
+      "artifact": "tests.xml",
+      "result": "final complete selected test suite; authoritative counts are in JUnit"
+    }
+  ],
+  "counting": "The focused 19 and 85 tests overlap the final suite and must not be added to its total.",
+  "artifact_format": "UTF-8 LF; whitespace-only lines in initial-tests.xml trimmed. Test results and failure content retained."
+}

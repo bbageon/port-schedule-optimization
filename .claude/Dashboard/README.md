@@ -5,6 +5,8 @@
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.
 > board 규약 원본: [dashboard-board.md](../../dashboard-board.md)
 
+- **v7 상태 목록·작업 계획 재사용 적용 완료 (2026-11-05, YR-332-j)**: 같은 후보·계획·선택을 유지하며 1,000후보 최초 계산은 일괄 방식 54.597ms→33.752ms. 두 크레인·67작업 연속 실행은 개별 대비 29.5~32.3%, 일괄 대비 15.7~23.4% 계산시간 단축·세 모델 작업/비용 동일. 관련 210검사 통과. 후보 기본 상한 12 유지·새 학습 없음. 큰 혼잡 야드와 동시 부하는 l, 물리 보정은 i에 남았다. [결과](../../outputs/reports/yr332_dispatch_reuse/report.md) · [spec](../docs/dashboard-task-specs/YR-332-j-batched-crane-inference.md)
+
 - **v7 양하 연결·속도 진단 완료 (2026-11-05, YR-332-h)**: 야드 적체가 본선 대기·비용에 전달되고 공유 용량을 지킴을 16조건에서 확인했다. 1,000오더 선택 중앙값은 개별 263.282ms, 일괄 시제품 52.121ms. 관련 178검사 통과·확장 20통과/기존 PPO 1실패(변경 전 재현). 정책 개선·현장 속도 보증은 미확정. 후속은 구 시험 계약(k), 양하 용량·마감 보정(i), 일괄 계산 운영 적용(j). [결과](../../outputs/reports/yr332_discharge_latency/report.md) · [spec](../docs/dashboard-task-specs/YR-332-h-discharge-backpressure-latency.md)
 
 - **원본 배정 기준 재평가 완료 (2026-09-29, YR-331-f)**: 사용자 지시에 따라 같은 학습 크레인에서 원본 블록·예약 유지와 재배정 허용을 3쌍·6회 비교했다. 평균 운영 점수는 **0.10% 악화**, 최초 예약~출차 누적시간은 **37.87% 증가**했고 트럭 잔여도 세 쌍 모두 늘었다. 원본 오더 보존·거래 0건·가중치 동결을 검사했으며 재배정 성능 채택 조건 미충족이다. 다음은 검증 입력 공급 복구(c)→독립 수용 상한 확인(a)다. [결과](../../outputs/reports/yr331_original/report.md) · [spec](../docs/dashboard-task-specs/YR-331-f-original-assignment-comparison.md)

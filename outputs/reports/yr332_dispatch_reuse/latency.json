@@ -1,0 +1,6376 @@
+{
+  "schema": "yard.v7.dispatch-reuse.v1",
+  "seed": 9903321,
+  "repetitions": 20,
+  "environment": {
+    "commit": "a27226b5ae6456c917687fe58cc1612842addb5e",
+    "tracked_dirty": false,
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "cpu": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+    "threads": 1,
+    "cuda_used": false
+  },
+  "parameters": {
+    "orders": [
+      12,
+      100,
+      1000
+    ],
+    "history_case": 10000,
+    "cranes": 1,
+    "model": [
+      9,
+      64,
+      64,
+      1
+    ],
+    "cases": [
+      "cold",
+      "unchanged",
+      "arrival",
+      "cancel",
+      "crane_move",
+      "yard_change",
+      "reservation"
+    ],
+    "arms": [
+      "scalar_scan",
+      "batch_common",
+      "batch_index",
+      "batch_index_plans"
+    ],
+    "cap": "orders+2 (no candidate dropped)",
+    "warmup": "3 network calls; non-cold cases prime one complete decision",
+    "timing": "state transition plus generation/features/ranking/feasibility; clone and checks excluded"
+  },
+  "sha256": {
+    "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/benchmark_dispatch_reuse.py": "5045bce31bc0b2a3a4f6d0e244558a0e196a8c4cce4a0dc1991930edd3d65f27",
+    "tests/v7/test_dispatch_reuse.py": "de9d54150466879d18d720d8f001804d34febfeac249d266fe40c20dd34e51db",
+    "docs/research/v7-discharge/dispatch-cache-prereg.md": "ca55967f9a2b4315af9810f3583a52bc890ee158afd880163c9972af3ec7beb1",
+    "src/yard_rl/v7/job_index.py": "01cc127fd45930b58dc5f3d9113f4a3b1639cd9968f694e8495d25379ffb455b",
+    "src/yard_rl/v7/dispatch_cache.py": "734ff9fc066bfd706e356f7e02f516e90d8342f347cbd877dbbf63c8946c4df5",
+    "src/yard_rl/v7/crane/features.py": "da30b69dcf4225d3b814351a888e424b573139429dc43df1cc3a92130f608813",
+    "src/yard_rl/v7/crane/policy.py": "5ad060a49b5fd826206a428b7cd84db4d6d0453e7311e31772471121eec69eb7",
+    "src/yard_rl/v7/world/domain/models.py": "9771a56a08651d6d84375d08645555ee3a09bab60bd9bf89f90488360baaffa5",
+    "src/yard_rl/v7/world/integrated/engine.py": "3e38074367336ad953c7cd5409ea395b0ab7c3ab6ac46a85c798753381134e88",
+    "src/yard_rl/v7/world/integrated/candidates.py": "069e077e995dd6ec1fce90ca48f5f1fb3bf6ab36ba414c7d2ccb29945c232b9e",
+    "src/yard_rl/v7/world/integrated/resolver.py": "13d1331a3b1e1fc63d1625590a39d17d94845d370111629e5b61196865d128b3"
+  },
+  "rows": [
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "cold",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.0994,
+            1.0578,
+            1.0565,
+            1.0536,
+            1.0683,
+            1.0975,
+            1.065,
+            1.0738,
+            1.0825,
+            1.0497,
+            1.1142,
+            1.1022,
+            1.0872,
+            1.1206,
+            1.3432,
+            1.0616,
+            1.0919,
+            1.0959,
+            1.054,
+            1.0512
+          ],
+          "median_ms": 1.07815,
+          "p95_ms": 1.1206,
+          "transition": {
+            "samples_ms": [
+              0.0005,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0006,
+              0.0005,
+              0.0006,
+              0.0005,
+              0.0004,
+              0.0004,
+              0.0008,
+              0.0004,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0004
+            ],
+            "median_ms": 0.0005,
+            "p95_ms": 0.0006
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.7821,
+            0.8411,
+            0.7465,
+            0.7419,
+            0.7392,
+            0.7458,
+            0.7308,
+            0.7692,
+            0.8689,
+            0.7322,
+            0.7578,
+            0.8907,
+            0.7663,
+            0.8639,
+            0.7682,
+            0.7395,
+            0.7351,
+            0.7574,
+            0.7316,
+            0.7333
+          ],
+          "median_ms": 0.75195,
+          "p95_ms": 0.8689,
+          "transition": {
+            "samples_ms": [
+              0.0008,
+              0.0005,
+              0.0005,
+              0.0004,
+              0.0005,
+              0.0004,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0009,
+              0.0004,
+              0.0004,
+              0.0009,
+              0.0005,
+              0.0004,
+              0.0008,
+              0.0005,
+              0.0005
+            ],
+            "median_ms": 0.0005,
+            "p95_ms": 0.0009
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.7616,
+            0.7469,
+            0.7612,
+            0.7729,
+            0.7805,
+            0.7468,
+            0.7387,
+            0.7801,
+            0.8996,
+            0.7451,
+            0.7668,
+            0.9301,
+            0.7831,
+            0.7566,
+            0.8796,
+            0.7305,
+            0.7756,
+            0.7497,
+            0.7378,
+            0.7414
+          ],
+          "median_ms": 0.7614000000000001,
+          "p95_ms": 0.8996,
+          "transition": {
+            "samples_ms": [
+              0.0005,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.001,
+              0.0005,
+              0.0006,
+              0.001,
+              0.0005,
+              0.0004,
+              0.0009,
+              0.0005,
+              0.0006,
+              0.0006,
+              0.0004,
+              0.0005
+            ],
+            "median_ms": 0.0005,
+            "p95_ms": 0.001
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.9421,
+            0.5277,
+            0.5232,
+            0.5283,
+            0.5116,
+            0.5164,
+            0.5264,
+            0.5265,
+            0.5277,
+            0.5166,
+            0.5189,
+            0.5819,
+            0.5348,
+            0.583,
+            0.5183,
+            0.5186,
+            0.5281,
+            0.5298,
+            0.5178,
+            0.5396
+          ],
+          "median_ms": 0.5270999999999999,
+          "p95_ms": 0.583,
+          "transition": {
+            "samples_ms": [
+              0.0014,
+              0.0006,
+              0.0005,
+              0.0005,
+              0.0004,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0004,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0007,
+              0.0005,
+              0.0005,
+              0.0004,
+              0.0006,
+              0.0004,
+              0.0005
+            ],
+            "median_ms": 0.0005,
+            "p95_ms": 0.0007
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 12,
+            "slot_hits": 70,
+            "slot_misses": 2,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "unchanged",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.061,
+            1.167,
+            1.0779,
+            1.0759,
+            1.0469,
+            1.048,
+            1.0721,
+            1.0427,
+            1.0366,
+            1.1533,
+            1.1222,
+            1.0934,
+            1.051,
+            1.1108,
+            1.0474,
+            1.1044,
+            1.1132,
+            1.1129,
+            1.3859,
+            1.0868
+          ],
+          "median_ms": 1.08235,
+          "p95_ms": 1.167,
+          "transition": {
+            "samples_ms": [
+              0.0006,
+              0.0007,
+              0.0007,
+              0.0006,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0007,
+              0.0005,
+              0.0014,
+              0.0006,
+              0.0007,
+              0.0006,
+              0.0006,
+              0.001,
+              0.0008,
+              0.0006,
+              0.0005,
+              0.0005
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.001
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.7452,
+            0.7779,
+            0.7391,
+            0.7797,
+            0.748,
+            0.741,
+            0.7443,
+            0.7426,
+            0.7177,
+            0.7869,
+            0.7723,
+            0.8308,
+            0.7708,
+            0.7311,
+            0.7341,
+            0.73,
+            0.7497,
+            0.7377,
+            0.7497,
+            0.7541
+          ],
+          "median_ms": 0.7465999999999999,
+          "p95_ms": 0.7869,
+          "transition": {
+            "samples_ms": [
+              0.0006,
+              0.0006,
+              0.0005,
+              0.0006,
+              0.0008,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0005,
+              0.0007,
+              0.001,
+              0.0009,
+              0.0011,
+              0.0007,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0006,
+              0.0006,
+              0.0009
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.001
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.7264,
+            0.8214,
+            0.7432,
+            0.7361,
+            0.7265,
+            0.7894,
+            0.794,
+            0.7263,
+            0.8127,
+            0.7939,
+            0.7699,
+            0.7577,
+            0.777,
+            0.7345,
+            0.7394,
+            0.7422,
+            0.7887,
+            0.7545,
+            0.7543,
+            0.8457
+          ],
+          "median_ms": 0.7561,
+          "p95_ms": 0.8214,
+          "transition": {
+            "samples_ms": [
+              0.0006,
+              0.0005,
+              0.0006,
+              0.0005,
+              0.0005,
+              0.0005,
+              0.0006,
+              0.0006,
+              0.0009,
+              0.0009,
+              0.0007,
+              0.0006,
+              0.0007,
+              0.0005,
+              0.0008,
+              0.0006,
+              0.0009,
+              0.0008,
+              0.0006,
+              0.0006
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.0009
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.5299,
+            0.4571,
+            0.4297,
+            0.4297,
+            0.4297,
+            0.4318,
+            0.4882,
+            0.424,
+            0.4228,
+            0.4392,
+            0.4533,
+            0.4538,
+            0.4469,
+            0.4232,
+            0.4236,
+            0.4172,
+            0.4373,
+            0.4303,
+            0.5466,
+            0.4445
+          ],
+          "median_ms": 0.43455,
+          "p95_ms": 0.5299,
+          "transition": {
+            "samples_ms": [
+              0.0016,
+              0.0005,
+              0.0006,
+              0.0005,
+              0.0007,
+              0.0006,
+              0.0006,
+              0.0006,
+              0.0005,
+              0.0005,
+              0.0008,
+              0.0007,
+              0.0005,
+              0.0006,
+              0.0006,
+              0.0006,
+              0.0006,
+              0.0006,
+              0.0011,
+              0.0006
+            ],
+            "median_ms": 0.0006,
+            "p95_ms": 0.0011
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 12,
+            "plan_misses": 0,
+            "slot_hits": 60,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "arrival",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.1746,
+            1.2218,
+            1.2116,
+            1.2875,
+            1.1925,
+            1.2594,
+            1.1715,
+            1.1493,
+            1.1591,
+            1.156,
+            1.1945,
+            1.6068,
+            1.2237,
+            1.4427,
+            1.5044,
+            1.2581,
+            1.1715,
+            1.2227,
+            1.2581,
+            1.235
+          ],
+          "median_ms": 1.2222499999999998,
+          "p95_ms": 1.5044,
+          "transition": {
+            "samples_ms": [
+              0.0212,
+              0.0246,
+              0.0267,
+              0.023,
+              0.021,
+              0.0237,
+              0.0255,
+              0.0206,
+              0.0198,
+              0.019,
+              0.0204,
+              0.0202,
+              0.0208,
+              0.0242,
+              0.021,
+              0.0228,
+              0.0217,
+              0.0213,
+              0.0263,
+              0.021
+            ],
+            "median_ms": 0.021249999999999998,
+            "p95_ms": 0.0263
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 13,
+          "feasible_count": 13,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.8438,
+            0.8919,
+            0.8426,
+            0.8455,
+            0.858,
+            0.8475,
+            0.8236,
+            0.8233,
+            0.8212,
+            1.2223,
+            0.8488,
+            0.8547,
+            0.8471,
+            0.9159,
+            0.8552,
+            0.8841,
+            1.1546,
+            0.8456,
+            0.8215,
+            0.8243
+          ],
+          "median_ms": 0.8472999999999999,
+          "p95_ms": 1.1546,
+          "transition": {
+            "samples_ms": [
+              0.0235,
+              0.0235,
+              0.0232,
+              0.0204,
+              0.023,
+              0.0202,
+              0.0205,
+              0.0201,
+              0.0192,
+              0.0191,
+              0.0204,
+              0.0229,
+              0.0196,
+              0.0298,
+              0.0226,
+              0.0272,
+              0.0276,
+              0.0217,
+              0.0218,
+              0.0194
+            ],
+            "median_ms": 0.02175,
+            "p95_ms": 0.0276
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 13,
+          "feasible_count": 13,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.8718,
+            0.9298,
+            0.8462,
+            0.8185,
+            1.1326,
+            0.8279,
+            0.8364,
+            0.8785,
+            0.822,
+            0.8921,
+            0.8569,
+            0.8447,
+            0.8688,
+            0.8659,
+            0.8547,
+            0.8512,
+            0.8494,
+            0.9124,
+            0.8828,
+            0.8264
+          ],
+          "median_ms": 0.8558,
+          "p95_ms": 0.9298,
+          "transition": {
+            "samples_ms": [
+              0.0267,
+              0.0276,
+              0.0218,
+              0.0217,
+              0.0328,
+              0.0234,
+              0.0221,
+              0.0208,
+              0.0212,
+              0.0279,
+              0.0228,
+              0.0231,
+              0.0231,
+              0.0253,
+              0.0238,
+              0.0242,
+              0.0223,
+              0.0227,
+              0.0241,
+              0.0205
+            ],
+            "median_ms": 0.0231,
+            "p95_ms": 0.0279
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 13,
+          "feasible_count": 13,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.5947,
+            0.6175,
+            0.5344,
+            0.5321,
+            0.5613,
+            0.5422,
+            0.531,
+            0.5292,
+            0.5303,
+            0.5165,
+            0.6187,
+            0.5582,
+            0.535,
+            0.5616,
+            0.5318,
+            0.5939,
+            0.5616,
+            0.5514,
+            0.5337,
+            0.5405
+          ],
+          "median_ms": 0.54135,
+          "p95_ms": 0.6175,
+          "transition": {
+            "samples_ms": [
+              0.0321,
+              0.0263,
+              0.0224,
+              0.0206,
+              0.0232,
+              0.0229,
+              0.0218,
+              0.0216,
+              0.0202,
+              0.0206,
+              0.0223,
+              0.0216,
+              0.0217,
+              0.0274,
+              0.0233,
+              0.0374,
+              0.029,
+              0.0212,
+              0.0218,
+              0.0222
+            ],
+            "median_ms": 0.02225,
+            "p95_ms": 0.0321
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 13,
+          "feasible_count": 13,
+          "cache_delta": {
+            "plan_hits": 12,
+            "plan_misses": 1,
+            "slot_hits": 66,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "cancel",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.0011,
+            1.0598,
+            1.1846,
+            1.1159,
+            1.1128,
+            1.0767,
+            1.001,
+            0.9967,
+            1.1191,
+            0.9987,
+            1.1171,
+            1.0042,
+            1.0837,
+            0.9864,
+            1.0832,
+            0.9976,
+            1.0623,
+            1.0317,
+            1.298,
+            1.0579
+          ],
+          "median_ms": 1.06105,
+          "p95_ms": 1.1846,
+          "transition": {
+            "samples_ms": [
+              0.0149,
+              0.0179,
+              0.0159,
+              0.0218,
+              0.0161,
+              0.0219,
+              0.0137,
+              0.0132,
+              0.0169,
+              0.0145,
+              0.0145,
+              0.0154,
+              0.0157,
+              0.0138,
+              0.0191,
+              0.0131,
+              0.0194,
+              0.0236,
+              0.0159,
+              0.0147
+            ],
+            "median_ms": 0.0158,
+            "p95_ms": 0.0219
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 11,
+          "feasible_count": 11,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.7178,
+            0.6975,
+            0.7037,
+            0.7126,
+            0.7415,
+            0.7035,
+            0.7004,
+            0.6981,
+            0.9223,
+            0.7263,
+            0.7176,
+            0.7115,
+            0.7242,
+            0.697,
+            0.6953,
+            0.6966,
+            0.7486,
+            0.8635,
+            0.7538,
+            0.7881
+          ],
+          "median_ms": 0.7151000000000001,
+          "p95_ms": 0.8635,
+          "transition": {
+            "samples_ms": [
+              0.0163,
+              0.0145,
+              0.0142,
+              0.0142,
+              0.0139,
+              0.0141,
+              0.0138,
+              0.0131,
+              0.0161,
+              0.0198,
+              0.0132,
+              0.0137,
+              0.0133,
+              0.0135,
+              0.0132,
+              0.0136,
+              0.0136,
+              0.0144,
+              0.0194,
+              0.0138
+            ],
+            "median_ms": 0.01385,
+            "p95_ms": 0.0194
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 11,
+          "feasible_count": 11,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.6986,
+            0.7273,
+            0.8709,
+            0.7212,
+            0.7043,
+            0.9905,
+            0.8223,
+            0.718,
+            0.7512,
+            0.7067,
+            0.7022,
+            0.7101,
+            0.7134,
+            0.7053,
+            0.6957,
+            0.7059,
+            0.697,
+            0.7641,
+            0.7759,
+            0.7098
+          ],
+          "median_ms": 0.71175,
+          "p95_ms": 0.8709,
+          "transition": {
+            "samples_ms": [
+              0.0162,
+              0.0211,
+              0.0196,
+              0.0182,
+              0.0144,
+              0.0168,
+              0.0157,
+              0.0172,
+              0.0177,
+              0.0152,
+              0.015,
+              0.0154,
+              0.0151,
+              0.0148,
+              0.0141,
+              0.0147,
+              0.0141,
+              0.0189,
+              0.0246,
+              0.0147
+            ],
+            "median_ms": 0.01555,
+            "p95_ms": 0.0211
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 11,
+          "feasible_count": 11,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.4993,
+            0.4591,
+            0.4662,
+            0.4756,
+            0.4971,
+            0.4814,
+            0.4619,
+            0.4512,
+            0.456,
+            0.468,
+            0.4494,
+            0.4576,
+            0.45,
+            0.4498,
+            0.4488,
+            0.4703,
+            0.4586,
+            0.4633,
+            0.4575,
+            0.5047
+          ],
+          "median_ms": 0.4605,
+          "p95_ms": 0.4993,
+          "transition": {
+            "samples_ms": [
+              0.0155,
+              0.0146,
+              0.0156,
+              0.0142,
+              0.0175,
+              0.016,
+              0.0149,
+              0.0143,
+              0.014,
+              0.0143,
+              0.014,
+              0.0144,
+              0.0143,
+              0.0143,
+              0.0142,
+              0.0195,
+              0.0146,
+              0.0163,
+              0.0154,
+              0.0175
+            ],
+            "median_ms": 0.0146,
+            "p95_ms": 0.0175
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 11,
+          "feasible_count": 11,
+          "cache_delta": {
+            "plan_hits": 11,
+            "plan_misses": 0,
+            "slot_hits": 55,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "crane_move",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.1437,
+            1.1174,
+            1.1108,
+            1.0803,
+            1.078,
+            1.1303,
+            2.3044,
+            1.1753,
+            1.4313,
+            1.0908,
+            1.4594,
+            1.2163,
+            1.0748,
+            1.0706,
+            1.1211,
+            1.0567,
+            1.0716,
+            1.3697,
+            1.068,
+            1.1553
+          ],
+          "median_ms": 1.11925,
+          "p95_ms": 1.4594,
+          "transition": {
+            "samples_ms": [
+              0.016,
+              0.0198,
+              0.0146,
+              0.013,
+              0.0133,
+              0.0177,
+              0.0134,
+              0.0182,
+              0.0143,
+              0.0132,
+              0.0191,
+              0.0174,
+              0.0136,
+              0.013,
+              0.0126,
+              0.0137,
+              0.0135,
+              0.0176,
+              0.0135,
+              0.0142
+            ],
+            "median_ms": 0.01395,
+            "p95_ms": 0.0191
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.8153,
+            0.7517,
+            0.7534,
+            0.7497,
+            0.7494,
+            0.7805,
+            0.7683,
+            0.7944,
+            0.7658,
+            0.7682,
+            0.8106,
+            0.7925,
+            0.7599,
+            0.7711,
+            0.7469,
+            0.7518,
+            0.799,
+            0.7796,
+            0.8228,
+            0.7911
+          ],
+          "median_ms": 0.7697,
+          "p95_ms": 0.8153,
+          "transition": {
+            "samples_ms": [
+              0.0194,
+              0.014,
+              0.014,
+              0.0126,
+              0.0126,
+              0.0136,
+              0.0145,
+              0.0151,
+              0.0133,
+              0.0126,
+              0.0142,
+              0.015,
+              0.0145,
+              0.0128,
+              0.0132,
+              0.0131,
+              0.016,
+              0.0144,
+              0.0129,
+              0.0162
+            ],
+            "median_ms": 0.014,
+            "p95_ms": 0.0162
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.8032,
+            0.7512,
+            0.7624,
+            0.7578,
+            0.7602,
+            0.7596,
+            0.8061,
+            0.8669,
+            0.8134,
+            0.8125,
+            0.77,
+            0.8438,
+            0.7702,
+            0.7531,
+            0.8042,
+            0.8972,
+            0.7598,
+            0.8067,
+            0.7661,
+            0.7918
+          ],
+          "median_ms": 0.7809999999999999,
+          "p95_ms": 0.8669,
+          "transition": {
+            "samples_ms": [
+              0.014,
+              0.0136,
+              0.0135,
+              0.0135,
+              0.0132,
+              0.0136,
+              0.0129,
+              0.0158,
+              0.0157,
+              0.0134,
+              0.0126,
+              0.0166,
+              0.0168,
+              0.0136,
+              0.0139,
+              0.0128,
+              0.0131,
+              0.0141,
+              0.0148,
+              0.0143
+            ],
+            "median_ms": 0.0136,
+            "p95_ms": 0.0166
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.6196,
+            0.6446,
+            0.526,
+            0.5292,
+            0.5345,
+            0.5629,
+            0.5317,
+            0.5455,
+            0.5851,
+            0.5506,
+            0.5513,
+            0.5335,
+            0.581,
+            0.534,
+            0.5552,
+            0.5264,
+            0.5517,
+            0.5509,
+            0.5503,
+            0.5638
+          ],
+          "median_ms": 0.55075,
+          "p95_ms": 0.6196,
+          "transition": {
+            "samples_ms": [
+              0.0201,
+              0.0175,
+              0.0134,
+              0.0135,
+              0.0125,
+              0.0131,
+              0.013,
+              0.013,
+              0.0349,
+              0.0138,
+              0.0203,
+              0.0145,
+              0.0161,
+              0.0128,
+              0.0127,
+              0.0125,
+              0.0142,
+              0.014,
+              0.0125,
+              0.0146
+            ],
+            "median_ms": 0.013649999999999999,
+            "p95_ms": 0.0203
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 12,
+            "slot_hits": 70,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "yard_change",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.1197,
+            1.0916,
+            1.0877,
+            1.0847,
+            1.1242,
+            1.0798,
+            1.1081,
+            1.0911,
+            1.1215,
+            1.1581,
+            1.101,
+            1.0742,
+            1.165,
+            1.1401,
+            1.0756,
+            1.0787,
+            1.0922,
+            1.1015,
+            1.0926,
+            1.1437
+          ],
+          "median_ms": 1.0968,
+          "p95_ms": 1.1581,
+          "transition": {
+            "samples_ms": [
+              0.018,
+              0.0157,
+              0.0176,
+              0.0147,
+              0.0151,
+              0.0146,
+              0.0174,
+              0.0151,
+              0.0152,
+              0.0227,
+              0.0174,
+              0.0153,
+              0.0207,
+              0.0202,
+              0.0146,
+              0.0147,
+              0.0144,
+              0.0143,
+              0.0148,
+              0.0183
+            ],
+            "median_ms": 0.01525,
+            "p95_ms": 0.0207
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.7947,
+            0.8056,
+            0.7685,
+            0.8096,
+            0.8283,
+            0.7871,
+            0.7981,
+            0.7772,
+            1.0968,
+            0.7831,
+            0.7796,
+            0.7918,
+            0.7896,
+            0.8635,
+            0.7654,
+            0.8247,
+            0.7857,
+            0.7683,
+            0.8348,
+            0.8471
+          ],
+          "median_ms": 0.79325,
+          "p95_ms": 0.8635,
+          "transition": {
+            "samples_ms": [
+              0.0188,
+              0.0151,
+              0.0148,
+              0.0136,
+              0.015,
+              0.015,
+              0.016,
+              0.015,
+              0.0157,
+              0.015,
+              0.015,
+              0.0162,
+              0.0182,
+              0.0194,
+              0.0143,
+              0.0207,
+              0.0139,
+              0.0142,
+              0.0141,
+              0.0171
+            ],
+            "median_ms": 0.015,
+            "p95_ms": 0.0194
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.7873,
+            0.7637,
+            0.9588,
+            0.7838,
+            0.8081,
+            0.8536,
+            0.803,
+            0.7739,
+            0.794,
+            0.806,
+            0.7902,
+            0.7808,
+            0.7911,
+            0.7763,
+            0.7729,
+            0.7735,
+            0.7658,
+            0.7854,
+            0.7635,
+            0.7767
+          ],
+          "median_ms": 0.7846,
+          "p95_ms": 0.8536,
+          "transition": {
+            "samples_ms": [
+              0.0162,
+              0.0147,
+              0.0186,
+              0.024,
+              0.0188,
+              0.0177,
+              0.0144,
+              0.0144,
+              0.015,
+              0.015,
+              0.0149,
+              0.0144,
+              0.0151,
+              0.0156,
+              0.0198,
+              0.014,
+              0.0143,
+              0.0154,
+              0.014,
+              0.015
+            ],
+            "median_ms": 0.015,
+            "p95_ms": 0.0198
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.5465,
+            0.5498,
+            0.538,
+            0.5331,
+            0.5637,
+            0.539,
+            0.5502,
+            0.5779,
+            0.5733,
+            0.6856,
+            0.5542,
+            0.6594,
+            0.5565,
+            0.794,
+            0.5403,
+            0.8604,
+            0.5369,
+            0.5387,
+            0.5341,
+            0.5437
+          ],
+          "median_ms": 0.55,
+          "p95_ms": 0.794,
+          "transition": {
+            "samples_ms": [
+              0.0175,
+              0.016,
+              0.0142,
+              0.014,
+              0.0153,
+              0.0157,
+              0.0153,
+              0.0196,
+              0.0205,
+              0.0177,
+              0.0148,
+              0.0179,
+              0.0145,
+              0.0154,
+              0.0151,
+              0.0141,
+              0.014,
+              0.0147,
+              0.0138,
+              0.0149
+            ],
+            "median_ms": 0.0152,
+            "p95_ms": 0.0196
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 12,
+            "slot_hits": 70,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 12,
+      "history": 0,
+      "case": "reservation",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            1.1466,
+            1.0995,
+            1.0914,
+            1.1468,
+            1.0892,
+            1.4202,
+            1.184,
+            1.1314,
+            1.1078,
+            1.0986,
+            1.1109,
+            1.1003,
+            1.3306,
+            1.2231,
+            1.2275,
+            1.1247,
+            1.1848,
+            1.2312,
+            1.1245,
+            1.1441
+          ],
+          "median_ms": 1.13775,
+          "p95_ms": 1.3306,
+          "transition": {
+            "samples_ms": [
+              0.0207,
+              0.0165,
+              0.0153,
+              0.0172,
+              0.0168,
+              0.05,
+              0.0168,
+              0.0182,
+              0.0184,
+              0.016,
+              0.0157,
+              0.0164,
+              0.0205,
+              0.0246,
+              0.02,
+              0.0189,
+              0.0181,
+              0.0222,
+              0.0186,
+              0.018
+            ],
+            "median_ms": 0.01815,
+            "p95_ms": 0.0246
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            0.7865,
+            0.7834,
+            0.7782,
+            0.8425,
+            0.7883,
+            0.9346,
+            0.8996,
+            0.7752,
+            0.8188,
+            0.7938,
+            0.7922,
+            0.7816,
+            0.8336,
+            0.821,
+            0.8257,
+            0.8086,
+            0.8264,
+            0.7963,
+            1.0274,
+            0.9704
+          ],
+          "median_ms": 0.8137,
+          "p95_ms": 0.9704,
+          "transition": {
+            "samples_ms": [
+              0.0164,
+              0.0157,
+              0.0154,
+              0.0216,
+              0.016,
+              0.0184,
+              0.0205,
+              0.0168,
+              0.016,
+              0.0164,
+              0.0152,
+              0.0155,
+              0.0187,
+              0.021,
+              0.0156,
+              0.0166,
+              0.0196,
+              0.0164,
+              0.019,
+              0.0161
+            ],
+            "median_ms": 0.0164,
+            "p95_ms": 0.021
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            0.7794,
+            0.8359,
+            0.7862,
+            0.7807,
+            0.7768,
+            0.7768,
+            0.8041,
+            0.8033,
+            0.8027,
+            0.7937,
+            0.7859,
+            0.9918,
+            0.8011,
+            0.8153,
+            0.7964,
+            0.8664,
+            1.0644,
+            0.8158,
+            0.8203,
+            0.8034
+          ],
+          "median_ms": 0.8029999999999999,
+          "p95_ms": 0.9918,
+          "transition": {
+            "samples_ms": [
+              0.016,
+              0.0165,
+              0.02,
+              0.0152,
+              0.0146,
+              0.0151,
+              0.0169,
+              0.0315,
+              0.0171,
+              0.0154,
+              0.0152,
+              0.0205,
+              0.0186,
+              0.0194,
+              0.0153,
+              0.0184,
+              0.0238,
+              0.0186,
+              0.0213,
+              0.0163
+            ],
+            "median_ms": 0.017,
+            "p95_ms": 0.0238
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            0.6162,
+            0.5683,
+            0.5791,
+            0.572,
+            0.582,
+            0.5883,
+            0.5975,
+            0.5713,
+            0.5671,
+            0.5766,
+            0.5681,
+            0.5846,
+            0.8074,
+            0.7851,
+            0.8971,
+            0.5915,
+            1.2152,
+            0.7215,
+            0.8168,
+            0.6428
+          ],
+          "median_ms": 0.5899000000000001,
+          "p95_ms": 0.8971,
+          "transition": {
+            "samples_ms": [
+              0.0183,
+              0.0153,
+              0.0152,
+              0.0154,
+              0.0158,
+              0.0166,
+              0.016,
+              0.015,
+              0.0159,
+              0.015,
+              0.015,
+              0.016,
+              0.0173,
+              0.0168,
+              0.0176,
+              0.0171,
+              0.0279,
+              0.0154,
+              0.0202,
+              0.0197
+            ],
+            "median_ms": 0.016,
+            "p95_ms": 0.0202
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 12,
+          "feasible_count": 12,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 12,
+            "slot_hits": 68,
+            "slot_misses": 4,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "cold",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            9.9293,
+            9.9888,
+            9.9965,
+            9.7052,
+            10.2431,
+            9.9285,
+            9.7324,
+            10.1723,
+            10.4602,
+            10.1765,
+            9.9482,
+            10.8273,
+            9.814,
+            9.7277,
+            9.962,
+            9.6052,
+            9.8089,
+            10.048,
+            9.7258,
+            9.7994
+          ],
+          "median_ms": 9.938749999999999,
+          "p95_ms": 10.4602,
+          "transition": {
+            "samples_ms": [
+              0.001,
+              0.0011,
+              0.0005,
+              0.0004,
+              0.0008,
+              0.001,
+              0.001,
+              0.0009,
+              0.001,
+              0.0017,
+              0.001,
+              0.0011,
+              0.0012,
+              0.0006,
+              0.0012,
+              0.0009,
+              0.0005,
+              0.0008,
+              0.0011,
+              0.0009
+            ],
+            "median_ms": 0.001,
+            "p95_ms": 0.0012
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.7527,
+            5.2406,
+            5.2627,
+            5.1501,
+            5.5776,
+            5.5341,
+            5.6189,
+            5.5004,
+            5.632,
+            5.8039,
+            6.3996,
+            5.4321,
+            5.805,
+            5.3823,
+            5.7288,
+            5.2572,
+            5.2445,
+            5.2354,
+            6.7214,
+            5.5055
+          ],
+          "median_ms": 5.5198,
+          "p95_ms": 6.3996,
+          "transition": {
+            "samples_ms": [
+              0.0011,
+              0.0007,
+              0.0009,
+              0.0005,
+              0.0013,
+              0.0005,
+              0.0008,
+              0.0013,
+              0.001,
+              0.0009,
+              0.0011,
+              0.001,
+              0.0005,
+              0.0007,
+              0.0006,
+              0.0008,
+              0.0008,
+              0.0007,
+              0.0008,
+              0.0012
+            ],
+            "median_ms": 0.0008,
+            "p95_ms": 0.0013
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.4745,
+            5.4891,
+            5.3314,
+            5.2712,
+            5.5903,
+            5.2704,
+            5.256,
+            5.3674,
+            5.7124,
+            5.4356,
+            5.2987,
+            5.7579,
+            5.4511,
+            5.3704,
+            5.3959,
+            5.2635,
+            5.4926,
+            5.5185,
+            5.3076,
+            5.6664
+          ],
+          "median_ms": 5.41575,
+          "p95_ms": 5.7124,
+          "transition": {
+            "samples_ms": [
+              0.0011,
+              0.0007,
+              0.001,
+              0.0007,
+              0.001,
+              0.0007,
+              0.0008,
+              0.0008,
+              0.0013,
+              0.001,
+              0.0008,
+              0.0015,
+              0.0017,
+              0.0011,
+              0.0014,
+              0.0008,
+              0.0008,
+              0.0006,
+              0.0012,
+              0.0012
+            ],
+            "median_ms": 0.001,
+            "p95_ms": 0.0015
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            3.2986,
+            3.3028,
+            3.5782,
+            3.2735,
+            3.5498,
+            3.7528,
+            3.2683,
+            3.4865,
+            3.6773,
+            3.4904,
+            3.7191,
+            3.769,
+            3.3695,
+            3.271,
+            3.3434,
+            3.3422,
+            3.2306,
+            3.2463,
+            3.4674,
+            3.3213
+          ],
+          "median_ms": 3.3564499999999997,
+          "p95_ms": 3.7528,
+          "transition": {
+            "samples_ms": [
+              0.0011,
+              0.0007,
+              0.0012,
+              0.0006,
+              0.001,
+              0.0012,
+              0.0007,
+              0.001,
+              0.0011,
+              0.0012,
+              0.0007,
+              0.0007,
+              0.001,
+              0.0006,
+              0.0013,
+              0.0007,
+              0.0005,
+              0.0006,
+              0.0011,
+              0.0009
+            ],
+            "median_ms": 0.00095,
+            "p95_ms": 0.0012
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 100,
+            "slot_hits": 598,
+            "slot_misses": 2,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "unchanged",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            10.047,
+            10.1182,
+            9.5626,
+            10.154,
+            9.9686,
+            9.5181,
+            10.923,
+            9.7061,
+            9.4194,
+            9.9556,
+            9.8911,
+            9.5755,
+            10.2423,
+            9.9576,
+            9.7257,
+            9.5287,
+            9.5915,
+            10.0885,
+            11.048,
+            9.9859
+          ],
+          "median_ms": 9.9566,
+          "p95_ms": 10.923,
+          "transition": {
+            "samples_ms": [
+              0.0012,
+              0.0015,
+              0.0013,
+              0.0012,
+              0.0016,
+              0.0014,
+              0.0018,
+              0.0008,
+              0.0008,
+              0.0009,
+              0.0006,
+              0.0009,
+              0.0008,
+              0.0013,
+              0.0009,
+              0.0012,
+              0.0007,
+              0.0014,
+              0.0018,
+              0.0014
+            ],
+            "median_ms": 0.0012,
+            "p95_ms": 0.0018
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.1953,
+            5.248,
+            5.2779,
+            5.2304,
+            5.3736,
+            5.16,
+            5.2637,
+            5.1625,
+            5.2993,
+            5.2504,
+            5.2548,
+            5.2016,
+            5.2477,
+            5.2457,
+            5.4302,
+            5.2255,
+            5.1451,
+            5.2015,
+            5.331,
+            5.4567
+          ],
+          "median_ms": 5.24785,
+          "p95_ms": 5.4302,
+          "transition": {
+            "samples_ms": [
+              0.0016,
+              0.0017,
+              0.0012,
+              0.001,
+              0.0013,
+              0.001,
+              0.0013,
+              0.001,
+              0.0012,
+              0.0007,
+              0.0007,
+              0.0008,
+              0.0007,
+              0.001,
+              0.0012,
+              0.0011,
+              0.0007,
+              0.0008,
+              0.0017,
+              0.0012
+            ],
+            "median_ms": 0.0010500000000000002,
+            "p95_ms": 0.0017
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.2919,
+            5.2544,
+            5.2899,
+            5.4296,
+            5.3715,
+            5.1904,
+            5.1602,
+            5.3141,
+            5.3072,
+            5.2032,
+            5.1991,
+            5.4272,
+            5.2442,
+            5.4855,
+            5.2741,
+            5.5395,
+            5.1387,
+            5.3481,
+            5.6579,
+            5.397
+          ],
+          "median_ms": 5.29955,
+          "p95_ms": 5.5395,
+          "transition": {
+            "samples_ms": [
+              0.0017,
+              0.0017,
+              0.0015,
+              0.0013,
+              0.0013,
+              0.001,
+              0.0009,
+              0.0009,
+              0.0008,
+              0.0011,
+              0.0008,
+              0.0007,
+              0.0009,
+              0.0006,
+              0.0008,
+              0.0006,
+              0.0007,
+              0.0016,
+              0.0008,
+              0.0018
+            ],
+            "median_ms": 0.0009,
+            "p95_ms": 0.0017
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            2.8835,
+            2.9122,
+            2.6936,
+            3.0384,
+            2.666,
+            2.6204,
+            3.1009,
+            2.647,
+            2.6243,
+            2.6572,
+            2.6564,
+            2.6037,
+            2.6367,
+            2.8828,
+            2.6839,
+            2.6335,
+            2.622,
+            2.7723,
+            2.6807,
+            2.7003
+          ],
+          "median_ms": 2.67335,
+          "p95_ms": 3.0384,
+          "transition": {
+            "samples_ms": [
+              0.0012,
+              0.0016,
+              0.0015,
+              0.0011,
+              0.0011,
+              0.0009,
+              0.0017,
+              0.0009,
+              0.0006,
+              0.0008,
+              0.0008,
+              0.0008,
+              0.0009,
+              0.0009,
+              0.0012,
+              0.0011,
+              0.0006,
+              0.001,
+              0.0017,
+              0.0013
+            ],
+            "median_ms": 0.0010500000000000002,
+            "p95_ms": 0.0017
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 100,
+            "plan_misses": 0,
+            "slot_hits": 500,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "arrival",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            9.6253,
+            9.5484,
+            10.1627,
+            10.3684,
+            9.8135,
+            9.9087,
+            9.8575,
+            9.7099,
+            10.3875,
+            9.8678,
+            10.3013,
+            10.2209,
+            9.785,
+            10.2271,
+            9.9844,
+            10.6205,
+            9.717,
+            9.8613,
+            9.803,
+            9.7028
+          ],
+          "median_ms": 9.864550000000001,
+          "p95_ms": 10.3875,
+          "transition": {
+            "samples_ms": [
+              0.0409,
+              0.0374,
+              0.0302,
+              0.034,
+              0.0359,
+              0.0366,
+              0.0332,
+              0.0294,
+              0.03,
+              0.0321,
+              0.0426,
+              0.0476,
+              0.0374,
+              0.0394,
+              0.0335,
+              0.0439,
+              0.0414,
+              0.0389,
+              0.0347,
+              0.0326
+            ],
+            "median_ms": 0.036250000000000004,
+            "p95_ms": 0.0439
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 101,
+          "feasible_count": 101,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.3039,
+            5.3221,
+            5.8012,
+            5.2276,
+            5.3736,
+            5.359,
+            5.7493,
+            5.4519,
+            5.5955,
+            5.3296,
+            5.593,
+            5.3622,
+            5.3137,
+            5.4674,
+            5.4423,
+            5.9573,
+            5.6895,
+            5.3219,
+            5.3619,
+            5.6899
+          ],
+          "median_ms": 5.40795,
+          "p95_ms": 5.8012,
+          "transition": {
+            "samples_ms": [
+              0.0402,
+              0.0316,
+              0.0285,
+              0.0287,
+              0.0321,
+              0.0291,
+              0.0309,
+              0.0311,
+              0.034,
+              0.0355,
+              0.0305,
+              0.0294,
+              0.0345,
+              0.0418,
+              0.0377,
+              0.0375,
+              0.0306,
+              0.0289,
+              0.0334,
+              0.0349
+            ],
+            "median_ms": 0.03185,
+            "p95_ms": 0.0402
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 101,
+          "feasible_count": 101,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.4004,
+            5.3863,
+            5.7271,
+            5.2934,
+            5.4265,
+            5.3527,
+            5.3581,
+            5.3541,
+            5.3272,
+            6.0996,
+            5.3599,
+            5.9296,
+            6.1083,
+            6.0412,
+            5.427,
+            5.9437,
+            5.3127,
+            5.2919,
+            5.3495,
+            5.3921
+          ],
+          "median_ms": 5.389200000000001,
+          "p95_ms": 6.0996,
+          "transition": {
+            "samples_ms": [
+              0.0455,
+              0.0394,
+              0.0312,
+              0.031,
+              0.0369,
+              0.039,
+              0.0312,
+              0.0391,
+              0.0329,
+              0.0305,
+              0.0392,
+              0.0776,
+              0.0473,
+              0.0414,
+              0.0364,
+              0.0294,
+              0.0338,
+              0.0367,
+              0.0351,
+              0.0405
+            ],
+            "median_ms": 0.0368,
+            "p95_ms": 0.0473
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 101,
+          "feasible_count": 101,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            3.0429,
+            3.3763,
+            3.2722,
+            3.0964,
+            3.0795,
+            3.2903,
+            3.1207,
+            3.0163,
+            3.0595,
+            3.0267,
+            3.1741,
+            3.1009,
+            3.075,
+            3.2655,
+            3.0167,
+            3.103,
+            3.3992,
+            2.9854,
+            3.1405,
+            3.286
+          ],
+          "median_ms": 3.1019500000000004,
+          "p95_ms": 3.3763,
+          "transition": {
+            "samples_ms": [
+              0.0395,
+              0.0299,
+              0.0336,
+              0.0387,
+              0.0364,
+              0.0324,
+              0.0349,
+              0.0309,
+              0.0325,
+              0.0316,
+              0.036,
+              0.0386,
+              0.0402,
+              0.0419,
+              0.033,
+              0.0391,
+              0.0294,
+              0.0301,
+              0.0396,
+              0.0317
+            ],
+            "median_ms": 0.03425,
+            "p95_ms": 0.0402
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 101,
+          "feasible_count": 101,
+          "cache_delta": {
+            "plan_hits": 100,
+            "plan_misses": 1,
+            "slot_hits": 506,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "cancel",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            9.7094,
+            9.3945,
+            9.4809,
+            9.8096,
+            9.9482,
+            9.5345,
+            9.5785,
+            11.4148,
+            10.4415,
+            10.2013,
+            10.1242,
+            10.2086,
+            10.2639,
+            9.3821,
+            11.1513,
+            10.1597,
+            9.8779,
+            9.8973,
+            9.9836,
+            11.1142
+          ],
+          "median_ms": 9.9659,
+          "p95_ms": 11.1513,
+          "transition": {
+            "samples_ms": [
+              0.0271,
+              0.0241,
+              0.039,
+              0.0233,
+              0.0237,
+              0.0276,
+              0.0306,
+              0.0322,
+              0.0378,
+              0.0376,
+              0.0327,
+              0.031,
+              0.0304,
+              0.0273,
+              0.0348,
+              0.0323,
+              0.0325,
+              0.0374,
+              0.0364,
+              0.0387
+            ],
+            "median_ms": 0.03225,
+            "p95_ms": 0.0387
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 99,
+          "feasible_count": 99,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.1428,
+            5.6737,
+            5.177,
+            5.1563,
+            5.423,
+            5.2777,
+            5.1327,
+            5.4704,
+            5.8286,
+            5.2495,
+            5.422,
+            5.4214,
+            5.1845,
+            5.3846,
+            5.5465,
+            5.6316,
+            5.3561,
+            5.5287,
+            5.4364,
+            6.175
+          ],
+          "median_ms": 5.4216999999999995,
+          "p95_ms": 5.8286,
+          "transition": {
+            "samples_ms": [
+              0.0256,
+              0.0237,
+              0.0254,
+              0.026,
+              0.0215,
+              0.0245,
+              0.0283,
+              0.032,
+              0.0418,
+              0.0329,
+              0.0318,
+              0.0358,
+              0.0255,
+              0.0314,
+              0.0318,
+              0.0313,
+              0.0344,
+              0.0341,
+              0.0343,
+              0.0362
+            ],
+            "median_ms": 0.0316,
+            "p95_ms": 0.0362
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 99,
+          "feasible_count": 99,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.2615,
+            5.2176,
+            5.2787,
+            5.1958,
+            5.205,
+            5.1837,
+            5.4222,
+            5.2489,
+            5.7918,
+            5.3997,
+            5.3032,
+            5.3121,
+            5.2562,
+            5.6824,
+            5.3725,
+            5.8031,
+            5.19,
+            5.286,
+            5.362,
+            5.2461
+          ],
+          "median_ms": 5.282349999999999,
+          "p95_ms": 5.7918,
+          "transition": {
+            "samples_ms": [
+              0.0287,
+              0.0305,
+              0.0234,
+              0.0265,
+              0.0263,
+              0.0241,
+              0.0307,
+              0.0364,
+              0.0383,
+              0.0374,
+              0.0317,
+              0.036,
+              0.028,
+              0.0336,
+              0.0362,
+              0.0429,
+              0.0281,
+              0.0399,
+              0.0367,
+              0.0366
+            ],
+            "median_ms": 0.03265,
+            "p95_ms": 0.0399
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 99,
+          "feasible_count": 99,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            3.3377,
+            3.1244,
+            2.9682,
+            3.0036,
+            3.0212,
+            2.9609,
+            2.9302,
+            3.1064,
+            3.2145,
+            3.2123,
+            3.0571,
+            3.0023,
+            3.0148,
+            3.0038,
+            3.0934,
+            3.0555,
+            2.957,
+            3.0056,
+            3.4662,
+            2.9316
+          ],
+          "median_ms": 3.018,
+          "p95_ms": 3.3377,
+          "transition": {
+            "samples_ms": [
+              0.0335,
+              0.0227,
+              0.023,
+              0.0268,
+              0.0253,
+              0.0232,
+              0.0279,
+              0.0352,
+              0.0312,
+              0.0351,
+              0.0338,
+              0.0307,
+              0.0266,
+              0.0286,
+              0.0352,
+              0.0296,
+              0.0244,
+              0.0331,
+              0.03,
+              0.0299
+            ],
+            "median_ms": 0.02975,
+            "p95_ms": 0.0352
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 99,
+          "feasible_count": 99,
+          "cache_delta": {
+            "plan_hits": 99,
+            "plan_misses": 0,
+            "slot_hits": 495,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "crane_move",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            9.6424,
+            9.5601,
+            10.411,
+            10.5879,
+            10.0922,
+            9.7418,
+            10.1345,
+            9.7802,
+            9.5342,
+            10.1928,
+            10.2506,
+            10.2724,
+            9.6187,
+            9.7492,
+            9.6095,
+            9.7974,
+            9.5488,
+            9.632,
+            9.4252,
+            9.8284
+          ],
+          "median_ms": 9.764700000000001,
+          "p95_ms": 10.411,
+          "transition": {
+            "samples_ms": [
+              0.0318,
+              0.0293,
+              0.0296,
+              0.0741,
+              0.0296,
+              0.028,
+              0.0272,
+              0.0262,
+              0.028,
+              0.028,
+              0.0324,
+              0.0245,
+              0.0242,
+              0.0255,
+              0.0218,
+              0.0222,
+              0.0221,
+              0.0285,
+              0.0203,
+              0.0227
+            ],
+            "median_ms": 0.0276,
+            "p95_ms": 0.0324
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.2158,
+            5.3881,
+            5.6685,
+            5.2359,
+            5.9402,
+            5.6319,
+            5.6169,
+            5.4586,
+            5.6378,
+            5.7808,
+            5.3424,
+            5.2483,
+            5.305,
+            5.9699,
+            5.2181,
+            5.2485,
+            5.6139,
+            5.2916,
+            5.3529,
+            5.171
+          ],
+          "median_ms": 5.3705,
+          "p95_ms": 5.9402,
+          "transition": {
+            "samples_ms": [
+              0.0275,
+              0.0309,
+              0.0284,
+              0.0277,
+              0.0287,
+              0.0235,
+              0.0288,
+              0.0351,
+              0.0468,
+              0.022,
+              0.0289,
+              0.022,
+              0.026,
+              0.0243,
+              0.0213,
+              0.0206,
+              0.0252,
+              0.0232,
+              0.0225,
+              0.0206
+            ],
+            "median_ms": 0.025599999999999998,
+            "p95_ms": 0.0351
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.3368,
+            5.1984,
+            5.7068,
+            5.6184,
+            5.3212,
+            5.3695,
+            5.7513,
+            5.2759,
+            5.3252,
+            6.4274,
+            5.2794,
+            5.609,
+            5.2493,
+            5.4391,
+            5.2689,
+            5.2756,
+            5.2913,
+            5.2182,
+            5.1726,
+            6.0551
+          ],
+          "median_ms": 5.3232,
+          "p95_ms": 6.0551,
+          "transition": {
+            "samples_ms": [
+              0.0316,
+              0.0254,
+              0.0352,
+              0.0295,
+              0.0291,
+              0.0289,
+              0.0301,
+              0.0286,
+              0.0215,
+              0.0304,
+              0.0252,
+              0.0229,
+              0.0208,
+              0.0209,
+              0.0223,
+              0.0218,
+              0.0222,
+              0.0207,
+              0.0199,
+              0.022
+            ],
+            "median_ms": 0.024050000000000002,
+            "p95_ms": 0.0316
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            3.6842,
+            3.4121,
+            3.4027,
+            3.3316,
+            3.2693,
+            3.3084,
+            3.387,
+            3.5577,
+            3.2698,
+            3.2987,
+            3.7508,
+            3.2645,
+            3.2835,
+            3.3173,
+            3.2765,
+            3.3188,
+            3.6465,
+            3.2602,
+            3.2214,
+            3.2786
+          ],
+          "median_ms": 3.31285,
+          "p95_ms": 3.6842,
+          "transition": {
+            "samples_ms": [
+              0.0264,
+              0.0275,
+              0.023,
+              0.0468,
+              0.0244,
+              0.022,
+              0.0277,
+              0.0229,
+              0.0254,
+              0.0256,
+              0.0291,
+              0.0225,
+              0.0213,
+              0.0201,
+              0.0228,
+              0.0206,
+              0.0452,
+              0.0205,
+              0.0209,
+              0.0206
+            ],
+            "median_ms": 0.022949999999999998,
+            "p95_ms": 0.0452
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 100,
+            "slot_hits": 598,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "yard_change",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            11.047,
+            10.3662,
+            10.6146,
+            10.5068,
+            9.6423,
+            9.813,
+            9.6292,
+            9.7822,
+            10.3828,
+            10.1724,
+            9.7106,
+            9.985,
+            10.2574,
+            9.8515,
+            10.6394,
+            9.7591,
+            9.6125,
+            10.2564,
+            10.3997,
+            9.6714
+          ],
+          "median_ms": 10.0787,
+          "p95_ms": 10.6394,
+          "transition": {
+            "samples_ms": [
+              0.0383,
+              0.0315,
+              0.0352,
+              0.0318,
+              0.0325,
+              0.0337,
+              0.0294,
+              0.0313,
+              0.0371,
+              0.0333,
+              0.0292,
+              0.0325,
+              0.0262,
+              0.0307,
+              0.0316,
+              0.0245,
+              0.0259,
+              0.0343,
+              0.0316,
+              0.0301
+            ],
+            "median_ms": 0.0316,
+            "p95_ms": 0.0371
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.3291,
+            6.0249,
+            5.4921,
+            5.4096,
+            5.5269,
+            5.54,
+            5.3724,
+            5.6329,
+            6.049,
+            5.465,
+            5.4868,
+            5.418,
+            5.4655,
+            5.4992,
+            5.7251,
+            6.0892,
+            5.3967,
+            5.349,
+            5.4456,
+            5.6678
+          ],
+          "median_ms": 5.48945,
+          "p95_ms": 6.049,
+          "transition": {
+            "samples_ms": [
+              0.0318,
+              0.0343,
+              0.0337,
+              0.0324,
+              0.0325,
+              0.0331,
+              0.0287,
+              0.0319,
+              0.0321,
+              0.0311,
+              0.0313,
+              0.0328,
+              0.0294,
+              0.0333,
+              0.0253,
+              0.025,
+              0.0251,
+              0.029,
+              0.0321,
+              0.0302
+            ],
+            "median_ms": 0.03185,
+            "p95_ms": 0.0337
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.3169,
+            6.0958,
+            5.8038,
+            5.3817,
+            5.3415,
+            5.5377,
+            5.5847,
+            5.3774,
+            5.779,
+            5.6975,
+            5.3777,
+            5.4217,
+            5.9979,
+            5.9137,
+            5.7373,
+            5.3627,
+            5.713,
+            5.4267,
+            5.7892,
+            5.8013
+          ],
+          "median_ms": 5.6411,
+          "p95_ms": 5.9979,
+          "transition": {
+            "samples_ms": [
+              0.0326,
+              0.033,
+              0.0336,
+              0.03,
+              0.0298,
+              0.03,
+              0.0304,
+              0.0299,
+              0.0319,
+              0.0287,
+              0.0301,
+              0.0261,
+              0.0291,
+              0.0438,
+              0.0331,
+              0.0239,
+              0.0284,
+              0.0312,
+              0.035,
+              0.0308
+            ],
+            "median_ms": 0.03025,
+            "p95_ms": 0.035
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            4.6723,
+            3.4599,
+            3.8869,
+            3.4417,
+            3.3288,
+            3.3189,
+            3.4459,
+            3.7577,
+            3.2666,
+            3.3145,
+            3.3302,
+            3.4484,
+            3.8323,
+            3.3278,
+            3.3296,
+            3.3358,
+            3.3307,
+            3.4558,
+            3.8416,
+            3.5365
+          ],
+          "median_ms": 3.4438,
+          "p95_ms": 3.8869,
+          "transition": {
+            "samples_ms": [
+              0.0263,
+              0.0328,
+              0.0388,
+              0.0296,
+              0.0315,
+              0.0282,
+              0.0305,
+              0.027,
+              0.0303,
+              0.0252,
+              0.0257,
+              0.0286,
+              0.0259,
+              0.0283,
+              0.0277,
+              0.0225,
+              0.0281,
+              0.0355,
+              0.0276,
+              0.0329
+            ],
+            "median_ms": 0.028249999999999997,
+            "p95_ms": 0.0355
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 100,
+            "slot_hits": 598,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 100,
+      "history": 0,
+      "case": "reservation",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            10.9952,
+            9.6376,
+            10.1137,
+            9.6677,
+            10.1542,
+            11.1588,
+            10.5473,
+            11.1512,
+            9.8927,
+            10.6523,
+            10.231,
+            10.2055,
+            10.1424,
+            10.4279,
+            9.8778,
+            10.0774,
+            10.7795,
+            10.0156,
+            10.0732,
+            10.278
+          ],
+          "median_ms": 10.17985,
+          "p95_ms": 11.1512,
+          "transition": {
+            "samples_ms": [
+              0.0357,
+              0.0249,
+              0.0255,
+              0.0264,
+              0.0418,
+              0.0353,
+              0.0407,
+              0.0369,
+              0.0305,
+              0.0264,
+              0.0306,
+              0.0319,
+              0.0319,
+              0.0367,
+              0.026,
+              0.0284,
+              0.0362,
+              0.0306,
+              0.0311,
+              0.0294
+            ],
+            "median_ms": 0.03085,
+            "p95_ms": 0.0407
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            5.3479,
+            5.3656,
+            5.4471,
+            5.7662,
+            5.4351,
+            6.0335,
+            6.5791,
+            5.5188,
+            5.4424,
+            5.4686,
+            5.5424,
+            5.6384,
+            5.7022,
+            5.7339,
+            5.3381,
+            5.4175,
+            5.9565,
+            5.7245,
+            5.321,
+            5.3896
+          ],
+          "median_ms": 5.4937000000000005,
+          "p95_ms": 6.0335,
+          "transition": {
+            "samples_ms": [
+              0.0349,
+              0.0255,
+              0.0282,
+              0.0255,
+              0.0245,
+              0.0346,
+              0.035,
+              0.0352,
+              0.0316,
+              0.0276,
+              0.0346,
+              0.0328,
+              0.0342,
+              0.0323,
+              0.0253,
+              0.0255,
+              0.0372,
+              0.0373,
+              0.0322,
+              0.0297
+            ],
+            "median_ms": 0.03225,
+            "p95_ms": 0.0372
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            5.3575,
+            5.4339,
+            5.5854,
+            6.0118,
+            5.324,
+            5.6333,
+            6.0526,
+            5.8531,
+            5.8438,
+            5.4788,
+            5.6074,
+            5.3517,
+            5.8198,
+            6.1453,
+            5.3032,
+            5.7896,
+            5.6209,
+            5.5021,
+            5.7912,
+            5.3317
+          ],
+          "median_ms": 5.61415,
+          "p95_ms": 6.0526,
+          "transition": {
+            "samples_ms": [
+              0.0273,
+              0.0311,
+              0.029,
+              0.0232,
+              0.0238,
+              0.0344,
+              0.0399,
+              0.0435,
+              0.0337,
+              0.0294,
+              0.0348,
+              0.0324,
+              0.0338,
+              0.0326,
+              0.0247,
+              0.0274,
+              0.034,
+              0.035,
+              0.0329,
+              0.0264
+            ],
+            "median_ms": 0.0325,
+            "p95_ms": 0.0399
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            3.427,
+            3.7417,
+            3.7167,
+            3.8036,
+            3.4631,
+            4.1179,
+            3.7953,
+            3.4827,
+            3.8763,
+            3.4401,
+            3.4554,
+            3.4062,
+            3.3706,
+            3.449,
+            3.4546,
+            3.3502,
+            3.458,
+            3.5127,
+            3.4052,
+            3.8969
+          ],
+          "median_ms": 3.46055,
+          "p95_ms": 3.8969,
+          "transition": {
+            "samples_ms": [
+              0.0336,
+              0.0252,
+              0.0261,
+              0.0271,
+              0.0307,
+              0.0333,
+              0.0664,
+              0.0347,
+              0.027,
+              0.0343,
+              0.0306,
+              0.0277,
+              0.0319,
+              0.0324,
+              0.0295,
+              0.0248,
+              0.0316,
+              0.0313,
+              0.0281,
+              0.0226
+            ],
+            "median_ms": 0.03065,
+            "p95_ms": 0.0347
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 100,
+          "feasible_count": 100,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 100,
+            "slot_hits": 596,
+            "slot_misses": 4,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "cold",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            267.8548,
+            267.8823,
+            269.7871,
+            265.4722,
+            273.6514,
+            268.3648,
+            270.0569,
+            281.9055,
+            271.026,
+            319.4758,
+            268.997,
+            272.9671,
+            271.6812,
+            265.7747,
+            271.3284,
+            266.9632,
+            266.1408,
+            265.4684,
+            270.0646,
+            270.4885
+          ],
+          "median_ms": 269.922,
+          "p95_ms": 281.9055,
+          "transition": {
+            "samples_ms": [
+              0.0018,
+              0.002,
+              0.0015,
+              0.0013,
+              0.0013,
+              0.0018,
+              0.0015,
+              0.0015,
+              0.0016,
+              0.0016,
+              0.002,
+              0.0014,
+              0.0018,
+              0.0015,
+              0.0014,
+              0.0014,
+              0.0014,
+              0.0018,
+              0.0013,
+              0.002
+            ],
+            "median_ms": 0.0015,
+            "p95_ms": 0.002
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            54.2682,
+            55.5816,
+            55.6922,
+            54.5219,
+            53.3245,
+            54.2431,
+            56.366,
+            97.332,
+            56.5123,
+            55.1399,
+            54.0233,
+            54.0697,
+            57.1317,
+            64.6093,
+            54.1348,
+            54.6711,
+            56.5038,
+            53.7783,
+            53.2675,
+            53.803
+          ],
+          "median_ms": 54.596500000000006,
+          "p95_ms": 64.6093,
+          "transition": {
+            "samples_ms": [
+              0.0016,
+              0.0015,
+              0.0018,
+              0.0013,
+              0.0016,
+              0.002,
+              0.0017,
+              0.0013,
+              0.0018,
+              0.0015,
+              0.0017,
+              0.0013,
+              0.0015,
+              0.0025,
+              0.0018,
+              0.0015,
+              0.0017,
+              0.0014,
+              0.0019,
+              0.0019
+            ],
+            "median_ms": 0.00165,
+            "p95_ms": 0.002
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            54.8814,
+            54.4418,
+            54.22,
+            55.0079,
+            54.8417,
+            54.7601,
+            55.2348,
+            52.4904,
+            58.6433,
+            59.4059,
+            60.2237,
+            55.3656,
+            108.8311,
+            53.7308,
+            54.4955,
+            102.0587,
+            53.8552,
+            53.4663,
+            53.7403,
+            54.5139
+          ],
+          "median_ms": 54.8009,
+          "p95_ms": 102.0587,
+          "transition": {
+            "samples_ms": [
+              0.0017,
+              0.0016,
+              0.0016,
+              0.0013,
+              0.0015,
+              0.0015,
+              0.0015,
+              0.0017,
+              0.0017,
+              0.0018,
+              0.0014,
+              0.0016,
+              0.0018,
+              0.0015,
+              0.0015,
+              0.0014,
+              0.0017,
+              0.0018,
+              0.0021,
+              0.0018
+            ],
+            "median_ms": 0.0016,
+            "p95_ms": 0.0018
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            34.0031,
+            34.3841,
+            34.4268,
+            34.0317,
+            33.1688,
+            33.736,
+            33.7474,
+            34.8846,
+            34.3166,
+            33.2691,
+            33.7576,
+            34.5533,
+            35.1389,
+            32.6521,
+            33.3346,
+            33.3548,
+            33.2569,
+            33.1301,
+            32.8345,
+            35.2166
+          ],
+          "median_ms": 33.7525,
+          "p95_ms": 35.1389,
+          "transition": {
+            "samples_ms": [
+              0.0018,
+              0.0022,
+              0.0018,
+              0.0019,
+              0.0018,
+              0.0016,
+              0.002,
+              0.0013,
+              0.0015,
+              0.0017,
+              0.0012,
+              0.0016,
+              0.0016,
+              0.0014,
+              0.0018,
+              0.0017,
+              0.0015,
+              0.0017,
+              0.0037,
+              0.0016
+            ],
+            "median_ms": 0.0017,
+            "p95_ms": 0.0022
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 1000,
+            "slot_hits": 5998,
+            "slot_misses": 2,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "unchanged",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            267.6195,
+            277.1661,
+            280.0222,
+            270.6612,
+            272.8269,
+            265.5324,
+            267.9523,
+            267.1712,
+            266.7885,
+            270.1454,
+            320.3063,
+            273.391,
+            283.4323,
+            274.2241,
+            269.6674,
+            271.1707,
+            266.2281,
+            276.1988,
+            270.053,
+            318.2105
+          ],
+          "median_ms": 270.91595,
+          "p95_ms": 318.2105,
+          "transition": {
+            "samples_ms": [
+              0.0021,
+              0.0022,
+              0.0018,
+              0.0015,
+              0.002,
+              0.0029,
+              0.0019,
+              0.002,
+              0.0019,
+              0.0017,
+              0.0025,
+              0.0018,
+              0.0018,
+              0.0017,
+              0.002,
+              0.0017,
+              0.0023,
+              0.0019,
+              0.003,
+              0.0018
+            ],
+            "median_ms": 0.0019,
+            "p95_ms": 0.0029
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            99.4841,
+            52.4537,
+            54.7441,
+            53.3237,
+            54.5059,
+            102.9408,
+            55.2729,
+            54.3504,
+            52.7853,
+            54.9587,
+            53.3459,
+            54.7852,
+            53.1467,
+            54.204,
+            55.0374,
+            54.3735,
+            52.3159,
+            54.3543,
+            53.6152,
+            53.4172
+          ],
+          "median_ms": 54.35235,
+          "p95_ms": 99.4841,
+          "transition": {
+            "samples_ms": [
+              0.0022,
+              0.0018,
+              0.0017,
+              0.0021,
+              0.0022,
+              0.002,
+              0.0022,
+              0.0021,
+              0.0019,
+              0.0018,
+              0.0017,
+              0.0031,
+              0.002,
+              0.0027,
+              0.0018,
+              0.0019,
+              0.0019,
+              0.0018,
+              0.0018,
+              0.0018
+            ],
+            "median_ms": 0.0019,
+            "p95_ms": 0.0027
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            55.031,
+            55.0429,
+            55.074,
+            100.9264,
+            52.4844,
+            52.9042,
+            52.8454,
+            55.9189,
+            54.5812,
+            54.6264,
+            52.2779,
+            56.9938,
+            54.6939,
+            54.2584,
+            53.2796,
+            55.3276,
+            54.765,
+            52.7214,
+            53.7559,
+            55.2832
+          ],
+          "median_ms": 54.66015,
+          "p95_ms": 56.9938,
+          "transition": {
+            "samples_ms": [
+              0.002,
+              0.0018,
+              0.0022,
+              0.0021,
+              0.0018,
+              0.0018,
+              0.0017,
+              0.0019,
+              0.0016,
+              0.0019,
+              0.0018,
+              0.0021,
+              0.0017,
+              0.0017,
+              0.0018,
+              0.0018,
+              0.0024,
+              0.002,
+              0.002,
+              0.002
+            ],
+            "median_ms": 0.00185,
+            "p95_ms": 0.0022
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            25.8703,
+            26.9414,
+            26.9776,
+            27.3952,
+            28.2344,
+            27.9174,
+            25.7409,
+            25.7676,
+            26.6382,
+            29.2406,
+            27.227,
+            28.4042,
+            27.2424,
+            27.333,
+            25.9532,
+            27.4696,
+            26.3917,
+            26.6106,
+            26.1872,
+            27.192
+          ],
+          "median_ms": 27.0848,
+          "p95_ms": 28.4042,
+          "transition": {
+            "samples_ms": [
+              0.0018,
+              0.0015,
+              0.0015,
+              0.0015,
+              0.002,
+              0.0017,
+              0.0025,
+              0.0014,
+              0.0016,
+              0.0016,
+              0.0018,
+              0.0019,
+              0.0017,
+              0.003,
+              0.0016,
+              0.0022,
+              0.0019,
+              0.0013,
+              0.0017,
+              0.0023
+            ],
+            "median_ms": 0.0017,
+            "p95_ms": 0.0025
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 1000,
+            "plan_misses": 0,
+            "slot_hits": 5000,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "arrival",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            269.0234,
+            270.4228,
+            270.8282,
+            281.1283,
+            276.9614,
+            267.0727,
+            263.619,
+            271.0246,
+            274.9636,
+            271.61,
+            330.9188,
+            329.0077,
+            276.8062,
+            270.3615,
+            272.2851,
+            268.2159,
+            276.8552,
+            270.5411,
+            272.8179,
+            276.712
+          ],
+          "median_ms": 271.94755,
+          "p95_ms": 329.0077,
+          "transition": {
+            "samples_ms": [
+              0.1066,
+              0.1054,
+              0.1065,
+              0.1141,
+              0.1083,
+              0.1104,
+              0.1216,
+              0.1068,
+              0.1224,
+              0.1198,
+              0.1053,
+              0.1084,
+              0.1099,
+              0.1247,
+              0.1056,
+              0.1155,
+              0.1093,
+              0.1164,
+              0.1049,
+              0.1081
+            ],
+            "median_ms": 0.10885,
+            "p95_ms": 0.1224
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 1001,
+          "feasible_count": 1001,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            56.9269,
+            53.058,
+            59.6503,
+            53.7208,
+            54.2288,
+            53.9752,
+            55.3604,
+            61.3687,
+            56.5067,
+            55.7067,
+            56.2565,
+            55.3527,
+            53.379,
+            54.6413,
+            55.3849,
+            55.0519,
+            53.4923,
+            54.699,
+            54.0304,
+            59.4873
+          ],
+          "median_ms": 55.2023,
+          "p95_ms": 59.6503,
+          "transition": {
+            "samples_ms": [
+              0.1049,
+              0.1045,
+              0.1064,
+              0.1125,
+              0.101,
+              0.107,
+              0.1138,
+              0.1074,
+              0.1069,
+              0.1067,
+              0.1098,
+              0.1128,
+              0.1017,
+              0.1037,
+              0.1035,
+              0.1051,
+              0.1039,
+              0.1039,
+              0.109,
+              0.1101
+            ],
+            "median_ms": 0.10655,
+            "p95_ms": 0.1128
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 1001,
+          "feasible_count": 1001,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            56.8445,
+            56.2246,
+            100.3561,
+            53.3982,
+            101.2991,
+            51.9627,
+            55.963,
+            52.5115,
+            54.7876,
+            56.5266,
+            54.0079,
+            53.425,
+            54.2737,
+            53.0425,
+            55.8052,
+            53.7392,
+            53.9666,
+            53.6481,
+            52.3282,
+            54.9291
+          ],
+          "median_ms": 54.1408,
+          "p95_ms": 100.3561,
+          "transition": {
+            "samples_ms": [
+              0.1156,
+              0.1106,
+              0.1161,
+              0.114,
+              0.1202,
+              0.1182,
+              0.1266,
+              0.1068,
+              0.1117,
+              0.1122,
+              0.1108,
+              0.1117,
+              0.112,
+              0.1094,
+              0.1166,
+              0.1096,
+              0.1109,
+              0.1095,
+              0.1092,
+              0.1127
+            ],
+            "median_ms": 0.11185,
+            "p95_ms": 0.1202
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 1001,
+          "feasible_count": 1001,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            28.9405,
+            30.9804,
+            30.549,
+            29.7543,
+            29.4109,
+            31.3217,
+            29.3561,
+            30.9761,
+            33.3703,
+            30.5925,
+            29.9433,
+            30.0138,
+            28.7304,
+            36.1071,
+            30.5908,
+            30.9094,
+            30.3025,
+            30.6075,
+            32.8341,
+            29.5031
+          ],
+          "median_ms": 30.5699,
+          "p95_ms": 33.3703,
+          "transition": {
+            "samples_ms": [
+              0.1072,
+              0.1298,
+              0.1097,
+              0.1066,
+              0.1054,
+              0.1137,
+              0.1054,
+              0.1092,
+              0.1089,
+              0.1074,
+              0.1082,
+              0.1075,
+              0.1048,
+              0.1108,
+              0.1084,
+              0.108,
+              0.1124,
+              0.1067,
+              0.1088,
+              0.1059
+            ],
+            "median_ms": 0.1081,
+            "p95_ms": 0.1137
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "NEW"
+            ]
+          },
+          "candidate_count": 1001,
+          "feasible_count": 1001,
+          "cache_delta": {
+            "plan_hits": 1000,
+            "plan_misses": 1,
+            "slot_hits": 5006,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "cancel",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            267.6165,
+            268.643,
+            266.9624,
+            271.0572,
+            267.5891,
+            327.8543,
+            266.0145,
+            269.1454,
+            265.9445,
+            267.3136,
+            273.9649,
+            265.2545,
+            349.3637,
+            271.1179,
+            278.5442,
+            273.0498,
+            273.3416,
+            271.5053,
+            273.8809,
+            269.2469
+          ],
+          "median_ms": 270.15205000000003,
+          "p95_ms": 327.8543,
+          "transition": {
+            "samples_ms": [
+              0.1001,
+              0.0972,
+              0.1023,
+              0.1033,
+              0.0979,
+              0.1098,
+              0.0978,
+              0.0968,
+              0.0972,
+              0.0946,
+              0.0951,
+              0.0975,
+              0.1025,
+              0.0996,
+              0.0952,
+              0.114,
+              0.1011,
+              0.0981,
+              0.0985,
+              0.0985
+            ],
+            "median_ms": 0.0983,
+            "p95_ms": 0.1098
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 999,
+          "feasible_count": 999,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            52.5733,
+            52.1594,
+            57.1504,
+            51.9615,
+            52.733,
+            53.8656,
+            52.2138,
+            53.7253,
+            54.7079,
+            52.1382,
+            55.609,
+            53.9275,
+            56.4779,
+            53.3177,
+            52.8564,
+            51.6707,
+            55.4655,
+            55.9447,
+            54.0871,
+            53.6301
+          ],
+          "median_ms": 53.6777,
+          "p95_ms": 56.4779,
+          "transition": {
+            "samples_ms": [
+              0.0968,
+              0.0927,
+              0.0966,
+              0.0957,
+              0.0954,
+              0.1046,
+              0.0925,
+              0.0942,
+              0.0943,
+              0.0988,
+              0.0942,
+              0.0972,
+              0.1012,
+              0.0936,
+              0.0957,
+              0.0937,
+              0.0944,
+              0.0982,
+              0.0976,
+              0.098
+            ],
+            "median_ms": 0.0957,
+            "p95_ms": 0.1012
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 999,
+          "feasible_count": 999,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            54.0917,
+            52.368,
+            54.332,
+            54.0703,
+            51.7946,
+            53.7542,
+            53.6823,
+            53.0667,
+            54.4313,
+            53.5819,
+            54.4496,
+            52.8225,
+            60.6245,
+            54.2677,
+            54.5981,
+            53.3304,
+            53.9889,
+            59.5912,
+            54.6548,
+            54.0706
+          ],
+          "median_ms": 54.07045,
+          "p95_ms": 59.5912,
+          "transition": {
+            "samples_ms": [
+              0.1008,
+              0.0971,
+              0.0975,
+              0.0976,
+              0.1117,
+              0.0976,
+              0.1006,
+              0.0989,
+              0.1,
+              0.1022,
+              0.1016,
+              0.1103,
+              0.1002,
+              0.1102,
+              0.0988,
+              0.0986,
+              0.2754,
+              0.1051,
+              0.0995,
+              0.1034
+            ],
+            "median_ms": 0.10039999999999999,
+            "p95_ms": 0.1117
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 999,
+          "feasible_count": 999,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            28.4121,
+            30.118,
+            30.6414,
+            29.6883,
+            29.2554,
+            30.969,
+            30.1178,
+            30.7182,
+            31.4923,
+            31.1967,
+            30.5882,
+            30.3682,
+            34.153,
+            29.189,
+            32.2602,
+            31.8189,
+            28.9213,
+            30.819,
+            30.7405,
+            30.1056
+          ],
+          "median_ms": 30.614800000000002,
+          "p95_ms": 32.2602,
+          "transition": {
+            "samples_ms": [
+              0.0977,
+              0.0931,
+              0.1004,
+              0.0974,
+              0.0958,
+              0.0998,
+              0.0996,
+              0.0939,
+              0.0964,
+              0.0961,
+              0.0987,
+              0.1005,
+              0.0988,
+              0.0946,
+              0.1004,
+              0.1068,
+              0.0947,
+              0.1004,
+              0.1007,
+              0.0961
+            ],
+            "median_ms": 0.0982,
+            "p95_ms": 0.1007
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000001"
+            ]
+          },
+          "candidate_count": 999,
+          "feasible_count": 999,
+          "cache_delta": {
+            "plan_hits": 999,
+            "plan_misses": 0,
+            "slot_hits": 4995,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "crane_move",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            265.8003,
+            276.0038,
+            263.2557,
+            267.3573,
+            269.2847,
+            271.7813,
+            288.9485,
+            287.983,
+            279.718,
+            270.644,
+            262.4436,
+            281.1518,
+            270.3772,
+            269.9343,
+            264.4351,
+            273.2894,
+            264.5477,
+            272.1551,
+            270.9675,
+            266.039
+          ],
+          "median_ms": 270.5106,
+          "p95_ms": 287.983,
+          "transition": {
+            "samples_ms": [
+              0.0909,
+              0.0979,
+              0.1016,
+              0.0934,
+              0.0948,
+              0.1055,
+              0.1105,
+              0.1019,
+              0.0969,
+              0.0948,
+              0.0922,
+              0.1167,
+              0.0939,
+              0.0936,
+              0.0931,
+              0.0932,
+              0.093,
+              0.0956,
+              0.099,
+              0.0962
+            ],
+            "median_ms": 0.0952,
+            "p95_ms": 0.1105
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            52.446,
+            54.4005,
+            96.6473,
+            53.973,
+            54.0739,
+            53.4168,
+            54.958,
+            57.4861,
+            54.7685,
+            53.0857,
+            54.9426,
+            52.2809,
+            104.3648,
+            55.8002,
+            100.7816,
+            55.8266,
+            55.6519,
+            53.7284,
+            57.4342,
+            52.1449
+          ],
+          "median_ms": 54.85555,
+          "p95_ms": 100.7816,
+          "transition": {
+            "samples_ms": [
+              0.0987,
+              0.0937,
+              0.0909,
+              0.0917,
+              0.0932,
+              0.0933,
+              0.0957,
+              0.0935,
+              0.0937,
+              0.1004,
+              0.1069,
+              0.0947,
+              0.0939,
+              0.0939,
+              0.0931,
+              0.096,
+              0.1053,
+              0.0932,
+              0.0954,
+              0.0912
+            ],
+            "median_ms": 0.0938,
+            "p95_ms": 0.1053
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            56.2073,
+            58.3333,
+            52.2197,
+            53.1962,
+            54.6309,
+            54.6914,
+            54.2879,
+            113.5652,
+            56.2522,
+            54.3505,
+            53.3198,
+            52.6691,
+            54.1694,
+            53.794,
+            55.3082,
+            55.4129,
+            52.7636,
+            57.4489,
+            51.4375,
+            53.2084
+          ],
+          "median_ms": 54.319199999999995,
+          "p95_ms": 58.3333,
+          "transition": {
+            "samples_ms": [
+              0.0942,
+              0.0933,
+              0.0922,
+              0.0957,
+              0.0936,
+              0.0948,
+              0.0964,
+              0.0942,
+              0.0936,
+              0.0935,
+              0.0921,
+              0.094,
+              0.0978,
+              0.095,
+              0.0918,
+              0.094,
+              0.1002,
+              0.0991,
+              0.0907,
+              0.0933
+            ],
+            "median_ms": 0.094,
+            "p95_ms": 0.0991
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            36.4198,
+            33.075,
+            33.027,
+            35.3458,
+            33.1049,
+            32.6763,
+            35.0252,
+            33.1771,
+            33.2818,
+            32.4272,
+            33.6566,
+            35.3257,
+            35.3467,
+            32.8563,
+            33.4823,
+            33.9876,
+            33.8352,
+            33.8484,
+            35.2845,
+            35.7789
+          ],
+          "median_ms": 33.7459,
+          "p95_ms": 35.7789,
+          "transition": {
+            "samples_ms": [
+              0.091,
+              0.0908,
+              0.0902,
+              0.091,
+              0.0889,
+              0.0899,
+              0.0898,
+              0.0942,
+              0.0931,
+              0.0895,
+              0.0904,
+              0.0915,
+              0.0921,
+              0.0942,
+              0.0903,
+              0.0917,
+              0.1028,
+              0.0912,
+              0.0895,
+              0.0913
+            ],
+            "median_ms": 0.091,
+            "p95_ms": 0.0942
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 1000,
+            "slot_hits": 5998,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "yard_change",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            276.052,
+            272.7884,
+            272.7983,
+            272.9605,
+            270.5742,
+            269.5217,
+            267.5785,
+            274.7841,
+            272.6694,
+            265.626,
+            324.7436,
+            285.0106,
+            269.686,
+            276.3658,
+            269.5289,
+            275.7178,
+            279.2768,
+            323.0184,
+            264.3915,
+            265.4021
+          ],
+          "median_ms": 272.79335000000003,
+          "p95_ms": 323.0184,
+          "transition": {
+            "samples_ms": [
+              0.0997,
+              0.0983,
+              0.0985,
+              0.103,
+              0.0966,
+              0.1017,
+              0.0963,
+              0.1009,
+              0.097,
+              0.0983,
+              0.0993,
+              0.0974,
+              0.0984,
+              0.0991,
+              0.1061,
+              0.1008,
+              0.1001,
+              0.0983,
+              0.1005,
+              0.0967
+            ],
+            "median_ms": 0.0988,
+            "p95_ms": 0.103
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            53.4647,
+            54.6365,
+            60.8196,
+            54.3579,
+            55.9706,
+            55.7799,
+            54.675,
+            57.1803,
+            53.6096,
+            54.8123,
+            54.3966,
+            54.3841,
+            56.0676,
+            54.8994,
+            55.8897,
+            55.9783,
+            55.1098,
+            57.1394,
+            57.0944,
+            54.6032
+          ],
+          "median_ms": 55.004599999999996,
+          "p95_ms": 57.1803,
+          "transition": {
+            "samples_ms": [
+              0.0953,
+              0.0942,
+              0.122,
+              0.0967,
+              0.0951,
+              0.0953,
+              0.0983,
+              0.1051,
+              0.0953,
+              0.0935,
+              0.0994,
+              0.0996,
+              0.0957,
+              0.116,
+              0.0953,
+              0.1109,
+              0.0939,
+              0.1024,
+              0.0941,
+              0.0977
+            ],
+            "median_ms": 0.0962,
+            "p95_ms": 0.116
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            54.3956,
+            53.4264,
+            52.9878,
+            53.6451,
+            52.9297,
+            55.2589,
+            59.947,
+            55.4259,
+            54.7318,
+            53.1734,
+            53.0705,
+            54.7646,
+            56.9993,
+            56.6122,
+            53.4805,
+            53.4205,
+            56.6588,
+            54.8402,
+            59.228,
+            54.3334
+          ],
+          "median_ms": 54.5637,
+          "p95_ms": 59.228,
+          "transition": {
+            "samples_ms": [
+              0.1,
+              0.1013,
+              0.0993,
+              0.0976,
+              0.098,
+              0.0968,
+              0.1062,
+              0.0986,
+              0.0957,
+              0.098,
+              0.0952,
+              0.0962,
+              0.0978,
+              0.0971,
+              0.0947,
+              0.0946,
+              0.0939,
+              0.0948,
+              0.0971,
+              0.1001
+            ],
+            "median_ms": 0.09735,
+            "p95_ms": 0.1013
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            34.9794,
+            32.7279,
+            34.4953,
+            35.1815,
+            33.4185,
+            77.1058,
+            35.8192,
+            34.3262,
+            33.4197,
+            91.9077,
+            36.0567,
+            34.8929,
+            33.3454,
+            34.7385,
+            33.9179,
+            32.8718,
+            34.3101,
+            34.7904,
+            32.83,
+            32.9938
+          ],
+          "median_ms": 34.41075,
+          "p95_ms": 77.1058,
+          "transition": {
+            "samples_ms": [
+              0.093,
+              0.0954,
+              0.0998,
+              0.0983,
+              0.0917,
+              0.0966,
+              0.0956,
+              0.092,
+              0.0938,
+              0.0952,
+              0.0966,
+              0.0934,
+              0.0976,
+              0.0958,
+              0.0926,
+              0.0936,
+              0.095,
+              0.0948,
+              0.1,
+              0.1009
+            ],
+            "median_ms": 0.0953,
+            "p95_ms": 0.1
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 1000,
+            "slot_hits": 5998,
+            "slot_misses": 2,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 0,
+      "case": "reservation",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            268.0215,
+            271.2708,
+            265.5819,
+            272.1122,
+            267.7931,
+            266.698,
+            269.5698,
+            266.4636,
+            271.5342,
+            270.8083,
+            282.1261,
+            272.9163,
+            277.6645,
+            317.3776,
+            269.9564,
+            268.3618,
+            271.7933,
+            274.5761,
+            271.4037,
+            267.8517
+          ],
+          "median_ms": 271.03954999999996,
+          "p95_ms": 282.1261,
+          "transition": {
+            "samples_ms": [
+              0.0977,
+              0.097,
+              0.1105,
+              0.0994,
+              0.0969,
+              0.1025,
+              0.0992,
+              0.0975,
+              0.0982,
+              0.1015,
+              0.204,
+              0.0992,
+              0.1021,
+              0.102,
+              0.1006,
+              0.0974,
+              0.0971,
+              0.1001,
+              0.1053,
+              0.0995
+            ],
+            "median_ms": 0.09945000000000001,
+            "p95_ms": 0.1105
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            55.9262,
+            53.4057,
+            54.1143,
+            56.0938,
+            54.0405,
+            56.5336,
+            53.1047,
+            52.4945,
+            54.4897,
+            55.065,
+            57.4437,
+            55.2092,
+            58.0662,
+            53.8326,
+            55.1435,
+            55.6937,
+            54.039,
+            55.7662,
+            58.254,
+            56.1012
+          ],
+          "median_ms": 55.17635,
+          "p95_ms": 58.0662,
+          "transition": {
+            "samples_ms": [
+              0.1009,
+              0.0987,
+              0.0941,
+              0.0953,
+              0.0962,
+              0.0972,
+              0.0962,
+              0.094,
+              0.1091,
+              0.0983,
+              0.0971,
+              0.1141,
+              0.1026,
+              0.0947,
+              0.0985,
+              0.1042,
+              0.0949,
+              0.1027,
+              0.0972,
+              0.1025
+            ],
+            "median_ms": 0.09775,
+            "p95_ms": 0.1091
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            113.1225,
+            55.8772,
+            117.8795,
+            53.8336,
+            55.652,
+            51.9519,
+            52.3971,
+            103.086,
+            57.3666,
+            55.0332,
+            54.4649,
+            60.3232,
+            55.4917,
+            54.714,
+            55.9667,
+            56.2359,
+            56.4301,
+            54.1978,
+            54.6476,
+            58.611
+          ],
+          "median_ms": 55.7646,
+          "p95_ms": 113.1225,
+          "transition": {
+            "samples_ms": [
+              0.1017,
+              0.0962,
+              0.1049,
+              0.0976,
+              0.099,
+              0.0956,
+              0.0971,
+              0.0971,
+              0.0972,
+              0.0975,
+              0.0949,
+              0.0984,
+              0.0972,
+              0.095,
+              0.0956,
+              0.0972,
+              0.0955,
+              0.0998,
+              0.0955,
+              0.0972
+            ],
+            "median_ms": 0.0972,
+            "p95_ms": 0.1017
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            33.1063,
+            35.0405,
+            34.583,
+            36.6332,
+            33.4274,
+            34.0677,
+            34.2321,
+            34.2541,
+            34.9687,
+            35.5451,
+            34.9848,
+            37.6814,
+            38.3514,
+            34.6005,
+            35.009,
+            34.4879,
+            35.3206,
+            35.8624,
+            33.9439,
+            34.3167
+          ],
+          "median_ms": 34.7846,
+          "p95_ms": 37.6814,
+          "transition": {
+            "samples_ms": [
+              0.1002,
+              0.0937,
+              0.0935,
+              0.0957,
+              0.097,
+              0.0931,
+              0.0924,
+              0.0921,
+              0.0941,
+              0.1067,
+              0.0928,
+              0.0976,
+              0.0982,
+              0.0944,
+              0.0929,
+              0.1061,
+              0.1029,
+              0.0953,
+              0.1063,
+              0.0966
+            ],
+            "median_ms": 0.0955,
+            "p95_ms": 0.1063
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 1000,
+            "slot_hits": 5996,
+            "slot_misses": 4,
+            "invalidations": 1,
+            "fingerprints": 1
+          }
+        }
+      }
+    },
+    {
+      "orders": 1000,
+      "history": 10000,
+      "case": "unchanged",
+      "arms": {
+        "scalar_scan": {
+          "samples_ms": [
+            2009.0309,
+            1942.2344,
+            1957.0174,
+            1942.3786,
+            1941.7995,
+            1944.9178,
+            1954.2054,
+            1944.473,
+            1971.4993,
+            1944.3089,
+            1956.9558,
+            1976.8987,
+            1982.8177,
+            1960.1496,
+            1959.7213,
+            1948.0008,
+            1954.6643,
+            1950.7948,
+            1961.7379,
+            1949.0734
+          ],
+          "median_ms": 1954.43485,
+          "p95_ms": 1982.8177,
+          "transition": {
+            "samples_ms": [
+              0.0019,
+              0.0019,
+              0.0018,
+              0.0037,
+              0.0016,
+              0.0021,
+              0.0021,
+              0.0018,
+              0.0016,
+              0.0016,
+              0.0018,
+              0.002,
+              0.002,
+              0.0019,
+              0.0018,
+              0.0021,
+              0.0016,
+              0.0017,
+              0.0027,
+              0.0015
+            ],
+            "median_ms": 0.00185,
+            "p95_ms": 0.0027
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_common": {
+          "samples_ms": [
+            60.2239,
+            58.8656,
+            60.6053,
+            58.2664,
+            57.0532,
+            59.8522,
+            60.6272,
+            58.6379,
+            57.3465,
+            130.177,
+            60.7501,
+            57.5229,
+            58.5097,
+            60.1679,
+            57.9332,
+            57.9641,
+            60.2091,
+            59.7619,
+            141.1428,
+            58.416
+          ],
+          "median_ms": 59.31375,
+          "p95_ms": 130.177,
+          "transition": {
+            "samples_ms": [
+              0.0018,
+              0.0016,
+              0.0017,
+              0.0026,
+              0.002,
+              0.0014,
+              0.0018,
+              0.002,
+              0.0019,
+              0.0018,
+              0.0017,
+              0.0019,
+              0.0021,
+              0.0021,
+              0.0018,
+              0.0017,
+              0.0018,
+              0.0027,
+              0.0025,
+              0.0018
+            ],
+            "median_ms": 0.0018,
+            "p95_ms": 0.0026
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index": {
+          "samples_ms": [
+            53.0379,
+            52.2045,
+            51.9446,
+            53.9459,
+            53.8038,
+            53.0897,
+            52.1013,
+            52.8536,
+            57.3658,
+            53.5791,
+            53.8743,
+            53.2974,
+            56.1293,
+            53.1383,
+            56.8838,
+            59.1413,
+            53.5423,
+            51.9077,
+            57.9048,
+            114.7772
+          ],
+          "median_ms": 53.5607,
+          "p95_ms": 59.1413,
+          "transition": {
+            "samples_ms": [
+              0.0017,
+              0.0022,
+              0.0019,
+              0.002,
+              0.0024,
+              0.0017,
+              0.0023,
+              0.002,
+              0.002,
+              0.0022,
+              0.0018,
+              0.0023,
+              0.0019,
+              0.0018,
+              0.0018,
+              0.0018,
+              0.0017,
+              0.0016,
+              0.0021,
+              0.0019
+            ],
+            "median_ms": 0.0019,
+            "p95_ms": 0.0023
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 0,
+            "plan_misses": 0,
+            "slot_hits": 0,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 0
+          }
+        },
+        "batch_index_plans": {
+          "samples_ms": [
+            29.2403,
+            26.1722,
+            26.8638,
+            26.1175,
+            25.756,
+            26.1816,
+            26.5885,
+            29.0714,
+            27.1452,
+            25.5721,
+            30.3876,
+            25.9946,
+            27.4401,
+            26.9789,
+            28.3024,
+            27.324,
+            26.9282,
+            26.342,
+            26.8572,
+            26.1242
+          ],
+          "median_ms": 26.860500000000002,
+          "p95_ms": 29.2403,
+          "transition": {
+            "samples_ms": [
+              0.0016,
+              0.0022,
+              0.0018,
+              0.0018,
+              0.002,
+              0.002,
+              0.0017,
+              0.0022,
+              0.0022,
+              0.0017,
+              0.0025,
+              0.0018,
+              0.0017,
+              0.0018,
+              0.0016,
+              0.002,
+              0.0022,
+              0.0019,
+              0.0018,
+              0.0021
+            ],
+            "median_ms": 0.00185,
+            "p95_ms": 0.0022
+          },
+          "same_candidates": true,
+          "same_assignment": true,
+          "assignment": {
+            "YC-A": [
+              "SERVE",
+              "T000000"
+            ]
+          },
+          "candidate_count": 1000,
+          "feasible_count": 1000,
+          "cache_delta": {
+            "plan_hits": 1000,
+            "plan_misses": 0,
+            "slot_hits": 5000,
+            "slot_misses": 0,
+            "invalidations": 0,
+            "fingerprints": 1
+          }
+        }
+      }
+    }
+  ]
+}

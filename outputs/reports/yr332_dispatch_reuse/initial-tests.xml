@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="32" time="332.444" timestamp="2026-11-05T12:09:05.659423+09:00" hostname="global05_58"><testcase classname="tests.v7.test_crane_policy" name="test_registered_and_constructible" time="0.001" /><testcase classname="tests.v7.test_crane_policy" name="test_rank_is_deterministic" time="0.006" /><testcase classname="tests.v7.test_crane_policy" name="test_wait_is_last" time="0.001" /><testcase classname="tests.v7.test_crane_policy" name="test_serve_first_fence" time="0.001" /><testcase classname="tests.v7.test_crane_policy" name="test_runs_a_real_day" time="16.830" /><testcase classname="tests.v7.test_crane_policy" name="test_network_actually_decides" time="44.884" /><testcase classname="tests.v7.test_crane_policy" name="test_advantage_scale_roundtrip" time="0.000" /><testcase classname="tests.v7.test_crane_policy" name="test_features_are_not_all_dead" time="270.403"><failure message="AssertionError: 죽은 칸: ['is_vessel', 'is_serve', 'cum_wait_h', 'vessel_slack_h', 'reach_h', 'service_h', 'rehandle_h', 'n_cands', 'queue_trucks'] — 이 칸들은 정책에 정보를 주지 않는다. 관측값 {'is_vessel': 0.0, 'is_serve': 0.0, 'cum_wait_h': 0.0, 'vessel_slack_h': 0.0, 'reach_h': 0.0, 'service_h': 0.0, 'rehandle_h': 0.0, 'n_cands': 0.0, 'queue_trucks': 0.0}&#10;assert not ['is_vessel', 'is_serve', 'cum_wait_h', 'vessel_slack_h', 'reach_h', 'service_h', ...]">def test_features_are_not_all_dead():
+        """★특징이 실제로 값을 낸다 — 죽은 칸이 있으면 그만큼 장님이다.
+
+        하루를 굴리며 후보 특징을 모아, **모든 칸이 한 번은 0 이 아닌 값**을 갖는지 본다.
+        [[YR-235]] 가 재배치층에서 죽은 칸 셋을 찾아 6→3 으로 줄인 적이 있다.
+        """
+        import yard_rl.v7.crane.policy as P
+
+        seen = [0.0] * CRANE_DIM
+        orig = P.crane_features
+
+        def spy(sim, cid, gc, **kwargs):
+            x = orig(sim, cid, gc, **kwargs)
+            for i, v in enumerate(x):
+                seen[i] = max(seen[i], abs(v))
+            return x
+
+        P.crane_features = spy
+        try:
+            run_episode(load=LOAD, arm="NO_REALLOC", dispatcher=RL_CRANE, seed=SEED)
+        finally:
+            P.crane_features = orig
+
+        dead = [CRANE_FEATURES[i] for i, v in enumerate(seen) if v == 0.0]
+&gt;       assert not dead, (
+            f"죽은 칸: {dead} — 이 칸들은 정책에 정보를 주지 않는다. "
+            f"관측값 {dict(zip(CRANE_FEATURES, seen))}")
+E       AssertionError: 죽은 칸: ['is_vessel', 'is_serve', 'cum_wait_h', 'vessel_slack_h', 'reach_h', 'service_h', 'rehandle_h', 'n_cands', 'queue_trucks'] — 이 칸들은 정책에 정보를 주지 않는다. 관측값 {'is_vessel': 0.0, 'is_serve': 0.0, 'cum_wait_h': 0.0, 'vessel_slack_h': 0.0, 'reach_h': 0.0, 'service_h': 0.0, 'rehandle_h': 0.0, 'n_cands': 0.0, 'queue_trucks': 0.0}
+E       assert not ['is_vessel', 'is_serve', 'cum_wait_h', 'vessel_slack_h', 'reach_h', 'service_h', ...]
+
+tests\v7\test_crane_policy.py:121: AssertionError</failure></testcase><testcase classname="tests.v7.test_discharge_backpressure" name="test_yard_delay_reaches_vessel_and_reward_only_with_connection" time="0.016" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_shared_capacity_and_other_ship_resume[1]" time="0.006" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_shared_capacity_and_other_ship_resume[3]" time="0.007" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_shared_capacity_and_other_ship_resume[6]" time="0.009" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_in_transit_arrival_does_not_release_capacity_before_yard_completion" time="0.001" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_snapshot_and_reset_preserve_configuration_and_conservation" time="0.014" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_stage_default_tracks_actual_fleet_and_legacy_off_is_explicit" time="0.001" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_invalid_capacity_fails_before_simulation[0]" time="0.001" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_invalid_capacity_fails_before_simulation[-1]" time="0.000" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_invalid_capacity_fails_before_simulation[1.5]" time="0.000" /><testcase classname="tests.v7.test_discharge_backpressure" name="test_invalid_capacity_fails_before_simulation[True]" time="0.000" /><testcase classname="tests.v7.test_cargo_runtime" name="test_pending_cargo_served_only_after_physical_storage[False]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_pending_cargo_served_only_after_physical_storage[True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-False]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-False]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-True]" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_bad_source_rejected_without_replacing_or_injecting_any_box" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_restore_rejects_wrong_seed_or_day_calendar" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_completion_rejects_premature_exit" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_not_yet_announced_pickup_uses_actual_stored_block" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_failed_inbound_transfer_does_not_move_its_dependent" time="0.002" /><testcase classname="tests.v7.test_cargo_runtime" name="test_waiting_pickup_routes_after_daily_accounting_prune" time="0.006" /><testcase classname="tests.v7.test_cargo_runtime" name="test_dependent_accounting_failure_does_not_partially_commit_inbound" time="0.002" /></testsuite></testsuites>

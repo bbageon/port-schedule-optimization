@@ -18,7 +18,7 @@ v6 시절 설명은 `README-v6.md`·`README-piece8.md`(복사본 · 역사 문�
 | 통지 리드타임 | 반입·반출 한 분포(`DIST`) | **`DGT`** — 반입·반출 따로, 통지 전 도착은 리드 0 | `stage/dgt_lead.py` · `stage/orders.py` |
 | 크레인 행동 | 미리 자리잡는 빈 이동 포함 | **끔**(`safety_only`) — 교착 탈출·파내기·쉬기는 남김 | `stage/exec_config.py` |
 | 크레인 학습 | (없음 · PPO 는 시장 쪽) | **v4 반사실 교사** + 입력 9칸 | `crane/` |
-| 물리 세계 `world/` | — | v6 복사본 + **양하 인계 용량 보정**(YR-332-h) | `tests/v7/test_world_clone.py`의 명시적 예외 |
+| 물리 세계 `world/` | — | v6 복사본 + **양하 인계 용량 보정·계산 최적화**(YR-332-h/j) | `tests/v7/test_world_clone.py`의 명시적 예외 |
 
 옛 동작은 지우지 않았다 — 비교·회귀용 선택지로 남는다:
 `arm="RL"`, `lead_mode="DIST"|"FIXED"`, `exec_config=exec_config.V6_LEGACY`.
@@ -35,6 +35,16 @@ CPU 하루·연속 크레인 경로는 양하 인출부터 야드 적재 완료�
 차량별 왕복 궤적 대신 집계 근사이므로 실제 용량·마감 보정은 별도 과제다.
 [모형·문헌](../../../docs/research/v7-discharge/model.md) ·
 [진단 결과](../../../outputs/reports/yr332_discharge_latency/report.md).
+
+## 상태 목록·계획 재사용 (2026-11-05)
+
+오더 상태 목록을 갱신하고 후보 검색에 사용한다. 공통 정보와 같은 입력의 신경망 계산을 공유한다.
+후보 계획·적재 위치 탐색은 물리 조건이 같을 때 재사용한다. 야드·크레인·예약이 바뀌면
+재계산하며 최종 공동 계획·예약 검사는 기존 경로로 수행한다. 복제 세계끼리 캐시를 공유하지 않는다.
+기존 9입력 의미·보상·후보 기본 상한은 그대로다. `CandidateGenerator(reuse_plans=False)`와
+`CranePolicy(batched=False)`로 계산 재사용을 끈 대조를 구성할 수 있다.
+[구현 계약](../../../docs/research/v7-discharge/dispatch-reuse.md) ·
+[진단 결과](../../../outputs/reports/yr332_dispatch_reuse/report.md).
 
 ## DGT 리드타임 — 무엇을 빌렸나
 
