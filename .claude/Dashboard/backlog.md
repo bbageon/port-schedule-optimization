@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-p | RL | **크레인 학습 표적·비교 표본 진단과 개선안 검토** | 🟠 | 현재는 선택·대안의 3시간 비용을 짝 중심으로 각각 회귀한다. 상대 의존 표적·표본 편중을 먼저 재현하고 순위 학습 등은 한 축씩 비교한다. 효과 미검증. [spec](../docs/dashboard-task-specs/YR-332-p-training-target-coverage-review.md) |
 | YR-332-q | RL | **비교 표본 선정 효과 검증** | 🟠 | 6단계 중 5단계. 같은 비교 예산에서 크레인·작업 종류 편중을 줄이고 효과를 비교한다. [spec](../docs/dashboard-task-specs/YR-332-q-training-comparison-sampling.md) |
 | YR-332-r | RL | **작업 방향 입력 한 칸의 효과 검증** | 🟠 | 6단계 중 6단계. 반입/반출·적하/양하 구분이 필요한지 STORE 한 칸만 추가해 비교한다. [spec](../docs/dashboard-task-specs/YR-332-r-crane-flow-information.md) |
 | YR-332-m | Sim | **기본 하루 환경의 투입 누락·작업 잔여 원인 대조** | 🟠 | 속도 비교 첫 입력은 트럭 3,500건 중 3,299건 투입·두 계산 결과 동일. 누락 사유와 미완료를 분리해 실제 처리 부하를 확인한다. [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md) |
