@@ -98,7 +98,7 @@ class CraneCollector:
             else:
                 crane, picked_gc, alt_gc = self.sampler.select(sim, block, choices, self._rank)
             key = (round(sim.clock, 6), block, crane)
-            mode = getattr(self._pref.net, 'feature_mode', 'legacy')
+            mode = getattr(getattr(self._pref, 'net', None), 'feature_mode', 'legacy')
             self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode),
                               crane_features(sim, crane, alt_gc, feature_mode=mode))
             self.flow_rows[key] = tuple(
