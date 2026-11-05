@@ -145,8 +145,8 @@ def feature_rows():
     rows, v4rows = [], []
     orig = P.crane_features
 
-    def spy(sim, cid, gc):
-        x = orig(sim, cid, gc)
+    def spy(sim, cid, gc, **kwargs):
+        x = orig(sim, cid, gc, **kwargs)
         rows.append(x)
         v4rows.append(v4_features(sim, cid, gc))
         return x
