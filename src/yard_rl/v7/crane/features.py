@@ -1,4 +1,8 @@
-"""크레인 정책이 보는 것 — **핵심 8칸 + 줄 선 트럭 수 1칸** ([[YR-332-b]] · v4 [[YR-248]] 2단계).
+"""크레인 정책 입력 — 기본 9칸, 명시적 단일 입력 추가 실험은 10칸.
+
+`feature_mode='legacy'`는 아래의 기존 의미를 보존한다. `'feasible'`은 8번째 칸을
+그 크레인이 고를 수 있는 SERVE 후보 수로 바꾼다(개별 실행 가능성 기준, 공동 충돌 전).
+`include_flow=True`만 STORE 여부 1칸을 더한다. 두 설정은 체크포인트에 기록한다.
 
 ■ 왜 이렇게 적은가 (연구 설계 원칙 2 · 사용자 지시 2026-07-26)
   *"강화학습 정책 최적화는 핵심 정보만으로 먼저 구성하고, 효과가 실증된 뒤에만 부가
@@ -19,8 +23,8 @@
   상태 문자열에 "WAIT" 가 든 것 = **`JobStatus.WAITING` = 블록에 도착해 작업을 기다리는
   외부 트럭**만 센다(본선 일감은 WAITING 이 되지 않는다 · `engine.py` BLOCK_ARRIVAL).
   즉 ⑧ ≈ min(줄 선 트럭 수 / 18, 1) 이다. ⑨ 와 거의 같은 정보이고, ⑧ 이 18대에서 포화하는
-  것만 다르다. **v4 와의 연속성을 위해 ⑧ 을 고치지 않았다** — 고칠지(진짜 후보 수로)는
-  별도 결정이다. 실측 비율은 `outputs/reports/yr332_v7_scaffold/` 와 시험이 잰다.
+  것만 다르다. **legacy 설정은 v4와의 연속성을 위해 이 의미를 보존한다**.
+  feasible 설정에서는 후보 생성기가 확정한 수를 받아 중복 계산과 대기열 대체를 막는다.
 
 ■ ⑨ 줄 선 트럭 수 — `sim.kpis.waiting_count()` 를 그대로 쓴다
   정의 `blockIn ≤ t < serviceStart` — 채점·재배정층 `features/block.waiting_count` 와 같은 뜻.
@@ -47,7 +51,7 @@ CRANE_FEATURES: tuple[str, ...] = (
     "reach_h",                # ③ 크레인이 거기까지 가는 시간
     "service_h",              # ③ 그 일을 하는 데 걸리는 시간
     "rehandle_h",             # ③ 위에 쌓인 걸 파내는 시간
-    "n_cands",                # ④ v4 이름 — 실제로는 WAITING 일감 수/18 (머리말 ⚠️)
+    "n_cands",                # ④ legacy=WAITING 수, feasible=해당 크레인의 실행 가능 SERVE 수
     "queue_trucks",           # ④ ★v7 — 블록에 줄 선 트럭 수/10 ([[YR-315]])
 )
 CRANE_DIM = len(CRANE_FEATURES)
@@ -66,7 +70,7 @@ def queue_trucks(sim) -> int:
 
 def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy',
                    include_flow=False) -> list[float]:
-    """후보 하나를 **9칸**으로 만든다. 값은 대략 0~2 범위(⑨ 만 줄이 길면 2 를 넘는다).
+    """후보 하나를 9칸, STORE 입력을 켜면 10칸으로 만든다.
 
     ⚠️ `rank()` 안에서 후보마다 불린다 — 여기가 느리면 시뮬레이션 전체가 느려진다.
        그래서 새 계산을 안 하고 **이미 있는 값만** 꺼내 쓴다.
