@@ -78,9 +78,11 @@ def test_lifecycle_mutations_move_delete_replace_and_rename():
 @pytest.mark.parametrize('clone', [copy.deepcopy, lambda x: pickle.loads(pickle.dumps(x))])
 def test_clone_rebinds_membership_and_drops_cache(clone):
     sim, dp = snapshot()
+    sim.dispatch_cache.rehandle_slots = True
     generate(sim, dp)
     other = clone(sim)
     assert not other.dispatch_cache.states
+    assert other.dispatch_cache.rehandle_slots
     other.jobs['T000000'].status = JobStatus.CANCELLED
     assert sim.jobs['T000000'].status == JobStatus.WAITING
     assert_index(sim.jobs)
@@ -157,6 +159,7 @@ def test_mixed_continuous_two_crane_episode_equivalence(seed, serve_first):
                                 info_level=InformationLevel.PRE_ADVICE, yard_handover_cap=2)
         if not fast:
             sim.jobs = dict(sim.jobs)
+        sim.dispatch_cache.rehandle_slots = fast
         policy = ResolverPolicy(CranePolicy(net, serve_first=serve_first, batched=fast))
         gen = CandidateGenerator(k_max=10000, vessel_prep=True, reuse_plans=fast)
         result = run_joint_episode(sim, policy, RewardCalculator.numeraire_v1(), generator=gen)
@@ -181,3 +184,40 @@ def test_force_and_exact_ties_preserve_selection():
         assignments.append(ResolverPolicy(p).decide(sim, dp, gb))
     assert assignments[0] == assignments[1]
     assert assignments[1]['YC-A'].job_ref.job_id == 'T000005'
+
+
+@pytest.mark.parametrize('change', ['none', 'container_size', 'yard', 'position',
+                                    'reservation', 'custom_selector'])
+def test_rehandle_slot_reuse_exact_after_state_changes(change):
+    sim = TerminalSimulator(build_integrated_profile(), build_minimal_terminal_scenario(),
+                            info_level=InformationLevel.PRE_ADVICE)
+    sim.dispatch_cache.rehandle_slots = True
+    dp = sim.run_until_decision()
+    spec = sim.fleet.spec(dp.crane_ids[0])
+    cid = dp.crane_ids[0]
+    def query(exclude):
+        return sim.dispatch_cache.rehandle_slot(sim.stacks, ContainerSize.FT20,
+                                                spec, 2., 1., exclude)
+    with sim.dispatch_cache.scope(sim, cid):
+        for exclude in (frozenset(), frozenset({(1, 1)})):
+            assert query(exclude) == query(exclude)
+    assert sim.dispatch_cache.stats['slot_hits'] >= 2
+    if change == 'container_size':
+        c = next(iter(sim.stacks.containers.values()))
+        c.size = ContainerSize.FT40 if c.size == ContainerSize.FT20 else ContainerSize.FT20
+    elif change == 'yard':
+        c = next(iter(sim.stacks.containers.values()))
+        top = sim.stacks.stack(c.bay, c.row)[-1]
+        sim.stacks.remove(top)
+    elif change == 'position':
+        sim.fleet.get(cid).state.position_bay += 1
+    elif change == 'reservation':
+        sim.reservations.reserve(Reservation('OTHER', 'OTHER', Corridor(38, 40),
+                                             frozenset({(1, 1)}), None, 100))
+    elif change == 'custom_selector':
+        sim.slot_selector = lambda *args: None
+    with sim.dispatch_cache.scope(sim, cid):
+        for exclude in (frozenset(), frozenset({(1, 1)}), frozenset({(2, 1)})):
+            assert query(exclude) == sim.stacks.find_slot(ContainerSize.FT20, spec, 2., 1., exclude)
+    # Outside candidate generation, assignment always recomputes from live state.
+    assert sim.dispatch_cache.active is None

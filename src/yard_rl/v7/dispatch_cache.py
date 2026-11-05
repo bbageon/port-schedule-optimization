@@ -10,7 +10,8 @@ from dataclasses import replace
 
 
 class DispatchCache:
-    def __init__(self):
+    def __init__(self, *, rehandle_slots=False):
+        self.rehandle_slots = rehandle_slots
         self.states = {}
         self.active = None
         self.stats = dict(plan_hits=0, plan_misses=0, slot_hits=0, slot_misses=0,
@@ -18,15 +19,22 @@ class DispatchCache:
 
     def __deepcopy__(self, memo):
         # Plans are a derived optimization, never shared between CF worlds.
-        out = type(self)()
+        out = type(self)(rehandle_slots=self.rehandle_slots)
         memo[id(self)] = out
         return out
 
     def __getstate__(self):
-        return {}
+        return {'rehandle_slots': self.rehandle_slots}
 
     def __setstate__(self, state):
-        self.__init__()
+        self.__init__(rehandle_slots=state.get('rehandle_slots', False))
+
+    def rehandle_slot(self, stacks, size, spec, bay, row, exclude):
+        compute = lambda: stacks.find_slot(size, spec, bay, row, exclude=exclude)
+        if not self.rehandle_slots:
+            return compute()
+        # The existing fingerprint covers the complete yard and reserved slots.
+        return self.slot((size, spec, bay, row, frozenset(exclude)), compute)
 
     @contextmanager
     def scope(self, sim, cid, enabled=True):

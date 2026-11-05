@@ -631,8 +631,8 @@ class TerminalSimulator:
                 if self.slot_selector is not None:      # YR-075-a opt-in (오라클/후보)
                     dest = self.slot_selector(self, stk, b, spec, excl)
                 else:
-                    dest = stk.find_slot(b.size, spec, float(b.bay), float(b.row),
-                                         exclude=excl)
+                    dest = self.dispatch_cache.rehandle_slot(
+                        stk, b.size, spec, float(b.bay), float(b.row), excl)
                 if dest is None:
                     return None
                 db, dr = dest
