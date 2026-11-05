@@ -10,8 +10,8 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-q | RL | **비교 표본 선정 효과 검증** | 🟠 | 6단계 중 5단계. 같은 비교 예산에서 크레인·작업 종류 편중을 줄이고 효과를 비교한다. [spec](../docs/dashboard-task-specs/YR-332-q-training-comparison-sampling.md) |
 | YR-332-r | RL | **작업 방향 입력 한 칸의 효과 검증** | 🟠 | 6단계 중 6단계. 반입/반출·적하/양하 구분이 필요한지 STORE 한 칸만 추가해 비교한다. [spec](../docs/dashboard-task-specs/YR-332-r-crane-flow-information.md) |
+| YR-332-s | RL | **실행 가능 작업 수 입력의 18개 상한 검증** | 🟠 | 15,000건에서 수정 입력 59.51%가 상한에 도달했다. 같은 자료에서 눈금 한 축만 비교해 정보 손실의 영향을 확인한다. 현재 6단계 이후 항목. [spec](../docs/dashboard-task-specs/YR-332-s-feasible-count-scale.md) |
 | YR-332-m | Sim | **기본 하루 환경의 투입 누락·작업 잔여 원인 대조** | 🟠 | 속도 비교 첫 입력은 트럭 3,500건 중 3,299건 투입·두 계산 결과 동일. 누락 사유와 미완료를 분리해 실제 처리 부하를 확인한다. [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md) |
 | YR-332-k | Infra | **구 PPO 보상 시험의 현재 계약 대조** | 🟠 | 변경 전에도 재현되는 None 분모 오류를 정리한다. 전체 회귀 판정의 정확성을 위한 보정. [spec](../docs/dashboard-task-specs/YR-332-k-legacy-ppo-reward-test.md) |
 | YR-332-i | Sim | **양하 운반 용량·시간·본선 마감 보정** | 🔴 | 실행 3대·470초와 문서 가정을 대조하고 실제 인계와 마감을 맞춘다. 새 연결의 현실성 확인이 학습 선결. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) |
