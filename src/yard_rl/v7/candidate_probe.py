@@ -18,7 +18,7 @@ class CandidateRecallProbe(EvaluationProbe):
         self.by_kind = Counter()
         self.audit_seconds = 0.
 
-    def candidates(self, sim, cid, raw, keep):
+    def capture_candidates(self, sim, cid, raw, keep):
         self.raw[(id(sim), cid)] = tuple(raw)
 
     def before_select(self, sim, dp, generated, pref):

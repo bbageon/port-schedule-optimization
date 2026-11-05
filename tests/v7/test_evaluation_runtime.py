@@ -60,3 +60,20 @@ def test_evaluation_switches_cannot_change_teacher_contract(kwargs, teacher):
 
 def test_hash_is_independent_of_set_insertion_order():
     assert digest({'stages': {'IN', 'OUT'}}) == digest({'stages': set(['OUT', 'IN'])})
+
+
+def test_recall_observer_leaves_whole_trajectory_unchanged():
+    from yard_rl.v7.candidate_probe import CandidateRecallProbe
+    torch.manual_seed(9913422)
+    net=CraneNet()
+    outputs=[]
+    for probe in (EvaluationProbe(),CandidateRecallProbe()):
+        mbt=world()
+        probe.start({'schedule':[]},mbt)
+        policy,exc=_rule_policy('RL_CRANE',crane_net=net,candidate_cap=None,evaluation_probe=probe)
+        mbt.run(policy)
+        probe.finish(mbt,{},EpisodeResult())
+        assert exc=={'n':0,'hook':0}
+        outputs.append({k:v for k,v in probe.result.items() if k.endswith('_sha256')})
+    assert outputs[0]==outputs[1]
+    assert probe.result['recall']['recall']==1.

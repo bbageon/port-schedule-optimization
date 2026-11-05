@@ -256,7 +256,7 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
         begin = perf_counter_ns() if evaluation_probe is not None else 0
         g = gens.get(id(sim))
         if g is None:
-            observer = evaluation_probe if hasattr(evaluation_probe, 'candidates') else None
+            observer = evaluation_probe if callable(getattr(evaluation_probe, 'capture_candidates', None)) else None
             g = gens[id(sim)] = CandidateGenerator(config=cfg, reuse_plans=reuse_plans,
                                                    k_max=candidate_cap, observer=observer)
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}

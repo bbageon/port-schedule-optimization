@@ -281,7 +281,7 @@ class CandidateGenerator:
                + self._reposition(sim, crane_id, now, level))
         keep = sorted(self._prune(raw), key=self._order_key)
         if self.observer is not None:
-            self.observer.candidates(sim, crane_id, raw, keep)
+            self.observer.capture_candidates(sim, crane_id, raw, keep)
         items = list(keep) + [self._wait(sim, now, level)]
         n_serve = sum(g.feasible and g.kind == CandidateKind.SERVE for g in keep)
         return GeneratedCandidates(
