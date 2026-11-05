@@ -218,6 +218,17 @@ def learning_summary(folder):
                 collection_seconds=sum(r['collection_seconds'] for r in run['rows']),
                 fit_seconds=sum(f['seconds'] for r in run['rows'] for f in r['fits'].values()),
                 worlds=0 if run['stage']==6 else sum(r['stats']['worlds'] for r in run['rows'])))
+            if run['stage']==5:
+                changed=Counter()
+                for row,corpus in zip(run['rows'],corpora):
+                    old=read(seed_dir/f"labels-4-{row['it']}.json.gz")['result']['crane']['comparisons']
+                    new=corpus['result']['crane']['comparisons']
+                    assert [(r['key'][0],r['key'][1]) for r in old]==[(r['key'][0],r['key'][1]) for r in new]
+                    for a,b in zip(old,new):
+                        changed['total']+=1
+                        changed['crane_changed']+=a['crane']!=b['crane']
+                        changed['comparison_changed']+=any(a[k]!=b[k] for k in ('crane','picked_job','alt_job'))
+                stages[-1]['comparison_changes']=dict(changed)
     averages={}
     for arm in sorted({r['arm'] for r in comparisons}):
         rows=[r for r in comparisons if r['arm']==arm]
@@ -376,6 +387,11 @@ def learning_reports(root, summary):
                              f'{base["unique_cranes"]}→{r["unique_cranes"]} | {flow(base)}→{flow(r)} |')
             lines+=['', '한 비교는 선택·대안 두 표본을 만든다. 유형별 표본 수만으로 전체 작업의 대표성을 보장하지 않는다.',
                     '자료 수집의 실제 선택 해시와 비용·투입·잔여는 4단계와 같음을 실행 중 대조했다.']
+            changed={k:sum(r['comparison_changes'].get(k,0) for r in rows)
+                     for k in ('total','crane_changed','comparison_changed')}
+            lines += [f'같은 시각·블록의 {changed["total"]}개 비교 중 크레인·선택 작업·대안 중 하나가 바뀐 것은 '
+                      f'{changed["comparison_changed"]}개이며, 그중 크레인 변경은 {changed["crane_changed"]}개다.',
+                      '크레인 선택 범위는 그 결정 시점의 같은 블록에 한정된다. 표본 시각·블록을 새로 뽑는 방식은 아니다.']
         lines+=['',
                 '## 해석과 한계', '',
                 '평균 비용이나 학습 오차 하나만으로 채택하지 않는다. 처리량·미완료·본선 완료도 함께 확인한다.',
