@@ -118,6 +118,7 @@ class CraneTrainState:
                     "opt": self.trainer.opt.state_dict(),
                     "steps_coef": self.trainer.steps_coef, "it": it,
                     "feature_mode": getattr(self.net, 'feature_mode', 'legacy'),
+                    "model_config": self.net.model_config(),
                     "loss_kind": self.trainer.loss_kind},
                    path / f"crane_{it:03d}.pt")
         #: ⚠️ 이 두 줄은 반드시 **이 함수 안**에 있어야 한다. [[YR-312]] 착수 때 `load` 를
@@ -139,6 +140,7 @@ class CraneTrainState:
         ck = torch.load(path)
         net.load_state_dict(ck["crane"])
         net.feature_mode = ck.get('feature_mode', 'legacy')
+        net.include_flow = ck.get('model_config', {}).get('include_flow', False)
         trainer.loss_kind = ck.get('loss_kind', 'pointwise')
         if "opt" in ck:
             trainer.opt.load_state_dict(ck["opt"])

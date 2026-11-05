@@ -35,7 +35,7 @@
 from __future__ import annotations
 
 from ..world.contract.schema import CandidateKind
-from ..world.domain.enums import JobStatus
+from ..world.domain.enums import JobStatus, ServiceMode
 from ..job_index import IndexedJobs
 
 #: 특징 이름 — 순서가 곧 입력 벡터의 자리다. 바꾸면 학습된 망과 어긋난다.
@@ -64,7 +64,8 @@ def queue_trucks(sim) -> int:
     return int(sim.kpis.waiting_count())
 
 
-def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy') -> list[float]:
+def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy',
+                   include_flow=False) -> list[float]:
     """후보 하나를 **9칸**으로 만든다. 값은 대략 0~2 범위(⑨ 만 줄이 길면 2 를 넘는다).
 
     ⚠️ `rank()` 안에서 후보마다 불린다 — 여기가 느리면 시뮬레이션 전체가 느려진다.
@@ -72,7 +73,7 @@ def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy'
     """
     ref = gc.job_ref
     if ref is None:                      # WAIT — 물리 특징이 없다
-        return [0.0] * CRANE_DIM
+        return [0.0] * (CRANE_DIM + int(include_flow))
 
     plan = gc.plan
     is_v = 1.0 if ref.is_vessel else 0.0
@@ -111,8 +112,12 @@ def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy'
     elif feature_mode != 'legacy':
         raise ValueError(f'unknown feature_mode: {feature_mode}')
 
-    return [is_v, is_s, wait_h, slack_h, reach_h, svc_h, reh_h,
-            min(n_cands / 18.0, 1.0), queue]
+    row = [is_v, is_s, wait_h, slack_h, reach_h, svc_h, reh_h,
+           min(n_cands / 18.0, 1.0), queue]
+    if include_flow:
+        job = sim.jobs.get(ref.job_id)
+        row.append(float(job is not None and job.service_mode == ServiceMode.STORE))
+    return row
 
 
 def decision_common(sim, crane_id=''):

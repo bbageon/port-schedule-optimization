@@ -59,9 +59,7 @@ def _net_for(ckpt: str):
         import torch
         from .policy import CraneNet
         torch.set_num_threads(1)
-        net = CraneNet()
-        net.load_state_dict(torch.load(ckpt)["crane"])
-        net.eval()
+        net = CraneNet.from_checkpoint(torch.load(ckpt, weights_only=True))
         _NET, _CKPT = net, ckpt
     return _NET
 

@@ -102,11 +102,17 @@ class CraneNet(nn.Module):
     보려는 것이지 망 구조의 효과를 보려는 게 아니다.
     """
 
-    def __init__(self, dim: int = CRANE_DIM, hidden: int = 64, *, feature_mode='legacy'):
+    def __init__(self, dim: int = CRANE_DIM, hidden: int = 64, *, feature_mode='legacy',
+                 include_flow=False):
         super().__init__()
         if feature_mode not in ('legacy', 'feasible'):
             raise ValueError(f'unknown feature_mode: {feature_mode}')
         self.feature_mode = feature_mode
+        self.include_flow = bool(include_flow)
+        if self.include_flow and dim == CRANE_DIM:
+            dim += 1
+        if self.include_flow and dim != CRANE_DIM+1:
+            raise ValueError('STORE input requires the ten-input model')
         self.net = nn.Sequential(
             nn.Linear(dim, hidden), nn.ReLU(),
             nn.Linear(hidden, hidden), nn.ReLU(),
@@ -114,6 +120,39 @@ class CraneNet(nn.Module):
 
     def forward(self, x):
         return self.net(x).squeeze(-1)
+
+    def model_config(self):
+        return dict(dim=self.net[0].in_features, hidden=self.net[0].out_features,
+                    feature_mode=self.feature_mode, include_flow=self.include_flow)
+
+    @classmethod
+    def from_checkpoint(cls, checkpoint):
+        state = checkpoint['crane']
+        config = checkpoint.get('model_config', dict(
+            dim=state['net.0.weight'].shape[1], hidden=state['net.0.weight'].shape[0],
+            feature_mode=checkpoint.get('feature_mode','legacy'),
+            include_flow=checkpoint.get('include_flow',False)))
+        net = cls(**config)
+        net.load_state_dict(state)
+        return net.eval()
+
+
+def add_store_input(source):
+    """One extra input, initial weight zero; all existing parameters copied."""
+    if source.net[0].in_features != CRANE_DIM:
+        raise ValueError('expected a nine-input source model')
+    parameter = next(source.parameters())
+    target = CraneNet(hidden=source.net[0].out_features, feature_mode=source.feature_mode,
+                      include_flow=True).to(device=parameter.device, dtype=parameter.dtype)
+    state = source.state_dict()
+    with torch.no_grad():
+        for name, value in target.state_dict().items():
+            if name == 'net.0.weight':
+                value.zero_()
+                value[:,:CRANE_DIM].copy_(state[name])
+            else:
+                value.copy_(state[name])
+    return target.eval()
 
 
 class CranePolicy(BaselinePreference):
@@ -150,7 +189,8 @@ class CranePolicy(BaselinePreference):
             #: 두므로 **필수 작업은 못 제친다**(엔진 계약). 강제가 실제로 먹었는지는
             #: 부르는 쪽이 결과를 읽어 확인한다.
             return (-1, 0.0, ref.job_id)
-        x = crane_features(sim, crane_id, gc, feature_mode=getattr(self.net, 'feature_mode', 'legacy'))
+        x = crane_features(sim, crane_id, gc, feature_mode=getattr(self.net, 'feature_mode', 'legacy'),
+                           include_flow=getattr(self.net, 'include_flow', False))
         with torch.no_grad():
             score = float(self.net(torch.tensor([x], dtype=torch.float32))[0])
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
@@ -180,7 +220,8 @@ class CranePolicy(BaselinePreference):
                 row_ids.append(None)
                 continue
             row = tuple(crane_features(sim, cid, gc, common=common,
-                                      feature_mode=getattr(self.net, 'feature_mode', 'legacy')))
+                                      feature_mode=getattr(self.net, 'feature_mode', 'legacy'),
+                                      include_flow=getattr(self.net, 'include_flow', False)))
             if row not in lookup:
                 lookup[row] = len(rows)
                 rows.append(row)
