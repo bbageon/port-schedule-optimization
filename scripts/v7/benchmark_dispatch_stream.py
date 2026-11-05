@@ -63,6 +63,8 @@ def run(output):
                 start = time.perf_counter_ns()
                 raw = run_joint_episode(sim, policy, RewardCalculator.numeraire_v1(), generator=gen)
                 samples[arm].append((time.perf_counter_ns()-start)/1e6)
+                raw = {key: value.as_dict() if hasattr(value, 'as_dict') else value
+                       for key, value in raw.items()}
                 if repeat == 0:
                     payload = dict(events=sim.event_log, result=raw,
                         jobs=[(j.job_id, j.status.value, j.service_start, j.service_end)
