@@ -26,6 +26,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from time import perf_counter_ns
 
 import torch
 
@@ -221,7 +222,8 @@ class _Ctx:
 
 
 def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
-                 crane_net=None, on_crane=None):
+                 crane_net=None, on_crane=None, batched=True, reuse_plans=True,
+                 evaluation_probe=None):
     """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
 
     ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
@@ -245,13 +247,20 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
     exc = {"n": 0, "hook": 0}
     pref = (ServiceFirstSPTPreference() if dispatcher == "SF_SPT"
             else make_preference(dispatcher, seed=seed, crane_net=crane_net))
+    if dispatcher == RL_CRANE:
+        pref.batched = batched
     pol = ResolverPolicy(pref, dispatcher)
 
     def exec_policy(sim, dp):
-        g = gens.setdefault(id(sim), CandidateGenerator(config=cfg))
+        begin = perf_counter_ns() if evaluation_probe is not None else 0
+        g = gens.get(id(sim))
+        if g is None:
+            g = gens[id(sim)] = CandidateGenerator(config=cfg, reuse_plans=reuse_plans)
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
+        generated = perf_counter_ns() if evaluation_probe is not None else 0
         try:
             assign = pol.decide(sim, dp, gb)
+            decided = perf_counter_ns() if evaluation_probe is not None else 0
             if on_crane is not None:
                 try:
                     on_crane(sim, dp, gb, assign)
@@ -260,7 +269,13 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
             _apply(sim, assign)
         except Exception:
             exc["n"] += 1
+            decided = perf_counter_ns() if evaluation_probe is not None else 0
+            assign = {c: _wait_of(gb[c]) for c in dp.crane_ids}
             _apply(sim, {c: _wait_of(gb[c]) for c in dp.crane_ids})
+        # Measurement errors propagate; they must not silently become WAIT actions.
+        if evaluation_probe is not None:
+            evaluation_probe.decision(sim, dp, gb, assign,
+                                      generated - begin, decided - generated)
     exec_policy.pref = pref                 # 분기 세계가 강제 손잡이를 잡는 자리
     return exec_policy, exc
 
@@ -367,7 +382,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 trigger_top_k: float | None = None,
                 obs=None, exec_config=None,
                 crane_net=None, crane_budget: RolloutBudget | None = None,
-                discharge_backpressure: bool = True) -> EpisodeResult:
+                discharge_backpressure: bool = True,
+                evaluation_mode: str = "optimized", evaluation_probe=None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -381,7 +397,16 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     `crane_budget` — 있으면 **크레인 교사**가 붙는다([[YR-308]] · v7 [[YR-332-b]]).
     크레인 결정을 표본해 세계 둘(실제 선택·차점자)을 굴리고 `crane_labels` 를 채운다.
     `crane_net` — `dispatcher="RL_CRANE"` 일 때 쓸 망. 안 주면 `seed+2` 로 묶은 새 망.
+
+    `evaluation_mode` — 기본 optimized, 평가 대조용 reference(개별/전체 탐색/재사용 끔),
+    batch(일괄 추론만). `evaluation_probe`는 결정 시간과 동등성 기록용 관측자다.
+    평가 대조/관측을 교사와 함께 켜는 것은 거절한다. 학습 기본 계약은 유지한다.
     """
+    if evaluation_mode not in ("reference", "batch", "optimized"):
+        raise ValueError(f"unknown evaluation_mode: {evaluation_mode}")
+    if (evaluation_mode != "optimized" or evaluation_probe is not None) and (
+            budget is not None or crane_budget is not None):
+        raise ValueError("evaluation comparison/probe requires teachers disabled")
     if slot_mode not in ("HORIZON", "LEGACY"):
         raise ValueError(f"slot_mode 는 HORIZON|LEGACY — {slot_mode!r}")
     if arm not in ARMS:
@@ -403,6 +428,14 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         {b: ensure_time_ledger(_sim_from(s, prof, discharge_backpressure=discharge_backpressure))
          for b, s in built["scenarios"].items()},
         extra_review_epochs=admission_epochs(obs))
+    if evaluation_mode != "optimized":
+        # Diagnostic reference: detach status ownership before using a plain dict.
+        for sim in mbt.blocks.values():
+            jobs = dict(sim.jobs)
+            sim.jobs.clear()
+            sim.jobs = jobs
+    if evaluation_probe is not None:
+        evaluation_probe.start(built, mbt)
     ann = V3Announcer(built["schedule"], end_s=built["sim_end_s"])
 
     # ★망 초기화에 시드를 건다. 안 걸면 학습 전 팔이 **실행마다 다른 정책**이 되어
@@ -496,7 +529,10 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         crane.pool.__enter__()
 
     exec_policy, exc = _rule_policy(dispatcher, seed=seed, exec_config=exec_config,
-                                    crane_net=crane_net, on_crane=on_crane)
+                                    crane_net=crane_net, on_crane=on_crane,
+                                    batched=evaluation_mode != "reference",
+                                    reuse_plans=evaluation_mode == "optimized",
+                                    evaluation_probe=evaluation_probe)
     if crane is not None:
         #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
         crane.attach(exec_policy.pref)
@@ -590,4 +626,6 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 buyer_entry=row.get("buyer"),
                 phi_read=row["phi_read_untruncated"]))
     res.labels = pending
+    if evaluation_probe is not None:
+        evaluation_probe.finish(mbt, records, res)
     return res
