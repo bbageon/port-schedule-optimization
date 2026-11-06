@@ -34,6 +34,7 @@
 from __future__ import annotations
 
 import hashlib
+import weakref
 
 from .world.contract.schema import CandidateKind
 from .world.integrated.resolver import BaselinePreference
@@ -84,6 +85,40 @@ class FIFO(RuleBase):
 
     def key(self, sim, crane_id, gc, ref) -> float:
         return _notice_s(sim, ref)
+
+
+class ArrivalFIFO(RuleBase):
+    """FCFS among feasible jobs, ordered by observed queue-entry events.
+
+    Trucks: BLOCK_ARRIVAL; vessel loading: JOB_RELEASED; vessel discharge:
+    VESSEL_RELEASED after physical handover. Notices and unrealized arrivals
+    never determine SERVE priority. Safety/mandatory resolution is unchanged.
+    Preparatory actions retain the existing public-notice ordering.
+    """
+
+    name = "FCFS_ARRIVAL"
+    _ENTRY_EVENTS = frozenset(("BLOCK_ARRIVAL", "JOB_RELEASED", "VESSEL_RELEASED"))
+
+    def __init__(self):
+        # A separate incremental index for each world. Read realized events only;
+        # do not modify jobs, event times, candidate feasibility, or the engine.
+        self._observed = weakref.WeakKeyDictionary()
+
+    def key(self, sim, crane_id, gc, ref) -> float:
+        if gc.kind != CandidateKind.SERVE:
+            return _notice_s(sim, ref)
+        cursor, entered = self._observed.get(sim, (0, {}))
+        if cursor > len(sim.event_log):
+            raise ValueError("FCFS event history was truncated")
+        for at, kind, jid in sim.event_log[cursor:]:
+            if at > sim.clock:
+                raise ValueError("FCFS cannot consume a future event")
+            if kind in self._ENTRY_EVENTS:
+                entered.setdefault(jid, float(at))
+        self._observed[sim] = (len(sim.event_log), entered)
+        if ref.job_id not in entered:
+            raise ValueError(f"FCFS SERVE has no observed queue entry: {ref.job_id}")
+        return entered[ref.job_id]
 
 
 class LIFO(RuleBase):
@@ -166,6 +201,7 @@ class RandomOrder(RuleBase):
 RULE_BASES: dict[str, type] = {
     "FIFO": FIFO, "LIFO": LIFO, "SPT": SPT,
     "NEAREST": Nearest, "LWKR": LongestWait, "RANDOM": RandomOrder,
+    "FCFS_ARRIVAL": ArrivalFIFO,
 }
 
 
