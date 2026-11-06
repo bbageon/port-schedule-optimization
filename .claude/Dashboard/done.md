@@ -13,6 +13,7 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-332-v | Exp | **7규칙 비교 완료; 최신 모델은 최단 작업·최근접·단방향의 평균 체류에 미달** | 2026-11-06 | 71회·기존 51회/반복 2회 정확 재현·53검사·독립 계산 11,523건 일치. 최단 작업 대비 체류 +16.99%, 보호 조건 미통과. 보조 잔여 지표의 24/26시간 구분 교정. 실행 `58fdfe32`. [spec](../docs/dashboard-task-specs/YR-332-v-classical-rules-evaluation.md) · [보고서](../../outputs/reports/yr332_classical_eval/README.md) · [검증값](../../outputs/reports/yr332_classical_eval/validated-summary.json) |
 | YR-332-u | Exp | **도착순 대비 체류 감소 확인; 최단작업 우선 미달·운영 채택 미통과** | 2026-11-06 | 최신 체류 -8.20%·비용 -6.97%(도착순 대비), 최단작업 대비 체류 +16.99%. 새 평가 12회·기존 8회/도착순 반복 정확 재현·40검사 통과. 실행 `69460661`. [spec](../docs/dashboard-task-specs/YR-332-u-arrival-order-evaluation.md) · [보고서](../../outputs/reports/yr332_arrival_eval/README.md) · [원값](../../outputs/reports/yr332_arrival_eval/summary.json) |
 | YR-332-r | RL | **6단계 진단 완료; 작업 방향 정보의 운영 채택 미통과** | 2026-11-05 | 입력 한 칸 비용 -0.40%이나 혼잡일 +3.66%·본선 보호 미통과. 저장 자료 재학습 36회 갱신 결과 정확히 재현, 자료 대조 958건 통과. [spec](../docs/dashboard-task-specs/YR-332-r-crane-flow-information.md) · [전체 결과](../../outputs/reports/yr332_six_steps/README.md) · [원자료](../../outputs/reports/yr332_six_steps/learning/stage6-summary.json) |
 | YR-332-q | RL | **비교 대상 변경은 비용 +8.19%로 악화, 미채택** | 2026-11-05 | 같은 수집 경로·198쌍·9평가. 크레인 범위 확대는 작고 본선 보호 9/9 미통과. [spec](../docs/dashboard-task-specs/YR-332-q-training-comparison-sampling.md) · [결과](../../outputs/reports/yr332_six_steps/learning/stage5-report.md) · [원자료](../../outputs/reports/yr332_six_steps/learning/stage5-summary.json) |

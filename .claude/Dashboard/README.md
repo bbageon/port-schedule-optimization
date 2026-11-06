@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **고전 규칙 7종 비교 완료 (2026-11-06, YR-332-v)**: 최신 체류는 도착순 -8.20%, 최단 작업 +16.99%, 최근접 +1.89%, 단방향 +0.31%. 71회 새 평가·51회/반복 2회 정확 재현·53검사 통과. 운영 채택 미통과, 본선 평가창·투입/잔여 장부 문제는 t/m에 남는다. [보고서](../../outputs/reports/yr332_classical_eval/README.md) · [spec](../docs/dashboard-task-specs/YR-332-v-classical-rules-evaluation.md)
+
 > Jira/Plane 스타일 작업 board. **상태별로 파일 분리** (각 state = 한 파일). 본 README 가 **index**
 > (운영 규약 + state 링크 + epic + 현황 overview). 상세 evidence 는 설계문서/산출물/git commit 이
 > single source — board 는 그 위의 index 일 뿐 중복 서술하지 않는다.

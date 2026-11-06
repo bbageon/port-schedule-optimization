@@ -1,0 +1,273 @@
+{
+  "task": "YR-332-v",
+  "retraining": false,
+  "fresh_evaluations": 71,
+  "operational_adoption": "NOT_PASSED",
+  "dashboard_alignment": {
+    "status": "PENDING"
+  },
+  "scope": "Descriptive comparison on three previously examined simulation days",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "운영 보호 조건 미통과",
+      "reasons": [
+        "기존 최단 작업 규칙 대비 최신 모델의 사전 보호 조건을 확인함"
+      ],
+      "evidence": {
+        "baseline": "SF_SPT",
+        "candidate": "flow",
+        "comparisons": 9,
+        "independent_days": 3,
+        "inferential_ci_reported": false,
+        "mean_comparison": {
+          "arm": "flow",
+          "baseline": "rule_all",
+          "load": null,
+          "n": 9,
+          "cost_change_pct": 20.2127138192511,
+          "turn_change_pct": 16.98861830427129,
+          "turn_before_min": 73.95568019846196,
+          "turn_after_min": 91.82442673485339,
+          "admitted_change": 6.888888888888889,
+          "censored_24h_change": 376.22222222222223,
+          "vessel_done_26h_change": -300.22222222222223,
+          "discharge_done_change": -83.22222222222223,
+          "loading_done_change": -217,
+          "vessel_delay_26h_s_change": 0.0,
+          "vessel_unfinished_26h_change": 0,
+          "vessel_idle_26h_s_change": 15162.80767247732,
+          "p90_turn_s_change": 1974.5817320455462,
+          "p99_turn_s_change": 1857.5223277982068,
+          "vessel_cost_change": 9853855.296544725,
+          "truck_yard_unfinished_26h_change": 321.8888888888889,
+          "cost_wins": 1,
+          "turn_wins": 2,
+          "admission_drop": 0,
+          "unfinished_increase": 7,
+          "vessel_drop": 9,
+          "vessel_delay_increase": 0
+        }
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "INCONCLUSIVE",
+      "summary": "실행·산술 검증 통과, 최종 Dashboard와 원격 커밋 대조 대기",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "58fdfe32a5333fe19f6d676ba6be148122e014bd",
+            "stamp": {
+              "experiment": "YR-332-v",
+              "code": {
+                "git_head": "58fdfe32a5333fe19f6d676ba6be148122e014bd",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "input": [
+                  9913900,
+                  9913910,
+                  9913920
+                ],
+                "model": [
+                  9913501,
+                  9913502,
+                  9913503
+                ]
+              },
+              "params": {
+                "blocks": {
+                  "repr": "21"
+                },
+                "cranes": {
+                  "repr": "42"
+                },
+                "observation_s": {
+                  "repr": "86400"
+                },
+                "drain_s": {
+                  "repr": "7200"
+                },
+                "initial_fill": {
+                  "repr": "0.65"
+                },
+                "loads": {
+                  "repr": "(3500, 7500, 15000)"
+                },
+                "input_seeds": {
+                  "repr": "(9913900, 9913910, 9913920)"
+                },
+                "candidate_cap": {
+                  "repr": "None"
+                },
+                "decision_probe_shortcircuit": {
+                  "repr": "True"
+                },
+                "reuse_rehandle_slots": {
+                  "repr": "False"
+                },
+                "reallocation": {
+                  "repr": "False"
+                },
+                "training": {
+                  "repr": "False"
+                },
+                "threads_per_case": {
+                  "repr": "1"
+                },
+                "model_selection": {
+                  "repr": "'all four methods, final checkpoints'"
+                },
+                "cost_contract": {
+                  "repr": "'unchanged v7 KRW four terms'"
+                },
+                "rule_dispatchers": {
+                  "repr": "{'fcfs_arrival': 'FCFS_ARRIVAL', 'spt': 'SPT', 'nearest': 'NEAREST', 'vessel_fcfs': 'VESSEL_FCFS', 'vessel_nearest': 'VESSEL_NEAREST', 'unidirectional': 'UNIDIRECTIONAL', 'distance_wait': 'DISTANCE_WAIT'}"
+                },
+                "reference_dispatcher": {
+                  "repr": "'SF_SPT'"
+                },
+                "new_evaluations": {
+                  "repr": "71"
+                },
+                "frozen_model_evaluations": {
+                  "repr": "45"
+                },
+                "worker_limit": {
+                  "repr": "6"
+                },
+                "final_operational_horizon_s": {
+                  "repr": "93600"
+                },
+                "smoke_seed": {
+                  "repr": "9913999"
+                }
+              },
+              "prereg": "docs/research/v7-discharge/classical-rules-prereg.md"
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_classical_eval/evaluation/spt-0-3500.json.gz": "3615aa8d9410c4ac8351ca553c9211141e28c66ec926dbe4f36ab4e728e29efe",
+              "outputs/reports/yr332_classical_eval/evaluation/fcfs_arrival-0-3500.json.gz": "b93e17ede547d010a3034a58fd38d2f37b659d21da076552f5cdc0e136756de4",
+              "outputs/reports/yr332_classical_eval/evaluation/nearest-0-3500.json.gz": "14d81279bfc9a742e04e99e4bf2c0fc4576bec666f01ae2fb44530c7a261ce36",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_fcfs-0-3500.json.gz": "76fcbf1c75ee72ac6a5a65de738f2a50032c050cab10364c51a8d9119b0fae63",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_nearest-0-3500.json.gz": "e4b8a76fa008acd8d739ad5783620b7012c785fc8862e3d4382d721ee9ecef55",
+              "outputs/reports/yr332_classical_eval/evaluation/unidirectional-0-3500.json.gz": "cf28ea9047cf51567014d7eda70665cb903e6874c6c9999acd4bfc9212057bbf",
+              "outputs/reports/yr332_classical_eval/evaluation/distance_wait-0-3500.json.gz": "28d209b0a796a5ddd3c4c17fad120c735ce8be912e46650406c0d2233a0df6aa",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913503-3500.json.gz": "8583fdc93438035731dc450b57ac5744db9976d3f4db27fc012f25968d108581",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913502-3500.json.gz": "78bedfc221e3492d03a4420efede30d29df2664a52e5a5cb5a1ffed5cc098a9f",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913502-3500.json.gz": "74f9aebdc17f24adce633b6d93d921cc936cedf3175d6c1e569ea9c3cdc8df0a",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913501-3500.json.gz": "42ed213ee51efe7296c77cdb6f75a1fff9ea3e6200cc3575286f5285c68d6e6b",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913501-3500.json.gz": "7de2ec97148a7cbf3613fd71d025db30c2a714225c28aaed2a86abd00fa0ca42",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913503-3500.json.gz": "08d83e29ee0db21019c078a72eda1a1f1d3e22eb108367d0443014d773d2348c",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913503-3500.json.gz": "8febc670e12ca9f871cf58657d4210fca95af74ac592a0351af53933e45b27d1",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913502-3500.json.gz": "c50fa6e894dfd32c69db44ea750a97366779ecb93f8914aacd35b6624bd100a7",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913501-3500.json.gz": "9416c04e6a24a560dbd9066e94034250fdcd84163875b698a40d5af00bcb0359",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913502-3500.json.gz": "c15994ef053ec4428fd8b144eb8e91a9e9722f409e2add4921084cedc52d30ca",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913501-3500.json.gz": "a6bd8bc4abe6da9a96ee0ed1ee449ee205e3b2c798dd21263167d2fe9f8c3477",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913503-3500.json.gz": "760e1fbb7c8b165708be1db9fe4b93be7d929c8cd4d4a644ffb8c557850c246f",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913503-3500.json.gz": "0b6fdd05ad3b04cc3713ffe07b9d4d4b68eccba5e8bd4ed320f7e8f4ab18d30c",
+              "outputs/reports/yr332_classical_eval/evaluation/rule_all-0-3500.json.gz": "9ffb0774e9de1041334ab5098022f55b385a1fdcb807581915f5457b1cbcd268",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913502-3500.json.gz": "0a54c9deeb53455cf1622c74cafa2b58e2bd9f24d49efd1b7a381dbb861673f6",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913501-3500.json.gz": "a7612f95390316e24f1f2f1cc5dfaae9bebbab51e85f6ad12d4a2d19926d5535",
+              "outputs/reports/yr332_classical_eval/evaluation/fcfs_arrival-0-7500.json.gz": "a27bd541c9e1567944f0d9fad6345ad4c801857c0f4a174d0db277d34e654307",
+              "outputs/reports/yr332_classical_eval/evaluation/spt-0-7500.json.gz": "87bd15f20608453ba832ee2af12337818268dcb55420dd7d11461679ebe909f6",
+              "outputs/reports/yr332_classical_eval/evaluation/nearest-0-7500.json.gz": "bd97552b9ecb5a3772a575b5d302ee695a55d4f78ace9ad0312ffa1906530667",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_fcfs-0-7500.json.gz": "3dad4d20dcb542612ee6a49fd3db8ecff517cc56033ee7e90ec12d96f8ab3f4c",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_nearest-0-7500.json.gz": "4db6ee95f802d132382bdf6decd7abbb669118ba6f91f13d1d650f950c5d8dc2",
+              "outputs/reports/yr332_classical_eval/evaluation/unidirectional-0-7500.json.gz": "a5c4fa4192e96de50b87040f68e24b5d93a2d5365f55ac39cfb98138e6327ac7",
+              "outputs/reports/yr332_classical_eval/evaluation/distance_wait-0-7500.json.gz": "f6a8ba954356a63aed609e22d9935c0ed479a39d42e242e18bcab1d4afb8ba6e",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913501-7500.json.gz": "57f3910b447727e5bb5be83677ee86fa197cc818478eb9a7ca076f0a71bbcf88",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913503-7500.json.gz": "c32dbf6df51dfaafedf153940f6067f78431072997a20949e50035be5a4713d3",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913502-7500.json.gz": "caf1d5d84209b7848893d5b775f7ea4d028669b7dfad1c5d8fcde0bc2dc48419",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913502-7500.json.gz": "364a3f3c98f4d13f6fd237be0f50d5086d50a9dc4d22b8ee723ac02429941d64",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913501-7500.json.gz": "f055c9e8a4127b84f9905a48126f1fd89820bdeba85b441323c35ed62e69390f",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913503-7500.json.gz": "1d35cd783fecc143a11db9b9f6c8cdc2f5e0f3e989f504a9bde59c93d23f966a",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913501-7500.json.gz": "6307397b07f61932287d3034e00ddcfc351bf19a15ecd35da757618d1df420b9",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913502-7500.json.gz": "ba915f1e5dd850019ac757d98f14f863dc49cf722426a496a84d29d53d18623b",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913503-7500.json.gz": "96531b5ea1e321db0909a75f106374c2542f14ec854543061e3466baa8507c94",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913502-7500.json.gz": "cf8110d19e60fdbbefc293febc6ff21ff79f3482032dff17459cb8ef3ac71f09",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913501-7500.json.gz": "ed599e07a71bb2f1cdd061a8a9780fe445a2fd7fbf714eb9e6578c4d4f600459",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913503-7500.json.gz": "017e2f4616bcb6286a35ea5274641b4c5f98f219ac5165b4e6be19723a0839c7",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913503-7500.json.gz": "585aa406404b4ad91d0d62f3d2102b699a18ee2734326d92b154a6bab81e8393",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913502-7500.json.gz": "3330c198ba090df8e5585321de2eacdb283f3726dbf10e3564861e362e82cd88",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913501-7500.json.gz": "99295047a986779980871f034dc49161bdc1a55b5cc4ef046a3f0a9805926d32",
+              "outputs/reports/yr332_classical_eval/evaluation/rule_all-0-7500.json.gz": "c6949bb65ecb8b5e802d8ea38eba34385606a108dee69cf0858ee56a3d5de378",
+              "outputs/reports/yr332_classical_eval/evaluation/fcfs_arrival-0-15000.json.gz": "13e1a4f743b0159f34695b6e1aadad8fff5220b8e14bdd42bb4a3e3e94b0c5be",
+              "outputs/reports/yr332_classical_eval/evaluation/spt-0-15000.json.gz": "650b6168daa943aa37596288ea8745f9287f06a909cd7079524574e26899c90a",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_fcfs-0-15000.json.gz": "15e58725890e496a570b3cafe7954388540e237a572fb88e30f20ea6ee343ac0",
+              "outputs/reports/yr332_classical_eval/evaluation/nearest-0-15000.json.gz": "ad04efb9ea02846c128d8fce1348e9101a5ec5ae393a03e2e5b2fae238d74b63",
+              "outputs/reports/yr332_classical_eval/evaluation/vessel_nearest-0-15000.json.gz": "c9a2255fec185760e32707fc0691971309caf5ea0211c26ad8e8a89f863bb5cb",
+              "outputs/reports/yr332_classical_eval/evaluation/unidirectional-0-15000.json.gz": "994302043ea1bcee8ba35ea6459d80b57b06745d826d53eefe134ac54b432a0f",
+              "outputs/reports/yr332_classical_eval/evaluation/distance_wait-0-15000.json.gz": "167743249167ed745116abd55d0dd85bcadbad177c73140340d23b428449089f",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913502-15000.json.gz": "a472165e0fddc31549899e3593841117a238bb9fa134ef8b97aa63cb5666dd36",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913501-15000.json.gz": "f9b03f853fd83a24aa0e0bb1491278e8d68b22cf5c7e7dd616afe15b75a90d91",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913502-15000.json.gz": "4f6ddb8ccc02e4c07c9c06c6c898694e4dff6559e07ad8c8754d856d92b6618d",
+              "outputs/reports/yr332_classical_eval/evaluation/initial-9913503-15000.json.gz": "da3fd0ebf303c8397f9c686cfba953931d036b341d51f6fab0b44604c6386c26",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913501-15000.json.gz": "80b1d9667984190d80412724413abd13da6f5227606cad81d97f6efa29d47750",
+              "outputs/reports/yr332_classical_eval/evaluation/pointwise-9913503-15000.json.gz": "2b5263ea48c061663a2cf1d407fc14d6c10560ea5e06e7d47958fa3deaa69ace",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913501-15000.json.gz": "ce426c31ba9fbb578e3f8642bce091a2183edd7a06605782a0d0e4864868a8a3",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913502-15000.json.gz": "e6c222cb7c2850f5c4a368debed6bf84a18a7235c6adfa01a255ef3d21f59b18",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913502-15000.json.gz": "a8515a251064d9900ad75128afdbfa1a89b2effe3d5e712c7a362a84440c4afb",
+              "outputs/reports/yr332_classical_eval/evaluation/pairwise-9913503-15000.json.gz": "64ca6aae3e9dba6722450962734ea7c84ccc90a3a38758c43759bf680eeaf7fd",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913501-15000.json.gz": "775011aabd6b3e82bbba59c3a55a7d9183d08f698a746e0c8e4a6fa9f13714fa",
+              "outputs/reports/yr332_classical_eval/evaluation/nearest-0-3500-repeat.json.gz": "f2aedad52ac7a356fabc5bd641e9781aa430cc62467cd397d31dddabb1d815d5",
+              "outputs/reports/yr332_classical_eval/evaluation/unidirectional-0-3500-repeat.json.gz": "1846a5a3dadb02c780a9dfefd90e9d45a1de8a6dcd1c2768729af7adbfabeab0",
+              "outputs/reports/yr332_classical_eval/evaluation/coverage-9913503-15000.json.gz": "603a26dd0b7c6c679faadddaf0cc49af17b3ee3ce7e0da1f7c6d1d6fe912bbdb",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913502-15000.json.gz": "616c78cdf17f473506da58bdeb882b44255600f5e9731d036c3b5b8076cf169d",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913501-15000.json.gz": "b92265c72e6007ef29fa7523327916d10d951e42e3de91d5c40e58c51da5609d",
+              "outputs/reports/yr332_classical_eval/evaluation/flow-9913503-15000.json.gz": "4880893927c679af36b068a3680e0711724ad9ab4d66a82798109cda24e6c4cd",
+              "outputs/reports/yr332_classical_eval/evaluation/rule_all-0-15000.json.gz": "566a077533616b72f3e8b9963615ce80553070bbc5990ec061dadb413523d92b",
+              "docs/research/v7-discharge/classical-rules-prereg.md": "8ac408086624bef1bb80e36519b9f2544ad509c2a363dc6a552e971ea2aa1dc8"
+            }
+          }
+        },
+        "arithmetic": {
+          "status": "PASS",
+          "scalar_checks": 11523,
+          "comparisons": 381,
+          "learning_comparisons": 36,
+          "analysis_source": "scripts/v7/report_classical_rules.py",
+          "analysis_sha256": "1cabf307ff1b24b24947722c359857a4d7758c8a40364c4b5344af93aded30d5"
+        },
+        "exact_prior_replays": 51,
+        "exact_repeats": 2
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "작업시간·비용·예약 오차·양하 물리·투입 장부의 기존 미확정 유지",
+      "reasons": [
+        "실자료 보정 미완료",
+        "평가가 본선 작업 마감 전에 종료됨"
+      ],
+      "evidence": {
+        "preserved_tasks": [
+          "YR-332-t",
+          "YR-332-m",
+          "YR-332-f",
+          "YR-332-i"
+        ],
+        "operational_claim": false,
+        "authorization_record": "authorization.json"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "reliability",
+      "scenario_validity"
+    ]
+  }
+}
