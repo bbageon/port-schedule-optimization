@@ -1,0 +1,46 @@
+{
+  "scope": "same-input frozen-model diagnostic against observed-arrival order; no retraining",
+  "performance_vs_fcfs": {
+    "pointwise": {
+      "mean_turn_change_pct": -13.61838576048073,
+      "mean_cost_change_pct": -12.692361372140397,
+      "admission_drop_cases": 3,
+      "unfinished_increase_cases": 0,
+      "vessel_completion_drop_cases": 1,
+      "operational_adoption": "NOT_PASSED"
+    },
+    "pairwise": {
+      "mean_turn_change_pct": -14.656880226070976,
+      "mean_cost_change_pct": -13.370285063270215,
+      "admission_drop_cases": 3,
+      "unfinished_increase_cases": 0,
+      "vessel_completion_drop_cases": 1,
+      "operational_adoption": "NOT_PASSED"
+    },
+    "coverage": {
+      "mean_turn_change_pct": -7.13535161406267,
+      "mean_cost_change_pct": -6.267147185644244,
+      "admission_drop_cases": 3,
+      "unfinished_increase_cases": 3,
+      "vessel_completion_drop_cases": 4,
+      "operational_adoption": "NOT_PASSED"
+    },
+    "flow": {
+      "mean_turn_change_pct": -8.196604246030994,
+      "mean_cost_change_pct": -6.973984512473489,
+      "admission_drop_cases": 3,
+      "unfinished_increase_cases": 2,
+      "vessel_completion_drop_cases": 3,
+      "operational_adoption": "NOT_PASSED"
+    }
+  },
+  "prior_shortest_job_result": "unchanged; all four methods remain worse on average and fail vessel protection",
+  "reality_validity": "NOT_PASSED; task t/m/f/i remain open",
+  "runtime_evidence": "PASS",
+  "uncertainty": "three previously inspected input days, three trained initializations, three updates each",
+  "evidence": {
+    "summary": "summary.json",
+    "verification": "verification.json",
+    "campaign": "campaign.json"
+  }
+}

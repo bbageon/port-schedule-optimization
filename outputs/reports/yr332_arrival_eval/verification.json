@@ -1,0 +1,223 @@
+{
+  "raw_comparisons": 93,
+  "independent_scalar_and_input_checks": 279,
+  "prepost": {
+    "pointwise": {
+      "cost_change_pct": -9.577178569517537,
+      "turn_change_pct": -8.414501141555025
+    },
+    "pairwise": {
+      "cost_change_pct": -10.161474611045412,
+      "turn_change_pct": -9.457857573238138
+    },
+    "coverage": {
+      "cost_change_pct": -3.7563527492667137,
+      "turn_change_pct": -2.474286501688345
+    },
+    "flow": {
+      "cost_change_pct": -4.198299313987318,
+      "turn_change_pct": -3.354321963692877
+    }
+  },
+  "runtime_evidence": {
+    "name": "runtime_evidence",
+    "status": "PASS",
+    "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+    "reasons": [],
+    "evidence": {
+      "git_head": "694606611174b43e3b5d85c21331a5d03dbef045",
+      "stamp": {
+        "code": {
+          "git_head": "694606611174b43e3b5d85c21331a5d03dbef045",
+          "git_dirty": false
+        },
+        "seeds": {
+          "model": [
+            9913501,
+            9913502,
+            9913503
+          ],
+          "evaluation": [
+            9913900,
+            9913910,
+            9913920
+          ]
+        },
+        "prereg": "docs/research/v7-discharge/arrival-order-prereg.md",
+        "params": {
+          "blocks": 21,
+          "cranes": 42,
+          "observation_s": 86400,
+          "drain_s": 7200,
+          "initial_fill": 0.65,
+          "loads": [
+            3500,
+            7500,
+            15000
+          ],
+          "input_seeds": [
+            9913900,
+            9913910,
+            9913920
+          ],
+          "candidate_cap": null,
+          "decision_probe_shortcircuit": true,
+          "reuse_rehandle_slots": false,
+          "reallocation": false,
+          "training": false,
+          "threads_per_case": 1,
+          "model_selection": "all four methods, final checkpoints",
+          "cost_contract": "unchanged v7 KRW four terms",
+          "source_derived": {
+            "episode_defaults": {
+              "dispatcher": "SF_SPT",
+              "arm": "NO_REALLOC",
+              "seller_net": null,
+              "buyer_net": null,
+              "lead_mode": "DGT",
+              "window_s": 1800.0,
+              "explore": 0.0,
+              "horizon_s": 10800.0,
+              "budget": null,
+              "slot_mode": "HORIZON",
+              "workers": 1,
+              "trigger_top_k": null,
+              "obs": null,
+              "exec_config": null,
+              "crane_net": null,
+              "crane_budget": null,
+              "discharge_backpressure": true,
+              "evaluation_mode": "optimized",
+              "evaluation_probe": null,
+              "reuse_rehandle_slots": false,
+              "candidate_cap": 12,
+              "crane_sampling": "standard",
+              "decision_probe_shortcircuit": false
+            },
+            "profile": {
+              "terminal_id": "H21-SHARED-YT",
+              "profile_date": "2026-07-15",
+              "assumed": true,
+              "block": {
+                "block_id": "B1",
+                "bay_count": 24,
+                "row_count": 10,
+                "tier_max": 6,
+                "bay_length_m": 6.5,
+                "row_width_m": 3.1,
+                "tier_height_m": 2.6,
+                "transfer_row": 0
+              },
+              "cranes": [
+                {
+                  "crane_id": "YC-L",
+                  "service_bay_min": 1,
+                  "service_bay_max": 24,
+                  "gantry_speed_mps": 4.0,
+                  "trolley_speed_mps": 1.0,
+                  "hoist_speed_loaded_mps": 0.58,
+                  "hoist_speed_empty_mps": 1.17,
+                  "lock_time_s": 30.0,
+                  "unlock_time_s": 20.0,
+                  "truck_positioning_time_s": 25.0
+                },
+                {
+                  "crane_id": "YC-W",
+                  "service_bay_min": 1,
+                  "service_bay_max": 24,
+                  "gantry_speed_mps": 4.0,
+                  "trolley_speed_mps": 1.0,
+                  "hoist_speed_loaded_mps": 0.58,
+                  "hoist_speed_empty_mps": 1.17,
+                  "lock_time_s": 30.0,
+                  "unlock_time_s": 20.0,
+                  "truck_positioning_time_s": 25.0
+                }
+              ],
+              "lane_graph": {
+                "lane_ids": [
+                  "L1",
+                  "L2"
+                ],
+                "edges": [
+                  [
+                    "L1",
+                    "L2"
+                  ]
+                ]
+              },
+              "transfer": {
+                "fleet_id": "YT1",
+                "kind": "YT",
+                "n_units": 3,
+                "move_time_s": 470.0
+              },
+              "long_wait_sla_s": 1800.0,
+              "decision_horizon_s": 1800.0,
+              "safety_gap_bay": 2.0,
+              "shift_len_s": 28800.0,
+              "gate_travel_estimate_s": 210.0,
+              "sts_target_moves_per_hour": 25.0
+            },
+            "exec_config": {
+              "name": "V7_CRANE_ONLY",
+              "wait_mode": "WAIT",
+              "safety_only": true,
+              "bound_repo": false,
+              "prepo_one_shot": false,
+              "forbid_strategic_wait": false
+            },
+            "cost_constants": {
+              "KRW_OVERTIME_START_S": 3600.0,
+              "KRW_REHANDLE_EACH": 2000.0,
+              "KRW_TRUCK_HOUR": 40000.0,
+              "KRW_TRUCK_OVER_HOUR": 40000.0,
+              "KRW_VESSEL_GT_HOUR": 35.88,
+              "KRW_YC_MOVE_HOUR": 60000.0
+            },
+            "note": "Read from frozen execution sources; case-specific arguments and checkpoint hashes are recorded separately in campaign and evaluation artifacts."
+          }
+        }
+      },
+      "artifact_hashes": {
+        "outputs/reports/yr332_arrival_eval/campaign.json": "cd5b3af807dff067d480d3862f6518377a4a7c80dead2a41270caf9e2eae69fb",
+        "outputs/reports/yr332_arrival_eval/summary.json": "7a8d04c04b005f8c50c072866f431c62ae5356bf40b7ffb5f2deb6b8b963aee9",
+        "outputs/reports/yr332_arrival_eval/runtime-configuration.json": "4cb7454ba50f2bce27c81a304e3bf704260ecebcaf4b2b4e89da2df1cd2fb2c5",
+        "docs/research/v7-discharge/arrival-order-prereg.md": "58f06684592747eb10d2c66d040493e35b0b8bbc31bdda32ae9b0151b3d7fffb",
+        "outputs/reports/yr332_arrival_eval/evaluation/coverage-9913501-7500.json.gz": "d6298f696ffe5403ad048947e8b74077a958dca2c1743a3935462d6ab3891e49",
+        "outputs/reports/yr332_arrival_eval/evaluation/fcfs_arrival-0-15000.json.gz": "ee69cdb8607995872ad928a0e237c89902ce734b483e32ce6bce0ac39e10782c",
+        "outputs/reports/yr332_arrival_eval/evaluation/fcfs_arrival-0-3500-repeat.json.gz": "35b5bf93c81dcfda99d39614179cd95c7a744bff49d0bff4be1421615244703a",
+        "outputs/reports/yr332_arrival_eval/evaluation/fcfs_arrival-0-3500.json.gz": "372efeda8a1729eaae458fa9cccdae6092fcf0fa0561cbeb9594d992da941503",
+        "outputs/reports/yr332_arrival_eval/evaluation/fcfs_arrival-0-7500.json.gz": "d732840b6a9c4abf8c8649e2fb3695ea75ca8a1a0893a4a3e0bcccbd479eac4e",
+        "outputs/reports/yr332_arrival_eval/evaluation/flow-9913503-15000.json.gz": "2c2f66c415f21dadc57762d6547b252daefe9df54b62868d02435d06681423e6",
+        "outputs/reports/yr332_arrival_eval/evaluation/initial-9913501-3500.json.gz": "d82d142a36330f4704d63fe4fa0b12eec5cc764153fb54c45546cd5b154255d9",
+        "outputs/reports/yr332_arrival_eval/evaluation/pairwise-9913503-15000.json.gz": "206835d7973d3585e570a130fa50913585e2e5f95ca9337162157038f26b4112",
+        "outputs/reports/yr332_arrival_eval/evaluation/pointwise-9913502-7500.json.gz": "8b3f2a77bc34b873b242be50d2e5b7bff86cab995eb9bb9d630425f826b8bdd5",
+        "outputs/reports/yr332_arrival_eval/evaluation/rule_all-0-15000.json.gz": "c3719826a40c4d5a004be0d3be6650b6bc798c23df19b82b2fd7daa5fb53ffb5",
+        "outputs/reports/yr332_arrival_eval/evaluation/rule_all-0-3500.json.gz": "86f5519279ab83037d53e348794b59f5228900b027c3aa42747c0a4076070b90",
+        "outputs/reports/yr332_arrival_eval/evaluation/rule_all-0-7500.json.gz": "bf1b53e2661caa10d8ecadd9c355bcef2c0396e004e3df697e43f5a737bceea9"
+      }
+    }
+  },
+  "exact_prior_replays": 8,
+  "exact_fcfs_repeats": 1,
+  "implementation_tests_passed": 40,
+  "source_files_unchanged": 184,
+  "prior_files_verified": 51,
+  "models_verified": 15,
+  "documentation_checks": {
+    "status": "PASS",
+    "scope": "new and changed documentation",
+    "files": [
+      ".claude/Dashboard/README.md",
+      ".claude/Dashboard/backlog.md",
+      ".claude/Dashboard/done.md",
+      ".claude/Dashboard/in-progress.md",
+      ".claude/docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md",
+      ".claude/docs/dashboard-task-specs/YR-332-u-arrival-order-evaluation.md",
+      "outputs/reports/yr332_arrival_eval/README.md"
+    ],
+    "bookkeeping_correction": "Initial in-progress board/spec backlog mismatch corrected to done in completion commit; frozen preregistration unchanged",
+    "excluded_preexisting": "Unchanged done-archive-legacy.md exceeds 200 lines; not modified by this task"
+  }
+}

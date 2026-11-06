@@ -1,0 +1,109 @@
+{
+  "episode_defaults": {
+    "dispatcher": "SF_SPT",
+    "arm": "NO_REALLOC",
+    "seller_net": null,
+    "buyer_net": null,
+    "lead_mode": "DGT",
+    "window_s": 1800.0,
+    "explore": 0.0,
+    "horizon_s": 10800.0,
+    "budget": null,
+    "slot_mode": "HORIZON",
+    "workers": 1,
+    "trigger_top_k": null,
+    "obs": null,
+    "exec_config": null,
+    "crane_net": null,
+    "crane_budget": null,
+    "discharge_backpressure": true,
+    "evaluation_mode": "optimized",
+    "evaluation_probe": null,
+    "reuse_rehandle_slots": false,
+    "candidate_cap": 12,
+    "crane_sampling": "standard",
+    "decision_probe_shortcircuit": false
+  },
+  "profile": {
+    "terminal_id": "H21-SHARED-YT",
+    "profile_date": "2026-07-15",
+    "assumed": true,
+    "block": {
+      "block_id": "B1",
+      "bay_count": 24,
+      "row_count": 10,
+      "tier_max": 6,
+      "bay_length_m": 6.5,
+      "row_width_m": 3.1,
+      "tier_height_m": 2.6,
+      "transfer_row": 0
+    },
+    "cranes": [
+      {
+        "crane_id": "YC-L",
+        "service_bay_min": 1,
+        "service_bay_max": 24,
+        "gantry_speed_mps": 4.0,
+        "trolley_speed_mps": 1.0,
+        "hoist_speed_loaded_mps": 0.58,
+        "hoist_speed_empty_mps": 1.17,
+        "lock_time_s": 30.0,
+        "unlock_time_s": 20.0,
+        "truck_positioning_time_s": 25.0
+      },
+      {
+        "crane_id": "YC-W",
+        "service_bay_min": 1,
+        "service_bay_max": 24,
+        "gantry_speed_mps": 4.0,
+        "trolley_speed_mps": 1.0,
+        "hoist_speed_loaded_mps": 0.58,
+        "hoist_speed_empty_mps": 1.17,
+        "lock_time_s": 30.0,
+        "unlock_time_s": 20.0,
+        "truck_positioning_time_s": 25.0
+      }
+    ],
+    "lane_graph": {
+      "lane_ids": [
+        "L1",
+        "L2"
+      ],
+      "edges": [
+        [
+          "L1",
+          "L2"
+        ]
+      ]
+    },
+    "transfer": {
+      "fleet_id": "YT1",
+      "kind": "YT",
+      "n_units": 3,
+      "move_time_s": 470.0
+    },
+    "long_wait_sla_s": 1800.0,
+    "decision_horizon_s": 1800.0,
+    "safety_gap_bay": 2.0,
+    "shift_len_s": 28800.0,
+    "gate_travel_estimate_s": 210.0,
+    "sts_target_moves_per_hour": 25.0
+  },
+  "exec_config": {
+    "name": "V7_CRANE_ONLY",
+    "wait_mode": "WAIT",
+    "safety_only": true,
+    "bound_repo": false,
+    "prepo_one_shot": false,
+    "forbid_strategic_wait": false
+  },
+  "cost_constants": {
+    "KRW_OVERTIME_START_S": 3600.0,
+    "KRW_REHANDLE_EACH": 2000.0,
+    "KRW_TRUCK_HOUR": 40000.0,
+    "KRW_TRUCK_OVER_HOUR": 40000.0,
+    "KRW_VESSEL_GT_HOUR": 35.88,
+    "KRW_YC_MOVE_HOUR": 60000.0
+  },
+  "note": "Read from frozen execution sources; case-specific arguments and checkpoint hashes are recorded separately in campaign and evaluation artifacts."
+}
