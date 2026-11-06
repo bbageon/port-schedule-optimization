@@ -1,4 +1,4 @@
-"""크레인 바닥 — 고전 배차 규칙 5종 ([[YR-243]]).
+"""크레인 바닥 — 고전 배차 규칙 ([[YR-243]], [[YR-332-v]]).
 
 ■ 왜 필요한가 — **일반성 축**이다
   v3 판정은 지금까지 배차 하나(`SF_SPT`) 위에서만 돌았다([[YR-242]]). 그래서
@@ -13,23 +13,24 @@
 ■ ★공통 고정 — "무엇을 할까" 는 바닥마다 안 바꾼다
   고전 규칙은 *"어느 일감 먼저"* 만 답한다. 우리 크레인은 *"일감을 할까 · 미리
   파낼까 · 옮길까 · 쉴까"* 도 답해야 하는데 여기엔 문헌 대응물이 없다.
-  그래서 **실작업(SERVE) 우선**을 다섯 바닥에 공통으로 고정하고, 그 안의 **순서
+  그래서 **실작업(SERVE) 우선**을 규칙들에 공통으로 고정하고, 그 안의 **순서
   규칙만** 바꾼다. 그러면 바뀌는 변수가 하나라 비교가 깨끗하다.
 
   고정하지 않으면 퇴화한다 — 순수 SPT 는 60초짜리 REPOSITION 이 300초짜리
   SERVE 를 이겨서 크레인이 일은 안 하고 자리이동만 고른다([[YR-039]] 무효 사유:
   결정의 54~81%가 REPOSITION 이었다).
 
-■ 정보 경계 — 다섯 바닥 전부 **공개 정보만** 쓴다
+■ 정보 경계 — 모든 규칙은 **공개 정보만** 쓴다
   `release_time`(선택 가능해진 시각)·`provided_eta`(제공 ETA)·`duration_s`·
   크레인 현재 위치·누적 대기만 본다. **실현 도착(`actual_block_arrival`)은 한 줄도
   안 읽는다** — 기존 `FIFOPreference` 가 그걸 읽어 미래를 알던 누출을 반복하지
-  않는다([[YR-107]]). 그래서 다섯 다 `USES_FUTURE_INFORMATION = False` 다.
+  않는다([[YR-107]]). 관측 완료된 도착 사건은 사용할 수 있다.
+  모든 규칙의 `USES_FUTURE_INFORMATION = False` 다.
 
 ■ 현행 `SF_SPT` 의 실체 (실측 2026-08-28 · [[YR-242]] §2)
   정렬키가 다섯 자리지만 실제로 승부를 가르는 건 **소요시간 61.6% · 이름순 33.6%**
-  뿐이고 `본선 우선` 은 **0%** 다. 즉 사실상 순수 SPT 다. 그래서 여기에 "순수 SPT"
-  를 따로 두지 않는다 — 같은 점이 둘이 된다.
+  뿐이고 `본선 우선` 은 **0%** 다. 이는 당시 관측이며 일반적인 동일성 보장은 아니다.
+  SPT와 SF_SPT는 동률 해소가 다르므로 YR-332-v에서 각각 실행해 비교한다.
 """
 from __future__ import annotations
 
@@ -157,9 +158,90 @@ class Nearest(RuleBase):
         st = sim.fleet.get(crane_id).state
         if gc.plan is None:
             return float("inf")
-        lo, hi = gc.plan.corridor
-        target = lo if abs(lo - st.position_bay) <= abs(hi - st.position_bay) else hi
-        return abs(float(target) - float(st.position_bay))
+        return abs(_target_bay(gc) - float(st.position_bay))
+
+
+def _target_bay(gc) -> float:
+    """First handling position, not the reserved interval containing the crane.
+
+    STORE plans start at the transfer lane of their selected bay; RETRIEVE and
+    preparation plans start at the first container to handle. Empty travel has
+    no moves and uses its destination. All are current, publicly planned data.
+    """
+    if gc.plan is None:
+        raise ValueError("distance rule requires a feasible plan")
+    return float(gc.plan.moves[0].src[0] if gc.plan.moves else gc.plan.end_bay)
+
+
+class VesselArrivalFIFO(ArrivalFIFO):
+    """Vessel discharge/loading first, then observed entry order within class."""
+
+    name = "VESSEL_FCFS"
+
+    def rank(self, sim, crane_id, gc) -> tuple:
+        ref = gc.job_ref
+        if ref is None:
+            return _WAIT_KEY
+        return (0 if gc.kind == CandidateKind.SERVE else 1,
+                0 if ref.is_vessel else 1, self.key(sim, crane_id, gc, ref), ref.job_id)
+
+
+class VesselNearest(Nearest):
+    """Vessel discharge/loading first, then nearest within class."""
+
+    name = "VESSEL_NEAREST"
+
+    def rank(self, sim, crane_id, gc) -> tuple:
+        ref = gc.job_ref
+        if ref is None:
+            return _WAIT_KEY
+        return (0 if gc.kind == CandidateKind.SERVE else 1,
+                0 if ref.is_vessel else 1, self.key(sim, crane_id, gc, ref), ref.job_id)
+
+
+class Unidirectional(RuleBase):
+    """LOOK-style sweep; direction follows observed completed crane movement.
+
+    Ranking a hypothetical candidate never changes direction. The state is
+    separate for every world and crane, including independent cloned worlds.
+    """
+
+    name = "UNIDIRECTIONAL"
+
+    def __init__(self):
+        self._directions = weakref.WeakKeyDictionary()
+
+    def rank(self, sim, crane_id, gc) -> tuple:
+        ref = gc.job_ref
+        if ref is None:
+            return _WAIT_KEY
+        position = float(sim.fleet.get(crane_id).state.position_bay)
+        states = self._directions.setdefault(sim, {})
+        previous, direction = states.get(crane_id, (position, 1))
+        if position != previous:
+            direction = 1 if position > previous else -1
+        states[crane_id] = (position, direction)
+        delta = _target_bay(gc) - position
+        return (0 if gc.kind == CandidateKind.SERVE else 1,
+                0 if delta * direction >= 0 else 1, abs(delta), ref.job_id)
+
+
+class DistanceWait(ArrivalFIFO):
+    """Minimize approach seconds minus observed queue waiting seconds."""
+
+    name = "DISTANCE_WAIT"
+
+    def key(self, sim, crane_id, gc, ref) -> float:
+        from .world.sim.travel_time import gantry_m
+
+        position = sim.fleet.get(crane_id).state.position_bay
+        speed = sim.fleet.spec(crane_id).gantry_speed_mps
+        if speed <= 0:
+            raise ValueError("gantry speed must be positive")
+        approach = gantry_m(sim.profile.block, position, _target_bay(gc)) / speed
+        waiting = (max(0.0, sim.clock - super().key(sim, crane_id, gc, ref))
+                   if gc.kind == CandidateKind.SERVE else 0.0)
+        return approach - waiting
 
 
 class LongestWait(RuleBase):
@@ -202,6 +284,8 @@ RULE_BASES: dict[str, type] = {
     "FIFO": FIFO, "LIFO": LIFO, "SPT": SPT,
     "NEAREST": Nearest, "LWKR": LongestWait, "RANDOM": RandomOrder,
     "FCFS_ARRIVAL": ArrivalFIFO,
+    "VESSEL_FCFS": VesselArrivalFIFO, "VESSEL_NEAREST": VesselNearest,
+    "UNIDIRECTIONAL": Unidirectional, "DISTANCE_WAIT": DistanceWait,
 }
 
 
