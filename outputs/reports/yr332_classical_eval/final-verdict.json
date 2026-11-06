@@ -4,7 +4,9 @@
   "fresh_evaluations": 71,
   "operational_adoption": "NOT_PASSED",
   "dashboard_alignment": {
-    "status": "PENDING"
+    "status": "PASS",
+    "pin_commit": "8eb56234f9adfe6e606564a3ef07a1e254ffe236",
+    "evidence": "final-dashboard-audit.json"
   },
   "scope": "Descriptive comparison on three previously examined simulation days",
   "common_gates": {
@@ -53,8 +55,8 @@
     },
     "reliability": {
       "name": "reliability",
-      "status": "INCONCLUSIVE",
-      "summary": "실행·산술 검증 통과, 최종 Dashboard와 원격 커밋 대조 대기",
+      "status": "PASS",
+      "summary": "Dashboard·spec·코드·증거가 일치함",
       "reasons": [],
       "evidence": {
         "runtime": {
@@ -239,7 +241,39 @@
           "analysis_sha256": "1cabf307ff1b24b24947722c359857a4d7758c8a40364c4b5344af93aded30d5"
         },
         "exact_prior_replays": 51,
-        "exact_repeats": 2
+        "exact_repeats": 2,
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-v",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-332-v-classical-rules-evaluation.md",
+            "evidence_paths": [
+              "outputs/reports/yr332_classical_eval/README.md",
+              "outputs/reports/yr332_classical_eval/validated-summary.json",
+              "outputs/reports/yr332_classical_eval/campaign.json",
+              "outputs/reports/yr332_classical_eval/verification.json",
+              "outputs/reports/yr332_classical_eval/runtime-configuration.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-v-classical-rules-evaluation.md"
+            ],
+            "evidence_commits": [
+              "8eb56234f9adfe6e606564a3ef07a1e254ffe236"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "8eb56234f9adfe6e606564a3ef07a1e254ffe236",
+            "drift": []
+          }
+        },
+        "measurement_contract": "verification.json:measurement_contract; validated-summary.json"
       }
     },
     "scenario_validity": {
@@ -266,7 +300,6 @@
     "next_work_mode": "REMEDIATION_ONLY",
     "unresolved_gates": [
       "performance",
-      "reliability",
       "scenario_validity"
     ]
   }
