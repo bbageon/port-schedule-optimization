@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-t | Sim | **v7 비교 기준·비용 수치의 타당성 감사** | 🔴 | 사용자 질문(2026-11-06): 규칙 미달을 학습 효과 없음으로 해석하기 전에 작업시간·비용 계수·정보 조건의 근거와 적용 범위를 대조한다. 현재 설정을 고정한 근거 감사가 우선이며, 투입 장부(m)·예약 오차(f)·양하 보정(i)는 구분한다. [spec](../docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md) |
 | YR-332-s | RL | **실행 가능 작업 수 입력의 18개 상한 검증** | 🟠 | 15,000건에서 수정 입력 59.51%가 상한에 도달했다. 같은 자료에서 눈금 한 축만 비교해 정보 손실의 영향을 확인한다. 현재 6단계 이후 항목. [spec](../docs/dashboard-task-specs/YR-332-s-feasible-count-scale.md) |
 | YR-332-m | Sim | **기본 하루 환경의 투입 누락·작업 잔여 원인 대조** | 🟠 | 첫 속도 입력 3,500건 중 3,299건, 6단계 별도 혼잡 평가 규칙 15,000건 중 14,406건 투입. 날짜별 누락 사유와 미완료를 구분해 실제 처리 부하를 확인한다. [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md) |
 | YR-332-k | Infra | **구 PPO 보상 시험의 현재 계약 대조** | 🟠 | 변경 전에도 재현되는 None 분모 오류를 정리한다. 전체 회귀 판정의 정확성을 위한 보정. [spec](../docs/dashboard-task-specs/YR-332-k-legacy-ppo-reward-test.md) |
