@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-t | Sim | **v7 비교 기준·비용 수치의 타당성 감사** | 🔴 | 도착순(u)·7규칙(v) 비교 완료, 작업시간·비용 근거는 미확정. 본선 마감 25.3~44.3시간과 평가 끝 26시간의 차이도 감사한다. 투입·출차 장부(m), 예약(f), 양하 보정(i)은 구분한다. [spec](../docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md) |
 | YR-332-w | RL | **학습 대안과 실제 선택 제약의 정합 감사** | 🟠 | 기존/확대 자료의 52/198·55/198쌍은 실작업과 준비 작업 비교다. 실제 공동 배정 제약 아래 선택 가능한 대안인지 확인하며, 아직 불일치·성능 원인으로 판정하지 않는다. [spec](../docs/dashboard-task-specs/YR-332-w-training-action-contract.md) |
 | YR-332-m | Sim | **기본 하루 환경의 투입 누락·작업 잔여 원인 대조** | 🟠 | 7규칙 비교(v)에서 같은 15,000건의 투입 수가 달랐다. 누락 사유와 24시간 출차 장부·26시간 야드 완료·출차를 구분해 실제 처리 집합을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md) |
 | YR-332-k | Infra | **구 PPO 보상 시험의 현재 계약 대조** | 🟠 | 변경 전에도 재현되는 None 분모 오류를 정리한다. 전체 회귀 판정의 정확성을 위한 보정. [spec](../docs/dashboard-task-specs/YR-332-k-legacy-ppo-reward-test.md) |
