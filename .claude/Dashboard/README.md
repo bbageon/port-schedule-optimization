@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **비교 기준·비용 수치 감사 완료 (2026-11-07, YR-332-t)**: 69회 정확 재현. 학습 정책이 최단 작업보다 못하다(비용 +20.21%)·도착순보다 낫다(-6.97%)·학습 전보다 낫다(-4.20%)는 판정은 문서 근거가 있는 대안 단가 7개와 다섯 단가 0~10배에서 유지됐다. 다만 수치 33개 중 22개가 설계값이고, 본선 비용은 운반 장비 바닥에, 출항 지연은 평가창 밖에 있어 현실 타당성은 미확보다. 새 문제: 배 여유 입력 상한(x)·비용 정의 문서(y)·본선 작업 마감 필드(z). 다음은 m→w. [보고서](../../outputs/reports/yr332_comparison_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md)
+
 - **후보 수 입력 상한 비교 완료 (2026-11-07, YR-332-s)**: 상한 제거는 기존 모델 대비 체류 -1.188%·계산상 비용 -1.491%, 로그 변환은 체류 +1.745%. 상한 제거도 최단 작업 우선보다 체류 +15.040%이고 투입·미완료·본선 보호 조건 미통과라 기본값 유지. 27회 학습·60회 평가·45검사·독립 계산 7,524건 일치. 다음은 비교 기준(t)·투입/완료 장부(m)·학습 대안의 선택 가능성(w) 감사다. [보고서](../../outputs/reports/yr332_count_transform/README.md) · [spec](../docs/dashboard-task-specs/YR-332-s-feasible-count-scale.md)
 
 - **고전 규칙 7종 비교 완료 (2026-11-06, YR-332-v)**: 최신 체류는 도착순 -8.20%, 최단 작업 +16.99%, 최근접 +1.89%, 단방향 +0.31%. 71회 새 평가·51회/반복 2회 정확 재현·53검사 통과. 운영 채택 미통과, 본선 평가창·투입/잔여 장부 문제는 t/m에 남는다. [보고서](../../outputs/reports/yr332_classical_eval/README.md) · [spec](../docs/dashboard-task-specs/YR-332-v-classical-rules-evaluation.md)

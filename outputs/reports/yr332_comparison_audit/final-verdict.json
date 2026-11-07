@@ -1,0 +1,223 @@
+{
+  "task": "YR-332-t",
+  "exact_replays": 69,
+  "cases": 69,
+  "independent_checks": 483,
+  "independent_mismatches": 0,
+  "documented_variant_flips": {
+    "K1:coverage:initial": {
+      "vessel_v3_design": [
+        "majority"
+      ]
+    },
+    "K2:initial:nearest": {
+      "truck_legal_excess": [
+        "majority"
+      ]
+    },
+    "K2:coverage:nearest": {
+      "truck_legal_excess": [
+        "majority"
+      ]
+    },
+    "K2:coverage:unidirectional": {
+      "truck_legal_excess": [
+        "majority"
+      ]
+    },
+    "K2:flow:vessel_nearest": {
+      "truck_legal_excess": [
+        "majority"
+      ]
+    },
+    "K2:flow:unidirectional": {
+      "truck_linear": [
+        "majority"
+      ],
+      "truck_legal_excess": [
+        "better"
+      ],
+      "truck_threshold_1800": [
+        "majority"
+      ],
+      "vessel_2024_level": [
+        "majority"
+      ],
+      "vessel_v3_design": [
+        "majority"
+      ]
+    }
+  },
+  "categories": {
+    "learning_before_after": {
+      "status": "MEAN_IMPROVEMENT_SIGN_ROBUST_TO_DOCUMENTED_COSTS",
+      "majority_changes": {
+        "K1:coverage:initial": {
+          "vessel_v3_design": [
+            "majority"
+          ]
+        }
+      },
+      "arms": {
+        "pointwise": {
+          "cost_pct": -9.57717856951739,
+          "wins": 7,
+          "dwell_pct": -8.414501141555025,
+          "flips": []
+        },
+        "pairwise": {
+          "cost_pct": -10.16147461104537,
+          "wins": 8,
+          "dwell_pct": -9.457857573238138,
+          "flips": []
+        },
+        "coverage": {
+          "cost_pct": -3.756352749266805,
+          "wins": 5,
+          "dwell_pct": -2.4742865016883453,
+          "flips": [
+            "vessel_v3_design"
+          ]
+        },
+        "flow": {
+          "cost_pct": -4.198299313987144,
+          "wins": 6,
+          "dwell_pct": -3.354321963692877,
+          "flips": []
+        }
+      },
+      "limits": "three previously seen input days; 9 pairs are not independent days"
+    },
+    "rule_comparison": {
+      "status": "SOME_VERDICTS_FLIP",
+      "mean_sign_flips": [
+        "K2:flow:unidirectional"
+      ],
+      "changes": {
+        "K2:initial:nearest": {
+          "truck_legal_excess": [
+            "majority"
+          ]
+        },
+        "K2:coverage:nearest": {
+          "truck_legal_excess": [
+            "majority"
+          ]
+        },
+        "K2:coverage:unidirectional": {
+          "truck_legal_excess": [
+            "majority"
+          ]
+        },
+        "K2:flow:vessel_nearest": {
+          "truck_legal_excess": [
+            "majority"
+          ]
+        },
+        "K2:flow:unidirectional": {
+          "truck_linear": [
+            "majority"
+          ],
+          "truck_legal_excess": [
+            "better"
+          ],
+          "truck_threshold_1800": [
+            "majority"
+          ],
+          "vessel_2024_level": [
+            "majority"
+          ],
+          "vessel_v3_design": [
+            "majority"
+          ]
+        }
+      },
+      "latest_vs_rules": {
+        "fcfs_arrival": {
+          "cost_pct": -6.973984512473352,
+          "wins": 6,
+          "dwell_pct": -8.196604246030994,
+          "flips": []
+        },
+        "spt": {
+          "cost_pct": 20.21271381925125,
+          "wins": 1,
+          "dwell_pct": 16.988618304271306,
+          "flips": []
+        },
+        "nearest": {
+          "cost_pct": 1.4715580670993886,
+          "wins": 4,
+          "dwell_pct": 1.8916232110931135,
+          "flips": []
+        },
+        "vessel_fcfs": {
+          "cost_pct": -7.862227939879997,
+          "wins": 7,
+          "dwell_pct": -9.909968907552583,
+          "flips": []
+        },
+        "vessel_nearest": {
+          "cost_pct": -2.8394540027542865,
+          "wins": 5,
+          "dwell_pct": -4.671831208534109,
+          "flips": [
+            "truck_legal_excess"
+          ]
+        },
+        "unidirectional": {
+          "cost_pct": 0.16506740550573903,
+          "wins": 5,
+          "dwell_pct": 0.3144104781820763,
+          "flips": [
+            "truck_linear",
+            "truck_legal_excess",
+            "truck_threshold_1800",
+            "vessel_2024_level",
+            "vessel_v3_design"
+          ]
+        },
+        "distance_wait": {
+          "cost_pct": -7.431010391472103,
+          "wins": 6,
+          "dwell_pct": -8.619731643962817,
+          "flips": []
+        },
+        "rule_all": {
+          "cost_pct": 20.212713819251245,
+          "wins": 1,
+          "dwell_pct": 16.98861830427129,
+          "flips": []
+        }
+      }
+    },
+    "operational_adoption": {
+      "status": "NOT_PASSED_UNCHANGED",
+      "reason": "YR-332-v/s protective conditions (admission, unfinished, vessel yard completion) were not re-judged; this audit adds no adoption evidence"
+    },
+    "real_world_validity": {
+      "status": "NOT_ESTABLISHED",
+      "inventory_classes": {
+        "문헌·시장": 6,
+        "미확정": 2,
+        "법정 구조 차용": 1,
+        "법정(인용)": 1,
+        "설계": 22,
+        "실측표본": 1
+      },
+      "vessel_slack_input_saturated_share": 0.8598355940846507,
+      "reasons": [
+        "only the truck rate has a legal basis (secondary check, clause unread)",
+        "vessel rate is a charter-rate proxy with partly unverified points",
+        "crane move and rehandle rates are design values without derivation",
+        "service times are exact (no noise) and uncalibrated",
+        "vessel completion falls outside the 24/26 h window"
+      ]
+    }
+  },
+  "gates": {
+    "performance": "UNCHANGED_NO_NEW_CLAIM",
+    "reliability": "REPLAY_PASS_DOC_MISMATCHES",
+    "scenario_validity": "NOT_PASSED_UNCHANGED"
+  }
+}

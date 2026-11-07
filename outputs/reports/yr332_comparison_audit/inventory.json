@@ -1,0 +1,379 @@
+{
+  "entries": [
+    {
+      "group": "비용",
+      "name": "트럭 시간가치",
+      "value": 40000.0,
+      "unit": "원/트럭·시간",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_TRUCK_HOUR",
+      "claimed_basis": "2026 안전운임 고시 항만부두 대기료 30분당 20,000원",
+      "class": "법정(인용)",
+      "note": "고시와 30분당 2만원·1시간 기준은 국토부 게시·물류 보도로 2차 확인, 조항 원문 미대조. 법정 대기시간(도착 요청~송장 발급)과 게이트 진입~출차는 다르다."
+    },
+    {
+      "group": "비용",
+      "name": "1시간 초과 할증",
+      "value": 40000.0,
+      "unit": "원/트럭·시간",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_TRUCK_OVER_HOUR",
+      "claimed_basis": "고시의 1시간 초과분 청구를 실제 비용 2배로 해석",
+      "class": "설계",
+      "note": "YR-207 결정 기록의 목적식은 할증 없는 선형이다."
+    },
+    {
+      "group": "비용",
+      "name": "할증 시작",
+      "value": 3600.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_OVERTIME_START_S",
+      "claimed_basis": "고시의 첫 1시간",
+      "class": "법정 구조 차용",
+      "note": "무대 트럭 SLA 1,800초와 다르다(04 문서 주석)."
+    },
+    {
+      "group": "비용",
+      "name": "YC 빈 주행",
+      "value": 60000.0,
+      "unit": "원/시간",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_YC_MOVE_HOUR",
+      "claimed_basis": "전력·정비·운영 환산",
+      "class": "설계",
+      "note": "계산 근거 없음. YR-207 기록은 40,000원. 실제 측정량은 재조작·재배치로 생긴 추가 이동이 아니라 모든 작업의 빈 갠트리 접근 이동이다."
+    },
+    {
+      "group": "비용",
+      "name": "재조작",
+      "value": 2000.0,
+      "unit": "원/회",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_REHANDLE_EACH",
+      "claimed_basis": "추가 lift 2분 × YC 분당 단가",
+      "class": "설계",
+      "note": "사전 재조작·적하 파내기도 센다."
+    },
+    {
+      "group": "비용",
+      "name": "본선 유휴",
+      "value": 35.88,
+      "unit": "원/GT·시간",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "KRW_VESSEL_GT_HOUR",
+      "claimed_basis": "2025 1년 정기용선료 보간 중앙값(환율 1,350원/달러)",
+      "class": "문헌·시장",
+      "note": "용선료는 지연 손실 자체가 아닌 대리값. 4,250TEU 일 54,500달러 보도는 표와 근접, 8,000TEU 값은 미확인. 대형 32.25원은 표의 세 점으로 재현되지 않는다(선형 외삽 29.85원). 선급별 값 대신 중앙값 하나를 모든 배에 쓴다."
+    },
+    {
+      "group": "관측창",
+      "name": "관측 24시간(워밍업 2시간 포함)",
+      "value": 86400.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "OBS_24H",
+      "claimed_basis": "사전등록 §E",
+      "class": "설계",
+      "note": "워밍업 2시간도 비용에 들어간다(0시부터 계산)."
+    },
+    {
+      "group": "관측창",
+      "name": "정리 시간",
+      "value": 7200.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "DIURNAL_DRAIN_S",
+      "claimed_basis": "하루 끝 도착분 완료 자리",
+      "class": "설계",
+      "note": "비용에는 안 들어가고 출입 기록도 24시간까지만 갱신된다."
+    },
+    {
+      "group": "관측창",
+      "name": "본선 계획 완료 여유 배수",
+      "value": 2.0,
+      "unit": "배",
+      "file": "src/yard_rl/v7/world/integrated/scenario_gen.py",
+      "symbol": "vessel_deadline_mult",
+      "claimed_basis": "기본 2.0(넉넉)",
+      "class": "설계",
+      "note": "계획 완료 = 시작 + 2×순수 작업시간 → 평가창 밖. 정책의 본선 여유 입력이 늘 상한에 걸린다."
+    },
+    {
+      "group": "트럭",
+      "name": "반출 비율",
+      "value": 0.6,
+      "unit": "비율",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "gate_out_share",
+      "claimed_basis": "표기 없음",
+      "class": "미확정",
+      "note": ""
+    },
+    {
+      "group": "트럭",
+      "name": "40피트 비율",
+      "value": 0.7,
+      "unit": "비율",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "size_mix_ft40",
+      "claimed_basis": "표기 없음",
+      "class": "미확정",
+      "note": ""
+    },
+    {
+      "group": "트럭",
+      "name": "하루 도착 곡선",
+      "value": "10·15·21시 봉우리, 야간 38%",
+      "unit": "-",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "DIURNAL_PEAKS",
+      "claimed_basis": "사전등록·사용자 확인",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "트럭",
+      "name": "통지 리드타임",
+      "value": "DGT 표본 분포",
+      "unit": "-",
+      "file": "src/yard_rl/v7/stage/dgt_lead.py",
+      "symbol": "DGT",
+      "claimed_basis": "DGT 방문 표본 중 통지 있는 71건",
+      "class": "실측표본",
+      "note": "수직형 터미널 1시간 표본이다."
+    },
+    {
+      "group": "트럭",
+      "name": "예약 대비 실제 도착 오차",
+      "value": 0.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/stage/orders.py",
+      "symbol": "arrival_s",
+      "claimed_basis": "예약 = 실제 도착",
+      "class": "설계",
+      "note": "실자료는 중앙 93분 늦음(YR-332-f에서 다룬다)."
+    },
+    {
+      "group": "트럭",
+      "name": "게이트→블록 이동",
+      "value": "190~410(평균 300)",
+      "unit": "초",
+      "file": "src/yard_rl/v7/world/integrated/yard_layout.py",
+      "symbol": "gate_to_block_s",
+      "claimed_basis": "사용자 결정 5분·합성 배치",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "트럭",
+      "name": "블록→게이트 이동",
+      "value": 300.0,
+      "unit": "초(평균)",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "exit_travel_mu_s",
+      "claimed_basis": "assumed",
+      "class": "설계",
+      "note": "표준편차 12%."
+    },
+    {
+      "group": "본선",
+      "name": "선급 GT",
+      "value": "50,000/100,000/150,000",
+      "unit": "GT",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "VESSEL_CLASSES",
+      "claimed_basis": "사용자 결정 2026-08-20(02b)",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "본선",
+      "name": "선급별 안벽 크레인 수",
+      "value": "2/4/6",
+      "unit": "대",
+      "file": "src/yard_rl/v7/reward/krw.py",
+      "symbol": "VESSEL_STS_STREAMS",
+      "claimed_basis": "실측 참조(스트림당 25~30 moves/h)",
+      "class": "문헌·시장",
+      "note": ""
+    },
+    {
+      "group": "본선",
+      "name": "하루 선단",
+      "value": "소2·중1·대 30%",
+      "unit": "척",
+      "file": "src/yard_rl/v7/stage/vessels.py",
+      "symbol": "DAY_FLEET",
+      "claimed_basis": "02b §3",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "본선",
+      "name": "안벽 크레인 생산성",
+      "value": 27.5,
+      "unit": "moves/시간",
+      "file": "src/yard_rl/v7/stage/vessels.py",
+      "symbol": "STREAM_MOVES_PER_H",
+      "claimed_basis": "25~30 moves/h 중앙값",
+      "class": "문헌·시장",
+      "note": ""
+    },
+    {
+      "group": "운반",
+      "name": "블록당 운반 차량",
+      "value": 3,
+      "unit": "대",
+      "file": "src/yard_rl/v7/world/integrated/profiles.py",
+      "symbol": "n_units=3",
+      "claimed_basis": "AGV 60대/23블록 공개값 유도",
+      "class": "문헌·시장",
+      "note": ""
+    },
+    {
+      "group": "운반",
+      "name": "운반 왕복",
+      "value": 470.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/world/integrated/profiles.py",
+      "symbol": "YT_ROUND_TRIP_S",
+      "claimed_basis": "안벽 손실 10~20% 문헌에 맞춘 재보정",
+      "class": "설계",
+      "note": "적하 안벽 대기 하한 16.4%를 만든다. 양하는 인계 상한 3박스와 함께 코드 산술상 약 31% 하한."
+    },
+    {
+      "group": "운반",
+      "name": "양하 인계 상한·안벽 버퍼",
+      "value": 3,
+      "unit": "박스",
+      "file": "src/yard_rl/v7/stage/episode.py",
+      "symbol": "yard_handover_cap",
+      "claimed_basis": "YR-332-h 집계 근사",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "야드",
+      "name": "블록 수·블록당 크레인",
+      "value": "21·2",
+      "unit": "-",
+      "file": "src/yard_rl/v7/world/integrated/yard_layout.py",
+      "symbol": "TERMINAL_BLOCKS",
+      "claimed_basis": "HJNC 21블록 규모 앵커",
+      "class": "설계",
+      "note": "두 크레인은 역할 구분 없는 근사."
+    },
+    {
+      "group": "야드",
+      "name": "초기 적재율",
+      "value": 0.65,
+      "unit": "비율",
+      "file": "src/yard_rl/v7/world/integrated/terminal_stream.py",
+      "symbol": "fill_ratio",
+      "claimed_basis": "문헌 범위 0.60~0.75 중심",
+      "class": "문헌·시장",
+      "note": ""
+    },
+    {
+      "group": "야드",
+      "name": "크레인 속도(갠트리·트롤리·호이스트)",
+      "value": "4.0·1.0·0.58/1.17",
+      "unit": "m/s",
+      "file": "src/yard_rl/v7/world/sim/travel_time.py",
+      "symbol": "gantry",
+      "claimed_basis": "Kalmar ASC 등 장비 자료",
+      "class": "문헌·시장",
+      "note": "축 동작을 순서대로 더하고 겹치지 않는다(가정)."
+    },
+    {
+      "group": "야드",
+      "name": "작업시간 오차",
+      "value": 0.0,
+      "unit": "초",
+      "file": "src/yard_rl/v7/world/integrated/engine.py",
+      "symbol": "duration_s",
+      "claimed_basis": "계획 시간 = 실제 시간",
+      "class": "설계",
+      "note": "규칙과 학습 정책 모두 실제와 같은 계획 시간을 본다."
+    },
+    {
+      "group": "야드",
+      "name": "크레인 안전 간격",
+      "value": 2.0,
+      "unit": "베이",
+      "file": "src/yard_rl/v7/world/integrated/reservation.py",
+      "symbol": "safety",
+      "claimed_basis": "assumed",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "정책 입력",
+      "name": "누적 대기 상한",
+      "value": 2.0,
+      "unit": "시간",
+      "file": "src/yard_rl/v7/crane/features.py",
+      "symbol": "_WAIT_REF_H",
+      "claimed_basis": "할증 시작의 2배",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "정책 입력",
+      "name": "본선 여유 상한",
+      "value": 2.0,
+      "unit": "±시간",
+      "file": "src/yard_rl/v7/crane/features.py",
+      "symbol": "_SLACK_CLIP_H",
+      "claimed_basis": "배 크기 상수라 자름",
+      "class": "설계",
+      "note": "이번 관측에서 실제 값이 늘 이 범위 밖이었다(분석 3)."
+    },
+    {
+      "group": "정책 입력",
+      "name": "소요·빈 이동·재조작 눈금",
+      "value": "3600초·200m·30회에서 1",
+      "unit": "-",
+      "file": "src/yard_rl/v7/crane/features.py",
+      "symbol": "duration_s",
+      "claimed_basis": "v4 그대로",
+      "class": "설계",
+      "note": ""
+    },
+    {
+      "group": "정책 입력",
+      "name": "대기 트럭 수 눈금",
+      "value": 18,
+      "unit": "대",
+      "file": "src/yard_rl/v7/crane/features.py",
+      "symbol": "18.0",
+      "claimed_basis": "v4 그대로",
+      "class": "설계",
+      "note": "YR-332-s에서 상한 제거를 비교했고 채택하지 않았다."
+    },
+    {
+      "group": "공통 제약",
+      "name": "필수 작업 문턱",
+      "value": "누적 대기 1,440초(=0.8×1,800)",
+      "unit": "-",
+      "file": "src/yard_rl/v7/world/integrated/candidates.py",
+      "symbol": "mandatory_wait_frac",
+      "claimed_basis": "SLA 가정",
+      "class": "설계",
+      "note": "규칙과 학습 정책 모두 이 작업을 먼저 한다."
+    }
+  ],
+  "check": {
+    "entries": 33,
+    "symbols_missing": [],
+    "classes": {
+      "문헌·시장": 6,
+      "미확정": 2,
+      "법정 구조 차용": 1,
+      "법정(인용)": 1,
+      "설계": 22,
+      "실측표본": 1
+    }
+  }
+}
