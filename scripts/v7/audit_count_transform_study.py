@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import statistics
 import subprocess
 
@@ -44,6 +45,33 @@ def audit():
     summary=read(OUT/'summary.json'); verification=read(OUT/'verification.json'); manifest=read(OUT/'campaign.json')
     artifacts={**verification['artifact_sha256'],**manifest['input_sha256'],
         **manifest['prior_artifact_sha256'],**manifest['sources']}
+    revision=read(OUT/'analysis-revision.json')
+    assert verification['analysis_revision_sha256']==sha(OUT/'analysis-revision.json')
+    for key in ('original_report','revised_analysis','amendment','diagnosis','supplemental_plan'):
+        assert sha(revision[key])==revision[key+'_sha256'],key
+        artifacts[revision[key]]=revision[key+'_sha256']
+    diagnosis=read(revision['diagnosis'])
+    for key in ('source_code','source','extended'):
+        assert sha(diagnosis[key])==diagnosis[key+'_sha256']
+        artifacts[diagnosis[key]]=diagnosis[key+'_sha256']
+    # Independently check the architecture exception and current-architecture repeat.
+    initial_checks=[]
+    replay_fields=('candidates_sha256','choices_sha256','events_sha256','jobs_sha256',
+                   'records_sha256','result_sha256')
+    for seed in (9913501,9913502,9913503):
+        for load in (3500,7500,15000):
+            old=read(REFERENCE/f'initial-{seed}-{load}.json.gz')
+            current=read(OUT/'evaluation'/f'clipped-{seed}-initial-{load}.json.gz')
+            matches=old['result']==current['result'] and all(
+                old['probe'][k]==current['probe'][k] for k in replay_fields)
+            assert matches==((seed,load)!=(9913501,15000))
+            initial_checks.append(dict(seed=seed,load=load,exact=matches))
+    current=read(OUT/'evaluation'/'clipped-9913501-initial-15000.json.gz')
+    repeat=read(OUT/'evaluation'/'clipped-9913501-initial-15000-repeat.json.gz')
+    assert current['result']==repeat['result']
+    for key in (*replay_fields,'metadata','flow_status_counts','decision_context',
+                'operational','main_choices_sha256','count_histogram'):
+        assert current['probe'][key]==repeat['probe'][key],key
     runtime=judge_runtime_evidence(manifest['repro'],artifact_hashes=artifacts).as_dict()
     assert runtime['status']=='PASS',runtime
     cache={}
@@ -111,6 +139,7 @@ def audit():
     alignment=judge_claim_alignment(reported,actual,absolute_tolerance=.00050001).as_dict()
     assert alignment['status']=='PASS',alignment
     result=dict(status='PASS',scalar_checks=checks,comparisons=len(independently_computed),
+        initial_architecture_comparisons=initial_checks,current_initial_repeat_exact=True,
         runtime=runtime,claim_alignment=alignment,summary_sha256=sha(OUT/'summary.json'),
         report_sha256=sha(OUT/'README.md'),audit_source=Path(__file__).as_posix(),audit_source_sha256=sha(__file__))
     save(OUT/'independent-arithmetic-audit.json',result)
@@ -119,7 +148,7 @@ def audit():
 
 
 def finalize(pin):
-    from yard_rl.experiments.gate_harness import audit_dashboard,GateOutcome,GateStatus
+    from yard_rl.experiments.gate_harness import audit_dashboard,judge_claim_alignment,GateOutcome,GateStatus
     data=read(OUT/'independent-arithmetic-audit.json')
     assert data['summary_sha256']==sha(OUT/'summary.json')
     assert data['report_sha256']==sha(OUT/'README.md')
@@ -130,6 +159,20 @@ def finalize(pin):
                                             'independent-arithmetic-audit.json')],
         evidence_commits=[pin],remote_ref=upstream,pin_commit=pin).as_dict()
     assert board['status']=='PASS',board
+    overview=next(line for line in Path('.claude/Dashboard/README.md').read_text(encoding='utf-8').splitlines()
+                  if line.startswith('- **후보 수 입력 상한 비교 완료'))
+    values=[float(v) for v in re.findall(r'([+-]\d+\.\d+)%',overview)]
+    summary=read(OUT/'summary.json')
+    def mean(arm,baseline,key):
+        return next(r[key] for r in summary['averages'] if r['arm']==arm
+                    and r['baseline']==baseline and r['load'] is None)
+    actual=[mean('linear','clipped','turn_change_pct'),mean('linear','clipped','cost_change_pct'),
+            mean('log1p','clipped','turn_change_pct'),mean('linear','spt','turn_change_pct')]
+    assert len(values)==len(actual)==4
+    claims=judge_claim_alignment({str(i):v for i,v in enumerate(values)},
+        {str(i):v for i,v in enumerate(actual)},absolute_tolerance=.00050001).as_dict()
+    assert claims['status']=='PASS',claims
+    board['evidence']['overview_claim_alignment']=claims
     save(OUT/'final-dashboard-audit.json',board)
     verdict=read(OUT/'final-verdict.json')
     verdict['dashboard_alignment']=dict(status='PASS',pin_commit=pin,evidence='final-dashboard-audit.json')
