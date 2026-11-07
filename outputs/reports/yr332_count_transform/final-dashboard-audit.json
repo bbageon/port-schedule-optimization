@@ -1,0 +1,58 @@
+{
+  "name": "dashboard_code_alignment",
+  "status": "PASS",
+  "summary": "Dashboard·spec·코드·증거가 일치함",
+  "reasons": [],
+  "evidence": {
+    "task_id": "YR-332-s",
+    "expected_state": "done",
+    "board_matches": [
+      "done.md"
+    ],
+    "spec_path": ".claude/docs/dashboard-task-specs/YR-332-s-feasible-count-scale.md",
+    "evidence_paths": [
+      "outputs\\reports\\yr332_count_transform\\summary.json",
+      "outputs\\reports\\yr332_count_transform\\README.md",
+      "outputs\\reports\\yr332_count_transform\\verification.json",
+      "outputs\\reports\\yr332_count_transform\\campaign.json",
+      "outputs\\reports\\yr332_count_transform\\independent-arithmetic-audit.json"
+    ],
+    "control_paths": [
+      ".claude\\Dashboard\\done.md",
+      ".claude\\docs\\dashboard-task-specs\\YR-332-s-feasible-count-scale.md"
+    ],
+    "evidence_commits": [
+      "68214eb6"
+    ],
+    "remote_ref": "origin/강화학습-판매",
+    "pin_commit": "68214eb6",
+    "drift": [],
+    "overview_claim_alignment": {
+      "name": "claim_alignment",
+      "status": "PASS",
+      "summary": "보고 핵심 수치가 원자료와 일치함",
+      "reasons": [],
+      "evidence": {
+        "absolute_tolerance": 0.00050001,
+        "reported_values": {
+          "0": -1.188,
+          "1": -1.491,
+          "2": 1.745,
+          "3": 15.04
+        },
+        "raw_values": {
+          "0": -1.1877213896620442,
+          "1": -1.4905092794730217,
+          "2": 1.7452220550357493,
+          "3": 15.03952476151772
+        },
+        "absolute_differences": {
+          "0": 0.0002786103379557314,
+          "1": 0.0004907205269784054,
+          "2": 0.00022205503574923569,
+          "3": 0.000475238482279039
+        }
+      }
+    }
+  }
+}
