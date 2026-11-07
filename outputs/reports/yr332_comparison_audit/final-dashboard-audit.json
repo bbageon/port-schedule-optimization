@@ -1,0 +1,57 @@
+{
+  "name": "dashboard_code_alignment",
+  "status": "PASS",
+  "summary": "Dashboard·spec·코드·증거가 일치함",
+  "reasons": [],
+  "evidence": {
+    "task_id": "YR-332-t",
+    "expected_state": "done",
+    "board_matches": [
+      "done.md"
+    ],
+    "spec_path": ".claude/docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md",
+    "evidence_paths": [
+      "outputs\\reports\\yr332_comparison_audit\\summary.json",
+      "outputs\\reports\\yr332_comparison_audit\\README.md",
+      "outputs\\reports\\yr332_comparison_audit\\verification.json",
+      "outputs\\reports\\yr332_comparison_audit\\campaign.json",
+      "outputs\\reports\\yr332_comparison_audit\\independent-arithmetic-audit.json",
+      "outputs\\reports\\yr332_comparison_audit\\final-verdict.json",
+      "outputs\\reports\\yr332_comparison_audit\\sensitivity.json"
+    ],
+    "control_paths": [
+      ".claude\\Dashboard\\done.md",
+      ".claude\\docs\\dashboard-task-specs\\YR-332-t-comparison-validity-audit.md"
+    ],
+    "evidence_commits": [
+      "2349cd17"
+    ],
+    "remote_ref": "origin/강화학습-판매",
+    "pin_commit": "2349cd17",
+    "drift": [],
+    "overview_claim_alignment": {
+      "name": "claim_alignment",
+      "status": "PASS",
+      "summary": "보고 핵심 수치가 원자료와 일치함",
+      "reasons": [],
+      "evidence": {
+        "absolute_tolerance": 0.0050001,
+        "reported_values": {
+          "0": 20.21,
+          "1": -6.97,
+          "2": -4.2
+        },
+        "raw_values": {
+          "0": 20.21271381925125,
+          "1": -6.973984512473352,
+          "2": -4.198299313987144
+        },
+        "absolute_differences": {
+          "0": 0.0027138192512481396,
+          "1": 0.0039845124733526305,
+          "2": 0.0017006860128558898
+        }
+      }
+    }
+  }
+}

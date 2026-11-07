@@ -309,6 +309,46 @@ def write_verification():
     return out
 
 
+def finalize_dashboard(pin):
+    """Pinned board/spec/evidence audit plus overview-number alignment (no board edits)."""
+    import re
+    import subprocess
+    from yard_rl.experiments.gate_harness import audit_dashboard, judge_claim_alignment
+    upstream = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', '@{upstream}'],
+                                       encoding='utf-8').strip()
+    board = audit_dashboard(
+        '.', task_id='YR-332-t', expected_state='done',
+        spec_path='.claude/docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md',
+        evidence_paths=[str(OUT/p) for p in ('summary.json', 'README.md', 'verification.json',
+                                             'campaign.json', 'independent-arithmetic-audit.json',
+                                             'final-verdict.json', 'sensitivity.json')],
+        evidence_commits=[pin], remote_ref=upstream, pin_commit=pin).as_dict()
+    assert board['status'] == 'PASS', board
+    overview = next(line for line in Path('.claude/Dashboard/README.md').read_text(encoding='utf-8')
+                    .splitlines() if line.startswith('- **비교 기준·비용 수치 감사 완료'))
+    values = [float(v) for v in re.findall(r'([+-]\d+\.\d+)%', overview)]
+    sens = load('sensitivity.json')
+    actual = [sens[k]['variants']['base']['mean_pct']
+              for k in ('K2:flow:spt', 'K2:flow:fcfs_arrival', 'K1:flow:initial')]
+    assert len(values) == len(actual) == 3, values
+    claims = judge_claim_alignment({str(i): x for i, x in enumerate(values)},
+                                   {str(i): x for i, x in enumerate(actual)},
+                                   absolute_tolerance=.0050001).as_dict()
+    assert claims['status'] == 'PASS', claims
+    board['evidence']['overview_claim_alignment'] = claims
+    (OUT/'final-dashboard-audit.json').write_text(json.dumps(board, ensure_ascii=False, indent=2)+'\n',
+                                                  encoding='utf-8', newline='\n')
+    print('Final Dashboard and remote evidence: PASS', pin)
+
+
 if __name__ == '__main__':
-    main()
-    write_verification()
+    import argparse
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--finalize', metavar='PIN_COMMIT',
+                   help='after the board commit is pushed: pinned dashboard audit only')
+    args = p.parse_args()
+    if args.finalize:
+        finalize_dashboard(args.finalize)
+    else:
+        main()
+        write_verification()
