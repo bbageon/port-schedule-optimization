@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\scripts\v7\count_transform_study.py", line 305, in <module>
+    recover(args.index)
+    ~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\scripts\v7\count_transform_study.py", line 171, in recover
+    result = run_episode(load=data['load'],seed=data['seed'],dispatcher='RL_CRANE',
+             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        crane_net=net,candidate_cap=None,evaluation_probe=probe,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reuse_rehandle_slots=False,decision_probe_shortcircuit=True).as_dict()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\src\yard_rl\v7\stage\episode.py", line 565, in run_episode
+    mbt.run(exec_policy, review_fn=review)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\src\yard_rl\v7\world\integrated\multiblock.py", line 206, in run
+    policy_fn(sim, out)
+    ~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\src\yard_rl\v7\stage\episode.py", line 283, in exec_policy
+    evaluation_probe.decision(sim, dp, gb, assign,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+                              generated - begin, decided - select_start)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\geonu\orca\workspaces\port_reinforcement\강화학습-판매\scripts\v7\count_transform_study.py", line 140, in decision
+    assert len(matches) == 1, (key,sample['job'],len(matches))
+           ^^^^^^^^^^^^^^^^^
+AssertionError: ((263.192567, 'Y01', 'YC-L'), 'D-00023', 0)

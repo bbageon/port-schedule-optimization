@@ -31,3 +31,5 @@ clipped(N/18 상한1), linear(N/18), log1p(log(1+N)/log19)를 비교한다.
 
 - [사전등록](../../../docs/research/v7-discharge/count-transform-prereg.md)
 - 산출물: `outputs/reports/yr332_count_transform/`
+- 첫 복원 시도는 배정 후 관측값과 기존 배정 전 입력의 불일치로 중단됐다. 배정 전 훅으로
+  계측 시점을 교정하고 회귀 검사를 추가했다. 학습 전 실패 로그·설정은 attempts/attempt-1에 보존한다.

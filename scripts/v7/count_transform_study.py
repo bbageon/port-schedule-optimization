@@ -121,17 +121,12 @@ class CountProbe(StudyProbe):
         self.action_digest = hashlib.sha256()
         self.counts = Counter()
 
-    def decision(self, sim, dp, generated, assignment, gen_ns, select_ns):
-        super().decision(sim,dp,generated,assignment,gen_ns,select_ns)
+    def before_select(self, sim, dp, generated, pref):
+        # EvaluationProbe.decision runs AFTER _apply. Historical training rows
+        # were collected BEFORE _apply; read their state at this earlier hook.
         block = self.block_names[id(sim)]
-        self.action_digest.update(repr((sim.clock, block, [
-            (cid,g.kind.value,g.job_ref.job_id if g.job_ref else None)
-            for cid,g in sorted(assignment.items())])).encode())
         for cid in dp.crane_ids:
             candidates = generated[cid].items
-            for gc in candidates:
-                if gc.job_ref is not None:
-                    self.counts[gc.feasible_serve_count] += 1
             key = (round(sim.clock,6),block,cid)
             for i, sample in self.targets.get(key, []):
                 assert i not in self.recovered, ('duplicate', key)
@@ -142,11 +137,25 @@ class CountProbe(StudyProbe):
                 n = gc.feasible_serve_count
                 assert isinstance(n,int) and n >= 0
                 assert encode_candidate_count(n) == sample['row'][7]
-                if sample['action'] == 'PICKED':
-                    assert assignment[cid].job_ref.job_id == sample['job']
                 flow = crane_features(sim,cid,gc,feature_mode='feasible',include_flow=True)
                 assert flow[-1] == float(sample['is_store'])
                 self.recovered[i] = n
+
+    def decision(self, sim, dp, generated, assignment, gen_ns, select_ns):
+        super().decision(sim,dp,generated,assignment,gen_ns,select_ns)
+        block = self.block_names[id(sim)]
+        self.action_digest.update(repr((sim.clock, block, [
+            (cid,g.kind.value,g.job_ref.job_id if g.job_ref else None)
+            for cid,g in sorted(assignment.items())])).encode())
+        for cid in dp.crane_ids:
+            for gc in generated[cid].items:
+                if gc.job_ref is not None:
+                    self.counts[gc.feasible_serve_count] += 1
+            key = (round(sim.clock,6),block,cid)
+            for i,sample in self.targets.get(key, []):
+                assert i in self.recovered
+                if sample['action'] == 'PICKED':
+                    assert assignment[cid].job_ref.job_id == sample['job']
 
     def finish(self, mbt, records, episode):
         super().finish(mbt,records,episode)

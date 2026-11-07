@@ -8,7 +8,7 @@ import count_transform_study as e
 from report_classical_rules import outcome
 
 LABEL = dict(clipped='기존 상한',linear='상한만 제거',log1p='로그 변환')
-RULES = ('fcfs_arrival','spt','nearest','vessel_fcfs','vessel_nearest','unidirectional','distance_wait')
+RULES = ('fcfs_arrival','spt','nearest','vessel_fcfs','vessel_nearest','unidirectional','distance_wait','rule_all')
 
 
 def compare(a,b):
@@ -196,12 +196,28 @@ def report():
                         for p in (e.OUT/folder).iterdir() if p.is_file()},
         report_sha256=e.sha(e.OUT/'README.md'),summary_sha256=e.sha(e.OUT/'summary.json'))
     e.save(e.OUT/'verification.json',verification)
-    e.save(e.OUT/'final-verdict.json',dict(task='YR-332-s',
-        performance='INCONCLUSIVE' if any(d['candidate'] for d in decisions.values()) else 'FAIL',
-        reliability='PASS',scenario_validity='FAIL',default_transform='clipped',
-        decisions=decisions,verification_sha256=e.sha(e.OUT/'verification.json'),
-        scope='Bounded input-transform diagnostic, not a global gate override or operational adoption.',
-        unresolved_tasks=['YR-332-t','YR-332-m','YR-332-f','YR-332-i']))
+    from yard_rl.experiments.gate_harness import (GateOutcome,GateStatus,
+        ResearchGateReport,attach_common_gates)
+    primary=lookup[('linear','rule_all',None)]
+    violation=any(primary[k] for k in ('admission_drop','unfinished_increase','vessel_drop'))
+    performance=GateOutcome('performance',GateStatus.FAIL if violation else GateStatus.INCONCLUSIVE,
+        '운영 보호 조건 미통과' if violation else '세 입력일 진단이며 확증하지 않음',
+        evidence=dict(baseline='SF_SPT',candidate='linear',independent_days=3,
+            inferential_ci_reported=False,mean_comparison=primary))
+    reliability=GateOutcome('reliability',GateStatus.INCONCLUSIVE,
+        '실행·자료·산술 검증 통과, 최종 Dashboard와 원격 커밋 대조 대기',
+        evidence=dict(verification='verification.json',exact_replays=len(exact)))
+    reality=GateOutcome('scenario_validity',GateStatus.FAIL,
+        '작업시간·비용·예약·양하 물리·투입 장부와 본선 관측창의 미해결 유지',
+        evidence=dict(preserved_tasks=['YR-332-t','YR-332-m','YR-332-f','YR-332-i'],
+            operational_claim=False,authorization_record='authorization.json'))
+    verdict=attach_common_gates(dict(task='YR-332-s',retraining=True,
+        default_transform='clipped',decisions=decisions,operational_adoption='NOT_PASSED',
+        dashboard_alignment=dict(status='PENDING'),
+        verification_sha256=e.sha(e.OUT/'verification.json'),
+        scope='Bounded input-transform diagnostic, not a global gate override or operational adoption.'),
+        ResearchGateReport(performance,reliability,reality))
+    e.save(e.OUT/'final-verdict.json',verdict)
     print(json.dumps(dict(decisions=decisions,overall=[r for r in averages
         if r['load'] is None and r['baseline'] in ('clipped','own_initial','spt')]),ensure_ascii=False),flush=True)
 
