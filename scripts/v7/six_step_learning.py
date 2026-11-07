@@ -38,6 +38,7 @@ def checkpoint(path, net, trainer=None, **metadata):
     torch.save(dict(crane=net.state_dict(), feature_mode=net.feature_mode,
                     dim=net.net[0].in_features, hidden=net.net[0].out_features,
                     include_flow=getattr(net,'include_flow',False),
+                    model_config=net.model_config(),
                     runtime_parameters=dict(candidate_cap=None,feature_mode=net.feature_mode),
                     opt=None if trainer is None else trainer.opt.state_dict(),
                     loss_kind=None if trainer is None else trainer.loss_kind, **metadata), path)
@@ -47,12 +48,7 @@ def load_net(path):
     import torch
     from yard_rl.v7.crane.policy import CraneNet
     ck = torch.load(path, weights_only=True)
-    kwargs = dict(dim=ck['dim'], hidden=ck['hidden'], feature_mode=ck['feature_mode'])
-    if ck.get('include_flow',False):
-        kwargs['include_flow'] = True
-    net = CraneNet(**kwargs)
-    net.load_state_dict(ck['crane'])
-    return net.eval()
+    return CraneNet.from_checkpoint(ck)
 
 
 def labelset(data):

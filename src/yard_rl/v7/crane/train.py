@@ -141,6 +141,7 @@ class CraneTrainState:
         net.load_state_dict(ck["crane"])
         net.feature_mode = ck.get('feature_mode', 'legacy')
         net.include_flow = ck.get('model_config', {}).get('include_flow', False)
+        net.count_transform = ck.get('model_config', {}).get('count_transform', 'clipped')
         trainer.loss_kind = ck.get('loss_kind', 'pointwise')
         if "opt" in ck:
             trainer.opt.load_state_dict(ck["opt"])

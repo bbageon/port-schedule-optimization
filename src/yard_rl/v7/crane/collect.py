@@ -102,8 +102,9 @@ class CraneCollector:
                 raise RuntimeError(f'duplicate comparison decision key: {key}')
             mode = getattr(getattr(self._pref, 'net', None), 'feature_mode', 'legacy')
             flow = getattr(getattr(self._pref, 'net', None), 'include_flow', False)
-            self.rows[key] = (crane_features(sim, crane, picked_gc, feature_mode=mode, include_flow=flow),
-                              crane_features(sim, crane, alt_gc, feature_mode=mode, include_flow=flow))
+            count_transform = getattr(getattr(self._pref, 'net', None), 'count_transform', 'clipped')
+            self.rows[key] = tuple(crane_features(sim, crane, gc, feature_mode=mode,
+                include_flow=flow, count_transform=count_transform) for gc in (picked_gc, alt_gc))
             self.flow_rows[key] = tuple(
                 (sim.jobs[g.job_ref.job_id].flow.value,
                  sim.jobs[g.job_ref.job_id].service_mode == ServiceMode.STORE)

@@ -1,0 +1,28 @@
+{
+  "command": [
+    "../yr331-env/Scripts/python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr153_research_gates\\current_gate.json",
+    "--gate-sha256",
+    "3917ab8a73de19567f546b7b3e83e78c677e544f54352fb639486b6786821be3",
+    "--gate-commit",
+    "7af37f760ab373eb663a6b7a88320c46698ea3bc",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-s",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-s-feasible-count-scale.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+  ],
+  "returncode": 2,
+  "stdout": "{\n  \"allowed\": false,\n  \"reason\": \"저장된 scenario PASS 재계산 실패\"\n}\n",
+  "stderr": "",
+  "scope": "The user explicitly said to proceed after the candidate-comparison and improvement explanation. This is a bounded single-input information-loss diagnostic. The existing scenario revalidation failure remains unresolved; no global or operational gate is marked passed. Reward, physics, candidates, labels and training budget are fixed."
+}

@@ -38,6 +38,8 @@
 """
 from __future__ import annotations
 
+import math
+
 from ..world.contract.schema import CandidateKind
 from ..world.domain.enums import JobStatus, ServiceMode
 from ..job_index import IndexedJobs
@@ -62,6 +64,20 @@ _SLACK_CLIP_H = 2.0           # 배 여유 상한 — 원값이 배 크기 상�
 _WAIT_REF_H = 2.0             # 트럭 대기 눈금 — 1시간 초과분에 할증이 붙는 지점의 2배
 _QUEUE_REF = 10.0             # 줄 길이 눈금 — 재배정층 블록 요약 ⑨ 와 같다(`features/block.py`)
 
+COUNT_TRANSFORMS = ('clipped', 'linear', 'log1p')
+
+
+def encode_candidate_count(count: float, transform: str = 'clipped') -> float:
+    """Feature 8 only; the reference 18 is fixed, never fit on evaluation days."""
+    if transform not in COUNT_TRANSFORMS:
+        raise ValueError(f'unknown candidate count transform: {transform}')
+    if not math.isfinite(count) or count < 0:
+        raise ValueError('candidate count must be finite and nonnegative')
+    if transform == 'log1p':
+        return math.log1p(count) / math.log1p(18.0)
+    value = count / 18.0
+    return min(value, 1.0) if transform == 'clipped' else value
+
 
 def queue_trucks(sim) -> int:
     """블록에 **지금** 줄 서 있는 외부 트럭 수 — 도착했고 아직 작업 시작 전."""
@@ -69,7 +85,7 @@ def queue_trucks(sim) -> int:
 
 
 def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy',
-                   include_flow=False) -> list[float]:
+                   include_flow=False, count_transform='clipped') -> list[float]:
     """후보 하나를 9칸, STORE 입력을 켜면 10칸으로 만든다.
 
     ⚠️ `rank()` 안에서 후보마다 불린다 — 여기가 느리면 시뮬레이션 전체가 느려진다.
@@ -117,7 +133,7 @@ def crane_features(sim, crane_id: str, gc, *, common=None, feature_mode='legacy'
         raise ValueError(f'unknown feature_mode: {feature_mode}')
 
     row = [is_v, is_s, wait_h, slack_h, reach_h, svc_h, reh_h,
-           min(n_cands / 18.0, 1.0), queue]
+           encode_candidate_count(n_cands, count_transform), queue]
     if include_flow:
         job = sim.jobs.get(ref.job_id)
         row.append(float(job is not None and job.service_mode == ServiceMode.STORE))

@@ -30,7 +30,7 @@ from torch import nn
 
 from ..world.contract.schema import CandidateKind
 from ..world.integrated.resolver import BaselinePreference
-from .features import CRANE_DIM, crane_features, decision_common
+from .features import CRANE_DIM, COUNT_TRANSFORMS, crane_features, decision_common
 
 #: 학습 목표 눈금 — 원화를 망이 다루기 좋은 크기로 바꾼다.
 #: ⚠️ 재배정층 `ADV_SCALE` 과 **같은 이유·같은 규약**이다: 조건이 바뀌면 재실측 후 동결.
@@ -103,11 +103,14 @@ class CraneNet(nn.Module):
     """
 
     def __init__(self, dim: int = CRANE_DIM, hidden: int = 64, *, feature_mode='legacy',
-                 include_flow=False):
+                 include_flow=False, count_transform='clipped'):
         super().__init__()
         if feature_mode not in ('legacy', 'feasible'):
             raise ValueError(f'unknown feature_mode: {feature_mode}')
         self.feature_mode = feature_mode
+        if count_transform not in COUNT_TRANSFORMS:
+            raise ValueError(f'unknown candidate count transform: {count_transform}')
+        self.count_transform = count_transform
         self.include_flow = bool(include_flow)
         if self.include_flow and dim == CRANE_DIM:
             dim += 1
@@ -123,7 +126,8 @@ class CraneNet(nn.Module):
 
     def model_config(self):
         return dict(dim=self.net[0].in_features, hidden=self.net[0].out_features,
-                    feature_mode=self.feature_mode, include_flow=self.include_flow)
+                    feature_mode=self.feature_mode, include_flow=self.include_flow,
+                    count_transform=self.count_transform)
 
     @classmethod
     def from_checkpoint(cls, checkpoint):
@@ -131,7 +135,8 @@ class CraneNet(nn.Module):
         config = checkpoint.get('model_config', dict(
             dim=state['net.0.weight'].shape[1], hidden=state['net.0.weight'].shape[0],
             feature_mode=checkpoint.get('feature_mode','legacy'),
-            include_flow=checkpoint.get('include_flow',False)))
+            include_flow=checkpoint.get('include_flow',False),
+            count_transform=checkpoint.get('count_transform','clipped')))
         net = cls(**config)
         net.load_state_dict(state)
         return net.eval()
@@ -143,7 +148,8 @@ def add_store_input(source):
         raise ValueError('expected a nine-input source model')
     parameter = next(source.parameters())
     target = CraneNet(hidden=source.net[0].out_features, feature_mode=source.feature_mode,
-                      include_flow=True).to(device=parameter.device, dtype=parameter.dtype)
+                      include_flow=True, count_transform=source.count_transform).to(
+                          device=parameter.device, dtype=parameter.dtype)
     state = source.state_dict()
     with torch.no_grad():
         for name, value in target.state_dict().items():
@@ -190,7 +196,8 @@ class CranePolicy(BaselinePreference):
             #: 부르는 쪽이 결과를 읽어 확인한다.
             return (-1, 0.0, ref.job_id)
         x = crane_features(sim, crane_id, gc, feature_mode=getattr(self.net, 'feature_mode', 'legacy'),
-                           include_flow=getattr(self.net, 'include_flow', False))
+                           include_flow=getattr(self.net, 'include_flow', False),
+                           count_transform=getattr(self.net, 'count_transform', 'clipped'))
         with torch.no_grad():
             score = float(self.net(torch.tensor([x], dtype=torch.float32))[0])
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
@@ -221,7 +228,8 @@ class CranePolicy(BaselinePreference):
                 continue
             row = tuple(crane_features(sim, cid, gc, common=common,
                                       feature_mode=getattr(self.net, 'feature_mode', 'legacy'),
-                                      include_flow=getattr(self.net, 'include_flow', False)))
+                                      include_flow=getattr(self.net, 'include_flow', False),
+                                      count_transform=getattr(self.net, 'count_transform', 'clipped')))
             if row not in lookup:
                 lookup[row] = len(rows)
                 rows.append(row)
