@@ -1,0 +1,70 @@
+{
+  "name": "dashboard_code_alignment",
+  "status": "PASS",
+  "summary": "Dashboard·spec·코드·증거가 일치함",
+  "reasons": [],
+  "evidence": {
+    "task_id": "YR-332-w",
+    "expected_state": "done",
+    "board_matches": [
+      "done.md"
+    ],
+    "spec_path": ".claude/docs/dashboard-task-specs/YR-332-w-training-action-contract.md",
+    "evidence_paths": [
+      "outputs\\reports\\yr332_action_contract\\campaign.json",
+      "outputs\\reports\\yr332_action_contract\\summary.json",
+      "outputs\\reports\\yr332_action_contract\\verification.json",
+      "outputs\\reports\\yr332_action_contract\\README.md"
+    ],
+    "control_paths": [
+      ".claude\\Dashboard\\done.md",
+      ".claude\\docs\\dashboard-task-specs\\YR-332-w-training-action-contract.md"
+    ],
+    "evidence_commits": [
+      "969bd24d"
+    ],
+    "remote_ref": "origin/강화학습-판매",
+    "pin_commit": "969bd24d",
+    "drift": [],
+    "report_claim_alignment": {
+      "name": "claim_alignment",
+      "status": "PASS",
+      "summary": "보고 핵심 수치가 원자료와 일치함",
+      "reasons": [],
+      "evidence": {
+        "absolute_tolerance": 0.00500001,
+        "reported_values": {
+          "4/0": 198.0,
+          "4/1": 52.0,
+          "4/2": 40.0,
+          "4/3": 14.0,
+          "5/0": 198.0,
+          "5/1": 55.0,
+          "5/2": 45.0,
+          "5/3": 16.0
+        },
+        "raw_values": {
+          "4/0": 198,
+          "4/1": 52,
+          "4/2": 40,
+          "4/3": 14,
+          "5/0": 198,
+          "5/1": 55,
+          "5/2": 45,
+          "5/3": 16
+        },
+        "absolute_differences": {
+          "4/0": 0.0,
+          "4/1": 0.0,
+          "4/2": 0.0,
+          "4/3": 0.0,
+          "5/0": 0.0,
+          "5/1": 0.0,
+          "5/2": 0.0,
+          "5/3": 0.0
+        }
+      }
+    },
+    "audit_source_sha256": "7862de079c79d52323b7164e3e73cf5529e289ff363e31c5ee85f763dfaa8988"
+  }
+}
