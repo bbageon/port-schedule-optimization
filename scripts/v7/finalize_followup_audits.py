@@ -85,9 +85,9 @@ def finalize(task,pin):
     save(root/'final-dashboard-audit.json',board)
     verdict=read(root/'final-verdict.json')
     verdict['dashboard_alignment']=dict(status='PASS',pin_commit=pin,evidence='final-dashboard-audit.json')
-    verdict['common_gates']['reliability']=asdict(GateOutcome('reliability',GateStatus.PASS,
+    verdict['common_gates']['reliability']=GateOutcome('reliability',GateStatus.PASS,
         '실행 코드·원자료·보고 수치·Dashboard·원격 커밋이 일치함',
-        evidence=dict(runtime=runtime,dashboard=board,claim_alignment=claims)))
+        evidence=dict(runtime=runtime,dashboard=board,claim_alignment=claims)).as_dict()
     verdict=attach_common_gates(verdict,report_from_dict(verdict))
     save(root/'final-verdict.json',verdict)
     print(f'YR-332-{task}: runtime, {len(reported)} report values, Dashboard and remote commit PASS')
