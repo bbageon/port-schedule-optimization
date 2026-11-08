@@ -10,7 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-w | RL | **학습 대안과 실제 선택 제약의 정합 감사** | 🟠 | 기존/확대 자료의 52/198·55/198쌍은 실작업과 준비 작업 비교다. 실제 공동 배정 제약 아래 선택 가능한 대안인지 확인하며, 아직 불일치·성능 원인으로 판정하지 않는다. [spec](../docs/dashboard-task-specs/YR-332-w-training-action-contract.md) |
+| YR-332-w | RL | **학습 대안과 실제 선택 제약의 정합 감사** | 🟠 | 두 자료 각 198쌍·10회 재생 조건과 두 크레인 도달 가능성 판정 준비, 관련 8검사 통과. m 결과 보고 뒤 실행하며 아직 불일치·성능 원인으로 판정하지 않는다. [spec](../docs/dashboard-task-specs/YR-332-w-training-action-contract.md) |
 | YR-332-x | RL | **본선 여유 입력이 거의 늘 상한(±2시간)에 걸린다** | 🟠 | t 감사: 최신 학습 정책의 본선 후보 중 상한 도달 3,500건 100%·7,500건 81.6%·15,000건 84.5%(계획 완료 2배 여유 때문). 배의 급함을 거의 못 보는 입력이다. 눈금 한 축만 바꾸는 비교를 사전등록 후 수행, 효과 실증 전 기본값 유지. f·i·m·w보다 뒤. [spec](../docs/dashboard-task-specs/YR-332-x-vessel-slack-input-scale.md) |
 | YR-332-y | Infra | **비용 정의 문서·자동 대조를 코드에 맞춘다** | 🟡 | t 감사: 빈 이동 항은 문서와 달리 모든 빈 접근 이동을 센다 · 04 문서 본선 2.99원 vs v7 35.88원 · YR-207 기록(선형·YC 4만원) vs 현행(할증·6만원) · 대형선 32.25원 재현 불가 · 자동 대조가 v7 단가 미검사. 값·궤적은 바꾸지 않는다. [spec](../docs/dashboard-task-specs/YR-332-y-cost-definition-docs.md) |
 | YR-332-z | Sim | **본선 작업 마감 필드가 시각 재배치 때 옮겨지지 않는다** | ⚪ | t 코드 대조: 후보 상한 사용 시 우선 점수와 KPI에만 쓰여 현재 기본 평가(후보 제한 없음)에는 영향이 없다. 영향 경로 확인 후 수정. [spec](../docs/dashboard-task-specs/YR-332-z-vessel-job-deadline-retime.md) |

@@ -30,3 +30,17 @@
 - `src/yard_rl/v7/crane/policy.py:CranePolicy.rank`와 `force_once`
 - `src/yard_rl/v7/world/integrated/resolver.py`와 `baselines.py:ResolverPolicy`.
 - [[YR-332-t]] 비교 계약·[[YR-332-m]] 장부 감사·f/i 현실 보정의 미완료를 대체하지 않는다.
+
+## 준비 — 2026-11-08
+
+사용자가 세 감사를 모두 진행하고 각각 보고하라고 지시했고, 중단 후 재개를 요청했다.
+m 실행 중 독립적으로 판정 코드와 사전등록을 준비했다. 본 실행은 m의 개별 결과 보고 뒤 수행한다.
+두 크레인의 가능한 첫 배정을 모두 검사하고, 먼저 거절된 후보를 다시 보지 않는 실제 순서를 보존한다.
+작은 임의 상태 120개의 전체 순서 열거와 대조했고, 실제 resolver에서 점수표·강제 선택·원본 상태 보존을 확인했다.
+관련 검사 8건 통과. 기존 두 자료 각 198쌍, 원래 9일과 반복 1회를 고정했다.
+후보별 점수가 자유로운 경우의 가능성은 신경망이 구현 가능한 행동의 상한이다.
+같은 입력에 같은 점수를 주는 증인도 따로 남기며, 특정 신경망의 실현 가능성 증명으로 과장하지 않는다.
+
+- [사전등록](../../../docs/research/v7-discharge/action-contract-prereg.md)
+- 실행 코드: `scripts/v7/audit_action_contract.py`, `action_reachability.py`, `report_action_contract.py`.
+- 산출물: `outputs/reports/yr332_action_contract/`.
