@@ -1,0 +1,28 @@
+{
+  "command": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr332_comparison_audit\\final-verdict.json",
+    "--gate-sha256",
+    "f168d225a6c4077cd7b21aff05f9e12cdfeb91961e8f8d2047a9b04aa3f7fb8f",
+    "--gate-commit",
+    "0901f33ca2a57732ef72564eaebb1436b70dd125",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-m",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "scenario_validity"
+  ],
+  "returncode": 2,
+  "stdout": "{\n  \"allowed\": false,\n  \"reason\": \"gate JSON 검증 실패: gate JSON에 performance 없음\"\n}\n",
+  "stderr": "",
+  "scope": "User explicitly requested all three audits and resumed them; admission and completion accounting audit only, with frozen physics, costs and policies. Existing realism failures stay unresolved."
+}
