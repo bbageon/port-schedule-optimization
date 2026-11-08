@@ -389,6 +389,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 obs=None, exec_config=None,
                 crane_net=None, crane_budget: RolloutBudget | None = None,
                 discharge_backpressure: bool = True,
+                preserve_external_demand: bool = True,
                 evaluation_mode: str = "optimized", evaluation_probe=None,
                 reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12,
                 crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False) -> EpisodeResult:
@@ -409,6 +410,10 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     `evaluation_mode` — 기본 optimized, 평가 대조용 reference(개별/전체 탐색/재사용 끔),
     batch(일괄 추론만). `evaluation_probe`는 결정 시간과 동등성 기록용 관측자다.
     평가 대조/관측을 교사와 함께 켜는 것은 거절한다. 학습 기본 계약은 유지한다.
+
+    Fixed external arrivals register valid demand without reserving future stack
+    capacity. A full yard retains WAITING jobs until physical storage is feasible.
+    preserve_external_demand=False is the historical admission diagnostic only.
     """
     if evaluation_mode not in ("reference", "batch", "optimized"):
         raise ValueError(f"unknown evaluation_mode: {evaluation_mode}")
@@ -435,6 +440,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     mbt = MultiBlockTerminal(
         {b: ensure_time_ledger(_sim_from(s, prof, discharge_backpressure=discharge_backpressure))
          for b, s in built["scenarios"].items()},
+        preserve_external_demand=preserve_external_demand,
         extra_review_epochs=admission_epochs(obs))
     for sim in mbt.blocks.values():
         sim.dispatch_cache.rehandle_slots = reuse_rehandle_slots
@@ -476,6 +482,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     market = ctx.make_market(mbt)
 
     res = EpisodeResult(slot_mode=slot_mode, environment={
+        "preserve_external_demand": preserve_external_demand,
         "discharge_backpressure": discharge_backpressure,
         "discharge_capacity": prof.transfer.n_units if discharge_backpressure else None,
         "discharge_model": "shared-handover-wip-v1" if discharge_backpressure else "legacy-off"})

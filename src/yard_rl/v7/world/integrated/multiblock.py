@@ -120,10 +120,15 @@ class MultiBlockTerminal:
 
     def __init__(self, blocks: dict[str, object], *,
                  capacity_margin: int = CAPACITY_MARGIN,
+                 preserve_external_demand: bool = False,
                  extra_review_epochs: tuple[float, ...] = ()) -> None:
         self.blocks = dict(blocks)
         self.ledger = TerminalLedger()
         self.capacity_margin = capacity_margin
+        # Fixed arrivals register demand even when future storage is reserved.
+        # Physical STORE feasibility and inter-block transfer reservations remain
+        # unchanged. False retains the legacy fixed-WIP admission contract.
+        self.preserve_external_demand = preserve_external_demand
         # YR-150 4차 재정의(고정 WIP): 주기적 투입 검토 시각. 기본 () = 기존 바이트 동일.
         self._extra_epochs = tuple(float(t) for t in extra_review_epochs)
         self._reserved_inbound: dict[str, int] = {b: 0 for b in self.blocks}
@@ -266,7 +271,8 @@ class MultiBlockTerminal:
         arr = gate_in_s + travel_s
         if gate_in_s < sim.clock - 1e-9 or arr <= sim.clock + 1e-9 or arr > sim.end:
             raise TransferError(f"{jid}: 투입시각 무효 gate_in={gate_in_s:.1f} arr={arr:.1f}")
-        if job.flow == JobFlow.GATE_IN and self.free_slots(bid) <= self.capacity_margin:
+        if (not self.preserve_external_demand and job.flow == JobFlow.GATE_IN
+                and self.free_slots(bid) <= self.capacity_margin):
             raise TransferError(f"{bid}: 용량 부족 (free={self.free_slots(bid)})")
         if job.flow == JobFlow.GATE_OUT:
             tgt = job.target_container

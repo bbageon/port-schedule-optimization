@@ -21,7 +21,8 @@ from yard_rl.v7.world.integrated.terminal_stream import ensure_time_ledger
 from yard_rl.v7.world.integrated.yard_layout import terminal_layout
 
 
-def world(*, full=True, pickup=False, initial_count=None, reserved_moves=0):
+def world(*, full=True, pickup=False, initial_count=None, reserved_moves=0,
+          terminal_type='cargo'):
     profile, layout = build_h21_profile(), terminal_layout()
     g = profile.block
     initial = {}
@@ -58,12 +59,16 @@ def world(*, full=True, pickup=False, initial_count=None, reserved_moves=0):
     restored = restore_input(doc,seed=9900306,days=days,lead_mode='DIST')
     scenario = restored['day0']['scenarios']['Y01']
     scenario.horizon_s, scenario.drain_window_s = 2400,120
-    sim = ensure_time_ledger(CargoBlock(profile,scenario))
+    from yard_rl.v7.world.integrated.engine import TerminalSimulator
+    from yard_rl.v7.world.integrated.multiblock import MultiBlockTerminal
+    sim = ensure_time_ledger((CargoBlock if terminal_type=='cargo' else TerminalSimulator)(profile,scenario))
     sim.info_level = INFO_LEVEL
-    terminal = CargoTerminal({'Y01':sim},document=doc,layout=layout,
-                              extra_review_epochs=tuple(range(0,2401,60)))
+    epochs = tuple(range(0,2401,60))
+    terminal = (CargoTerminal({'Y01':sim},document=doc,layout=layout,extra_review_epochs=epochs)
+                if terminal_type=='cargo' else MultiBlockTerminal({'Y01':sim},
+                    preserve_external_demand=True,extra_review_epochs=epochs))
     terminal.orders,terminal.records = orders_from_schedule(restored)
-    ann = V3Announcer(doc['schedule'],resolve_entry=terminal.resolve_entry)
+    ann = V3Announcer(doc['schedule'],resolve_entry=getattr(terminal,'resolve_entry',None))
     bridge = MarketBridge(None,layout,orders=terminal.orders,records=terminal.records,end_s=2520)
     rt = PPORuntime(BlockPolicy(),config=PPOConfig(rollout_intervals=10000))
     rt.bind(terminal,bridge,{}, {})
@@ -109,7 +114,12 @@ def test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward(recor
     assert costs[1200]==pytest.approx(truck_wait_krw(1140))
     assert costs[1200]>costs[600]>0
     assert rt.cost_krw==pytest.approx(truck_wait_krw(2460))
-    assert rt.total_reward==pytest.approx(-rt.cost_krw/rt.config.reward_scale_krw)
+    # Default PPO uses frozen physical-return scales, with no currency divisor.
+    # This full yard has exactly one truck waiting 2,460 s and no other work.
+    assert rt.config.reward_mode == 'operational' and rt.config.reward_scale_krw is None
+    assert rt.physical == dict(truck_s=2460., vessel_s=0., empty_s=0., rehandles=0.)
+    assert rt.reward_contract['weights']['truck_s'] == .25
+    assert rt.total_reward == pytest.approx(-.25 * 2460 / rt.reward_contract['scales']['truck_s'])
     assert sim.time_ledger.terminal_area_s==pytest.approx(2460)
     sim.check_invariants()
     record_property('wait_cost_at_600_s',costs[600])
