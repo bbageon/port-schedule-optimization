@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **학습 대안 계약 감사 완료 (2026-11-08, YR-332-w)**: 10회 정확 재현·선택 가능성 증거 444건·저장 모델 36개 검증 점수 일치. 최신 자료 198쌍 중 45쌍(22.7%)은 고정 우선순위 안에서 선택 불가하며, 그중 16쌍은 교사가 더 좋다고 가르쳤다. 혼합 등급 전부를 오류로 볼 수는 없었다. t·m·w 세 감사 완료; 다음은 주문 보존(aa)·기존 본선 현실 보정(i), 교사 계약 보정(ab)은 환경 계약 확정 후 별도 비교다. [보고서](../../outputs/reports/yr332_action_contract/README.md) · [spec](../docs/dashboard-task-specs/YR-332-w-training-action-contract.md)
+
 - **투입·완료 장부 감사 완료 (2026-11-08, YR-332-m)**: 42회 정확 재현·오더별 수지 확인 720,000건. 최초 입력 201건 누락과 혼잡일 정책별 미접수는 양하 예정 공간 예약에 막힌 뒤 재시도되지 않는 경로였다. 실제 빈 칸 부족은 없었으나 예약 삭제의 안전성을 뜻하지 않는다. 24/26시간 출차와 야드 작업 완료를 분리했다. 미접수 보존 보정(aa)을 등록하고 학습 대안 계약(w) 감사를 이어간다. [보고서](../../outputs/reports/yr332_admission_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-332-m-daily-admission-accounting.md)
 
 - **비교 기준·비용 수치 감사 완료 (2026-11-07, YR-332-t)**: 69회 정확 재현. 학습 정책이 최단 작업보다 못하다(비용 +20.21%)·도착순보다 낫다(-6.97%)·학습 전보다 낫다(-4.20%)는 판정은 문서 근거가 있는 대안 단가 7개와 다섯 단가 0~10배에서 유지됐다. 다만 수치 33개 중 22개가 설계값이고, 본선 비용은 운반 장비 바닥에, 출항 지연은 평가창 밖에 있어 현실 타당성은 미확보다. 새 문제: 배 여유 입력 상한(x)·비용 정의 문서(y)·본선 작업 마감 필드(z). 다음은 m→w. [보고서](../../outputs/reports/yr332_comparison_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-332-t-comparison-validity-audit.md)

@@ -1,6 +1,7 @@
 """Check report numbers against raw files and pin final board evidence for m/w."""
 import argparse
 from dataclasses import asdict
+import hashlib
 import json
 from pathlib import Path
 import statistics
@@ -69,6 +70,21 @@ def finalize(task,pin):
     assert verification['summary_sha256']==sha(root/'summary.json')
     assert verification['report_sha256']==sha(root/'README.md')
     hashes={**manifest['sources'],**manifest['input_sha256'],**verification['artifact_sha256']}
+    if task=='w':
+        # Validation also reads these historical metric reports. Their checkpoints
+        # were frozen in the campaign; verify the reports against that same commit.
+        execution_commit=manifest['repro']['code']['git_head']
+        extra={}
+        for seed in manifest['repro']['seeds']['model']:
+            p=Path(f'outputs/reports/yr332_count_transform/training/{seed}.json')
+            h=sha(p)
+            original=subprocess.check_output(['git','show',f'{execution_commit}:{p.as_posix()}'])
+            assert hashlib.sha256(original).hexdigest()==h,p
+            extra[p.as_posix()]=h
+        save(root/'supplemental-input-verification.json',dict(status='PASS',
+            execution_commit=execution_commit,input_sha256=extra,
+            scope='Historical validation metric references omitted from campaign input list; exact execution-commit blobs verified after replay. No simulation or training input changed.'))
+        hashes.update(extra)
     runtime=asdict(judge_runtime_evidence(manifest['repro'],artifact_hashes=hashes,root='.'))
     assert runtime['status']=='PASS',runtime
     reported,actual=(ledger_claims(root) if task=='m' else action_claims(root))
