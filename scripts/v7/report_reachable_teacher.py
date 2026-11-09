@@ -72,8 +72,10 @@ def verify_training():
                     assert r['key'] == a['decision_key'] == b['decision_key']
                     assert len(a['row']) == len(b['row']) == 10
                     if arm == 'reachable':
+                        from yard_rl.v7.crane.policy import float32_key
                         assert r['assignment_alt'] == r['witness']['assignment']
                         assert a['row'] != b['row']
+                        assert tuple(r['witness']['input_key']) == float32_key(b['row'])
                     coverage.append(dict(model=seed, iteration=it, contract=arm,
                         picked_flow=a['flow'], alternative_flow=b['flow'],
                         gap=r['phi_alt']-r['phi_factual']))
@@ -167,9 +169,9 @@ def report():
     final = [v for (a,s,l,d,r),v in values.items() if a=='reachable-5' and not r]
     guards = dict(completion=all(v['unexited26']==v['vessel_unfinished']==0 for v in final),
                   backlog_zero=all(v['unexited26']==0 for v in final), physical_valid=True,
-                  vessel_protection=all(day_values[('reachable-5',l,d)][k] <=
-                    day_values[('sf_spt',l,d)][k]+1e-6
-                    for l in LOADS for d in range(3)
+                  vessel_protection=all(values[('reachable-5',s,l,d,0)][k] <=
+                    values[('sf_spt',0,l,d,0)][k]+1e-6
+                    for s in SEEDS for l in LOADS for d in range(3)
                     for k in ('vessel_unfinished','vessel_idle_s','vessel_delay_s')))
     summary = dict(runs=len(CASES),checked_order_rows=checked,independent_inputs=len(inputs),
         tests=int(tests['tests']),training=training,aggregate=aggregate,comparisons=comparisons,
