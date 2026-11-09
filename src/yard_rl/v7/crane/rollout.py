@@ -82,7 +82,12 @@ class CraneRollout:
         """
         _count_rollout()
         self.n_worlds += 1
-        end = job.t + self.horizon_s
+        requested_end = job.t + self.horizon_s
+        # Never charge for time the finite world will not simulate. Near the
+        # episode boundary the teacher has a shorter, explicitly recorded window.
+        end = min(requested_end, *(sim.end for sim in job.mbt.blocks.values()))
+        if end <= job.t:
+            raise ValueError('counterfactual decision has no remaining simulation horizon')
 
         snap = copy.deepcopy(job.mbt)
         for sim in snap.blocks.values():
@@ -147,7 +152,8 @@ class CraneRollout:
                                 yc_extra_move_s=self.ctx.yc_extra_move_s(snap),
                                 rehandles=self.ctx.rehandles(snap))
         out = {"phi": phi.total, "picked": seen.get("picked"),
-               'assignment': seen.get('assignment')}
+               'assignment': seen.get('assignment'), 'cost_end_s': end,
+               'requested_end_s': requested_end, 'effective_horizon_s': end-job.t}
         if trace is not None:
             out["trace"] = trace
         return out
@@ -181,6 +187,8 @@ def run_crane_job_with(ctx, horizon_s: float, job: CraneBranchJob) -> dict:
     roll = CraneRollout(ctx, horizon_s=horizon_s)
     fact = roll.branch(job, force_job=None)
     alt = roll.branch(job, force_job=job.alt_job)
+    if fact.get('cost_end_s') != alt.get('cost_end_s'):
+        raise ValueError('paired teacher branches have different cost horizons')
     factual_ok = fact['picked'] == job.picked_job
     if job.factual_assignment is not None:
         factual_ok = factual_ok and fact['assignment'] == job.factual_assignment
@@ -196,6 +204,9 @@ def run_crane_job_with(ctx, horizon_s: float, job: CraneBranchJob) -> dict:
             'alternative_contract': job.alternative_contract,
             'assignment_factual': fact['assignment'], 'assignment_alt': alt['assignment'],
             'witness': job.witness,
+            'cost_end_s': fact.get('cost_end_s'),
+            'requested_end_s': fact.get('requested_end_s'),
+            'effective_horizon_s': fact.get('effective_horizon_s'),
             "worlds": 2,
             **({"trace_factual": fact["trace"]} if "trace" in fact else {})}
 

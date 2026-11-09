@@ -47,6 +47,7 @@ def verify_training():
     torch.set_num_threads(1)
     totals = {arm: Counter() for arm in CONTRACTS}
     artifacts, coverage = {}, []
+    windows = {arm: [] for arm in CONTRACTS}
     for seed in SEEDS:
         folder = OUT/f'model-{seed}'
         record = json.loads((folder/'training.json').read_text(encoding='utf-8'))
@@ -71,6 +72,11 @@ def verify_training():
                     assert r['phi_factual'] == a['phi'] and r['phi_alt'] == b['phi']
                     assert r['key'] == a['decision_key'] == b['decision_key']
                     assert len(a['row']) == len(b['row']) == 10
+                    assert r['requested_end_s'] == r['t']+10800.
+                    assert r['cost_end_s'] == min(r['requested_end_s'],93600.)
+                    assert r['effective_horizon_s'] == r['cost_end_s']-r['t']>0
+                    windows[arm].append(r['effective_horizon_s'])
+                    totals[arm]['truncated_horizon_pairs'] += r['cost_end_s'] < r['requested_end_s']
                     if arm == 'reachable':
                         from yard_rl.v7.crane.policy import float32_key
                         assert r['assignment_alt'] == r['witness']['assignment']
@@ -107,6 +113,7 @@ def verify_training():
         for f in ('initial.pt','training.json'):
             artifacts[(folder/f).as_posix()] = sha(folder/f)
     return dict(totals={a:dict(c) for a,c in totals.items()},
+                effective_horizon_s={a:dict(min=min(v),max=max(v),mean=st.mean(v)) for a,v in windows.items()},
                 exact_refit_checkpoints=36, common_behaviour_pairs=18, coverage=coverage), artifacts
 
 
@@ -215,10 +222,11 @@ def report():
         '모든 자료는 같은 초기 행동 정책에서 수집했다. 학습 후 정책으로 다시 수집하는 온라인 반복 실험은 아니다.',
         '단일 공유 입력 점수 개입의 선택 증거이며, 가능한 모든 신경망 순서를 전수 탐색한 결과가 아니다.',
         '운반차 3대/470초, 예약 정확성, 적하 시간 추정은 실측 확정되지 않았다.',
+        '교사 비용은 환경 종료까지 최대 3시간이다. 환경 밖 비용을 계산하던 첫 실행은 중단·보존하고 두 군을 새로 학습했다.',
         '6회 최종 가중치를 미리 정했고 시험 성적에 따라 좋은 중간 가중치를 선택하지 않았다.',
         '초기 시험 2건의 실패는 모든 작업 입력이 같은 시험 자료 때문이었다. 대기시간이 다른 작업으로 시험을 고쳤다.',
         '완주·잔여·본선 보호와 비용 신뢰구간의 정식 판정은 final-verdict.json에 별도로 보존한다.', '',
-        '[사전등록](../../../docs/research/v7-discharge/reachable-teacher-prereg.md) · '
+        '[사전등록·시간 보완](../../../docs/research/v7-discharge/reachable-teacher-horizon-amendment.md) · '
         '[원값·신뢰구간](summary.json) · [주문 장부](orders/) · [검증](verification.json)']
     assert len(lines) <= 200
     (OUT/'README.md').write_text('\n'.join(lines)+'\n', encoding='utf-8', newline='\n')

@@ -13,8 +13,8 @@ import time
 from benchmark_default_eval import save, memory
 from six_step_learning import checkpoint, gz_read, gz_save, labelset, load_net, sha
 
-OUT = Path('outputs/reports/yr332_reachable_teacher')
-PREREG = Path('docs/research/v7-discharge/reachable-teacher-prereg.md')
+OUT = Path('outputs/reports/yr332_reachable_teacher_corrected')
+PREREG = Path('docs/research/v7-discharge/reachable-teacher-horizon-amendment.md')
 SEEDS = (9914701, 9914702, 9914703)
 LOADS = (3500, 7500, 15000)
 CONTRACTS = ('legacy_force', 'reachable')
@@ -86,6 +86,12 @@ def train(model_seed, smoke=False):
                 shared = trajectory
             else:
                 assert shared == trajectory, 'teacher search changed the main behaviour'
+            previous = Path('outputs/reports/yr332_reachable_teacher')/f'model-{model_seed}'/path.name
+            if previous.exists() and not smoke:
+                old = gz_read(previous)['result']
+                assert old['crane']['main_choices_sha256'] == cs['main_choices_sha256']
+                for key in ('phi_krw','admitted','c_wait','c_vessel','c_move','c_rehandle','n_censored'):
+                    assert old[key] == data['result'][key], ('horizon correction changed main run', key)
             fit = trainers[contract].fit(labelset(data), seed=seed)
             assert fit.steps == 50, fit
             checkpoint(folder/f'{contract}-{it}.pt', nets[contract], trainers[contract],
@@ -147,7 +153,8 @@ def prepare():
     from yard_rl.integrated.repro import repro_stamp
     git = lambda *a: subprocess.check_output(['git', *a], encoding='utf-8').strip()
     assert not git('status', '--short', '--untracked-files=no'), 'commit code first'
-    sources = [Path(__file__), PREREG, *Path('src/yard_rl/v7').rglob('*.py'),
+    sources = [Path(__file__), PREREG,
+        Path('docs/research/v7-discharge/reachable-teacher-prereg.md'), *Path('src/yard_rl/v7').rglob('*.py'),
         *[Path('scripts/v7')/f for f in ('six_step_learning.py','audit_admission_ledger.py',
             'evaluate_classical_rules.py','evaluate_arrival_order.py','benchmark_default_eval.py')],
         Path('src/yard_rl/integrated/repro.py')]

@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-ac | Sim | **교사 환경 종료와 비용 종료를 일치시킨다** | 🔴 | ab 수집 중 일부 비용 창이 26시간 환경을 넘는 경로 확인. 첫 실행 보존·중단 후 장부 끝을 일치시키고 두 교사 재수집. [spec](../docs/dashboard-task-specs/YR-332-ac-teacher-horizon-accounting.md) |
 | YR-332-x | RL | **본선 여유 입력이 거의 늘 상한(±2시간)에 걸린다** | 🟠 | t 감사: 최신 학습 정책의 본선 후보 중 상한 도달 3,500건 100%·7,500건 81.6%·15,000건 84.5%(계획 완료 2배 여유 때문). 배의 급함을 거의 못 보는 입력이다. 눈금 한 축만 바꾸는 비교를 사전등록 후 수행, 효과 실증 전 기본값 유지. f·i·m·w보다 뒤. [spec](../docs/dashboard-task-specs/YR-332-x-vessel-slack-input-scale.md) |
 | YR-332-y | Infra | **비용 정의 문서·자동 대조를 코드에 맞춘다** | 🟡 | t 감사: 빈 이동 항은 문서와 달리 모든 빈 접근 이동을 센다 · 04 문서 본선 2.99원 vs v7 35.88원 · YR-207 기록(선형·YC 4만원) vs 현행(할증·6만원) · 대형선 32.25원 재현 불가 · 자동 대조가 v7 단가 미검사. 값·궤적은 바꾸지 않는다. [spec](../docs/dashboard-task-specs/YR-332-y-cost-definition-docs.md) |
 | YR-332-z | Sim | **본선 작업 마감 필드가 시각 재배치 때 옮겨지지 않는다** | ⚪ | t 코드 대조: 후보 상한 사용 시 우선 점수와 KPI에만 쓰여 현재 기본 평가(후보 제한 없음)에는 영향이 없다. 영향 경로 확인 후 수정. [spec](../docs/dashboard-task-specs/YR-332-z-vessel-job-deadline-retime.md) |
