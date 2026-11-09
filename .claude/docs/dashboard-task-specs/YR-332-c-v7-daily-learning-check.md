@@ -40,3 +40,11 @@ SF-SPT(실작업 우선·그중 짧은 작업 우선)보다 평균 체류 10.090
 [보고서](../../../outputs/reports/yr332_reachable_teacher_corrected/README.md) ·
 [원값·불확실성 범위](../../../outputs/reports/yr332_reachable_teacher_corrected/summary.json) ·
 [독립 검증](../../../outputs/reports/yr332_reachable_teacher_corrected/verification.json).
+
+## 사용자 요청 재검증 — 2026-11-09
+
+기존 4.55% 감소와 부하별 절감 분 수를 원자료에서 독립 재계산한다.
+208회 주문 장부 전체·기존 파일 지문·36개 가중치 재학습을 다시 확인한다.
+초기값 9914701·첫 평가일에서 세 부하×네 정책 12회를 그대로 재실행한다.
+이는 완료 결과의 재검증이며 새 성능 시험·표본 추가·30일 확증이 아니다.
+[고정 계획](../../../docs/research/v7-discharge/learning-result-reverification.md).
