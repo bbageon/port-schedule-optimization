@@ -18,7 +18,7 @@ v6 시절 설명은 `README-v6.md`·`README-piece8.md`(복사본 · 역사 문�
 | 통지 리드타임 | 반입·반출 한 분포(`DIST`) | **`DGT`** — 반입·반출 따로, 통지 전 도착은 리드 0 | `stage/dgt_lead.py` · `stage/orders.py` |
 | 크레인 행동 | 미리 자리잡는 빈 이동 포함 | **끔**(`safety_only`) — 교착 탈출·파내기·쉬기는 남김 | `stage/exec_config.py` |
 | 크레인 학습 | (없음 · PPO 는 시장 쪽) | **v4 반사실 교사** + 입력 9칸 | `crane/` |
-| 물리 세계 `world/` | — | v6 복사본 + **양하 인계 용량 보정·계산 최적화**(YR-332-h/j) | `tests/v7/test_world_clone.py`의 명시적 예외 |
+| 물리 세계 `world/` | — | v6 복사본 + **양하 인계·주문 보존 보정·계산 최적화** | `tests/v7/test_world_clone.py`의 명시적 예외 |
 
 옛 동작은 지우지 않았다 — 비교·회귀용 선택지로 남는다:
 `arm="RL"`, `lead_mode="DIST"|"FIXED"`, `exec_config=exec_config.V6_LEGACY`.
@@ -35,6 +35,16 @@ CPU 하루·연속 크레인 경로는 양하 인출부터 야드 적재 완료�
 차량별 왕복 궤적 대신 집계 근사이므로 실제 용량·마감 보정은 별도 과제다.
 [모형·문헌](../../../docs/research/v7-discharge/model.md) ·
 [진단 결과](../../../outputs/reports/yr332_discharge_latency/report.md).
+
+## 고정 도착 주문 보존 (2026-11-08)
+
+하루 실행 `run_episode`는 `preserve_external_demand=True`를 기본으로 사용한다.
+유효한 외부 주문을 원래 블록·도착 시각으로 등록하고, 적재 공간이 없으면 실제 작업이 기다린다.
+공간 예약 때문에 주문을 입력에서 없애지 않는다. 실제 적재 용량과 블록 간 이전 검사는 유지한다.
+`False`로 예전 등록 제한을 재현할 수 있다. 저수준 `MultiBlockTerminal` 기본값은 `False`여서
+구 PPO·연속 무대의 계약을 이 변경으로 일괄 전환하지 않는다. 복제 세계는 원래 설정을 이어받는다.
+65회 비교에서 누락은 없어졌지만 처리 대상도 늘었으므로 비용 변화를 학습 개선율로 해석하지 않는다.
+[주문별 검산·결과](../../../outputs/reports/yr332_demand_preservation/README.md).
 
 ## 상태 목록·계획 재사용 (2026-11-05)
 
