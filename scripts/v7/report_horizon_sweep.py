@@ -231,9 +231,14 @@ def summarize(values, training, verified):
                 y = [daily[(control, l, d)][metric] for l in LOADS for d in range(3)]
                 change = [100*(a-b)/b for a, b in zip(x, y)]
                 reduction = [-v for v in change]
+                signed = asdict(paired(change, delta_interest=1.))
+                reduced = asdict(paired(reduction, delta_interest=1.))
+                # evalkit's label assumes negative is good; our reduction is positive-good.
+                reduced['label'] = signed['label']
+                reduced['sign_convention'] = 'positive is improvement'
                 row = dict(k=k, control=control, metric=metric, candidate_mean=st.fmean(x),
-                    control_mean=st.fmean(y), reduction_percent=asdict(paired(reduction, delta_interest=1.)),
-                    candidate_minus_control_percent=asdict(paired(change, delta_interest=1.)),
+                    control_mean=st.fmean(y), reduction_percent=reduced,
+                    candidate_minus_control_percent=signed,
                     paired_raw=asdict(paired([a-b for a, b in zip(x, y)])))
                 if metric != 'cost':
                     count_key = metric.replace('_mean_s_', '_n_')
