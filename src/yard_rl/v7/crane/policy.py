@@ -25,6 +25,7 @@ v4 `crane/policy.py` 를 옮겼다. 바뀐 것은 입력 차원(8 → 9, `featur
 """
 from __future__ import annotations
 
+import struct
 import torch
 from torch import nn
 
@@ -93,6 +94,11 @@ CRANE_SCALE_FLOOR = 1_000.0
 
 #: WAIT 자리 — `BaselinePreference` 규약과 같다(항상 최하위).
 _WAIT_KEY: tuple = (2, 0.0, "")
+
+
+def float32_key(row):
+    """Identity of the actual network input, including float32 rounding."""
+    return struct.unpack(f'{len(row)}f', struct.pack(f'{len(row)}f', *row))
 
 
 class CraneNet(nn.Module):
@@ -180,11 +186,15 @@ class CranePolicy(BaselinePreference):
         self.serve_first = bool(serve_first)
         self.batched = batched
         #: ★강제 손잡이 — `{크레인: job_id}`. 반사실 세계에서 *"대신 저걸 했다면"* 을
-        #:  만드는 유일한 방법이다. 판매·구매의 `force_once` 와 같은 규약이되,
+        #:  만드는 과거 대조군 손잡이다. 기본 교사는 아래 score_once를 쓴다.
+        #:  판매·구매의 `force_once` 와 같은 규약이되,
         #:  **비우는 책임은 부르는 쪽**에 있다 (`crane/rollout.py` 가 결정 하나를
         #:  손으로 돌린 직후 비운다) — 시계로 맞추면 분기 시각이 결정 시각과
         #:  1e-6 만 어긋나도 강제가 통째로 날아간다.
         self.force_once: dict[str, str] = {}
+        # Training-only score intervention. Unlike legacy force_once, it keeps
+        # priority tiers and gives equal network inputs the same score.
+        self.score_once: dict[tuple, float] = {}
 
     def rank(self, sim, crane_id, gc) -> tuple:
         ref = gc.job_ref
@@ -200,6 +210,8 @@ class CranePolicy(BaselinePreference):
                            count_transform=getattr(self.net, 'count_transform', 'clipped'))
         with torch.no_grad():
             score = float(self.net(torch.tensor([x], dtype=torch.float32))[0])
+        if self.score_once:
+            score = self.score_once.get(float32_key(x), score)
         tier = 0 if (not self.serve_first or gc.kind == CandidateKind.SERVE) else 1
         #: `job_id` 를 끝에 두는 것은 **결정론**을 위해서다 — 점수가 같으면 항상 같은 배정.
         return (tier, score, ref.job_id)
@@ -247,6 +259,9 @@ class CranePolicy(BaselinePreference):
                     close.update((a, b))
             for i in sorted(close):
                 values[i] = float(self.net(torch.tensor([rows[i]], dtype=torch.float32))[0])
+        if self.score_once:
+            values = [self.score_once.get(float32_key(row), value)
+                      for row, value in zip(rows, values)]
         return [key if i is None else (key[0], values[i], key[2])
                 for key, i in zip(keys, row_ids)]
 

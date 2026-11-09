@@ -100,6 +100,7 @@ def train_seed(args):
         if stage in (4,5):
             kwargs = dict(load=load, seed=seed, dispatcher='RL_CRANE', crane_net=behavior,
                           crane_budget=RolloutBudget(max_labels=24,identity_checks=0),
+                          crane_alternative_contract='legacy_force',
                           candidate_cap=None, horizon_s=10800., workers=args.workers,
                           reuse_rehandle_slots=args.shared_slots,
                           decision_probe_shortcircuit=args.existence_scan)

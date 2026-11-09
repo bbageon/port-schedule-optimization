@@ -1,0 +1,12 @@
+{
+  "suite": "crane_wiring,count_transform,pairwise,sampling",
+  "passed": 24,
+  "failed": 2,
+  "seconds": 269.07,
+  "failures": [
+    "test_collector_uses_same_transform_as_policy_for_both_rows[linear]",
+    "test_collector_uses_same_transform_as_policy_for_both_rows[log1p]"
+  ],
+  "cause": "30 identical candidate input rows cannot provide a trainable preference pair",
+  "correction": "give one fixture truck 60 seconds of prior waiting; keep reachable teacher constraints"
+}

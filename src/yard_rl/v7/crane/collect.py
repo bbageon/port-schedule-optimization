@@ -1,5 +1,9 @@
 """크레인 결정을 표본해 라벨로 바꾼다 ([[YR-308]] · v7 이식 [[YR-332-b]]).
 
+2026-11-09: 기본 교사는 동일 입력의 점수만 함께 바꿔 실제 resolver가 선택한
+대안만 비교한다. 아래 세 조건은 표본 자격이며, 선택 증거가 없으면 예산을
+소모한 채 no_witness로 기록한다. legacy_force는 과거 방식 대조군 전용이다.
+
 ■ 왜 표본하나 — 전수는 물리적으로 불가능하다
   크레인 결정은 하루 **수만 건**이고 한 건을 라벨링하려면 세계 둘(≈30초)을 굴려야
   한다. 전수면 회차당 수백 시간이다. 재배정층과 **같은 규모(하루 64건)** 로 뽑는다.
@@ -45,11 +49,15 @@ class CraneCollector:
     """에피소드가 도는 동안 결정을 표본하고, 끝나면 라벨을 조립한다."""
 
     def __init__(self, ctx, *, budget: RolloutBudget, horizon_s: float,
-                 workers: int = 1, sampling='standard', seed=0):
+                 workers: int = 1, sampling='standard', seed=0,
+                 alternative_contract='reachable'):
         if sampling not in ('standard', 'coverage'):
             raise ValueError(f'unknown crane sampling: {sampling}')
         from .sampling import CoverageSampler
         self.sampler = CoverageSampler(seed) if sampling == 'coverage' else None
+        if alternative_contract not in ('reachable', 'legacy_force'):
+            raise ValueError(f'unknown alternative contract: {alternative_contract}')
+        self.alternative_contract = alternative_contract
         self.ctx = ctx
         self.budget = budget
         self.pool = CranePool(ctx, horizon_s=horizon_s, workers=workers)
@@ -63,7 +71,9 @@ class CraneCollector:
                       "usable": 0,     # 그중 라벨이 될 수 있던 것
                       "sampled": 0,    # 그중 예산이 실제로 뽑은 것
                       "no_alt": 0, "no_pick": 0,
-                      "factual_mismatch": 0, "force_failed": 0, "labeled": 0}
+                      "factual_mismatch": 0, "force_failed": 0, "labeled": 0,
+                      "alternative_contract": alternative_contract,
+                      "no_witness": 0, "witness_search": []}
 
     # ------------------------------------------------------------------ 훅
     def hook(self, mbt, market, orders, records):
@@ -98,6 +108,17 @@ class CraneCollector:
             else:
                 crane, picked_gc, alt_gc = self.sampler.select(sim, block, choices, self._rank)
             key = (round(sim.clock, 6), block, crane)
+            witness = None
+            from .action_contract import assignment_signature, reachable_alternative
+            if self.alternative_contract == 'reachable':
+                alt_gc, witness, attempts = reachable_alternative(
+                    self._pref, sim, dp, gb, choices, (crane, picked_gc, alt_gc))
+                self.stats['witness_search'].append(dict(key=key, attempts=attempts,
+                    candidate_count=sum(len(batch.items) for batch in gb.values()),
+                    witness=witness))
+                if witness is None:
+                    self.stats['no_witness'] += 1
+                    return
             if key in self.rows:
                 raise RuntimeError(f'duplicate comparison decision key: {key}')
             mode = getattr(getattr(self._pref, 'net', None), 'feature_mode', 'legacy')
@@ -118,7 +139,9 @@ class CraneCollector:
                 orders=dict(orders), records=copy.deepcopy(records),
                 decided=set(getattr(market, "decided", ())),
                 picked_job=picked_gc.job_ref.job_id,
-                alt_job=alt_gc.job_ref.job_id))
+                alt_job=alt_gc.job_ref.job_id,
+                alternative_contract=self.alternative_contract,
+                factual_assignment=assignment_signature(assign), witness=witness))
         return on_crane
 
     def _choices(self, gb, assign):

@@ -1,0 +1,713 @@
+{
+  "rows": [
+    {
+      "iteration": 0,
+      "contract": "legacy_force",
+      "input_seed": 9914699,
+      "load": 300,
+      "corpus": "outputs/reports/yr332_reachable_teacher/smoke/labels-legacy_force-0.json.gz",
+      "corpus_sha256": "88b2f71c3ad5c770634a380080fd6dabc698a752eee854544ad81ad7abc88df9",
+      "fit": {
+        "n": 6,
+        "n_val": 2,
+        "loss": 0.5471190810203552,
+        "val_loss": 0.007256748620420694,
+        "steps": 50,
+        "steps_coef": 1.0,
+        "median_gap_krw": 27771.105988040566,
+        "scale_krw": 27771.105988040566,
+        "floor_bound": false,
+        "zero_ratio": 0.0,
+        "loss_kind": "pairwise",
+        "val_pair_loss": 0.007256748620420694,
+        "val_order_accuracy": 0.0,
+        "val_nonzero_pairs": 1
+      },
+      "seconds": 31.137579799629748,
+      "stats": {
+        "seen": 3092,
+        "usable": 1382,
+        "sampled": 4,
+        "no_alt": 1710,
+        "no_pick": 0,
+        "factual_mismatch": 0,
+        "force_failed": 0,
+        "labeled": 4,
+        "alternative_contract": "legacy_force",
+        "no_witness": 0,
+        "witness_search": [],
+        "comparisons": [
+          {
+            "key": [
+              2863.679553,
+              "Y18",
+              "YC-W"
+            ],
+            "t": 2863.6795533962645,
+            "crane": "YC-W",
+            "picked_job": "Y18:J-V-LOAD-0-02",
+            "alt_job": "Y18:J-V-LOAD-0-01",
+            "phi_factual": 1233752.024057092,
+            "phi_alt": 1267882.7058752736,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "legacy_force",
+            "assignment_factual": [
+              [
+                "YC-L",
+                "WAIT",
+                null,
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y18:J-V-LOAD-0-02",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-L",
+                "WAIT",
+                null,
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y18:J-V-LOAD-0-01",
+                null
+              ]
+            ],
+            "witness": null,
+            "worlds": 2
+          },
+          {
+            "key": [
+              10162.633241,
+              "Y10",
+              "YC-W"
+            ],
+            "t": 10162.633241135729,
+            "crane": "YC-W",
+            "picked_job": "Y10:J-V-LOAD-0-58",
+            "alt_job": "Y10:J-V-LOAD-0-54",
+            "phi_factual": 5525847.543306242,
+            "phi_alt": 5547259.073464141,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "legacy_force",
+            "assignment_factual": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y10:J-V-LOAD-0-58",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y10:J-V-LOAD-0-54",
+                null
+              ]
+            ],
+            "witness": null,
+            "worlds": 2
+          },
+          {
+            "key": [
+              15872.062213,
+              "Y21",
+              "YC-W"
+            ],
+            "t": 15872.062212954881,
+            "crane": "YC-W",
+            "picked_job": "Y21:J-V-LOAD-0-20",
+            "alt_job": "Y21:J-V-LOAD-0-86",
+            "phi_factual": 9110024.734462744,
+            "phi_alt": 9144468.916201107,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "legacy_force",
+            "assignment_factual": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y21:J-V-LOAD-0-20",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y21:J-V-LOAD-0-86",
+                null
+              ]
+            ],
+            "witness": null,
+            "worlds": 2
+          },
+          {
+            "key": [
+              20174.673417,
+              "Y17",
+              "YC-L"
+            ],
+            "t": 20174.67341652836,
+            "crane": "YC-L",
+            "picked_job": "D-00028",
+            "alt_job": "Y17:J-V-DISC-0-165",
+            "phi_factual": 12135121.051610015,
+            "phi_alt": 12135202.301610015,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "legacy_force",
+            "assignment_factual": [
+              [
+                "YC-L",
+                "PRE_REHANDLE",
+                "D-00028",
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y17:J-V-DISC-0-165",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-L",
+                "SERVE",
+                "Y17:J-V-DISC-0-165",
+                null
+              ],
+              [
+                "YC-W",
+                "WAIT",
+                null,
+                null
+              ]
+            ],
+            "witness": null,
+            "worlds": 2
+          }
+        ],
+        "main_choices_sha256": "608683e3ca9bc485e6dcf07bf86e860c9098310104a0664fde223efb4e0fc53e",
+        "worlds": 8,
+        "zero": 0,
+        "scale": 27771.105988040566,
+        "median_gap_krw": 27771.105988040566,
+        "floor_bound": false,
+        "hook_errors": 0
+      }
+    },
+    {
+      "iteration": 0,
+      "contract": "reachable",
+      "input_seed": 9914699,
+      "load": 300,
+      "corpus": "outputs/reports/yr332_reachable_teacher/smoke/labels-reachable-0.json.gz",
+      "corpus_sha256": "b6f7b22b4df4433ddd41bed963bcb4fbb92b0b06dfd0e61fc7937588714ac676",
+      "fit": {
+        "n": 6,
+        "n_val": 2,
+        "loss": 0.5471190810203552,
+        "val_loss": 0.007256748620420694,
+        "steps": 50,
+        "steps_coef": 1.0,
+        "median_gap_krw": 27771.105988040566,
+        "scale_krw": 27771.105988040566,
+        "floor_bound": false,
+        "zero_ratio": 0.0,
+        "loss_kind": "pairwise",
+        "val_pair_loss": 0.007256748620420694,
+        "val_order_accuracy": 0.0,
+        "val_nonzero_pairs": 1
+      },
+      "seconds": 27.723044500220567,
+      "stats": {
+        "seen": 3092,
+        "usable": 1382,
+        "sampled": 4,
+        "no_alt": 1710,
+        "no_pick": 0,
+        "factual_mismatch": 0,
+        "force_failed": 0,
+        "labeled": 4,
+        "alternative_contract": "reachable",
+        "no_witness": 0,
+        "witness_search": [
+          {
+            "key": [
+              2863.679553,
+              "Y18",
+              "YC-W"
+            ],
+            "attempts": [
+              {
+                "candidate": [
+                  "SERVE",
+                  "Y18:J-V-LOAD-0-01",
+                  null
+                ],
+                "reason": "accepted"
+              }
+            ],
+            "candidate_count": 6,
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.07312499731779099,
+                0.08685023337602615,
+                0.03333333507180214,
+                0.1111111119389534,
+                0.0,
+                0.0
+              ],
+              "score": -1.1064875721931458,
+              "assignment": [
+                [
+                  "YC-L",
+                  "WAIT",
+                  null,
+                  null
+                ],
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y18:J-V-LOAD-0-01",
+                  null
+                ]
+              ]
+            }
+          },
+          {
+            "key": [
+              10162.633241,
+              "Y10",
+              "YC-W"
+            ],
+            "attempts": [
+              {
+                "candidate": [
+                  "SERVE",
+                  "Y10:J-V-LOAD-0-54",
+                  null
+                ],
+                "reason": "accepted"
+              }
+            ],
+            "candidate_count": 26,
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.06499999761581421,
+                0.11366374045610428,
+                0.06666667014360428,
+                0.1666666716337204,
+                0.0,
+                0.0
+              ],
+              "score": -1.1052730828523636,
+              "assignment": [
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y10:J-V-LOAD-0-54",
+                  null
+                ]
+              ]
+            }
+          },
+          {
+            "key": [
+              15872.062213,
+              "Y21",
+              "YC-W"
+            ],
+            "attempts": [
+              {
+                "candidate": [
+                  "SERVE",
+                  "Y21:J-V-LOAD-0-86",
+                  null
+                ],
+                "reason": "accepted"
+              }
+            ],
+            "candidate_count": 26,
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.25999999046325684,
+                0.1129276305437088,
+                0.06666667014360428,
+                0.1111111119389534,
+                0.0,
+                0.0
+              ],
+              "score": -1.1067612916231155,
+              "assignment": [
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y21:J-V-LOAD-0-86",
+                  null
+                ]
+              ]
+            }
+          },
+          {
+            "key": [
+              20174.673417,
+              "Y17",
+              "YC-L"
+            ],
+            "attempts": [
+              {
+                "candidate": [
+                  "SERVE",
+                  "Y17:J-V-DISC-0-165",
+                  null
+                ],
+                "reason": "accepted"
+              }
+            ],
+            "candidate_count": 6,
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.0,
+                0.034816622734069824,
+                0.0,
+                0.0555555559694767,
+                0.0,
+                1.0
+              ],
+              "score": -1.1041172817349434,
+              "assignment": [
+                [
+                  "YC-L",
+                  "SERVE",
+                  "Y17:J-V-DISC-0-165",
+                  null
+                ],
+                [
+                  "YC-W",
+                  "WAIT",
+                  null,
+                  null
+                ]
+              ]
+            }
+          }
+        ],
+        "comparisons": [
+          {
+            "key": [
+              2863.679553,
+              "Y18",
+              "YC-W"
+            ],
+            "t": 2863.6795533962645,
+            "crane": "YC-W",
+            "picked_job": "Y18:J-V-LOAD-0-02",
+            "alt_job": "Y18:J-V-LOAD-0-01",
+            "phi_factual": 1233752.024057092,
+            "phi_alt": 1267882.7058752736,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "reachable",
+            "assignment_factual": [
+              [
+                "YC-L",
+                "WAIT",
+                null,
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y18:J-V-LOAD-0-02",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-L",
+                "WAIT",
+                null,
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y18:J-V-LOAD-0-01",
+                null
+              ]
+            ],
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.07312499731779099,
+                0.08685023337602615,
+                0.03333333507180214,
+                0.1111111119389534,
+                0.0,
+                0.0
+              ],
+              "score": -1.1064875721931458,
+              "assignment": [
+                [
+                  "YC-L",
+                  "WAIT",
+                  null,
+                  null
+                ],
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y18:J-V-LOAD-0-01",
+                  null
+                ]
+              ]
+            },
+            "worlds": 2
+          },
+          {
+            "key": [
+              10162.633241,
+              "Y10",
+              "YC-W"
+            ],
+            "t": 10162.633241135729,
+            "crane": "YC-W",
+            "picked_job": "Y10:J-V-LOAD-0-58",
+            "alt_job": "Y10:J-V-LOAD-0-54",
+            "phi_factual": 5525847.543306242,
+            "phi_alt": 5547259.073464141,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "reachable",
+            "assignment_factual": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y10:J-V-LOAD-0-58",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y10:J-V-LOAD-0-54",
+                null
+              ]
+            ],
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.06499999761581421,
+                0.11366374045610428,
+                0.06666667014360428,
+                0.1666666716337204,
+                0.0,
+                0.0
+              ],
+              "score": -1.1052730828523636,
+              "assignment": [
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y10:J-V-LOAD-0-54",
+                  null
+                ]
+              ]
+            },
+            "worlds": 2
+          },
+          {
+            "key": [
+              15872.062213,
+              "Y21",
+              "YC-W"
+            ],
+            "t": 15872.062212954881,
+            "crane": "YC-W",
+            "picked_job": "Y21:J-V-LOAD-0-20",
+            "alt_job": "Y21:J-V-LOAD-0-86",
+            "phi_factual": 9110024.734462744,
+            "phi_alt": 9144468.916201107,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "reachable",
+            "assignment_factual": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y21:J-V-LOAD-0-20",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-W",
+                "SERVE",
+                "Y21:J-V-LOAD-0-86",
+                null
+              ]
+            ],
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.25999999046325684,
+                0.1129276305437088,
+                0.06666667014360428,
+                0.1111111119389534,
+                0.0,
+                0.0
+              ],
+              "score": -1.1067612916231155,
+              "assignment": [
+                [
+                  "YC-W",
+                  "SERVE",
+                  "Y21:J-V-LOAD-0-86",
+                  null
+                ]
+              ]
+            },
+            "worlds": 2
+          },
+          {
+            "key": [
+              20174.673417,
+              "Y17",
+              "YC-L"
+            ],
+            "t": 20174.67341652836,
+            "crane": "YC-L",
+            "picked_job": "D-00028",
+            "alt_job": "Y17:J-V-DISC-0-165",
+            "phi_factual": 12135121.051610015,
+            "phi_alt": 12135202.301610015,
+            "factual_ok": true,
+            "forced_ok": true,
+            "alternative_contract": "reachable",
+            "assignment_factual": [
+              [
+                "YC-L",
+                "PRE_REHANDLE",
+                "D-00028",
+                null
+              ],
+              [
+                "YC-W",
+                "SERVE",
+                "Y17:J-V-DISC-0-165",
+                null
+              ]
+            ],
+            "assignment_alt": [
+              [
+                "YC-L",
+                "SERVE",
+                "Y17:J-V-DISC-0-165",
+                null
+              ],
+              [
+                "YC-W",
+                "WAIT",
+                null,
+                null
+              ]
+            ],
+            "witness": {
+              "input_key": [
+                1.0,
+                1.0,
+                0.0,
+                2.0,
+                0.0,
+                0.034816622734069824,
+                0.0,
+                0.0555555559694767,
+                0.0,
+                1.0
+              ],
+              "score": -1.1041172817349434,
+              "assignment": [
+                [
+                  "YC-L",
+                  "SERVE",
+                  "Y17:J-V-DISC-0-165",
+                  null
+                ],
+                [
+                  "YC-W",
+                  "WAIT",
+                  null,
+                  null
+                ]
+              ]
+            },
+            "worlds": 2
+          }
+        ],
+        "main_choices_sha256": "608683e3ca9bc485e6dcf07bf86e860c9098310104a0664fde223efb4e0fc53e",
+        "worlds": 8,
+        "zero": 0,
+        "scale": 27771.105988040566,
+        "median_gap_krw": 27771.105988040566,
+        "floor_bound": false,
+        "hook_errors": 0
+      }
+    }
+  ],
+  "behaviour": "frozen initial model",
+  "model_seed": 9914699,
+  "model_config": {
+    "dim": 10,
+    "hidden": 64,
+    "feature_mode": "feasible",
+    "include_flow": true,
+    "count_transform": "clipped"
+  },
+  "runtime": {
+    "candidate_cap": null,
+    "reuse_rehandle_slots": true,
+    "decision_probe_shortcircuit": true,
+    "preserve_external_demand": true
+  },
+  "torch": "2.14.0+cpu",
+  "python": "3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:09:58) [MSC v.1929 64 bit (AMD64)]",
+  "device": "cpu"
+}

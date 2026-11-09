@@ -1,5 +1,9 @@
 """크레인 결정 하나에서 **두 세계**를 굴린다 ([[YR-308]] · [[YR-248]] 2단계 · v7 이식 [[YR-332-b]]).
 
+2026-11-09: reachable 계약은 우선등급을 우회하지 않는 공유 입력 점수 개입을
+첫 결정에만 재생하고, 사실·대안 양쪽의 공동 배정 전체를 검증한다.
+아래 강제 손잡이에 관한 설명은 legacy_force 대조군에 해당한다.
+
 v4 `crane/rollout.py` 를 옮겼다. v7 엔진(v6 사본)의 복제·분기 규약 — 스냅샷 `deepcopy` ·
 `_Ctx.make_market/make_bridge/make_exec_policy` · 공고자 `clone_fresh` — 이 v4 와 같아
 절차는 그대로다. 더한 것은 진단 하나: `TRACE_DECISIONS` 를 켜면 분기 세계의 **결정 전부**를
@@ -57,6 +61,9 @@ class CraneBranchJob:
     decided: set
     picked_job: str             # 실제로 고른 일감
     alt_job: str                # 차점자
+    alternative_contract: str = 'legacy_force'
+    factual_assignment: tuple | None = None
+    witness: dict | None = None
 
 
 class CraneRollout:
@@ -98,6 +105,8 @@ class CraneRollout:
                 gc = assign.get(job.crane)
                 ref = getattr(gc, "job_ref", None)
                 seen["picked"] = getattr(ref, "job_id", None)
+                from .action_contract import assignment_signature
+                seen['assignment'] = assignment_signature(assign)
             if trace is not None:
                 for c in sorted(assign):
                     ref = getattr(assign[c], "job_ref", None)
@@ -108,11 +117,22 @@ class CraneRollout:
         pref = getattr(exec_policy, "pref", None)
 
         # ── ① 열려 있는 결정을 손으로 한 번 돌린다 (여기서만 강제가 먹는다)
-        if force_job is not None and hasattr(pref, "force_once"):
-            pref.force_once[job.crane] = force_job
-        exec_policy(snap.blocks[job.block], job.decision)
-        if hasattr(pref, "force_once"):
-            pref.force_once.clear()          # ★한 번만 — 이후는 정책이 평소대로
+        try:
+            if force_job is not None:
+                if job.alternative_contract == 'reachable':
+                    if job.witness is None or not hasattr(pref, 'score_once'):
+                        raise ValueError('missing operational score witness')
+                    pref.score_once[tuple(job.witness['input_key'])] = job.witness['score']
+                elif job.alternative_contract == 'legacy_force':
+                    pref.force_once[job.crane] = force_job
+                else:
+                    raise ValueError(f'unknown alternative contract: {job.alternative_contract}')
+            exec_policy(snap.blocks[job.block], job.decision)
+        finally:
+            if hasattr(pref, 'force_once'):
+                pref.force_once.clear()
+            if hasattr(pref, 'score_once'):
+                pref.score_once.clear()
 
         # ── ② 그 뒤로는 평소대로 H 까지
         def review(m, tt):
@@ -126,7 +146,8 @@ class CraneRollout:
                                 vessel_idle=self.ctx.vessel_idle(snap, end),
                                 yc_extra_move_s=self.ctx.yc_extra_move_s(snap),
                                 rehandles=self.ctx.rehandles(snap))
-        out = {"phi": phi.total, "picked": seen.get("picked")}
+        out = {"phi": phi.total, "picked": seen.get("picked"),
+               'assignment': seen.get('assignment')}
         if trace is not None:
             out["trace"] = trace
         return out
@@ -160,12 +181,21 @@ def run_crane_job_with(ctx, horizon_s: float, job: CraneBranchJob) -> dict:
     roll = CraneRollout(ctx, horizon_s=horizon_s)
     fact = roll.branch(job, force_job=None)
     alt = roll.branch(job, force_job=job.alt_job)
+    factual_ok = fact['picked'] == job.picked_job
+    if job.factual_assignment is not None:
+        factual_ok = factual_ok and fact['assignment'] == job.factual_assignment
+    forced_ok = alt['picked'] == job.alt_job
+    if job.alternative_contract == 'reachable':
+        forced_ok = forced_ok and alt['assignment'] == job.witness['assignment']
     return {"key": job.key, "t": job.t, "crane": job.crane,
             "picked_job": job.picked_job, "alt_job": job.alt_job,
             "phi_factual": fact["phi"], "phi_alt": alt["phi"],
             #: ★두 진단 — 없으면 거짓 라벨이 조용히 섞인다
-            "factual_ok": fact["picked"] == job.picked_job,
-            "forced_ok": alt["picked"] == job.alt_job,
+            "factual_ok": factual_ok,
+            "forced_ok": forced_ok,
+            'alternative_contract': job.alternative_contract,
+            'assignment_factual': fact['assignment'], 'assignment_alt': alt['assignment'],
+            'witness': job.witness,
             "worlds": 2,
             **({"trace_factual": fact["trace"]} if "trace" in fact else {})}
 

@@ -73,6 +73,9 @@ def test_collector_uses_same_transform_as_policy_for_both_rows(transform):
     from yard_rl.v7.stage.rollout import RolloutBudget
     from yard_rl.v7.world.contract.schema import CandidateKind
     sim, dp = state()
+    # One truck has already waited longer. Fully identical network inputs are
+    # correctly rejected by the reachable teacher and cannot test a label pair.
+    sim.jobs['T001'].actual_block_arrival = -60.
     gb = generate(sim, dp, None)
     chosen = next(g for g in gb['YC-A'].items if g.kind == CandidateKind.SERVE)
     collector = CraneCollector(SimpleNamespace(), budget=RolloutBudget(max_labels=1,stride=1),

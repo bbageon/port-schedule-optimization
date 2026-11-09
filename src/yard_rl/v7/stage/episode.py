@@ -392,7 +392,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 preserve_external_demand: bool = True,
                 evaluation_mode: str = "optimized", evaluation_probe=None,
                 reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12,
-                crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False) -> EpisodeResult:
+                crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False,
+                crane_alternative_contract: str = 'reachable') -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -539,7 +540,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         from ..crane.collect import CraneCollector
         crane = CraneCollector(ctx, budget=crane_budget, horizon_s=horizon_s,
                                workers=(default_workers() if workers < 0 else workers),
-                               sampling=crane_sampling, seed=seed)
+                               sampling=crane_sampling, seed=seed,
+                               alternative_contract=crane_alternative_contract)
         if crane_budget.stride <= 0:
             # 하루에 고르게 흩는다. 간격은 **라벨이 될 수 있는 결정** 수 기준이다.
             # v4 실측(창 3시간)에서 부하당 쓸 수 있는 결정이 0.86~3.47배라 1배로 잡았다.
