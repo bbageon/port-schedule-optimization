@@ -108,7 +108,9 @@ def finalize(pin):
     artifacts = {p.as_posix():sha(p) for p in OUT.rglob('*') if p.is_file()
                  and p.name not in ('final-verdict.json','final-dashboard-audit.json')}
     artifacts.update(manifest['sources'])
-    artifacts['tests/v7/test_vessel_completion_bound.py'] = sha('tests/v7/test_vessel_completion_bound.py')
+    for path in ('tests/v7/test_vessel_completion_bound.py', 'tests/v7/test_world_clone.py',
+                 'tests/v7/v6-copy-manifest.json', 'scripts/v7/finalize_transport_calibration.py'):
+        artifacts[path] = sha(path)
     runtime = asdict(judge_runtime_evidence(manifest['repro'],artifact_hashes=artifacts,root='.'))
     assert runtime['status']=='PASS',runtime
     actual, reported = {}, {}

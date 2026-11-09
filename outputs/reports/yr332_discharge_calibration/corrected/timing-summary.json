@@ -1,0 +1,50 @@
+{
+  "task": "YR-332-i",
+  "run_count": 8,
+  "repeat_identical": true,
+  "fleet_probe": {
+    "first_request_s": 0.0,
+    "first_arrival_s": 470.0,
+    "first_unit_release_s": 470.0,
+    "second_arrival_s": 940.0
+  },
+  "arrival_count": 54,
+  "pipeline_release_count": 54,
+  "arrival_does_not_release_pipeline": true,
+  "pipeline_released_at_final_stack": true,
+  "lower_bound_counterexamples": [],
+  "invariant_checks": "PASS",
+  "calibration_status": "UNCONFIRMED",
+  "parameters_changed": false,
+  "lower_bound_formula_changed": true,
+  "physical_trace_matches_before": true,
+  "daily_input_comparisons": [
+    {
+      "load": 3500,
+      "seed": 9913900,
+      "plans": 8,
+      "execution_inputs_sha256": "21f75e4a75d0ead0ba88c54e9e2c779c07b42913261bcd7ecbd381f9478a4499",
+      "identical": true
+    },
+    {
+      "load": 7500,
+      "seed": 9913910,
+      "plans": 8,
+      "execution_inputs_sha256": "9710686b55a7377d3c7834f0fdddc0a690f340afa6f18f1ddba14c551f26729c",
+      "identical": true
+    },
+    {
+      "load": 15000,
+      "seed": 9913920,
+      "plans": 14,
+      "execution_inputs_sha256": "9da3ba80ca1c5d4f7694d9a58abb3cbbb41b933df57148ebacf3cffef6890022",
+      "identical": true
+    }
+  ],
+  "missing": [
+    "active fleet allocation",
+    "loaded and empty travel times",
+    "container handoff and vehicle release condition"
+  ],
+  "raw_sha256": "5a0163177c89cedaf2d113d418ec5eaae9bf7c54870c91cdbe8de345526506ff"
+}

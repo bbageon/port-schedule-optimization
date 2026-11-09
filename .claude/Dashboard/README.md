@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **양하 완료 하한 보정·운반 자료 대기 (2026-11-09, YR-332-i)**: 1~3박스가 기존 최소 시간보다 먼저 완료되는 계산 오류를 수정했다. 전후 각 8회 사건 동일·관련 138검사 통과·3개 하루 입력의 본선 계획 30건 유지. 현재 3대·470초는 실측 보정값으로 확인되지 않았고 실제 투입·주행·인계 조건이 필요하다. i는 외부 자료 대기이며 새 학습 없음. 자료로 환경 계약을 확정한 뒤 ab→c→d를 진행한다. [결과](../../outputs/reports/yr332_discharge_calibration/README.md) · [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md)
+
 - **고정 도착 주문 보존 완료 (2026-11-09, YR-332-aa·k)**: 65회 비교·주문 549,000건 검산·관련 129검사 통과. 최초 입력 201건, 혼잡일 저장 모델 평균 573.33건의 누락을 0으로 복구했다. 물리적 공간·시각·보상은 유지하고 실제 대기 장부에 남긴다. 구 보상 시험도 현재 정규화 계약과 일치시켰다. 주문 대상이 늘었으므로 전후 비용은 학습 개선율이 아니다. 다음은 본선 운반 현실 보정(i), 이후 실행 가능한 교사 대안(ab)·하루 학습(c)·30일 평가(d) 순서다. [결과](../../outputs/reports/yr332_demand_preservation/README.md) · [spec](../docs/dashboard-task-specs/YR-332-aa-rejected-demand-preservation.md)
 
 - **학습 대안 계약 감사 완료 (2026-11-08, YR-332-w)**: 10회 정확 재현·선택 가능성 증거 444건·저장 모델 36개 검증 점수 일치. 최신 자료 198쌍 중 45쌍(22.7%)은 고정 우선순위 안에서 선택 불가하며, 그중 16쌍은 교사가 더 좋다고 가르쳤다. 혼합 등급 전부를 오류로 볼 수는 없었다. t·m·w 세 감사 완료; 다음은 주문 보존(aa)·기존 본선 현실 보정(i), 교사 계약 보정(ab)은 환경 계약 확정 후 별도 비교다. [보고서](../../outputs/reports/yr332_action_contract/README.md) · [spec](../docs/dashboard-task-specs/YR-332-w-training-action-contract.md)
