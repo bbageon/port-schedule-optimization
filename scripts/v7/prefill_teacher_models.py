@@ -1,5 +1,6 @@
 """Evaluate already frozen checkpoints, only during the early training phase."""
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -7,13 +8,24 @@ import sys
 import time
 
 from benchmark_default_eval import save
-from retrain_reachable_teacher import OUT, CASES, RULES, check_sources, name
+from retrain_reachable_teacher import OUT, CASES, RULES, SEEDS, check_sources, name
 from six_step_learning import gz_read, sha
 
 
-def ready_indices():
-    if len(list((OUT/'completed').glob('train-*.json'))) >= 2:
-        return []  # Leave a whole model's training before the normal eval phase.
+def ready_indices(last_model_early=False):
+    finished = [s for s in SEEDS if (OUT/'completed'/f'train-{s}.json').exists()]
+    if len(finished) >= 2:
+        if not last_model_early or len(finished) == 3:
+            return []
+        # Only use the first half of the last model's training. Leave all of
+        # updates 4, 5 and 6 before the normal evaluation phase can start.
+        pending = next(s for s in SEEDS if s not in finished)
+        report = OUT/f'model-{pending}'/'training.json'
+        try:
+            if len(json.loads(report.read_text(encoding='utf-8'))['rows']) >= 6:
+                return []
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
     progress=OUT/'progress.json'
     if progress.exists() and json.loads(progress.read_text(encoding='utf-8'))['phase']!='train':
         return []
@@ -36,10 +48,10 @@ def ready_indices():
     return ready[:6]
 
 
-def main():
+def main(last_model_early=False):
     check_sources()
-    wave=0
-    while indices:=ready_indices():
+    wave=1+max((int(p.stem.split('-')[-1]) for p in (OUT/'prefill').glob('model-*.json')),default=-1)
+    while indices:=ready_indices(last_model_early):
         started=time.perf_counter()
         def one(index):
             log=OUT/'logs'/f'evaluate-{index}.log'
@@ -65,4 +77,6 @@ def main():
 
 
 if __name__=='__main__':
-    main()
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--last-model-early',action='store_true')
+    main(parser.parse_args().last_model_early)
