@@ -37,6 +37,24 @@ def finalize(pin):
     table = {(r['arm'],r['load']):r for r in summary['aggregate']}
     for line in (OUT/'README.md').read_text(encoding='utf-8').splitlines():
         cells = [c.strip() for c in line.split('|')][1:-1]
+        if len(cells) == 4 and cells[0].isdigit():
+            seed = int(cells[0])
+            for control,value in zip(('initial','legacy_force-5','sf_spt'),cells[1:],strict=True):
+                label = f'model/{seed}/{control}'
+                actual[label] = next(r['mean_percent'] for r in summary['model_turn_change_percent']
+                    if r['model_seed']==seed and r['control']==control)
+                reported[label] = float(value)
+        if len(cells) == 6 and cells[0] in ('legacy_force','reachable'):
+            for key,value in zip(('sampled','labeled','no_witness','force_failed','truncated_horizon_pairs'),cells[1:],strict=True):
+                label = f'teacher/{cells[0]}/{key}'
+                actual[label] = summary['training']['totals'][cells[0]][key]
+                reported[label] = float(value)
+        if len(cells) == 7 and cells[1].isdigit():
+            arm,load = cells[0],int(cells[1])
+            for key,value in zip(('unexited24','unexited26','yard_unfinished26','vessel_unfinished','vessel_idle_s'),cells[2:],strict=True):
+                label = f'completion/{load}/{arm}/{key}'
+                actual[label] = table[(arm,load)][key]/(3600 if key=='vessel_idle_s' else 1)
+                reported[label] = float(value)
         if len(cells) == 6 and cells[0].isdigit():
             load = int(cells[0])
             for arm, value in zip(('initial','legacy_force-5','reachable-2','reachable-5','sf_spt'),
@@ -50,7 +68,7 @@ def finalize(pin):
                 label = f'{cells[0]}/{metric}'
                 actual[label] = row['paired_percent' if i<2 else 'paired_raw']['mean']
                 reported[label] = float(cells[i+1])
-    assert len(actual) == 55, len(actual)
+    assert len(actual) == 134, len(actual)
     claims = asdict(judge_claim_alignment(reported, actual, absolute_tolerance=.00051))
     assert claims['status'] == 'PASS', claims
     remote = subprocess.check_output(['git','rev-parse','--abbrev-ref','@{upstream}'],encoding='utf-8').strip()
@@ -78,6 +96,7 @@ def finalize(pin):
     verdict = dict(task='YR-332-ab-c', teacher_contract='PASS',
         retraining_completed=True, evaluation_completed=True, calibration='UNCONFIRMED',
         training_scope='controlled common-behaviour diagnostic; final iteration fixed in advance',
+        teacher_scope='shared input-score intervention through the existing resolver; network representability not proved',
         policy_architecture_changed=False, common_gates=gates)
     save(OUT/'final-dashboard-audit.json', boards)
     save(OUT/'final-verdict.json', attach_common_gates(verdict, report_from_dict(verdict)))
