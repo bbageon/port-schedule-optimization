@@ -32,13 +32,14 @@ def test_physical_corrections_are_explicit_and_scoped():
     corrections = MANIFEST["v7_world_overrides"]
     assert set(corrections) == {"world/integrated/engine.py", "world/domain/models.py",
                                 "world/integrated/candidates.py", "world/integrated/resolver.py",
-                                "world/integrated/multiblock.py"}
+                                "world/integrated/multiblock.py", "world/integrated/scenario_gen.py"}
     assert corrections['world/integrated/engine.py']['task'] == 'YR-332-n'
     assert corrections['world/integrated/candidates.py']['task'] == 'YR-332-g'
     assert corrections['world/integrated/multiblock.py']['task'] == 'YR-332-aa'
+    assert corrections['world/integrated/scenario_gen.py']['task'] == 'YR-332-i'
     assert all(c['task'] == 'YR-332-j' for k, c in corrections.items()
                if k not in ('world/integrated/engine.py', 'world/integrated/candidates.py',
-                            'world/integrated/multiblock.py'))
+                            'world/integrated/multiblock.py', 'world/integrated/scenario_gen.py'))
     assert corrections['world/integrated/engine.py']['prior_task'] == 'YR-332-h'
 
 

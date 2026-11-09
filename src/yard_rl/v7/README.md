@@ -36,6 +36,11 @@ CPU 하루·연속 크레인 경로는 양하 인출부터 야드 적재 완료�
 [모형·문헌](../../../docs/research/v7-discharge/model.md) ·
 [진단 결과](../../../outputs/reports/yr332_discharge_latency/report.md).
 
+양하 완료 하한은 마지막 안벽 인출까지의 최소 작업 간격으로 계산한다(YR-332-i).
+첫 상자들이 차량 귀환 전에 인출되는 것을 무시한 평균 운반율 식을 바로잡았다.
+하한 이상인 마감이 달성 가능하다는 뜻은 아니며, 실제 운반·인계 보정은 아직 미확정이다.
+[시간 계약·자료 한계](../../../docs/research/v7-discharge/transport-calibration-review.md).
+
 ## 고정 도착 주문 보존 (2026-11-08)
 
 하루 실행 `run_episode`는 `preserve_external_demand=True`를 기본으로 사용한다.

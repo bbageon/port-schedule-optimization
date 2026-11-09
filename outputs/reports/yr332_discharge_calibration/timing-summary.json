@@ -1,0 +1,86 @@
+{
+  "task": "YR-332-i",
+  "run_count": 8,
+  "repeat_identical": true,
+  "fleet_probe": {
+    "first_request_s": 0.0,
+    "first_arrival_s": 470.0,
+    "first_unit_release_s": 470.0,
+    "second_arrival_s": 940.0
+  },
+  "arrival_count": 54,
+  "pipeline_release_count": 54,
+  "arrival_does_not_release_pipeline": true,
+  "pipeline_released_at_final_stack": true,
+  "lower_bound_counterexamples": [
+    {
+      "case": {
+        "ships": 1,
+        "moves_per_ship": 1,
+        "yard_delay_s": 0,
+        "fleet": {
+          "fleet_id": "YT1",
+          "kind": "YT",
+          "n_units": 3,
+          "move_time_s": 470.0
+        },
+        "cadence_s": 130.9090909090909
+      },
+      "vessel": {
+        "id": "V0",
+        "actual_completion_s": 130.9090909090909,
+        "declared_lower_bound_s": 156.66666666666666,
+        "idle_s": 0.0
+      }
+    },
+    {
+      "case": {
+        "ships": 1,
+        "moves_per_ship": 2,
+        "yard_delay_s": 0,
+        "fleet": {
+          "fleet_id": "YT1",
+          "kind": "YT",
+          "n_units": 3,
+          "move_time_s": 470.0
+        },
+        "cadence_s": 130.9090909090909
+      },
+      "vessel": {
+        "id": "V0",
+        "actual_completion_s": 261.8181818181818,
+        "declared_lower_bound_s": 313.3333333333333,
+        "idle_s": 0.0
+      }
+    },
+    {
+      "case": {
+        "ships": 1,
+        "moves_per_ship": 3,
+        "yard_delay_s": 0,
+        "fleet": {
+          "fleet_id": "YT1",
+          "kind": "YT",
+          "n_units": 3,
+          "move_time_s": 470.0
+        },
+        "cadence_s": 130.9090909090909
+      },
+      "vessel": {
+        "id": "V0",
+        "actual_completion_s": 392.72727272727275,
+        "declared_lower_bound_s": 470.0,
+        "idle_s": 0.0
+      }
+    }
+  ],
+  "invariant_checks": "PASS",
+  "calibration_status": "UNCONFIRMED",
+  "parameters_changed": false,
+  "missing": [
+    "active fleet allocation",
+    "loaded and empty travel times",
+    "container handoff and vehicle release condition"
+  ],
+  "raw_sha256": "b28d9fd902f60adc2ceb6ccb9277f650047ad57972703af75a257d89612a50ca"
+}

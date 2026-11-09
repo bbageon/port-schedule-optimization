@@ -266,17 +266,22 @@ def phys_min_completion_s(profile: IntegratedProfile, *, work: VesselWorkType,
       · **적하(LOAD)** 는 `buffer_level > 0` 이라야 처리 가능하고 버퍼는 야드 반출 완료 →
         야드트랙터 도착으로만 찬다. 따라서 첫 박스 리드타임
         `lead = min(YC 1사이클) + YT 편도` 가 반드시 앞에 붙는다.
-      · **양하(DISCHARGE)** 는 안벽 버퍼(cap)로 뽑아내므로 리드타임 0. 다만 버퍼를 비우는
-        야드트랙터 공급간격이 cadence 보다 느리면 그쪽이 율속이 된다.
+      · **양하(DISCHARGE)** 완료는 마지막 STS 인출이며 마지막 상자의 야드 적재가 아니다.
+        처음 여러 상자는 차량 귀환 전에 인출할 수 있으므로 평균 운반 간격을 전체 박스 수에
+        곱하면 유한 작업의 하한이 되지 않는다(YR-332-i: 1~3박스 반례).
+        이 함수에는 공유 인계·안벽 버퍼 상태가 없으므로 양하는 STS 간격 하한만 반환한다.
       · 야드 공급 최소 간격 = `YT 편도 / 대수` (fleet 전량을 이 본선에 몰아줘도 이 이상 불가).
 
-    ⇒ `start + max(moves·cadence, lead + (moves−1)·max(cadence, 야드간격))`
+    적하의 기존 추정: `start + max(moves·cadence, lead + (moves−1)·max(cadence, 야드간격))`.
+    적하의 유한 차량 수 보정은 이 양하 반례 수정으로 검증한 것이 아니다.
 
     야드 **경합**(다른 트럭·본선과의 크레인 다툼)은 정책이 바꿀 수 있으므로 **넣지 않는다** —
-    여기 들어가는 항은 어떤 정책으로도 못 줄이는 것만이다.
+    하한 이상이라는 사실만으로 실제 달성 가능한 마감임을 보장하지 않는다.
     """
     yard_interval = profile.transfer.move_time_s / max(1, profile.transfer.n_units)
     sts_only = start_s + moves * cadence_s
+    if work == VesselWorkType.DISCHARGE:
+        return sts_only
     if work != VesselWorkType.LOAD or not load_targets:
         return max(sts_only, start_s + moves * max(cadence_s, yard_interval))
     lead = min(_min_yc_cycle_s(profile, c) for c in load_targets) + profile.transfer.move_time_s
@@ -465,7 +470,7 @@ def generate_terminal_scenario(profile: IntegratedProfile, seed: int,
     if params.vessel_deadline_achievable:          # YR-109 계약 박제
         # 값을 **버전 문자열**로 둔다 — YR-109 초판(True = STS 단독 하한)과 게이트 A 정정판을
         # 원자료에서 구분하기 위함. 구 원자료(legacy_vs_achievable.json)는 True 로 남아 있다.
-        meta["vessel_deadline_achievable"] = "chain-v2"
+        meta["vessel_deadline_achievable"] = "chain-v3-discharge-bound"
     if params.vessel_deadline_mult != 2.0:
         meta["vessel_deadline_mult"] = params.vessel_deadline_mult
     if params.time_contract_v2:                  # v2 의미 버전 박제 (v1 meta 는 바이트 동일)
