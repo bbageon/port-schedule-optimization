@@ -1,6 +1,6 @@
 # YR-332-ac — 교사 세계와 비용 계산의 종료 시각 일치
 
-- **상태**: in-progress
+- **상태**: done
 - 3대 게이트 보정 대상: scenario_validity — 진행하지 않은 시간의 비용을 계산하는 장부 계약 보정.
 - 등록 2026-11-09. ab 재학습 도중 독립 검산에서 확인. 사용자 지시 1~3단계의 환경 계산 확인에 해당.
 
@@ -23,3 +23,9 @@
 
 [중단 진단](../../../outputs/reports/yr332_reachable_teacher/horizon-diagnostic.json).
 [기존 계획](../../../docs/research/v7-discharge/reachable-teacher-prereg.md).
+
+## 완료 — 2026-11-09
+
+코드 `78fc06ff`. 실제 5회·비교 11개 검증 통과. 두 교사 각각 직렬/병렬 일치, 일반 창과 잘린 창 모두 검증했다.
+5회 모두 주 궤적·비용은 같았다. 미래 비용·장부의 종료만 맞추며 운영 정책이나 관측 구간은 변경하지 않는다.
+[결과](../../../outputs/reports/yr332_teacher_horizon/README.md) · [검증](../../../outputs/reports/yr332_teacher_horizon/verification.json).
