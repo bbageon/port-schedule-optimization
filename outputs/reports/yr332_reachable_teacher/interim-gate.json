@@ -1,0 +1,398 @@
+{
+  "task": "YR-332-ab",
+  "campaign_status": "INTERRUPTED; final evaluation not started",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "학습 최종 판정 전 계산 오류로 중단; 채택 없음",
+      "reasons": [],
+      "evidence": {}
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "중단 원자료·실행 코드·board 일치",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "56143c880f06ffbef26cd14b1fc880f040288219",
+            "stamp": {
+              "experiment": "YR-332-ab-c",
+              "code": {
+                "git_head": "56143c880f06ffbef26cd14b1fc880f040288219",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "model": [
+                  9914701,
+                  9914702,
+                  9914703
+                ],
+                "training": [
+                  9914800,
+                  9914810,
+                  9914820,
+                  9914830,
+                  9914840,
+                  9914850,
+                  9914900,
+                  9914910,
+                  9914920,
+                  9914930,
+                  9914940,
+                  9914950,
+                  9915000,
+                  9915010,
+                  9915020,
+                  9915030,
+                  9915040,
+                  9915050
+                ],
+                "evaluation": [
+                  9915900,
+                  9915910,
+                  9915920,
+                  9916000,
+                  9916010,
+                  9916020,
+                  9916100,
+                  9916110,
+                  9916120
+                ]
+              },
+              "params": {
+                "model_seeds": {
+                  "repr": "(9914701, 9914702, 9914703)"
+                },
+                "loads": {
+                  "repr": "(3500, 7500, 15000)"
+                },
+                "updates": {
+                  "repr": "6"
+                },
+                "pairs_per_update": {
+                  "repr": "24"
+                },
+                "horizon_s": {
+                  "repr": "10800.0"
+                },
+                "optimizer_steps": {
+                  "repr": "50"
+                },
+                "behaviour": {
+                  "repr": "'frozen initial model'"
+                },
+                "train_concurrency": {
+                  "repr": "2"
+                },
+                "branch_workers": {
+                  "repr": "3"
+                },
+                "eval_workers": {
+                  "repr": "6"
+                },
+                "torch_threads": {
+                  "repr": "1"
+                },
+                "runtime": {
+                  "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+                },
+                "contracts": {
+                  "repr": "('legacy_force', 'reachable')"
+                },
+                "evaluation": {
+                  "repr": "[('initial', 9914701, 3500, 0, 0), ('legacy_force-2', 9914701, 3500, 0, 0), ('legacy_force-5', 9914701, 3500, 0, 0), ('reachable-2', 9914701, 3500, 0, 0), ('reachable-5', 9914701, 3500, 0, 0), ('initial', 9914702, 3500, 0, 0), ('legacy_force-2', 9914702, 3500, 0, 0), ('legacy_force-5', 9914702, 3500, 0, 0), ('reachable-2', 9914702, 3500, 0, 0), ('reachable-5', 9914702, 3500, 0, 0), ('initial', 9914703, 3500, 0, 0), ('legacy_force-2', 9914703, 3500, 0, 0), ('legacy_force-5', 9914703, 3500, 0, 0), ('reachable-2', 9914703, 3500, 0, 0), ('reachable-5', 9914703, 3500, 0, 0), ('initial', 9914701, 7500, 0, 0), ('legacy_force-2', 9914701, 7500, 0, 0), ('legacy_force-5', 9914701, 7500, 0, 0), ('reachable-2', 9914701, 7500, 0, 0), ('reachable-5', 9914701, 7500, 0, 0), ('initial', 9914702, 7500, 0, 0), ('legacy_force-2', 9914702, 7500, 0, 0), ('legacy_force-5', 9914702, 7500, 0, 0), ('reachable-2', 9914702, 7500, 0, 0), ('reachable-5', 9914702, 7500, 0, 0), ('initial', 9914703, 7500, 0, 0), ('legacy_force-2', 9914703, 7500, 0, 0), ('legacy_force-5', 9914703, 7500, 0, 0), ('reachable-2', 9914703, 7500, 0, 0), ('reachable-5', 9914703, 7500, 0, 0), ('initial', 9914701, 15000, 0, 0), ('legacy_force-2', 9914701, 15000, 0, 0), ('legacy_force-5', 9914701, 15000, 0, 0), ('reachable-2', 9914701, 15000, 0, 0), ('reachable-5', 9914701, 15000, 0, 0), ('initial', 9914702, 15000, 0, 0), ('legacy_force-2', 9914702, 15000, 0, 0), ('legacy_force-5', 9914702, 15000, 0, 0), ('reachable-2', 9914702, 15000, 0, 0), ('reachable-5', 9914702, 15000, 0, 0), ('initial', 9914703, 15000, 0, 0), ('legacy_force-2', 9914703, 15000, 0, 0), ('legacy_force-5', 9914703, 15000, 0, 0), ('reachable-2', 9914703, 15000, 0, 0), ('reachable-5', 9914703, 15000, 0, 0), ('initial', 9914701, 3500, 1, 0), ('legacy_force-2', 9914701, 3500, 1, 0), ('legacy_force-5', 9914701, 3500, 1, 0), ('reachable-2', 9914701, 3500, 1, 0), ('reachable-5', 9914701, 3500, 1, 0), ('initial', 9914702, 3500, 1, 0), ('legacy_force-2', 9914702, 3500, 1, 0), ('legacy_force-5', 9914702, 3500, 1, 0), ('reachable-2', 9914702, 3500, 1, 0), ('reachable-5', 9914702, 3500, 1, 0), ('initial', 9914703, 3500, 1, 0), ('legacy_force-2', 9914703, 3500, 1, 0), ('legacy_force-5', 9914703, 3500, 1, 0), ('reachable-2', 9914703, 3500, 1, 0), ('reachable-5', 9914703, 3500, 1, 0), ('initial', 9914701, 7500, 1, 0), ('legacy_force-2', 9914701, 7500, 1, 0), ('legacy_force-5', 9914701, 7500, 1, 0), ('reachable-2', 9914701, 7500, 1, 0), ('reachable-5', 9914701, 7500, 1, 0), ('initial', 9914702, 7500, 1, 0), ('legacy_force-2', 9914702, 7500, 1, 0), ('legacy_force-5', 9914702, 7500, 1, 0), ('reachable-2', 9914702, 7500, 1, 0), ('reachable-5', 9914702, 7500, 1, 0), ('initial', 9914703, 7500, 1, 0), ('legacy_force-2', 9914703, 7500, 1, 0), ('legacy_force-5', 9914703, 7500, 1, 0), ('reachable-2', 9914703, 7500, 1, 0), ('reachable-5', 9914703, 7500, 1, 0), ('initial', 9914701, 15000, 1, 0), ('legacy_force-2', 9914701, 15000, 1, 0), ('legacy_force-5', 9914701, 15000, 1, 0), ('reachable-2', 9914701, 15000, 1, 0), ('reachable-5', 9914701, 15000, 1, 0), ('initial', 9914702, 15000, 1, 0), ('legacy_force-2', 9914702, 15000, 1, 0), ('legacy_force-5', 9914702, 15000, 1, 0), ('reachable-2', 9914702, 15000, 1, 0), ('reachable-5', 9914702, 15000, 1, 0), ('initial', 9914703, 15000, 1, 0), ('legacy_force-2', 9914703, 15000, 1, 0), ('legacy_force-5', 9914703, 15000, 1, 0), ('reachable-2', 9914703, 15000, 1, 0), ('reachable-5', 9914703, 15000, 1, 0), ('initial', 9914701, 3500, 2, 0), ('legacy_force-2', 9914701, 3500, 2, 0), ('legacy_force-5', 9914701, 3500, 2, 0), ('reachable-2', 9914701, 3500, 2, 0), ('reachable-5', 9914701, 3500, 2, 0), ('initial', 9914702, 3500, 2, 0), ('legacy_force-2', 9914702, 3500, 2, 0), ('legacy_force-5', 9914702, 3500, 2, 0), ('reachable-2', 9914702, 3500, 2, 0), ('reachable-5', 9914702, 3500, 2, 0), ('initial', 9914703, 3500, 2, 0), ('legacy_force-2', 9914703, 3500, 2, 0), ('legacy_force-5', 9914703, 3500, 2, 0), ('reachable-2', 9914703, 3500, 2, 0), ('reachable-5', 9914703, 3500, 2, 0), ('initial', 9914701, 7500, 2, 0), ('legacy_force-2', 9914701, 7500, 2, 0), ('legacy_force-5', 9914701, 7500, 2, 0), ('reachable-2', 9914701, 7500, 2, 0), ('reachable-5', 9914701, 7500, 2, 0), ('initial', 9914702, 7500, 2, 0), ('legacy_force-2', 9914702, 7500, 2, 0), ('legacy_force-5', 9914702, 7500, 2, 0), ('reachable-2', 9914702, 7500, 2, 0), ('reachable-5', 9914702, 7500, 2, 0), ('initial', 9914703, 7500, 2, 0), ('legacy_force-2', 9914703, 7500, 2, 0), ('legacy_force-5', 9914703, 7500, 2, 0), ('reachable-2', 9914703, 7500, 2, 0), ('reachable-5', 9914703, 7500, 2, 0), ('initial', 9914701, 15000, 2, 0), ('legacy_force-2', 9914701, 15000, 2, 0), ('legacy_force-5', 9914701, 15000, 2, 0), ('reachable-2', 9914701, 15000, 2, 0), ('reachable-5', 9914701, 15000, 2, 0), ('initial', 9914702, 15000, 2, 0), ('legacy_force-2', 9914702, 15000, 2, 0), ('legacy_force-5', 9914702, 15000, 2, 0), ('reachable-2', 9914702, 15000, 2, 0), ('reachable-5', 9914702, 15000, 2, 0), ('initial', 9914703, 15000, 2, 0), ('legacy_force-2', 9914703, 15000, 2, 0), ('legacy_force-5', 9914703, 15000, 2, 0), ('reachable-2', 9914703, 15000, 2, 0), ('reachable-5', 9914703, 15000, 2, 0), ('fcfs_arrival', 0, 3500, 0, 0), ('spt', 0, 3500, 0, 0), ('nearest', 0, 3500, 0, 0), ('vessel_fcfs', 0, 3500, 0, 0), ('vessel_nearest', 0, 3500, 0, 0), ('unidirectional', 0, 3500, 0, 0), ('distance_wait', 0, 3500, 0, 0), ('sf_spt', 0, 3500, 0, 0), ('fcfs_arrival', 0, 7500, 0, 0), ('spt', 0, 7500, 0, 0), ('nearest', 0, 7500, 0, 0), ('vessel_fcfs', 0, 7500, 0, 0), ('vessel_nearest', 0, 7500, 0, 0), ('unidirectional', 0, 7500, 0, 0), ('distance_wait', 0, 7500, 0, 0), ('sf_spt', 0, 7500, 0, 0), ('fcfs_arrival', 0, 15000, 0, 0), ('spt', 0, 15000, 0, 0), ('nearest', 0, 15000, 0, 0), ('vessel_fcfs', 0, 15000, 0, 0), ('vessel_nearest', 0, 15000, 0, 0), ('unidirectional', 0, 15000, 0, 0), ('distance_wait', 0, 15000, 0, 0), ('sf_spt', 0, 15000, 0, 0), ('fcfs_arrival', 0, 3500, 1, 0), ('spt', 0, 3500, 1, 0), ('nearest', 0, 3500, 1, 0), ('vessel_fcfs', 0, 3500, 1, 0), ('vessel_nearest', 0, 3500, 1, 0), ('unidirectional', 0, 3500, 1, 0), ('distance_wait', 0, 3500, 1, 0), ('sf_spt', 0, 3500, 1, 0), ('fcfs_arrival', 0, 7500, 1, 0), ('spt', 0, 7500, 1, 0), ('nearest', 0, 7500, 1, 0), ('vessel_fcfs', 0, 7500, 1, 0), ('vessel_nearest', 0, 7500, 1, 0), ('unidirectional', 0, 7500, 1, 0), ('distance_wait', 0, 7500, 1, 0), ('sf_spt', 0, 7500, 1, 0), ('fcfs_arrival', 0, 15000, 1, 0), ('spt', 0, 15000, 1, 0), ('nearest', 0, 15000, 1, 0), ('vessel_fcfs', 0, 15000, 1, 0), ('vessel_nearest', 0, 15000, 1, 0), ('unidirectional', 0, 15000, 1, 0), ('distance_wait', 0, 15000, 1, 0), ('sf_spt', 0, 15000, 1, 0), ('fcfs_arrival', 0, 3500, 2, 0), ('spt', 0, 3500, 2, 0), ('nearest', 0, 3500, 2, 0), ('vessel_fcfs', 0, 3500, 2, 0), ('vessel_nearest', 0, 3500, 2, 0), ('unidirectional', 0, 3500, 2, 0), ('distance_wait', 0, 3500, 2, 0), ('sf_spt', 0, 3500, 2, 0), ('fcfs_arrival', 0, 7500, 2, 0), ('spt', 0, 7500, 2, 0), ('nearest', 0, 7500, 2, 0), ('vessel_fcfs', 0, 7500, 2, 0), ('vessel_nearest', 0, 7500, 2, 0), ('unidirectional', 0, 7500, 2, 0), ('distance_wait', 0, 7500, 2, 0), ('sf_spt', 0, 7500, 2, 0), ('fcfs_arrival', 0, 15000, 2, 0), ('spt', 0, 15000, 2, 0), ('nearest', 0, 15000, 2, 0), ('vessel_fcfs', 0, 15000, 2, 0), ('vessel_nearest', 0, 15000, 2, 0), ('unidirectional', 0, 15000, 2, 0), ('distance_wait', 0, 15000, 2, 0), ('sf_spt', 0, 15000, 2, 0), ('reachable-5', 9914701, 15000, 0, 1)]"
+                },
+                "rules": {
+                  "repr": "{'fcfs_arrival': 'FCFS_ARRIVAL', 'spt': 'SPT', 'nearest': 'NEAREST', 'vessel_fcfs': 'VESSEL_FCFS', 'vessel_nearest': 'VESSEL_NEAREST', 'unidirectional': 'UNIDIRECTIONAL', 'distance_wait': 'DISTANCE_WAIT', 'sf_spt': 'SF_SPT'}"
+                },
+                "final_checkpoint_iteration": {
+                  "repr": "5"
+                },
+                "claim_scope": {
+                  "repr": "'synthetic diagnostic; calibration unresolved'"
+                }
+              },
+              "prereg": "docs/research/v7-discharge/reachable-teacher-prereg.md"
+            },
+            "artifact_hashes": {
+              "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/retrain_reachable_teacher.py": "6e46b33dda6c79fd831b9115fe8ff58c750ad028eb2308105b1c112f7ee2b457",
+              "docs/research/v7-discharge/reachable-teacher-prereg.md": "e3102d6698079c9d942d85666a1b8215fe2e199fd86680254b776b7dcc9c8e7f",
+              "src/yard_rl/v7/candidate_probe.py": "48c174321d502703aaefea0df27ab8489dc278df99aac825cba62231058f9d40",
+              "src/yard_rl/v7/dispatch.py": "da5844892b774be91c63c548e39618dd9929ad4a939e4568455ac30e193c742b",
+              "src/yard_rl/v7/dispatch_cache.py": "4766296548843e9513dc246e779d9ae60994dd252c211ab6fae7b3d15d38ad2d",
+              "src/yard_rl/v7/evaluation_probe.py": "33ac85eacc8f02d8545585970cdb4b2863a34450debcf6398ebd8cb106b37737",
+              "src/yard_rl/v7/feature_probe.py": "47e34cebdc670db40f5bcd9138e641261baf4167f78137919eca51dbf929b669",
+              "src/yard_rl/v7/job_index.py": "01cc127fd45930b58dc5f3d9113f4a3b1639cd9968f694e8495d25379ffb455b",
+              "src/yard_rl/v7/__init__.py": "2b7df6903c0dc4d3d4ea1c28f3f8492b14b1a3584600938c0d008f8170532d9c",
+              "src/yard_rl/v7/__main__.py": "d22d91ff7b7ea0968d7bf04a000fe48609789a30fb67f06df854407703a33c5f",
+              "src/yard_rl/v7/actors/buyer.py": "49be9a1ce1a8da684a312bedce9dcd65ccf3dad9d686e928f148d33d93a08433",
+              "src/yard_rl/v7/actors/classical.py": "b45add02f877176b6dd1c7a7e61ec0e88e5b26e4b2e9ec5097e0cfa84fb0b86c",
+              "src/yard_rl/v7/actors/explore.py": "c4682eb59cfc273e83198e741566907a7661b6e2b0bf512178cde0e80925d6b9",
+              "src/yard_rl/v7/actors/market.py": "2ec0489d75f2193ac11f45897d44fd71b5b5ce27e6eed301189d70dd81676f3a",
+              "src/yard_rl/v7/actors/nets.py": "4f220e315e2b01fd0c118d014915290aa9c6f7cf247eaffadb20c9cb46549218",
+              "src/yard_rl/v7/actors/offer.py": "5a3ecbcc75947716734566cc162791c0e6cdd0dd9fb8bf733254d2525ee858ae",
+              "src/yard_rl/v7/actors/resolver.py": "d1ba1eaee5f60cae2f0eef7e76f44f79f9dc886eb755f81bcaf7637cf82cacff",
+              "src/yard_rl/v7/actors/seller.py": "8794fb06f6203b4e551aec22c20626d9676a076e58c9c39a0742f83662662ce4",
+              "src/yard_rl/v7/actors/__init__.py": "354975f9bd692cdc98341f683ef1cb1d15ad7d28ff66fbe765227e9518bcc366",
+              "src/yard_rl/v7/crane/action_contract.py": "a96c5eed1df40f8f210a3ce60f4ad7c1b5f4077d467640da9540d676047739f9",
+              "src/yard_rl/v7/crane/collect.py": "3029dad656d68e88719a1e7c1ac0bc9a618d255314405f2c2245132a3fefb191",
+              "src/yard_rl/v7/crane/features.py": "a3a9159786dc1da8c2c507997d68acd2779b9a3af9c4b538440016041851cbce",
+              "src/yard_rl/v7/crane/fit.py": "2e24afbbd91a41d3d87155080b96c3e775913e2393c12b95987614c4c389f25a",
+              "src/yard_rl/v7/crane/judge.py": "d2bc1463fe66eaabb7278f721947eefb445e90579a5126c9490bfd761902b19e",
+              "src/yard_rl/v7/crane/policy.py": "e54b45df348c711194ea7441b3234a0b0e53cfb546d1d20cc9e138214af36e26",
+              "src/yard_rl/v7/crane/rollout.py": "b1258baa8963b1cb7bec30aad01e85b6ea648522edd7b1ca745cfcb153065014",
+              "src/yard_rl/v7/crane/sampling.py": "02559bd6ff8511bc757be0db8d6b00719a0e60deeaa72a73d7887d6af4a6ecc9",
+              "src/yard_rl/v7/crane/teacher.py": "156e78c42ab5b3119d6451290100529fbc49f9abb233ad3b2bcbb2a183a6ff24",
+              "src/yard_rl/v7/crane/train.py": "25417e3ff777bffa47a1003799205178e3defdcca164d501d4ffb85ec924c217",
+              "src/yard_rl/v7/crane/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "src/yard_rl/v7/crane/__main__.py": "92865e4a0119ed0d7a612471dc0e433ad844ab6da2ea02faf17ad93258fdece6",
+              "src/yard_rl/v7/eval/guards.py": "f5307b473e55b36f11e0a13f6a84ab0ddbcd6fe939fff0ef82fd296bb40c0466",
+              "src/yard_rl/v7/eval/month_judge.py": "f5e5f1553114885fb92064b55746d63d63025d1b74c022657f0109aa6a940d0b",
+              "src/yard_rl/v7/eval/paired.py": "69759d1055a0a6179068c0c13a597e66e54bfd1062ca9357af6d7e6fa99b10ac",
+              "src/yard_rl/v7/eval/run.py": "04f6eb45ee770d42f5b14ec0247658a056da729ff390923c33f82ac25b695ead",
+              "src/yard_rl/v7/eval/__init__.py": "df00f9fd633d0074ae759e2ead6f49d3083896937402a18d732fa28a3f72afc1",
+              "src/yard_rl/v7/eval/__main__.py": "ca42c07b34e11bb2666405ef2da9e0523ba6af5d1ee365210082ad98cfef2e45",
+              "src/yard_rl/v7/features/block.py": "d37206ed96c8b04c2ad5bac3df77964ba086ce4207fa6ca8175066a0b9ac3033",
+              "src/yard_rl/v7/features/candidate.py": "bbbb3e7ff52391cc1890de88ed29ffbd83f4f738c940359e44d648c3b11e7e0a",
+              "src/yard_rl/v7/features/__init__.py": "953cb79c8a59f049627b4793aca415c95ba36c09e8e260c3ed46b9ecaa68a9bc",
+              "src/yard_rl/v7/gpu/admission.py": "61959282a1a7c0cef94e36b9654216fbde97c845a841633cea6bcede3937ca56",
+              "src/yard_rl/v7/gpu/cands3.py": "a6b248f2eff59d9bb48234bcd58ed457c40fb271f74eedfcafcd61a13cb22bbd",
+              "src/yard_rl/v7/gpu/dispatch.py": "c43a26bb3e8e55b657f2eef06fe3b4c85b4b6d5462f8a5f850b3ab3132888767",
+              "src/yard_rl/v7/gpu/engine_step.py": "bbc283b99f5d6c0ebb1f42cc3f2290c5ed9c78808d2d6546b367fa468550e24e",
+              "src/yard_rl/v7/gpu/escape.py": "30c76f474153fce7237e9a0046fa542a0a6f81d6b66dfe61b183c3ac1ae675a8",
+              "src/yard_rl/v7/gpu/events.py": "f6a4c79b249c928fb6396e767900fc2eace2d7f26d576decb196b6e433ca61b8",
+              "src/yard_rl/v7/gpu/exact.py": "5f18ca4f0b5f6091eb83ec04fdfee68b38a8b70ee36e0b2ac0774bc6a8d33bae",
+              "src/yard_rl/v7/gpu/geom.py": "55cd5a9cf5f1e0e2c4c40a14e8582b075daac561d32f01f55132ab22f3a6d318",
+              "src/yard_rl/v7/gpu/host_convert.py": "586cb4ea1a182e693ae2ac89bb7a5f57197adfb3a9eb554f8ba1a62077753c7c",
+              "src/yard_rl/v7/gpu/host_terminal.py": "7b822c5688870eb97d159f71ae3b95c4b94ad555af160353de21cf087362cccf",
+              "src/yard_rl/v7/gpu/ledger.py": "7b8b732421987b6ae58f4355cbad8fa7af3a71ea7ddc4ee9efbbee5aae291aa2",
+              "src/yard_rl/v7/gpu/month.py": "5c0397203d2a81dbb71afe36022950ab4236ab7ccc5107223e862e5a711b1c1c",
+              "src/yard_rl/v7/gpu/multiblock.py": "25bcdca1ebbb5bd5f7c209986dbb0e38c0422c8cd7b4b2ee588d1960a02b97be",
+              "src/yard_rl/v7/gpu/phi.py": "134601c2a4ba7e17e70f1646ae4b250754f972068fe507c5d4173d3066a9184e",
+              "src/yard_rl/v7/gpu/plan.py": "aaec531d68875ae1480da4d4255af7adbb6ed57bb7783f2723cebe0f8dd982ec",
+              "src/yard_rl/v7/gpu/policy.py": "3dd7040be0f73aa9ec8bcc32d4b8df955df389d544977ae96ac0fc4b39b0f76e",
+              "src/yard_rl/v7/gpu/ppo_buffer.py": "25dd76824d1514a0f56341f3ddfffc0819b84909fd920bbb2203abd594d9e805",
+              "src/yard_rl/v7/gpu/ppo_runtime.py": "45cca3392d7dfd0a934ed0e5fb42f2d77877a15037a49ab88c12ea4328efb8a7",
+              "src/yard_rl/v7/gpu/ppo_update.py": "27987527396a56af1ba4e0d1d40b663fc2f64361a95e52ddf221ef84d75952c8",
+              "src/yard_rl/v7/gpu/reserve.py": "55c9d26aff5cddb749faf387301ca36503098a240d2532c549f62d5ec23f12e7",
+              "src/yard_rl/v7/gpu/stack_ops.py": "9ccb8105065bcaa097ea7622e415b464b8e39b63b3239dc5cf7c992acdbafffd",
+              "src/yard_rl/v7/gpu/state.py": "f495b75092dd084da6b58f4f4dc9c2cb3c9a18ec21f65580cdb64d91cc175dff",
+              "src/yard_rl/v7/gpu/train.py": "6e0ce62cbe490169937f664b9835fe08e9d4edd7978a6bcb9cd762b9cb5b7a6f",
+              "src/yard_rl/v7/gpu/transfer_txn.py": "f4d633116e50b7cf5ae7572e810f40d18d4e304b72ff67ea18c6108695c1e2e4",
+              "src/yard_rl/v7/gpu/travel.py": "fcbf0f20373a709524d6e0e3cd011e50b83efcda1345447a775327a90d0f63e3",
+              "src/yard_rl/v7/gpu/v5cond.py": "9bea9afa58105684cd09945e281e1c11a32995ded764610d00a2da434dcd7f7e",
+              "src/yard_rl/v7/gpu/v5feat.py": "615f85b9c7675d1b2f739acee84feb1bf965ded7c60f6509ef9d9b10278bc3f7",
+              "src/yard_rl/v7/gpu/v5net.py": "cb75744279174c191cdc900b03fb4971f91b0b7fdd1643a609e558c4f8405b86",
+              "src/yard_rl/v7/gpu/vessel.py": "290ab6ba8e56207663d1b8b7aa7b95648872379943cf026cef367b0597673f22",
+              "src/yard_rl/v7/gpu/wake.py": "d075cc6d30966ac74e1ef5a21752c985a0810a3bb5be97b2382570eb65e909e5",
+              "src/yard_rl/v7/gpu/__init__.py": "125d6dac7e5d62d5c7fe86eebfd6c8f45142e8087da1b08815fc7747967afc90",
+              "src/yard_rl/v7/ppo/buffer.py": "a41747511d545e24f297bfe7b5ade175085b2cf3dd65b60d499d0174a6400f52",
+              "src/yard_rl/v7/ppo/checkpoint.py": "2b8dff79b5ca9791cd008a79f01a22ce363b9ae34effab61904e7460939a5710",
+              "src/yard_rl/v7/ppo/continuous.py": "47fb7033f4526f45bba0c4ef1689891958780d780d55ead87174f07435f1f965",
+              "src/yard_rl/v7/ppo/crane.py": "c9f799ca7dc975c93a9426fe9a017f82ed865d5b75d685a9f9e9b71ac7ce3a3b",
+              "src/yard_rl/v7/ppo/journal.py": "d3c036866ce4eec7e271a221cf53c8070e20d8c139de4fbff9b7a5faa7b91658",
+              "src/yard_rl/v7/ppo/model.py": "2722dddfaa9b6f5ad3dda6436744722003162856b94c07129ee277f9f54e7a03",
+              "src/yard_rl/v7/ppo/original_comparison.py": "ce7b620ad7e877d46e6f46c20477d500469554b2fb1db4d5c7bdc0b4e64b9f3c",
+              "src/yard_rl/v7/ppo/provenance.py": "e11b6f27f275c04cc65021362f3a69cb5a91866981b0071a1476b5ea4a0eb3f1",
+              "src/yard_rl/v7/ppo/run.py": "5ae6ff0982c7d15cb648f4a9ded786e56fa358c024921146ffe49fcfb73cad76",
+              "src/yard_rl/v7/ppo/runtime.py": "856383ff1b57b4b02ea03c3e532660befa3a60934faa0dc2f9273addcb4b3b2b",
+              "src/yard_rl/v7/ppo/update.py": "adeb30b7cd2aafdfa62f7838ebd0a25775d930a6388df80130220060e3e0c591",
+              "src/yard_rl/v7/ppo/workload_experiment.py": "44440ca4b6a7d04beb50e983408d782615e89bea57df390890bf543be7ea037b",
+              "src/yard_rl/v7/ppo/workload_observer.py": "8858d438d2388815aa7d27d2273f19132c5c9794d76d3b0614020a7ea5cc9311",
+              "src/yard_rl/v7/ppo/__init__.py": "60733fe5f23e06d7ca41a299df2650ead61348eb2fb08b69eca4096e2620dc06",
+              "src/yard_rl/v7/ppo/__main__.py": "e6a5b8a9b0f5bc30f863a0f88db0d1acf6a56ac41415d9dfd346748a63a015be",
+              "src/yard_rl/v7/reward/counterfactual.py": "ad17c9a679b71fc28bf444ea5224ced0047ff442d97bdb2ae72c1ceaaa227fe7",
+              "src/yard_rl/v7/reward/krw.py": "bc3902dc5042a675aa8862ad1863d7d02e081f920cb48d58f2e4d7e590810a84",
+              "src/yard_rl/v7/reward/operational.py": "ca1e779914bbdf2bd913da1f78cff35bd878a968c5685ea05e997db67d864b1f",
+              "src/yard_rl/v7/reward/phi.py": "1dde767db6889fa98eba325fac01a708ee7bc2d5078d96ebfcae8d0c048c1fbe",
+              "src/yard_rl/v7/reward/scaling.py": "6516fc783431fa6307663450d9df79a74a18b9d6682699c9c215f79d2383ec28",
+              "src/yard_rl/v7/reward/workload.py": "6b33c5a2be7d863f5001e37418a765cdec5c7ecb8e68a2136955d6bd1781c456",
+              "src/yard_rl/v7/reward/__init__.py": "2c81e340ccb5c106778cb7e71a1821d2267ec7e28abe7405ce27901c6a2d6a0c",
+              "src/yard_rl/v7/schema/lifecycle.py": "ca01c1d72b353c79c85ff97c4012d3a1554bbf5f7da9e70e45b563a174e6029c",
+              "src/yard_rl/v7/schema/order.py": "cf3b9beddb6509d2f5b98b216b6cbbdb28082cbdb817ff61f199263a752c0c73",
+              "src/yard_rl/v7/schema/record.py": "de89e7879162ca082b1836427e0ecb98311629669bfb3f1cae1cd3b74a09d25a",
+              "src/yard_rl/v7/schema/__init__.py": "9b1ad22196d9b735c6b4e7cfc21b47c9f8f236b8c1047cca14bdebc1681a5ee4",
+              "src/yard_rl/v7/stage/admission.py": "ea8955fce57704c43c91c4351adcc18c06ce3f930cb83fefb21a3adcc35c877b",
+              "src/yard_rl/v7/stage/branchpool.py": "a1437d25b7bf2d8a647dc01d64af1e67ad683d854fccff76a92b9049a7860e03",
+              "src/yard_rl/v7/stage/bridge.py": "62cca64e617f0b6488eecca2660141cca834b891b7ad89e44ffd5c81f91a9792",
+              "src/yard_rl/v7/stage/cargo_input.py": "b43800715990c3d6e4681d9d11d67576928f60326b5650a000fab2a1e4e8439d",
+              "src/yard_rl/v7/stage/cargo_moves.py": "0d6946cd718b39ac86c6bb5e61e98016eaef60f21c55c1fe6fbf6462051eaf30",
+              "src/yard_rl/v7/stage/cargo_runtime.py": "3d0342420a85d864f7f0847c9b7cd0ee18db4557343461ebbdfb22eaca88b880",
+              "src/yard_rl/v7/stage/container_contract.py": "8ca991b64351328b4035d65f2398798db5dae2c2b2b91514487c181dc3ab8d23",
+              "src/yard_rl/v7/stage/dgt_lead.py": "29903762c63c04377053622921915912dc5cc3043b3c3d7e642e9a6798a9f16e",
+              "src/yard_rl/v7/stage/episode.py": "a4ac4af0f4e61221868cd0d5a4276d0a2fa78db31a198145ac2529984a06f269",
+              "src/yard_rl/v7/stage/exec_config.py": "cf4bc408ef10a352cf2bf513cdbe09f70e558ee8c48ba51e224d03feefa2251b",
+              "src/yard_rl/v7/stage/fixed_seed.py": "73aa1f9db0b6d026340d789a3cd501f2d9eff87f9ffc6854f5516241c23168b5",
+              "src/yard_rl/v7/stage/month.py": "e51c4a96d152e3b1874f24cba3f865077525c03ded5a40e397dfd523d30f2897",
+              "src/yard_rl/v7/stage/month_engine.py": "877dacafbcfe4b74e79862b8f64b62344dca3daf6133789706f118d7ccc40e50",
+              "src/yard_rl/v7/stage/month_run.py": "267fb5d8fa9efc57d6f0968cb6a02cbc32b8595b11c73f3ebfb718766fbec5ab",
+              "src/yard_rl/v7/stage/orders.py": "ee5f766f73ea83dbfd0a2d99838e5770dda2ded8f5f3329128ed7577e51d65e8",
+              "src/yard_rl/v7/stage/rollout.py": "ba0b863cfae874d9e08ca8d1b8f8ebab553562d7d263289bb2d618cb62362103",
+              "src/yard_rl/v7/stage/seed_bundle.py": "47f55a19ecd92cf02c6fe7a46b52288dc4f3871bd248cd5fcbd699365448a449",
+              "src/yard_rl/v7/stage/seed_inventory.py": "4c92d6e37545db879772e8fcd48f42c45c9534c872d2252b5bdfea8203e1be6a",
+              "src/yard_rl/v7/stage/vessels.py": "3d22f71d8ddfdf0d0773f3eba14d3c9100c4a61a52f756b62c20912e72050f89",
+              "src/yard_rl/v7/stage/__init__.py": "6513ae3e85d08efe96a2212d60669954b56b1bd169c787f5c9cedf2c03283e80",
+              "src/yard_rl/v7/train/fit.py": "0e09d1ee3ff77534aa8b87d491972ea2e8e8f74222cb4b4b4302283ebf8effa2",
+              "src/yard_rl/v7/train/labels.py": "f79b7d82ef69c0d3eb78fd90b08c8ce4ecd6d1e07c2e3f48b2c4bf44fd5bd5bb",
+              "src/yard_rl/v7/train/loop.py": "2369ebdc5d09f378332f0e8171bc1adca5f7532e2fe1912c30f5aa36ef3d4021",
+              "src/yard_rl/v7/train/month_loop.py": "9b5c6b91ac2530fc2025fdd048167d8dd13733381dcad419cfe91e214b7ca2bc",
+              "src/yard_rl/v7/train/__init__.py": "ece0ae375981993106f995f71702391900a8b1e90f5ece292bf0a5d65930cb31",
+              "src/yard_rl/v7/train/__main__.py": "8b8d80b6ffadae3d9da0586e6dcee35065f4eff46b7d66f5bf471e72abdd6137",
+              "src/yard_rl/v7/world/__init__.py": "9176b66e1f301cb59c2a00e06ba5c9d1e452eaf6b90ee61031e11c1a8a8e154b",
+              "src/yard_rl/v7/world/contract/candidate.py": "181e5704d20ad86aa712399943bbbe46e33df18b946fe42c0855b3fce2a1d7c4",
+              "src/yard_rl/v7/world/contract/cost.py": "c9fde1916f850d260bd042f827d14f5bc53d8ed4e1852be4c26a367493cf9657",
+              "src/yard_rl/v7/world/contract/fixtures.py": "365dd62062e0aca0a771552602ac1188741054b2a7ab58a8ddfeeaf858f20383",
+              "src/yard_rl/v7/world/contract/leakage.py": "2e5d3ee288f321f4fa5e58a5de41e3c6ccdfbb6a9c12b56fc9665696d1c35d06",
+              "src/yard_rl/v7/world/contract/schema.py": "11d4c7321dfcb7e2f36c9b95e1a2f034e80ac443c8d203c449f934e66bcfc040",
+              "src/yard_rl/v7/world/contract/serialize.py": "f23300125b9329a5d46e80dc83eca88d69a4b38cdbf0863a23bee08d6a0ada57",
+              "src/yard_rl/v7/world/contract/state.py": "76d73f3bfb1d0b0b726752bcfe862780355bbb11b57c7af9e590cb8d047404cc",
+              "src/yard_rl/v7/world/contract/transition.py": "29335e817e37022ad6e02797c3f79bbdd8796a828311ec26a784c55362bb5c79",
+              "src/yard_rl/v7/world/contract/validate.py": "9314e47e5fe4a8b10da9eecc8738571a695cfdc0f86824b31b0cea1384a6f2d1",
+              "src/yard_rl/v7/world/contract/vectors.py": "6be9e7c170a5fb4df496de663cb21fc3943146d48eeac5bf3d829d0f419dbd53",
+              "src/yard_rl/v7/world/contract/vessel.py": "a5ee1690510380aab50ea1b63188001013c7ddc9e8fe1cb2be4c2453e3989c29",
+              "src/yard_rl/v7/world/contract/__init__.py": "67b8b7eeb85706f06b16bc9b5f508aad771826560761d8fab75963c1e481fdab",
+              "src/yard_rl/v7/world/domain/enums.py": "593e2d89636895487bc30af7f530cc511fab6c931c01ac226cb5735bbb6ce1f3",
+              "src/yard_rl/v7/world/domain/models.py": "9771a56a08651d6d84375d08645555ee3a09bab60bd9bf89f90488360baaffa5",
+              "src/yard_rl/v7/world/domain/validators.py": "4f1f60ce31c19b3a69bbcbd5690bc1b493865835fd4ac13f787a5b0720fa2876",
+              "src/yard_rl/v7/world/domain/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "src/yard_rl/v7/world/integrated/adapter.py": "b0c275225099748887f892fc30d78dccd540bb9f9de9bf072eafc23dd6f4b98c",
+              "src/yard_rl/v7/world/integrated/audit.py": "d4935ae2838db7e908cf78ce182753f94b5a8c0dc97350b498d20a198d8d16b2",
+              "src/yard_rl/v7/world/integrated/baselines.py": "3489c433249f4f07e5c1e9eaea85286e6380b5b9906de83505d6efb9640375ea",
+              "src/yard_rl/v7/world/integrated/block_congestion.py": "9896f9e353d952b72faefb05db53c1efdcf46ac88f9171d245a8a0624bff3376",
+              "src/yard_rl/v7/world/integrated/candidates.py": "7b5eaba8b9bf3db309ba7fca3e3fc46e329145692651fcb0110a882c797d2839",
+              "src/yard_rl/v7/world/integrated/cost.py": "45e85170cc8b3e183966014f57fd68f2d9c882bfb1bcd062036e9e8b9f163762",
+              "src/yard_rl/v7/world/integrated/cost_config.py": "2853e7bb0e35d422b208b1244faa587979bf63e522885f84f4217e7d7565b2f9",
+              "src/yard_rl/v7/world/integrated/cost_curve.py": "d5c6e7588e6feb095913d06186973c55a33f6fddfe03117651f882ac3f27aa80",
+              "src/yard_rl/v7/world/integrated/cost_curve_v2.py": "99366a2ee4bd6cc55871abb77a979dd68711f3dfcf1817bad8cc8141bb598fcf",
+              "src/yard_rl/v7/world/integrated/cranes.py": "410003259debdfdc475432e94eb5c59fa41aa0c1a94256afac2fec85edae93da",
+              "src/yard_rl/v7/world/integrated/day_plan.py": "32e285d3aa5a22dd0e106f90b7d4d1ca3fdcd6aa492fe564bb007ae80a6dbfbe",
+              "src/yard_rl/v7/world/integrated/dispatcher.py": "75d1576095761a591579c48142416db5bd7e917e6b695af501d3a26e7a5ab344",
+              "src/yard_rl/v7/world/integrated/engine.py": "e606710f37b49ed1b1cc69bd11a241808183b6f02e2e4447774d6257baa4eca4",
+              "src/yard_rl/v7/world/integrated/events.py": "f3cc678e67a91eecb82ef3d89f97d390103a8a3d686650470dfcc86462f9d66a",
+              "src/yard_rl/v7/world/integrated/fixtures.py": "cb2cc6dafc9bd892a0852ee2da060c24171beb6cfbd0d1cfd74a79112f3fa835",
+              "src/yard_rl/v7/world/integrated/jobplan.py": "58a9093c7cb76b429ef80caff030c679aa13b885da1d824a80b99bdc63b49633",
+              "src/yard_rl/v7/world/integrated/lane.py": "21df88b7e07fec882bf89da875ebb91537d6430d336be82f30ea2add428ecf9d",
+              "src/yard_rl/v7/world/integrated/ledger.py": "9e2b17fc0695719998e8dd2c92ca32f1eeb53148a9a662bcf26bbd1e7e7332e5",
+              "src/yard_rl/v7/world/integrated/multiblock.py": "42a99c81283224ee5a306555efab9e0a5f08dcfc9e13d7925fc81b4b2eb3acba",
+              "src/yard_rl/v7/world/integrated/order_schema.py": "74d6c68fe43ecdb36e1745967d1b209d723049f6d45d0bb9fec4f3e293f6d97d",
+              "src/yard_rl/v7/world/integrated/policy_config.py": "0cdc3419b5b60c37745414e6a89d8b1e6717af3e1d9f0a4725b5deb3cac8a24a",
+              "src/yard_rl/v7/world/integrated/profile.py": "df4b28f200b550f844b1478c540f59b186cb61c29d4420f6d3bfd319bd61ec40",
+              "src/yard_rl/v7/world/integrated/profiles.py": "0f230c8573cae8d10903e3fc8ed2f0de8fa0a303db5d28f431854e6dbad7eae8",
+              "src/yard_rl/v7/world/integrated/reservation.py": "bcd8e250fcd94d8ea68f8c57afd9e2f51b72a2559b287b8aace4b3730f2bb49c",
+              "src/yard_rl/v7/world/integrated/resolver.py": "13d1331a3b1e1fc63d1625590a39d17d94845d370111629e5b61196865d128b3",
+              "src/yard_rl/v7/world/integrated/scenario.py": "a1c12cb1adba803aac2ad473642753215d80b3f7f07e9e0bf568f00a62937fb8",
+              "src/yard_rl/v7/world/integrated/scenario_gen.py": "fe525d701a3eeddec43744e71b7043cd7911ec817c252294caacc216ce190119",
+              "src/yard_rl/v7/world/integrated/slot_plan.py": "ae2620da4ff7f1c2dff4a7ca075341ce2a04a55a0db725e6e077e8ad72382400",
+              "src/yard_rl/v7/world/integrated/terminal_stream.py": "0d4538aa0856434104d177a5c2d627656eaf97741d00c269658bfbe12a5f037b",
+              "src/yard_rl/v7/world/integrated/time_contract.py": "0c77107f08df4a947c9728037ec8871a89a53cee6548c5ac94d1102ff33cad02",
+              "src/yard_rl/v7/world/integrated/time_grid.py": "95bb730fcf2155e077a7bb7fca1fc8a9f82742be4f4b1c254c82afbd4e535503",
+              "src/yard_rl/v7/world/integrated/time_sell.py": "007607067dccaab1b7eecce941eadcaad26f8c998a2e32f8c14e1319ed78d4d3",
+              "src/yard_rl/v7/world/integrated/transfer.py": "067028e28d3b695248d3fa8bcfdc15a40c4b8b3111f4a0a107d64479db1e6f93",
+              "src/yard_rl/v7/world/integrated/vessel.py": "eaf8b2309c2d564a702fac24cdbb4764e16cc4d519f6a970653dd27722e70b2e",
+              "src/yard_rl/v7/world/integrated/vessel_cost.py": "a7e1e77f2d9d667d748ae90fbe436f740e3730b61633797abb6ba3ef58826da4",
+              "src/yard_rl/v7/world/integrated/vessel_signals.py": "43f243d80ef6625544e42334822194d79ea90711f407eb0ea0fd59fddb8614c5",
+              "src/yard_rl/v7/world/integrated/yard_layout.py": "ee423aadc7b68449fb89409dbcfebf38e153044df94d78cc2e4753d4c1b6ad4a",
+              "src/yard_rl/v7/world/integrated/__init__.py": "83cb132a58d8bbef6036c74d0fca740b529d8dec401b7c5878ee63f0c57fcc3a",
+              "src/yard_rl/v7/world/io/profile_loader.py": "c89dd4b082cea5b101d4f3fb279358b40e34e26a3b272384703afdc77a34a34d",
+              "src/yard_rl/v7/world/io/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "src/yard_rl/v7/world/sim/constraints.py": "122587955fcd486d20ff4c60451391572036c6c2f206417de549a6e95a11bde0",
+              "src/yard_rl/v7/world/sim/kpis.py": "8df58f01d9fd4a08d44f1ceac3c37c246e34ac735e64359ef689e4e2eafdfdbf",
+              "src/yard_rl/v7/world/sim/stack.py": "26cd9efcebc0ea4347f049467e0b1709aab60021c16a886ee8cebe170b17fc58",
+              "src/yard_rl/v7/world/sim/travel_time.py": "d0f2fcda862687d5be0492a4703d7b85a9a2724cc1d4781b95eae5599fb58a76",
+              "src/yard_rl/v7/world/sim/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "scripts/v7/six_step_learning.py": "bc10fcd69247e047d9af7e1cede28924ed00a87264ff0b44d7341cae2424e149",
+              "scripts/v7/audit_admission_ledger.py": "310094f6112725217ac227af2094053115e08396971dce5de340c248e9bf67d0",
+              "scripts/v7/evaluate_classical_rules.py": "c7ba28e389c796a8d42bfcd0d46bb2e41744579ee81cc5730cafee31cdf2bf14",
+              "scripts/v7/evaluate_arrival_order.py": "df0789159c6a52aa3b3386a6776dea70bd9061436cc491f7b53e9f0b937903fb",
+              "scripts/v7/benchmark_default_eval.py": "c4369e4d81e6f16c555c2255b0bec3eda576277ad618d54ed021e34d06f21a2a",
+              "src/yard_rl/integrated/repro.py": "3a26fd0647737927fe6ceccc9eb02d111f333b2be756c4d52669cb6b985058c6",
+              "outputs/reports/yr332_reachable_teacher/model-9914701/labels-legacy_force-0.json.gz": "ea04ac163200a9cae9fae84e4bc7293109c2f33e1a4e0fbe2539a4409a45058e",
+              "outputs/reports/yr332_reachable_teacher/model-9914701/labels-legacy_force-1.json.gz": "29b692b42ecfab171f92034c0995245b20509257d78630b5c9e135f5df4ab3f8",
+              "outputs/reports/yr332_reachable_teacher/model-9914701/labels-reachable-0.json.gz": "f2bd82bc73e3087b271137752eae40e840ecec039b67dbafa13ac0efa6f1e626",
+              "outputs/reports/yr332_reachable_teacher/model-9914701/labels-reachable-1.json.gz": "b997e7c8a0da0677d3db3ba7964cffaac8b119875ce478d6fbfbd26aa19b1497",
+              "outputs/reports/yr332_reachable_teacher/model-9914703/labels-legacy_force-0.json.gz": "30436f3d5e35b48f028f465ce73eee73162ff803d2b7bc2b08904a483283a3c1",
+              "outputs/reports/yr332_reachable_teacher/model-9914703/labels-legacy_force-1.json.gz": "dd1b8e2723e80183af0225bff9af988a0e565b037329efecce440d25d4898fbc",
+              "outputs/reports/yr332_reachable_teacher/model-9914703/labels-reachable-0.json.gz": "5e264c355472020da6ad14469b2409eb153a622b3e97da4ab8ce0caebd41e78c",
+              "outputs/reports/yr332_reachable_teacher/model-9914703/labels-reachable-1.json.gz": "c953ba61673ec45b9cc355433d67fc43dd5988f931b687a25d854dd69f88699c",
+              "outputs\\reports\\yr332_reachable_teacher\\horizon-diagnostic.json": "94fbf567fdd59ef147ffc2da75e915ea812d515770acc1d12a6866e2d93a538d",
+              "outputs\\reports\\yr332_reachable_teacher\\regression.xml": "b490b952ea8c861f43a536ab3b8c22dc78c151edf3d7ccf12ea5c7b9cebbcedb"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-ab",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-332-ab-reachable-teacher-alternatives.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_reachable_teacher\\horizon-diagnostic.json",
+              "outputs\\reports\\yr332_reachable_teacher\\campaign.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-ab-reachable-teacher-alternatives.md"
+            ],
+            "evidence_commits": [
+              "c620eaec"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "c620eaec",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "out_of_world_comparisons": 4
+            },
+            "raw_values": {
+              "out_of_world_comparisons": 4
+            },
+            "absolute_differences": {
+              "out_of_world_comparisons": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "교사 비용 종료가 실제 환경 종료를 넘음",
+      "reasons": [
+        "YR-332-ac finite-world cost horizon mismatch",
+        "YR-332-i transport calibration",
+        "YR-332-f appointment realism"
+      ],
+      "evidence": {}
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
