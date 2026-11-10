@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "evaluation_runs": 10,
+  "generation_conditions": 27,
+  "unique_physical_orders": 78000,
+  "comparisons": [
+    {
+      "load": 3500,
+      "admitted": 3500,
+      "mean_turn_min_before": 22.200075612315256,
+      "mean_turn_min_after": 22.307959488689097,
+      "relative_change_pct": 0.48596175192299196,
+      "cost_before": 118113108.79913694,
+      "cost_after": 119003270.6289312,
+      "censored_before": 19,
+      "censored_after": 20
+    },
+    {
+      "load": 7500,
+      "admitted": 7500,
+      "mean_turn_min_before": 45.85005068764087,
+      "mean_turn_min_after": 45.70391217131909,
+      "relative_change_pct": -0.3187314171523403,
+      "cost_before": 404201472.2080184,
+      "cost_after": 399166528.1892651,
+      "censored_before": 56,
+      "censored_after": 90
+    },
+    {
+      "load": 15000,
+      "admitted": 15000,
+      "mean_turn_min_before": 153.8325468933554,
+      "mean_turn_min_after": 153.83235360195096,
+      "relative_change_pct": -0.00012565052609492255,
+      "cost_before": 2774725475.622527,
+      "cost_after": 2774880486.47472,
+      "censored_before": 2374,
+      "censored_after": 2318
+    }
+  ],
+  "source_check": {
+    "passed": true,
+    "commit_file_pairs": 373,
+    "windows_crlf_matches": 0,
+    "commits": [
+      "3efb94bfde8d1ac379fc01a7636647132b43700e",
+      "abce89a5d7dbe9090710a6ed1395c5d3128ef73e"
+    ]
+  },
+  "tests": {
+    "unique_passed": 218,
+    "earlier_nonpassing": [
+      {
+        "test": "tests.v7.test_month_stage::test_eligibility_index_matches_the_old_full_scan",
+        "status": "failed",
+        "file": "tests-stage.xml"
+      }
+    ],
+    "excluded": "v5 generate_fixed_seed CLI integration requires os.sched_getaffinity; unavailable on Windows. Direct v7 fixed-seed serialization is covered.",
+    "files": {
+      "tests-contract.xml": "3b007f0db99251224241e18d0f3bf02d60a5764eb7d1b20e32036271d6b4b2f4",
+      "tests-stage.xml": "11c275280efb883fa28b3c6023876c657ef9d5d35ed2960796a22079a8ccb076",
+      "tests-compatibility.xml": "dd3845b7a2957e6a8ac1ec5eb82cf6606d47686c3866e509d999e642cdf0cc73",
+      "tests-array-legacy.xml": "6492e06c7bae94085ba743ce3e0bd4c561fc88001810930ef55afcc8dd6a6d88"
+    }
+  },
+  "inputs": {
+    "outputs/reports/yr332_reservation_contract/generation.json": "f542f0e2ace322ca91e77b24114e5852536a445ff579dcdb9727713f1a60ca72",
+    "outputs/reports/yr332_reservation_contract/evaluation/baseline-3500-sigma0.json.gz": "a80569f89413a02e95a6f4e777242c8ddac198a7c858962acbf2131a881a03cf",
+    "outputs/reports/yr332_reservation_contract/orders/baseline-3500-sigma0.json.gz": "8af1840bf8bf634fb63d110913d4718984495cd82fd96a49b70c7450a3f58c02",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-3500-sigma0.json.gz": "bc7a50d006b34a401e9e8676a2a1d6c2b32b45c4ff0e1544bb0c4b409cc323fa",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-3500-sigma0.json.gz": "ca184583956dedb700c4dd468b02b54aea0a985d545fb7b547437b2685892bb9",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-3500-sigma600.json.gz": "2fff43cc745b3988e03818639154171256c78abd1d0a08b3f1cd63410ced9fb1",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-3500-sigma600.json.gz": "2d96f1ca094f54b70749648e7d4588260711153ba2698064c21fa59f7ae0a33b",
+    "outputs/reports/yr332_reservation_contract/evaluation/baseline-7500-sigma0.json.gz": "67b65dfeef749b592271e2a27a3ff810e9fb2129886aa4646f98992719edbdbf",
+    "outputs/reports/yr332_reservation_contract/orders/baseline-7500-sigma0.json.gz": "4e07d6644458550e4cb93a96efee093c64a0c4be775c5bde0b35df7f61c52977",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma0.json.gz": "ab73f4ae624d335605ebeba2a3be94c9383b2e5357fa73e89b7c7ba1c72cd138",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma0.json.gz": "f2cd0cbd8b9af0860952fb2d6112fce0b7c30faef79f8116804b20af37d61a7d",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma600.json.gz": "d7a871dfbb1d02ed23a542d66f3a9cf3d1e83f8d3e27d6f55edb16c08546c48f",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma600.json.gz": "b546f509f94e75e28435360fa8467636610bb676d7741120ac59199f9e5915b5",
+    "outputs/reports/yr332_reservation_contract/evaluation/baseline-15000-sigma0.json.gz": "e56082789fc6d0e4492a8144f2ea812280ffe4e5732411487d4c992330e0c1bd",
+    "outputs/reports/yr332_reservation_contract/orders/baseline-15000-sigma0.json.gz": "51911f17f4d795e194deccd46fd478d832df11a4a9ba74906db8b765ae354a38",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-15000-sigma0.json.gz": "247a3c552c6620005b6032f53cb5b6a75ca578dfbd720ab0c4ce724b0613f6d2",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-15000-sigma0.json.gz": "112a91f2082a39c05210b8b6b15fc2c733e6ce54084217e94ecde385780797b1",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-15000-sigma600.json.gz": "3eef040e8e29a4284f47f2743890fb8c0a3ed0934f614f7ec2f80da576399fc7",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-15000-sigma600.json.gz": "d010ac69a5c4ffb749e6dd13ea5b36fcbed5b9a48ac6f98db1d8ac036bca1ef9",
+    "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma600-repeat.json.gz": "d0dae32d54ca377eb58e1960cb6e8d2033b4645045af331123f72a564f77e59f",
+    "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma600-repeat.json.gz": "1f975ef57cd866582a4792073db5ad1ad7ff1d276ea92c9e28ab4d64589d00e9"
+  },
+  "training": false,
+  "conclusion": "Synthetic reservation contract verified; empirical calibration and policy benefit unproven."
+}

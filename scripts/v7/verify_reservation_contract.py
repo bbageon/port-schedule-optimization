@@ -4,6 +4,7 @@ import copy
 from dataclasses import asdict
 import hashlib
 import io
+import inspect
 import math
 from pathlib import Path
 import statistics
@@ -64,6 +65,13 @@ def filename(mode, load, sigma=0, repeat=False):
 def evaluate(mode, load, sigma, repeat):
     import torch
     import yard_rl.v7.stage.episode as episode
+    if mode == 'baseline' and 'appointment_sigma_s' in inspect.signature(episode.run_episode).parameters:
+        raise RuntimeError('Baseline must run at the pre-change commit abce89a5; '
+                           'current defaults describe the new reservation contract')
+    name = filename(mode, load, sigma, repeat)
+    for target in (OUT / 'evaluation' / name, OUT / 'orders' / name):
+        if target.exists():
+            raise FileExistsError(f'Preserve existing evidence: {target}')
     torch.set_num_threads(1)
     config = dict(mode=mode, load=load, seed=SEEDS[0], appointment_sigma_s=sigma,
                   dispatcher='SF_SPT', candidate_cap=None, training=False,
@@ -99,7 +107,6 @@ def evaluate(mode, load, sigma, repeat):
         assert evidence['orders_sha256'] == first['orders_sha256']
         assert all(probe.result[k] == first['probe'][k] for k in HASHES)
         evidence['exact_repeat'] = True
-    name = filename(mode, load, sigma, repeat)
     gz_save(OUT / 'evaluation' / name, evidence)
     gz_save(OUT / 'orders' / name, probe.rows)
     print(f'{name}: admitted={result.admitted}, mean_turn_s='
@@ -109,6 +116,8 @@ def evaluate(mode, load, sigma, repeat):
 def generate():
     from yard_rl.v7.stage.orders import build_stage, orders_from_schedule
     from yard_rl.v7.world.integrated.profiles import build_h21_profile
+    if (OUT / 'generation.json').exists():
+        raise FileExistsError('Preserve existing generation evidence; use a separate checkout')
     config = dict(loads=LOADS, seeds=SEEDS, sigmas_s=(0, 600, 1800),
                   actual_arrival_curve_preserved=True, all_orders_reserved=True)
     evidence, results = stamp(config), []
