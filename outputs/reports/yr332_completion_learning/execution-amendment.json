@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-10",
+  "kind": "execution resources only",
+  "original_evaluation_workers": 4,
+  "maximum_evaluation_workers": 12,
+  "existing_pool": {"range": [0, 62], "workers": 4},
+  "additional_pool": {"range": [63, 118], "workers": 8},
+  "hardware": {"logical_cpus": 24, "memory_gib_approx": 128, "free_memory_gib_approx": 64},
+  "reason": "Per-process CPU sampling found approximately eight active CPU cores; independent evaluations can use remaining capacity.",
+  "unchanged": ["all 119 preregistered cases", "all seeds", "all training budgets", "teacher workers", "torch threads=1", "models and objective", "input calibration", "evaluation executable and source hashes"],
+  "waiting_rule": "Trained-model cases wait until all six updates are saved; no checkpoint selection.",
+  "measurement_limit": "Wall-clock timings under varying concurrent load are diagnostics, not a controlled speed comparison.",
+  "verification": "The preregistered two exact repeats and independent ledger/model reconciliation are retained."
+}
