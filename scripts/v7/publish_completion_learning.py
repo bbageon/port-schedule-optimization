@@ -1,0 +1,117 @@
+"""Render frozen results and audit their published evidence, without rerunning learning."""
+import argparse
+from pathlib import Path
+import json
+import subprocess
+
+from benchmark_default_eval import save
+from six_step_learning import sha
+from completion_learning import OUT, PREREG, LOADS, RULES
+
+
+def read(name):
+    return json.loads((OUT/name).read_text(encoding='utf-8'))
+
+
+def report():
+    s=read('summary.json');v=read('verification.json')
+    a=s['by_arm'];p=s['reduction_percent_vs'];perf=s['performance']
+    lines=['# 작업 완료 기준 재학습·고전 규칙 비교','',
+        '## 진행사항','',
+        f"새 목적함수와 실측 예약 정보로 모델 3개를 각 6회 학습했다. 비교 질문 {v['training_pairs']}쌍, "
+        f"가중치 갱신 18회, 고유 평가 117회와 정확 재실행 2회를 완료했다.",
+        '재배정은 끄고 크레인 작업 순서만 비교한다. 후보 수 제한은 없고 같은 실행 가능 후보를 사용한다.','',
+        '트럭의 주 지표는 **게이트 진입→작업 완료**다. 미완료도 관측 종료까지 누적한 시간을 포함한다.',
+        '24시간 관측, 26시간 실행이며 완료→출차 시간은 주 지표에서 제외한다.','',
+        '| 하루 트럭 수 | 학습 전 | 학습 후 | 실작업·짧은 작업 우선 규칙 | 학습 전 대비 감소 | 규칙 대비 감소 |',
+        '|---:|---:|---:|---:|---:|---:|']
+    for load in LOADS:
+        d=s['by_load'][str(load)];before=d['initial']['TRUCK']['mean_min'];after=d['trained']['TRUCK']['mean_min'];base=d['SF_SPT']['TRUCK']['mean_min']
+        lines.append(f'| {load:,} | {before:.3f}분 | {after:.3f}분 | {base:.3f}분 | {100*(before-after)/before:+.2f}% | {100*(base-after)/base:+.2f}% |')
+    lines+=['','각 셀은 같은 입력 3개, 학습 정책은 초기값 3개를 평균했다. 감소율이 음수면 더 오래 걸린 것이다.','',
+        '| 정책 | 트럭 전체 | 반입 | 반출 | 양하 | 적하 |',
+        '|---|---:|---:|---:|---:|---:|']
+    names={'initial':'학습 전','trained':'학습 후','SF_SPT':'실작업·짧은 작업 우선','FIFO':'먼저 도착한 작업 우선',
+        'LIFO':'나중 도착한 작업 우선','SPT':'짧은 작업 우선','NEAREST':'가까운 작업 우선','LWKR':'남은 작업량 적은 작업 우선','RANDOM':'무작위'}
+    for arm in ('initial','trained',*RULES):
+        row=a[arm];values=[row[f]['mean_min'] for f in ('TRUCK','GATE_IN','GATE_OUT','VESSEL_DISCHARGE','VESSEL_LOAD')]
+        lines.append('| '+names[arm]+' | '+' | '.join(f'{x:.3f}' for x in values)+' |')
+    lines+=['','단위는 분, 주문 수로 가중한 평균이다. 양하·적하는 계획된 스트림 작업 시작→개별 야드 완료이며 선박 체류시간이 아니다.',
+        '서로 다른 종료점을 섞어 전체 네 유형의 평균을 정책 성과로 제시하지 않는다.','',
+        '## 해석','',
+        f"전체 트럭은 학습 전 대비 {p['initial']['TRUCK']:+.3f}%, 기준 규칙 대비 {p['SF_SPT']['TRUCK']:+.3f}% 감소했다.",
+        f"학습 후 하루 평균 미완료 트럭은 {a['trained']['mean_unfinished_trucks']:.2f}건, 기준 규칙은 {a['SF_SPT']['mean_unfinished_trucks']:.2f}건이다.",
+        f"성능 판정: **{perf['status']}** — {perf['summary']}",
+        '판정은 총비용 1% 이상 감소와 전건 완료·미완료 해소·본선 보호·물리 조건을 함께 요구한다.',
+        f"모델 셋을 입력일별로 먼저 평균한 총비용 차이(학습−규칙)의 95% 구간: "
+        f"{s['paired_cost']['ci_lo']:,.2f}~{s['paired_cost']['ci_hi']:,.2f}원. 입력 9개 단위의 10,000회 짝 재표집이다.",
+        '초기값별 결과도 summary.json의 by_model에 모두 공개하며 좋은 모델을 따로 선택하지 않았다.','',
+        '## 자료 반영과 한계','',
+        '실자료는 13일 방문 36,135건과 본선 263파일·291,499행이다.',
+        '진입 전 최초 예약을 연결한 20,936건으로 반입·반출별 예약 오차와 접수 리드를 함께 보정했다.',
+        '뒤 4일의 8,349건은 분포 확인용이며 보정값에 넣지 않았다. 모든 합성 오더에 예약이 있다.',
+        '실제 접수 시각에만 정보를 공개하고, 예약에 유형별 중앙 오차를 더해 도착을 추정한다.',
+        '몇 년 전 예약 신고값, 최초 예약 연결 실패에 따른 표본 편향, 관측 시작 전 접수의 시작시점 처리는 남는다.',
+        '순수 크레인 작업 시작과 운반차량별 출발·인계·귀환 기록은 없어 운반 3대·470초를 실측값으로 주장하지 않는다.',
+        '원본 JSON까지 대조한 실제 접안 255건의 중앙값은 24시간이며 122건은 24시간을 넘었다.',
+        '따라서 하루 종료 시점의 본선 미완료만으로 정책의 실패를 단정하지 않는다. 고정 가드와 비교 수치를 분리해 해석한다.',
+        '실자료로 정보 오차를 보정한 합성 하루 실험이다. 실제 터미널 운영 이력 재생이나 연속 운영 확증이 아니다.',
+        '이전 출차 기준 개선율과 이번 작업 완료 기준 개선율을 하나의 학습 곡선으로 연결하지 않는다.','',
+        '## 검증·예정사항','',
+        f"검증: 트럭 원장 {v['truck_rows']:,}행, 전체 작업 {v['all_order_rows']:,}행을 시각에서 다시 계산했다. "
+        f"가중치 18개를 저장 라벨에서 정확히 재학습했고, 반복 2회의 사건·후보·선택·기록이 일치했다.",
+        f"관련 회귀 {v['tests_passed']}건, 실행 코드 {v['committed_source_hashes']}파일의 커밋 해시 대조를 통과했다.",
+        '다음은 기존 Dashboard의 YR-332-i(양하 운반 조건 보정)와 YR-332-f(블록 대기 수의 집계 의미 확인)이다.',
+        '각각 물리적 처리 용량과 정책이 읽는 대기열이 현실과 맞는지 확인하기 위한 작업이다.',
+        '그전에는 이번 결과를 실제 터미널 개선의 증명으로 사용하거나 30일 확증을 통과했다고 보고하지 않는다.','',
+        '[원값](summary.json) · [검산](verification.json) · [실행 명세](campaign.json) · '
+        '[실자료 보정](../yr332_real_order_information/README.md) · [최종 게이트](current-gates.json)','',
+        f"실행 코드: `{v['source_commit']}`. `scripts/v7/completion_learning.py`와 사전등록 명세로 재현한다.",'']
+    assert len(lines)<=200
+    (OUT/'README.md').write_text('\n'.join(lines),encoding='utf-8',newline='\n')
+
+
+def gates(commit):
+    from yard_rl.experiments.gate_harness import (audit_dashboard,judge_runtime_evidence,
+        judge_claim_alignment,combine_reliability,judge_scenario_validity,GateOutcome,GateStatus,
+        ResearchGateReport,attach_common_gates)
+    s=read('summary.json');v=read('verification.json');m=read('campaign.json')
+    paths=[OUT/f for f in ('summary.json','verification.json','campaign.json','README.md')]
+    paths += sorted(OUT.glob('evaluation/*.gz'))+sorted(OUT.glob('orders/*.gz'))+sorted(OUT.glob('flow-orders/*.gz'))
+    paths += sorted(OUT.glob('model-*/*.pt'))+sorted(OUT.glob('model-*/*.json*'))
+    paths += [OUT/'execution-amendment.json']
+    paths += sorted(Path('outputs/reports/yr332_real_order_information').glob('*.json'))
+    paths += sorted(Path('outputs/reports/yr332_real_order_information').glob('*.xml'))
+    # Runtime files are immutable run evidence. Source bytes were independently
+    # checked against m.repro.code.git_head, not mutable worktree source paths.
+    hashes={p.as_posix():sha(p) for p in paths if 'smoke' not in p.name}
+    runtime=judge_runtime_evidence(m['repro'],artifact_hashes=hashes)
+    dashboard=audit_dashboard('.',task_id='YR-332-ag',expected_state='done',spec_path=PREREG,
+        evidence_paths=[OUT/'summary.json',OUT/'verification.json',OUT/'campaign.json'],
+        evidence_commits=[commit],remote_ref='origin/강화학습-판매',pin_commit=commit)
+    report_text=(OUT/'README.md').read_text(encoding='utf-8')
+    claim={}
+    for arm in ('initial','trained','SF_SPT'):
+        value=s['by_arm'][arm]['TRUCK']['mean_min']
+        assert f'{value:.3f}' in report_text
+        claim[arm]=round(value,3)
+    claims=judge_claim_alignment(claim,{k:s['by_arm'][k]['TRUCK']['mean_min'] for k in claim},absolute_tolerance=.000501)
+    reliability=combine_reliability(runtime,dashboard,claims)
+    raw=s['performance']
+    performance=GateOutcome(raw['name'],GateStatus(raw['status']),raw['summary'],tuple(raw['reasons']),raw['evidence'])
+    scenario=judge_scenario_validity(internal_checks=dict(event_time_order=True,information_boundary=True,
+        physical_constraints=True,ledger_conservation=True,achievable_vessel_deadline=False,deterministic_replay=True),
+        flow_checks={},anchors={},continuous_operation=False,request_real_terminal_claim=False)
+    result=attach_common_gates(dict(task='YR-332-ag',evidence_commit=commit,verification=v,
+        user_authorized_scope='completion-objective diagnostic with calibrated information; transport remains unconfirmed'),
+        ResearchGateReport(performance,reliability,scenario))
+    save(OUT/'dashboard-audit.json',dashboard.as_dict());save(OUT/'current-gates.json',result)
+    assert reliability.status is GateStatus.PASS, reliability.as_dict()
+    print(json.dumps({k:result['common_gates'][k]['status'] for k in ('performance','reliability','scenario_validity')}))
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('command',choices=('report','gates'));parser.add_argument('--commit')
+    args=parser.parse_args()
+    if args.command=='report':report()
+    else:gates(args.commit)
