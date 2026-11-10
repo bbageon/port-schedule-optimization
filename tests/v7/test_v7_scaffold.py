@@ -120,7 +120,10 @@ def test_stage_uses_dgt_by_flow_and_keeps_notice_before_arrival():
     built = build_stage(load=3_500, seed=SEED, profile=prof)
     assert built["lead_mode"] == "DGT"
     orders, _ = orders_from_schedule(built)
-    assert all(o.copino_notice_s <= o.in_out_reserve_s + 1e-6 for o in orders.values())
+    assert all(orders[e['job_id']].copino_notice_s <= e['arrival_s'] + 1e-6
+               for e in built['schedule'])
+    assert all(orders[e['job_id']].in_out_reserve_s == e['reserved_s']
+               for e in built['schedule'])
     for flow in ("GATE_IN", "GATE_OUT"):
         rows = [e for e in built["schedule"] if e["flow"] == flow]
         # 0 리드 = 통지 전 도착(표본 비율) + 0시 직후 도착이라 눌린 것. 표본 비율보다 작을 수 없다.

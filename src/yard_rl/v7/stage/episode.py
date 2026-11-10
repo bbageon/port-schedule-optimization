@@ -393,7 +393,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 evaluation_mode: str = "optimized", evaluation_probe=None,
                 reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12,
                 crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False,
-                crane_alternative_contract: str = 'reachable') -> EpisodeResult:
+                crane_alternative_contract: str = 'reachable',
+                appointment_sigma_s: float | None = None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -435,7 +436,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     obs = obs or OBS_24H
     prof, layout = build_h21_profile(), terminal_layout()
     built = build_stage(load=load, seed=seed, profile=prof, layout=layout,
-                        obs=obs, lead_mode=lead_mode)
+                        obs=obs, lead_mode=lead_mode, appointment_sigma_s=appointment_sigma_s)
     orders, records = orders_from_schedule(built)
 
     mbt = MultiBlockTerminal(
@@ -483,6 +484,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     market = ctx.make_market(mbt)
 
     res = EpisodeResult(slot_mode=slot_mode, environment={
+        "reservation_contract": built["reservation_contract"],
         "preserve_external_demand": preserve_external_demand,
         "discharge_backpressure": discharge_backpressure,
         "discharge_capacity": prof.transfer.n_units if discharge_backpressure else None,

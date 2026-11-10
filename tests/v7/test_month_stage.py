@@ -452,8 +452,9 @@ def test_eligibility_index_matches_the_old_full_scan():
     # 일부는 이미 결정됐고 일부는 게이트를 지난 상태를 섞는다
     keys = sorted(orders)
     m.decided.update(keys[::37])
+    actual_arrivals = {e['job_id']: e['arrival_s'] for e in built['schedule']}
     for k in keys[1::53]:
-        records[k].stamp(Stage.GATE_IN, orders[k].in_out_reserve_s)
+        records[k].stamp(Stage.GATE_IN, actual_arrivals[k])
 
     seen = 0
     for step in range(0, 2 * 24 * 60, 7):          # 이틀치를 7분 간격으로 훑는다

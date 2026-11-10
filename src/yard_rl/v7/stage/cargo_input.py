@@ -25,4 +25,7 @@ def restore_input(document, *, seed, days, lead_mode):
         scenarios[bid] = TerminalScenario(f'fixed-{seed}-{bid}', seed,
             len(days)*DAY_S, 7200, boxes, [], [])
     # No generated scenario jobs/events are injected into the restored world.
-    return dict(day0=dict(scenarios=scenarios), schedule=document['schedule'])
+    built = dict(day0=dict(scenarios=scenarios), schedule=document['schedule'])
+    if 'reservation_contract' in document:
+        built['reservation_contract'] = document['reservation_contract']
+    return built

@@ -207,7 +207,8 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
               vessel_deadline_mult: float | None = None, ppo=None,
               on_admission=None, on_container_contract=None, seed_data=None,
               exec_config=None, crane_net=None,
-              discharge_backpressure: bool | None = None) -> MonthResult:
+              discharge_backpressure: bool | None = None,
+              appointment_sigma_s: float | None = None) -> MonthResult:
     """30일을 한 번에 굴린다. `on_day(DayReport)` 가 **중간보고** 훅이다.
 
     ■ 교사를 붙이면 (`labels_per_day`) **하루가 곧 한 회차**가 된다
@@ -267,10 +268,13 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
     days = list(days) if days else plan_month(seed, n_days=n_days)
     n_days = len(days)
     if seed_data is None:
-        built = build_month(seed, days=days, profile=prof, layout=layout, lead_mode=lead_mode)
+        built = build_month(seed, days=days, profile=prof, layout=layout, lead_mode=lead_mode,
+                            appointment_sigma_s=appointment_sigma_s)
         v_by_day = plan_month_vessels(days, layout, obs=OBS_24H,
                                     truck_net=truck_net_by_block(built['schedule']))
     else:
+        if appointment_sigma_s is not None:
+            raise ValueError('Saved seed data owns reservation times; do not override appointment_sigma_s')
         if ppo is None or labels_per_day:
             raise ValueError('Fixed cargo runtime is supported only in the PPO path')
         from .cargo_input import restore_input
@@ -389,6 +393,8 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
         bridge.branch_orders = _near_orders
 
     res = MonthResult(plan=[d.as_dict() for d in days], environment={
+        "reservation_contract": built.get("reservation_contract", {
+            "schema": "legacy-perfect-reservation-v0", "empirical_calibration": False}),
         "discharge_backpressure": discharge_backpressure,
         "discharge_capacity": prof.transfer.n_units if discharge_backpressure else None,
         "discharge_model": "shared-handover-wip-v1" if discharge_backpressure else "legacy-off"})

@@ -244,6 +244,8 @@ def schedule_arrays(schedule: Sequence[dict], *, block_index: dict[str, int], ro
     버킷에 넣지 않고 `info["dropped"]` 로 센다 (조용히 자르지 않는다).
     반환 (sched, info) — info: T · E · B · M · dropped.
     """
+    from ..appointment_contract import require_exact_reservations
+    require_exact_reservations(schedule, consumer='GPU admission conversion')
     T = len(schedule)
     B = len(block_index)
     E = int(n_epochs)

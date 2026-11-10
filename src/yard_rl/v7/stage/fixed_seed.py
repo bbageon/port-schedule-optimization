@@ -59,7 +59,8 @@ def as_audit_input(document):
     scenarios = {bid: SimpleNamespace(containers={
         box['container_id']: SimpleNamespace(container_id=box['container_id']) for box in boxes})
         for bid, boxes in document['initial_inventory'].items()}
-    return dict(day0=dict(scenarios=scenarios), schedule=document['schedule'])
+    return dict(day0=dict(scenarios=scenarios), schedule=document['schedule'],
+                reservation_contract=document.get('reservation_contract'))
 
 
 def fixed_seed_audit(document):
@@ -159,6 +160,8 @@ def build_fixed_seed(built, vessels_by_day, *, seed):
                     initial_inventory=initial, schedule=schedule,
                     vessels_by_day={str(d): rows for d, rows in sorted(vessels.items())},
                     sources=sources, orders=[asdict(o) for o in orders.values()])
+    if 'reservation_contract' in built:
+        document['reservation_contract'] = copy.deepcopy(built['reservation_contract'])
     # JSON arrays have one representation; do not leak tuples into the bundle API.
     document = json.loads(canonical_bytes(document))
     audit = fixed_seed_audit(document)

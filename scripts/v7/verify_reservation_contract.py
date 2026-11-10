@@ -27,7 +27,8 @@ def stamp(config):
                                     text=True, encoding='utf-8').strip()
     if dirty:
         raise RuntimeError('Commit tracked changes before collecting evidence: ' + dirty)
-    paths = [Path(__file__), SPEC, Path(ledger.__file__),
+    paths = [Path(__file__).resolve().relative_to(Path.cwd()), SPEC,
+             Path(ledger.__file__).resolve().relative_to(Path.cwd()),
              *sorted(Path('src/yard_rl/v7').rglob('*.py'))]
     return dict(repro=repro_stamp(experiment='YR-332-ad', seeds={'input': list(SEEDS)},
                                   params=config, prereg=SPEC.as_posix()),
@@ -113,13 +114,15 @@ def generate():
         for seed in SEEDS:
             baseline = build_stage(load=load, seed=seed, profile=profile, appointment_sigma_s=0)
             original_schedule = baseline['schedule']
-            physical = digest([{k: v for k, v in e.items() if k != 'reserved_s'}
+            physical = digest([{k: v for k, v in e.items()
+                                if k not in ('reserved_s', 'reservation_schema')}
                                for e in original_schedule])
             for sigma in config['sigmas_s']:
                 built = build_stage(load=load, seed=seed, profile=profile, appointment_sigma_s=sigma)
                 again = build_stage(load=load, seed=seed, profile=profile, appointment_sigma_s=sigma)
                 assert digest(built['schedule']) == digest(again['schedule'])
-                assert physical == digest([{k: v for k, v in e.items() if k != 'reserved_s'}
+                assert physical == digest([{k: v for k, v in e.items()
+                                            if k not in ('reserved_s', 'reservation_schema')}
                                            for e in built['schedule']])
                 assert digest(built['vessel_schedule']) == digest(baseline['vessel_schedule'])
                 assert digest(built['scenarios']) == digest(baseline['scenarios'])

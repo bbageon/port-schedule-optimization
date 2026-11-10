@@ -75,7 +75,8 @@ def _build(blocks, n_days: int, load: int, cap_moves: int | None = None):
     prof = build_h21_profile()
     layout = terminal_layout().subset(blocks)
     days = _plan(n_days, load)
-    built = v5m.build_month(SEED, days=days, profile=prof, layout=layout, lead_mode="DIST")
+    built = v5m.build_month(SEED, days=days, profile=prof, layout=layout, lead_mode="DIST",
+                           appointment_sigma_s=0)  # Legacy array equivalence uses exact reservations.
     v_by_day = v5m.plan_month_vessels(days, layout, obs=OBS_24H,
                                       truck_net=v5m.truck_net_by_block(built["schedule"]))
     if cap_moves is not None:

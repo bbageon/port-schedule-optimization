@@ -302,6 +302,8 @@ def to_terminal_world(profile, built: dict, *, lead_s, n_max: int | None = None,
     B = len(block_ids)
     bidx = {b: i for i, b in enumerate(block_ids)}
     schedule: list[dict] = built["schedule"]
+    from ..appointment_contract import require_exact_reservations
+    require_exact_reservations(schedule, consumer='GPU terminal conversion')
     S = len(schedule)
     if retarget is not None or resolve_entry is not None:
         raise ValueError("retarget/resolve_entry 는 V3Announcer 전용 호스트 훅이라 배열판이 표현하지 못한다 "

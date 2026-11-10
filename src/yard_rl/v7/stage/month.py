@@ -237,7 +237,8 @@ def ledger_load(mbt) -> dict:
 # ─────────────────────────────────────────────────────── 30일 무대 조립
 def build_month(seed: int, *, days=None, profile=None, layout=None,
                 lead_mode: str = "DGT", n_days: int = N_DAYS,
-                fill_ratio: float = MONTH_FILL_RATIO) -> dict:
+                fill_ratio: float = MONTH_FILL_RATIO,
+                appointment_sigma_s: float | None = None) -> dict:
     """30일치 **도착 명단**을 이어 붙인다.
 
     ■ 어떻게 잇나
@@ -267,7 +268,7 @@ def build_month(seed: int, *, days=None, profile=None, layout=None,
     for d in days:
         built = build_stage(load=d.load, seed=d.seed, profile=profile,
                             layout=layout, lead_mode=lead_mode,
-                            fill_ratio=fill_ratio)
+                            fill_ratio=fill_ratio, appointment_sigma_s=appointment_sigma_s)
         if day0 is None:
             day0 = built
         for e in built["schedule"]:
@@ -275,12 +276,14 @@ def build_month(seed: int, *, days=None, profile=None, layout=None,
             e["job_id"] = f"D{d.index:02d}-{e['job_id']}"   # 날마다 고유하게
             if e['flow'] == 'GATE_IN':
                 e['con_no'] = f"IN_{e['job_id']}"
-            e["arrival_s"] = float(e["arrival_s"]) + d.t0
+            for key in ("arrival_s", "reserved_s", "gate_in_s"):
+                e[key] = float(e[key]) + d.t0
             e["day"] = d.index
             schedule.append(e)
     schedule.sort(key=lambda e: e["arrival_s"])
     return {"days": days, "schedule": schedule, "day0": day0,
-            "month_end_s": n_days * DAY_S, "lead_mode": lead_mode}
+            "month_end_s": n_days * DAY_S, "lead_mode": lead_mode,
+            "reservation_contract": day0["reservation_contract"]}
 
 
 # ─────────────────────────────────────────────────────────────── 30일 본선
