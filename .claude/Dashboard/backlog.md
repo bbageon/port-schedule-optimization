@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-af | Sim | **트럭 비용을 작업 완료에서 멈추고 출차와 구분** | 🔴 | 사용자 지시: 실제 진입→작업 완료를 주 지표·보상으로 변경. 완료 후 출차는 별도 기록하며 동일 궤적·비용 장부를 검증한다. [spec](../docs/dashboard-task-specs/YR-332-af-job-completion-objective.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |
 | YR-323-b | RL | **첫 선택 이후 판단 기준의 영향 확인** | 🟡 | a 진단이 지지할 때만. 첫 공동 배정을 고정하고 후속 정책만 바꿔 초기 정책을 길게 따르는 영향을 확인한다. 현실성 보정 선행. [spec](../docs/dashboard-task-specs/YR-323-b-continuation-policy-check.md) |
 | YR-323-c | RL | **장기 비용 판단에 필요한 작업 정보의 기여 확인** | 🟡 | i/f·x와 a 진단 뒤 조건부. 현재 입력으로 구분 못 하는 상황을 확인하고 실제로 알려진 작업 정보 한 종류만 검증한다. [spec](../docs/dashboard-task-specs/YR-323-c-future-work-information.md) |
