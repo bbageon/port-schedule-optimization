@@ -41,7 +41,8 @@ K1 대 K3의 입력별 감소율 평균은 +2.210%, 95% 구간 -4.303~+8.723%여
 - 보고서 계산의 같은 확률값을 재사용해 속도만 보완했다. 원래 함수와 12개 값 정확 일치, 학습·평가 수치와 통계 공식 유지.
 - 24시간 제한 관측이다. 미완료 주문을 포함하며 본선은 예정 시작→개별 야드 완료로 측정한다.
 - 실측 운반·예약 보정 미확정 유지. 다음 등록 작업은 운반 투입·이동·인계 보정(YR-332-i), 예약·실제 도착 차이 보정(YR-332-f)이다.
-- 실행 코드 `d2e515e4`. [결과](../../../outputs/reports/yr323_horizon_sweep/README.md) · [원값](../../../outputs/reports/yr323_horizon_sweep/summary.json) · [검증](../../../outputs/reports/yr323_horizon_sweep/verification.json).
+- 실행 코드 `d2e515e4`, 결과 커밋 `ec2e4787` 원격 반영. 저장된 산출물 891개가 작업 파일과 바이트 단위로 일치했다.
+- [결과](../../../outputs/reports/yr323_horizon_sweep/README.md) · [원값](../../../outputs/reports/yr323_horizon_sweep/summary.json) · [검증](../../../outputs/reports/yr323_horizon_sweep/verification.json) · [커밋 파일 검증](../../../outputs/reports/yr323_horizon_sweep/git-blob-verification.json).
 
 ## 과거 가설 이력 (v4, 아래 내용은 변경하지 않고 보존)
 
