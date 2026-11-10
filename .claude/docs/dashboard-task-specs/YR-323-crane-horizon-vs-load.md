@@ -15,6 +15,7 @@ v7의 검증된 교사에서 비용 비교 창만 바꾼다. 아래 9월 v4 서�
 - 트럭은 게이트 진입→출차, 본선은 작업 시작 예정→개별 야드 완료. 미완료·미도착도 남긴다.
 - 명시적 사용자 요청에 따른 고정 합성 환경 진단이다. 실측 운반·예약 보정 미확정은 유지한다.
 - 코드: `scripts/v7/horizon_sweep.py`, `horizon_metrics.py`; 증거: `outputs/reports/yr323_horizon_sweep/`.
+- [감소율 표시 보완](../../../docs/research/v7-discharge/horizon-sweep-reporting-note.md): 평균 시간 표에는 그 평균끼리 계산한 감소율, 사전등록한 입력별 감소율 평균·구간은 별도 보존한다. 주 판정·표본·학습 조건은 유지한다.
 
 ## 과거 가설 이력 (v4, 아래 내용은 변경하지 않고 보존)
 

@@ -33,7 +33,8 @@ def report_claims(summary):
             for k, cell in zip(KS, cells[2:], strict=True):
                 minutes, pct = numbers(cell)
                 add(f'{m}/k{k}/minutes', table[f'k{k}'][m+'_mean_s_24']/60, minutes)
-                add(f'{m}/k{k}/reduction', comparison(k, m)['reduction_percent']['mean'], pct)
+                expected = 100*(1-table[f'k{k}'][m+'_mean_s_24']/table['initial'][m+'_mean_s_24'])
+                add(f'{m}/k{k}/reduction', expected, pct)
         elif len(cells) == 7 and cells[0].isdigit() and int(cells[0]) in LOADS:
             load = int(cells[0])
             for arm, cell in zip(ARMS, cells[1:], strict=True):
@@ -67,6 +68,7 @@ def report_claims(summary):
 def finalize(pin):
     manifest, verified, summary = [read(OUT/p) for p in ('campaign.json', 'verification.json', 'summary.json')]
     assert verified['status'] == 'PASS' and verified['exact_refits'] == 72
+    assert verified['tests'] >= 26
     assert verified['runs'] == 147 and verified['previous_runs_exact'] == 63 and verified['new_repeats_exact'] == 3
     for p, h in {**manifest['sources'], **manifest['reused_artifacts'], **verified['artifact_sha256']}.items():
         assert sha(p) == h, p
@@ -76,7 +78,8 @@ def finalize(pin):
     artifacts = {**manifest['sources'], **manifest['reused_artifacts'], **verified['artifact_sha256']}
     artifacts.update({p.as_posix(): sha(p) for p in OUT.rglob('*') if p.is_file()
         and p.name not in ('final-verdict.json', 'final-dashboard-audit.json')})
-    artifacts.update({p.as_posix(): sha(p) for p in (Path(__file__), Path('scripts/v7/report_horizon_sweep.py'))})
+    artifacts.update({p.as_posix(): sha(p) for p in (Path(__file__), Path('scripts/v7/report_horizon_sweep.py'),
+        Path('docs/research/v7-discharge/horizon-sweep-reporting-note.md'))})
     runtime = judge_runtime_evidence(manifest['repro'], artifact_hashes=artifacts, root='.')
     assert runtime.status is GateStatus.PASS, runtime
     remote = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', '@{upstream}'], encoding='utf-8').strip()

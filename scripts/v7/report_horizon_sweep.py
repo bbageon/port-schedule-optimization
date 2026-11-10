@@ -4,6 +4,7 @@ from dataclasses import asdict
 import json
 import math
 import statistics as st
+import xml.etree.ElementTree as ET
 
 from benchmark_default_eval import save
 from six_step_learning import gz_read, sha, load_net, labelset
@@ -238,6 +239,7 @@ def summarize(values, training, verified):
                 reduced['sign_convention'] = 'positive is improvement'
                 row = dict(k=k, control=control, metric=metric, candidate_mean=st.fmean(x),
                     control_mean=st.fmean(y), reduction_percent=reduced,
+                    reduction_of_mean_percent=100*(1-st.fmean(x)/st.fmean(y)),
                     candidate_minus_control_percent=signed,
                     paired_raw=asdict(paired([a-b for a, b in zip(x, y)])))
                 if metric != 'cost':
@@ -270,16 +272,19 @@ def write_report(summary):
         '- 모든 오더 혼합: 위 두 정의를 주문 수로 가중한 참고 지표. 트럭 체류시간과 구분한다.',
         '- 24시간까지 관측하며 미완료·미도착 주문도 그때까지의 시간을 포함한다. 완주 평균은 아니다.',
         '- 감소율=(학습 전−학습 후)/학습 전. **양수는 개선, 음수는 악화**다.',
-        '- 초기값 셋을 먼저 평균하고 입력 9개의 평균/감소율을 같은 비중으로 평균했다.', '',
+        '- 시간은 초기값 셋을 먼저 평균하고 입력 9개를 같은 비중으로 평균했다.',
+        '- 첫 표의 괄호는 표시한 평균 시간끼리 계산한 감소율이다. 사전등록한 입력별 감소율 평균은 아래 짝비교와 원값에 별도 보존한다.', '',
         '## 업무별 평균 시간과 감소율', '',
         '단위: 분. 괄호는 학습 전 대비 감소율이다.', '',
         '| 구분 | 학습 전 | K1 | K2 | K3 | K6 |', '|---|---:|---:|---:|---:|---:|']
     for metric in METRICS:
         cells = [f'{table["initial"][metric+"_mean_s_24"]/60:.3f}']
         for k in KS:
-            cells.append(f'{table[f"k{k}"][metric+"_mean_s_24"]/60:.3f} ({comp(k, metric)["reduction_percent"]["mean"]:+.3f}%)')
+            cells.append(f'{table[f"k{k}"][metric+"_mean_s_24"]/60:.3f} ({comp(k, metric)["reduction_of_mean_percent"]:+.3f}%)')
         lines.append('| '+LABELS[metric]+' | '+' | '.join(cells)+' |')
-    lines += ['', '평균 방식 때문에 표의 평균 분 수끼리 계산한 비율과 입력별 감소율 평균은 조금 다를 수 있다.', '',
+    lines += ['', '평균 시간의 감소율과 각 입력의 감소율 평균은 서로 다른 통계다. 기존 K3 트럭은 '+
+        f'전자로 {comp(3, "TRUCK")["reduction_of_mean_percent"]:.3f}%, 후자로 {comp(3, "TRUCK")["reduction_percent"]["mean"]:.3f}%다.',
+        '부하별 차이를 숨기지 않도록 다음 표와 짝비교를 함께 본다. 이 표시 보완으로 사전등록한 주 판정이나 평가 조건을 바꾸지 않았다.', '',
         '## 부하별 전체 트럭 평균', '',
         '| 하루 주문 | 학습 전 | K1 | K2 | K3 | K6 | 작업 규칙 |', '|---|---:|---:|---:|---:|---:|---:|']
     for load in LOADS:
@@ -326,8 +331,23 @@ def write_report(summary):
 
 def report():
     check_sources()
+    manifest = read(OUT/'campaign.json')
+    old_verified = read(SOURCE/'verification.json')['artifact_sha256']
+    reused_models = {p: h for p, h in manifest['reused_artifacts'].items()
+                     if '/model-' in p}
+    assert len(reused_models) == 42
+    for p, expected in reused_models.items():
+        assert old_verified[p] == expected == sha(p), ('prior verified artifact mismatch', p)
+    suites = list(ET.parse(OUT/'regression.xml').getroot().iter('testsuite'))
+    assert suites and all(int(s.get('failures', 0)) == int(s.get('errors', 0)) == 0 for s in suites)
+    tests = sum(int(s.get('tests', 0)) for s in suites)
+    assert tests >= 26
+    rechecks = list(ET.parse(OUT/'reporting-regression.xml').getroot().iter('testsuite'))
+    assert rechecks and all(int(s.get('failures', 0)) == int(s.get('errors', 0)) == 0 for s in rechecks)
     training, artifacts = verify_training()
     values, more, verified = verify_evaluations()
+    verified['tests'] = tests
+    verified['reporting_rechecks'] = sum(int(s.get('tests', 0)) for s in rechecks)
     artifacts.update(more)
     summary = summarize(values, training, verified)
     save(OUT/'summary.json', summary)
