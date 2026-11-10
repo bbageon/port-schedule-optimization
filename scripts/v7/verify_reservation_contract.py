@@ -2,11 +2,14 @@
 import argparse
 import copy
 from dataclasses import asdict
+import hashlib
+import io
 import math
 from pathlib import Path
 import statistics
 import subprocess
 import time
+import xml.etree.ElementTree as ET
 
 import audit_admission_ledger as ledger
 from benchmark_default_eval import save
@@ -152,16 +155,73 @@ def generate():
     print('generation: 27 conditions / 234000 order rows, repeated exactly', flush=True)
 
 
+def verify_sources(artifacts):
+    """Compare recorded bytes with each clean run's pushed commit, not current HEAD."""
+    expected = {}
+    for artifact in artifacts:
+        code = artifact['repro']['code']
+        assert code['git_dirty'] is False
+        commit = code['git_head']
+        subprocess.run(['git', 'merge-base', '--is-ancestor', commit,
+                        'origin/강화학습-판매'], check=True, capture_output=True)
+        for name, file_hash in artifact['sources'].items():
+            path = Path(name)
+            rel = path.resolve().relative_to(Path.cwd()).as_posix()
+            key = f'{commit}:{rel}'
+            assert key not in expected or expected[key] == file_hash
+            expected[key] = file_hash
+    keys = list(expected)
+    process = subprocess.run(['git', 'cat-file', '--batch'],
+        input=('\n'.join(keys) + '\n').encode('utf-8'), capture_output=True, check=True)
+    stream = io.BytesIO(process.stdout)
+    crlf = 0
+    for key in keys:
+        header = stream.readline().decode().split()
+        assert len(header) == 3 and header[1] == 'blob', (key, header)
+        value = stream.read(int(header[2]))
+        assert stream.read(1) == b'\n'
+        if hashlib.sha256(value).hexdigest() != expected[key]:
+            # Git stores text as LF; the existing Windows checkout can use CRLF.
+            assert hashlib.sha256(value.replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')).hexdigest() == expected[key], key
+            crlf += 1
+    assert not stream.read()
+    return dict(passed=True, commit_file_pairs=len(keys), windows_crlf_matches=crlf,
+                commits=sorted({k.split(':', 1)[0] for k in keys}))
+
+
+def verify_tests():
+    """Later targeted reruns supersede the corrected fixture's initial failure."""
+    outcomes, histories = {}, []
+    for name in ('tests-contract.xml', 'tests-stage.xml', 'tests-compatibility.xml',
+                 'tests-array-legacy.xml'):
+        path = OUT / name
+        root = ET.parse(path).getroot()
+        for case in root.iter('testcase'):
+            key = f"{case.attrib.get('classname')}::{case.attrib['name']}"
+            status = 'failed' if case.find('failure') is not None or case.find('error') is not None else (
+                'skipped' if case.find('skipped') is not None else 'passed')
+            if status != 'passed':
+                histories.append(dict(test=key, status=status, file=name))
+            outcomes[key] = status
+    assert all(v == 'passed' for v in outcomes.values()), outcomes
+    return dict(unique_passed=len(outcomes), earlier_nonpassing=histories,
+                excluded='v5 generate_fixed_seed CLI integration requires os.sched_getaffinity; '
+                         'unavailable on Windows. Direct v7 fixed-seed serialization is covered.',
+                files={name: sha(OUT / name) for name in (
+                    'tests-contract.xml', 'tests-stage.xml', 'tests-compatibility.xml', 'tests-array-legacy.xml')})
+
+
 def verify():
     import json
     generation = json.loads((OUT / 'generation.json').read_text(encoding='utf-8'))
     assert generation['passed']
-    rows, paths = [], [OUT / 'generation.json']
+    rows, paths, artifacts = [], [OUT / 'generation.json'], [generation]
     for load in LOADS:
         pair = {}
         for mode, sigma in (('baseline', 0), ('evaluate', 0), ('evaluate', 600)):
             p = OUT / 'evaluation' / filename(mode, load, sigma)
             data = gz_read(p)
+            artifacts.append(data)
             q = OUT / 'orders' / p.name
             orders = gz_read(q)
             assert digest(orders) == data['orders_sha256']
@@ -172,25 +232,40 @@ def verify():
             mean_s = sum((min(86400, r['times']['gate_out_s'])
                           if r['times']['gate_out_s'] is not None else 86400)
                          - r['times']['gate_in_s'] for r in orders) / load
-            assert math.isclose(mean_s, data['result']['breakdown']['mean_turn_time_s'], rel_tol=1e-11)
+            assert math.isclose(mean_s, data['result']['mean_turn_time_s'], rel_tol=1e-11)
+            cost = sum(data['result'][k] for k in ('c_wait', 'c_move', 'c_rehandle', 'c_vessel'))
+            assert math.isclose(cost, data['result']['phi_krw'], rel_tol=1e-12)
+            censored = sum(r['times']['gate_out_s'] is None or r['times']['gate_out_s'] > 86400
+                           for r in orders)
+            assert censored == data['result']['n_censored']
             paths.extend((p, q))
             pair[f'{mode}-{sigma}'] = data
         assert pair['evaluate-0']['zero_error_exact_replay']
+        normalized = copy.deepcopy(pair['evaluate-0']['result'])
+        normalized['environment'].pop('reservation_contract')
+        assert normalized == pair['baseline-0']['result']
+        assert all(pair['evaluate-0']['probe'][k] == pair['baseline-0']['probe'][k] for k in HASHES)
+        assert pair['evaluate-0']['orders_sha256'] == pair['baseline-0']['orders_sha256']
         before, after = pair['evaluate-0']['result'], pair['evaluate-600']['result']
         rows.append(dict(load=load, admitted=after['admitted'],
-            mean_turn_min_before=before['breakdown']['mean_turn_time_s']/60,
-            mean_turn_min_after=after['breakdown']['mean_turn_time_s']/60,
-            relative_change_pct=100*(after['breakdown']['mean_turn_time_s'] /
-                                    before['breakdown']['mean_turn_time_s']-1),
+            mean_turn_min_before=before['mean_turn_time_s']/60,
+            mean_turn_min_after=after['mean_turn_time_s']/60,
+            relative_change_pct=100*(after['mean_turn_time_s'] / before['mean_turn_time_s']-1),
             cost_before=before['phi_krw'], cost_after=after['phi_krw'],
-            censored_before=before['breakdown']['n_censored'],
-            censored_after=after['breakdown']['n_censored']))
+            censored_before=before['n_censored'], censored_after=after['n_censored']))
     repeat = OUT / 'evaluation' / filename('evaluate', 7500, 600, True)
-    assert gz_read(repeat)['exact_repeat']
+    repeated = gz_read(repeat)
+    first = gz_read(OUT / 'evaluation' / filename('evaluate', 7500, 600))
+    assert repeated['exact_repeat'] and repeated['result'] == first['result']
+    assert all(repeated['probe'][k] == first['probe'][k] for k in HASHES)
+    assert repeated['orders_sha256'] == first['orders_sha256']
+    artifacts.append(repeated)
     paths.extend((repeat, OUT / 'orders' / repeat.name))
+    source_audit = verify_sources(artifacts)
+    test_audit = verify_tests()
     save(OUT / 'verification.json', dict(passed=True, evaluation_runs=10,
         generation_conditions=27, unique_physical_orders=generation['unique_physical_orders'],
-        comparisons=rows, source_check='Recorded source hashes belong to each run commit.',
+        comparisons=rows, source_check=source_audit, tests=test_audit,
         inputs={p.as_posix(): sha(p) for p in paths}, training=False,
         conclusion='Synthetic reservation contract verified; empirical calibration and policy benefit unproven.'))
     print(rows, flush=True)
