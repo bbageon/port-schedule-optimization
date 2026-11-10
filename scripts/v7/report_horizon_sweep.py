@@ -284,7 +284,14 @@ def write_report(summary):
         lines.append('| '+LABELS[metric]+' | '+' | '.join(cells)+' |')
     lines += ['', '평균 시간의 감소율과 각 입력의 감소율 평균은 서로 다른 통계다. 기존 K3 트럭은 '+
         f'전자로 {comp(3, "TRUCK")["reduction_of_mean_percent"]:.3f}%, 후자로 {comp(3, "TRUCK")["reduction_percent"]["mean"]:.3f}%다.',
-        '부하별 차이를 숨기지 않도록 다음 표와 짝비교를 함께 본다. 이 표시 보완으로 사전등록한 주 판정이나 평가 조건을 바꾸지 않았다.', '',
+        '부하별 차이를 숨기지 않도록 다음 표와 짝비교를 함께 본다. 이 표시 보완으로 사전등록한 주 판정이나 평가 조건을 바꾸지 않았다.']
+    for k in KS:
+        r = comp(k, 'TRUCK')
+        a, b = r['reduction_of_mean_percent'], r['reduction_percent']['mean']
+        if a*b < 0:
+            lines += [f'**K{k}는 집계법에 따라 방향도 다르다:** 평균 시간 기준 {a:+.3f}%, '+
+                f'입력별 감소율 평균 {b:+.3f}%. 부하·입력별 효과 차이가 반영되는 비중이 다르므로 유리한 값 하나만으로 개선을 주장하지 않는다.']
+    lines += ['',
         '## 부하별 전체 트럭 평균', '',
         '| 하루 주문 | 학습 전 | K1 | K2 | K3 | K6 | 작업 규칙 |', '|---|---:|---:|---:|---:|---:|---:|']
     for load in LOADS:
