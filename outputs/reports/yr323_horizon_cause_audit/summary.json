@@ -1,0 +1,582 @@
+{
+  "scope": "Exploratory read-only audit of existing artifacts; no simulations or model fits.",
+  "pairs": {
+    "pairs_per_k": 295,
+    "label_files": 72,
+    "branch_pairs_checked": 1180,
+    "k1_k6_reversals": 87,
+    "robust_reversals_above_1krw": 87,
+    "tie_status_changed": 6,
+    "by_load": {
+      "15000": {
+        "n": 101,
+        "reversals": 24
+      },
+      "3500": {
+        "n": 92,
+        "reversals": 34
+      },
+      "7500": {
+        "n": 102,
+        "reversals": 29
+      }
+    },
+    "by_model": {
+      "9914701": {
+        "n": 108,
+        "reversals": 36
+      },
+      "9914702": {
+        "n": 91,
+        "reversals": 26
+      },
+      "9914703": {
+        "n": 96,
+        "reversals": 25
+      }
+    },
+    "by_clipping": {
+      "False": {
+        "n": 242,
+        "reversals": 78
+      },
+      "True": {
+        "n": 53,
+        "reversals": 9
+      }
+    },
+    "by_same_flow": {
+      "False": {
+        "n": 117,
+        "reversals": 39
+      },
+      "True": {
+        "n": 178,
+        "reversals": 48
+      }
+    },
+    "by_flow_pair": {
+      "['GATE_IN', 'GATE_IN']": {
+        "n": 38,
+        "reversals": 5
+      },
+      "['GATE_IN', 'GATE_OUT']": {
+        "n": 27,
+        "reversals": 9
+      },
+      "['GATE_IN', 'VESSEL_DISCHARGE']": {
+        "n": 3,
+        "reversals": 0
+      },
+      "['GATE_IN', 'VESSEL_LOAD']": {
+        "n": 14,
+        "reversals": 8
+      },
+      "['GATE_OUT', 'GATE_IN']": {
+        "n": 44,
+        "reversals": 10
+      },
+      "['GATE_OUT', 'GATE_OUT']": {
+        "n": 86,
+        "reversals": 25
+      },
+      "['GATE_OUT', 'VESSEL_DISCHARGE']": {
+        "n": 10,
+        "reversals": 4
+      },
+      "['GATE_OUT', 'VESSEL_LOAD']": {
+        "n": 12,
+        "reversals": 5
+      },
+      "['NON_JOB', 'GATE_OUT']": {
+        "n": 1,
+        "reversals": 1
+      },
+      "['VESSEL_DISCHARGE', 'GATE_IN']": {
+        "n": 1,
+        "reversals": 0
+      },
+      "['VESSEL_DISCHARGE', 'GATE_OUT']": {
+        "n": 1,
+        "reversals": 0
+      },
+      "['VESSEL_LOAD', 'GATE_IN']": {
+        "n": 3,
+        "reversals": 1
+      },
+      "['VESSEL_LOAD', 'GATE_OUT']": {
+        "n": 1,
+        "reversals": 1
+      },
+      "['VESSEL_LOAD', 'VESSEL_LOAD']": {
+        "n": 54,
+        "reversals": 18
+      }
+    },
+    "by_time_band": {
+      "00-06": {
+        "n": 13,
+        "reversals": 7
+      },
+      "06-12": {
+        "n": 78,
+        "reversals": 24
+      },
+      "12-18": {
+        "n": 122,
+        "reversals": 42
+      },
+      "18-24": {
+        "n": 69,
+        "reversals": 14
+      },
+      "24-30": {
+        "n": 13,
+        "reversals": 0
+      }
+    },
+    "equal_endpoint_pairs_verified": 64,
+    "missing_measurements": {
+      "component_cost_pairs_absent": 1180,
+      "branch_trace_pairs_absent": 1180
+    },
+    "feature_caps": {
+      "3500": {
+        "samples": 184,
+        "vessel_samples": 110,
+        "vessel_slack_at_cap": 101,
+        "truck_samples": 73,
+        "truck_wait_at_cap": 1,
+        "candidate_count_at_cap": 72
+      },
+      "7500": {
+        "samples": 204,
+        "vessel_samples": 36,
+        "vessel_slack_at_cap": 34,
+        "truck_samples": 168,
+        "truck_wait_at_cap": 21,
+        "candidate_count_at_cap": 66
+      },
+      "15000": {
+        "samples": 202,
+        "vessel_samples": 7,
+        "vessel_slack_at_cap": 7,
+        "truck_samples": 195,
+        "truck_wait_at_cap": 62,
+        "candidate_count_at_cap": 154
+      }
+    },
+    "training_fit": {
+      "1": {
+        "updates": 18,
+        "optimization_steps": 900,
+        "heldout_nonzero_pairs": 49,
+        "weighted_order_accuracy": 0.5510204185028466,
+        "median_absolute_gap_krw": 15488.649995088577,
+        "mean_effective_hours": 0.993084314027686,
+        "clipped_pairs": 6
+      },
+      "2": {
+        "updates": 18,
+        "optimization_steps": 900,
+        "heldout_nonzero_pairs": 49,
+        "weighted_order_accuracy": 0.5510204203274786,
+        "median_absolute_gap_krw": 53245.64145313203,
+        "mean_effective_hours": 1.9643851476107386,
+        "clipped_pairs": 13
+      },
+      "3": {
+        "updates": 18,
+        "optimization_steps": 900,
+        "heldout_nonzero_pairs": 49,
+        "weighted_order_accuracy": 0.632653071564071,
+        "median_absolute_gap_krw": 83338.01470035315,
+        "mean_effective_hours": 2.9050551771693693,
+        "clipped_pairs": 20
+      },
+      "6": {
+        "updates": 18,
+        "optimization_steps": 900,
+        "heldout_nonzero_pairs": 49,
+        "weighted_order_accuracy": 0.5510204166782146,
+        "median_absolute_gap_krw": 199524.2820982933,
+        "mean_effective_hours": 5.54508027489242,
+        "clipped_pairs": 53
+      }
+    }
+  },
+  "evaluation": {
+    "runs": 144,
+    "independent_inputs": 9,
+    "per_load": [
+      {
+        "arm": "initial",
+        "load": 3500,
+        "runs": 9,
+        "c_wait": 61010073.88873368,
+        "c_vessel": 62864386.93851982,
+        "c_move": 564233.1018518519,
+        "c_rehandle": 10847777.777777778,
+        "phi_krw": 135286471.70688313,
+        "TRUCK_mean_min": 22.648058728223734,
+        "GATE_IN_mean_min": 14.789490365035912,
+        "GATE_OUT_mean_min": 27.819676363745273,
+        "VESSEL_DISCHARGE_mean_min": 705.5785380539351,
+        "VESSEL_LOAD_mean_min": 723.3586383205486,
+        "truck_unfinished": 28.11111111111111
+      },
+      {
+        "arm": "initial",
+        "load": 7500,
+        "runs": 9,
+        "c_wait": 390717458.65963334,
+        "c_vessel": 147572625.0518979,
+        "c_move": 906420.4861111111,
+        "c_rehandle": 18596000.0,
+        "phi_krw": 557792504.1976424,
+        "TRUCK_mean_min": 56.17741070299508,
+        "GATE_IN_mean_min": 26.07022625910303,
+        "GATE_OUT_mean_min": 75.47231167168543,
+        "VESSEL_DISCHARGE_mean_min": 950.5284352891625,
+        "VESSEL_LOAD_mean_min": 931.5212294655739,
+        "truck_unfinished": 147.88888888888889
+      },
+      {
+        "arm": "initial",
+        "load": 15000,
+        "runs": 9,
+        "c_wait": 3713357298.621493,
+        "c_vessel": 126499928.5792144,
+        "c_move": 1100149.0740740742,
+        "c_rehandle": 20538444.444444444,
+        "phi_krw": 3861495820.719226,
+        "TRUCK_mean_min": 208.85900125132963,
+        "GATE_IN_mean_min": 120.9892106664983,
+        "GATE_OUT_mean_min": 267.54932598562226,
+        "VESSEL_DISCHARGE_mean_min": 1041.443692530138,
+        "VESSEL_LOAD_mean_min": 1049.813627041312,
+        "truck_unfinished": 4068.5555555555557
+      },
+      {
+        "arm": "k1",
+        "load": 3500,
+        "runs": 9,
+        "c_wait": 57733528.83522452,
+        "c_vessel": 49335970.27705772,
+        "c_move": 442624.4212962963,
+        "c_rehandle": 9803111.111111112,
+        "phi_krw": 117315234.64468965,
+        "TRUCK_mean_min": 22.289617757729335,
+        "GATE_IN_mean_min": 15.170869437752872,
+        "GATE_OUT_mean_min": 26.97686113429401,
+        "VESSEL_DISCHARGE_mean_min": 681.2055565314276,
+        "VESSEL_LOAD_mean_min": 597.5735753505037,
+        "truck_unfinished": 22.77777777777778
+      },
+      {
+        "arm": "k1",
+        "load": 7500,
+        "runs": 9,
+        "c_wait": 382318599.66112554,
+        "c_vessel": 127967982.38117708,
+        "c_move": 702978.0092592592,
+        "c_rehandle": 17325333.333333332,
+        "phi_krw": 528314893.38489527,
+        "TRUCK_mean_min": 55.21269272957689,
+        "GATE_IN_mean_min": 23.797857740077085,
+        "GATE_OUT_mean_min": 75.34865161193787,
+        "VESSEL_DISCHARGE_mean_min": 905.1969045102966,
+        "VESSEL_LOAD_mean_min": 826.5650605889325,
+        "truck_unfinished": 104
+      },
+      {
+        "arm": "k1",
+        "load": 15000,
+        "runs": 9,
+        "c_wait": 3037988911.0695586,
+        "c_vessel": 121139343.35494411,
+        "c_move": 662181.4814814815,
+        "c_rehandle": 17692666.666666668,
+        "phi_krw": 3177483102.572651,
+        "TRUCK_mean_min": 173.69561893080896,
+        "GATE_IN_mean_min": 34.85871929979042,
+        "GATE_OUT_mean_min": 266.4174920664512,
+        "VESSEL_DISCHARGE_mean_min": 1005.1105379396846,
+        "VESSEL_LOAD_mean_min": 989.9264615169045,
+        "truck_unfinished": 2957.3333333333335
+      },
+      {
+        "arm": "k2",
+        "load": 3500,
+        "runs": 9,
+        "c_wait": 59901531.171166025,
+        "c_vessel": 50497109.99759529,
+        "c_move": 471295.1388888889,
+        "c_rehandle": 10140444.444444444,
+        "phi_krw": 121010380.75209464,
+        "TRUCK_mean_min": 22.829792460271428,
+        "GATE_IN_mean_min": 15.00892360671827,
+        "GATE_OUT_mean_min": 27.975196775242612,
+        "VESSEL_DISCHARGE_mean_min": 665.046181647783,
+        "VESSEL_LOAD_mean_min": 629.4658874268137,
+        "truck_unfinished": 24.444444444444443
+      },
+      {
+        "arm": "k2",
+        "load": 7500,
+        "runs": 9,
+        "c_wait": 397455124.05741125,
+        "c_vessel": 132769822.94986366,
+        "c_move": 745113.6574074074,
+        "c_rehandle": 17789777.777777776,
+        "phi_krw": 548759838.4424601,
+        "TRUCK_mean_min": 57.46471212023664,
+        "GATE_IN_mean_min": 26.498803915965148,
+        "GATE_OUT_mean_min": 77.30851307244887,
+        "VESSEL_DISCHARGE_mean_min": 899.8053304174956,
+        "VESSEL_LOAD_mean_min": 859.6852854797343,
+        "truck_unfinished": 97.55555555555556
+      },
+      {
+        "arm": "k2",
+        "load": 15000,
+        "runs": 9,
+        "c_wait": 3239906545.699042,
+        "c_vessel": 121796941.43874489,
+        "c_move": 858356.5972222222,
+        "c_rehandle": 17878222.222222224,
+        "phi_krw": 3380440065.9572315,
+        "TRUCK_mean_min": 185.1745656332205,
+        "GATE_IN_mean_min": 71.07849962012486,
+        "GATE_OUT_mean_min": 261.3817526470113,
+        "VESSEL_DISCHARGE_mean_min": 996.2410426996593,
+        "VESSEL_LOAD_mean_min": 1005.7245719260641,
+        "truck_unfinished": 3134.8888888888887
+      },
+      {
+        "arm": "k3",
+        "load": 3500,
+        "runs": 9,
+        "c_wait": 56490940.53951119,
+        "c_vessel": 54144030.71272925,
+        "c_move": 452655.787037037,
+        "c_rehandle": 10248222.222222222,
+        "phi_krw": 121335849.2614997,
+        "TRUCK_mean_min": 21.6315476282794,
+        "GATE_IN_mean_min": 14.848773792786826,
+        "GATE_OUT_mean_min": 26.099112159538105,
+        "VESSEL_DISCHARGE_mean_min": 686.695068930308,
+        "VESSEL_LOAD_mean_min": 650.5581210086461,
+        "truck_unfinished": 23.666666666666668
+      },
+      {
+        "arm": "k3",
+        "load": 7500,
+        "runs": 9,
+        "c_wait": 361443426.20496917,
+        "c_vessel": 139331345.2253823,
+        "c_move": 743803.125,
+        "c_rehandle": 18064222.222222224,
+        "phi_krw": 519582796.7775737,
+        "TRUCK_mean_min": 53.22412102171628,
+        "GATE_IN_mean_min": 25.210022123535538,
+        "GATE_OUT_mean_min": 71.177070489557,
+        "VESSEL_DISCHARGE_mean_min": 937.3332751345494,
+        "VESSEL_LOAD_mean_min": 886.4067725201678,
+        "truck_unfinished": 120.11111111111111
+      },
+      {
+        "arm": "k3",
+        "load": 15000,
+        "runs": 9,
+        "c_wait": 3518537525.772983,
+        "c_vessel": 124397257.68821411,
+        "c_move": 864144.9074074074,
+        "c_rehandle": 19409777.777777776,
+        "phi_krw": 3663208706.1463823,
+        "TRUCK_mean_min": 200.25223486449934,
+        "GATE_IN_mean_min": 106.22591821119349,
+        "GATE_OUT_mean_min": 263.04800866486585,
+        "VESSEL_DISCHARGE_mean_min": 1025.8866648644039,
+        "VESSEL_LOAD_mean_min": 1022.5056385670388,
+        "truck_unfinished": 3706
+      },
+      {
+        "arm": "k6",
+        "load": 3500,
+        "runs": 9,
+        "c_wait": 62124321.27287181,
+        "c_vessel": 54966918.788064644,
+        "c_move": 505140.27777777775,
+        "c_rehandle": 10452666.666666666,
+        "phi_krw": 128049047.0053809,
+        "TRUCK_mean_min": 23.47867327275365,
+        "GATE_IN_mean_min": 16.175565246068807,
+        "GATE_OUT_mean_min": 28.278048190806064,
+        "VESSEL_DISCHARGE_mean_min": 672.0106007942601,
+        "VESSEL_LOAD_mean_min": 672.9358566147903,
+        "truck_unfinished": 26.77777777777778
+      },
+      {
+        "arm": "k6",
+        "load": 7500,
+        "runs": 9,
+        "c_wait": 408692543.638219,
+        "c_vessel": 137322553.39854547,
+        "c_move": 808935.5324074074,
+        "c_rehandle": 18131111.111111112,
+        "phi_krw": 564955143.680283,
+        "TRUCK_mean_min": 58.579236640266885,
+        "GATE_IN_mean_min": 27.639746245593418,
+        "GATE_OUT_mean_min": 78.40769418322326,
+        "VESSEL_DISCHARGE_mean_min": 904.077648774601,
+        "VESSEL_LOAD_mean_min": 884.0282188351815,
+        "truck_unfinished": 108.66666666666667
+      },
+      {
+        "arm": "k6",
+        "load": 15000,
+        "runs": 9,
+        "c_wait": 3613019260.3524003,
+        "c_vessel": 122707021.66731276,
+        "c_move": 982080.7870370371,
+        "c_rehandle": 19880666.666666668,
+        "phi_krw": 3756589029.473417,
+        "TRUCK_mean_min": 203.84759456489263,
+        "GATE_IN_mean_min": 100.31334727689884,
+        "GATE_OUT_mean_min": 272.9938742687312,
+        "VESSEL_DISCHARGE_mean_min": 1001.1439210929502,
+        "VESSEL_LOAD_mean_min": 1016.4107374898646,
+        "truck_unfinished": 3867
+      },
+      {
+        "arm": "sf_spt",
+        "load": 3500,
+        "runs": 3,
+        "c_wait": 56426493.32887502,
+        "c_vessel": 46271752.72258992,
+        "c_move": 474915.2777777778,
+        "c_rehandle": 9726000.0,
+        "phi_krw": 112899161.32924272,
+        "TRUCK_mean_min": 21.81947953946833,
+        "GATE_IN_mean_min": 14.334559158274951,
+        "GATE_OUT_mean_min": 26.746375328772473,
+        "VESSEL_DISCHARGE_mean_min": 661.128791000124,
+        "VESSEL_LOAD_mean_min": 582.313134606989,
+        "truck_unfinished": 19
+      },
+      {
+        "arm": "sf_spt",
+        "load": 7500,
+        "runs": 3,
+        "c_wait": 358362011.00605726,
+        "c_vessel": 125041831.06500456,
+        "c_move": 811601.7361111111,
+        "c_rehandle": 17088666.666666668,
+        "phi_krw": 501304110.4738396,
+        "TRUCK_mean_min": 52.929066926345946,
+        "GATE_IN_mean_min": 23.88935862633338,
+        "GATE_OUT_mean_min": 71.5397484611698,
+        "VESSEL_DISCHARGE_mean_min": 882.7437076405168,
+        "VESSEL_LOAD_mean_min": 815.6399213548208,
+        "truck_unfinished": 67.33333333333333
+      },
+      {
+        "arm": "sf_spt",
+        "load": 15000,
+        "runs": 3,
+        "c_wait": 2632245642.379401,
+        "c_vessel": 118989249.03982894,
+        "c_move": 832397.2222222222,
+        "c_rehandle": 15752000.0,
+        "phi_krw": 2767819288.6414523,
+        "TRUCK_mean_min": 153.6021349611672,
+        "GATE_IN_mean_min": 34.48394210339228,
+        "GATE_OUT_mean_min": 233.15825792838956,
+        "VESSEL_DISCHARGE_mean_min": 975.1826060268932,
+        "VESSEL_LOAD_mean_min": 985.4303388854669,
+        "truck_unfinished": 2366
+      }
+    ],
+    "k6_minus_k1_by_load": [
+      {
+        "load": 3500,
+        "k6_minus_k1": {
+          "c_wait": 4390792.4376472905,
+          "c_vessel": 5630948.5110069215,
+          "c_move": 62515.85648148146,
+          "c_rehandle": 649555.5555555541,
+          "phi_krw": 10733812.36069125
+        },
+        "truck_wait_fraction_of_cost_increase": 0.4090617843970329
+      },
+      {
+        "load": 7500,
+        "k6_minus_k1": {
+          "c_wait": 26373943.97709346,
+          "c_vessel": 9354571.017368391,
+          "c_move": 105957.5231481482,
+          "c_rehandle": 805777.7777777798,
+          "phi_krw": 36640250.295387685
+        },
+        "truck_wait_fraction_of_cost_increase": 0.7198079643144097
+      },
+      {
+        "load": 15000,
+        "k6_minus_k1": {
+          "c_wait": 575030349.2828417,
+          "c_vessel": 1567678.3123686463,
+          "c_move": 319899.3055555556,
+          "c_rehandle": 2188000.0,
+          "phi_krw": 579105926.9007659
+        },
+        "truck_wait_fraction_of_cost_increase": 0.9929622933756943
+      }
+    ],
+    "k6_minus_k1_mean_cost": {
+      "c_wait": 201931695.23252746,
+      "c_vessel": 5517732.613581319,
+      "c_move": 162790.89506172843,
+      "c_rehandle": 1214444.4444444447,
+      "phi_krw": 208826663.18561494
+    },
+    "truck_wait_fraction_of_cost_increase": 0.9669823390945106,
+    "interpretation": "Whole-policy 24h outcomes; not a component decomposition of individual branch labels."
+  },
+  "raw_availability": {
+    "raw_file": "data/raw/dgt_visits_sample_20260818_09h.jsonl",
+    "sha256": "00816921df3393395b10491eaa09fc4f4c51bb30ba7c886a1c06c6e606ada431",
+    "rows": 100,
+    "filled": {
+      "reserved_s": 1,
+      "gate_in_s": 100,
+      "block_in_s": 72,
+      "job_done_s": 66,
+      "gate_out_s": 91
+    },
+    "notice_rows": 71,
+    "arrival_before_notice": 10,
+    "reservation_error_distribution_supported": false,
+    "transport_fleet_calibration_fields_present": false,
+    "newer_reservation_file_located": false,
+    "search_scope": "Workspace data directory and repository file/path references; no whole-disk search.",
+    "data_files": [
+      "data/raw/dgt_visits_sample_20260818_09h.jsonl"
+    ],
+    "caution": "Notice-to-arrival lead time is not reservation error; no private row identifiers are exported."
+  },
+  "arrival_contract": {
+    "independent_inputs": 9,
+    "rows_checked": 78000,
+    "max_scheduled_actual_error_s": 0.0,
+    "public_reservation_field_saved_separately": false,
+    "code_findings": [
+      "stage/vessels.py:build_diurnal_v3 stores arrival_s directly from the arrival stream.",
+      "stage/orders.py:orders_from_schedule maps in_out_reserve_s to round(arrival_s, 3).",
+      "stage/orders.py:V3Announcer.review passes that arrival_s to _job_from_entry and admission.",
+      "world/integrated/terminal_stream.py:_job_from_entry defaults realized_gate_in_s to the supplied gate-in.",
+      "Its provided_eta uses the same gate-in plus expected travel; actual travel can still differ.",
+      "The 600-second adherence setting exists in another builder, not this daily evaluation path."
+    ]
+  }
+}

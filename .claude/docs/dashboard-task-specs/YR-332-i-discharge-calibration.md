@@ -71,6 +71,11 @@ H-21의 3대·470초와 안벽 간격 3600/27.5초를 넣고, 1·2·3박스 및 
 자료 수신 후 이 row에서 자원 적용 단위와 시간 계약을 확정하고, 적하 추정과 달성 가능한 마감을 검사한다.
 그전에는 운반 용량을 임의로 키우거나 새 학습 결과를 현실성 통과로 보고하지 않는다.
 
+2026-11-10 후속 자료 확인: 저장소 원자료는 기존 DGT 방문 100건이며 운반 차량의 실제 투입,
+적재 주행·인수·빈차 귀환을 연결하는 기록은 확인되지 않았다. 관련 원자료 경로를 다시 요청했다.
+3대·470초 및 인계 설정은 유지하고 외부 대기 상태를 유지한다.
+[자료·K 결과 점검](../../../outputs/reports/yr323_horizon_cause_audit/README.md).
+
 [보고서](../../../outputs/reports/yr332_discharge_calibration/README.md) ·
 [전후 검증](../../../outputs/reports/yr332_discharge_calibration/verification.json) ·
 [회귀](../../../outputs/reports/yr332_discharge_calibration/bound-final.xml) ·
