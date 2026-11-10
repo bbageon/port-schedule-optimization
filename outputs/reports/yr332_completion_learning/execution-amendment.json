@@ -9,6 +9,7 @@
   "reason": "Per-process CPU sampling found approximately eight active CPU cores; independent evaluations can use remaining capacity.",
   "unchanged": ["all 119 preregistered cases", "all seeds", "all training budgets", "teacher workers", "torch threads=1", "models and objective", "input calibration", "evaluation executable and source hashes"],
   "waiting_rule": "Trained-model cases wait until all six updates are saved; no checkpoint selection.",
+  "ready_queue_adjustment": "After all 27 initial-model cases completed, the idle waiting scheduler (PID 67516, zero child processes verified) was stopped. run_completion_ready.py resumes only successful complete artifacts and schedules each model when its final checkpoint is ready. No active evaluation was interrupted, and every remaining preregistered case is retained.",
   "measurement_limit": "Wall-clock timings under varying concurrent load are diagnostics, not a controlled speed comparison.",
   "verification": "The preregistered two exact repeats and independent ledger/model reconciliation are retained."
 }
