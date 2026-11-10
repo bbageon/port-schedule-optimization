@@ -362,10 +362,12 @@ def boundary_orders(run: MB.TerminalRun, t):
     a_in = jnp.where(L.registered & (L.a_gate_in <= t + 1e-9), L.a_gate_in, jnp.asarray(EMPTY_TIME, F))
     go = o.gate_out_s[oc, rc]
     g_out = jnp.where(L.registered & (go <= t + 1e-9), go, jnp.asarray(EMPTY_TIME, F))
+    done = o.done_s[oc, rc]
+    job_done = jnp.where(L.registered & (done <= t + 1e-9), done, jnp.asarray(EMPTY_TIME, F))
     S = int(L.registered.shape[0])
     flat = STATE.empty_orders(S)._replace(block=jnp.zeros((S,), jnp.int32),
                                       is_external=jnp.ones((S,), bool),
-                                      gate_in_s=a_in, gate_out_s=g_out)
+                                      gate_in_s=a_in, done_s=job_done, gate_out_s=g_out)
     return flat
 
 
@@ -384,7 +386,7 @@ def cost_at(run: MB.TerminalRun, lay, profile, t, *, archive=()) -> PR.CostOut:
 def physical_at(run, lay, profile, t, *, archive=()):
     """Seconds and counts from execution; never recover them by dividing currency."""
     orders = boundary_orders(run, t)
-    tt = PH.censored_turn_time_s(orders, jnp.asarray(t, F))
+    tt = PH.censored_gate_to_job_done_s(orders, jnp.asarray(t, F))
     truck = jnp.sum(jnp.where(jnp.isfinite(tt), tt, 0.))
     idle = MO.month_vessel_idle(run, lay, archive=tuple(archive))
     return jnp.asarray([truck, sum(row[1] for row in idle.values()),

@@ -46,7 +46,8 @@ KRW_KEYS = ("phi_krw", "c_wait", "c_move", "c_rehandle", "c_vessel")
 
 # ───────────────────────────────────────────────── 도우미
 def _rec(key: str, a, o) -> ExecutionRecord:
-    return ExecutionRecord(doc_key=key, gate_in_s=a, gate_out_s=o)
+    # Legacy hand fixtures had zero exit travel; stamp completion explicitly.
+    return ExecutionRecord(doc_key=key, gate_in_s=a, job_done_s=o, gate_out_s=o)
 
 
 def _v5(records, end_s, vessel=None, yc=0.0, rh=0) -> dict:

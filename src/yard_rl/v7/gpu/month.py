@@ -805,7 +805,7 @@ def day_orders(run: MB.TerminalRun, lay: MonthLayout, day: int, *, sync_t: float
     """날 `day` 의 **트럭 기록**을 Φ 가 읽는 평평한 오더 배열로 — `gpu/phi.orders_from_records` 와 같은 모양.
 
     v5 `records` 는 명단 순서(= 도착 정렬 순)로 만들어지고 `bridge._sync` 가 **`값 ≤ t` 인 단계만** 찍는다
-    (bridge.py:109-118). 그래서 A(게이트 진입)·O(게이트 아웃)도 `sync_t` 이하만 채운다 — 그러지 않으면
+    (bridge.py:109-118). A(진입)·C(완료)·O(출차)는 `sync_t` 이하만 채운다 — 그러지 않으면
     잠정 Φ 가 미래를 읽는다. 반환 `(OrderArrays (S,), truck_mask (S,) bool)`.
     """
     S = int(run.tw.sched.s)
@@ -814,8 +814,10 @@ def day_orders(run: MB.TerminalRun, lay: MonthLayout, day: int, *, sync_t: float
     owner = np.asarray(run.tw.ledger.owner)
     row = np.asarray(run.tw.ledger.row)
     go = np.asarray(run.tw.blocks.orders.gate_out_s)
+    done = np.asarray(run.tw.blocks.orders.done_s)
     a = np.full((S,), np.inf)
     o = np.full((S,), np.inf)
+    c = np.full((S,), np.inf)
     for s in range(S):
         if not reg[s]:
             continue
@@ -825,10 +827,13 @@ def day_orders(run: MB.TerminalRun, lay: MonthLayout, day: int, *, sync_t: float
         ov = float(go[int(owner[s]), int(row[s])])
         if np.isfinite(ov) and ov <= sync_t + 1e-9:
             o[s] = ov
+        cv = float(done[int(owner[s]), int(row[s])])
+        if np.isfinite(cv) and cv <= sync_t + 1e-9:
+            c[s] = cv
     mask = np.asarray([d == int(day) for d in lay.truck_day], bool)
     flat = empty_orders(S)._replace(
         block=jnp.zeros((S,), jnp.int32), is_external=jnp.asarray(mask),
-        gate_in_s=jnp.asarray(a, F), gate_out_s=jnp.asarray(o, F))
+        gate_in_s=jnp.asarray(a, F), done_s=jnp.asarray(c, F), gate_out_s=jnp.asarray(o, F))
     return flat, jnp.asarray(mask)
 
 

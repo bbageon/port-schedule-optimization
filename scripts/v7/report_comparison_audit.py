@@ -40,8 +40,15 @@ def units(d):
     """Native quantities behind the four official terms (24-hour window)."""
     a = d['probe']['audit']
     t = a['trucks']
-    return dict(truck_h=t['sum_tt']/3600, over3600_h=t['over_3600']/3600,
-                over1800_h=t['over_1800']/3600, move_h=a['yc_empty_travel_s']/3600,
+    if 'truck_time_contract' in t:
+        from yard_rl.v7.schema.lifecycle import TRUCK_TIME_CONTRACT
+        if t['truck_time_contract'] != TRUCK_TIME_CONTRACT:
+            raise ValueError('Unknown truck time contract')
+        total, over3600, over1800 = t['sum_work'], t['work_over_3600'], t['work_over_1800']
+    else:  # Untouched historical exit-based archives remain reproducible.
+        total, over3600, over1800 = t['sum_tt'], t['over_3600'], t['over_1800']
+    return dict(truck_h=total/3600, over3600_h=over3600/3600,
+                over1800_h=over1800/3600, move_h=a['yc_empty_travel_s']/3600,
                 rehandles=float(a['rehandles']), gt_h=a['vessel_gt_idle_hours'],
                 gt_h_by_class=sum(VESSEL_BY_GT[float(s['gt'])]*s['gt']*s['idle_s']/3600
                                   for s in a['ships_24h'].values()))

@@ -44,6 +44,7 @@ from dataclasses import dataclass
 
 from ..reward.counterfactual import _count_rollout
 from ..reward.phi import terminal_cost_krw
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT
 
 
 @dataclass
@@ -152,6 +153,7 @@ class CraneRollout:
                                 yc_extra_move_s=self.ctx.yc_extra_move_s(snap),
                                 rehandles=self.ctx.rehandles(snap))
         out = {"phi": phi.total, "picked": seen.get("picked"),
+               'truck_time_contract': TRUCK_TIME_CONTRACT,
                'assignment': seen.get('assignment'), 'cost_end_s': end,
                'requested_end_s': requested_end, 'effective_horizon_s': end-job.t}
         if trace is not None:

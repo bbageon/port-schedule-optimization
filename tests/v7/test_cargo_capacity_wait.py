@@ -142,7 +142,7 @@ def test_actual_pickup_frees_space_then_same_waiting_inbound_is_stored():
     assert 'IN_incoming' in sim.stacks.containers
     assert len(sim.stacks.containers)==size
     assert rt.cost_breakdown['c_wait']==pytest.approx(sum(
-        truck_wait_krw(t.gate_out-t.gate_in) for t in sim.time_ledger.records.values()))
+        truck_wait_krw(t.job_done-t.gate_in) for t in sim.time_ledger.records.values()))
     assert (incoming.actual_gate_in,incoming.actual_block_arrival)==(60,360)
 
 

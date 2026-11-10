@@ -76,12 +76,14 @@ def stage_split(rec, end_s=END_S):
 
 def truck_sums(records, flow_of, end_s=END_S):
     """Exact sums needed to rescore the truck term with any linear coefficients."""
-    from yard_rl.v7.schema.lifecycle import censored_turn_time_s
+    from yard_rl.v7.schema.lifecycle import (TRUCK_TIME_CONTRACT, censored_turn_time_s,
+                                            censored_gate_to_job_done_s)
     out = dict(n=0, censored=0, lifecycle_gaps=0, sum_tt=0.0, over_3600=0.0, over_1800=0.0,
-               stages={}, by_flow={})
+               stages={}, by_flow={}, truck_time_contract=TRUCK_TIME_CONTRACT,
+               sum_work=0.0, work_over_3600=0.0, work_over_1800=0.0, job_censored=0)
     for key, rec in sorted(records.items()):
         tt = censored_turn_time_s(rec, end_s)
-        if tt is None:
+        if tt is None or rec.gate_in_s > end_s:
             continue
         split = stage_split(rec, end_s)
         assert math.isclose(split['total'], tt, rel_tol=0, abs_tol=1e-6), key
@@ -90,6 +92,11 @@ def truck_sums(records, flow_of, end_s=END_S):
         out['censored'] += split['censored']
         out['lifecycle_gaps'] += split['gap']
         out['sum_tt'] += tt
+        work = censored_gate_to_job_done_s(rec, end_s)
+        out['sum_work'] += work
+        out['work_over_3600'] += max(0.0, work-3600.0)
+        out['work_over_1800'] += max(0.0, work-1800.0)
+        out['job_censored'] += rec.job_done_s is None or rec.job_done_s > end_s
         out['over_3600'] += max(0.0, tt-3600.0)
         out['over_1800'] += max(0.0, tt-1800.0)
         for part in ('travel_in', 'queue', 'service', 'exit'):

@@ -114,7 +114,8 @@ class CraneTrainState:
         path.mkdir(parents=True, exist_ok=True)
         #: ★옵티마이저 상태도 같이 남긴다 ([[YR-312]]). Adam 은 기울기의 이동평균을
         #:  들고 있어서, 망만 이어받으면 첫 몇 회차가 **새 시작과 같은** 갱신을 한다.
-        torch.save({"crane": self.net.state_dict(),
+        from ..schema.lifecycle import TRUCK_TIME_CONTRACT
+        torch.save({"crane": self.net.state_dict(), "truck_time_contract": TRUCK_TIME_CONTRACT,
                     "opt": self.trainer.opt.state_dict(),
                     "steps_coef": self.trainer.steps_coef, "it": it,
                     "feature_mode": getattr(self.net, 'feature_mode', 'legacy'),
@@ -138,6 +139,9 @@ class CraneTrainState:
         옛 체크포인트(망만 저장)도 읽는다 — 그때는 옵티마이저가 새것이라 경고한다.
         """
         ck = torch.load(path)
+        from ..schema.lifecycle import TRUCK_TIME_CONTRACT
+        if ck.get('truck_time_contract') != TRUCK_TIME_CONTRACT:
+            raise ValueError('Checkpoint truck time contract differs; regenerate labels and train fresh')
         net.load_state_dict(ck["crane"])
         net.feature_mode = ck.get('feature_mode', 'legacy')
         net.include_flow = ck.get('model_config', {}).get('include_flow', False)
@@ -173,7 +177,11 @@ def evaluate(net, *, loads=EVAL_LOADS, seed_base: int = EVAL_SEED_BASE,
                     "rehandle": b.get("c_rehandle", 0.0), "move": b.get("c_move", 0.0),
                     #: ★턴타임 = 게이트 아웃 − 게이트 인 — 성과지표 (2026-09-22)
                     "turn_mean_s": b.get("mean_turn_time_s", 0.0),
-                    "turn_p90_s": b.get("p90_turn_time_s", 0.0)}
+                    "turn_p90_s": b.get("p90_turn_time_s", 0.0),
+                    "mean_gate_to_job_done_s": b['mean_gate_to_job_done_s'],
+                    "p90_gate_to_job_done_s": b['p90_gate_to_job_done_s'],
+                    "n_job_censored": b['n_job_censored'],
+                    "truck_time_contract": b['truck_time_contract']}
         rows.append({"load": load, "seed": seed,
                      "phi_rl": rl.phi_krw, "phi_rule": rule.phi_krw,
                      "gap": rl.phi_krw - rule.phi_krw,
@@ -193,18 +201,15 @@ def _eval_line(it: int, ev: dict) -> str:
 
 
 def split_table(ev: dict) -> str:
-    """★턴타임을 앞에, 비용 항목을 뒤에 — 성과지표가 턴타임이다 (사용자 지시 2026-09-22).
-
-    비용 총액은 단위가 크고 항목 구성에 따라 흔들리지만, 턴타임은 현장에서 쓰는 잣대다.
-    """
-    out = ["  ■ 턴타임 (게이트 아웃 − 게이트 인 · 음수 = 학습이 짧다)",
+    """작업 완료 기준을 앞에 두며 출차 기준 과거 수치와 혼합하지 않는다."""
+    out = ["  ■ 작업 처리시간 (게이트 진입→작업 완료 · 음수 = 학습이 짧다)",
            "    부하      학습 평균    규칙 평균        차이      90분위 차이"]
     for r in ev["rows"]:
         a, b = r["split_rl"], r["split_rule"]
-        out.append(f"  {r['load']:>7,}  {a['turn_mean_s'] / 60:>8.1f}분  "
-                   f"{b['turn_mean_s'] / 60:>8.1f}분  "
-                   f"{(a['turn_mean_s'] - b['turn_mean_s']) / 60:>+8.1f}분  "
-                   f"{(a['turn_p90_s'] - b['turn_p90_s']) / 60:>+9.1f}분")
+        out.append(f"  {r['load']:>7,}  {a['mean_gate_to_job_done_s'] / 60:>8.1f}분  "
+                   f"{b['mean_gate_to_job_done_s'] / 60:>8.1f}분  "
+                   f"{(a['mean_gate_to_job_done_s'] - b['mean_gate_to_job_done_s']) / 60:>+8.1f}분  "
+                   f"{(a['p90_gate_to_job_done_s'] - b['p90_gate_to_job_done_s']) / 60:>+9.1f}분")
     out += ["", "  ■ 비용 항목 (학습 − 규칙)",
             "    부하    트럭대기          본선유휴        파내기          합계"]
     for r in ev["rows"]:

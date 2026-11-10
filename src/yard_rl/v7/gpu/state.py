@@ -678,6 +678,13 @@ def censored_turn_time_s(o: OrderArrays, end_s) -> jnp.ndarray:
                      jnp.where(part, end_s - o.gate_in_s, jnp.nan))
 
 
+def censored_gate_to_job_done_s(o: OrderArrays, end_s) -> jnp.ndarray:
+    """작업 완료 기준 시간. 창 안 진입만 표본이며 출차 시각은 사용하지 않는다."""
+    end_s = jnp.asarray(end_s, TIME_DTYPE)
+    entered = (o.gate_in_s < EMPTY_TIME) & (o.gate_in_s <= end_s)
+    return jnp.where(entered, jnp.maximum(0.0, jnp.minimum(o.done_s, end_s)-o.gate_in_s), jnp.nan)
+
+
 def censored_exposure_s(o: OrderArrays, end_s) -> jnp.ndarray:
     """종료시점 터미널 안(O 미확정 또는 O > end) 트럭의 `end − A` 합 — v5 `censored_exposure_s`
     (time_contract.py:136-142) `sum(end − r.gate_in for …)`.

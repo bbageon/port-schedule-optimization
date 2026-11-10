@@ -34,8 +34,10 @@ def gz_read(path):
 
 def checkpoint(path, net, trainer=None, **metadata):
     import torch
+    from yard_rl.v7.schema.lifecycle import TRUCK_TIME_CONTRACT
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     torch.save(dict(crane=net.state_dict(), feature_mode=net.feature_mode,
+                    truck_time_contract=TRUCK_TIME_CONTRACT,
                     dim=net.net[0].in_features, hidden=net.net[0].out_features,
                     include_flow=getattr(net,'include_flow',False),
                     model_config=net.model_config(),
@@ -56,7 +58,8 @@ def labelset(data):
     cs = data['result']['crane']
     return CraneLabelSet(samples=[CraneSample(**s) for s in data['samples']],
         worlds=cs['worlds'], zero=cs['zero'], scale=cs['scale'],
-        median_gap_krw=cs['median_gap_krw'], floor_bound=cs['floor_bound'])
+        median_gap_krw=cs['median_gap_krw'], floor_bound=cs['floor_bound'],
+        truck_time_contract=data['result'].get('truck_time_contract', 'gate-in-to-gate-out-v1'))
 
 
 def train_seed(args):

@@ -106,7 +106,7 @@ def validate(rec, *, eps: float = 1e-6) -> None:
 
 # ------------------------------------------------------------------ 파생 (저장하지 않음)
 def turn_time_s(rec) -> float | None:
-    """★턴타임 = 게이트아웃 − 게이트인. 비용 항1 의 원료([04](04-비용과-보상.md))."""
+    """전체 게이트 체류 = 출차 − 진입. 비용과 구분하는 운영 진단이다."""
     if rec.gate_out_s is None or rec.gate_in_s is None:
         return None
     return rec.gate_out_s - rec.gate_in_s
@@ -127,7 +127,7 @@ def adherence_error_s(rec, reserve_s: float | None) -> float | None:
 
 
 def censored_turn_time_s(rec, end_s: float) -> float | None:
-    """미완료 검열 턴타임 — 끝에 남은 트럭이 비용을 피하지 못하게 한다.
+    """출차 기준의 관측 체류 — 비용과 별도로 보존하는 기존 진단.
 
     완료차는 `O − A`, 미완료차는 `T − A`. 게이트인조차 없으면 아직 무대 밖이라 None.
 
@@ -140,3 +140,27 @@ def censored_turn_time_s(rec, end_s: float) -> float | None:
         return None
     end = end_s if rec.gate_out_s is None else min(rec.gate_out_s, end_s)
     return max(0.0, end - rec.gate_in_s)
+
+
+# User contract (2026-11-10): job completion, not gate exit, ends crane cost.
+TRUCK_TIME_CONTRACT = 'gate-in-to-job-done-v1'
+
+
+def censored_gate_to_job_done_s(rec, end_s: float) -> float | None:
+    """진입→작업 완료. 미완료는 관측 끝까지, 미진입은 None/0이다.
+
+    출차 기록으로 완료를 대신 추정하지 않는다. C가 없는 자료는 미완료로
+    처리하며, 실제 완료 사건이 기록될 때만 비용 누적을 멈춘다.
+    """
+    if rec.gate_in_s is None:
+        return None
+    end = end_s if rec.job_done_s is None else min(rec.job_done_s, end_s)
+    return max(0.0, end - rec.gate_in_s)
+
+
+def censored_job_done_to_gate_out_s(rec, end_s: float) -> float | None:
+    """작업 완료→출차. 분모는 관측 창 안에서 작업이 끝난 트럭이다."""
+    if rec.job_done_s is None or rec.job_done_s > end_s:
+        return None
+    end = end_s if rec.gate_out_s is None else min(rec.gate_out_s, end_s)
+    return max(0.0, end - rec.job_done_s)

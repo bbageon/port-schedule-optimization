@@ -41,11 +41,13 @@ from ..stage.month import plan_month
 RULE_ARMS = ("SF_SPT", "FIFO", "LIFO", "SPT", "NEAREST", "LWKR", "RANDOM")
 N_JUDGE_DAYS = 28
 SPLIT_KEYS = ("c_wait", "c_vessel", "c_rehandle", "c_move")
-#: ★성과지표 — **턴타임 = 게이트 아웃 − 게이트 인** (사용자 지시 2026-09-22).
+#: ★주 성과지표 — 게이트 진입→작업 완료 (사용자 지시 2026-11-10).
 #:  비용 총액이 아니라 이것을 앞에 놓는다: 비용은 단위가 크고 항목 구성에 따라
 #:  흔들리지만 턴타임은 **현장에서 쓰는 잣대**다. 정의는 `schema/lifecycle.py`.
 TURN_KEYS = ("mean_turn_time_s", "p50_turn_time_s", "p90_turn_time_s",
-             "n_trucks", "n_censored", "over_ratio")
+             "n_trucks", "n_censored", "over_ratio", 'truck_time_contract',
+             'mean_gate_to_job_done_s', 'p90_gate_to_job_done_s', 'n_job_censored',
+             'mean_job_done_to_gate_out_s', 'n_job_done', 'n_exit_pending')
 
 # ──────────────────────────────────────────────────────────── 작업자
 _NET = None
@@ -79,7 +81,7 @@ def run_cell(job: dict) -> dict:
     return {"day": job["day"], "load": job["load"], "label": job["label"],
             "seed": job["seed"], "arm": job["arm"], "phi": r.phi_krw,
             "split": {k: float(b.get(k, 0.0)) for k in SPLIT_KEYS},
-            "turn": {k: float(b.get(k, 0.0)) for k in TURN_KEYS},
+            "turn": {k: b[k] for k in TURN_KEYS},
             "admitted": r.admitted, "policy_exceptions": r.policy_exceptions,
             "rollout_calls": rollout_calls()}
 
@@ -187,10 +189,16 @@ def judge(*, ckpt: str, seed: int, out_dir: str | Path, workers: int = 10,
           for arm in meta["arms"]}
     p90 = {arm: {d: v.get("p90_turn_time_s", 0.0) for d, v in turn[arm].items()}
            for arm in meta["arms"]}
+    work = {arm: {d: v['mean_gate_to_job_done_s'] for d, v in turn[arm].items()}
+            for arm in meta['arms']}
+    work90 = {arm: {d: v['p90_gate_to_job_done_s'] for d, v in turn[arm].items()}
+              for arm in meta['arms']}
     for arm in arms:
         s = paired_summary(phi[RL_CRANE], phi[arm], strata)
         s["turn_mean"] = paired_summary(tt[RL_CRANE], tt[arm], strata)
         s["turn_p90"] = paired_summary(p90[RL_CRANE], p90[arm], strata)
+        s['gate_to_job_done_mean'] = paired_summary(work[RL_CRANE], work[arm], strata)
+        s['gate_to_job_done_p90'] = paired_summary(work90[RL_CRANE], work90[arm], strata)
         # 부하 구간별 · 항목별 평균 차이
         by_label: dict = {}
         for k in s["days"]:
@@ -220,14 +228,13 @@ def render_report(res: dict) -> str:
         for k, v in res["guard_failures"].items():
             L.append(f"- {k}: {'; '.join(v)}")
         L.append("")
-    #: ★턴타임을 **앞에** 둔다 — 성과지표가 이것이다 (사용자 지시 2026-09-22)
-    L += ["## ① 턴타임 — 게이트 아웃 − 게이트 인 (음수 = 학습이 짧다)", "",
-          "| 규칙 | 짧은 날 | 부호검정 p | 평균 턴타임 감소 | 90분위 감소 |",
+    L += ["## ① 작업 처리시간 — 게이트 진입→작업 완료 (음수 = 학습이 짧다)", "",
+          "| 규칙 | 짧은 날 | 부호검정 p | 평균 시간 차이 | 90분위 차이 |",
           "|---|---|---|---|---|"]
     for arm, s in st.items():
-        a, b = s.get("turn_mean"), s.get("turn_p90")
+        a, b = s.get('gate_to_job_done_mean'), s.get('gate_to_job_done_p90')
         if a is None:
-            L.append(f"| {arm} | (이 실행에는 턴타임 기록 없음) | | | |")
+            L.append(f"| {arm} | (이 실행에는 작업 완료 기준 기록 없음) | | | |")
             continue
         L.append(f"| {arm} | {a['sign']['win']}/{a['sign']['n']} | {a['sign']['p']:.4f} | "
                  f"{a['mean_diff_krw']/60:+.1f}분 ({a['median_ratio']:+.2%}) | "

@@ -10,6 +10,7 @@ import torch
 
 from ..features.block import block_features
 from ..reward.phi import terminal_cost_krw
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT
 from ..reward.scaling import default_reward_scale, scaling_report
 from ..reward.operational import KEYS, reference_config, runtime_totals, normalized_loss
 from ..stage.episode import rehandles_of, yc_empty_travel_s
@@ -271,13 +272,17 @@ class PPORuntime:
 def reward_contract(config):
     if config.reward_mode == 'operational':
         return reference_config(gamma=config.gamma, time_unit_s=config.time_unit_s)
-    return scaling_report(config.reward_scale_krw, gamma=config.gamma, time_unit_s=config.time_unit_s)
+    return scaling_report(config.reward_scale_krw, gamma=config.gamma, time_unit_s=config.time_unit_s) | {
+        'truck_time_contract': TRUCK_TIME_CONTRACT}
 
 
 def check_reward_contract(policy, config, contract=None):
     mode = getattr(policy, 'checkpoint_reward_mode', None)
     if mode is not None and mode != config.reward_mode:
         raise ValueError('Checkpoint reward mode differs; train fresh or replay its recorded mode')
+    if mode is not None and (getattr(policy, 'checkpoint_reward_contract', None) or {}).get(
+            'truck_time_contract') != TRUCK_TIME_CONTRACT:
+        raise ValueError('Checkpoint truck time contract differs; old exit-based rewards cannot resume')
     if mode == 'operational':
         if policy.checkpoint_reward_contract != (contract or reward_contract(config)):
             raise ValueError('Checkpoint operational reference/weights differ')

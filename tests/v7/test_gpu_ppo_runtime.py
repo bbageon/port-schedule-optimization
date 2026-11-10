@@ -130,20 +130,18 @@ class _BufferSpy(list):
         super().append(item)
 
 
-def _record_times(records) -> tuple[np.ndarray, np.ndarray]:
-    """기록 사전 → (게이트인 A, 게이트아웃 O) — `phi.orders_from_records` 와 **같은 순서**.
-
-    Φ 는 이 두 열과 `is_external` 만 읽으므로 경계마다 스물다섯 열을 다 만들지 않는다
-    (`test_stage_spec_phi_snapshot_matches_orders_from_records` 가 같은 값임을 확인한다).
-    """
+def _record_times(records):
+    """진입·작업 완료·출차를 각각 보존하는 비용 입력 스냅샷."""
     n = len(records)
-    a, o = np.full(n, np.inf), np.full(n, np.inf)
+    a, c, o = np.full(n, np.inf), np.full(n, np.inf), np.full(n, np.inf)
     for i, rec in enumerate(records.values()):
         if rec.gate_in_s is not None:
             a[i] = float(rec.gate_in_s)
         if rec.gate_out_s is not None:
             o[i] = float(rec.gate_out_s)
-    return a, o
+        if rec.job_done_s is not None:
+            c[i] = float(rec.job_done_s)
+    return a, c, o
 
 
 class _KindSpy(dict):
@@ -188,11 +186,11 @@ def _run_v5(*, load: int, duration_s: float, window=None, training: bool = True,
 
     def read_cost(t):
         total = orig_read(t)
-        a, o = _record_times(rt.bridge.records)
+        a, c, o = _record_times(rt.bridge.records)
         vessels = month_vessel_idle(rt.mbt, rt.meta, rt.archive)
         phi_in.clear()
         phi_in.update(t=float(t), total=float(total), breakdown=dict(rt.cost_breakdown),
-                      a=a, o=o, n_records=len(rt.bridge.records),
+                      a=a, c=c, o=o, n_records=len(rt.bridge.records),
                       vessel_gt=np.array([float(g) for g, _ in vessels.values()]),
                       vessel_idle=np.array([float(i) for _, i in vessels.values()]),
                       yc=float(yc_empty_travel_s(rt.mbt)), rh=int(rehandles_of(rt.mbt)))
@@ -352,13 +350,13 @@ def stage_full():
 
 
 # ════════════════════════════════════════════════ Φ 를 배열로 (조각 5 재사용)
-def _phi_one(a, o, ext, end_s, gt, idle, vmask, yc, rh):
-    orders = empty_orders(a.shape[0])._replace(gate_in_s=a, gate_out_s=o, is_external=ext)
+def _phi_one(a, c, o, ext, end_s, gt, idle, vmask, yc, rh):
+    orders = empty_orders(a.shape[0])._replace(gate_in_s=a, done_s=c, gate_out_s=o, is_external=ext)
     return PR.read_cost(orders, end_s, vessel_gt=gt, vessel_idle_s=idle, vessel_mask=vmask,
                         yc_extra_move_s=yc, rehandles=rh)
 
 
-_PHI_BATCH = jax.jit(jax.vmap(_phi_one, in_axes=(0, 0, None, 0, 0, 0, 0, 0, 0)))
+_PHI_BATCH = jax.jit(jax.vmap(_phi_one, in_axes=(0, 0, 0, None, 0, 0, 0, 0, 0, 0)))
 
 
 def _array_phi(rows: list[dict]):
@@ -372,6 +370,7 @@ def _array_phi(rows: list[dict]):
     idle = np.stack([pad(r["phi"]["vessel_idle"], v) for r in rows])
     vmask = np.stack([np.arange(v) < len(r["phi"]["vessel_gt"]) for r in rows])
     return _PHI_BATCH(jnp.asarray(np.stack([r["phi"]["a"] for r in rows])),
+                      jnp.asarray(np.stack([r["phi"]["c"] for r in rows])),
                       jnp.asarray(np.stack([r["phi"]["o"] for r in rows])),
                       jnp.ones((n,), jnp.bool_),
                       jnp.asarray(np.array([r["phi"]["t"] for r in rows])),
@@ -623,8 +622,9 @@ def test_stage_phi_is_bit_identical_to_v5(stage_spec, stage_rich):
 def test_stage_spec_phi_snapshot_matches_orders_from_records(stage_spec):
     """경계마다 두 열(A·O)만 찍은 것이 `phi.orders_from_records` 전체와 같은가."""
     o = orders_from_records(stage_spec["records"])
-    a2, o2 = _record_times(stage_spec["records"])
+    a2, c2, o2 = _record_times(stage_spec["records"])
     assert np.array_equal(np.asarray(o.gate_in_s), a2)
+    assert np.array_equal(np.asarray(o.done_s), c2)
     assert np.array_equal(np.asarray(o.gate_out_s), o2)
     assert bool(np.asarray(o.is_external).all())
 

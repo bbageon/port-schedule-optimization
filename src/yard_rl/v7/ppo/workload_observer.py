@@ -8,6 +8,7 @@ import math
 import numpy as np
 
 from ..reward.krw import truck_wait_krw
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT, censored_gate_to_job_done_s
 from ..world.contract.schema import CandidateKind
 from ..world.domain.enums import JobStatus
 from .journal import write_json
@@ -67,6 +68,7 @@ class Observer:
     def request_metrics(self, rt, t, cohort=None):
         times, delays, queue, completed = [], [], [], 0
         actual_wait, original_wait = 0.0, 0.0
+        work_times, work_completed = [], 0
         for key, (request, notice) in self.original_orders(rt).items():
             if request > t or (cohort is not None and not cohort[0] <= request < cohort[1]):
                 continue
@@ -76,7 +78,11 @@ class Observer:
             times.append(tt)
             original_wait += truck_wait_krw(tt)
             if rec.gate_in_s is not None:
-                actual_wait += truck_wait_krw(max(0.0, end - rec.gate_in_s))
+                work = censored_gate_to_job_done_s(rec, t)
+                actual_wait += truck_wait_krw(work)
+                if rec.gate_in_s <= t:
+                    work_times.append(work)
+                    work_completed += rec.job_done_s is not None and rec.job_done_s <= t
             current_request = rt.bridge.orders[key].in_out_reserve_s
             delays.append(max(0.0, current_request - request))
             completed += rec.gate_out_s is not None and rec.gate_out_s <= t
@@ -84,6 +90,11 @@ class Observer:
                 stop = min(t, rec.service_start_s) if rec.service_start_s is not None else t
                 queue.append(max(0.0, stop - rec.block_in_s))
         return dict(requested=len(times), completed=int(completed), unfinished=len(times)-completed,
+            truck_time_contract=TRUCK_TIME_CONTRACT,
+            gate_entered=len(work_times), job_completed=int(work_completed),
+            job_unfinished=len(work_times)-work_completed,
+            gate_to_job_done_mean_s=float(np.mean(work_times)) if work_times else 0,
+            original_request_cost_contract='original-request-to-gate-exit-legacy-diagnostic',
             original_request_wait_krw=original_wait, actual_gate_wait_krw=actual_wait,
             deferred_count=sum(x > .001 for x in delays), defer_mean_s=float(np.mean(delays)) if delays else 0,
             request_to_exit_mean_s=float(np.mean(times)) if times else 0,

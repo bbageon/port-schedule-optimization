@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 import statistics
 
-from ..schema.lifecycle import censored_turn_time_s
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT, censored_gate_to_job_done_s
 from ..stage.episode import rehandles_of, yc_empty_travel_s
 from ..stage.month import month_vessel_idle
 
@@ -17,7 +17,7 @@ WEIGHTS = (.25, .25, .25, .25)
 
 
 def physical_totals(records, *, end_s, vessel_idle, empty_s, rehandles):
-    truck = sum(censored_turn_time_s(r, end_s) or 0. for r in records.values())
+    truck = sum(censored_gate_to_job_done_s(r, end_s) or 0. for r in records.values())
     values = (truck, sum(float(v[1]) for v in vessel_idle.values()), float(empty_s), float(rehandles))
     if any(not math.isfinite(v) or v < 0 for v in values):
         raise ValueError('Physical ledgers must be finite and nonnegative')
@@ -73,7 +73,10 @@ def reference_config(*, gamma=.999, time_unit_s=60., weights=WEIGHTS):
                         start_s=trace['fit_start_s'], end_s=trace['fit_end_s'])
     return fit | dict(method='frozen-physical-discounted-return-std', weights=dict(zip(KEYS, weights)),
         reference_sha256=hashlib.sha256(data).hexdigest(), reference_seed=trace['seed'],
-        source_commit=trace['code']['git_head'], currency_used=False, mean_centered=False, clipped=False)
+        source_commit=trace['code']['git_head'], currency_used=False, mean_centered=False, clipped=False,
+        truck_time_contract=TRUCK_TIME_CONTRACT,
+        reference_truck_time_contract='gate-in-to-gate-out-v1',
+        scale_policy='retain-frozen-reference; no refit to job-completion returns')
 
 
 def normalized_loss(totals, reference):

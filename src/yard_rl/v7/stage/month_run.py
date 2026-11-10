@@ -39,6 +39,7 @@ import torch
 from .. import CF_HORIZON_S
 from ..actors import BuyerNet, SellerNet
 from ..reward.phi import terminal_cost_krw
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT
 from ..world.integrated.multiblock import TransferError
 from ..world.integrated.profiles import build_h21_profile
 from ..world.integrated.terminal_stream import (DIURNAL_DRAIN_S, OBS_24H,
@@ -82,6 +83,13 @@ class DayReport:
     mean_turn_time_s: float = 0.0
     p90_turn_time_s: float = 0.0
     over_ratio: float = 0.0
+    truck_time_contract: str = TRUCK_TIME_CONTRACT
+    mean_gate_to_job_done_s: float = 0.0
+    p90_gate_to_job_done_s: float = 0.0
+    n_job_censored: int = 0
+    n_job_done: int = 0
+    n_exit_pending: int = 0
+    mean_job_done_to_gate_out_s: float = 0.0
     traded: int = 0
     n_space: int = 0
     n_time: int = 0
@@ -523,6 +531,11 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
                         mean_turn_time_s=phi.mean_turn_time_s,
                         p90_turn_time_s=phi.p90_turn_time_s,
                         over_ratio=phi.over_ratio,
+                        mean_gate_to_job_done_s=phi.mean_gate_to_job_done_s,
+                        p90_gate_to_job_done_s=phi.p90_gate_to_job_done_s,
+                        n_job_censored=phi.n_job_censored, n_job_done=phi.n_job_done,
+                        n_exit_pending=phi.n_exit_pending,
+                        mean_job_done_to_gate_out_s=phi.mean_job_done_to_gate_out_s,
                         traded=bridge.traded_edges - state["traded"],
                         n_space=bridge.n_space - state["space"],
                         n_time=bridge.n_time - state["time"],
@@ -603,6 +616,11 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
             n_trucks=phi.n_trucks, n_censored=phi.n_censored,
             mean_turn_time_s=phi.mean_turn_time_s,
             p90_turn_time_s=phi.p90_turn_time_s, over_ratio=phi.over_ratio,
+            mean_gate_to_job_done_s=phi.mean_gate_to_job_done_s,
+            p90_gate_to_job_done_s=phi.p90_gate_to_job_done_s,
+            n_job_censored=phi.n_job_censored, n_job_done=phi.n_job_done,
+            n_exit_pending=phi.n_exit_pending,
+            mean_job_done_to_gate_out_s=phi.mean_job_done_to_gate_out_s,
             provisional=False)
         res.days.append(fin)
 

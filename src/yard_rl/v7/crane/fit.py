@@ -100,6 +100,9 @@ class CraneTrainer:
         한 결정이 표본 둘(고른 것·대안)을 만드는데, 그 둘이 학습·검증으로 갈리면
         **같은 결정을 보고 채점**하는 셈이라 검증이 낙관적으로 나온다.
         """
+        from ..schema.lifecycle import TRUCK_TIME_CONTRACT
+        if labels.truck_time_contract != TRUCK_TIME_CONTRACT:
+            raise ValueError('Label truck time contract differs; regenerate labels')
         rep = CraneFitReport(loss_kind=self.loss_kind)
         samples = labels.samples
         if len(samples) % 2:

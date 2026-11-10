@@ -17,10 +17,10 @@ def rows():
 
 
 def test_physical_ledger_counts_unfinished_but_no_future_trucks_and_no_gt_price():
-    records = dict(done=SimpleNamespace(gate_in_s=100, gate_out_s=160),
-        active=SimpleNamespace(gate_in_s=90, gate_out_s=None),
-        future=SimpleNamespace(gate_in_s=210, gate_out_s=None),
-        absent=SimpleNamespace(gate_in_s=None, gate_out_s=None))
+    records = dict(done=SimpleNamespace(gate_in_s=100, job_done_s=160, gate_out_s=999),
+        active=SimpleNamespace(gate_in_s=90, job_done_s=None, gate_out_s=None),
+        future=SimpleNamespace(gate_in_s=210, job_done_s=None, gate_out_s=None),
+        absent=SimpleNamespace(gate_in_s=None, job_done_s=None, gate_out_s=None))
     actual = physical_totals(records, end_s=200, vessel_idle={'v': (999999999,20)}, empty_s=5, rehandles=2)
     assert actual == dict(truck_s=170, vessel_s=20, empty_s=5, rehandles=2)
 

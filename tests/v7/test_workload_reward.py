@@ -106,15 +106,16 @@ def test_shape_disabled_preserves_cost_reward():
 def test_original_request_audit_does_not_charge_notice_leadtime(tmp_path):
     from yard_rl.v7.ppo.workload_observer import Observer
     o = Order('k', 1, 0, 100, 'A', 'box')
-    r = ExecutionRecord('k', gate_in_s=100, gate_out_s=200)
+    r = ExecutionRecord('k', gate_in_s=100, job_done_s=150, gate_out_s=200)
     rt = SimpleNamespace(original_requests={'k': (100, 0)},
                          bridge=SimpleNamespace(orders={'k': o}, records={'k': r}))
     observer = Observer(tmp_path, [])
     normal = observer.request_metrics(rt, 300)
     assert normal['request_to_exit_mean_s'] == 100
-    assert normal['original_request_wait_krw'] == normal['actual_gate_wait_krw']
+    assert normal['original_request_wait_krw'] == 2*normal['actual_gate_wait_krw']
+    assert normal['gate_to_job_done_mean_s'] == 50 and normal['job_completed'] == 1
     rt.bridge.orders['k'] = replace(o, in_out_reserve_s=1000)
-    r.gate_in_s, r.gate_out_s = None, None
+    r.gate_in_s, r.job_done_s, r.gate_out_s = None, None, None
     delayed = observer.request_metrics(rt, 300)
     assert delayed['requested'] == 1 and delayed['unfinished'] == 1
     assert delayed['original_request_wait_krw'] > 0 and delayed['actual_gate_wait_krw'] == 0

@@ -5,7 +5,7 @@ v5 가 `+=` 로 더한 순서(기록 사전의 삽입 순서 = 배열 순서) �
 
     Φ = C_wait + C_move + C_rehandle + C_vessel        [원]
 
-    항1 wait      기록(A·O)에서 검열 턴타임 → 원화 (1시간 초과분 할증)     … (N,) 벡터 + 마스크 합
+    항1 wait      기록(A·C)에서 진입→완료 시간 → 원화 (1시간 초과분 할증)
     항2 move      YC 빈 주행 초 (터미널 누적 계수기 값을 호출부가 준다)
     항3 rehandle  재조작 횟수 (계수기)
     항4 vessel    {배: (GT, 유휴 초)} 표 → 배마다 원화 → 표 순서대로 합
@@ -35,9 +35,12 @@ from jax import lax
 
 from ..reward.krw import (KRW_OVERTIME_START_S, KRW_REHANDLE_EACH, KRW_TRUCK_HOUR,
                           KRW_TRUCK_OVER_HOUR, KRW_VESSEL_GT_HOUR, KRW_YC_MOVE_HOUR)
+from ..reward.phi import WORK_METRIC_KEYS
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT
 from .events import TIME_DTYPE
 from .exact import div_const, mul_exact, sum_seq
-from .state import EMPTY_TIME, OrderArrays, censored_turn_time_s, empty_orders
+from .state import (EMPTY_TIME, OrderArrays, censored_turn_time_s, empty_orders,
+                    censored_gate_to_job_done_s)
 from .travel import div_exact
 
 __all__ = ["PhiArrays", "terminal_cost_krw", "terminal_cost_krw_batch", "truck_wait_krw",
@@ -45,7 +48,8 @@ __all__ = ["PhiArrays", "terminal_cost_krw", "terminal_cost_krw_batch", "truck_w
 
 #: v5 `PhiBreakdown.as_dict()` 의 키 — 같은 순서
 PHI_KEYS = ("phi_krw", "c_wait", "c_move", "c_rehandle", "c_vessel", "n_trucks", "n_censored",
-            "mean_turn_time_s", "over_ratio", "p50_turn_time_s", "p90_turn_time_s", "p99_turn_time_s")
+            "mean_turn_time_s", "over_ratio", "p50_turn_time_s", "p90_turn_time_s", "p99_turn_time_s",
+            "truck_time_contract") + WORK_METRIC_KEYS
 
 
 class PhiArrays(NamedTuple):
@@ -64,6 +68,16 @@ class PhiArrays(NamedTuple):
     p50_turn_time_s: jnp.ndarray   # () f64
     p90_turn_time_s: jnp.ndarray   # () f64
     p99_turn_time_s: jnp.ndarray   # () f64
+    n_job_censored: jnp.ndarray
+    n_job_done: jnp.ndarray
+    n_exit_pending: jnp.ndarray
+    mean_gate_to_job_done_s: jnp.ndarray
+    p50_gate_to_job_done_s: jnp.ndarray
+    p90_gate_to_job_done_s: jnp.ndarray
+    p99_gate_to_job_done_s: jnp.ndarray
+    job_over_ratio: jnp.ndarray
+    post_job_gate_s: jnp.ndarray
+    mean_job_done_to_gate_out_s: jnp.ndarray
 
     def as_dict(self, i: int | None = None) -> dict:
         """v5 `as_dict()` 와 같은 키·파이썬 스칼라. 배치면 `i` 번째 세계를 고른다."""
@@ -78,6 +92,9 @@ class PhiArrays(NamedTuple):
             "p50_turn_time_s": float(pick(self.p50_turn_time_s)),
             "p90_turn_time_s": float(pick(self.p90_turn_time_s)),
             "p99_turn_time_s": float(pick(self.p99_turn_time_s)),
+            "truck_time_contract": TRUCK_TIME_CONTRACT,
+            **{k: (int if k.startswith('n_') else float)(pick(getattr(self, k)))
+               for k in WORK_METRIC_KEYS},
         }
 
 
@@ -162,7 +179,9 @@ def _phi_core(o: OrderArrays, end_s, truck_mask, vessel_gt, vessel_idle_s, vesse
     in_sample = truck_mask & ~jnp.isnan(tt)                      # v5: A 있음 · A ≤ end
     tt0 = jnp.where(in_sample, tt, 0.0)
 
-    wait = _sum_in_order(truck_wait_krw(tt0), in_sample)         # v5 `wait += truck_wait_krw(tt)` 순서
+    work = censored_gate_to_job_done_s(o, end_s)
+    work0 = jnp.where(in_sample, work, 0.0)
+    wait = _sum_in_order(truck_wait_krw(work0), in_sample)
     n = jnp.sum(in_sample.astype(jnp.int32))
     censored = jnp.sum((in_sample & ((oo >= EMPTY_TIME) | (oo > end_s))).astype(jnp.int32))
     over = jnp.sum((in_sample & (tt0 > 3600.0)).astype(jnp.int32))
@@ -175,11 +194,20 @@ def _phi_core(o: OrderArrays, end_s, truck_mask, vessel_gt, vessel_idle_s, vesse
     # ── 분위수: 표본 아닌 칸을 +inf 로 밀어 정렬 → 앞 n 칸이 v5 `samples.sort()` 와 같다
     srt = jnp.sort(jnp.where(in_sample, tt, jnp.inf))
 
-    def q(p: float):
-        if srt.shape[0] == 0:                                    # 오더 칸이 0 — 표본이 있을 수 없다
+    def q(p: float, values=srt):
+        if values.shape[0] == 0:                                 # 오더 칸이 0 — 표본이 있을 수 없다
             return jnp.asarray(0.0, TIME_DTYPE)
         idx = jnp.minimum(n - 1, jnp.floor(p * n_f).astype(jnp.int32))   # int(p * len(samples))
-        return jnp.where(has, srt[jnp.maximum(idx, 0)], 0.0)
+        return jnp.where(has, values[jnp.maximum(idx, 0)], 0.0)
+
+    done = in_sample & (o.done_s <= end_s) & (o.done_s < EMPTY_TIME)
+    n_done = jnp.sum(done.astype(jnp.int32))
+    n_pending = jnp.sum((done & (oo > end_s)).astype(jnp.int32))
+    post = jnp.where(done, jnp.maximum(0.0, jnp.minimum(oo, end_s)-o.done_s), 0.0)
+    post_sum = _sum_in_order(post, done)
+    work_sum = _sum_in_order(work0, in_sample)
+    work_sorted = jnp.sort(jnp.where(in_sample, work, jnp.inf))
+    work_over = jnp.sum((in_sample & (work0 > 3600.0)).astype(jnp.int32))
 
     # ── 항4: 표 순서대로 `vessel += vessel_idle_krw(gt, idle)`
     vessel = _sum_in_order(vessel_idle_krw(vessel_gt, vessel_idle_s), vessel_mask)
@@ -192,7 +220,15 @@ def _phi_core(o: OrderArrays, end_s, truck_mask, vessel_gt, vessel_idle_s, vesse
 
     return PhiArrays(wait=wait, move=move, rehandle=rehab, vessel=vessel, total=total,
                      n_trucks=n, n_censored=censored, mean_turn_time_s=mean, over_ratio=over_ratio,
-                     p50_turn_time_s=q(0.50), p90_turn_time_s=q(0.90), p99_turn_time_s=q(0.99))
+                     p50_turn_time_s=q(0.50), p90_turn_time_s=q(0.90), p99_turn_time_s=q(0.99),
+                     n_job_censored=n-n_done, n_job_done=n_done, n_exit_pending=n_pending,
+                     mean_gate_to_job_done_s=div_exact(work_sum, jnp.maximum(n_f, 1.0)),
+                     p50_gate_to_job_done_s=q(.50, work_sorted),
+                     p90_gate_to_job_done_s=q(.90, work_sorted),
+                     p99_gate_to_job_done_s=q(.99, work_sorted),
+                     job_over_ratio=div_exact(work_over.astype(TIME_DTYPE), jnp.maximum(n_f, 1.0)),
+                     post_job_gate_s=post_sum,
+                     mean_job_done_to_gate_out_s=div_exact(post_sum, jnp.maximum(n_done.astype(TIME_DTYPE), 1.0)))
 
 
 def _fill(o: OrderArrays, truck_mask, vessel_gt, vessel_idle_s, vessel_mask, batch: int | None):

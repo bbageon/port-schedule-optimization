@@ -28,7 +28,8 @@
 
 from .lifecycle import (LIFECYCLE_STAGES, LifecycleError, Stage, adherence_error_s,
                         censored_turn_time_s, lead_time_s, reached, turn_time_s,
-                        validate)
+                        validate, TRUCK_TIME_CONTRACT, censored_gate_to_job_done_s,
+                        censored_job_done_to_gate_out_s)
 from .order import (INOUT_IN, INOUT_OUT, ORDER_FIELDS, SCHEMA_VERSION, Order,
                     defer, relocate)
 from .record import (RECORD_FIELDS, SWAP_SPACE, SWAP_TIME, TRANSMITTED_FIELDS,
@@ -37,6 +38,7 @@ from .record import (RECORD_FIELDS, SWAP_SPACE, SWAP_TIME, TRANSMITTED_FIELDS,
 __all__ = ["Order", "ExecutionRecord", "Stage", "LifecycleError", "validate",
            "turn_time_s", "lead_time_s", "adherence_error_s",
            "censored_turn_time_s", "reached", "relocate", "defer",
+           "TRUCK_TIME_CONTRACT", "censored_gate_to_job_done_s", "censored_job_done_to_gate_out_s",
            "INOUT_IN", "INOUT_OUT", "SWAP_SPACE", "SWAP_TIME",
            "ORDER_FIELDS", "RECORD_FIELDS", "TRANSMITTED_FIELDS",
            "LIFECYCLE_STAGES", "SCHEMA_VERSION"]

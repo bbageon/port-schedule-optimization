@@ -32,6 +32,7 @@ import statistics as st
 from dataclasses import dataclass, field
 
 from .policy import CRANE_ADV_SCALE, CRANE_SCALE_FLOOR, to_advantage
+from ..schema.lifecycle import TRUCK_TIME_CONTRACT
 
 
 @dataclass
@@ -61,6 +62,7 @@ class CraneLabelSet:
     scale: float = CRANE_ADV_SCALE
     median_gap_krw: float = 0.0          # 그날 라벨의 격차 중앙 (하한 적용 전)
     floor_bound: bool = False            # 하한이 걸렸나 (= 그날은 비용 중립에 가까웠다)
+    truck_time_contract: str = TRUCK_TIME_CONTRACT
 
     def __len__(self) -> int:
         return len(self.samples)

@@ -49,7 +49,7 @@ def test_truck_sums_reproduce_the_official_truck_term(audit):
     flow = {k: 'GATE_OUT' for k in records}
     sums = audit.truck_sums(records, flow)
     official = terminal_cost_krw(records, end_s=audit.END_S).wait
-    rebuilt = (krw.KRW_TRUCK_HOUR*sums['sum_tt']+krw.KRW_TRUCK_OVER_HOUR*sums['over_3600'])/3600
+    rebuilt = (krw.KRW_TRUCK_HOUR*sums['sum_work']+krw.KRW_TRUCK_OVER_HOUR*sums['work_over_3600'])/3600
     assert math.isclose(official, rebuilt, rel_tol=1e-12)
     assert sums['n'] == 3 and sums['censored'] == 1
     assert math.isclose(sums['over_1800'], (6900.-1800.)+(6400.-1800.))
