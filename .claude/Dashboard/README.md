@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **트럭 기준을 작업 완료로 변경 (2026-11-10, YR-332-af)**: 진입→작업 완료를 주 지표·보상으로, 완료→출차를 별도 기록한다. 기존 85,500행 검산·새 4회 33,500건 궤적 동일·184검사 통과. 7,500건 평균 40.7618분, 미완료 73건·완료 후 미출차 17건이다. 아래 과거 평균은 출차 기준이며 정의 변경을 학습 개선으로 읽지 않는다. 새 학습은 ag, 기존 배열 월 불일치 1건은 ah에 등록했다. [결과](../../outputs/reports/yr332_job_completion/README.md) · [spec](../docs/dashboard-task-specs/YR-332-af-job-completion-objective.md)
+
 - **전건 예약 합성 조건 반영 (2026-11-10, YR-332-ad)**: 24시간 실제 도착곡선·물량을 유지하며 예약을 별도 생성했다. 기본 오차 10분은 실측값이 아닌 합성 가정이다. 원본 78,000건×3오차·하루 10회·218검사 통과, 투입 누락 0, 오차 0의 기존 결과·새 조건 반복 정확 재현. 현장 보정과 새 학습 효과는 미검증이며 f/i 잔여는 유지한다. [결과](../../outputs/reports/yr332_reservation_contract/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ad-all-reserved-synthetic-contract.md)
 
 - **K 후속 자료 점검 (2026-11-10)**: 기존 72개 학습 기록·144개 평가 확인. K1/K6 반전 87건 중 78건은 6시간 완전 관측이며, 하루 평균 추가 비용의 96.70%는 트럭 체류 항이다. 하루 무대도 예약=실제 진입임을 코드·기존 진입 장부 78,000건으로 대조해 f의 “약 10분 오차” 설명을 정정했다. 실자료 100건 중 예약은 1건뿐이고 운반 실측은 미확보다. 개별 분기 비용 항목·후속 기록이 없어 원인 확정은 미완료이며 323-f로 측정을 등록했다. 새 학습 없이 i/f 보정 우선 유지. [보고서](../../outputs/reports/yr323_horizon_cause_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md)

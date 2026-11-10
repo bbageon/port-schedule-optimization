@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="72.870" timestamp="2026-11-10T14:25:14.990751+09:00" hostname="global05_58"><testcase classname="tests.v7.test_gpu_month" name="test_day_phi_matches_v5" time="64.974"><failure message="AssertionError: day 0 Φ arr=(1330036.952917933, 13257.291666666666, 268000.0, 269553.03030302946) v5=(1328430.9854607948, 13663.541666666666, 264000.0, 737257.008172602)&#10;assert (1330036.9529...3.03030302946) == (1328430.9854...257.008172602)&#10;  &#10;  At index 0 diff: 1330036.952917933 != 1328430.9854607948&#10;  Use -v to get more diff">def test_day_phi_matches_v5():
+        """날별 Φ 네 항 — 항1(그 날 트럭) · 항2·3·4(계수기 차분)."""
+        L = _ladder3()
+        for d, exp in zip(L["lay"].days, L["out5"]["days"]):
+            got = MO.day_phi(L["run"], L["lay"], int(d.index), end_s=L["out5"]["sim_end"],
+                             tape=L["tape"], t0=d.t0, t1=min(d.t1, L["lay"].month_s))
+&gt;           assert (float(got.wait), float(got.move), float(got.rehandle), float(got.vessel)) == \
+                   (exp.wait, exp.move, exp.rehandle, exp.vessel), \
+                f"day {d.index} Φ arr=({float(got.wait)}, {float(got.move)}, {float(got.rehandle)}, " \
+                f"{float(got.vessel)}) v5=({exp.wait}, {exp.move}, {exp.rehandle}, {exp.vessel})"
+E           AssertionError: day 0 Φ arr=(1330036.952917933, 13257.291666666666, 268000.0, 269553.03030302946) v5=(1328430.9854607948, 13663.541666666666, 264000.0, 737257.008172602)
+E           assert (1330036.9529...3.03030302946) == (1328430.9854...257.008172602)
+E             
+E             At index 0 diff: 1330036.952917933 != 1328430.9854607948
+E             Use -v to get more diff
+
+tests\v7\test_gpu_month.py:528: AssertionError</failure></testcase><testcase classname="tests.v7.test_workload_reward" name="test_meter_runs_on_real_engine_and_zero_eta_matches_baseline" time="4.848"><failure message="assert False&#10; +  where False = all(&lt;generator object test_meter_runs_on_real_engine_and_zero_eta_matches_baseline.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001858D01D080&gt;)">fixed_container_input = None
+tmp_path = WindowsPath('C:/Users/geonu/AppData/Local/Temp/pytest-of-geonu/pytest-298/test_meter_runs_on_real_engine0')
+
+    def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container_input, tmp_path):
+        import torch
+        from yard_rl.v7.ppo.runtime import DebugStop
+        from yard_rl.v7.stage.month import plan_days
+        from yard_rl.v7.stage.month_run import run_month
+        from yard_rl.v7.world.integrated.profiles import build_h21_profile
+        cfg = replace(config(eta=0), capacity_fraction={c.crane_id: 1 for c in build_h21_profile().cranes})
+        results = []
+        for meter_arg in (None, WorkloadMeter(cfg)):
+            torch.manual_seed(10)
+            rt = PPORuntime(BlockPolicy(), seed=10, stop_s=7200, workload=meter_arg)
+            with pytest.raises(DebugStop):
+                run_month(seed=9909100, days=plan_days(9909100, [60, 60, 60]), ppo=rt)
+            results.append(rt)
+        assert results[0].cost_krw == results[1].cost_krw
+        assert results[0].crane_actions == results[1].crane_actions
+        assert results[1].workload.last['conservation_error_s'] &lt; 1e-8
+        for key, value in results[0].policy.state_dict().items():
+            assert torch.equal(value, results[1].policy.state_dict()[key])
+        import gzip
+        import json
+        from yard_rl.v7.ppo.workload_observer import Observer
+        rt = results[1]
+        rt.original_requests = {k: (request, notice) for k, (notice, request) in rt.workload.original.items()}
+        Observer(tmp_path, []).finish(rt)
+        with gzip.open(tmp_path/'execution-records.json.gz', 'rt', encoding='utf-8') as source:
+            events = json.load(source)
+        assert len(events) == len(rt.bridge.records)
+&gt;       assert all(e['original_requested_gate_s'] &gt;= e['original_notice_s'] for e in events)
+E       assert False
+E        +  where False = all(&lt;generator object test_meter_runs_on_real_engine_and_zero_eta_matches_baseline.&lt;locals&gt;.&lt;genexpr&gt; at 0x000001858D01D080&gt;)
+
+tests\v7\test_workload_reward.py:151: AssertionError</failure></testcase></testsuite></testsuites>
