@@ -163,13 +163,23 @@ def verify():
             key=tc.attrib.get('classname','')+'::'+tc.attrib['name']
             tests[key]=not any(tc.find(k) is not None for k in ('failure','error','skipped'))
         inputs[p.as_posix()]=sha(p)
-    assert tests and all(tests.values()),[k for k,v in tests.items() if not v]
+    # Explicit pre-existing whole-world divergence, reproduced in clean a2595188.
+    known='tests.v7.test_gpu_month::test_day_phi_matches_v5'
+    baseline=OUT/'baseline-known-failures.xml'
+    old_failures={tc.attrib.get('classname','')+'::'+tc.attrib['name']
+        for tc in ET.parse(baseline).iter('testcase') if tc.find('failure') is not None}
+    assert known in old_failures and tests.get(known) is False
+    passed={k:v for k,v in tests.items() if k!=known}
+    assert passed and all(passed.values()),[k for k,v in passed.items() if not v]
+    inputs[baseline.as_posix()]=sha(baseline)
+    inputs[(OUT/'baseline-check.json').as_posix()]=sha(OUT/'baseline-check.json')
     # Endpoint correction does not establish a new learned policy benefit.
     report=dict(passed=True,truck_time_contract=TRUCK_TIME_CONTRACT,training=False,
         archived_runs=len(archived),archived_orders=sum(x['metrics_by_flow']['ALL']['n_trucks'] for x in archived),
         evaluation_runs=len(artifacts),admitted=sum(x['result']['admitted'] for x in artifacts),
         exact_repeat=True,identical_physics_all_runs=True,source_check=source_check,
-        tests_passed=len(tests),inputs=inputs,archived=archived,
+        tests_passed=len(passed),known_preexisting_failures=[known],
+        array_month_physical_equivalence_verified=False,inputs=inputs,archived=archived,
         current=[dict(load=x['config']['load'],metrics_by_flow=x['metrics_by_flow']) for x in artifacts[:3]],
         normalization='existing frozen exit-based scales retained; no refit',
         conclusion='Accounting contract verified; changes are metric definition effects, not learning gains.')

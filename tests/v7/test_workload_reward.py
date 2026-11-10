@@ -149,4 +149,7 @@ def test_meter_runs_on_real_engine_and_zero_eta_matches_baseline(fixed_container
     with gzip.open(tmp_path/'execution-records.json.gz', 'rt', encoding='utf-8') as source:
         events = json.load(source)
     assert len(events) == len(rt.bridge.records)
-    assert all(e['original_requested_gate_s'] >= e['original_notice_s'] for e in events)
+    # Public reservations may precede notice under the all-reserved error model.
+    # Actual admission must still follow notice, and the reservation stays exact.
+    assert all(e['gate_in_s'] is None or e['gate_in_s'] >= e['original_notice_s'] for e in events)
+    assert all(e['original_requested_gate_s'] == rt.workload.original[e['doc_key']][1] for e in events)
