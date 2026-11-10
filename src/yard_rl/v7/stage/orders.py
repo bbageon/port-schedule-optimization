@@ -112,6 +112,9 @@ def orders_from_schedule(built: dict) -> tuple[dict[str, Order], dict[str, Execu
     for e in built["schedule"]:
         dk = e["job_id"]
         notice = notice_time(e)
+        if e.get('notice_schema') is None:
+            # Saved inputs used millisecond public metadata and a raw-float floor.
+            notice = round(e['arrival_s'] - e['lead_s'], 3)
         o = Order(doc_key=dk,
                   in_out=(0 if e["flow"] == "GATE_OUT" else 1),
                   copino_notice_s=notice,

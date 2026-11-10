@@ -269,9 +269,101 @@
     "verificationResult": 63611,
     "xRayInspYN": 63611
   },
+  "vessel_atw_timestamps": {
+    "D": {
+      "counts": {
+        "rows": 153626,
+        "atw_parsed": 151032,
+        "atw_with_actual_berth": 149476,
+        "atw_within_actual_berth": 149476,
+        "atw_missing_or_unparsed": 2594
+      },
+      "time_differences": {
+        "atb_to_atw_hours": {
+          "n": 151032,
+          "mean": 11.892228799194873,
+          "negative": 0,
+          "min": 0.45,
+          "p10": 2.85,
+          "median": 9.2,
+          "p90": 24.95,
+          "p99": 44.36666666666667,
+          "max": 73.13333333333334
+        },
+        "first_yard_in_minus_atw_hours": {
+          "n": 150992,
+          "mean": 0.39389051517078166,
+          "negative": 1,
+          "min": -4.083333333333333,
+          "p10": 0.11666666666666667,
+          "median": 0.21666666666666667,
+          "p90": 0.5666666666666667,
+          "p99": 1.65,
+          "max": 195.75
+        },
+        "last_yard_in_minus_atw_hours": {
+          "n": 150992,
+          "mean": 179.2058618999682,
+          "negative": 1,
+          "min": -2.533333333333333,
+          "p10": 0.26666666666666666,
+          "median": 105.98333333333333,
+          "p90": 488.21666666666664,
+          "p99": 1018.1,
+          "max": 2047.7333333333333
+        }
+      }
+    },
+    "L": {
+      "counts": {
+        "rows": 137873,
+        "atw_parsed": 136571,
+        "atw_with_actual_berth": 136571,
+        "atw_within_actual_berth": 136515,
+        "atw_missing_or_unparsed": 1302
+      },
+      "time_differences": {
+        "atb_to_atw_hours": {
+          "n": 136571,
+          "mean": 21.12488253972903,
+          "negative": 0,
+          "min": 1.0666666666666667,
+          "p10": 7.35,
+          "median": 18.666666666666668,
+          "p90": 38.36666666666667,
+          "p99": 61.1,
+          "max": 92.35
+        },
+        "first_yard_in_minus_atw_hours": {
+          "n": 136571,
+          "mean": -185.89863990158966,
+          "negative": 136570,
+          "min": -24275.616666666665,
+          "p10": -434.01666666666665,
+          "median": -109.11666666666666,
+          "p90": -30.983333333333334,
+          "p99": -5.65,
+          "max": 0.0
+        },
+        "last_yard_in_minus_atw_hours": {
+          "n": 136571,
+          "mean": -0.5816466648605243,
+          "negative": 136546,
+          "min": -598.05,
+          "p10": -0.9666666666666667,
+          "median": -0.4,
+          "p90": -0.16666666666666666,
+          "p99": -0.11666666666666667,
+          "max": 0.0
+        }
+      }
+    }
+  },
   "caveats": [
     "Final snapshots are not historical as-of forecasts.",
     "Berth duration includes multiple ship and yard resources; not an individual crane cycle.",
+    "atw has timestamp values; whether it denotes quay work or yard completion needs a field definition.",
+    "atw differences across containers are not per-crane service durations without crane IDs and start times.",
     "No measured internal tractor fleet/cycle is inferred from external truck visits."
   ]
 }

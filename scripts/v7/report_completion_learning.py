@@ -30,6 +30,12 @@ def summarize(group):
     output=dict(runs=len(group),mean_phi_krw=st.mean(d['result']['phi_krw'] for d in group),
         mean_vessel_cost=st.mean(d['result']['c_vessel'] for d in group),
         mean_unfinished_trucks=st.mean(d['result']['n_job_censored'] for d in group))
+    raw=[d['metrics_by_flow']['ALL'] for d in group]
+    output['exit_diagnostics']=dict(
+        gate_to_exit_mean_min=sum(r['mean_turn_time_s']*r['n_trucks'] for r in raw)/sum(r['n_trucks'] for r in raw)/60,
+        job_done_to_exit_mean_min=sum(r['post_job_gate_s'] for r in raw)/sum(r['n_job_done'] for r in raw)/60,
+        mean_job_done=st.mean(r['n_job_done'] for r in raw),
+        mean_job_done_exit_pending=st.mean(r['n_exit_pending'] for r in raw))
     for flow in ('TRUCK','GATE_IN','GATE_OUT','VESSEL_DISCHARGE','VESSEL_LOAD'):
         vals=[d['completion_by_flow']['at24'][flow] for d in group]
         output[flow]=dict(n=sum(v['n'] for v in vals),
@@ -106,7 +112,9 @@ def verify():
     minimum=by_arm['SF_SPT']['mean_phi_krw']*.01
     paired_result=paired(deltas,delta_interest=minimum)
     lo,hi=bootstrap(deltas)
-    paired_result=replace(paired_result,ci_lo=lo,ci_hi=hi)
+    direction='학습 정책 비용 증가' if lo>0 else ('학습 정책 비용 감소' if hi<0 else '차이 방향 미확정')
+    paired_result=replace(paired_result,ci_lo=lo,ci_hi=hi,
+        label=f'짝 재표집 95% 구간: {direction}; 검정력·최소 검출 효과는 기존 짝 비교 근사')
     trained=[d for d in unique if d['case'][0]=='trained']
     guards=dict(completion=all(d['result']['n_job_censored']==0 for d in trained),
         backlog_zero=all(d['completion_by_flow']['at24']['ALL_ORDERS']['unfinished']==0 for d in trained),
@@ -134,6 +142,7 @@ def verify():
         paired_cost=asdict(paired_result),paired_rows=paired_rows,performance=performance.as_dict(),
         definition='Truck gate entry to job completion, censored at 24h; vessel planned stream start to yard completion',
         aggregation='Order weighted means; three models pooled equally on the same nine input days; repeats excluded',
+        statistical_notes='Reported CI uses 10000 paired bootstrap replicates; MDE, power and TOST use the existing paired-comparison approximation.',
         limitations=['synthetic physical scenario; measured information calibration only',
             'first matched pre-entry reservation subset and stale reported bookings',
             'transport capacity 3 and cycle 470s remain assumptions',

@@ -15,13 +15,13 @@ def notice_time(entry):
 
 
 def announcement_time(entry, period_s=60.0):
-    notice = notice_time(entry)
     schema = entry.get('notice_schema')
     if schema == NOTICE_SCHEMA:
-        return notice
+        return notice_time(entry)
     if schema is not None:
         raise ValueError(f'unknown notice schema: {schema}')
     # Saved unversioned inputs keep their original replay contract.
+    notice = max(0.0, float(entry['arrival_s']) - float(entry['lead_s']))
     return round((notice // period_s) * period_s, 6)
 
 
