@@ -1,6 +1,7 @@
 """Independently audit all K corpora, weights and raw order rows, then summarize."""
 from collections import Counter, defaultdict
 from dataclasses import asdict
+from functools import cache
 import json
 import math
 import statistics as st
@@ -9,6 +10,7 @@ import xml.etree.ElementTree as ET
 from benchmark_default_eval import save
 from six_step_learning import gz_read, sha, load_net, labelset
 from horizon_sweep import OUT, SOURCE, SEEDS, LOADS, KS, CASES, name, folder, common_choices, check_sources
+from yard_rl.integrated import evalkit
 from yard_rl.integrated.evalkit import paired
 from yard_rl.v7.evaluation_probe import digest
 
@@ -200,6 +202,10 @@ def verify_evaluations():
 
 
 def summarize(values, training, verified):
+    # Reporting only: reuse exact deterministic quantiles across comparisons.
+    # The legacy power calculation scans the same degrees of freedom repeatedly.
+    # No formula, tolerance, sample, or confidence level changes here.
+    evalkit.t_ppf = cache(evalkit.t_ppf)
     groups = defaultdict(list)
     for (arm, seed, load, day, repeat), v in values.items():
         if not repeat:
@@ -252,6 +258,7 @@ def summarize(values, training, verified):
                 b = [values[(control, 0 if control == 'sf_spt' else seed, l, d, 0)]['TRUCK_mean_s_24'] for l in LOADS for d in range(3)]
                 per_seed.append(dict(k=k, control=control, model_seed=seed,
                     truck_reduction_percent=st.fmean(100*(y-x)/y for x, y in zip(a, b))))
+        print(f'K={k}: paired comparisons summarized', flush=True)
     return dict(**verified, training=training, aggregate=aggregate, by_load=by_load,
         comparisons=comparisons, guards=guards, per_seed=per_seed,
         sign_convention='positive reduction is shorter; negative reduction is worse',
@@ -353,6 +360,7 @@ def report():
     assert rechecks and all(int(s.get('failures', 0)) == int(s.get('errors', 0)) == 0 for s in rechecks)
     training, artifacts = verify_training()
     values, more, verified = verify_evaluations()
+    print(f'Raw evaluation audit passed: {verified["runs"]} runs, {verified["all_order_rows"]} order rows.', flush=True)
     verified['tests'] = tests
     verified['reporting_rechecks'] = sum(int(s.get('tests', 0)) for s in rechecks)
     artifacts.update(more)
