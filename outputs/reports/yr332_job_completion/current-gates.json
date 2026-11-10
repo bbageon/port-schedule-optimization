@@ -1,0 +1,227 @@
+{
+  "task": "YR-332-af",
+  "contract_verified": true,
+  "training": false,
+  "metric_contract": "gate-in-to-job-done-v1",
+  "evidence_commit": "d4aaf35fdfc9351d63ef2d120472dcb0c605fc6b",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "새 작업 완료 기준의 학습·규칙 우열은 아직 평가하지 않음",
+      "reasons": [
+        "같은 규칙의 회계 종료점 변경 검증이며 새 학습 비교가 아님"
+      ],
+      "evidence": {
+        "training": false,
+        "followup": "YR-332-ag"
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "a1ee4dbd42d06557079d7a4344f010bd38546fc4",
+            "stamp": {
+              "experiment": "YR-332-af",
+              "code": {
+                "git_head": "a1ee4dbd42d06557079d7a4344f010bd38546fc4",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "input": [
+                  9915101
+                ]
+              },
+              "params": {
+                "load": {
+                  "repr": "7500"
+                },
+                "seed": {
+                  "repr": "9915101"
+                },
+                "appointment_sigma_s": {
+                  "repr": "600"
+                },
+                "dispatcher": {
+                  "repr": "'SF_SPT'"
+                },
+                "candidate_cap": {
+                  "repr": "None"
+                },
+                "decision_probe_shortcircuit": {
+                  "repr": "True"
+                },
+                "training": {
+                  "repr": "False"
+                },
+                "official_end_s": {
+                  "repr": "86400"
+                },
+                "engine_end_s": {
+                  "repr": "93600"
+                },
+                "repeat": {
+                  "repr": "True"
+                },
+                "truck_time_contract": {
+                  "repr": "'gate-in-to-job-done-v1'"
+                }
+              },
+              "prereg": ".claude/docs/dashboard-task-specs/YR-332-af-job-completion-objective.md"
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_reservation_contract/orders/baseline-15000-sigma0.json.gz": "51911f17f4d795e194deccd46fd478d832df11a4a9ba74906db8b765ae354a38",
+              "outputs/reports/yr332_reservation_contract/evaluation/baseline-15000-sigma0.json.gz": "e56082789fc6d0e4492a8144f2ea812280ffe4e5732411487d4c992330e0c1bd",
+              "outputs/reports/yr332_reservation_contract/orders/baseline-3500-sigma0.json.gz": "8af1840bf8bf634fb63d110913d4718984495cd82fd96a49b70c7450a3f58c02",
+              "outputs/reports/yr332_reservation_contract/evaluation/baseline-3500-sigma0.json.gz": "a80569f89413a02e95a6f4e777242c8ddac198a7c858962acbf2131a881a03cf",
+              "outputs/reports/yr332_reservation_contract/orders/baseline-7500-sigma0.json.gz": "4e07d6644458550e4cb93a96efee093c64a0c4be775c5bde0b35df7f61c52977",
+              "outputs/reports/yr332_reservation_contract/evaluation/baseline-7500-sigma0.json.gz": "67b65dfeef749b592271e2a27a3ff810e9fb2129886aa4646f98992719edbdbf",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-15000-sigma0.json.gz": "112a91f2082a39c05210b8b6b15fc2c733e6ce54084217e94ecde385780797b1",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-15000-sigma0.json.gz": "247a3c552c6620005b6032f53cb5b6a75ca578dfbd720ab0c4ce724b0613f6d2",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-15000-sigma600.json.gz": "d010ac69a5c4ffb749e6dd13ea5b36fcbed5b9a48ac6f98db1d8ac036bca1ef9",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-15000-sigma600.json.gz": "3eef040e8e29a4284f47f2743890fb8c0a3ed0934f614f7ec2f80da576399fc7",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-3500-sigma0.json.gz": "ca184583956dedb700c4dd468b02b54aea0a985d545fb7b547437b2685892bb9",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-3500-sigma0.json.gz": "bc7a50d006b34a401e9e8676a2a1d6c2b32b45c4ff0e1544bb0c4b409cc323fa",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-3500-sigma600.json.gz": "2d96f1ca094f54b70749648e7d4588260711153ba2698064c21fa59f7ae0a33b",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-3500-sigma600.json.gz": "2fff43cc745b3988e03818639154171256c78abd1d0a08b3f1cd63410ced9fb1",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma0.json.gz": "f2cd0cbd8b9af0860952fb2d6112fce0b7c30faef79f8116804b20af37d61a7d",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma0.json.gz": "ab73f4ae624d335605ebeba2a3be94c9383b2e5357fa73e89b7c7ba1c72cd138",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma600-repeat.json.gz": "1f975ef57cd866582a4792073db5ad1ad7ff1d276ea92c9e28ab4d64589d00e9",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma600-repeat.json.gz": "d0dae32d54ca377eb58e1960cb6e8d2033b4645045af331123f72a564f77e59f",
+              "outputs/reports/yr332_reservation_contract/orders/evaluate-7500-sigma600.json.gz": "b546f509f94e75e28435360fa8467636610bb676d7741120ac59199f9e5915b5",
+              "outputs/reports/yr332_reservation_contract/evaluation/evaluate-7500-sigma600.json.gz": "d7a871dfbb1d02ed23a542d66f3a9cf3d1e83f8d3e27d6f55edb16c08546c48f",
+              "outputs/reports/yr332_job_completion/evaluation/3500.json.gz": "c104eede940e02d5de5b3ae849f8ca3d72ba2dcd44c1ca4be2e56782305c49f5",
+              "outputs/reports/yr332_job_completion/orders/3500.json.gz": "147e887770f100d2a8f8e4f28b2ba4a45592c623e04168e813e5e12f8a0cebca",
+              "outputs/reports/yr332_job_completion/evaluation/7500.json.gz": "eb37e5b004ff848b7ce3636673ab0fca6ae3c249be92d5805580da75ae00fe21",
+              "outputs/reports/yr332_job_completion/orders/7500.json.gz": "0beac01a8bb30f65e3a8a44bdd3a9189ccc452878e352297312e13cc6d42b0e5",
+              "outputs/reports/yr332_job_completion/evaluation/15000.json.gz": "f8e1e28d30b178e78817c8ec6f9650163abc050017cc8e2ab924ed50d318dc82",
+              "outputs/reports/yr332_job_completion/orders/15000.json.gz": "fae7b53bc7dae1ac357c31a39bc7813d1d6586b5a33948d92d96b125a18d5c20",
+              "outputs/reports/yr332_job_completion/evaluation/7500-repeat.json.gz": "2358ee581846b4a1c52081d2be29ad43eee6e845003dfb412f1b565dadc6cf9b",
+              "outputs/reports/yr332_job_completion/orders/7500-repeat.json.gz": "cf44007d8e7f84478fb424c7d15f783459f9cac7431d1bd757f0f6e6fede7e51",
+              "outputs/reports/yr332_job_completion/tests-core.xml": "ee63ff2b3a1b923b7b499b7cc9149e8951cc08abf07d510bf71bb3c4f8e0c5a1",
+              "outputs/reports/yr332_job_completion/tests-runtime.xml": "04b95054d7d374ccaaa8cd391f47433f5ba820e9b9c8e9632abd928916775f14",
+              "outputs/reports/yr332_job_completion/tests-wiring.xml": "a021856fa9bbbc732707ff81b1a3786066f08306217d5391d286600ecc193676",
+              "outputs/reports/yr332_job_completion/tests-z-corrected-fixtures.xml": "c24ac92a0362babd5d021cd83e278238f46238b3ab6bad9bafe6cb68ecf7586d",
+              "outputs/reports/yr332_job_completion/baseline-known-failures.xml": "07746db2eca537036f20343bb852b8e3425b8856c8a95c6cc6967507c2bca235",
+              "outputs/reports/yr332_job_completion/baseline-check.json": "092737cc80f62617da703cff1749ed60e98f618d1a702e099cc7cc5f5d1c60ef",
+              "outputs/reports/yr332_job_completion/verification.json": "04a92dc25d5fe8b552949b173d30ebf9306088fa0ed4cd70a90c50952d0858f2",
+              "outputs/reports/yr332_job_completion/README.md": "d2dea7f1dac5a1b5fdf4d5b5bea680cc78b9315b3b243241c9537f02bc88615f",
+              "outputs/reports/yr332_job_completion/dashboard-audit.json": "b53624f43c8f69d71baa1ea24748e21951f9f50510aaeeed58010921b192759f"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-af",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude/docs/dashboard-task-specs/YR-332-af-job-completion-objective.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_job_completion\\README.md",
+              "outputs\\reports\\yr332_job_completion\\verification.json",
+              "src\\yard_rl\\v7\\reward\\phi.py",
+              "src\\yard_rl\\v7\\reward\\operational.py",
+              "scripts\\v7\\verify_job_completion.py"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-af-job-completion-objective.md"
+            ],
+            "evidence_commits": [
+              "d4aaf35fdfc9351d63ef2d120472dcb0c605fc6b",
+              "b09ae938",
+              "a1ee4dbd"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "d4aaf35fdfc9351d63ef2d120472dcb0c605fc6b",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 5.1e-05,
+            "reported_values": {
+              "tests": 184,
+              "runs": 4,
+              "admitted": 33500,
+              "archived_orders": 85500,
+              "source_pairs": 384,
+              "mean3500": 17.3283,
+              "mean7500": 40.7618,
+              "mean15000": 149.5981,
+              "unfinished7500": 73,
+              "exit_pending7500": 17
+            },
+            "raw_values": {
+              "tests": 184,
+              "runs": 4,
+              "admitted": 33500,
+              "archived_orders": 85500,
+              "source_pairs": 384,
+              "mean3500": 17.328271476767636,
+              "mean7500": 40.76180176334457,
+              "mean15000": 149.59814352632512,
+              "unfinished7500": 73,
+              "exit_pending7500": 17
+            },
+            "absolute_differences": {
+              "admitted": 0.0,
+              "archived_orders": 0.0,
+              "exit_pending7500": 0.0,
+              "mean15000": 4.352632512905075e-05,
+              "mean3500": 2.8523232362687168e-05,
+              "mean7500": 1.7633445708042927e-06,
+              "runs": 0.0,
+              "source_pairs": 0.0,
+              "tests": 0.0,
+              "unfinished7500": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "작업 완료 회계는 검증했으나 실제 항만 보정은 미완료",
+      "reasons": [
+        "운반 실측 보정 미완료 (YR-332-i)",
+        "예약 오차·통지 시점 보정 잔여 (YR-332-f)"
+      ],
+      "evidence": {
+        "completion_accounting_verified": true,
+        "array_month_physical_equivalence_verified": false,
+        "known_preexisting_array_issue": "YR-332-ah",
+        "source_report": "outputs/reports/yr332_job_completion/verification.json"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
