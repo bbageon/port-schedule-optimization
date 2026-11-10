@@ -79,6 +79,8 @@ def validate_reservation_metadata(schedule, contract) -> None:
 def require_exact_reservations(schedule, *, consumer: str) -> None:
     """Reject noisy reservations in legacy array paths that assume R == A."""
     for entry in schedule:
+        if entry.get('notice_schema') is not None:
+            raise ValueError(f'{consumer} does not support exact receipt events; use the CPU stage path')
         if reservation_time(entry) != float(entry['arrival_s']):
             raise ValueError(f'{consumer} does not support separate reservation/arrival '
                              'times; use the CPU stage path or explicitly sigma=0')

@@ -305,7 +305,10 @@ def run_month(*, seed: int, arm: str | None = None, seller_net=None, buyer_net=N
     scns = {b: dataclasses.replace(s, jobs=[], vessels=[], horizon_s=month_s,
                                    drain_window_s=DIURNAL_DRAIN_S)
             for b, s in built["day0"]["scenarios"].items()}
-    extra_epochs = tuple(i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1))
+    from ..information_contract import announcement_time
+    extra_epochs = tuple(sorted(
+        {i * EPOCH_S for i in range(int(month_s // EPOCH_S) + 1)} |
+        {announcement_time(e) for e in built['schedule']}))
     if seed_data is None:
         mbt = MonthTerminal({b: ensure_time_ledger(_sim_from(
             s, prof, discharge_backpressure=discharge_backpressure)) for b,s in scns.items()},

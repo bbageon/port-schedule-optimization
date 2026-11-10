@@ -30,6 +30,8 @@ from .container_contract import container_no, namespace_initial_inventory
 from .dgt_lead import sample_dgt_lead_s
 from ..appointment_contract import (add_reservations, reservation_time,
                                      validate_reservation_metadata)
+from ..information_contract import (NOTICE_SCHEMA, notice_time, announcement_time,
+                                    apply_information_profile)
 
 #: v7 기본 통지 리드 — DGT 표본의 반입·반출 따로 분포 ([[YR-332-a]] · `dgt_lead.py`).
 DEFAULT_LEAD_MODE = "DGT"
@@ -41,7 +43,8 @@ EPOCH_S = 60.0
 
 def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
                 lead_mode: str = DEFAULT_LEAD_MODE, fill_ratio: float | None = None,
-                appointment_sigma_s: float | None = None) -> dict:
+                appointment_sigma_s: float | None = None,
+                information_profile: dict | None = None) -> dict:
     """하루치 무대를 세운다. `lead_mode` 가 통지 리드타임 축을 가른다.
 
     | `lead_mode` | 뜻 |
@@ -86,8 +89,14 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         # 통지가 창 시작보다 앞설 수는 없다 — 0 으로 눌러 담는다(02 §4 음수 리드).
         e["lead_s"] = min(float(lead), float(e["arrival_s"]))
     built["lead_mode"] = lead_mode
-    built["reservation_contract"] = add_reservations(built["schedule"], seed=seed,
-        sigma_s=prm.appt_adherence_sigma_s if appointment_sigma_s is None else appointment_sigma_s)
+    if information_profile is not None and appointment_sigma_s is not None:
+        raise ValueError('choose empirical information_profile or synthetic appointment_sigma_s')
+    built["reservation_contract"] = (apply_information_profile(built['schedule'], information_profile, seed)
+        if information_profile is not None else add_reservations(built["schedule"], seed=seed,
+        sigma_s=prm.appt_adherence_sigma_s if appointment_sigma_s is None else appointment_sigma_s))
+    for e in built['schedule']:
+        e['notice_schema'] = NOTICE_SCHEMA
+    built['reservation_contract']['announcement_grid'] = NOTICE_SCHEMA
     return built
 
 
@@ -102,10 +111,10 @@ def orders_from_schedule(built: dict) -> tuple[dict[str, Order], dict[str, Execu
     validate_reservation_metadata(built['schedule'], built.get('reservation_contract'))
     for e in built["schedule"]:
         dk = e["job_id"]
-        notice = e["arrival_s"] - e["lead_s"]
+        notice = notice_time(e)
         o = Order(doc_key=dk,
                   in_out=(0 if e["flow"] == "GATE_OUT" else 1),
-                  copino_notice_s=round(notice, 3),
+                  copino_notice_s=notice,
                   in_out_reserve_s=round(reservation_time(e), 3),
                   con_loc=e["block"],
                   con_no=container_no(e))
@@ -135,8 +144,7 @@ class V3Announcer:
         self.by_epoch: dict[float, list[dict]] = {}
         for e in schedule:
             reservation_time(e)  # New contracts reject missing reservations before any event runs.
-            notice = max(0.0, e["arrival_s"] - e["lead_s"])
-            slot = round((notice // self.period_s) * self.period_s, 6)
+            slot = announcement_time(e, self.period_s)
             self.by_epoch.setdefault(slot, []).append(e)
         self.n_admitted = 0
         self.n_skipped = 0
@@ -173,8 +181,6 @@ class V3Announcer:
         return c
 
     def review(self, mbt, t: float) -> None:
-        if not on_grid(t, self.period_s):
-            return
         for e in self.by_epoch.get(round(t, 6), []):
             if self.resolve_entry is not None:
                 e = self.resolve_entry(e)
@@ -200,6 +206,9 @@ class V3Announcer:
                     continue
             container_no(e)  # Public order and engine job must identify the same box.
             job = _job_from_entry(e, reservation_time(e), realized_gate_in_s=arr)
+            offset = float(e.get('eta_offset_s', 0.0))
+            job.provided_eta += offset
+            job.estimated_block_arrival += offset
             try:
                 mbt.admit_external_job(e["block"], job, gate_in_s=arr,
                                        travel_s=e["travel_s"])

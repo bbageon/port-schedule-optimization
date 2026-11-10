@@ -80,3 +80,9 @@ H-21의 3대·470초와 안벽 간격 3600/27.5초를 넣고, 1·2·3박스 및 
 [전후 검증](../../../outputs/reports/yr332_discharge_calibration/verification.json) ·
 [회귀](../../../outputs/reports/yr332_discharge_calibration/bound-final.xml) ·
 [최종 판정](../../../outputs/reports/yr332_discharge_calibration/final-verdict.json).
+
+2026-11-10 사용자 지정 `오더데이터/` 추가 확인: 본선 목록 263파일·291,499행에
+양하/적하 구분, 작업 상태, 야드 반입·접수 시각은 있으나 차량 ID별 출발·인계·귀환과
+시간별 투입 대수는 없다. 목록의 완료 상태를 크레인 작업 완료 **시각**으로 간주하지 않는다.
+3대·470초는 유지하고 이 부분의 외부 대기는 계속한다. 원자료 경로 자체는 더 이상 미확보가 아니다.
+ag는 사용자 후속 지시에 따른 제한된 학습 진단이며 이 row의 현실성 통과를 뜻하지 않는다.

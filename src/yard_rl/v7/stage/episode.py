@@ -394,7 +394,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 reuse_rehandle_slots: bool = False, candidate_cap: int | None = 12,
                 crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False,
                 crane_alternative_contract: str = 'reachable',
-                appointment_sigma_s: float | None = None) -> EpisodeResult:
+                appointment_sigma_s: float | None = None,
+                information_profile: dict | None = None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -436,14 +437,16 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     obs = obs or OBS_24H
     prof, layout = build_h21_profile(), terminal_layout()
     built = build_stage(load=load, seed=seed, profile=prof, layout=layout,
-                        obs=obs, lead_mode=lead_mode, appointment_sigma_s=appointment_sigma_s)
+                        obs=obs, lead_mode=lead_mode, appointment_sigma_s=appointment_sigma_s,
+                        information_profile=information_profile)
     orders, records = orders_from_schedule(built)
+    ann = V3Announcer(built['schedule'], end_s=built['sim_end_s'])
 
     mbt = MultiBlockTerminal(
         {b: ensure_time_ledger(_sim_from(s, prof, discharge_backpressure=discharge_backpressure))
          for b, s in built["scenarios"].items()},
         preserve_external_demand=preserve_external_demand,
-        extra_review_epochs=admission_epochs(obs))
+        extra_review_epochs=tuple(sorted(set(admission_epochs(obs)) | set(ann.by_epoch))))
     for sim in mbt.blocks.values():
         sim.dispatch_cache.rehandle_slots = reuse_rehandle_slots
         sim.decision_probe_shortcircuit = decision_probe_shortcircuit
@@ -455,7 +458,6 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
             sim.jobs = jobs
     if evaluation_probe is not None:
         evaluation_probe.start(built, mbt)
-    ann = V3Announcer(built["schedule"], end_s=built["sim_end_s"])
 
     # ★망 초기화에 시드를 건다. 안 걸면 학습 전 팔이 **실행마다 다른 정책**이 되어
     #   같은 시드로 돌려도 Φ 가 재현되지 않는다(2026-08-22 실측: 같은 셀이

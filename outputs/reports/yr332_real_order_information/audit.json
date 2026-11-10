@@ -1,0 +1,290 @@
+{
+  "visits": 36135,
+  "distinct_visits": 36135,
+  "distinct_physical_keys": 34304,
+  "orders": 277498,
+  "events": 146220,
+  "visit_status": {
+    "complete": 33178,
+    "open": 2701,
+    "cancelled": 256
+  },
+  "source_status_codes": {
+    "9": 71052,
+    "1": 206446
+  },
+  "reservation_years": {
+    "2026": 32635,
+    "2025": 52,
+    "2021": 5,
+    "1970": 1
+  },
+  "coverage": {
+    "copino_first_time": 35538,
+    "copino_last_time": 35538,
+    "in_out_reserve_time": 32693,
+    "gate_in_time": 34304,
+    "enter_block_time": 23969,
+    "job_done_time": 28234,
+    "gate_out_time": 33329,
+    "cancel_time": 256
+  },
+  "malformed_times": {},
+  "excluded": {
+    "no_matching_pre_entry_valid_reservation": 3619,
+    "first_notice_not_observed_with_valid_reservation": 1400,
+    "no_gate_entry": 1831
+  },
+  "by_entry_day": {
+    "2026-10-28": {
+      "OUT": 1895,
+      "IN": 1815
+    },
+    "2026-10-29": {
+      "OUT": 1672,
+      "IN": 1951
+    },
+    "2026-10-30": {
+      "IN": 1774,
+      "OUT": 1474
+    },
+    "2026-10-31": {
+      "OUT": 1017,
+      "IN": 876
+    },
+    "2026-11-01": {
+      "OUT": 445,
+      "IN": 224
+    },
+    "2026-11-02": {
+      "OUT": 1396,
+      "IN": 1030
+    },
+    "2026-11-03": {
+      "IN": 1196,
+      "OUT": 1604
+    },
+    "2026-11-04": {
+      "OUT": 1619,
+      "IN": 1500
+    },
+    "2026-11-05": {
+      "OUT": 1711,
+      "IN": 1224
+    },
+    "2026-11-06": {
+      "IN": 1461,
+      "OUT": 1499
+    },
+    "2026-11-07": {
+      "IN": 995,
+      "OUT": 1175
+    },
+    "2026-11-08": {
+      "OUT": 929,
+      "IN": 411
+    },
+    "2026-11-09": {
+      "OUT": 2003,
+      "IN": 1408
+    }
+  },
+  "raw_intervals_s": {
+    "gate_in_time->enter_block_time": {
+      "n": 23922,
+      "mean": 399.32468021068473,
+      "negative": 0,
+      "min": 13.0,
+      "p10": 193.0,
+      "median": 280.0,
+      "p90": 624.0,
+      "p99": 2342.0,
+      "max": 87288.0
+    },
+    "gate_in_time->job_done_time": {
+      "n": 26566,
+      "mean": 1417.8594820447188,
+      "negative": 0,
+      "min": 5.0,
+      "p10": 442.0,
+      "median": 1074.0,
+      "p90": 2819.0,
+      "p99": 5350.0,
+      "max": 88330.0
+    },
+    "job_done_time->gate_out_time": {
+      "n": 26168,
+      "mean": 579.5123433200856,
+      "negative": 79,
+      "min": -1413.0,
+      "p10": 82.0,
+      "median": 273.0,
+      "p90": 1286.0,
+      "p99": 4282.0,
+      "max": 105711.0
+    },
+    "in_out_reserve_time->gate_in_time": {
+      "n": 30968,
+      "mean": 310055.2065357789,
+      "negative": 4283,
+      "min": -890115.0,
+      "p10": -688.0,
+      "median": 4863.0,
+      "p90": 155588.0,
+      "p99": 3377378.0,
+      "max": 1794024104.0
+    }
+  },
+  "cohorts": {
+    "calibration_IN": {
+      "error_s": {
+        "n": 9944,
+        "mean": 228448.9268905873,
+        "negative": 1531,
+        "min": -890115,
+        "p10": -945,
+        "median": 6054,
+        "p90": 184370,
+        "p99": 2973038,
+        "max": 55907690
+      },
+      "lead_s": {
+        "n": 9944,
+        "mean": 7563.239541432019,
+        "negative": 0,
+        "min": 0,
+        "p10": 344,
+        "median": 3714,
+        "p90": 20422,
+        "p99": 54117,
+        "max": 196616
+      }
+    },
+    "calibration_OUT": {
+      "error_s": {
+        "n": 10992,
+        "mean": 360144.41466521105,
+        "negative": 1523,
+        "min": -700311,
+        "p10": -661,
+        "median": 4000,
+        "p90": 130397,
+        "p99": 5634755,
+        "max": 164055598
+      },
+      "lead_s": {
+        "n": 10992,
+        "mean": 6143.797125181951,
+        "negative": 0,
+        "min": 0,
+        "p10": 194,
+        "median": 1340,
+        "p90": 18223,
+        "p99": 52733,
+        "max": 96654
+      }
+    },
+    "holdout_IN": {
+      "error_s": {
+        "n": 3523,
+        "mean": 277115.54612546123,
+        "negative": 488,
+        "min": -238979,
+        "p10": -711,
+        "median": 5361,
+        "p90": 466340,
+        "p99": 3392514,
+        "max": 22558298
+      },
+      "lead_s": {
+        "n": 3523,
+        "mean": 7775.86517172864,
+        "negative": 0,
+        "min": 2,
+        "p10": 398,
+        "median": 3645,
+        "p90": 20394,
+        "p99": 58096,
+        "max": 156507
+      }
+    },
+    "holdout_OUT": {
+      "error_s": {
+        "n": 4826,
+        "mean": 115827.1297140489,
+        "negative": 533,
+        "min": -97874,
+        "p10": -294,
+        "median": 3638,
+        "p90": 121686,
+        "p99": 989735,
+        "max": 45708598
+      },
+      "lead_s": {
+        "n": 4826,
+        "mean": 7062.167426440116,
+        "negative": 0,
+        "min": 0,
+        "p10": 234,
+        "median": 1348,
+        "p90": 21479,
+        "p99": 66021,
+        "max": 188960
+      }
+    }
+  },
+  "vessels": {
+    "rows": 291499,
+    "flow": {
+      "D": 153626,
+      "L": 137873
+    },
+    "status": {
+      "JOBDONE": 287603,
+      "PLANNED": 3896
+    },
+    "fields": [
+      "atw",
+      "blNo",
+      "bookingNo",
+      "commodityType",
+      "conNo",
+      "conSealNo",
+      "feDivision",
+      "firstYardInTime",
+      "imdgCode",
+      "ioTp",
+      "isoCode",
+      "lastYardInTime",
+      "loadDiscGbn",
+      "oogYn",
+      "oprShippingCode",
+      "oprStatus",
+      "ovFront",
+      "ovHeight",
+      "ovLeft",
+      "ovRear",
+      "ovRight",
+      "planningStatus",
+      "pod",
+      "pol",
+      "por",
+      "receivedTime",
+      "reeferTemp",
+      "remark",
+      "shipLocation",
+      "socYn",
+      "tempUnit",
+      "transferTerminalCode",
+      "unnoCode",
+      "yardLocation"
+    ],
+    "time_fields": {
+      "firstYardInTime": 288354,
+      "lastYardInTime": 288354,
+      "receivedTime": 291417
+    },
+    "limitation": "Snapshot rows are not uniquely deduplicated physical moves or timestamped crane cycles; no tractor fleet, handover or return events."
+  },
+  "profile_sha256": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe"
+}

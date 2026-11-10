@@ -11,7 +11,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
-| YR-332-ag | Exp | **작업 완료 기준의 새 학습·고전 규칙 비교** | 🟠 | af 검증 뒤 새 비용으로 라벨·모델을 만들고 같은 조건의 규칙과 비교한다. 이전 출차 기준 개선율을 새 학습 효과로 승계하지 않는다. 현재 게이트와 별도 사전등록을 따른다. [spec](../docs/dashboard-task-specs/YR-332-ag-job-completion-learning-evaluation.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |
 | YR-323-b | RL | **첫 선택 이후 판단 기준의 영향 확인** | 🟡 | a 진단이 지지할 때만. 첫 공동 배정을 고정하고 후속 정책만 바꿔 초기 정책을 길게 따르는 영향을 확인한다. 현실성 보정 선행. [spec](../docs/dashboard-task-specs/YR-323-b-continuation-policy-check.md) |
 | YR-323-c | RL | **장기 비용 판단에 필요한 작업 정보의 기여 확인** | 🟡 | i/f·x와 a 진단 뒤 조건부. 현재 입력으로 구분 못 하는 상황을 확인하고 실제로 알려진 작업 정보 한 종류만 검증한다. [spec](../docs/dashboard-task-specs/YR-323-c-future-work-information.md) |
