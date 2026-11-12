@@ -147,11 +147,11 @@ def source_audit(root):
             flow={'D':'VESSEL_DISCHARGE','L':'VESSEL_LOAD'}.get(r['loadDiscGbn'])
             assert flow is not None, r['loadDiscGbn']
             vessel_total[flow]+=1
-            t=stamp(r['atw'])
+            t=stamp(r.get('atw'))
             if t is None:
                 missing[flow]+=1
             elif start<=t<end:
-                vessel_rows.append(dict(day=t.date().isoformat(),second=(t-t.replace(hour=0,minute=0,second=0,microsecond=0)).total_seconds(),flow=flow,block=block_prefix(r['yardLocation'])))
+                vessel_rows.append(dict(day=t.date().isoformat(),second=(t-t.replace(hour=0,minute=0,second=0,microsecond=0)).total_seconds(),flow=flow,block=block_prefix(r.get('yardLocation'))))
             else:
                 outside[flow]+=1
     calls=read(sorted(root.glob('선박/스케줄/*.csv')))
