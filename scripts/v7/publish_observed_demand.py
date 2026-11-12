@@ -185,7 +185,8 @@ def gates(commit):
         ResearchGateReport(performance,reliability,scenario))
     save(OUT/'dashboard-audit.json',dashboard.as_dict());save(OUT/'current-gates.json',result)
     assert reliability.status is GateStatus.PASS,reliability.as_dict()
-    print(json.dumps({k:r['status'] for k,r in result['common_gates'].items()}))
+    print(json.dumps({k:r['status'] for k,r in result['common_gates'].items()
+                     if isinstance(r,dict) and 'status' in r}))
 
 
 if __name__=='__main__':
