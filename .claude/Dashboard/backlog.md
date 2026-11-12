@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-aj | Sim | **실제 오더 대표성·유입 분포 대조 후 한 축씩 보정** | 🟠 | 실자료와 작업 비율·시간대·블록 집중을 대조하고, 확인된 입력 차이만 고정 모델·7규칙으로 진단한다. 예약만 보정한 기존 실험의 대표성 확인이 목적이며 i/f와 연결한다. [spec](../docs/dashboard-task-specs/YR-332-aj-observed-order-representativeness.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |

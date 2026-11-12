@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-332-aj | Sim | **실제 오더 대표성·유입 분포 대조와 단일축 보정** | 🟠 | 2026-11-12 | 실제/합성 작업 구성·시간대·집중도를 대조하고 확인된 입력 차이를 고정 모델·7규칙으로 진단한다. 현실성 보정 착수 허용 확인. [spec](../docs/dashboard-task-specs/YR-332-aj-observed-order-representativeness.md) |
 | YR-332-f | Sim | **접수·예약 보정 검증·대기열 정의 확인 남음** | 🔴 | 2026-11-10 | ⏸ 외부 대기. 실제 접수·진입 전 예약 20,936건 보정, 119평가·123검사 통과. 블록 대기 수 정의 미확정, 월/배열 보정 확장은 ai. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [자료](../../outputs/reports/yr332_real_order_information/README.md) |
 | YR-332-i | Sim | **양하 하한 보정 완료·운반 실측 자료 대기** | 🔴 | 2026-11-09 | ⏸ 외부 대기. 하한 수정 4afb7351·138검사 통과. 지정 자료 291,499행·원본 JSON/로그에도 차량별 투입·주행·인계 기록 없음. 접안 255항차 중 122항차는 24시간 초과. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) · [하한 결과](../../outputs/reports/yr332_discharge_calibration/README.md) · [원본 감사](../../outputs/reports/yr332_real_order_information/vessel-source-audit.json) |
 | YR-332 | Infra | **v7 — 수평형 터미널·크레인 하나·공정한 장부 (상위)** | 🔴 | 2026-11-04 | 사용자 지시 *1~5단계 모두 진행*. v4·v5·v6 실패 원인을 설계로 막는다: 최고점 배포·학습 퇴화·배를 못 보는 비용표·미루기 장부 구멍·줄 길이 못 봄·공유 보상·하루 무대. **결정**: 배치는 수평형(HJNC 21블록 유지 — DGT 는 수직형이라 배치는 안 가져옴) · DGT 표본에서는 트럭 리드타임만(반입·반출 따로, 통지 전 도착 14%) · 재배정 끔(크레인만) · v4 반사실 교사 · 본선 단가 35.88원 · 입력 8칸+줄 길이 1칸 · 연속 30일 판정. 단계: [[YR-331-c]] → [[YR-332-a]]·[[YR-332-b]] → [[YR-332-c]] → [[YR-332-d]] → [[YR-332-e]](크레인 성공 시만). [spec](../docs/dashboard-task-specs/YR-332-v7-crane-only-horizontal.md) |
