@@ -84,9 +84,11 @@ def source_crosscheck():
 def verify():
     manifest=read(OUT/'campaign.json');head=manifest['repro']['code']['git_head']
     assert manifest['repro']['code']['git_dirty'] is False
+    repo=Path(subprocess.check_output(['git','rev-parse','--show-toplevel']).decode('utf-8').strip()).resolve()
     for path,h in manifest['sources'].items():
         assert sha(path)==h,('current source changed',path)
-        blob=subprocess.check_output(['git','show',f'{head}:{path}'])
+        git_path=Path(path).resolve().relative_to(repo).as_posix()
+        blob=subprocess.check_output(['git','show',f'{head}:{git_path}'])
         assert hashlib.sha256(blob).hexdigest()==h,('frozen committed source differs',path)
     inputs={(r['variant'],r['load']):r for r in read(OUT/'input-preflight.json')['rows']}
     data={};cohorts={};vessel_cohorts={};trucks=0;all_jobs=0

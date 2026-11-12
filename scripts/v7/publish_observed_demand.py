@@ -29,7 +29,8 @@ def audit_report():
         lines.append('| '+title+' | '+' | '.join(fmt(d[key]) for d in (actual,syn['training'],syn['evaluation']))+' |')
     for flow,label in [('GATE_IN','반입 비중'),('GATE_OUT','반출 비중')]:
         lines.append('| '+label+' | '+' | '.join(f'{d["flow_counts"][flow]/d["n"]*100:.2f}%' for d in (actual,syn['training'],syn['evaluation']))+' |')
-    lines+=['','기존 학습과 평가 모두 관측 표본보다 반출 비중이 높다. 그 자체로 반입 우선 학습의 원인이 증명된 것은 아니다.',
+    lines+=['','156,000건은 학습용 시뮬레이션에 들어간 오더 수다. 신경망이 배운 비교 자료 297쌍과 구분한다.',
+        '기존 학습과 평가 모두 관측 표본보다 반출 비중이 높다. 그 자체로 반입 우선 학습의 원인이 증명된 것은 아니다.',
         '관측 일별 오더는 669~3,710건이다. 수집 대상이 전체 터미널인지 확인되지 않아 3,500/7,500/15,000건의 실험 물량을 이 수치로 대체하지 않았다.','',
         '| 시각 | 실제 오더 비중 | 기존 평가 비중 |','|---|---:|---:|']
     for h,(n,s) in enumerate(zip(actual['all_hour_counts'],syn['evaluation']['all_hour_counts'])):
@@ -79,7 +80,9 @@ def audit_report():
 
 def report():
     s=read(OUT/'summary.json');v=read(OUT/'verification.json');learning=read(OUT/'saved-learning-diagnostic.json')['summary']
+    final=s['by_variant']['observed_mix_hours'];reduction=s['reduction_percent_vs']['observed_mix_hours']
     lines=['# 실제 오더 분포 보정 후 고정 정책 비교','',
+        f'비율·시간대 보정 뒤에도 반입 우선 성향이 남았다. 학습 후 모델의 트럭 평균은 학습 전보다 {reduction["initial"]["TRUCK"]:.2f}% 짧지만, 반출은 {-reduction["initial"]["GATE_OUT"]:.2f}% 길다. 짧은 실작업 우선 규칙보다 전체 평균이 {-reduction["SF_SPT"]["TRUCK"]:.2f}% 길어 채택 근거가 아니다.','',
         '작업 비율과 시간대 분포를 한 축씩 보정했다. 학습 가중치는 고정했으므로 환경 변경의 영향과 기존 모델의 성향을 보는 진단이다.',
         '트럭 지표는 오더별 게이트 진입→작업 완료이며, 24시간 안에 끝나지 않은 오더도 창 끝까지의 시간을 포함한다.','',
         '## 조건별 결과','',
@@ -90,6 +93,12 @@ def report():
         d=s['by_variant'][variant];r=s['reduction_percent_vs'][variant]
         lines.append(f'| {labels[variant]} | {d["initial"]["TRUCK"]["mean_min"]:.3f} | {d["trained"]["TRUCK"]["mean_min"]:.3f} | {d["SF_SPT"]["TRUCK"]["mean_min"]:.3f} | {r["initial"]["TRUCK"]:.2f}% | {r["SF_SPT"]["TRUCK"]:.2f}% |')
     lines+=['','감소율의 음수는 시간이 늘었다는 뜻이다. 서로 다른 입력 조건에서 평균이 낮아진 것을 추가 학습의 효과로 읽지 않는다.','',
+        '| 학습 후 모델의 평균 변화 | 전체 변화(분) | 유형 비중 변화 몫(분) | 유형 내 평균 변화 몫(분) |',
+        '|---|---:|---:|---:|']
+    for key,label in [('original_to_observed_mix','기존→비율 보정'),('observed_mix_to_observed_mix_hours','비율→시간대 보정')]:
+        r=s['mean_change_accounting'][key]['trained']
+        lines.append(f'| {label} | {r["actual_change_min"]:.3f} | {r["composition_at_old_type_means_min"]:.3f} | {r["within_type_means_at_new_shares_min"]:.3f} |')
+    lines+=['','음수는 시간 감소다. 이전 유형별 평균을 유지하고 비중만 바꾼 몫과, 새 비중에서 유형별 평균이 달라진 몫을 더하면 전체 변화가 된다. 설명용 산술 분해이며 인과 효과의 추정은 아니다.','',
         '| 조건 | 작업 | 학습 전(분) | 학습 후(분) | 규칙(분) | 학습 전 대비 감소 |','|---|---|---:|---:|---:|---:|']
     flow_labels={'GATE_IN':'반입','GATE_OUT':'반출','VESSEL_DISCHARGE':'양하','VESSEL_LOAD':'적하'}
     for variant in VARIANTS:
@@ -105,12 +114,21 @@ def report():
             d=s['by_load'][variant][str(load)]
             lines.append(f'| {labels[variant]} | {load:,} | {d["initial"]["TRUCK"]["mean_min"]:.3f} | {d["trained"]["TRUCK"]["mean_min"]:.3f} | {d["SF_SPT"]["TRUCK"]["mean_min"]:.3f} | {d["trained"]["mean_unfinished_trucks"]:.2f} | {d["SF_SPT"]["mean_unfinished_trucks"]:.0f} |')
     lines+=['','전체 평균은 오더 수 가중이다. 15,000건 조건의 가중치는 57.69%이며 물량별 결과도 함께 봐야 한다.','',
+        '## 초기 모델별 차이','',
+        '| 저장 모델 초기값 | 학습 전(분) | 학습 후(분) | 감소율 |','|---|---:|---:|---:|']
+    for seed in SEEDS:
+        d=s['by_model']['observed_mix_hours'][str(seed)]
+        before=d['initial']['TRUCK']['mean_min'];after=d['trained']['TRUCK']['mean_min']
+        lines.append(f'| {seed} | {before:.3f} | {after:.3f} | {100*(before-after)/before:.2f}% |')
+    lines+=['','위 표는 비율+시간대 보정 조건이다. 전체 감소율은 처음 성능이 나빴던 한 모델의 큰 개선에 많이 의존한다.',
+        '세 모델은 같은 입력을 공유하므로 이 표를 독립된 세 날짜의 성능 검증으로 해석하지 않는다.','',
         '## 기존 규칙 7개와의 비교','',
         '| 규칙 | 기존 입력(분) | 작업 비율 보정(분) | 비율+시간대 보정(분) |','|---|---:|---:|---:|']
     for arm in (*RULES,'initial','trained'):
         lines.append('| '+arm+' | '+' | '.join(f'{s["by_variant"][x][arm]["TRUCK"]["mean_min"]:.3f}' for x in VARIANTS)+' |')
     lines+=['','SF_SPT=실작업 중 짧은 작업 우선, FIFO=먼저 통지된 작업, LIFO=나중 통지된 작업, SPT=짧은 작업, NEAREST=가까운 작업, LWKR=오래 기다린 트럭 작업, RANDOM=무작위 기준이다.',
         '여기서 FIFO는 실제 블록 도착순인 FCFS_ARRIVAL과 다르다. 기존 ag와 같은 일곱 규칙을 고정한 비교다.',
+        f'사전 기준인 SF_SPT 대비 최종 조건의 학습 후 모형 비용은 {100*(final["trained"]["mean_phi_krw"]/final["SF_SPT"]["mean_phi_krw"]-1):.2f}% 높다. 실제 원화 지출을 예측한 수치는 아니다.',
         '규칙마다 같은 실행 가능 후보와 입력을 사용했다. 모델 3개는 같은 오더를 보며 독립된 평가일 3개로 세지 않는다.','',
         '## 저장된 학습 자료의 순위 진단','',
         f'- 기존 비교 {learning["pairs"]}쌍 중 반입·반출을 직접 비교한 것은 {learning["mixed_truck_pairs"]}쌍이다.',
