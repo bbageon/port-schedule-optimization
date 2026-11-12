@@ -10,12 +10,13 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-ak | Sim | **오더·차량 방문 단위 확인 후 도착 몰림 보정** | 🟠 | 실제 34,304오더가 차량·진입 시각 28,265묶음이며 같은 시간대 건수를 맞춰도 합성 도착이 더 고르다. 단위·연결 정의를 먼저 확인하고 도착 간격 한 축을 보정한다. [spec](../docs/dashboard-task-specs/YR-332-ak-order-visit-and-arrival-process.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |
 | YR-323-b | RL | **첫 선택 이후 판단 기준의 영향 확인** | 🟡 | a 진단이 지지할 때만. 첫 공동 배정을 고정하고 후속 정책만 바꿔 초기 정책을 길게 따르는 영향을 확인한다. 현실성 보정 선행. [spec](../docs/dashboard-task-specs/YR-323-b-continuation-policy-check.md) |
 | YR-323-c | RL | **장기 비용 판단에 필요한 작업 정보의 기여 확인** | 🟡 | i/f·x와 a 진단 뒤 조건부. 현재 입력으로 구분 못 하는 상황을 확인하고 실제로 알려진 작업 정보 한 종류만 검증한다. [spec](../docs/dashboard-task-specs/YR-323-c-future-work-information.md) |
-| YR-323-d | RL | **자료 부족과 주어진 자료를 못 맞추는 문제 구분** | 🟡 | aj/i/f 환경 확인 후, 유형별 비교 기회·순위 오류를 분리한다. 자료에 맞는지에 따라 새 표본 수 또는 반복 횟수 한 축만 검증하며 둘을 함께 늘리지 않는다. [spec](../docs/dashboard-task-specs/YR-323-d-learning-budget-check.md) |
+| YR-323-d | RL | **자료 부족과 주어진 자료를 못 맞추는 문제 구분** | 🟡 | aj/ak/i/f 환경 확인 후 진행. 저장 비교 70쌍에서 반출 유리 22쌍 중 최종 모델은 21쌍을 반입 우선했다. 자료에 맞는지에 따라 새 표본 수 또는 반복 횟수 한 축만 검증하며 둘을 함께 늘리지 않는다. [spec](../docs/dashboard-task-specs/YR-323-d-learning-budget-check.md) |
 | YR-323-e | Exp | **보정 후 미사용 기간·입력에서 독립 성능 검증** | 🟠 | aj와 필요한 단일 보정 뒤 설정을 고정해 7규칙과 비교한다. 이미 본 13일은 개발용, 새 기간을 날짜·연결 주문 단위로 분리한다. K 재선택은 근거가 있을 때만. [spec](../docs/dashboard-task-specs/YR-323-e-calibrated-horizon-evaluation.md) |
 | YR-323-f | Exp | **분기별 비용 항목·후속 작업 기록** | 🟠 | 기존 1,180개 비교에 합계만 있어 시간·업무별 반전 원인 미확정. i/f·게이트 이후 측정기만 추가하고 사건·비용 불변을 검사한다. [spec](../docs/dashboard-task-specs/YR-323-f-branch-cost-trace.md) |
 | YR-332-x | RL | **본선 여유 입력이 거의 늘 상한(±2시간)에 걸린다** | 🟠 | t 감사: 최신 학습 정책의 본선 후보 중 상한 도달 3,500건 100%·7,500건 81.6%·15,000건 84.5%(계획 완료 2배 여유 때문). 배의 급함을 거의 못 보는 입력이다. 눈금 한 축만 바꾸는 비교를 사전등록 후 수행, 효과 실증 전 기본값 유지. f·i·m·w보다 뒤. [spec](../docs/dashboard-task-specs/YR-332-x-vessel-slack-input-scale.md) |

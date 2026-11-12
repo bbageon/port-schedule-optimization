@@ -1,0 +1,18 @@
+{
+  "reason": "Date-by-date schedule snapshots were counted as different calls in ancillary berth overlap diagnostics.",
+  "affected_fields": [
+    "berth_overlap_hourly",
+    "berth_overlap_stats",
+    "known_atb_atd_pairs"
+  ],
+  "original": "input-audit.json",
+  "corrected": "input-audit-corrected.json",
+  "original_snapshot_rows": 848,
+  "unique_terminal_year_vessel_voyage": 277,
+  "original_mean_overlap": 15.169871794871796,
+  "corrected_mean_overlap": 2.7051282051282053,
+  "truck_profile_inputs_identical": true,
+  "synthetic_inputs_identical": true,
+  "experiment_parameters_changed": false,
+  "definition": "Retrospective latest-snapshot actual berth overlap; not actual concurrently active cranes or dispatch-time forecasts."
+}

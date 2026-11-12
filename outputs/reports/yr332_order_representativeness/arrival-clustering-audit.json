@@ -1,0 +1,64 @@
+{
+  "entered_order_records": 34304,
+  "nonempty_truck_hash": 34304,
+  "distinct_truck_entry_timestamp_keys": 28265,
+  "same_truck_timestamp_group_sizes": {
+    "1": 22760,
+    "2": 5028,
+    "3": 420,
+    "4": 57
+  },
+  "records_in_multi_order_truck_timestamps": 11544,
+  "multi_order_group_signatures": {
+    "orders=2;containers=2;flows=IN+OUT": 3182,
+    "orders=3;containers=3;flows=IN+OUT": 415,
+    "orders=2;containers=2;flows=OUT": 1094,
+    "orders=4;containers=4;flows=IN+OUT": 56,
+    "orders=2;containers=2;flows=IN": 752,
+    "orders=3;containers=3;flows=OUT": 5,
+    "orders=4;containers=4;flows=OUT": 1
+  },
+  "matched_hour_dispersion": {
+    "hours": 312,
+    "actual_mean": 1.7721649043940064,
+    "stratified_control_mean": 0.2751080032307951,
+    "actual_median": 1.709059022738268,
+    "stratified_control_median": 0.21146881287726357,
+    "definition": "Same observed date/hour counts, 60 minute bins, independent within-stratum jitter. Variance divided by mean. Describes clustering, not causal attribution."
+  },
+  "grouped_truck_timestamp_dispersion": {
+    "hours": 312,
+    "actual_mean": 1.2811763978072328,
+    "stratified_control_mean": 0.33009570005206984,
+    "actual_median": 1.2489583333333334,
+    "stratified_control_median": 0.2653261304521809,
+    "definition": "Same observed date/hour counts, 60 minute bins, independent within-stratum jitter. Variance divided by mean. Describes clustering, not causal attribution."
+  },
+  "cancellation": {
+    "entered_with_cancel_time": 210,
+    "uncancelled_flow_counts": {
+      "OUT": 18252,
+      "IN": 15842
+    },
+    "cancelled_with_job_done": 11
+  },
+  "simultaneous_IN_OUT_hours": 311,
+  "observed_nonempty_hours": 312,
+  "scope": "A truck hash and entry timestamp is a candidate visit key, not a verified physical visit identifier. Do not delete distinct container jobs or equate an order count with vehicle count.",
+  "source_sha256": {
+    "기사/방문/visits_20261028.csv": "96e34c8e99db196aada1e4041e3b177f0f1d123d4943d7be683d9413397dc567",
+    "기사/방문/visits_20261029.csv": "e8ccc5b173f3e9f3ce30bea8eacf6dd9ee2cab923220840f078e86e0729e17e0",
+    "기사/방문/visits_20261030.csv": "41de8f67d51fd83e95779158fd2a2da85c451e579123c04ba6f389ed975b01d4",
+    "기사/방문/visits_20261031.csv": "31593a28a304c2f04c82bdebafb11b5b753bfe611c9e1f5a76315f2fdb6ab746",
+    "기사/방문/visits_20261101.csv": "6caa6f0266bb3b8fdc913cd0a7146be3fcffe5ae01a8859fc054c313c3aff894",
+    "기사/방문/visits_20261102.csv": "1741dddcfd4b600ca11054e7a53a92b1904f2ce75cf0468c2f221b3df581bcfd",
+    "기사/방문/visits_20261103.csv": "af83d786e477e7a13304f1375a703f124f411fd41145def1016adf854185e7f7",
+    "기사/방문/visits_20261104.csv": "54de50c8f63536736435cffd0e8737d45903a5f82046db3bb4c47a0eda135827",
+    "기사/방문/visits_20261105.csv": "c87ac3fa3682866a603c0353730eb1c32e103220b44ee14850cbd67b9d20b5b0",
+    "기사/방문/visits_20261106.csv": "89266a4ee4a3f053165784477a431476e706e087cb07990f87ee48fdd43462e6",
+    "기사/방문/visits_20261107.csv": "c1f8e5cb67cfc9177e8c3f83386338868328d7119f448091b4f7510bd9e03e21",
+    "기사/방문/visits_20261108.csv": "f512f9e67024844571a91ac30edda4293e9407ef7d4a568a3706971cb30d2529",
+    "기사/방문/visits_20261109.csv": "e76a762dffc507d9f0264af3e9e616487d6f14b7e7c9ecce88d753ebe6f5ebd0"
+  },
+  "script_sha256": "54525ed3af28f78cd0432adc489bbc0dd1ae1ff02b75e266b0bc074e88c2e53f"
+}
