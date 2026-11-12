@@ -154,7 +154,14 @@ def source_audit(root):
                 vessel_rows.append(dict(day=t.date().isoformat(),second=(t-t.replace(hour=0,minute=0,second=0,microsecond=0)).total_seconds(),flow=flow,block=block_prefix(r.get('yardLocation'))))
             else:
                 outside[flow]+=1
-    calls=read(sorted(root.glob('선박/스케줄/*.csv')))
+    snapshots=sorted(root.glob('선박/스케줄/*.csv'),key=lambda p:re.findall(r'\d{8}',p.stem)[-1])
+    calls_by_key={};snapshot_rows=0
+    for path in snapshots:
+        for row in read([path]):
+            snapshot_rows+=1
+            key=tuple(row[k] for k in ('terminalCode','terminalPortArrivalYear','terminalVesselCode','terminalVoyageNo'))
+            calls_by_key[key]=row
+    calls=list(calls_by_key.values())
     berth_pairs=[(stamp(r['atb']),stamp(r['atd'])) for r in calls]
     berth_overlap=[]
     for i in range((end-start).days*24):
@@ -169,6 +176,8 @@ def source_audit(root):
         vessels=dict(snapshot_rows=sum(vessel_total.values()),snapshot_flow_counts=dict(vessel_total),
             atw_in_window=distribution(vessel_rows),atw_outside_window=dict(outside),atw_missing=dict(missing),
             berth_overlap_hourly=berth_overlap,berth_overlap_stats=stats(berth_overlap),
+            schedule_snapshot_rows=snapshot_rows,unique_calls=len(calls),
+            schedule_selection='Latest collected snapshot per terminal/year/vessel/voyage; retrospective diagnostics only.',
             known_atb_atd_pairs=sum(a is not None and b is not None for a,b in berth_pairs),
             limitation='atw is a recorded operation timestamp, not a verified yard-ready or crane-completion timestamp. Snapshot coverage and crane mapping are unconfirmed.'),
         limitations=['Whole-terminal truck coverage is not established by these collection channels.',
@@ -203,19 +212,21 @@ def synthetic_audit():
         limitation='Synthetic vessel planned releases and observed atw are different event stages; no direct timing calibration is implied.')
 
 
-def run(root):
+def run(root, output):
     from yard_rl.integrated.repro import repro_stamp
     import subprocess
     assert not subprocess.check_output(['git','status','--short','--untracked-files=no']).strip()
+    assert not output.exists(), 'Preserve previous audit evidence; use a new output path.'
     observed=source_audit(root)
     synthetic=synthetic_audit()
     result=dict(observed=observed,synthetic=synthetic,
         repro=repro_stamp(experiment='YR-332-aj-input-audit',seeds={'existing_inputs':[r['seed'] for r in synthetic['cases']]},
             params=dict(raw_dates=['2026-10-28','2026-11-09'],private_rows_exported=False,information_profile_sha256=sha(INFORMATION)),prereg=PREREG.as_posix()))
-    save(OUT/'input-audit.json',result)
+    save(output,result)
     print(json.dumps(dict(entered=observed['entered'],actual_mix=observed['trucks']['flow_counts'],synthetic_mix=synthetic['trucks']['evaluation']['flow_counts']),ensure_ascii=False))
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('root',type=Path)
-    run(parser.parse_args().root)
+    parser.add_argument('--output',type=Path,default=OUT/'input-audit.json')
+    args=parser.parse_args();run(args.root,args.output)
