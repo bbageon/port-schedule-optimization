@@ -65,3 +65,11 @@ ag는 실제 예약·접수 분포만 보정한 합성 하루 실험이다. 작�
 - [유형·부하별 원값](../../../outputs/reports/yr332_completion_learning/summary.json)
 - [본선 조건 보정](YR-332-i-discharge-calibration.md) · [예약·대기 정보](YR-332-f-v7-truck-info-realism.md)
 - [학습 자료/반복 진단](YR-323-d-learning-budget-check.md) · [독립 평가](YR-323-e-calibrated-horizon-evaluation.md)
+
+## 착수·고정 비교 — 2026-11-12
+
+자료 대조 완료: 진입 34,304건, 기존 학습 18입력·평가 9입력.
+원본→반출 비율→시간대 비중 순서로 한 축씩 비교한다.
+새 입력 3개×세 조건×13정책과 반복 3회, 총 120회로 고정한다.
+물량별 시드 하나인 제한된 진단이며 일반적 성능 우위나 현실성 통과를 선언하지 않는다.
+[사전등록](../../../docs/research/v7-discharge/observed-demand-prereg.md) · [자료 대조](../../../outputs/reports/yr332_order_representativeness/input-audit.json).

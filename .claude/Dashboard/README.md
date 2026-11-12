@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **다음 순서 정리 (2026-11-12, 계획 등록)**: 실제 오더와 합성 입력의 대표성·유입 분포 대조를 aj로 등록했다. 관측 가능한 비율·시간대 차이를 한 축씩 보정하고 고정 정책으로 진단한 뒤, i/f 환경 조건 확인과 기존 323-d 학습 진단·323-e 독립 평가로 연결한다. 이미 검토한 13일은 개발용으로 두며 새 잠금평가 기간을 별도로 정한다. 새 생성기 수정·학습을 실행했다는 뜻은 아니다. [진행 계획](../docs/dashboard-task-specs/YR-332-aj-observed-order-representativeness.md)
+- **실제 오더 분포 대조·보정 착수 (2026-11-12, aj)**: 진입 34,304건과 기존 학습 18입력·평가 9입력을 대조했다. 반출 비율·시간대 비중을 각각 보정한 고정 정책 120회 진단을 사전등록했으며 새 학습은 하지 않는다. 수집 범위·본선 시각 의미·운반 조건과 분 단위 몰림은 미확정으로 구분한다. [진행 계획](../docs/dashboard-task-specs/YR-332-aj-observed-order-representativeness.md)
 
 - **실자료 예약 보정·작업 완료 기준 재학습 완료 (2026-11-10, YR-332-f/ag)**: 실제 접수 시각으로 수정하고 진입 전 예약 20,936건으로 정보를 보정했다. 3모델×6회·119평가·123검사·가중치 18개 재현 통과. 트럭 평균은 학습 전 132.961→117.471분(11.650% 감소)이지만 짧은 실작업 우선 규칙 98.966분보다 18.698% 길다. 반출은 학습 전보다 6.301% 증가했고 평균 이득도 한 초기값에 크게 의존해 채택하지 않는다. 실자료로 정보 오차를 보정한 합성 하루 진단이며 운반(i)·대기열 정의(f)는 미확정, 월/배열 확장은 ai에 등록했다. [결과](../../outputs/reports/yr332_completion_learning/README.md) · [실자료](../../outputs/reports/yr332_real_order_information/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ag-job-completion-learning-evaluation.md)
 

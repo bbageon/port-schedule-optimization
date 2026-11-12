@@ -32,6 +32,7 @@ from ..appointment_contract import (add_reservations, reservation_time,
                                      validate_reservation_metadata)
 from ..information_contract import (NOTICE_SCHEMA, notice_time, announcement_time,
                                     apply_information_profile)
+from ..demand_profile import validate as validate_demand, hourly_arrivals
 
 #: v7 기본 통지 리드 — DGT 표본의 반입·반출 따로 분포 ([[YR-332-a]] · `dgt_lead.py`).
 DEFAULT_LEAD_MODE = "DGT"
@@ -44,7 +45,8 @@ EPOCH_S = 60.0
 def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
                 lead_mode: str = DEFAULT_LEAD_MODE, fill_ratio: float | None = None,
                 appointment_sigma_s: float | None = None,
-                information_profile: dict | None = None) -> dict:
+                information_profile: dict | None = None,
+                demand_profile: dict | None = None) -> dict:
     """하루치 무대를 세운다. `lead_mode` 가 통지 리드타임 축을 가른다.
 
     | `lead_mode` | 뜻 |
@@ -65,6 +67,10 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
     obs = obs or OBS_24H
     layout = layout or terminal_layout()
     prm = TerminalStreamParams(load_4h=load)
+    if demand_profile is not None:
+        validate_demand(demand_profile, day_s=obs.observe_s)
+        if demand_profile.get('gate_out_share') is not None:
+            prm = dataclasses.replace(prm, gate_out_share=demand_profile['gate_out_share'])
     if fill_ratio is not None:
         # ★초기 장치율을 낮춘다 — 30일 무대 전용 ([[YR-239]]).
         #   하루 무대는 0.65(=블록당 936/1440)로 충분하다. 30일은 다르다:
@@ -73,6 +79,12 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         prm = dataclasses.replace(prm, fill_ratio=float(fill_ratio))
     built = build_diurnal_v3(profile, seed, load=load, obs=obs, layout=layout,
                              params=prm, background_seed=seed)
+    if demand_profile is not None:
+        if demand_profile.get('hour_counts') is not None:
+            times = hourly_arrivals(seed, load, demand_profile['hour_counts'])
+            for entry, arrival in zip(built['schedule'], times):
+                entry['arrival_s'] = arrival
+        built['demand_profile'] = dict(demand_profile)
     namespace_initial_inventory(built)
 
     rng = random.Random(f"v3:lead:{seed}:{load}:{lead_mode}")

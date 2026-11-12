@@ -395,7 +395,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 crane_sampling: str = 'standard', decision_probe_shortcircuit: bool = False,
                 crane_alternative_contract: str = 'reachable',
                 appointment_sigma_s: float | None = None,
-                information_profile: dict | None = None) -> EpisodeResult:
+                information_profile: dict | None = None,
+                demand_profile: dict | None = None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -438,7 +439,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     prof, layout = build_h21_profile(), terminal_layout()
     built = build_stage(load=load, seed=seed, profile=prof, layout=layout,
                         obs=obs, lead_mode=lead_mode, appointment_sigma_s=appointment_sigma_s,
-                        information_profile=information_profile)
+                        information_profile=information_profile, demand_profile=demand_profile)
     orders, records = orders_from_schedule(built)
     ann = V3Announcer(built['schedule'], end_s=built['sim_end_s'])
 
