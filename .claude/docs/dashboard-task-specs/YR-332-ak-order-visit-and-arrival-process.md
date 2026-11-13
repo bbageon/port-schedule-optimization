@@ -1,9 +1,9 @@
 # YR-332-ak — 오더·차량 방문 단위 확인과 도착 몰림 보정
 
-**상태**: backlog
+**상태**: in-progress
 
 등록: 2026-11-12, aj의 실제 오더 감사에서 확인한 현실성 차이의 후속이다.
-보정 대상은 scenario_validity(만든 입력이 실제 자료의 흐름과 맞는가)다.
+- **3대 게이트 보정 대상**: scenario_validity(만든 입력이 실제 자료의 흐름과 맞는가).
 신경망·보상·물리 장비를 함께 바꾸는 성능 가설이 아니다.
 
 ## 무엇과 왜
@@ -48,3 +48,11 @@
 - [실제/합성 비교표](../../../outputs/reports/yr332_order_representativeness/input-comparison.md)
 - [방문 단위와 몰림 계산](../../../outputs/reports/yr332_order_representativeness/arrival-clustering-audit.json)
 - [입력 보정 aj](YR-332-aj-observed-order-representativeness.md)
+
+## 착수 — 2026-11-13
+
+- 사용자 지시 “응 진행해줘”로 Dashboard 다음 순서인 ak에 착수했다.
+- 착수 허가: aj의 `d8c57685` 저장 판정(신뢰성 PASS·현실성 FAIL·성능 INCONCLUSIVE)으로
+  scenario_validity 보정만 허용됨을 확인했다. [허가 기록](../../../outputs/reports/yr332_visit_arrivals/authorization.json).
+- 순서: 원자료의 방문·중복·취소 정의 고정(읽기 전용) → 사전등록 → 시간대 안 도착 간격만 바꾼 입력 대조
+  → 고정 정책 비교. 시간대별 물량·작업 구성·블록·물리·정책·학습은 바꾸지 않는다.
