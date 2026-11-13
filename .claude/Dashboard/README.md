@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **실제 트럭 방문 단위·도착 몰림 보정 완료 (2026-11-13, ak)**: 게이트 재처리 기록 850개를 묶은 실제 방문 27,415번의 시간대 안 몰림(1분 지수 1.266)을 합성 입력에 재현했다. 120회·aj 39회 비트 일치·트럭 1,036,500행 재계산 통과. 정책 9개 평균 변화는 +0.20~+2.56%, 학습 후 vs SF_SPT는 +17.93→+18.70%로 결론이 바뀌지 않았다. 게이트 몰림은 21개 블록으로 흩어져 크레인에는 거의 무작위 도착이 된다. 다음은 같은 트럭의 여러 컨테이너 연결(al), 운반·대기열(i/f) 확인 뒤 학습 진단(323-d)·미사용 기간 평가(323-e)다. [결과](../../outputs/reports/yr332_visit_arrivals/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ak-order-visit-and-arrival-process.md)
+
 - **실제 오더 분포 보정·고정 정책 진단 완료 (2026-11-12, aj)**: 실제 진입 34,304오더의 반출 비율 53.75%와 24시간 비중을 한 축씩 적용했다. 120평가·72검사·트럭 1,036,500행 검산 통과. 보정 입력의 학습 전/후 평균 110.520→94.811분(-14.21%)이나 반출 +7.97%, 짧은 실작업 우선 규칙 80.396분보다 +17.93%다. 저장 모델 평가이며 새 학습·현장 성능 확증은 아니다. 다음은 오더/방문·몰림(ak), 물리 정의(i/f) 확인 뒤 학습 진단(323-d)·미사용 기간 평가(323-e)다. [결과](../../outputs/reports/yr332_order_representativeness/README.md) · [spec](../docs/dashboard-task-specs/YR-332-aj-observed-order-representativeness.md)
 
 - **실자료 예약 보정·작업 완료 기준 재학습 완료 (2026-11-10, YR-332-f/ag)**: 실제 접수 시각으로 수정하고 진입 전 예약 20,936건으로 정보를 보정했다. 3모델×6회·119평가·123검사·가중치 18개 재현 통과. 트럭 평균은 학습 전 132.961→117.471분(11.650% 감소)이지만 짧은 실작업 우선 규칙 98.966분보다 18.698% 길다. 반출은 학습 전보다 6.301% 증가했고 평균 이득도 한 초기값에 크게 의존해 채택하지 않는다. 실자료로 정보 오차를 보정한 합성 하루 진단이며 운반(i)·대기열 정의(f)는 미확정, 월/배열 확장은 ai에 등록했다. [결과](../../outputs/reports/yr332_completion_learning/README.md) · [실자료](../../outputs/reports/yr332_real_order_information/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ag-job-completion-learning-evaluation.md)

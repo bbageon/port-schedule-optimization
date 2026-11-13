@@ -10,6 +10,8 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-al | Sim | **한 트럭이 여러 컨테이너를 처리하는 방문의 연결 계약** | 🟠 | 실제 방문 20%(5,492번)가 컨테이너 2~4개를 한 번에 처리하고 같은 블록이 많다. 합성은 오더마다 별도 트럭이라 블록별 오더 몰림(실제 1.23, 합성 약 1.0)을 만들지 못한다. 연결 의미·전후 동일성 먼저, 한 축만 바꾼다. [spec](../docs/dashboard-task-specs/YR-332-al-multi-order-visit-link.md) |
+| YR-332-am | Sim | **날짜 간 변동·반입/반출 시각 결합·고물량 몰림의 실측 근거** | 🟡 | ak에서 바꾸지 않은 세 성질(날짜 간 변동계수 0.37, 반입·반출 1분 상관 0.336, 고물량 몰림 외삽)을 먼저 잰다. 보정이 필요하면 축별로 따로 등록한다. [spec](../docs/dashboard-task-specs/YR-332-am-day-flow-volume-evidence.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |
@@ -21,6 +23,7 @@
 | YR-332-x | RL | **본선 여유 입력이 거의 늘 상한(±2시간)에 걸린다** | 🟠 | t 감사: 최신 학습 정책의 본선 후보 중 상한 도달 3,500건 100%·7,500건 81.6%·15,000건 84.5%(계획 완료 2배 여유 때문). 배의 급함을 거의 못 보는 입력이다. 눈금 한 축만 바꾸는 비교를 사전등록 후 수행, 효과 실증 전 기본값 유지. f·i·m·w보다 뒤. [spec](../docs/dashboard-task-specs/YR-332-x-vessel-slack-input-scale.md) |
 | YR-332-y | Infra | **비용 정의 문서·자동 대조를 코드에 맞춘다** | 🟡 | t 감사: 빈 이동 항은 문서와 달리 모든 빈 접근 이동을 센다 · 04 문서 본선 2.99원 vs v7 35.88원 · YR-207 기록(선형·YC 4만원) vs 현행(할증·6만원) · 대형선 32.25원 재현 불가 · 자동 대조가 v7 단가 미검사. 값·궤적은 바꾸지 않는다. [spec](../docs/dashboard-task-specs/YR-332-y-cost-definition-docs.md) |
 | YR-332-z | Sim | **본선 작업 마감 필드가 시각 재배치 때 옮겨지지 않는다** | ⚪ | t 코드 대조: 후보 상한 사용 시 우선 점수와 KPI에만 쓰여 현재 기본 평가(후보 제한 없음)에는 영향이 없다. 영향 경로 확인 후 수정. [spec](../docs/dashboard-task-specs/YR-332-z-vessel-job-deadline-retime.md) |
+| YR-332-an | Infra | **보정된 도착 시각과 명단 보조 필드(`gate_in_s`) 불일치** | ⚪ | aj·ak 보정이 `arrival_s`만 바꿔 보조 필드가 보정 전 시각으로 남는다. 엔진은 읽지 않아 결과 영향 없음, 입력 지문에는 포함된다. [spec](../docs/dashboard-task-specs/YR-332-an-schedule-gate-time-field.md) |
 | YR-332-ae | Infra | **Windows 구형 시드 생성 명령의 환경 기록 호환성** | ⚪ | ad 검사 중 v5 CLI의 Linux 전용 CPU 조회 함수로 실패 1건 확인. 현재 v7 직접 생성은 통과했으며 구형 명령 재사용 전에 별도 수정한다. [spec](../docs/dashboard-task-specs/YR-332-ae-windows-legacy-seed-cli.md) |
 | YR-332-e | RL | **v7 재배정을 한 축으로 다시 붙임** | 🟡 | **[[YR-332-d]] 에서 크레인이 규칙을 이긴 경우에만.** 게이트 밖 대기 장부([[YR-328]]) 선행. [spec](../docs/dashboard-task-specs/YR-332-e-v7-reallocation-readd.md) |
 | YR-331-a | Exp | **처리시간 측정 완료·안전 수용 상한은 미확정** | 🟠 | 기준 규칙 3일·26,962건 측정. 독립 검증 입력이 공급 부족으로 거부돼 c가 선행한다. [검사](../../outputs/reports/yr331_training/calibration-audit.json) · [spec](../docs/dashboard-task-specs/YR-331-a-capacity-calibration.md) |
