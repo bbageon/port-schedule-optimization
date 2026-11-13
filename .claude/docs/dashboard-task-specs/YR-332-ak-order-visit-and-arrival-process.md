@@ -56,3 +56,9 @@
   scenario_validity 보정만 허용됨을 확인했다. [허가 기록](../../../outputs/reports/yr332_visit_arrivals/authorization.json).
 - 순서: 원자료의 방문·중복·취소 정의 고정(읽기 전용) → 사전등록 → 시간대 안 도착 간격만 바꾼 입력 대조
   → 고정 정책 비교. 시간대별 물량·작업 구성·블록·물리·정책·학습은 바꾸지 않는다.
+- 정의 고정(읽기 전용 감사): `visit_id`는 오더 키다. 사건 없는 게이트 재처리 기록 850개를 다음 기록에 붙이면
+  실제 방문은 27,415번이다. 취소 210건은 행을 보존하고, 관측 작업 순서는 제약으로 쓰지 않는다.
+  [정의 감사](../../../outputs/reports/yr332_visit_arrivals/visit-unit-audit.json) ·
+  [몰림 통계](../../../outputs/reports/yr332_visit_arrivals/arrival-process-audit.json).
+- 사전등록: 세 조건(고른 간격·무작위·실제 방문 몰림)×3물량×13정책과 반복 3회, 총 120회.
+  3,500건 입력 대조 기준을 정책 실행 전에 판정한다. [사전등록](../../../docs/research/v7-discharge/visit-arrival-prereg.md).

@@ -32,7 +32,7 @@ from ..appointment_contract import (add_reservations, reservation_time,
                                      validate_reservation_metadata)
 from ..information_contract import (NOTICE_SCHEMA, notice_time, announcement_time,
                                     apply_information_profile)
-from ..demand_profile import validate as validate_demand, hourly_arrivals
+from ..demand_profile import validate as validate_demand, hourly_arrivals, within_hour_arrivals
 
 #: v7 기본 통지 리드 — DGT 표본의 반입·반출 따로 분포 ([[YR-332-a]] · `dgt_lead.py`).
 DEFAULT_LEAD_MODE = "DGT"
@@ -84,6 +84,15 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
             times = hourly_arrivals(seed, load, demand_profile['hour_counts'])
             for entry, arrival in zip(built['schedule'], times):
                 entry['arrival_s'] = arrival
+        if demand_profile.get('within_hour') is not None:
+            # Only the gaps inside each clock hour change ([[YR-332-ak]]); hourly
+            # counts, entry order, flows, blocks and targets are kept.
+            times, meta = within_hour_arrivals(
+                seed, [entry['arrival_s'] for entry in built['schedule']],
+                demand_profile['within_hour'])
+            for entry, arrival in zip(built['schedule'], times):
+                entry['arrival_s'] = arrival
+            built['within_hour_arrivals'] = meta
         built['demand_profile'] = dict(demand_profile)
     namespace_initial_inventory(built)
 
