@@ -13,6 +13,7 @@ import random
 
 SCHEMA = 'observed-truck-demand-marginals-v1'
 WITHIN_HOUR_METHODS = ('poisson', 'observed_visit_minutes')
+DATE_ORDERS = ('random', 'busiest_first')
 
 
 def validate(profile: dict, *, day_s: float) -> None:
@@ -62,8 +63,10 @@ def validate_within_hour(spec: dict) -> None:
         if not set(spec).issubset({'method', 'source'}):
             raise ValueError('unsupported within-hour field')
         return
-    if not set(spec).issubset({'method', 'dates', 'minute_counts', 'source'}):
+    if not set(spec).issubset({'method', 'dates', 'minute_counts', 'date_order', 'source'}):
         raise ValueError('unsupported within-hour field')
+    if spec.get('date_order', 'random') not in DATE_ORDERS:
+        raise ValueError('unknown observed date order')
     dates = spec.get('dates')
     if not dates or len(set(dates)) != len(dates):
         raise ValueError('observed templates need distinct dates')
@@ -85,9 +88,13 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
 
     Each hour keeps its count and the entries keep their order, so flows, blocks and
     targets stay attached to the same arrival rank. `observed_visit_minutes` stacks
-    whole observed dates of the same clock hour in a seeded random order until the
-    hour is filled; only the last date is subsampled. A higher load therefore
-    superposes more observed days. Times are uniform inside the drawn minute.
+    whole observed dates of the same clock hour until the hour is filled; only the
+    last date is subsampled. A higher load therefore superposes more observed days.
+    `date_order='random'` stacks dates in a seeded random order (first YR-332-ak
+    draft, failed its preregistered input check). `'busiest_first'` stacks the
+    dates with the most visits in that clock hour first (ties in seeded random
+    order), so the fewest and most volume-similar observed days are superposed.
+    Times are uniform inside the drawn minute.
     """
     validate_within_hour(spec)
     hours: dict[int, list[int]] = {}
@@ -96,11 +103,15 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
             raise ValueError('arrival outside the 24-hour stage')
         hours.setdefault(int(t // 3600), []).append(i)
     out = list(times)
+    date_order = spec.get('date_order', 'random')
     meta = dict(method=spec['method'], hours={})
+    if spec['method'] != 'poisson':
+        meta['date_order'] = date_order
     for hour, index in sorted(hours.items()):
         index.sort(key=lambda i: (times[i], i))
         n = len(index)
-        rng = random.Random(f"h21d:within:{spec['method']}:{seed}:{hour}")
+        key = spec['method'] if date_order == 'random' or spec['method'] == 'poisson' else f"{spec['method']}:{date_order}"
+        rng = random.Random(f"h21d:within:{key}:{seed}:{hour}")
         if spec['method'] == 'poisson':
             offsets = [3600. * rng.random() for _ in range(n)]
             meta['hours'][str(hour)] = dict(n=n)
@@ -108,6 +119,8 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
             days = spec['minute_counts'][str(hour)]
             order = list(range(len(days)))
             rng.shuffle(order)
+            if date_order == 'busiest_first':
+                order.sort(key=lambda d: -sum(days[d]))
             minutes: list[int] = []
             used = 0
             whole = 0

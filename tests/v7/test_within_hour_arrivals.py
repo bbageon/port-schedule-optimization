@@ -93,3 +93,21 @@ def test_redraw_keeps_every_non_time_field_and_information_bounds():
         assert [e['arrival_s'] for e in new['schedule']] == sorted(e['arrival_s'] for e in new['schedule'])
         assert digest(new['schedule']) != digest(base['schedule'])
         assert 'job_done_time' not in new['schedule'][0]
+
+
+def test_busiest_first_uses_fewest_volume_similar_dates():
+    big = [0] * 10 + [5] * 10 + [0] * 40      # 50 visits in minutes 10-19
+    small = [1] * 20 + [0] * 40              # 20 visits in minutes 0-19
+    spec = dict(method='observed_visit_minutes', date_order='busiest_first', dates=['small', 'big'],
+                minute_counts={str(h): [small, big] for h in range(24)})
+    base = [3600. * h + 1800. for h in range(24) for _ in range(40)]
+    times, meta = within_hour_arrivals(11, base, spec)
+    assert meta['date_order'] == 'busiest_first'
+    assert all(m['dates_used'] == 1 and m['whole_dates'] == 0 for m in meta['hours'].values())
+    assert all(600 <= t % 3600 < 1200 for t in times)
+    _, two = within_hour_arrivals(11, [3600. * h + 1800. for h in range(24) for _ in range(60)], spec)
+    assert all(m['dates_used'] == 2 and m['whole_dates'] == 1 for m in two['hours'].values())
+    random_order = {**spec, 'date_order': 'random'}
+    assert within_hour_arrivals(11, base, random_order)[0] != times
+    with pytest.raises(ValueError):
+        validate(dict(schema=SCHEMA, within_hour={**spec, 'date_order': 'largest'}), day_s=86400.)

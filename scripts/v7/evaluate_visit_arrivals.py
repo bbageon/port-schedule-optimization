@@ -59,8 +59,11 @@ def profiles():
         observed_hours_poisson={**aj, 'within_hour': dict(method='poisson',
             source=dict(definition='Independent uniform times inside each clock hour; random gaps without clustering.'))},
         observed_hours_visit_minutes={**aj, 'within_hour': dict(method='observed_visit_minutes',
-            dates=tpl['dates'], minute_counts=tpl['minute_counts'], source=source)})
-    save(OUT / 'demand-profiles.json', dict(profiles=out, aj_profile_sha256=sha(AJ / 'demand-profiles.json')))
+            date_order='busiest_first', dates=tpl['dates'], minute_counts=tpl['minute_counts'], source=source)})
+    # The random date order of 283eaa26 failed the preregistered gap check
+    # (input-preflight-draft-random-order.json); amended before any policy run.
+    save(OUT / 'demand-profiles.json', dict(profiles=out, aj_profile_sha256=sha(AJ / 'demand-profiles.json'),
+        amendment='date_order busiest_first replaces the failed random order draft before policy runs'))
 
 
 def demand_profile(variant):
