@@ -59,11 +59,13 @@ def profiles():
         observed_hours_poisson={**aj, 'within_hour': dict(method='poisson',
             source=dict(definition='Independent uniform times inside each clock hour; random gaps without clustering.'))},
         observed_hours_visit_minutes={**aj, 'within_hour': dict(method='observed_visit_minutes',
-            date_order='busiest_first', dates=tpl['dates'], minute_counts=tpl['minute_counts'], source=source)})
-    # The random date order of 283eaa26 failed the preregistered gap check
-    # (input-preflight-draft-random-order.json); amended before any policy run.
+            date_order='random', dates=tpl['dates'], minute_counts=tpl['minute_counts'], source=source)})
+    # Amendment history, all before any policy run (prereg sections 정정/정정 2):
+    # random order (283eaa26) missed the gap check by 0.003; busiest_first (686ea18f)
+    # missed two checks because the busiest date-hours are selected bursts. The
+    # unbiased preregistered random order is restored and its miss is disclosed.
     save(OUT / 'demand-profiles.json', dict(profiles=out, aj_profile_sha256=sha(AJ / 'demand-profiles.json'),
-        amendment='date_order busiest_first replaces the failed random order draft before policy runs'))
+        amendment='preregistered random date order restored after the biased busiest_first amendment; gap miss disclosed'))
 
 
 def demand_profile(variant):
@@ -128,6 +130,28 @@ def build(variant, load):
                        information_profile=read(PROFILE), demand_profile=demand_profile(variant))
 
 
+def template_selection_check():
+    """Input-only evidence for rejecting busiest-first stacking: date-hours chosen for
+    their own count are burst hours, and observed clustering by hourly volume."""
+    tpl = read(OUT / 'visit-arrival-templates.json')
+
+    def index(minutes, width):
+        counts = [sum(minutes[i:i + width]) for i in range(0, 60, width)]
+        return st.pvariance(counts) / (sum(minutes) / len(counts))
+    groups = defaultdict(list)
+    for h in range(24):
+        days = tpl['minute_counts'][str(h)]
+        ranked = sorted(range(len(days)), key=lambda d: -sum(days[d]))
+        for rank, d in enumerate(ranked):
+            n = sum(days[d])
+            groups['top2_count_in_clock_hour' if rank < 2 else 'other_date_hours'].append((n, days[d]))
+            band = next(f'{lo}-{hi}' for lo, hi in ((0, 60), (60, 120), (120, 180), (180, 300), (300, 10**6)) if lo <= n < hi)
+            groups['visits_per_hour_' + band].append((n, days[d]))
+    return {k: dict(date_hours=len(v), mean_visits=st.mean(n for n, _ in v),
+                    dispersion_60s=st.mean(index(m, 1) for _, m in v), dispersion_600s=st.mean(index(m, 10) for _, m in v))
+            for k, v in sorted(groups.items())}
+
+
 def preflight():
     from yard_rl.v7.evaluation_probe import digest
     real = read(OUT / 'arrival-process-audit.json')
@@ -162,8 +186,10 @@ def preflight():
                     passed=abs(observed[k] - target[k]) <= t) for k, t in CRITERIA['tolerance'].items()}
             rows.append(row)
     passed = all(c['passed'] for r in rows for c in r.get('criteria', {}).values())
+    misses = [k for r in rows for k, c in r.get('criteria', {}).items() if not c['passed']]
     save(OUT / 'input-preflight.json', dict(rows=rows, real_visit_targets=target, criteria=CRITERIA,
-        criteria_passed=passed, aj_inputs_identical=True, script_sha256=sha(Path(__file__))))
+        criteria_passed=passed, criteria_missed=misses, aj_inputs_identical=True,
+        template_selection_check=template_selection_check(), script_sha256=sha(Path(__file__))))
     for r in rows:
         print(r['variant'], r['load'], {b: round(r['stats']['dispersion'][b], 3) for b in ('10', '60', '600', '900')},
               'gapCV', round(r['stats']['gaps']['cv'], 3), 'co60', round(r['stats']['co_arrival_60s']['mean_correlation'], 3))
@@ -190,7 +216,9 @@ def prepare():
     from yard_rl.integrated.repro import repro_stamp
     assert not subprocess.check_output(['git', 'status', '--short', '--untracked-files=no']).strip()
     assert not (OUT / 'campaign.json').exists()
-    assert read(OUT / 'input-preflight.json')['criteria_passed'] is True
+    # Prereg 정정 2: only the disclosed gap-variability miss of the restored
+    # random-order method is allowed; any other input miss blocks the campaign.
+    assert read(OUT / 'input-preflight.json')['criteria_missed'] in ([], ['gap_cv'])
     config = dict(variants=VARIANTS, policies=POLICIES, cases=CASES, loads=LOADS, evaluation_seeds=INPUT_SEEDS,
         runtime=RUNTIME, primary_seconds=86400, engine_seconds=93600, training=False, teacher_worlds=0,
         time_contract='actual gate entry to job completion, censored at 24h; retain unfinished work',
