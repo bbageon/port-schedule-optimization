@@ -1,0 +1,836 @@
+{
+  "task": "YR-332-ak",
+  "evidence_commit": "67f47e6b",
+  "verification": {
+    "status": "PASS",
+    "evaluations": 120,
+    "unique_evaluations": 117,
+    "exact_repeats": 3,
+    "aj_exact_reproductions": 39,
+    "truck_rows": 1036500,
+    "all_order_rows": 1446708,
+    "common_inputs": 9,
+    "vessel_plans_identical_across_variants": true,
+    "source_commit": "639c34bf6de64606df354ada13fbf48a2f4d0c10",
+    "committed_source_hashes": 212,
+    "tests_passed": 84,
+    "verification_script_sha256": "ae4dcf7e235e387bdcbcec50e786101f77b563340be902b0789e6b45e66e763b"
+  },
+  "claim_scope": "Observed visit units fixed; within-hour visit clustering reproduced at 3,500 (one disclosed gap-variability miss); larger loads are bunching sensitivity; multi-order visit links, day-to-day variation, flow-hour coupling, transport (i) and queue definition (f) remain.",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "고정 정책의 도착 몰림 민감도 진단이며 정책 성능 확증을 수행하지 않음",
+      "reasons": [
+        "물량별 신규 입력 하나이며 독립 실자료 기간 미확보"
+      ],
+      "evidence": {
+        "metric": "terminal_total_cost",
+        "baseline": "SF-SPT",
+        "new_training": false,
+        "no_adoption": true,
+        "prior_policy_gate": "FAIL: outputs/reports/yr332_completion_learning/current-gates.json",
+        "conditional_results": {
+          "observed_mix_hours": {
+            "ALL": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 17.928732987384734,
+                "GATE_IN": 4.15671876809088,
+                "GATE_OUT": 19.962365126276595,
+                "VESSEL_DISCHARGE": 1.4553532181837143,
+                "VESSEL_LOAD": 2.017190207675562
+              },
+              "trained_vs_initial": {
+                "TRUCK": -14.214160306160734,
+                "GATE_IN": -67.04085415405818,
+                "GATE_OUT": 7.9735230833719255,
+                "VESSEL_DISCHARGE": -0.8142940669326587,
+                "VESSEL_LOAD": -7.929492723665337
+              }
+            },
+            "3500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 22.04834262516047,
+                "GATE_IN": 36.172807760293715,
+                "GATE_OUT": 17.35218221354738,
+                "VESSEL_DISCHARGE": 1.4743696862065674,
+                "VESSEL_LOAD": 2.8389696750909645
+              },
+              "trained_vs_initial": {
+                "TRUCK": -8.240115622367837,
+                "GATE_IN": -4.530968324614429,
+                "GATE_OUT": -9.595221053753155,
+                "VESSEL_DISCHARGE": 0.09424999176111873,
+                "VESSEL_LOAD": -12.227966960623288
+              }
+            },
+            "7500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 11.767801563665852,
+                "GATE_IN": 6.58555531225694,
+                "GATE_OUT": 13.398310779394507,
+                "VESSEL_DISCHARGE": 1.330560751787364,
+                "VESSEL_LOAD": 3.4784128596714643
+              },
+              "trained_vs_initial": {
+                "TRUCK": -2.9808720536268543,
+                "GATE_IN": -15.970523694403921,
+                "GATE_OUT": 1.6668729412604122,
+                "VESSEL_DISCHARGE": -3.4555529769068625,
+                "VESSEL_LOAD": -6.231148182068151
+              }
+            },
+            "15000": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 18.484041800107047,
+                "GATE_IN": 0.9426388684382914,
+                "GATE_OUT": 20.686867517730764,
+                "VESSEL_DISCHARGE": 1.5232338607734752,
+                "VESSEL_LOAD": -0.3522789696124857
+              },
+              "trained_vs_initial": {
+                "TRUCK": -15.479019356360668,
+                "GATE_IN": -73.20242919838971,
+                "GATE_OUT": 9.235399635997519,
+                "VESSEL_DISCHARGE": -0.3059530110051574,
+                "VESSEL_LOAD": -1.6622871376638726
+              }
+            }
+          },
+          "observed_hours_poisson": {
+            "ALL": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 17.842313770548433,
+                "GATE_IN": 4.496958421600183,
+                "GATE_OUT": 19.81912987099897,
+                "VESSEL_DISCHARGE": 1.5294896368161612,
+                "VESSEL_LOAD": 2.2337686870440936
+              },
+              "trained_vs_initial": {
+                "TRUCK": -14.28195605093694,
+                "GATE_IN": -65.75094960675638,
+                "GATE_OUT": 6.368154513870087,
+                "VESSEL_DISCHARGE": -1.3178244830624182,
+                "VESSEL_LOAD": -7.355774990103921
+              }
+            },
+            "3500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 22.444217672767184,
+                "GATE_IN": 38.50840225120156,
+                "GATE_OUT": 17.035471579022357,
+                "VESSEL_DISCHARGE": 1.8088641317404548,
+                "VESSEL_LOAD": 2.5174165794953023
+              },
+              "trained_vs_initial": {
+                "TRUCK": -5.806361512942053,
+                "GATE_IN": -4.32260617613447,
+                "GATE_OUT": -6.384851182939702,
+                "VESSEL_DISCHARGE": -0.24150191448640113,
+                "VESSEL_LOAD": -12.541673832924639
+              }
+            },
+            "7500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 7.6179681840065046,
+                "GATE_IN": 6.369544448506981,
+                "GATE_OUT": 7.999844809148544,
+                "VESSEL_DISCHARGE": 1.6603701908747706,
+                "VESSEL_LOAD": 3.3461675229888757
+              },
+              "trained_vs_initial": {
+                "TRUCK": -5.98253917624499,
+                "GATE_IN": -18.289322811080897,
+                "GATE_OUT": -1.5136775965817792,
+                "VESSEL_DISCHARGE": -4.2975665995782295,
+                "VESSEL_LOAD": -4.284717929693104
+              }
+            },
+            "15000": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 18.881459701592863,
+                "GATE_IN": 1.24320522392019,
+                "GATE_OUT": 21.108430522515942,
+                "VESSEL_DISCHARGE": 0.8688264931961197,
+                "VESSEL_LOAD": 0.944598619050063
+              },
+              "trained_vs_initial": {
+                "TRUCK": -15.367065459763793,
+                "GATE_IN": -71.98807516711872,
+                "GATE_OUT": 7.586010451453672,
+                "VESSEL_DISCHARGE": -0.8364701217930999,
+                "VESSEL_LOAD": -0.5438112905988629
+              }
+            }
+          },
+          "observed_hours_visit_minutes": {
+            "ALL": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 18.698354859117266,
+                "GATE_IN": 5.124979220283443,
+                "GATE_OUT": 20.685851797003018,
+                "VESSEL_DISCHARGE": 1.6213198639522581,
+                "VESSEL_LOAD": 1.5918328228456422
+              },
+              "trained_vs_initial": {
+                "TRUCK": -13.347522498970456,
+                "GATE_IN": -66.70924430581411,
+                "GATE_OUT": 8.92064943018175,
+                "VESSEL_DISCHARGE": -1.0749174667365038,
+                "VESSEL_LOAD": -7.846429884851608
+              }
+            },
+            "3500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 16.961817014307403,
+                "GATE_IN": 41.07501468501984,
+                "GATE_OUT": 9.485043250684935,
+                "VESSEL_DISCHARGE": 1.421418099758923,
+                "VESSEL_LOAD": 2.340336824287859
+              },
+              "trained_vs_initial": {
+                "TRUCK": -6.334316803067836,
+                "GATE_IN": -4.600682106786043,
+                "GATE_OUT": -7.009475337847876,
+                "VESSEL_DISCHARGE": -0.030462839118320945,
+                "VESSEL_LOAD": -11.664051029497475
+              }
+            },
+            "7500": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 14.4015716907169,
+                "GATE_IN": 9.849276081516605,
+                "GATE_OUT": 15.77895912260708,
+                "VESSEL_DISCHARGE": 2.94712926460367,
+                "VESSEL_LOAD": 2.5986381901364495
+              },
+              "trained_vs_initial": {
+                "TRUCK": -1.2097868097151852,
+                "GATE_IN": -16.508155744505476,
+                "GATE_OUT": 4.275196511303277,
+                "VESSEL_DISCHARGE": -4.1392894172816765,
+                "VESSEL_LOAD": -6.762248405318441
+              }
+            },
+            "15000": {
+              "trained_vs_SF_SPT": {
+                "TRUCK": 19.252256838481085,
+                "GATE_IN": 1.139740827268672,
+                "GATE_OUT": 21.530568700854932,
+                "VESSEL_DISCHARGE": 0.8994350937965473,
+                "VESSEL_LOAD": -0.34110504110879375
+              },
+              "trained_vs_initial": {
+                "TRUCK": -14.726074006999294,
+                "GATE_IN": -72.86397269127583,
+                "GATE_OUT": 9.928248054926208,
+                "VESSEL_DISCHARGE": -0.4075758583831524,
+                "VESSEL_LOAD": -1.9422877484194259
+              }
+            }
+          }
+        }
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "639c34bf6de64606df354ada13fbf48a2f4d0c10",
+            "stamp": {
+              "experiment": "YR-332-ak-within-hour-arrivals",
+              "code": {
+                "git_head": "639c34bf6de64606df354ada13fbf48a2f4d0c10",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "input": [
+                  9921100,
+                  9921110,
+                  9921120
+                ],
+                "models": [
+                  9917101,
+                  9917102,
+                  9917103
+                ]
+              },
+              "params": {
+                "variants": {
+                  "repr": "('observed_mix_hours', 'observed_hours_poisson', 'observed_hours_visit_minutes')"
+                },
+                "policies": {
+                  "repr": "[('SF_SPT', 0), ('FIFO', 0), ('LIFO', 0), ('SPT', 0), ('NEAREST', 0), ('LWKR', 0), ('RANDOM', 0), ('initial', 9917101), ('initial', 9917102), ('initial', 9917103), ('trained', 9917101), ('trained', 9917102), ('trained', 9917103)]"
+                },
+                "cases": {
+                  "repr": "[('observed_mix_hours', 'SF_SPT', 0, 3500, 0), ('observed_mix_hours', 'FIFO', 0, 3500, 0), ('observed_mix_hours', 'LIFO', 0, 3500, 0), ('observed_mix_hours', 'SPT', 0, 3500, 0), ('observed_mix_hours', 'NEAREST', 0, 3500, 0), ('observed_mix_hours', 'LWKR', 0, 3500, 0), ('observed_mix_hours', 'RANDOM', 0, 3500, 0), ('observed_mix_hours', 'initial', 9917101, 3500, 0), ('observed_mix_hours', 'initial', 9917102, 3500, 0), ('observed_mix_hours', 'initial', 9917103, 3500, 0), ('observed_mix_hours', 'trained', 9917101, 3500, 0), ('observed_mix_hours', 'trained', 9917102, 3500, 0), ('observed_mix_hours', 'trained', 9917103, 3500, 0), ('observed_mix_hours', 'SF_SPT', 0, 7500, 0), ('observed_mix_hours', 'FIFO', 0, 7500, 0), ('observed_mix_hours', 'LIFO', 0, 7500, 0), ('observed_mix_hours', 'SPT', 0, 7500, 0), ('observed_mix_hours', 'NEAREST', 0, 7500, 0), ('observed_mix_hours', 'LWKR', 0, 7500, 0), ('observed_mix_hours', 'RANDOM', 0, 7500, 0), ('observed_mix_hours', 'initial', 9917101, 7500, 0), ('observed_mix_hours', 'initial', 9917102, 7500, 0), ('observed_mix_hours', 'initial', 9917103, 7500, 0), ('observed_mix_hours', 'trained', 9917101, 7500, 0), ('observed_mix_hours', 'trained', 9917102, 7500, 0), ('observed_mix_hours', 'trained', 9917103, 7500, 0), ('observed_mix_hours', 'SF_SPT', 0, 15000, 0), ('observed_mix_hours', 'FIFO', 0, 15000, 0), ('observed_mix_hours', 'LIFO', 0, 15000, 0), ('observed_mix_hours', 'SPT', 0, 15000, 0), ('observed_mix_hours', 'NEAREST', 0, 15000, 0), ('observed_mix_hours', 'LWKR', 0, 15000, 0), ('observed_mix_hours', 'RANDOM', 0, 15000, 0), ('observed_mix_hours', 'initial', 9917101, 15000, 0), ('observed_mix_hours', 'initial', 9917102, 15000, 0), ('observed_mix_hours', 'initial', 9917103, 15000, 0), ('observed_mix_hours', 'trained', 9917101, 15000, 0), ('observed_mix_hours', 'trained', 9917102, 15000, 0), ('observed_mix_hours', 'trained', 9917103, 15000, 0), ('observed_hours_poisson', 'SF_SPT', 0, 3500, 0), ('observed_hours_poisson', 'FIFO', 0, 3500, 0), ('observed_hours_poisson', 'LIFO', 0, 3500, 0), ('observed_hours_poisson', 'SPT', 0, 3500, 0), ('observed_hours_poisson', 'NEAREST', 0, 3500, 0), ('observed_hours_poisson', 'LWKR', 0, 3500, 0), ('observed_hours_poisson', 'RANDOM', 0, 3500, 0), ('observed_hours_poisson', 'initial', 9917101, 3500, 0), ('observed_hours_poisson', 'initial', 9917102, 3500, 0), ('observed_hours_poisson', 'initial', 9917103, 3500, 0), ('observed_hours_poisson', 'trained', 9917101, 3500, 0), ('observed_hours_poisson', 'trained', 9917102, 3500, 0), ('observed_hours_poisson', 'trained', 9917103, 3500, 0), ('observed_hours_poisson', 'SF_SPT', 0, 7500, 0), ('observed_hours_poisson', 'FIFO', 0, 7500, 0), ('observed_hours_poisson', 'LIFO', 0, 7500, 0), ('observed_hours_poisson', 'SPT', 0, 7500, 0), ('observed_hours_poisson', 'NEAREST', 0, 7500, 0), ('observed_hours_poisson', 'LWKR', 0, 7500, 0), ('observed_hours_poisson', 'RANDOM', 0, 7500, 0), ('observed_hours_poisson', 'initial', 9917101, 7500, 0), ('observed_hours_poisson', 'initial', 9917102, 7500, 0), ('observed_hours_poisson', 'initial', 9917103, 7500, 0), ('observed_hours_poisson', 'trained', 9917101, 7500, 0), ('observed_hours_poisson', 'trained', 9917102, 7500, 0), ('observed_hours_poisson', 'trained', 9917103, 7500, 0), ('observed_hours_poisson', 'SF_SPT', 0, 15000, 0), ('observed_hours_poisson', 'FIFO', 0, 15000, 0), ('observed_hours_poisson', 'LIFO', 0, 15000, 0), ('observed_hours_poisson', 'SPT', 0, 15000, 0), ('observed_hours_poisson', 'NEAREST', 0, 15000, 0), ('observed_hours_poisson', 'LWKR', 0, 15000, 0), ('observed_hours_poisson', 'RANDOM', 0, 15000, 0), ('observed_hours_poisson', 'initial', 9917101, 15000, 0), ('observed_hours_poisson', 'initial', 9917102, 15000, 0), ('observed_hours_poisson', 'initial', 9917103, 15000, 0), ('observed_hours_poisson', 'trained', 9917101, 15000, 0), ('observed_hours_poisson', 'trained', 9917102, 15000, 0), ('observed_hours_poisson', 'trained', 9917103, 15000, 0), ('observed_hours_visit_minutes', 'SF_SPT', 0, 3500, 0), ('observed_hours_visit_minutes', 'FIFO', 0, 3500, 0), ('observed_hours_visit_minutes', 'LIFO', 0, 3500, 0), ('observed_hours_visit_minutes', 'SPT', 0, 3500, 0), ('observed_hours_visit_minutes', 'NEAREST', 0, 3500, 0), ('observed_hours_visit_minutes', 'LWKR', 0, 3500, 0), ('observed_hours_visit_minutes', 'RANDOM', 0, 3500, 0), ('observed_hours_visit_minutes', 'initial', 9917101, 3500, 0), ('observed_hours_visit_minutes', 'initial', 9917102, 3500, 0), ('observed_hours_visit_minutes', 'initial', 9917103, 3500, 0), ('observed_hours_visit_minutes', 'trained', 9917101, 3500, 0), ('observed_hours_visit_minutes', 'trained', 9917102, 3500, 0), ('observed_hours_visit_minutes', 'trained', 9917103, 3500, 0), ('observed_hours_visit_minutes', 'SF_SPT', 0, 7500, 0), ('observed_hours_visit_minutes', 'FIFO', 0, 7500, 0), ('observed_hours_visit_minutes', 'LIFO', 0, 7500, 0), ('observed_hours_visit_minutes', 'SPT', 0, 7500, 0), ('observed_hours_visit_minutes', 'NEAREST', 0, 7500, 0), ('observed_hours_visit_minutes', 'LWKR', 0, 7500, 0), ('observed_hours_visit_minutes', 'RANDOM', 0, 7500, 0), ('observed_hours_visit_minutes', 'initial', 9917101, 7500, 0), ('observed_hours_visit_minutes', 'initial', 9917102, 7500, 0), ('observed_hours_visit_minutes', 'initial', 9917103, 7500, 0), ('observed_hours_visit_minutes', 'trained', 9917101, 7500, 0), ('observed_hours_visit_minutes', 'trained', 9917102, 7500, 0), ('observed_hours_visit_minutes', 'trained', 9917103, 7500, 0), ('observed_hours_visit_minutes', 'SF_SPT', 0, 15000, 0), ('observed_hours_visit_minutes', 'FIFO', 0, 15000, 0), ('observed_hours_visit_minutes', 'LIFO', 0, 15000, 0), ('observed_hours_visit_minutes', 'SPT', 0, 15000, 0), ('observed_hours_visit_minutes', 'NEAREST', 0, 15000, 0), ('observed_hours_visit_minutes', 'LWKR', 0, 15000, 0), ('observed_hours_visit_minutes', 'RANDOM', 0, 15000, 0), ('observed_hours_visit_minutes', 'initial', 9917101, 15000, 0), ('observed_hours_visit_minutes', 'initial', 9917102, 15000, 0), ('observed_hours_visit_minutes', 'initial', 9917103, 15000, 0), ('observed_hours_visit_minutes', 'trained', 9917101, 15000, 0), ('observed_hours_visit_minutes', 'trained', 9917102, 15000, 0), ('observed_hours_visit_minutes', 'trained', 9917103, 15000, 0), ('observed_hours_poisson', 'SF_SPT', 0, 7500, 1), ('observed_hours_visit_minutes', 'SF_SPT', 0, 7500, 1), ('observed_hours_visit_minutes', 'trained', 9917101, 7500, 1)]"
+                },
+                "loads": {
+                  "repr": "(3500, 7500, 15000)"
+                },
+                "evaluation_seeds": {
+                  "repr": "{3500: 9921100, 7500: 9921110, 15000: 9921120}"
+                },
+                "runtime": {
+                  "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+                },
+                "primary_seconds": {
+                  "repr": "86400"
+                },
+                "engine_seconds": {
+                  "repr": "93600"
+                },
+                "training": {
+                  "repr": "False"
+                },
+                "teacher_worlds": {
+                  "repr": "0"
+                },
+                "time_contract": {
+                  "repr": "'actual gate entry to job completion, censored at 24h; retain unfinished work'"
+                },
+                "selected_policy": {
+                  "repr": "'all three saved initial and final models; no result-based selection'"
+                },
+                "comparisons": {
+                  "repr": "['observed_hours_poisson minus observed_mix_hours: random instead of even gaps', 'observed_hours_visit_minutes minus observed_hours_poisson: observed clustering instead of random gaps']"
+                },
+                "identity": {
+                  "repr": "'All observed_mix_hours runs must equal the saved aj evaluations exactly.'"
+                },
+                "scope": {
+                  "repr": "'One input per load; 3,500 is inside the observed hourly range, larger loads stack observed days (assumption).'"
+                },
+                "execution_workers": {
+                  "repr": "12"
+                },
+                "information_profile_sha256": {
+                  "repr": "'8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe'"
+                },
+                "profile_sha256": {
+                  "repr": "{'observed_mix_hours': '22c9a9fcdf6f1481e6eda21296287921eedfbceef132370df5f3c76aa07ac501', 'observed_hours_poisson': 'abb9b072c61d275b53d505bfa295e246524f31f3aa9bd8d14f23e5885be376b5', 'observed_hours_visit_minutes': '02d9cba1216f63d4a3a0d258ead4c67d6f1bea1afaa996f7ec5263f0d676c92c'}"
+                }
+              },
+              "prereg": "docs/research/v7-discharge/visit-arrival-prereg.md"
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_visit_arrivals/summary.json": "d328d2ad2b253b1a7c4ff3ab77ddc6189193efbbfd84023932f6f4832fe37331",
+              "outputs/reports/yr332_visit_arrivals/verification.json": "d215ef90fcfde1e2e99743c73fb83c20746b00825050e79dafff1a85676fa15c",
+              "outputs/reports/yr332_visit_arrivals/campaign.json": "d33ad8467530829d3fb9ba5357f2679488f33c57d4522fe2b7f03ed70d2898bd",
+              "outputs/reports/yr332_visit_arrivals/README.md": "66297a8e19f9fb85252657a7eae4b07e329382ae8a89e17085af4574628826ec",
+              "outputs/reports/yr332_visit_arrivals/authorization.json": "2451b56019a1127873dd8c07658768151dc0591567a0fba5026ccdb2f920d697",
+              "outputs/reports/yr332_visit_arrivals/visit-unit-audit.json": "6caba9794cee451bb126c4dd73937177498ba634feb7496e8e7196636e3c9a2f",
+              "outputs/reports/yr332_visit_arrivals/arrival-process-audit.json": "21dd28d30de7d4da87698e7d83317952a265dde64229254c11af495a9db86ebc",
+              "outputs/reports/yr332_visit_arrivals/visit-arrival-templates.json": "5d2d7c9e363ab38bc64b137dc02947d4b5795b7ff1a5bfb2371b8fedba331a28",
+              "outputs/reports/yr332_visit_arrivals/demand-profiles.json": "3f930b17e2d7b4b38f25460488764ed3d2dfb30593914db859d342b8780da910",
+              "outputs/reports/yr332_visit_arrivals/input-preflight.json": "fcfca349b8c858498c609f4b78d84dd7f95dc230910aab885ed63a298d30d24f",
+              "outputs/reports/yr332_visit_arrivals/input-preflight-draft-random-order.json": "736d4ae9d4dfba318139eb63a5419f642840c6ec8b71efec5d3b576682c0d9e4",
+              "outputs/reports/yr332_visit_arrivals/input-preflight-amendment-busiest-first.json": "b2108fcd5073e448277f085916d6158e3252883ed5f1d41dab78733ac0c2dd30",
+              "outputs/reports/yr332_visit_arrivals/contract-tests.xml": "6c9d8f7c84a72c0916b219fad2b132282ab2e1ecbbf93b1750b8b85d19146ed2",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-FIFO-0-15000-0.json.gz": "1b07fc0a4bd34bbe935cfbcde53f53ff51e70dd7b5db7f4e8244a189f2090e3b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-FIFO-0-3500-0.json.gz": "44bc8d583175dd0cd3cbcad1f7fc28f38fd63dad158b29e955c25a2e0339cb2a",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-FIFO-0-7500-0.json.gz": "d1281d9d3c2ace9bd984442c76ebec2ba8f3bb111a489c1e67880e13a687aaef",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917101-15000-0.json.gz": "fc821ed48bd1aa7d70ac11adcdcb3145a70f98237eda62e8c5f238ed67d6b2c1",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917101-3500-0.json.gz": "b1787a744572556210e524bd3f6ea741d21a08969b24183533f905534aaee14f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917101-7500-0.json.gz": "7546c73f1740a46fd83a27c8ef9c0df39b6e6b471e365304894c884cdeca5656",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917102-15000-0.json.gz": "a27f32400fca4563b2ccc52590e3dd36bc698a1138202b1902d6f8b79bde8fb6",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917102-3500-0.json.gz": "140f46931ec3e8ddca0823d2851d615996d4ee83db7f22c9c780282ffe416b8a",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917102-7500-0.json.gz": "d996598cdc117c0150701f0d00731130afbe127634009f380b1129b143a1dd49",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917103-15000-0.json.gz": "df0e1c190bbfc5dfdf2a1924d261c6e7937c9da3e24663962f9388f53d1b1e9b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917103-3500-0.json.gz": "9ad55958a5129511a2072de4d271a6af548f1d674c30ba01ead72dd6d939d8da",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-initial-9917103-7500-0.json.gz": "e156c4d313ef5c152db7ad8971cf13c89ec9c3e6537219c1c7bb5f40722bca2f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LIFO-0-15000-0.json.gz": "5646383382a1f679413fbf387ce2cc66c1e3c256b8a1cc72ba5e0ec10c5a2c45",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LIFO-0-3500-0.json.gz": "18b47304d3f7022a507d090ca57ba2e542299efee200610d8c877de8551e1f0d",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LIFO-0-7500-0.json.gz": "8c81314e42a93bc79a1b45e090a19d3cf1d651401e4d5d4d1856d05d85f6da52",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LWKR-0-15000-0.json.gz": "0410b568877203a5cbff8f1c76d191867262f2f0f1d5ea80df592e8e51e95a7d",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LWKR-0-3500-0.json.gz": "dbd7a5760abd0a94de38d3abf2aac1e02ff95a7c1c2c9e9d3de56e620d50eba6",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-LWKR-0-7500-0.json.gz": "66203dc6296ab331158c8f2002217093d3ab800bbcfdd8b375f68b6c59be2836",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-NEAREST-0-15000-0.json.gz": "dfc70106c471c0377407929641f8ccd82b55c28d65567b079347f8e5d85e51a1",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-NEAREST-0-3500-0.json.gz": "6e3361cfed2d66b74777498ae7fa5494d096e3db778dfd9fc1770d4c28705931",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-NEAREST-0-7500-0.json.gz": "35a7399cf8f420d0f2b56e4633bb684fa6c745da5a0516a0b01540f463163d3f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-RANDOM-0-15000-0.json.gz": "0ef4f61d01b50ab9264e6daee0b1d94027273d70f4b37d11ce20223924a1959f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-RANDOM-0-3500-0.json.gz": "93dd917dcd7dfd710002efb24b71ce93d1bf6b0d45e5d941d0d07638a2ae4600",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-RANDOM-0-7500-0.json.gz": "3785e0b0130bb49193217fab362cff17fd756f07a163a042e1e3aa72c0c84502",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SF_SPT-0-15000-0.json.gz": "a3aa27983a80fe94d29f93ebee977273145c23858f1b7f3ff6965d3600f416e4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SF_SPT-0-3500-0.json.gz": "881f3d9baea8640a624cc93bb57757b6ab4c5c2219b611ca3707b03f763acc6f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SF_SPT-0-7500-0.json.gz": "49176084de152b0ba3a1a81a993c72dfc01a8be127ec8c65708a3050f552b873",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SF_SPT-0-7500-1.json.gz": "74a839f15428c4f7a4041847ce3ac3b7a47f412ca16cd09641c8e3b9d05cd6db",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SPT-0-15000-0.json.gz": "33633031fcb03056ff3fcc6125b2e2c5042cd8b424c5b72a6f31f972492f957a",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SPT-0-3500-0.json.gz": "f8300eed2a6078fe425b57634ee290b8b244e1a7326131b129bfca9da8fdffd4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-SPT-0-7500-0.json.gz": "1b96cf014a634e116250c94d312f14593d26cd4aaa0207d493d3a89822336451",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917101-15000-0.json.gz": "cb04e50d9bef7adbdaffa5dd8e048c34621df99b8a4b3706585f1ed923bdb044",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917101-3500-0.json.gz": "6d347aa657aaf5e59812efc42d89458c695eeb62184360be38bc871ec230caac",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917101-7500-0.json.gz": "036804f316f188e26741376698bcb1af3432d85b7648cb58e794233f48274004",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917102-15000-0.json.gz": "0f531ec0eb386a1f3239b151c33a65249d2f44adc56e4306f8934e815b76408c",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917102-3500-0.json.gz": "9e468597a4b72c56461ce2a813d97ae79e2d1ead89d5f459eff42ab03cac2a15",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917102-7500-0.json.gz": "586c2ddcdc7fdbee23ec2dab53ae15c4770e0e7f5c16a1e4d71736c30a5c402e",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917103-15000-0.json.gz": "91f065d29b8911c8bde8ad71d18bec2f4a80eebe39902bc73fc941f2f0200edf",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917103-3500-0.json.gz": "9ca5f57df90182bc75eb55901cb824545c9c297231a8ffa8e6461560dbfcc01b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_poisson-trained-9917103-7500-0.json.gz": "77cf2029aff2f9ecd411ebc52e38628f5ba0a84e5ae906e4aff90a26512075d2",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-FIFO-0-15000-0.json.gz": "0adfc387c4669f3814216489c4b77bd7a877adbab8e3c27c3d3c876be4bc3b4b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-FIFO-0-3500-0.json.gz": "15c6490d842cae0b48f4e40d197b483ac0eadae0dce1df80676634f847633d28",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-FIFO-0-7500-0.json.gz": "28a059ff54ae43b97101ba23aad4a4a0bcac6bda027b37d8b2de6340eb6acdc4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917101-15000-0.json.gz": "569b60f81a810460b667e36d556913466594ec82f534888748b63f5117650603",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917101-3500-0.json.gz": "935fe6cd137068c226c5b0d5caac4910a5fe221e57a296fb8b8c0102f340058c",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917101-7500-0.json.gz": "01a6ac57c74ec40ff6295fdfeaeba9843a97158efdfa84831c778a9c899a443c",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917102-15000-0.json.gz": "b6eff7ec5ac46e0e87d55445504af87e8aa8f7d0c81dd4c4c7bedf0704ba76f0",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917102-3500-0.json.gz": "497438d4d78a0cb8e9e0698524997ad4a9084d07df7a48607e9b556526a62a42",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917102-7500-0.json.gz": "053be73d33c02e57c82950b86c9aeaa106d114028f20c60a9292b750d99d5415",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917103-15000-0.json.gz": "e4b6d398c1bc8460bc428aca34abaaa0b38e6f57a46d9f86e9295d2d36724702",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917103-3500-0.json.gz": "ee2f8a72d82ca03e132cf996496601dc47c7128675e130b076a1160357bcb771",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-initial-9917103-7500-0.json.gz": "9d47f3a4b8a92623ffad86da5b32f5a4eecef1b0c40c5f0543bab72fa474f57b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LIFO-0-15000-0.json.gz": "9307c6b24c624c46aced7f703631b3ebf5dc5143fc1bd943341c5cd12009a04f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LIFO-0-3500-0.json.gz": "e8c4e11c16898bdffecd647ddebac3ab07919f6cc5635a69013f266d11f1a947",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LIFO-0-7500-0.json.gz": "115094c00073a25be7133be794e5bfc53c65578a59db1228783918f2690d4f64",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LWKR-0-15000-0.json.gz": "9649fb51dde9f15ff344cd9d1dcb7e98b4bffda6ad70578c9861a8be32238600",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LWKR-0-3500-0.json.gz": "bfb27a58002023ea0f460416b745a6f18d06ce21cf429ed788bb816f460b2745",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-LWKR-0-7500-0.json.gz": "066d8c147bfc2dea2618017621c864543183e57e1ab4c021bf557a0223c011f0",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-NEAREST-0-15000-0.json.gz": "c3a90166e1af7a2d8336379b07e6872df69053a3963ae884cc0cdc69a6a97b83",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-NEAREST-0-3500-0.json.gz": "f96781205a4734c1419b62fcbcad508dcd7cf98f147132dd0e119751c7b32c55",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-NEAREST-0-7500-0.json.gz": "071edd61195e1ead1f564bcb5f1cbf9812a0858483ec7ecf014f6df397daffc4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-RANDOM-0-15000-0.json.gz": "791825f145b56d1e56c4799bca0bdf2781fc0cd222975a76aa3c5d6e6efcd073",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-RANDOM-0-3500-0.json.gz": "59830fb380f68f404e53b9c560eb21213cfd0defa1192d32f3b316d77a2e7286",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-RANDOM-0-7500-0.json.gz": "0f625cc90f17b2177099fe8f5f392748fcd4ca304fd37f3a064288924d6d4834",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SF_SPT-0-15000-0.json.gz": "1c1d4b96a2f69a1f018cf25bcd7bbdf23f5ab2507a475acff62c3a0055d3df6d",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SF_SPT-0-3500-0.json.gz": "bf27f591b50eb983fc2925a520ced93f2f22368dbc510fb0b03ebfc433a2752a",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SF_SPT-0-7500-0.json.gz": "19296af674da475efd6c3f705317cb623a0a441fe0d31d11cbc3265cfc6b871f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SF_SPT-0-7500-1.json.gz": "cc975b8a7286d1b1007d02e2c228938d281d1cf074586529461db939ac9d4970",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SPT-0-15000-0.json.gz": "64fd5cde69f5e1c5d79ee033b7f1445c2eee57dea46d33472aeef801108dea26",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SPT-0-3500-0.json.gz": "2b4dfd4e43190a173032dbda17589dbf157c1c0d5d6cc6487e34778cea49c7a1",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-SPT-0-7500-0.json.gz": "35f75fab8ee9fe4ba2cc7edcab609b5dfd316a8d6b83870f2c195377d8729398",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917101-15000-0.json.gz": "a3440a0b90a4fde9e6450ebc0d2fcc69ced18c0251458d48880a3f0a092da947",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917101-3500-0.json.gz": "2040a387354815d5130f850b9177067f20593a67161168e54c527240dd93d8b3",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917101-7500-0.json.gz": "04934805ba1b6ea1b00fd3fbf483f9c0f0d8de8aff6b52f08be28c711e7c46de",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917101-7500-1.json.gz": "c5d32fcada799f7aa07326b11b3f5567ef9773f3bf6928fde9e19600def8541d",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917102-15000-0.json.gz": "0fcc14e1ab5c341d7918b0e75ba388c8c2516731ab97d3d671290492f9d99e20",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917102-3500-0.json.gz": "e28e48c4f0ef01f3311383e6567d3a1caea7c24f255820ad80cbce9a3b4d5831",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917102-7500-0.json.gz": "2df1568a785ffe9ddc4839cc4065373ee2a6960cdf91631d37949d9232739873",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917103-15000-0.json.gz": "5576db7effe63bad48dc4c1ce1bcb9c0f88e54e38a3f5f8f32085db0eda78875",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917103-3500-0.json.gz": "f64d9eb909e8b602d15c099da79c7d91e0b6a92d654f7f15c059c702c5e0bccb",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_hours_visit_minutes-trained-9917103-7500-0.json.gz": "9053d3700137638d7d848130b94a927335c7cdb26be2d1993ce6586ac3003cf9",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-FIFO-0-15000-0.json.gz": "af86824f36d7a426d4b01972f52a0afb2e56222d8e3acbd8c5d96a95ed7cd9ee",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-FIFO-0-3500-0.json.gz": "5029a64896cf0eca37a675137d4c5ddfacc69e966717b31a0ad6185cf5a578cb",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-FIFO-0-7500-0.json.gz": "78fc22b7ea9a6a89b2d59da106e8d0b5284392540e4c55b45d7d7e15160d4daa",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917101-15000-0.json.gz": "6b06dd1c880df7ed047f9a1e31b459dd9b29a1a239b42cab5269d68db7e8d0dd",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917101-3500-0.json.gz": "a3d6af58b8df29696f7c6cef9a8231f0a55e49d63e96ab7b6342c0ebf1b4fe43",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917101-7500-0.json.gz": "00430cc685686f4e402a30c9ed569561cde7cfd41415ea4de571cf07650026ad",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917102-15000-0.json.gz": "571beb586bdb3789a5dd52b2e38119e0bf4650445b9c2799ee355a603a076d37",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917102-3500-0.json.gz": "f1c3e7467753a59c42db820f7663939cd235ca415520a12c5fe5d209837f1a2f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917102-7500-0.json.gz": "afe4cb8604937972aa99f6e952112deecdac8644e7938c862262382df8618e1f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917103-15000-0.json.gz": "abf66aae482a67f3a05cfd91de584ddd75ec7c08a06f4e87f80aac45c10ba194",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917103-3500-0.json.gz": "883b4fb8ed47879db2eb18d95cd04ee4d5ff3ea2b22deee2dc6f75dccd14593f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-initial-9917103-7500-0.json.gz": "e1e97b662474b51d05f7762439bc6a2cebdd8b12f57e338f5d1cd8868b3c651f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LIFO-0-15000-0.json.gz": "35d28f03409c2f6a6a6ad2b750cb26a1599ab02680c2f0e3c8650863f9c91ffe",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LIFO-0-3500-0.json.gz": "f2dfaa83bf08e85d697a8e9569e426d4eb0bf089a1ad020773db880a446b1525",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LIFO-0-7500-0.json.gz": "65df513f16b186225db3f9b4d6c1b6721f0be33957cf732258ff2aee157a1def",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LWKR-0-15000-0.json.gz": "8405d883b5bd1e5916e5ab1811ef5ac0ef390a4537846dec556056f99f62ce91",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LWKR-0-3500-0.json.gz": "f92dbfecfc61e0b60ae7014360fd2a3fdb5ffa728570157522089e907443aa07",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-LWKR-0-7500-0.json.gz": "542197daaf239dfd039e4cba9d16651b70577fd5f9fff8dd2be6d11dc1f20786",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-NEAREST-0-15000-0.json.gz": "a495a4047f04ac705f5cdbacde3cdaecd584cfae436cbcc31c2a2d3b1746d2f2",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-NEAREST-0-3500-0.json.gz": "7d482acf719feaab61b5a3aac0d1fe055f8368fb4d8b38a8c8bfcb5f42db4ec6",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-NEAREST-0-7500-0.json.gz": "e9d7cf22faa9761d3157b686c7e34587200de32db364f77c93804d17e1e4f81f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-RANDOM-0-15000-0.json.gz": "5f6475577752f2d226c9db07349f22034cf19666a0bac875e819ff33fb6d3bc4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-RANDOM-0-3500-0.json.gz": "9a352679bd665a1e275522ed06280164b1ce39c44ed02a638d8e943943c50caf",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-RANDOM-0-7500-0.json.gz": "f4112d86f554fdccbfc6c55c9178790d0afb7ae842bdb276cfd9223bdb9bda7b",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SF_SPT-0-15000-0.json.gz": "3eeaa755589316107f5171e05c9c82667797be9c851b755a3c9063f980ecda6f",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SF_SPT-0-3500-0.json.gz": "3d0456e868fc7a7acdc30a6ea9b26439e43edc90824f0e34554d0fbf9afaf2bd",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SF_SPT-0-7500-0.json.gz": "16a19ec27dc4c6d979da1534d89b67390f2029af7245845a3f4305cb58732362",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SPT-0-15000-0.json.gz": "069b15d73cf25a88530ba08fb314531f0b2bb38d02675ecb43bafb6ad04a5c58",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SPT-0-3500-0.json.gz": "4752a9062c8a205b3f7d82e8eb92b753abbe3c44b92ae03ca17f91eab239a1d4",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-SPT-0-7500-0.json.gz": "6c0b679f92c0d100810a84f274040258ad3fab13ad832c9d1bcb80c3340cfb10",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917101-15000-0.json.gz": "cc62fb1d2990fbccd7e681f5ba65ffbfa5f92818c205534b36d276cca142643e",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917101-3500-0.json.gz": "61aa1ef3800275852a17cff14215f3d85743dd3805da518039bfeb03e16d3b81",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917101-7500-0.json.gz": "d49882bde388790978f5ae77d1c92e1cc7ecf1fdf503bdd86f1de83b304fc8a1",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917102-15000-0.json.gz": "3d0a1416aaa4d70bbe632f6942008151062c6682d5dcd0a198cbe798cf499406",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917102-3500-0.json.gz": "a4ecf489c113c5704b7bf7016bc006edcb55271250ae841fbcce40efeb4f11c3",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917102-7500-0.json.gz": "30aa96e5e5e8059294ed8f7a26cb407a4b805a22bf2deebf5021e2a797cfcebb",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917103-15000-0.json.gz": "fe5d6f5d9078b2fac678aeae8fcfbd0484055812335a155d6a56285ce95a9002",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917103-3500-0.json.gz": "b523631beb5e7ab80f76850b151849defd4f2e8451a3d5ebf8aadfd00c726c8d",
+              "outputs/reports/yr332_visit_arrivals/evaluation/observed_mix_hours-trained-9917103-7500-0.json.gz": "3b2dce6a21fc6042d44926934ceba0d9cf8981330967f61d172d9e43251eb3a2",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-FIFO-0-15000-0.json.gz": "0e8ea3da2e06139814a25ae845564e1eee936c262caba4adfedf190db7d39c4d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-FIFO-0-3500-0.json.gz": "c46dd8833bf11c4051ff94e72820ce8be498ba71e40055125fb9c923b3b37291",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-FIFO-0-7500-0.json.gz": "98dc2e7059f56d48dd72ed5d81ea2c400f47c06b0eadd1c3bdcc4ed9164ffb1f",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917101-15000-0.json.gz": "f24f3a2980bc1171af105d198c56bdcd33e79f5d3788ffd7a43a5fd8b7f2c302",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917101-3500-0.json.gz": "46b68812b9f93452b2e51c8b7d431cd65a4cc20f558426964236ae457f1e73c0",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917101-7500-0.json.gz": "427358fea22cab879544b194d4e1a63ff6d4bdcbb13fc2d782964945b0b69eba",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917102-15000-0.json.gz": "5f844cbc0f78e0e862639cf66852a01696d78f1820cc01063bf92758db9ea3f4",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917102-3500-0.json.gz": "d7da01a892fd6c6564193ec3eb07c0d364b40fdcace1c41359dc8f9c57d44aa3",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917102-7500-0.json.gz": "efb2dc6ba81f155df29fd2473225d4ca3a4f9e3a60094219db66408e800cc973",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917103-15000-0.json.gz": "1b09d0e883c11cf1a3a9dee8ecad100f712b61fb62c70236b0ca24a8219163a6",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917103-3500-0.json.gz": "56a7f97daf03d2e0602299a78587217edd7dbea8c1061f02d27546ff7fd7a208",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-initial-9917103-7500-0.json.gz": "82b52043870e8dc6f1eda3dd80ac658af8824f43a8b27fbe085080aa21d59965",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LIFO-0-15000-0.json.gz": "f3c0bb34771469815c9980d0ac2a29c78a0ab8a638b45ca41696d4d945d7523a",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LIFO-0-3500-0.json.gz": "2774c2dfac24b5fd7b76e3348b5dd6f4a067d90573e22593e2f94fd3985c3f07",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LIFO-0-7500-0.json.gz": "719004dbe2c1a56c19ff2c386a4e67d4447c2089e2676773d1198330bf774e5b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LWKR-0-15000-0.json.gz": "5b4ad9b6f9fd7009418b75294eb717b635d79cfbc8a4060a2c175bcfd1f9cde3",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LWKR-0-3500-0.json.gz": "b15047831b083fb8f94f57e379d3855064f23fec78007c90c178b4989a88d648",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-LWKR-0-7500-0.json.gz": "ef8fd63bfee42be877c489a6b60d94480751c81db1624f0b9fd051b9399f2bca",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-NEAREST-0-15000-0.json.gz": "744b15aa7ea313ae253639b52c8c7d90d24228f37c92c68c131e164115287acc",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-NEAREST-0-3500-0.json.gz": "58d2dcaebee72f37c02160be4d2374908e491dbf86bccf1c2538d7c61fc51826",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-NEAREST-0-7500-0.json.gz": "a8d2bf3d76b38e6cbb37689c0edc49f12cf64181cd459c5374cd69947ff18be9",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-RANDOM-0-15000-0.json.gz": "496d8ceb047a9da0c6e7da0fe4016335b8cc18dd81a2034faf854aa2535e2859",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-RANDOM-0-3500-0.json.gz": "850ff47144d16367c45bcc877740d041da182441566e07381307239eaed983e3",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-RANDOM-0-7500-0.json.gz": "73e6dd0262aed289460781558d4c260b7d7b70ab57cf81e22351ecf046c8b092",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SF_SPT-0-15000-0.json.gz": "cde6a73665536e3e626c12212343de55aef1e2a2ab389e4571ca92f7ef4de8f9",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SF_SPT-0-3500-0.json.gz": "d656b77679c0d4786f045d4b177b0538feaca62f3953153d0f72fac36cb848ac",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SF_SPT-0-7500-0.json.gz": "c3105032b3885db07f095fbb1fdffe2495e6f6a6feb91499dad4d69b7de2b6a0",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SF_SPT-0-7500-1.json.gz": "947ff90883218dd6e4016cfc9a4d49289f1a63915ff636d9e54ff2dee3f145cf",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SPT-0-15000-0.json.gz": "e4efefedb836d486fe7fe8ca74e186b12669b046bc8d60ce68a14e617d04c7fe",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SPT-0-3500-0.json.gz": "c6e8e9e83aac809e84a915f4d8dd1f21c6a27bb97b25b3191e96124fdde70da3",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-SPT-0-7500-0.json.gz": "34bbe1a17ee58ccd04b2c3294ac452109ff6320f843bc0866e8e0ada5715993b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917101-15000-0.json.gz": "14d005f4cc3709c4abcf3ff01304412a4e5ada824bf832e9c96b06a319aad047",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917101-3500-0.json.gz": "08120b95184f820bbbe92b66b9a8247d8512b01242575a21ad79329630d92af0",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917101-7500-0.json.gz": "34ed3dc2d141b91c2eb193e5f0caf28ca60c2864f10962df8f85f54b745fae12",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917102-15000-0.json.gz": "7a3b56fa4e47f17d2f09ea70c668e1e6f0091d1a252646af392645cb492b903a",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917102-3500-0.json.gz": "32c9a4ab0a1de74d4989427841784aeaf63f9441c6c512696e893ab8d61b3a13",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917102-7500-0.json.gz": "a686d16efd0b10a7969f2110dc4c19899e095aec6d5713e524b61f4018dafe5f",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917103-15000-0.json.gz": "3910acc06326d7ac91cafb1a086b9d9f9266ca220dde35cf2d54ac7a9199d8c4",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917103-3500-0.json.gz": "1c37256b7e2e2eb1cb6d39ac07ed919857aa439fd061e83131d76078a9bc4349",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_poisson-trained-9917103-7500-0.json.gz": "4db1f2c30e17c6d76f37544b193adbd5828e8ff44db819cd6e72ce4c8dbc0aa4",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-FIFO-0-15000-0.json.gz": "85a00fc3e1bdb3c91aa63272d530ac6f63f0cffe4f33475679650da0fbfb7dd2",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-FIFO-0-3500-0.json.gz": "bf5e5a9bf9b10f8159badf20c4315c903f337b1fee1ab726dd9262d109bcf18b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-FIFO-0-7500-0.json.gz": "234a82311fbcee1d792c4f5980a12205982e08eb98b93b1946250b753501dcf3",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917101-15000-0.json.gz": "88a629f322de147a0d46df12938ffdffe91fcddf1caad4c7b225f42da188db0e",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917101-3500-0.json.gz": "0cb03d635d40c0507c93a11802218e38200de7f37a141f54fca0ad1cc9474d99",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917101-7500-0.json.gz": "3f8453c05ac1d6dcf6b0385f9e8b53a064d93e5a7274b4e8228d3515639f1cb5",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917102-15000-0.json.gz": "45bb63df79363dd90a031d665ec55d738188966f5d7005bb4ad054fde1a808be",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917102-3500-0.json.gz": "15f74cd8de06ed77f3fbd791818640a5f2e435c9afbbb4bfb9ad5e366428918c",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917102-7500-0.json.gz": "47ce324d9859b6791503709995a00b3681628a72a0d144618b5c83448950c554",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917103-15000-0.json.gz": "451b41b9a71b3fa5b29f76803c7f419267b38360824d733a0e5af213fdebc29d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917103-3500-0.json.gz": "a3ad52bc5ae5efac06f6a997bb7477475875ad9eef6c1386014acf9f7eea0c67",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-initial-9917103-7500-0.json.gz": "44da719ea91e39cf3fee94ecf98dcda20dbbae6411f89525fb08f64b9e552338",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LIFO-0-15000-0.json.gz": "4614e5e33d6c7a36a3ce6a888cb0decff5cd94250d6fd03c5c82ef979274fdbd",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LIFO-0-3500-0.json.gz": "8b0915a23c5d810d59b956213375b78d8e5d29bab4325c1f71925e4d319c0272",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LIFO-0-7500-0.json.gz": "a04cb7de7bf11dda351556f76ecef577b7bad7450386d26f3e5393024ab95343",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LWKR-0-15000-0.json.gz": "c61d083a42fea17b18f0d15ae57fbc3f48f881c53e439e8d85a42a2b7aac0918",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LWKR-0-3500-0.json.gz": "bc606290e083810b709d3931f4a50b2c8563612638e228b61ac22517b391caca",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-LWKR-0-7500-0.json.gz": "c2b33ec765eb9262523cf893aab1c5f12b088dae0eaef2480ad3bc7903f5ba95",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-NEAREST-0-15000-0.json.gz": "b0e0349ab61c20ebb15733abd497dddc5dd1ca26c0c09d8c729b806f9f69a487",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-NEAREST-0-3500-0.json.gz": "c73d2c08985e1e25032be05b118c8f69639230fecfc1fa1935ab9d747152161b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-NEAREST-0-7500-0.json.gz": "1ee503a8f4876d2326c65055b9326019408f2d31a421e9b53cd1aacbbcd363bf",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-RANDOM-0-15000-0.json.gz": "72e5b67f30ee45a9c42b41158d5996c1aa6fbd513ba5fe1fc49d168ff396f43c",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-RANDOM-0-3500-0.json.gz": "b550b83c4d9bc0f6e63ba9e8ded9edcd9b2f7bd2dcacf8f90311930533b4b17d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-RANDOM-0-7500-0.json.gz": "15722bdfe8235226894e2d36ca0ff75ec2bf7960b9b507b1965a80a5f9435798",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SF_SPT-0-15000-0.json.gz": "47d5e26fd12b4f7698ab81d8acd27618e3a58d07608a5bfbd3edce5f604157d5",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SF_SPT-0-3500-0.json.gz": "a01aa20b0bfd4814a9b85069b7f7337713fc6deb3342b8305e4f96b555d76de6",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SF_SPT-0-7500-0.json.gz": "41c704b3419189f21e195073c7dc8550e0ecf3a18cb49d6bd8db093df654953d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SF_SPT-0-7500-1.json.gz": "f90d17f256b2943c09253b93cfee39d46b2e4a5c4416d08f882b26ed11fdafc2",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SPT-0-15000-0.json.gz": "cc9748ee93fbb22528e7765e15a9b3e36945eb7d6dd10340175ae543eafb7c53",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SPT-0-3500-0.json.gz": "5147101640ac48920d0beff98fa22ab33a2880438072ec9c3c7b202ae2246753",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-SPT-0-7500-0.json.gz": "6c745211424e9cc522dcb714710eeed2745c616431b7ca2f6f9d0a5e7eef556e",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917101-15000-0.json.gz": "37d5654ea0d3d31b5d4319e620e0356b91c8e7e361346f84d09e5b3561cbdc6d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917101-3500-0.json.gz": "b0031b164d2226d8f3bd10ca78355bdf178ee8863bcd323eaae1b5826667f634",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917101-7500-0.json.gz": "19aa642f4d2dcc40ca1d78e2b76ce575a4a8754682e7408ac536066097cb5d24",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917101-7500-1.json.gz": "cdcdf7e2295b10f41b3125e9353c2f59c65dbe6bdf3b9b95e96d6524c3f33cad",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917102-15000-0.json.gz": "34f41ca52556fb0605af3c53b06bd64e1b7a2628d6ee9217c3f6ae57692e3de8",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917102-3500-0.json.gz": "e07ea67854ec8205dae12d49e707000f01ab7ef2915cf6f37957f50deb534e9d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917102-7500-0.json.gz": "106b913462543af3e45c62af5b25d0c41a1bb06609c9f0fe852698a1b071e8b8",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917103-15000-0.json.gz": "70a31cab0181451e11278cc86cb605e37e3751af6d9fad9584125e082205f00a",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917103-3500-0.json.gz": "34c2de923c2895164aa0a67e418f8a353acaddd76047369053763bf0b56804c8",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_hours_visit_minutes-trained-9917103-7500-0.json.gz": "9a5fd63506ff7d7393e976e56359af665477b4585b0ccf925b8531258793e544",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-FIFO-0-15000-0.json.gz": "a782d82e26df016978c85fa6181370c8f2c6c6dab41aba2e407e7a39bd913d1f",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-FIFO-0-3500-0.json.gz": "4b3c8c4d8a250809135a34e60634b8831f49927f565dfe742a3845e5a320a05a",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-FIFO-0-7500-0.json.gz": "8507b5b43843c90669907caf0d27f0c5850a8674c8a9d540bd2d98cdb2982876",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917101-15000-0.json.gz": "46de13f45e9acf90312795989531f590196a19968ae2884ba5502d4a3c246cae",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917101-3500-0.json.gz": "0dc261c424560ef5a29ddaa8ec2ea03e15adda196863f1c438b6805d420a3c41",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917101-7500-0.json.gz": "fd179e2d28a2b44d098a83eaf9b974e1d998e02e039a42b2a77dd89c73e55f67",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917102-15000-0.json.gz": "6dd42c9ad1b9e08d844a495d4a65ab9551df5094ef5b1498032e238f8bdb6649",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917102-3500-0.json.gz": "e395a23f5050f5124c41bdb2a4c2d78bc7268d90621a40fb89dca7dce4a25111",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917102-7500-0.json.gz": "b5c43711929d204127329aca01fe7e49435ebd38849b7cf39ba35103a12e908e",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917103-15000-0.json.gz": "23e90598e7eca4ba38cc4f32fee29e1e290bb187c30202ed84113c3251495a63",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917103-3500-0.json.gz": "5ab26805164d7c957c1e551e994210629691c5f47823dc9b6b4f4219ca10ca78",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-initial-9917103-7500-0.json.gz": "01c4090e6abef5aa9b668c39edbde264eff61277220c8213b97462faf95bc3c2",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LIFO-0-15000-0.json.gz": "27ac5b6932f803306bbd32c8dd2e049cd8febdc7e6413679de0c36ef9aa8016d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LIFO-0-3500-0.json.gz": "43da60c64bcb7c3927bf3f77b39c52099cc041ebd032b12490e5356886995e12",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LIFO-0-7500-0.json.gz": "ea8d43a76dd548e73e4b24f5db0b492f3dc51277eb325eb3199e2a597341680c",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LWKR-0-15000-0.json.gz": "4e38bb5b3b708f552e1bd649a5e1fe5ce4863d3aa226cf569f82b3ef2bf1c36b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LWKR-0-3500-0.json.gz": "b24138eedf7dede470271e783b00e9058483b8c149b15794788a9a02e3c33ac8",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-LWKR-0-7500-0.json.gz": "c7f254a5879606018fba4564b385ce5b7751726335b181b4237feecda033c526",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-NEAREST-0-15000-0.json.gz": "27902e7e5bfae8dfba30114d95a1d83c36e855d1b0cba69d7886ddda5eb10308",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-NEAREST-0-3500-0.json.gz": "4478d30bdb20604f876524db10913069bdff3590da130c19345536f38492a684",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-NEAREST-0-7500-0.json.gz": "67e21b7c463d2f0db451ed9d7102df490ba10bfe50dc9c19f32233e185c8163e",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-RANDOM-0-15000-0.json.gz": "299aaf93d4b2a6eff64d1785c701fbd7e7ce88992d09dd0b7f31bc36366883fd",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-RANDOM-0-3500-0.json.gz": "c03851a1143e092fb792985a95683259cffa7a58e6f7e745af43380039d32cf4",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-RANDOM-0-7500-0.json.gz": "282571f8f3fbfd4643d7b8ba4803c5a567d37085526aff51ccc168e945c10005",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SF_SPT-0-15000-0.json.gz": "ea0256482f209057c0ffe34027759c410b2865b5627d17860e9137c5427f5a1e",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SF_SPT-0-3500-0.json.gz": "9c35f45681fdff3ca77023d6393192633e44ab7ff0423665de51f9e5ac4e547b",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SF_SPT-0-7500-0.json.gz": "a1186ba04b9f64352d2b0181522cc0d127e1f5a91c04e012d52cb2d4323db2f9",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SPT-0-15000-0.json.gz": "96b8c5420cca306e413c8bd1c1dcdb5e5a79aa63828faf1b633090394ce6a780",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SPT-0-3500-0.json.gz": "0b1ade9bd5fe830677e79822bd3cb94f3b98584cb592fa1db4d429d3251d2834",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-SPT-0-7500-0.json.gz": "0ebbde25e63c35a9583292486e189b342e2ada182921b1aef2b32775048f12cc",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917101-15000-0.json.gz": "3d0314da7fb3770ab73fc452585142c6ee1c9a199e1330b24ed999fd8aaead8a",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917101-3500-0.json.gz": "3ca98b16d0934bbdd9c1563db0110f47b57d7600d3d1b7cbbc50a447fe91b064",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917101-7500-0.json.gz": "e8e00ce0e0ae6a089272a327bc849d963619627cf6a956057058efbe080eea26",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917102-15000-0.json.gz": "a31d38ac6c4232c1a61e98c123d441bdf92400c3a7dadec8f8dfab3a631560cc",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917102-3500-0.json.gz": "a5d2ec6bc24a7db4e8ceb0ec35b5a4b7a77b62fcf277ec350a86de8cbea5f2f0",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917102-7500-0.json.gz": "d1feaffb0d75ffe977367621769be305c2023c28440d33fa7bd0325206d40448",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917103-15000-0.json.gz": "f01ebd596e08754cb32e31c8dbd5be56fc8803bda6a9a380bdb1d1932e9aa84f",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917103-3500-0.json.gz": "d6d09dee66a5a183ad23f1a2dcd9928f6e80245c0b2f2328c30cfc5f0b035a4d",
+              "outputs/reports/yr332_visit_arrivals/orders/observed_mix_hours-trained-9917103-7500-0.json.gz": "353d9690d609c004f5c19d18f584c50442391b1c42a35d5392d2e8eb80e267d9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-FIFO-0-15000-0.json.gz": "b5c42e4e51e01fa773f70523e0a98e68acea162931ef7e2e875db01e3157dd3a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-FIFO-0-3500-0.json.gz": "8cd2263ba20f2a44e9bea5ca8d97721713a974cad90b05ba6c051cf0ba6a7ecd",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-FIFO-0-7500-0.json.gz": "99af52448b04cf226468ce46983a9b9be86344558340fcbb959b50955a9ba8c2",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917101-15000-0.json.gz": "ea6c65c5b0627ae95d4b4b110293677a7baf73a258a2249f0b5b764ef3e0b1eb",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917101-3500-0.json.gz": "8dcc834d3cfa84a9a0000a38771f25fe1386e751007766bf9fb4a5b8004f7e2b",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917101-7500-0.json.gz": "02c8f7848901d6533aab2c931e7f3d239b30bd0ef2cbfe9acca2d20b0caa4c21",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917102-15000-0.json.gz": "7a8f2c2ae52b36187b91136996440b8754385ffbcf228a69a2e135142809db46",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917102-3500-0.json.gz": "65829974035a55c1cd2b873b9cf8efe4ffa7d804c97684b77b0165bf5b29420a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917102-7500-0.json.gz": "a5cdaee6e9277bd5ae24a71644d6450d4a0715f3dce556ff4cda7f0237450c90",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917103-15000-0.json.gz": "edc32d5d37cd44a3a8f271b5d3686409727bb11d07483a2fdb1ce58f51a4014a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917103-3500-0.json.gz": "9906cce0c8ccf393ff26336886bd9aef12f23deab226b2f893eda214ac6940bf",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-initial-9917103-7500-0.json.gz": "3dde4fb602f2055ddf854facdb9155d68e6c619954bfd28d24dc1a681cd9c732",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LIFO-0-15000-0.json.gz": "6ba4d73f21c821af2f7a57bff4a12ddbb0e115589e1396cb64ed8780766db9eb",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LIFO-0-3500-0.json.gz": "6ef729b1877babf772883a7acb35c169905fbc0d148aaf8ab99a7237d8f9e281",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LIFO-0-7500-0.json.gz": "f757667585a108fbd55a51466df396267d2d04450f7ad67367e8ce1c59a64378",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LWKR-0-15000-0.json.gz": "476899015366ff32aff4f7df8d7c1b00049fed049d701eb915fc655cc41e0fa2",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LWKR-0-3500-0.json.gz": "d7df0de06fc63761422e81e9a0d3213de0b232824a40e3a3b52b0b00d1802842",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-LWKR-0-7500-0.json.gz": "e5b5699db0c586eb15df12b06636c79c3a0c3786d1ca6cdaf8b2f3f22db15e54",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-NEAREST-0-15000-0.json.gz": "773f51a8ee5c35996b78c536139eb20be53dd9a33c937a16f1b889cc7849c7af",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-NEAREST-0-3500-0.json.gz": "5b922cfa6e109ab179ef3f9cddaf36ad9e29bd16843f620611a889d653682cd3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-NEAREST-0-7500-0.json.gz": "600b182eaa3fda2099b9c5781ec75f3f91b24cba150efc01b9c350c843e4156f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-RANDOM-0-15000-0.json.gz": "15a50f6bfbcb0d8fcfc645503cbd84f2e733999c3981bd1179d3cd30160dd98f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-RANDOM-0-3500-0.json.gz": "1c6783beceb5e5413aed05ca3eb1592da5e2a88243b31645495323b4b0c1254a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-RANDOM-0-7500-0.json.gz": "4281caa6e076febe334041eded4d0414ecf5a4c55500b65fd0b67605185eb31f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SF_SPT-0-15000-0.json.gz": "6c28aa3f5d45a07af043e836afb4d10ef8e4f1b7589a0574962191595ef52d7c",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SF_SPT-0-3500-0.json.gz": "63e4c38ea00231bae16926ccaefed0bed2c8414cb16ecb4c630fd1fcf12b548b",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SF_SPT-0-7500-0.json.gz": "5dec10844e0fdf409d29351eb09b2c4ed79e2ee7f05e891b9bb2980f01ac4cd2",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SF_SPT-0-7500-1.json.gz": "eabdd6a3038c7eb0578b5560f69b879bf749ed667c9ef08c1373c3a81e2d05ab",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SPT-0-15000-0.json.gz": "d8ae78d860d628939178df3ed52a2fce2b5482a8a144b2a831d144a35a3e7172",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SPT-0-3500-0.json.gz": "e4a5c8bf161a179a95aa1582e38523893fab3900752ea255b3bba5a6c7bab04d",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-SPT-0-7500-0.json.gz": "f69532fb1da4316c3cc199e5fa440179207c4b2e4a15e10ebc5f4fcdc61e095f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917101-15000-0.json.gz": "014ed42683adae03a129312255e0cf88498c923a004a624ca039ce4c628db7d4",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917101-3500-0.json.gz": "c75082af73a26b35dbd9d5e9f58ae5dad8ee77933bd29269a2513b383a7f9ac3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917101-7500-0.json.gz": "6ce72ae09b7a3a325db3ab9f71189e1eb1c831052ad7f4123f09434c77817247",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917102-15000-0.json.gz": "45ac9e1f1c5f70630da3ee62405545e61c76b2eb83606644b88d408be656c691",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917102-3500-0.json.gz": "4119b3b7f4aef76ba4c22d7c0fb27baf3e5f6ee081d53c70dc5b6e215cebb489",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917102-7500-0.json.gz": "17dce024abbae513aa7e8247ea964832ae3b20129d5236a4a285ef27c11cc2d9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917103-15000-0.json.gz": "63c5b2b9f1d0e9161d053bdcb3dd97a21f931dd3d77ded842d4f469b913a0d18",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917103-3500-0.json.gz": "33d653014440353edb63dbae5275ba0c86a7cf0fdcb4f176781e29eff0a75aa3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_poisson-trained-9917103-7500-0.json.gz": "0a6c9db8ce3afebeb82a4c226a4a947a34f82c96aaa8f76f965637f9389e26f0",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-FIFO-0-15000-0.json.gz": "a7ba07c766a85ea94c9d6112d1173a172829535a03d53074a0d272afca39b8dc",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-FIFO-0-3500-0.json.gz": "71a8d89f0597effd16d310b31974106eb4661b4fccf88a136fcec5ceffdd54c5",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-FIFO-0-7500-0.json.gz": "7db7904c0a9ef82bafb1905ec827806f8c51d6c382db73500bb32e87ec46b367",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917101-15000-0.json.gz": "e6d63598d3128edfccfc3276351d659df4f4bccc0dedc3c18f8beb9759f410b3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917101-3500-0.json.gz": "a05489f6702f3ba317272da29b80a70b7c4ca82133cd9da028029f6049aff5f9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917101-7500-0.json.gz": "cb9786f59a4b27ce088ad3a7e16adcabf35522cf533fe459c898c2cc2b14e33b",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917102-15000-0.json.gz": "f7e8a6053447dfda92a020e3d6a582ccf5019ec4b5140765abeb99204119f9eb",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917102-3500-0.json.gz": "b1447bfd7e68035aec2607f4db0ae24e4ad18d7422830049fe329aa017b4b38d",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917102-7500-0.json.gz": "1501cef84c7910ef2dcbfd649f2a4b2bc0d4a895263f16f648e642e297eeeb70",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917103-15000-0.json.gz": "8a0d9738a25ab77128e9283b2c46cce3280cd302f56f84504740c4e95ffa7796",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917103-3500-0.json.gz": "f0789b7991fd82a8af132142a37840af436d1fa8c114996edba3b1512d2c2f00",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-initial-9917103-7500-0.json.gz": "8c6eb5d6a991b16c8554bbf3b454666901f3e9ddfa256e3dbc363bcf23739527",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LIFO-0-15000-0.json.gz": "ffe7a3558ba0f551706d4b33a8330b75f95651da45b8fbe2cbf9d8b5633d8af8",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LIFO-0-3500-0.json.gz": "4deb5e4948f21878c1e5d656432269834a2ea445364beb3ce1156d3129799663",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LIFO-0-7500-0.json.gz": "761e8eadf5c8fa15d1d866142ee70b4bda2b96e22507bbd43e0a5d05aa4db039",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LWKR-0-15000-0.json.gz": "55ac4a2ac75d3b029843b4747097098607fe89a65d0a9a4af1549fdb1e2aee5e",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LWKR-0-3500-0.json.gz": "19581e443ef5acade1a1c2587a86943fac876f428d4dc964ccf0dd970a64df6f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-LWKR-0-7500-0.json.gz": "2f1f8495eb738c01a7a8286f2f1163f715ae57f8d4d810ddbfe6fdb010eb7aa4",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-NEAREST-0-15000-0.json.gz": "55132dd06d08b111de1963b11a6a8444c91509522ef25cbca5ab07fc5ef48b1f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-NEAREST-0-3500-0.json.gz": "527bcdd1b37ccfc02cf99d7147ffc25be10f02ca63c4aa718cbc44dfcad848c6",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-NEAREST-0-7500-0.json.gz": "f566312c62ae3388de9adcad0d97f5eb240f31171ff63c9c1ad33e782190d7b5",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-RANDOM-0-15000-0.json.gz": "6108e2f7125e36cf3277814c26def6c610b862d02d794a0668d912a74ce1d3ed",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-RANDOM-0-3500-0.json.gz": "7e91b231594e63d462e6b35faefd37d2419bcf6ff8be4dd7e5016b1450ba585a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-RANDOM-0-7500-0.json.gz": "21cfe460dfd54163a37cf536e8addec3ee241f0fe8e068f1bcbd32a835240390",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SF_SPT-0-15000-0.json.gz": "43380f98a02ec069c1f5e4be113f82f341213f6efd5f27def66f3200ee714b33",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SF_SPT-0-3500-0.json.gz": "021b6e07b123bd94c0cf402eda8ffde27fd2e5c5fd760fb71f9b01452c215016",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SF_SPT-0-7500-0.json.gz": "0b8458318f6031f05ba7d29c988e8a977b0df88acfb4bec83f77415e4ed50ff7",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SF_SPT-0-7500-1.json.gz": "74699093161081410792873f6fa65931c26d5c24f1e75eb185701493dce5ea04",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SPT-0-15000-0.json.gz": "8e71f14abf45acf21bed1b093f768709db8002053db6c720623b6f400f604652",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SPT-0-3500-0.json.gz": "ab97d8ac8e358ba454b6d784d48e6fd1ed86a9830b4edb96f6071b82f01526c1",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-SPT-0-7500-0.json.gz": "478dfcbeae82bce5fd0bcff3d3cab64c00c0714ce9fd796c76a6fdb484b4155a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917101-15000-0.json.gz": "58a01361a4d7b5ad530e74f8470387a841224d018fc10bea86be892874614186",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917101-3500-0.json.gz": "06db346438ecd2083a97662c5fda3b23adb5d3153775fc5f3da95f76e2f69971",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917101-7500-0.json.gz": "fc4e398007e50ee43fa5495ff3caab62b95ec6dd697493b4ba36d59c15db1b78",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917101-7500-1.json.gz": "1f8e21f6d5d3d3c3d8dfd432f4218ff0ba3b06c4f9adc7758ef8c3777d1e73ac",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917102-15000-0.json.gz": "cd5944eb64806c7d9ad5feaf6fe51268021e225e7a6af98b4e18e3045a669bb3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917102-3500-0.json.gz": "c37f644d051928f19514b65887e88aca1b67e9c37af643294a5394766af50415",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917102-7500-0.json.gz": "9c2d58bba1c6de1681fbce89269ac81936deb80f8e2a2e8ded736596218b4b00",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917103-15000-0.json.gz": "f7e45700fc3decc72dba3ce61b17fd21d1741947d69f85f8a8ac208675e71f01",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917103-3500-0.json.gz": "0e056cd3fc2cc3d304e38fdc713ed91f36a33d0db21befc6ecb047091d7074d4",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_hours_visit_minutes-trained-9917103-7500-0.json.gz": "c9c3b58a9ae4a4103f0c58cedecf209d349141df3e8985ba003131c6c9085bb5",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-FIFO-0-15000-0.json.gz": "c8f5aed98b35d45aaf78387ac93792b7f5d543d5e26b71becbb46d1f8c2a1f06",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-FIFO-0-3500-0.json.gz": "6c6dd8d933cb7d5ce764238e16ba7ba71623eb3449c0d0e73744ec8a58aab055",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-FIFO-0-7500-0.json.gz": "2bc69528f1e32c84df2b2895e2ab4ecda60ea1c9fc5365a5fa7c7b6c778e33da",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917101-15000-0.json.gz": "a5eee035215a548c83b97e96fcd6183dd17c017876746613c1a1c424a3bd70b0",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917101-3500-0.json.gz": "c47801d120975f6f4cbb9849ba2f4b0f71cf852c27a2065cbfdfe6f3744da2d9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917101-7500-0.json.gz": "80a4eac0014e447ea4833c470eedd7784c6ce95b6bce62b91b4eb044851d25f7",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917102-15000-0.json.gz": "4bc8d20aef9fa9d65d73173e4ab6d617f5c55cb3c3e1554c6f8d80be9d7ed192",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917102-3500-0.json.gz": "e95c71a7d45bb68adf90091998098437a4a0d268d6b16680786c28c4ed772b11",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917102-7500-0.json.gz": "2d92702de337de2ddc5b48ed9457f0aea434eee2dad4948277ec340e63a2403b",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917103-15000-0.json.gz": "52da93c7e75f271802211bf528885e5c61cd0b56e59796052c56638baff3d633",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917103-3500-0.json.gz": "42748be652292a26cd37e82b2673d7528fc600c9023583551dc29904380e4407",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-initial-9917103-7500-0.json.gz": "bbbf8cd545d6f7b898593d83671c01bbc348d8b4fa4d7d251dfa679c4f9a13bf",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LIFO-0-15000-0.json.gz": "138bc54c380cc70cb8f31b33e3d4af7ed91d64742e0e4b269415fb3fd04a4975",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LIFO-0-3500-0.json.gz": "be8e9c2f8bdb8d70b52bd59ac88b4de6ab8b3d379f10203c11d9cf5c58d0d8c0",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LIFO-0-7500-0.json.gz": "d8ae40aa47ba21380fd8d4ed27e5410ba28cd785f67b8a9e5d0889647d961e4f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LWKR-0-15000-0.json.gz": "223f479959efd7c2642cbbe92dd8ffe31e9637ea2bc7512c98989169240ea7c9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LWKR-0-3500-0.json.gz": "7c1aa1ba5478b226e4007a7fb16abde84b95fc0e24831e89172885b9b5a8bb73",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-LWKR-0-7500-0.json.gz": "ec8d93fe69dce2ab021b25833ce8413770e9008bbe7e3c23b40e15f0b757cfa8",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-NEAREST-0-15000-0.json.gz": "a955d05354d2fc785bd0393ee6efedf6e302136e9bf88fbc9b3034d1335c56e8",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-NEAREST-0-3500-0.json.gz": "9f2fc453271326e363f9f5ae33d6894ceb7122847e1d0bdad842dcdfa77344dd",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-NEAREST-0-7500-0.json.gz": "bc0f55bb0e57053fbee91b257ee4e6f503aaacef2ea853baefa57bb4aaba04f3",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-RANDOM-0-15000-0.json.gz": "6781495c4b2ba93319520fc7cc0494a0c73ca251c686b3520ab10826e155da93",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-RANDOM-0-3500-0.json.gz": "84ca450a04497410c8bbd2c4fe1581c3e1c1ccb5e7288507d98c87cc1132799f",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-RANDOM-0-7500-0.json.gz": "52aa212f359a9182217d59b0bd67f3013f0c59d9d6d945b02bf7a841916c72e6",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SF_SPT-0-15000-0.json.gz": "40e5acf7d2060286de1fdbe3e0ad1cd16d826f9fb4a6131267481bdc1818da2d",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SF_SPT-0-3500-0.json.gz": "d9d79edb29fcab62cc43ca0004da33b518c9c4a42ce6f8f3382ecd3c3e887f38",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SF_SPT-0-7500-0.json.gz": "4fd5104db6301e22bfd3c893ede849fb0a9542ce42b243cc4a1cbdf9de15f1d5",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SPT-0-15000-0.json.gz": "395f2fadf69ed6d2cc79236c5403090d4083e8446e285864f5ba78086f0b44a4",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SPT-0-3500-0.json.gz": "fa3bfe8ef1ac22ddcbdc4fbc93c801bf9349178c3d48c437edc842e819dd4fd9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-SPT-0-7500-0.json.gz": "d4b01a759f82535931836b1f6190d58fba99b7617c418d6f6151e83dce4628d9",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917101-15000-0.json.gz": "66a893494f68501f7d7ba42f2d534ada42844f681d70b7ac40592d69eabd3b0c",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917101-3500-0.json.gz": "3fad7c32c0d99a02984c4c86fdbe6f149ac25dba0905c4f48ffa92afe91aa79a",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917101-7500-0.json.gz": "20374525df3644528352a26dc0a920dae4fdac736fe7a5d49d57084ec6ee232e",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917102-15000-0.json.gz": "2f1c2c49b8b2d0d959841078d8e8b2480e3f35ab9fd055c80795add1acf676f0",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917102-3500-0.json.gz": "3cbbff8615d11e734651040172ef28a05dfa00782f7680d7bcb9750c6f85d268",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917102-7500-0.json.gz": "7f95aa74b165a9ebcfffec541fb73cb25b779f1c47e904df3f9217ac1acbd81b",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917103-15000-0.json.gz": "21c1c986a54171cbf554eb7d9a0dc5fa2fea8cf251423ff503ff7e1ddaba3fa1",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917103-3500-0.json.gz": "a97fe45b42517710c39b4b61c775f150d397c8483639ccf9d2f60f6d716b49da",
+              "outputs/reports/yr332_visit_arrivals/flow-orders/observed_mix_hours-trained-9917103-7500-0.json.gz": "71ca29674c64c41a6b40f6bd2edb89030e5288bdb1c99ae0bfeb7d935879f14f"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-ak",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-ak-order-visit-and-arrival-process.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_visit_arrivals\\summary.json",
+              "outputs\\reports\\yr332_visit_arrivals\\verification.json",
+              "outputs\\reports\\yr332_visit_arrivals\\campaign.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-ak-order-visit-and-arrival-process.md"
+            ],
+            "evidence_commits": [
+              "67f47e6b"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "67f47e6b",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.00501,
+            "reported_values": {
+              "observed_mix_hours:initial": 110.52,
+              "observed_mix_hours:trained": 94.811,
+              "observed_mix_hours:SF_SPT": 80.396,
+              "observed_mix_hours:ALL:gap": 17.93,
+              "observed_mix_hours:3500:gap": 22.05,
+              "observed_hours_poisson:initial": 110.404,
+              "observed_hours_poisson:trained": 94.636,
+              "observed_hours_poisson:SF_SPT": 80.307,
+              "observed_hours_poisson:ALL:gap": 17.84,
+              "observed_hours_poisson:3500:gap": 22.44,
+              "observed_hours_visit_minutes:initial": 111.045,
+              "observed_hours_visit_minutes:trained": 96.223,
+              "observed_hours_visit_minutes:SF_SPT": 81.065,
+              "observed_hours_visit_minutes:ALL:gap": 18.7,
+              "observed_hours_visit_minutes:3500:gap": 16.96
+            },
+            "raw_values": {
+              "observed_mix_hours:initial": 110.52005865531471,
+              "observed_mix_hours:trained": 94.81056034758541,
+              "observed_mix_hours:SF_SPT": 80.3964885790197,
+              "observed_mix_hours:ALL:gap": 17.928732987384734,
+              "observed_mix_hours:3500:gap": 22.04834262516047,
+              "observed_hours_poisson:initial": 110.40384722334578,
+              "observed_hours_poisson:trained": 94.63601828436397,
+              "observed_hours_poisson:SF_SPT": 80.30733210876222,
+              "observed_hours_poisson:ALL:gap": 17.842313770548433,
+              "observed_hours_poisson:3500:gap": 22.444217672767184,
+              "observed_hours_visit_minutes:initial": 111.04452599249738,
+              "observed_hours_visit_minutes:trained": 96.2228329017737,
+              "observed_hours_visit_minutes:SF_SPT": 81.0650097181046,
+              "observed_hours_visit_minutes:ALL:gap": 18.698354859117266,
+              "observed_hours_visit_minutes:3500:gap": 16.961817014307403
+            },
+            "absolute_differences": {
+              "observed_hours_poisson:3500:gap": 0.0042176727671829894,
+              "observed_hours_poisson:ALL:gap": 0.0023137705484330695,
+              "observed_hours_poisson:SF_SPT": 0.00033210876222256047,
+              "observed_hours_poisson:initial": 0.00015277665421820075,
+              "observed_hours_poisson:trained": 1.828436397488531e-05,
+              "observed_hours_visit_minutes:3500:gap": 0.0018170143074023315,
+              "observed_hours_visit_minutes:ALL:gap": 0.0016451408827329317,
+              "observed_hours_visit_minutes:SF_SPT": 9.718104607259193e-06,
+              "observed_hours_visit_minutes:initial": 0.00047400750261772373,
+              "observed_hours_visit_minutes:trained": 0.0001670982262993448,
+              "observed_mix_hours:3500:gap": 0.0016573748395316557,
+              "observed_mix_hours:ALL:gap": 0.001267012615265628,
+              "observed_mix_hours:SF_SPT": 0.0004885790197022288,
+              "observed_mix_hours:initial": 5.865531471727081e-05,
+              "observed_mix_hours:trained": 0.00043965241459886784
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 실패: achievable_vessel_deadline",
+        "지속 유입 운영흐름 미검증",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": false,
+        "internal_checks": {
+          "event_time_order": true,
+          "information_boundary": true,
+          "physical_constraints": true,
+          "ledger_conservation": true,
+          "achievable_vessel_deadline": false,
+          "deterministic_replay": true
+        },
+        "flow_checks": {},
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
