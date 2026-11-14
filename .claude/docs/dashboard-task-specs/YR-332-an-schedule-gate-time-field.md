@@ -37,4 +37,4 @@
 - 결과 불변: 저장된 ak 실행 4건과 보조 필드에 엉뚱한 값을 넣은 1건을 재실행했다. 결과·트럭 행·후보·선택·사건·작업·기록 해시가 모두 같다.
 - 입력 지문: 보정 없는 ag 입력 9개는 바이트 동일. 보정 입력 9개(78,000건)는 `gate_in_s`만 바뀌어 명단·입력 지문이 달라진다. 시험 92건 통과.
 
-[보고서](../../../outputs/reports/yr332_bnct_time_field/README.md) · [검증](../../../outputs/reports/yr332_bnct_time_field/verification.json)
+결과 커밋 `31100a15`. [보고서](../../../outputs/reports/yr332_bnct_time_field/README.md) · [검증](../../../outputs/reports/yr332_bnct_time_field/verification.json)
