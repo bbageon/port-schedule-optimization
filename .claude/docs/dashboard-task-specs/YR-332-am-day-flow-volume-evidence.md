@@ -49,4 +49,4 @@ ak 뒤에도 합성 입력이 실제와 다른 성질 세 가지가 확인됐지
   물량과 함께 커지지 않았다. 그 이상은 판정할 자료가 없어 [YR-332-ap](YR-332-ap-high-volume-bunching-data.md)(외부 대기)를 등록했다.
   ak 민감도(학습 후 vs SF_SPT): 7,500건 무작위 +7.62%·실제 몰림 +14.40%, 15,000건 +18.88%·+19.25%.
 
-[보고서](../../../outputs/reports/yr332_day_flow_volume/README.md) · [원값](../../../outputs/reports/yr332_day_flow_volume/measurement.json)
+결과 커밋 `ae607600`. [보고서](../../../outputs/reports/yr332_day_flow_volume/README.md) · [원값](../../../outputs/reports/yr332_day_flow_volume/measurement.json)
