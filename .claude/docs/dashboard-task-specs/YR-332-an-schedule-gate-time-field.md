@@ -1,8 +1,9 @@
 # YR-332-an — 보정된 도착 시각과 명단 보조 필드(`gate_in_s`)의 불일치
 
-- **상태**: backlog
+- **상태**: in-progress
 - 등록: 2026-11-13. 상위 [[YR-332]], 발견 작업 [[YR-332-ak]] 코드 대조.
 - 잠재 기록 결함 한 축. 현재 결과를 바꾸지 않는다는 점을 먼저 확인한 뒤 고친다.
+- **3대 게이트 보정 대상**: scenario_validity(만든 입력의 기록·정보 계약이 실제 실행 값과 맞는가).
 
 ## 무엇과 왜
 
@@ -20,3 +21,10 @@
 3. 결과·사건 해시가 바뀌지 않음을 확인한다. 입력 지문이 바뀌는 범위는 따로 보고한다.
 
 근거: [ak 보고서](../../../outputs/reports/yr332_visit_arrivals/README.md) · `src/yard_rl/v7/world/integrated/order_schema.py:bnct_view`.
+
+## 착수 — 2026-11-14
+
+- 사용자 지시 “다음 사항 진행해볼래? 모든 사항 진행하고 학습 다시 해서 감소율 알려줘”로 착수했다.
+- 착수 허가: ak의 `c7dc4e25` 저장 판정(신뢰성 PASS·현실성 FAIL·성능 INCONCLUSIVE)에서 scenario_validity 보정만 허용됨을 확인했다.
+  [허가 기록](../../../outputs/reports/yr332_bnct_time_field/authorization.json).
+- 순서: 읽는 경로 나열 → 보정 뒤 다시 맞추기와 회귀 시험 → 저장 입력 재현 방법 → 결과·사건 해시 불변 확인.
