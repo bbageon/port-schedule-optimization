@@ -49,6 +49,6 @@ ag 학습 뒤 환경을 네 번 고쳤다: 작업 비율·시간대(aj), 시간�
 - 해석: 환경 보정만으로는 같은 학습 방법이 나아지지 않았고, 결과가 초기값에 좌우된다. 다음은 학습 진단
   [YR-323-d](YR-323-d-learning-budget-check.md)이며 이 결과를 그 명세에 근거로 추가했다.
 
-결과 커밋은 다음 커밋에서 박제. [보고서](../../../outputs/reports/yr332_linked_retraining/README.md) ·
+동결 `720e43c0`, 결과 `1c3373c2`. [보고서](../../../outputs/reports/yr332_linked_retraining/README.md) ·
 [검산](../../../outputs/reports/yr332_linked_retraining/verification.json) · [원값](../../../outputs/reports/yr332_linked_retraining/summary.json) ·
 [결정 경위](../strategy-history/2026-11-14-YR-332-보정환경-재학습.md)
