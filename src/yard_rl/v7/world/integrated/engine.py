@@ -725,6 +725,12 @@ class TerminalSimulator:
                 self.kpis.service_started(j.job_id, self.clock)
                 if self.time_ledger is not None:        # YR-089 v2: S 기록 (블록 점유는 C 까지)
                     self.time_ledger.service_start(j.job_id, self.clock)
+                link = getattr(j, 'visit_link', None)
+                if link is not None:
+                    # [[YR-332-al]] Completion is fixed at dispatch. The terminal releases the
+                    # truck's next stop (or fixes its single exit) from this time.
+                    self.__dict__.setdefault('visit_outbox', []).append(
+                        (link['id'], link['stop'], j.job_id, plan.start_s + plan.duration_s))
         self.cost.accrue("crane_travel", plan.loaded_gantry_m,
                          cause=CostCause.DISPATCH, subject=crane_id)
         self.cost.accrue("empty_travel", plan.empty_gantry_m,
@@ -938,8 +944,16 @@ class TerminalSimulator:
                 # YR-089 v2: C 기록·블록 점유 종료·O = C+exit_travel(외생) 확정
                 if (self.time_ledger is not None and j.is_external_truck
                         and j.exit_travel_s is not None):
-                    j.actual_gate_out = self.time_ledger.job_done(
-                        j.job_id, self.clock, j.exit_travel_s)
+                    if getattr(j, 'visit_link', None) is None:
+                        j.actual_gate_out = self.time_ledger.job_done(
+                            j.job_id, self.clock, j.exit_travel_s)
+                    else:
+                        # [[YR-332-al]] one truck exit after its last job: record C now and
+                        # the visit's exact O when it is known (or later, when it becomes known).
+                        self.time_ledger.job_done_hold(j.job_id, self.clock)
+                        if getattr(j, 'visit_gate_out', None) is not None:
+                            j.actual_gate_out = self.time_ledger.set_gate_out(
+                                j.job_id, j.visit_gate_out)
                 # YR-080 단계3: 적하 반출 완료 → 박스를 안벽으로 이송 — 인과 사슬의
                 # 적하 절반 (YC 반출 → YT → 안벽버퍼 → STS 처리 가능).
                 if j.flow == JobFlow.VESSEL_LOAD and j.vessel_id is not None:

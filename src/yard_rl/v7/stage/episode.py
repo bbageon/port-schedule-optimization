@@ -443,11 +443,18 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     orders, records = orders_from_schedule(built)
     ann = V3Announcer(built['schedule'], end_s=built['sim_end_s'])
 
+    epochs = set(admission_epochs(obs)) | set(ann.by_epoch)
+    if built.get('visit_links') is not None:
+        # [[YR-332-al]] A truck's next stop is released when its previous stop is dispatched
+        # (a crane job takes >=125 s). Common 60-s epochs keep every block within one epoch
+        # of the others, also in the drain window after 24 h, so releases never land in a
+        # block's past. Unlinked runs keep their historical epochs.
+        epochs |= {EPOCH_S * i for i in range(int(built['sim_end_s'] // EPOCH_S) + 1)}
     mbt = MultiBlockTerminal(
         {b: ensure_time_ledger(_sim_from(s, prof, discharge_backpressure=discharge_backpressure))
          for b, s in built["scenarios"].items()},
         preserve_external_demand=preserve_external_demand,
-        extra_review_epochs=tuple(sorted(set(admission_epochs(obs)) | set(ann.by_epoch))))
+        extra_review_epochs=tuple(sorted(epochs)))
     for sim in mbt.blocks.values():
         sim.dispatch_cache.rehandle_slots = reuse_rehandle_slots
         sim.decision_probe_shortcircuit = decision_probe_shortcircuit

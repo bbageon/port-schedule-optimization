@@ -137,6 +137,11 @@ class MultiBlockTerminal:
         self.route_cost_s: float = 0.0          # 이송 추가주행 누적 (critical-2)
         self._parked: dict[str, float] = {}
         self._terminal: set[str] = set()
+        #: [[YR-332-al]] multi-container truck visits: visit id -> stop plan and timing state.
+        #: Empty unless linked orders are admitted, so unlinked runs are unchanged.
+        self.visits: dict[str, dict] = {}
+        self.visit_stats = dict(released=0, late_releases=0, late_release_s=0.0,
+                                exits=0, late_exits=0, late_exit_s=0.0)
         for bid, sim in self.blocks.items():
             _namespace_jobs(sim, bid)
             for jid, j in sim.jobs.items():
@@ -182,6 +187,7 @@ class MultiBlockTerminal:
             s.cost.cut()
         guard = 0
         while len(self._terminal) < len(self.blocks):
+            self._drain_visits()               # [[YR-332-al]] dispatches since the last step
             guard += 1
             if guard > 2_000_000:
                 raise RuntimeError("multiblock 루프 상한 — 엔진 계약 위반 의심")
@@ -268,9 +274,12 @@ class MultiBlockTerminal:
             raise TransferError(f"{bid}: time_ledger 없음 — 고정 WIP 는 v2 장부 필수")
         if getattr(job, "exit_travel_s", None) is None:
             raise TransferError(f"{jid}: exit_travel_s 결측 — v2 장부 계약 위반")
-        arr = gate_in_s + travel_s
-        if gate_in_s < sim.clock - 1e-9 or arr <= sim.clock + 1e-9 or arr > sim.end:
-            raise TransferError(f"{jid}: 투입시각 무효 gate_in={gate_in_s:.1f} arr={arr:.1f}")
+        link = getattr(job, "visit_link", None)
+        # [[YR-332-al]] A later stop of a multi-container visit has no block arrival until
+        # the previous stop's last job is dispatched (None = still pending).
+        arr = gate_in_s + travel_s if link is None else self._visit_admit(jid, link, gate_in_s)
+        if gate_in_s < sim.clock - 1e-9 or (arr is not None and (arr <= sim.clock + 1e-9 or arr > sim.end)):
+            raise TransferError(f"{jid}: 투입시각 무효 gate_in={gate_in_s:.1f} arr={arr}")
         if (not self.preserve_external_demand and job.flow == JobFlow.GATE_IN
                 and self.free_slots(bid) <= self.capacity_margin):
             raise TransferError(f"{bid}: 용량 부족 (free={self.free_slots(bid)})")
@@ -283,7 +292,8 @@ class MultiBlockTerminal:
         job.actual_block_arrival = arr
         sim.jobs[jid] = job
         from .events import EventKind
-        sim.queue.push(arr, EventKind.BLOCK_ARRIVAL, jid)
+        if arr is not None:
+            sim.queue.push(arr, EventKind.BLOCK_ARRIVAL, jid)
         import bisect
         from .time_contract import TruckTimes
         tl = sim.time_ledger
@@ -295,6 +305,81 @@ class MultiBlockTerminal:
             tl._n_inside += 1
         self.ledger.register(JobRecord(job_id=jid, origin_block=bid, owner=bid,
                                        flow=job.flow.value, a_gate_in=gate_in_s))
+
+    # -------------------------------------------------- 여러 컨테이너 방문 ([[YR-332-al]])
+    def _visit_admit(self, jid: str, link: dict, gate_in_s: float) -> float | None:
+        """방문 상태를 만들거나 확인하고, 이 오더 정차의 블록 도착 시각(미정이면 None)을 준다."""
+        st = self.visits.get(link['id'])
+        if st is None:
+            st = self.visits[link['id']] = dict(
+                stops=link['stops'], travel=link['travel_s'], exit=link['exit_travel_s'],
+                gate_in=gate_in_s, known={}, release={0: gate_in_s + link['travel_s'][0]},
+                gate_out=None)
+        if st['gate_in'] != gate_in_s or jid not in st['stops'][link['stop']][2]:
+            raise TransferError(f"{jid}: visit {link['id']} plan mismatch")
+        return st['release'].get(link['stop'])
+
+    def _drain_visits(self) -> None:
+        """크레인 배정으로 완료 시각이 정해진 방문 작업을 처리한다(블록이 더 진행하기 전)."""
+        if not getattr(self, 'visits', None):    # month terminals restored from older state
+            return
+        for sim in self.blocks.values():
+            box = sim.__dict__.get('visit_outbox')
+            if not box:
+                continue
+            items = list(box)
+            box.clear()
+            for vid, stop, jid, done_s in items:
+                self._visit_dispatched(vid, stop, jid, done_s)
+
+    def _visit_dispatched(self, vid: str, stop: int, jid: str, done_s: float) -> None:
+        st = self.visits[vid]
+        st['known'][jid] = done_s
+        ids = st['stops'][stop][2]
+        if any(i not in st['known'] for i in ids):
+            return
+        finished = max(st['known'][i] for i in ids)
+        if stop + 1 < len(st['stops']):
+            # Next stop: travel from this block (0 at the same block), then wait there.
+            release = finished + st['travel'][stop + 1]
+            st['release'][stop + 1] = release
+            bid, _, nxt = st['stops'][stop + 1]
+            sim = self.blocks[bid]
+            from .events import EventKind
+            for i in nxt:
+                j = sim.jobs.get(i)
+                if j is None or j.actual_block_arrival is not None:
+                    continue                    # admitted later: admission reads the release
+                at = release
+                if at < sim.clock - 1e-9:       # causality guard; verification requires 0
+                    self.visit_stats['late_releases'] += 1
+                    self.visit_stats['late_release_s'] += sim.clock - at
+                    at = sim.clock
+                j.actual_block_arrival = at
+                sim.queue.push(at, EventKind.BLOCK_ARRIVAL, i)
+                self.visit_stats['released'] += 1
+            return
+        self._visit_exit(st, finished + st['exit'])
+
+    def _visit_exit(self, st: dict, gate_out: float) -> None:
+        """마지막 정차가 정해지면 방문의 모든 오더에 같은 출차 시각을 단다."""
+        st['gate_out'] = gate_out
+        self.visit_stats['exits'] += 1
+        for bid, _, ids in st['stops']:
+            sim = self.blocks[bid]
+            for i in ids:
+                j = sim.jobs.get(i)
+                if j is None:
+                    continue
+                j.visit_gate_out = gate_out
+                r = sim.time_ledger.records.get(i)
+                if r is not None and r.job_done is not None and r.gate_out is None:
+                    at = gate_out
+                    if at < sim.clock - 1e-9:   # causality guard; verification requires 0
+                        self.visit_stats['late_exits'] += 1
+                        self.visit_stats['late_exit_s'] += sim.clock - at
+                        at = sim.clock
+                    j.actual_gate_out = sim.time_ledger.set_gate_out(i, at)
 
     # -------------------------------------------------- 시간 판매 (YR-161 — 진입 전 재예약)
     def defer_admitted_entry(self, job_id: str, delta_s: float, *,

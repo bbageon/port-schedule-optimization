@@ -21,10 +21,16 @@ def validate(profile: dict, *, day_s: float) -> None:
         raise ValueError('unknown demand profile schema')
     if day_s != 86400.0:
         raise ValueError('observed demand profile requires the 24-hour daily stage')
-    if not set(profile).issubset({'schema','gate_out_share','hour_counts','within_hour','source'}):
+    if not set(profile).issubset({'schema','gate_out_share','hour_counts','within_hour','visit_link','source'}):
         raise ValueError('unsupported demand profile field')
     if profile.get('within_hour') is not None:
         validate_within_hour(profile['within_hour'])
+    if profile.get('visit_link') is not None:
+        # Visits take the within-hour template; orders inherit their visit time ([[YR-332-al]]).
+        from .visit_link import validate_visit_link
+        validate_visit_link(profile['visit_link'])
+        if profile.get('within_hour') is None or profile.get('hour_counts') is None:
+            raise ValueError('visit_link requires hour_counts and a within_hour template')
     p=profile.get('gate_out_share')
     if p is not None and (not math.isfinite(p) or not 0 <= p <= 1):
         raise ValueError('gate_out_share must be a finite probability')

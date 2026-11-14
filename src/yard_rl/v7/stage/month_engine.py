@@ -79,6 +79,7 @@ class MonthTerminal(MultiBlockTerminal):
             s.cost.cut()
         guard = 0
         while len(self._terminal) < len(self.blocks):
+            self._drain_visits()               # [[YR-332-al]] dispatches since the last step
             guard += 1
             if guard > self.LOOP_GUARD:          # 여기 한 줄만 다르다
                 raise RuntimeError("multiblock 루프 상한 — 엔진 계약 위반 의심")

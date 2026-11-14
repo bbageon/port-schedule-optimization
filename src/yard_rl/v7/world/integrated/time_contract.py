@@ -73,6 +73,24 @@ class TimeLedger:
         heapq.heappush(self._o_heap, r.gate_out)
         return r.gate_out
 
+    def job_done_hold(self, job_id: str, t: float) -> None:
+        """여러 컨테이너 방문의 작업 완료 — C만 적고 O는 방문 출차가 정해질 때 단다 ([[YR-332-al]]).
+
+        트럭은 마지막 작업 뒤 한 번 나간다. 그때까지 터미널 안 트럭 수(A≤t<O)에 남는다.
+        """
+        r = self.records[job_id]
+        r.job_done = t
+        self._in_block.pop(job_id, None)
+
+    def set_gate_out(self, job_id: str, gate_out: float) -> float:
+        """보류한 O를 방문 출차 시각으로 확정한다. 호출자는 O가 장부 적분 시각 이후임을 보장한다."""
+        r = self.records[job_id]
+        if r.job_done is None or r.gate_out is not None or gate_out < r.job_done:
+            raise ValueError(f'{job_id}: invalid held gate exit')
+        r.gate_out = gate_out
+        heapq.heappush(self._o_heap, gate_out)
+        return gate_out
+
     # ------------------------------------------------- 적분
     def integrate(self, lo: float, hi: float) -> None:
         if hi <= lo:
