@@ -1,6 +1,6 @@
 # YR-332-am — 날짜 간 변동·반입/반출 시각 결합·고물량 몰림의 실측 근거
 
-- **상태**: backlog
+- **상태**: in-progress
 - 등록: 2026-11-13. 상위 [[YR-332]], 발견 작업 [[YR-332-ak]].
 - **3대 게이트 보정 대상**: scenario_validity(만든 입력이 실제 자료의 흐름과 맞는가).
 - 측정 우선 작업. 보정이 필요하면 측정 뒤 한 번에 한 축씩 별도로 사전등록한다.
@@ -29,3 +29,10 @@ ak 뒤에도 합성 입력이 실제와 다른 성질 세 가지가 확인됐지
 - [ak 실제 몰림](../../../outputs/reports/yr332_visit_arrivals/arrival-process-audit.json) ·
   [입력 판정](../../../outputs/reports/yr332_visit_arrivals/input-preflight.json) ·
   [aj 입력 대조](../../../outputs/reports/yr332_order_representativeness/input-comparison.md)
+## 착수 — 2026-11-14
+
+- 사용자 지시 “다음 사항 진행해볼래? 모든 사항 진행하고 학습 다시 해서 감소율 알려줘”로 착수했다.
+- 착수 허가: ak의 `c7dc4e25` 저장 판정에서 scenario_validity 보정만 허용됨을 확인했다.
+  [허가 기록](../../../outputs/reports/yr332_day_flow_volume/authorization.json).
+- 순서: ak 방문 정의로 세 성질을 측정(읽기 전용) → 날짜 간 변동은 우연 기대와, 시각 결합은 같은 방문 시각의 유형 섞기 대조와,
+  몰림은 시간당 방문 수 구간과 비교 → 필요한 보정 축만 새 row로 등록.

@@ -11,7 +11,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-332-al | Sim | **한 트럭이 여러 컨테이너를 처리하는 방문의 연결 계약** | 🟠 | 실제 방문 20%(5,492번)가 컨테이너 2~4개를 한 번에 처리하고 같은 블록이 많다. 합성은 오더마다 별도 트럭이라 블록별 오더 몰림(실제 1.23, 합성 약 1.0)을 만들지 못한다. 연결 의미·전후 동일성 먼저, 한 축만 바꾼다. [spec](../docs/dashboard-task-specs/YR-332-al-multi-order-visit-link.md) |
-| YR-332-am | Sim | **날짜 간 변동·반입/반출 시각 결합·고물량 몰림의 실측 근거** | 🟡 | ak에서 바꾸지 않은 세 성질(날짜 간 변동계수 0.37, 반입·반출 1분 상관 0.336, 고물량 몰림 외삽)을 먼저 잰다. 보정이 필요하면 축별로 따로 등록한다. [spec](../docs/dashboard-task-specs/YR-332-am-day-flow-volume-evidence.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
 | YR-323-a | Exp | **기존 자료 점검 완료·K 반전 원인 확정은 미완료** | 🟠 | 완전 6시간 비교 242건 중 반전 78건. K6−K1 하루 추가 비용의 96.70%가 트럭 체류 항이나 분기별 원인은 기록 부족. i/f 보정 후 323-f 측정·독립 진단으로 연결한다. [spec](../docs/dashboard-task-specs/YR-323-a-horizon-cause-audit.md) · [점검](../../outputs/reports/yr323_horizon_cause_audit/README.md) |
