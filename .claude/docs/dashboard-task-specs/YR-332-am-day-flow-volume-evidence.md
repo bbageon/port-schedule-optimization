@@ -29,6 +29,7 @@ ak 뒤에도 합성 입력이 실제와 다른 성질 세 가지가 확인됐지
 - [ak 실제 몰림](../../../outputs/reports/yr332_visit_arrivals/arrival-process-audit.json) ·
   [입력 판정](../../../outputs/reports/yr332_visit_arrivals/input-preflight.json) ·
   [aj 입력 대조](../../../outputs/reports/yr332_order_representativeness/input-comparison.md)
+
 ## 착수 — 2026-11-14
 
 - 사용자 지시 “다음 사항 진행해볼래? 모든 사항 진행하고 학습 다시 해서 감소율 알려줘”로 착수했다.
@@ -36,6 +37,7 @@ ak 뒤에도 합성 입력이 실제와 다른 성질 세 가지가 확인됐지
   [허가 기록](../../../outputs/reports/yr332_day_flow_volume/authorization.json).
 - 순서: ak 방문 정의로 세 성질을 측정(읽기 전용) → 날짜 간 변동은 우연 기대와, 시각 결합은 같은 방문 시각의 유형 섞기 대조와,
   몰림은 시간당 방문 수 구간과 비교 → 필요한 보정 축만 새 row로 등록.
+
 ## 완료 — 2026-11-14
 
 - 측정만 했고 입력은 바꾸지 않았다. 개발용 13일, ak 정의의 실제 방문 27,415번(진입 오더 34,304건).
