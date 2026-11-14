@@ -10,6 +10,8 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-ao | Sim | **날짜별 24시간 모양·반출 비율 변동을 입력 축으로** | 🟡 | am: 같은 시각대 날짜 간 변동이 우연의 약 3배, 주말 모양 차이 2.5~3.5배, 반출 비율 45~69%. 합성은 물량별 한 모양뿐이라 다른 날로의 일반화를 모른다. 하루 총량이 아니라 비중만 쓰고 한 축씩 사전등록한다. [spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md) |
+| YR-332-ap | Sim | **고물량 시간대 도착 몰림 크기 판정 (외부 자료 대기)** | ⚪ | ⏸ 외부 대기. 실측 최대 시간당 245번 방문, 그 안에서 몰림은 물량과 함께 커지지 않았다. 7,500·15,000건은 범위 밖이라 무작위·실제 몰림 두 조건의 범위로 보고한다. 터미널 전체·고물량 날짜 자료가 오면 생성 방식을 고른다. [spec](../docs/dashboard-task-specs/YR-332-ap-high-volume-bunching-data.md) |
 | YR-332-al | Sim | **한 트럭이 여러 컨테이너를 처리하는 방문의 연결 계약** | 🟠 | 실제 방문 20%(5,492번)가 컨테이너 2~4개를 한 번에 처리하고 같은 블록이 많다. 합성은 오더마다 별도 트럭이라 블록별 오더 몰림(실제 1.23, 합성 약 1.0)을 만들지 못한다. 연결 의미·전후 동일성 먼저, 한 축만 바꾼다. [spec](../docs/dashboard-task-specs/YR-332-al-multi-order-visit-link.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
