@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-332-aq | RL | **보정 환경 재학습·감소율 진단 (사용자 요청)** | 🟠 | 2026-11-14 | 사용자 지시로 등록·착수. ag와 같은 학습 방법, 환경만 aj·ak·al 보정 입력. 모델 3개×6회 학습, 새 입력 9개×정책 16개 평가(146회). 하네스는 새 학습을 허용하지 않아(현실성 FAIL) 성능 확증이 아닌 사용자 지시 진단이다. [spec](../docs/dashboard-task-specs/YR-332-aq-linked-environment-retraining.md) · [허가 기록](../../outputs/reports/yr332_linked_retraining/authorization.json) |
 | YR-332-al | Sim | **한 트럭이 여러 컨테이너를 처리하는 방문의 연결 계약** | 🟠 | 2026-11-14 | 사용자 지시로 착수. 정의 감사 → 사전등록 → 생성기·엔진 연결 → 입력 대조 → 고정 정책 44회. 연결 축만 바꾼다. [spec](../docs/dashboard-task-specs/YR-332-al-multi-order-visit-link.md) · [허가](../../outputs/reports/yr332_visit_links/authorization.json) |
 | YR-332-f | Sim | **접수·예약 보정 검증·대기열 정의 확인 남음** | 🔴 | 2026-11-10 | ⏸ 외부 대기. 실제 접수·진입 전 예약 20,936건 보정, 119평가·123검사 통과. 블록 대기 수 정의 미확정, 월/배열 보정 확장은 ai. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [자료](../../outputs/reports/yr332_real_order_information/README.md) |
 | YR-332-i | Sim | **양하 하한 보정 완료·운반 실측 자료 대기** | 🔴 | 2026-11-09 | ⏸ 외부 대기. 하한 수정 4afb7351·138검사 통과. 지정 자료 291,499행·원본 JSON/로그에도 차량별 투입·주행·인계 기록 없음. 접안 255항차 중 122항차는 24시간 초과. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) · [하한 결과](../../outputs/reports/yr332_discharge_calibration/README.md) · [원본 감사](../../outputs/reports/yr332_real_order_information/vessel-source-audit.json) |
