@@ -71,6 +71,6 @@ ak는 방문 단위 몰림만 맞췄고, 이 연결은 다른 축이라 바꾸�
   격차 축소는 규칙이 더 느려진 결과이며 학습 개선이 아니다. 연결 입력 재학습은 [YR-332-aq](YR-332-aq-linked-environment-retraining.md).
 - 남은 현실성: 20피트 반입+반출 동시 적재, 블록 쌍 거리 선호, 대기 수가 오더 기준(f). i·f·ao·ap는 그대로다.
 
-결과 커밋은 다음 커밋에서 박제. [보고서](../../../outputs/reports/yr332_visit_links/README.md) ·
+정의·생성기 `4fb69d6e`, 정정·재동결 `720e43c0`, 결과 `23a27629`. [보고서](../../../outputs/reports/yr332_visit_links/README.md) ·
 [검산](../../../outputs/reports/yr332_visit_links/verification.json) · [원값](../../../outputs/reports/yr332_visit_links/summary.json) ·
 [결정 경위](../strategy-history/2026-11-14-YR-332-여러컨테이너-방문연결.md)
