@@ -79,6 +79,21 @@ def attach(e: dict) -> dict:
     return e
 
 
+def sync_realized_gate_in(e: dict) -> bool:
+    """보정이 `arrival_s`를 바꾼 뒤 BNCT 보조 필드 `gate_in_s`를 다시 맞춘다 ([[YR-332-an]]).
+
+    `attach`는 생성 시점의 `arrival_s`를 복사한다. 그 뒤 시간대·시간대 안 보정
+    ([[YR-332-aj]]·[[YR-332-ak]])은 `arrival_s`만 바꿔 이 필드가 보정 전 시각으로 남았다.
+    엔진은 `arrival_s`만 읽으므로 결과는 같고, 입력 지문과 이 필드를 읽는 도구만 달라진다.
+    `reserved_s`는 예약 계약이 따로 다시 쓰므로 여기서 건드리지 않는다.
+    보조 필드가 없는 항목은 그대로 두고, 값을 바꿨는지 돌려준다.
+    """
+    if 'gate_in_s' not in e or e['gate_in_s'] == e['arrival_s']:
+        return False
+    e['gate_in_s'] = e['arrival_s']
+    return True
+
+
 def record_swap(e: dict, *, new_block: str, reason: str) -> None:
     """판매가 확정돼 블록이 바뀔 때 이력을 남긴다 — `conSwapReason` 대응.
 

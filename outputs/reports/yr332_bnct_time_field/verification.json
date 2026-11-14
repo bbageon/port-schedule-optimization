@@ -1,0 +1,921 @@
+{
+  "task": "YR-332-an",
+  "status": "PASS",
+  "checks": {
+    "legacy_reproduces_saved": true,
+    "fix_moves_only_alias": true,
+    "uncalibrated_inputs_identical": true,
+    "runs_identical": true,
+    "poisoned_alias_not_read": true,
+    "schedule_digest_changed_for_calibrated": true
+  },
+  "readers": [
+    {
+      "file": "scripts/v7/audit_admission_ledger.py",
+      "line": 102,
+      "kind": "subscript",
+      "code": "a,o=row['gate_in_s'],row['gate_out_s']"
+    },
+    {
+      "file": "scripts/v7/audit_admission_ledger.py",
+      "line": 196,
+      "kind": "subscript",
+      "code": "n_entered=sum(r['times']['gate_in_s'] is not None and r['times']['gate_in_s']<=86400 for r in rows)"
+    },
+    {
+      "file": "scripts/v7/audit_admission_ledger.py",
+      "line": 196,
+      "kind": "subscript",
+      "code": "n_entered=sum(r['times']['gate_in_s'] is not None and r['times']['gate_in_s']<=86400 for r in rows)"
+    },
+    {
+      "file": "scripts/v7/audit_comparison_validity.py",
+      "line": 58,
+      "kind": "attribute",
+      "code": "a = rec.gate_in_s"
+    },
+    {
+      "file": "scripts/v7/audit_comparison_validity.py",
+      "line": 86,
+      "kind": "attribute",
+      "code": "if tt is None or rec.gate_in_s > end_s:"
+    },
+    {
+      "file": "scripts/v7/audit_horizon_evidence.py",
+      "line": 216,
+      "kind": "subscript",
+      "code": "leads = [(datetime.fromisoformat(r['gate_in_s']) - datetime.fromisoformat(r['extra']['copino_notice_s'])).total_seconds() for r in notice]"
+    },
+    {
+      "file": "scripts/v7/audit_horizon_evidence.py",
+      "line": 239,
+      "kind": "subscript",
+      "code": "actual = row['times']['gate_in_s']"
+    },
+    {
+      "file": "scripts/v7/evaluate_classical_rules.py",
+      "line": 76,
+      "kind": "attribute",
+      "code": "trucks_unfinished=sum(r.gate_in_s is not None and r.gate_in_s<=self.end"
+    },
+    {
+      "file": "scripts/v7/evaluate_classical_rules.py",
+      "line": 76,
+      "kind": "attribute",
+      "code": "trucks_unfinished=sum(r.gate_in_s is not None and r.gate_in_s<=self.end"
+    },
+    {
+      "file": "scripts/v7/evaluate_demand_preservation.py",
+      "line": 62,
+      "kind": "subscript",
+      "code": "assert row['times']['gate_in_s'] == row['scheduled_gate_s']"
+    },
+    {
+      "file": "scripts/v7/finalize_demand_preservation.py",
+      "line": 33,
+      "kind": "subscript",
+      "code": "missing = sum(r['times']['gate_in_s'] is None for r in rows)"
+    },
+    {
+      "file": "scripts/v7/finalize_demand_preservation.py",
+      "line": 36,
+      "kind": "subscript",
+      "code": "pending.append(sum(r['times']['gate_in_s'] is not None and"
+    },
+    {
+      "file": "scripts/v7/finalize_demand_preservation.py",
+      "line": 41,
+      "kind": "subscript",
+      "code": "if t['gate_in_s'] is not None:"
+    },
+    {
+      "file": "scripts/v7/finalize_demand_preservation.py",
+      "line": 43,
+      "kind": "subscript",
+      "code": "total += exit_time - t['gate_in_s']"
+    },
+    {
+      "file": "scripts/v7/finalize_followup_audits.py",
+      "line": 29,
+      "kind": "subscript",
+      "code": "admitted=[r for r in rows if r['times']['gate_in_s'] is not None]"
+    },
+    {
+      "file": "scripts/v7/horizon_metrics.py",
+      "line": 65,
+      "kind": "subscript",
+      "code": "assert r['admitted'] and t['gate_in_s'] == r['scheduled_gate_s']"
+    },
+    {
+      "file": "scripts/v7/horizon_metrics.py",
+      "line": 67,
+      "kind": "subscript",
+      "code": "origin_s=t['gate_in_s'], ready_s=t['block_in_s'],"
+    },
+    {
+      "file": "scripts/v7/report_admission_ledger.py",
+      "line": 18,
+      "kind": "subscript",
+      "code": "entered=[r for r in rows if r['times']['gate_in_s'] is not None and r['times']['gate_in_s']<=end]"
+    },
+    {
+      "file": "scripts/v7/report_admission_ledger.py",
+      "line": 18,
+      "kind": "subscript",
+      "code": "entered=[r for r in rows if r['times']['gate_in_s'] is not None and r['times']['gate_in_s']<=end]"
+    },
+    {
+      "file": "scripts/v7/report_admission_ledger.py",
+      "line": 22,
+      "kind": "subscript",
+      "code": "-r['times']['gate_in_s'] for r in entered)"
+    },
+    {
+      "file": "scripts/v7/report_admission_ledger.py",
+      "line": 72,
+      "kind": "subscript",
+      "code": "assert r['admitted']==(r['times']['gate_in_s'] is not None)"
+    },
+    {
+      "file": "scripts/v7/report_comparison_audit.py",
+      "line": 311,
+      "kind": "subscript",
+      "code": "for gi, go in zip(cols['gate_in_s'], cols['gate_out_s']):"
+    },
+    {
+      "file": "scripts/v7/report_demand_preservation.py",
+      "line": 31,
+      "kind": "subscript",
+      "code": "assert times['gate_in_s'] == r['scheduled_gate_s']"
+    },
+    {
+      "file": "scripts/v7/report_demand_preservation.py",
+      "line": 41,
+      "kind": "subscript",
+      "code": "total = sum(min(r['times']['gate_out_s'] or end, end)-r['times']['gate_in_s'] for r in admitted)"
+    },
+    {
+      "file": "scripts/v7/report_horizon_sweep.py",
+      "line": 146,
+      "kind": "subscript",
+      "code": "assert r['flow'] == truck['flow'] and r['origin_s'] == t['gate_in_s'] == truck['scheduled_gate_s']"
+    },
+    {
+      "file": "scripts/v7/report_horizon_sweep.py",
+      "line": 147,
+      "kind": "subscript",
+      "code": "assert r['ready_s'] == t['block_in_s'] == t['gate_in_s']+truck['travel_s']"
+    },
+    {
+      "file": "scripts/v7/report_observed_demand.py",
+      "line": 110,
+      "kind": "subscript",
+      "code": "assert f['origin_s']==row['times']['gate_in_s'] and f['finish_s']==row['times']['job_done_s']"
+    },
+    {
+      "file": "scripts/v7/report_reachable_teacher.py",
+      "line": 25,
+      "kind": "subscript",
+      "code": "assert t['gate_in_s'] == row['scheduled_gate_s']"
+    },
+    {
+      "file": "scripts/v7/report_reachable_teacher.py",
+      "line": 26,
+      "kind": "subscript",
+      "code": "assert t['block_in_s'] == t['gate_in_s'] + row['travel_s']"
+    },
+    {
+      "file": "scripts/v7/report_reachable_teacher.py",
+      "line": 29,
+      "kind": "subscript",
+      "code": "m['turn_s'+suffix] = sum(min(r['times']['gate_out_s'] or end,end)-r['times']['gate_in_s']"
+    },
+    {
+      "file": "scripts/v7/report_visit_arrivals.py",
+      "line": 47,
+      "kind": "subscript",
+      "code": "assert f['origin_s'] == row['times']['gate_in_s'] and f['finish_s'] == row['times']['job_done_s']"
+    },
+    {
+      "file": "scripts/v7/report_visit_arrivals.py",
+      "line": 115,
+      "kind": "subscript",
+      "code": "t = r['times']['gate_in_s'];gate[(int(t // 3600), r['block'])].append(t % 3600)"
+    },
+    {
+      "file": "scripts/v7/reverify_learning_result.py",
+      "line": 81,
+      "kind": "subscript",
+      "code": "durations = [(horizon if r['gate_out_s'] is None else r['gate_out_s'])-r['gate_in_s']"
+    },
+    {
+      "file": "scripts/v7/verify_bnct_time_sync.py",
+      "line": 79,
+      "kind": "subscript",
+      "code": "changed = sum(a['gate_in_s'] != b['gate_in_s'] for a, b in zip(old['schedule'], new['schedule']))"
+    },
+    {
+      "file": "scripts/v7/verify_bnct_time_sync.py",
+      "line": 79,
+      "kind": "subscript",
+      "code": "changed = sum(a['gate_in_s'] != b['gate_in_s'] for a, b in zip(old['schedule'], new['schedule']))"
+    },
+    {
+      "file": "scripts/v7/verify_bnct_time_sync.py",
+      "line": 85,
+      "kind": "subscript",
+      "code": "alias_equals_arrival=all(e['gate_in_s'] == e['arrival_s'] for e in new['schedule'])))"
+    },
+    {
+      "file": "scripts/v7/verify_bnct_time_sync.py",
+      "line": 130,
+      "kind": "subscript",
+      "code": "alias = [e['gate_in_s'] for e in probe.schedule]"
+    },
+    {
+      "file": "scripts/v7/verify_bnct_time_sync.py",
+      "line": 139,
+      "kind": "subscript",
+      "code": "'equals_arrival' if all(e['gate_in_s'] == e['arrival_s'] for e in probe.schedule) else 'mixed'),"
+    },
+    {
+      "file": "scripts/v7/verify_reservation_contract.py",
+      "line": 54,
+      "kind": "subscript",
+      "code": "assert row['times']['gate_in_s'] == e['arrival_s']"
+    },
+    {
+      "file": "scripts/v7/verify_reservation_contract.py",
+      "line": 145,
+      "kind": "attribute",
+      "code": "assert all(r.gate_in_s is None and r.block_in_s is None for r in records.values())"
+    },
+    {
+      "file": "scripts/v7/verify_reservation_contract.py",
+      "line": 239,
+      "kind": "subscript",
+      "code": "assert all(r['times']['gate_in_s'] == r['scheduled_gate_s'] for r in orders)"
+    },
+    {
+      "file": "scripts/v7/verify_reservation_contract.py",
+      "line": 243,
+      "kind": "subscript",
+      "code": "- r['times']['gate_in_s'] for r in orders) / load"
+    },
+    {
+      "file": "src/yard_rl/v7/actors/classical.py",
+      "line": 136,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/actors/classical.py",
+      "line": 136,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/actors/market.py",
+      "line": 106,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is not None:"
+    },
+    {
+      "file": "src/yard_rl/v7/actors/seller.py",
+      "line": 73,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is not None:"
+    },
+    {
+      "file": "src/yard_rl/v7/features/block.py",
+      "line": 64,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/features/block.py",
+      "line": 64,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/features/block.py",
+      "line": 77,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/features/block.py",
+      "line": 77,
+      "kind": "attribute",
+      "code": "if rec is None or rec.gate_in_s is None or rec.gate_in_s > t:"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/admission.py",
+      "line": 215,
+      "kind": "subscript",
+      "code": "o[\"gate_in_s\"][n] = EMPTY_TIME"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/admission.py",
+      "line": 385,
+      "kind": "attribute",
+      "code": "gate_in_s=_set1(o.gate_in_s, row, arrival, ok),                    # actual_gate_in · TruckTimes(gate_in) · a_gate_in"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/engine_step.py",
+      "line": 388,
+      "kind": "attribute",
+      "code": "terminal_area = _terminal_walk(ld.terminal_area, lo, hi, o.gate_in_s, o.gate_out_s)     # 89-105행"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/engine_step.py",
+      "line": 453,
+      "kind": "attribute",
+      "code": "registered = o.gate_in_s[nc] < EMPTY_TIME                           # 장부 등록 (engine.py:131-132)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/host_convert.py",
+      "line": 280,
+      "kind": "subscript",
+      "code": "o[\"gate_in_s\"][n] = float(j.actual_gate_in or 0.0)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/host_convert.py",
+      "line": 514,
+      "kind": "attribute",
+      "code": "\"gate_in\": _opt_time(o.gate_in_s[n]),"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/host_terminal.py",
+      "line": 405,
+      "kind": "subscript",
+      "code": "o[\"gate_in_s\"][n] = EMPTY_TIME"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/multiblock.py",
+      "line": 437,
+      "kind": "attribute",
+      "code": "a_now = W.orders.gate_in_s[jnp.clip(owner, 0, B - 1), jnp.clip(X.row, 0, R - 1)]"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/phi.py",
+      "line": 174,
+      "kind": "attribute",
+      "code": "a, oo = o.gate_in_s, o.gate_out_s"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/phi.py",
+      "line": 270,
+      "kind": "attribute",
+      "code": "b = int(o.gate_in_s.shape[0])"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 660,
+      "kind": "attribute",
+      "code": "return o.gate_out_s - o.gate_in_s"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 676,
+      "kind": "attribute",
+      "code": "part = o.gate_in_s < end_s                                        # 131행 (A < end)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 677,
+      "kind": "attribute",
+      "code": "return jnp.where(left, o.gate_out_s - o.gate_in_s,"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 678,
+      "kind": "attribute",
+      "code": "jnp.where(part, end_s - o.gate_in_s, jnp.nan))"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 684,
+      "kind": "attribute",
+      "code": "entered = (o.gate_in_s < EMPTY_TIME) & (o.gate_in_s <= end_s)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 684,
+      "kind": "attribute",
+      "code": "entered = (o.gate_in_s < EMPTY_TIME) & (o.gate_in_s <= end_s)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 685,
+      "kind": "attribute",
+      "code": "return jnp.where(entered, jnp.maximum(0.0, jnp.minimum(o.done_s, end_s)-o.gate_in_s), jnp.nan)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 698,
+      "kind": "attribute",
+      "code": "inside = (o.gate_in_s < end_s) & ((o.gate_out_s >= EMPTY_TIME) | (o.gate_out_s > end_s))"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 699,
+      "kind": "attribute",
+      "code": "terms = jnp.where(inside, end_s - o.gate_in_s, 0.0)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/state.py",
+      "line": 707,
+      "kind": "attribute",
+      "code": "rec = (o.gate_in_s < EMPTY_TIME) & (o.block_in_s < EMPTY_TIME)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/transfer_txn.py",
+      "line": 357,
+      "kind": "attribute",
+      "code": "a = o.gate_in_s[s, r]                                                               # rec.a_gate_in (+inf = None)"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/transfer_txn.py",
+      "line": 508,
+      "kind": "attribute",
+      "code": "has_a = o.gate_in_s[s, sr] < EMPTY_TIME                                             # 501-503행 _precommit"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/transfer_txn.py",
+      "line": 603,
+      "kind": "attribute",
+      "code": "a = o.gate_in_s[s, r]"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/transfer_txn.py",
+      "line": 618,
+      "kind": "attribute",
+      "code": "o2 = o._replace(gate_in_s=o.gate_in_s.at[s, r].set(new_a),"
+    },
+    {
+      "file": "src/yard_rl/v7/gpu/v5feat.py",
+      "line": 196,
+      "kind": "attribute",
+      "code": "entered = present & (o.gate_in_s <= t)"
+    },
+    {
+      "file": "src/yard_rl/v7/ppo/workload_observer.py",
+      "line": 80,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is not None:"
+    },
+    {
+      "file": "src/yard_rl/v7/ppo/workload_observer.py",
+      "line": 83,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s <= t:"
+    },
+    {
+      "file": "src/yard_rl/v7/reward/phi.py",
+      "line": 119,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s > end_s:"
+    },
+    {
+      "file": "src/yard_rl/v7/reward/workload.py",
+      "line": 132,
+      "kind": "attribute",
+      "code": "and (rec.gate_in_s is None or rec.gate_in_s > t))"
+    },
+    {
+      "file": "src/yard_rl/v7/reward/workload.py",
+      "line": 132,
+      "kind": "attribute",
+      "code": "and (rec.gate_in_s is None or rec.gate_in_s > t))"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 110,
+      "kind": "attribute",
+      "code": "if rec.gate_out_s is None or rec.gate_in_s is None:"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 112,
+      "kind": "attribute",
+      "code": "return rec.gate_out_s - rec.gate_in_s"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 117,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is None or rec.copino_notice_s is None:"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 119,
+      "kind": "attribute",
+      "code": "return rec.gate_in_s - rec.copino_notice_s"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 124,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is None or reserve_s is None:"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 126,
+      "kind": "attribute",
+      "code": "return rec.gate_in_s - reserve_s"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 139,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is None:"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 142,
+      "kind": "attribute",
+      "code": "return max(0.0, end - rec.gate_in_s)"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 155,
+      "kind": "attribute",
+      "code": "if rec.gate_in_s is None:"
+    },
+    {
+      "file": "src/yard_rl/v7/schema/lifecycle.py",
+      "line": 158,
+      "kind": "attribute",
+      "code": "return max(0.0, end - rec.gate_in_s)"
+    },
+    {
+      "file": "src/yard_rl/v7/stage/fixed_seed.py",
+      "line": 110,
+      "kind": "attribute",
+      "code": "empty_execution_records=all(r.gate_in_s is None for r in records.values()),"
+    },
+    {
+      "file": "src/yard_rl/v7/world/integrated/order_schema.py",
+      "line": 91,
+      "kind": "subscript",
+      "code": "if 'gate_in_s' not in e or e['gate_in_s'] == e['arrival_s']:"
+    }
+  ],
+  "inputs": [
+    {
+      "source": "aj=ak variant 1",
+      "variant": "observed_mix_hours",
+      "load": 3500,
+      "seed": 9921100,
+      "orders": 3500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "67bc66630c2076dd720b928b89a79f420ffc4f6dcd031145ea0caafca2673249",
+      "new_schedule_sha256": "69d51ba0e15140da97667cc9c47e80a56d6e788c986ed93f65169d5621de6ea5",
+      "alias_changed": 3500,
+      "resynced": 3500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "aj=ak variant 1",
+      "variant": "observed_mix_hours",
+      "load": 7500,
+      "seed": 9921110,
+      "orders": 7500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "8db1be6eb6af47a236fe900d3dc8cc7a58459fe7b9ec475ccff119f5fabd98b9",
+      "new_schedule_sha256": "fbc25838419208cc4845811bb6eda319615fa5fca9c69be88feafc29cb5748c4",
+      "alias_changed": 7500,
+      "resynced": 7500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "aj=ak variant 1",
+      "variant": "observed_mix_hours",
+      "load": 15000,
+      "seed": 9921120,
+      "orders": 15000,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "f526108602df64e05b2c93a48c76ed8f2869a1b0704d142b200914775e9865a1",
+      "new_schedule_sha256": "e262819b62e3c702cb8165aa860df919a18c237ea868ed45699988e61c083bf7",
+      "alias_changed": 15000,
+      "resynced": 15000,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_poisson",
+      "load": 3500,
+      "seed": 9921100,
+      "orders": 3500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "ab6609feb0f00369ded60b170c987e140a2fcc70fb2f53829d18961a20a5674d",
+      "new_schedule_sha256": "71c33aa9dee0afe6479a3ac21395e7c812afc796d01fb31c826d23812343b30d",
+      "alias_changed": 3500,
+      "resynced": 3500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_poisson",
+      "load": 7500,
+      "seed": 9921110,
+      "orders": 7500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "302947508914049797fff53ca1acd5ec0301402b97bd1462eb426c59ee35253e",
+      "new_schedule_sha256": "f224230a2d326e5d57e58c984aa6e0ac90a027ff71027590ed7f8dd17c9245b1",
+      "alias_changed": 7500,
+      "resynced": 7500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_poisson",
+      "load": 15000,
+      "seed": 9921120,
+      "orders": 15000,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "2d5b0ea0e4c9d586bd2e98be714344b5381653413fb8792252131502144a3131",
+      "new_schedule_sha256": "d709bb55aedd5dbf1bffb29982eb2e1bc9baa57c1fa8dd272afb2e8569ec269a",
+      "alias_changed": 15000,
+      "resynced": 15000,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_visit_minutes",
+      "load": 3500,
+      "seed": 9921100,
+      "orders": 3500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "d4d99723e671b2523e6aef559fbda32da59c5bce09766eff350b06189678266c",
+      "new_schedule_sha256": "63fdeca2edaedeeb348132ead5a2f841150567a8b8a388bbcdf21d803e7e2d1b",
+      "alias_changed": 3500,
+      "resynced": 3500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_visit_minutes",
+      "load": 7500,
+      "seed": 9921110,
+      "orders": 7500,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "d583503d4a16acf28f821bb3e9826abf1b5927841b559417d41b7fa732603d99",
+      "new_schedule_sha256": "90e034214c4caee88e22bd033eaa3057cb724c507bc2c7d31e3fabecddd4577a",
+      "alias_changed": 7500,
+      "resynced": 7500,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ak",
+      "variant": "observed_hours_visit_minutes",
+      "load": 15000,
+      "seed": 9921120,
+      "orders": 15000,
+      "legacy_digest_equals_saved": true,
+      "saved_schedule_sha256": "25ab0c8c2f1a1976caeb381597e121ce78552e154381c7e4828c5dd0d9be98c7",
+      "new_schedule_sha256": "39aeb69195a2b684f11631e31c39cbe9532281987920b5cdd6770ae0cbebe8a4",
+      "alias_changed": 15000,
+      "resynced": 15000,
+      "other_fields_identical": true,
+      "alias_equals_arrival": true
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 3500,
+      "seed": 9917600,
+      "orders": 3500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "3363b8f8ba9b277e9189f71deacf273add851a83a30b195733cfef79b0e46c62"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 3500,
+      "seed": 9917700,
+      "orders": 3500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "405649d11ace6b42fc23699c8633defbdd2a02585b1e440c83c432411633c3bf"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 3500,
+      "seed": 9917800,
+      "orders": 3500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "573870cb908aa3c3737cc3e8c83f4ee7f2759655a13046355e03ddde3b25d8b4"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 7500,
+      "seed": 9917610,
+      "orders": 7500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "32577a87b993bebbef89c606c65b772d3ac19f8b5caa1e804493b9e2e411e0af"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 7500,
+      "seed": 9917710,
+      "orders": 7500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "2a5f8fd4bad8e45dd8b1971ca835ff6551fc578b0f87eeff51ebc9073a9c965f"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 7500,
+      "seed": 9917810,
+      "orders": 7500,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "198ab7784e0ee6ee32a971063e480d26ccb54307dee37bdf968c56f230a8b022"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 15000,
+      "seed": 9917620,
+      "orders": 15000,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "d4123e75cb6f26d9f259e7c91151f43688ae5c964787643deddecd9024485b04"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 15000,
+      "seed": 9917720,
+      "orders": 15000,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "ff00855ad86224e68a76c7d62e9e61679da7cf84fea26844c285466a4b1f81d0"
+    },
+    {
+      "source": "ag (no calibration)",
+      "load": 15000,
+      "seed": 9917820,
+      "orders": 15000,
+      "identical": true,
+      "resynced": 0,
+      "schedule_sha256": "67895d67720f367ada72ad273051c112ad6608b455f132cc05e474bbe28b7ef4"
+    }
+  ],
+  "runs": [
+    {
+      "case": [
+        "observed_hours_visit_minutes",
+        "SF_SPT",
+        0,
+        3500,
+        0
+      ],
+      "mode": "fixed",
+      "seconds": 77.51883509987965,
+      "result_equal": true,
+      "orders_equal": true,
+      "hashes_equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true
+      },
+      "completion_equal": true,
+      "schedule_sha256_saved": "d4d99723e671b2523e6aef559fbda32da59c5bce09766eff350b06189678266c",
+      "schedule_sha256_now": "63fdeca2edaedeeb348132ead5a2f841150567a8b8a388bbcdf21d803e7e2d1b",
+      "input_sha256_saved": "1e5cdf8b4ed9c1f9fffefd501939f0413f963817281d825f713d22014f0dab3f",
+      "input_sha256_now": "5c138dcb30a76813b0fe23a12ab6c3c2ca584694aaa2c242f804343153f3a78c",
+      "alias_state": "equals_arrival",
+      "truck_mean_min": 19.702460157102447
+    },
+    {
+      "case": [
+        "observed_hours_visit_minutes",
+        "trained",
+        9917101,
+        3500,
+        0
+      ],
+      "mode": "fixed",
+      "seconds": 82.08802070003003,
+      "result_equal": true,
+      "orders_equal": true,
+      "hashes_equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true
+      },
+      "completion_equal": true,
+      "schedule_sha256_saved": "d4d99723e671b2523e6aef559fbda32da59c5bce09766eff350b06189678266c",
+      "schedule_sha256_now": "63fdeca2edaedeeb348132ead5a2f841150567a8b8a388bbcdf21d803e7e2d1b",
+      "input_sha256_saved": "1e5cdf8b4ed9c1f9fffefd501939f0413f963817281d825f713d22014f0dab3f",
+      "input_sha256_now": "5c138dcb30a76813b0fe23a12ab6c3c2ca584694aaa2c242f804343153f3a78c",
+      "alias_state": "equals_arrival",
+      "truck_mean_min": 19.0653377998325
+    },
+    {
+      "case": [
+        "observed_hours_visit_minutes",
+        "SF_SPT",
+        0,
+        7500,
+        0
+      ],
+      "mode": "fixed",
+      "seconds": 123.9950139997527,
+      "result_equal": true,
+      "orders_equal": true,
+      "hashes_equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true
+      },
+      "completion_equal": true,
+      "schedule_sha256_saved": "d583503d4a16acf28f821bb3e9826abf1b5927841b559417d41b7fa732603d99",
+      "schedule_sha256_now": "90e034214c4caee88e22bd033eaa3057cb724c507bc2c7d31e3fabecddd4577a",
+      "input_sha256_saved": "53e108b919934702424002716f1e227fb19df21e0c53a2a7dee6e7b2b4e7d86b",
+      "input_sha256_now": "297ad77f63362b6fc4f0540b6cd6743a625c1fdee5199082a5bd5d4e583b1346",
+      "alias_state": "equals_arrival",
+      "truck_mean_min": 27.748884243906797
+    },
+    {
+      "case": [
+        "observed_mix_hours",
+        "SF_SPT",
+        0,
+        3500,
+        0
+      ],
+      "mode": "fixed",
+      "seconds": 76.4319540001452,
+      "result_equal": true,
+      "orders_equal": true,
+      "hashes_equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true
+      },
+      "completion_equal": true,
+      "schedule_sha256_saved": "67bc66630c2076dd720b928b89a79f420ffc4f6dcd031145ea0caafca2673249",
+      "schedule_sha256_now": "69d51ba0e15140da97667cc9c47e80a56d6e788c986ed93f65169d5621de6ea5",
+      "input_sha256_saved": "b4e030a96bc1a6500812fa5f80f64ad7cea853a915fb84acd1d882603e5383ac",
+      "input_sha256_now": "07fb25a95ea1ca287a42b73153ea16c8993f3c6366b8dd776d9da4b66a568ef3",
+      "alias_state": "equals_arrival",
+      "truck_mean_min": 18.963009453219186
+    },
+    {
+      "case": [
+        "observed_hours_visit_minutes",
+        "SF_SPT",
+        0,
+        3500,
+        0
+      ],
+      "mode": "poisoned",
+      "seconds": 77.74214689992368,
+      "result_equal": true,
+      "orders_equal": true,
+      "hashes_equal": {
+        "candidates_sha256": true,
+        "choices_sha256": true,
+        "events_sha256": true,
+        "jobs_sha256": true,
+        "records_sha256": true,
+        "result_sha256": true
+      },
+      "completion_equal": true,
+      "schedule_sha256_saved": "d4d99723e671b2523e6aef559fbda32da59c5bce09766eff350b06189678266c",
+      "schedule_sha256_now": "3cb5ad4bd0ae523f7ae9af21f20a8f3c79a435c5862977d30f03af1c6bfbce8f",
+      "input_sha256_saved": "1e5cdf8b4ed9c1f9fffefd501939f0413f963817281d825f713d22014f0dab3f",
+      "input_sha256_now": "7b46342309cdffd5d6ebb2bba3cce29a814144bb874d5a2a6fd526efe3725c3e",
+      "alias_state": "sentinel",
+      "truck_mean_min": 19.702460157102447
+    }
+  ],
+  "alias_changed_total": 78000,
+  "orders_total": 78000,
+  "reproduction": "build_stage(..., bnct_time_sync=False) rebuilds the saved aj/ak schedule digests; the default now aligns gate_in_s with arrival_s after every calibration.",
+  "script_sha256": "dc4b7cd8f5ca6bed74ff23971236d5c4d7796dc9e7c02204616ae1e430900f9f"
+}

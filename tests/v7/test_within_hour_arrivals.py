@@ -14,7 +14,8 @@ from yard_rl.v7.world.integrated.profiles import build_h21_profile
 AJ = Path('outputs/reports/yr332_order_representativeness')
 INFO = Path('outputs/reports/yr332_real_order_information/profile.json')
 # Arrival-derived fields; every other schedule field must be identical.
-TIME_FIELDS = {'arrival_s', 'lead_s', 'reserved_s', 'eta_offset_s'}
+# gate_in_s follows arrival_s since YR-332-an.
+TIME_FIELDS = {'arrival_s', 'lead_s', 'reserved_s', 'eta_offset_s', 'gate_in_s'}
 
 
 def template(counts_by_hour):
@@ -63,8 +64,11 @@ def test_old_profile_inputs_are_identical_to_aj():
     """Before/after identity: the frozen aj inputs rebuild to the saved digests."""
     info = json.loads(INFO.read_text(encoding='utf-8'))
     for load, seed in ((3500, 9921100), (7500, 9921110), (15000, 9921120)):
+        # bnct_time_sync=False keeps the pre-YR-332-an stale gate_in_s alias,
+        # which is how the saved aj digests were produced.
         built = build_stage(load=load, seed=seed, profile=build_h21_profile(),
-                            information_profile=info, demand_profile=aj_profile())
+                            information_profile=info, demand_profile=aj_profile(),
+                            bnct_time_sync=False)
         assert 'within_hour_arrivals' not in built
         with gzip.open(AJ / 'evaluation' / f'observed_mix_hours-SF_SPT-0-{load}-0.json.gz', 'rt',
                        encoding='utf-8') as stream:

@@ -25,6 +25,7 @@ from ..world.integrated.terminal_stream import (OBS_24H, TerminalStreamParams,
                                                 _job_from_entry, on_grid,
                                                 sample_lead_s)
 from ..world.integrated.yard_layout import terminal_layout
+from ..world.integrated.order_schema import sync_realized_gate_in
 from .vessels import build_diurnal_v3
 from .container_contract import container_no, namespace_initial_inventory
 from .dgt_lead import sample_dgt_lead_s
@@ -46,7 +47,8 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
                 lead_mode: str = DEFAULT_LEAD_MODE, fill_ratio: float | None = None,
                 appointment_sigma_s: float | None = None,
                 information_profile: dict | None = None,
-                demand_profile: dict | None = None) -> dict:
+                demand_profile: dict | None = None,
+                bnct_time_sync: bool = True) -> dict:
     """하루치 무대를 세운다. `lead_mode` 가 통지 리드타임 축을 가른다.
 
     | `lead_mode` | 뜻 |
@@ -94,6 +96,10 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
                 entry['arrival_s'] = arrival
             built['within_hour_arrivals'] = meta
         built['demand_profile'] = dict(demand_profile)
+    if bnct_time_sync:
+        # The BNCT realized-time alias must follow every arrival change above
+        # ([[YR-332-an]]). False reproduces aj/ak saved input digests exactly.
+        built['bnct_gate_in_resynced'] = sum(map(sync_realized_gate_in, built['schedule']))
     namespace_initial_inventory(built)
 
     rng = random.Random(f"v3:lead:{seed}:{load}:{lead_mode}")

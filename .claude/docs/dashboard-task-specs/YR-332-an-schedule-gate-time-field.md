@@ -1,6 +1,6 @@
 # YR-332-an — 보정된 도착 시각과 명단 보조 필드(`gate_in_s`)의 불일치
 
-- **상태**: in-progress
+- **상태**: done
 - 등록: 2026-11-13. 상위 [[YR-332]], 발견 작업 [[YR-332-ak]] 코드 대조.
 - 잠재 기록 결함 한 축. 현재 결과를 바꾸지 않는다는 점을 먼저 확인한 뒤 고친다.
 - **3대 게이트 보정 대상**: scenario_validity(만든 입력의 기록·정보 계약이 실제 실행 값과 맞는가).
@@ -28,3 +28,13 @@
 - 착수 허가: ak의 `c7dc4e25` 저장 판정(신뢰성 PASS·현실성 FAIL·성능 INCONCLUSIVE)에서 scenario_validity 보정만 허용됨을 확인했다.
   [허가 기록](../../../outputs/reports/yr332_bnct_time_field/authorization.json).
 - 순서: 읽는 경로 나열 → 보정 뒤 다시 맞추기와 회귀 시험 → 저장 입력 재현 방법 → 결과·사건 해시 불변 확인.
+
+## 완료 — 2026-11-14
+
+- 수정: `build_stage`가 모든 도착 보정 뒤 `gate_in_s`를 `arrival_s`로 다시 맞춘다(`sync_realized_gate_in`). `reserved_s`는 예약 계약 소관이라 그대로 둔다.
+- 재현 방법: `build_stage(..., bnct_time_sync=False)`가 aj·ak 저장 입력 지문 9개를 그대로 만든다.
+- 읽는 경로: v7 코드·스크립트의 `gate_in_s` 접근 92곳은 모두 실행 기록·GPU 배열·실자료 행이다. 명단 보조 필드를 읽는 엔진·평가 경로는 없다.
+- 결과 불변: 저장된 ak 실행 4건과 보조 필드에 엉뚱한 값을 넣은 1건을 재실행했다. 결과·트럭 행·후보·선택·사건·작업·기록 해시가 모두 같다.
+- 입력 지문: 보정 없는 ag 입력 9개는 바이트 동일. 보정 입력 9개(78,000건)는 `gate_in_s`만 바뀌어 명단·입력 지문이 달라진다. 시험 92건 통과.
+
+[보고서](../../../outputs/reports/yr332_bnct_time_field/README.md) · [검증](../../../outputs/reports/yr332_bnct_time_field/verification.json)
