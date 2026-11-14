@@ -88,7 +88,8 @@ class MonthTerminal(MultiBlockTerminal):
             if not movable:
                 t = min(self._parked.values())
                 self._parked.clear()
-                if review_fn is not None:
+                until = getattr(self, 'review_until', None)   # [[YR-332-al]] clock-sync-only epochs
+                if review_fn is not None and (until is None or t <= until + 1e-9):
                     review_fn(self, t)
                 continue
             bid = min(movable, key=lambda b: self.blocks[b].clock)

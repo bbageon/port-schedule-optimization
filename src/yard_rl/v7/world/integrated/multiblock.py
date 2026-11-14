@@ -142,6 +142,9 @@ class MultiBlockTerminal:
         self.visits: dict[str, dict] = {}
         self.visit_stats = dict(released=0, late_releases=0, late_release_s=0.0,
                                 exits=0, late_exits=0, late_exit_s=0.0)
+        #: Epochs after this time only synchronise block clocks; review_fn (admission,
+        #: record sync) is not called there. None keeps every epoch a review.
+        self.review_until: float | None = None
         for bid, sim in self.blocks.items():
             _namespace_jobs(sim, bid)
             for jid, j in sim.jobs.items():
@@ -197,7 +200,8 @@ class MultiBlockTerminal:
             if not movable:
                 t = min(self._parked.values())
                 self._parked.clear()
-                if review_fn is not None:
+                until = getattr(self, 'review_until', None)   # [[YR-332-al]] clock-sync-only epochs
+                if review_fn is not None and (until is None or t <= until + 1e-9):
                     review_fn(self, t)
                 continue
             bid = min(movable, key=lambda b: self.blocks[b].clock)

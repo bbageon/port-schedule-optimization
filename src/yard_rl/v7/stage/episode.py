@@ -455,6 +455,10 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
          for b, s in built["scenarios"].items()},
         preserve_external_demand=preserve_external_demand,
         extra_review_epochs=tuple(sorted(epochs)))
+    if built.get('visit_links') is not None:
+        # Drain-window epochs only synchronise clocks: no admission or record sync after
+        # the observation window, exactly as in unlinked runs.
+        mbt.review_until = obs.observe_s
     for sim in mbt.blocks.values():
         sim.dispatch_cache.rehandle_slots = reuse_rehandle_slots
         sim.decision_probe_shortcircuit = decision_probe_shortcircuit
