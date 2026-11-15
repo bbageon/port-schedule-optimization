@@ -69,3 +69,10 @@ as의 코드 검토에서 aq의 `trainer.fit(labelset(data))`는 현재 회차 �
 기존 명세의 읽기 전용 범위에서 aq의 초기·각 회차 직후·최종 모델을 같은 저장 정답에 적용한다.
 원래 검증 분할 재현, 앞 회차 순위 유지/손실, 동일 입력인데 비용이 다른 사례를 센다. 신규 학습·환경 실행은 없다.
 [계산 계획](../../../docs/research/v7-discharge/saved-pair-audit-plan.md). 전체 323-d 상태는 backlog를 유지한다.
+
+### 읽기 전용 결과
+283쌍 중 비용 차이 250쌍, 18회차 검증 분할·정확도 재현. 앞 5회차 유효 학습 172쌍에서
+직후 정답 123개 중 24개를 최종 모델이 틀렸고, 반대 14개로 최종 113개다. 세 모델 모두 순정답 감소.
+학습 직후 자체 학습 자료 정확도 143/208=68.75%, 양하 포함 비교 14쌍. 동일 입력/비용 차이 사례는 0개.
+운영 시간 하락의 원인 확정·재사용 효과·새 학습 결과는 아니다.
+[보고](../../../outputs/reports/yr332_network_review/saved-pair-retention.md) · [원자료](../../../outputs/reports/yr332_network_review/saved-pair-retention.json).

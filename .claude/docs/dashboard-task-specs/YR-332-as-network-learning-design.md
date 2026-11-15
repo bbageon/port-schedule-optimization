@@ -22,3 +22,8 @@ aq는 회차별 새 자료만 학습한다. 마지막 회차의 학습 쌍은 16
 
 [검토 보고서](../../../docs/research/v7-discharge/network-learning-review.md) ·
 [코드·저장 기록 근거](../../../outputs/reports/yr332_network_review/review.json).
+
+## 2026-11-16 보강 근거
+323-d의 저장 자료 읽기 전용 재집계에서 앞 회차 정답 123→113, 손실24/획득14를 확인했다.
+학습 직후에도 자체 자료 순위 정답 68.75%다. 구조 교체보다 맞추기·자료 유지 진단을 분리할 근거이며,
+망각이 운영 성능 하락의 원인이라는 확정은 아니다. [보고](../../../outputs/reports/yr332_network_review/saved-pair-retention.md).
