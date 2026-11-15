@@ -5,6 +5,7 @@ import argparse
 import math
 from pathlib import Path
 import statistics as st
+import subprocess
 
 from check_initial_stock import OUT, BANK, check, read, sha, write_result
 from horizon_metrics import aggregate
@@ -79,6 +80,13 @@ def shapes():
     for index in range(4,58):
         data, h = evidence(index,campaign); hashes.update(h)
         c=data['case']; rows[(c['index'],c['load'],c['rule'],c['shape'])]=data
+    repeats=[]
+    for old_index,new_index in ((0,52),(1,53),(3,4)):
+        a,_=evidence(old_index,campaign); b,_=evidence(new_index,campaign)
+        assert a['result']==b['result'] and a['orders_sha256']==b['orders_sha256']
+        for key in ('candidates_sha256','choices_sha256','events_sha256','jobs_sha256','records_sha256','result_sha256'):
+            assert a['probe'][key]==b['probe'][key],(old_index,new_index,key)
+        repeats.append([old_index,new_index])
     pairs=[]
     for i in range(3):
         for load in (3500,7500,15000):
@@ -119,8 +127,18 @@ def shapes():
                 pair_min_percent=min(r['by_flow']['TRUCK']['change_percent'] for r in group),
                 pair_max_percent=max(r['by_flow']['TRUCK']['change_percent'] for r in group)))
     changes=[r['by_flow']['TRUCK']['change_percent'] for r in pairs]
+    inputs=read(OUT/'shape-input-audit.json')['records']
+    input_map={(r['index'],r['load'],r['shape']):r['stats'] for r in inputs}
+    visits=[dict(index=i,load=load,fixed=input_map[i,load,'fixed']['visit_links'],
+        variable=input_map[i,load,'variable']['visit_links'],
+        change_percent=100*(input_map[i,load,'variable']['visit_links']/input_map[i,load,'fixed']['visit_links']-1))
+        for i in range(3) for load in (3500,7500,15000)]
     summary=dict(cases=54,pairs=pairs,groups=groups, min_truck_change=min(changes),max_truck_change=max(changes),
         median_absolute_truck_change=st.median(abs(x) for x in changes),
+        exact_repeated_runs=repeats,visits=visits,max_absolute_visit_change=max(abs(r['change_percent']) for r in visits),
+        readout_source_sha256=sha(Path(__file__)),
+        readout_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        readout_tracked_dirty=bool(subprocess.check_output(['git','status','--short','--untracked-files=no']).strip()),
         artifact_hashes=hashes,repro=campaign['repro'],campaign_sha256=sha(OUT/'campaign.json'),
         definition='positive change = longer; gate entry to job completion, censored at 24h, all orders retained',
         scope='three development curves, frozen rules; not learning improvement or independent real-period validation')
