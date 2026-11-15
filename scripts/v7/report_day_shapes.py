@@ -129,6 +129,7 @@ def plot():
     import matplotlib.pyplot as plt
     plt.rcParams['font.family'] = 'Malgun Gothic'
     plt.rcParams['axes.unicode_minus'] = False
+    plt.rcParams['svg.hashsalt'] = 'yr332-day-shapes'
     bank = read('bank-ready.json')
     original = read('calibration-original_gaussians.json')
     selected = read('calibration-periodic_linear_24.json')
@@ -148,7 +149,9 @@ def plot():
     axes[0].set_ylabel('하루 오더 중 해당 시간대 비중 (%)')
     fig.suptitle('입력 곡선 검사 · 정책 성능 비교 아님', fontsize=14)
     fig.savefig(OUT / 'day-shapes.png', dpi=160)
-    fig.savefig(OUT / 'day-shapes.svg')
+    svg = OUT / 'day-shapes.svg'
+    fig.savefig(svg, metadata={'Date': None})
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text(encoding='utf-8').splitlines()) + '\n', encoding='utf-8')
     plt.close(fig)
 
 
