@@ -32,3 +32,6 @@ ao는 우선 작업 종류가 보존되는 배경만 조건부로 생성하고 �
 고물량은 26시간 끝에도 미완료가 남는다. 공급 보존 축 완료이며 실제 초기 배치·지속운영·학습 성능 통과가 아니다.
 [결과](../../../outputs/reports/yr332_initial_stock/README.md) · [집계](../../../outputs/reports/yr332_initial_stock/stock-summary.json) ·
 [결정 경위](../strategy-history/2026-11-16-YR-332-at-initial-stock.md). 구현 고정점 305d0eca.
+
+후속 ao의 54회 곡선 민감도까지 완료되어 [별도 보고](../../../outputs/reports/yr332_initial_stock/shape-sensitivity.md)로 연결했다.
+완료일 2026-11-16. 공급 보존 결과와 곡선·학습 효과를 같은 판정으로 합치지 않는다.

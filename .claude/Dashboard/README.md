@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **초기 반출 공급 보정 (2026-11-16, at)**: 183개 입력에서 반출→반입 전환 1,288건을 제거했고 정상 172개는 동일하다. 총재고 보존·82시험·4실행 통과. 원래 배경 36개 은행 복원. 다음은 ao 평균/변동 곡선의 고정 규칙 민감도다. 실제 초기 적재·지속운영·학습 성능 통과와 구분한다. [결과](../../outputs/reports/yr332_initial_stock/README.md) · [신경망 검토](../../docs/research/v7-discharge/network-learning-review.md)
+- **합성 입력 보정·곡선 비교·저장 학습 진단 (2026-11-16, at/ao/323-d)**: 183입력에서 작업 종류 전환1,288건→0, 정상172개 불변·82시험 통과. 곡선54비교에서 시간 −5.66~+25.13%, 3반복·원자료 일치. 앞 회차 순위 정답123→113이나 회귀오차는 거의 동일, 새 학습 아님. ao의 반출 비율→ar의 분별 수식→323-d 한 축 학습 진단 순서이며 현실성 전체는 미통과. [곡선 결과](../../outputs/reports/yr332_initial_stock/shape-sensitivity.md) · [학습 진단](../../outputs/reports/yr332_network_review/saved-pair-retention.md) · [다음 게이트](../../outputs/reports/yr332_initial_stock/shape-gates.json)
 
 - **보정 환경 재학습 진단 완료 (2026-11-14, aq, 사용자 요청)**: ag와 같은 학습 방법을 aj·ak·al로 보정한 환경에서 모델 3개×6회 다시 학습했다. 새 입력 9개·146회 평가와 가중치 18개 정확 재학습 검산 통과. 재학습 모델은 학습 전보다 +4.17%(116.658→111.791분) 짧아졌지만 모델별 −21.42~+21.12%로 엇갈렸고, SF_SPT(87.975분)보다 27.07%, 이전 모델(103.229분)보다 8.29% 길다. 성능 FAIL. 환경 보정만으로 학습이 나아지지 않았으므로 다음은 학습 진단(323-d)이며, 운반·대기열(i/f)은 외부 자료 대기다. [결과](../../outputs/reports/yr332_linked_retraining/README.md) · [spec](../docs/dashboard-task-specs/YR-332-aq-linked-environment-retraining.md)
 

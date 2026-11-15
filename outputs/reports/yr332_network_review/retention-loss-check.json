@@ -1,0 +1,34 @@
+{
+ "groups": {
+  "all_earlier_train": {
+   "pairs": 191,
+   "values": {
+    "after": {
+     "mean_smooth_l1": 2.7471955873463503,
+     "raw_gap_weighted_accuracy": 0.7492990205089539
+    },
+    "final": {
+     "mean_smooth_l1": 2.7427073567890115,
+     "raw_gap_weighted_accuracy": 0.6901198362716724
+    }
+   }
+  },
+  "nonzero_earlier_train": {
+   "pairs": 172,
+   "values": {
+    "after": {
+     "mean_smooth_l1": 3.050658020375129,
+     "raw_gap_weighted_accuracy": 0.7492990205089569
+    },
+    "final": {
+     "mean_smooth_l1": 3.0456608092660424,
+     "raw_gap_weighted_accuracy": 0.6901198362716741
+    }
+   }
+  }
+ },
+ "source_sha256": "40c1725ea903763844c2d05aea76f2643d45589782faac4dca1bc9f0c05f88bb",
+ "script_sha256": "b1642ba2d86119ad8999c52050fe850ee5618d07e5afb16568c6bb16301aa9ff",
+ "scope": "post-hoc interpretation check after observing ranking loss; no model fitting",
+ "definition": "SmoothL1 beta=1 on stored float32 pair gaps; normalized targets vary by original corpus; not terminal cost"
+}

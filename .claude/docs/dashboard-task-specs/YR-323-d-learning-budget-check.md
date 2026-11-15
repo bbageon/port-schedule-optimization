@@ -76,3 +76,6 @@ as의 코드 검토에서 aq의 `trainer.fit(labelset(data))`는 현재 회차 �
 학습 직후 자체 학습 자료 정확도 143/208=68.75%, 양하 포함 비교 14쌍. 동일 입력/비용 차이 사례는 0개.
 운영 시간 하락의 원인 확정·재사용 효과·새 학습 결과는 아니다.
 [보고](../../../outputs/reports/yr332_network_review/saved-pair-retention.md) · [원자료](../../../outputs/reports/yr332_network_review/saved-pair-retention.json).
+
+추가 사후 계산: 앞 회차 전체191쌍의 SmoothL1 오차는2.7472→2.7427로 약간 줄었다.
+순위 정답 수 감소가 학습 목적 오차 증가와 같은 뜻은 아니다. [해석 점검](../../../outputs/reports/yr332_network_review/retention-loss-check.json).
