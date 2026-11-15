@@ -11,7 +11,6 @@
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
 | YR-332-as | RL | **신경망·학습 방식 검토: 관계 정보와 최적화 알고리즘을 분리 비교** | 🟡 | 현재 비용 차이 회귀와 가변 후보 MLP를 확인한다. 같은 정보·자료의 관계망 비교 후 PPO를 별도 축으로 판단한다. 설계 검토이며 정책 교체 미실행. [spec](../docs/dashboard-task-specs/YR-332-as-network-learning-design.md) |
-| YR-332-ao | Sim | **변동 곡선·조건부 입력 은행 구현, 18개 입력 검사 통과** | 🟡 | 곡선 24/6/6개·같은 평균 대조군. 배경 41개 중 작업 종류가 바뀌는 5개 거절, 원장 보존(at). at 공급 보정 뒤 고정 정책 민감도. 새 학습 미실행. [결과](../../outputs/reports/yr332_day_shapes/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md) |
 | YR-332-ar | Sim | **관측 분별 형판을 수식 기반 방문 도착으로 대체** | 🟡 | ao의 하루 곡선·al 방문 연결은 고정하고 시간대 안 도착만 비교한다. 원본 분별 배열 없이 재생성할 수 있는 입력을 위해 필요하다. 통계·고정 정책 검사 뒤 채택 판단. [spec](../docs/dashboard-task-specs/YR-332-ar-parametric-within-hour-arrivals.md) |
 | YR-332-ap | Sim | **고물량 시간대 도착 몰림 크기 판정 (외부 자료 대기)** | ⚪ | ⏸ 외부 대기. 실측 최대 시간당 245번 방문, 그 안에서 몰림은 물량과 함께 커지지 않았다. 7,500·15,000건은 범위 밖이라 무작위·실제 몰림 두 조건의 범위로 보고한다. 터미널 전체·고물량 날짜 자료가 오면 생성 방식을 고른다. [spec](../docs/dashboard-task-specs/YR-332-ap-high-volume-bunching-data.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
