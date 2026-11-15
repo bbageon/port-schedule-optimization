@@ -49,7 +49,8 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
                 appointment_sigma_s: float | None = None,
                 information_profile: dict | None = None,
                 demand_profile: dict | None = None,
-                bnct_time_sync: bool = True) -> dict:
+                bnct_time_sync: bool = True,
+                initial_stock_mode: str = 'preserve') -> dict:
     """하루치 무대를 세운다. `lead_mode` 가 통지 리드타임 축을 가른다.
 
     | `lead_mode` | 뜻 |
@@ -81,7 +82,8 @@ def build_stage(*, load: int, seed: int, profile, layout=None, obs=None,
         #   되고, 그 블록이 이튿날도 양하면 **슬롯이 없어 양하가 멈춘다**(실측).
         prm = dataclasses.replace(prm, fill_ratio=float(fill_ratio))
     built = build_diurnal_v3(profile, seed, load=load, obs=obs, layout=layout,
-                             params=prm, background_seed=seed)
+                             params=prm, background_seed=seed,
+                             initial_stock_mode=initial_stock_mode)
     if demand_profile is not None:
         if demand_profile.get('hour_counts') is not None:
             times = hourly_arrivals(seed, load, demand_profile['hour_counts'])

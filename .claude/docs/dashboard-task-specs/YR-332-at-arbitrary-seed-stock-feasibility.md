@@ -1,9 +1,9 @@
 # YR-332-at — 임의 배경 시드에서 반출 공급·작업 종류 보존
 
-- **상태**: backlog. 2026-11-15 ao 입력 검사에서 발견.
-- 게이트 대상: scenario_validity(작업 요청과 공급이 일치하는가).
+- **상태**: in-progress. 2026-11-15 ao 입력 검사에서 발견.
+- **3대 게이트 보정 대상**: scenario_validity(작업 요청과 공급이 일치하는가).
 - 재현: H21 일일 무대, 링크 방문 프로필, seed=9934102, 15,000건.
-- 기존 `terminal_stream.build_diurnal`은 반출 대상 부족 때 44건을 반입으로 바꾼다.
+- 실제 v7 경로 `stage.vessels.build_diurnal_v3`는 반출 대상 부족 때 44건을 반입으로 바꾼다.
   블록 Y03 18건, Y05 25건, Y12 1건. 새 곡선 전후 모두 발생한다.
 
 ## 무엇과 왜
@@ -20,3 +20,8 @@ ao는 우선 작업 종류가 보존되는 배경만 조건부로 생성하고 �
 [입력 계약 수정 기록](../../../docs/research/v7-discharge/day-shape-prereg.md).
 36개 배경 은행 구성에서 총 41개 후보 중 5개가 같은 사유로 거절됐다(반입 전환 합 734건, 모두 15,000건).
 확정 시드도 임의 시드 전체 지원을 뜻하지 않는다. [거절 원장](../../../outputs/reports/yr332_day_shapes/scenario-preflight.json).
+
+## 착수 — 2026-11-16
+사용자 진행 승인. 게이트 대상 선언 표기 누락을 고친 뒤 authorize-next 허용.
+총재고를 늘리지 않는 초기 배치만 보정한다. 정상 입력·본선·기존 대상은 보존하며 불가능하면 실패한다.
+[사전등록](../../../docs/research/v7-discharge/initial-stock-prereg.md). ao는 선행 보정 동안 backlog로 이동.

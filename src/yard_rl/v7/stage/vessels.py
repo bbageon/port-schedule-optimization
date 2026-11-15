@@ -189,11 +189,12 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
                      layout: YardLayout | None = None,
                      params: TerminalStreamParams | None = None,
                      drain_s: float = DIURNAL_DRAIN_S,
-                     background_seed: int | None = None) -> dict:
+                     background_seed: int | None = None,
+                     initial_stock_mode: str = 'preserve') -> dict:
     """하루 무대 — 구 `build_diurnal` 과 같은 형태를 내되 **본선만 v3 선급**이다.
 
-    트럭 쪽(도착 명단·배분·규격·주행)은 구판과 **한 줄도 다르지 않다** — 본선을
-    바꾸면서 트럭까지 흔들면 무엇이 결과를 바꿨는지 못 가린다.
+    트럭 요청·블록·도착 난수열은 구판을 유지한다. 재고 부족은 초기 배치로 보정하고
+    불가능하면 실패한다. initial_stock_mode='legacy'는 과거 반입 전환 재현 전용이다.
     """
     obs = obs or OBS_24H
     layout = layout or terminal_layout()
@@ -260,6 +261,12 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
                                           0.12, lo=60.0)})
         attach_bnct(schedule[-1])
 
+    from .initial_stock import preserve_initial_stock
+    scns, schedule, stock = preserve_initial_stock(
+        scns, schedule, profile, seed, mode=initial_stock_mode)
+    fallbacks = {b: sum(e['block'] == b and e['flow'] != e['requested_flow']
+                        for e in schedule) for b in layout.ids}
+
     for b in layout.ids:
         scns[b] = dataclasses.replace(scns[b], meta={
             **scns[b].meta, "h21_block": b, "h21_mode": "diurnal_24h_v3",
@@ -272,6 +279,7 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
             "sim_end_s": obs.observe_s + drain_s,
             "flow_fallbacks": fallbacks,
             "flow_fallbacks_total": sum(fallbacks.values()),
+            "initial_stock": stock,
             "observation": obs.as_dict(), "layout": layout.as_dict(),
             "mode": "diurnal_24h_v3"}
 

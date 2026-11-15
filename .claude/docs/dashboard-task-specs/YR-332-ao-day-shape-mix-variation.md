@@ -1,6 +1,6 @@
 # YR-332-ao — 날짜별 24시간 모양·반출 비율 변동을 입력 축으로
 
-- **상태**: in-progress (2026-11-15 사용자 구현 승인)
+- **상태**: backlog (2026-11-16 at 선행 보정 동안 대기; 사용자 진행 승인 유지)
 - 등록: 2026-11-14. 상위 [[YR-332]], 발견 작업 [[YR-332-am]].
 - **3대 게이트 보정 대상**: scenario_validity(만든 입력이 실제 날짜별 흐름의 다양성을 담는가).
 - 입력 축 한 개. 정책·보상·학습은 바꾸지 않는다.
@@ -77,3 +77,7 @@ am 측정에서 실제 날짜는 우연보다 훨씬 크게 달랐다.
 - 전체 ao는 계속 in-progress: 고정 정책 민감도와 반출 비율 별도 축은 미실행. ar·at의 입력 문제도 남는다.
 - [결과](../../../outputs/reports/yr332_day_shapes/README.md) · [집계](../../../outputs/reports/yr332_day_shapes/summary.json) ·
   [결정 경위](../strategy-history/2026-11-15-YR-332-ao-as-input-network-review.md).
+
+## 2026-11-16 순서
+at에서 초기 재고와 반출 요청을 먼저 맞춘 뒤, 원래 배경 시드로 평균/변동 곡선의 고정 정책 민감도를 검사한다.
+곡선 비교 범위는 [at 사전등록](../../../docs/research/v7-discharge/initial-stock-prereg.md)에 고정했다.
