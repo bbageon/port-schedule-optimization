@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from yard_rl.v7.day_shape import basis_hour_masses, build_bank, demand_for_shape, hour_masses
+from yard_rl.v7.day_shape import basis_hour_masses, periodic_linear_basis, build_bank, demand_for_shape, hour_masses
 
 
 def fits():
@@ -59,3 +59,11 @@ def test_profile_changes_only_shape_and_provenance_without_mutation():
         k: v for k, v in base.items() if k not in ('hour_counts', 'source')}
     new['within_hour']['source'] = 'new'
     assert base == before
+
+
+@pytest.mark.parametrize('knots', [6, 8, 12, 24])
+def test_periodic_basis_wraps_midnight_and_preserves_uniform_density(knots):
+    basis = periodic_linear_basis(knots)
+    assert hour_masses([1 / knots] * knots, basis) == pytest.approx([1 / 24] * 24, abs=1e-14)
+    assert all(math.isclose(sum(row), 1., abs_tol=1e-12) for row in basis)
+    assert basis[0][-1] > 0 and basis[-1][0] > 0

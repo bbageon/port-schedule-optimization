@@ -10,7 +10,7 @@ import subprocess
 
 import numpy as np
 
-from yard_rl.v7.day_shape import basis_hour_masses, build_bank, demand_for_shape, digest
+from yard_rl.v7.day_shape import basis_hour_masses, periodic_linear_basis, build_bank, demand_for_shape, digest
 
 OUT = Path('outputs/reports/yr332_day_shapes')
 PREREG = Path('docs/research/v7-discharge/day-shape-prereg.md')
@@ -30,6 +30,22 @@ def save(name, value):
 def fit_simplex(target, basis):
     """Exact finite active-set search of the convex least-squares simplex problem."""
     matrix = np.array(basis).T
+    if len(basis) > 4:
+        from scipy.optimize import minimize
+        size = len(basis)
+        solution = minimize(lambda w: np.square(matrix @ w - target).sum(), np.ones(size) / size,
+            jac=lambda w: 2 * matrix.T @ (matrix @ w - target), bounds=[(0., 1.)] * size,
+            constraints=[dict(type='eq', fun=lambda w: w.sum() - 1., jac=lambda w: np.ones(size))],
+            method='SLSQP', options=dict(ftol=1e-13, maxiter=1000))
+        if not solution.success:
+            raise RuntimeError(solution.message)
+        w = np.maximum(0., solution.x);w /= w.sum()
+        gradient = 2 * matrix.T @ (matrix @ w - target)
+        active = w > 1e-7
+        level = float(gradient[active].mean())
+        if max(abs(gradient[active] - level)) > 2e-6 or np.any(gradient[~active] < level - 2e-6):
+            raise RuntimeError('simplex optimum stationarity check failed')
+        return float(np.square(matrix @ w - target).sum()), w, matrix @ w
     best = None
     for size in range(1, len(basis) + 1):
         for ids in combinations(range(len(basis)), size):
@@ -61,7 +77,7 @@ def stamp():
                 sources={str(p).replace('\\', '/'): sha(p) for p in files})
 
 
-def calibrate():
+def calibrate(*, knots=None):
     from audit_visit_units import load_rows, stamp as timestamp
     rows, manifest = load_rows()
     hours = defaultdict(lambda: [0] * 24)
@@ -74,7 +90,8 @@ def calibrate():
     if set(hours) != set(allowed):
         raise ValueError('development dates changed; revise explicit split before using new dates')
     fits = []
-    basis = basis_hour_masses()
+    basis = basis_hour_masses() if knots is None else periodic_linear_basis(knots)
+    family = 'original_gaussians' if knots is None else f'periodic_linear_{knots}'
     for index, (date, counts) in enumerate(sorted(hours.items())):
         p = np.array(counts) / sum(counts)
         error, w, fitted = fit_simplex(p, basis)
@@ -88,7 +105,8 @@ def calibrate():
                          zero_weight_components=np.flatnonzero(w < 1e-8).tolist()))
     pooled = np.sum(list(hours.values()), axis=0);pooled = pooled / pooled.sum()
     mean = np.mean([f['hour_masses'] for f in fits], axis=0)
-    original = .38 * np.array(basis[0]) + .62 * np.array([.317, .633, .050]) @ np.array(basis[1:])
+    old_basis = basis_hour_masses()
+    original = .38 * np.array(old_basis[0]) + .62 * np.array([.317, .633, .050]) @ np.array(old_basis[1:])
     leave_one_out = []
     for removed in fits:
         remain = [f for f in fits if f is not removed]
@@ -96,10 +114,10 @@ def calibrate():
             mean_tvd=tvd(mean, np.mean([f['hour_masses'] for f in remain], axis=0)),
             weight_min=np.min([f['weights'] for f in remain], axis=0).tolist(),
             weight_max=np.max([f['weights'] for f in remain], axis=0).tolist()))
-    bank = build_bank(fits, seed=9934000)
+    bank = build_bank(fits, seed=9934000, basis=basis, family=family)
     identities = [r['shape_sha256'] for values in bank['splits'].values() for r in values]
     assert len(set(identities)) == len(identities)
-    calibration = dict(schema='day-shape-calibration-v1', unit='entered container orders (not physical visits)',
+    calibration = dict(schema='day-shape-calibration-v1', family=family, unit='entered container orders (not physical visits)',
         development_dates=sorted(hours), source_sha256=manifest, fits=fits, leave_one_out=leave_one_out,
         representation=dict(original_vs_pooled_order_tvd=tvd(original, pooled),
             mean_fit_vs_pooled_order_tvd=tvd(mean, pooled),
@@ -108,12 +126,13 @@ def calibrate():
             synthetic_train_tvd_mean=float(np.mean([tvd(r['hour_masses'], bank['fixed_hour_masses']) for r in bank['splits']['train']]))),
         input_family_pass=all(f['within_noise'] for f in fits),
         passed_dates=sum(f['within_noise'] for f in fits), total_dates=len(fits), repro=stamp())
-    save('calibration.json', calibration)
-    save('bank.json', bank)
+    save(f'calibration-{family}.json', calibration)
+    save(f'bank-{family}.json', bank)
     print(json.dumps({k: calibration[k] for k in ('input_family_pass', 'passed_dates', 'total_dates', 'representation')}, indent=2))
 
 
 def check_stage(built, total):
+    from yard_rl.v7.world.domain.enums import ContainerSize
     schedule = built['schedule']
     assert len(schedule) == total and built['flow_fallbacks_total'] == 0
     visits = defaultdict(list)
@@ -128,7 +147,11 @@ def check_stage(built, total):
         assert len({r['arrival_s'] for r in group}) == 1
         for flow in ('GATE_IN', 'GATE_OUT'):
             same = [r for r in group if r['flow'] == flow]
-            assert sum(2 if r['size_ft40'] else 1 for r in same) <= 2
+            def teu(row):
+                if flow == 'GATE_IN':
+                    return 2 if row['size_ft40'] else 1
+                return 1 if built['scenarios'][row['block']].containers[row['target']].size == ContainerSize.FT20 else 2
+            assert sum(teu(r) for r in same) <= 2
         ins = [r['visit']['stop'] for r in group if r['flow'] == 'GATE_IN']
         outs = [r['visit']['stop'] for r in group if r['flow'] == 'GATE_OUT']
         assert not ins or not outs or max(ins) < min(outs)
@@ -142,14 +165,14 @@ def check_stage(built, total):
 def audit_inputs():
     from yard_rl.v7.stage.orders import build_stage
     from yard_rl.v7.world.integrated.profiles import build_h21_profile
-    bank = read(OUT / 'bank.json')
+    bank = read(OUT / 'bank-periodic_linear_24.json')
     base = read(BASE)['profiles']['observed_visit_links']
     info = read(INFO)
     results = []
     for load in (3500, 7500, 15000):
         for i, shape in enumerate(bank['splits']['train'][:3]):
             cases = []
-            seed = 9934100 + i
+            seed = shape['input_seed']
             for arm, mass in [('fixed', bank['fixed_hour_masses']), ('variable', shape['hour_masses'])]:
                 profile = demand_for_shape(base, mass, source=dict(bank_sha256=digest(bank), shape_id=shape['id'], arm=arm))
                 built = build_stage(load=load, seed=seed, profile=build_h21_profile(), information_profile=info, demand_profile=profile)
@@ -172,5 +195,6 @@ def audit_inputs():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices=['calibrate', 'inputs'])
+    parser.add_argument('--knots', type=int, choices=[6, 8, 12, 24])
     args = parser.parse_args()
-    calibrate() if args.command == 'calibrate' else audit_inputs()
+    calibrate(knots=args.knots) if args.command == 'calibrate' else audit_inputs()
