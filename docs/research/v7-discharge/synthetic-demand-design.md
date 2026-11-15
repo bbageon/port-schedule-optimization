@@ -1,8 +1,10 @@
 # 날짜별 변화를 갖는 합성 항만 학습 데이터 설계
 
 2026-11-15 · YR-332-ao(날짜별 도착 모양·작업 비율 변동).
-**상태: 문헌 검토와 설계 완료, 숫자 범위 산정·생성기 구현·새 학습은 미실행.**
+**상태: 1차 곡선 생성기·조건부 입력 은행·입력 검사 완료. 정책 민감도·새 학습은 미실행.**
 현재 코드의 기본 입력과 기존 실험 결과를 변경하지 않는다.
+실행 중 곡선 가족·재고 조건을 보정한 경위는 [입력 계약 수정](day-shape-prereg.md),
+실제 결과는 [입력 보고서](../../../outputs/reports/yr332_day_shapes/README.md)에 기록했다.
 근거는 [선행연구 대조](synthetic-demand-literature.md), 구현 작업 정본은
 [ao 명세](../../../.claude/docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md)다.
 

@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **변동 합성 곡선 구현 착수·신경망 전략 검토 (2026-11-15, ao/as)**: 사용자 승인으로 날짜 모양 생성기와 입력 검사를 진행한다. 망은 현재 가변 후보 MLP·비교 비용 회귀이며 PPO가 아니다. 관계망과 학습법을 분리해 검증하는 설계를 등록했고 정책 교체·재학습은 미실행. [입력 사전등록](../../docs/research/v7-discharge/day-shape-prereg.md) · [신경망 검토](../../docs/research/v7-discharge/network-learning-review.md) · [ao spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md)
+- **변동 곡선 1차 구현·신경망 전략 검토 (2026-11-15, ao/as)**: 곡선 24/6/6개와 같은 평균 대조군을 만들고 입력 18개·동일 재현·관련 시험 37건을 통과했다. 배경 41개 중 반출 종류가 바뀌는 5개를 거절한 조건부 입력이며 공급 보정(at)을 등록했다. 현재 망은 가변 후보 MLP·비교 비용 회귀, 이전 회차 정답 미재사용을 확인했다. 정책 교체·새 학습 미실행. [입력 결과](../../outputs/reports/yr332_day_shapes/README.md) · [신경망 검토](../../docs/research/v7-discharge/network-learning-review.md) · [ao spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md)
 
 - **보정 환경 재학습 진단 완료 (2026-11-14, aq, 사용자 요청)**: ag와 같은 학습 방법을 aj·ak·al로 보정한 환경에서 모델 3개×6회 다시 학습했다. 새 입력 9개·146회 평가와 가중치 18개 정확 재학습 검산 통과. 재학습 모델은 학습 전보다 +4.17%(116.658→111.791분) 짧아졌지만 모델별 −21.42~+21.12%로 엇갈렸고, SF_SPT(87.975분)보다 27.07%, 이전 모델(103.229분)보다 8.29% 길다. 성능 FAIL. 환경 보정만으로 학습이 나아지지 않았으므로 다음은 학습 진단(323-d)이며, 운반·대기열(i/f)은 외부 자료 대기다. [결과](../../outputs/reports/yr332_linked_retraining/README.md) · [spec](../docs/dashboard-task-specs/YR-332-aq-linked-environment-retraining.md)
 

@@ -20,4 +20,5 @@ aq는 회차별 새 자료만 학습한다. 마지막 회차의 학습 쌍은 16
 새 망 채택·PPO 전환은 이번 검토의 완료 조건이 아니다. 현재 입력 보정과 동시에 하지 않는다.
 실행 시 연구 게이트와 구체적 비교 명세를 먼저 고정한다.
 
-[검토 보고서](../../../docs/research/v7-discharge/network-learning-review.md).
+[검토 보고서](../../../docs/research/v7-discharge/network-learning-review.md) ·
+[코드·저장 기록 근거](../../../outputs/reports/yr332_network_review/review.json).

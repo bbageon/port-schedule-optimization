@@ -28,7 +28,7 @@ def save(name, value):
 
 
 def fit_simplex(target, basis):
-    """Exact finite active-set search of the convex least-squares simplex problem."""
+    """Convex simplex least squares: active sets for four bases, checked SLSQP otherwise."""
     matrix = np.array(basis).T
     if len(basis) > 4:
         from scipy.optimize import minimize
@@ -135,6 +135,7 @@ def check_stage(built, total):
     from yard_rl.v7.world.domain.enums import ContainerSize
     schedule = built['schedule']
     assert len(schedule) == total and built['flow_fallbacks_total'] == 0
+    assert all(row['flow'] == row['requested_flow'] for row in schedule)
     visits = defaultdict(list)
     for row in schedule:
         assert 0 <= row['arrival_s'] < 86400
