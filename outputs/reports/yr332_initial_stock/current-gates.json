@@ -1,0 +1,244 @@
+{
+ "task": "YR-332-at",
+ "evidence_commit": "cd592b67",
+ "input_supply_axis": "PASS",
+ "scope": "finite synthetic initial-state conservation; no real-terminal performance claim",
+ "common_gates": {
+  "performance": {
+   "name": "performance",
+   "status": "INCONCLUSIVE",
+   "summary": "입력 보정 검사이며 새 학습 또는 정책 개선 판정 없음",
+   "reasons": [],
+   "evidence": {
+    "previous_rl_gate": "FAIL",
+    "previous_gate_path": "outputs/reports/yr332_linked_retraining/current-gates.json"
+   }
+  },
+  "reliability": {
+   "name": "reliability",
+   "status": "PASS",
+   "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+   "reasons": [],
+   "evidence": {
+    "runtime": {
+     "name": "runtime_evidence",
+     "status": "PASS",
+     "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+     "reasons": [],
+     "evidence": {
+      "git_head": "305d0eca49e2a7a81d0e1207849a0441729d859f",
+      "stamp": {
+       "experiment": "YR-332-at/ao",
+       "code": {
+        "git_head": "305d0eca49e2a7a81d0e1207849a0441729d859f",
+        "git_dirty": false,
+        "python": "3.13.9"
+       },
+       "profile_id": null,
+       "seeds": {
+        "inputs": [
+         9934100,
+         9934101,
+         9934102,
+         9934103,
+         9934104,
+         9934105,
+         9934106,
+         9934107,
+         9934108,
+         9934109,
+         9934110,
+         9934111,
+         9934112,
+         9934113,
+         9934114,
+         9934115,
+         9934116,
+         9934117,
+         9934118,
+         9934119,
+         9934120,
+         9934121,
+         9934122,
+         9934123,
+         9934200,
+         9934201,
+         9934202,
+         9934203,
+         9934204,
+         9934205,
+         9934300,
+         9934301,
+         9934302,
+         9934303,
+         9934304,
+         9934305,
+         9935102,
+         9935104,
+         9935112,
+         9935116,
+         9935118
+        ],
+        "new_inputs": [
+         9935000,
+         9935001,
+         9935002,
+         9935003,
+         9935004,
+         9935005,
+         9935006,
+         9935007,
+         9935008,
+         9935009,
+         9935010,
+         9935011,
+         9935012,
+         9935013,
+         9935014,
+         9935015,
+         9935016,
+         9935017,
+         9935018,
+         9935019
+        ],
+        "evaluation": [
+         9934100,
+         9934101,
+         9934102
+        ]
+       },
+       "params": {
+        "configuration": {
+         "repr": "{'seeds': [9934100, 9934101, 9934102, 9934103, 9934104, 9934105, 9934106, 9934107, 9934108, 9934109, 9934110, 9934111, 9934112, 9934113, 9934114, 9934115, 9934116, 9934117, 9934118, 9934119, 9934120, 9934121, 9934122, 9934123, 9934200, 9934201, 9934202, 9934203, 9934204, 9934205, 9934300, 9934301, 9934302, 9934303, 9934304, 9934305, 9935102, 9935104, 9935112, 9935116, 9935118], 'new_seeds': [9935000, 9935001, 9935002, 9935003, 9935004, 9935005, 9935006, 9935007, 9935008, 9935009, 9935010, 9935011, 9935012, 9935013, 9935014, 9935015, 9935016, 9935017, 9935018, 9935019], 'loads': (3500, 7500, 15000), 'cases': [{'kind': 'stock', 'seed': 9934102, 'load': 15000, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'stock', 'seed': 9934102, 'load': 15000, 'shape': 'fixed', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'stock', 'seed': 9934100, 'load': 3500, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'legacy'}, {'kind': 'stock', 'seed': 9934100, 'load': 3500, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'fixed', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'fixed', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'variable', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'variable', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 3500, 'shape': 'variable', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'fixed', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'fixed', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'variable', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'variable', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 7500, 'shape': 'variable', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'fixed', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'fixed', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'fixed', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'variable', 'index': 0, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'variable', 'index': 0, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934100, 'load': 15000, 'shape': 'variable', 'index': 0, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'fixed', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'fixed', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'fixed', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'variable', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'variable', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 3500, 'shape': 'variable', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'fixed', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'fixed', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'fixed', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'variable', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'variable', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 7500, 'shape': 'variable', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'fixed', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'fixed', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'fixed', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'variable', 'index': 1, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'variable', 'index': 1, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934101, 'load': 15000, 'shape': 'variable', 'index': 1, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'fixed', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'fixed', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'fixed', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'variable', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'variable', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 3500, 'shape': 'variable', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'fixed', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'fixed', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'fixed', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'variable', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'variable', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 7500, 'shape': 'variable', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'fixed', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'fixed', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'fixed', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'variable', 'index': 2, 'rule': 'SF_SPT', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'variable', 'index': 2, 'rule': 'FIFO', 'mode': 'preserve'}, {'kind': 'shape', 'seed': 9934102, 'load': 15000, 'shape': 'variable', 'index': 2, 'rule': 'LWKR', 'mode': 'preserve'}], 'runtime': {'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}, 'stock_modes': ['legacy', 'preserve'], 'scope': 'input consistency and frozen-rule sensitivity; no training or operational claim'}"
+        }
+       },
+       "prereg": "docs/research/v7-discharge/initial-stock-prereg.md"
+      },
+      "artifact_hashes": {
+       "outputs/reports/yr332_initial_stock/evaluation/000.json.gz": "f59dda335684cd7870cc93c0253da9769bf172c9ed8f106d52ea1a586a9d5f90",
+       "outputs/reports/yr332_initial_stock/orders/000.json.gz": "1ffeedb9e1733a6fea2dc5d0cfe664f1e38d1227038d49ae0e924297a0e9a698",
+       "outputs/reports/yr332_initial_stock/flow-orders/000.json.gz": "5f1c63e3cc38751c416eba8d86c632dcc4a8581cb0b8215cde33d6b480cf1cf2",
+       "outputs/reports/yr332_initial_stock/evaluation/001.json.gz": "a7a23b8c03868af9a8ff51534515f1a645e15155538c77600f21c100bccc3210",
+       "outputs/reports/yr332_initial_stock/orders/001.json.gz": "96ac64de1e209b7a8f351c923398577d9b584fd3a5a1a4f4d6138eb810cf2080",
+       "outputs/reports/yr332_initial_stock/flow-orders/001.json.gz": "a15f449971c307f1b363778647ef6eab675f933829f8c3e4b90cc65669a30963",
+       "outputs/reports/yr332_initial_stock/evaluation/002.json.gz": "4779b7695f1a90633df7de778ee2fabc1b92be64eedcba38c52a106e99a5ad5c",
+       "outputs/reports/yr332_initial_stock/orders/002.json.gz": "e754e72777c020be56d6327e416d6de8700791c35e7ac5c38fc6a47cc7360ca0",
+       "outputs/reports/yr332_initial_stock/flow-orders/002.json.gz": "82c8dca148f25fcf2eff44d1a60c2f95697dce8fe71c14dbd57371952b125da9",
+       "outputs/reports/yr332_initial_stock/evaluation/003.json.gz": "272e915e09adc0a2021ac2479ea406f7fdcbadd2bf910c05fbdc71f177242caf",
+       "outputs/reports/yr332_initial_stock/orders/003.json.gz": "165e2eeb8ce37dd9ec20f8a6feb45e0cb181fcc638cdf8f3e3ed0dab27a972b3",
+       "outputs/reports/yr332_initial_stock/flow-orders/003.json.gz": "cd5e6e04a0bb05d55f53258f126c334c2fb2787ceb16cf47fd0481db757828c2",
+       "outputs/reports/yr332_initial_stock/README.md": "df976e07eb88ca2afc1ba0a7f4b8b4dce8d2c117b0943ae2e527a8f06bd31107",
+       "outputs/reports/yr332_initial_stock/stock-summary.json": "45990509b870cb8882c55721422e82071b98714c176a46918e885c3f53da7f74",
+       "outputs/reports/yr332_initial_stock/input-audit.json": "e62ed39834a27a0c906108a788de30fd6099531144df4d87246f9f060bd0cbaa",
+       "outputs/reports/yr332_initial_stock/campaign.json": "c1619d9b3ef39810d3003f6aecfa099341fb18ef4d8c6a1852801b55e18351c8",
+       "outputs/reports/yr332_initial_stock/bank-stock-preserved.json": "a083b69b1c41fc688ce092e26893160628f6fac9b0cf5e87e4ad8c4ebb44c3a1",
+       "outputs/reports/yr332_initial_stock/shape-input-audit.json": "d75614e3e79a47f0df038e462ff29a66e627690f8997e8a2abc9cf719e465c47",
+       "outputs/reports/yr332_initial_stock/verification.json": "fe9992fa94b664368969b0a0b667fda36a8c821692fdef9c67419b6f055d9323"
+      }
+     }
+    },
+    "dashboard": {
+     "name": "dashboard_code_alignment",
+     "status": "PASS",
+     "summary": "Dashboard·spec·코드·증거가 일치함",
+     "reasons": [],
+     "evidence": {
+      "task_id": "YR-332-at",
+      "expected_state": "done",
+      "board_matches": [
+       "done.md"
+      ],
+      "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-at-arbitrary-seed-stock-feasibility.md",
+      "evidence_paths": [
+       "outputs\\reports\\yr332_initial_stock\\stock-summary.json",
+       "outputs\\reports\\yr332_initial_stock\\input-audit.json",
+       "outputs\\reports\\yr332_initial_stock\\campaign.json"
+      ],
+      "control_paths": [
+       ".claude\\Dashboard\\done.md",
+       ".claude\\docs\\dashboard-task-specs\\YR-332-at-arbitrary-seed-stock-feasibility.md"
+      ],
+      "evidence_commits": [
+       "cd592b67"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "cd592b67",
+      "drift": []
+     }
+    },
+    "claim_alignment": {
+     "name": "claim_alignment",
+     "status": "PASS",
+     "summary": "보고 핵심 수치가 원자료와 일치함",
+     "reasons": [],
+     "evidence": {
+      "absolute_tolerance": 0.00051,
+      "reported_values": {
+       "cases": 183,
+       "changed_cases": 11,
+       "unchanged_cases": 172,
+       "old_conversions": 1288,
+       "new_conversions": 0,
+       "normal_minutes": 15.959
+      },
+      "raw_values": {
+       "cases": 183,
+       "changed_cases": 11,
+       "unchanged_cases": 172,
+       "old_conversions": 1288,
+       "new_conversions": 0,
+       "normal_minutes": 15.959358038340467
+      },
+      "absolute_differences": {
+       "cases": 0.0,
+       "changed_cases": 0.0,
+       "new_conversions": 0.0,
+       "normal_minutes": 0.0003580383404671039,
+       "old_conversions": 0.0,
+       "unchanged_cases": 0.0
+      }
+     }
+    }
+   }
+  },
+  "scenario_validity": {
+   "name": "scenario_validity",
+   "status": "FAIL",
+   "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+   "reasons": [
+    "내부타당성 미수집: achievable_vessel_deadline",
+    "내부타당성 미수집: information_boundary",
+    "지속 유입 운영흐름 미검증",
+    "필수 외부 앵커 미수집: crane_service_time",
+    "필수 외부 앵커 미수집: gate_to_block_time",
+    "필수 외부 앵커 미수집: initial_yard_occupancy",
+    "필수 외부 앵커 미수집: truck_arrival_rate",
+    "필수 외부 앵커 미수집: vessel_workload"
+   ],
+   "evidence": {
+    "continuous_operation": false,
+    "internal_checks": {
+     "event_time_order": true,
+     "physical_constraints": true,
+     "ledger_conservation": true,
+     "deterministic_replay": true
+    },
+    "flow_checks": {},
+    "anchors": {},
+    "operational_trace_path": null,
+    "operational_trace_sha256": null,
+    "operational_trace_verified": false,
+    "operational_trace_records": 0,
+    "minimum_operational_trace_records": 30,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+   }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": [
+   "performance",
+   "scenario_validity"
+  ]
+ }
+}
