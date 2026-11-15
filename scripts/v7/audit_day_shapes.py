@@ -165,7 +165,7 @@ def check_stage(built, total):
 def audit_inputs():
     from yard_rl.v7.stage.orders import build_stage
     from yard_rl.v7.world.integrated.profiles import build_h21_profile
-    bank = read(OUT / 'bank-periodic_linear_24.json')
+    bank = read(OUT / 'bank-ready.json')
     base = read(BASE)['profiles']['observed_visit_links']
     info = read(INFO)
     results = []
@@ -192,9 +192,66 @@ def audit_inputs():
     print(json.dumps(dict(cases=len(results), checks_pass=True, repeated_case_exact=True)))
 
 
+def prepare_scenarios():
+    """Condition on requested flows being preserved, before any policy is run.
+
+    No curve is dropped. Only the exogenous stage seed is redrawn, equally for
+    the fixed/variable arms. Rejecting a busy/slow valid stage is forbidden.
+    """
+    from yard_rl.v7.stage.orders import build_stage
+    from yard_rl.v7.world.integrated.profiles import build_h21_profile
+    bank = read(OUT / 'bank-periodic_linear_24.json')
+    profile = demand_for_shape(read(BASE)['profiles']['observed_visit_links'], bank['fixed_hour_masses'],
+                               source=dict(purpose='pre-policy flow-preservation preflight'))
+    info = read(INFO)
+    records = []
+    for split, rows in bank['splits'].items():
+        for shape in rows:
+            requested = shape['input_seed']
+            attempts = []
+            for attempt in range(20):
+                seed = requested + 1000 * attempt
+                cases = []
+                for load in (3500, 7500, 15000):
+                    built = build_stage(load=load, seed=seed, profile=build_h21_profile(), information_profile=info,
+                                        demand_profile=profile)
+                    cases.append(dict(load=load, fallback_count=built['flow_fallbacks_total'],
+                        fallback_by_block={k: v for k, v in built['flow_fallbacks'].items() if v},
+                        requested_out=sum(e['requested_flow'] == 'GATE_OUT' for e in built['schedule']),
+                        actual_out=sum(e['flow'] == 'GATE_OUT' for e in built['schedule'])))
+                    if not built['flow_fallbacks_total']:
+                        check_stage(built, load)
+                good = all(c['fallback_count'] == 0 for c in cases)
+                attempts.append(dict(seed=seed, accepted=good, cases=cases))
+                save('scenario-preflight-progress.json', dict(completed=records, current=dict(id=shape['id'], attempts=attempts)))
+                if good:
+                    shape['requested_input_seed'] = requested
+                    shape['input_seed'] = seed
+                    break
+            else:
+                raise RuntimeError(f"no valid input after 20 prespecified attempts for {shape['id']}")
+            records.append(dict(id=shape['id'], split=split, requested_seed=requested, input_seed=seed, attempts=attempts))
+    seeds = [r['input_seed'] for r in records]
+    assert len(set(seeds)) == len(seeds)
+    manifest = dict(records=records, accepted=len(records), attempts=sum(len(r['attempts']) for r in records),
+        rejection_rule='requested outbound containers unavailable; requested flow would be silently changed',
+        retry_rule='requested input seed + 1000 * attempt; maximum 20; same seed for all loads and both arms',
+        selection_scope='stock-feasible conditional synthetic scenarios; not unconditioned terminal demand',
+        no_policy_outcomes_used=True, repro=stamp())
+    bank['scenario_preflight_sha256'] = digest(manifest)
+    save('scenario-preflight.json', manifest)
+    save('bank-ready.json', bank)
+    print(json.dumps(dict(accepted=manifest['accepted'], attempts=manifest['attempts'])))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=['calibrate', 'inputs'])
+    parser.add_argument('command', choices=['calibrate', 'inputs', 'prepare-scenarios'])
     parser.add_argument('--knots', type=int, choices=[6, 8, 12, 24])
     args = parser.parse_args()
-    calibrate(knots=args.knots) if args.command == 'calibrate' else audit_inputs()
+    if args.command == 'calibrate':
+        calibrate(knots=args.knots)
+    elif args.command == 'prepare-scenarios':
+        prepare_scenarios()
+    else:
+        audit_inputs()
