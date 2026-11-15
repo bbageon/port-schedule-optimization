@@ -1,0 +1,133 @@
+{
+  "scope": "read-only review; no model/optimizer/checkpoint changes",
+  "commit": "84ccb5be33d9a4158cc01a768f1d6dcc3eea9a3a",
+  "models": [
+    {
+      "model": "model-9917101",
+      "config": {
+        "dim": 10,
+        "hidden": 64,
+        "feature_mode": "feasible",
+        "include_flow": true,
+        "count_transform": "clipped"
+      },
+      "collected_pairs": 92,
+      "train_pairs_total": 76,
+      "validation_pairs_total": 16,
+      "train_pairs_per_update": [
+        7,
+        14,
+        14,
+        13,
+        12,
+        16
+      ],
+      "last_update_train_pairs": 16,
+      "updates": 6,
+      "steps_each": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "max_recorded_teacher_candidate_count": 629
+    },
+    {
+      "model": "model-9917102",
+      "config": {
+        "dim": 10,
+        "hidden": 64,
+        "feature_mode": "feasible",
+        "include_flow": true,
+        "count_transform": "clipped"
+      },
+      "collected_pairs": 105,
+      "train_pairs_total": 87,
+      "validation_pairs_total": 18,
+      "train_pairs_per_update": [
+        14,
+        14,
+        15,
+        13,
+        15,
+        16
+      ],
+      "last_update_train_pairs": 16,
+      "updates": 6,
+      "steps_each": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "max_recorded_teacher_candidate_count": 462
+    },
+    {
+      "model": "model-9917103",
+      "config": {
+        "dim": 10,
+        "hidden": 64,
+        "feature_mode": "feasible",
+        "include_flow": true,
+        "count_transform": "clipped"
+      },
+      "collected_pairs": 86,
+      "train_pairs_total": 72,
+      "validation_pairs_total": 14,
+      "train_pairs_per_update": [
+        12,
+        13,
+        12,
+        11,
+        12,
+        12
+      ],
+      "last_update_train_pairs": 12,
+      "updates": 6,
+      "steps_each": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "max_recorded_teacher_candidate_count": 657
+    }
+  ],
+  "sources": {
+    "outputs/reports/yr332_linked_retraining/model-9917101/training.json": "6851b90b98c058b400661ec1210b3f8e86b6a57884e79b64acd6aceb8890be52",
+    "outputs/reports/yr332_linked_retraining/model-9917102/training.json": "514041e143359be30ca5b1f533503cc5d2bd7024e7f9a80f216bd933ce20e781",
+    "outputs/reports/yr332_linked_retraining/model-9917103/training.json": "214b69d1d340309468b7c6f75e0c4a2a5e64cf58e038eab36dd831a32a92bac8",
+    "src/yard_rl/v7/crane/policy.py": "e54b45df348c711194ea7441b3234a0b0e53cfb546d1d20cc9e138214af36e26",
+    "src/yard_rl/v7/crane/fit.py": "20a9e6138d4700e0bc737d20885c8d79fef1cf3f0552b14a2cf13e0c91eb63ac",
+    "scripts/v7/retrain_linked_environment.py": "81763e458a5ac96602d15a608f8d4fe011b1c73bc024d8fe8f967726ffd42d53",
+    "outputs/reports/yr332_linked_retraining/campaign.json": "fa79f988449589b9f9108137a4bd431257bdeabaf617e56d3631c813d41bc272",
+    "docs/research/v7-discharge/network-learning-review.md": "0331a5087305a650ba658c4945b213bd9631b601da08b3cd1b3b7d3ff5539215"
+  },
+  "classification": "supervised normalized counterfactual cost-difference regression; not PPO/DQN updates",
+  "behavior": "frozen initial model collects labels; each student update fits only its current corpus",
+  "architecture": "shared 10-64-64-1 candidate scorer; variable candidate count; batched inference",
+  "papers": [
+    {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0278612525003140",
+      "finding": "April 2026; review of 143 studies"
+    },
+    {
+      "url": "https://www.sciencedirect.com/science/article/pii/S136655452500657X",
+      "finding": "CNN-MLP and shared-policy PPO; crane allocation among blocks"
+    },
+    {
+      "url": "https://link.springer.com/article/10.1007/s40747-025-02174-3",
+      "finding": "multi-head self-attention PPO; online 2025-12-29, 2026 volume"
+    },
+    {
+      "url": "https://www.sciencedirect.com/science/article/pii/S0952197625029434",
+      "finding": "weighted multi-graph and relational graph convolution; AGV/YC loading"
+    }
+  ]
+}

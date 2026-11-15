@@ -1,0 +1,185 @@
+{
+ "input_contracts_pass": true,
+ "family_expression_pass": true,
+ "scope": "input construction and code review only; no policy run or new training",
+ "families": [
+  {
+   "family": "original_gaussians",
+   "passed_dates": 0,
+   "total_dates": 13,
+   "residual_tvd_min": 0.04344098885634845,
+   "residual_tvd_max": 0.13493260638714788
+  },
+  {
+   "family": "periodic_linear_6",
+   "passed_dates": 0,
+   "total_dates": 13,
+   "residual_tvd_min": 0.059013733672824815,
+   "residual_tvd_max": 0.10300177323116717
+  },
+  {
+   "family": "periodic_linear_8",
+   "passed_dates": 0,
+   "total_dates": 13,
+   "residual_tvd_min": 0.04959895160810368,
+   "residual_tvd_max": 0.10135601166273434
+  },
+  {
+   "family": "periodic_linear_12",
+   "passed_dates": 3,
+   "total_dates": 13,
+   "residual_tvd_min": 0.03471761897351376,
+   "residual_tvd_max": 0.07944099881790898
+  },
+  {
+   "family": "periodic_linear_24",
+   "passed_dates": 13,
+   "total_dates": 13,
+   "residual_tvd_min": 8.559727020240882e-08,
+   "residual_tvd_max": 0.0004370433715694278
+  }
+ ],
+ "curves": {
+  "train": 24,
+  "selection": 6,
+  "holdout": 6
+ },
+ "input_cases": 18,
+ "repeated_case_exact": true,
+ "background_attempts": 41,
+ "accepted_backgrounds": 36,
+ "rejected_backgrounds": 5,
+ "rejected_seeds": [
+  9934102,
+  9934104,
+  9934112,
+  9934116,
+  9934118
+ ],
+ "rejected_flow_changes": 734,
+ "global_scenario_validity": "NOT_PASSED: conditional stock feasibility, transport/queue anchors and arrival-template replacement remain",
+ "performance": "NOT_EVALUATED: prior aq performance failure is not reversed",
+ "reproducibility_commits": [
+  "609d1cf666c43de595c127b1134a172bb1f9a493",
+  "84ccb5be33d9a4158cc01a768f1d6dcc3eea9a3a",
+  "d74cbac55dc675511d3483888145974854125753"
+ ],
+ "repro": {
+  "experiment": "YR-332-ao-input-report",
+  "code": {
+   "git_head": "c586c44414f1ea7bf9d1b30d1bb13743065a9fdf",
+   "git_dirty": false,
+   "python": "3.13.9"
+  },
+  "profile_id": null,
+  "seeds": {
+   "curve_bank": [
+    9934000
+   ],
+   "calibration_noise": [
+    9934000,
+    9934001,
+    9934002,
+    9934003,
+    9934004,
+    9934005,
+    9934006,
+    9934007,
+    9934008,
+    9934009,
+    9934010,
+    9934011,
+    9934012
+   ],
+   "train": [
+    9934100,
+    9934101,
+    9935102,
+    9934103,
+    9935104,
+    9934105,
+    9934106,
+    9934107,
+    9934108,
+    9934109,
+    9934110,
+    9934111,
+    9935112,
+    9934113,
+    9934114,
+    9934115,
+    9935116,
+    9934117,
+    9935118,
+    9934119,
+    9934120,
+    9934121,
+    9934122,
+    9934123
+   ],
+   "selection": [
+    9934200,
+    9934201,
+    9934202,
+    9934203,
+    9934204,
+    9934205
+   ],
+   "holdout": [
+    9934300,
+    9934301,
+    9934302,
+    9934303,
+    9934304,
+    9934305
+   ]
+  },
+  "params": {
+   "configuration": {
+    "repr": "{'family': 'periodic_linear_24', 'knots': 24, 'sampling': 'uniform distinct parameter pair and uniform convex interpolation', 'sizes': {'train': 24, 'selection': 6, 'holdout': 6}, 'loads': [3500, 7500, 15000], 'noise_draws': 1000, 'noise_quantile': 0.95, 'retry_stride': 1000, 'retry_limit': 20, 'within_hour': 'observed_visit_minutes', 'gate_out_share': 0.5375174906716418}"
+   }
+  },
+  "prereg": "docs/research/v7-discharge/day-shape-prereg.md",
+  "raw_run_repros": {
+   "calibration": {
+    "commit": "d74cbac55dc675511d3483888145974854125753",
+    "tracked_dirty": false,
+    "sources": {
+     "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/audit_day_shapes.py": "cffe2d7ef4ac5385f40010cc9092012816d4c8fa4b98b54269881aa5941ef6bf",
+     "docs/research/v7-discharge/day-shape-prereg.md": "70a8bb0e42f44c479cb92d3d4999097c26b662c0981cc91d404687efdb4502a8",
+     "src/yard_rl/v7/day_shape.py": "6ae9e8de16a29cdacc1517767c31c83edac71717735a13d09fd15872213b55bf",
+     "outputs/reports/yr332_visit_links/demand-profiles.json": "65cbe6d7db06cfe9b163bf20a34b435d919f51d558d9da3be64e6ebfde6f508b",
+     "outputs/reports/yr332_real_order_information/profile.json": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe"
+    }
+   },
+   "inputs": {
+    "commit": "84ccb5be33d9a4158cc01a768f1d6dcc3eea9a3a",
+    "tracked_dirty": false,
+    "sources": {
+     "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/audit_day_shapes.py": "4b5b800d3d51a112e12990c02a083816d9264d76204ac1fea4ccfd767373cd62",
+     "docs/research/v7-discharge/day-shape-prereg.md": "7672295c00eff99b43a97bc9dc58164f6531cb0395e3ee36461486a264a0449e",
+     "src/yard_rl/v7/day_shape.py": "6ae9e8de16a29cdacc1517767c31c83edac71717735a13d09fd15872213b55bf",
+     "outputs/reports/yr332_visit_links/demand-profiles.json": "65cbe6d7db06cfe9b163bf20a34b435d919f51d558d9da3be64e6ebfde6f508b",
+     "outputs/reports/yr332_real_order_information/profile.json": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe"
+    }
+   },
+   "preflight": {
+    "commit": "609d1cf666c43de595c127b1134a172bb1f9a493",
+    "tracked_dirty": false,
+    "sources": {
+     "C:/Users/geonu/orca/workspaces/port_reinforcement/강화학습-판매/scripts/v7/audit_day_shapes.py": "a599eaf76f66d1cf9b2bd2ef227442b36b44709ddc48cb121fa9ed65b886789f",
+     "docs/research/v7-discharge/day-shape-prereg.md": "7672295c00eff99b43a97bc9dc58164f6531cb0395e3ee36461486a264a0449e",
+     "src/yard_rl/v7/day_shape.py": "6ae9e8de16a29cdacc1517767c31c83edac71717735a13d09fd15872213b55bf",
+     "outputs/reports/yr332_visit_links/demand-profiles.json": "65cbe6d7db06cfe9b163bf20a34b435d919f51d558d9da3be64e6ebfde6f508b",
+     "outputs/reports/yr332_real_order_information/profile.json": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe"
+    }
+   }
+  },
+  "artifact_sha256": {
+   "bank-ready.json": "1aef86502ef763887443fdf32de7813ba261f181d6bfbc1478dde0b4d6236a76",
+   "scenario-preflight.json": "7818e618ffbe4188ade16b5a32f980751d1ad0cf2a3f3027248502f0254a26e5",
+   "input-audit.json": "6c30fa1cdb64261c531fa27df7b51b4e76fb5a780172e8c9dfab04865ba9580d",
+   "calibration-periodic_linear_24.json": "f55ce809ba466548dfeb6fd8cbb66916b27f51041233d83ba03234e2bbb574a2"
+  }
+ }
+}

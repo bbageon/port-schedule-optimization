@@ -1,0 +1,37 @@
+{
+  "test_runs": [
+    {
+      "command": "python -m pytest tests/v7/test_day_shape.py tests/v7/test_observed_demand_profile.py tests/v7/test_visit_links.py tests/v7/test_scheduled_demand.py -q",
+      "passed": 37,
+      "seconds": 122.58,
+      "validated_source_commit": "d74cbac5"
+    },
+    {
+      "command": "python -m pytest tests/v7/test_day_shape.py tests/v7/test_observed_demand_profile.py -q",
+      "passed": 15,
+      "seconds": 2.12,
+      "validated_source_commit": "609d1cf6"
+    }
+  ],
+  "failures_retained": [
+    {
+      "stage": "initial input audit",
+      "kind": "audit implementation error",
+      "detail": "Outbound size must come from the target container, not the inbound size draw; corrected without changing environment"
+    },
+    {
+      "stage": "first periodic-24 input audit",
+      "kind": "invalid existing input flow conversion",
+      "seed": 9934102,
+      "load": 15000,
+      "converted_outbound_to_inbound": 44,
+      "blocks": {
+        "Y03": 18,
+        "Y05": 25,
+        "Y12": 1
+      },
+      "action": "conditional preflight with explicit rejection ledger; root correction registered as YR-332-at"
+    }
+  ],
+  "claim_scope": "generator input contracts and stored-code review; no new model training or policy performance result"
+}
