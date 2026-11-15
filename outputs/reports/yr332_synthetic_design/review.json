@@ -1,0 +1,84 @@
+{
+  "schema": "yard_rl.synthetic_demand_design_review.v1",
+  "task": "YR-332-ao",
+  "reviewed_at": "2026-11-15",
+  "status": "DESIGN_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+  "base_commit": "bfd096a59edcea0169f75e46553b94d913e34bf2",
+  "scope": "Literature review and experiment design; no generator change, no synthetic campaign, no training or new performance claim.",
+  "authorization": {
+    "task": "YR-332-ao",
+    "allowed": true,
+    "reason": "미통과 게이트를 직접 해결하는 단일축 보정 작업",
+    "kind": "REMEDIATION",
+    "targets": [
+      "scenario_validity"
+    ],
+    "stage": null,
+    "current_unresolved": [
+      "performance",
+      "scenario_validity"
+    ],
+    "gate_file": "outputs/reports/yr332_linked_retraining/current-gates.json",
+    "gate_sha256": "302e346e396d66bb0545abd9f8c597e515e3e86a59a2b297170cc6e2a0d7c08e",
+    "gate_commit": "bfd096a59edcea0169f75e46553b94d913e34bf2",
+    "remote_ref": "origin/강화학습-판매"
+  },
+  "sources_sha256": {
+    "outputs/reports/yr332_day_flow_volume/measurement.json": "ae59716f0fe9df385522ec1513c63ce3d810ba9b9a86c65e9a12a421dc3ba494",
+    "outputs/reports/yr332_linked_retraining/current-gates.json": "302e346e396d66bb0545abd9f8c597e515e3e86a59a2b297170cc6e2a0d7c08e",
+    "outputs/reports/yr332_order_representativeness/input-audit-corrected.json": "299ca149a10e58e0f2efc4c013f6cb976816698b3c6134aa4747bc56cf89735a",
+    "src/yard_rl/v7/demand_profile.py": "e31327f0b3712ae66699a2df1544d04ad013d9ac1e36dc8b0b149557988a8f36",
+    "src/yard_rl/v7/world/integrated/terminal_stream.py": "0d4538aa0856434104d177a5c2d627656eaf97741d00c269658bfbe12a5f037b"
+  },
+  "observed_development_summary": {
+    "dates": "2026-10-28..2026-11-09",
+    "days": 13,
+    "entered_container_orders": 34304,
+    "physical_visit_definition_count": 27415,
+    "pooled_out_share": 0.5375174906716418,
+    "daily_out_share_min": 0.4538177339901478,
+    "daily_out_share_max": 0.6932835820895522,
+    "daily_out_share_sd": 0.0673092216649751,
+    "normalized_daily_shape_tvd_ratio_median": 1.5246257279582667,
+    "same_hour_visit_count_cv_over_poisson_median": 3.005279576984938,
+    "independent_real_validation": false,
+    "whole_terminal_coverage_confirmed": false
+  },
+  "documents": [
+    "docs/research/v7-discharge/synthetic-demand-design.md",
+    "docs/research/v7-discharge/synthetic-demand-literature.md",
+    ".claude/docs/strategy-history/2026-11-15-YR-332-ao-synthetic-demand-design.md"
+  ],
+  "decisions": {
+    "first_axis": "day_shape_only",
+    "fixed_control": "weighted_mean_of_variable_training_curves_not_curve_at_mean_parameters",
+    "following_axis": "daily_outbound_share",
+    "within_hour_replacement_task": "YR-332-ar",
+    "training_budget_diagnostic_task": "YR-323-d",
+    "independent_evaluation_task": "YR-323-e",
+    "parameter_ranges_frozen": false,
+    "training_budget_frozen": false,
+    "old_default_unchanged": true,
+    "new_training_runs": 0,
+    "new_policy_evaluation_runs": 0
+  },
+  "source_urls": [
+    "https://www.hsba.de/fileadmin/user_upload/bereiche/_dokumente/6-forschung/profs-publikationen/Hartmann_2004_Generating_Scenarios_for_Simulation_and.pdf",
+    "https://conflowgen.readthedocs.io/latest/background.html",
+    "https://conflowgen.readthedocs.io/v3.0.0/notebooks/input_distributions.html",
+    "https://proceedings.neurips.cc/paper/2020/file/11958dfee29b6709f48a9ba0387a2431-Paper.pdf",
+    "https://proceedings.mlr.press/v87/muratore18a.html",
+    "https://ics-websites.science.uu.nl/docs/vakken/msosi/VerificationValidationSargent.pdf",
+    "https://proceedings.neurips.cc/paper_files/paper/2021/file/f514cec81cb148559cf475e7426eed5e-Paper.pdf"
+  ],
+  "validation_scope": "Document and source consistency only. Runtime/scenario/performance gates are not reclassified.",
+  "documentation_checks": {
+    "local_links": "No missing local targets in the five new or updated task documents",
+    "markdown_length": "All changed Markdown files are at most 200 lines",
+    "board_states": "YR-332-ao and YR-332-ar each occur once, in backlog, matching their specs",
+    "evidence_hashes": "All recorded source hashes match",
+    "generator_and_claude": "Unchanged from the base commit",
+    "collected_comparison_pairs": {"9917101": 92, "9917102": 105, "9917103": 86},
+    "pair_count_definition": "Two alternatives sharing one decision_key constitute one pair; each file agrees with result.crane.labeled"
+  }
+}
