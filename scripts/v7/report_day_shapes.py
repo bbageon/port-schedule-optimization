@@ -38,10 +38,10 @@ def main():
     stats['repro'] = repro_stamp(experiment='YR-332-ao-input-report',
         seeds=dict(curve_bank=[9934000], calibration_noise=list(range(9934000, 9934013)),
                    **{split: [r['input_seed'] for r in rows] for split, rows in bank['splits'].items()}),
-        params=dict(family=bank['family'], knots=24, sampling=bank['sampling'], sizes=stats['curves'],
+        params=dict(configuration=dict(family=bank['family'], knots=24, sampling=bank['sampling'], sizes=stats['curves'],
                     loads=[3500, 7500, 15000], noise_draws=1000, noise_quantile=.95,
                     retry_stride=1000, retry_limit=20, within_hour='observed_visit_minutes',
-                    gate_out_share=json.loads(Path('outputs/reports/yr332_visit_links/demand-profiles.json').read_text(encoding='utf-8'))['profiles']['observed_visit_links']['gate_out_share']),
+                    gate_out_share=json.loads(Path('outputs/reports/yr332_visit_links/demand-profiles.json').read_text(encoding='utf-8'))['profiles']['observed_visit_links']['gate_out_share'])),
         prereg='docs/research/v7-discharge/day-shape-prereg.md',
         extra=dict(raw_run_repros=dict(calibration=fit['repro'], inputs=audit['repro'], preflight=preflight['repro']),
                    artifact_sha256={name: sha256_file(OUT / name) for name in
@@ -122,7 +122,7 @@ def main():
 '''
     assert len(body.splitlines()) <= 200
     (OUT / 'README.md').write_text(body, encoding='utf-8')
-    print(json.dumps(stats, ensure_ascii=True, indent=2))
+    print(json.dumps({k: v for k, v in stats.items() if k != 'repro'}, ensure_ascii=True, indent=2))
 
 
 def plot():
