@@ -91,7 +91,11 @@ def shapes():
                     change_percent=100*(bf[f]['mean_s']/af[f]['mean_s']-1),
                     fixed_unfinished=af[f]['unfinished'],variable_unfinished=bf[f]['unfinished'])
                     for f in af}
-                pairs.append(dict(index=i,load=load,rule=rule,by_flow=flows,
+                a26,b26=(r['completion_by_flow']['at26'] for r in (a,b))
+                end26={f:dict(fixed_minutes=a26[f]['mean_s']/60,variable_minutes=b26[f]['mean_s']/60,
+                    change_percent=100*(b26[f]['mean_s']/a26[f]['mean_s']-1),
+                    fixed_unfinished=a26[f]['unfinished'],variable_unfinished=b26[f]['unfinished']) for f in a26}
+                pairs.append(dict(index=i,load=load,rule=rule,by_flow=flows,at26_by_flow=end26,
                     fixed_cost=a['result']['phi_krw'],variable_cost=b['result']['phi_krw'],
                     cost_change_percent=100*(b['result']['phi_krw']/a['result']['phi_krw']-1)))
     groups=[]
@@ -105,7 +109,9 @@ def shapes():
                 for shape in ('fixed','variable'):
                     cells=[rows[(i,load,rule,shape)]['completion_by_flow']['at24'][flow] for i in range(3)]
                     totals[shape]=dict(n=sum(r['n'] for r in cells), total_s=math.fsum(r['total_s'] for r in cells),
-                                       unfinished=sum(r['unfinished'] for r in cells))
+                        unfinished=sum(r['unfinished'] for r in cells),
+                        unfinished26=sum(rows[(i,load,rule,shape)]['completion_by_flow']['at26'][flow]['unfinished']
+                                         for i in range(3)))
                     totals[shape]['mean_min']=totals[shape]['total_s']/totals[shape]['n']/60
                 by_flow[flow]=dict(**totals, change_percent=100*(totals['variable']['mean_min']/totals['fixed']['mean_min']-1))
             groups.append(dict(load=load,rule=rule,by_flow=by_flow,
