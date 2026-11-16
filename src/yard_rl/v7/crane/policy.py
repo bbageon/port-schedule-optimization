@@ -143,7 +143,11 @@ class CraneNet(nn.Module):
             feature_mode=checkpoint.get('feature_mode','legacy'),
             include_flow=checkpoint.get('include_flow',False),
             count_transform=checkpoint.get('count_transform','clipped')))
-        net = cls(**config)
+        if config.get('architecture') in ('mean_context', 'star_attention'):
+            from .context import ContextCraneNet
+            net = ContextCraneNet(**config)
+        else:
+            net = cls(**config)
         net.load_state_dict(state)
         return net.eval()
 
@@ -197,6 +201,8 @@ class CranePolicy(BaselinePreference):
         self.score_once: dict[tuple, float] = {}
 
     def rank(self, sim, crane_id, gc) -> tuple:
+        if getattr(self.net, 'requires_candidate_context', False):
+            raise ValueError('context policy requires rank_many with the full feasible candidate set')
         ref = gc.job_ref
         if ref is None:
             return _WAIT_KEY
@@ -223,6 +229,9 @@ class CranePolicy(BaselinePreference):
         rescored with the original scalar path to protect deterministic ordering.
         Subclasses overriding rank retain their own contract.
         """
+        if getattr(self.net, 'requires_candidate_context', False):
+            from .context import context_ranks
+            return context_ranks(self, sim, pairs)
         if not self.batched or type(self).rank is not CranePolicy.rank:
             return [self.rank(sim, cid, gc) for cid, gc in pairs]
         common = decision_common(sim)

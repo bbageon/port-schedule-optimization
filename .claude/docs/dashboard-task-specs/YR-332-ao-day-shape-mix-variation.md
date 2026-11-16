@@ -95,3 +95,10 @@ SF_SPT 세 배경 평균 변화: 3,500건+3.62%, 7,500건+9.30%, 15,000건+6.05%
 원래36개 배경 은행은 at의 초기 재고 보정으로 복원했다. 반출 비율 변동은 별도 축으로 미실행이므로 전체 ao는 진행 중이다.
 [결과](../../../outputs/reports/yr332_initial_stock/shape-sensitivity.md) · [집계](../../../outputs/reports/yr332_initial_stock/shape-summary.json) ·
 [상세 결정](../strategy-history/2026-11-16-YR-332-ao-shape-sensitivity.md). 다음 착수 기준은 같은 폴더 shape-gates.json이다.
+
+## 네 단계 실행 요청 — 2026-11-16
+사용자가 반출 비율→수식 도착→학습 진단→같은 정보 망 비교까지 실행하도록 요청했다.
+shape-gates.json(104121cb)으로 ao 현실성 보정 허용을 재확인했다.
+곡선 부모와 동일 혼합계수로 날짜별 반출 비율을 보간하고, 학습 비율 평균을 고정 대조로 둔다.
+[사전등록](../../../docs/research/v7-discharge/synthetic-four-step-prereg.md),
+`scripts/v7/synthetic_inputs.py`에 입력 검사와 54회 비교를 고정한다. 결과는 아직 미실행이다.

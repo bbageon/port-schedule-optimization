@@ -64,6 +64,7 @@ class CraneCollector:
         #: 결정 열쇠 → (고른 것의 특징, 대안의 특징). 작업자에게는 안 보낸다.
         self.rows: dict[tuple, tuple[list, list]] = {}
         self.flow_rows = {}
+        self.context_rows = {}
         self.action_digest = hashlib.sha256()
         #: 회계 — **버린 것까지** 남긴다. 라벨 수만 보면 "64건 뽑았다" 가 실제로
         #: 12건이어도 안 보인다.
@@ -126,6 +127,12 @@ class CraneCollector:
             count_transform = getattr(getattr(self._pref, 'net', None), 'count_transform', 'clipped')
             self.rows[key] = tuple(crane_features(sim, crane, gc, feature_mode=mode,
                 include_flow=flow, count_transform=count_transform) for gc in (picked_gc, alt_gc))
+            if getattr(getattr(self._pref, 'net', None), 'capture_context', False):
+                candidates = [g for g in gb[crane].items if g.feasible and g.job_ref is not None]
+                ids = [g.job_ref.job_id for g in candidates]
+                self.context_rows[key] = dict(rows=[crane_features(sim, crane, g, feature_mode=mode,
+                    include_flow=flow, count_transform=count_transform) for g in candidates],
+                    pair=[ids.index(picked_gc.job_ref.job_id), ids.index(alt_gc.job_ref.job_id)], jobs=ids)
             self.flow_rows[key] = tuple(
                 (sim.jobs[g.job_ref.job_id].flow.value,
                  sim.jobs[g.job_ref.job_id].service_mode == ServiceMode.STORE)
@@ -206,6 +213,9 @@ class CraneCollector:
             out.out.samples[-1].job = r['alt_job']
             self.stats["labeled"] += 1
         out.note_worlds(self.pool.n_worlds)
+        if self.context_rows:
+            self.stats['candidate_contexts'] = [dict(key=list(r['key']), **self.context_rows[r['key']])
+                for r in self.raw if r['factual_ok'] and r['forced_ok']]
         return out.result()
 
     def close(self) -> None:

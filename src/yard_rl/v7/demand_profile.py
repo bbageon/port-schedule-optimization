@@ -12,7 +12,7 @@ import math
 import random
 
 SCHEMA = 'observed-truck-demand-marginals-v1'
-WITHIN_HOUR_METHODS = ('poisson', 'observed_visit_minutes')
+WITHIN_HOUR_METHODS = ('poisson', 'observed_visit_minutes', 'dirichlet_minutes')
 DATE_ORDERS = ('random', 'busiest_first')
 
 
@@ -69,6 +69,13 @@ def validate_within_hour(spec: dict) -> None:
         if not set(spec).issubset({'method', 'source'}):
             raise ValueError('unsupported within-hour field')
         return
+    if spec['method'] == 'dirichlet_minutes':
+        if not set(spec).issubset({'method', 'alpha', 'source'}):
+            raise ValueError('unsupported parametric within-hour field')
+        alpha = spec.get('alpha')
+        if not isinstance(alpha, (float, int)) or not math.isfinite(alpha) or alpha <= 0:
+            raise ValueError('positive finite minute concentration required')
+        return
     if not set(spec).issubset({'method', 'dates', 'minute_counts', 'date_order', 'source'}):
         raise ValueError('unsupported within-hour field')
     if spec.get('date_order', 'random') not in DATE_ORDERS:
@@ -111,7 +118,7 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
     out = list(times)
     date_order = spec.get('date_order', 'random')
     meta = dict(method=spec['method'], hours={})
-    if spec['method'] != 'poisson':
+    if spec['method'] == 'observed_visit_minutes':
         meta['date_order'] = date_order
     for hour, index in sorted(hours.items()):
         index.sort(key=lambda i: (times[i], i))
@@ -121,6 +128,17 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
         if spec['method'] == 'poisson':
             offsets = [3600. * rng.random() for _ in range(n)]
             meta['hours'][str(hour)] = dict(n=n)
+        elif spec['method'] == 'dirichlet_minutes':
+            weights = [rng.gammavariate(spec['alpha'], 1.) for _ in range(60)]
+            cumulative = []
+            for w in weights:
+                cumulative.append(w + (cumulative[-1] if cumulative else 0.))
+            if not math.isfinite(cumulative[-1]) or cumulative[-1] <= 0:
+                raise ValueError('degenerate Dirichlet minute draw')
+            minutes = [min(59, bisect.bisect_right(cumulative, rng.random() * cumulative[-1]))
+                       for _ in range(n)]
+            offsets = [60. * (m + rng.random()) for m in minutes]
+            meta['hours'][str(hour)] = dict(n=n, alpha=spec['alpha'])
         else:
             days = spec['minute_counts'][str(hour)]
             order = list(range(len(days)))
