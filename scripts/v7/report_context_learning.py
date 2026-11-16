@@ -7,6 +7,7 @@ import statistics as st
 from audit_day_shapes import read
 from context_learning import OUT,ARMS,SEEDS
 from report_synthetic_pipeline import audit,combined,FLOW_NAMES
+from six_step_learning import sha
 from yard_rl.integrated.repro import write_result
 
 
@@ -20,7 +21,7 @@ def main():
         group=grouped[arm]
         groups.append(dict(arm=arm,**group,vs_rule_percent=100*(group['flows']['TRUCK']['mean_min']/reference-1)))
     paired=[]
-    for arm in ARMS:
+    for arm in ('initial',*ARMS):
         for seed in SEEDS:
             sel=[r for r in rows if r['case']['arm']==arm and r['case']['model_seed']==seed]
             initial=combined([r for r in rows if r['case']['arm']=='initial' and r['case']['model_seed']==seed])
@@ -28,6 +29,24 @@ def main():
             paired.append(dict(arm=arm,seed=seed,**g,
                 change_vs_initial=100*(g['flows']['TRUCK']['mean_min']/initial['flows']['TRUCK']['mean_min']-1)))
     label_reports=[read(OUT/f'model-{s}'/'training.json') for s in SEEDS]
+    corpus=read(OUT/'corpus-audit.json')
+    for r in rows:
+        c=r['case']
+        if c['model_seed']:
+            path=OUT/f'model-{c["model_seed"]}'/f'{c["arm"]}.pt'
+            assert sha(path)==r['checkpoint_sha256'];artifacts[path.as_posix()]=sha(path)
+    for seed,d in zip(SEEDS,label_reports):
+        assert d['seed']==seed
+        path=OUT/f'model-{seed}'/'training.json';artifacts[path.as_posix()]=sha(path)
+        for i,h in d['corpus_sha256'].items():
+            path=OUT/'corpora'/f'{int(i):02d}.json.gz'
+            assert sha(path)==h;artifacts[path.as_posix()]=h
+        for r in d['rows']:
+            assert sha(OUT/f'model-{seed}'/f'{r["arm"]}.pt')==r['checkpoint_sha256']
+    for name in ('corpus-audit.json','network-latency.json','authorization.json'):
+        path=OUT/name;artifacts[path.as_posix()]=sha(path)
+    by_load=[dict(arm=arm,load=load,**combined([r for r in rows if r['case']['arm']==arm and r['case']['load']==load]))
+             for arm in arms for load in (3500,7500,15000)]
     candidate_stats={arm:dict(max_candidates=max(r['probe']['max_candidates_per_crane'] for r in rows if r['case']['arm']==arm),
                              decision=[r['probe']['decision'] for r in rows if r['case']['arm']==arm],
                              total_seconds=sum(r['seconds'] for r in rows if r['case']['arm']==arm)) for arm in arms}
@@ -39,7 +58,7 @@ def main():
             change_percent={f:100*(b['flows'][f]['mean_min']/a['flows'][f]['mean_min']-1) for f in FLOW_NAMES},
             cost_change=100*(b['cost']/a['cost']-1)))
     result=dict(cases=len(rows),groups=groups,by_seed=paired,comparisons=comparisons,
-                fitting=label_reports,latency=candidate_stats,artifact_hashes=artifacts,
+                fitting=label_reports,corpus=corpus,by_load=by_load,latency=candidate_stats,artifact_hashes=artifacts,
                 scope='3 synthetic days, one per load, 3 model initializations; no final real-world claim')
     write_result(OUT/'summary.json',result)
     names=dict(initial='학습 전 MLP',point_current='현재 자료 50회',point_replay='누적 자료 50회',point_half='절반 자료 50회',
@@ -52,6 +71,10 @@ def main():
         '- 평균은 오더 수로 가중한 게이트 진입→작업 완료이며 24시간 미완료 경과시간을 포함한다. +는 더 오래 걸림이다.','',
         '| 방법 | 트럭 평균(분) | 짧은 실작업 우선 대비 |', '|---|---:|---:|']
     for g in groups:lines.append(f'| {names[g["arm"]]} | {g["flows"]["TRUCK"]["mean_min"]:.3f} | {g["vs_rule_percent"]:+.2f}% |')
+    lines += ['', '### 물량별 트럭 평균(분)','','| 방법 | 3,500건 | 7,500건 | 15,000건 |','|---|---:|---:|---:|']
+    for arm in arms:
+        lines.append('| '+names[arm]+' | '+' | '.join(f'{next(r for r in by_load if r["arm"]==arm and r["load"]==load)["flows"]["TRUCK"]["mean_min"]:.3f}' for load in (3500,7500,15000))+' |')
+    lines += ['', '전체 평균에서 물량별 오더 비중은13.46%/28.85%/57.69%다. 많은 물량의 결과가 더 크게 반영된다.']
     lines += ['', '### 한 요소씩 바꾼 결과','','| 대조 → 변경 | 트럭 | 반입 | 반출 | 양하 | 적하 |',
         '|---|---:|---:|---:|---:|---:|']
     for c in comparisons:
@@ -59,8 +82,17 @@ def main():
                      ' | '.join(f'{c["change_percent"][f]:+.2f}%' for f in FLOW_NAMES)+' |')
     lines += ['', '양하·적하는 스트림 계획 시작→개별 야드 작업 완료다. 선박 전체 체류시간과 다르다.',
         '', '### 초기값별 트럭 평균','','| 방법 | 초기값1 | 초기값2 | 초기값3 |','|---|---:|---:|---:|']
-    for arm in ARMS:
+    for arm in ('initial',*ARMS):
         lines.append('| '+names[arm]+' | '+' | '.join(f'{next(r for r in paired if r["arm"]==arm and r["seed"]==s)["flows"]["TRUCK"]["mean_min"]:.3f}' for s in SEEDS)+' |')
+    lines += ['', '### 비교 정답을 맞추는 정도','',
+        f'- 새 학습 정답{corpus["by_split"]["train"]["pairs"]}쌍, 선택용 검사{corpus["by_split"]["selection"]["pairs"]}쌍이다. 후보 행이나 반복 추출을 새 정답으로 세지 않는다.',
+        f'- 절반 자료 팔은{corpus["half_train_pairs"]}쌍이다. 모든 팔의 갱신당128쌍은 복원 추출이며 고유 자료 수와 다르다.',
+        f'- 두 후보의10개 입력이 신경망 정밀도에서 완전히 같은데 비용 차이가 있는 비교는 전체{len(corpus["identical_float32_features_with_nonzero_gap"])}쌍이다.',
+        '- 아래 세 초기값의 평균. 순위는 비용 차이가0이 아닌 비교만, 오차는 전체 비교의 정규화 SmoothL1이다.',
+        '', '| 방법 | 학습 순위 정답률 | 선택용 순위 정답률 | 선택용 오차 |','|---|---:|---:|---:|']
+    for arm in ARMS:
+        reports=[next(r for r in d['rows'] if r['arm']==arm) for d in label_reports]
+        lines.append(f'| {names[arm]} | {st.mean(r["train"]["accuracy"] for r in reports)*100:.1f}% | {st.mean(r["validation"]["accuracy"] for r in reports)*100:.1f}% | {st.mean(r["validation"]["loss"] for r in reports):.4f} |')
     lines += ['', '### 26시간 뒤 미완료: 모델당 세 평가일 합산의 평균','','| 방법 | 반입 | 반출 | 양하 | 적하 |','|---|---:|---:|---:|---:|']
     for g in groups:
         divisor=1 if g['arm'] in ('SF_SPT','FIFO','LWKR') else 3

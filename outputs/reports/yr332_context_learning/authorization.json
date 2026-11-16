@@ -1,0 +1,86 @@
+{
+ "records": [
+  {
+   "command": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr332_parametric_arrivals\\current-gates.json",
+    "--gate-sha256",
+    "7277614591da28f80dfbd00171305eff21e36a85a154fe3e155d853e0e977875",
+    "--gate-commit",
+    "2efa51f3",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-323-d",
+    "--spec",
+    ".claude\\docs\\dashboard-task-specs\\YR-323-d-learning-budget-check.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+   ],
+   "returncode": 2,
+   "result": {
+    "task": "YR-323-d",
+    "allowed": false,
+    "reason": "선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)",
+    "kind": "REMEDIATION",
+    "targets": [
+     "performance"
+    ],
+    "stage": null,
+    "current_unresolved": [
+     "performance",
+     "scenario_validity"
+    ]
+   },
+   "stderr": ""
+  },
+  {
+   "command": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr332_parametric_arrivals\\current-gates.json",
+    "--gate-sha256",
+    "7277614591da28f80dfbd00171305eff21e36a85a154fe3e155d853e0e977875",
+    "--gate-commit",
+    "2efa51f3",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-as",
+    "--spec",
+    ".claude\\docs\\dashboard-task-specs\\YR-332-as-network-learning-design.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+   ],
+   "returncode": 2,
+   "result": {
+    "task": "YR-332-as",
+    "allowed": false,
+    "reason": "선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)",
+    "kind": "REMEDIATION",
+    "targets": [
+     "performance"
+    ],
+    "stage": null,
+    "current_unresolved": [
+     "performance",
+     "scenario_validity"
+    ]
+   },
+   "stderr": ""
+  }
+ ],
+ "user_request": "4번까지 진행해볼래?",
+ "scope": "Explicit four-step synthetic diagnostics only. Formal rejection preserved; no gate relaxation or operational adoption."
+}
