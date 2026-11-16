@@ -1,0 +1,617 @@
+{
+ "task": "YR-332-as",
+ "evidence_commit": "2a593bd1",
+ "scope": "user-requested bounded synthetic diagnostic; no real-terminal deployment claim",
+ "common_gates": {
+  "performance": {
+   "name": "performance",
+   "status": "FAIL",
+   "summary": "미완료가 남아 채택 조건 미충족",
+   "reasons": [],
+   "evidence": {
+    "diagnostic_only": true,
+    "guards": {
+     "initial": {
+      "unfinished26": {
+       "TRUCK": 6848,
+       "GATE_IN": 1710,
+       "GATE_OUT": 5138,
+       "VESSEL_DISCHARGE": 7284,
+       "VESSEL_LOAD": 6308
+      },
+      "vs_rule_percent": 33.74400260192576
+     },
+     "point_current": {
+      "unfinished26": {
+       "TRUCK": 4210,
+       "GATE_IN": 123,
+       "GATE_OUT": 4087,
+       "VESSEL_DISCHARGE": 7665,
+       "VESSEL_LOAD": 5687
+      },
+      "vs_rule_percent": 18.408525028127887
+     },
+     "point_replay": {
+      "unfinished26": {
+       "TRUCK": 5931,
+       "GATE_IN": 1862,
+       "GATE_OUT": 4069,
+       "VESSEL_DISCHARGE": 7874,
+       "VESSEL_LOAD": 6195
+      },
+      "vs_rule_percent": 35.26514740522126
+     },
+     "point_half": {
+      "unfinished26": {
+       "TRUCK": 7791,
+       "GATE_IN": 3876,
+       "GATE_OUT": 3915,
+       "VESSEL_DISCHARGE": 8062,
+       "VESSEL_LOAD": 6572
+      },
+      "vs_rule_percent": 45.132147315515226
+     },
+     "point_steps": {
+      "unfinished26": {
+       "TRUCK": 3419,
+       "GATE_IN": 89,
+       "GATE_OUT": 3330,
+       "VESSEL_DISCHARGE": 7840,
+       "VESSEL_LOAD": 5959
+      },
+      "vs_rule_percent": 3.0957325218966325
+     },
+     "mean_context": {
+      "unfinished26": {
+       "TRUCK": 7218,
+       "GATE_IN": 3808,
+       "GATE_OUT": 3410,
+       "VESSEL_DISCHARGE": 7940,
+       "VESSEL_LOAD": 6334
+      },
+      "vs_rule_percent": 43.08127411856768
+     },
+     "star_attention": {
+      "unfinished26": {
+       "TRUCK": 7076,
+       "GATE_IN": 3445,
+       "GATE_OUT": 3631,
+       "VESSEL_DISCHARGE": 7923,
+       "VESSEL_LOAD": 6256
+      },
+      "vs_rule_percent": 43.00920423024317
+     },
+     "SF_SPT": {
+      "unfinished26": {
+       "TRUCK": 1095,
+       "GATE_IN": 0,
+       "GATE_OUT": 1095,
+       "VESSEL_DISCHARGE": 2243,
+       "VESSEL_LOAD": 1700
+      },
+      "vs_rule_percent": 0.0
+     },
+     "FIFO": {
+      "unfinished26": {
+       "TRUCK": 2462,
+       "GATE_IN": 601,
+       "GATE_OUT": 1861,
+       "VESSEL_DISCHARGE": 2651,
+       "VESSEL_LOAD": 2463
+      },
+      "vs_rule_percent": 42.1022603620067
+     },
+     "LWKR": {
+      "unfinished26": {
+       "TRUCK": 2286,
+       "GATE_IN": 391,
+       "GATE_OUT": 1895,
+       "VESSEL_DISCHARGE": 2639,
+       "VESSEL_LOAD": 2501
+      },
+      "vs_rule_percent": 38.281515212818576
+     }
+    }
+   }
+  },
+  "reliability": {
+   "name": "reliability",
+   "status": "PASS",
+   "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+   "reasons": [],
+   "evidence": {
+    "runtime": {
+     "name": "runtime_evidence",
+     "status": "PASS",
+     "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+     "reasons": [],
+     "evidence": {
+      "git_head": "88a8d6b33c39ce9563f5f18709f370c5d58d4e0e",
+      "stamp": {
+       "experiment": "YR-323-d/332-as",
+       "code": {
+        "git_head": "88a8d6b33c39ce9563f5f18709f370c5d58d4e0e",
+        "git_dirty": false,
+        "python": "3.13.9"
+       },
+       "profile_id": null,
+       "seeds": {
+        "models": [
+         9917101,
+         9917102,
+         9917103
+        ],
+        "collection": [
+         9940100,
+         9940101,
+         9940102,
+         9940103,
+         9940104,
+         9940105,
+         9940200,
+         9940201,
+         9940202
+        ],
+        "evaluation": [
+         9940300,
+         9940301,
+         9940302
+        ]
+       },
+       "params": {
+        "collection": {
+         "repr": "[{'split': 'train', 'index': 0, 'load': 3500, 'seed': 9940100}, {'split': 'train', 'index': 1, 'load': 7500, 'seed': 9940101}, {'split': 'train', 'index': 2, 'load': 15000, 'seed': 9940102}, {'split': 'train', 'index': 3, 'load': 3500, 'seed': 9940103}, {'split': 'train', 'index': 4, 'load': 7500, 'seed': 9940104}, {'split': 'train', 'index': 5, 'load': 15000, 'seed': 9940105}, {'split': 'selection', 'index': 0, 'load': 3500, 'seed': 9940200}, {'split': 'selection', 'index': 1, 'load': 7500, 'seed': 9940201}, {'split': 'selection', 'index': 2, 'load': 15000, 'seed': 9940202}]"
+        },
+        "evaluation": {
+         "repr": "[{'arm': 'initial', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'initial', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'initial', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'FIFO', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'LWKR', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'FIFO', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'LWKR', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'FIFO', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'LWKR', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}]"
+        },
+        "max_questions": {
+         "repr": "48"
+        },
+        "horizon_s": {
+         "repr": "10800"
+        },
+        "behavior_seed": {
+         "repr": "9917101"
+        },
+        "model_seeds": {
+         "repr": "(9917101, 9917102, 9917103)"
+        },
+        "arms": {
+         "repr": "('point_current', 'point_replay', 'point_half', 'point_steps', 'mean_context', 'star_attention')"
+        },
+        "steps_per_update": {
+         "repr": "[50, 200]"
+        },
+        "runtime": {
+         "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+        },
+        "collection_parent_workers": {
+         "repr": "3"
+        },
+        "branch_workers_per_parent": {
+         "repr": "3"
+        },
+        "normalization": {
+         "repr": "'median absolute gap from training half only; floor 1000'"
+        },
+        "claim_scope": {
+         "repr": "'limited synthetic diagnostic'"
+        }
+       },
+       "prereg": "docs/research/v7-discharge/context-learning-prereg.md"
+      },
+      "artifact_hashes": {
+       "outputs/reports/yr332_context_learning/evaluation/000.json.gz": "7774c19ca37f6114891cfdee6681aafc9687e869a0a2ca4f68521ccd5b4f240d",
+       "outputs/reports/yr332_context_learning/orders/000.json.gz": "b7549f24bd1d82cad3e6095dc85c9f9cb809d7ff69593e72ad96becc1cef912e",
+       "outputs/reports/yr332_context_learning/flow-orders/000.json.gz": "38c35dd4e09fd075aa051c5c1b67d5d4f46671e72f557c89c6e5beb2a675e70f",
+       "outputs/reports/yr332_context_learning/evaluation/001.json.gz": "1af889940dcf3e836cb13d35baa7ec765d7fc4ce59e1ff718a3cb6d34f71b7c5",
+       "outputs/reports/yr332_context_learning/orders/001.json.gz": "4377af535c681a72c8b04178fe7268e191182d02987c4a0b12cce737156265e5",
+       "outputs/reports/yr332_context_learning/flow-orders/001.json.gz": "179ce64e4e5842b49a043a78bf41cfc17c082a6de1cd068a20a0dbb6b9b47fc0",
+       "outputs/reports/yr332_context_learning/evaluation/002.json.gz": "46b703fe15cbf068c1dd18ed73e648bbc2d65e5ae0dfe6d8e04908ef37129dd7",
+       "outputs/reports/yr332_context_learning/orders/002.json.gz": "a6cb70d074f3bb4f9ad8f07edc914b338dfe7186fd2710e82a8e282a926d0600",
+       "outputs/reports/yr332_context_learning/flow-orders/002.json.gz": "0e10ba1f6d16afaf1f66b26e95d4df8b6721947af29ba21620a93a8473e63568",
+       "outputs/reports/yr332_context_learning/evaluation/003.json.gz": "8b67462c932aed3e0648353370fefc88b4c6422dcf977cf828b3b23fcbefed46",
+       "outputs/reports/yr332_context_learning/orders/003.json.gz": "fa33bebc6b189df19bf51ff6f2ccc8b2dc950ecb321ca44417f1e65abc999d9b",
+       "outputs/reports/yr332_context_learning/flow-orders/003.json.gz": "19ae6fbc3eb7b730e94e29c53b5612476464dd99def35b798044c8be55352723",
+       "outputs/reports/yr332_context_learning/evaluation/004.json.gz": "79fb033392dd6c503c64c90ae60d2b06c302a8f1151af9bdcca89b23b11b36aa",
+       "outputs/reports/yr332_context_learning/orders/004.json.gz": "c667f2d1e108dcf76e2b16e2983dca83638a15438032b6e615c45b8aecfc6f94",
+       "outputs/reports/yr332_context_learning/flow-orders/004.json.gz": "a023ba6a595a7c41d7ba65513dc9d45f0358f02168dc67ee10ca928740733412",
+       "outputs/reports/yr332_context_learning/evaluation/005.json.gz": "b67d2dd02ce44963b3de7ea9ed302eab9faec2645103d9570d7fad44287f5c0e",
+       "outputs/reports/yr332_context_learning/orders/005.json.gz": "c9cd125477984f5bb5acbbdb10dec3099276c100f6d725701d3d5bc0290bd6fc",
+       "outputs/reports/yr332_context_learning/flow-orders/005.json.gz": "eb923ee1473d836ff16a0cb730c59a032fd09fbb1ee93838dac54fc608582c1b",
+       "outputs/reports/yr332_context_learning/evaluation/006-repeat.json.gz": "c0b28b2c050a9e21188b9b0f546b35c6855c939e3573986594f13d594e28562b",
+       "outputs/reports/yr332_context_learning/orders/006-repeat.json.gz": "644c7b6cf388a77550e2affd28b7fc55976523035a7509888120229679d28e32",
+       "outputs/reports/yr332_context_learning/flow-orders/006-repeat.json.gz": "51299d9143e4a4db26368f7f428298e1994b2250f4ee27fc227e01a99b74037d",
+       "outputs/reports/yr332_context_learning/evaluation/006.json.gz": "1f5a3e064c15574f55f7087e78cd073a5bd88a85cb66b9d5e2dcfe7ab2bd748b",
+       "outputs/reports/yr332_context_learning/orders/006.json.gz": "8f47e120cd8bdbb47f74f1b98b930701cfb86ad28e8a7c037cea3d4767ff9712",
+       "outputs/reports/yr332_context_learning/flow-orders/006.json.gz": "b6809deb7c3e3f68a8b68368599932a83f8b0a30a4e75b925002c5abe29adebc",
+       "outputs/reports/yr332_context_learning/evaluation/007.json.gz": "713bd57ee882b67d6f48e60d8a5038216f6f767f3ac0e2fcc658f1422f86223b",
+       "outputs/reports/yr332_context_learning/orders/007.json.gz": "7a3e9ded5cca1737a3ad7281790e7aa4af819406c81913d5176709d48547f5eb",
+       "outputs/reports/yr332_context_learning/flow-orders/007.json.gz": "fe7b822d3674650fb6ee5231d0f6db0ada6e10b20448135a75579893316f6218",
+       "outputs/reports/yr332_context_learning/evaluation/008.json.gz": "1cf69c63619c200a4959854a8b0f4f0f73e938b3dc83992a99dfccb76740fed1",
+       "outputs/reports/yr332_context_learning/orders/008.json.gz": "2b37ce751a869d14a04b30107412286a4bb73dbb246364aa60e968870528b775",
+       "outputs/reports/yr332_context_learning/flow-orders/008.json.gz": "9c9b8f31001d2fffc30255527a84e05272d53766b8a04441be3ed71cd15186ea",
+       "outputs/reports/yr332_context_learning/evaluation/009.json.gz": "51992a0065fced5e05bbd2460da6468a8cd29612000cb6659934db75108b8804",
+       "outputs/reports/yr332_context_learning/orders/009.json.gz": "a44253b0e61e9cf81ad08511463db16d483788600499cc9b6fd3d2a0bee3d7d3",
+       "outputs/reports/yr332_context_learning/flow-orders/009.json.gz": "90356aec0352837959e0d2b20cc6f61e7d0dd95ad481b62d0f4ba960bb9d10c7",
+       "outputs/reports/yr332_context_learning/evaluation/010.json.gz": "d526c0dcdbaff8a82a95fea8bcef76f50ab78aba2877ad43cf2b1d448c191866",
+       "outputs/reports/yr332_context_learning/orders/010.json.gz": "918964fc37d36362cd4720f87c96bfecf64ef5aac0c7c308718d61b84512e187",
+       "outputs/reports/yr332_context_learning/flow-orders/010.json.gz": "390ba05c3abdc467d8f0ab3029c1f3cc29df4ac2924c0229668f765c1321e416",
+       "outputs/reports/yr332_context_learning/evaluation/011.json.gz": "c144bef332f60d4cff75a3518329f3ae8f78641fc6cd8cc8b622ad752eab901f",
+       "outputs/reports/yr332_context_learning/orders/011.json.gz": "7dddfea3f585ddb1c46744151b705faed27a812cb780050c2e88bd714791110a",
+       "outputs/reports/yr332_context_learning/flow-orders/011.json.gz": "18a34fde8745fff574defb93141fa5a3e80ca4b8c4c97e6a53f9b09a137aebe0",
+       "outputs/reports/yr332_context_learning/evaluation/012.json.gz": "97aba45845179c09293dcc2520a7b986a5e47a8de32b157c77b488678329c855",
+       "outputs/reports/yr332_context_learning/orders/012.json.gz": "7b71839e13c5690db3df6c087fa0badf82fb9eef8ec1369fa846bef230430feb",
+       "outputs/reports/yr332_context_learning/flow-orders/012.json.gz": "9673b71538cc9b82375dfd0f5d853802e3317fe1fac1412cf987da6b4a757f0c",
+       "outputs/reports/yr332_context_learning/evaluation/013.json.gz": "3605c6c1fab7dc51f11a260be508272d8e0f8ea89a01d7f3cda9b2599d937310",
+       "outputs/reports/yr332_context_learning/orders/013.json.gz": "23d6113e7b399122e1cad05627648bb15b62865e95a4926f4981b3514d187b43",
+       "outputs/reports/yr332_context_learning/flow-orders/013.json.gz": "b330d4394d90bf7ff5fe91a46d88c0f241adda784e258ee05d30efdb73db4c0b",
+       "outputs/reports/yr332_context_learning/evaluation/014.json.gz": "257c54a5917d116b5f8981f4f00e4f77c005d2b3a2c3e03a26db1ff92b92b2f9",
+       "outputs/reports/yr332_context_learning/orders/014.json.gz": "eb6ddddc4d8c07f0d1bcff3d2738167567736db983bf4f7c8ff3e4314c6c6f66",
+       "outputs/reports/yr332_context_learning/flow-orders/014.json.gz": "ebf21ab561c5635af8a556f312b6ff5a259e547f283a98b9adfafa2e3b3ee4d7",
+       "outputs/reports/yr332_context_learning/evaluation/015.json.gz": "3e5bc609d75804088b509693dbd3fbc4e1e1517d5ee9e0791d15e27e2dc82103",
+       "outputs/reports/yr332_context_learning/orders/015.json.gz": "dc948cee3bad74ca064e3b702ea914d4b9a3bda1ded7a262b0624ac88a1302f0",
+       "outputs/reports/yr332_context_learning/flow-orders/015.json.gz": "2381f3981044df9b741c9cbf0b26db0e9687c7d4cc006a1731642ec494b22afd",
+       "outputs/reports/yr332_context_learning/evaluation/016.json.gz": "192f16b74a414497ac75e76f887fe0d7a263324c767b8c155022866b31cfdf9e",
+       "outputs/reports/yr332_context_learning/orders/016.json.gz": "ee864ba33f3fb6015d9e5bad21544674a2640935678903fbe9d33199f56e57f2",
+       "outputs/reports/yr332_context_learning/flow-orders/016.json.gz": "8ca599d55053bec04a9f9d189ee3397a3fde37daf30b2fee05b00c5bdfb86b93",
+       "outputs/reports/yr332_context_learning/evaluation/017.json.gz": "de731eef036abab5020eb1852d7ce886fc55585ac4754e623061fc9b89b23da1",
+       "outputs/reports/yr332_context_learning/orders/017.json.gz": "9a421d9ebb8c7e876de28298ee66e6f22d7b633eea9692952b2ee1a18444b1b0",
+       "outputs/reports/yr332_context_learning/flow-orders/017.json.gz": "491ac8802ccfec082018e80dfbf51faf9f722651fc0c37ce5a86dfbe24cb177a",
+       "outputs/reports/yr332_context_learning/evaluation/018-repeat.json.gz": "263fb37e10cbbb72df76f1ffca75ed2785a56f502cb33ab0423b2787a4544be3",
+       "outputs/reports/yr332_context_learning/orders/018-repeat.json.gz": "fb13bd4cfe2d16627541a22c34186e4f4e1381fc3cf009acb9401921184395a6",
+       "outputs/reports/yr332_context_learning/flow-orders/018-repeat.json.gz": "29e5380c027e50586bec5c6e6e961c7d23ba9b55541e220da2ef821be1e6e372",
+       "outputs/reports/yr332_context_learning/evaluation/018.json.gz": "b42944c21932abb70a24c64e789dd042920aa79b58a0613cb01e3d75d10dfe7c",
+       "outputs/reports/yr332_context_learning/orders/018.json.gz": "37bf578398c55407d39e844ee1de15d48ff2df790d3ec7e81958f76be8c697d6",
+       "outputs/reports/yr332_context_learning/flow-orders/018.json.gz": "92ee000816d4cab4dd39259ceaf421f076a9edb032f8e9493c33b71bca3c2138",
+       "outputs/reports/yr332_context_learning/evaluation/019.json.gz": "cd1e2dbc5bb2df38aa62c3206af40302bd8a7ad20b97ac3e932724549104371d",
+       "outputs/reports/yr332_context_learning/orders/019.json.gz": "35610412d49c11388821983c979a61d471b8fdd58c3bcde5ccc6743dadb8e8fa",
+       "outputs/reports/yr332_context_learning/flow-orders/019.json.gz": "3a6302b001d01a90db6933f41ed4e8d556567215a2176328ea1d054c3d331e1f",
+       "outputs/reports/yr332_context_learning/evaluation/020.json.gz": "aad4730502de8b9c2e26161039a0cc57740a6d54cf9be6342dd2162815a5202d",
+       "outputs/reports/yr332_context_learning/orders/020.json.gz": "36f0a133fc3801864be90543e0f440be237d50d4746d1bfcc560c6dcd6abfb85",
+       "outputs/reports/yr332_context_learning/flow-orders/020.json.gz": "205f781d183ab18502874b698934f1f58da86d4cf74a1053d38fd97273a26d26",
+       "outputs/reports/yr332_context_learning/evaluation/021.json.gz": "3061ccff40b29d097158bd83dcad8bc77ca5b594f1677b9c3a4e0ada2046360b",
+       "outputs/reports/yr332_context_learning/orders/021.json.gz": "ee1d1fab4241b3be2f0f856c337aa23305195934882b716ceb647646635fef3b",
+       "outputs/reports/yr332_context_learning/flow-orders/021.json.gz": "e98fb40ddc46cf2db008241d79618141b800f03c7d2246565d58e2c7024d3267",
+       "outputs/reports/yr332_context_learning/evaluation/022.json.gz": "4257f3191185cfabb5c03d4c8fd2cc3bfa1d290b1ec3d593ca794967a69383cb",
+       "outputs/reports/yr332_context_learning/orders/022.json.gz": "4b46be88c155c0b96eddd58ef06fb67c5c955b4a07fb51b38e8c1bcc42db2330",
+       "outputs/reports/yr332_context_learning/flow-orders/022.json.gz": "365df98f73574bb00d36dc1193cca6cb2e0e58395ca4af49f2f7a9529c0747d0",
+       "outputs/reports/yr332_context_learning/evaluation/023.json.gz": "05f61348252c4db72248c35889fd1e9caae897443efb5c98eb96fb12412c19e2",
+       "outputs/reports/yr332_context_learning/orders/023.json.gz": "c25cdb76484a94d36da18ead44a3170bcee6f01177015e1c56f3f31416dcd312",
+       "outputs/reports/yr332_context_learning/flow-orders/023.json.gz": "50d5eff23cfc2dfc45fe00876043d29019364b9470aedf2352022b71dc298dcc",
+       "outputs/reports/yr332_context_learning/evaluation/024.json.gz": "7d83e3fdb8bc3b96b0c49f56bef687688b1295dbcac6f691d05458ab9e50b7a8",
+       "outputs/reports/yr332_context_learning/orders/024.json.gz": "bafa0d4f12e111ad8d139499270a3313b4330a2126e7c5c79349eeabf67a72e1",
+       "outputs/reports/yr332_context_learning/flow-orders/024.json.gz": "9c1d609902dff4815179ce9ef6cd148d4603aabf4d8be628c52ef0e9663e9a7e",
+       "outputs/reports/yr332_context_learning/evaluation/025.json.gz": "344def6ca6c2f11bca28ad935cc3a61eb03dea7d4ae4bdbc11f63d47a65abdd6",
+       "outputs/reports/yr332_context_learning/orders/025.json.gz": "8a346c988a0e9dcbef1f1b5b46b1a1a79d5644fd0a0cb37a5cc09337edafcd9c",
+       "outputs/reports/yr332_context_learning/flow-orders/025.json.gz": "d45a3980f750634ed1f43b2ba52a74d7c38396e0aa416bac45e545b88748bd82",
+       "outputs/reports/yr332_context_learning/evaluation/026.json.gz": "458c1ffb05b2548c7cc9d3c5187b2183f31054631748d32cea1ab6e97411552a",
+       "outputs/reports/yr332_context_learning/orders/026.json.gz": "fc9ed6caf684d48233315000480c02634f24341d3baf40d38c1d2a0c2436d41c",
+       "outputs/reports/yr332_context_learning/flow-orders/026.json.gz": "86a5b4830ff0e89cfb7a5f49ccab36fcca7360e726d0ed7b4435043a77e3753b",
+       "outputs/reports/yr332_context_learning/evaluation/027.json.gz": "63a1f53f00a32d3b693e2bbbc3ad07b337f8fe1c5cfaa9dbb752fe700ae4d569",
+       "outputs/reports/yr332_context_learning/orders/027.json.gz": "d1842d336978f0954381e2f38a9bcfc2f006acc7ef27fb3830b5d46878b389ec",
+       "outputs/reports/yr332_context_learning/flow-orders/027.json.gz": "89172e80955f8c854455a79e7246fd5b0dcf91b231ad16ee243e860c38fa0f36",
+       "outputs/reports/yr332_context_learning/evaluation/028.json.gz": "5a49e4c9fe157a4f9f827d8c3b5211d4a27e277ba1df0f67e2fe58b1e14bca53",
+       "outputs/reports/yr332_context_learning/orders/028.json.gz": "25ddb2ceb80105124f4b1a54a7589c575f8cdd864772ff3d30c5b0522e589e1f",
+       "outputs/reports/yr332_context_learning/flow-orders/028.json.gz": "bb33f73cbfe0ae2b2c8c3e89cc139d32336d35f2eb580f15d8976252d6788f62",
+       "outputs/reports/yr332_context_learning/evaluation/029.json.gz": "3442dcd9fe16cc5214a68da487352c22c5d2779dc583481ef58ead095dbacab1",
+       "outputs/reports/yr332_context_learning/orders/029.json.gz": "0e3a45fbeed35d77a438fc0f4b689e092d315b69b2efdc1ea17941ca9724f4ad",
+       "outputs/reports/yr332_context_learning/flow-orders/029.json.gz": "2da5faa2c471adac1bf283074615b9f70366bcc956260720a84f7a5563745526",
+       "outputs/reports/yr332_context_learning/evaluation/030.json.gz": "46b24a9763772c91b4f37c87df9bccf4beb04fe584b2806bfd56f9a9744553a1",
+       "outputs/reports/yr332_context_learning/orders/030.json.gz": "617447e235acc0fcbfc01f3e59e2c27bbce62211f9b8029fbd6ceb7209fa8d13",
+       "outputs/reports/yr332_context_learning/flow-orders/030.json.gz": "10b3157984fb590b111ed17f00a6470af1db906a2cfada6e2484dfdcf6a9ac81",
+       "outputs/reports/yr332_context_learning/evaluation/031.json.gz": "536af3b4b913b593346f8b1daf1d550cd067c82243117434bdbf9af2aa848e12",
+       "outputs/reports/yr332_context_learning/orders/031.json.gz": "8658d5ab2291b1bfafb51526990ee8f5cf7d5092a2d36c7a7c57451023ae06d5",
+       "outputs/reports/yr332_context_learning/flow-orders/031.json.gz": "8f2d7fc911023c70464d25c94b561126848de9d61ae35e597c40a3ef1c864424",
+       "outputs/reports/yr332_context_learning/evaluation/032.json.gz": "cb66d0675bf575ec036cca3f70fafc4cc2d0666c8a00165d3aed92b24baed142",
+       "outputs/reports/yr332_context_learning/orders/032.json.gz": "a36ca5c2829e3ab3ed3598b0d1e027f7c8372dd3090c967752ba72d47cbbc46c",
+       "outputs/reports/yr332_context_learning/flow-orders/032.json.gz": "a2d97ba8ce6e2b803f56d8f15550f390655db442d46ad8d1e8e76f4f70d3a051",
+       "outputs/reports/yr332_context_learning/evaluation/033.json.gz": "6088eab8a75d56aa0aabe6c35ca6cee9c6fbbce96e07e240a8ee553894d3b363",
+       "outputs/reports/yr332_context_learning/orders/033.json.gz": "384293bd95ee2b4b3c1bc006111df5489f67602686079e474373ec7cf66f07b9",
+       "outputs/reports/yr332_context_learning/flow-orders/033.json.gz": "9565b4687c50c5627f1deab47f2c5f68503e11af60cf299ce389d70f70853a27",
+       "outputs/reports/yr332_context_learning/evaluation/034.json.gz": "6f91ddb310a1e48117af0028f6c289c11cc5336a392509263917789094a79cec",
+       "outputs/reports/yr332_context_learning/orders/034.json.gz": "4a21a9dd07b5620af189c8de5adb3cb9be719e363575cbb4ea81dd1099c94fef",
+       "outputs/reports/yr332_context_learning/flow-orders/034.json.gz": "83d85a4eea37176b8fd46c91104c5508ab3bb41b9f2f6bca1d3ceb90811b47a8",
+       "outputs/reports/yr332_context_learning/evaluation/035.json.gz": "30283b9051f8055940121594daeb0f353559bd9809c28bb6183e108c727c3be9",
+       "outputs/reports/yr332_context_learning/orders/035.json.gz": "96b11d4090a22600b1f5254aa901b9f9f8cb442e0c2ecd6dc69b3879b54c93a0",
+       "outputs/reports/yr332_context_learning/flow-orders/035.json.gz": "3712865dc0b23ac52fa65276a6f00fb3a7ea7358c8f14d8bda3fffa030e0bb04",
+       "outputs/reports/yr332_context_learning/evaluation/036.json.gz": "6961e5b091c5fff750ce7df40873ed58bb8d451c63dea78b48190b16c7fe2e69",
+       "outputs/reports/yr332_context_learning/orders/036.json.gz": "86661d0896e545b872a3123e54ca5fd29838ce72c749bd616b4b546cc4c3a38c",
+       "outputs/reports/yr332_context_learning/flow-orders/036.json.gz": "e70a66eb0c5ef16d04529d07771060764f0ed9cccacf9fb352c8387db55ee334",
+       "outputs/reports/yr332_context_learning/evaluation/037.json.gz": "7103c6ecbed6d51de53761d3942a9c1b7dfc2cf058eed4229a56eec791bb0b3d",
+       "outputs/reports/yr332_context_learning/orders/037.json.gz": "079cd0dcbeca989ce92146830d044c6fd69993be90fcfbd36ced360ad04fc187",
+       "outputs/reports/yr332_context_learning/flow-orders/037.json.gz": "735f48725e08884d1edd5ee4ceafcb4284b2fa8b7accfbfec5aa85537d0affd0",
+       "outputs/reports/yr332_context_learning/evaluation/038.json.gz": "23364186aa167470214e35f8a5a54707a65ea5bd5d2135f0ba7b686c80811969",
+       "outputs/reports/yr332_context_learning/orders/038.json.gz": "ae1f1aab7d053bc125e497ef518a137ad8016fb80c5d329286c6c48a0ea19d66",
+       "outputs/reports/yr332_context_learning/flow-orders/038.json.gz": "c9dc1dbeaa714e05abbd60e2718315cc7028b104840eaa6a583abb45bf6effa9",
+       "outputs/reports/yr332_context_learning/evaluation/039.json.gz": "8f42acbfc8d09335bb3bd25e99b7096dc76611c0b24f3bc89bba0ddb781313ac",
+       "outputs/reports/yr332_context_learning/orders/039.json.gz": "afd363531ca041bc6545a7b08c7357e78082ef380aaa8474ad3844d6a58a0088",
+       "outputs/reports/yr332_context_learning/flow-orders/039.json.gz": "1627857a5c7ca61a27ae7f0043fc3dab6270263931104fd1d9fa6244b2b4e846",
+       "outputs/reports/yr332_context_learning/evaluation/040.json.gz": "0928033ba4d981b982f9b53f09844aa1b329c3649b6418f280982cbb7799fa48",
+       "outputs/reports/yr332_context_learning/orders/040.json.gz": "88a9a92776dc777aee1545db95ad4b8498607988f50ffbbba968fcebcf5f711f",
+       "outputs/reports/yr332_context_learning/flow-orders/040.json.gz": "7a19a06f7716a353650378c7b3c1a9fc4c85fae938a670bc9832cbfae6fc017c",
+       "outputs/reports/yr332_context_learning/evaluation/041.json.gz": "9815d7d92366e3fcbb2fbbaf350752899f653cb7808c9ca27c5aafa8937850c2",
+       "outputs/reports/yr332_context_learning/orders/041.json.gz": "0ea1ea4d72eca017948d1f2d9000eec85090ef67cbb737c2f3fd49e7a752ecf9",
+       "outputs/reports/yr332_context_learning/flow-orders/041.json.gz": "6bf2ef6af4f152fccd04b92bd3bb54ad24e9e11476ad0ec60b58675f56fd151f",
+       "outputs/reports/yr332_context_learning/evaluation/042.json.gz": "8f444cd37f04dd46cf88d2547b8f552b9eea7224902f5bebc1012a211f769200",
+       "outputs/reports/yr332_context_learning/orders/042.json.gz": "370e29e15abe3f979d19bd5d96397ac3462f97e0c28287353bfad1a0698a7b37",
+       "outputs/reports/yr332_context_learning/flow-orders/042.json.gz": "2a78ecf7a85ab91f09751d315d095d941c9b52e93adb911a4a0aa843eaa351a1",
+       "outputs/reports/yr332_context_learning/evaluation/043.json.gz": "93c3cb1bd5164bf30486098a579c1e7c49c949bb1e4cf57de2751aaae57d7a7c",
+       "outputs/reports/yr332_context_learning/orders/043.json.gz": "a5b3580263a5848e0fffb54b12b3ce82a038bd953083cf0a9395d6f2386a62d3",
+       "outputs/reports/yr332_context_learning/flow-orders/043.json.gz": "f5d6167a8d8344a6c1cd216203d721575065b73a91723e1241008d31b3559ce5",
+       "outputs/reports/yr332_context_learning/evaluation/044.json.gz": "c8c1b57e66129c5e7abcde4a0f238394de0bde1f24ec08ad882d14f8c2ef0089",
+       "outputs/reports/yr332_context_learning/orders/044.json.gz": "c7ba792fe0ea5d46cd9c9115018bb05875c415c0c04e2917a4cbbc5de09f55ee",
+       "outputs/reports/yr332_context_learning/flow-orders/044.json.gz": "9dcde53ae64c2c6f4a4f7fb8a6709f225ab4d01c85437a0667aaed9a2228cfcc",
+       "outputs/reports/yr332_context_learning/evaluation/045.json.gz": "39150ef5df91bcc779906a6088a9a131436974df91c4a64f2221a38cabc07432",
+       "outputs/reports/yr332_context_learning/orders/045.json.gz": "513fc0b91784aae717bc8f3e9ff651831352d1ac0493b9c67d3438c853a43b6d",
+       "outputs/reports/yr332_context_learning/flow-orders/045.json.gz": "653ac452f2f577704f8eddd58dd9e124f5ee7cdc902c5be70e91ab0a4ce4d331",
+       "outputs/reports/yr332_context_learning/evaluation/046.json.gz": "759b81eac4addb0e7756c08da2b66dcb5cee72262925c9b312d4cb9b0b7db72e",
+       "outputs/reports/yr332_context_learning/orders/046.json.gz": "c907d3bf723ed9c7dbe945ce59a51a57ac8739c893b8f2cbc77ed0cbf22c57ba",
+       "outputs/reports/yr332_context_learning/flow-orders/046.json.gz": "e04e44f3971ccd30658d5bc22afccaca791b3dfbddf8712fc208f7ea5bb6c9c8",
+       "outputs/reports/yr332_context_learning/evaluation/047.json.gz": "9afed59ccc319782969d521915f64493d908ac33507880532d2a84da411f0c7f",
+       "outputs/reports/yr332_context_learning/orders/047.json.gz": "ccebfcdb4cac816cbea040c97669c8bb228cfcd996d681eca73ac47c5985affb",
+       "outputs/reports/yr332_context_learning/flow-orders/047.json.gz": "fb26e11e5fc24bf565f7dc133bfe225877e3b465cad12bf2fdd4f55e68eff48f",
+       "outputs/reports/yr332_context_learning/evaluation/048.json.gz": "0adf3c18be78ac52f35ac30b4d996efab89d867b9538ea9e296cf99cb6f2afa7",
+       "outputs/reports/yr332_context_learning/orders/048.json.gz": "751d088116a09036154ab796f2e1f9357405471b5ca31ed3d714789ab2581d91",
+       "outputs/reports/yr332_context_learning/flow-orders/048.json.gz": "1d7d68bb72766bc8b61cc721ce42af0a9ca6b38ebf890e5de993268b0b93f446",
+       "outputs/reports/yr332_context_learning/evaluation/049.json.gz": "ed23aea0be63ebcf75ffdd1a59586c7ad8a6cf57def51e101efc4c905902d4c9",
+       "outputs/reports/yr332_context_learning/orders/049.json.gz": "6e6333a7946e17f5e933a833af0bfa7b714113ee20f72fa2abe6a800d548c3e6",
+       "outputs/reports/yr332_context_learning/flow-orders/049.json.gz": "e104a1c65b343d8128593e7a61f1e6c51e3b143abb643b91f009ade91e2ef257",
+       "outputs/reports/yr332_context_learning/evaluation/050.json.gz": "ad7f50d9668d1af8a7c7c7ef35728cf39024b4a4513ddd68e3de495d5074a0e4",
+       "outputs/reports/yr332_context_learning/orders/050.json.gz": "1bf0a301eee093c67b0e6d6c139a30088e40412920e8d464b0b439586be0320a",
+       "outputs/reports/yr332_context_learning/flow-orders/050.json.gz": "708161f10b5b555060b7ac8628c9fe2efee250ca853ef20053042e68532fefe6",
+       "outputs/reports/yr332_context_learning/evaluation/051.json.gz": "2cdfbd724b5e3781885f48bf86aecf44ec5ed0335f0e7b5984558683363e0e29",
+       "outputs/reports/yr332_context_learning/orders/051.json.gz": "7146fb05b3e997c3aa799ebcb770bc4e7e626fcba732d74d47c349b317dacfad",
+       "outputs/reports/yr332_context_learning/flow-orders/051.json.gz": "b9015c7b52513576a9f5f594742ace45e7fb3c5713e74012abc29bac39b471fe",
+       "outputs/reports/yr332_context_learning/evaluation/052.json.gz": "42adad2acf494e08530648c44343a5cf37a3fc952b803b426f63e71bf7f2b708",
+       "outputs/reports/yr332_context_learning/orders/052.json.gz": "aa959589ce38865140b891f10535070441e3f0fed75ff4075c53f353d3da254f",
+       "outputs/reports/yr332_context_learning/flow-orders/052.json.gz": "fe1d17308881c5cf975d77670cf0a2d3f7a60454eedc6773621e91d757ef9429",
+       "outputs/reports/yr332_context_learning/evaluation/053.json.gz": "b084874654fed3a98024a3a665cc307fc82674f9a35053e0be0851b6f7a56ab9",
+       "outputs/reports/yr332_context_learning/orders/053.json.gz": "b5c5a68bb10c51ba07d65fb401246a6d88abcb8755f58a263095aa4ec583af12",
+       "outputs/reports/yr332_context_learning/flow-orders/053.json.gz": "d809519803ee80564dfe9b12408e9205ff6b2bec739edca1bb8e8dfbecf28029",
+       "outputs/reports/yr332_context_learning/evaluation/054.json.gz": "b2a746bdbcedfc168c0c608c95b8dd49ee3c39e9f40bee503158205a5151d6d6",
+       "outputs/reports/yr332_context_learning/orders/054.json.gz": "e4c3c3e7b179bc38fd947faebed6cf30469095099366226b56adca85942cba73",
+       "outputs/reports/yr332_context_learning/flow-orders/054.json.gz": "10c3d56d849e1de85ea73cfa23c6ad6a9c3f6df8ee65a55b61606c7297bb80e1",
+       "outputs/reports/yr332_context_learning/evaluation/055.json.gz": "9c01d10338a6d0dfe33c00b1eefea479610872a8f9f1d792700e4b5dd749348d",
+       "outputs/reports/yr332_context_learning/orders/055.json.gz": "13191b20ea8f9ff49e5fbf047655af16ec2d82117a7fb258e4d736401b926b50",
+       "outputs/reports/yr332_context_learning/flow-orders/055.json.gz": "3b9a17330b6cb8e05c18cecc41d90f74a06a52c059abeccd52c00ebf666def79",
+       "outputs/reports/yr332_context_learning/evaluation/056.json.gz": "6003706ef32dd20bf88caec825939498602ed0080284996c0d789024b6dfefb3",
+       "outputs/reports/yr332_context_learning/orders/056.json.gz": "39051cb0a12d7e41e127664ace122a4c51183a4351e04b6849de6f46e03ec232",
+       "outputs/reports/yr332_context_learning/flow-orders/056.json.gz": "3bce3c048878ba9e8682245bd40167a7ffb92c02e321d3fb948682adb1345836",
+       "outputs/reports/yr332_context_learning/evaluation/057.json.gz": "0d4cf3e93c0fae26c9c2fcb101c33441957daaf9b9d8d72c0611ff17ec8ba73e",
+       "outputs/reports/yr332_context_learning/orders/057.json.gz": "854ff49fef02344483bd087fc912e0d7963d4019fdb2c46d7beb5ec53df51a78",
+       "outputs/reports/yr332_context_learning/flow-orders/057.json.gz": "e9b4d2b00394b38d2e325e42307cc5073711845defb3d8145dbd481dd4f996a1",
+       "outputs/reports/yr332_context_learning/evaluation/058.json.gz": "4026c98ef0e2cf1fb3471e057fcfdb6d6ca6897b929afd0451a906b266aa7ed7",
+       "outputs/reports/yr332_context_learning/orders/058.json.gz": "45935eb14dc6e33ee03c4aaab0a3dc0d58b4663911a9630e17ee7471d576da07",
+       "outputs/reports/yr332_context_learning/flow-orders/058.json.gz": "deb4db98a6d26ebf4be1c4bf1e24a425881fb989d69fbda2c364678a77199e6a",
+       "outputs/reports/yr332_context_learning/evaluation/059.json.gz": "4910d04a40ea7d63d04af64df90abf02e733399cebc27231abfd18ef4225d9f0",
+       "outputs/reports/yr332_context_learning/orders/059.json.gz": "0c9cefbe561504b871c45184d3c1678383b1eeb636bb0ac42dc0c3142f63cd96",
+       "outputs/reports/yr332_context_learning/flow-orders/059.json.gz": "674c554daa1fa35602e095b391e2b15f307c2fe82e2970306606848f0e39afbc",
+       "outputs/reports/yr332_context_learning/evaluation/060.json.gz": "8b4a67643b79aadd6ed177376d0ba57d417ad1858fd3839eb7c9b6174d5fe501",
+       "outputs/reports/yr332_context_learning/orders/060.json.gz": "d27e4d08738e01c7d4b6edeef6530815fd4d39787fda04f8e2c04c15166a2b22",
+       "outputs/reports/yr332_context_learning/flow-orders/060.json.gz": "f8e59616f4e5de2239b3e69053aadbaa4189b1ff39cee0acfcc87bd0ba32c63a",
+       "outputs/reports/yr332_context_learning/evaluation/061.json.gz": "33bc0551f8d581d2bb49c1ff18304537da9633ff26079ae7e00df220b1c7ac11",
+       "outputs/reports/yr332_context_learning/orders/061.json.gz": "22722c2a2417e81d5289761bc0a0821ba7e8c9ac4e9ec9de96e1f66bb4012e8c",
+       "outputs/reports/yr332_context_learning/flow-orders/061.json.gz": "5c1593c3881f3c9f312055372092f1e6a8d8e10a028332af60ff806f183bae8c",
+       "outputs/reports/yr332_context_learning/evaluation/062.json.gz": "6329c68d9d10ae724cc2ee4b87a86affe931e005761748649ea8703c924ec199",
+       "outputs/reports/yr332_context_learning/orders/062.json.gz": "1f45899dea54809d25bdb4d314407229c86671bcaf6dc3d51bfc357d08493bb4",
+       "outputs/reports/yr332_context_learning/flow-orders/062.json.gz": "01c508c2e193eba6a10c3994e537fe1dbc40eb4c205cab791e273cf6e1ffb924",
+       "outputs/reports/yr332_context_learning/evaluation/063.json.gz": "da5c8bdac8d77c978c13b5559e7dabbd5ab6278b497164f12a4aa3c30e3b4d44",
+       "outputs/reports/yr332_context_learning/orders/063.json.gz": "f3a19ea657104a8efd0f25eefde07bea9e908f90811c4ff71afa212cfa100385",
+       "outputs/reports/yr332_context_learning/flow-orders/063.json.gz": "17e05069ba2aa475ea9965442abbf066cfefe9358a5a456011c3601a165f77b4",
+       "outputs/reports/yr332_context_learning/evaluation/064.json.gz": "7583ef41c0eb93015ea331cdd7705d6151b1f566859c13f22764732afc0da0d5",
+       "outputs/reports/yr332_context_learning/orders/064.json.gz": "6205b64bd3cc7b0dc14a74398905c7a90e5cfbf32eabcf68af69028a125e5501",
+       "outputs/reports/yr332_context_learning/flow-orders/064.json.gz": "8f41b2d7a397ba269271bb1c528326d4df8b669eaf73e8f268f5632148757bff",
+       "outputs/reports/yr332_context_learning/evaluation/065.json.gz": "ac14de2e3c4d56488bee26ba43f52f05bd8fcaa62bda42629db49da14726f91b",
+       "outputs/reports/yr332_context_learning/orders/065.json.gz": "2b30efffe23a64d2fd3882e2bb39f34fc4adbc0f2c24fec46d833a3f9fe48a5b",
+       "outputs/reports/yr332_context_learning/flow-orders/065.json.gz": "7abb7afd809202da9ff82a172f69e3e15900a4de619b7120dc0cbcc135dfe28e",
+       "outputs/reports/yr332_context_learning/evaluation/066.json.gz": "0af1ff0ad7292ec57cb1250b7c7730702d254b481a6de4f2bd1436d14248422f",
+       "outputs/reports/yr332_context_learning/orders/066.json.gz": "f5f90ace3ad8296294b59e943f7779404a2bebd583c7443ac8db5e4c9842fed3",
+       "outputs/reports/yr332_context_learning/flow-orders/066.json.gz": "145fff5bf7283cdeb8ce0543bb192a6b7681893978c30c89c6889fb6cced6528",
+       "outputs/reports/yr332_context_learning/evaluation/067.json.gz": "6b4e2470287b11c93f4c628bf134b8e79c542fe3fa6a8ef7ce30fee650459fe0",
+       "outputs/reports/yr332_context_learning/orders/067.json.gz": "53406dd3cb3248f744485f5c7e8aa8f791e244f3231139bc41a0d2d953d2dd70",
+       "outputs/reports/yr332_context_learning/flow-orders/067.json.gz": "80d4d2eaac65e70dc8fa51dec33043109eb24d41d4ca5099917925c7b4875925",
+       "outputs/reports/yr332_context_learning/evaluation/068.json.gz": "996a8bf6fec4db8e23a1c904522a3b71d890d5a24df79f45da99ffe9a0371067",
+       "outputs/reports/yr332_context_learning/orders/068.json.gz": "9288dd61e80ce796f1f67925eb1db9f78b4e79346f796d58088db3436d0fe336",
+       "outputs/reports/yr332_context_learning/flow-orders/068.json.gz": "be0fd32932e7a7b8aaa090ee07c0423ff9773334bf718be0dcae32269dea4d5c",
+       "outputs/reports/yr332_context_learning/evaluation/069.json.gz": "7ef9a6be7e834b98e43eb2c5732137b131695d1bac8d6965a1c05441722669df",
+       "outputs/reports/yr332_context_learning/orders/069.json.gz": "d0f4bf6df38ca9fa198fb0a20f99b77f16624c9e80c5b4468128a894240e7c2f",
+       "outputs/reports/yr332_context_learning/flow-orders/069.json.gz": "41a3c124a25ee11740a9bf5a65d63bc01a1f82c07b26bddffc36aefd5f988cc5",
+       "outputs/reports/yr332_context_learning/evaluation/070.json.gz": "cc78c9a26ecaa19071f78a06f23b55b4156bafada46d33e8baa2ae14eac7e028",
+       "outputs/reports/yr332_context_learning/orders/070.json.gz": "d3b1b75e65a7ba22097e11cdf7cf978b7595cab2f182a53c01f7c494bbd995aa",
+       "outputs/reports/yr332_context_learning/flow-orders/070.json.gz": "457fc517748b9d59a2a94151d46216f4e8709bb494e137b0224fce5d787c0b11",
+       "outputs/reports/yr332_context_learning/evaluation/071.json.gz": "1cc0a439749724808f0db68b6e4641b7ad0436cc07bfc14bad9e2cb4c873cd18",
+       "outputs/reports/yr332_context_learning/orders/071.json.gz": "00615055cddf248450fe0c6b5e6814c15cc922bc184dfeec2890233f90652112",
+       "outputs/reports/yr332_context_learning/flow-orders/071.json.gz": "73ae80b6e3e69f2dbaf75965912f192a53b36c086851a3d61557641ed998088e",
+       "outputs/reports/yr332_context_learning/model-9917101/initial.pt": "0d4737ccb983d6659646dda40abeb6ba348e8b3ec30063dec24be0bf425c6e00",
+       "outputs/reports/yr332_context_learning/model-9917102/initial.pt": "6b6ca6b807ca738370f84716f15d90de02020c00c1016cca6ffc3b8ffae1542a",
+       "outputs/reports/yr332_context_learning/model-9917103/initial.pt": "6d0e5cae4d05ab28a5d499eae3764bf4f7da2a7fc9a4d96efdea609971cd93a3",
+       "outputs/reports/yr332_context_learning/model-9917101/point_current.pt": "8fbc006d8d34464194a22a3bc7cbd3f13bc24d54e2d3bbcfd686db88cd655e91",
+       "outputs/reports/yr332_context_learning/model-9917102/point_current.pt": "906377376e76dc7c7d070a37b69d1d73fb3c404105d04aa22b6a7b34327f0bff",
+       "outputs/reports/yr332_context_learning/model-9917103/point_current.pt": "eeac1ed7a0f152603c422c8b527f499d430328b494d1c0ecd1dec7d8386c0e10",
+       "outputs/reports/yr332_context_learning/model-9917101/point_replay.pt": "6fded37b1dc75eac5850db48c7dc8492a7fecc61db3487186769b6dab827d728",
+       "outputs/reports/yr332_context_learning/model-9917102/point_replay.pt": "dc8526d3d8d43c771b0c22be44131eacf2cf3668ba1927cb1838336e14eaf282",
+       "outputs/reports/yr332_context_learning/model-9917103/point_replay.pt": "bd9450d35a70c509f0a71c87a7ec57d36b19b0947983dcca2be348571534a067",
+       "outputs/reports/yr332_context_learning/model-9917101/point_half.pt": "547419b1d77ffea67b1cc258fbc14bd39692ed29a624441036a05d7d892fe995",
+       "outputs/reports/yr332_context_learning/model-9917102/point_half.pt": "11df9e574b98f357470e7dd595af7da759da346a77cbb321b28054c001db1b0c",
+       "outputs/reports/yr332_context_learning/model-9917103/point_half.pt": "67a7559bbf9eb1a65b61ee26c97ae0cb435fb5d81dbb7a1072720b8646e08821",
+       "outputs/reports/yr332_context_learning/model-9917101/point_steps.pt": "834e4bbe4b719ffb3a2d6f7d2a0943410c214d8187b382e50beefefa497b54e7",
+       "outputs/reports/yr332_context_learning/model-9917102/point_steps.pt": "9e1d7985742cc1876dea77a4ef265347731d85d29d1da055e5f04f2e92dbc529",
+       "outputs/reports/yr332_context_learning/model-9917103/point_steps.pt": "6e523d7597da28658db4d8711afa44314f86b5e90ee4e29fe61a98129441a3f7",
+       "outputs/reports/yr332_context_learning/model-9917101/mean_context.pt": "c96ed23f64aa8fbd7fe62465128d79c45d570b22429af02ad8ad611cafd32c77",
+       "outputs/reports/yr332_context_learning/model-9917102/mean_context.pt": "44b006a9d80cf1f20c8e3c4397403d2ce826058821c076033f01ff1a1a6af487",
+       "outputs/reports/yr332_context_learning/model-9917103/mean_context.pt": "40b857dd9c767bced8a28df8a8c966f9914d68ae5479fcdac4ea4e8ba8fc382c",
+       "outputs/reports/yr332_context_learning/model-9917101/star_attention.pt": "2a3b8e703fd2ba77d2a5dd56d22ff5fbd4a320644d1c959e87677a5ee8e7b9d4",
+       "outputs/reports/yr332_context_learning/model-9917102/star_attention.pt": "efb0b370a6ea8c7fa0dc8ac84830ec05e10297c70fbfc384507562c502e7a35c",
+       "outputs/reports/yr332_context_learning/model-9917103/star_attention.pt": "f1db1d93c2eb1863d4674ca4ed93c15ce7f08947ab305396912d9907779d524c",
+       "outputs/reports/yr332_context_learning/model-9917101/training.json": "0caa387eb43e671a2ccf9cd86dc24b0b442659ff55c4cd8c2291acbc1de39532",
+       "outputs/reports/yr332_context_learning/corpora/00.json.gz": "71f46ba4f8faaa5e8ca11b72fb0646685763e138a02897ef2a1b1370edf8058e",
+       "outputs/reports/yr332_context_learning/corpora/01.json.gz": "4ce9107a12a5c90213e64dd6b97c2020f325d13853b33954ff6cd1c8978976c9",
+       "outputs/reports/yr332_context_learning/corpora/02.json.gz": "3a251795b59cf7d52d5b2baa3f9f98292af4dd688a3cadb31df25c5ad08625a5",
+       "outputs/reports/yr332_context_learning/corpora/03.json.gz": "02878823761a22f2ca6138ca12ae53dde3f0bc71180fbd5ca507b2fad3170a4e",
+       "outputs/reports/yr332_context_learning/corpora/04.json.gz": "8b1730910cf68ce4fb614d76d34399ec9807cb2a8809d6ee24b0753c75f55f1a",
+       "outputs/reports/yr332_context_learning/corpora/05.json.gz": "4c0e3e6a02e98f3f55a760abcbafbf84e5094b5c99fd88941b44f6d0e6a568ba",
+       "outputs/reports/yr332_context_learning/corpora/06.json.gz": "64ae6b872fba2c976af89d92865e52c48bcb802db0cd10a15dc06c46f08cd58e",
+       "outputs/reports/yr332_context_learning/corpora/07.json.gz": "620149f417be7cea96122ac8bfef8ad52dbf8a77ab4f38c82a8b88bfa1c3144b",
+       "outputs/reports/yr332_context_learning/corpora/08.json.gz": "f23115a7f3c276184ce93e387038912a5ce00a5aaf867f937b9967da325d6618",
+       "outputs/reports/yr332_context_learning/model-9917102/training.json": "ed215540d7d9e8ff80abd0223b5fda9eee1c18d379c062f782442dc2d7b6de44",
+       "outputs/reports/yr332_context_learning/model-9917103/training.json": "5adbb47d8e36db4032d3f2f4ca961692498a14c5c7fdb5ebe7225602e118c69c",
+       "outputs/reports/yr332_context_learning/corpus-audit.json": "6821b97af7ea608a563cfbd8a1f397994a24b61704e22c48221db25fe186d983",
+       "outputs/reports/yr332_context_learning/network-latency.json": "b2eb306ff8cd5dd0c3d3a75085322a8e15f7d73b1e284c3c2cb0846529609b7a",
+       "outputs/reports/yr332_context_learning/authorization.json": "da1841b7c53760fc3513367aba878adc294b5cef773bdc799fbf5dbc58a77cad",
+       "outputs/reports/yr332_context_learning/training-audit.json": "401692d38ca8a545eea1624bb497e253719c0bbbcf9516d3ea878779e679a3f0",
+       "outputs/reports/yr332_context_learning/score-offset-audit.json": "7b18bdbaec7450162f831799836644aa456174da02c73848b522fd2fa4896b9d",
+       "outputs/reports/yr332_context_learning/summary.json": "3b34799a6147bea59d9aa9a36e82f564a08b70be6a9229493a2dddc26b44253f",
+       "outputs/reports/yr332_context_learning/README.md": "8d409bd9e51039af73f0bcba8f18fa33c2fcc57d0c805321436fe9d4ab1d795c",
+       "outputs/reports/yr332_context_learning/campaign.json": "02120cdeeb1aac14d24cad9e3307de4710c01d9509165eb1294ba93bcde6adff"
+      }
+     }
+    },
+    "dashboard": {
+     "name": "dashboard_code_alignment",
+     "status": "PASS",
+     "summary": "Dashboard·spec·코드·증거가 일치함",
+     "reasons": [],
+     "evidence": {
+      "task_id": "YR-332-as",
+      "expected_state": "done",
+      "board_matches": [
+       "done.md"
+      ],
+      "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-as-network-learning-design.md",
+      "evidence_paths": [
+       "outputs\\reports\\yr332_context_learning\\summary.json",
+       "outputs\\reports\\yr332_context_learning\\README.md",
+       "outputs\\reports\\yr332_context_learning\\campaign.json"
+      ],
+      "control_paths": [
+       ".claude\\Dashboard\\done.md",
+       ".claude\\docs\\dashboard-task-specs\\YR-332-as-network-learning-design.md"
+      ],
+      "evidence_commits": [
+       "2a593bd1"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "2a593bd1",
+      "drift": []
+     }
+    },
+    "claim_alignment": {
+     "name": "claim_alignment",
+     "status": "PASS",
+     "summary": "보고 핵심 수치가 원자료와 일치함",
+     "reasons": [],
+     "evidence": {
+      "absolute_tolerance": 0.00501,
+      "reported_values": {
+       "0": 116.086,
+       "1": 33.74,
+       "2": 102.775,
+       "3": 18.41,
+       "4": 117.406,
+       "5": 35.27,
+       "6": 125.97,
+       "7": 45.13,
+       "8": 89.484,
+       "9": 3.1,
+       "10": 124.19,
+       "11": 43.08,
+       "12": 124.127,
+       "13": 43.01,
+       "14": 86.797,
+       "15": 0.0,
+       "16": 123.34,
+       "17": 42.1,
+       "18": 120.024,
+       "19": 38.28
+      },
+      "raw_values": {
+       "0": 116.08550520204395,
+       "1": 33.74400260192576,
+       "2": 102.77480246371191,
+       "3": 18.408525028127887,
+       "4": 117.40581010948418,
+       "5": 35.26514740522126,
+       "6": 125.97004960532311,
+       "7": 45.132147315515226,
+       "8": 89.48378963653686,
+       "9": 3.0957325218966325,
+       "10": 124.189957440132,
+       "11": 43.08127411856768,
+       "12": 124.12740308828637,
+       "13": 43.00920423024317,
+       "14": 86.79679308503995,
+       "15": 0.0,
+       "16": 123.34020489557571,
+       "17": 42.1022603620067,
+       "18": 120.02392063412817,
+       "19": 38.281515212818576
+      },
+      "absolute_differences": {
+       "0": 0.0004947979560512294,
+       "1": 0.0040026019257553,
+       "10": 4.255986799250877e-05,
+       "11": 0.0012741185676787836,
+       "12": 0.00040308828637591887,
+       "13": 0.0007957697568272692,
+       "14": 0.00020691496004587862,
+       "15": 0.0,
+       "16": 0.00020489557570613215,
+       "17": 0.002260362006701655,
+       "18": 7.93658718265533e-05,
+       "19": 0.001515212818574696,
+       "2": 0.00019753628809837664,
+       "3": 0.0014749718721134286,
+       "4": 0.00018989051582707361,
+       "5": 0.004852594778739672,
+       "6": 4.9605323113155464e-05,
+       "7": 0.0021473155152236245,
+       "8": 0.00021036346313962895,
+       "9": 0.0042674781033675835
+      }
+     }
+    }
+   }
+  },
+  "scenario_validity": {
+   "name": "scenario_validity",
+   "status": "FAIL",
+   "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+   "reasons": [
+    "내부타당성 미수집: achievable_vessel_deadline",
+    "내부타당성 미수집: information_boundary",
+    "지속 유입 운영흐름 미검증",
+    "필수 외부 앵커 미수집: crane_service_time",
+    "필수 외부 앵커 미수집: gate_to_block_time",
+    "필수 외부 앵커 미수집: initial_yard_occupancy",
+    "필수 외부 앵커 미수집: truck_arrival_rate",
+    "필수 외부 앵커 미수집: vessel_workload"
+   ],
+   "evidence": {
+    "continuous_operation": false,
+    "internal_checks": {
+     "event_time_order": true,
+     "physical_constraints": true,
+     "ledger_conservation": true,
+     "deterministic_replay": true
+    },
+    "flow_checks": {},
+    "anchors": {},
+    "operational_trace_path": null,
+    "operational_trace_sha256": null,
+    "operational_trace_verified": false,
+    "operational_trace_records": 0,
+    "minimum_operational_trace_records": 30,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+   }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": [
+   "performance",
+   "scenario_validity"
+  ]
+ }
+}
