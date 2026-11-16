@@ -21,9 +21,11 @@ def main(kind,workers):
         assert all((OUT/sub/p.name).exists() for sub in ('orders','flow-orders'))
         done.append(i)
     pending=[i for i,c in enumerate(cases) if i not in done and (kind!='rules' or c['model_seed']==0)]
+    if kind=='remaining':
+        pending.sort(key=lambda i:(-cases[i]['load'],i))
     write_result(OUT/f'evaluation-schedule-{kind}.json',dict(completed=done,pending=pending,
         workers=workers,script_sha256=sha(Path(__file__)),
-        scope='Only execution order changes: rules can run during label collection; frozen 72 cases preserved'))
+        scope='Rules run during collection; remaining largest loads first; frozen 72 cases, seeds and budgets preserved'))
     if workers==1:
         for n,i in enumerate(pending,1):evaluate(i);print(f'{kind}: {n}/{len(pending)}',flush=True)
     else:
