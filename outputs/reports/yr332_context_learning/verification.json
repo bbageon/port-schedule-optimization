@@ -1,0 +1,127 @@
+{
+ "input_cases": 12,
+ "source_files_unchanged": 198,
+ "corpus_days": 9,
+ "training_pairs": 211,
+ "selection_pairs": 96,
+ "half_training_pairs": 104,
+ "trained_models": 18,
+ "exact_retraining_models": 6,
+ "independent_fitting_tables": 36,
+ "primary_evaluation_runs": 72,
+ "exact_operating_replays": 2,
+ "primary_truck_order_rows": 624000,
+ "replay_truck_order_rows": 7000,
+ "raw_ledgers_recomputed_by": "scripts/v7/report_context_learning.py -> report_synthetic_pipeline.audit",
+ "raw_readout_sha256": "3b34799a6147bea59d9aa9a36e82f564a08b70be6a9229493a2dddc26b44253f",
+ "checked_artifact_hashes": 260,
+ "sidecars_checked": 14,
+ "source_snapshot": {
+  "experiment": "YR-323-d/332-as",
+  "code": {
+   "git_head": "88a8d6b33c39ce9563f5f18709f370c5d58d4e0e",
+   "git_dirty": false,
+   "python": "3.13.9"
+  },
+  "profile_id": null,
+  "seeds": {
+   "models": [
+    9917101,
+    9917102,
+    9917103
+   ],
+   "collection": [
+    9940100,
+    9940101,
+    9940102,
+    9940103,
+    9940104,
+    9940105,
+    9940200,
+    9940201,
+    9940202
+   ],
+   "evaluation": [
+    9940300,
+    9940301,
+    9940302
+   ]
+  },
+  "params": {
+   "collection": {
+    "repr": "[{'split': 'train', 'index': 0, 'load': 3500, 'seed': 9940100}, {'split': 'train', 'index': 1, 'load': 7500, 'seed': 9940101}, {'split': 'train', 'index': 2, 'load': 15000, 'seed': 9940102}, {'split': 'train', 'index': 3, 'load': 3500, 'seed': 9940103}, {'split': 'train', 'index': 4, 'load': 7500, 'seed': 9940104}, {'split': 'train', 'index': 5, 'load': 15000, 'seed': 9940105}, {'split': 'selection', 'index': 0, 'load': 3500, 'seed': 9940200}, {'split': 'selection', 'index': 1, 'load': 7500, 'seed': 9940201}, {'split': 'selection', 'index': 2, 'load': 15000, 'seed': 9940202}]"
+   },
+   "evaluation": {
+    "repr": "[{'arm': 'initial', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'initial', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'initial', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'initial', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'initial', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_current', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_replay', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_half', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'point_steps', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'mean_context', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917101, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917102, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'star_attention', 'model_seed': 9917103, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'FIFO', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'LWKR', 'model_seed': 0, 'index': 0, 'load': 3500, 'input_seed': 9940300}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'FIFO', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'LWKR', 'model_seed': 0, 'index': 1, 'load': 7500, 'input_seed': 9940301}, {'arm': 'SF_SPT', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'FIFO', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}, {'arm': 'LWKR', 'model_seed': 0, 'index': 2, 'load': 15000, 'input_seed': 9940302}]"
+   },
+   "max_questions": {
+    "repr": "48"
+   },
+   "horizon_s": {
+    "repr": "10800"
+   },
+   "behavior_seed": {
+    "repr": "9917101"
+   },
+   "model_seeds": {
+    "repr": "(9917101, 9917102, 9917103)"
+   },
+   "arms": {
+    "repr": "('point_current', 'point_replay', 'point_half', 'point_steps', 'mean_context', 'star_attention')"
+   },
+   "steps_per_update": {
+    "repr": "[50, 200]"
+   },
+   "runtime": {
+    "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+   },
+   "collection_parent_workers": {
+    "repr": "3"
+   },
+   "branch_workers_per_parent": {
+    "repr": "3"
+   },
+   "normalization": {
+    "repr": "'median absolute gap from training half only; floor 1000'"
+   },
+   "claim_scope": {
+    "repr": "'limited synthetic diagnostic'"
+   }
+  },
+  "prereg": "docs/research/v7-discharge/context-learning-prereg.md"
+ },
+ "plot_visually_checked": true,
+ "test_bundles": [
+  {
+   "files": [
+    "tests/v7/test_context_crane.py",
+    "tests/v7/test_crane_policy.py",
+    "tests/v7/test_crane_teacher.py",
+    "tests/v7/test_v7_crane_teacher.py"
+   ],
+   "passed": 37,
+   "seconds": 329.15,
+   "stage": "initial context implementation"
+  },
+  {
+   "files": [
+    "tests/v7/test_context_crane.py",
+    "tests/v7/test_correlated_arrivals.py"
+   ],
+   "passed": 11,
+   "seconds": 86.91,
+   "stage": "expanded context capture and first arrival implementation"
+  },
+  {
+   "files": [
+    "tests/v7/test_correlated_arrivals.py",
+    "tests/v7/test_synthetic_day_mix.py",
+    "tests/v7/test_observed_demand_profile.py"
+   ],
+   "passed": 21,
+   "seconds": 1.88,
+   "stage": "final multiscale arrival implementation"
+  }
+ ],
+ "scope": "Overlapping test bundles are not a sum of unique cases. All 72 primary cases retained; bounded synthetic diagnostic, no field-performance claim."
+}

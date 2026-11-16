@@ -1,6 +1,9 @@
 """Standalone neural latency; full candidate generation/resolution is separately measured by episodes."""
 import statistics as st
 import time
+import hashlib
+import os
+import platform
 
 import numpy as np
 import torch
@@ -15,7 +18,8 @@ def main():
     for arm in ('point_replay','mean_context','star_attention'):
         net=load_net(OUT/f'model-{SEEDS[0]}'/f'{arm}.pt')
         for n in (12,128,512,1200):
-            x=torch.randn(n,10);g=torch.zeros(n,dtype=torch.long)
+            rng=torch.Generator().manual_seed(9948001+n)
+            x=torch.randn(n,10,generator=rng);g=torch.zeros(n,dtype=torch.long)
             def call():return net(x,g) if getattr(net,'requires_candidate_context',False) else net(x)
             with torch.no_grad():
                 for _ in range(20):call()
@@ -24,8 +28,12 @@ def main():
                     start=time.perf_counter_ns();y=call();values.append((time.perf_counter_ns()-start)/1e6)
             assert y.shape==(n,) and torch.isfinite(y).all()
             rows.append(dict(arm=arm,candidates=n,median_ms=st.median(values),p95_ms=float(np.quantile(values,.95)),
-                             max_ms=max(values),parameters=sum(p.numel() for p in net.parameters())))
+                             max_ms=max(values),parameters=sum(p.numel() for p in net.parameters()),
+                             input_sha256=hashlib.sha256(x.numpy().tobytes()).hexdigest()))
+    for n in (12,128,512,1200):
+        assert len({r['input_sha256'] for r in rows if r['candidates']==n})==1
     write_result(OUT/'network-latency.json',dict(rows=rows,threads=1,torch=torch.__version__,
+        processor=platform.processor(),logical_cpus=os.cpu_count(),
         scope='CPU neural forward only, no candidate-generation or resolver cost; no candidate truncation'))
     print(rows)
 

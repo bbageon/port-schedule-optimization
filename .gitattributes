@@ -2,3 +2,10 @@
 # core.autocrlf=true 환경에서 git 왕복(stash/checkout) 시 CRLF 로 바뀌면
 # bash 가 `set: -: invalid option`·`cd: ...\r` 로 즉사한다 (2026-08-11 실측).
 *.sh text eol=lf
+
+# These experiment artifacts carry byte-level SHA-256 evidence. Preserve their
+# original line endings so Git checkout does not invalidate the recorded hashes.
+outputs/reports/yr332_synthetic_inputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/reports/yr332_parametric_arrivals/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/reports/yr323_learning_diagnosis/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/reports/yr332_context_learning/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

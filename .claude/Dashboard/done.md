@@ -13,6 +13,8 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-332-as | RL | **동일 정보 Attention 이득 미확인·진단 완료** | 2026-11-16 | 평균망124.190분·Attention124.127분(−0.05%), 누적50회 MLP117.406분보다 김.18모델·72평가·2정확 재실행, 후보 제한 없음.200회 MLP89.484분도 규칙86.797분·본선 보호 미충족. 현장 현실성 미통과·기본 정책 유지. [결과](../../outputs/reports/yr332_context_learning/README.md) · [검산](../../outputs/reports/yr332_context_learning/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-as-network-learning-design.md) |
+| YR-323-d | RL | **반복50→200회 트럭 −23.78%·재사용 단독은 악화** | 2026-11-16 | 학습211/절반104·선택96쌍. 누적117.406→89.484분, 규칙보다3.10% 김. 이득은 주로 고물량·반입이며 학습 전보다 양하4.07% 증가.6재학습·36집계·624,000오더와 반복7,000오더 검산. 제한적 합성 진단 완료. [결과](../../outputs/reports/yr332_context_learning/README.md) · [spec](../docs/dashboard-task-specs/YR-323-d-learning-budget-check.md) |
 | YR-332-ar | Sim | **분별 수식 도착108입력·36회 비교 완료** | 2026-11-16 | 대조18회 정확 재현. 규칙별 합산 시간 −3.11~+2.71%, 실제 블록 도착도 구분 검산. 통계 보정 합성이며 고물량 외삽·현장 현실성 한계 유지. [결과](../../outputs/reports/yr332_parametric_arrivals/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ar-parametric-within-hour-arrivals.md) |
 | YR-332-ao | Sim | **하루 곡선·반출 비율 분리 비교 완료** | 2026-11-16 | 곡선54회에 이어 비율216입력·54실행 검산. 비율 변화 시간 −8.23~+20.56%, 구성비 효과 포함. [비율 결과](../../outputs/reports/yr332_synthetic_inputs/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md) |
 | YR-332-at | Sim | **반출 전환 1,288건→0건·정상 172입력 불변** | 2026-11-16 | 183입력·82시험·4실행, 총재고 보존. 초기 배치 가정·고물량 미완료는 별도 한계. 305d0eca · [결과](../../outputs/reports/yr332_initial_stock/README.md) · [spec](../docs/dashboard-task-specs/YR-332-at-arbitrary-seed-stock-feasibility.md) |

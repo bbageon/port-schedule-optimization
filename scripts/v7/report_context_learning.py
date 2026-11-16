@@ -43,7 +43,7 @@ def main():
             assert sha(path)==h;artifacts[path.as_posix()]=h
         for r in d['rows']:
             assert sha(OUT/f'model-{seed}'/f'{r["arm"]}.pt')==r['checkpoint_sha256']
-    for name in ('corpus-audit.json','network-latency.json','authorization.json','training-audit.json'):
+    for name in ('corpus-audit.json','network-latency.json','authorization.json','training-audit.json','score-offset-audit.json'):
         path=OUT/name;artifacts[path.as_posix()]=sha(path)
     by_load=[dict(arm=arm,load=load,**combined([r for r in rows if r['case']['arm']==arm and r['case']['load']==load]))
              for arm in arms for load in (3500,7500,15000)]
@@ -71,6 +71,11 @@ def main():
         '- 평균은 오더 수로 가중한 게이트 진입→작업 완료이며 24시간 미완료 경과시간을 포함한다. +는 더 오래 걸림이다.','',
         '| 방법 | 트럭 평균(분) | 짧은 실작업 우선 대비 |', '|---|---:|---:|']
     for g in groups:lines.append(f'| {names[g["arm"]]} | {g["flows"]["TRUCK"]["mean_min"]:.3f} | {g["vs_rule_percent"]:+.2f}% |')
+    lines += ['', '### 같은 가중 비용식의 결과','',
+        '학습 목표에 사용한 가중 비용식도 집계했다. 짧은 실작업 우선을100으로 표시하며 작을수록 좋다.',
+        '', '| 방법 | 가중 비용 지표 |','|---|---:|']
+    for g in groups:
+        lines.append(f'| {names[g["arm"]]} | {100*g["cost"]/grouped["SF_SPT"]["cost"]:.3f} |')
     lines += ['', '### 물량별 트럭 평균(분)','','| 방법 | 3,500건 | 7,500건 | 15,000건 |','|---|---:|---:|---:|']
     for arm in arms:
         lines.append('| '+names[arm]+' | '+' | '.join(f'{next(r for r in by_load if r["arm"]==arm and r["load"]==load)["flows"]["TRUCK"]["mean_min"]:.3f}' for load in (3500,7500,15000))+' |')
@@ -118,17 +123,29 @@ def main():
         '실행들은 병렬 진단 환경에서 측정했다. 신경망 단독 수치는 후보 생성 비용을 포함하지 않으며 현장 응답시간 보장이 아니다.',
         '정책별 작업 경로와 후보 수가 달라 전체 결정 시간의 차이를 신경망 계산량만의 효과로 해석하지 않는다.',
         '후보 개수 제한은 없고 제공된 실행 가능 후보를 모두 평가한다. 생성기 밖의 모든 물리적 대안에 대한 최적성 보장은 아니다.']
+    step_effect=next(c for c in comparisons if c['candidate']=='point_steps')
+    steps=grouped['point_steps'];initial=grouped['initial']
+    step_vs_rule=100*(steps['flows']['TRUCK']['mean_min']/reference-1)
+    step_vs_initial=100*(steps['flows']['TRUCK']['mean_min']/initial['flows']['TRUCK']['mean_min']-1)
+    discharge_vs_initial=100*(steps['flows']['VESSEL_DISCHARGE']['mean_min']/initial['flows']['VESSEL_DISCHARGE']['mean_min']-1)
     lines += ['', '## ② 해석','',
+        f'- 같은 누적 자료에서50→200회 반복은 트럭 평균을{step_effect["change_percent"]["TRUCK"]:+.2f}%, 가중 비용을{step_effect["cost_change"]:+.2f}% 바꿨다.',
+        f'  가장 나은 학습 팔도 짧은 실작업 우선보다 트럭 시간이{step_vs_rule:+.2f}% 길고, 모든 조건에서 이기지는 않았다.',
+        f'- 200회 팔은 학습 전 MLP보다 트럭 시간이{step_vs_initial:+.2f}%지만 양하 시간이{discharge_vs_initial:+.2f}%다. 트럭 이득만으로 본선 보호를 통과했다고 하지 않는다.',
+        '- 자료 재사용만으로는 악화했고 고유 정답을 늘린 효과와 반복량 효과도 달랐다. 자료가 많으면 자동으로 좋아진다는 결론은 아니다.',
+        '- 후보 평균망은 누적50회 MLP보다 느렸고, 같은 정보의 Attention은 평균망과 사실상 비슷했다. 이번 예산에서 구조 확대 이득은 확인하지 못했다.',
         '- 후보 평균망과 Attention 망의 비교는 같은 10개 특징·후보 집합·정답·갱신 예산에서 집계 방식만 바꾼 것이다.',
         '- 후보별 MLP와 맥락망의 비교에는 다른 후보 정보를 읽는 효과도 포함된다.',
         '- 관계는 같은 크레인 자원 경쟁이다. 트럭 방문 선후관계 전체나 PPO를 구현했다고 주장하지 않는다.',
         '- 맥락망의 미학습 운영 대조는 없다. 최종 망끼리의 비교를 맥락망 자체의 학습 전후 이득으로 해석하지 않는다.',
         '- 세 초기값은 같은 정답을 사용했다. 세 번의 독립적인 환경·행동 정책 자료 수집으로 세지 않는다.',
         '- 학습 손실·순위와 운영 시간이 같은 방향으로 움직인다고 가정하지 않는다. 모든 초기값·미완료를 함께 본다.',
+        '- 사후 구조 점검에서 같은 크레인의 후보 점수 차이를 유지해도 크레인 간 공동 배정이 달라지는 반례를 확인했다.',
+        '  차이만 배우는 손실과 절대 점수를 비교하는 배정기의 간극이다. 이번 망의 악화 원인으로 실측한 것은 아니다. [반례](score-offset-audit.json).',
         '- 시간대 곡선·작업 비율·분별 모형은 개발 자료 보정 합성이다. 새로운 실제 항만 기간 검증이 아니다.',
         '- 운반 장비·대기열·지속운영 현실성은 미확인이다. 현장 채택이나 전역 최적성의 증거로 삼지 않는다.',
         '', '## ③ 예정사항','',
-        '- 323-d/as는 이 진단 결과를 기준으로 후속 채택 여부를 판정한다. 실패한 팔은 기본값으로 바꾸지 않는다.',
+        '- 323-d/as의 요청된 진단은 완료했다. 200회 팔은 후속 검증 후보이며, 미완료·본선 보호와 현실성 조건 때문에 기본 정책으로 채택하지 않는다.',
         '- i/f의 외부 운영 자료 확인과 323-e의 미사용 기간 평가는 현황판의 선행 조건을 유지한다.',
         '', '재현: [전체 수치](summary.json), [설정](campaign.json), [사전등록](../../../docs/research/v7-discharge/context-learning-prereg.md).']
     assert len(lines)<=200
