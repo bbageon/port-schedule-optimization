@@ -1,0 +1,315 @@
+{
+ "task": "YR-332-ar",
+ "evidence_commit": "1defcade",
+ "scope": "user-requested bounded synthetic diagnostic; no real-terminal deployment claim",
+ "common_gates": {
+  "performance": {
+   "name": "performance",
+   "status": "INCONCLUSIVE",
+   "summary": "고정 규칙 입력 민감도이며 새 정책의 성능 판정 아님",
+   "reasons": [],
+   "evidence": {}
+  },
+  "reliability": {
+   "name": "reliability",
+   "status": "PASS",
+   "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+   "reasons": [],
+   "evidence": {
+    "runtime": {
+     "name": "runtime_evidence",
+     "status": "PASS",
+     "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+     "reasons": [],
+     "evidence": {
+      "git_head": "88a8d6b33c39ce9563f5f18709f370c5d58d4e0e",
+      "stamp": {
+       "experiment": "YR-332-ar",
+       "code": {
+        "git_head": "88a8d6b33c39ce9563f5f18709f370c5d58d4e0e",
+        "git_dirty": false,
+        "python": "3.13.9"
+       },
+       "profile_id": null,
+       "seeds": {
+        "input": [
+         9937100,
+         9937101,
+         9937102
+        ]
+       },
+       "params": {
+        "cases": {
+         "repr": "[{'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 3500, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 3500, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 3500, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 3500, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 7500, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 7500, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 7500, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 7500, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 15000, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 0, 'load': 15000, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 15000, 'seed': 9937100, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 0, 'load': 15000, 'seed': 9937100, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 3500, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 3500, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 3500, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 3500, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 7500, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 7500, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 7500, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 7500, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 15000, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 1, 'load': 15000, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 15000, 'seed': 9937101, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 1, 'load': 15000, 'seed': 9937101, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 3500, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 3500, 'seed': 9937102, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 3500, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 3500, 'seed': 9937102, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 7500, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 7500, 'seed': 9937102, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 7500, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 7500, 'seed': 9937102, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 15000, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'observed', 'split': 'train', 'index': 2, 'load': 15000, 'seed': 9937102, 'rule': 'FIFO'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 15000, 'seed': 9937102, 'rule': 'SF_SPT'}, {'axis': 'minutes', 'arm': 'parametric', 'split': 'train', 'index': 2, 'load': 15000, 'seed': 9937102, 'rule': 'FIFO'}]"
+        },
+        "runtime": {
+         "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+        },
+        "calibration": {
+         "repr": "{'method': 'correlated_minutes', 'parameters': {'a1': -0.34573485111282665, 'a2': 0.12294676387846318, 'sigma': 0.46152793712015955, 'innovation': 0.9120520582510808, 'burn_in': 128, 'coarse_sigma': 0.11511325469524265}, 'observed': {'index_1m': 1.265650967014119, 'index_10m': 1.1823228462682154, 'lag1': -0.10163131445066116}, 'mean': {'index_1m': 1.3398585374351917, 'index_10m': 1.1784666127494403, 'lag1': -0.08183860648918437}, 'errors': {'index_1m': 0.07420757042107273, 'index_10m': 0.003856233518775065, 'lag1': 0.019792707961476794}, 'passed': True, 'repeats': [{'index_1m': 1.3272753208726187, 'index_10m': 1.1922972308988598, 'lag1': -0.0779152530977451}, {'index_1m': 1.3292287522072497, 'index_10m': 1.1649124733055227, 'lag1': -0.07506303768788068}, {'index_1m': 1.356212566285059, 'index_10m': 1.169064528342415, 'lag1': -0.09091016488404867}, {'index_1m': 1.347576623760696, 'index_10m': 1.1927288886234577, 'lag1': -0.07784205201257091}, {'index_1m': 1.323849924446937, 'index_10m': 1.1604367104607638, 'lag1': -0.08174427488630613}, {'index_1m': 1.338366322679508, 'index_10m': 1.1453059023627024, 'lag1': -0.08030797267231457}, {'index_1m': 1.3482505583532722, 'index_10m': 1.1843208040432789, 'lag1': -0.08006385111702245}, {'index_1m': 1.34471084696238, 'index_10m': 1.150525846272622, 'lag1': -0.08483945983633659}, {'index_1m': 1.3501623007647805, 'index_10m': 1.219424741347683, 'lag1': -0.07641376983189371}, {'index_1m': 1.3199895548411371, 'index_10m': 1.1898673513534954, 'lag1': -0.07481965114156858}, {'index_1m': 1.349941596685417, 'index_10m': 1.1729899823343677, 'lag1': -0.07876490203124921}, {'index_1m': 1.3393221183189192, 'index_10m': 1.1433209768903008, 'lag1': -0.09661640205731051}, {'index_1m': 1.3584243858172833, 'index_10m': 1.1637652185596972, 'lag1': -0.08280159437324944}, {'index_1m': 1.3289153651977068, 'index_10m': 1.198805498627405, 'lag1': -0.07703842892257547}, {'index_1m': 1.3290909989602928, 'index_10m': 1.2113309300193913, 'lag1': -0.08681754011531656}, {'index_1m': 1.3286851050835962, 'index_10m': 1.1273603638708012, 'lag1': -0.07051037611783977}, {'index_1m': 1.3365539134572444, 'index_10m': 1.1984292635304228, 'lag1': -0.07949474029575943}, {'index_1m': 1.3319078603827468, 'index_10m': 1.1109507531086635, 'lag1': -0.08744852707584294}, {'index_1m': 1.3399629686209056, 'index_10m': 1.1748945486266387, 'lag1': -0.08036921208418459}, {'index_1m': 1.3420987658472037, 'index_10m': 1.1640652842097092, 'lag1': -0.08310473443384456}, {'index_1m': 1.3405186839546834, 'index_10m': 1.1913772036778927, 'lag1': -0.09295800187112192}, {'index_1m': 1.3455590500521633, 'index_10m': 1.1725637936148263, 'lag1': -0.08066924898859913}, {'index_1m': 1.338721134459505, 'index_10m': 1.2187781315988413, 'lag1': -0.06775131920186858}, {'index_1m': 1.358628447958032, 'index_10m': 1.2329559713336038, 'lag1': -0.08357746605735682}, {'index_1m': 1.3119697196899622, 'index_10m': 1.1266626624601297, 'lag1': -0.08615725896785545}, {'index_1m': 1.3585352538094162, 'index_10m': 1.1681786143799404, 'lag1': -0.08115031103214874}, {'index_1m': 1.3386602037347666, 'index_10m': 1.2004094954093976, 'lag1': -0.08125639915771121}, {'index_1m': 1.3609354871130184, 'index_10m': 1.198851213700085, 'lag1': -0.08296127440012603}, {'index_1m': 1.336010118685188, 'index_10m': 1.2215930609986547, 'lag1': -0.07857458803604497}, {'index_1m': 1.310723762062023, 'index_10m': 1.1551520603503225, 'lag1': -0.0752709412323668}, {'index_1m': 1.3553063121776325, 'index_10m': 1.2243624097001227, 'lag1': -0.07919341196815319}, {'index_1m': 1.3656381846633505, 'index_10m': 1.2160655775708085, 'lag1': -0.08132616570674739}, {'index_1m': 1.3519589099111273, 'index_10m': 1.2765019978135352, 'lag1': -0.06646038373032623}, {'index_1m': 1.32569548053832, 'index_10m': 1.15649115787361, 'lag1': -0.08494340745059376}, {'index_1m': 1.3201521660863567, 'index_10m': 1.1372924012578176, 'lag1': -0.08359751835097942}, {'index_1m': 1.344820293237958, 'index_10m': 1.1537939294681838, 'lag1': -0.09305408703825083}, {'index_1m': 1.3255694073118758, 'index_10m': 1.1317559579354275, 'lag1': -0.08688643503916552}, {'index_1m': 1.3637302978385992, 'index_10m': 1.1798643466622747, 'lag1': -0.08706709648759174}, {'index_1m': 1.3031812233230233, 'index_10m': 1.1015910473258077, 'lag1': -0.08083818597277048}, {'index_1m': 1.3431497665790568, 'index_10m': 1.0840468561273424, 'lag1': -0.08736542905899504}, {'index_1m': 1.359073818363363, 'index_10m': 1.225772655929594, 'lag1': -0.08883095615306637}, {'index_1m': 1.3136195848594294, 'index_10m': 1.1784280118344725, 'lag1': -0.08683909594819533}, {'index_1m': 1.336864102378137, 'index_10m': 1.1648806509615373, 'lag1': -0.07986440677550721}, {'index_1m': 1.3681948537420285, 'index_10m': 1.1982682713258295, 'lag1': -0.08498274544583}, {'index_1m': 1.3093807729592386, 'index_10m': 1.1672437867019643, 'lag1': -0.0698179838427032}, {'index_1m': 1.3361005789562443, 'index_10m': 1.1855670099350846, 'lag1': -0.07982200177549185}, {'index_1m': 1.3418099988908812, 'index_10m': 1.2024694239089135, 'lag1': -0.08688804175422385}, {'index_1m': 1.3120773439926712, 'index_10m': 1.18399063387819, 'lag1': -0.07203426940636462}, {'index_1m': 1.3366000900606354, 'index_10m': 1.1896181865319078, 'lag1': -0.0834085672071237}, {'index_1m': 1.3250827823999238, 'index_10m': 1.22757735199172, 'lag1': -0.07379710656737147}, {'index_1m': 1.349303735490127, 'index_10m': 1.1479147429211964, 'lag1': -0.07791953142958309}, {'index_1m': 1.3225605633851876, 'index_10m': 1.1415483060357086, 'lag1': -0.07157610795406587}, {'index_1m': 1.295324602724556, 'index_10m': 1.1378800094465389, 'lag1': -0.0798604584449044}, {'index_1m': 1.304700559295754, 'index_10m': 1.1176500794941115, 'lag1': -0.0871999287449518}, {'index_1m': 1.3668680563224531, 'index_10m': 1.2413684240224636, 'lag1': -0.08934050405940483}, {'index_1m': 1.3324008915211647, 'index_10m': 1.1917134329072958, 'lag1': -0.08639090884613974}, {'index_1m': 1.3442792521508495, 'index_10m': 1.153400764638343, 'lag1': -0.08747627494274778}, {'index_1m': 1.3318759378923786, 'index_10m': 1.2211164285850888, 'lag1': -0.0666913449635063}, {'index_1m': 1.3297220555133198, 'index_10m': 1.1955078540217323, 'lag1': -0.09147517296725963}, {'index_1m': 1.3273061951976195, 'index_10m': 1.1524856222487365, 'lag1': -0.07608814745229954}, {'index_1m': 1.3297707843528093, 'index_10m': 1.180471462259969, 'lag1': -0.08551075022198365}, {'index_1m': 1.3649804452806318, 'index_10m': 1.255675652884425, 'lag1': -0.07069135385899956}, {'index_1m': 1.3566955945449142, 'index_10m': 1.177188625053786, 'lag1': -0.08114762609789786}, {'index_1m': 1.3376653425671894, 'index_10m': 1.0665316192643282, 'lag1': -0.09262052046494819}, {'index_1m': 1.3281558379467806, 'index_10m': 1.1406482682204158, 'lag1': -0.07400105827551842}, {'index_1m': 1.3452007622971967, 'index_10m': 1.2002108436709702, 'lag1': -0.0720387956418651}, {'index_1m': 1.363099666620389, 'index_10m': 1.1477668292356895, 'lag1': -0.08415832298035536}, {'index_1m': 1.3296138458020466, 'index_10m': 1.1474236161126525, 'lag1': -0.0869753568362673}, {'index_1m': 1.3625358301576351, 'index_10m': 1.2478881809171034, 'lag1': -0.07721813435820464}, {'index_1m': 1.3368568363025695, 'index_10m': 1.1679574606125083, 'lag1': -0.07823920266281396}, {'index_1m': 1.3394202976518956, 'index_10m': 1.1416889312511354, 'lag1': -0.08674716561128373}, {'index_1m': 1.3281229867262259, 'index_10m': 1.1557465811476084, 'lag1': -0.08136520966743474}, {'index_1m': 1.3592568702099403, 'index_10m': 1.1823257547246335, 'lag1': -0.08835953955753321}, {'index_1m': 1.3566334408521301, 'index_10m': 1.2240409443069262, 'lag1': -0.08652487116092213}, {'index_1m': 1.367306586615657, 'index_10m': 1.1483668801820026, 'lag1': -0.08868226919694013}, {'index_1m': 1.3656625032207599, 'index_10m': 1.1911410755146865, 'lag1': -0.083739126349906}, {'index_1m': 1.3112602295943183, 'index_10m': 1.198531476849281, 'lag1': -0.07332927782660259}, {'index_1m': 1.3357057426661179, 'index_10m': 1.21809991289458, 'lag1': -0.0762498356008333}, {'index_1m': 1.36515618845584, 'index_10m': 1.1763626048406952, 'lag1': -0.08884131749845911}, {'index_1m': 1.3609271941879832, 'index_10m': 1.227905410221457, 'lag1': -0.0824881787967742}, {'index_1m': 1.3596161174677193, 'index_10m': 1.2446041270141528, 'lag1': -0.0907085176721007}, {'index_1m': 1.3386475460562939, 'index_10m': 1.2470203476705977, 'lag1': -0.07373955460972922}, {'index_1m': 1.3258141389519904, 'index_10m': 1.1155250868384012, 'lag1': -0.09025012743318303}, {'index_1m': 1.354625540605109, 'index_10m': 1.1665832238496172, 'lag1': -0.09132452555638022}, {'index_1m': 1.321452321800632, 'index_10m': 1.1203238282586698, 'lag1': -0.08864239875539426}, {'index_1m': 1.328997601549546, 'index_10m': 1.1527215095835763, 'lag1': -0.06680674760336583}, {'index_1m': 1.3351441410295979, 'index_10m': 1.2336840849453568, 'lag1': -0.08457437769464982}, {'index_1m': 1.3227936958687845, 'index_10m': 1.1606934127234398, 'lag1': -0.07949241849209826}, {'index_1m': 1.3461226823989307, 'index_10m': 1.1980095442249836, 'lag1': -0.08327051636404614}, {'index_1m': 1.3413409982299829, 'index_10m': 1.1846787840057085, 'lag1': -0.08190362254028499}, {'index_1m': 1.3530738169272682, 'index_10m': 1.16360256617918, 'lag1': -0.09176113568013743}, {'index_1m': 1.3153804943793845, 'index_10m': 1.0988306872201083, 'lag1': -0.08162171449685414}, {'index_1m': 1.3439102191216095, 'index_10m': 1.1623387539394974, 'lag1': -0.08052764239123096}, {'index_1m': 1.3362255187590784, 'index_10m': 1.1583525036945803, 'lag1': -0.08744490057649121}, {'index_1m': 1.3123882855894256, 'index_10m': 1.1044294406629773, 'lag1': -0.08888861674427535}, {'index_1m': 1.3677532289484446, 'index_10m': 1.268871344708211, 'lag1': -0.08296011306399685}, {'index_1m': 1.3463396073162102, 'index_10m': 1.1765870967809229, 'lag1': -0.08841170284780833}, {'index_1m': 1.3564484180622727, 'index_10m': 1.2160059055227805, 'lag1': -0.07886530358576596}, {'index_1m': 1.3597189584562717, 'index_10m': 1.283093507964002, 'lag1': -0.07771702259657573}, {'index_1m': 1.3628978971205596, 'index_10m': 1.1872465556251843, 'lag1': -0.07177334844415192}], 'source_sha256': '5d2d7c9e363ab38bc64b137dc02947d4b5795b7ff1a5bfb2371b8fedba331a28', 'previous_sha256': 'e0400609856ad7e33d16431739a9e4d96cd6d75fd8b12d8fd84d2386d865d91e', 'prereg': 'docs/research/v7-discharge/minute-arrival-revision-2.md', 'scope': 'post-failure input-only multiscale correction'}"
+        },
+        "scope": {
+         "repr": "'conditional synthetic minute-process sensitivity'"
+        }
+       },
+       "prereg": "docs/research/v7-discharge/minute-arrival-revision-2.md"
+      },
+      "artifact_hashes": {
+       "outputs/reports/yr332_parametric_arrivals/evaluation/000.json.gz": "d08da7e7d2bedc123f2061f44ad45b204972f142f653b3304cb44ed114fa0046",
+       "outputs/reports/yr332_parametric_arrivals/orders/000.json.gz": "309b9b49058db817eb0268ef64990ea034382954ec7c191a6a9c258fd9b1c3d9",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/000.json.gz": "63109687c470d97149a77e4342f13ff3660cbeff2277fd34db44d2f3d74853a3",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/001.json.gz": "ff1de9766aa3eaebc5dbe8233283f24505c157137b62adbaf3ca8667952cf732",
+       "outputs/reports/yr332_parametric_arrivals/orders/001.json.gz": "72028939cb6090feab7f1318bbe8fc3574254b1670f3b0ca7350c878c978ab3d",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/001.json.gz": "b264885a0f44fac9ee1bdbeac8e2aac91b10713360c370fbf83e3683fe51325a",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/002.json.gz": "72f13bc4365965106e85ed2d0d4e1067b46b50bf37db0cb37c1edef99e140f56",
+       "outputs/reports/yr332_parametric_arrivals/orders/002.json.gz": "97ea07a8002d7c46f98fe7b039d0710f812009c22bda5a424cd91cdb7862d8f7",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/002.json.gz": "5228bb0c1cfb5528164133d49cdd301e9b41adc84f7fb285daaf71c04e64e4a0",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/003.json.gz": "1b8d80444296894e223d1225763947c1dcd5c430092239ed3be9bcb5f65bb5f7",
+       "outputs/reports/yr332_parametric_arrivals/orders/003.json.gz": "63206fa8dc68988188ea2a2428a628dd1b58f75593b77cfa22008fd3be66edf4",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/003.json.gz": "72841b611ad351158afa79a3dc535d7e679849cb33d10a23cbb7489a0b46d7f7",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/004.json.gz": "5359ecd66460a73e7424c22ca6224e59fa3860f8c00fc225d99749faafb0f501",
+       "outputs/reports/yr332_parametric_arrivals/orders/004.json.gz": "0f7e825d0556576e94db69a7d8d293053913d1d7ae24354274444fc9145d8864",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/004.json.gz": "a880165c2a5f9c348ba352a0c65fe129a79e078a346023715e891f733fc009bd",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/005.json.gz": "1f05e4efd337802f409e6ecd084dbcb006d33ee584c4d4411e1b71635fb6b178",
+       "outputs/reports/yr332_parametric_arrivals/orders/005.json.gz": "5b11c6a3a32634423504861db26c84e5cdfaee4667bdc868bec0e2cdb3ab4680",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/005.json.gz": "c8746aa366186743a900add7092d99fb3852bf087d546638c13c61f3a46a0b95",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/006.json.gz": "e232ec5d90c0089ada0738452e243bc8400c5044709ed17e6cc55e048a9c01f8",
+       "outputs/reports/yr332_parametric_arrivals/orders/006.json.gz": "6a3ec9c8f4c1dd6bb2d1e1ee48a1cff01ab19e1f5bf4e155791e39f45184db05",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/006.json.gz": "f30fc5f0e02a4c483702e57e27fb30b6b537a4da968cd3fa34b63fe97f323e59",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/007.json.gz": "3f68ba66c497a2bff081f890ecf463e28ed4cb0e23b869070730b3ecb2b93862",
+       "outputs/reports/yr332_parametric_arrivals/orders/007.json.gz": "13ce0561e9da87c12647f06f9be8362ef8e4d3e57ce1d2b781641a63e2ae319f",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/007.json.gz": "96c5893acfb3e5284368631141ea708aa81ff2c6defd722f4892014877320b29",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/008.json.gz": "fcb1c2813ccbd7f72c6f7e726f7f811a56858ae41a8685ed57ea1179041479d3",
+       "outputs/reports/yr332_parametric_arrivals/orders/008.json.gz": "14e52b4da7827759819277fc60880839c27f0fe76307bdfe78a788a66618b16f",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/008.json.gz": "97b2e9b09cbad197a5950a9cfc2aa7cdcca2a16d662c352b5c676597731e6447",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/009.json.gz": "e48c88f38d0d55fcb13ea0e830c1992469417d4324eb2e3a1097d847b2309053",
+       "outputs/reports/yr332_parametric_arrivals/orders/009.json.gz": "616cd0e23be9da4ff30a8363f97ade5b13fb814bf7460f96e68df55e589c9abf",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/009.json.gz": "1b5fe0fdd632e61e9fbecb52dccceba52d6ecbffee08bce046576db2a715b7b6",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/010.json.gz": "922b244feda83770f57c783fb4e3c4fc70af36d866a1ee8ada3306944ef5f276",
+       "outputs/reports/yr332_parametric_arrivals/orders/010.json.gz": "fd61217c5e96fd3b5f805e0ac0c60c4c0d4dbd5df8f61ffe6117f97c0d70c069",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/010.json.gz": "4547b6ac04b17dffce79626ce2890d06f092f09aca558a35950548ff41b9a4bb",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/011.json.gz": "1f86d242070a9f55cd962f332d05e6a3f5ea2dd3a669002972dc4f38f9f24806",
+       "outputs/reports/yr332_parametric_arrivals/orders/011.json.gz": "e24354f90787533284673c29f3bf5f18516079ad02d07fd87f27448842b7670f",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/011.json.gz": "d31dc7a27c873f0c7520f10937af70350e4e9fa5ffb978fba2c4e434332c0806",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/012.json.gz": "2547dc997606ca380b1283fe2dbb6cd76b0902c80a7761c81d8a7b0fcd950978",
+       "outputs/reports/yr332_parametric_arrivals/orders/012.json.gz": "648749e3b2ca83edbaabff2be43f4163e274f970deada366c82ac6f234c33bf8",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/012.json.gz": "bd44052293e0f000697fcc60e2cf1a568e6ccd53984b5882c27639adc259af9c",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/013.json.gz": "a6753dea43cbd2fbd6c87f8dcb384e6695e1b47322bb994dfdabfc87ad27cf9a",
+       "outputs/reports/yr332_parametric_arrivals/orders/013.json.gz": "4530f7e795dd584e3a4f647fd7598ff1ba4b105bbe0fd0ecf39c64e17eb663e0",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/013.json.gz": "0c494d7f634dd737bb1b5a232d287157f50edb7145551f8e1d7a423f224becfb",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/014.json.gz": "0df9b40f306422ee615ce948fa136c349ec7cff07696c1f9fc80001276619854",
+       "outputs/reports/yr332_parametric_arrivals/orders/014.json.gz": "24263a19f07bf9665fc40c49fef6a4123515d2f2608f9223a04b59c10ddc59c3",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/014.json.gz": "6a8757dcafb8a66fa4b3809acf856d73dd80d1375e47260376a0d252ac473d52",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/015.json.gz": "138a86a5f451d5a296993872d41de3c0af4374771d4c415540dcf8e4541ef3ff",
+       "outputs/reports/yr332_parametric_arrivals/orders/015.json.gz": "791a112156fa48461afa74235ceb75a4847d4306b292d0e4ea7019be1892e940",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/015.json.gz": "8cb6ca8c832820f3509cf63a0999fe58de1bc9ee9613935ebfb1ba304ce451dc",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/016.json.gz": "327cffb8fd11883f26055700c76f701e52407ccd040ca47aa1fcec02d64ef93b",
+       "outputs/reports/yr332_parametric_arrivals/orders/016.json.gz": "09c01f42214d50cd65292bcc0646d304e0ca50c1cdb51d22b4927665c461e478",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/016.json.gz": "effafcf03443e72ccaa8bc91d84e120058b62351cc9074af5002b0ef2708f987",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/017.json.gz": "e5b55c9886cb258018c2860e8da054ef5e1178b0dbc88cc91d676601b83c522f",
+       "outputs/reports/yr332_parametric_arrivals/orders/017.json.gz": "5e6cb422ae8030091f376abd99b3a6b600c3998fbb6a023811931386649a4c59",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/017.json.gz": "8455c5a2dd2bd3502b928574ae1d28b1d0995c5bf9400782375f167f19102508",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/018.json.gz": "8e96aa7d689ca859eed9e582aee95c5f3971409f5923b802342ca536f6d3477b",
+       "outputs/reports/yr332_parametric_arrivals/orders/018.json.gz": "351c3fc7449fe75e3f5c531dd4ae1c896dfbf843a80177affea6822b4b980664",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/018.json.gz": "c15a4fe4ff465216c1ab9ba4b75f63b760711bf0dd1b8bacc73028fb5afe0aeb",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/019.json.gz": "8a5a8a970fa48f68ee964685710672e1dd7068267c36d596f7794a3a632a82fd",
+       "outputs/reports/yr332_parametric_arrivals/orders/019.json.gz": "2ff205dd8a5b62098be1b8c5fb1664770b7cfb65429caccd703d6c4f6bcc1580",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/019.json.gz": "5df26b8d778076f8f9e1be23f3a31488b5a7fb77741843dfeac65111d84de239",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/020.json.gz": "6bdae0885aa73a1a56ff7b2f3037241b1e7fc427c6c36f903c357a4e1e6d1569",
+       "outputs/reports/yr332_parametric_arrivals/orders/020.json.gz": "fd966f889c0a58b3f4d552c931c77fbbe09e199a64c30f7875d6fe65efc5f8da",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/020.json.gz": "512f780196d4e765235affe5354c0d6c63a3ac319ae89f846046fa8240029439",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/021.json.gz": "2c29be871fc3fa971a2ed0f11ede4fe8a9d0580cae6d4db2216204f648ae56a4",
+       "outputs/reports/yr332_parametric_arrivals/orders/021.json.gz": "749d29b1a8160f5632da1e83c6244014b22ec69178be5018581ad12774f0d3bb",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/021.json.gz": "1e9b56ecab173824f489d22a7e56486fe44f5cf07237f80e6b3cbd6f97707286",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/022.json.gz": "fbb419689b19ea3e521e31456f2790ee72701992aee424948f8975b892e46a5e",
+       "outputs/reports/yr332_parametric_arrivals/orders/022.json.gz": "650ec85c7432bc50249c631bc840259c4acc5c5eab125d00a475ab1a343c6cb3",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/022.json.gz": "063c2b79ef05c57602f4783aba8fe4e6c072094ee7535126e92ca1f6af9e7a96",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/023.json.gz": "909a0bd11f0872fc5811cd7c1fc7ec88446fbfd9e67869262592654a898ba4c6",
+       "outputs/reports/yr332_parametric_arrivals/orders/023.json.gz": "0bd2d32ffd45a431ddb0ffba1ec3e7a87084f9e5f51c2ca63d31a7f2426864b2",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/023.json.gz": "a40482a7d8c14a69663edd897ed915411b290677377307f040733777f0c0507c",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/024.json.gz": "ef1bacd9a79f46c11ea005e57b8b36303d95bd60a88dddbe98addac73b215e2b",
+       "outputs/reports/yr332_parametric_arrivals/orders/024.json.gz": "3ebe42fa144cb97555aae76cc75a82ab9c14f4ca101e8d5a33927d2e29250ad1",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/024.json.gz": "f0a34bd3daf46556bc74a763dd1f2f73a5715c0605af4abe4f9ed08a4b7c7eba",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/025.json.gz": "acdc68cf7d3185b9fb03659e8bca6daedf9a3439b852580a714075021ff4114c",
+       "outputs/reports/yr332_parametric_arrivals/orders/025.json.gz": "bab8516e343cd7c0dccdb98f72b9cce61583a66c3bd478eecffdd4665ae315e2",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/025.json.gz": "1ed7a2467883ca760ad65dbf97cf7aabb276c320860137ddb7be319d7c223cc1",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/026.json.gz": "d912f364cdce3ad110fa3d32507437514386dda263a2df5546d60c84ec8d1cb8",
+       "outputs/reports/yr332_parametric_arrivals/orders/026.json.gz": "f99fa0f71c6a2dc442eed0b81df5cfcb567b325495ce3a7337f4d4859e5a258e",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/026.json.gz": "dcaab2d04f45baab3592860b8067927726fb1e705ea01fe8a8aab1eea39f0680",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/027.json.gz": "a0effeea9eb9493cfb298da61e205c26b5604cba474bb8a5595e8c58f1a68e80",
+       "outputs/reports/yr332_parametric_arrivals/orders/027.json.gz": "ea65f06bd61b4988616cdcf05d80aaa0ee1c07b4fb76012141e6410ef8ac4e3c",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/027.json.gz": "89fabe4492a1176cbd44445d391dd3f4d11925e71a986ea8493d3cf68f3f3d29",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/028.json.gz": "e8f712809e75b46a80b38d54917ea4a53232e89238f41a6b7378a8c16ba16879",
+       "outputs/reports/yr332_parametric_arrivals/orders/028.json.gz": "f354897cc594bcf16f9af60c8b6261e6ab8fc285c98528e0d6058d129d8205eb",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/028.json.gz": "6708be102efb17d215376cf139e6cb2d218020d89845657e988b85cb641c63d1",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/029.json.gz": "e7e8de8159ba9ab8e54937e5c86624250812af8ae4cb0a508da93e550e33ff0e",
+       "outputs/reports/yr332_parametric_arrivals/orders/029.json.gz": "5b0d498931b8e0ebf4e15b5876e58ccf0372a4420cb27bf0a8d3ebed72bae0a9",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/029.json.gz": "8eafa92d65cb0c77406f739fa07e8a02d9995db3eb1e7f59bc80a74cc0d6c095",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/030.json.gz": "18b94d266f06b44476d662f65fade4144b633b099742de9c79df4b3d783ab2be",
+       "outputs/reports/yr332_parametric_arrivals/orders/030.json.gz": "2a3a3fff22d8849a8956f7a67b226e0d7f4b06c9bd3364d7e1d5e529f578cc1e",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/030.json.gz": "76285e0a42130ec06a056617bac384dee483e29ed85a0c0c44ffc69a8fb42f25",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/031.json.gz": "d18f02f5eeab739c4030ea5bebad02e9890b18b610b976a855dcaf9ff9fc9744",
+       "outputs/reports/yr332_parametric_arrivals/orders/031.json.gz": "bd2f2dbaf8f6e740b5a44c16db96774d9dc1d51f0bc3a45a81955da6e2eb2353",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/031.json.gz": "1434f46d468a52700607b1f8916e90a365aca01e8c1faf6fb858b8063788c00e",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/032.json.gz": "3d898faffa91ef2dae2f2ba33d7ed655dc210a5f86e703fb26799983ce10f98d",
+       "outputs/reports/yr332_parametric_arrivals/orders/032.json.gz": "69c45d787a1e89004b6ef0fc788c287112cacd8fabdebfe8d4d179af48cccf6e",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/032.json.gz": "7245eca5f1e2ee33dfcbd90be848c860ebb532144c5daa71191c6bf10fc4e8e1",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/033.json.gz": "1f180249855c2bf50c4728b00070778dae28473618d41b961db7b2d9182b0b93",
+       "outputs/reports/yr332_parametric_arrivals/orders/033.json.gz": "0dddd18686a30c82618b0b241deea36a592eca9d6f57df2f52527e34cf60b314",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/033.json.gz": "f0ca44c6629b864b27103108179079f13fbf60c1953d5d336d2a5118e28eff82",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/034.json.gz": "ba705673259b2239c77720762e4c2472f5ec1f8ca188cdc172dba3307a95a682",
+       "outputs/reports/yr332_parametric_arrivals/orders/034.json.gz": "3e387dea16c3bb4dc2c2dc1e87dec66eed251a31a0c5e1040be06173f2772168",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/034.json.gz": "f8d51d905533e5ea7084c33d5914faad8b6893be8cd94f3701c1f91afb08a53d",
+       "outputs/reports/yr332_parametric_arrivals/evaluation/035.json.gz": "56e57ad1c0d4951efa1ac3ca7bc098d051a966179dd2ad7c75ac81de7f299afa",
+       "outputs/reports/yr332_parametric_arrivals/orders/035.json.gz": "714ad99eb7c03ff4c957a74dc72d94c960b4623d1804293e2ae6632d9651464a",
+       "outputs/reports/yr332_parametric_arrivals/flow-orders/035.json.gz": "7682ca6b073d1fa52180e2ef9fbe2adb5b5e7949d801c318b9dd84d8f22c3ba1",
+       "outputs/reports/yr332_parametric_arrivals/input-audit.json": "31b42dba800e65cb4a72afac5b12ad766ddc3c459bbddd07545ad04a3f6cc403",
+       "outputs/reports/yr332_parametric_arrivals/paired-attribute-audit.json": "6ac7e24be3afe5e5240db095571cabe5ccb5ea0bc98e89c283df1a40d98a7688",
+       "outputs/reports/yr332_parametric_arrivals/block-arrival-audit.json": "6213d9ec1b605c01c3812907dc5a9ba40ed375e8a19ec89461b67f623704de25",
+       "outputs/reports/yr332_parametric_arrivals/summary.json": "b5f5aab02f024fc7aa1fae32626232c0aab1f65270b83c8059ac968647f9a9eb",
+       "outputs/reports/yr332_parametric_arrivals/README.md": "0d851fab1cceda8edefb93339b7d9b040991fc1b868114d33b1d3678911dccc2",
+       "outputs/reports/yr332_parametric_arrivals/campaign.json": "c210702940205b5f23e1981b4e1f62ec369adf972e1f4a54d06cf2991665bcfe"
+      }
+     }
+    },
+    "dashboard": {
+     "name": "dashboard_code_alignment",
+     "status": "PASS",
+     "summary": "Dashboard·spec·코드·증거가 일치함",
+     "reasons": [],
+     "evidence": {
+      "task_id": "YR-332-ar",
+      "expected_state": "done",
+      "board_matches": [
+       "done.md"
+      ],
+      "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-ar-parametric-within-hour-arrivals.md",
+      "evidence_paths": [
+       "outputs\\reports\\yr332_parametric_arrivals\\summary.json",
+       "outputs\\reports\\yr332_parametric_arrivals\\README.md",
+       "outputs\\reports\\yr332_parametric_arrivals\\campaign.json"
+      ],
+      "control_paths": [
+       ".claude\\Dashboard\\done.md",
+       ".claude\\docs\\dashboard-task-specs\\YR-332-ar-parametric-within-hour-arrivals.md"
+      ],
+      "evidence_commits": [
+       "1defcade"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "1defcade",
+      "drift": []
+     }
+    },
+    "claim_alignment": {
+     "name": "claim_alignment",
+     "status": "PASS",
+     "summary": "보고 핵심 수치가 원자료와 일치함",
+     "reasons": [],
+     "evidence": {
+      "absolute_tolerance": 0.00501,
+      "reported_values": {
+       "0": 18.644,
+       "1": 18.513,
+       "2": -0.7,
+       "3": 19.181,
+       "4": 19.7,
+       "5": 2.71,
+       "6": 38.826,
+       "7": 38.355,
+       "8": -1.21,
+       "9": 38.028,
+       "10": 36.846,
+       "11": -3.11,
+       "12": 139.937,
+       "13": 138.737,
+       "14": -0.86,
+       "15": 200.217,
+       "16": 199.057,
+       "17": -0.58
+      },
+      "raw_values": {
+       "0": 18.643855149387544,
+       "1": 18.512930060906793,
+       "2": -0.7022425750022654,
+       "3": 19.18082435997534,
+       "4": 19.700135694217586,
+       "5": 2.7074505479852906,
+       "6": 38.825512909913826,
+       "7": 38.35521252236054,
+       "8": -1.2113178997648189,
+       "9": 38.028227319151576,
+       "10": 36.845896917720545,
+       "11": -3.109086288741081,
+       "12": 139.93670335142116,
+       "13": 138.736575476064,
+       "14": -0.8576219437893329,
+       "15": 200.2165197321718,
+       "16": 199.05677912472495,
+       "17": -0.57924321579369
+      },
+      "absolute_differences": {
+       "0": 0.0001448506124539506,
+       "1": 6.99390932084043e-05,
+       "10": 0.00010308227945188264,
+       "11": 0.0009137112589190366,
+       "12": 0.0002966485788533646,
+       "13": 0.0004245239360045616,
+       "14": 0.002378056210667112,
+       "15": 0.00048026782820898006,
+       "16": 0.00022087527503344973,
+       "17": 0.0007567842063099794,
+       "2": 0.0022425750022654345,
+       "3": 0.00017564002466130546,
+       "4": 0.00013569421758674594,
+       "5": 0.0025494520147093525,
+       "6": 0.00048709008617464633,
+       "7": 0.0002125223605418114,
+       "8": 0.0013178997648188862,
+       "9": 0.00022731915157692129
+      }
+     }
+    }
+   }
+  },
+  "scenario_validity": {
+   "name": "scenario_validity",
+   "status": "FAIL",
+   "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+   "reasons": [
+    "내부타당성 미수집: achievable_vessel_deadline",
+    "내부타당성 미수집: information_boundary",
+    "지속 유입 운영흐름 미검증",
+    "필수 외부 앵커 미수집: crane_service_time",
+    "필수 외부 앵커 미수집: gate_to_block_time",
+    "필수 외부 앵커 미수집: initial_yard_occupancy",
+    "필수 외부 앵커 미수집: truck_arrival_rate",
+    "필수 외부 앵커 미수집: vessel_workload"
+   ],
+   "evidence": {
+    "continuous_operation": false,
+    "internal_checks": {
+     "event_time_order": true,
+     "physical_constraints": true,
+     "ledger_conservation": true,
+     "deterministic_replay": true
+    },
+    "flow_checks": {},
+    "anchors": {},
+    "operational_trace_path": null,
+    "operational_trace_sha256": null,
+    "operational_trace_verified": false,
+    "operational_trace_records": 0,
+    "minimum_operational_trace_records": 30,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+   }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": [
+   "performance",
+   "scenario_validity"
+  ]
+ }
+}
