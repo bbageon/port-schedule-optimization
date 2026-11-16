@@ -12,7 +12,7 @@ import math
 import random
 
 SCHEMA = 'observed-truck-demand-marginals-v1'
-WITHIN_HOUR_METHODS = ('poisson', 'observed_visit_minutes', 'dirichlet_minutes')
+WITHIN_HOUR_METHODS = ('poisson', 'observed_visit_minutes', 'dirichlet_minutes', 'correlated_minutes')
 DATE_ORDERS = ('random', 'busiest_first')
 
 
@@ -76,6 +76,12 @@ def validate_within_hour(spec: dict) -> None:
         if not isinstance(alpha, (float, int)) or not math.isfinite(alpha) or alpha <= 0:
             raise ValueError('positive finite minute concentration required')
         return
+    if spec['method'] == 'correlated_minutes':
+        from .correlated_arrivals import validate as validate_parameters
+        if not set(spec).issubset({'method', 'parameters', 'source'}):
+            raise ValueError('unsupported correlated within-hour field')
+        validate_parameters(spec.get('parameters'))
+        return
     if not set(spec).issubset({'method', 'dates', 'minute_counts', 'date_order', 'source'}):
         raise ValueError('unsupported within-hour field')
     if spec.get('date_order', 'random') not in DATE_ORDERS:
@@ -128,8 +134,12 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
         if spec['method'] == 'poisson':
             offsets = [3600. * rng.random() for _ in range(n)]
             meta['hours'][str(hour)] = dict(n=n)
-        elif spec['method'] == 'dirichlet_minutes':
-            weights = [rng.gammavariate(spec['alpha'], 1.) for _ in range(60)]
+        elif spec['method'] in ('dirichlet_minutes', 'correlated_minutes'):
+            if spec['method'] == 'correlated_minutes':
+                from .correlated_arrivals import weights as minute_weights
+                weights = minute_weights(rng, spec['parameters'])
+            else:
+                weights = [rng.gammavariate(spec['alpha'], 1.) for _ in range(60)]
             cumulative = []
             for w in weights:
                 cumulative.append(w + (cumulative[-1] if cumulative else 0.))
@@ -138,7 +148,8 @@ def within_hour_arrivals(seed: int, times: list[float], spec: dict) -> tuple[lis
             minutes = [min(59, bisect.bisect_right(cumulative, rng.random() * cumulative[-1]))
                        for _ in range(n)]
             offsets = [60. * (m + rng.random()) for m in minutes]
-            meta['hours'][str(hour)] = dict(n=n, alpha=spec['alpha'])
+            meta['hours'][str(hour)] = dict(n=n, **({'alpha': spec['alpha']} if spec['method'] == 'dirichlet_minutes'
+                                                  else {'parameters': dict(spec['parameters'])}))
         else:
             days = spec['minute_counts'][str(hour)]
             order = list(range(len(days)))

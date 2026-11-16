@@ -17,6 +17,17 @@ def test_valid_positive_replay():
     assert w!=weights(random.Random(18),p)
 
 
+def test_stage_arrival_adapter_keeps_hour_counts():
+    from collections import Counter
+    from yard_rl.v7.demand_profile import within_hour_arrivals
+    times=[100.+j for j in range(80)]+[3600.+j for j in range(150)]
+    spec=dict(method='correlated_minutes',parameters=parameters())
+    out,meta=within_hour_arrivals(9948000,times,spec)
+    assert (out,meta)==within_hour_arrivals(9948000,times,spec)
+    assert Counter(int(t//3600) for t in out)==Counter(int(t//3600) for t in times)
+    assert len(out)==len(times) and out==sorted(out)
+
+
 @pytest.mark.parametrize('change',[{'a1':2},{'innovation':2},{'sigma':-1},{'burn_in':127},{'coarse_sigma':float('nan')}])
 def test_invalid_parameters(change):
     with pytest.raises(ValueError):validate(dict(parameters(),**change))
