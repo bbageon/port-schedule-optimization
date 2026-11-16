@@ -13,6 +13,7 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-332-ar | Sim | **분별 수식 도착108입력·36회 비교 완료** | 2026-11-16 | 대조18회 정확 재현. 규칙별 합산 시간 −3.11~+2.71%, 실제 블록 도착도 구분 검산. 통계 보정 합성이며 고물량 외삽·현장 현실성 한계 유지. [결과](../../outputs/reports/yr332_parametric_arrivals/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ar-parametric-within-hour-arrivals.md) |
 | YR-332-ao | Sim | **하루 곡선·반출 비율 분리 비교 완료** | 2026-11-16 | 곡선54회에 이어 비율216입력·54실행 검산. 비율 변화 시간 −8.23~+20.56%, 구성비 효과 포함. [비율 결과](../../outputs/reports/yr332_synthetic_inputs/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ao-day-shape-mix-variation.md) |
 | YR-332-at | Sim | **반출 전환 1,288건→0건·정상 172입력 불변** | 2026-11-16 | 183입력·82시험·4실행, 총재고 보존. 초기 배치 가정·고물량 미완료는 별도 한계. 305d0eca · [결과](../../outputs/reports/yr332_initial_stock/README.md) · [spec](../docs/dashboard-task-specs/YR-332-at-arbitrary-seed-stock-feasibility.md) |
 | YR-332-aq | RL | **보정 환경 재학습 — 학습 전 대비 +4.17%뿐, 모델별 −21~+21%, 규칙보다 27% 김** | 2026-11-14 | 사용자 지시 진단(하네스 거절 기록). ag 방법 그대로, 환경만 aj·ak·al. 학습 18회·쌍 283개·가중치 18개 정확 재학습, 평가 146회·트럭 1,263,000행 재계산 통과. 재학습 111.791분 vs 학습 전 116.658·이전 모델 103.229·SF_SPT 87.975분. 비용 구간 +58~+487백만 원, 성능 FAIL. 다음은 학습 진단(323-d). 동결 `720e43c0` · 결과 `1c3373c2` · [spec](../docs/dashboard-task-specs/YR-332-aq-linked-environment-retraining.md) · [결과](../../outputs/reports/yr332_linked_retraining/README.md) · [검산](../../outputs/reports/yr332_linked_retraining/verification.json) |

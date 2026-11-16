@@ -65,6 +65,16 @@ def main():
     for g in groups:
         divisor=1 if g['arm'] in ('SF_SPT','FIFO','LWKR') else 3
         lines.append('| '+names[g['arm']]+' | '+' | '.join(f'{g["flows"][f]["unfinished26"]/divisor:.1f}' for f in ('GATE_IN','GATE_OUT','VESSEL_DISCHARGE','VESSEL_LOAD'))+' |')
+    bench=read(OUT/'network-latency.json')
+    lines += ['', '### 후보 보존과 계산 시간','','| 방법 | 매개변수 | 최대 후보 | 전체 결정의 95% 시간 범위(ms) | 1,200후보 신경망만(ms) |',
+        '|---|---:|---:|---:|---:|']
+    for arm in ('point_replay','mean_context','star_attention'):
+        b=next(r for r in bench['rows'] if r['arm']==arm and r['candidates']==1200)
+        times=[r['p95_ms'] for r in candidate_stats[arm]['decision']]
+        lines.append(f'| {names[arm]} | {b["parameters"]} | {candidate_stats[arm]["max_candidates"]} | {min(times):.3f}~{max(times):.3f} | {b["p95_ms"]:.3f} |')
+    lines += ['', '각 실행에서 결정100번 중95번이 끝나는 시간을 구해 그 범위를 표시했다. 전체 결정은 후보 생성과 배정을 포함한다.',
+        '실행들은 병렬 진단 환경에서 측정했다. 신경망 단독 수치는 후보 생성 비용을 포함하지 않으며 현장 응답시간 보장이 아니다.',
+        '후보 개수 제한은 없고 제공된 실행 가능 후보를 모두 평가한다. 생성기 밖의 모든 물리적 대안에 대한 최적성 보장은 아니다.']
     lines += ['', '## ② 해석','',
         '- 후보 평균망과 Attention 망의 비교는 같은 10개 특징·후보 집합·정답·갱신 예산에서 집계 방식만 바꾼 것이다.',
         '- 후보별 MLP와 맥락망의 비교에는 다른 후보 정보를 읽는 효과도 포함된다.',

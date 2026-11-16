@@ -48,6 +48,9 @@ def inputs(axis):
     rows,artifacts=audit(root)
     expected=54 if axis=='mix' else 36
     assert len(rows)==expected,(len(rows),expected)
+    if axis=='minutes':
+        for name in ('input-audit.json','paired-attribute-audit.json','block-arrival-audit.json'):
+            p=root/name;artifacts[p.as_posix()]=sha(p)
     arms=('fixed','variable') if axis=='mix' else ('observed','parametric')
     groups=[];paired=[]
     for load in (3500,7500,15000):
@@ -82,13 +85,26 @@ def inputs(axis):
     lines += ['', '## ② 해석','',f'- 개별 짝 비교의 트럭 시간 변화는 {summary["change_range"][0]:+.2f}~{summary["change_range"][1]:+.2f}%다.',
         '- 입력 변화의 영향이다. 새 학습의 개선율이나 실제 터미널 성능으로 해석하지 않는다.',
         '- 세 개발 곡선이며 고물량은 부담 시험이다. 본선은 스트림 시작→개별 야드 작업 완료로 트럭 시간과 기준이 다르다.',
-        '- 방문 연결·재고 제약을 유지한다. 비율 변화는 방문 구성·초기 공급 배치도 바꿀 수 있다.',
-        '- 시간대별 합성 모양의 부모가 같은 개발 자료다. 독립 실측 검증이 아니다.',
-        '- 고정 비율은 학습용24개의 평균이며 선택한3개의 평균과 정확히 같다는 보장은 없다.',
-        '', '## ③ 예정사항','',
-        '- ao의 비율 비교 뒤 ar의 분별 수식 검증, 그 뒤 323-d 학습 진단·as 구조 비교 순서다.',
+        '- 시간대별 합성 모양의 부모가 같은 개발 자료다. 독립 실측 검증이 아니다.']
+    if axis=='mix':
+        lines += ['- 방문 연결·재고 제약을 유지한다. 비율 변화는 방문 구성·초기 공급 배치도 바꿀 수 있다.',
+                  '- 고정 비율은 학습용24개의 평균이며 선택한3개의 평균과 정확히 같다는 보장은 없다.']
+    else:
+        assert all(r.get('prior_run_exact') for r in rows if r['case']['arm']=='observed')
+        lines += ['- 108쌍에서 비시각 오더 속성·방문 계획·재고·본선·시간대 건수는 같고 시각만 달라졌다.',
+                  '- 관측 분별 배열을 쓰는 대조18회는 앞 단계의 동일 조건과 결정·사건·원자료가 정확히 같다.',
+                  '- 새 도착은 분별 배열을 재사용하지 않는다. 개발 자료의 집계 통계로 보정한 수식 기반 합성이다.',
+                  '- 독립 균등·Dirichlet과 첫 상관 모형의 실패를 보존했다. 기준을 완화하지 않고 입력만 보고 모형을 수정했다.',
+                  '- 7,500·15,000건은 같은 강도 변동을 외삽한 부담 시험이며 실측 고물량 적합성을 입증하지 않았다.',
+                  '- 시뮬레이터의 실제 블록 도착도 별도 검산했다. 3,500건·짧은 작업 우선의 1분 몰림은1.076→1.073이다.',
+                  '  게이트 시각을 목적 블록으로 나눈1.223→1.231과 다르다. 24시간 미도착18/23건도 남겨 조건부 통계임을 표시했다.',
+                  '  [블록 도착·도착 간격 원값](block-arrival-audit.json). 현장 블록 도착 자료와의 검증은 아니다.']
+    lines += ['', '## ③ 예정사항','',
+        '- ao 비율 비교와 ar 분별 도착 비교를 마친 뒤 323-d 학습 진단·as 구조 비교 순서다.',
         '- 외부 운반·대기열(i/f) 근거는 계속 대기이며 현장 성능 주장을 하지 않는다.',
-        '', '재현: [전체 집계](summary.json), [실행 설정](campaign.json).']
+        '', '재현: [전체 집계](summary.json), [실행 설정](campaign.json).',
+        '', '입력 그림: [하루 모양·작업 비율·분별 강도](../yr332_synthetic_inputs/synthetic-variation.png).',
+        '실패한 모형과 매개변수 근거: [결정 기록](../../../.claude/docs/strategy-history/2026-11-16-YR-332-input-four-step.md).']
     assert len(lines)<=200
     (root/'README.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     print(json.dumps({k:v for k,v in summary.items() if k not in ('artifact_hashes','groups','paired')},ensure_ascii=True))
