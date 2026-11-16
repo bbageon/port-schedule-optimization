@@ -43,7 +43,7 @@ def main():
             assert sha(path)==h;artifacts[path.as_posix()]=h
         for r in d['rows']:
             assert sha(OUT/f'model-{seed}'/f'{r["arm"]}.pt')==r['checkpoint_sha256']
-    for name in ('corpus-audit.json','network-latency.json','authorization.json'):
+    for name in ('corpus-audit.json','network-latency.json','authorization.json','training-audit.json'):
         path=OUT/name;artifacts[path.as_posix()]=sha(path)
     by_load=[dict(arm=arm,load=load,**combined([r for r in rows if r['case']['arm']==arm and r['case']['load']==load]))
              for arm in arms for load in (3500,7500,15000)]
@@ -98,7 +98,12 @@ def main():
         divisor=1 if g['arm'] in ('SF_SPT','FIFO','LWKR') else 3
         lines.append('| '+names[g['arm']]+' | '+' | '.join(f'{g["flows"][f]["unfinished26"]/divisor:.1f}' for f in ('GATE_IN','GATE_OUT','VESSEL_DISCHARGE','VESSEL_LOAD'))+' |')
     bench=read(OUT/'network-latency.json')
-    lines += ['', '### 후보 보존과 계산 시간','','| 방법 | 매개변수 | 최대 후보 | 전체 결정의 95% 시간 범위(ms) | 1,200후보 신경망만(ms) |',
+    generation_minutes=[r['seconds']/60 for r in corpus['rows']]
+    training_seconds=[r['seconds'] for r in label_reports]
+    lines += ['', '### 후보 보존과 계산 시간','',
+        f'- 하루 정답 수집은{min(generation_minutes):.1f}~{max(generation_minutes):.1f}분, 한 초기값에서 여섯 방법의 망 학습은{min(training_seconds):.1f}~{max(training_seconds):.1f}초였다.',
+        '- 각각 동시 실행 중인 개별 작업의 경과시간이다. 합을 전체 실험 경과시간으로 읽지 않는다.',
+        '', '| 방법 | 매개변수 | 최대 후보 | 전체 결정의 95% 시간 범위(ms) | 1,200후보 신경망만(ms) |',
         '|---|---:|---:|---:|---:|']
     for arm in ('point_replay','mean_context','star_attention'):
         b=next(r for r in bench['rows'] if r['arm']==arm and r['candidates']==1200)
@@ -111,6 +116,8 @@ def main():
         '- 후보 평균망과 Attention 망의 비교는 같은 10개 특징·후보 집합·정답·갱신 예산에서 집계 방식만 바꾼 것이다.',
         '- 후보별 MLP와 맥락망의 비교에는 다른 후보 정보를 읽는 효과도 포함된다.',
         '- 관계는 같은 크레인 자원 경쟁이다. 트럭 방문 선후관계 전체나 PPO를 구현했다고 주장하지 않는다.',
+        '- 맥락망의 미학습 운영 대조는 없다. 최종 망끼리의 비교를 맥락망 자체의 학습 전후 이득으로 해석하지 않는다.',
+        '- 세 초기값은 같은 정답을 사용했다. 세 번의 독립적인 환경·행동 정책 자료 수집으로 세지 않는다.',
         '- 학습 손실·순위와 운영 시간이 같은 방향으로 움직인다고 가정하지 않는다. 모든 초기값·미완료를 함께 본다.',
         '- 시간대 곡선·작업 비율·분별 모형은 개발 자료 보정 합성이다. 새로운 실제 항만 기간 검증이 아니다.',
         '- 운반 장비·대기열·지속운영 현실성은 미확인이다. 현장 채택이나 전역 최적성의 증거로 삼지 않는다.',
