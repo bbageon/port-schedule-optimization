@@ -2,7 +2,7 @@
 
 - **상태**: backlog
 - 등록: 2026-11-15. 상위 [[YR-332]], 선행 설계 [[YR-332-ao]].
-- 게이트 보정 대상: scenario_validity(하루 안 방문 도착의 변동을 설명 가능한 합성 과정으로 만드는가).
+- **3대 게이트 보정 대상**: scenario_validity(하루 안 방문 도착의 변동을 설명 가능한 합성 과정으로 만드는가).
 
 ## 무엇과 왜
 
@@ -33,3 +33,14 @@
 - [문헌 대조](../../../docs/research/v7-discharge/synthetic-demand-literature.md)
 - [기존 방문 도착 결과](../../../outputs/reports/yr332_visit_arrivals/README.md)
 - `src/yard_rl/v7/demand_profile.py::within_hour_arrivals`
+
+## 2026-11-16 입력 모형 검사
+사용자가 네 단계 모두 실행하도록 요청했다. ao의 104121cb 게이트로 현실성 보정 허용을 확인했다.
+최초 허가 명령은 선언 문구에 `3대`가 빠져 거절되어, 선언 형식만 바로잡은 뒤 같은 기준으로 허용됐다.
+독립 균등·Dirichlet 분별 비중은 인접 분 상관을 못 맞춰 실패했다. AR(2) 수정도 10분 산포 오차0.1599로 기준0.15 미달.
+10분 구간 로그 강도의 분산 하나를 입력 잔차로 보정한 모형은 세 기준을 모두 통과했다.
+실제 Python 난수 생성 구현도 별도100회로 통과(1분/10분 산포 오차0.0727/0.00224, 인접 상관 오차0.0190).
+기준은 완화하지 않았다. 입력을 본 뒤 수정했으며 최초 사전등록처럼 쓰지 않는다.
+[수정1](../../../docs/research/v7-discharge/minute-arrival-revision.md) ·
+[수정2](../../../docs/research/v7-discharge/minute-arrival-revision-2.md).
+정책 비교는 ao의 비율 비교가 종료된 뒤 시작하며 아직 완료되지 않았다.
