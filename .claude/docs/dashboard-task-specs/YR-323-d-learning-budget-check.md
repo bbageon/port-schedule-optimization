@@ -94,3 +94,7 @@ as의 코드 검토에서 aq의 `trainer.fit(labelset(data))`는 현재 회차 �
 초기값별 방향도 달라 채택하지 않는다. 자동 performance 착수 거절은 원형 그대로 보존하며 사용자 요청 진단이다.
 [결과](../../../outputs/reports/yr323_learning_diagnosis/README.md). 새 합성12입력 검사·ar36회 비교를 마쳤다.
 이제 고정 행동 정책으로 학습6일·선택3일의 새 정답을 수집한다. 기준 변경 없이 사용자 요청 진단으로만 진행한다.
+
+새 수집을 마쳤다: 학습211쌍(절반104쌍)·선택96쌍, 수집기가 본 결정 시점은 각각57,504/29,021회다.
+18개 모델 학습·첫 초기값6개 정확 재학습·36개 오차/순위 표 독립 검산 통과. 운영63회 비교는 진행 중이다.
+[수집](../../../outputs/reports/yr332_context_learning/corpus-audit.json) · [학습](../../../outputs/reports/yr332_context_learning/training-audit.json).

@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **사용자 요청 네 단계 실행 중 (2026-11-16, ao→ar→323-d→as)**: 입력 두 축 완료. 비율216입력·54회, 분별108입력/속성 쌍·36회·대조18회 정확 재현. 분별 수식의 규칙별 합산 시간 변화 −3.11~+2.71%. 저장 정답 진단 뒤 새 합성6일/선택3일로 자료량·반복·같은 정보 맥락망을 비교한다. [비율](../../outputs/reports/yr332_synthetic_inputs/README.md) · [도착](../../outputs/reports/yr332_parametric_arrivals/README.md) · [저장 학습](../../outputs/reports/yr323_learning_diagnosis/README.md)
+- **사용자 요청 네 단계 실행 중 (2026-11-16, ao→ar→323-d→as)**: 입력 두 축 완료(비율54회·분별36회·대조18회 정확 재현). 학습211/절반104·선택96쌍으로18모델 학습, 첫 초기값6개 재학습·36오차/순위 집계 검산 통과. 규칙9회 완료 후 모델63회 운영 비교 중. [도착 결과](../../outputs/reports/yr332_parametric_arrivals/README.md) · [학습 검산](../../outputs/reports/yr332_context_learning/training-audit.json)
 
 - **합성 입력 보정·곡선 비교·저장 학습 진단 (2026-11-16, at/ao/323-d)**: 183입력에서 작업 종류 전환1,288건→0, 정상172개 불변·82시험 통과. 곡선54비교에서 시간 −5.66~+25.13%, 3반복·원자료 일치. 앞 회차 순위 정답123→113이나 회귀오차는 거의 동일, 새 학습 아님. ao의 반출 비율→ar의 분별 수식→323-d 한 축 학습 진단 순서이며 현실성 전체는 미통과. [곡선 결과](../../outputs/reports/yr332_initial_stock/shape-sensitivity.md) · [학습 진단](../../outputs/reports/yr332_network_review/saved-pair-retention.md) · [다음 게이트](../../outputs/reports/yr332_initial_stock/shape-gates.json)
 

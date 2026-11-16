@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-as | RL | **같은 후보 정보의 평균망·자원 중심 Attention 구현** | 🟡 | 순서·그룹 분리·실제 배정·체크포인트 검사 통과. 입력 보정·학습 진단 뒤 같은 정답/예산 비교 예정, 새 학습 미실행. [spec](../docs/dashboard-task-specs/YR-332-as-network-learning-design.md) |
 | YR-332-ap | Sim | **고물량 시간대 도착 몰림 크기 판정 (외부 자료 대기)** | ⚪ | ⏸ 외부 대기. 실측 최대 시간당 245번 방문, 그 안에서 몰림은 물량과 함께 커지지 않았다. 7,500·15,000건은 범위 밖이라 무작위·실제 몰림 두 조건의 범위로 보고한다. 터미널 전체·고물량 날짜 자료가 오면 생성 방식을 고른다. [spec](../docs/dashboard-task-specs/YR-332-ap-high-volume-bunching-data.md) |
 | YR-332-ai | Infra | **실측 예약·정밀 접수를 월/배열 실행에 연결** | 🟡 | 하루 경로의 명시적 보정 옵션을 월 입력·일 경계·배열 경로에도 같은 의미로 연결한다. 장기 실행 전에 정보 공개 시점의 일치를 검증하기 위함이며 기존 물리 궤적 불일치 ah와 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ai-information-contract-runtime-parity.md) |
 | YR-332-ah | Infra | **배열 월 실행의 기존 궤적 불일치** | 🟡 | 수정 전·후 모두 같은 이동·재취급·본선 비용 불일치를 확인했다. 배열 월 실행을 연구 근거로 쓰기 전에 사건·정책을 대조한다. af의 CPU 하루 검증과 분리한다. [spec](../docs/dashboard-task-specs/YR-332-ah-array-month-trajectory-parity.md) |
