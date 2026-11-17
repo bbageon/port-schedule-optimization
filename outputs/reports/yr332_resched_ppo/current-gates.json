@@ -1,0 +1,587 @@
+{
+  "task": "YR-332-av",
+  "evidence_commit": "9d1314b4",
+  "scope": "explicitly user-requested synthetic scheduling diagnostic; not deployment or real-terminal validation",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "미완료가 남아 채택 조건 미충족",
+      "reasons": [],
+      "evidence": {
+        "diagnostic_only": true,
+        "guards": {
+          "mlp_final": {
+            "unfinished26": {
+              "TRUCK": 11266,
+              "GATE_IN": 2885,
+              "GATE_OUT": 8381,
+              "VESSEL_DISCHARGE": 8136,
+              "VESSEL_LOAD": 8295
+            },
+            "vs_rule_percent": 45.740168441764496,
+            "vs_rule_cost_percent": 49.06369659562737
+          },
+          "transformer_final": {
+            "unfinished26": {
+              "TRUCK": 9609,
+              "GATE_IN": 4,
+              "GATE_OUT": 9605,
+              "VESSEL_DISCHARGE": 8448,
+              "VESSEL_LOAD": 7629
+            },
+            "vs_rule_percent": 26.541940614089743,
+            "vs_rule_cost_percent": 28.237877920950027
+          }
+        },
+        "shared_scenarios": 3,
+        "models_per_architecture": 3
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "cc1a1e2309bab3c7df4417bd670bb7b52d3bd4a6",
+            "stamp": {
+              "experiment": "YR-332-av",
+              "code": {
+                "git_head": "cc1a1e2309bab3c7df4417bd670bb7b52d3bd4a6",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "models": [
+                  9951101,
+                  9951102,
+                  9951103
+                ],
+                "training": [
+                  9951200,
+                  9951201,
+                  9951202,
+                  9951203,
+                  9951204,
+                  9951205,
+                  9951206,
+                  9951207,
+                  9951208,
+                  9951209,
+                  9951210,
+                  9951211
+                ],
+                "evaluation": [
+                  9951300,
+                  9951301,
+                  9951302
+                ]
+              },
+              "params": {
+                "kinds": {
+                  "repr": "('mlp', 'transformer')"
+                },
+                "model_seeds": {
+                  "repr": "(9951101, 9951102, 9951103)"
+                },
+                "updates": {
+                  "repr": "6"
+                },
+                "days_per_update": {
+                  "repr": "2"
+                },
+                "trajectories": {
+                  "repr": "[{'load': 3500, 'split': 'train', 'index': 0, 'input_seed': 9951200}, {'load': 7500, 'split': 'train', 'index': 1, 'input_seed': 9951201}, {'load': 15000, 'split': 'train', 'index': 2, 'input_seed': 9951202}, {'load': 3500, 'split': 'train', 'index': 3, 'input_seed': 9951203}, {'load': 7500, 'split': 'train', 'index': 4, 'input_seed': 9951204}, {'load': 15000, 'split': 'train', 'index': 5, 'input_seed': 9951205}, {'load': 3500, 'split': 'train', 'index': 6, 'input_seed': 9951206}, {'load': 7500, 'split': 'train', 'index': 7, 'input_seed': 9951207}, {'load': 15000, 'split': 'train', 'index': 8, 'input_seed': 9951208}, {'load': 3500, 'split': 'train', 'index': 9, 'input_seed': 9951209}, {'load': 7500, 'split': 'train', 'index': 10, 'input_seed': 9951210}, {'load': 15000, 'split': 'train', 'index': 11, 'input_seed': 9951211}]"
+                },
+                "evaluation_cases": {
+                  "repr": "[{'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951101, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951101, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951101, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951101, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951102, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951102, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951102, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951102, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951102, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951102, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951103, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951103, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'mlp_initial', 'kind': 'mlp', 'model_seed': 9951103, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951103, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951103, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951103, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951101, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951101, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951101, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951101, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951102, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951102, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951102, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951102, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951102, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951102, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951103, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951103, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'initial'}, {'arm': 'transformer_initial', 'kind': 'transformer', 'model_seed': 9951103, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'initial'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951103, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951103, 'load': 7500, 'index': 4, 'input_seed': 9951301, 'stage': 'final'}, {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951103, 'load': 15000, 'index': 5, 'input_seed': 9951302, 'stage': 'final'}, {'arm': 'old200', 'model_seed': 9917101, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'old200', 'model_seed': 9917101, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'old200', 'model_seed': 9917101, 'load': 15000, 'index': 5, 'input_seed': 9951302}, {'arm': 'old200', 'model_seed': 9917102, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'old200', 'model_seed': 9917102, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'old200', 'model_seed': 9917102, 'load': 15000, 'index': 5, 'input_seed': 9951302}, {'arm': 'old200', 'model_seed': 9917103, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'old200', 'model_seed': 9917103, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'old200', 'model_seed': 9917103, 'load': 15000, 'index': 5, 'input_seed': 9951302}, {'arm': 'SF_SPT', 'model_seed': 0, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'SF_SPT', 'model_seed': 0, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'SF_SPT', 'model_seed': 0, 'load': 15000, 'index': 5, 'input_seed': 9951302}, {'arm': 'FIFO', 'model_seed': 0, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'FIFO', 'model_seed': 0, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'FIFO', 'model_seed': 0, 'load': 15000, 'index': 5, 'input_seed': 9951302}, {'arm': 'LWKR', 'model_seed': 0, 'load': 3500, 'index': 3, 'input_seed': 9951300}, {'arm': 'LWKR', 'model_seed': 0, 'load': 7500, 'index': 4, 'input_seed': 9951301}, {'arm': 'LWKR', 'model_seed': 0, 'load': 15000, 'index': 5, 'input_seed': 9951302}]"
+                },
+                "max_samples_per_update": {
+                  "repr": "2048"
+                },
+                "epochs": {
+                  "repr": "4"
+                },
+                "batch_size": {
+                  "repr": "64"
+                },
+                "lr": {
+                  "repr": "0.0003"
+                },
+                "clip": {
+                  "repr": "0.2"
+                },
+                "value_coefficient": {
+                  "repr": "0.5"
+                },
+                "entropy_coefficient": {
+                  "repr": "0.01"
+                },
+                "gradient_clip": {
+                  "repr": "1.0"
+                },
+                "discount": {
+                  "repr": "1.0"
+                },
+                "return_kind": {
+                  "repr": "'terminal Monte Carlo minus preceding synchronized epoch cost'"
+                },
+                "width": {
+                  "repr": "32"
+                },
+                "heads": {
+                  "repr": "4"
+                },
+                "layers": {
+                  "repr": "2"
+                },
+                "return_scale": {
+                  "repr": "368293633.7020551"
+                },
+                "scale_evidence": {
+                  "repr": "[{'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/002.json.gz', 'sha256': '72f13bc4365965106e85ed2d0d4e1067b46b50bf37db0cb37c1edef99e140f56', 'cost': 104285223.50315548}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/006.json.gz', 'sha256': 'e232ec5d90c0089ada0738452e243bc8400c5044709ed17e6cc55e048a9c01f8', 'cost': 273096526.410863}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/010.json.gz', 'sha256': '922b244feda83770f57c783fb4e3c4fc70af36d866a1ee8ada3306944ef5f276', 'cost': 2249825899.310651}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/014.json.gz', 'sha256': '0df9b40f306422ee615ce948fa136c349ec7cff07696c1f9fc80001276619854', 'cost': 112613303.38691267}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/018.json.gz', 'sha256': '8e96aa7d689ca859eed9e582aee95c5f3971409f5923b802342ca536f6d3477b', 'cost': 368293633.7020551}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/022.json.gz', 'sha256': 'fbb419689b19ea3e521e31456f2790ee72701992aee424948f8975b892e46a5e', 'cost': 2702277199.3985453}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/026.json.gz', 'sha256': 'd912f364cdce3ad110fa3d32507437514386dda263a2df5546d60c84ec8d1cb8', 'cost': 158614747.3831762}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/030.json.gz', 'sha256': '18b94d266f06b44476d662f65fade4144b633b099742de9c79df4b3d783ab2be', 'cost': 464336660.42925715}, {'path': 'outputs/reports/yr332_parametric_arrivals/evaluation/034.json.gz', 'sha256': 'ba705673259b2239c77720762e4c2472f5ec1f8ca188cdc172dba3307a95a682', 'cost': 2631834326.3881474}]"
+                },
+                "runtime": {
+                  "repr": "{'candidate_cap': None, 'reuse_rehandle_slots': True, 'decision_probe_shortcircuit': True, 'preserve_external_demand': True}"
+                },
+                "observation_seconds": {
+                  "repr": "86400"
+                },
+                "engine_seconds": {
+                  "repr": "93600"
+                },
+                "decoder": {
+                  "repr": "'sequential legal joint construction; mandatory/service-first tiers retained'"
+                },
+                "evaluation": {
+                  "repr": "'single deterministic greedy final checkpoint; no best-of samples'"
+                },
+                "scope": {
+                  "repr": "'user-requested diagnostic; real-world and independent-period validity not established'"
+                }
+              },
+              "prereg": "docs/research/v7-discharge/resched-ppo-prereg.md"
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_resched_ppo/evaluation/000.json.gz": "3abf5f9458cc10e1358f2148293b1ed1a991ccb3b16a96a8390fc7a88ae2eda5",
+              "outputs/reports/yr332_resched_ppo/orders/000.json.gz": "817d9e627fb01c489c37c5d0b08416dbae5c75356e18e46bbf126dc13c4a6661",
+              "outputs/reports/yr332_resched_ppo/flow-orders/000.json.gz": "24f7615166dadee59b0253814e74ff6842f5987cf5cdd8209e16feee29ab4cb1",
+              "outputs/reports/yr332_resched_ppo/evaluation/001.json.gz": "51589913968bab77a6777087abd18a65aa15d39157adefdc99969b2242daefcc",
+              "outputs/reports/yr332_resched_ppo/orders/001.json.gz": "39305cb3decaeb813e3546987b716cc932c86d45520e9c59e2998202a505920b",
+              "outputs/reports/yr332_resched_ppo/flow-orders/001.json.gz": "23e962e8201f3f39dcf34d58fa94b170a8f27bea1127938542558b34ee3a5044",
+              "outputs/reports/yr332_resched_ppo/evaluation/002.json.gz": "22a6fcf1e1dc2fda6c1582cd13877053172ff00fe6a857583193c12e1a788aca",
+              "outputs/reports/yr332_resched_ppo/orders/002.json.gz": "0a4fd01882eca69c3efcc54a82e962f968bc9e637c5f3fda5777ba21780a249b",
+              "outputs/reports/yr332_resched_ppo/flow-orders/002.json.gz": "9e77739431c424af1785a2d55c8c7286345f7a3c885d308bde9aac380fe1f427",
+              "outputs/reports/yr332_resched_ppo/evaluation/003-repeat.json.gz": "7729a7f9bbca374d72403a6c7c71bb407649499f0b784dabd1625cb4e2d6c7a0",
+              "outputs/reports/yr332_resched_ppo/orders/003-repeat.json.gz": "daac640f1705f6af182fa24d8ce64cc72a811e2806f773751646c6120ead39b0",
+              "outputs/reports/yr332_resched_ppo/flow-orders/003-repeat.json.gz": "b290572d7b01379c6c6060bc31561e5314bab0fdafa2096dde4fe8390d95d58d",
+              "outputs/reports/yr332_resched_ppo/evaluation/003.json.gz": "6293ea74cf18738dde45bc64cddc7a5c6f86f65dd6f42639fcfbc3def9412a3d",
+              "outputs/reports/yr332_resched_ppo/orders/003.json.gz": "60618c2c249b8adc2bae8bb2cbb663d4d4d306323a0f619a23818a5e8bf36fa7",
+              "outputs/reports/yr332_resched_ppo/flow-orders/003.json.gz": "63c0af0dd3188aea8464aaf52dea24afd0345156d154d407f8d1e2b2be8af4e1",
+              "outputs/reports/yr332_resched_ppo/evaluation/004.json.gz": "5627323926f111f03b187332c56db5192311c96b52399a3947365adfbaacda64",
+              "outputs/reports/yr332_resched_ppo/orders/004.json.gz": "c091472a200b7033bd43d62a9e1150243aa130f7ff841ec054675a454a8227cb",
+              "outputs/reports/yr332_resched_ppo/flow-orders/004.json.gz": "ccce369456f7b8de1afacb34640023d29c7fdb6dc07d543d534bb179747342af",
+              "outputs/reports/yr332_resched_ppo/evaluation/005.json.gz": "52cd4f8a64a83e002810aa1a2d94875918a16eb19b42f962f6114e9114b426da",
+              "outputs/reports/yr332_resched_ppo/orders/005.json.gz": "0792d8bf0065ce74ad1199f7f851a26d5cc39351020b1f31a8b23e7812a9c035",
+              "outputs/reports/yr332_resched_ppo/flow-orders/005.json.gz": "c580df28ebe5282c12adc6dafe291f5b1378f86a74a9c7ec41d6b2c666082c5d",
+              "outputs/reports/yr332_resched_ppo/evaluation/006.json.gz": "40aefa76ff4044cae66b0b259cef951cf1967fab94f27c2a798fdce40e15b074",
+              "outputs/reports/yr332_resched_ppo/orders/006.json.gz": "4885e76f2309e0dea5fb729c6a21bc2de00d7de42e1ba7bb8e591e4b080d7485",
+              "outputs/reports/yr332_resched_ppo/flow-orders/006.json.gz": "1f6307fffdd6777d0a350f8f934de0c1431b3e167d5d0e838c22097e707daba6",
+              "outputs/reports/yr332_resched_ppo/evaluation/007.json.gz": "51a4f6a75dff014a920404defeb6344839adb01eb0cfdd9666bdff1e31422d36",
+              "outputs/reports/yr332_resched_ppo/orders/007.json.gz": "ba6a746ea676e673138418b45204da18a7d47c3528c63da93dd24d87cef4ccdb",
+              "outputs/reports/yr332_resched_ppo/flow-orders/007.json.gz": "5d916bda766f6bbf1947bb2ba1dbe0de451e4b5742fbb2def096af988c2c1801",
+              "outputs/reports/yr332_resched_ppo/evaluation/008.json.gz": "132f488151b0e1163eb448fad71d014c1e171eea5ab4c165733815dc14c04892",
+              "outputs/reports/yr332_resched_ppo/orders/008.json.gz": "39772c0c40db3a48c58b626ab9bb5b8e7d959926b06d6762a2304500449ba751",
+              "outputs/reports/yr332_resched_ppo/flow-orders/008.json.gz": "b861076c2d3c14524992f4fc3dd6a2b1fce7f5c22c61f57b2daad03d6fab2edd",
+              "outputs/reports/yr332_resched_ppo/evaluation/009.json.gz": "cdfe32671e4632fdd3566479a3a1c7ae15f2e455d1f4db0de162b9109f21a009",
+              "outputs/reports/yr332_resched_ppo/orders/009.json.gz": "eadb8855ead434561c9ae73932b10c2bb5d3d82a67e8a679e264814899068af2",
+              "outputs/reports/yr332_resched_ppo/flow-orders/009.json.gz": "3e1a0b833da0570a96d78a2a31095329dcd44afdcf756cf76683e98eb0ab0038",
+              "outputs/reports/yr332_resched_ppo/evaluation/010.json.gz": "f6af9509bff1bc507508b1bbeee5b1ea406d696432ed25392c8067dcec999856",
+              "outputs/reports/yr332_resched_ppo/orders/010.json.gz": "1ef65ae0276ef9d64eb70cd3bdf317c5221111eb58fcbd35f3a12d49cbf939b2",
+              "outputs/reports/yr332_resched_ppo/flow-orders/010.json.gz": "29637ab7184e966d3f13f07ec7b39865449032c07f98396a0ece2348f34c3ada",
+              "outputs/reports/yr332_resched_ppo/evaluation/011.json.gz": "ad0a3879975eae7d878671348e72e7a78bb968d0d70474080580242a6602c353",
+              "outputs/reports/yr332_resched_ppo/orders/011.json.gz": "5b9f128d6cf5699648a7ac1e636909ce6b6a2949ef92b86764112179b550b27d",
+              "outputs/reports/yr332_resched_ppo/flow-orders/011.json.gz": "4da9c6994dc608f3c65e186206b114e96da44b5b450d830fcceeef9cf45d16d9",
+              "outputs/reports/yr332_resched_ppo/evaluation/012.json.gz": "da2ad6e0e3c6106d807be3d572843a65bbb6281d0729c918cbd67507576f7edc",
+              "outputs/reports/yr332_resched_ppo/orders/012.json.gz": "7ae0633e574cf373a702e615bbfd42e0f13647383b6bdcf538d1edd18a34f606",
+              "outputs/reports/yr332_resched_ppo/flow-orders/012.json.gz": "512eeeef58c42ae2c24927734b478664473a9ffe1613c83a64ae5cb0bc46a656",
+              "outputs/reports/yr332_resched_ppo/evaluation/013.json.gz": "e2e194d331876446a32ddcc19c7d1769b4cf2444c9f48636ebeab9c23ebe2d05",
+              "outputs/reports/yr332_resched_ppo/orders/013.json.gz": "e4265888eb974cbea31c8db9b6ebeef608e5b0a48c8bc2f1376cb18a41d08888",
+              "outputs/reports/yr332_resched_ppo/flow-orders/013.json.gz": "a8252e4601e8a2152de90eb0d2ebd1b11116bb101b225ec71b7db9ac3367ead8",
+              "outputs/reports/yr332_resched_ppo/evaluation/014.json.gz": "e240e9b780f36d382e672b2f6be8f246c9f0ff240e55dd30671cf288b721e126",
+              "outputs/reports/yr332_resched_ppo/orders/014.json.gz": "0609a3e7b7dec389154c3eab34faf0a79cc85db8fcfb452128b909ceac504b00",
+              "outputs/reports/yr332_resched_ppo/flow-orders/014.json.gz": "4e009979c8d2ec1ef09bb7cf1d4262d0bd7c9203a1f70105e500ac6e762b850e",
+              "outputs/reports/yr332_resched_ppo/evaluation/015.json.gz": "03d6a9f816b3cf64720871b70af690424231d286a77be40dc5bbde350c2101c7",
+              "outputs/reports/yr332_resched_ppo/orders/015.json.gz": "56912e09d791bf4afaad2502bbedf28f8b32dd8f54593ab4d8714e0d11d926d4",
+              "outputs/reports/yr332_resched_ppo/flow-orders/015.json.gz": "94a9c72ffcb8e8ba90247e2ccb9dd0e691d64557e4bfea361be5734ab3b10ea4",
+              "outputs/reports/yr332_resched_ppo/evaluation/016.json.gz": "24e678edcfd0ddb5c473b46cf910e02d0e319293f9d14caee6fc59a58c6b84f8",
+              "outputs/reports/yr332_resched_ppo/orders/016.json.gz": "79758e1c3f5261269841a567c4d1e4c2074107e74e4882fd401ccc7ecb0c65d7",
+              "outputs/reports/yr332_resched_ppo/flow-orders/016.json.gz": "409b0d154e949a56eaaa0496cd225eee3a9430a269a465551f1cc74462154573",
+              "outputs/reports/yr332_resched_ppo/evaluation/017.json.gz": "5ebd08fa6ebb419238ac0946b7d32595876bd99ca76fd129287864cc7093a9ff",
+              "outputs/reports/yr332_resched_ppo/orders/017.json.gz": "2d7bdf2573a615a9bc834e6e215aafac354a5f76018bd264f4a01933b1d73e9e",
+              "outputs/reports/yr332_resched_ppo/flow-orders/017.json.gz": "d38dffc9dc4fbdfd0a35bdd1dc6e6d8ba19ce8276ca5ecb2d07badd57c599728",
+              "outputs/reports/yr332_resched_ppo/evaluation/018.json.gz": "1f08ad7dff72fc5b375228b3ffc48df5e07624df6fe47edc3b12a58bc37214a9",
+              "outputs/reports/yr332_resched_ppo/orders/018.json.gz": "f383ecd60300afe934f32a91f6faeb9b042c02a3686501bf7b8e0b2992e09acc",
+              "outputs/reports/yr332_resched_ppo/flow-orders/018.json.gz": "183d7457d65954a45c22bc6306b075b931700c2452958ef72b18d1715eac7556",
+              "outputs/reports/yr332_resched_ppo/evaluation/019.json.gz": "295053d8b3d5ba9e5716f3d5321b38557ed436e665e6e9299fe7cd391ae1d1f4",
+              "outputs/reports/yr332_resched_ppo/orders/019.json.gz": "edf25545edfd83c0f26a3d77ad570eb8a262e62959fbcb6080a5282025bb9765",
+              "outputs/reports/yr332_resched_ppo/flow-orders/019.json.gz": "896f32b47540dc403fce297051cc5ad6ef4ebdc5058145695f7e2d8fc5b4c03e",
+              "outputs/reports/yr332_resched_ppo/evaluation/020.json.gz": "2b0eb2ce26a8e91dbf128456b2e65c16ef4586f346355fcb370f04c74571d726",
+              "outputs/reports/yr332_resched_ppo/orders/020.json.gz": "d2d7e576ef05567c7fab3d777c2a575327bf173e3541021228f1b3e06c3bee75",
+              "outputs/reports/yr332_resched_ppo/flow-orders/020.json.gz": "4263951eb20cd5f5eb9e3f9704e93d70cb8ecbc391e0f7b1c09f2fc9126bedaa",
+              "outputs/reports/yr332_resched_ppo/evaluation/021-repeat.json.gz": "85404ded34b83957dbe29248d0320915ecee174030536e65743450f9095b5272",
+              "outputs/reports/yr332_resched_ppo/orders/021-repeat.json.gz": "4ef846a4da6afd780871d55f447beec5c6999ab9c9fc1d089942ec455d3d313f",
+              "outputs/reports/yr332_resched_ppo/flow-orders/021-repeat.json.gz": "0c9a3216921e40cf633cdda25bf71c0aabd77dd1658ce297ff96a193e9ee953a",
+              "outputs/reports/yr332_resched_ppo/evaluation/021.json.gz": "2687f0549a697e52a9b1204f8dd385e9d0eb47df3de6617020268a110b1d06a8",
+              "outputs/reports/yr332_resched_ppo/orders/021.json.gz": "b382e3b341d1c027e8af19a2fad1d5ac94b2a27cc86d8ecec00e5478138956e0",
+              "outputs/reports/yr332_resched_ppo/flow-orders/021.json.gz": "bb97c66f64a493844eafef72c6f37fac4734fbea9f2966edeeb1afdbdc6fd23f",
+              "outputs/reports/yr332_resched_ppo/evaluation/022.json.gz": "2716f97f9cf53fc68c1cab0f1fd8032c8d9cf6f59d9652953995fd26b6869cb2",
+              "outputs/reports/yr332_resched_ppo/orders/022.json.gz": "a48cf7d778974bb6e41063e00efc5b7aaacdde4ac03e513ccf988f829c580680",
+              "outputs/reports/yr332_resched_ppo/flow-orders/022.json.gz": "77ed13d7e1c3e100312e374eb1811e05cec232ceda5a7daf8bd8819feb8b4cc0",
+              "outputs/reports/yr332_resched_ppo/evaluation/023.json.gz": "0ab0b5f2a85ec97ccff2ccc24aeff301676a3a1bb71efc0c736bf102b23859e1",
+              "outputs/reports/yr332_resched_ppo/orders/023.json.gz": "063e4001d51464dac60ce525b9c1c50d0ce3462301ab00094db20ff0d08ed458",
+              "outputs/reports/yr332_resched_ppo/flow-orders/023.json.gz": "58161db966e19b82804b89d1271f79692908d7584b598e08344239910a32acc3",
+              "outputs/reports/yr332_resched_ppo/evaluation/024.json.gz": "16b0f789ea89e2c703ea6b53b8203634338f0238ef54a98c28eec17323f0aed1",
+              "outputs/reports/yr332_resched_ppo/orders/024.json.gz": "b3c2f26243b8dcba12e2a899aed6d97d4346651439651e66d052b46fcf889702",
+              "outputs/reports/yr332_resched_ppo/flow-orders/024.json.gz": "972b7aead08dbc665f4db537bb202d49a311ab01d63609833e3c3d84decdaeec",
+              "outputs/reports/yr332_resched_ppo/evaluation/025.json.gz": "988c26133f1fd71b3e834df4c80f0890a95b9608f6038d3944cf06c1577f7756",
+              "outputs/reports/yr332_resched_ppo/orders/025.json.gz": "205985547e05f736918f692f97c14c83bc5f1f3669fc38d07bc7c81f4829dacc",
+              "outputs/reports/yr332_resched_ppo/flow-orders/025.json.gz": "634576069fe8d1345467c5b1592d80fe77be7e60b478244c73704d1850aa57b4",
+              "outputs/reports/yr332_resched_ppo/evaluation/026.json.gz": "8cfeed0e33f368b73bcba194ab81cef897634f3e73f7764f9d7eb84f24dc23cf",
+              "outputs/reports/yr332_resched_ppo/orders/026.json.gz": "48fa0f3e9118963f7c8f7f672a035ab20981628d855e1a986c34f08de02d501c",
+              "outputs/reports/yr332_resched_ppo/flow-orders/026.json.gz": "8f26815941328a3ad466c2c7f081200af82a445cd83a7c7facde35a94519a563",
+              "outputs/reports/yr332_resched_ppo/evaluation/027.json.gz": "4681d87ca18be45a1a8051042e64e973b478b63f5bddbde4b7a3e977fd30b0ea",
+              "outputs/reports/yr332_resched_ppo/orders/027.json.gz": "f58178a60ba9e87955f41a3326be4e7e4cbd3978d454556defc3d4af0a72a7e2",
+              "outputs/reports/yr332_resched_ppo/flow-orders/027.json.gz": "16589f1d2b24fe42bf857c65088d70fcad403f3a089c9caeda77eddb88c32109",
+              "outputs/reports/yr332_resched_ppo/evaluation/028.json.gz": "3aff721fd48ef2e9c1e91b8671a0567ae29fdd14e8b49b48513d8f1089293cd5",
+              "outputs/reports/yr332_resched_ppo/orders/028.json.gz": "8d995e2f1dac8b8811a5c34bd211ab15a069313204a5a313de550d667aadb1f3",
+              "outputs/reports/yr332_resched_ppo/flow-orders/028.json.gz": "24dd3fe54823464de5b495728b2881d17f99f6bf54f2388a2636ee2e653e66a6",
+              "outputs/reports/yr332_resched_ppo/evaluation/029.json.gz": "c74b891439aeb647e23f9842eeb71dc671b0e0faebbf7ac8188859fd5b843315",
+              "outputs/reports/yr332_resched_ppo/orders/029.json.gz": "129402fb6b2546eb042572aa4e6c2ab97320ca602ab5edb60df040f340f5c8e1",
+              "outputs/reports/yr332_resched_ppo/flow-orders/029.json.gz": "09b7750cf6c79b87d89d0be97736906ed78533313915fac6f7364115a9f5072c",
+              "outputs/reports/yr332_resched_ppo/evaluation/030.json.gz": "5cf8cc25e3a3d28820cd0e8220f1747f18650556f59ebe8b99257a6ef52e59df",
+              "outputs/reports/yr332_resched_ppo/orders/030.json.gz": "405bbba5aec171847db08ef9913dbb3ed9d1d7fc43ecda5f74a8b1b720c1e51e",
+              "outputs/reports/yr332_resched_ppo/flow-orders/030.json.gz": "c027487c981b52fe25fd8e4a2d381970ada2e47ffdc1ae8ac1231fb7a73ef1dc",
+              "outputs/reports/yr332_resched_ppo/evaluation/031.json.gz": "d8329ac1571626698ce01c859530921150d2f6e6e2ac91b77af286d64c89c8d4",
+              "outputs/reports/yr332_resched_ppo/orders/031.json.gz": "54b8188e3c419172cb8998f63beb4c94bfd30fb313cef59bf9c757702f4ccce2",
+              "outputs/reports/yr332_resched_ppo/flow-orders/031.json.gz": "98876112c95daaca4d9e7fa9eee83dd510e2f4d590dd67b171b09d406b14e711",
+              "outputs/reports/yr332_resched_ppo/evaluation/032.json.gz": "b24cd73cc5cc34b2f70121b5ee72de8c7a2aa003fc41c87ccd4bb9b1b858729a",
+              "outputs/reports/yr332_resched_ppo/orders/032.json.gz": "f327978eaf6c83847db9ec8d3711607ab6b1bf73a922b1b6d501478fdb476f45",
+              "outputs/reports/yr332_resched_ppo/flow-orders/032.json.gz": "242316ec39c524206053e5d5d01bfe0d777f0396a613046438fb2a425bf00f27",
+              "outputs/reports/yr332_resched_ppo/evaluation/033.json.gz": "375b6c697636983ccb239427e66ddd37ca6f3d52333e15043dd5e91ee9521f6a",
+              "outputs/reports/yr332_resched_ppo/orders/033.json.gz": "0b0157e1687d6184a708cb56f1cd645466e4d834c77a0b9c6dfe43da6b4f8195",
+              "outputs/reports/yr332_resched_ppo/flow-orders/033.json.gz": "11fb66683eaf0ccd86692889a1241f223030e53df922cb38a8c6a335101ad6da",
+              "outputs/reports/yr332_resched_ppo/evaluation/034.json.gz": "d2d2ed76ae19f45180df8c95c3e3eadd838f1ec742be32817ae1a2090bd8fe12",
+              "outputs/reports/yr332_resched_ppo/orders/034.json.gz": "e6c951fcaf54e790f848bffb0241a9232685d0ea53b258fbe581fba663696912",
+              "outputs/reports/yr332_resched_ppo/flow-orders/034.json.gz": "13b3b53ad9a628bd73c6f199f0475a2284f27f63ea23dca131008e529ba0879d",
+              "outputs/reports/yr332_resched_ppo/evaluation/035.json.gz": "4cd70e70ac7b8a19cf9aef0895f6db2a7df5bdb1456201a43e0722a5aaf4c9ae",
+              "outputs/reports/yr332_resched_ppo/orders/035.json.gz": "d20ba593b9230d56852db4049ba643f8e7462de9962c4e0af80adf028d7017ff",
+              "outputs/reports/yr332_resched_ppo/flow-orders/035.json.gz": "7f781f0e65d6fa3875ec12219e0082055cda701cef73bfe9e10cbabc5375cabe",
+              "outputs/reports/yr332_resched_ppo/evaluation/036.json.gz": "f50a530e0071156079c4aaca468e2d4c214e26522f72e8a58f250aab0cb1c132",
+              "outputs/reports/yr332_resched_ppo/orders/036.json.gz": "00143c0e5dd63ebdb95e1a5cc194d429a45eae939a3140746d6e15f7a7e0e73f",
+              "outputs/reports/yr332_resched_ppo/flow-orders/036.json.gz": "4906b8dfe2e8dc8fdd46e5e58ea7d6e74c1025420880e712fcf1dfcab06d839f",
+              "outputs/reports/yr332_resched_ppo/evaluation/037.json.gz": "ba618d7f9e50fb5bd716e90ad389391f2a0a190c5565c07bae59d3e3c64b6093",
+              "outputs/reports/yr332_resched_ppo/orders/037.json.gz": "d1c87dc56721efc2c5bdf1c6036f5d460b9969cccae69c0a5c6eb2905aa65e40",
+              "outputs/reports/yr332_resched_ppo/flow-orders/037.json.gz": "b9eaea282c287cc6b77173a542cdf5bcadd26fc6c8b2a2974a2072543a53c190",
+              "outputs/reports/yr332_resched_ppo/evaluation/038.json.gz": "3ba0d076c82f4b4735cfdfc8d50aeebf906d6d9ff30d9aafe1b45c4474362187",
+              "outputs/reports/yr332_resched_ppo/orders/038.json.gz": "20ca0a00f482e13d295a4a17efcf535a1de18d359a56784a8653eb2d33d661a1",
+              "outputs/reports/yr332_resched_ppo/flow-orders/038.json.gz": "b3e5a80bcf7b288e6f4ea01037d78d49b1186dfc411b533d6fb597612c091965",
+              "outputs/reports/yr332_resched_ppo/evaluation/039.json.gz": "da9fd32289177a953b505d8af48bd9166ae70e4d51e9accfcb6b7f3bfc16e506",
+              "outputs/reports/yr332_resched_ppo/orders/039.json.gz": "ea73fb9ac316f6bd94556273d162e2ba6549e24afe0e901a57c2a0134328ea1d",
+              "outputs/reports/yr332_resched_ppo/flow-orders/039.json.gz": "e2de7e57cdcc7941053c1c46cd436329bbf34fd8ae5d419ecc4cf3007d301786",
+              "outputs/reports/yr332_resched_ppo/evaluation/040.json.gz": "712d5999faff943a81290c702d9014745bbb3e8701f9d0df03d7a19ad5ee353f",
+              "outputs/reports/yr332_resched_ppo/orders/040.json.gz": "7e3f6bef217d392004be47a74a8231ddfb38f7520faa5d05cec29a828858470a",
+              "outputs/reports/yr332_resched_ppo/flow-orders/040.json.gz": "5f165b06a7b508dbc29a595f9920cc7d4a156b27fd9fad1894675c71a34ac10e",
+              "outputs/reports/yr332_resched_ppo/evaluation/041.json.gz": "a12c5bffdb725bc4f5b1e73cf44a72f1afbe3c93957cc69b919cf209ff138698",
+              "outputs/reports/yr332_resched_ppo/orders/041.json.gz": "d4035223f35f80b85e74feac3e7b679ea15650e4d4bed3f4a67fb84626141781",
+              "outputs/reports/yr332_resched_ppo/flow-orders/041.json.gz": "fbf8d4a68ea74add64d595a789e922d816bfb86c1906061f42e63e3d55f10735",
+              "outputs/reports/yr332_resched_ppo/evaluation/042.json.gz": "95fa97ffc0f98d20c80b51eeed48c7dd4243956a2b81a1eac5707224a8c617cb",
+              "outputs/reports/yr332_resched_ppo/orders/042.json.gz": "d3c998e306ecc4e99494b7e95fa4dad2dd7638ba1d1d8f92c4fd9646793c876c",
+              "outputs/reports/yr332_resched_ppo/flow-orders/042.json.gz": "0c277cdca229997a4a588d5648e194931095f29dc0740770236f4339805be4e9",
+              "outputs/reports/yr332_resched_ppo/evaluation/043.json.gz": "16beafadebb98029f9bf8388d87a51cbd74bc4dcfe44ce93c6619b0aeddbf318",
+              "outputs/reports/yr332_resched_ppo/orders/043.json.gz": "7e780051b8c49e52221176ebf446f12f885e54af3377625fb24e81e5baa15d2e",
+              "outputs/reports/yr332_resched_ppo/flow-orders/043.json.gz": "445d53600618af11238cfa47be4f2afaab10f76f4d52390b10e38a94c3f996f3",
+              "outputs/reports/yr332_resched_ppo/evaluation/044.json.gz": "f7ec57a44b1003a1203574a521e81791bb11c2ea0a0103c08cb21d93b2aa52a0",
+              "outputs/reports/yr332_resched_ppo/orders/044.json.gz": "9e04a4d4aff1b65ee705fb5975c4058ab85d5fa34240903713ec6b0814bbf0eb",
+              "outputs/reports/yr332_resched_ppo/flow-orders/044.json.gz": "1e77dcdcfb8a0ec6f9e9e84d84dc3ec93a72f9c9ac2de31a4d08b04db21291bd",
+              "outputs/reports/yr332_resched_ppo/evaluation/045.json.gz": "1761fb79d6a5fc568f2255a79be91fd8c1e5536491d9614d71bdc43f61dd8640",
+              "outputs/reports/yr332_resched_ppo/orders/045.json.gz": "517ddd61339a4e7488df537d3ad4ac048cd4ed5203dac57cc56675612a5548ef",
+              "outputs/reports/yr332_resched_ppo/flow-orders/045.json.gz": "0361b92f21b06cdc924acf2b92ed9964d109165eb6bbad66b742275e89224609",
+              "outputs/reports/yr332_resched_ppo/evaluation/046.json.gz": "d200cc2d4b98d0457e91633576cf9ff23d87e850a3e5a7e415d8fc8865cb1bb2",
+              "outputs/reports/yr332_resched_ppo/orders/046.json.gz": "5e398178d8440d5d9e9bade3e685cf6dd238c0999bd71914241fcf86f83185bf",
+              "outputs/reports/yr332_resched_ppo/flow-orders/046.json.gz": "8641c8b8dbe8e3b50341af35d9716030c83a46f2bb00debd6a0f07ac440426b6",
+              "outputs/reports/yr332_resched_ppo/evaluation/047.json.gz": "6303cc60281968e09baaa4047cecdd3192d9292ded52b67c1419a411ce4eaafc",
+              "outputs/reports/yr332_resched_ppo/orders/047.json.gz": "1a7c637db382ecd1ee0f9e5aee3bc74f0c3cba3c63ff620cbe0848c05c66e558",
+              "outputs/reports/yr332_resched_ppo/flow-orders/047.json.gz": "a017da143b54fd976590396b65f459b72733efc7b6f071652f91972389492dae",
+              "outputs/reports/yr332_resched_ppo/evaluation/048.json.gz": "8fb2b216e92bb31f79db679987f616fdd6f9c1c1a43d82b3cdffe813c14eb166",
+              "outputs/reports/yr332_resched_ppo/orders/048.json.gz": "1be2614114b40e6381be24c28a07a06f8ac8e384d672d07439932dfa2c872ad8",
+              "outputs/reports/yr332_resched_ppo/flow-orders/048.json.gz": "3694f83686ffeed36336f57de842f155b8b01fa39dc5416c7bbeb4cc048ffaa5",
+              "outputs/reports/yr332_resched_ppo/evaluation/049.json.gz": "224c86ba3f983e7fe8294cf68741617fb518012156a60a7bbb51e40ee360c3ad",
+              "outputs/reports/yr332_resched_ppo/orders/049.json.gz": "ce90fab998e5953fbbda08fc3832d75e279570bc5949af3bedf3ef8748c190cd",
+              "outputs/reports/yr332_resched_ppo/flow-orders/049.json.gz": "02523391b8d86da0d1014969222878c1e2e0f97c61adea4eeb1199268d5f39a8",
+              "outputs/reports/yr332_resched_ppo/evaluation/050.json.gz": "98b81370b65f264e34bae5c596a08bb39494b33b89767235bb038191c28d0f8b",
+              "outputs/reports/yr332_resched_ppo/orders/050.json.gz": "4923f1c85036b4821a7f0f8d1a9a18dde50873a7ab185e91eb487b8f6d7ed19b",
+              "outputs/reports/yr332_resched_ppo/flow-orders/050.json.gz": "1c07e37fc618dcf410a032688584654b5cf71fd79ba749f97c6c4b8a751ee010",
+              "outputs/reports/yr332_resched_ppo/evaluation/051.json.gz": "cf8ad81ed1f344ec06dc4220ba4532afb721cd6c5a84616234fa453721a68594",
+              "outputs/reports/yr332_resched_ppo/orders/051.json.gz": "39d6afde0fcf5a608531f2ecc5ea64d1dc81e4e93e2beac2955a8594e46a9049",
+              "outputs/reports/yr332_resched_ppo/flow-orders/051.json.gz": "f5f10724fb113a4d5c94bf781bdb85fcd21412c9bf510def543a5ec08d334292",
+              "outputs/reports/yr332_resched_ppo/evaluation/052.json.gz": "e846cd6a07f903a5f7a645a9512df6b2b66fbd622af5596e391e748d71258362",
+              "outputs/reports/yr332_resched_ppo/orders/052.json.gz": "ac20b03107e0c6ca002ba48a849acda7e2fdb3d6bb864af2abed966c904e0f08",
+              "outputs/reports/yr332_resched_ppo/flow-orders/052.json.gz": "2e3ed3af2bfe99e557b45fc21456de53643b63ddcf68ef7085ab3e1af5e902d6",
+              "outputs/reports/yr332_resched_ppo/evaluation/053.json.gz": "cb89929f47dc6054def700c5f28471c939984a7240d3e4be5127fb0e43d9491b",
+              "outputs/reports/yr332_resched_ppo/orders/053.json.gz": "9acd92a1a309376bbb628bf62ac21d7c90d48ea0d9a5ef2b26181f519c31db51",
+              "outputs/reports/yr332_resched_ppo/flow-orders/053.json.gz": "a21abe3bf2ada2b43aa115e7cfc20ed0719d58bba878aabffe146d8a241bfc0a",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/final.pt": "3f9b1ae0c0092730d0f06af224edf45dce93ce70aca2f0735647e07431e0977c",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/initial.pt": "19dca6a07d1792754c503dfc03bd4089cc247e345273998309c35ea2da5da3f5",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/replay.json": "07202447c8da01b3bfea8fac37dc454e612428c0a1c38fd2ced9cfa427c3560c",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-0.json.gz": "8ae7650d94e476226b3327811bd217eafdc7e38a8f2fb3a482ec0a8fddb9666f",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-1.json.gz": "87f2fa0380ac536a9797cbb4e4fb05ea74fd9f810920ce07551a12c097ebd1ba",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-2.json.gz": "24aa21a8afd3b2d2f534a249ed98778d6b94178414d5cc8a7d5dd74a488550cc",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-3.json.gz": "dd59c58316f3052a8582580965a9dc6a6a8874123e2f14cc549ec0d020fa313e",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-4.json.gz": "906e9ebb45efb3f56de10386a140fc286f52596518f905d8a1927031aaa44acd",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/samples-5.json.gz": "ab3ad7debdff90e9d7572885df27f172a3153e82d8c731f012e850117d67be6d",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/training.json": "cfdbaa8357ed2e0ee8784b27eaed41c363622166fcc67a5627db066b9da52138",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-0.pt": "5185767607d07d8c8609d2208c8862b82250b2f440db4e4feda60007bbfe1d8b",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-1.pt": "c90c316d85f92b8925c33adcbb5515cd98ece7ff10c41e638da53dd746eadc29",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-2.pt": "d78aab6b317329d90253dd1d1d8b1aa9cc5774f2a84ccb18199b3a437985a589",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-3.pt": "4162e86a094a802a2b75523158ab57436eeb4c47ed160c252cd99baf2aa84498",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-4.pt": "4f0469c2601b50707931193ec41e576cf1030c668073a35f0a076a9989edd8e0",
+              "outputs/reports/yr332_resched_ppo/mlp-9951101/update-5.pt": "8fe661d8911c1eb72aa8f49acddf67d23732858a2927b173a5a8d047771edfd6",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/final.pt": "258391f29f8f009ce9b62d6f188b2cce71935e655146a9667c0ccb47eadc39ce",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/initial.pt": "24b9367d5c6a2ac7e47d30422656fa50428c6d6f2243dd1ac91ddf4aa91c5646",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-0.json.gz": "17ea8604c5e57dd608fd34afcaf00c603709a0385d482a11c695ac9efe0459df",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-1.json.gz": "130e9903aab78bf10fd43c4b5308751f77100849cd52ced13945e039beadd7a1",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-2.json.gz": "54ad5972ba12be3079ff17bd63146d2db039ee75b5c414892214fd8327d47fc0",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-3.json.gz": "f9b9e551325928eddab71143bc944ef5e093cdb7e2d2df72e7ab8eba3f728843",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-4.json.gz": "8c8a0981749314cbf29329a7fc87ddb047c802f6647f5c868086a6d364da2a34",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/samples-5.json.gz": "627895a7180a1989ccbdcb48a8b54e8683e894057fc20e0941e628db5a153ccb",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/training.json": "d796eec5c2b9926703e229e79edf763c82bff42887416b4dc410a5f2ff497319",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-0.pt": "7d167d7c780e9d99f519bf4396873e4ead16b760f728afadcd0a96da82eed788",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-1.pt": "c118fe78a8c659d6f15965e440f6756293becf400bf801a4b134d82caa055491",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-2.pt": "57f4190387a7949cc3fe753148aa5df21e6ef74d93bbfce0a9231760f7bb7503",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-3.pt": "47ce2e48060890ad96887907a854ccf3a0853c230c76ef09e624b931a5d269cc",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-4.pt": "097b135d9e48d7fac08291829fc064ec554dca9c65159056dd41d6c9c84e117b",
+              "outputs/reports/yr332_resched_ppo/mlp-9951102/update-5.pt": "60df4bd257dc6e135fb02ad3f7f1af775b02984eb827b329a0b71f8ddd514720",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/final.pt": "2b06f39e965a7b19201e5760d39a102e7b42448f3c82d9df65d1b6f6e0070f6a",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/initial.pt": "a7db3ea11d4a9176b931c775450f3faf0b08486bd88554938b08ef1a67fd1556",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-0.json.gz": "3951e48a720010552ea3e0718445c98a8ef3b9130ee35181ab435aa5cdd44064",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-1.json.gz": "b7fc9ca265ac465365d16c16afaf48f98a30121a07cd4c084e7c65e7d410b755",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-2.json.gz": "150003cfa883fdad56ba5ea8aae44a2aa577b0314b91197c03407d3d1eb9ea77",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-3.json.gz": "21627c148cdd408657ca761fb9450e16406c7f39dd3dc173e4a7a4b22102005a",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-4.json.gz": "e2d3255453299014c26788e015b73aae5353fc81db43380dbff5de4ae70c65e2",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/samples-5.json.gz": "6701be2de2da1116d82c13e7d3d4bb06d5341a7a1409b705b69b7535b21fd994",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/training.json": "82820aa4ca516b060f04520811b68e8d65cd9b0b77dec8cdcc41c9ce51b9184b",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-0.pt": "bcdb0556d1f55047c6c481c7bd95cffe38b09fdaeacb67bece11863fb7dce20e",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-1.pt": "a91d77c0ef54479d21f02683c18419419e571c06e6f0d8142ddaf91b2ffed6e0",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-2.pt": "28538432a4d0774a0f62483fd5c19e679fd9ee9e7f0f85045ca00ccc4421250c",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-3.pt": "dafbd583c62f754045560cf95530b59238552f7aac456296f9e8751b25320751",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-4.pt": "e4ca6a3e310a828529bdb341dca6709b0ed5442ddc977a6a9540dbbd11ab6882",
+              "outputs/reports/yr332_resched_ppo/mlp-9951103/update-5.pt": "9b4e9ff81b0b20f4211f25455549b71b0ca861b895f7de47bd731024a6b79844",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/final.pt": "2be4ee4252b655680a9cd628dba61a362a8ba07a6036f51a0fa98dbc6cbe1dbf",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/initial.pt": "3f549bfe715755009609c0a3a98234e9ce26cad0613574d1abc1d1e18955a7d5",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/replay.json": "ca6548ba9bb5cce4493c936016b050ceb092817d398c377539a65e7c77a6d607",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-0.json.gz": "4e5ae8c95d716976a1f73e81617a368832ad114c80b05da1de1abc1506f45e50",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-1.json.gz": "82433f866222dfbe292a92c8d36e1742a6b789f8ff8ecdcacc5a4e186bb32e0e",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-2.json.gz": "906569a180ccbdf22b49f4b07cce76f0e69a7fd055242d7b977770862333048d",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-3.json.gz": "cc7b51ee3924d057734776ac1a7b39e4fc35e6dbf16c9f5c06b0cf4d6c472d04",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-4.json.gz": "3bbe952353afaac311a78a0e32a39ffb91a485dce255d338acf230b144406a86",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/samples-5.json.gz": "65e14b4faea15564fac80fb17d0699ca80f9dcbec03c796ddd802754deec857c",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/training.json": "d8368064513109d72b1f768bf20bfeede2592214cb14d81232e9e1900f43b6c0",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-0.pt": "203ab8de21b6b2b38765ff69c525c82f9d12b3f020cf3f3a1457faf4cd7ec8d8",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-1.pt": "adde102bd5e873d8f9463994c0223513a0d3b55fc473a63a3d505ef05d85e258",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-2.pt": "7380ac7510ec2449704b24b49504fe11e5e48b7e5d324503e1a2c3f93dbdcf25",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-3.pt": "1c453828ee55d604f98bddb3f0d043ddcbd71a6068dc71e2ea5b240b9cea3d07",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-4.pt": "f3c07ed138dcda8f9971d302e5dcf9fa2d7b0c59fbf8a1a4c8c6e805e98d186a",
+              "outputs/reports/yr332_resched_ppo/transformer-9951101/update-5.pt": "86b5bfed16c5220003c7080369fc37a071af29cafce28e6adf3283ca776137d2",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/final.pt": "a8f9529eafdde1e8fce82d3277a9e73d1a58d267e8d1c3050c206b52c4b463d7",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/initial.pt": "77ffceef1478c2a760662ae346babfbfa393799e0d26066d1a1ea89c5e8f0838",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-0.json.gz": "65aeb9ffd6a4df0f83bee90c5cfdbf5502a8dcb6cea8fbfbfbeddcc0b4ac4663",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-1.json.gz": "87d9ee9293ae02d2088ae3f1834d704ecb0b72c7d8087ea1cccb12eee06fc6ae",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-2.json.gz": "60a2b2c7d4f75687ee1f98e0bd44032bb58b93cb4ab6b98f59510fc588c0ab4f",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-3.json.gz": "85b2b1339da52a0e92d26a124e8fe5141caa6dd71471c2e740d765cb60352bc9",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-4.json.gz": "b61195e7720aad7f027c42de8b95f061a7427d89ca736f1ca240210dc1754148",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/samples-5.json.gz": "ae18ab52223e82e4e9ac2d8b11cce5bdcd6cb0cc03eed5f5f0f303d379c97ab4",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/training.json": "b3ae003cd90e91529744480ceccee72928714e9fefbb3c096c8bbe15fd981596",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-0.pt": "f43ca0759190cf5210f75cd6ef97b32d4bb83f06ef77e227fd06fb72eb08dc3c",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-1.pt": "d2ea20f407b3497a12ea353acff841cb090b42e24ec6c3a8d81374753550ecb3",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-2.pt": "2e4d79021e7141a2aae44ed99ca0f7d83c7d0d3db1a8b3cdad709ff97c79083e",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-3.pt": "ae0362e0557aafa64e9a70d246e54364f6f66f202a259619c159916741041305",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-4.pt": "0c91407ca47c53b19c02298887abb848fceb260a3c931420279fc7e126db7485",
+              "outputs/reports/yr332_resched_ppo/transformer-9951102/update-5.pt": "929851b44d35e015316cf7cd9c6065b60202646c8528618be78c450fc965ec8b",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/final.pt": "a2a4b3d7a456f92c02146757b0e60ad31eaf34bd7849197e2b1b8daecddf61f3",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/initial.pt": "beb58b8698d25d86835711da0c801131ef2d24c027e3eb5ccc7b8b61f7250cef",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-0.json.gz": "d4133d11e22384d62b825192b700689dfdd0ffd66f1834b018ea19e7d09ad992",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-1.json.gz": "3f7d3d0a09da2fddc430bf58aa0ab11ecbf94cc42b5e2591de5f7e1df1b30543",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-2.json.gz": "44d009efe903255567192407b0326d36345866ffda44b6268d6825519a8e4239",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-3.json.gz": "3b0301977f984e49db8111188d5c991ee660394dacb86e895bd69785f79d8e35",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-4.json.gz": "8ff3cdd026f84538685edf945af087f0e8f96575f160667e1eceac1d0713f4ff",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/samples-5.json.gz": "f046715b574adb1031ca28004a858174a651c97e26550dfae5ae1283ce121220",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/training.json": "f9ae16918f87fb3edada2111f98c3e3c3231b552f9d7abfa5d689bdb6be33f51",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-0.pt": "4645383edd05aa0f77c2d3d26c9d08b8782b3bdfde0c1660a950a6f8c7d28769",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-1.pt": "1ab0833cd73cf6c01670c593d282e37f8b0e8c7944142cdc1a815c4ed2e2b745",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-2.pt": "01c287eaf4336105454436c83e6bc61450ec91abc815ce9175931d742b844025",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-3.pt": "a7100f88c1f08f026504404c8768954c06f4ef2ab32c6a0b11466af42a9c9bbc",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-4.pt": "626dec1a8c40de4d7ccb2010bf6ba4d9ee5e2d1eea55fe1243e1f6b914bc3aec",
+              "outputs/reports/yr332_resched_ppo/transformer-9951103/update-5.pt": "96f6d049e9b2bab8dfaa0e870d347636b234a362ae9d5465b86cee39b1b20655",
+              "outputs/reports/yr332_resched_ppo/default-regression.json": "74566f7b86a7d6e87d020914aaa9e7b68dfc3d223d6fbe8a8f01bc177e11d98d",
+              "outputs/reports/yr332_resched_ppo/on-policy-tests-final.xml": "a1e0b3e88a744718a8ae760b9ce09c97acd22af09d95b867ab40f1a226c33436",
+              "outputs/reports/yr332_resched_ppo/regression-tests.xml": "c68056f43aa7c19b062e45a8ae27c70aa9a758633dc319193c669952f7e76390",
+              "outputs/reports/yr332_resched_ppo/reference/sources.json": "5e90279b0ca9f33f3df681ab0367f5339e5301f6eb87541f126905906e47d7b1",
+              "outputs/reports/yr332_resched_ppo/campaign.json": "f9016c823b8f91f546356499fbe2f7c71e86a646dd3929c8b6790853404c0765",
+              "outputs/reports/yr332_resched_ppo/source-publication-audit.json": "e5c918ec674c383be4f428418ce55f71b5f0f02dd2f630d89207427a1867de20",
+              "outputs/reports/yr332_resched_ppo/input-split-audit.json": "aaf2415c5be6aa47bc0323fd48e65d28adfe7ad4a5ea154e87ff791d550425cf",
+              "outputs/reports/yr332_resched_ppo/gradient-diagnostic.json": "5970be242ad2407e1835eddee7e1772ee3af094efcc9589278e5b246c79d0834",
+              "docs/research/v7-discharge/resched-ppo-prereg.md": "9ec2d538dbdf32d03385161b2b183d6d9163a9c25a664da7f9d1ee6b192de9c4",
+              "outputs/reports/yr332_resched_ppo/summary.json": "edd426b8b1227780e1b367d3a98893e96fa968a7f8b2db47d083b5ec7df9ba59",
+              "outputs/reports/yr332_resched_ppo/README.md": "faf757c726ce6a94ac07a3441d2624a09cdf68e592b2d66eaeccd4279b1835b2",
+              "outputs/reports/yr332_resched_ppo/schedule-window.json": "0abf537f7cc14232e6809283c7d9a9907a0c1197d3f2430cd6e6550218850707",
+              "outputs/reports/yr332_resched_ppo/schedule-window.png": "f2499defb1ffcce5164fb28440eb3cd560e747e58c06eabf5fdce2fdaf7fe441",
+              "outputs/reports/yr332_resched_ppo/inference-benchmark.json": "adce725d1fed409c19fc5dcba1c2525d31926736d505264a49a4ff2c2504b0dc",
+              "outputs/reports/yr332_resched_ppo/verification.json": "0177a5212a3a302c8edb6fe430a0f0e3ab33b97bd2f2ce5a5ec91278a5732162",
+              "outputs/reports/yr332_resched_ppo/publication-byte-audit.json": "d774ab25ef25f664ebf4d3a00e3afd79b7bb39623fb07689b3a291e8796877ee"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-av",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-av-resched-ppo-diagnostic.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_resched_ppo\\summary.json",
+              "outputs\\reports\\yr332_resched_ppo\\README.md",
+              "outputs\\reports\\yr332_resched_ppo\\campaign.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-av-resched-ppo-diagnostic.md"
+            ],
+            "evidence_commits": [
+              "9d1314b4"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "9d1314b4",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.00501,
+            "reported_values": {
+              "0": 112.019,
+              "1": 26.19,
+              "2": 129.374,
+              "3": 45.74,
+              "4": 131.837,
+              "5": 48.51,
+              "6": 112.332,
+              "7": 26.54,
+              "8": 92.377,
+              "9": 4.06,
+              "10": 88.77,
+              "11": 0.0,
+              "12": 122.277,
+              "13": 37.74,
+              "14": 121.605,
+              "15": 36.99
+            },
+            "raw_values": {
+              "0": 112.01925705488932,
+              "1": 26.18974450996965,
+              "2": 129.37426456720556,
+              "3": 45.740168441764496,
+              "4": 131.83652290987132,
+              "5": 48.513903595411215,
+              "6": 112.33190326932115,
+              "7": 26.541940614089743,
+              "8": 92.37713664929834,
+              "9": 4.0628868536913165,
+              "10": 88.77049199987819,
+              "11": 0.0,
+              "12": 122.27655140659249,
+              "13": 37.74459130716576,
+              "14": 121.60515996765466,
+              "15": 36.988268542908976
+            },
+            "absolute_differences": {
+              "0": 0.0002570548893174873,
+              "1": 0.00025549003035152396,
+              "10": 0.000491999878192928,
+              "11": 0.0,
+              "12": 0.00044859340751202126,
+              "13": 0.004591307165760838,
+              "14": 0.00015996765465331464,
+              "15": 0.0017314570910258453,
+              "2": 0.0002645672055621162,
+              "3": 0.00016844176449382076,
+              "4": 0.0004770901286690332,
+              "5": 0.0039035954112165427,
+              "6": 9.67306788481892e-05,
+              "7": 0.0019406140897437751,
+              "8": 0.0001366492983407852,
+              "9": 0.002886853691316915
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 미수집: achievable_vessel_deadline",
+        "내부타당성 미수집: information_boundary",
+        "지속 유입 운영흐름 미검증",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": false,
+        "internal_checks": {
+          "event_time_order": true,
+          "physical_constraints": true,
+          "ledger_conservation": true,
+          "deterministic_replay": true
+        },
+        "flow_checks": {},
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
