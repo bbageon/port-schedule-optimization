@@ -73,7 +73,7 @@ def main():
         '확률 분포 차이는 바뀐 확률 질량이다. 작은 확률 차이라도 최고점 후보가 바뀔 수 있다. 이 표는 선택 결과의 인과 효과를 재현한 실험이 아니다.', '',
         '## ② 해석', '', f'- {verdict}',
         '- 음수 비용을 보상으로 쓰는 것은 비용 최소화를 보상 최대화로 표현하는 방법이다.',
-        '- 행동 신호의 음수는 “예상보다 나빴으니 선택 확률을 낮추라”는 뜻이다. 예측 비용10·실제8이면 상대 신호+2, 실제12이면−2다.',
+        '- 행동 신호의 음수는 “예상보다 나빴으니 선택 확률을 낮추라”는 뜻이다. 예를 들어 예측 비용10·실제8이면 상대 신호+2, 실제12이면−2다.',
         '- 현재 구현은 이 상대 신호를 두 날짜 전체에서 한 번 더 표준화한다. 고물량 날짜의 음수 편중만으로 잘못된 행동이라고 단정할 수 없다.',
         '- 이번 비교에서는 음수 신호를 삭제하지 않았다. 삭제 실험을 하지 않았으므로 음수 제거의 효과를 입증한 것도 아니다.',
         '- 학습은 확률 추첨, 주 평가는 최고점 선택이다. 그 차이를 유지한 비교이며 두 실행 방식이 같다고 주장하지 않는다.',
@@ -87,6 +87,7 @@ def main():
         '증거: [사전등록](../../../docs/research/v7-discharge/value-stability-prereg.md), [실행 설정](campaign.json), [전체 수치](summary.json),',
         '[같은 상태 선택](choice-diagnostic.json), [기울기 진단](gradient-diagnostic.json), [검산](verification.json), [발행](publication.json).',
         '그림: [학습·평가 비교](comparison.png).',
+        '재현 주의: 구형 곡선 보정 JSON 1개는 Git과 로컬의 줄바꿈만 달랐다. 수치는 같으며 [원래 바이트 사본](frozen-sources/calibration-periodic_linear_24.json)과 [대조 기록](source-publication.json)을 보존했다.',
         '방법 근거: [PopArt 원 논문](https://arxiv.org/abs/1602.07714), [PPO 원 논문](https://arxiv.org/abs/1707.06347).']
     assert len(lines)<=200,len(lines)
     (OUT/'README.md').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')

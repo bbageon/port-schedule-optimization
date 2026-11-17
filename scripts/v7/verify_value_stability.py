@@ -16,6 +16,11 @@ def close(a,b):
 
 def main():
     check();s=read(OUT/'summary.json')
+    source_publication=read(OUT/'source-publication.json')
+    assert source_publication['passed']
+    for item in source_publication['format_only_legacy_inputs']:
+        assert sha(item['byte_snapshot'])==item['runtime_sha256']
+        assert read(item['byte_snapshot'])==read(item['original_path'])
     for p,h in s['artifact_hashes'].items():assert sha(p)==h,p
     cases=[];n_orders=0
     for p in sorted((OUT/'evaluation').glob('*.json.gz')):
@@ -56,6 +61,7 @@ def main():
     save(OUT/'verification.json',dict(passed=True,tests=tests,evaluation_cases=126,repeats=2,
         truck_order_rows_checked=n_orders,source_files=len(read(OUT/'campaign.json')['sources']),
         evidence_files=len(s['artifact_hashes']),full_checkpoint_replay_updates=36,
+        legacy_newline_snapshots=len(source_publication['format_only_legacy_inputs']),
         targets_checked=73728,summary_sha256=sha(OUT/'summary.json'),report_sha256=sha(OUT/'README.md'),
         scope='source hashes, direct timing arithmetic, raw ledgers, fixed final checkpoints and optimizer replay',
         limitations=['No independent real-terminal validation','Three model seeds and three synthetic test curves',

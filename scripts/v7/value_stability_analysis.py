@@ -105,6 +105,11 @@ def main():
     torch.set_num_threads(1);cfg=check();rows,artifacts=audit(OUT)
     assert len(rows)==126 and [r['case'] for r in rows]==cases()
     assert len(list((OUT/'evaluation').glob('*repeat.json.gz')))==2
+    for p in (OUT/'evaluation').glob('*repeat.json.gz'):
+        repeated=gz_read(p);prior=gz_read(p.with_name(p.name.replace('-repeat','')))
+        for k in ('candidates_sha256','choices_sha256','events_sha256','jobs_sha256','records_sha256','result_sha256'):
+            assert prior['probe'][k]==repeated['probe'][k],(p,k)
+        assert prior['orders_sha256']==repeated['orders_sha256']
     inputs=defaultdict(set);cohorts=defaultdict(set)
     for r in rows:
         c=r['case'];key=(c['split'],c['index'],c['load'],c['input_seed'])
