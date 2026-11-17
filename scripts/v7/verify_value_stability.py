@@ -26,6 +26,7 @@ def main():
     for p in sorted((OUT/'evaluation').glob('*.json.gz')):
         if 'repeat' in p.name:continue
         row=gz_read(p);orders=gz_read(OUT/'orders'/p.name)
+        assert len(orders)==row['case']['load'],(p,len(orders),row['case']['load'])
         n_orders+=len(orders)
         # Direct timestamp arithmetic, independent from both simulator and report.
         observed=[]

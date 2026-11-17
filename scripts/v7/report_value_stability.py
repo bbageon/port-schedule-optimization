@@ -88,6 +88,7 @@ def main():
         '증거: [사전등록](../../../docs/research/v7-discharge/value-stability-prereg.md), [실행 설정](campaign.json), [전체 수치](summary.json),',
         '[같은 상태 선택](choice-diagnostic.json), [기울기 진단](gradient-diagnostic.json), [검산](verification.json), [발행](publication.json).',
         '그림: [학습·평가 비교](comparison.png).',
+        '검산 명령과 재현 범위: [재현 안내](REPRODUCE.md). 모델 여섯 개가 같은 학습 날짜12개를 공유했다.',
         '재현 주의: 구형 곡선 보정 JSON 1개는 Git과 로컬의 줄바꿈만 달랐다. 수치는 같으며 [원래 바이트 사본](frozen-sources/calibration-periodic_linear_24.json)과 [대조 기록](source-publication.json)을 보존했다.',
         '방법 근거: [PopArt 원 논문](https://arxiv.org/abs/1602.07714), [PPO 원 논문](https://arxiv.org/abs/1707.06347).']
     assert len(lines)<=200,len(lines)
