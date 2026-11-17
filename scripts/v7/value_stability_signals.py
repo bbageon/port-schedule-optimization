@@ -89,10 +89,14 @@ def choices():
         gz_save(OUT/f'choice-states-{seed}.json.gz',rows)
         for load in (0,*LOADS):
             group=[r for r in rows if load==0 or r['load']==load]
+            single=[r for r in group if r['single_crane']]
             mixed=[r for r in group if r['single_crane'] and r['mixed_truck']]
             item=dict(seed=seed,load=load,n=len(group),mixed_single_crane_n=len(mixed),
                 mean_total_variation=sum(r['control_popart_total_variation'] for r in group)/len(group),
-                argmax_disagreement=sum(r['control']['top_candidate']!=r['popart']['top_candidate'] for r in group)/len(group))
+                argmax_disagreement=sum(r['control']['top_candidate']!=r['popart']['top_candidate'] for r in group)/len(group),
+                single_crane_n=len(single),
+                single_crane_mean_total_variation=sum(r['control_popart_total_variation'] for r in single)/len(single) if single else None,
+                single_crane_argmax_disagreement=sum(r['control']['top_candidate']!=r['popart']['top_candidate'] for r in single)/len(single) if single else None)
             for label in ('initial','control','popart'):
                 item[label]=dict(mean_normalized_entropy=sum(r[label]['normalized_entropy'] for r in group)/len(group),
                     inbound_conditional=sum(r[label]['inbound_conditional'] for r in mixed)/len(mixed) if mixed else None,
