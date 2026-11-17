@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "rows": 73728,
+  "unique_record_keys": 73728,
+  "immutable_source_files": 300,
+  "analyzer_hashes_match": true,
+  "spot_states": 72,
+  "independent_single_state_forwards": 288,
+  "max_probability_error": 2.175880009502862e-08,
+  "max_value_error": 9.5367431640625e-07,
+  "max_old_joint_logp_error": 4.76837158203125e-07,
+  "all_corpus_max_logp_error": 9.5367431640625e-07,
+  "all_corpus_max_value_error": 3.814697265625e-06,
+  "all_corpus_max_target_error": 0.0,
+  "probability_sums": true,
+  "saturation_counts": true,
+  "partition_counts": true,
+  "independent_aggregate_checks": true,
+  "tests": {
+    "command": "pytest -q -p no:cacheprovider tests/test_ppo_credit_diagnostics.py",
+    "passed": 6
+  },
+  "new_simulation": false,
+  "new_training": false,
+  "limitations": [
+    "No raw wait above two hours or original job IDs in saved records.",
+    "One observed return per state, no counterfactual causal identification.",
+    "First-minibatch gradients only; not actual Adam parameter displacement.",
+    "Original performance FAIL and scenario_validity FAIL remain unchanged."
+  ]
+}
