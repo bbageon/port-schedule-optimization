@@ -224,7 +224,7 @@ class _Ctx:
 
 def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
                  crane_net=None, on_crane=None, batched=True, reuse_plans=True,
-                 evaluation_probe=None, candidate_cap=12):
+                 evaluation_probe=None, candidate_cap=12, joint_resolver=None):
     """크레인 **바닥** — 실행 정책과 예외 계수기를 함께 돌려준다.
 
     ★본 세계와 분기 세계가 **같은 바닥**을 써야 한다. 어긋나면 라벨이 다른
@@ -251,6 +251,8 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
     if dispatcher == RL_CRANE:
         pref.batched = batched
     pol = ResolverPolicy(pref, dispatcher)
+    if joint_resolver is not None:
+        pol.resolver = joint_resolver
 
     def exec_policy(sim, dp):
         begin = perf_counter_ns() if evaluation_probe is not None else 0
@@ -266,6 +268,9 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
         select_start = perf_counter_ns() if evaluation_probe is not None else 0
         try:
             assign = pol.decide(sim, dp, gb)
+            if joint_resolver is not None and getattr(joint_resolver, 'last_assignment', None) != {
+                    c: g.candidate_id for c, g in assign.items()}:
+                raise ValueError('Applied assignment differs from sampled on-policy action')
             decided = perf_counter_ns() if evaluation_probe is not None else 0
             if on_crane is not None:
                 try:
@@ -274,6 +279,8 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
                     exc["hook"] += 1        # ★훅 오류는 결정을 안 건드린다
             _apply(sim, assign)
         except Exception:
+            if joint_resolver is not None:
+                raise  # An on-policy action must never silently become WAIT.
             exc["n"] += 1
             decided = perf_counter_ns() if evaluation_probe is not None else 0
             assign = {c: _wait_of(gb[c]) for c in dp.crane_ids}
@@ -397,7 +404,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 appointment_sigma_s: float | None = None,
                 information_profile: dict | None = None,
                 demand_profile: dict | None = None,
-                initial_stock_mode: str = 'preserve') -> EpisodeResult:
+                initial_stock_mode: str = 'preserve', joint_resolver=None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -422,6 +429,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     """
     if evaluation_mode not in ("reference", "batch", "optimized"):
         raise ValueError(f"unknown evaluation_mode: {evaluation_mode}")
+    if joint_resolver is not None and (budget is not None or crane_budget is not None):
+        raise ValueError('on-policy resolver requires teachers disabled')
     if (evaluation_mode != "optimized" or evaluation_probe is not None) and (
             budget is not None or crane_budget is not None):
         raise ValueError("evaluation comparison/probe requires teachers disabled")
@@ -572,7 +581,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                                     crane_net=crane_net, on_crane=on_crane,
                                     batched=evaluation_mode != "reference",
                                     reuse_plans=evaluation_mode == "optimized",
-                                    evaluation_probe=evaluation_probe, candidate_cap=candidate_cap)
+                                    evaluation_probe=evaluation_probe, candidate_cap=candidate_cap,
+                                    joint_resolver=joint_resolver)
     if crane is not None:
         #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
         crane.attach(exec_policy.pref)
@@ -587,6 +597,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         #   관측창 뒤에는 안 찍는다 — 찍으면 그 값이 창끝 값을 덮는다.
         if t <= obs.observe_s:
             tape.snap(m, t)
+            if joint_resolver is not None:
+                joint_resolver.observe_epoch(t, records, tape.read(t))
 
     try:
         mbt.run(exec_policy, review_fn=review)
