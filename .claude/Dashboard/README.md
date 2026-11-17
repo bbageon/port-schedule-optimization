@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **ReSched 참고 Transformer+PPO 진단 완료 (2026-11-17, av)**: 6모델·54평가·2재실행·475,000오더 검산. Transformer는 학습 전131.837→112.332분(−14.79%)이나 규칙88.770분보다26.54%, 기존200회 모델92.377분보다21.60% 길다. MLP+PPO는129.374분으로 악화. 저·중물량 규칙 대비 개선·고물량31.00% 악화, 반입에 이득 편중. 현장 현실성·채택 성능 미충족으로 기본 정책 유지. 저장 PPO 진단ax·규칙 설명 정정aw 등록, 운반·대기열i/f 외부 근거 선행 유지. [결과](../../outputs/reports/yr332_resched_ppo/README.md) · [검산](../../outputs/reports/yr332_resched_ppo/verification.json)
+
 - **사용자 요청 네 단계 완료 (2026-11-16, ao→ar→323-d→as)**: 입력 비율54회·분별36회 뒤18모델·72평가·2정확 재실행 완료. 같은 자료의 반복50→200회가117.406→89.484분(−23.78%)으로 개선됐지만 규칙86.797분보다3.10% 길다. 평균망124.190·Attention124.127분으로 구조 이득 미확인. 고물량·반입에 이득 편중, 본선·미완료·현장 현실성 미통과로 기본 정책 유지. 점수 차이 학습과 공동 배정의 계약 확인은au, 운반·대기열i/f와 미사용 기간323-e는 선행 조건 유지. [결과](../../outputs/reports/yr332_context_learning/README.md) · [검산](../../outputs/reports/yr332_context_learning/verification.json)
 
 - **합성 입력 보정·곡선 비교·저장 학습 진단 (2026-11-16, at/ao/323-d)**: 183입력에서 작업 종류 전환1,288건→0, 정상172개 불변·82시험 통과. 곡선54비교에서 시간 −5.66~+25.13%, 3반복·원자료 일치. 앞 회차 순위 정답123→113이나 회귀오차는 거의 동일, 새 학습 아님. ao의 반출 비율→ar의 분별 수식→323-d 한 축 학습 진단 순서이며 현실성 전체는 미통과. [곡선 결과](../../outputs/reports/yr332_initial_stock/shape-sensitivity.md) · [학습 진단](../../outputs/reports/yr332_network_review/saved-pair-retention.md) · [다음 게이트](../../outputs/reports/yr332_initial_stock/shape-gates.json)

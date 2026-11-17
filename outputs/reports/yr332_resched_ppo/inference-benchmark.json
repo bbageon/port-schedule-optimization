@@ -1,0 +1,75 @@
+{
+  "rows": [
+    {
+      "kind": "mlp",
+      "candidate_pairs": 12,
+      "unique_operations": 6,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 0.0498,
+      "p95_ms": 0.0898,
+      "max_ms": 0.2996,
+      "total_s": 0.0013176
+    },
+    {
+      "kind": "mlp",
+      "candidate_pairs": 120,
+      "unique_operations": 60,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 0.0721,
+      "p95_ms": 0.0837,
+      "max_ms": 0.0868,
+      "total_s": 0.0014869
+    },
+    {
+      "kind": "mlp",
+      "candidate_pairs": 1200,
+      "unique_operations": 600,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 0.2635,
+      "p95_ms": 0.2936,
+      "max_ms": 0.3068,
+      "total_s": 0.0054002
+    },
+    {
+      "kind": "transformer",
+      "candidate_pairs": 12,
+      "unique_operations": 6,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 0.62405,
+      "p95_ms": 0.7779,
+      "max_ms": 0.7958,
+      "total_s": 0.0129483
+    },
+    {
+      "kind": "transformer",
+      "candidate_pairs": 120,
+      "unique_operations": 60,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 0.80665,
+      "p95_ms": 0.9325,
+      "max_ms": 1.1602,
+      "total_s": 0.0165947
+    },
+    {
+      "kind": "transformer",
+      "candidate_pairs": 1200,
+      "unique_operations": 600,
+      "cranes": 2,
+      "count": 20,
+      "median_ms": 11.79305,
+      "p95_ms": 12.5532,
+      "max_ms": 12.581,
+      "total_s": 0.2371903
+    }
+  ],
+  "threads": 1,
+  "device": "CPU",
+  "warmup": 5,
+  "repetitions": 20,
+  "scope": "network forward on synthetic candidate features; excludes generation, state packing, legal joint selection and application"
+}

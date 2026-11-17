@@ -1,0 +1,239 @@
+validation step 1/7: ['scripts/v7/resched_ppo.py', 'replay']
+fit mlp 9951101 update=0 time=2.8s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 2.384185791015625e-07, 'means': {'loss': 0.12260651661199518, 'critic_loss': 0.2794635414611548, 'entropy': 1.655358511954546, 'approx_kl': 0.0007783472419902182, 'clip_fraction': 0.0020751953125}}
+fit mlp 9951101 update=1 time=3.1s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 1.1920928955078125e-07, 'means': {'loss': 5.329594384878874, 'critic_loss': 10.709485799074173, 'entropy': 2.501551354303956, 'approx_kl': 1.1661432424821261e-05, 'clip_fraction': 0.0}}
+fit mlp 9951101 update=2 time=3.0s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 1.1920928955078125e-07, 'means': {'loss': 2.766974759288132, 'critic_loss': 5.581244116649032, 'entropy': 2.2849746216088533, 'approx_kl': 0.0006174983461412209, 'clip_fraction': 0.0020751953125}}
+fit mlp 9951101 update=3 time=2.7s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 2.384185791015625e-07, 'means': {'loss': 0.6454987499600975, 'critic_loss': 1.3203800963237882, 'entropy': 1.4447119496762753, 'approx_kl': 9.688221575825107e-05, 'clip_fraction': 0.0}}
+fit mlp 9951101 update=4 time=2.8s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 2.384185791015625e-07, 'means': {'loss': 1.702951980754733, 'critic_loss': 3.4525776710361242, 'entropy': 2.291679799556732, 'approx_kl': 0.00040572838988639504, 'clip_fraction': 0.00048828125}}
+fit mlp 9951101 update=5 time=2.9s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 1.1920928955078125e-07, 'means': {'loss': 2.726385025307536, 'critic_loss': 5.502509873360395, 'entropy': 2.451582759618759, 'approx_kl': 0.000451324534175292, 'clip_fraction': 0.000732421875}}
+fit transformer 9951101 update=0 time=13.9s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 4.76837158203125e-07, 'means': {'loss': 0.07368774896167452, 'critic_loss': 0.184513189306017, 'entropy': 1.6219795867800713, 'approx_kl': 0.0010859077970018331, 'clip_fraction': 0.007080078125}}
+fit transformer 9951101 update=1 time=26.2s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 7.152557373046875e-07, 'means': {'loss': 2.7631532046943903, 'critic_loss': 5.577446023002267, 'entropy': 2.4875510707497597, 'approx_kl': 0.00026180120113043683, 'clip_fraction': 0.00048828125}}
+fit transformer 9951101 update=2 time=22.6s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 9.5367431640625e-07, 'means': {'loss': 1.6477404879406095, 'critic_loss': 3.344812902621925, 'entropy': 2.4069900810718536, 'approx_kl': 0.00013693647611727304, 'clip_fraction': 0.0}}
+fit transformer 9951101 update=3 time=8.9s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 4.76837158203125e-07, 'means': {'loss': 0.0640552125260001, 'critic_loss': 0.16067141205712687, 'entropy': 1.526094300672412, 'approx_kl': 0.0005196164865593272, 'clip_fraction': 0.001220703125}}
+fit transformer 9951101 update=4 time=20.6s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 9.5367431640625e-07, 'means': {'loss': 0.4965675063722301, 'critic_loss': 1.0427289041690528, 'entropy': 2.3555649798363447, 'approx_kl': 0.0003956953586382291, 'clip_fraction': 0.0001220703125}}
+fit transformer 9951101 update=5 time=18.2s {'available': 2048, 'selected': 2048, 'optimizer_steps': 128, 'epochs': 4, 'replay_logp_max_error': 9.5367431640625e-07, 'means': {'loss': 1.5159626239910722, 'critic_loss': 3.083016589283943, 'entropy': 2.4672729335725307, 'approx_kl': 0.0008365029867034085, 'clip_fraction': 0.004638671875}}
+validation step 2/7: ['scripts/v7/resched_ppo.py', 'repeat']
+eval 003-repeat {'arm': 'mlp_final', 'kind': 'mlp', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'} 14.805min 48.9s
+eval 021-repeat {'arm': 'transformer_final', 'kind': 'transformer', 'model_seed': 9951101, 'load': 3500, 'index': 3, 'input_seed': 9951300, 'stage': 'final'} 14.445min 52.5s
+validation step 3/7: ['scripts/v7/report_resched_ppo.py', 'benchmark']
+validation step 4/7: ['scripts/v7/diagnose_resched_gradients.py']
+[
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 0,
+    "actor_grad_norm": 0.061099834740161896,
+    "weighted_critic_grad_norm": 1.2221795320510864,
+    "weighted_entropy_grad_norm": 0.0002689226530492306,
+    "total_grad_norm": 1.2236930131912231,
+    "applied_global_clip_factor": 0.8171977546839014,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 0.0,
+    "return_std": 0.6119279265403748,
+    "checkpoint_sha256": "19dca6a07d1792754c503dfc03bd4089cc247e345273998309c35ea2da5da3f5",
+    "samples_sha256": "8ae7650d94e476226b3327811bd217eafdc7e38a8f2fb3a482ec0a8fddb9666f"
+  },
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 1,
+    "actor_grad_norm": 0.026807179674506187,
+    "weighted_critic_grad_norm": 10.425554275512695,
+    "weighted_entropy_grad_norm": 0.0001852153509389609,
+    "total_grad_norm": 10.42558765411377,
+    "applied_global_clip_factor": 0.09591784533004917,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 0.0,
+    "return_std": 3.7212045192718506,
+    "checkpoint_sha256": "5185767607d07d8c8609d2208c8862b82250b2f440db4e4feda60007bbfe1d8b",
+    "samples_sha256": "87f2fa0380ac536a9797cbb4e4fb05ea74fd9f810920ce07551a12c097ebd1ba"
+  },
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 2,
+    "actor_grad_norm": 0.06800777465105057,
+    "weighted_critic_grad_norm": 2.2670507431030273,
+    "weighted_entropy_grad_norm": 0.0002281860652146861,
+    "total_grad_norm": 2.268071413040161,
+    "applied_global_clip_factor": 0.4409030303664704,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 0.0,
+    "return_std": 3.30820894241333,
+    "checkpoint_sha256": "c90c316d85f92b8925c33adcbb5515cd98ece7ff10c41e638da53dd746eadc29",
+    "samples_sha256": "24aa21a8afd3b2d2f534a249ed98778d6b94178414d5cc8a7d5dd74a488550cc"
+  },
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 3,
+    "actor_grad_norm": 0.04695544019341469,
+    "weighted_critic_grad_norm": 4.476596832275391,
+    "weighted_entropy_grad_norm": 0.0004591670585796237,
+    "total_grad_norm": 4.4768452644348145,
+    "applied_global_clip_factor": 0.22337153007559135,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 0.0,
+    "return_std": 0.22876808047294617,
+    "checkpoint_sha256": "d78aab6b317329d90253dd1d1d8b1aa9cc5774f2a84ccb18199b3a437985a589",
+    "samples_sha256": "dd59c58316f3052a8582580965a9dc6a6a8874123e2f14cc549ec0d020fa313e"
+  },
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 4,
+    "actor_grad_norm": 0.10140317678451538,
+    "weighted_critic_grad_norm": 2.5533714294433594,
+    "weighted_entropy_grad_norm": 0.0005208168877288699,
+    "total_grad_norm": 2.5553860664367676,
+    "applied_global_clip_factor": 0.3913301484281206,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 0.0,
+    "return_std": 2.715433120727539,
+    "checkpoint_sha256": "4162e86a094a802a2b75523158ab57436eeb4c47ed160c252cd99baf2aa84498",
+    "samples_sha256": "906e9ebb45efb3f56de10386a140fc286f52596518f905d8a1927031aaa44acd"
+  },
+  {
+    "kind": "mlp",
+    "seed": 9951101,
+    "iteration": 5,
+    "actor_grad_norm": 0.050867773592472076,
+    "weighted_critic_grad_norm": 2.810239791870117,
+    "weighted_entropy_grad_norm": 0.0005822367966175079,
+    "total_grad_norm": 2.810701608657837,
+    "applied_global_clip_factor": 0.3557829266318284,
+    "actor_critic_cosine": 0.0,
+    "probability_replay_error": 1.1920928955078125e-07,
+    "return_std": 3.4757227897644043,
+    "checkpoint_sha256": "4f0469c2601b50707931193ec41e576cf1030c668073a35f0a076a9989edd8e0",
+    "samples_sha256": "ab3ad7debdff90e9d7572885df27f172a3153e82d8c731f012e850117d67be6d"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 0,
+    "actor_grad_norm": 0.09364476054906845,
+    "weighted_critic_grad_norm": 2.7378427982330322,
+    "weighted_entropy_grad_norm": 0.00012504548067227006,
+    "total_grad_norm": 2.7389261722564697,
+    "applied_global_clip_factor": 0.3651064585175327,
+    "actor_critic_cosine": -0.005533264484256506,
+    "probability_replay_error": 2.384185791015625e-07,
+    "return_std": 0.6129584908485413,
+    "checkpoint_sha256": "3f549bfe715755009609c0a3a98234e9ce26cad0613574d1abc1d1e18955a7d5",
+    "samples_sha256": "4e5ae8c95d716976a1f73e81617a368832ad114c80b05da1de1abc1506f45e50"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 1,
+    "actor_grad_norm": 0.08491398394107819,
+    "weighted_critic_grad_norm": 9.908126831054688,
+    "weighted_entropy_grad_norm": 6.741000106558204e-05,
+    "total_grad_norm": 9.910821914672852,
+    "applied_global_clip_factor": 0.10089979496248615,
+    "actor_critic_cosine": 0.027484619989991188,
+    "probability_replay_error": 2.384185791015625e-07,
+    "return_std": 3.718548536300659,
+    "checkpoint_sha256": "203ab8de21b6b2b38765ff69c525c82f9d12b3f020cf3f3a1457faf4cd7ec8d8",
+    "samples_sha256": "82433f866222dfbe292a92c8d36e1742a6b789f8ff8ecdcacc5a4e186bb32e0e"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 2,
+    "actor_grad_norm": 0.1186467632651329,
+    "weighted_critic_grad_norm": 8.714184761047363,
+    "weighted_entropy_grad_norm": 0.00010899893095484003,
+    "total_grad_norm": 8.713533401489258,
+    "applied_global_clip_factor": 0.11476399287860582,
+    "actor_critic_cosine": -0.012170394882559776,
+    "probability_replay_error": 2.384185791015625e-07,
+    "return_std": 3.2585954666137695,
+    "checkpoint_sha256": "adde102bd5e873d8f9463994c0223513a0d3b55fc473a63a3d505ef05d85e258",
+    "samples_sha256": "906569a180ccbdf22b49f4b07cce76f0e69a7fd055242d7b977770862333048d"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 3,
+    "actor_grad_norm": 0.1861565113067627,
+    "weighted_critic_grad_norm": 19.260957717895508,
+    "weighted_entropy_grad_norm": 0.00012788322055712342,
+    "total_grad_norm": 19.276336669921875,
+    "applied_global_clip_factor": 0.051877074220398466,
+    "actor_critic_cosine": 0.0778481736779213,
+    "probability_replay_error": 4.76837158203125e-07,
+    "return_std": 0.22928662598133087,
+    "checkpoint_sha256": "7380ac7510ec2449704b24b49504fe11e5e48b7e5d324503e1a2c3f93dbdcf25",
+    "samples_sha256": "cc7b51ee3924d057734776ac1a7b39e4fc35e6dbf16c9f5c06b0cf4d6c472d04"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 4,
+    "actor_grad_norm": 0.0709044486284256,
+    "weighted_critic_grad_norm": 22.877017974853516,
+    "weighted_entropy_grad_norm": 0.00013520469656214118,
+    "total_grad_norm": 22.871334075927734,
+    "applied_global_clip_factor": 0.04372285206264623,
+    "actor_critic_cosine": -0.08146721124649048,
+    "probability_replay_error": 4.76837158203125e-07,
+    "return_std": 2.637950897216797,
+    "checkpoint_sha256": "1c453828ee55d604f98bddb3f0d043ddcbd71a6068dc71e2ea5b240b9cea3d07",
+    "samples_sha256": "3bbe952353afaac311a78a0e32a39ffb91a485dce255d338acf230b144406a86"
+  },
+  {
+    "kind": "transformer",
+    "seed": 9951101,
+    "iteration": 5,
+    "actor_grad_norm": 0.10796663165092468,
+    "weighted_critic_grad_norm": 13.53032398223877,
+    "weighted_entropy_grad_norm": 0.00017369796114508063,
+    "total_grad_norm": 13.520427703857422,
+    "applied_global_clip_factor": 0.07396215178551971,
+    "actor_critic_cosine": -0.09546124190092087,
+    "probability_replay_error": 4.76837158203125e-07,
+    "return_std": 3.4462664127349854,
+    "checkpoint_sha256": "f3c07ed138dcda8f9971d302e5dcf9fa2d7b0c59fbf8a1a4c8c6e805e98d186a",
+    "samples_sha256": "65e14b4faea15564fac80fb17d0699ca80f9dcbec03c796ddd802754deec857c"
+  }
+]
+validation step 5/7: ['scripts/v7/report_resched_ppo.py', 'summarize']
+{
+  "mlp_initial": {
+    "minutes": 112.01925705488932,
+    "vs_rule": 26.18974450996965
+  },
+  "mlp_final": {
+    "minutes": 129.37426456720556,
+    "vs_rule": 45.740168441764496
+  },
+  "transformer_initial": {
+    "minutes": 131.83652290987132,
+    "vs_rule": 48.513903595411215
+  },
+  "transformer_final": {
+    "minutes": 112.33190326932115,
+    "vs_rule": 26.541940614089743
+  },
+  "old200": {
+    "minutes": 92.37713664929834,
+    "vs_rule": 4.0628868536913165
+  },
+  "SF_SPT": {
+    "minutes": 88.77049199987819,
+    "vs_rule": 0.0
+  },
+  "FIFO": {
+    "minutes": 122.27655140659249,
+    "vs_rule": 37.74459130716576
+  },
+  "LWKR": {
+    "minutes": 121.60515996765466,
+    "vs_rule": 36.988268542908976
+  }
+}
+validation step 6/7: ['scripts/v7/plot_resched_schedule.py']
+{'SF_SPT': 55, 'old200': 51, 'mlp_final': 44, 'transformer_final': 44}
+validation step 7/7: ['scripts/v7/report_resched_ppo.py', 'document']
+MEASUREMENTS AND REPORT COMPLETE; visual review, gates and publication remain
