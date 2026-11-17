@@ -1,7 +1,7 @@
 # YR-332-ay — 남은 비용 예측 학습 안정화 한 축 비교
 
-**상태**: backlog
-등록: 2026-11-17. ax 저장 경험 진단에서 파생. 아직 구현·추가 학습하지 않았다.
+**상태**: in-progress
+등록: 2026-11-17. ax 저장 경험 진단에서 파생. 사용자가 비교 실행을 명시 요청하여 합성 진단에 착수한다.
 3대 게이트 보정 대상: performance. 현실성 i/f 선결은 유지한다.
 
 ## 무엇·왜
@@ -40,3 +40,10 @@
 
 근거: [ax 결과](../../../outputs/reports/yr332_ppo_credit/README.md),
 [PopArt 원 논문](https://arxiv.org/abs/1602.07714), [GAE 원 논문](https://arxiv.org/abs/1506.02438).
+
+## 실행 동결 (2026-11-17)
+
+- 사용자 “응 이거 진행해봐”를 합성 진단 실행 승인으로 기록한다. 기존 현실성 선결 거절은 그대로 보존한다.
+- [사전등록](../../../docs/research/v7-discharge/value-stability-prereg.md): 세 초기값의 대조/PopArt 쌍, 새 출발 Adam, 12일·6갱신, 최종 모델 고정 평가.
+- 음수 신호는 유지한다. 누적 전역 목표 통계·출력 보존·Adam 상태 유지 계약을 시험한 뒤 소스와 입력을 동결한다.
+- [착수 판정 기록](../../../outputs/reports/yr332_value_stability/authorization.json).

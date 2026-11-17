@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-ay | RL | **남은 비용 예측의 학습 안정화 한 축 비교 설계** | 🟠 | ax에서 두 구조·세 초기값의 큰 예측 오차와 날별 신호 차이를 확인했다. 총비용·기간·정보·행동을 유지하고 가치망 내부 목표 정규화만 비교하도록 설계한다. 구현/새 학습 미착수, i/f 선결·설정 동결·착수 판정 필요. [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |
 | YR-332-au | RL | **후보 점수 차이 학습과 크레인 공동 배정의 연결 확인** | 🟡 | 같은 크레인 내 점수 차이는 같아도 공동 배정이 달라지는 사후 반례 확인. 저장 모델의 크레인별 점수 기준 차이가 실제 배정에 영향을 주는지 읽기 전용으로 확인한다. 이번 성능 하락 원인으로 확정하지 않으며 재학습·점수 보정은 별도 판정. [spec](../docs/dashboard-task-specs/YR-332-au-cross-crane-score-contract.md) |
 | YR-332-ap | Sim | **고물량 시간대 도착 몰림 크기 판정 (외부 자료 대기)** | ⚪ | ⏸ 외부 대기. 실측 최대 시간당 245번 방문, 그 안에서 몰림은 물량과 함께 커지지 않았다. 7,500·15,000건은 범위 밖이라 무작위·실제 몰림 두 조건의 범위로 보고한다. 터미널 전체·고물량 날짜 자료가 오면 생성 방식을 고른다. [spec](../docs/dashboard-task-specs/YR-332-ap-high-volume-bunching-data.md) |

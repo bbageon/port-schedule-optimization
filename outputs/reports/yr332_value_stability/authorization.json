@@ -1,0 +1,29 @@
+{
+  "command": [
+    "..\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr332_resched_ppo\\current-gates.json",
+    "--gate-sha256",
+    "8bf13593325b8416f932053b22d726d3a29fbd5e75403d7313955a9a5e6000c4",
+    "--gate-commit",
+    "e5e24f2236b58f33ddefb8ab2bfb4908fd0cafc1",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-ay",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+  ],
+  "returncode": 2,
+  "stdout": "{\n  \"task\": \"YR-332-ay\",\n  \"allowed\": false,\n  \"reason\": \"선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)\",\n  \"kind\": \"REMEDIATION\",\n  \"targets\": [\n    \"performance\"\n  ],\n  \"stage\": null,\n  \"current_unresolved\": [\n    \"performance\",\n    \"scenario_validity\"\n  ]\n}\n",
+  "stderr": "",
+  "user_request": "응이거진행해봐 음수신호가 필요한지도 모르겟네",
+  "scope": "Explicit bounded synthetic diagnostic; not a gate PASS or real-terminal performance claim"
+}
