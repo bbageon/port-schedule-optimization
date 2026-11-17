@@ -15,10 +15,10 @@ def main(commit):
         judge_claim_alignment, combine_reliability, judge_scenario_validity,
         GateOutcome, GateStatus, ResearchGateReport, attach_common_gates)
     cfg=check();s=read(OUT/'summary.json');campaign=read(OUT/'campaign.json')
-    assert read(OUT/'verification.json')['passed']
+    verification=read(OUT/'verification.json');assert verification['passed']
     remote='origin/'+subprocess.check_output(['git','branch','--show-current'],text=True,encoding='utf-8').strip()
     subprocess.run(['git','merge-base','--is-ancestor',commit,remote],check=True)
-    artifacts={**s['artifact_hashes']}
+    artifacts={**s['artifact_hashes'],**verification['diagnostic_artifacts']}
     for name in ('summary.json','README.md','campaign.json','verification.json','comparison.png',
                  'choice-diagnostic.json','gradient-diagnostic.json','source-publication.json'):
         p=OUT/name;artifacts[p.as_posix()]=sha(p)
@@ -57,7 +57,8 @@ def main(commit):
         ledger_conservation=True,deterministic_replay=True),flow_checks={},anchors={},continuous_operation=False,
         request_real_terminal_claim=False)
     performance=GateOutcome('performance',GateStatus.INCONCLUSIVE if s['adoption_performance_pass'] else GateStatus.FAIL,
-        '채택 조건 미충족; 합성 진단으로 현장 개선 확증 불가',evidence=dict(
+        ('합성 채택 수치 조건 충족; 작은 진단이므로 성능 확증 보류' if s['adoption_performance_pass'] else
+         '채택 조건 미충족; 합성 진단으로 현장 개선 확증 불가'),evidence=dict(
             consistent_improvement_candidate=s['consistent_improvement_candidate'],paired=s['paired_change'],
             vs_rule=s['vs_rule'],unfinished26_mean=s['groups']['popart']['unfinished26_mean'],
             model_pairs=3,synthetic_curves=3,diagnostic_only=True))

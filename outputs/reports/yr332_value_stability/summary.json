@@ -1,0 +1,3954 @@
+{
+  "experiment": "YR-332-ay",
+  "source_commit": "dafe6de857b9232d8f56dce4d4f70323609fdef8",
+  "evaluation_cases": 126,
+  "repeats": 2,
+  "test_input_cases": 9,
+  "model_pairs": 3,
+  "groups": {
+    "control": {
+      "cases": 27,
+      "cost": 1397684365.9583404,
+      "components": {
+        "c_wait": 1223503109.5135581,
+        "c_vessel": 153925006.40620208,
+        "c_move": 866324.112654321,
+        "c_rehandle": 19389925.925925925
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 87.17770124004574,
+          "order_weighted_min": 124.63575418215497,
+          "unfinished24_mean": 1424.148148148148,
+          "unfinished26_mean": 1127.9259259259259,
+          "orders": 234000
+        },
+        "GATE_IN": {
+          "mean_min": 44.05079041555351,
+          "order_weighted_min": 62.745970282346704,
+          "unfinished24_mean": 251.96296296296296,
+          "unfinished26_mean": 177.66666666666666,
+          "orders": 103647
+        },
+        "GATE_OUT": {
+          "mean_min": 121.81042067285372,
+          "order_weighted_min": 173.8459022559502,
+          "unfinished24_mean": 1172.1851851851852,
+          "unfinished26_mean": 950.2592592592592,
+          "orders": 130353
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 956.0267834932487,
+          "order_weighted_min": 956.7922383630414,
+          "unfinished24_mean": 1546.2592592592594,
+          "unfinished26_mean": 1426.4074074074074,
+          "orders": 73539
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 1009.2687666773554,
+          "order_weighted_min": 1010.2505598763481,
+          "unfinished24_mean": 1724.5925925925926,
+          "unfinished26_mean": 1597.2222222222222,
+          "orders": 73539
+        }
+      },
+      "unfinished26_mean": 4151.555555555556
+    },
+    "popart": {
+      "cases": 27,
+      "cost": 1292172284.440528,
+      "components": {
+        "c_wait": 1116966301.9709358,
+        "c_vessel": 155067626.91403657,
+        "c_move": 927911.1111111111,
+        "c_rehandle": 19210444.444444444
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 79.56177523698732,
+          "order_weighted_min": 114.54178626388476,
+          "unfinished24_mean": 1320.148148148148,
+          "unfinished26_mean": 1046.5555555555557,
+          "orders": 234000
+        },
+        "GATE_IN": {
+          "mean_min": 24.097235043541517,
+          "order_weighted_min": 31.94108699012507,
+          "unfinished24_mean": 53.851851851851855,
+          "unfinished26_mean": 0.1111111111111111,
+          "orders": 103647
+        },
+        "GATE_OUT": {
+          "mean_min": 124.21924034373728,
+          "order_weighted_min": 180.21971218524732,
+          "unfinished24_mean": 1266.2962962962963,
+          "unfinished26_mean": 1046.4444444444443,
+          "orders": 130353
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 956.6150809694763,
+          "order_weighted_min": 957.8478262588065,
+          "unfinished24_mean": 1539.111111111111,
+          "unfinished26_mean": 1415.851851851852,
+          "orders": 73539
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 1020.1450909111242,
+          "order_weighted_min": 1021.2260804284934,
+          "unfinished24_mean": 1763.7777777777778,
+          "unfinished26_mean": 1630.5925925925926,
+          "orders": 73539
+        }
+      },
+      "unfinished26_mean": 4093
+    },
+    "SF_SPT": {
+      "cases": 9,
+      "cost": 968353444.4461081,
+      "components": {
+        "c_wait": 821350517.499084,
+        "c_vessel": 130487707.38683893,
+        "c_move": 779441.7824074074,
+        "c_rehandle": 15735777.777777778
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 62.12459936176088,
+          "order_weighted_min": 87.8763607160543,
+          "unfinished24_mean": 785.5555555555555,
+          "unfinished26_mean": 475.55555555555554,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 18.9756688214701,
+          "order_weighted_min": 23.575022442841455,
+          "unfinished24_mean": 34.666666666666664,
+          "unfinished26_mean": 0,
+          "orders": 34549
+        },
+        "GATE_OUT": {
+          "mean_min": 96.92654800983364,
+          "order_weighted_min": 139.0039972722033,
+          "unfinished24_mean": 750.8888888888889,
+          "unfinished26_mean": 475.55555555555554,
+          "orders": 43451
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 930.7553449331183,
+          "order_weighted_min": 931.909506296438,
+          "unfinished24_mean": 1444.6666666666667,
+          "unfinished26_mean": 1324.5555555555557,
+          "orders": 24513
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 866.343715852034,
+          "order_weighted_min": 867.5814174326115,
+          "unfinished24_mean": 1122.2222222222222,
+          "unfinished26_mean": 915.2222222222222,
+          "orders": 24513
+        }
+      },
+      "unfinished26_mean": 2715.3333333333335
+    }
+  },
+  "paired_change": {
+    "cost_pct": -7.549063586002602,
+    "flow_pct": {
+      "TRUCK": -8.736094086821355,
+      "GATE_IN": -45.296702247065156,
+      "GATE_OUT": 1.9775152713353839,
+      "VESSEL_DISCHARGE": 0.061535668914847186,
+      "VESSEL_LOAD": 1.0776439926477588
+    },
+    "unfinished26_delta": -58.55555555555566,
+    "vessel_cost_pct": 0.7423228587167818
+  },
+  "vs_rule": {
+    "cost_pct": 33.44014954990347,
+    "flow_pct": {
+      "TRUCK": 28.06806974108138,
+      "GATE_IN": 26.990174998609785,
+      "GATE_OUT": 28.15811859010462,
+      "VESSEL_DISCHARGE": 2.7783601971381744,
+      "VESSEL_LOAD": 17.75292787895728
+    },
+    "unfinished26_delta": 1377.6666666666665,
+    "vessel_cost_pct": 18.83696174868714
+  },
+  "by_seed": {
+    "9951101": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 1358258219.6174436,
+          "components": {
+            "c_wait": 1184142498.1182475,
+            "c_vessel": 153422429.13808498,
+            "c_move": 880181.25,
+            "c_rehandle": 19813111.111111112
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 86.64191977389898,
+              "order_weighted_min": 120.53672578981241,
+              "unfinished24_mean": 1322.7777777777778,
+              "unfinished26_mean": 1052.4444444444443,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 22.526503270652533,
+              "order_weighted_min": 26.24952575470402,
+              "unfinished24_mean": 38.77777777777778,
+              "unfinished26_mean": 0,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 138.29885018767632,
+              "order_weighted_min": 195.50688698317873,
+              "unfinished24_mean": 1284,
+              "unfinished26_mean": 1052.4444444444443,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 935.695831186774,
+              "order_weighted_min": 936.5468646458885,
+              "unfinished24_mean": 1474.111111111111,
+              "unfinished26_mean": 1356.2222222222222,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1018.0005414990414,
+              "order_weighted_min": 1019.910124831629,
+              "unfinished24_mean": 1789.7777777777778,
+              "unfinished26_mean": 1666.6666666666667,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 4075.3333333333335
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 1264912413.8885784,
+          "components": {
+            "c_wait": 1084099728.0535047,
+            "c_vessel": 160318099.60822195,
+            "c_move": 726141.7824074074,
+            "c_rehandle": 19768444.444444444
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 76.4688740166522,
+              "order_weighted_min": 110.28008175693783,
+              "unfinished24_mean": 1273.888888888889,
+              "unfinished26_mean": 1039.3333333333333,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 17.819248976675258,
+              "order_weighted_min": 22.516894262232906,
+              "unfinished24_mean": 32.77777777777778,
+              "unfinished26_mean": 0,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 123.66037120501352,
+              "order_weighted_min": 180.06283393190643,
+              "unfinished24_mean": 1241.111111111111,
+              "unfinished26_mean": 1039.3333333333333,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 966.4955152692412,
+              "order_weighted_min": 968.022073316392,
+              "unfinished24_mean": 1574.111111111111,
+              "unfinished26_mean": 1446,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1051.514904553043,
+              "order_weighted_min": 1052.8094796113396,
+              "unfinished24_mean": 1886.7777777777778,
+              "unfinished26_mean": 1755,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 4240.333333333333
+        }
+      },
+      "change": {
+        "cost_pct": -6.872463893879932,
+        "flow_pct": {
+          "TRUCK": -11.741482395351344,
+          "GATE_IN": -20.89651570605666,
+          "GATE_OUT": -10.584671501460697,
+          "VESSEL_DISCHARGE": 3.2916342101688034,
+          "VESSEL_LOAD": 3.292175366100536
+        },
+        "unfinished26_delta": 164.99999999999955,
+        "vessel_cost_pct": 4.4945647835693325
+      }
+    },
+    "9951102": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 1491006382.5120564,
+          "components": {
+            "c_wait": 1312330756.8968518,
+            "c_vessel": 158115269.48094523,
+            "c_move": 664578.3564814815,
+            "c_rehandle": 19895777.777777776
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 90.02831879039947,
+              "order_weighted_min": 131.89650884973997,
+              "unfinished24_mean": 1512.111111111111,
+              "unfinished26_mean": 1162,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 79.1476956165733,
+              "order_weighted_min": 123.30822944677503,
+              "unfinished24_mean": 649.2222222222222,
+              "unfinished26_mean": 532.4444444444445,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 98.62696704387432,
+              "order_weighted_min": 138.7252691796066,
+              "unfinished24_mean": 862.8888888888889,
+              "unfinished26_mean": 629.5555555555555,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 974.0507060190425,
+              "order_weighted_min": 974.853514834353,
+              "unfinished24_mean": 1601.3333333333333,
+              "unfinished26_mean": 1482.111111111111,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1027.969889367981,
+              "order_weighted_min": 1028.2721610136057,
+              "unfinished24_mean": 1793.3333333333333,
+              "unfinished26_mean": 1676.888888888889,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 4321
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 1316526272.6068912,
+          "components": {
+            "c_wait": 1147062181.1792393,
+            "c_vessel": 149457544.8998739,
+            "c_move": 1006768.75,
+            "c_rehandle": 18999777.777777776
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 83.29766893048043,
+              "order_weighted_min": 117.39822859105126,
+              "unfinished24_mean": 1337.4444444444443,
+              "unfinished26_mean": 1046.5555555555557,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 22.500639767082145,
+              "order_weighted_min": 26.12642273832135,
+              "unfinished24_mean": 39.55555555555556,
+              "unfinished26_mean": 0,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 132.29222441206858,
+              "order_weighted_min": 189.97077284563608,
+              "unfinished24_mean": 1297.888888888889,
+              "unfinished26_mean": 1046.5555555555557,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 930.0893871586663,
+              "order_weighted_min": 931.413676767668,
+              "unfinished24_mean": 1446.3333333333333,
+              "unfinished26_mean": 1328.4444444444443,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 996.177385601217,
+              "order_weighted_min": 997.3834429752854,
+              "unfinished24_mean": 1693,
+              "unfinished26_mean": 1572.2222222222222,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 3947.222222222222
+        }
+      },
+      "change": {
+        "cost_pct": -11.702170557526392,
+        "flow_pct": {
+          "TRUCK": -7.476147450436221,
+          "GATE_IN": -71.57132675588527,
+          "GATE_OUT": 34.13392744118171,
+          "VESSEL_DISCHARGE": -4.513247471483972,
+          "VESSEL_LOAD": -3.0927465965283063
+        },
+        "unfinished26_delta": -373.7777777777778,
+        "vessel_cost_pct": -5.4755777917544375
+      }
+    },
+    "9951103": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 1343788495.7455215,
+          "components": {
+            "c_wait": 1174036073.5255752,
+            "c_vessel": 150237320.59957597,
+            "c_move": 1054212.7314814816,
+            "c_rehandle": 18460888.888888888
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 84.86286515583876,
+              "order_weighted_min": 121.47402790691257,
+              "unfinished24_mean": 1437.5555555555557,
+              "unfinished26_mean": 1169.3333333333333,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 30.47817235943469,
+              "order_weighted_min": 38.680155645561044,
+              "unfinished24_mean": 67.88888888888889,
+              "unfinished26_mean": 0.5555555555555556,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 128.50544478701053,
+              "order_weighted_min": 187.30555060506532,
+              "unfinished24_mean": 1369.6666666666667,
+              "unfinished26_mean": 1168.7777777777778,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 958.3338132739296,
+              "order_weighted_min": 958.9763356088827,
+              "unfinished24_mean": 1563.3333333333333,
+              "unfinished26_mean": 1440.888888888889,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 981.8358691650437,
+              "order_weighted_min": 982.56939378381,
+              "unfinished24_mean": 1590.6666666666667,
+              "unfinished26_mean": 1448.111111111111,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 4058.3333333333335
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 1295078166.8261144,
+          "components": {
+            "c_wait": 1119736996.6800635,
+            "c_vessel": 155427236.23401386,
+            "c_move": 1050822.8009259258,
+            "c_rehandle": 18863111.111111112
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 78.91878276382934,
+              "order_weighted_min": 115.94704844366521,
+              "unfinished24_mean": 1349.111111111111,
+              "unfinished26_mean": 1053.7777777777778,
+              "orders": 78000
+            },
+            "GATE_IN": {
+              "mean_min": 31.97181638686714,
+              "order_weighted_min": 47.17994396982094,
+              "unfinished24_mean": 89.22222222222223,
+              "unfinished26_mean": 0.3333333333333333,
+              "orders": 34549
+            },
+            "GATE_OUT": {
+              "mean_min": 116.70512541412975,
+              "order_weighted_min": 170.6255297781994,
+              "unfinished24_mean": 1259.888888888889,
+              "unfinished26_mean": 1053.4444444444443,
+              "orders": 43451
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 973.2603404805211,
+              "order_weighted_min": 974.1077286923594,
+              "unfinished24_mean": 1596.888888888889,
+              "unfinished26_mean": 1473.111111111111,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1012.7429825791125,
+              "order_weighted_min": 1013.4853186988548,
+              "unfinished24_mean": 1711.5555555555557,
+              "unfinished26_mean": 1564.5555555555557,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 4091.4444444444443
+        }
+      },
+      "change": {
+        "cost_pct": -3.624850865565943,
+        "flow_pct": {
+          "TRUCK": -7.004338565630497,
+          "GATE_IN": 4.900700769775934,
+          "GATE_OUT": -9.182738826700332,
+          "VESSEL_DISCHARGE": 1.5575498850028513,
+          "VESSEL_LOAD": 3.1478900277245314
+        },
+        "unfinished26_delta": 33.11111111111086,
+        "vessel_cost_pct": 3.4544782972204757
+      }
+    }
+  },
+  "by_load": {
+    "3500": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 207185090.72980672,
+          "components": {
+            "c_wait": 83219746.81606163,
+            "c_vessel": 108928310.23318952,
+            "c_move": 677033.6805555556,
+            "c_rehandle": 14360000.0
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 28.093020741017916,
+              "order_weighted_min": 28.09302074101792,
+              "unfinished24_mean": 49.44444444444444,
+              "unfinished26_mean": 12.555555555555555,
+              "orders": 31500
+            },
+            "GATE_IN": {
+              "mean_min": 15.744430905078975,
+              "order_weighted_min": 15.77895511843784,
+              "unfinished24_mean": 8.666666666666666,
+              "unfinished26_mean": 0,
+              "orders": 13716
+            },
+            "GATE_OUT": {
+              "mean_min": 37.75690722135157,
+              "order_weighted_min": 37.59030617057866,
+              "unfinished24_mean": 40.77777777777778,
+              "unfinished26_mean": 12.555555555555555,
+              "orders": 17784
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 824.0739345029115,
+              "order_weighted_min": 827.3769630427736,
+              "unfinished24_mean": 845.2222222222222,
+              "unfinished26_mean": 692.1111111111111,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 879.1238832245541,
+              "order_weighted_min": 880.5349177105552,
+              "unfinished24_mean": 1052.111111111111,
+              "unfinished26_mean": 860.6666666666666,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 1565.3333333333333
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 197913331.72843283,
+          "components": {
+            "c_wait": 71500820.00760598,
+            "c_vessel": 111191939.15138242,
+            "c_move": 709461.4583333334,
+            "c_rehandle": 14511111.111111112
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 24.455118988828726,
+              "order_weighted_min": 24.455118988828726,
+              "unfinished24_mean": 45.77777777777778,
+              "unfinished26_mean": 14.555555555555555,
+              "orders": 31500
+            },
+            "GATE_IN": {
+              "mean_min": 11.524150176166783,
+              "order_weighted_min": 11.54177900334371,
+              "unfinished24_mean": 6,
+              "unfinished26_mean": 0,
+              "orders": 13716
+            },
+            "GATE_OUT": {
+              "mean_min": 34.601613885719495,
+              "order_weighted_min": 34.41459780354491,
+              "unfinished24_mean": 39.77777777777778,
+              "unfinished26_mean": 14.555555555555555,
+              "orders": 17784
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 828.5824163089651,
+              "order_weighted_min": 831.8674322565358,
+              "unfinished24_mean": 856,
+              "unfinished26_mean": 697.8888888888889,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 888.1795675030112,
+              "order_weighted_min": 889.7233390537165,
+              "unfinished24_mean": 1100.888888888889,
+              "unfinished26_mean": 898,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 1610.4444444444443
+        },
+        "SF_SPT": {
+          "cases": 3,
+          "cost": 144080804.39217135,
+          "components": {
+            "c_wait": 51469785.22351565,
+            "c_vessel": 80279844.51587793,
+            "c_move": 610507.9861111111,
+            "c_rehandle": 11720666.666666666
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 19.44607687716337,
+              "order_weighted_min": 19.44607687716337,
+              "unfinished24_mean": 24.333333333333332,
+              "unfinished26_mean": 0,
+              "orders": 10500
+            },
+            "GATE_IN": {
+              "mean_min": 10.027288598409863,
+              "order_weighted_min": 10.032033330457528,
+              "unfinished24_mean": 6,
+              "unfinished26_mean": 0,
+              "orders": 4572
+            },
+            "GATE_OUT": {
+              "mean_min": 26.82419949412844,
+              "order_weighted_min": 26.706705604481034,
+              "unfinished24_mean": 18.333333333333332,
+              "unfinished26_mean": 0,
+              "orders": 5928
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 812.1702482958183,
+              "order_weighted_min": 815.5441365394753,
+              "unfinished24_mean": 801.6666666666666,
+              "unfinished26_mean": 657.6666666666666,
+              "orders": 8171
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 688.9110378512775,
+              "order_weighted_min": 692.9880821193406,
+              "unfinished24_mean": 311.3333333333333,
+              "unfinished26_mean": 129.66666666666666,
+              "orders": 8171
+            }
+          },
+          "unfinished26_mean": 787.3333333333334
+        }
+      },
+      "change": {
+        "cost_pct": -4.475109173500003,
+        "flow_pct": {
+          "TRUCK": -12.94948587311432,
+          "GATE_IN": -26.80491123722215,
+          "GATE_OUT": -8.356863863700548,
+          "VESSEL_DISCHARGE": 0.5470967612600353,
+          "VESSEL_LOAD": 1.0300805667162072
+        },
+        "unfinished26_delta": 45.111111111111086,
+        "vessel_cost_pct": 2.0780905472112865
+      }
+    },
+    "7500": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 499854348.3975894,
+          "components": {
+            "c_wait": 324162763.8207891,
+            "c_vessel": 154727110.96568918,
+            "c_move": 898029.1666666666,
+            "c_rehandle": 20066444.444444444
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 47.91962780590965,
+              "order_weighted_min": 47.91962780590964,
+              "unfinished24_mean": 184.33333333333334,
+              "unfinished26_mean": 79.55555555555556,
+              "orders": 67500
+            },
+            "GATE_IN": {
+              "mean_min": 24.147960995715213,
+              "order_weighted_min": 24.23933956553996,
+              "unfinished24_mean": 21.555555555555557,
+              "unfinished26_mean": 0,
+              "orders": 29997
+            },
+            "GATE_OUT": {
+              "mean_min": 67.1642957008928,
+              "order_weighted_min": 66.86044870947389,
+              "unfinished24_mean": 162.77777777777777,
+              "unfinished26_mean": 79.55555555555556,
+              "orders": 37503
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 954.8659648534318,
+              "order_weighted_min": 954.4179551359246,
+              "unfinished24_mean": 1535.4444444444443,
+              "unfinished26_mean": 1338.3333333333333,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1011.0304421897106,
+              "order_weighted_min": 1011.7849358098198,
+              "unfinished24_mean": 1751.111111111111,
+              "unfinished26_mean": 1584.2222222222222,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 3002.1111111111113
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 466493190.4911905,
+          "components": {
+            "c_wait": 288917903.26915336,
+            "c_vessel": 156410034.90722233,
+            "c_move": 937474.5370370371,
+            "c_rehandle": 20227777.777777776
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 42.79460992425272,
+              "order_weighted_min": 42.79460992425272,
+              "unfinished24_mean": 164.33333333333334,
+              "unfinished26_mean": 73.77777777777777,
+              "orders": 67500
+            },
+            "GATE_IN": {
+              "mean_min": 16.621305344095216,
+              "order_weighted_min": 16.668932091563764,
+              "unfinished24_mean": 15,
+              "unfinished26_mean": 0,
+              "orders": 29997
+            },
+            "GATE_OUT": {
+              "mean_min": 63.97036310100386,
+              "order_weighted_min": 63.6913903937397,
+              "unfinished24_mean": 149.33333333333334,
+              "unfinished26_mean": 73.77777777777777,
+              "orders": 37503
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 956.5371609151842,
+              "order_weighted_min": 956.8363978443463,
+              "unfinished24_mean": 1528.2222222222222,
+              "unfinished26_mean": 1330.6666666666667,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1026.7473980709271,
+              "order_weighted_min": 1026.927793953632,
+              "unfinished24_mean": 1811.111111111111,
+              "unfinished26_mean": 1640,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 3044.4444444444443
+        },
+        "SF_SPT": {
+          "cases": 3,
+          "cost": 389629946.2283291,
+          "components": {
+            "c_wait": 246467241.90781698,
+            "c_vessel": 124779544.25106768,
+            "c_move": 841826.7361111111,
+            "c_rehandle": 17541333.333333332
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 38.292227809926544,
+              "order_weighted_min": 38.292227809926544,
+              "unfinished24_mean": 104.33333333333333,
+              "unfinished26_mean": 25.333333333333332,
+              "orders": 22500
+            },
+            "GATE_IN": {
+              "mean_min": 17.009797167232826,
+              "order_weighted_min": 17.05772176766427,
+              "unfinished24_mean": 15.333333333333334,
+              "unfinished26_mean": 0,
+              "orders": 9999
+            },
+            "GATE_OUT": {
+              "mean_min": 55.58122815271182,
+              "order_weighted_min": 55.27677511946821,
+              "unfinished24_mean": 89,
+              "unfinished26_mean": 25.333333333333332,
+              "orders": 12501
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 922.5471084028799,
+              "order_weighted_min": 923.3827874707182,
+              "unfinished24_mean": 1392.3333333333333,
+              "unfinished26_mean": 1194.6666666666667,
+              "orders": 8171
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 845.7430423754607,
+              "order_weighted_min": 846.4666899272223,
+              "unfinished24_mean": 928,
+              "unfinished26_mean": 611.6666666666666,
+              "orders": 8171
+            }
+          },
+          "unfinished26_mean": 1831.6666666666667
+        }
+      },
+      "change": {
+        "cost_pct": -6.674175790076964,
+        "flow_pct": {
+          "TRUCK": -10.695028564109366,
+          "GATE_IN": -31.168907606549134,
+          "GATE_OUT": -4.755402504498352,
+          "VESSEL_DISCHARGE": 0.17501891608513453,
+          "VESSEL_LOAD": 1.554548233698716
+        },
+        "unfinished26_delta": 42.33333333333303,
+        "vessel_cost_pct": 1.0876723096745033
+      }
+    },
+    "15000": {
+      "groups": {
+        "control": {
+          "cases": 9,
+          "cost": 3486013658.7476254,
+          "components": {
+            "c_wait": 3263126817.903824,
+            "c_vessel": 198119598.0197275,
+            "c_move": 1023909.4907407408,
+            "c_rehandle": 23743333.333333332
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 185.52045517320963,
+              "order_weighted_min": 185.52045517320963,
+              "unfinished24_mean": 4038.6666666666665,
+              "unfinished26_mean": 3291.6666666666665,
+              "orders": 135000
+            },
+            "GATE_IN": {
+              "mean_min": 92.25997934586634,
+              "order_weighted_min": 92.76704315584465,
+              "unfinished24_mean": 725.6666666666666,
+              "unfinished26_mean": 533,
+              "orders": 59934
+            },
+            "GATE_OUT": {
+              "mean_min": 260.5100590963168,
+              "order_weighted_min": 259.5763925596263,
+              "unfinished24_mean": 3313,
+              "unfinished26_mean": 2758.6666666666665,
+              "orders": 75066
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 1089.1404511234027,
+              "order_weighted_min": 1088.5817969104262,
+              "unfinished24_mean": 2258.1111111111113,
+              "unfinished26_mean": 2248.777777777778,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1137.6519746178014,
+              "order_weighted_min": 1138.4318261086696,
+              "unfinished24_mean": 2370.5555555555557,
+              "unfinished26_mean": 2346.777777777778,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 7887.222222222223
+        },
+        "popart": {
+          "cases": 9,
+          "cost": 3212110331.1019607,
+          "components": {
+            "c_wait": 2990480182.6360483,
+            "c_vessel": 197600906.683505,
+            "c_move": 1136797.337962963,
+            "c_rehandle": 22892444.444444444
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 171.43559679788052,
+              "order_weighted_min": 171.43559679788052,
+              "unfinished24_mean": 3750.3333333333335,
+              "unfinished26_mean": 3051.3333333333335,
+              "orders": 135000
+            },
+            "GATE_IN": {
+              "mean_min": 44.146249610362545,
+              "order_weighted_min": 44.253225990339246,
+              "unfinished24_mean": 140.55555555555554,
+              "unfinished26_mean": 0.3333333333333333,
+              "orders": 59934
+            },
+            "GATE_OUT": {
+              "mean_min": 274.0857440444885,
+              "order_weighted_min": 272.98021369473366,
+              "unfinished24_mean": 3609.777777777778,
+              "unfinished26_mean": 3051,
+              "orders": 75066
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 1084.7256656842792,
+              "order_weighted_min": 1084.8396486755375,
+              "unfinished24_mean": 2233.1111111111113,
+              "unfinished26_mean": 2219,
+              "orders": 24513
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1145.508307159434,
+              "order_weighted_min": 1147.0271082781317,
+              "unfinished24_mean": 2379.3333333333335,
+              "unfinished26_mean": 2353.777777777778,
+              "orders": 24513
+            }
+          },
+          "unfinished26_mean": 7624.111111111111
+        },
+        "SF_SPT": {
+          "cases": 3,
+          "cost": 2371349582.717824,
+          "components": {
+            "c_wait": 2166114525.365919,
+            "c_vessel": 186403733.3935712,
+            "c_move": 885990.625,
+            "c_rehandle": 17945333.333333332
+          },
+          "flows": {
+            "TRUCK": {
+              "mean_min": 128.63549339819272,
+              "order_weighted_min": 128.63549339819272,
+              "unfinished24_mean": 2228,
+              "unfinished26_mean": 1401.3333333333333,
+              "orders": 45000
+            },
+            "GATE_IN": {
+              "mean_min": 29.889920698767618,
+              "order_weighted_min": 29.93627160056075,
+              "unfinished24_mean": 82.66666666666667,
+              "unfinished26_mean": 0,
+              "orders": 19978
+            },
+            "GATE_OUT": {
+              "mean_min": 208.37421638266068,
+              "order_weighted_min": 207.4386687268272,
+              "unfinished24_mean": 2145.3333333333335,
+              "unfinished26_mean": 1401.3333333333333,
+              "orders": 25022
+            },
+            "VESSEL_DISCHARGE": {
+              "mean_min": 1057.5486781006568,
+              "order_weighted_min": 1056.8015948791203,
+              "unfinished24_mean": 2140,
+              "unfinished26_mean": 2121.3333333333335,
+              "orders": 8171
+            },
+            "VESSEL_LOAD": {
+              "mean_min": 1064.377067329364,
+              "order_weighted_min": 1063.2894802512712,
+              "unfinished24_mean": 2127.3333333333335,
+              "unfinished26_mean": 2004.3333333333333,
+              "orders": 8171
+            }
+          },
+          "unfinished26_mean": 5527
+        }
+      },
+      "change": {
+        "cost_pct": -7.857207528672349,
+        "flow_pct": {
+          "TRUCK": -7.592078384121526,
+          "GATE_IN": -52.15016313317602,
+          "GATE_OUT": 5.21119414554061,
+          "VESSEL_DISCHARGE": -0.4053458334570048,
+          "VESSEL_LOAD": 0.6905743335321901
+        },
+        "unfinished26_delta": -263.1111111111113,
+        "vessel_cost_pct": -0.261807181827034
+      }
+    }
+  },
+  "validation_curve": [
+    {
+      "arm": "control",
+      "stage": "initial",
+      "cases": 9,
+      "cost": 1676999854.1442642,
+      "components": {
+        "c_wait": 1511073228.7758687,
+        "c_vessel": 146530689.25728458,
+        "c_move": 965936.1111111111,
+        "c_rehandle": 18430000.0
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 99.73651819404353,
+          "order_weighted_min": 150.07549218837391,
+          "unfinished24_mean": 1942.2222222222222,
+          "unfinished26_mean": 1623.7777777777778,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 70.59968057399658,
+          "order_weighted_min": 106.60291706326628,
+          "unfinished24_mean": 601.5555555555555,
+          "unfinished26_mean": 493.8888888888889,
+          "orders": 35238
+        },
+        "GATE_OUT": {
+          "mean_min": 123.40450617999667,
+          "order_weighted_min": 185.89904118651577,
+          "unfinished24_mean": 1340.6666666666667,
+          "unfinished26_mean": 1129.888888888889,
+          "orders": 42762
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 938.896948235819,
+          "order_weighted_min": 963.0280540853946,
+          "unfinished24_mean": 1720.7777777777778,
+          "unfinished26_mean": 1594.111111111111,
+          "orders": 25722
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 985.47360353693,
+          "order_weighted_min": 1005.7744247797729,
+          "unfinished24_mean": 1902.3333333333333,
+          "unfinished26_mean": 1779.111111111111,
+          "orders": 25722
+        }
+      },
+      "unfinished26_mean": 4997
+    },
+    {
+      "arm": "control",
+      "stage": "update-2",
+      "cases": 9,
+      "cost": 1521227556.0310795,
+      "components": {
+        "c_wait": 1367362422.4440436,
+        "c_vessel": 135666531.04073954,
+        "c_move": 871935.8796296297,
+        "c_rehandle": 17326666.666666668
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 92.13580264317343,
+          "order_weighted_min": 136.91791284953482,
+          "unfinished24_mean": 1713.4444444444443,
+          "unfinished26_mean": 1398.7777777777778,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 42.543696086495345,
+          "order_weighted_min": 59.11331643949014,
+          "unfinished24_mean": 267,
+          "unfinished26_mean": 179.88888888888889,
+          "orders": 35238
+        },
+        "GATE_OUT": {
+          "mean_min": 131.27636261968146,
+          "order_weighted_min": 201.0327430328086,
+          "unfinished24_mean": 1446.4444444444443,
+          "unfinished26_mean": 1218.888888888889,
+          "orders": 42762
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 921.827787175072,
+          "order_weighted_min": 947.433597514697,
+          "unfinished24_mean": 1653.111111111111,
+          "unfinished26_mean": 1525.5555555555557,
+          "orders": 25722
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 926.9125850111132,
+          "order_weighted_min": 946.7202318051521,
+          "unfinished24_mean": 1617.4444444444443,
+          "unfinished26_mean": 1460.3333333333333,
+          "orders": 25722
+        }
+      },
+      "unfinished26_mean": 4384.666666666667
+    },
+    {
+      "arm": "control",
+      "stage": "final",
+      "cases": 9,
+      "cost": 1577546534.6989923,
+      "components": {
+        "c_wait": 1413090127.1546848,
+        "c_vessel": 145419442.9609741,
+        "c_move": 809186.8055555555,
+        "c_rehandle": 18227777.777777776
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 94.28163066498483,
+          "order_weighted_min": 141.1481811775691,
+          "unfinished24_mean": 1789.111111111111,
+          "unfinished26_mean": 1488,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 51.17752572829932,
+          "order_weighted_min": 73.2118790435614,
+          "unfinished24_mean": 319.3333333333333,
+          "unfinished26_mean": 229.66666666666666,
+          "orders": 35238
+        },
+        "GATE_OUT": {
+          "mean_min": 128.34990608729566,
+          "order_weighted_min": 197.13104948583725,
+          "unfinished24_mean": 1469.7777777777778,
+          "unfinished26_mean": 1258.3333333333333,
+          "orders": 42762
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 935.4259677413152,
+          "order_weighted_min": 959.6669151338663,
+          "unfinished24_mean": 1700.888888888889,
+          "unfinished26_mean": 1573.6666666666667,
+          "orders": 25722
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 979.6634980576098,
+          "order_weighted_min": 1000.0906411362106,
+          "unfinished24_mean": 1888,
+          "unfinished26_mean": 1761.3333333333333,
+          "orders": 25722
+        }
+      },
+      "unfinished26_mean": 4823
+    },
+    {
+      "arm": "popart",
+      "stage": "update-2",
+      "cases": 9,
+      "cost": 1576574477.3572323,
+      "components": {
+        "c_wait": 1409202663.1906705,
+        "c_vessel": 148171834.9998951,
+        "c_move": 885534.7222222222,
+        "c_rehandle": 18314444.444444444
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 95.01442423565956,
+          "order_weighted_min": 140.6992166114223,
+          "unfinished24_mean": 1783.3333333333333,
+          "unfinished26_mean": 1475.5555555555557,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 46.11941233963439,
+          "order_weighted_min": 66.16016549263938,
+          "unfinished24_mean": 267.3333333333333,
+          "unfinished26_mean": 158.33333333333334,
+          "orders": 35238
+        },
+        "GATE_OUT": {
+          "mean_min": 133.890110115016,
+          "order_weighted_min": 202.12307619057364,
+          "unfinished24_mean": 1516,
+          "unfinished26_mean": 1317.2222222222222,
+          "orders": 42762
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 939.3973138134337,
+          "order_weighted_min": 962.7886535146702,
+          "unfinished24_mean": 1715.111111111111,
+          "unfinished26_mean": 1588.6666666666667,
+          "orders": 25722
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 994.7627050153687,
+          "order_weighted_min": 1016.0925301804756,
+          "unfinished24_mean": 1958.4444444444443,
+          "unfinished26_mean": 1848.5555555555557,
+          "orders": 25722
+        }
+      },
+      "unfinished26_mean": 4912.777777777777
+    },
+    {
+      "arm": "popart",
+      "stage": "final",
+      "cases": 9,
+      "cost": 1456370597.6204748,
+      "components": {
+        "c_wait": 1290798499.6599827,
+        "c_vessel": 146716098.30771425,
+        "c_move": 857110.7638888889,
+        "c_rehandle": 17998888.888888888
+      },
+      "flows": {
+        "TRUCK": {
+          "mean_min": 86.66290986652989,
+          "order_weighted_min": 129.7929892245001,
+          "unfinished24_mean": 1664.4444444444443,
+          "unfinished26_mean": 1408,
+          "orders": 78000
+        },
+        "GATE_IN": {
+          "mean_min": 25.09116939713296,
+          "order_weighted_min": 33.31025581261935,
+          "unfinished24_mean": 48,
+          "unfinished26_mean": 0.1111111111111111,
+          "orders": 35238
+        },
+        "GATE_OUT": {
+          "mean_min": 135.05997268489585,
+          "order_weighted_min": 209.29952680384287,
+          "unfinished24_mean": 1616.4444444444443,
+          "unfinished26_mean": 1407.888888888889,
+          "orders": 42762
+        },
+        "VESSEL_DISCHARGE": {
+          "mean_min": 937.4665390391024,
+          "order_weighted_min": 961.3345330194529,
+          "unfinished24_mean": 1707.3333333333333,
+          "unfinished26_mean": 1581.3333333333333,
+          "orders": 25722
+        },
+        "VESSEL_LOAD": {
+          "mean_min": 989.0887413178148,
+          "order_weighted_min": 1009.095107777354,
+          "unfinished24_mean": 1920.111111111111,
+          "unfinished26_mean": 1796,
+          "orders": 25722
+        }
+      },
+      "unfinished26_mean": 4785.333333333333
+    }
+  ],
+  "value_validation": [
+    {
+      "arm": "control",
+      "load": 3500,
+      "rmse": 1.699481534391436,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 1.425172890376848,
+          "mean_residual": 0.9785436075425591,
+          "raw_positive": 1677,
+          "centered_positive": 892,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 315,
+              "rmse": 1.4897381684734974,
+              "mean_residual": 1.1749762295003523,
+              "raw_positive": 291,
+              "centered_positive": 175
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 497,
+              "rmse": 1.897270497146184,
+              "mean_residual": 1.4618220458787448,
+              "raw_positive": 465,
+              "centered_positive": 290
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 652,
+              "rmse": 1.2862115567749257,
+              "mean_residual": 0.9071128071268125,
+              "raw_positive": 552,
+              "centered_positive": 256
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 584,
+              "rmse": 1.0076716803055856,
+              "mean_residual": 0.5410559741543355,
+              "raw_positive": 369,
+              "centered_positive": 171
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 1.5081595943810462,
+          "mean_residual": 1.2689596726204506,
+          "raw_positive": 2048,
+          "centered_positive": 773,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 320,
+              "rmse": 1.588864349055423,
+              "mean_residual": 1.3880550415830044,
+              "raw_positive": 320,
+              "centered_positive": 127
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 521,
+              "rmse": 1.9544595250687666,
+              "mean_residual": 1.6794924814579768,
+              "raw_positive": 521,
+              "centered_positive": 305
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 602,
+              "rmse": 1.4582387889131072,
+              "mean_residual": 1.273672446678709,
+              "raw_positive": 602,
+              "centered_positive": 250
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 605,
+              "rmse": 0.9792295985136342,
+              "mean_residual": 0.8477444636031944,
+              "raw_positive": 605,
+              "centered_positive": 91
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 2.0878336446239456,
+          "mean_residual": 1.295295953130903,
+          "raw_positive": 1609,
+          "centered_positive": 662,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 300,
+              "rmse": 2.131181880934945,
+              "mean_residual": 1.4476884524441542,
+              "raw_positive": 261,
+              "centered_positive": 97
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 524,
+              "rmse": 2.8217246036980526,
+              "mean_residual": 1.9946031897837246,
+              "raw_positive": 450,
+              "centered_positive": 256
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 647,
+              "rmse": 1.92861701573297,
+              "mean_residual": 1.23794392780006,
+              "raw_positive": 531,
+              "centered_positive": 216
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 577,
+              "rmse": 1.307251162237637,
+              "mean_residual": 0.6452994515520496,
+              "raw_positive": 367,
+              "centered_positive": 93
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "control",
+      "load": 7500,
+      "rmse": 1.8075104115171359,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 1.542362413269342,
+          "mean_residual": 1.0146646083603037,
+          "raw_positive": 1727,
+          "centered_positive": 790,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 202,
+              "rmse": 1.100440197971723,
+              "mean_residual": 0.7356726772364433,
+              "raw_positive": 186,
+              "centered_positive": 55
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 517,
+              "rmse": 1.9572987627163645,
+              "mean_residual": 1.4685605415993341,
+              "raw_positive": 480,
+              "centered_positive": 293
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 751,
+              "rmse": 1.618111467819901,
+              "mean_residual": 1.101127911993829,
+              "raw_positive": 652,
+              "centered_positive": 308
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 578,
+              "rmse": 1.0849440917938828,
+              "mean_residual": 0.5938310989721785,
+              "raw_positive": 409,
+              "centered_positive": 134
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 1.8630490150772838,
+          "mean_residual": 1.490838671065793,
+          "raw_positive": 2018,
+          "centered_positive": 848,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 196,
+              "rmse": 1.6267138313358758,
+              "mean_residual": 1.4138150139056898,
+              "raw_positive": 196,
+              "centered_positive": 88
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 556,
+              "rmse": 2.1532281721387654,
+              "mean_residual": 1.7773701048684543,
+              "raw_positive": 550,
+              "centered_positive": 296
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 725,
+              "rmse": 2.0354301023968233,
+              "mean_residual": 1.633123743677077,
+              "raw_positive": 716,
+              "centered_positive": 323
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 571,
+              "rmse": 1.3288942148918028,
+              "mean_residual": 1.057613595699628,
+              "raw_positive": 556,
+              "centered_positive": 141
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 1.9878249965180719,
+          "mean_residual": 1.3184111435457067,
+          "raw_positive": 1771,
+          "centered_positive": 730,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 184,
+              "rmse": 1.633854709094995,
+              "mean_residual": 1.0180613490800245,
+              "raw_positive": 150,
+              "centered_positive": 50
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 535,
+              "rmse": 2.4710075451374935,
+              "mean_residual": 1.8088178091570521,
+              "raw_positive": 498,
+              "centered_positive": 256
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 772,
+              "rmse": 2.0174272186399813,
+              "mean_residual": 1.4123136165900854,
+              "raw_positive": 695,
+              "centered_positive": 313
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 557,
+              "rmse": 1.4633075391212145,
+              "mean_residual": 0.8164436155194142,
+              "raw_positive": 428,
+              "centered_positive": 111
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "control",
+      "load": 15000,
+      "rmse": 3.962900802526755,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 3.9571982383040667,
+          "mean_residual": -3.2335983806605135,
+          "raw_positive": 157,
+          "centered_positive": 1180,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 190,
+              "rmse": 6.9663020556893605,
+              "mean_residual": -6.819198943671157,
+              "raw_positive": 0,
+              "centered_positive": 0
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 467,
+              "rmse": 5.207039641453858,
+              "mean_residual": -4.790115032108736,
+              "raw_positive": 0,
+              "centered_positive": 141
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 710,
+              "rmse": 3.0654116833023624,
+              "mean_residual": -2.9230361077602565,
+              "raw_positive": 0,
+              "centered_positive": 495
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 681,
+              "rmse": 2.272327210342918,
+              "mean_residual": -1.4896069424238614,
+              "raw_positive": 157,
+              "centered_positive": 544
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 4.066569887010513,
+          "mean_residual": -3.5088225506500765,
+          "raw_positive": 118,
+          "centered_positive": 1151,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 172,
+              "rmse": 6.563180198503277,
+              "mean_residual": -6.423630318438094,
+              "raw_positive": 0,
+              "centered_positive": 0
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 494,
+              "rmse": 4.916268911293827,
+              "mean_residual": -4.5765273210868145,
+              "raw_positive": 0,
+              "centered_positive": 221
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 692,
+              "rmse": 3.6404731700946433,
+              "mean_residual": -3.4667521383066773,
+              "raw_positive": 0,
+              "centered_positive": 423
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 690,
+              "rmse": 2.7839760076870355,
+              "mean_residual": -2.0600104241085466,
+              "raw_positive": 118,
+              "centered_positive": 507
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 3.862297213941995,
+          "mean_residual": -3.288511740896481,
+          "raw_positive": 131,
+          "centered_positive": 1122,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 183,
+              "rmse": 5.97597843060803,
+              "mean_residual": -5.714648422400494,
+              "raw_positive": 0,
+              "centered_positive": 1
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 498,
+              "rmse": 4.814218860755836,
+              "mean_residual": -4.425900228227152,
+              "raw_positive": 0,
+              "centered_positive": 202
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 680,
+              "rmse": 3.4269705334427014,
+              "mean_residual": -3.2651959220844913,
+              "raw_positive": 0,
+              "centered_positive": 410
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 687,
+              "rmse": 2.555740468169238,
+              "mean_residual": -1.8408440223902862,
+              "raw_positive": 131,
+              "centered_positive": 509
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "popart",
+      "load": 3500,
+      "rmse": 2.2341102020585257,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 2.568829184190077,
+          "mean_residual": 2.3566012380057257,
+          "raw_positive": 2048,
+          "centered_positive": 891,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 301,
+              "rmse": 3.053663314899627,
+              "mean_residual": 2.8730772026034934,
+              "raw_positive": 301,
+              "centered_positive": 213
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 530,
+              "rmse": 2.865819277103222,
+              "mean_residual": 2.670088359827856,
+              "raw_positive": 530,
+              "centered_positive": 299
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 616,
+              "rmse": 2.313495961995372,
+              "mean_residual": 2.122159223058479,
+              "raw_positive": 616,
+              "centered_positive": 195
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 601,
+              "rmse": 2.255659689009805,
+              "mean_residual": 2.0617740188673666,
+              "raw_positive": 601,
+              "centered_positive": 184
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 2.13252099831645,
+          "mean_residual": 1.6714329841807136,
+          "raw_positive": 1904,
+          "centered_positive": 911,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 299,
+              "rmse": 2.742712352608544,
+              "mean_residual": 2.4630724437588762,
+              "raw_positive": 299,
+              "centered_positive": 219
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 495,
+              "rmse": 2.4824577218292943,
+              "mean_residual": 2.070855444747211,
+              "raw_positive": 479,
+              "centered_positive": 264
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 609,
+              "rmse": 1.8394023747780905,
+              "mean_residual": 1.4553406601778172,
+              "raw_positive": 578,
+              "centered_positive": 220
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 645,
+              "rmse": 1.7402589646546092,
+              "mean_residual": 1.2019537732093597,
+              "raw_positive": 548,
+              "centered_positive": 208
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 1.9563271707510266,
+          "mean_residual": 1.4964792969304983,
+          "raw_positive": 1857,
+          "centered_positive": 872,
+          "by_load_time": [
+            {
+              "load": 3500,
+              "hour_bin": 0,
+              "count": 297,
+              "rmse": 2.354981358245146,
+              "mean_residual": 2.038539527053012,
+              "raw_positive": 293,
+              "centered_positive": 188
+            },
+            {
+              "load": 3500,
+              "hour_bin": 1,
+              "count": 534,
+              "rmse": 2.203732504982328,
+              "mean_residual": 1.811751776991476,
+              "raw_positive": 520,
+              "centered_positive": 282
+            },
+            {
+              "load": 3500,
+              "hour_bin": 2,
+              "count": 607,
+              "rmse": 1.845585400866458,
+              "mean_residual": 1.4527469707807996,
+              "raw_positive": 571,
+              "centered_positive": 237
+            },
+            {
+              "load": 3500,
+              "hour_bin": 3,
+              "count": 610,
+              "rmse": 1.5837821010828113,
+              "mean_residual": 1.0000827875434786,
+              "raw_positive": 473,
+              "centered_positive": 165
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "popart",
+      "load": 7500,
+      "rmse": 2.041033392821009,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 2.3478607593829417,
+          "mean_residual": 2.038145734832348,
+          "raw_positive": 2030,
+          "centered_positive": 891,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 180,
+              "rmse": 2.4514006909176853,
+              "mean_residual": 2.1977037647290696,
+              "raw_positive": 180,
+              "centered_positive": 102
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 504,
+              "rmse": 2.742768348041176,
+              "mean_residual": 2.4192435093575524,
+              "raw_positive": 499,
+              "centered_positive": 299
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 788,
+              "rmse": 2.3897580806519962,
+              "mean_residual": 2.0702380192518777,
+              "raw_positive": 777,
+              "centered_positive": 351
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 576,
+              "rmse": 1.8238905941006651,
+              "mean_residual": 1.6109192697894623,
+              "raw_positive": 574,
+              "centered_positive": 139
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 1.8246762566353405,
+          "mean_residual": 1.2147890314085972,
+          "raw_positive": 1755,
+          "centered_positive": 788,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 200,
+              "rmse": 1.6509003333997871,
+              "mean_residual": 1.2240810657435595,
+              "raw_positive": 181,
+              "centered_positive": 75
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 506,
+              "rmse": 2.1511495678128982,
+              "mean_residual": 1.6214981018797767,
+              "raw_positive": 470,
+              "centered_positive": 259
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 789,
+              "rmse": 1.9400307176271863,
+              "mean_residual": 1.2911945021480016,
+              "raw_positive": 694,
+              "centered_positive": 325
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 553,
+              "rmse": 1.3193129688641305,
+              "mean_residual": 0.7302734564740595,
+              "raw_positive": 410,
+              "centered_positive": 129
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 1.9119514493972685,
+          "mean_residual": 1.4611484421743897,
+          "raw_positive": 1898,
+          "centered_positive": 879,
+          "by_load_time": [
+            {
+              "load": 7500,
+              "hour_bin": 0,
+              "count": 203,
+              "rmse": 1.989140437142337,
+              "mean_residual": 1.6511205296887779,
+              "raw_positive": 197,
+              "centered_positive": 105
+            },
+            {
+              "load": 7500,
+              "hour_bin": 1,
+              "count": 522,
+              "rmse": 2.2297110128712347,
+              "mean_residual": 1.82896740537401,
+              "raw_positive": 503,
+              "centered_positive": 288
+            },
+            {
+              "load": 7500,
+              "hour_bin": 2,
+              "count": 777,
+              "rmse": 2.020628474849088,
+              "mean_residual": 1.5972683470881397,
+              "raw_positive": 745,
+              "centered_positive": 368
+            },
+            {
+              "load": 7500,
+              "hour_bin": 3,
+              "count": 546,
+              "rmse": 1.29506850546275,
+              "mean_residual": 0.8451576021128397,
+              "raw_positive": 453,
+              "centered_positive": 118
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "arm": "popart",
+      "load": 15000,
+      "rmse": 3.935718855329656,
+      "by_seed": [
+        {
+          "seed": 9951101,
+          "rmse": 3.740520967831666,
+          "mean_residual": -3.1928249383419445,
+          "raw_positive": 142,
+          "centered_positive": 1099,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 173,
+              "rmse": 5.823151824679748,
+              "mean_residual": -5.744234863831948,
+              "raw_positive": 0,
+              "centered_positive": 0
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 486,
+              "rmse": 4.678972802284452,
+              "mean_residual": -4.357960632595142,
+              "raw_positive": 0,
+              "centered_positive": 162
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 696,
+              "rmse": 3.3198458470278664,
+              "mean_residual": -3.13787802587125,
+              "raw_positive": 0,
+              "centered_positive": 430
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 693,
+              "rmse": 2.5418687472331922,
+              "mean_residual": -1.7939695076966045,
+              "raw_positive": 142,
+              "centered_positive": 507
+            }
+          ]
+        },
+        {
+          "seed": 9951102,
+          "rmse": 3.859100197826747,
+          "mean_residual": -3.2410888629858436,
+          "raw_positive": 124,
+          "centered_positive": 1182,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 173,
+              "rmse": 6.125326848376687,
+              "mean_residual": -5.9777234070691145,
+              "raw_positive": 0,
+              "centered_positive": 2
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 504,
+              "rmse": 4.962001826181891,
+              "mean_residual": -4.433299055512942,
+              "raw_positive": 0,
+              "centered_positive": 240
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 697,
+              "rmse": 3.185268585529901,
+              "mean_residual": -3.0168004431408364,
+              "raw_positive": 0,
+              "centered_positive": 442
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 674,
+              "rmse": 2.5920232549413362,
+              "mean_residual": -1.8790967494426793,
+              "raw_positive": 124,
+              "centered_positive": 498
+            }
+          ]
+        },
+        {
+          "seed": 9951103,
+          "rmse": 4.193506560974639,
+          "mean_residual": -3.6659483654802534,
+          "raw_positive": 82,
+          "centered_positive": 1090,
+          "by_load_time": [
+            {
+              "load": 15000,
+              "hour_bin": 0,
+              "count": 179,
+              "rmse": 6.333666201469969,
+              "mean_residual": -6.198695763030488,
+              "raw_positive": 0,
+              "centered_positive": 2
+            },
+            {
+              "load": 15000,
+              "hour_bin": 1,
+              "count": 541,
+              "rmse": 5.21777410910317,
+              "mean_residual": -4.870092073488971,
+              "raw_positive": 0,
+              "centered_positive": 182
+            },
+            {
+              "load": 15000,
+              "hour_bin": 2,
+              "count": 654,
+              "rmse": 3.6053674625853405,
+              "mean_residual": -3.421098662173391,
+              "raw_positive": 0,
+              "centered_positive": 410
+            },
+            {
+              "load": 15000,
+              "hour_bin": 3,
+              "count": 674,
+              "rmse": 2.883624718479422,
+              "mean_residual": -2.264358121813309,
+              "raw_positive": 82,
+              "centered_positive": 496
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "training": {
+    "rows": [
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 0,
+        "before_rmse": 0.8070709736055006,
+        "after_rmse": 0.21423953396518466,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": 0.0004075341421412304,
+            "critic_loss": 0.035489538189722225,
+            "entropy": 1.6728893155232072,
+            "approx_kl": 0.0002601675363394212,
+            "clip_fraction": 0.0
+          }
+        },
+        "collected": 10495,
+        "seconds": 347.0235812999308
+      },
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 1,
+        "before_rmse": 5.661308699608581,
+        "after_rmse": 2.1297793724824423,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 2.7976697641424835,
+            "critic_loss": 5.6498900493606925,
+            "entropy": 2.6188713554292917,
+            "approx_kl": 0.0002873322946384347,
+            "clip_fraction": 0.0003662109375
+          }
+        },
+        "collected": 14693,
+        "seconds": 889.1524455007166
+      },
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 2,
+        "before_rmse": 3.7879424451682047,
+        "after_rmse": 1.9284350969812725,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 1.4649669746868312,
+            "critic_loss": 2.9784174915403128,
+            "entropy": 2.3800441287457943,
+            "approx_kl": 0.00022059635745114853,
+            "clip_fraction": 0.00048828125
+          }
+        },
+        "collected": 16081,
+        "seconds": 914.40501340013
+      },
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 3,
+        "before_rmse": 2.3025155501178443,
+        "after_rmse": 0.21405985457592805,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 0.052494022536848206,
+            "critic_loss": 0.13509859990881523,
+            "entropy": 1.5261392248794436,
+            "approx_kl": 0.00018691085850267714,
+            "clip_fraction": 0.0
+          }
+        },
+        "collected": 8332,
+        "seconds": 336.17950470000505
+      },
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 4,
+        "before_rmse": 4.572668038118549,
+        "after_rmse": 1.1073260877260926,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 0.7651418114546686,
+            "critic_loss": 1.5742648534942418,
+            "entropy": 2.176693622022867,
+            "approx_kl": 0.00031870798900563053,
+            "clip_fraction": 0.000244140625
+          }
+        },
+        "collected": 13197,
+        "seconds": 965.2558380998671
+      },
+      {
+        "arm": "control",
+        "seed": 9951101,
+        "iteration": 5,
+        "before_rmse": 3.1429410524634185,
+        "after_rmse": 1.8620079947778798,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 1.084674596088007,
+            "critic_loss": 2.2123164464719594,
+            "entropy": 2.2002630634233356,
+            "approx_kl": 0.0004133524779397716,
+            "clip_fraction": 0.001220703125
+          }
+        },
+        "collected": 14902,
+        "seconds": 1187.9089149003848
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 0,
+        "before_rmse": 0.7787238081681032,
+        "after_rmse": 0.20028386094162556,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": -0.0026980742331943475,
+            "critic_loss": 0.032070548288174905,
+            "entropy": 1.6099611381068826,
+            "approx_kl": 0.0014980154528068486,
+            "clip_fraction": 0.02001953125
+          }
+        },
+        "collected": 10492,
+        "seconds": 338.05183700006455
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 1,
+        "before_rmse": 5.686205548851347,
+        "after_rmse": 2.2370677988389005,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 2.8557379997801036,
+            "critic_loss": 5.764092832803726,
+            "entropy": 2.6136472448706627,
+            "approx_kl": 0.0003266027528470586,
+            "clip_fraction": 0.000244140625
+          }
+        },
+        "collected": 14754,
+        "seconds": 864.35345220007
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 2,
+        "before_rmse": 3.2250222625645866,
+        "after_rmse": 1.997292837318615,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 7.152557373046875e-07,
+          "means": {
+            "loss": 1.3596506777685136,
+            "critic_loss": 2.7690561646595597,
+            "entropy": 2.3292734548449516,
+            "approx_kl": 0.00026653584089961387,
+            "clip_fraction": 0.0001220703125
+          }
+        },
+        "collected": 16033,
+        "seconds": 885.1072387006134
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 3,
+        "before_rmse": 2.00785889806466,
+        "after_rmse": 0.21429660141528714,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": 0.031366293544124346,
+            "critic_loss": 0.09939030415262096,
+            "entropy": 1.5370498560369015,
+            "approx_kl": 0.0012462051669746331,
+            "clip_fraction": 0.01220703125
+          }
+        },
+        "collected": 8500,
+        "seconds": 332.3779964996502
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 4,
+        "before_rmse": 4.068801481195501,
+        "after_rmse": 1.1028722009659089,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": 0.6828637233265908,
+            "critic_loss": 1.4138686922378838,
+            "entropy": 2.263590347021818,
+            "approx_kl": 0.0008818983447987242,
+            "clip_fraction": 0.0045166015625
+          }
+        },
+        "collected": 13213,
+        "seconds": 934.6097999000922
+      },
+      {
+        "arm": "control",
+        "seed": 9951102,
+        "iteration": 5,
+        "before_rmse": 3.2504329756583403,
+        "after_rmse": 1.9200966875314256,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 1.2074795101070777,
+            "critic_loss": 2.4636394064873457,
+            "entropy": 2.17864918615669,
+            "approx_kl": 0.001450310330216903,
+            "clip_fraction": 0.011474609375
+          }
+        },
+        "collected": 14856,
+        "seconds": 1174.8605077993125
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 0,
+        "before_rmse": 0.47378897285920557,
+        "after_rmse": 0.19103068215105504,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": -0.0050039590059896,
+            "critic_loss": 0.025249203215935268,
+            "entropy": 1.639292879961431,
+            "approx_kl": 0.0005371174102109313,
+            "clip_fraction": 0.003173828125
+          }
+        },
+        "collected": 10548,
+        "seconds": 340.97728350013494
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 1,
+        "before_rmse": 5.6099367440769425,
+        "after_rmse": 1.8627949234436445,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 2.329683441668749,
+            "critic_loss": 4.7124575870111585,
+            "entropy": 2.563605872914195,
+            "approx_kl": 0.00023934410112833385,
+            "clip_fraction": 0.000244140625
+          }
+        },
+        "collected": 14847,
+        "seconds": 877.1749761998653
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 2,
+        "before_rmse": 4.141338079971543,
+        "after_rmse": 2.042082645102865,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 1.580094552366063,
+            "critic_loss": 3.2093934221193194,
+            "entropy": 2.358502434566617,
+            "approx_kl": 0.0005274333597842726,
+            "clip_fraction": 0.0030517578125
+          }
+        },
+        "collected": 15947,
+        "seconds": 903.6956682000309
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 3,
+        "before_rmse": 2.0268114884982182,
+        "after_rmse": 0.22186451059048046,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "means": {
+            "loss": 0.05731077790551353,
+            "critic_loss": 0.14697602737578563,
+            "entropy": 1.5160061186179519,
+            "approx_kl": 0.0012718494020486602,
+            "clip_fraction": 0.017822265625
+          }
+        },
+        "collected": 8462,
+        "seconds": 337.66876209992915
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 4,
+        "before_rmse": 4.085612092430583,
+        "after_rmse": 1.0765131969973614,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 0.687233221164206,
+            "critic_loss": 1.421707064495422,
+            "entropy": 2.254461383447051,
+            "approx_kl": 0.0006239421267603632,
+            "clip_fraction": 0.00341796875
+          }
+        },
+        "collected": 13152,
+        "seconds": 953.7509567001835
+      },
+      {
+        "arm": "control",
+        "seed": 9951103,
+        "iteration": 5,
+        "before_rmse": 3.1839932842192704,
+        "after_rmse": 1.8794114965567525,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "means": {
+            "loss": 1.1586119523271918,
+            "critic_loss": 2.3616297226399183,
+            "entropy": 2.211065698415041,
+            "approx_kl": 0.00021745562671387966,
+            "clip_fraction": 0.0
+          }
+        },
+        "collected": 14880,
+        "seconds": 1193.8863157993183
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 0,
+        "before_rmse": 0.8070709736055006,
+        "after_rmse": 0.19795414939311864,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 2048,
+            "mean": -0.39763675128689613,
+            "scale": 0.24810008693112756,
+            "scale_floor_hit": false,
+            "old_mean": 0.0,
+            "old_scale": 1.0,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.7881393432617188e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.24315546000434551,
+            "critic_loss": 0.5204059012467042,
+            "entropy": 1.672757474705577,
+            "approx_kl": 9.032712009473913e-05,
+            "clip_fraction": 0.0
+          }
+        },
+        "collected": 10495,
+        "seconds": 348.0829886002466
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 1,
+        "before_rmse": 5.468210637254335,
+        "after_rmse": 1.8818832148615128,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 4096,
+            "mean": -2.3866329876711703,
+            "scale": 3.3272315970081876,
+            "scale_floor_hit": false,
+            "old_mean": -0.39763675128689613,
+            "old_scale": 0.24810008693112756,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 3.2782554626464844e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.21355775759730022,
+            "critic_loss": 0.4815985191380605,
+            "entropy": 2.593450779095292,
+            "approx_kl": 0.0003861179200710767,
+            "clip_fraction": 0.0010986328125
+          }
+        },
+        "collected": 14751,
+        "seconds": 891.9555772999302
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 2,
+        "before_rmse": 4.0633008384718945,
+        "after_rmse": 2.1425034675974426,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 6144,
+            "mean": -2.819802600638075,
+            "scale": 3.255109861741467,
+            "scale_floor_hit": false,
+            "old_mean": -2.3866329876711703,
+            "old_scale": 3.3272315970081876,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.9073486328125e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.11887453115195967,
+            "critic_loss": 0.2864598638843745,
+            "entropy": 2.3427978567779064,
+            "approx_kl": 0.00041238718391738843,
+            "clip_fraction": 0.0025634765625
+          }
+        },
+        "collected": 16056,
+        "seconds": 916.7577541004866
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 3,
+        "before_rmse": 1.9358473469229023,
+        "after_rmse": 0.21877281111505653,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 8192,
+            "mean": -2.2144674576312617,
+            "scale": 3.011689187246593,
+            "scale_floor_hit": false,
+            "old_mean": -2.819802600638075,
+            "old_scale": 3.255109861741467,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 9.5367431640625e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": -0.008622265406302176,
+            "critic_loss": 0.014640364217484603,
+            "entropy": 1.4820285309106112,
+            "approx_kl": 0.0006404680221443844,
+            "clip_fraction": 0.001953125
+          }
+        },
+        "collected": 8427,
+        "seconds": 340.27720940019935
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 4,
+        "before_rmse": 3.7059236745784077,
+        "after_rmse": 1.203517428486313,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 10240,
+            "mean": -2.4928846517336694,
+            "scale": 3.0186912298670334,
+            "scale_floor_hit": false,
+            "old_mean": -2.2144674576312617,
+            "old_scale": 3.011689187246593,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 4.76837158203125e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.0450896125548752,
+            "critic_loss": 0.13905483797134366,
+            "entropy": 2.276438733562827,
+            "approx_kl": 0.0011015696061399275,
+            "clip_fraction": 0.006103515625
+          }
+        },
+        "collected": 13257,
+        "seconds": 964.1702998997644
+      },
+      {
+        "arm": "popart",
+        "seed": 9951101,
+        "iteration": 5,
+        "before_rmse": 3.01978088590751,
+        "after_rmse": 2.0206107236755524,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 12288,
+            "mean": -2.715601262056258,
+            "scale": 3.0737126439463034,
+            "scale_floor_hit": false,
+            "old_mean": -2.4928846517336694,
+            "old_scale": 3.0186912298670334,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 2.384185791015625e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.1056966438627569,
+            "critic_loss": 0.26190305477939546,
+            "entropy": 2.2268821503967047,
+            "approx_kl": 0.002602916205724705,
+            "clip_fraction": 0.0269775390625
+          }
+        },
+        "collected": 14945,
+        "seconds": 1195.5510210003704
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 0,
+        "before_rmse": 0.7787238081681032,
+        "after_rmse": 0.1766214057434089,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 2048,
+            "mean": -0.3894641867908035,
+            "scale": 0.24078757003713197,
+            "scale_floor_hit": false,
+            "old_mean": 0.0,
+            "old_scale": 1.0,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.4901161193847656e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.22695029869646532,
+            "critic_loss": 0.49078608001582325,
+            "entropy": 1.6100452775135636,
+            "approx_kl": 0.0014616191551866482,
+            "clip_fraction": 0.0201416015625
+          }
+        },
+        "collected": 10492,
+        "seconds": 344.4272154001519
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 1,
+        "before_rmse": 5.5470174413035265,
+        "after_rmse": 1.7757349556451714,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 4096,
+            "mean": -2.3409675963170002,
+            "scale": 3.3029365846366017,
+            "scale_floor_hit": false,
+            "old_mean": -0.3894641867908035,
+            "old_scale": 0.24078757003713197,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 4.470348358154297e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.21476125181652606,
+            "critic_loss": 0.4831229029223323,
+            "entropy": 2.5479731522500515,
+            "approx_kl": 0.00034688141997145806,
+            "clip_fraction": 0.00146484375
+          }
+        },
+        "collected": 14763,
+        "seconds": 886.0105702001601
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 2,
+        "before_rmse": 4.216502627413731,
+        "after_rmse": 2.0286794873473553,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 6144,
+            "mean": -2.7749668538556307,
+            "scale": 3.2512529656735665,
+            "scale_floor_hit": false,
+            "old_mean": -2.3409675963170002,
+            "old_scale": 3.3029365846366017,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.9073486328125e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.11384611400717404,
+            "critic_loss": 0.27834876044653356,
+            "entropy": 2.3725178968161345,
+            "approx_kl": 0.0005556671097569485,
+            "clip_fraction": 0.0025634765625
+          }
+        },
+        "collected": 16005,
+        "seconds": 912.9399133995175
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 3,
+        "before_rmse": 1.7805267975328285,
+        "after_rmse": 0.2286611747024119,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 8192,
+            "mean": -2.190050124478134,
+            "scale": 2.9971359883975826,
+            "scale_floor_hit": false,
+            "old_mean": -2.7749668538556307,
+            "old_scale": 3.2512529656735665,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 9.5367431640625e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": -0.01123779165209271,
+            "critic_loss": 0.012035699186526472,
+            "entropy": 1.5047308187931776,
+            "approx_kl": 0.000956103740857233,
+            "clip_fraction": 0.0059814453125
+          }
+        },
+        "collected": 8445,
+        "seconds": 338.8434072993696
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 4,
+        "before_rmse": 4.098820750408924,
+        "after_rmse": 1.2299774624821909,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 10240,
+            "mean": -2.502614410901728,
+            "scale": 3.027419005407449,
+            "scale_floor_hit": false,
+            "old_mean": -2.190050124478134,
+            "old_scale": 2.9971359883975826,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 4.76837158203125e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.056797798271873035,
+            "critic_loss": 0.15990102151408792,
+            "entropy": 2.193699646741152,
+            "approx_kl": 0.0011893903588591805,
+            "clip_fraction": 0.0113525390625
+          }
+        },
+        "collected": 13160,
+        "seconds": 956.2363446000963
+      },
+      {
+        "arm": "popart",
+        "seed": 9951102,
+        "iteration": 5,
+        "before_rmse": 3.22771705242286,
+        "after_rmse": 1.8475607018368168,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 12288,
+            "mean": -2.7292411560180176,
+            "scale": 3.0878888275579377,
+            "scale_floor_hit": false,
+            "old_mean": -2.502614410901728,
+            "old_scale": 3.027419005407449,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 2.384185791015625e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.09426571022777352,
+            "critic_loss": 0.23432116163894534,
+            "entropy": 2.1803521402180195,
+            "approx_kl": 0.0007198052737157016,
+            "clip_fraction": 0.00537109375
+          }
+        },
+        "collected": 14902,
+        "seconds": 1200.3870135005563
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 0,
+        "before_rmse": 0.47378897285920557,
+        "after_rmse": 0.17879025620306283,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 2048,
+            "mean": -0.3907248136722643,
+            "scale": 0.23251766347135217,
+            "scale_floor_hit": false,
+            "old_mean": 0.0,
+            "old_scale": 1.0,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.1920928955078125e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.19699052919168025,
+            "critic_loss": 0.42879303207155317,
+            "entropy": 1.6394164049997926,
+            "approx_kl": 0.00037253000242291195,
+            "clip_fraction": 0.0018310546875
+          }
+        },
+        "collected": 10548,
+        "seconds": 338.12648450024426
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 1,
+        "before_rmse": 5.665250060620178,
+        "after_rmse": 2.0136718324816694,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 4096,
+            "mean": -2.3864263820472047,
+            "scale": 3.3398546225340913,
+            "scale_floor_hit": false,
+            "old_mean": -0.3907248136722643,
+            "old_scale": 0.23251766347135217,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 4.172325134277344e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.22340171899122652,
+            "critic_loss": 0.5014598394045606,
+            "entropy": 2.638438945636153,
+            "approx_kl": 0.0002421365980089709,
+            "clip_fraction": 0.0001220703125
+          }
+        },
+        "collected": 14735,
+        "seconds": 873.4104993995279
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 2,
+        "before_rmse": 4.268769724735195,
+        "after_rmse": 2.0085657932003556,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 6144,
+            "mean": -2.782054182854722,
+            "scale": 3.2570392609420726,
+            "scale_floor_hit": false,
+            "old_mean": -2.3864263820472047,
+            "old_scale": 3.3398546225340913,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 2.384185791015625e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.11360126234649215,
+            "critic_loss": 0.2782525027869269,
+            "entropy": 2.377193280495703,
+            "approx_kl": 0.0006051094514845793,
+            "clip_fraction": 0.0037841796875
+          }
+        },
+        "collected": 16023,
+        "seconds": 888.5767386006191
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 3,
+        "before_rmse": 2.3075137220672652,
+        "after_rmse": 0.2437462443080763,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 8192,
+            "mean": -2.191190370290901,
+            "scale": 3.0050025184884563,
+            "scale_floor_hit": false,
+            "old_mean": -2.782054182854722,
+            "old_scale": 3.2570392609420726,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 9.5367431640625e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": -0.006210334977367893,
+            "critic_loss": 0.020154340965746087,
+            "entropy": 1.5115432580932975,
+            "approx_kl": 0.0016350516646184768,
+            "clip_fraction": 0.012451171875
+          }
+        },
+        "collected": 8496,
+        "seconds": 333.39815409947187
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 4,
+        "before_rmse": 4.349857805319071,
+        "after_rmse": 1.2125681201132248,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 4.76837158203125e-07,
+          "normalization": {
+            "count": 10240,
+            "mean": -2.4638327421901094,
+            "scale": 3.0209743379276897,
+            "scale_floor_hit": false,
+            "old_mean": -2.191190370290901,
+            "old_scale": 3.0050025184884563,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 4.76837158203125e-07,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.06190088528092019,
+            "critic_loss": 0.17001926808734424,
+            "entropy": 2.2239553285762668,
+            "approx_kl": 0.0003142082328897785,
+            "clip_fraction": 0.0
+          }
+        },
+        "collected": 13219,
+        "seconds": 937.1924819992855
+      },
+      {
+        "arm": "popart",
+        "seed": 9951103,
+        "iteration": 5,
+        "before_rmse": 3.2019997205462034,
+        "after_rmse": 1.9404159001522758,
+        "optimization": {
+          "available": 2048,
+          "selected": 2048,
+          "optimizer_steps": 128,
+          "epochs": 4,
+          "replay_logp_max_error": 9.5367431640625e-07,
+          "normalization": {
+            "count": 12288,
+            "mean": -2.681359826655232,
+            "scale": 3.0708212954391088,
+            "scale_floor_hit": false,
+            "old_mean": -2.4638327421901094,
+            "old_scale": 3.0209743379276897,
+            "adam_moments": "retained unchanged; no optimizer invariance claim",
+            "value_preservation_max_error": 1.430511474609375e-06,
+            "logit_preservation_max_error": 0.0
+          },
+          "means": {
+            "loss": 0.10036338699865155,
+            "critic_loss": 0.2561254863976501,
+            "entropy": 2.2130350451916456,
+            "approx_kl": 0.002734949238407296,
+            "clip_fraction": 0.0244140625
+          }
+        },
+        "collected": 14900,
+        "seconds": 1179.1757265003398
+      }
+    ],
+    "signal_cells": [
+      {
+        "arm": "control",
+        "load": 3500,
+        "hour_bin": 0,
+        "n": 1183,
+        "positive": 632,
+        "raw_positive": 414,
+        "sq_before": 1403.1987256813866,
+        "sq_after": 753.1301276023419,
+        "rmse_before": 1.0890986469510877,
+        "rmse_after": 0.797889294826206
+      },
+      {
+        "arm": "control",
+        "load": 3500,
+        "hour_bin": 1,
+        "n": 2374,
+        "positive": 1614,
+        "raw_positive": 1075,
+        "sq_before": 2376.5423116817424,
+        "sq_after": 2345.7397719375317,
+        "rmse_before": 1.0005353056880513,
+        "rmse_after": 0.9940301526469545
+      },
+      {
+        "arm": "control",
+        "load": 3500,
+        "hour_bin": 2,
+        "n": 2709,
+        "positive": 2046,
+        "raw_positive": 1813,
+        "sq_before": 1335.6385062564366,
+        "sq_after": 3312.958719983092,
+        "rmse_before": 0.7021662694901819,
+        "rmse_after": 1.1058685563523316
+      },
+      {
+        "arm": "control",
+        "load": 3500,
+        "hour_bin": 3,
+        "n": 2548,
+        "positive": 1935,
+        "raw_positive": 1706,
+        "sq_before": 957.2222545292137,
+        "sq_after": 648.441886356889,
+        "rmse_before": 0.6129240769210736,
+        "rmse_after": 0.5044705504257079
+      },
+      {
+        "arm": "control",
+        "load": 7500,
+        "hour_bin": 0,
+        "n": 1113,
+        "positive": 332,
+        "raw_positive": 509,
+        "sq_before": 4385.736175474765,
+        "sq_after": 989.3235709262344,
+        "rmse_before": 1.9850601425445795,
+        "rmse_after": 0.9428043899100352
+      },
+      {
+        "arm": "control",
+        "load": 7500,
+        "hour_bin": 1,
+        "n": 2843,
+        "positive": 1263,
+        "raw_positive": 1724,
+        "sq_before": 22418.059917172723,
+        "sq_after": 4637.128551300809,
+        "rmse_before": 2.808087155109394,
+        "rmse_after": 1.2771330327860437
+      },
+      {
+        "arm": "control",
+        "load": 7500,
+        "hour_bin": 2,
+        "n": 4329,
+        "positive": 2712,
+        "raw_positive": 2961,
+        "sq_before": 60967.48516928381,
+        "sq_after": 6102.850308331922,
+        "rmse_before": 3.752799376146788,
+        "rmse_after": 1.1873330749981257
+      },
+      {
+        "arm": "control",
+        "load": 7500,
+        "hour_bin": 3,
+        "n": 2983,
+        "positive": 2049,
+        "raw_positive": 1897,
+        "sq_before": 32880.9837500301,
+        "sq_after": 3132.0870113051874,
+        "rmse_before": 3.3200587939952233,
+        "rmse_after": 1.0246847730456892
+      },
+      {
+        "arm": "control",
+        "load": 15000,
+        "hour_bin": 0,
+        "n": 1629,
+        "positive": 0,
+        "raw_positive": 0,
+        "sq_before": 52350.68779955224,
+        "sq_after": 21103.159441407264,
+        "rmse_before": 5.668924249651122,
+        "rmse_after": 3.5992598176221873
+      },
+      {
+        "arm": "control",
+        "load": 15000,
+        "hour_bin": 1,
+        "n": 3908,
+        "positive": 0,
+        "raw_positive": 80,
+        "sq_before": 121009.97599324993,
+        "sq_after": 21071.761396548227,
+        "rmse_before": 5.564591779895515,
+        "rmse_after": 2.322058423367573
+      },
+      {
+        "arm": "control",
+        "load": 15000,
+        "hour_bin": 2,
+        "n": 5758,
+        "positive": 185,
+        "raw_positive": 1232,
+        "sq_before": 127408.77575135647,
+        "sq_after": 7422.743150232223,
+        "rmse_before": 4.7039623936265045,
+        "rmse_after": 1.135393454412946
+      },
+      {
+        "arm": "control",
+        "load": 15000,
+        "hour_bin": 3,
+        "n": 5487,
+        "positive": 3552,
+        "raw_positive": 1665,
+        "sq_before": 58733.37262229492,
+        "sq_after": 9252.699287858166,
+        "rmse_before": 3.2717114194047556,
+        "rmse_after": 1.2985741214953206
+      },
+      {
+        "arm": "popart",
+        "load": 3500,
+        "hour_bin": 0,
+        "n": 1194,
+        "positive": 654,
+        "raw_positive": 434,
+        "sq_before": 1554.471060377446,
+        "sq_after": 1227.5536310813304,
+        "rmse_before": 1.1410092289800406,
+        "rmse_after": 1.0139535830487156
+      },
+      {
+        "arm": "popart",
+        "load": 3500,
+        "hour_bin": 1,
+        "n": 2413,
+        "positive": 1641,
+        "raw_positive": 1231,
+        "sq_before": 2839.0103485665395,
+        "sq_after": 2959.1638588212513,
+        "rmse_before": 1.084687978259606,
+        "rmse_after": 1.1074033835809498
+      },
+      {
+        "arm": "popart",
+        "load": 3500,
+        "hour_bin": 2,
+        "n": 2773,
+        "positive": 2159,
+        "raw_positive": 1749,
+        "sq_before": 1386.1763922407104,
+        "sq_after": 4516.016169287952,
+        "rmse_before": 0.7070242573515334,
+        "rmse_after": 1.2761531867719365
+      },
+      {
+        "arm": "popart",
+        "load": 3500,
+        "hour_bin": 3,
+        "n": 2551,
+        "positive": 1890,
+        "raw_positive": 1509,
+        "sq_before": 1016.7004488721627,
+        "sq_after": 986.7081370831378,
+        "rmse_before": 0.6313079790054951,
+        "rmse_after": 0.6219265905861098
+      },
+      {
+        "arm": "popart",
+        "load": 7500,
+        "hour_bin": 0,
+        "n": 1102,
+        "positive": 444,
+        "raw_positive": 580,
+        "sq_before": 5574.346365699183,
+        "sq_after": 1598.809260932799,
+        "rmse_before": 2.2490865993748352,
+        "rmse_after": 1.2045020135578735
+      },
+      {
+        "arm": "popart",
+        "load": 7500,
+        "hour_bin": 1,
+        "n": 2955,
+        "positive": 1425,
+        "raw_positive": 1849,
+        "sq_before": 23488.184779596537,
+        "sq_after": 5336.186973441091,
+        "rmse_before": 2.8193304685502216,
+        "rmse_after": 1.3438066210087805
+      },
+      {
+        "arm": "popart",
+        "load": 7500,
+        "hour_bin": 2,
+        "n": 4224,
+        "positive": 2736,
+        "raw_positive": 2926,
+        "sq_before": 59141.05382786915,
+        "sq_after": 6594.344452358978,
+        "rmse_before": 3.7418172664444005,
+        "rmse_after": 1.2494643219960488
+      },
+      {
+        "arm": "popart",
+        "load": 7500,
+        "hour_bin": 3,
+        "n": 2996,
+        "positive": 2094,
+        "raw_positive": 1899,
+        "sq_before": 35215.02372976596,
+        "sq_after": 3529.8650152208115,
+        "rmse_before": 3.4284126444954914,
+        "rmse_after": 1.0854458048196316
+      },
+      {
+        "arm": "popart",
+        "load": 15000,
+        "hour_bin": 0,
+        "n": 1549,
+        "positive": 0,
+        "raw_positive": 78,
+        "sq_before": 48191.10346091231,
+        "sq_after": 19786.31160989467,
+        "rmse_before": 5.577733067502662,
+        "rmse_after": 3.574017818001513
+      },
+      {
+        "arm": "popart",
+        "load": 15000,
+        "hour_bin": 1,
+        "n": 3742,
+        "positive": 0,
+        "raw_positive": 788,
+        "sq_before": 114250.5055202063,
+        "sq_after": 17162.940133706958,
+        "rmse_before": 5.525571126085501,
+        "rmse_after": 2.1416275856417624
+      },
+      {
+        "arm": "popart",
+        "load": 15000,
+        "hour_bin": 2,
+        "n": 5861,
+        "positive": 197,
+        "raw_positive": 1411,
+        "sq_before": 132259.01520901694,
+        "sq_after": 5665.504113699514,
+        "rmse_before": 4.750362825410816,
+        "rmse_after": 0.9831808680486849
+      },
+      {
+        "arm": "popart",
+        "load": 15000,
+        "hour_bin": 3,
+        "n": 5504,
+        "positive": 3646,
+        "raw_positive": 1745,
+        "sq_before": 63015.58140167704,
+        "sq_after": 11419.711654307412,
+        "rmse_before": 3.3836447587627116,
+        "rmse_after": 1.4404173918603855
+      }
+    ],
+    "paired_initial_and_first_experience_exact": true,
+    "sample_targets_checked": 73728,
+    "normalization_training_only_verified": true,
+    "full_checkpoint_replay_updates": 36
+  },
+  "same_input_and_cohort": true,
+  "consistent_improvement_candidate": false,
+  "adoption_performance_pass": false,
+  "reliability_pass": true,
+  "realism_pass": false,
+  "default_policy_changed": false,
+  "averaging": "equal weight per input day and model; order-weighted secondary also reported",
+  "artifact_hashes": {
+    "outputs/reports/yr332_value_stability/evaluation/000.json.gz": "853ba85907655fcfc4d77a67a1f6480a685315b793346cd1cbbdca4ee8f85ee6",
+    "outputs/reports/yr332_value_stability/orders/000.json.gz": "3481c36bf43ec0032fb111a0fa524a5752fe628ee080b103427fc38313f01fbd",
+    "outputs/reports/yr332_value_stability/flow-orders/000.json.gz": "3ead87d78fbf618678d87e18f2b6a45127287df7a7e3e74c7154fdc91fdf44e6",
+    "outputs/reports/yr332_value_stability/evaluation/001.json.gz": "9c568c5324d256c1c7f2a69dd4e416d1a0b454fc5a104e05f9a2266ad9b7e313",
+    "outputs/reports/yr332_value_stability/orders/001.json.gz": "4dedb561b78ee5abbfdbd6fe9a0804227f104ce9a4790c1f096e7cc725b79901",
+    "outputs/reports/yr332_value_stability/flow-orders/001.json.gz": "ec2e8a2bdf935183d618b6072dfdb5fbce6398df07eb9db3b145d8257cebd130",
+    "outputs/reports/yr332_value_stability/evaluation/002.json.gz": "f85800006142a146803e49c9039d2f0bfce90707978152b2d454363be4d0987e",
+    "outputs/reports/yr332_value_stability/orders/002.json.gz": "ed29fcb50909971c10a6c26854cba24f4bb3f240ce7429af74b9333fa4b7cbec",
+    "outputs/reports/yr332_value_stability/flow-orders/002.json.gz": "f4816c816261445dd501ddb2dc08fe94576f87fa3cbe0e2ebbc9e00300a9c213",
+    "outputs/reports/yr332_value_stability/evaluation/003.json.gz": "882e9517b18cbd3f1a3e31e7eeb814da87842e67aa07cdb35eff91ef473542da",
+    "outputs/reports/yr332_value_stability/orders/003.json.gz": "7570805ef0bfac1f3e9247e0bf629b6897aa18fc0e544d36eee5dd2075bf80f0",
+    "outputs/reports/yr332_value_stability/flow-orders/003.json.gz": "731d26220087a0ac08e2cbf7322474c4b7d44cedbbdd2eea28a7c451dc9fc58c",
+    "outputs/reports/yr332_value_stability/evaluation/004.json.gz": "d7469bb202f0af96acbac1fe0ce3909424736798a2f71b1d3147762be6f6310c",
+    "outputs/reports/yr332_value_stability/orders/004.json.gz": "63ee16b98f8ff5c48d4b7d639fca12180564ec8151393122cb520e46dc1aa3bf",
+    "outputs/reports/yr332_value_stability/flow-orders/004.json.gz": "4562043360260395fbc8d7c2d878a6427d75a140acd14c974916881ccd363a6e",
+    "outputs/reports/yr332_value_stability/evaluation/005.json.gz": "82ab758c6ce440edfd38c426bf2a6e5ca4e7cca0fc3a466b212d4c58f5f41d45",
+    "outputs/reports/yr332_value_stability/orders/005.json.gz": "118caf2284a7fb8e956584c001740afedd715b7bb97dddb8fa1e95c64f9e01b3",
+    "outputs/reports/yr332_value_stability/flow-orders/005.json.gz": "b77cc9c92a53d67ea400def2bf3ae684b99bc98732b99502d8ed2e5b692685b5",
+    "outputs/reports/yr332_value_stability/evaluation/006.json.gz": "ca5b788dcaadca04733610058d219036fefda7393aaeec88c39b1758b516c767",
+    "outputs/reports/yr332_value_stability/orders/006.json.gz": "ca194ca99dceb8e2522e85072eeaae5f56955d77554647ccd2d2d99a7d354c85",
+    "outputs/reports/yr332_value_stability/flow-orders/006.json.gz": "b1ba37b2b785ae907d89ecce35840e7fa755a914911d83012f8165fd8589ac5e",
+    "outputs/reports/yr332_value_stability/evaluation/007.json.gz": "c287a032ba0bfbebe5418cae6f595f035bf7973f986b138b2d1dd6b9bc21163f",
+    "outputs/reports/yr332_value_stability/orders/007.json.gz": "523cdccdb423ec06abdcb2b5ef6fb06aa961ee097be9787fd5a15b041ca34f2a",
+    "outputs/reports/yr332_value_stability/flow-orders/007.json.gz": "f27056669094711a2decb67a09c16a2e4b185e5e7554dbff6bcc35a9ba3ea11d",
+    "outputs/reports/yr332_value_stability/evaluation/008.json.gz": "5460cbbf6a72783e99c9a1d0828ad15b19bb8d36d9eb71f311a3fc8c3c8904d7",
+    "outputs/reports/yr332_value_stability/orders/008.json.gz": "48d3b0bc88c14d01a578d92d02135fc7cd701fa9dd40df1b5b485f6ceba2cb3c",
+    "outputs/reports/yr332_value_stability/flow-orders/008.json.gz": "564de28fd38de91a7519429ca2d9c109987f9cbb2693762564419beee2e73ef8",
+    "outputs/reports/yr332_value_stability/evaluation/009.json.gz": "7190f49dd31ee44d06e55f16720a247bf39bda16f59bbac4e2061c3d112c04f7",
+    "outputs/reports/yr332_value_stability/orders/009.json.gz": "13e157031eff41076640a0c1b5ece88ee62eb4eb1423c7a0e33711b3be07b00c",
+    "outputs/reports/yr332_value_stability/flow-orders/009.json.gz": "2308f6b5b9b5229624eea29b88722f9a0192288c9a9c43d1df3f50562b6bd5db",
+    "outputs/reports/yr332_value_stability/evaluation/010.json.gz": "b6400012e1b1b658a206433211fc32695e78926df5c9d17125410e9ecb27305b",
+    "outputs/reports/yr332_value_stability/orders/010.json.gz": "e10023de0913318258cd78ab24b3c356afdbc91edb7e60d54a4c6d5422201cc6",
+    "outputs/reports/yr332_value_stability/flow-orders/010.json.gz": "e46607c19e546e1330ef1143da61b8186663b0ba6a29160cf261fa72d61b3255",
+    "outputs/reports/yr332_value_stability/evaluation/011.json.gz": "4fd4bbae30862fbaee8a05c6331bfe0e7f9576e3151909a3e735fa27bbfe55ad",
+    "outputs/reports/yr332_value_stability/orders/011.json.gz": "4fa8ed6303fb95806568760b3ad9bff047c30c01920c032de063620cec6a11fa",
+    "outputs/reports/yr332_value_stability/flow-orders/011.json.gz": "660d3608e4c517a627cecc43e9a6b806f259e045c8bb7d4069e1169e99f5b59c",
+    "outputs/reports/yr332_value_stability/evaluation/012.json.gz": "a039a467b03b3ecfe23c8565c33740ca177aa42be43b297a1c5f4fe9ec893641",
+    "outputs/reports/yr332_value_stability/orders/012.json.gz": "4399485721403311be3e9ee6a952e5ecb4ffecd0e56d44f37eb6a296c86e4a5b",
+    "outputs/reports/yr332_value_stability/flow-orders/012.json.gz": "5df5eb19e6bf11282e1642dcd0e23d4065cd69da36270d2542eb61efffe5a8f3",
+    "outputs/reports/yr332_value_stability/evaluation/013.json.gz": "dc2ede2f5526259c8f93516eda87c848cb44b9f4a66c8e0e84d466d6713f14bf",
+    "outputs/reports/yr332_value_stability/orders/013.json.gz": "c35e215ed991c8bdec7fc5a385f8a58af2eeb0f194380bb1e7aadd88c9115700",
+    "outputs/reports/yr332_value_stability/flow-orders/013.json.gz": "6045128663bbdd6603f3423bac702609952106acf9eed2c2b0ec656d056e656e",
+    "outputs/reports/yr332_value_stability/evaluation/014.json.gz": "de3bbb607622892e918f712ad820a7f36d5411326f7b463014d0d4ef825e5494",
+    "outputs/reports/yr332_value_stability/orders/014.json.gz": "7f0da2a85ff5b30a5a2adf7fa58364bbf6ca121c207d19ee9314e427ae615dec",
+    "outputs/reports/yr332_value_stability/flow-orders/014.json.gz": "f87d5c752de52b337edf2f0f9e260409f4512e6c98b0cea55419762761533bc4",
+    "outputs/reports/yr332_value_stability/evaluation/015.json.gz": "c9d52f47e354f887f7d89303406ac2db4dae370178f8e114103c15c6f9cb752d",
+    "outputs/reports/yr332_value_stability/orders/015.json.gz": "bb70c3e546648486553140d6da0305f48d11470660088ab34d9743108da3dabf",
+    "outputs/reports/yr332_value_stability/flow-orders/015.json.gz": "7871f2b4c7db03567bd2fbd7d62941a4a6e6f4b1614b9ce8f316c96dc32ae4a6",
+    "outputs/reports/yr332_value_stability/evaluation/016.json.gz": "5398f5222b954ddd0dc299cfed66a1cf3026fc053e655f878c9f5ea582437926",
+    "outputs/reports/yr332_value_stability/orders/016.json.gz": "2bded2a2518b719edbdcb165c12acde0992fcb951a7f9348cfeddef67176ef39",
+    "outputs/reports/yr332_value_stability/flow-orders/016.json.gz": "919759e1ffcd3a4d122b7c5f5b13c49bbbb8e4d77182bea23f828cd3279d33ee",
+    "outputs/reports/yr332_value_stability/evaluation/017.json.gz": "c1580f099fb86921305d4a47e5a9d8d16f696af579b9ae439d3df0efa57d8d35",
+    "outputs/reports/yr332_value_stability/orders/017.json.gz": "7a953fad75e3c77e6209403ff47838aa4731faae8e22288ce602163a9be2514f",
+    "outputs/reports/yr332_value_stability/flow-orders/017.json.gz": "b5360845be510aaed07bda688e4300e7c11ca7e1a757f80ff41415a92745f6b1",
+    "outputs/reports/yr332_value_stability/evaluation/018-repeat.json.gz": "b1d596c49bbd95d35610151fed1c54b3d7fca3516699e8176b31ccbaa8efd144",
+    "outputs/reports/yr332_value_stability/orders/018-repeat.json.gz": "45bdd543ff64008501e5056e124e43271d4c76684bf89f86aed9870b146478ac",
+    "outputs/reports/yr332_value_stability/flow-orders/018-repeat.json.gz": "3897c35b1f7cc0866972b1bea484a8767506e74236cc7b9912e6f704333c47db",
+    "outputs/reports/yr332_value_stability/evaluation/018.json.gz": "727ad176d581fc774963eb5373662201d79e0abdffb9fc093694c94ebc26f070",
+    "outputs/reports/yr332_value_stability/orders/018.json.gz": "788cf9811c6cb89e54eabc637ce8c51d8e73477ef294f2f75bc8e6a863ba2260",
+    "outputs/reports/yr332_value_stability/flow-orders/018.json.gz": "3cf35842a8354ba17cbd4a31d712e8baf6e13c4242727cfc58514218ca883352",
+    "outputs/reports/yr332_value_stability/evaluation/019.json.gz": "2ba44473372aa66df4ade90e4c77e04b01a5f314df75427aefae42b27d84190e",
+    "outputs/reports/yr332_value_stability/orders/019.json.gz": "494124991e25a0829fe294a00a787ef0ffa1df623cabebd10fe5d8952c689789",
+    "outputs/reports/yr332_value_stability/flow-orders/019.json.gz": "4810558621c25459f0f4275fb20b740c50f5a7e2a8630c8e2e1cb936363a1dd5",
+    "outputs/reports/yr332_value_stability/evaluation/020.json.gz": "2c9ff5251b9750c2a0a86ab18381c1816a7e663bdc9a2ca7eb3af8b0d6bd17ed",
+    "outputs/reports/yr332_value_stability/orders/020.json.gz": "fd328581d0dc18c36ad5710e7f1d95d5b2d9abe0cfa082957ad618ef24dd3cbb",
+    "outputs/reports/yr332_value_stability/flow-orders/020.json.gz": "a0a32c31d13bb0f2b9d9554476c894b1f2d8203df600159adc21c4a31358fc3d",
+    "outputs/reports/yr332_value_stability/evaluation/021.json.gz": "05ff4c5df9e4d557641222ff4faa9bd542a528386791d8812bf337b3d733480b",
+    "outputs/reports/yr332_value_stability/orders/021.json.gz": "0c861f0086d688230ebaa658283caba74822eae05d9c9b430f6b02a715b33ec2",
+    "outputs/reports/yr332_value_stability/flow-orders/021.json.gz": "3789d66d3789c795a4e7d3dee6d656b7d68edb664f22f7fe9be48ae4eb033fd3",
+    "outputs/reports/yr332_value_stability/evaluation/022.json.gz": "7fdf8a672116c471b966b64d896641e193b2be54d3cf1901ba19f5acec6d0af0",
+    "outputs/reports/yr332_value_stability/orders/022.json.gz": "9700d13cee38c799a77839cced5a6568d7c957a4b1c5560dc891e00fc8738de4",
+    "outputs/reports/yr332_value_stability/flow-orders/022.json.gz": "f0e639332b8d975f648da41afde66fc27e65f0226e917472eb255b12fc43e154",
+    "outputs/reports/yr332_value_stability/evaluation/023.json.gz": "1a03a32231c144dc080d779073bfd607d12249a94d260a0f5ba0c89eb553498e",
+    "outputs/reports/yr332_value_stability/orders/023.json.gz": "eedbbf1ec4f4fa4a59c3f3876484c149909d987b979a8dcdf037103cdf2d2151",
+    "outputs/reports/yr332_value_stability/flow-orders/023.json.gz": "ef90f6791678cff1e8bb586879394bae269bde4cd666a0515b942748139c2ce5",
+    "outputs/reports/yr332_value_stability/evaluation/024.json.gz": "43610aea103852039b07d61c26e134fe25f53c1e8368b652b7c435fbc14e79df",
+    "outputs/reports/yr332_value_stability/orders/024.json.gz": "c752c49dc41c9c5a5bcc92289a6e7504cc80a4e1a6a2ef63e9b8d4895868d5f9",
+    "outputs/reports/yr332_value_stability/flow-orders/024.json.gz": "37a68bb41322f3e6617769041884f84578296f5f0a7f638cb71bfc74ec43da9b",
+    "outputs/reports/yr332_value_stability/evaluation/025.json.gz": "09e7b7a5056d4215100eec3033f7e75bd5f4db614299dd2c2f3fe47691317b98",
+    "outputs/reports/yr332_value_stability/orders/025.json.gz": "71d39bfbaa9219ed2954e6ac1a0614f0d24fb5f83ee6219add6448ad0e074ab0",
+    "outputs/reports/yr332_value_stability/flow-orders/025.json.gz": "f68e76a05af15b20d2bcd94f07c9ae33b4ad80ad4dfdf13db5e6470ded73b7cf",
+    "outputs/reports/yr332_value_stability/evaluation/026.json.gz": "5f1deb6d77c8e4da532ef70a15fec38ecbb58710e6f07afe59af20d6e9f2e84c",
+    "outputs/reports/yr332_value_stability/orders/026.json.gz": "7ef36eb7254ee0c393fa575d84d773ed6cd3ca9c6e7c191fea8eca96f8252bac",
+    "outputs/reports/yr332_value_stability/flow-orders/026.json.gz": "efd14268dcccf2a08d61595fffdd7a28f9ac591a9adf3bf9d555ba5c149b54d7",
+    "outputs/reports/yr332_value_stability/evaluation/027.json.gz": "b577b7d595dc43ab4705b8ae1895cea2f848cf7da181fcc74b399a7aa71fa11f",
+    "outputs/reports/yr332_value_stability/orders/027.json.gz": "64dd420ab3504b7ed8e78809dbe7f5ab2de7f1a02894cefddb2492b5f4d24846",
+    "outputs/reports/yr332_value_stability/flow-orders/027.json.gz": "1995283e2ca82a626725e14169edecb880ed4dd9d302a977dee7044db9694625",
+    "outputs/reports/yr332_value_stability/evaluation/028.json.gz": "f9c6a35fab3eb1596c422e27d9cc92cfe2ffa876aa2015f9d4f56e244dd16eae",
+    "outputs/reports/yr332_value_stability/orders/028.json.gz": "20e01f4b8d7a709e450e118a529fb741edde82326b80bc6cad6261a38405ebe6",
+    "outputs/reports/yr332_value_stability/flow-orders/028.json.gz": "fd1ec54db3d4676c6892813da8a66b66986cb6f5363af6b8bb06047df21af07c",
+    "outputs/reports/yr332_value_stability/evaluation/029.json.gz": "d72304e4aeba5f99c61071d32476110ad091a4eb1b7b3dac25c74dcc66bc1ea4",
+    "outputs/reports/yr332_value_stability/orders/029.json.gz": "cc7a58efce317cd8dc5b4254f396e09be05d0f84a0ef713cecc174cf8cae1566",
+    "outputs/reports/yr332_value_stability/flow-orders/029.json.gz": "d6e772feb6acb0d8f8153281ec48226f024452e15458829c0b58016137cc875d",
+    "outputs/reports/yr332_value_stability/evaluation/030.json.gz": "be4bc2cc570866dadc49da38319bf8ed9de87dcc6a01347858ca2d7b77e7baf0",
+    "outputs/reports/yr332_value_stability/orders/030.json.gz": "2d4090bf5c7ca0b53815613a4a15052e90571d14cbbd254c6eaba4fcb459a965",
+    "outputs/reports/yr332_value_stability/flow-orders/030.json.gz": "440114297fee5ae07f296cfd533905237768696f34f94b42000dd241d24416d1",
+    "outputs/reports/yr332_value_stability/evaluation/031.json.gz": "b60e663b9ab32b9e3547a92bb9dfc05523f34233b0e7e142a14576eb8a414596",
+    "outputs/reports/yr332_value_stability/orders/031.json.gz": "87c3101d37e99f555e6d03f84539949b57c9d1793120caf80e917d5cd44f9ca9",
+    "outputs/reports/yr332_value_stability/flow-orders/031.json.gz": "47f0a9af5bd2c04be6eb3cf794269abd651674645c81e733d22bca621db09766",
+    "outputs/reports/yr332_value_stability/evaluation/032.json.gz": "7bdd1b54ac84ea31d2527e1a7f92aeb43f3568b5b686494835d25d153f9af68e",
+    "outputs/reports/yr332_value_stability/orders/032.json.gz": "7d030e74d06acb293f521bcb456afb2351191b1e7329a256f682ab354cf9a543",
+    "outputs/reports/yr332_value_stability/flow-orders/032.json.gz": "06cf22edeb9c2935b1427b2fd25e5a002675b1f90eb4afb1122ed5995b22e648",
+    "outputs/reports/yr332_value_stability/evaluation/033.json.gz": "405c0d0515aed5e4a980f66dd01c970ce53c9e9125ac4cc9791a6af430492015",
+    "outputs/reports/yr332_value_stability/orders/033.json.gz": "855aca8df77d360ff0128241f3a234f64c6230c572efb3a076c6900ff9a72d1e",
+    "outputs/reports/yr332_value_stability/flow-orders/033.json.gz": "4ea34a23fe0e2e521a6cfd0b2e19754f6b17e38a9388573846fd9bb8e9464073",
+    "outputs/reports/yr332_value_stability/evaluation/034.json.gz": "0e64302b39c699ef4166d240f5ea6f4c378d3fd5b2b2617bb8e5eec3a93e8dcc",
+    "outputs/reports/yr332_value_stability/orders/034.json.gz": "389af8fe4518464b5258495f15b218f4e8aa05b1ba945774ef854f5f4a17e816",
+    "outputs/reports/yr332_value_stability/flow-orders/034.json.gz": "96c85dd8b1e26c637148312125a039d34ff69056a4e3dc2b7bc94e3828aec3bb",
+    "outputs/reports/yr332_value_stability/evaluation/035.json.gz": "fe4a517f91cdc6c61b33de6f9eefe3918b843e9b83f18c8bbd50e9559af8ed0b",
+    "outputs/reports/yr332_value_stability/orders/035.json.gz": "a06dde382fe2f1e863f956786b9ad964bd2ee3baacdb58d12ae688679a947359",
+    "outputs/reports/yr332_value_stability/flow-orders/035.json.gz": "c71b02725a49e2ffde74695888049d67f632e9a2d7db5037673545b0f734e703",
+    "outputs/reports/yr332_value_stability/evaluation/036.json.gz": "b7b318ed74fe48365dc553e672cafe30f143aa785e7118686d9f26e55dc1cd00",
+    "outputs/reports/yr332_value_stability/orders/036.json.gz": "d547311f31963ca94b607d200daf656265eb65cbdd5fe0d6f16a9ffac017dd9d",
+    "outputs/reports/yr332_value_stability/flow-orders/036.json.gz": "3093f2e9c2127f9082ab7d4f50083ca9e0112bf196e85a1ad7cfaf699bef1be8",
+    "outputs/reports/yr332_value_stability/evaluation/037.json.gz": "8873548abb19a6da31fc96d69cae4db5b86d8ca3378af96ab650dc31a199c737",
+    "outputs/reports/yr332_value_stability/orders/037.json.gz": "e1b35323af1bbd068ed822af23893ee530bfa56e9ff092e6c47ef4057e3d510b",
+    "outputs/reports/yr332_value_stability/flow-orders/037.json.gz": "2f6103aae8739f6323e7795c0cf230dfc4a4e6503798549d3663f98bfaf53536",
+    "outputs/reports/yr332_value_stability/evaluation/038.json.gz": "f24f06220cec8455a5002631241a6b814c4674c610689f113e65729e5075b124",
+    "outputs/reports/yr332_value_stability/orders/038.json.gz": "e120ddac4ac098dcd4d3d3ea19fd7a7424043442fdf90122f0dd678bfe80074d",
+    "outputs/reports/yr332_value_stability/flow-orders/038.json.gz": "22cde4e6e28076bc67b1cdfac8d2cd471ade664e6ff4e25b784f01147706ef16",
+    "outputs/reports/yr332_value_stability/evaluation/039.json.gz": "51d1980c08ea61bfa7a218e0df8ff2933136d47890aeb9c233e2b895ed2e022f",
+    "outputs/reports/yr332_value_stability/orders/039.json.gz": "5b00560e22b85a17c0df6810c9b890d8f8cea7b07ea281e8cd9f489085296a6d",
+    "outputs/reports/yr332_value_stability/flow-orders/039.json.gz": "73991d803a27b9342a2186e9dedf3b866de55c9476f998de6f579eda21e9c9d1",
+    "outputs/reports/yr332_value_stability/evaluation/040.json.gz": "96fed08fedfa312842a7551ee498d51e8f297e89eb35cb88ba2b60a2e0732737",
+    "outputs/reports/yr332_value_stability/orders/040.json.gz": "9378946afd71f3862638fc80a0d74da99c55cea1ae96698bcf3a856064622605",
+    "outputs/reports/yr332_value_stability/flow-orders/040.json.gz": "d3e99d07f2bec6f220ea782607ebf95c71ebe34d8e1762be62e77633a4de3d17",
+    "outputs/reports/yr332_value_stability/evaluation/041.json.gz": "df490cc8167449bed3d0fbf2824bb67c7dfdb6877a6dbe423158275f4722f386",
+    "outputs/reports/yr332_value_stability/orders/041.json.gz": "a74f47dc61263a31e8ada3c75f8524d2f51d4874eca5c68c529d8a00bf8c0975",
+    "outputs/reports/yr332_value_stability/flow-orders/041.json.gz": "cf6ab3c5fb9b79a9460337cf890c1955546e973edc46d7fd3d509ce69e51ae3c",
+    "outputs/reports/yr332_value_stability/evaluation/042.json.gz": "a1212917a234297197e596fde173f787a17c23c3da77dfeffacfaf412bad1477",
+    "outputs/reports/yr332_value_stability/orders/042.json.gz": "a5a3fca7ec200060f27b6d8f2e8309deda5efb5816946e7f84d8f546088530ba",
+    "outputs/reports/yr332_value_stability/flow-orders/042.json.gz": "1f05fa1ae54ea11c689e9a6ce67c91b67a3f2e234a7fec7df27c5acb2e86d5a8",
+    "outputs/reports/yr332_value_stability/evaluation/043.json.gz": "e8dbe5d669c01f56ae3eafa4f5bb59baec749b066f5b349ee1d42d0c35870d2b",
+    "outputs/reports/yr332_value_stability/orders/043.json.gz": "2db3618f83577359cd2b9ab052b147718d88a54e2f4fcb0065d13e3a8526e1d5",
+    "outputs/reports/yr332_value_stability/flow-orders/043.json.gz": "d2b5a035149f4081db515e2a80d75ff8bfa23b24d11cdbb2696cb77f4fe38d42",
+    "outputs/reports/yr332_value_stability/evaluation/044.json.gz": "796293fbda861ba9d6832ccf29e8a45286cf639331b76d7f25da2e2b6a230686",
+    "outputs/reports/yr332_value_stability/orders/044.json.gz": "bfb8bb4af170753772cc5f2c64c566c6ecd55e9d19cc711d84064e499992b855",
+    "outputs/reports/yr332_value_stability/flow-orders/044.json.gz": "f6d6f35dce6ca39403e6bae12cfc088921d494221b22a113f231a72cecad4b17",
+    "outputs/reports/yr332_value_stability/evaluation/045.json.gz": "feafff24a591b863cb924dedd9c1763770ae4733fe04beb632f05a1dcd47aba8",
+    "outputs/reports/yr332_value_stability/orders/045.json.gz": "94d37b437a92c7d4b392b82009a92591e7d51547ffc4531af9a8936055945b59",
+    "outputs/reports/yr332_value_stability/flow-orders/045.json.gz": "016d084c22b89484c5a954b333758ce065c7aed4689f02129bbbb811fbd986d8",
+    "outputs/reports/yr332_value_stability/evaluation/046.json.gz": "fddfef66852d1b49cc0d664a1170a640e0022170ce20696933e0e2265f6c29a8",
+    "outputs/reports/yr332_value_stability/orders/046.json.gz": "8e011d1f425143c3acf608eb14fb5c0514775650bf2dff506f1c121aa3f3d6ce",
+    "outputs/reports/yr332_value_stability/flow-orders/046.json.gz": "4fdf1417699a47b4fca368faab32ef33b6c882e608b0f787c547567a62b647ab",
+    "outputs/reports/yr332_value_stability/evaluation/047.json.gz": "591739fc66356e87e416b45ba6da70fb59799d3abc73df8d5c07cb65c6cbe079",
+    "outputs/reports/yr332_value_stability/orders/047.json.gz": "e5ed1f5e8e9b1788d62fb816ba5ac4027c21e945ce0724b37cb61186441d263a",
+    "outputs/reports/yr332_value_stability/flow-orders/047.json.gz": "d46d706f300f0c4817e607426871da22830d0c00a728403ff350a057536caaa4",
+    "outputs/reports/yr332_value_stability/evaluation/048.json.gz": "ec652f3f5aa8328261bceb21f8727b1b616cdc36156a89df05019c58b14485ed",
+    "outputs/reports/yr332_value_stability/orders/048.json.gz": "a2c7b55c6a8d398146301b2afaeefe6b7f77a13c33df2ab5ee5563483747cb57",
+    "outputs/reports/yr332_value_stability/flow-orders/048.json.gz": "3668dad194429606e17f97e7b4abfb952615723d4512dedde8c2784915ebe675",
+    "outputs/reports/yr332_value_stability/evaluation/049.json.gz": "ac545d1f5baf0329544f873caec1f76a34a687111c19b7246a8c5de8896f38bd",
+    "outputs/reports/yr332_value_stability/orders/049.json.gz": "eeffdcfccb89a16b9b1281aefdda70890a93bcb572779712101c1ffc60cf5129",
+    "outputs/reports/yr332_value_stability/flow-orders/049.json.gz": "b519b383243c52d04f56b0c52a7013776dd3b3fb957dab76e26b49e8d632fadb",
+    "outputs/reports/yr332_value_stability/evaluation/050.json.gz": "4e99b5242f67654c0b305c52de2cea112b02d9d9f9a28d778ebc634e4b85aadf",
+    "outputs/reports/yr332_value_stability/orders/050.json.gz": "35ee786beb2047fb7cc6683b36b98ea74589fd21c4254585fa1421eccc98bec3",
+    "outputs/reports/yr332_value_stability/flow-orders/050.json.gz": "53d37ab3b353f377641f5dac7a1d16ede1753f8b30bc90ab9adfd66dad009c7b",
+    "outputs/reports/yr332_value_stability/evaluation/051.json.gz": "763cc792ade04190409b269c171c1c4ee334b8ca527a3ce8cfbe327c2b09a9a7",
+    "outputs/reports/yr332_value_stability/orders/051.json.gz": "5de908abb4712a3974ddbb852acbd5419dea1d816701917bd103de6b835370cf",
+    "outputs/reports/yr332_value_stability/flow-orders/051.json.gz": "c4128d7b67e103da9fe0c16a08b23b7ddd6a6e4317b168a7b4c483dc29baabce",
+    "outputs/reports/yr332_value_stability/evaluation/052.json.gz": "60c3af25060f87371bdd30798a4c3e3894d8adce1ea17107937900b8ad29ea26",
+    "outputs/reports/yr332_value_stability/orders/052.json.gz": "ebdb6f390531696ea801a87f5e167eca69cdccd88c0adfad21a0f9df82535df0",
+    "outputs/reports/yr332_value_stability/flow-orders/052.json.gz": "921f4d0fdfb31e34ec87af5d141976b7a3e92030853490515e375a7caa57b73d",
+    "outputs/reports/yr332_value_stability/evaluation/053.json.gz": "6599fc628bd7c39b4c31de30f65a0507eb2208b1376e383632fe072cc2c2c5ce",
+    "outputs/reports/yr332_value_stability/orders/053.json.gz": "4f85f92a646e62ae10502bb21c6db58812996310f8ebdfb20a1524b00031e935",
+    "outputs/reports/yr332_value_stability/flow-orders/053.json.gz": "bf53b629a21001370eb2575665f07273a29d1c8f3124ade1839629e6fc9fd8d0",
+    "outputs/reports/yr332_value_stability/evaluation/054.json.gz": "1fb7f1da92fa645570dd48af177ab263d3add0a69cc4aa35ff21ece5ac1e7267",
+    "outputs/reports/yr332_value_stability/orders/054.json.gz": "95da32f95a7e5199c3615b3e2dc1ad5d55a5f60a15958907d1c499f90d11dfb6",
+    "outputs/reports/yr332_value_stability/flow-orders/054.json.gz": "4f310c673bb1a3870e0ad715def4f4f284950aadcfa4bee06f96c1ebe248c950",
+    "outputs/reports/yr332_value_stability/evaluation/055.json.gz": "1c9e188c277a83274e543557cbdd6c1a5693e0a44f233cb7fe28c6690f51bfdc",
+    "outputs/reports/yr332_value_stability/orders/055.json.gz": "8397680b758f679ea05473c8bece1ba52f249cb6ec34920fe9f5fbb4a5b9e45c",
+    "outputs/reports/yr332_value_stability/flow-orders/055.json.gz": "5c19714d190e1d9f7cb75ea812037c561bafe2b1eec2236473fc97106cb3a1a5",
+    "outputs/reports/yr332_value_stability/evaluation/056.json.gz": "32c785e358b2f57457922a9539bed13f954c35d6964b44736d17acb194b9ecb3",
+    "outputs/reports/yr332_value_stability/orders/056.json.gz": "91f8525d565064b82cf2ffb5bc5e26dec1e01c758a634073e1fd684120e0515b",
+    "outputs/reports/yr332_value_stability/flow-orders/056.json.gz": "3b214416ae62198ec25ef1e733b6795c29330fcef778796128de0ee5a85295b0",
+    "outputs/reports/yr332_value_stability/evaluation/057.json.gz": "6b6a30fc2661cd87cb382ffbde30c4cfe98551952a9c916e03ac36b3d7d74b3d",
+    "outputs/reports/yr332_value_stability/orders/057.json.gz": "b58d2a5cfe7d85bf24941a67aa2897d8c1d341fc1c7e14872dbbf5599981d048",
+    "outputs/reports/yr332_value_stability/flow-orders/057.json.gz": "1d3a33f40637eaaf06dfd2511681a336b52213c2611a59b0e5e3edafa1857844",
+    "outputs/reports/yr332_value_stability/evaluation/058.json.gz": "ffaed19df84918374da848df7e05f1d6f66f8a48213390b200612e4a17194868",
+    "outputs/reports/yr332_value_stability/orders/058.json.gz": "6d47a900e7eabd50e7184e479a49249c49433f1601f7fa764ca5660406232e1a",
+    "outputs/reports/yr332_value_stability/flow-orders/058.json.gz": "dacba54cb894833c6dce8a55283c8ee24837f40b4731d53b8a6f78f21ad470e6",
+    "outputs/reports/yr332_value_stability/evaluation/059.json.gz": "ec3af8b0a34f8e6ed4270079fb8f522dbf063a0e7ac8d0bff76c41efddfe805e",
+    "outputs/reports/yr332_value_stability/orders/059.json.gz": "c6a9c672190d35c81d5203af53683580f98bdcec01d2a84117f2e6ec4e21a231",
+    "outputs/reports/yr332_value_stability/flow-orders/059.json.gz": "605cc463b97c4c2af7e748738ad8b801305ea5eb75ac01bad3dac85b195b64d0",
+    "outputs/reports/yr332_value_stability/evaluation/060.json.gz": "bdc0f0d523e6bfd56ca0521c3d1b482dce734b2abfca5c6d3a0fa48e70c4b342",
+    "outputs/reports/yr332_value_stability/orders/060.json.gz": "e4693fb839334fcb46720c8d8a66c6877cb09869e3ad4fed1dc96f0f41d36627",
+    "outputs/reports/yr332_value_stability/flow-orders/060.json.gz": "8b7c413c2b06a4866965b24df1893db273f533dc1c24fa36a2b6583a1baf8382",
+    "outputs/reports/yr332_value_stability/evaluation/061.json.gz": "6e91783cce789e3a03202c04f596c73d89bea0feea5063ce9ac83cc01d706e38",
+    "outputs/reports/yr332_value_stability/orders/061.json.gz": "d7088f72eeb47eb8062284fac0abfabcd10ad360b741e0009c4207a20531140a",
+    "outputs/reports/yr332_value_stability/flow-orders/061.json.gz": "22c5c6c2f15b942a77c34297157c61ea4d37f31b984eef305e39e71ad7b62307",
+    "outputs/reports/yr332_value_stability/evaluation/062.json.gz": "baa7deb5681df27aae91609cc5e6b553823f3d329441ba7980d57587100f6cde",
+    "outputs/reports/yr332_value_stability/orders/062.json.gz": "1baf889c1cd222efffc58932861a86a7960ff4e4fcd2169f865f54ed7540130f",
+    "outputs/reports/yr332_value_stability/flow-orders/062.json.gz": "8f4231e20fabdca051e4aa02ff91b9c60eb1cf4ffe11e70d72b0afb01def7b53",
+    "outputs/reports/yr332_value_stability/evaluation/063.json.gz": "531eb17f9c223df40e4846b99e3ea230b9e9c1c345c20b74ac008e39409e8f60",
+    "outputs/reports/yr332_value_stability/orders/063.json.gz": "5adaa4db391e373131e81f5d64112ef403abba2599f4d3735c9f8e68be3c8725",
+    "outputs/reports/yr332_value_stability/flow-orders/063.json.gz": "dc331a399cfa6cb25f52654ce18b43b53b55d326869306bc29bf4ad8f1e120f7",
+    "outputs/reports/yr332_value_stability/evaluation/064.json.gz": "b920b2d76e4a67031a7fddfc09677d82463abf61fc5022d2c8246300813ee83f",
+    "outputs/reports/yr332_value_stability/orders/064.json.gz": "e739599ee00126dd7e741e764ae792bea499df0bd82004c929ee6c4d602cd541",
+    "outputs/reports/yr332_value_stability/flow-orders/064.json.gz": "e7fe3a51927c9d215baa7f1cf6eda59c21a8040ca2a77b335af4dfd13391e00a",
+    "outputs/reports/yr332_value_stability/evaluation/065.json.gz": "85b783eadd7688451ef34d872a6a56559e6d45c4d5876cfa47033c97b3503158",
+    "outputs/reports/yr332_value_stability/orders/065.json.gz": "4b44eadbf166cbef17b47d37fd53c184d86ae045b662c8f6d959c23a32916e13",
+    "outputs/reports/yr332_value_stability/flow-orders/065.json.gz": "240e1ff2ef533d3f2c485a0f3449c588517660aeab4bbf7a41c83548f9b144e1",
+    "outputs/reports/yr332_value_stability/evaluation/066.json.gz": "82c159cdaddc1918da36d8a53fa5fdaea8532930422f5be827f7d95573bf8609",
+    "outputs/reports/yr332_value_stability/orders/066.json.gz": "f9683b4371a91272c483586da1933292aedf412f37a81e41871e8a4fb44da011",
+    "outputs/reports/yr332_value_stability/flow-orders/066.json.gz": "a8d696f82435df8926a2d739c1eff4290d65615af55a5a3d240347feed4e4ab5",
+    "outputs/reports/yr332_value_stability/evaluation/067.json.gz": "df25de6c79e8f13c3fec350d893749b6dc77c57b3bb93cc250b8612076ad7203",
+    "outputs/reports/yr332_value_stability/orders/067.json.gz": "df13011d7c6b47296d482aff4cc5914d0af5c5b0fc1cf3c2c260e75134bb1056",
+    "outputs/reports/yr332_value_stability/flow-orders/067.json.gz": "c5c4f4977624616a01baa5d2e593f6063a12d9fb2b0b8f6f31179b243b040720",
+    "outputs/reports/yr332_value_stability/evaluation/068.json.gz": "957bc9be15c2a7f358896bfd6b4fac1c528463d5b9d05742b15842876c2d1982",
+    "outputs/reports/yr332_value_stability/orders/068.json.gz": "8d4fb613b35b21e4611b92977e639b7cc489ac49f543d33537c228d31198d114",
+    "outputs/reports/yr332_value_stability/flow-orders/068.json.gz": "0937bb46354cd958645e4e8b0364d2d3fee4f3a4b91139fa658a12908c0049ee",
+    "outputs/reports/yr332_value_stability/evaluation/069.json.gz": "83cfda15621477073f502f1b58f39b4cb1b99c7039d384a1eba2151cfbb518d9",
+    "outputs/reports/yr332_value_stability/orders/069.json.gz": "8f47d8071f6fe41ed50535132a60b47cd99d941b45ce8338dbab7353131758d2",
+    "outputs/reports/yr332_value_stability/flow-orders/069.json.gz": "8c46ba8342a05bffd32802bd5a81d4f31c23f8767f72be2bd36916b71c47bee0",
+    "outputs/reports/yr332_value_stability/evaluation/070.json.gz": "22f0618d22de847aaaf25813412063bd632d6191d7c07f497fe2903ea225f551",
+    "outputs/reports/yr332_value_stability/orders/070.json.gz": "23720fd33f524e39b1c92fc740965bd93f1a203bd82cbbbec1f2ce5cb059576d",
+    "outputs/reports/yr332_value_stability/flow-orders/070.json.gz": "f28c3213de722264ecb39359dafc14487a1e4fb9739ea3bc31a2eecced5dccf7",
+    "outputs/reports/yr332_value_stability/evaluation/071.json.gz": "4b189fc06c6f3aa53d2a46e7f1abfff14c66659fddbd0c05d8e5a3e56960b815",
+    "outputs/reports/yr332_value_stability/orders/071.json.gz": "04c78ee70fd916b12d4e26749b759e65dbc45efb5db3ce884f8a07e9eee5f975",
+    "outputs/reports/yr332_value_stability/flow-orders/071.json.gz": "289e8417f50cc1204193788d060e1faf37731273059f292ca5e4fa86dc26c5ab",
+    "outputs/reports/yr332_value_stability/evaluation/072-repeat.json.gz": "dfc16fc473180cdc2f71da221ecdaf1bbe752702931c87780a2dd2af41fe3355",
+    "outputs/reports/yr332_value_stability/orders/072-repeat.json.gz": "b3ff4f3194c30f6502f9577d565c5cc2da981b65e95a03b8365b4c468536bc6a",
+    "outputs/reports/yr332_value_stability/flow-orders/072-repeat.json.gz": "93aa520114841a84939112ebed4753348fac0dc3d771ee6a492624b13390f20e",
+    "outputs/reports/yr332_value_stability/evaluation/072.json.gz": "0563cc0be5e1489940af02ab1dca96dcdf2255eb4a1ac92ba42ebe756a47702a",
+    "outputs/reports/yr332_value_stability/orders/072.json.gz": "52385d43ca910fe3383e78d9daa23c0bea12894e380e533e08808e0b7b867096",
+    "outputs/reports/yr332_value_stability/flow-orders/072.json.gz": "1f964ae939f3f00cc688a173ae680115dd6d5b98aa3e637a3a4ef4392057c948",
+    "outputs/reports/yr332_value_stability/evaluation/073.json.gz": "4d368b59ce62ffc2de41a53ca2654180a14459fef1c3abe7234ff9d7d32ceb03",
+    "outputs/reports/yr332_value_stability/orders/073.json.gz": "181c89c20ed4a5ec918f4bd5d9ef30fb581dfab169c593483fd406dc64899000",
+    "outputs/reports/yr332_value_stability/flow-orders/073.json.gz": "90d45a01a8cd2696fea388f817558c0a707f018c151d30c6e4c57316f8f01ed6",
+    "outputs/reports/yr332_value_stability/evaluation/074.json.gz": "fa2c993882fed46e51ce65ae32d40a8e15d5d40ede646e629b63d8b085b4fd16",
+    "outputs/reports/yr332_value_stability/orders/074.json.gz": "f45896a9e6d12680a436b27e3acf6cca276aa0ac82fde1b93d29a7de029e05d1",
+    "outputs/reports/yr332_value_stability/flow-orders/074.json.gz": "d6f02ae4b04443425e02ad2af6c5cae49d0bed0cbf8faf2e32d7068846aa2edc",
+    "outputs/reports/yr332_value_stability/evaluation/075.json.gz": "f1720c91cd68969fe42ebb141e245f269131f995422e12d5652d6a91037a7913",
+    "outputs/reports/yr332_value_stability/orders/075.json.gz": "e3e6384935d5ed6dc2790dffba42b023faf1d6335537d3f2b037263d579a1eb3",
+    "outputs/reports/yr332_value_stability/flow-orders/075.json.gz": "7c59013a181b691693c250b154aef1320448e67cc67a9d303b627822255cae77",
+    "outputs/reports/yr332_value_stability/evaluation/076.json.gz": "caeda9cfe38aac366b193b1880dac50d108e6ee72acc7fcb3222187f0a4ab57c",
+    "outputs/reports/yr332_value_stability/orders/076.json.gz": "ab001175d7bf1c79f3e813fedf5d2e9e741307ebb5de55eae2c915fea25289f4",
+    "outputs/reports/yr332_value_stability/flow-orders/076.json.gz": "ffd06574e665337bd37450e593ab1a3013dc89ac411a94b6efe2ae3b1ef66d24",
+    "outputs/reports/yr332_value_stability/evaluation/077.json.gz": "342815c8a0ee783dfc8e218b66e7dc9ec669edccb593acaa714396150d3dcd6d",
+    "outputs/reports/yr332_value_stability/orders/077.json.gz": "60668fc5381fccf56a7ba36604f2b30119d882ecc6c06e0d4086c6e090506309",
+    "outputs/reports/yr332_value_stability/flow-orders/077.json.gz": "b253cf92e0abfa615374c3f33b7987a7b475a0c5af95f111673ad50af218e87b",
+    "outputs/reports/yr332_value_stability/evaluation/078.json.gz": "f1d4a35b921687d73e9a7bcc9c3cedeaaa703d34cd4cbf2585f7efa2151eb62e",
+    "outputs/reports/yr332_value_stability/orders/078.json.gz": "73f615df125caa02d4d9838f6e08f18144038d5be5a7ad814367cf5fa12933a8",
+    "outputs/reports/yr332_value_stability/flow-orders/078.json.gz": "40adb5208fbd3006e23a958838ecaf0a22340d04b051335849dc2d1f6633fd52",
+    "outputs/reports/yr332_value_stability/evaluation/079.json.gz": "c02b30f98a5dd2d212d1d2a4551eebd9805703bef92b8e48b8babfbb9ca3ffa3",
+    "outputs/reports/yr332_value_stability/orders/079.json.gz": "ea04f55ab4fdae6e02ad5314f593ad6ab04ce051b29dc93280a47323e4afa635",
+    "outputs/reports/yr332_value_stability/flow-orders/079.json.gz": "b0114a57a550c2b5af9d43b776b392ed1bc4f31c20f63adcbcbc3e637ad9dc7b",
+    "outputs/reports/yr332_value_stability/evaluation/080.json.gz": "4ef36decd9e06d5349d0166684f1f4e8e930211ba190b5dc9343757fa437b5d0",
+    "outputs/reports/yr332_value_stability/orders/080.json.gz": "58c583dee5d1f54a9b15683faef4c391b0ece40178f78f22fe43ce1abc907a7f",
+    "outputs/reports/yr332_value_stability/flow-orders/080.json.gz": "a6eb4b6be5537864c649bb684ce94101ec33ac22a52352f2a077bf0f9ef04d21",
+    "outputs/reports/yr332_value_stability/evaluation/081.json.gz": "c061498b04623c353f2ffd349b36cab1d3397bfa09e046e61cc080a42d6222d7",
+    "outputs/reports/yr332_value_stability/orders/081.json.gz": "bf5b5a302252504b08254647dc0dc911bcaefcd9a1783e50a5231406b7c5df0c",
+    "outputs/reports/yr332_value_stability/flow-orders/081.json.gz": "76afc5c00d5f2186fecf77372c7326b3ceb34e352057a5aa8c5084d8f39e414d",
+    "outputs/reports/yr332_value_stability/evaluation/082.json.gz": "434f8b92c33968d42655442bb30dc6d30f78c6c0be3aaf0dd24da158683dd48c",
+    "outputs/reports/yr332_value_stability/orders/082.json.gz": "afc53d77a60a57b09b0dae2583785718c573ce7b1b58677dd70c18b684a1e86a",
+    "outputs/reports/yr332_value_stability/flow-orders/082.json.gz": "df6cb9685cf1bfde4fd24f70fd6852c35780f135474b6d3800c7434fe34f3945",
+    "outputs/reports/yr332_value_stability/evaluation/083.json.gz": "f28cd58eaa7d93e578bee86c394b3f0622da11193f9a6897e6317aa9abefc89f",
+    "outputs/reports/yr332_value_stability/orders/083.json.gz": "68648efc437a0dad1754db2bbd91e92183843275d45e8bb61a1a283aa1852662",
+    "outputs/reports/yr332_value_stability/flow-orders/083.json.gz": "9e6798edecb6154a43027e92fe2ae5e16f6a2640bd4a45784998690fd3754411",
+    "outputs/reports/yr332_value_stability/evaluation/084.json.gz": "ad0c5765a0e9a942b6e7952763649e5e35245157e97a4a51c6429e2063fdf095",
+    "outputs/reports/yr332_value_stability/orders/084.json.gz": "3d2052b1908cc1499da1c55e2788b46ac035c270137242d6c13019a782be3ae8",
+    "outputs/reports/yr332_value_stability/flow-orders/084.json.gz": "0ba6fca0b7f0ea945d0142a4c9f435895d59caa3552e71c1dd1afd3da6c4c805",
+    "outputs/reports/yr332_value_stability/evaluation/085.json.gz": "a9bedebc0f34ac32cbf2e27bfa7cbaddaa256259a2c262cc82e39f281ac9fcda",
+    "outputs/reports/yr332_value_stability/orders/085.json.gz": "d67b914b6fed465ec112830737dadaeef0c005219d83028ae3cdd85046b274fc",
+    "outputs/reports/yr332_value_stability/flow-orders/085.json.gz": "6299935d9618849f988d00b8bc91df5b7441f61cc53fd4badb4ef600ca359960",
+    "outputs/reports/yr332_value_stability/evaluation/086.json.gz": "e640d7ee856a5a88f41ea7f845ac8ec1b249e089f7d3ae6b3aa13e2e339ea69e",
+    "outputs/reports/yr332_value_stability/orders/086.json.gz": "5fc6ab7f7433fe6679222eb7959be7b801dfca7bbaade99aed8af19a298e2812",
+    "outputs/reports/yr332_value_stability/flow-orders/086.json.gz": "313a491530289dd1c8e0c2827f6a675f29350a0a05f179187cc425a109b7bd31",
+    "outputs/reports/yr332_value_stability/evaluation/087.json.gz": "c8577cab558f9ea875fb6ab63660ad522958f0d9f812a2893268e38618e6ce11",
+    "outputs/reports/yr332_value_stability/orders/087.json.gz": "488231fd362b009ca828c1bdc4013f727794a2c19009e8051fe59af4ac027721",
+    "outputs/reports/yr332_value_stability/flow-orders/087.json.gz": "defcf1b7a4be55c826b8eee672733ba25d0b7c296a6f7bc196f13c7be9e75344",
+    "outputs/reports/yr332_value_stability/evaluation/088.json.gz": "edfabf868a575d0334c26c05e32e074a4d45ec834817725205fcc4633ccd400a",
+    "outputs/reports/yr332_value_stability/orders/088.json.gz": "0193a407828ad475598117e21f7bce9521432d8a6672d2e07aab10f5a66f9fc7",
+    "outputs/reports/yr332_value_stability/flow-orders/088.json.gz": "a26125f392d9fb379f2b34f1bed51fdd7d3b5d95f45563747ff27ffd62fb1d9b",
+    "outputs/reports/yr332_value_stability/evaluation/089.json.gz": "0561bab7378e6eee10b90b494b095bd7cd9c6dc7df779fd5db4f2f7994986fb3",
+    "outputs/reports/yr332_value_stability/orders/089.json.gz": "a22c7a085c7c8a8fe69ff5b14ee470f0cb1f54142fb030319284fdbcc01a7614",
+    "outputs/reports/yr332_value_stability/flow-orders/089.json.gz": "1ae6c72361c915a419aee1aea93a83158674ac2372ce38128854827e19229bcf",
+    "outputs/reports/yr332_value_stability/evaluation/090.json.gz": "2f02d7d2cebc633d435599d6e9a26484be8b402a9b702cd4f6e10bf9c333094b",
+    "outputs/reports/yr332_value_stability/orders/090.json.gz": "1cec7e8e10fad0c9d231d1d9555e258ef152197e7cf1e528ff398beebd1a46e5",
+    "outputs/reports/yr332_value_stability/flow-orders/090.json.gz": "3a77df9e1cc668b5879d493dfdbda59bcfc25bbe51a306cb52cb428fbb222e86",
+    "outputs/reports/yr332_value_stability/evaluation/091.json.gz": "e86f71575dacfdedca61256c223a0ffec8050397a0a417caace88eae39b0b11a",
+    "outputs/reports/yr332_value_stability/orders/091.json.gz": "94f6d763f36057e9c0a6af6708ade0e6b7951d2098dd67fae4243269fdac935a",
+    "outputs/reports/yr332_value_stability/flow-orders/091.json.gz": "af9afa149dc20da907df819318bb756e97224d5e28acc953f7693f906e4a61e8",
+    "outputs/reports/yr332_value_stability/evaluation/092.json.gz": "dde7a868662a868cf9dee657ab5357d9bdc5d83fc8e8337a2c41dd5fda10abc7",
+    "outputs/reports/yr332_value_stability/orders/092.json.gz": "86a48df1d613a69bca81c31a625958578f93f81af8e2294c1422e8c7beccc5f0",
+    "outputs/reports/yr332_value_stability/flow-orders/092.json.gz": "7867bc15069e33538452f7c6c6815cf1f27cfac1043a57f35f6f2db93dc959d7",
+    "outputs/reports/yr332_value_stability/evaluation/093.json.gz": "c9ef64b1891ff3fd0b22d1a947bfa44e41906fdcd5b39036ee233bfc90ec6b73",
+    "outputs/reports/yr332_value_stability/orders/093.json.gz": "b80713f377562384ac1029043d0a975ae9c0aedeab7786eb9b874bcda22d0bdd",
+    "outputs/reports/yr332_value_stability/flow-orders/093.json.gz": "be4727e1cdda9a8ee7f44ce62cd95bbf45336379433dd287dc6aaf1e08d83bdb",
+    "outputs/reports/yr332_value_stability/evaluation/094.json.gz": "ea8b836c361c579734a6b012b2b59f3d52496c59b3befb20ef2f7d8990fe0ba4",
+    "outputs/reports/yr332_value_stability/orders/094.json.gz": "d7b198287acd675ca705829e57b68e77a5549e5aa3ddde55b1a78f5fb7ef2e0d",
+    "outputs/reports/yr332_value_stability/flow-orders/094.json.gz": "0a620c827d771f960b27c54c2efdaa9127eb9900d12793af87e5da0746893050",
+    "outputs/reports/yr332_value_stability/evaluation/095.json.gz": "9c4bd167ac087ed874d45f01f75edaae8d024f1e0e785538c232fc6c61ceb251",
+    "outputs/reports/yr332_value_stability/orders/095.json.gz": "f3d20a353c9f7dbca3db1a865d67202f61a1eacf21a515f42663256ecbe96f79",
+    "outputs/reports/yr332_value_stability/flow-orders/095.json.gz": "0590d81473fd892d33dfa7471ee2c2dfe7d4f76b7ddd75a0a1d5b71e877bae93",
+    "outputs/reports/yr332_value_stability/evaluation/096.json.gz": "5580bedfd9b896f6a60d7541b2c390242df260f1f60cbea1b8aaa14f2b884aa1",
+    "outputs/reports/yr332_value_stability/orders/096.json.gz": "22c4b0bd4a25c594b3cbdc61929459a48f46a596acd43d113d84de85708b05ea",
+    "outputs/reports/yr332_value_stability/flow-orders/096.json.gz": "680f9fe910a683fa6c9f159d4f09f94a8aeada0f9f06f26872f688674cfdaffb",
+    "outputs/reports/yr332_value_stability/evaluation/097.json.gz": "6b5d525f8fb0a81049c0400b12dc6b71252d0dd7a89b60be42ed6ef042947a6c",
+    "outputs/reports/yr332_value_stability/orders/097.json.gz": "12b9184cd41b766ac1387b31efe92358c90437ddd5791224743d62be8006c71c",
+    "outputs/reports/yr332_value_stability/flow-orders/097.json.gz": "2157e92dc54e1d7e2c626c866cb76de14804a1bf223a37f1ea05b03553ccb59a",
+    "outputs/reports/yr332_value_stability/evaluation/098.json.gz": "86a09dbb40f85322233363d05496234735d18f4c4c09834c91d26f61df50fdeb",
+    "outputs/reports/yr332_value_stability/orders/098.json.gz": "670dd2f04d4b168a2178e0298ee4a6eaebb2d7ff55b3a19a52067e4bcd27dd02",
+    "outputs/reports/yr332_value_stability/flow-orders/098.json.gz": "09441c380073678c5f9b5c7a9ad57ff8f1722b79bce75ecc20e8d01e8baffaf5",
+    "outputs/reports/yr332_value_stability/evaluation/099.json.gz": "7f81d584863f7e955f225519b0630e191ee868382d45399196bdc11539d14f8d",
+    "outputs/reports/yr332_value_stability/orders/099.json.gz": "406de789680a2f87dfd2f8c62e70deae27be677de3b38ac969dec014f9c67f28",
+    "outputs/reports/yr332_value_stability/flow-orders/099.json.gz": "d71d55f5f79bf8a916f16813cbfec3f8379d041be8ccd034464519b31fcc021e",
+    "outputs/reports/yr332_value_stability/evaluation/100.json.gz": "1af6447e71e416e6813e982b402e5a44e3fef7c8dc1734251674f131d0d7bd16",
+    "outputs/reports/yr332_value_stability/orders/100.json.gz": "f3bbbb1413e4ce26a35744e7af3f22c12d8eb9c39b863c859143f95ee7042c1f",
+    "outputs/reports/yr332_value_stability/flow-orders/100.json.gz": "71c02c7f6a4746beb8e725be5388e12d0bcb32933b4e6d4159766f6001e5ec76",
+    "outputs/reports/yr332_value_stability/evaluation/101.json.gz": "fdfeb13805ac20096b3a09ff124d118f65ac67fede08053d47df3890a15231cf",
+    "outputs/reports/yr332_value_stability/orders/101.json.gz": "1961a9b08a6eff1e6991e3f3c8d5f12909e734a1da3cd6ccb975eaf7cb467470",
+    "outputs/reports/yr332_value_stability/flow-orders/101.json.gz": "831a89bcb514f1948d6acb546c18fb4fa5d3178d09c587ce8b4f08016a25245f",
+    "outputs/reports/yr332_value_stability/evaluation/102.json.gz": "62ad1bd52d750c658ac36174718fc864ceb7d7fb4ed6fe75db05c699c20de974",
+    "outputs/reports/yr332_value_stability/orders/102.json.gz": "1c1ed1dc7547004739a75dae1e6f1ee7ff9469ed3146a7b61e081d1df2b6184f",
+    "outputs/reports/yr332_value_stability/flow-orders/102.json.gz": "209a865f9d3efcf939735773fff635cdc0d3aefcbdaca40ab4e55430f5b16e26",
+    "outputs/reports/yr332_value_stability/evaluation/103.json.gz": "a9bf4b926cf8c2790fa5e0841029fa577a96c6f7392ee8f666a09a16a3739154",
+    "outputs/reports/yr332_value_stability/orders/103.json.gz": "a5c547fcc86f6f6ca4a8e4c63a310832556aec9c51f0336f9d0e7a225e927f3d",
+    "outputs/reports/yr332_value_stability/flow-orders/103.json.gz": "28bcf52f0462397e22537b32b5f3d8103d54f9160a10bdad01940668b78b6742",
+    "outputs/reports/yr332_value_stability/evaluation/104.json.gz": "b41052e7028b78bb198c95d04619e1e0c094b277b55f11f0e62e324db293ed26",
+    "outputs/reports/yr332_value_stability/orders/104.json.gz": "80af7c3c9f455d7637cf53e7e6d0e8c5e6ef7cccd01b47beae67480c84269fb2",
+    "outputs/reports/yr332_value_stability/flow-orders/104.json.gz": "b046e81aae59ce5f6936a3feecd05cef018a3bf33b3b7685837a7853a45e3897",
+    "outputs/reports/yr332_value_stability/evaluation/105.json.gz": "eecb10cee7b84a48461628b094edcad6fa11efac031f2d60705d6113c19879d5",
+    "outputs/reports/yr332_value_stability/orders/105.json.gz": "0a10fbb75d2e662c2f0e7a57ac1ca8d002f5b5abb6a5a036f7c5e03bd8424f60",
+    "outputs/reports/yr332_value_stability/flow-orders/105.json.gz": "a005c9909d9792c7f8c83f0fefe15a124c38ee7ae5d357fa0920504ba08e5fea",
+    "outputs/reports/yr332_value_stability/evaluation/106.json.gz": "2d997647022b9d60907c229904db02e0182c48417ed185175b02d9d8c26995b5",
+    "outputs/reports/yr332_value_stability/orders/106.json.gz": "e514e473762eb72b581f402bb8f95a6aeb132e125075ed1c31579667fc2ea3d8",
+    "outputs/reports/yr332_value_stability/flow-orders/106.json.gz": "e61c47359f9080fe5a813aecb92a7397dcac7c8fb4e60abf600c4569e91de8b9",
+    "outputs/reports/yr332_value_stability/evaluation/107.json.gz": "16bb5db0747686b11778ed10572c8b86cbd15fe1a908ed33bb4b5a887f92de6e",
+    "outputs/reports/yr332_value_stability/orders/107.json.gz": "55047cfc7aefdacbe574eb46b1f6bd1b1fdb5b194e24a5691577934ab3c59198",
+    "outputs/reports/yr332_value_stability/flow-orders/107.json.gz": "f293cf3f21682d64fcd78a5e1d711138b9d43e6c73f6db4112c8e955eab87598",
+    "outputs/reports/yr332_value_stability/evaluation/108.json.gz": "b87953a639c357ea3c80c05061a6fa3ceca16de4b1c15555cbf18e6e068a2202",
+    "outputs/reports/yr332_value_stability/orders/108.json.gz": "976b892979fcbc0065d269b5361adc6108b1bbd7a36458041d63443e3da1bf03",
+    "outputs/reports/yr332_value_stability/flow-orders/108.json.gz": "9b153e6ec957aa9041dc566dfe5a93b45dd352c7d979b98ab24785cb275e898d",
+    "outputs/reports/yr332_value_stability/evaluation/109.json.gz": "e99fd6b27a85f90899b61efd80112e2e2d6354205ed6e4c067d2bc9dac2f4cf6",
+    "outputs/reports/yr332_value_stability/orders/109.json.gz": "cb148e03d21a16691dbe4686011b6eff54990113d10add494a1cc32443aa1c10",
+    "outputs/reports/yr332_value_stability/flow-orders/109.json.gz": "9d0bac105885ec8a2dc1def8ee1b7101e8257a94369778c14e480c99e378b54c",
+    "outputs/reports/yr332_value_stability/evaluation/110.json.gz": "58ad94d36d2753617731459c0326209b209b0cf43a3eecba1fd5676c9739ff75",
+    "outputs/reports/yr332_value_stability/orders/110.json.gz": "de7f6d62cb90e96f516e7e1b7606376e01a29968e72706bed27c7c4e06fffaf3",
+    "outputs/reports/yr332_value_stability/flow-orders/110.json.gz": "55af00031f6e642f2c976ea930175a2cce1b88ee19b9fc1d5c9f09655461e91d",
+    "outputs/reports/yr332_value_stability/evaluation/111.json.gz": "acca642a0c2e60392eb28b52db7812d6bd43c0d529c87be1b61c34e3b5bd423a",
+    "outputs/reports/yr332_value_stability/orders/111.json.gz": "b9d548aeef522b3c90d65ecaccc62d258215b2de456c1ead8f60d487b2a0f6d2",
+    "outputs/reports/yr332_value_stability/flow-orders/111.json.gz": "b5d64d05470f5ead673b63a09c9e4a25fbbfcf7f395b8f3c124146ede24a7fd2",
+    "outputs/reports/yr332_value_stability/evaluation/112.json.gz": "629434a04ed8f5bb011e85c27f416a00f9687330593224166c734d7bca45bbd2",
+    "outputs/reports/yr332_value_stability/orders/112.json.gz": "6621e06acf8d721653c29c1bb465233869eeb577a0ac6d7b0e00c82da6e6f3a3",
+    "outputs/reports/yr332_value_stability/flow-orders/112.json.gz": "7163df5286362016dbf9069be0360cd9d093c49bf22a3a7624bec423f12da782",
+    "outputs/reports/yr332_value_stability/evaluation/113.json.gz": "7deaf91e37eb40e3360a48229e3a1fd78c147958ff86832eaaf11dd037dc8c99",
+    "outputs/reports/yr332_value_stability/orders/113.json.gz": "39e4087783241183be256b1f0df482d35d5d103263dff97d33a429ef03a43740",
+    "outputs/reports/yr332_value_stability/flow-orders/113.json.gz": "4eba11446b14ed3499d06482c5bdf1addc38beca638cdfbb32342b00ff11e8e4",
+    "outputs/reports/yr332_value_stability/evaluation/114.json.gz": "49aefefad663df70a0245837e8fd867b0048cda344f81db3d0ca7dd9f650f281",
+    "outputs/reports/yr332_value_stability/orders/114.json.gz": "c2c5d5ab6e52eacc5b302fd5ed78d1af12ca7f5669f0d8a0d043fb7efaac1ccc",
+    "outputs/reports/yr332_value_stability/flow-orders/114.json.gz": "b7ee4636ae943ffa50475cbc5cbe4dfa26102d3081ce3d7c7eb84ae55bc26a30",
+    "outputs/reports/yr332_value_stability/evaluation/115.json.gz": "7b69860e347c5ec4fd65cef176405d352b69b5cc4506431e1f7bacbf283d7917",
+    "outputs/reports/yr332_value_stability/orders/115.json.gz": "0d0172bd258c6eece21c298cc5e252c4b88a3a6e1f69cdc506a75be15d704cd6",
+    "outputs/reports/yr332_value_stability/flow-orders/115.json.gz": "e71bbf2bd6740ec88f8f57e391464d8167928e0d978981a373aa61635ac18989",
+    "outputs/reports/yr332_value_stability/evaluation/116.json.gz": "bef01786d6d5fbbf0166b9250a75869bd4bbe5fd297e27a80ce129d0e35542e0",
+    "outputs/reports/yr332_value_stability/orders/116.json.gz": "bec35510062d69eabe919cf8d862823559b60c7617c783412788d0a0c7096595",
+    "outputs/reports/yr332_value_stability/flow-orders/116.json.gz": "fb89cd266f9d69017e64a77b42e5ef2c8c54b98d4dcf9b396a6aeae690c8344f",
+    "outputs/reports/yr332_value_stability/evaluation/117.json.gz": "d2f6bcc4c3de7061eff11f0b8fa0aca476cf41b6238b0125d705e43c9e9f7889",
+    "outputs/reports/yr332_value_stability/orders/117.json.gz": "67c49a7a12974a1defbdf8c3c3b088dfaded0a90414a396c6305d777b3d45f3f",
+    "outputs/reports/yr332_value_stability/flow-orders/117.json.gz": "2244dceff91dd6a4fe01404bb570297184dc9ef262b82d3fb9eeb8c9fe3cb1ac",
+    "outputs/reports/yr332_value_stability/evaluation/118.json.gz": "9c318d9a65de0c3380b2156ddfc97c2405db71eb4918d579d3ba836a11a49d4b",
+    "outputs/reports/yr332_value_stability/orders/118.json.gz": "9010037dee542758786dec25f6a565a0707a31c5f3909b24a9e2be99eb7d2f29",
+    "outputs/reports/yr332_value_stability/flow-orders/118.json.gz": "1697100b4744c7a4715bb2396e7419bdbfacadaae1ced71443d86eeba27904a0",
+    "outputs/reports/yr332_value_stability/evaluation/119.json.gz": "8833a2a2823c1f43bdb6010744f2e1e824331184b99ccaf542ac96e8496cd98d",
+    "outputs/reports/yr332_value_stability/orders/119.json.gz": "788ed578c9833c162c03a8c08f7f87affc6a5f4988133b02be50765d301e4e69",
+    "outputs/reports/yr332_value_stability/flow-orders/119.json.gz": "e8b452def59b30788231213b5e6d7dd03a8b8ac2404167e21b7164b014bca664",
+    "outputs/reports/yr332_value_stability/evaluation/120.json.gz": "eab2426e43b830317a4769dc43c946daabaeda04a86c1538f91056618e00b41c",
+    "outputs/reports/yr332_value_stability/orders/120.json.gz": "3e44645f35c32a22c403050b21f7feeed81dd38d4e5d1b53f049dd6ec7e20a3f",
+    "outputs/reports/yr332_value_stability/flow-orders/120.json.gz": "82acfd5da24ca831c96067b95040bee176480af9b4b5379d7af13ec2cf96f474",
+    "outputs/reports/yr332_value_stability/evaluation/121.json.gz": "d6f73bbf8428de68bfb2eed5610687f811be17bd9f121bd8d0a91ba9822e886a",
+    "outputs/reports/yr332_value_stability/orders/121.json.gz": "c8ea87a85a7166cd1827f59ad6ceb76b1376f72d959929f22362f15ee53c4e36",
+    "outputs/reports/yr332_value_stability/flow-orders/121.json.gz": "d4f897571dfcb9f294b76143a2f4a30e19ab8c85064eea198afee8612054d54e",
+    "outputs/reports/yr332_value_stability/evaluation/122.json.gz": "73404a7b33e30e595a4602d1626a1d392cb5e449e4b5901e2bc8a9375faac2ce",
+    "outputs/reports/yr332_value_stability/orders/122.json.gz": "2849cb0437b404146d71c4ecb845730b499da03cf898ee660f0f8881edef6be5",
+    "outputs/reports/yr332_value_stability/flow-orders/122.json.gz": "d8fc5f410e91afa9930793b43d598cf61b4f580602d23d186d602574102020b6",
+    "outputs/reports/yr332_value_stability/evaluation/123.json.gz": "2cac0e2a541e4e12c056893170b6113837da824019937f3dddff0ae12911728f",
+    "outputs/reports/yr332_value_stability/orders/123.json.gz": "ed49a055d4f7cdb4003773afdf0ec7b8d5c1e6125e8728fc8a80ac7432c50b94",
+    "outputs/reports/yr332_value_stability/flow-orders/123.json.gz": "65e72f19a24e35b6df8f42dc1d7ebdff7418dda27aeb4ca06ae0657ccd07f461",
+    "outputs/reports/yr332_value_stability/evaluation/124.json.gz": "9e50434a26bbdc64763e36107f547bc42a739f25a95b1530e04984f3622baf9d",
+    "outputs/reports/yr332_value_stability/orders/124.json.gz": "803f6bc8f59c83e7e595e782221b8a12132f3906d3adccb484a6991101c6a796",
+    "outputs/reports/yr332_value_stability/flow-orders/124.json.gz": "cf1eeeb7d6a71c3dac91e59e028d94e2da99e057362c0ab6a6f3f47b7e980679",
+    "outputs/reports/yr332_value_stability/evaluation/125.json.gz": "113bc15220ceb3bbbc1d242c86fb33b0c93189e28ad5b8c1b69865425bff155a",
+    "outputs/reports/yr332_value_stability/orders/125.json.gz": "3a894bc4dd0c054c31959c80efbe5aa36f52583cb721e9c87d67aca88d64613d",
+    "outputs/reports/yr332_value_stability/flow-orders/125.json.gz": "cbcb1fbc66cee7a5fbef36cccbb978b948a78277cb3fbd5dcf2dd6421dffa2d1",
+    "outputs/reports/yr332_value_stability/control-9951101/final.pt": "3834071eaa98bcf3eed780a25202a71c775aefee782e49eb04db930ad5434190",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-0.json.gz": "80aab7781d643c7eb069186a21f480d885c5b1447426aaa577faaec0b1a1dd43",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-1.json.gz": "ecdb7871bce6e3efa81000664d6f8a231373de3c69bfb5f440942d097e08de3f",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-2.json.gz": "aacdeacbd7cac1d47aee46511d650de72da7075ba30da6737dec711ac5514233",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-3.json.gz": "4595a3dea30014b42ecf8f5c2356b9218e5e2f46af6bb9b063c30daa87a53fe5",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-4.json.gz": "182d2970c3293210eb3cc54645cc0474eb8ac3bdf3b105c5f67cd92452057179",
+    "outputs/reports/yr332_value_stability/control-9951101/fit-diagnostic-5.json.gz": "e2d5eaf9b0a5a5b84ff1c32214a89b9f413c8c36b87b7518756fabaa7ff444c6",
+    "outputs/reports/yr332_value_stability/control-9951101/initial.pt": "3321e118bf1a0688258a4d624febc2561f33a1eece8b176d6185a20ae57a3e34",
+    "outputs/reports/yr332_value_stability/control-9951101/replay.json": "8a37ad4a8352ee6f8cf1c86ea33a0468d7c4679ce2ad478c94fd36be94940730",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-0.json.gz": "7138e6a349c09dfac852766da4f43fefcbffe20d8b2b0cca62a2863411965a82",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-1.json.gz": "fdc7f864108075a7c68b16b54d5dd7b964bf27278761c88b034e1afcb4e211e2",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-2.json.gz": "2b9f042cfc8aca04c2a239255acb4e77cc7c14a377dfdb7f0b145f58b254b492",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-3.json.gz": "fb0205953c686f629cad3e352ada9981424aabb0d27e53e62d6a03b6a2dcbd98",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-4.json.gz": "3ec1fcb67f71f7a641356e7bd257dccad81ef80a586e14ea93e0007ce5a7c9fa",
+    "outputs/reports/yr332_value_stability/control-9951101/samples-5.json.gz": "1d7589de62f9bac27bb47186f4da0ac6638db0b196e5421df047ac20ac7c3fb3",
+    "outputs/reports/yr332_value_stability/control-9951101/training.json": "64fb66dc8c63b9aa70e0c12dfa86a00ad6bf192c142f59f2e424668f37256af7",
+    "outputs/reports/yr332_value_stability/control-9951101/update-0.pt": "251dfb2a19835376667e09cf613509f6bdf5b657eb7be3c686aeb4babcf88cac",
+    "outputs/reports/yr332_value_stability/control-9951101/update-1.pt": "9564492a5acaeb6abb0d14e448efbafcf604d34f6c9e92af4e56c74b74e139f5",
+    "outputs/reports/yr332_value_stability/control-9951101/update-2.pt": "1429d16889f429fa014b5193a06052d79f652d897d70dc3d23c674520852d90a",
+    "outputs/reports/yr332_value_stability/control-9951101/update-3.pt": "e0092d07cbf36d3230c893be3bc0e5040812e511f4f1f9307d8083d15a614ba3",
+    "outputs/reports/yr332_value_stability/control-9951101/update-4.pt": "01aa71d138511e23e0355ccfcb17e1b68243b8989c0d6ee56653215f5fcf9b2a",
+    "outputs/reports/yr332_value_stability/control-9951101/update-5.pt": "204354a8d840a02dffcec529209651f79f07d2cc360379ca1850dc32aa74550c",
+    "outputs/reports/yr332_value_stability/control-9951102/final.pt": "5a335d8672a3dc5226c961210dcb5f6679f2a5035e90c9f086e2f7f46da11eb6",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-0.json.gz": "f60d3b4dfb8402220b1054dc7c487cd6cc146a1920e12a0a66d5b01c90b485e5",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-1.json.gz": "08f27df5c24572ee6882301916852fcba52dbaf2fe07dd3362938d2533dfc425",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-2.json.gz": "a1ca94a1042cf95243791931a32962e9e5dfac843727bd2b7c4a600af3a3fcb9",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-3.json.gz": "7453f1fd1d3d56f2351745c3fe5a7a933128448a6537a11986e5e1c88a7fd034",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-4.json.gz": "3ec2c55c67bf50a6106ca03324b9e1a39c6adc10798b790278653e44d73e3ace",
+    "outputs/reports/yr332_value_stability/control-9951102/fit-diagnostic-5.json.gz": "f1dbb9ae295ff75addeea38b2f3a3566735a1a5fbe362e6e71e63dcef4d03a1d",
+    "outputs/reports/yr332_value_stability/control-9951102/initial.pt": "b9af596df9547475c9050739acff60c2a180c68c43d73b69777dc4bfd38482c3",
+    "outputs/reports/yr332_value_stability/control-9951102/replay.json": "33dcc5e3cafa7369d60528af43db1d1e3f67d47bcaa66d6d63345645f45c7b1e",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-0.json.gz": "57149be544bcbe79c0d47efb2c8c6398e40959827200f3099f42ac077693b34f",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-1.json.gz": "f8e3c43d85e7b6068e5f6268f68499bcfa467ce9a18a173b6bd0f8356ed86868",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-2.json.gz": "01a0431d9d39c3aecdd9c1086c1d27d26301b069f765e7062b2f5daa065fa648",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-3.json.gz": "585b5b77bcbc67cb6e027164cf6a9969dd503b2675ae7d3cd9318b060f6b0530",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-4.json.gz": "54bdfc40b9cc3141714d0201541989bcd9e813045461543d3234950e7f1c46e1",
+    "outputs/reports/yr332_value_stability/control-9951102/samples-5.json.gz": "bf81f59a0a2eeeaad07420a640da752b4a0e0c3bac1eb56d0aad6ed460f216d4",
+    "outputs/reports/yr332_value_stability/control-9951102/training.json": "9e4d22ec58437155fb229ef0c7f7f431d0b756934f0f50bb7ddf97293cd2406f",
+    "outputs/reports/yr332_value_stability/control-9951102/update-0.pt": "eb893218847758fa99cfcfac5b6f7dd353b71c8eab89c3c3a1b362c0a4a5dc26",
+    "outputs/reports/yr332_value_stability/control-9951102/update-1.pt": "5557f49c51eb00b8902cbd08c4344d0343f072b0065b2a199c51555fb0c2e0b5",
+    "outputs/reports/yr332_value_stability/control-9951102/update-2.pt": "775e02255705f23c0af0c621a41ecc1bc116d0ceafbc2d7e347a685cb6800cc8",
+    "outputs/reports/yr332_value_stability/control-9951102/update-3.pt": "1b5367470a53829b5925631bfac1ff78fd1dbdc200c059d64c20b132d58eb9fd",
+    "outputs/reports/yr332_value_stability/control-9951102/update-4.pt": "c5e373d14e4e2a13c9ed67930c09856951029530ee3fbf416640c11b4b7abd90",
+    "outputs/reports/yr332_value_stability/control-9951102/update-5.pt": "53a7c847b895ae3f8da8fbc78bc011c12e4f166ea037b45655db4f98b177d7a1",
+    "outputs/reports/yr332_value_stability/control-9951103/final.pt": "1cead05df4b898e2029657383d86ab1862cce6d2941469edf9acd77e6b3d228e",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-0.json.gz": "e50c699b5c19f6832c6c7f20b103aa9837fe7bafe2a3130b059b6d804880bedb",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-1.json.gz": "309825c9cd1ce05746a85ac988885daf9845b57f1c36870042bc3154a7b4e339",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-2.json.gz": "f1c682e30d5b0a01e07783afe2b2e6facfd24f36259e2769324fc8831c61a831",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-3.json.gz": "678d18a569183aa6f712dd11db49800e97da8a86a12a2054a82d54079baa8f66",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-4.json.gz": "5755a56b068a9bf3339cddd421d7c1b103fbb40eec076d4d73f1fb74ecc9757a",
+    "outputs/reports/yr332_value_stability/control-9951103/fit-diagnostic-5.json.gz": "cd18efdcfd204f19dc1e38b89d57cd64b44e119d4543db155cdad081870968c8",
+    "outputs/reports/yr332_value_stability/control-9951103/initial.pt": "08e88dc1d774d133f9cccad22c923bc05243752bafa77ba23d79be51e4dbfe04",
+    "outputs/reports/yr332_value_stability/control-9951103/replay.json": "47f69790f5f14696b536ba84522f8faa41901ef3bfa19cf1fbb84ed109f06db8",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-0.json.gz": "ba59cb36ac4bd316faa296b6a5e03658c74d4cfca3f97f5270ebb4cb54792fb9",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-1.json.gz": "e2f89f8e5c99d05a50505decdf1383dd08aa22c8d1ec962ec4844333f346f2a4",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-2.json.gz": "85b8fe2953b73eb0557b6d6f99d33f0965097837c91962dcdf06310d5d32e182",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-3.json.gz": "6d86ca290152e970cf63ef659a52c3569d9cccace93aa1a006077b878a9622bc",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-4.json.gz": "be1ffe7a7aa6a71c24bad90f6cbe1e4c1ffc093fcdb8372cd47aefa331a98925",
+    "outputs/reports/yr332_value_stability/control-9951103/samples-5.json.gz": "b3bd5851b9b4c6776d8575c4828f674ea7e8fded4712e0669d401e75910086df",
+    "outputs/reports/yr332_value_stability/control-9951103/training.json": "b8f02a3897fb5a48b6ac8591063f97f469441e07b7ee87017e83caa8636dd1fe",
+    "outputs/reports/yr332_value_stability/control-9951103/update-0.pt": "e07d9fc7a47d3bbac1d45505750d09c81f6937a5c9e8b2b2c637fbb9c5be63e7",
+    "outputs/reports/yr332_value_stability/control-9951103/update-1.pt": "2df5f376c33a225445d4d118b83d6ad03746edd61c51016db1beff39116700bc",
+    "outputs/reports/yr332_value_stability/control-9951103/update-2.pt": "0694b0a73592b59d7350b32c9edcf95dd2671740af329a8efce3b94390c712e6",
+    "outputs/reports/yr332_value_stability/control-9951103/update-3.pt": "b634ef044d5b468f964a9c22d3f7acf489a91fc91cbf64ab2600af40a5e569c9",
+    "outputs/reports/yr332_value_stability/control-9951103/update-4.pt": "ce091cebc21b452e158623aedbe90002010973df887667124d2eb7cc1d31a6b5",
+    "outputs/reports/yr332_value_stability/control-9951103/update-5.pt": "dcb1694cd94c71765a8854702ada28453463fc4a225a3d421bddd78fbd7e17c4",
+    "outputs/reports/yr332_value_stability/popart-9951101/final.pt": "72847122df611feb8b86326215425ed487581d807dd24091c057533160eacbeb",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-0.json.gz": "c7b58508149bae37c89eb68bd85456fb1e34b47cb1eaa3afda9a6a97e60ad9f9",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-1.json.gz": "ab59c78b5a87dee2380df1005668c03cb58c442850122f1578d6ea5b2a85af8c",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-2.json.gz": "497720e4f77ce75c150bf15f655b5f8e726adc1c4efcfd88b861cdc319aaf199",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-3.json.gz": "39d8d3c788e29a3791bf9d1eb245ea94bebfff05489882857a33e41a34aa85a2",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-4.json.gz": "73f24b10e7f11484bea430227b99bbaf2e5b586b30cf84abb9c4bd8d33ed35a2",
+    "outputs/reports/yr332_value_stability/popart-9951101/fit-diagnostic-5.json.gz": "f490450796ff3c26fbf4643f0dfe69185d55c15f91a039d338b96765dbff930f",
+    "outputs/reports/yr332_value_stability/popart-9951101/initial.pt": "3f1fe301837a53b09efbbf1c7b3a7b97e5202af999bc291d833d831d2cd53f6e",
+    "outputs/reports/yr332_value_stability/popart-9951101/replay.json": "e8ba0fce83c4a3dcd6b689031b5702a8b3713d8bf0f91784b7de772a372111f0",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-0.json.gz": "2b1cecadff23b972c794d7bcbfc037fa4f2cc3590cd4c2ac14c7654917671552",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-1.json.gz": "7256285e6f082d10b0e147afc1f47c70d394f2a69525bf6fc8808846bd9e89fb",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-2.json.gz": "45e76f9014e5de957645f5c7fafe026105f0729d72b89b1e2ce1977992b4ea3f",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-3.json.gz": "362d09749943b31f84870e62179ee7c7660dda67d1d110ebaf676c822f348712",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-4.json.gz": "a5c441a2e4a1f8ea6da6101c4b1683c40cf8c86cbd3314734ccfa27e6a93d94b",
+    "outputs/reports/yr332_value_stability/popart-9951101/samples-5.json.gz": "045eb8f7293d4663da38fd5904101ce1e5614911091801a5d53cfc65444a171b",
+    "outputs/reports/yr332_value_stability/popart-9951101/training.json": "57cdf3f4981c178d668f862b5f36ddcd3eaf2788c880c24312a54ddcdecb6ed1",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-0.pt": "bb4d56cef61d8f1fd7173a62ce1711347cca542e8b62065a35c034f570d0960a",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-1.pt": "16ff7c170789e52f815694b160e4a2a9b155900fae43a80bb81441972ef7764b",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-2.pt": "6258caab4f6e7ef053c0521771fc6338357819c61250d5eb452bc6d2f2707f7d",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-3.pt": "a4db2eb98b8cfbad9845f5912f8379ecaf9a0cf732f6d652bcaf1dd334a2c1c8",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-4.pt": "c8319cc48db4f2537945575fece1b26d3abc36fb78cc7321410567ea6a7e5373",
+    "outputs/reports/yr332_value_stability/popart-9951101/update-5.pt": "25ca66a6ef1999989d21feb587609183a59775d1ba6e389beceaa9a6a35ed853",
+    "outputs/reports/yr332_value_stability/popart-9951102/final.pt": "926770159576e16844416e67b3b2cf8f7072d8f1ffebc81e52af3897c1a4f6c6",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-0.json.gz": "7b7860288d4bed14f137a2b5d3e3c7591c2ff535553ef79a9893d5bb02a5ea06",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-1.json.gz": "436113979c6c25f8df8df6aff1c108c5390b960cd19496fbdac917606f1f0cdd",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-2.json.gz": "d7d9632db228cda949a63a7f7ac5f72de4c9eabc8209df5ea22b50b5f2147d92",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-3.json.gz": "a6efc4f7c210d1760164017e7748ab3ef71a1d6b16a9904615d5313d76cd2f99",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-4.json.gz": "076c484b8260b624e78d1e9b5831452bdba7a096055d9e1e5e747f0689d1ff28",
+    "outputs/reports/yr332_value_stability/popart-9951102/fit-diagnostic-5.json.gz": "ac82d9e09d485ed158e078c28a27b9f1179617c938ee23392321e7adc8f45b59",
+    "outputs/reports/yr332_value_stability/popart-9951102/initial.pt": "158dbb4292af40338297fe9632ca5d82104b1027293e2ba8e5855094b4023a9f",
+    "outputs/reports/yr332_value_stability/popart-9951102/replay.json": "cee008bd6c168a8ad1e6cc1e44164ae9022f1c2e6a3cb7e04ceb5ec27d0c886d",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-0.json.gz": "ff07881fdfb7fa07b216fa5a1b296641ad9cf244ed7e67e68c4b39a6eaee2885",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-1.json.gz": "975de9cf24d7e77ad973e66c240c9edd956e4bed8d120e7ee029235e33bdcf09",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-2.json.gz": "175e72207411621e1ec6b6e196dae5759c65d74e4ea8666ebb79e2b8281d0af9",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-3.json.gz": "2024db6d9a7f3f1ee61a2e77ed7c79b0d733f8b510b6d252c73efd445451ed4e",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-4.json.gz": "596b2671e7d1079e303828ba0602aca8d738ef949bc8477c217ec3f374a15cd9",
+    "outputs/reports/yr332_value_stability/popart-9951102/samples-5.json.gz": "08c8dee49bd18754258de9afec622852cbf445063457185bb77aa8626d4a1f56",
+    "outputs/reports/yr332_value_stability/popart-9951102/training.json": "7ed5089bef1917226f1fa301cbf8127635d0396efd015907556dd29ebd8d1563",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-0.pt": "d6fbe3b601bd250dec0ac3f7cdb54d758f0458061dc99a9b40b5ea879e04fcbc",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-1.pt": "66e1db9b02fda8ffb9ed4028b026bb828d84543b2c606e8333dcf53a606b214a",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-2.pt": "861b28fd9db1e33be9a5d7bf66bec2b5371e80009049cd8c673842e17abec1b4",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-3.pt": "aa200f341267e985c2acff5b3826a589cb2efbab60493a360b42ca17baf05a90",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-4.pt": "86f994931dab77618184c240932a7e307f4d63d9676bc6835b58251d71992a6c",
+    "outputs/reports/yr332_value_stability/popart-9951102/update-5.pt": "e40d2f080fe66605f8d84db6a8abb6b2159889454068b21f312b846e615d8b65",
+    "outputs/reports/yr332_value_stability/popart-9951103/final.pt": "ba52a5dfcfd0971a58fa1e645104e4f818b103bd4c2d454a3956980484761956",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-0.json.gz": "beb36dcb5b85126e9b4fc4f4bb2d23637b5ac0f5c7d91cceecde56b7b989c33e",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-1.json.gz": "6df488f15309af51f022c1ff9b51d27e7f38c2ecd1b58ca016b064d421da7abf",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-2.json.gz": "41bc4bc107f2746f6a3d3b00175948893c0b596d1ed8f159341a5abcd2274782",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-3.json.gz": "df1eabfed189dd4f55087309bb26e935749da5daf38503068bbf089ac154a595",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-4.json.gz": "1e8c63c83b24e9b1df370669a5ce6590dc79ef2e75f4bca1ecdf32a8191661fa",
+    "outputs/reports/yr332_value_stability/popart-9951103/fit-diagnostic-5.json.gz": "c8d9f0b8c288b1f128286391a7c4537918e5d7e27e5317b29e981dc4943c1120",
+    "outputs/reports/yr332_value_stability/popart-9951103/initial.pt": "7917172dcae8a490f71f2be107e5a7ce045e51af7b5b7b30ae9c86587dc809f5",
+    "outputs/reports/yr332_value_stability/popart-9951103/replay.json": "b6f3c1de5c197b28afde53ad1b7cc58384ebd722a272b04e772520fa4943aef4",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-0.json.gz": "446ce2112d4b7afcda86855d97e9e9cef732f8447df5bdb142757918776c86ab",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-1.json.gz": "86f107560af4d8ece19e4d61c27050437d9f9408b8fa5fef6b09e5ae06134a29",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-2.json.gz": "a8f3b0aa63da264299078437d3bcae1bc0c70cb5c3b34c404be3ec196cdc69ac",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-3.json.gz": "451b8165310183e741f3d1859a4d17efcf2f074c1b4f7a1300004012d0e7f12f",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-4.json.gz": "36dc76ed9bed96c9795254a540e3ad20877c14c77e1fff91239dc1cb3c1dc5ae",
+    "outputs/reports/yr332_value_stability/popart-9951103/samples-5.json.gz": "41400ac3b5f7cad6101063892a4f1705d09ea8bd85e10ad97dc0c8ae632c9506",
+    "outputs/reports/yr332_value_stability/popart-9951103/training.json": "509fb908c06569f3bc590b83951e52f1c58dfbd67a551861d562d62bb6315798",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-0.pt": "52d6a828476dce890b3a8ba6109660537fd13d4b6edf6b16e93022a4f944da67",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-1.pt": "e16d3f0544e9f0ca6b3bbe58c0b669deaa48acf0ebbbba3c03dae51080969370",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-2.pt": "27f7352924b69382bab0810da6ee17bc673befa060f52fd91f47345ed53dc318",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-3.pt": "fc39814291834496cc4f4b81b237e682d070354c3b884a57078154bbb7c9b06c",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-4.pt": "2521091fb11013f740691b184f9788d869970002fbb0c05e60cce8ac78efe9f1",
+    "outputs/reports/yr332_value_stability/popart-9951103/update-5.pt": "7c6f34cb82569eeeed9d8545adb205e18cc96c687c40a5a7710c2a38e0224893"
+  },
+  "scope": "bounded synthetic diagnostic; no real-terminal or statistical confirmation"
+}

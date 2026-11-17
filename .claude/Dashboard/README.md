@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **비용 예측 안정화 비교 진행 (2026-11-17, ay)**: 기존/PopArt 세 쌍의 학습36갱신을 마치고 최종 모델을 동결했다. 음수 신호·목적·기간·입력은 그대로다. 고정 평가126회·재실행2회와 학습 상태 재현 검사를 진행 중이며 성능 판정은 보류한다. 사용자 요청 합성 진단으로 현실성 선결 거절을 보존했다. [모델 동결](../../outputs/reports/yr332_value_stability/trained-model-manifest.json) · [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md)
+- **비용 예측 학습 비교 완료 (2026-11-17, ay)**: 같은 초기값 세 쌍 모두 비용·트럭 시간이 줄었다. 평균 트럭87.178→79.562분(−8.74%), 총비용−7.55%이나 반입−45.30%·반출+1.98%, 본선 지연비용+0.74%로 보호 조건 미달이다. 규칙62.125분보다28.07% 길어 채택하지 않는다. 6모델·126평가·2재실행·36갱신 재현·1,092,000오더 검산. 음수 신호 유지, 새 입력의 예측 정확도 전반 개선은 미확인. 다음 등록 과제는 운반/대기열i/f 자료 확인이다. [결과](../../outputs/reports/yr332_value_stability/README.md) · [검산](../../outputs/reports/yr332_value_stability/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md)
 
 - **저장 PPO 경험 진단 완료 (2026-11-17, ax)**: 73,728상태 전수·300원파일 불변·6시험·288별도예측 검산. Transformer 혼잡일 오전5,838선택 중 양수신호6개, 가치 예측의 날/시각 차이가 남는다. 반입 선호 증가는2/3초기값이고 확률과 최고점 선택이 다르게 움직인다. 혼잡일 반출 후보59.2%가 대기2시간 상한, 상한 제거 효과는 미확정. 다음은 가치망 학습 안정화 한 축 비교설계ay, 운반/대기열i/f 선결 유지. 새 학습·정책 변경 없음. [결과](../../outputs/reports/yr332_ppo_credit/README.md) · [검산](../../outputs/reports/yr332_ppo_credit/verification.json)
 

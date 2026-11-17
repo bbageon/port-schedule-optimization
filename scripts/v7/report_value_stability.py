@@ -12,6 +12,16 @@ def main():
     labels=dict(control='기존 가치 학습',popart='가치 목표 정규화',SF_SPT='짧은 실작업 우선 규칙')
     verdict=('세 초기값에 걸쳐 개선 후보 조건을 만족했다.' if s['consistent_improvement_candidate'] else
              '가치 목표 정규화의 일관된 정책 개선을 확인하지 못했다.')
+    if not s['consistent_improvement_candidate'] and d['cost_pct']<0 and d['flow_pct']['TRUCK']<0:
+        verdict='총비용과 트럭 시간은 줄었지만 사전 보호 조건을 모두 만족하지 못했다.'
+    guards=[]
+    if not all(r['change']['cost_pct']<0 for r in s['by_seed'].values()):guards.append('세 초기값 모두 비용 감소')
+    if d['flow_pct']['TRUCK']>0:guards.append('평균 트럭 시간 비악화')
+    if d['vessel_cost_pct']>0:guards.append('본선 지연비용 비악화')
+    if d['unfinished26_delta']>0:guards.append('26시간 미완료 수 비악화')
+    larger_error=[f'{load:,}건' for load in LOADS if
+        next(v['rmse'] for v in s['value_validation'] if v['arm']=='popart' and v['load']==load)>
+        next(v['rmse'] for v in s['value_validation'] if v['arm']=='control' and v['load']==load)]
     lines=['# 남은 비용 예측의 학습 안정화 비교', '', f'**{verdict}**',
         f'기존 학습 대비 트럭 시간 {d["flow_pct"]["TRUCK"]:+.2f}%, 총비용 {d["cost_pct"]:+.2f}%다. '
         f'짧은 실작업 우선 규칙 대비 트럭 시간은 {rule["flow_pct"]["TRUCK"]:+.2f}%다.',
@@ -55,7 +65,7 @@ def main():
         lines.append(f'| {load:,} | {a:.4f} | {b:.4f} |')
     lines += ['', '오차는 새 검증 경험에서 실제 남은 비용과 예측의 차이를 제곱평균한 뒤 제곱근을 취한 값이다.',
         '양쪽 모두 원래 고정 보상 눈금으로 복원해서 잰다. 각 정책이 확률 추첨으로 만든 경험이므로 방문 상태는 다를 수 있다.',
-        '학습에 사용한 경험의 오차와 새 검증 오차는 분리했다. 정규화된 학습 손실 숫자를 서로 직접 비교하지 않는다.']
+        '학습에 사용한 경험의 오차와 새 검증 오차는 분리했다. 정규화된 학습 손실 숫자를 서로 직접 비교하지 않는다.', '']
     for arm in ARMS:
         ts=[r for r in s['training']['rows'] if r['arm']==arm]
         before=math.sqrt(st.mean(r['before_rmse']**2 for r in ts));after=math.sqrt(st.mean(r['after_rmse']**2 for r in ts))
@@ -64,24 +74,36 @@ def main():
         lines.append(f'- {labels[arm]}: 학습자료 예측 오차 {before:.4f}→{after:.4f}; '
             f'고물량 오전 양수 행동 신호 {sum(r["positive"] for r in cs):,}/{sum(r["n"] for r in cs):,}; '
             f'첫 묶음의 가치/행동 기울기 크기 비율 중앙값 {st.median(gr):.2f}배.')
-    lines += ['기울기 비율은 갱신 첫 묶음만 측정했다. Adam을 거친 실제 파라미터 이동량이나 전체 학습의 원인 비율이 아니다.', '',
+    lines += ['', '기울기 비율은 갱신 첫 묶음만 측정했다. Adam을 거친 실제 파라미터 이동량이나 전체 학습의 원인 비율이 아니다.', '',
         '### 같은 상태에서의 선택 차이', '', '| 초기값 | 크레인 하나의 선택 상황 수 | 선택 확률 분포의 평균 차이 | 최고점 후보 불일치 |', '|---:|---:|---:|---:|']
     for r in choice['rows']:
         if r['load']==0:
             lines.append(f'| {r["seed"]} | {r["single_crane_n"]:,} | {100*r["single_crane_mean_total_variation"]:.3f}% | {100*r["single_crane_argmax_disagreement"]:.2f}% |')
+    lines += ['', '| 초기값 | 반입·반출이 함께 있는 상황 | 트럭 중 반입 확률: 기존→정규화 | 최고점이 반입인 비율: 기존→정규화 |', '|---:|---:|---:|---:|']
+    for r in choice['rows']:
+        if r['load']==0:
+            a,b=r['control'],r['popart']
+            lines.append(f'| {r["seed"]} | {r["mixed_single_crane_n"]:,} | '
+                f'{100*a["inbound_conditional"]:.2f}%→{100*b["inbound_conditional"]:.2f}% | '
+                f'{100*a["inbound_top_fraction"]:.2f}%→{100*b["inbound_top_fraction"]:.2f}% |')
     lines += ['', '양쪽 정책에서 저장한 검증 상태를 합쳐 같은 합법 후보에 두 모델을 적용했다.',
         '표는 크레인 하나가 고르는 상황만 따로 센다. 여러 크레인에 대한 선택 순서 변화와 실작업 우선순위 변화를 섞지 않기 위해서다.',
         '확률 분포 차이는 바뀐 확률 질량이다. 작은 확률 차이라도 최고점 후보가 바뀔 수 있다. 이 표는 선택 결과의 인과 효과를 재현한 실험이 아니다.', '',
         '## ② 해석', '', f'- {verdict}',
-        '- 음수 비용을 보상으로 쓰는 것은 비용 최소화를 보상 최대화로 표현하는 방법이다.',
+        f'- 미충족 보호 조건: {", ".join(guards) if guards else "없음"}. 총비용 감소와 본선 보호 조건의 충족은 구별한다.',
+        f'- 작업별 변화는 반입 {d["flow_pct"]["GATE_IN"]:+.2f}%, 반출 {d["flow_pct"]["GATE_OUT"]:+.2f}%다. 같은 상태의 선택에서도 반입 우선이 강해졌다. 개별 결정의 인과 효과까지 분리한 결과는 아니다.',
+        f'- 새 비용 예측 오차가 커진 물량: {", ".join(larger_error) if larger_error else "없음"}. 예측 정확도와 정책 성능의 개선을 같은 뜻으로 읽지 않는다.',
+        '- 보상을 ‘−비용’으로 두는 것은 비용 최소화를 보상 최대화로 표현하는 방법이다. 비용이 발생했다는 사실과 특정 선택이 상대적으로 나빴다는 평가는 구별한다.',
         '- 행동 신호의 음수는 “예상보다 나빴으니 선택 확률을 낮추라”는 뜻이다. 예를 들어 예측 비용10·실제8이면 상대 신호+2, 실제12이면−2다.',
         '- 현재 구현은 이 상대 신호를 두 날짜 전체에서 한 번 더 표준화한다. 고물량 날짜의 음수 편중만으로 잘못된 행동이라고 단정할 수 없다.',
         '- 이번 비교에서는 음수 신호를 삭제하지 않았다. 삭제 실험을 하지 않았으므로 음수 제거의 효과를 입증한 것도 아니다.',
+        '- 음수값 자체가 모든 강화학습의 필수 조건이라는 뜻은 아니다. 현재 PPO에서 음수 상대 신호를 0으로 지우면 학습식이 달라지므로 별도 비교가 필요하다.',
         '- 학습은 확률 추첨, 주 평가는 최고점 선택이다. 그 차이를 유지한 비교이며 두 실행 방식이 같다고 주장하지 않는다.',
         '- 모든 학습 쌍은 새로 시작했다. 기존 체크포인트에서 완전하게 이어 학습한 결과가 아니다.',
         '- 학습 날짜12개는 매번 환경을 새로 만드는 하루 사례다. 12일 연속 운영이 아니다.',
         '- 정규화의 Adam 누적값은 보존했다. 출력 보존은 검사했지만 최적화 궤적의 좌표 불변성은 주장하지 않는다.',
-        f'- 채택 성능 게이트: {"통과" if s["adoption_performance_pass"] else "미통과"}. 기록·코드·검산은 별도 확인하며 현실성은 미통과를 유지한다.',
+        '- 이번 판정은 누적 전역 통계를 쓴 PopArt와 고정된 학습 예산에 한정한다. 모든 정규화 방법이나 충분히 오래 학습한 경우의 성능을 판정한 것은 아니다.',
+        f'- 사전 지정 채택 수치 조건: {"충족" if s["adoption_performance_pass"] else "미충족"}. 작은 합성 진단이므로 수치 조건 충족도 현장 개선 확증은 아니다. 기록·코드·검산은 별도 확인하며 현실성은 미통과를 유지한다.',
         '- 동일한 합성 생성기의 새 추첨이다. 독립 실측 기간·운반 흐름·현장 대기열을 검증한 결과가 아니다. 기본 정책은 바꾸지 않았다.', '',
         '## ③ 예정사항', '',
         '- 운반 흐름 확인(YR-332-i): 차량 투입·주행·인계 기록으로 양하 연결을 검증한다. 실제 환경의 성능을 말하기 전에 필요한 외부 자료가 남아 있다.',

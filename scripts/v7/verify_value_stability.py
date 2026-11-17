@@ -48,6 +48,28 @@ def main():
         assert int(suite.attrib['failures'])==int(suite.attrib['errors'])==0
         tests+=int(suite.attrib['tests'])
     assert tests==15
+    choice=read(OUT/'choice-diagnostic.json');diagnostic_artifacts={}
+    for path,h in choice['sources'].items():
+        assert sha(path)==h,path
+        diagnostic_artifacts[path]=h
+    assert len(choice['sources'])==18
+    choice_rows=0
+    for seed in SEEDS:
+        path=OUT/f'choice-states-{seed}.json.gz';raw=gz_read(path)
+        diagnostic_artifacts[path.as_posix()]=sha(path);choice_rows+=len(raw)
+        row=next(r for r in choice['rows'] if r['seed']==seed and r['load']==0)
+        single=[r for r in raw if r['single_crane']]
+        mixed=[r for r in single if r['mixed_truck']]
+        assert row['n']==len(raw) and row['single_crane_n']==len(single)
+        assert row['mixed_single_crane_n']==len(mixed)
+        close(math.fsum(r['control_popart_total_variation'] for r in single)/len(single),row['single_crane_mean_total_variation'])
+        close(sum(r['control']['top_candidate']!=r['popart']['top_candidate'] for r in single)/len(single),row['single_crane_argmax_disagreement'])
+        for arm in ('initial',*ARMS):
+            close(math.fsum(r[arm]['inbound_conditional'] for r in mixed)/len(mixed),row[arm]['inbound_conditional'])
+            close(sum(r[arm]['top_flow']==0 for r in mixed)/len(mixed),row[arm]['inbound_top_fraction'])
+    assert choice_rows==36864
+    for name in ('choice-diagnostic.json','gradient-diagnostic.json'):
+        p=OUT/name;diagnostic_artifacts[p.as_posix()]=sha(p)
     docs=[OUT/'README.md',PREREG,Path('.claude/docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md')]
     for p in docs:
         text=p.read_text('utf-8');assert len(text.splitlines())<=200
@@ -61,7 +83,8 @@ def main():
     assert f'{s["paired_change"]["flow_pct"]["TRUCK"]:+.2f}%' in report
     save(OUT/'verification.json',dict(passed=True,tests=tests,evaluation_cases=126,repeats=2,
         truck_order_rows_checked=n_orders,source_files=len(read(OUT/'campaign.json')['sources']),
-        evidence_files=len(s['artifact_hashes']),full_checkpoint_replay_updates=36,
+        evidence_files=len(s['artifact_hashes'])+len(diagnostic_artifacts),full_checkpoint_replay_updates=36,
+        same_state_choice_rows_checked=choice_rows,diagnostic_artifacts=diagnostic_artifacts,
         legacy_newline_snapshots=len(source_publication['format_only_legacy_inputs']),
         targets_checked=73728,summary_sha256=sha(OUT/'summary.json'),report_sha256=sha(OUT/'README.md'),
         scope='source hashes, direct timing arithmetic, raw ledgers, fixed final checkpoints and optimizer replay',
