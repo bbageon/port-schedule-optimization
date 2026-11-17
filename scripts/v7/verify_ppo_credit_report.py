@@ -92,7 +92,7 @@ def local():
 def publication(commit):
     from yard_rl.experiments.gate_harness import audit_dashboard
     paths = [*CONTROL, *Path('scripts/v7').glob('ppo_credit_*.py'), Path('scripts/v7/plot_ppo_credit.py'),
-             Path(__file__), Path('tests/test_ppo_credit_diagnostics.py'),
+             Path(__file__).resolve().relative_to(Path.cwd()), Path('tests/test_ppo_credit_diagnostics.py'),
              Path('docs/research/v7-discharge/ppo-credit-analysis-plan.md'),
              *[p for p in OUT.iterdir() if p.is_file() and p.name not in ('publication.json', 'dashboard-audit.json')]]
     expected = {p.as_posix(): sha(p) for p in paths}
