@@ -47,3 +47,9 @@
 - [사전등록](../../../docs/research/v7-discharge/value-stability-prereg.md): 세 초기값의 대조/PopArt 쌍, 새 출발 Adam, 12일·6갱신, 최종 모델 고정 평가.
 - 음수 신호는 유지한다. 누적 전역 목표 통계·출력 보존·Adam 상태 유지 계약을 시험한 뒤 소스와 입력을 동결한다.
 - [착수 판정 기록](../../../outputs/reports/yr332_value_stability/authorization.json).
+
+## 학습 완료·평가 진행
+
+- 기존/PopArt 각 3개 모델의 6갱신(전체36)을 완료했다. 최종 모델은 사전 지정한 갱신5다.
+- [126개 학습 산출물 동결](../../../outputs/reports/yr332_value_stability/trained-model-manifest.json). 모델·경험·Adam 상태를 보존했다.
+- 고정된 126평가와 2재실행, 36갱신 재현 검사가 진행 중이다. 최종 성능 판정은 아직 하지 않는다.

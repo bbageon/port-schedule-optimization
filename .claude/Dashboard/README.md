@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **비용 예측 안정화 비교 착수 (2026-11-17, ay)**: 사용자 요청의 합성 진단으로 기존/PopArt 세 쌍을 같은 예산으로 비교한다. 음수 신호·목적·기간·입력을 유지하고 새 곡선으로 학습/검증/시험을 분리했다. 25입력·15계약 시험·하루 동작 시험 통과, 현실성 선결 거절 보존. [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md) · [사전등록](../../docs/research/v7-discharge/value-stability-prereg.md)
+- **비용 예측 안정화 비교 진행 (2026-11-17, ay)**: 기존/PopArt 세 쌍의 학습36갱신을 마치고 최종 모델을 동결했다. 음수 신호·목적·기간·입력은 그대로다. 고정 평가126회·재실행2회와 학습 상태 재현 검사를 진행 중이며 성능 판정은 보류한다. 사용자 요청 합성 진단으로 현실성 선결 거절을 보존했다. [모델 동결](../../outputs/reports/yr332_value_stability/trained-model-manifest.json) · [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md)
 
 - **저장 PPO 경험 진단 완료 (2026-11-17, ax)**: 73,728상태 전수·300원파일 불변·6시험·288별도예측 검산. Transformer 혼잡일 오전5,838선택 중 양수신호6개, 가치 예측의 날/시각 차이가 남는다. 반입 선호 증가는2/3초기값이고 확률과 최고점 선택이 다르게 움직인다. 혼잡일 반출 후보59.2%가 대기2시간 상한, 상한 제거 효과는 미확정. 다음은 가치망 학습 안정화 한 축 비교설계ay, 운반/대기열i/f 선결 유지. 새 학습·정책 변경 없음. [결과](../../outputs/reports/yr332_ppo_credit/README.md) · [검산](../../outputs/reports/yr332_ppo_credit/verification.json)
 
