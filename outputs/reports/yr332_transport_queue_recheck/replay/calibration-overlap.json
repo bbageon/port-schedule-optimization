@@ -1,0 +1,69 @@
+{
+  "affected_definition": "No TSS/VBS GateIn request supplies the CSV physical timestamp; measured across all GateIn events, including events without a queue value.",
+  "checks": {
+    "saved_calibration_histograms_reproduced": true
+  },
+  "cohorts": {
+    "calibration_IN": {
+      "affected": 159,
+      "eta_median_seconds": 6053.0,
+      "n": 9944,
+      "sensitivity_excluding_unconfirmed": {
+        "eta_median_seconds": 6055,
+        "n": 9785,
+        "notice_lead_median_seconds": 3727
+      }
+    },
+    "calibration_OUT": {
+      "affected": 185,
+      "eta_median_seconds": 3999.5,
+      "n": 10992,
+      "sensitivity_excluding_unconfirmed": {
+        "eta_median_seconds": 4027,
+        "n": 10807,
+        "notice_lead_median_seconds": 1351
+      }
+    },
+    "holdout_IN": {
+      "affected": 69,
+      "eta_median_seconds": 5361,
+      "n": 3523,
+      "sensitivity_excluding_unconfirmed": {
+        "eta_median_seconds": 5486.0,
+        "n": 3454,
+        "notice_lead_median_seconds": 3631.5
+      }
+    },
+    "holdout_OUT": {
+      "affected": 74,
+      "eta_median_seconds": 3638.5,
+      "n": 4826,
+      "sensitivity_excluding_unconfirmed": {
+        "eta_median_seconds": 3663.0,
+        "n": 4752,
+        "notice_lead_median_seconds": 1357.5
+      }
+    }
+  },
+  "existing_merge_seconds": 1800.0,
+  "limits": [
+    "No sample or parameter was removed/replaced in the saved calibration.",
+    "Error flags and absent subsequent events require source confirmation before interpreting a row as an actual entry.",
+    "Physical visit grouping is the existing 30-minute rule, not independent confirmation of entry."
+  ],
+  "saved_profile_sha256": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe",
+  "selection_matches_saved_by_flow": {
+    "IN": true,
+    "OUT": true
+  },
+  "visit_implications": {
+    "affected_rows_in_superseded_gate_records": 578,
+    "affected_rows_retained_as_physical_visit": 23,
+    "affected_visit_rows": 601,
+    "physical_visits_retaining_affected_rows": 23,
+    "physical_visits_using_existing_merge": 27415,
+    "with_later_block_entry": 0,
+    "with_later_gate_exit": 0,
+    "with_later_job_completion": 0
+  }
+}

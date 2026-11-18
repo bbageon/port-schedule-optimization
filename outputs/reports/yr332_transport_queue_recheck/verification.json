@@ -1,0 +1,47 @@
+{
+  "checks": {
+    "all_audit_checks": true,
+    "event_queue_counts_independent": true,
+    "final_audit_script_hash": true,
+    "original_files_unchanged": true,
+    "raw_gate_timestamp_check_independent": true,
+    "report_claim_counts": true,
+    "runtime_and_helper_hashes_unchanged": true,
+    "saved_profile_hash_unchanged": true,
+    "simulator_and_saved_profile_unmodified": true,
+    "six_replay_files_exact": true
+  },
+  "claims": {
+    "affected_calibration": 344,
+    "affected_holdout": 143,
+    "affected_rows_without_followup": 601,
+    "affected_visit_rows": 601,
+    "gate_events": 34304,
+    "queue_values": 48620,
+    "raw_queue_records": 54245,
+    "retained_uncertain_visits": 23,
+    "unconfirmed_gate_timestamps": 601
+  },
+  "limitations": [
+    "PASS verifies the audit and its reported limitations, not physical gate-entry truth or simulator realism.",
+    "No PPO or scheduling performance comparison was performed."
+  ],
+  "replay_file_sha256": {
+    "audit.json": "feb3bc4c58aa766366889c053f3bb0f74eac31f6bf626d957687de3206756b07",
+    "calibration-overlap.json": "6ad9ee9c1445e24181119528175efde480d4c1e4afdce4498fb9e23ec0f25730",
+    "queue-reconciliation.json": "ac9feac0fecf4b210b75306977cfacd6e271409416c085e2f30b9cdaf733e17f",
+    "source-comparison.json": "4a1759f02704d08f5c0683c324a302ccb912f633642a0ee8259a6e86b0add03b",
+    "source-manifest.json": "70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8",
+    "vessel-reconciliation.json": "04aeaaaa319c6ec22fa56a1fafe8c83384bf2d86182f9a72edd7db2f3ea1a0b4"
+  },
+  "replay_matches": {
+    "audit.json": true,
+    "calibration-overlap.json": true,
+    "queue-reconciliation.json": true,
+    "source-comparison.json": true,
+    "source-manifest.json": true,
+    "vessel-reconciliation.json": true
+  },
+  "status": "PASS",
+  "verification_script_sha256": "08bebf7d9a79d8c322eacd0a8d7026efd4442b7760a85189def1a56b35f03add"
+}
