@@ -45,20 +45,27 @@ def publish(commit):
         path=OUT/name;artifacts[path.as_posix()]=sha(path)
     for name in ('audit_global_value.py','report_global_value.py','plot_global_value.py','publish_global_value.py'):
         path=Path('scripts/v7')/name;artifacts[path.as_posix()]=sha(path)
+    for name in ('current-gates-initial.json','publication-initial.json'):
+        path=OUT/name
+        if path.exists():artifacts[path.as_posix()]=sha(path)
     if s['policy']:
         for ext in ('png','svg'):
             path=OUT/f'policy-comparison.{ext}';artifacts[path.as_posix()]=sha(path)
     for name,h in artifacts.items():
         blob=subprocess.check_output(['git','show',commit+':'+name])
         assert hashlib.sha256(blob).hexdigest()==h,('Published artifact bytes differ',name)
+    seeds=dict(models=list(SEEDS),curve_bank=[9964000],
+        inputs=sorted({9964212}|{c['input_seed'] for c in cfg['train']+cfg['validation']+cfg['holdout']}),
+        smoke_actions=[9969212],smoke_updates=[9969213],
+        common_actions=[9965000+c['input_seed'] for c in cfg['train']+cfg['validation']],
+        common_subsamples=[9966000+c['input_seed'] for c in cfg['train']+cfg['validation']],
+        prediction_shuffle=[seed+9967000 for seed in SEEDS])
+    if s['policy']:
+        seeds.update(policy_actions=[seed+1000+i for seed in SEEDS for i in range(12)],
+            policy_subsamples=[seed+2000+i for seed in SEEDS for i in range(6)],
+            policy_updates=[seed+3000+i for seed in SEEDS for i in range(6)])
     stamp=dict(experiment='YR-332-az',code=dict(git_head=campaign['commit'],git_dirty=False),
-        seeds=dict(models=list(SEEDS),curve_bank=[9964000],inputs=sorted({c['input_seed'] for c in cfg['train']+cfg['validation']+cfg['holdout']}),
-            common_actions=[9965000+c['input_seed'] for c in cfg['train']+cfg['validation']],
-            common_subsamples=[9966000+c['input_seed'] for c in cfg['train']+cfg['validation']],
-            prediction_shuffle=[s+9967000 for s in SEEDS],
-            policy_actions=[s+1000+i for s in SEEDS for i in range(12)] if s['policy'] else [],
-            policy_subsamples=[s+2000+i for s in SEEDS for i in range(6)] if s['policy'] else [],
-            policy_updates=[s+3000+i for s in SEEDS for i in range(6)] if s['policy'] else []),params=cfg,prereg=PREREG.as_posix(),
+        seeds=seeds,params=cfg,prereg=PREREG.as_posix(),
         provenance='Frozen clean campaign and exact source archive; current analysis artifacts independently committed')
     runtime=judge_runtime_evidence(stamp,artifact_hashes=artifacts)
     board=audit_dashboard('.',task_id='YR-332-az',expected_state='done',
