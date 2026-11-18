@@ -86,10 +86,11 @@ def change(a,b):
         unfinished26_delta=b['unfinished26_mean']-a['unfinished26_mean'])
 
 
-def main():
+def main(prediction_only=False):
     import torch
     import xml.etree.ElementTree as ET
     cfg=check();prediction=read(OUT/'prediction-summary.json')
+    assert read(OUT/'extended-smoke.json')['passed']
     tests=ET.parse(OUT/'unit-tests.xml').getroot().find('testsuite')
     assert int(tests.attrib['failures'])==int(tests.attrib['errors'])==0
     counts=Counter();ages=[];samples=0;orders_n=0
@@ -127,7 +128,7 @@ def main():
     independently_pooled={a:math.sqrt(st.mean(x*x for x in v)) for a,v in rmse.items()}
     for a,v in independently_pooled.items():assert math.isclose(v,prediction['groups'][a]['rmse'],rel_tol=1e-6)
     policy=None
-    if prediction['passed']:
+    if prediction['passed'] and not prediction_only:
         from report_synthetic_pipeline import audit
         rows,artifacts=audit(OUT);assert len(rows)==len(eval_cases())
         assert [r['case'] for r in rows]==eval_cases()
@@ -157,7 +158,7 @@ def main():
             adoption_numerical_pass=all(conditions.values()) and vs_rule['cost_pct']<0 and
                vs_rule['flow_pct']['TRUCK']<0 and vs_rule['flow_pct']['VESSEL']<0 and groups['global']['unfinished26_mean']==0,
             validation=[r for r in rows if r['case']['split']=='selection'])
-    else:
+    elif not prediction['passed']:
         assert not (OUT/'policy').exists() and not (OUT/'evaluation').exists()
     before=[a[1] for a in ages if a[0]<86400];after=[a[1] for a in ages if a[0]>=86400]
     def dist(values):
@@ -171,14 +172,17 @@ def main():
         common_truck_orders=orders_n,observation=observation,default_policy_changed=False,
         interpretation='Prediction on shared fixed-policy experience; PPO only if the preregistered prediction gate passes',
         reliability_pass=True,realism_pass=False)
-    save(OUT/'summary.json',summary)
+    save(OUT/('prediction-audit-summary.json' if prediction_only else 'summary.json'),summary)
     artifacts={p.as_posix():sha(p) for p in OUT.rglob('*') if p.is_file() and p.suffix not in ('.log',)
-               and p.name not in ('verification.json','publication.json','current-gates.json','dashboard-audit.json')}
-    save(OUT/'verification.json',dict(passed=True,counts=dict(counts),common_samples_checked=samples,
+               and p.name not in ('verification.json','prediction-verification.json','publication.json','current-gates.json','dashboard-audit.json')}
+    save(OUT/('prediction-verification.json' if prediction_only else 'verification.json'),dict(passed=True,counts=dict(counts),common_samples_checked=samples,
         common_orders_checked=orders_n,independent_rmse=independently_pooled,max_rmse_recalculation_error=max_error,
         prediction_replays=6,unit_tests=int(tests.attrib['tests']),artifact_hashes=artifacts,
         code_sha256=sha(Path(__file__)),source_checks=len(read(OUT/'campaign.json')['sources'])))
     print(dict(prediction_passed=prediction['passed'],policy_evaluated=policy is not None,verified=True,counts=dict(counts)),flush=True)
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    import argparse
+    p=argparse.ArgumentParser();p.add_argument('--prediction-only',action='store_true')
+    main(p.parse_args().prediction_only)
