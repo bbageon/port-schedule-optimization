@@ -1,0 +1,298 @@
+{
+ "task": "YR-332-ba",
+ "evidence_commit": "8fecd0b9",
+ "gate_time_provenance_axis": "PASS",
+ "independent_verification": {
+  "build_and_inputs_clean": true,
+  "build_source_hashes": true,
+  "exact_calibration_replay": true,
+  "fixed_date_split": true,
+  "independent_booking_histogram_exact": true,
+  "independent_split_counts": true,
+  "input_cases_complete": true,
+  "input_replays_exact": true,
+  "new_profile_hash": true,
+  "no_holdout_fitting": true,
+  "no_policy_training_or_evaluation": true,
+  "only_information_fields_changed": true,
+  "original_600_files_unchanged": true,
+  "original_demand_calibrations_reproduced": true,
+  "original_runtime_unchanged": true,
+  "original_timing_profile_unchanged": true,
+  "physical_inputs_preserved": true,
+  "private_original_rows_ignored_and_untracked": true,
+  "quarantine_exact_rows": true,
+  "quarantine_hash": true,
+  "raw_request_join_independently_matches": true
+ },
+ "scope": "Source-confirmed reservation/notice calibration and input integration only; physical demand unchanged",
+ "unresolved_context": [
+  "YR-332-f queue definition",
+  "YR-332-i transport stages",
+  "YR-332-bb dependent demand recalibration"
+ ],
+ "common_gates": {
+  "performance": {
+   "name": "performance",
+   "status": "INCONCLUSIVE",
+   "summary": "입력 보정만 검증했으며 새 학습·정책 성능은 측정하지 않음",
+   "reasons": [],
+   "evidence": {}
+  },
+  "reliability": {
+   "name": "reliability",
+   "status": "PASS",
+   "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+   "reasons": [],
+   "evidence": {
+    "runtime": {
+     "name": "runtime_evidence",
+     "status": "PASS",
+     "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+     "reasons": [],
+     "evidence": {
+      "git_head": "6f5a93669d4f7b44d38742054aa18e8105a48746",
+      "stamp": {
+       "code": {
+        "git_dirty": false,
+        "git_head": "6f5a93669d4f7b44d38742054aa18e8105a48746",
+        "python": "3.13.9"
+       },
+       "experiment": "YR-332-ba",
+       "params": {
+        "applied_axis": {
+         "repr": "'reservation_notice_only'"
+        },
+        "calibration_dates": {
+         "repr": "['2026-10-28', '2026-11-05']"
+        },
+        "holdout_dates": {
+         "repr": "['2026-11-06', '2026-11-09']"
+        },
+        "loads": {
+         "repr": "[3500, 7500, 15000]"
+        },
+        "original_rows": {
+         "repr": "36135"
+        },
+        "performance_evaluation": {
+         "repr": "False"
+        },
+        "raw_files": {
+         "repr": "600"
+        },
+        "strict_event_contract": {
+         "repr": "{'schema': 'explicit-gate-request-time-v1', 'log_clock_substitution': False, 'other_message_confirmation': True, 'error_flag_is_not_selection_rule': True, 'source_manifest_sha256': '70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8', 'legacy_profile_sha256': '8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe'}"
+        },
+        "synthetic_input_seeds": {
+         "repr": "[9975100, 9975101, 9975102]"
+        }
+       },
+       "prereg": "docs/research/v7-discharge/gate-time-provenance-prereg.md",
+       "profile_id": null,
+       "seeds": {
+        "input": [
+         9975100,
+         9975101,
+         9975102
+        ]
+       }
+      },
+      "artifact_hashes": {
+       "docs/research/v7-discharge/gate-time-provenance-prereg.md": "ab819afe4dac24cc249035db699473bf2a2c3f57049df2e8d2f030f962b7ead4",
+       "scripts/v7/audit_visit_links.py": "928b61effe2e50f8a497beab9b80e6071741ab5d0214eba9293ceb63278f57fb",
+       "scripts/v7/audit_visit_units.py": "7ec760c3cdbc0078b53971264d816cea0e5028e528c89e28005f5f2fe0f23cc0",
+       "scripts/v7/build_gate_time_calibration.py": "63ec8097dd2ec776d449a37caece786d03f48d1bc16b9e4dd1286d1f5ee4ed02",
+       "scripts/v7/calibrate_order_information.py": "1b11c08451dc024d5946c06ca85054da6de000d15e01de45dc5337ae9051546b",
+       "scripts/v7/gate_time_provenance.py": "b919473e2ef9908ad478a4aebf957cfcde45f12e78b357abe1b4873edd694333",
+       "outputs/reports/yr332_gate_time_provenance/README.md": "5d4c28b5962cbcb2586bc806b66d15b5543452767d0e46ab9bfd1e4cda4226d2",
+       "outputs/reports/yr332_gate_time_provenance/profile-confirmed.json": "f4e11060945e1ede43123bc07ef1d7c6e394c24f14f34478d97da1b16f622220",
+       "outputs/reports/yr332_gate_time_provenance/provenance-summary.json": "e01e454fa0afc412924498afbf4ced03c880019f73d88ba9ae71acee88cb4244",
+       "outputs/reports/yr332_gate_time_provenance/calibration-comparison.json": "830715c0285875e9f9c637b96ff21f629b9d6cb2a0656217390835e4db6b8c93",
+       "outputs/reports/yr332_gate_time_provenance/arrival-impacts.json": "9a8bd41a37b76c9e1570c5cb14ecefd08cd69b09cdee60ab6c92b1f25b5417d8",
+       "outputs/reports/yr332_gate_time_provenance/build-record.json": "544944222134713d6ba3199db0a97131ea89e7a1cbfa246074e7ad2b81330e2a",
+       "outputs/reports/yr332_gate_time_provenance/input-check.json": "36e3598e9de23f836fdf06fa77447e2afa7320542202e165bc7b688413955485",
+       "outputs/reports/yr332_gate_time_provenance/verification.json": "7db1df3847639c14a2ce1aeeb2b70628bc9ecea4dd7c311588b50782e0b16903",
+       "outputs/reports/yr332_gate_time_provenance/source-manifest.json": "70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8",
+       "outputs/reports/yr332_gate_time_provenance/input-bundle.json": "1b2d7cda6cf7bc9cd47f7f7b56fb7a9d8e084847aa87e331ea23be055621fac6",
+       "outputs/reports/yr332_gate_time_provenance/tests-contract.xml": "65f397140fe5fece4ec8dd9e32648c55f41d91cf635167863f59892f222a2e7d",
+       "outputs/reports/yr332_gate_time_provenance/visit-arrival-templates-confirmed.json": "84b56328794cacd3520f92a47486c91e765a47cd9d7c2267b1be73bd5be742f5",
+       "outputs/reports/yr332_gate_time_provenance/visit-patterns-confirmed.json": "ba839d7e47388165e90d87fe28cb2cda22a58dcf442a36ae1f3397f7dff4f858",
+       "scripts/v7/check_gate_time_inputs.py": "188e55255f1d09506b0285f71e3ff7226567da47c4df4d4d14c2480ead2f3ec2",
+       "scripts/v7/verify_gate_time_calibration.py": "ee7dbafae16455607b846ccfd1b62dc94efdcaadbbd49c7480e4648ae97fb27a",
+       "scripts/v7/publish_gate_time_gates.py": "7839cd5b860efc1768f4aa86fa6a00036cd57474ebf3909e5529dd61a2462ca3"
+      }
+     }
+    },
+    "dashboard": {
+     "name": "dashboard_code_alignment",
+     "status": "PASS",
+     "summary": "Dashboard·spec·코드·증거가 일치함",
+     "reasons": [],
+     "evidence": {
+      "task_id": "YR-332-ba",
+      "expected_state": "done",
+      "board_matches": [
+       "done.md"
+      ],
+      "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-ba-gate-time-provenance.md",
+      "evidence_paths": [
+       "outputs\\reports\\yr332_gate_time_provenance\\README.md",
+       "outputs\\reports\\yr332_gate_time_provenance\\profile-confirmed.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\provenance-summary.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\calibration-comparison.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\arrival-impacts.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\build-record.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\input-check.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\verification.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\source-manifest.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\input-bundle.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\tests-contract.xml",
+       "outputs\\reports\\yr332_gate_time_provenance\\visit-arrival-templates-confirmed.json",
+       "outputs\\reports\\yr332_gate_time_provenance\\visit-patterns-confirmed.json",
+       "scripts\\v7\\check_gate_time_inputs.py",
+       "scripts\\v7\\verify_gate_time_calibration.py",
+       "scripts\\v7\\publish_gate_time_gates.py"
+      ],
+      "control_paths": [
+       ".claude\\Dashboard\\done.md",
+       ".claude\\docs\\dashboard-task-specs\\YR-332-ba-gate-time-provenance.md"
+      ],
+      "evidence_commits": [
+       "8fecd0b9"
+      ],
+      "remote_ref": "origin/강화학습-판매",
+      "pin_commit": "8fecd0b9",
+      "drift": []
+     }
+    },
+    "claim_alignment": {
+     "name": "claim_alignment",
+     "status": "PASS",
+     "summary": "보고 핵심 수치가 원자료와 일치함",
+     "reasons": [],
+     "evidence": {
+      "absolute_tolerance": 0,
+      "reported_values": {
+       "calibration_IN:0": 9944.0,
+       "calibration_IN:1": 9785.0,
+       "calibration_IN:2": 159.0,
+       "calibration_IN:3": 6053.0,
+       "calibration_IN:4": 6055.0,
+       "calibration_OUT:0": 10992.0,
+       "calibration_OUT:1": 10807.0,
+       "calibration_OUT:2": 185.0,
+       "calibration_OUT:3": 3999.5,
+       "calibration_OUT:4": 4027.0,
+       "holdout_IN:0": 3523.0,
+       "holdout_IN:1": 3454.0,
+       "holdout_IN:2": 69.0,
+       "holdout_IN:3": 5361.0,
+       "holdout_IN:4": 5486.0,
+       "holdout_OUT:0": 4826.0,
+       "holdout_OUT:1": 4752.0,
+       "holdout_OUT:2": 74.0,
+       "holdout_OUT:3": 3638.5,
+       "holdout_OUT:4": 3663.0,
+       "unconfirmed": 601,
+       "input_cases": 18,
+       "replays": 2,
+       "tests": 32
+      },
+      "raw_values": {
+       "calibration_IN:0": 9944,
+       "calibration_IN:1": 9785,
+       "calibration_IN:2": 159,
+       "calibration_IN:3": 6053.0,
+       "calibration_IN:4": 6055,
+       "calibration_OUT:0": 10992,
+       "calibration_OUT:1": 10807,
+       "calibration_OUT:2": 185,
+       "calibration_OUT:3": 3999.5,
+       "calibration_OUT:4": 4027,
+       "holdout_IN:0": 3523,
+       "holdout_IN:1": 3454,
+       "holdout_IN:2": 69,
+       "holdout_IN:3": 5361,
+       "holdout_IN:4": 5486.0,
+       "holdout_OUT:0": 4826,
+       "holdout_OUT:1": 4752,
+       "holdout_OUT:2": 74,
+       "holdout_OUT:3": 3638.5,
+       "holdout_OUT:4": 3663.0,
+       "unconfirmed": 601,
+       "input_cases": 18,
+       "replays": 2,
+       "tests": 32
+      },
+      "absolute_differences": {
+       "calibration_IN:0": 0.0,
+       "calibration_IN:1": 0.0,
+       "calibration_IN:2": 0.0,
+       "calibration_IN:3": 0.0,
+       "calibration_IN:4": 0.0,
+       "calibration_OUT:0": 0.0,
+       "calibration_OUT:1": 0.0,
+       "calibration_OUT:2": 0.0,
+       "calibration_OUT:3": 0.0,
+       "calibration_OUT:4": 0.0,
+       "holdout_IN:0": 0.0,
+       "holdout_IN:1": 0.0,
+       "holdout_IN:2": 0.0,
+       "holdout_IN:3": 0.0,
+       "holdout_IN:4": 0.0,
+       "holdout_OUT:0": 0.0,
+       "holdout_OUT:1": 0.0,
+       "holdout_OUT:2": 0.0,
+       "holdout_OUT:3": 0.0,
+       "holdout_OUT:4": 0.0,
+       "input_cases": 0.0,
+       "replays": 0.0,
+       "tests": 0.0,
+       "unconfirmed": 0.0
+      }
+     }
+    }
+   }
+  },
+  "scenario_validity": {
+   "name": "scenario_validity",
+   "status": "FAIL",
+   "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+   "reasons": [
+    "내부타당성 미수집: achievable_vessel_deadline",
+    "내부타당성 미수집: event_time_order",
+    "내부타당성 미수집: information_boundary",
+    "내부타당성 미수집: ledger_conservation",
+    "내부타당성 미수집: physical_constraints",
+    "지속 유입 운영흐름 미검증",
+    "필수 외부 앵커 미수집: crane_service_time",
+    "필수 외부 앵커 미수집: gate_to_block_time",
+    "필수 외부 앵커 미수집: initial_yard_occupancy",
+    "필수 외부 앵커 미수집: truck_arrival_rate",
+    "필수 외부 앵커 미수집: vessel_workload"
+   ],
+   "evidence": {
+    "continuous_operation": false,
+    "internal_checks": {
+     "deterministic_replay": true
+    },
+    "flow_checks": {},
+    "anchors": {},
+    "operational_trace_path": null,
+    "operational_trace_sha256": null,
+    "operational_trace_verified": false,
+    "operational_trace_records": 0,
+    "minimum_operational_trace_records": 30,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+   }
+  },
+  "claim_eligible": false,
+  "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+  "next_work_mode": "REMEDIATION_ONLY",
+  "unresolved_gates": [
+   "performance",
+   "scenario_validity"
+  ]
+ }
+}
