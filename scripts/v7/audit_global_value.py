@@ -7,9 +7,9 @@ from pathlib import Path
 import statistics as st
 import subprocess
 
-from global_value_inputs import OUT, SEEDS, ARMS, SCALE, read, save, case_name
+from global_value_inputs import OUT, SEEDS, ARMS, SCALE, read, save, case_name, checkpoint_path
 from global_value_experiment import check, eval_cases
-from global_value_samples import decode_sample
+from global_value_samples import decode_sample, condition_sample
 from six_step_learning import sha, gz_read
 from horizon_metrics import aggregate
 from verify_job_completion import raw_metrics, assert_metrics
@@ -89,11 +89,12 @@ def change(a,b):
 def main(prediction_only=False):
     import torch
     import xml.etree.ElementTree as ET
+    torch.set_num_threads(1)
     cfg=check();prediction=read(OUT/'prediction-summary.json')
     assert read(OUT/'extended-smoke.json')['passed']
     tests=ET.parse(OUT/'unit-tests.xml').getroot().find('testsuite')
     assert int(tests.attrib['failures'])==int(tests.attrib['errors'])==0
-    counts=Counter();ages=[];samples=0;orders_n=0
+    counts=Counter();ages=[];samples=0;orders_n=0;representative=[]
     common_cases=cfg['train']+cfg['validation']
     for c in common_cases:
         n=case_name(c);obj=gz_read(OUT/'common'/f'{n}.json.gz');data=obj['data']
@@ -102,10 +103,11 @@ def main(prediction_only=False):
         verify_ledger(data,orders,flows);counts.update(verify_snapshots(data,flows,observations))
         assert len(obj['indices'])==len(set(obj['indices']))==len(obj['samples'])
         assert all(0<=i<obj['available'] for i in obj['indices'])
-        for raw in obj['samples']:
+        for j,raw in enumerate(obj['samples']):
             s=decode_sample(raw)
             assert s.state.global_waiting is None
             assert math.isclose(s.target,-(data['result']['phi_krw']-s.past_cost)/SCALE,rel_tol=1e-12,abs_tol=1e-12)
+            if j in (0,len(obj['samples'])//2,len(obj['samples'])-1):representative.append((samples+j,s))
         samples+=len(obj['samples']);orders_n+=len(orders)
         ages.extend((o['decision_time'],o['age_s'],o['total'],o['feature']) for o in observations)
     repeat=case_name(cfg['validation'][4])
@@ -113,6 +115,20 @@ def main(prediction_only=False):
     assert a['samples']==b['samples'] and a['indices']==b['indices']
     assert all(a['data']['probe'][k]==b['data']['probe'][k] for k in
                ('candidates_sha256','choices_sha256','events_sha256','jobs_sha256','records_sha256','result_sha256'))
+    from value_stability import restore
+    from yard_rl.v7.crane.global_context import expand_value_net
+    from yard_rl.v7.crane.actor_critic import pack_states
+    representation_checks=0;representation_error=0.
+    for seed in SEEDS:
+        cache=torch.load(OUT/'features'/f'{seed}.pt',map_location='cpu',weights_only=False)
+        old,_,_=restore(checkpoint_path(seed));net=expand_value_net(old)
+        with torch.no_grad():
+            for i,sample in representative:
+                st=condition_sample(sample,'global').state
+                _,x=net.actor_and_critic_input(pack_states([st]))
+                err=float((cache['x'][i]-x[0]).abs().max())
+                assert err<2e-5,(seed,i,err)
+                representation_error=max(representation_error,err);representation_checks+=1
     rmse={a:[] for a in ARMS};max_error=0.
     for arm in ARMS:
         for seed in SEEDS:
@@ -177,6 +193,7 @@ def main(prediction_only=False):
                and p.name not in ('verification.json','prediction-verification.json','publication.json','current-gates.json','dashboard-audit.json')}
     save(OUT/('prediction-verification.json' if prediction_only else 'verification.json'),dict(passed=True,counts=dict(counts),common_samples_checked=samples,
         common_orders_checked=orders_n,independent_rmse=independently_pooled,max_rmse_recalculation_error=max_error,
+        cached_representation_spot_checks=representation_checks,max_representation_error=representation_error,
         prediction_replays=6,unit_tests=int(tests.attrib['tests']),artifact_hashes=artifacts,
         code_sha256=sha(Path(__file__)),source_checks=len(read(OUT/'campaign.json')['sources'])))
     print(dict(prediction_passed=prediction['passed'],policy_evaluated=policy is not None,verified=True,counts=dict(counts)),flush=True)

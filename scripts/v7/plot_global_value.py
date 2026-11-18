@@ -29,7 +29,7 @@ def main():
         rows=[read(OUT/'prediction'/f'{arm}-{seed}'/'result.json') for seed in (9951101,9951102,9951103)]
         epochs=[c['epoch'] for c in rows[0]['curves']]
         matrix=[[r['curves'][j]['validation']['rmse'] for r in rows] for j in range(len(epochs))]
-        axes[0].plot(epochs,[st.mean(a) for a in matrix],marker='o',color=colors[arm],label=labels[arm])
+        axes[0].plot(epochs,[st.mean(x*x for x in a)**.5 for a in matrix],marker='o',color=colors[arm],label=labels[arm])
         axes[0].fill_between(epochs,[min(a) for a in matrix],[max(a) for a in matrix],color=colors[arm],alpha=.13)
     axes[0].set(xlabel='비용 예측망 학습 반복',ylabel='새 날짜의 예측 오차 (낮을수록 좋음)',title='선택망을 고정한 예측 학습')
     axes[0].legend(fontsize=10);axes[0].grid(axis='y',alpha=.15)

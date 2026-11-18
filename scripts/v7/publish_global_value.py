@@ -55,7 +55,10 @@ def publish(commit):
         seeds=dict(models=list(SEEDS),curve_bank=[9964000],inputs=sorted({c['input_seed'] for c in cfg['train']+cfg['validation']+cfg['holdout']}),
             common_actions=[9965000+c['input_seed'] for c in cfg['train']+cfg['validation']],
             common_subsamples=[9966000+c['input_seed'] for c in cfg['train']+cfg['validation']],
-            prediction_shuffle=[s+9967000 for s in SEEDS]),params=cfg,prereg=PREREG.as_posix(),
+            prediction_shuffle=[s+9967000 for s in SEEDS],
+            policy_actions=[s+1000+i for s in SEEDS for i in range(12)] if s['policy'] else [],
+            policy_subsamples=[s+2000+i for s in SEEDS for i in range(6)] if s['policy'] else [],
+            policy_updates=[s+3000+i for s in SEEDS for i in range(6)] if s['policy'] else []),params=cfg,prereg=PREREG.as_posix(),
         provenance='Frozen clean campaign and exact source archive; current analysis artifacts independently committed')
     runtime=judge_runtime_evidence(stamp,artifact_hashes=artifacts)
     board=audit_dashboard('.',task_id='YR-332-az',expected_state='done',
