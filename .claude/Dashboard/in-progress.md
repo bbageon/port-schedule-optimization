@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-332-ba | Sim | **실제 진입 시각 근거를 확인한 보정 표본 분리** | 🔴 | 2026-11-18 | az 판정에서 현실성 보정 허가. 원본 명시 시각/로그 대체를 구분한 별도 보정과 영향 집계, 18입력+2재생 검사. 기존 결과 보존·PPO 없음. [spec](../docs/dashboard-task-specs/YR-332-ba-gate-time-provenance.md) · [계약](../../docs/research/v7-discharge/gate-time-provenance-prereg.md) |
 | YR-332-f | Sim | **대기 값 원본 연결 확인·시각 근거 결함 발견** | 🔴 | 2026-11-10 | ⏸ 외부 대기(대기 수 정의). 11/18 대기 값48,620건 원본 일치, 실제 진입 시각601건 미확인·기존 보정344건 포함. 시간 보정 분리는 ba에 등록. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [재확인](../../outputs/reports/yr332_transport_queue_recheck/README.md) |
 | YR-332-i | Sim | **본선 시각 재대조 완료·운반 단계 정의 대기** | 🔴 | 2026-11-09 | ⏸ 외부 대기. 11/18 원본600파일 불변·본선263쌍291,499행 일치, 양하13분·적하24분 간격 재현. DGT 안벽당5대와 모형 블록당3대는 다른 단위. atw 단계·차량별 운반 기록 미확인, 하한4afb7351·138검사 유지. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) · [재확인](../../outputs/reports/yr332_transport_queue_recheck/README.md) |
 | YR-332 | Infra | **v7 — 수평형 터미널·크레인 하나·공정한 장부 (상위)** | 🔴 | 2026-11-04 | 사용자 지시 *1~5단계 모두 진행*. v4·v5·v6 실패 원인을 설계로 막는다: 최고점 배포·학습 퇴화·배를 못 보는 비용표·미루기 장부 구멍·줄 길이 못 봄·공유 보상·하루 무대. **결정**: 배치는 수평형(HJNC 21블록 유지 — DGT 는 수직형이라 배치는 안 가져옴) · DGT 표본에서는 트럭 리드타임만(반입·반출 따로, 통지 전 도착 14%) · 재배정 끔(크레인만) · v4 반사실 교사 · 본선 단가 35.88원 · 입력 8칸+줄 길이 1칸 · 연속 30일 판정. 단계: [[YR-331-c]] → [[YR-332-a]]·[[YR-332-b]] → [[YR-332-c]] → [[YR-332-d]] → [[YR-332-e]](크레인 성공 시만). [spec](../docs/dashboard-task-specs/YR-332-v7-crane-only-horizontal.md) |
