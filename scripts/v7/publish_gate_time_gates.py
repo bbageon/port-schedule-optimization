@@ -6,13 +6,18 @@ import re
 import xml.etree.ElementTree as ET
 
 from recheck_transport_queue import digest
-from yard_rl.integrated.repro import write_result
 
 OUT = Path("outputs/reports/yr332_gate_time_provenance")
 
 
 def read(name):
     return json.loads((OUT/name).read_text(encoding="utf-8"))
+
+
+def write_gate(path, value):
+    # Git stores LF here. Hash exactly those bytes, including on Windows.
+    path.write_text(json.dumps(value,ensure_ascii=False,indent=1,default=str),encoding="utf-8",newline="\n")
+    path.with_name(path.name+".sha256").write_text(digest(path)+"\n",encoding="utf-8",newline="\n")
 
 
 def publish(commit):
@@ -70,8 +75,8 @@ def publish(commit):
         scope="Source-confirmed reservation/notice calibration and input integration only; physical demand unchanged",
         unresolved_context=["YR-332-f queue definition","YR-332-i transport stages","YR-332-bb dependent demand recalibration"]),
         ResearchGateReport(performance,reliability,scenario))
-    write_result(OUT/"dashboard-audit.json",board.as_dict())
-    write_result(OUT/"current-gates.json",result)
+    write_gate(OUT/"dashboard-audit.json",board.as_dict())
+    write_gate(OUT/"current-gates.json",result)
     assert reliability.status is GateStatus.PASS,reliability.as_dict()
     print({k:v["status"] for k,v in result["common_gates"].items() if isinstance(v,dict) and "status" in v})
 
