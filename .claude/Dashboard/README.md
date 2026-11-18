@@ -1,6 +1,6 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
-- **전역 대기 정보의 예측 진단 착수 (2026-11-18, az)**: Transformer 선택 입력은 유지하고 비용 예측망에 같은 시각21블록의 대기 외부 트럭 오더 합계만 제공한다. 새 사용자 실행 요청으로 예측 오차부터 비교하며 사전 기준 통과 시에만 PPO를 학습한다. 트럭·본선 평균과 미완료를 함께 판정, 운반/대기열i/f 현실성 확인은 남는다. [spec](../docs/dashboard-task-specs/YR-332-az-global-value-context.md) · [실행 설정](../../docs/research/v7-discharge/global-value-context-prereg.md)
+- **전역 대기 정보의 예측 진단 완료 (2026-11-18, az)**: 30,720개 공통 결정으로 비용망3쌍만 학습해 새 입력의 예측 오차가7.41% 줄었다. 마지막18~24시는5.42% 늘어 사전 허용치5%를 넘었으므로 PPO 재학습·새 정책 성능 비교는 실행하지 않았다. 20시험·6학습 재현·182,000오더 검산 통과. 예측 개선은 트럭·본선 시간 개선이 아니며 기본 정책 유지, 다음은 외부 자료 대기 중인 운반/대기열i/f 확인이다. [결과](../../outputs/reports/yr332_global_value_context/README.md) · [검산](../../outputs/reports/yr332_global_value_context/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-az-global-value-context.md)
 
 - **비용 예측 학습 비교 완료 (2026-11-17, ay)**: 같은 초기값 세 쌍 모두 비용·트럭 시간이 줄었다. 평균 트럭87.178→79.562분(−8.74%), 총비용−7.55%이나 반입−45.30%·반출+1.98%, 본선 지연비용+0.74%로 보호 조건 미달이다. 규칙62.125분보다28.07% 길어 채택하지 않는다. 6모델·126평가·2재실행·36갱신 재현·1,092,000오더 검산. 음수 신호 유지, 새 입력의 예측 정확도 전반 개선은 미확인. 다음 등록 과제는 운반/대기열i/f 자료 확인이다. [결과](../../outputs/reports/yr332_value_stability/README.md) · [검산](../../outputs/reports/yr332_value_stability/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-ay-value-learning-stability.md)
 

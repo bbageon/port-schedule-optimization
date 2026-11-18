@@ -60,11 +60,15 @@ def verify_snapshots(data, flows, observations):
     return dict(block_snapshots_checked=checked,timestamp_tie_cases=ties,observations=len(observations))
 
 
-def independent_rmse(predictions):
+def independent_errors(predictions, **filters):
     cells=defaultdict(list)
     for p,y,m in zip(predictions['prediction'],predictions['target'],predictions['metadata']):
-        if m['split']=='selection':cells[m['case']].append((p-y)**2)
-    return math.sqrt(st.mean(math.fsum(v)/len(v) for v in cells.values()))
+        if m['split']=='selection' and all(m[k]==v for k,v in filters.items()):
+            cells[m['case']].append(p-y)
+    assert cells
+    return dict(rmse=math.sqrt(st.mean(math.fsum(x*x for x in v)/len(v) for v in cells.values())),
+                bias=st.mean(math.fsum(v)/len(v) for v in cells.values()),
+                samples=sum(len(v) for v in cells.values()))
 
 
 def combined(rows):
@@ -95,6 +99,7 @@ def main(prediction_only=False):
     tests=ET.parse(OUT/'unit-tests.xml').getroot().find('testsuite')
     assert int(tests.attrib['failures'])==int(tests.attrib['errors'])==0
     counts=Counter();ages=[];samples=0;orders_n=0;representative=[]
+    raw_targets=[];raw_features=[];raw_metadata=[]
     common_cases=cfg['train']+cfg['validation']
     for c in common_cases:
         n=case_name(c);obj=gz_read(OUT/'common'/f'{n}.json.gz');data=obj['data']
@@ -107,6 +112,9 @@ def main(prediction_only=False):
             s=decode_sample(raw)
             assert s.state.global_waiting is None
             assert math.isclose(s.target,-(data['result']['phi_krw']-s.past_cost)/SCALE,rel_tol=1e-12,abs_tol=1e-12)
+            raw_targets.append(s.target);raw_features.append(s.global_observation['feature'])
+            raw_metadata.append(dict(case=n,split=c['split'],load=c['load'],
+                hour_bin=min(3,int(s.global_observation['decision_time']//21600))))
             if j in (0,len(obj['samples'])//2,len(obj['samples'])-1):representative.append((samples+j,s))
         samples+=len(obj['samples']);orders_n+=len(orders)
         ages.extend((o['decision_time'],o['age_s'],o['total'],o['feature']) for o in observations)
@@ -121,21 +129,42 @@ def main(prediction_only=False):
     representation_checks=0;representation_error=0.
     for seed in SEEDS:
         cache=torch.load(OUT/'features'/f'{seed}.pt',map_location='cpu',weights_only=False)
+        assert cache['metadata']==raw_metadata
+        assert torch.equal(cache['y'],torch.tensor(raw_targets,dtype=cache['y'].dtype))
+        assert torch.equal(cache['x'][:,-1],torch.tensor(raw_features,dtype=cache['x'].dtype))
         old,_,_=restore(checkpoint_path(seed));net=expand_value_net(old)
         with torch.no_grad():
             for i,sample in representative:
-                st=condition_sample(sample,'global').state
-                _,x=net.actor_and_critic_input(pack_states([st]))
+                state=condition_sample(sample,'global').state
+                _,x=net.actor_and_critic_input(pack_states([state]))
                 err=float((cache['x'][i]-x[0]).abs().max())
                 assert err<2e-5,(seed,i,err)
                 representation_error=max(representation_error,err);representation_checks+=1
-    rmse={a:[] for a in ARMS};max_error=0.
+    rmse={a:[] for a in ARMS};max_error=0.;error_cells={a:[] for a in ARMS}
+    from yard_rl.v7.crane.value_normalization import NormalizedValueNet
     for arm in ARMS:
         for seed in SEEDS:
             root=OUT/'prediction'/f'{arm}-{seed}';r=read(root/'result.json')
             assert read(root/'replay.json')['passed']
             assert sha(root/'final.pt')==r['checkpoint_sha256']
-            p=gz_read(root/'predictions.json.gz');value=independent_rmse(p)
+            p=gz_read(root/'predictions.json.gz');cell=independent_errors(p);value=cell['rmse']
+            cell['by_load']={str(l):independent_errors(p,load=l) for l in (3500,7500,15000)}
+            cell['by_time']={str(h):independent_errors(p,hour_bin=h) for h in range(4)}
+            error_cells[arm].append(cell)
+            for group in ('by_load','by_time'):
+                for key,stats in cell[group].items():
+                    reported_cell=r['final']['validation'][group][key]
+                    assert math.isclose(stats['rmse'],reported_cell['rmse'],rel_tol=1e-6,abs_tol=1e-8)
+                    assert math.isclose(stats['bias'],reported_cell['bias'],rel_tol=1e-6,abs_tol=1e-7)
+                    assert stats['samples']==reported_cell['samples']
+            cache=torch.load(OUT/'features'/f'{seed}.pt',map_location='cpu',weights_only=False)
+            assert p['metadata']==cache['metadata'] and p['target']==cache['y'].tolist()
+            saved=torch.load(root/'final.pt',map_location='cpu',weights_only=False)
+            net=NormalizedValueNet(**saved['model_config']).eval();net.load_state_dict(saved['state_dict'])
+            x=cache['x'].clone()
+            if arm=='zero':x[:,-1]=0.
+            with torch.no_grad():recomputed=net.critic(x).squeeze(-1)*net.target_scale.float()+net.target_mean.float()
+            assert recomputed.tolist()==p['prediction']
             reported=r['final']['validation']['rmse']
             assert math.isclose(value,reported,rel_tol=1e-6,abs_tol=1e-8),(arm,seed,value,reported)
             max_error=max(max_error,abs(value-reported));rmse[arm].append(value)
@@ -143,6 +172,20 @@ def main(prediction_only=False):
             assert zero['target']==p['target'] and zero['metadata']==p['metadata']
     independently_pooled={a:math.sqrt(st.mean(x*x for x in v)) for a,v in rmse.items()}
     for a,v in independently_pooled.items():assert math.isclose(v,prediction['groups'][a]['rmse'],rel_tol=1e-6)
+    independent_changes={}
+    for group in ('by_load','by_time'):
+        independent_changes[group]={}
+        for key in error_cells['zero'][0][group]:
+            pooled={a:math.sqrt(st.mean(c[group][key]['rmse']**2 for c in error_cells[a])) for a in ARMS}
+            for a,value in pooled.items():
+                assert math.isclose(value,prediction['groups'][a][group][key],rel_tol=1e-6)
+            independent_changes[group][key]=pooled['global']/pooled['zero']-1
+    gate=cfg['prediction_gate']
+    independent_gate=dict(overall_reduction=independently_pooled['global']/independently_pooled['zero']-1<=-gate['overall_rmse_reduction_min'],
+        all_seed_pairs_improve=all(b<a for a,b in zip(rmse['zero'],rmse['global'])),
+        load_guard=max(independent_changes['by_load'].values())<=gate['max_load_increase'],
+        time_guard=max(independent_changes['by_time'].values())<=gate['max_time_increase'])
+    assert all(prediction['conditions'][k]==v for k,v in independent_gate.items())
     policy=None
     if prediction['passed'] and not prediction_only:
         from report_synthetic_pipeline import audit
@@ -193,6 +236,8 @@ def main(prediction_only=False):
                and p.name not in ('verification.json','prediction-verification.json','publication.json','current-gates.json','dashboard-audit.json')}
     save(OUT/('prediction-verification.json' if prediction_only else 'verification.json'),dict(passed=True,counts=dict(counts),common_samples_checked=samples,
         common_orders_checked=orders_n,independent_rmse=independently_pooled,max_rmse_recalculation_error=max_error,
+        independent_group_changes=independent_changes,independent_prediction_conditions=independent_gate,
+        all_cached_targets_and_context_checked=True,checkpoint_prediction_values_exact=True,
         cached_representation_spot_checks=representation_checks,max_representation_error=representation_error,
         prediction_replays=6,unit_tests=int(tests.attrib['tests']),artifact_hashes=artifacts,
         code_sha256=sha(Path(__file__)),source_checks=len(read(OUT/'campaign.json')['sources'])))

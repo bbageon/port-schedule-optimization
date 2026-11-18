@@ -1,0 +1,98 @@
+{
+  "task": "YR-332-az",
+  "source_commit": "09ae7934d88d32b171d11c41b0aedfa834ba7fd8",
+  "prediction": {
+    "passed": false,
+    "conditions": {
+      "overall_reduction": true,
+      "all_seed_pairs_improve": true,
+      "load_guard": true,
+      "time_guard": false,
+      "actor_frozen": true,
+      "observation_contract": true
+    },
+    "groups": {
+      "zero": {
+        "rmse": 1.4126908463386882,
+        "by_load": {
+          "3500": 0.43558544308486524,
+          "7500": 1.0262664939594355,
+          "15000": 2.1781020837270524
+        },
+        "by_time": {
+          "0": 2.9402896627589623,
+          "1": 1.9865826427521727,
+          "2": 0.7079110527351259,
+          "3": 0.37620737988565917
+        }
+      },
+      "global": {
+        "rmse": 1.3079816052393967,
+        "by_load": {
+          "3500": 0.40967190232579304,
+          "7500": 0.9645693541738057,
+          "15000": 2.008537411244157
+        },
+        "by_time": {
+          "0": 2.647278734004812,
+          "1": 1.8634933144058303,
+          "2": 0.6808852004103956,
+          "3": 0.39658434051160524
+        }
+      }
+    },
+    "rmse_change_pct": -7.412042158457355,
+    "by_seed_change_pct": {
+      "9951101": -7.484265869763329,
+      "9951102": -6.924547864488073,
+      "9951103": -7.824734283928258
+    },
+    "by_load_change_pct": {
+      "3500": -5.949129193930258,
+      "7500": -6.011804940410381,
+      "15000": -7.784973613024848
+    },
+    "by_time_change_pct": {
+      "0": -9.96537628470282,
+      "1": -6.19603361558706,
+      "2": -3.8176904033793035,
+      "3": 5.4164170389584765
+    },
+    "scope": "Common-policy prediction diagnostic; no scheduling-performance claim",
+    "final_epoch": 200,
+    "model_pairs": 3,
+    "validation_inputs": 9
+  },
+  "policy": null,
+  "common_rollouts": 21,
+  "selected_common_samples": 30720,
+  "common_truck_orders": 182000,
+  "observation": {
+    "before24_age_s": {
+      "n": 141916,
+      "mean": 9.137015945166825,
+      "p50": 5.3409446592922905,
+      "p95": 32.12678367902117,
+      "max": 59.99308832411043
+    },
+    "after24_age_s": {
+      "n": 10881,
+      "mean": 3490.245764485779,
+      "p50": 3446.433126080825,
+      "p95": 6812.529070255245,
+      "max": 7199.723101757234
+    },
+    "waiting_orders_range": [
+      0,
+      4090
+    ],
+    "feature_range": [
+      0.0,
+      1.5539546285633226
+    ]
+  },
+  "default_policy_changed": false,
+  "interpretation": "Prediction on shared fixed-policy experience; PPO only if the preregistered prediction gate passes",
+  "reliability_pass": true,
+  "realism_pass": false
+}
