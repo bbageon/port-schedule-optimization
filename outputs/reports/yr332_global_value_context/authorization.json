@@ -1,0 +1,30 @@
+{
+  "command": [
+    "..\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs\\reports\\yr332_value_stability\\current-gates.json",
+    "--gate-sha256",
+    "93818f84ff718a33672c95714becc91e239e96913214b449da7c19a777f171b7",
+    "--gate-commit",
+    "9152c2f857e341fcc391dbfb260e7a9e13960dc3",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-az",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-az-global-value-context.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+  ],
+  "returncode": 2,
+  "stdout": "{\n  \"task\": \"YR-332-az\",\n  \"allowed\": false,\n  \"reason\": \"선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)\",\n  \"kind\": \"REMEDIATION\",\n  \"targets\": [\n    \"performance\"\n  ],\n  \"stage\": null,\n  \"current_unresolved\": [\n    \"performance\",\n    \"scenario_validity\"\n  ]\n}\n",
+  "stderr": "",
+  "user_request": "이거 한번 검토해서 진행해볼래?",
+  "user_request_date": "2026-11-18",
+  "scope": "Explicit new authorization for the proposed two-stage bounded synthetic diagnostic; prediction gate required before PPO; no realism pass or policy adoption"
+}

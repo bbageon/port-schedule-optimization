@@ -19,6 +19,7 @@ class GraphState:
     operations: torch.Tensor
     cranes: torch.Tensor
     time_fraction: float
+    global_waiting: float | None = None
 
 
 def pack_states(states):
@@ -31,7 +32,16 @@ def pack_states(states):
     for i, s in enumerate(states):
         k = len(s.features)
         x[i, :k], op[i, :k], cr[i, :k], valid[i, :k] = s.features, s.operations, s.cranes, True
-    return x, op, cr, valid, torch.tensor([s.time_fraction for s in states]).unsqueeze(1)
+    result = (x, op, cr, valid, torch.tensor([s.time_fraction for s in states]).unsqueeze(1))
+    present = [s.global_waiting is not None for s in states]
+    if any(present):
+        if not all(present):
+            raise ValueError('Cannot mix legacy states and global-context states')
+        context = torch.tensor([s.global_waiting for s in states]).unsqueeze(1)
+        if not torch.isfinite(context).all() or (context < 0).any():
+            raise ValueError('Invalid global waiting context')
+        result += (context,)
+    return result
 
 
 def node_mean(edges, ids, valid):
@@ -97,27 +107,33 @@ class TwoBranchBlock(nn.Module):
 
 
 class SchedulingActorCritic(nn.Module):
-    def __init__(self, kind='transformer', width=32, heads=4, layers=2):
+    def __init__(self, kind='transformer', width=32, heads=4, layers=2, global_value_context=False):
         super().__init__()
         if kind not in ('mlp', 'transformer'):
             raise ValueError(kind)
         self.config = dict(kind=kind, width=width, heads=heads, layers=layers)
+        self.global_value_context = bool(global_value_context)
+        if self.global_value_context:
+            self.config['global_value_context'] = True
         self.kind = kind
         if kind == 'mlp':
             self.actor = nn.Sequential(nn.Linear(10, 64), nn.Tanh(), nn.Linear(64, 64),
                                        nn.Tanh(), nn.Linear(64, 1))
-            self.critic = nn.Sequential(nn.Linear(11, 64), nn.Tanh(), nn.Linear(64, 1))
+            self.critic = nn.Sequential(nn.Linear(11 + int(self.global_value_context), 64), nn.Tanh(), nn.Linear(64, 1))
         else:
             self.embedding = nn.Linear(10, width)
             self.blocks = nn.ModuleList([TwoBranchBlock(width, heads) for _ in range(layers)])
             self.actor = nn.Sequential(nn.Linear(3 * width, width), nn.ReLU(), nn.Linear(width, 1))
-            self.critic = nn.Sequential(nn.Linear(2 * width + 1, 64), nn.Tanh(), nn.Linear(64, 1))
+            self.critic = nn.Sequential(nn.Linear(2 * width + 1 + int(self.global_value_context), 64), nn.Tanh(), nn.Linear(64, 1))
 
-    def forward(self, batch):
-        x, oi, ci, valid, clock = batch
+    def actor_and_critic_input(self, batch):
+        expected = 6 if self.global_value_context else 5
+        if len(batch) != expected:
+            raise ValueError('Global context missing or supplied to an incompatible model')
+        x, oi, ci, valid, clock = batch[:5]
         if self.kind == 'mlp':
             logits = self.actor(x).squeeze(-1)
-            value = self.critic(torch.cat((masked_mean(x, valid), clock), dim=-1)).squeeze(-1)
+            context = torch.cat((masked_mean(x, valid), clock), dim=-1)
         else:
             edge = self.embedding(x)
             ops, ov = node_mean(edge, oi, valid)
@@ -125,8 +141,14 @@ class SchedulingActorCritic(nn.Module):
             for block in self.blocks:
                 ops, mac = block(ops, mac, edge, oi, ci, valid, ov, cv)
             logits = self.actor(torch.cat((gather(ops, oi), gather(mac, ci), edge), -1)).squeeze(-1)
-            value = self.critic(torch.cat((masked_mean(ops, ov), masked_mean(mac, cv), clock), -1)).squeeze(-1)
-        return logits.masked_fill(~valid, -torch.inf), value
+            context = torch.cat((masked_mean(ops, ov), masked_mean(mac, cv), clock), -1)
+        if self.global_value_context:
+            context = torch.cat((context, batch[5]), -1)
+        return logits.masked_fill(~valid, -torch.inf), context
+
+    def forward(self, batch):
+        logits, context = self.actor_and_critic_input(batch)
+        return logits, self.critic(context).squeeze(-1)
 
     def save(self, path, **metadata):
         torch.save(dict(model_config=self.config, state_dict=self.state_dict(), **metadata), path)

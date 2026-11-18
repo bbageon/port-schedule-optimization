@@ -25,6 +25,7 @@ class DecisionSample:
     old_value: float
     past_cost: float
     target: float = 0.
+    global_observation: dict | None = None
 
 
 def action_statistics(logits, samples):
@@ -47,13 +48,42 @@ def tier(candidate):
 
 
 class OnPolicyResolver(CentralResolver):
-    def __init__(self, net, *, stochastic=False, seed=0, collect=False, horizon=86400.):
+    def __init__(self, net, *, stochastic=False, seed=0, collect=False, horizon=86400.,
+                 global_context_mode='off'):
         super().__init__()
         self.net, self.stochastic, self.collect, self.horizon = net, stochastic, collect, horizon
         self.rng = torch.Generator().manual_seed(seed)
         self.samples, self.costs, self.latencies = [], [(0., 0.)], []
         self.decisions = self.nontrivial = self.max_candidates = self.oracle_calls = 0
         self.last_assignment = None
+        if global_context_mode not in ('off', 'record', 'zero', 'global'):
+            raise ValueError(global_context_mode)
+        if bool(getattr(net, 'global_value_context', False)) != (global_context_mode in ('zero', 'global')):
+            raise ValueError('Resolver/model global-context contracts differ')
+        self.global_context_mode = global_context_mode
+        self.global_snapshots, self.global_decisions = [], []
+        self.global_block_ids = {}
+
+    def observe_global_epoch(self, terminal, t):
+        if self.global_context_mode == 'off':
+            return
+        from .global_context import snapshot_terminal
+        snapshot = snapshot_terminal(terminal, t)
+        self.global_block_ids = {id(sim): bid for bid, sim in terminal.blocks.items()}
+        if self.global_snapshots and snapshot.time < self.global_snapshots[-1].time:
+            raise ValueError('Global observation clock regressed')
+        self.global_snapshots.append(snapshot)
+
+    def global_state_context(self, sim):
+        if self.global_context_mode == 'off':
+            return None, None
+        if not self.global_snapshots:
+            raise ValueError('Missing synchronized global observation')
+        obs = self.global_snapshots[-1].observation(sim.clock, self.global_block_ids[id(sim)])
+        value = (obs['feature'] if self.global_context_mode == 'global' else
+                 0. if self.global_context_mode == 'zero' else None)
+        self.global_decisions.append(obs)
+        return value, obs
 
     def resolve(self, sim, decision, gen_by_crane):
         started = time.perf_counter()
@@ -67,6 +97,7 @@ class OnPolicyResolver(CentralResolver):
             if gc.job_ref is not None and gc.job_ref.token is not None:
                 contested[gc.job_ref.token].add(c)
         logits, value, state = None, 0., None
+        global_observation = None
         lp = 0.
         while len(chosen) < len(decision.crane_ids):
             legal = []
@@ -103,8 +134,10 @@ class OnPolicyResolver(CentralResolver):
                         key = (gc.job_ref.token if gc.job_ref and gc.job_ref.token is not None
                                else ('NON_JOB', c, gc.candidate_id))
                         oi.append(operations.setdefault(key, len(operations)))
+                    global_value, global_observation = self.global_state_context(sim)
                     state = GraphState(torch.tensor(rows), torch.tensor(oi),
-                                       torch.tensor([cranes[c] for c, _ in pairs]), sim.clock/self.horizon)
+                                       torch.tensor([cranes[c] for c, _ in pairs]), sim.clock/self.horizon,
+                                       global_value)
                     with torch.no_grad():
                         ll, vv = self.net(pack_states([state]))
                     logits, value = ll[0], float(vv[0])
@@ -129,7 +162,8 @@ class OnPolicyResolver(CentralResolver):
             if self.collect and sim.clock < self.horizon:
                 if self.costs[-1][0] > sim.clock + 1e-6:
                     raise ValueError('Past-cost baseline contains future information')
-                self.samples.append(DecisionSample(state, masks, picks, lp, value, self.costs[-1][1]))
+                self.samples.append(DecisionSample(state, masks, picks, lp, value, self.costs[-1][1],
+                                                   global_observation=global_observation))
         self.latencies.append(time.perf_counter()-started)
         return self._finalize(sim, decision, gen_by_crane, chosen, rejects, contested, keys)
 

@@ -587,9 +587,15 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         #: ★차점자를 고르는 잣대는 **에피소드가 실제로 쓰는 그 선호**여야 한다.
         crane.attach(exec_policy.pref)
 
+    observe_global = getattr(joint_resolver, 'observe_global_epoch', None)
+    if observe_global is not None:
+        observe_global(mbt, 0.)
+
     def review(m, t):
         ann.review(m, t)
         bridge.review(m, t)
+        if observe_global is not None:
+            observe_global(m, t)
         # ★[[YR-235]] A2 (2026-08-26) — **항상** 찍는다.
         #   전에는 교사가 있을 때만 찍어서, 판정 경로의 최종 Φ 가 시뮬이 끝난 뒤
         #   (관측창 + 배수 2시간)의 계수기를 읽었다. 항1 은 관측창에서 검열되는데
