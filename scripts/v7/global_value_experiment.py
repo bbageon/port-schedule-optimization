@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict
+from functools import partial
 import hashlib
 from pathlib import Path
 import subprocess
@@ -360,9 +361,9 @@ def main():
     elif args.mode=='train':parallel(train_policy,pairs,args.workers)
     elif args.mode=='evaluate':parallel(evaluate,range(len(eval_cases())),args.workers)
     elif args.mode=='prediction-replay':
-        for t in pairs:fit_prediction(t,replay=True)
+        parallel(partial(fit_prediction,replay=True),pairs,args.workers)
     elif args.mode=='policy-replay':
-        for t in pairs:train_policy(t,replay=True)
+        parallel(partial(train_policy,replay=True),pairs,args.workers)
     elif args.mode=='common-repeat':collect(validation_cases()[4],repeat=True)
     elif args.mode=='evaluation-repeat':
         for arm in ARMS:

@@ -1,0 +1,73 @@
+{
+  "passed": true,
+  "case": {
+    "split": "train",
+    "index": 12,
+    "load": 3500,
+    "input_seed": 9964212
+  },
+  "record_only_exact": true,
+  "sample_roundtrip": 256,
+  "updates": [
+    {
+      "mode": "zero",
+      "result": {
+        "available": 256,
+        "selected": 128,
+        "optimizer_steps": 2,
+        "epochs": 1,
+        "replay_logp_max_error": 4.76837158203125e-07,
+        "normalization": {
+          "count": 12416,
+          "mean": -2.693634688078348,
+          "scale": 3.0653929002647207,
+          "scale_floor_hit": false,
+          "old_mean": -2.715601262056258,
+          "old_scale": 3.0737126439463034,
+          "adam_moments": "retained unchanged; no optimizer invariance claim",
+          "value_preservation_max_error": 9.5367431640625e-07,
+          "logit_preservation_max_error": 0.0
+        },
+        "means": {
+          "loss": 0.16679857671260834,
+          "critic_loss": 0.3555920422077179,
+          "entropy": 1.1131765842437744,
+          "approx_kl": 5.097821942467995e-06,
+          "clip_fraction": 0.0
+        }
+      }
+    },
+    {
+      "mode": "global",
+      "result": {
+        "available": 256,
+        "selected": 128,
+        "optimizer_steps": 2,
+        "epochs": 1,
+        "replay_logp_max_error": 4.76837158203125e-07,
+        "normalization": {
+          "count": 12416,
+          "mean": -2.693634688078348,
+          "scale": 3.0653929002647207,
+          "scale_floor_hit": false,
+          "old_mean": -2.715601262056258,
+          "old_scale": 3.0737126439463034,
+          "adam_moments": "retained unchanged; no optimizer invariance claim",
+          "value_preservation_max_error": 9.5367431640625e-07,
+          "logit_preservation_max_error": 0.0
+        },
+        "means": {
+          "loss": 0.166774220764637,
+          "critic_loss": 0.355543315410614,
+          "entropy": 1.1131765842437744,
+          "approx_kl": 5.097812392773626e-06,
+          "clip_fraction": 0.0
+        }
+      }
+    }
+  ],
+  "observations": 5163,
+  "behavior_checkpoint": "outputs/reports/yr332_value_stability/popart-9951101/final.pt",
+  "before24_max_age": 59.57071878424904,
+  "after24_max_age": 7197.173412611941
+}

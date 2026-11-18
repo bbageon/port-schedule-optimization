@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="20" time="100.245" timestamp="2026-11-18T09:45:14.038529+09:00" hostname="global05_58"><testcase classname="tests.v7.test_global_value_context" name="test_snapshot_rejects_async_future_and_wrong_sum" time="0.001" /><testcase classname="tests.v7.test_global_value_context" name="test_extended_zero_column_and_actor_only_local[mlp]" time="0.101" /><testcase classname="tests.v7.test_global_value_context" name="test_extended_zero_column_and_actor_only_local[transformer]" time="0.385"><failure message="assert False&#10; +  where False = all(&lt;generator object test_extended_zero_column_and_actor_only_local.&lt;locals&gt;.&lt;genexpr&gt; at 0x000002E4226B2420&gt;)">kind = 'transformer'
+tmp_path = WindowsPath('C:/Users/geonu/AppData/Local/Temp/pytest-of-geonu/pytest-318/test_extended_zero_column_and_1')
+
+    @pytest.mark.parametrize('kind', ['mlp', 'transformer'])
+    def test_extended_zero_column_and_actor_only_local(kind, tmp_path):
+        torch.manual_seed(21)
+        old = NormalizedValueNet(kind=kind).eval(); new = expand_value_net(old)
+        s = state(); g = replace(s, global_waiting=2.)
+        with torch.no_grad():
+            lo, vo = old(pack_states([s])); ln, vn = new(pack_states([g]))
+            assert torch.equal(lo, ln) and torch.allclose(vo, vn, atol=2e-6)
+            new.critic[0].weight[:, -1].fill_(.2)
+            low = new(pack_states([replace(s, global_waiting=0.)]))
+            high = new(pack_states([g]))
+            assert torch.equal(low[0], high[0])
+            assert not torch.allclose(low[1], high[1])
+        new.save(tmp_path/'net.pt')
+        restored = NormalizedValueNet.load(tmp_path/'net.pt').eval()
+&gt;       assert all(torch.equal(a, b) for a, b in zip(high, restored(pack_states([g]))))
+E       assert False
+E        +  where False = all(&lt;generator object test_extended_zero_column_and_actor_only_local.&lt;locals&gt;.&lt;genexpr&gt; at 0x000002E4226B2420&gt;)
+
+tests\v7\test_global_value_context.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_global_value_context" name="test_resolver_requires_observation_and_uses_real_block_identity" time="0.003" /><testcase classname="tests.v7.test_global_value_context" name="test_context_roundtrip_is_strict_and_normalized_update_replays" time="0.956" /><testcase classname="tests.test_value_normalization" name="test_control_exactly_reproduces_existing_optimizer" time="0.161" /><testcase classname="tests.test_value_normalization" name="test_popart_preserves_all_predictions_and_cumulative_statistics" time="0.033" /><testcase classname="tests.test_value_normalization" name="test_resume_includes_adam_and_normalizer" time="0.344" /><testcase classname="tests.test_value_normalization" name="test_invalid_statistics_do_not_mutate_the_model" time="0.005" /><testcase classname="tests.v7.test_on_policy" name="test_permutation_padding_checkpoint_gradient[mlp]" time="0.023" /><testcase classname="tests.v7.test_on_policy" name="test_permutation_padding_checkpoint_gradient[transformer]" time="0.039" /><testcase classname="tests.v7.test_on_policy" name="test_all_1200_candidates_kept" time="0.075" /><testcase classname="tests.v7.test_on_policy" name="test_conditional_joint_probability_is_product" time="0.002" /><testcase classname="tests.v7.test_on_policy" name="test_joint_duplicate_and_priority_masks" time="0.002" /><testcase classname="tests.v7.test_on_policy" name="test_ppo_increases_repeated_rewarded_action[mlp]" time="0.125" /><testcase classname="tests.v7.test_on_policy" name="test_ppo_increases_repeated_rewarded_action[transformer]" time="0.222" /><testcase classname="tests.v7.test_on_policy" name="test_actual_episode_reward_accounting_and_action_replay[mlp]" time="41.774" /><testcase classname="tests.v7.test_on_policy" name="test_actual_episode_reward_accounting_and_action_replay[transformer]" time="54.416" /><testcase classname="tests.v7.test_on_policy" name="test_on_policy_errors_do_not_become_wait" time="0.005" /><testcase classname="tests.v7.test_on_policy" name="test_multicrane_physical_execution_matches_recorded_actions" time="0.037" /></testsuite></testsuites>
