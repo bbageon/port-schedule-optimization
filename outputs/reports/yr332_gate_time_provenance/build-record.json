@@ -1,0 +1,90 @@
+{
+  "configuration": {
+    "applied_axis": "reservation_notice_only",
+    "calibration_dates": [
+      "2026-10-28",
+      "2026-11-05"
+    ],
+    "holdout_dates": [
+      "2026-11-06",
+      "2026-11-09"
+    ],
+    "loads": [
+      3500,
+      7500,
+      15000
+    ],
+    "original_rows": 36135,
+    "performance_evaluation": false,
+    "raw_files": 600,
+    "strict_event_contract": {
+      "error_flag_is_not_selection_rule": true,
+      "legacy_profile_sha256": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe",
+      "log_clock_substitution": false,
+      "other_message_confirmation": true,
+      "schema": "explicit-gate-request-time-v1",
+      "source_manifest_sha256": "70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8"
+    },
+    "synthetic_input_seeds": [
+      9975100,
+      9975101,
+      9975102
+    ]
+  },
+  "new_profile_sha256": "f4e11060945e1ede43123bc07ef1d7c6e394c24f14f34478d97da1b16f622220",
+  "old_profile_sha256": "8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe",
+  "repro": {
+    "code": {
+      "git_dirty": false,
+      "git_head": "6f5a93669d4f7b44d38742054aa18e8105a48746",
+      "python": "3.13.9"
+    },
+    "experiment": "YR-332-ba",
+    "params": {
+      "applied_axis": {
+        "repr": "'reservation_notice_only'"
+      },
+      "calibration_dates": {
+        "repr": "['2026-10-28', '2026-11-05']"
+      },
+      "holdout_dates": {
+        "repr": "['2026-11-06', '2026-11-09']"
+      },
+      "loads": {
+        "repr": "[3500, 7500, 15000]"
+      },
+      "original_rows": {
+        "repr": "36135"
+      },
+      "performance_evaluation": {
+        "repr": "False"
+      },
+      "raw_files": {
+        "repr": "600"
+      },
+      "strict_event_contract": {
+        "repr": "{'schema': 'explicit-gate-request-time-v1', 'log_clock_substitution': False, 'other_message_confirmation': True, 'error_flag_is_not_selection_rule': True, 'source_manifest_sha256': '70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8', 'legacy_profile_sha256': '8d5a16cdb755ece530fbea3820ca7477f9d50cb61c1c98ea2d4a08d0887e54fe'}"
+      },
+      "synthetic_input_seeds": {
+        "repr": "[9975100, 9975101, 9975102]"
+      }
+    },
+    "prereg": "docs/research/v7-discharge/gate-time-provenance-prereg.md",
+    "profile_id": null,
+    "seeds": {
+      "input": [
+        9975100,
+        9975101,
+        9975102
+      ]
+    }
+  },
+  "source_sha256": {
+    "docs/research/v7-discharge/gate-time-provenance-prereg.md": "ab819afe4dac24cc249035db699473bf2a2c3f57049df2e8d2f030f962b7ead4",
+    "scripts/v7/audit_visit_links.py": "928b61effe2e50f8a497beab9b80e6071741ab5d0214eba9293ceb63278f57fb",
+    "scripts/v7/audit_visit_units.py": "7ec760c3cdbc0078b53971264d816cea0e5028e528c89e28005f5f2fe0f23cc0",
+    "scripts/v7/build_gate_time_calibration.py": "63ec8097dd2ec776d449a37caece786d03f48d1bc16b9e4dd1286d1f5ee4ed02",
+    "scripts/v7/calibrate_order_information.py": "1b11c08451dc024d5946c06ca85054da6de000d15e01de45dc5337ae9051546b",
+    "scripts/v7/gate_time_provenance.py": "b919473e2ef9908ad478a4aebf957cfcde45f12e78b357abe1b4873edd694333"
+  }
+}

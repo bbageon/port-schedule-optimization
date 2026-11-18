@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **진입 시각 근거 보정 분리 완료 (2026-11-18, ba)**: 미확인601건 보존·분리, 보정20,936→20,592건. 중앙값 반입+2초·반출+27.5초, 방문 재집계27,415→27,395번. 32시험·18입력+2재생·독립21검사 통과, 물리 조건 고정·새 학습 없음. 수요 의존 보정bb 등록, 운반/대기i/f 외부 대기 유지. [결과](../../outputs/reports/yr332_gate_time_provenance/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ba-gate-time-provenance.md)
+
 - **운반·대기 원본 재확인 (2026-11-18, i/f)**: 원본600파일 불변·대기 값48,620건·본선291,499행 연결 확인. 게이트 시각601건이 원본 사건 시각으로 미확인, 기존 보정344건·분포 확인143건 포함(입력 보정 분리ba 등록). 운반 단위·atw 단계·대기 수 집계 정의는 외부 대기, 새 학습·정책 변경 없음. [결과](../../outputs/reports/yr332_transport_queue_recheck/README.md) · [최소 자료 정의](../../docs/research/v7-discharge/transport-queue-data-contract.md)
 
 - **전역 대기 정보의 예측 진단 완료 (2026-11-18, az)**: 30,720개 공통 결정으로 비용망3쌍만 학습해 새 입력의 예측 오차가7.41% 줄었다. 마지막18~24시는5.42% 늘어 사전 허용치5%를 넘었으므로 PPO 재학습·새 정책 성능 비교는 실행하지 않았다. 20시험·6학습 재현·182,000오더 검산 통과. 예측 개선은 트럭·본선 시간 개선이 아니며 기본 정책 유지, 다음은 외부 자료 대기 중인 운반/대기열i/f 확인이다. [결과](../../outputs/reports/yr332_global_value_context/README.md) · [검산](../../outputs/reports/yr332_global_value_context/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-az-global-value-context.md)

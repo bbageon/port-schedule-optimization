@@ -1,0 +1,53 @@
+{
+  "checks": {
+    "build_and_inputs_clean": true,
+    "build_source_hashes": true,
+    "exact_calibration_replay": true,
+    "fixed_date_split": true,
+    "independent_booking_histogram_exact": true,
+    "independent_split_counts": true,
+    "input_cases_complete": true,
+    "input_replays_exact": true,
+    "new_profile_hash": true,
+    "no_holdout_fitting": true,
+    "no_policy_training_or_evaluation": true,
+    "only_information_fields_changed": true,
+    "original_600_files_unchanged": true,
+    "original_demand_calibrations_reproduced": true,
+    "original_runtime_unchanged": true,
+    "original_timing_profile_unchanged": true,
+    "physical_inputs_preserved": true,
+    "private_original_rows_ignored_and_untracked": true,
+    "quarantine_exact_rows": true,
+    "quarantine_hash": true,
+    "raw_request_join_independently_matches": true
+  },
+  "independent_cohort_counts": {
+    "calibration_IN": 9785,
+    "calibration_OUT": 10807,
+    "holdout_IN": 3454,
+    "holdout_OUT": 4752
+  },
+  "independent_counts": {
+    "confirmed_explicit": 33701,
+    "confirmed_other_message": 2,
+    "no_gate_time": 1831,
+    "unconfirmed_log_only": 601
+  },
+  "independent_profile_sha256": "8b953086b4a58168dc49ccbb343258cc030ceaa9fe1975cf8873ad88f92f4d5d",
+  "limitations": [
+    "Timestamp provenance does not establish physical truth or supplier error semantics.",
+    "Input correctness is not scheduling performance or complete simulator realism."
+  ],
+  "replay_matches": {
+    "arrival-impacts.json": true,
+    "calibration-comparison.json": true,
+    "input-bundle.json": true,
+    "profile-confirmed.json": true,
+    "source-manifest.json": true,
+    "visit-arrival-templates-confirmed.json": true,
+    "visit-patterns-confirmed.json": true
+  },
+  "status": "PASS",
+  "verification_script_sha256": "ee7dbafae16455607b846ccfd1b62dc94efdcaadbbd49c7480e4648ae97fb27a"
+}

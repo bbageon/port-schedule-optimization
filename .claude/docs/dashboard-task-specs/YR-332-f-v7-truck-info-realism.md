@@ -117,3 +117,10 @@ audit.json의 인접 순위 통계(6,054·4,000초)와 실제 보정 파일의 �
 이 row의 대기 수 집계 대상·관측 시각·작업 시작 기록 확인은 외부 대기를 유지한다.
 [결과](../../../outputs/reports/yr332_transport_queue_recheck/README.md) ·
 [검증](../../../outputs/reports/yr332_transport_queue_recheck/verification.json).
+
+### 2026-11-18 — ba 보정 분리 후속
+
+미확인601건의 원본은 보존하고, 보정 표본344건을 제외한 새 예약·통지 profile을 ba에서 검증했다.
+18입력+2재생에서 물리 도착·방문·야드·본선은 고정됐다. 수요 의존 자료의 새 기준 적용은bb다.
+이 row의 대기 수 집계 대상·관측 시점 확인은 여전히 외부 대기이며 ba 완료로 해결된 것이 아니다.
+[ba 결과](../../../outputs/reports/yr332_gate_time_provenance/README.md).
