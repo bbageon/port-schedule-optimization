@@ -1,0 +1,373 @@
+{
+  "schema": "observed-truck-demand-marginals-v1",
+  "gate_out_share": 0.5365397739073673,
+  "source": {
+    "task": "YR-332-bb",
+    "source_summary_sha256": "444583e7ec1a9a6a99444d229e15b6184d9680be1a57a59ef28870fed3d448ec",
+    "source_time_contract": "explicit-gate-request-time-v1",
+    "unit": "entered container orders; arrivals grouped into truck visits",
+    "dates": [
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-01",
+      "2026-11-02",
+      "2026-11-03",
+      "2026-11-04",
+      "2026-11-05",
+      "2026-11-06",
+      "2026-11-07",
+      "2026-11-08",
+      "2026-11-09"
+    ],
+    "orders": 33703,
+    "scope": "calibrated synthetic input; not source event replay"
+  },
+  "hour_counts": [
+    612,
+    575,
+    646,
+    617,
+    503,
+    668,
+    764,
+    945,
+    1797,
+    2218,
+    2274,
+    2487,
+    1664,
+    2209,
+    2285,
+    2558,
+    2372,
+    1920,
+    1316,
+    1357,
+    1141,
+    1109,
+    846,
+    820
+  ],
+  "within_hour": {
+    "method": "correlated_minutes",
+    "parameters": {
+      "a1": -0.34304922099923435,
+      "a2": 0.12738456902642117,
+      "sigma": 0.4624240893039015,
+      "innovation": 0.9119932550009469,
+      "burn_in": 128,
+      "coarse_sigma": 0.11499858442136228
+    },
+    "source": {
+      "task": "YR-332-bb",
+      "calibration_sha256": "a737b781dc4cf0e7d2ea41d52cd0166d0f9a910c38a7d831a631656872c4bc6c"
+    }
+  },
+  "visit_link": {
+    "method": "observed_visit_patterns",
+    "size_rule": "chassis_two_teu",
+    "order_rule": "inbound_first",
+    "patterns": [
+      {
+        "stops": [
+          [
+            0,
+            1
+          ]
+        ],
+        "count": 11224
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "count": 266
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 18
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 1
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "count": 7
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 1333
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 13
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "count": 60
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "count": 70
+      },
+      {
+        "stops": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "count": 12
+      },
+      {
+        "stops": [
+          [
+            0,
+            2
+          ]
+        ],
+        "count": 820
+      },
+      {
+        "stops": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 89
+      },
+      {
+        "stops": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 3
+      },
+      {
+        "stops": [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "count": 21
+      },
+      {
+        "stops": [
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 9887
+      },
+      {
+        "stops": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "count": 107
+      },
+      {
+        "stops": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "count": 4
+      },
+      {
+        "stops": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "count": 2
+      },
+      {
+        "stops": [
+          [
+            1,
+            1
+          ]
+        ],
+        "count": 1769
+      },
+      {
+        "stops": [
+          [
+            1,
+            2
+          ]
+        ],
+        "count": 57
+      },
+      {
+        "stops": [
+          [
+            2,
+            0
+          ]
+        ],
+        "count": 631
+      },
+      {
+        "stops": [
+          [
+            2,
+            1
+          ]
+        ],
+        "count": 98
+      },
+      {
+        "stops": [
+          [
+            2,
+            2
+          ]
+        ],
+        "count": 10
+      }
+    ],
+    "source": {
+      "task": "YR-332-bb",
+      "arm": "confirmed",
+      "visits": 27395,
+      "eligible": 26502,
+      "original_manifest_sha256": "70eebcd6d2304f851227fc996510d983791016977f81afa076174262883cb1d8"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **수요 보정 시각 기준 통일 완료 (2026-11-19, bb)**: 원본 시각이 확인된 33,703오더·27,395방문으로 곡선·반출 비율·분별 몰림·방문 연결을 재보정했다. 기존 수식·13개 날짜 유지, 102입력+6재생·70시험·36독립검사 통과. 새 입력 묶음 연결·18파일 정확 재현, 새 학습 없음. 후속 정책 비교 bc에 공통 보정으로 연결하며, 운반/대기 i/f·고물량 ap는 외부 자료 대기다. [결과](../../outputs/reports/yr332_confirmed_demand/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bb-confirmed-demand-calibration.md)
+
 - **진입 시각 근거 보정 분리 완료 (2026-11-18, ba)**: 미확인601건 보존·분리, 보정20,936→20,592건. 중앙값 반입+2초·반출+27.5초, 방문 재집계27,415→27,395번. 32시험·18입력+2재생·독립21검사 통과, 물리 조건 고정·새 학습 없음. 수요 의존 보정bb 등록, 운반/대기i/f 외부 대기 유지. [결과](../../outputs/reports/yr332_gate_time_provenance/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ba-gate-time-provenance.md)
 
 - **운반·대기 원본 재확인 (2026-11-18, i/f)**: 원본600파일 불변·대기 값48,620건·본선291,499행 연결 확인. 게이트 시각601건이 원본 사건 시각으로 미확인, 기존 보정344건·분포 확인143건 포함(입력 보정 분리ba 등록). 운반 단위·atw 단계·대기 수 집계 정의는 외부 대기, 새 학습·정책 변경 없음. [결과](../../outputs/reports/yr332_transport_queue_recheck/README.md) · [최소 자료 정의](../../docs/research/v7-discharge/transport-queue-data-contract.md)
