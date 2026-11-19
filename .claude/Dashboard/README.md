@@ -1,5 +1,7 @@
 # `.claude/Dashboard/` — 작업 board (index)
 
+- **전역 대기 정보의 정책 비교 완료 (2026-11-19, bc)**: 동일 보정·시작 모델3쌍에서 예측 오차로 중단하지 않고 6모델×12일·180평가를 끝냈다. 전역 추가 비용+0.26%, 반입−29.43%·반출+9.23%·양하−1.21%·적하+3.82%, 미완료+129건/실행. 모델별 비용−4.75~+6.77%로 엇갈려 일관된 개선 미확인·기본 정책 유지. 19시험·36갱신/2평가 정확 재현·원본600파일 불변·독립 검산 통과. 운반/대기i/f·고물량ap 외부 자료 대기. [결과](../../outputs/reports/yr332_global_policy/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bc-global-context-policy-exploration.md)
+
 - **수요 보정 시각 기준 통일 완료 (2026-11-19, bb)**: 원본 시각이 확인된 33,703오더·27,395방문으로 곡선·반출 비율·분별 몰림·방문 연결을 재보정했다. 기존 수식·13개 날짜 유지, 102입력+6재생·70시험·36독립검사 통과. 새 입력 묶음 연결·18파일 정확 재현, 새 학습 없음. 후속 정책 비교 bc에 공통 보정으로 연결하며, 운반/대기 i/f·고물량 ap는 외부 자료 대기다. [결과](../../outputs/reports/yr332_confirmed_demand/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bb-confirmed-demand-calibration.md)
 
 - **진입 시각 근거 보정 분리 완료 (2026-11-18, ba)**: 미확인601건 보존·분리, 보정20,936→20,592건. 중앙값 반입+2초·반출+27.5초, 방문 재집계27,415→27,395번. 32시험·18입력+2재생·독립21검사 통과, 물리 조건 고정·새 학습 없음. 수요 의존 보정bb 등록, 운반/대기i/f 외부 대기 유지. [결과](../../outputs/reports/yr332_gate_time_provenance/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ba-gate-time-provenance.md)

@@ -1,0 +1,68 @@
+{
+  "passed": false,
+  "stages": [
+    {
+      "stage": "optimizer replay",
+      "arguments": [
+        "global_policy_train.py",
+        "replay",
+        "--workers",
+        "6"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 0,
+      "seconds": 233.59746460057795
+    },
+    {
+      "stage": "fixed evaluation",
+      "arguments": [
+        "global_policy_eval.py",
+        "evaluate",
+        "--workers",
+        "6"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 0,
+      "seconds": 10834.71456069965
+    },
+    {
+      "stage": "environment replay",
+      "arguments": [
+        "global_policy_eval.py",
+        "repeat",
+        "--workers",
+        "6"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 0,
+      "seconds": 197.80408949963748
+    },
+    {
+      "stage": "full ledger audit",
+      "arguments": [
+        "audit_global_policy.py"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 0,
+      "seconds": 316.4750430993736
+    },
+    {
+      "stage": "fixed aggregation",
+      "arguments": [
+        "analyze_global_policy.py"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 0,
+      "seconds": 27.851822700351477
+    },
+    {
+      "stage": "report",
+      "arguments": [
+        "report_global_policy.py"
+      ],
+      "executable": "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+      "returncode": 1,
+      "seconds": 0.1729927994310856
+    }
+  ]
+}
