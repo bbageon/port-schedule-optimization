@@ -57,7 +57,10 @@ def prepare():
         input=sorted({c['input_seed'] for c in cfg['train']+cfg['development']+cfg['holdout']}),
         action=[10085000+100*k+j for k in range(3) for j in range(12)],
         sampling=[10087000+100*k+i for k in range(3) for i in range(6)],
-        updates=[10088000+100*k+i for k in range(3) for i in range(6)],bootstrap=[10089900]),params=cfg,prereg=PREREG.as_posix())
+        updates=[10088000+100*k+i for k in range(3) for i in range(6)],
+        stochastic_evaluation=[10086000+100*k+10*i+i for k in range(3) for i in range(3)],
+        diagnostic_sampling=[10087000+100*k+10*i+i for k in range(3) for i in range(3)],
+        curve_bank=[10084000],smoke_actions=[10089000],smoke_updates=[10089001],bootstrap=[10089900]),params=cfg,prereg=PREREG.as_posix())
     save(OUT/'campaign.json',dict(configuration=cfg,sources={p.as_posix():sha(p) for p in paths},repro=stamp,
         commit=stamp['code']['git_head'],clean_tracked_tree=True))
 

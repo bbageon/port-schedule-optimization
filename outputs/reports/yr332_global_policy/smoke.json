@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "case": {
+    "split": "train",
+    "index": 12,
+    "load": 3500,
+    "input_seed": 10084112
+  },
+  "three_initial_behaviors_exact": true,
+  "source_sample_roundtrip": 512,
+  "updates": [
+    {
+      "mode": "zero",
+      "seconds": 165.59842359926552,
+      "audit": {
+        "block_snapshots_checked": 98973,
+        "timestamp_tie_cases": 0,
+        "observations": 5976
+      },
+      "optimization": {
+        "available": 256,
+        "selected": 256,
+        "optimizer_steps": 4,
+        "epochs": 1,
+        "replay_logp_max_error": 4.76837158203125e-07,
+        "normalization": {
+          "count": 12544,
+          "mean": -2.671634225281135,
+          "scale": 3.057399002489073,
+          "scale_floor_hit": false,
+          "old_mean": -2.715601262056258,
+          "old_scale": 3.0737126439463034,
+          "adam_moments": "retained unchanged; no optimizer invariance claim",
+          "value_preservation_max_error": 9.5367431640625e-07,
+          "logit_preservation_max_error": 0.0
+        },
+        "means": {
+          "loss": 0.17067710682749748,
+          "critic_loss": 0.3660628981888294,
+          "entropy": 1.2357497811317444,
+          "approx_kl": 1.673618521758069e-05,
+          "clip_fraction": 0.0
+        }
+      },
+      "rmse_before": 3.2964098300548876,
+      "rmse_after": 1.378422261752473
+    },
+    {
+      "mode": "global",
+      "seconds": 167.62302280031145,
+      "audit": {
+        "block_snapshots_checked": 98973,
+        "timestamp_tie_cases": 0,
+        "observations": 5976
+      },
+      "optimization": {
+        "available": 256,
+        "selected": 256,
+        "optimizer_steps": 4,
+        "epochs": 1,
+        "replay_logp_max_error": 4.76837158203125e-07,
+        "normalization": {
+          "count": 12544,
+          "mean": -2.671634225281135,
+          "scale": 3.057399002489073,
+          "scale_floor_hit": false,
+          "old_mean": -2.715601262056258,
+          "old_scale": 3.0737126439463034,
+          "adam_moments": "retained unchanged; no optimizer invariance claim",
+          "value_preservation_max_error": 9.5367431640625e-07,
+          "logit_preservation_max_error": 0.0
+        },
+        "means": {
+          "loss": 0.17058800533413887,
+          "critic_loss": 0.3658847063779831,
+          "entropy": 1.2357497811317444,
+          "approx_kl": 1.6736034696207547e-05,
+          "clip_fraction": 0.0
+        }
+      },
+      "rmse_before": 3.2964098300548876,
+      "rmse_after": 1.3768840296114042
+    }
+  ],
+  "excluded_from_training": true
+}
