@@ -1,0 +1,30 @@
+{
+  "command": [
+    "C:\\Users\\geonu\\orca\\workspaces\\port_reinforcement\\yr331-env\\Scripts\\python.exe",
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_confirmed_demand/current-gates.json",
+    "--gate-sha256",
+    "f9702e4208926d4110b91facd9e445dff6eda72f6ece127367d6eb76eac07c48",
+    "--gate-commit",
+    "5a474da7a263a573e33aba06504f73e07c5e2ad4",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-bc",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-bc-global-context-policy-exploration.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance"
+  ],
+  "returncode": 2,
+  "stdout": "{\n  \"task\": \"YR-332-bc\",\n  \"allowed\": false,\n  \"reason\": \"선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)\",\n  \"kind\": \"REMEDIATION\",\n  \"targets\": [\n    \"performance\"\n  ],\n  \"stage\": null,\n  \"current_unresolved\": [\n    \"performance\",\n    \"scenario_validity\"\n  ]\n}\n",
+  "stderr": "",
+  "user_request_date": "2026-11-19",
+  "user_request": "YR-332-bc 진행. 예측 오차 악화로 중단하지 않고 같은 시작 모델·보정 입력·학습량으로 끝까지 비교하며 마지막 모델을 평가. 운반 흐름·대기열 정의·고물량 실측은 별도 잔여로 명시.",
+  "scope": "Explicit user-authorized bounded synthetic policy exploration; preserve realism rejection, all physical/accounting/information constraints and no automatic adoption"
+}
