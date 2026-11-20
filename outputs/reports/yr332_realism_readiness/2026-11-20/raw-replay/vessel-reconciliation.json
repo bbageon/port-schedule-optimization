@@ -1,0 +1,70 @@
+{
+  "by_flow": {
+    "D": {
+      "counts": {
+        "atw_present": 151032,
+        "rows": 153626
+      },
+      "gap_definition": "firstYardInTime - atw",
+      "gap_minutes": {
+        "max": 11745.0,
+        "mean": 23.6334309102469,
+        "median": 13.0,
+        "min": -245.0,
+        "n": 150992,
+        "negative": 1,
+        "p90_nearest": 34.0,
+        "zero": 259
+      }
+    },
+    "L": {
+      "counts": {
+        "atw_present": 136571,
+        "rows": 137873
+      },
+      "gap_definition": "atw - lastYardInTime",
+      "gap_minutes": {
+        "max": 35883.0,
+        "mean": 34.89879989163146,
+        "median": 24.0,
+        "min": 0.0,
+        "n": 136571,
+        "negative": 0,
+        "p90_nearest": 58.0,
+        "zero": 25
+      }
+    }
+  },
+  "checks": {
+    "all_csv_json_pairs_equal": true
+  },
+  "compared_fields": [
+    "loadDiscGbn",
+    "conNo",
+    "atw",
+    "firstYardInTime",
+    "lastYardInTime"
+  ],
+  "csv_json_pairs": 263,
+  "limits": [
+    "Exact CSV/JSON agreement establishes transformation integrity, not event semantics.",
+    "Gaps may include waiting, travel and handling; they are not measured 470-second cycles.",
+    "Final snapshots do not establish when the operational planner first knew these times."
+  ],
+  "matched_pairs": 263,
+  "rows": 291499,
+  "timestamp_precision": {
+    "atw": {
+      "nonzero_seconds": 0,
+      "present": 287603
+    },
+    "firstYardInTime": {
+      "nonzero_seconds": 0,
+      "present": 288354
+    },
+    "lastYardInTime": {
+      "nonzero_seconds": 0,
+      "present": 288354
+    }
+  }
+}

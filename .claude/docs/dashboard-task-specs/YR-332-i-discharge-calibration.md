@@ -114,3 +114,11 @@ DGT 공식 소개의 안벽크레인당 운반차5대는 H-21의 블록당3대�
 숫자를 대체하지 않았으며 atw 단계·적재 주행·인계·귀환·실제 투입량의 외부 대기를 유지한다.
 [결과](../../../outputs/reports/yr332_transport_queue_recheck/README.md) ·
 [필요 자료](../../../docs/research/v7-discharge/transport-queue-data-contract.md).
+
+## 2026-11-20 — 기존 자료·공식 정의 재확인
+
+사용자 확인 요청으로 원본600파일을 다시 대조했다. 추가·변경0, 본선263쌍291,499행 일치와 기존 시각 간격이 재현됐다.
+공식 DGT의 안벽별5대는 현재 블록별3대의 직접 보정값이 아니다. 내부 운반차 배정·인계·복귀·실제 투입 이력과
+atw 사건 단계는 새로 확보되지 않았으므로 외부 대기를 유지한다. 모형·470초·정책 변경과 새 학습은 없다.
+[재확인 보고서](../../../outputs/reports/yr332_realism_readiness/2026-11-20/README.md) ·
+[검증](../../../outputs/reports/yr332_realism_readiness/2026-11-20/verification.json).
