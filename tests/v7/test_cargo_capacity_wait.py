@@ -47,7 +47,9 @@ def world(*, full=True, pickup=False, initial_count=None, reserved_moves=0,
                  day0=dict(scenarios={'Y01':NS(containers=initial)}))
     vessels = {0:[dict(key='reserved',work='DISCHARGE',block='Y01',moves=reserved_moves,
                        start_s=1800,cadence_s=120)]} if reserved_moves else {}
-    doc,_ = build_fixed_seed(built,vessels,seed=9900306)
+    doc,audit = build_fixed_seed(built,vessels,seed=9900306)
+    if full and initial_count is None:
+        assert audit['month_supply']['space_pressure_block_days'] == 1
     if pickup:
         # Place the already-selected fixed pickup at an accessible top tier.
         # This fixture has no rehandle space. No live cargo is moved or replaced.

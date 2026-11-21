@@ -308,39 +308,36 @@ def test_each_block_stays_near_its_starting_level():
     그래서 `plan_month_vessels` 가 *"덜 찬 블록은 내리고 찬 블록은 싣는다"* 로
     다시 정한다. 여기서 그 수지가 **용량 안에** 머무는지 못 박는다.
     """
-    from yard_rl.v7.stage.month import MONTH_FILL_RATIO
+    from yard_rl.v7.stage.month import initial_stock_by_block
     from yard_rl.v7.world.integrated.profiles import build_h21_profile
     from yard_rl.v7.world.integrated.yard_layout import terminal_layout
 
     geom = build_h21_profile().block
     cap = geom.bay_count * geom.row_count * geom.tier_max
-    start = int(cap * MONTH_FILL_RATIO)
 
     lay = terminal_layout()
     days = plan_month(SEED)
     built = build_month(SEED, days=days)
     tn = truck_net_by_block(built["schedule"])
-    v = plan_month_vessels(days, lay, truck_net=tn)
+    occ = initial_stock_by_block(built)
+    v = plan_month_vessels(days, lay, truck_net=tn, initial_stock=occ)
 
-    occ = {b: start for b in lay.ids}       # 블록별 상자 수 (계획 기준)
     hi, totals = 0, []
     for i in sorted(v):
         for r in v[i]:
             occ[r["block"]] += (r["moves"] if r["work"] == "DISCHARGE"
                                 else -r["moves"])
         for b, t in tn.get(i, {}).items():  # 트럭이 빼 간 몫 (반출 − 반입)
-            occ[b] = occ.get(b, start) - t
+            occ[b] -= t
         hi = max(hi, max(occ.values()))
         totals.append(sum(occ.values()))
 
     # ① **블록이 안 찬다** — 92% 에서 양하가 멈추는 것을 실측했다
-    assert hi < cap * 0.90, f"블록이 {hi}/{cap}({hi/cap:.0%}) 까지 찬다 — 양하가 멈춘다"
     # ② ★**야드가 안 마른다** — 트럭은 반출 60% 라 하루 1,000상자를 빼 간다.
     #    본선 양하가 그만큼 채우지 않으면 30일이면 텅 빈다(되돌릴 조건 1).
-    assert min(totals) > 0.5 * totals[0], (
-        f"야드가 마른다 — {totals[0]:,} → 최저 {min(totals):,}")
-    assert totals[-1] > 0.5 * totals[0], (
-        f"야드가 단조 감소한다 — {totals[0]:,} → {totals[-1]:,}")
+    assert hi < cap * 0.90 and min(totals) > 0.5 * totals[0] and totals[-1] > 0.5 * totals[0], (
+        f"계획 날짜 기준 경보: 최고 블록 {hi}/{cap}, 첫날 말 {totals[0]}, "
+        f"최저 {min(totals)}, 월말 {totals[-1]}")
 
 
 def test_month_vessel_work_is_deterministic_and_policy_free():

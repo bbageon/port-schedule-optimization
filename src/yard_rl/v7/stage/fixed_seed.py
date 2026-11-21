@@ -16,6 +16,7 @@ from types import SimpleNamespace
 
 from .container_contract import ContainerContractError, audit_container_plan
 from .orders import orders_from_schedule
+from .month_supply import month_supply_audit
 from .seed_inventory import enumerate_inventory
 
 SCHEMA = 'yard_rl.v7.fixed_cargo_seed.v2'
@@ -77,6 +78,7 @@ def fixed_seed_audit(document):
     if not contract['passed']:
         return dict(schema=SCHEMA, passed=False, contract=contract, ready_for_training=False)
     by_id = {s['container']: s for s in sources}
+    month_supply = month_supply_audit(document, by_id, demands)
     matrix, gaps, waiting, invalid = Counter(), [], [], []
     for d in demands:
         e, m = d['entry'], d['move']
@@ -98,6 +100,7 @@ def fixed_seed_audit(document):
         contract['passed'] = False
         contract['violations']['outbound_size_mismatch'] = len(invalid)
     return dict(schema=SCHEMA, passed=contract['passed'], contract=contract,
+                month_supply=month_supply,
                 truck_orders=len(orders), sources=len(sources), exits=len(demands),
                 ending_unassigned_sources=len(sources) - len(demands),
                 source_exit_counts=dict(sorted(matrix.items())),

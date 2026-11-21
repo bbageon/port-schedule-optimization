@@ -1,0 +1,184 @@
+{
+  "commit": "8aed6fa5",
+  "seed": 9400777,
+  "input_sha256": "861be561fbf0f0b3d10d6a2580b31d2c55995371422fbf0a0c1b57a053af687d",
+  "document_sha256": "ec213f7ae577d22c048ca7ef2d8b8ba4bdd8409e15e943619230e656c1fa8cdf",
+  "field_hashes": {
+    "days": "422b1428a4f972f46b53e08b04f7d7f0b2b7fb2f4bf33a7b72ee4bb5a9c48145",
+    "initial_inventory": "ebd22203b38b443c90f08b808509b1068496179128a7a2eff35f302e0833158f",
+    "lead_mode": "7089b9e674b189c7b0b3fe5fb64addffac9a48b0dd020f44ef381f5011befc25",
+    "month_end_s": "55ace14cc27b03bfedc164e26320a87165eebfe7f649480067fd6ce0f45fec75",
+    "orders": "30e48cb065747691855afbd85ffee5a9c80c4faf10e07a59b7c77bfc40985181",
+    "reservation_contract": "acfb986b6462682e50b9c9235607530b701927e6b206a5764119ab1377245f94",
+    "rules": "d1935e58447adbe69888a521d019f7a5a6aea6a3edb63bf41515b9d94c39a06c",
+    "schedule": "dfd1e784f738eb4596c05ad2f1226b3cfae56f54faf7bb628d18547a0d3db7d9",
+    "schema": "72fa6c095f39c553bd474e9130c04a3e3a75a68b0b98c2d8a3b8d1c4450dc852",
+    "seed": "6404f0950377cca7e15bfcf3ea6cb962e1c98190c70a7540a7cbcdabefd1d373",
+    "sources": "030efa74b41af3591e4ebe20110cdcc3c9cf35b68bccfff843c178cfacb38295",
+    "vessels_by_day": "3c33adb44f942dc4d6bbc32c7868da9876b7b1204174fa8ddeed8f53c9199ede"
+  },
+  "audit": {
+    "schema": "yard_rl.v7.fixed_cargo_seed.v2",
+    "passed": true,
+    "contract": {
+      "schema": "yard_rl.v7.container_contract.v2",
+      "passed": true,
+      "scope": "static fixed-identity contract; NOT physical feasibility or performance",
+      "truck_orders": 176500,
+      "vessel_streams": 288,
+      "source_containers": 159129,
+      "fixed_exit_containers": 149053,
+      "violations": {},
+      "examples": {},
+      "planned_waiting_exits": 2034,
+      "planned_waiting_examples": [
+        {
+          "source": {
+            "container": "IN_D06-D-00018",
+            "block": "Y20",
+            "source": "D06-D-00018",
+            "earliest_s": 519977.847097536
+          },
+          "exit": {
+            "container": "IN_D06-D-00018",
+            "block": "Y20",
+            "order": "D05-D-14770",
+            "earliest_s": 515488.7531076769
+          },
+          "planned_wait_lower_bound_s": 4489.093989859102
+        },
+        {
+          "source": {
+            "container": "IN_D06-D-00063",
+            "block": "Y20",
+            "source": "D06-D-00063",
+            "earliest_s": 522918.78549638396
+          },
+          "exit": {
+            "container": "IN_D06-D-00063",
+            "block": "Y20",
+            "order": "D05-D-14777",
+            "earliest_s": 515586.2392399841
+          },
+          "planned_wait_lower_bound_s": 7332.546256399888
+        },
+        {
+          "source": {
+            "container": "IN_D06-D-00076",
+            "block": "Y20",
+            "source": "D06-D-00076",
+            "earliest_s": 523788.0791247066
+          },
+          "exit": {
+            "container": "IN_D06-D-00076",
+            "block": "Y20",
+            "order": "D05-D-14804",
+            "earliest_s": 515953.55690070963
+          },
+          "planned_wait_lower_bound_s": 7834.522223996988
+        },
+        {
+          "source": {
+            "container": "IN_D06-D-00120",
+            "block": "Y20",
+            "source": "D06-D-00120",
+            "earliest_s": 526648.758589461
+          },
+          "exit": {
+            "container": "IN_D06-D-00120",
+            "block": "Y20",
+            "order": "D05-D-14917",
+            "earliest_s": 517570.7553627041
+          },
+          "planned_wait_lower_bound_s": 9078.003226756875
+        },
+        {
+          "source": {
+            "container": "IN_D06-D-00141",
+            "block": "Y20",
+            "source": "D06-D-00141",
+            "earliest_s": 528017.317642578
+          },
+          "exit": {
+            "container": "IN_D06-D-00141",
+            "block": "Y20",
+            "order": "D05-D-14969",
+            "earliest_s": 518345.9073512687
+          },
+          "planned_wait_lower_bound_s": 9671.410291309352
+        }
+      ],
+      "identity_sha256": "33278d034057133087d334e24e35062b6ffae5f179999d26005d7e13fdfbb3ca"
+    },
+    "truck_orders": 176500,
+    "sources": 159129,
+    "exits": 149053,
+    "ending_unassigned_sources": 10076,
+    "source_exit_counts": {
+      "GATE_IN->GATE_OUT": 48596,
+      "GATE_IN->VESSEL_LOAD": 16785,
+      "INITIAL->GATE_OUT": 8762,
+      "INITIAL->VESSEL_LOAD": 4924,
+      "VESSEL_DISCHARGE->GATE_OUT": 48721,
+      "VESSEL_DISCHARGE->VESSEL_LOAD": 21265
+    },
+    "source_size_counts": {
+      "FT20": 55101,
+      "FT40": 104028
+    },
+    "planned_waiting_exits": 2034,
+    "waiting_examples": [
+      {
+        "job": "D05-D-14770",
+        "container": "IN_D06-D-00018",
+        "planned_wait_lower_bound_s": 4489.093989859102
+      },
+      {
+        "job": "D05-D-14777",
+        "container": "IN_D06-D-00063",
+        "planned_wait_lower_bound_s": 7332.546256399888
+      },
+      {
+        "job": "D05-D-14804",
+        "container": "IN_D06-D-00076",
+        "planned_wait_lower_bound_s": 7834.522223996988
+      },
+      {
+        "job": "D05-D-14917",
+        "container": "IN_D06-D-00120",
+        "planned_wait_lower_bound_s": 9078.003226756875
+      },
+      {
+        "job": "D05-D-14969",
+        "container": "IN_D06-D-00141",
+        "planned_wait_lower_bound_s": 9671.410291309352
+      },
+      {
+        "job": "D06-D-00028",
+        "container": "IN_D06-D-00212",
+        "planned_wait_lower_bound_s": 11962.758059504966
+      },
+      {
+        "job": "D06-D-00040",
+        "container": "IN_D06-D-00281",
+        "planned_wait_lower_bound_s": 15632.189900507045
+      },
+      {
+        "job": "D06-D-00081",
+        "container": "IN_D06-D-00373",
+        "planned_wait_lower_bound_s": 18432.686980737373
+      }
+    ],
+    "max_planned_wait_lower_bound_s": 86335.3743712795,
+    "planned_source_to_demand_s": {
+      "minimum": -86335.3743712795,
+      "median": 151677.30699807173,
+      "maximum": 2192366.1711802627,
+      "meaning": "planned time difference, NOT actual yard dwell"
+    },
+    "empty_execution_records": true,
+    "physical_execution_verified": false,
+    "ready_for_training": false,
+    "scope": "fixed-identity input validity only; no policy performance or operational realism claim"
+  }
+}

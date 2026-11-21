@@ -93,6 +93,45 @@ def test_future_source_not_reused_by_a_later_pickup():
     assert audit['planned_waiting_exits'] == 2
 
 
+def test_clock_boundary_uses_individual_moves_and_waits_for_named_cargo():
+    original = data([entry('early', at=100), entry('later', at=300)], initial=0)
+    original['days'] = [DayPlan(i, 1, 'unit', 20+i, i*86400, 2) for i in range(2)]
+    original['month_end_s'] = 2*86400
+    # Second discharge moves exactly at midnight, although injected on day zero.
+    plan = {0: [ship('ship', 'DISCHARGE', 86400-120, 2)]}
+    _, audit = build_fixed_seed(original, plan, seed=20)
+    first, second = audit['month_supply']['days']
+    assert (first['net_at_close'], first['stock_at_close'], first['waiting_at_close']) == (-1, 0, 1)
+    assert first['min_net'] == -2
+    assert second['net_at_close'] == second['stock_at_close'] == second['waiting_at_close'] == 0
+
+
+@pytest.mark.parametrize('position', [(1, 1, 1), (2, 1, 2), (2, 1, 7)])
+def test_invalid_real_initial_slots_fail_even_with_positive_ending_balance(position):
+    original = data([], initial=2)
+    box = original['day0']['scenarios']['B1'].containers['C1']
+    box.bay, box.row, box.tier = position
+    with pytest.raises(ContainerContractError, match='B1'):
+        build_fixed_seed(original, {}, seed=20)
+
+
+def test_saved_seed_cannot_move_vessel_before_its_injection_day():
+    original = data([], initial=0)
+    original['days'] = [DayPlan(i, 1, 'unit', 20+i, i*86400, 2) for i in range(2)]
+    original['month_end_s'] = 2*86400
+    document, _ = build_fixed_seed(original, {0: [ship('ship', 'DISCHARGE')]}, seed=20)
+    document['vessels_by_day']['1'] = document['vessels_by_day'].pop('0')
+    with pytest.raises(ContainerContractError, match='injection window'):
+        fixed_seed_audit(document)
+
+
+def test_negative_travel_is_invalid_even_if_block_arrival_is_positive():
+    original = data()
+    original['schedule'][0]['travel_s'] = -10
+    with pytest.raises(ContainerContractError, match='notice/arrival/travel'):
+        build_fixed_seed(original, {}, seed=20)
+
+
 def test_true_supply_shortage_does_not_create_cargo_or_drop_orders():
     original = data([entry('first'), entry('second')])
     before = copy.deepcopy(original)
