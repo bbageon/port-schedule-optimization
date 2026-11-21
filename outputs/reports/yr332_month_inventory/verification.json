@@ -1,0 +1,48 @@
+{
+  "task": "YR-332-bf",
+  "verification_passed": true,
+  "source_commit": "d8760b84a687b07e77e3217484b0dc533789c3e2",
+  "verified_source_files": 199,
+  "verified_balance_rows": 1890,
+  "input_repeat_identical": true,
+  "orders": 176500,
+  "nominal_test_reproduced": true,
+  "actual_initial_total": 13686,
+  "actual_first_day_total": 20226,
+  "actual_minimum_total": 9622,
+  "actual_final_total": 10076,
+  "negative_block_days": 14,
+  "affected_blocks": [
+    "Y01",
+    "Y05",
+    "Y15",
+    "Y20",
+    "Y21"
+  ],
+  "worst_planned_balance": -209,
+  "first_negative": {
+    "day_one_based": 6,
+    "block": "Y20",
+    "balance": -5
+  },
+  "month_end_minimum_block": 78,
+  "existing_end_guard_changes": 0,
+  "maximum_planned_block": 1411,
+  "capacity_per_block": 1440,
+  "actual_90pct_guard": false,
+  "minimum_vs_initial": 0.7030542159871401,
+  "minimum_vs_first_day": 0.4757243152378127,
+  "flow_totals": {
+    "GATE_IN": 70421,
+    "GATE_OUT": 106079,
+    "DISCHARGE": 75022,
+    "LOAD": 42974
+  },
+  "interpretation": "Plan balance only; no physical negative inventory or actual service-time claim.",
+  "training": false,
+  "policy_run": false,
+  "artifact_hashes": {
+    "outputs/reports/yr332_month_inventory/diagnosis.json": "89c298b6edfb715b89bbfad9088a825c04d1399c4527b41dd716309b45ca9e7e"
+  },
+  "verifier_sha256": "418872c41d910a14120b510f3a1bff9a7fc8762617dda4c8b71ddc17442e2d13"
+}
