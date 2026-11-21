@@ -1,0 +1,73 @@
+{
+  "review_date": "2026-11-21",
+  "sources": [
+    {
+      "source": "dgt-vessel",
+      "url": "https://info.dgtbusan.com/DGT/esvc/vessel/cntrWorkList",
+      "sha256": "78bf5a2de28d16488ba95bb52ec69b146917a1b65dbc9e95b071aeb93804266a",
+      "bytes": 42904,
+      "exact_target_field_occurrences": {
+        "atw": 0,
+        "firstYardInTime": 0,
+        "lastYardInTime": 0,
+        "blcWaitingCarCount": 0
+      },
+      "scope": "Anonymous public page; absence from this page is not proof the provider lacks a field definition."
+    },
+    {
+      "source": "dgt-yard",
+      "url": "https://info.dgtbusan.com/DGT/esvc/yard/yardWorkingStatus",
+      "sha256": "f49b09514721ddb4f19ce7f01bfb38f09f26bc05621a247d0e24da33d028d4f8",
+      "bytes": 38708,
+      "exact_target_field_occurrences": {
+        "atw": 0,
+        "firstYardInTime": 0,
+        "lastYardInTime": 0,
+        "blcWaitingCarCount": 0
+      },
+      "scope": "Anonymous public page; absence from this page is not proof the provider lacks a field definition."
+    },
+    {
+      "source": "chain-main",
+      "url": "https://www.chainportal.co.kr/main/",
+      "sha256": "90945fff597faee0520a3d24c401256534a7bd694d34e626aed99e18e1b6b438",
+      "bytes": 1345,
+      "exact_target_field_occurrences": {
+        "atw": 0,
+        "firstYardInTime": 0,
+        "lastYardInTime": 0,
+        "blcWaitingCarCount": 0
+      },
+      "scope": "Anonymous public page; absence from this page is not proof the provider lacks a field definition."
+    },
+    {
+      "source": "chain-public-main-bundle",
+      "url": "https://www.chainportal.co.kr/main/assets/index-CzS6Pz5Z.js?v=1795066781477",
+      "sha256": "5dce9586ba761293f39f6cfb8b75697306225cc787a3168fc2a94d21f1987a14",
+      "bytes": 6120469,
+      "exact_target_field_occurrences": {
+        "atw": 0,
+        "firstYardInTime": 0,
+        "lastYardInTime": 0,
+        "blcWaitingCarCount": 0
+      },
+      "scope": "Guide labels exist, but the requested field definitions are not present in this public main bundle."
+    },
+    {
+      "source": "dgt-period-gate-list",
+      "url": "https://info.dgtbusan.com/DGT/esvc/yard/periodGateIOList",
+      "final_url": "https://info.dgtbusan.com/DGT/esvc/subPage/noPermission",
+      "bytes": 34928,
+      "sha256": "597b0f396832ee23b757ff75141862441006a5e62991671001da3e41e7e9aebf",
+      "scope": "Public navigation redirects to noPermission; no restricted data call or login was attempted."
+    }
+  ],
+  "findings": {
+    "vessel_public_display": "Completed-state display uses actualWorkDate; planned-state display uses estimateWorkDate. The local atw field is not named in this public page, so equivalence is unconfirmed.",
+    "yard_public_display": "Only block, inbound, outbound and total labels are shown; not the requested queue inclusion/sample-time contract.",
+    "data_access": "Historical period gate list redirects to permission page. No whole-terminal high-volume dataset obtained."
+  },
+  "public_code_cache": "Local build directory only; full site source and response headers are not published.",
+  "external_messages_sent": 0,
+  "requests_with_credentials": 0
+}

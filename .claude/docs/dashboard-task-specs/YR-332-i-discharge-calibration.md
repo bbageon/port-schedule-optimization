@@ -122,3 +122,11 @@ DGT 공식 소개의 안벽크레인당 운반차5대는 H-21의 블록당3대�
 atw 사건 단계는 새로 확보되지 않았으므로 외부 대기를 유지한다. 모형·470초·정책 변경과 새 학습은 없다.
 [재확인 보고서](../../../outputs/reports/yr332_realism_readiness/2026-11-20/README.md) ·
 [검증](../../../outputs/reports/yr332_realism_readiness/2026-11-20/verification.json).
+
+## 2026-11-21 — 본선 자료 출처·공개 시각 필드 확인
+
+원본263개 본선 JSON의 터미널 코드는 모두DGTBC050이다. DGT 공식 양적하 화면의 실제 작업 표시 필드는
+`actualWorkDate`이며 수집 자료의 `atw`와 대응되는지, 안벽/야드의 어느 단계인지는 공개 코드만으로 확정하지 않았다.
+내부 운반차별 배정·인계·복귀·투입 기록도 추가되지 않아3대·470초를 유지한다. 외부 대기 유지.
+[공개 근거·후속](../../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) ·
+[정의 회신 항목](../../../docs/research/v7-discharge/realism-definition-reply.md).

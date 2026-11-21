@@ -8,7 +8,7 @@
 
 - **진입 시각 근거 보정 분리 완료 (2026-11-18, ba)**: 미확인601건 보존·분리, 보정20,936→20,592건. 중앙값 반입+2초·반출+27.5초, 방문 재집계27,415→27,395번. 32시험·18입력+2재생·독립21검사 통과, 물리 조건 고정·새 학습 없음. 수요 의존 보정bb 등록, 운반/대기i/f 외부 대기 유지. [결과](../../outputs/reports/yr332_gate_time_provenance/README.md) · [spec](../docs/dashboard-task-specs/YR-332-ba-gate-time-provenance.md)
 
-- **운반·대기·고물량 근거 재확인 (2026-11-20, i/f/ap)**: 원본600파일 추가·변경0, 대기48,620건·본선291,499행 재일치. 확인된27,395방문의 최대245방문/시간에 비해 bc 고물량 입력 최대461~997번으로 관측 범위 밖이다(기존9입력 재생성 일치). 집계·운반 단계·전체 포함률은 외부 대기, ba·bb 보정·정책 유지. [이번 확인](../../outputs/reports/yr332_realism_readiness/2026-11-20/README.md) · [11/18 감사](../../outputs/reports/yr332_transport_queue_recheck/README.md) · [최소 자료 정의](../../docs/research/v7-discharge/transport-queue-data-contract.md)
+- **운반·대기 정의 조사·고물량 주장 분리 (2026-11-21, i/f/ap)**: 저장90평가·12집단 일치. 관측 최대245방문/시간 이내3,500건에서도 전역 추가 비용+10.23%·트럭+8.52%·본선+4.04%, 모델3개 모두 비용 증가. 7,500/15,000건은 범위 밖 혼잡 시험이다. 공개 코드에도 정확한 집계·운반 단계 미확인, 원본600파일·보정·정책 유지. [후속](../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) · [11/20 재확인](../../outputs/reports/yr332_realism_readiness/2026-11-20/README.md) · [정의 회신 항목](../../docs/research/v7-discharge/realism-definition-reply.md)
 
 - **전역 대기 정보의 예측 진단 완료 (2026-11-18, az)**: 30,720개 공통 결정으로 비용망3쌍만 학습해 새 입력의 예측 오차가7.41% 줄었다. 마지막18~24시는5.42% 늘어 사전 허용치5%를 넘었으므로 PPO 재학습·새 정책 성능 비교는 실행하지 않았다. 20시험·6학습 재현·182,000오더 검산 통과. 예측 개선은 트럭·본선 시간 개선이 아니며 기본 정책 유지, 다음은 외부 자료 대기 중인 운반/대기열i/f 확인이다. [결과](../../outputs/reports/yr332_global_value_context/README.md) · [검산](../../outputs/reports/yr332_global_value_context/verification.json) · [spec](../docs/dashboard-task-specs/YR-332-az-global-value-context.md)
 
