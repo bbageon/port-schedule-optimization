@@ -32,15 +32,36 @@ def test_physical_corrections_are_explicit_and_scoped():
     corrections = MANIFEST["v7_world_overrides"]
     assert set(corrections) == {"world/integrated/engine.py", "world/domain/models.py",
                                 "world/integrated/candidates.py", "world/integrated/resolver.py",
-                                "world/integrated/multiblock.py", "world/integrated/scenario_gen.py"}
-    assert corrections['world/integrated/engine.py']['task'] == 'YR-332-n'
+                                "world/integrated/multiblock.py", "world/integrated/scenario_gen.py",
+                                "world/integrated/order_schema.py", "world/integrated/time_contract.py"}
+    assert corrections['world/integrated/engine.py']['task'] == 'YR-332-al'
     assert corrections['world/integrated/candidates.py']['task'] == 'YR-332-g'
-    assert corrections['world/integrated/multiblock.py']['task'] == 'YR-332-aa'
+    assert corrections['world/integrated/multiblock.py']['task'] == 'YR-332-al'
+    assert corrections['world/integrated/time_contract.py']['task'] == 'YR-332-al'
+    assert corrections['world/integrated/order_schema.py']['task'] == 'YR-332-an'
     assert corrections['world/integrated/scenario_gen.py']['task'] == 'YR-332-i'
     assert all(c['task'] == 'YR-332-j' for k, c in corrections.items()
                if k not in ('world/integrated/engine.py', 'world/integrated/candidates.py',
-                            'world/integrated/multiblock.py', 'world/integrated/scenario_gen.py'))
-    assert corrections['world/integrated/engine.py']['prior_task'] == 'YR-332-h'
+                            'world/integrated/multiblock.py', 'world/integrated/scenario_gen.py',
+                            'world/integrated/order_schema.py', 'world/integrated/time_contract.py'))
+    assert corrections['world/integrated/engine.py']['prior_task'] == 'YR-332-n'
+    assert corrections['world/integrated/engine.py']['prior_physical_task'] == 'YR-332-h'
+
+
+def test_reconciled_changes_are_tied_to_audited_history():
+    """New expectations require a complete change chain and prior task evidence."""
+    corrections = MANIFEST['v7_world_overrides']
+    audited = [c for c in corrections.values() if 'reconciliation' in c]
+    assert len(audited) == 4
+    audit = json.loads((ROOT / audited[0]['reconciliation']).read_text(encoding='utf-8'))
+    assert audit['runtime_source_unchanged'] and audit['baseline_manifest_preserved']
+    assert len(audit['audited_files']) == 4
+    for row in audit['audited_files']:
+        correction = corrections[row['relative']]
+        assert (correction['sha256'], correction['task']) == (row['current_sha256'], row['task'])
+        assert row['changes'] and all(len(c) == 40 for c in row['changes'])
+        assert len(row['evidence_sha256']) == 4
+        assert all((ROOT / p).exists() for p in row['evidence_sha256'])
 
 
 def test_copy_manifest_pins_the_declared_base_commit():

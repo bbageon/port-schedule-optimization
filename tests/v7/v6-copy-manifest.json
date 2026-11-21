@@ -242,16 +242,32 @@
       "reason": "Correct finite-discharge and finite-fleet LOAD completion lower bounds. LOAD uses the first simultaneous transport batch and remaining STS intervals; derivation and event checks: docs/research/v7-discharge/load-bound-derivation.md. A lower bound is not an achievable-deadline guarantee."
     },
     "world/integrated/multiblock.py": {
-      "sha256": "42a99c81283224ee5a306555efab9e0a5f08dcfc9e13d7925fc81b4b2eb3acba",
-      "task": "YR-332-aa",
-      "reason": "Opt-in fixed external demand preservation at admission; storage feasibility, transfer capacity reservations, identity and timestamp validation remain enforced."
+      "sha256": "6c355a740c3a2a01d3d9d409a555c043a2d010d9a1076472fb0208151ad666c3",
+      "task": "YR-332-al",
+      "prior_task": "YR-332-aa",
+      "reason": "Linked visits release each stop after prior work and exit once. Post-window epochs synchronize clocks without admission or record review. Prior fixed-demand preservation retained.",
+      "reconciliation": "outputs/reports/yr332_manifest_reconciliation/audit-before.json"
     },
     "world/integrated/engine.py": {
-      "sha256": "e606710f37b49ed1b1cc69bd11a241808183b6f02e2e4447774d6257baa4eca4",
-      "task": "YR-332-n",
-      "reason": "Opt-in early exit after the first fully feasible work item for existence checks only; full policy candidate generation retained. Direct slot lookup retained when reuse disabled.",
-      "prior_task": "YR-332-h",
-      "prior_optimization_task": "YR-332-j"
+      "sha256": "7e83406be16d2b48d52f1b922ee71a8f63c151a9fce84e7135308f5eac721864",
+      "task": "YR-332-al",
+      "reason": "Linked-job dispatch publishes completion to the visit coordinator; completion and shared visit exit are recorded separately. Unlinked execution and existing candidate optimizations retained.",
+      "prior_task": "YR-332-n",
+      "prior_physical_task": "YR-332-h",
+      "prior_optimization_task": "YR-332-j",
+      "reconciliation": "outputs/reports/yr332_manifest_reconciliation/audit-before.json"
+    },
+    "world/integrated/order_schema.py": {
+      "sha256": "b11fe2157074c142657dbdb99190de31ab2b4c50779b3c9ac317506855fc62a7",
+      "task": "YR-332-an",
+      "reason": "Synchronize the optional gate_in_s alias after realized arrival calibration; reserved_s remains owned by the reservation contract.",
+      "reconciliation": "outputs/reports/yr332_manifest_reconciliation/audit-before.json"
+    },
+    "world/integrated/time_contract.py": {
+      "sha256": "ddea465e4371317f4bee49d4d79f9e91539a2ff3d51050b4217be14472318666",
+      "task": "YR-332-al",
+      "reason": "Record each linked order completion while holding exit until the truck's final stop; validate and publish the shared exit once known.",
+      "reconciliation": "outputs/reports/yr332_manifest_reconciliation/audit-before.json"
     },
     "world/domain/models.py": {
       "sha256": "9771a56a08651d6d84375d08645555ee3a09bab60bd9bf89f90488360baaffa5",
