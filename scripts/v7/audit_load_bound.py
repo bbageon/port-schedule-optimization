@@ -68,7 +68,7 @@ def run_case(**config):
             with_targets_s=phys_min_completion_s(profile, load_targets=targets, **args),
             without_targets_s=phys_min_completion_s(profile, **args)))
     return dict(config=config, profile=asdict(profile), events=sim.timing,
-        event_hash=sim.event_stream_hash(), vessels=vessels,
+        event_hash=sim.event_stream_hash(), vessels=vessels, cost_raw=sim.cost.episode_raw(),
         jobs=[dict(id=j.job_id, status=j.status.value, start_s=j.service_start, end_s=j.service_end)
               for j in sim.jobs.values()], remaining=sim.unfinished_backlog())
 
@@ -81,10 +81,41 @@ def physical(run):
     return value
 
 
+def input_snapshot(path):
+    from audit_day_shapes import check_stage
+    from global_policy_inputs import bundle, holdout_cases
+    from yard_rl.v7.evaluation_probe import digest
+    from yard_rl.v7.stage.orders import build_stage
+    from yard_rl.v7.world.integrated.profiles import build_h21_profile
+    reference_path = Path('outputs/reports/yr332_global_policy/input-preflight.json')
+    refs = {tuple(r['case'][k] for k in ('split', 'index', 'load')): r
+            for r in json.loads(reference_path.read_text(encoding='utf-8'))['cases']}
+    rows = []
+    for case in holdout_cases():
+        built = build_stage(profile=build_h21_profile(),
+                            **bundle().case(case['split'], case['index'], case['load']))
+        ref = refs[tuple(case[k] for k in ('split', 'index', 'load'))]
+        scenarios = {key: asdict(sc) for key, sc in built['scenarios'].items()}
+        bounds = []
+        for bid, sc in scenarios.items():
+            for vessel in sc['vessels']:
+                bounds.append(dict(block=bid, id=vessel['vessel_id'],
+                    value=vessel['plan'].pop('phys_min_completion_s')))
+        row = dict(case=case, audit=check_stage(built, case['load']),
+            scenarios_sha256=digest(built['scenarios']), execution_scenarios_sha256=digest(scenarios),
+            schedule_sha256=digest(built['schedule']), vessels_sha256=digest(built['vessel_schedule']),
+            bounds=bounds, reference=ref)
+        assert row['audit'] == ref['audit']
+        rows.append(row)
+    path.write_text(json.dumps(dict(rows=rows, source_commit=subprocess.check_output(
+        ['git','rev-parse','HEAD'], text=True).strip()), ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--before', type=Path)
+    parser.add_argument('--inputs-out', type=Path)
     args = parser.parse_args()
     assert not subprocess.check_output(['git', 'status', '--short', '--untracked-files=no'],
                                        encoding='utf-8').strip()
@@ -112,6 +143,8 @@ def main():
         assert not violations, violations
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8')
+    if args.inputs_out:
+        input_snapshot(args.inputs_out)
     print(json.dumps(dict(runs=len(runs)+1, violations=violations, repeat_identical=True)))
 
 
