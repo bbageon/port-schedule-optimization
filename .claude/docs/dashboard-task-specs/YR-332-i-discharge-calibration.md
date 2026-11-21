@@ -130,3 +130,12 @@ atw 사건 단계는 새로 확보되지 않았으므로 외부 대기를 유지
 내부 운반차별 배정·인계·복귀·투입 기록도 추가되지 않아3대·470초를 유지한다. 외부 대기 유지.
 [공개 근거·후속](../../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) ·
 [정의 회신 항목](../../../docs/research/v7-discharge/realism-definition-reply.md).
+
+### 2026-11-21 — 미검증 적하 하한의 내부 검사 착수
+
+외부 운반 자료와 별개로 남아 있던 적하 하한 계산을 기존 설정에서 검사한다.
+유한 차량 수를 평균 공급 간격으로 바꾼 식이 실제 실행보다 늦은 하한을 내는지 18조건+1반복으로 확인한다.
+반례가 있을 때만 산술을 보정하고 사건 기록·최신 9입력의 마감 영향·관련 회귀를 검증한다.
+실측 운반 설정 변경·새 학습은 하지 않으며 외부 대기는 유지한다.
+[고정 검사 계약](../../../docs/research/v7-discharge/load-bound-check-prereg.md) ·
+[착수 근거](../../../outputs/reports/yr332_load_bound/authorization.json).
