@@ -10,7 +10,6 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-be | Infra | **물리 코드 4파일의 변경 기록 불일치 대조** | 🔴 | 적하 보정 전에도 복제 해시 4건 실패. 변경 커밋·승인 명세·동작 근거를 대조한 뒤 확인된 내용만 등록한다. 전체 검사의 기록 불일치를 먼저 해소하기 위함이다. [spec](../docs/dashboard-task-specs/YR-332-be-world-manifest-reconciliation.md) |
 | YR-332-bf | Sim | **월 계획 재고 감소의 수지·검사 전제 진단** | 🟠 | 보정 전후 같은 시험에서 총재고20,148→최저9,544로 절반 유지 조건 미달. 날짜·블록별 수지로 입력 결함인지 검사 전제 문제인지 구분한다. be 뒤, 30일 판정 전에 확인. [spec](../docs/dashboard-task-specs/YR-332-bf-month-inventory-diagnosis.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |
 | YR-332-au | RL | **후보 점수 차이 학습과 크레인 공동 배정의 연결 확인** | 🟡 | 같은 크레인 내 점수 차이는 같아도 공동 배정이 달라지는 사후 반례 확인. 저장 모델의 크레인별 점수 기준 차이가 실제 배정에 영향을 주는지 읽기 전용으로 확인한다. 이번 성능 하락 원인으로 확정하지 않으며 재학습·점수 보정은 별도 판정. [spec](../docs/dashboard-task-specs/YR-332-au-cross-crane-score-contract.md) |
