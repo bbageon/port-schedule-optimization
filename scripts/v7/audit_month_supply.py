@@ -18,7 +18,7 @@ SPEC = '.claude/docs/dashboard-task-specs/YR-332-bg-month-supply-contract.md'
 
 
 def save(name, obj):
-    (OUT/name).write_text(json.dumps(obj, ensure_ascii=False, indent=2)+'\n', encoding='utf8')
+    (OUT/name).write_text(json.dumps(obj, ensure_ascii=False, indent=2)+'\n', encoding='utf8', newline='\n')
 
 
 def movements(doc):

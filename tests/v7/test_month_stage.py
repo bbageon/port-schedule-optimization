@@ -298,7 +298,7 @@ def test_announcer_window_keeps_only_that_stretch():
 def test_each_block_stays_near_its_starting_level():
     """★30일 동안 **블록별 수지**가 묶여 있어야 한다.
 
-    블록 용량은 1,440슬롯이고 30일 무대는 648상자(45%)로 시작한다. 양하 스트림
+    블록 용량은 1,440슬롯이고 명목 초기 수량은 648상자(45%)다. 검사는 실제 명단에서 시작한다. 양하 스트림
     하나가 하루 386상자를 쌓으므로, 한 블록이 사흘 내리 양하를 맡으면 **슬롯이 없어
     양하가 멈춘다.**
 
@@ -306,7 +306,7 @@ def test_each_block_stays_near_its_starting_level():
     차고 막힌 양하 job 93 → 393 → 570 건. **빈 블록(528상자)은 막힌 게 0** 이었다.
 
     그래서 `plan_month_vessels` 가 *"덜 찬 블록은 내리고 찬 블록은 싣는다"* 로
-    다시 정한다. 여기서 그 수지가 **용량 안에** 머무는지 못 박는다.
+    다시 정한다. 본선 전량을 계획일에 합산하는 기존 혼잡·재고 감소 경보를 유지한다.
     """
     from yard_rl.v7.stage.month import initial_stock_by_block
     from yard_rl.v7.world.integrated.profiles import build_h21_profile
