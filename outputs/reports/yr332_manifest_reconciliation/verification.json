@@ -1,0 +1,60 @@
+{
+  "task": "YR-332-be",
+  "passed": true,
+  "source_commit": "2c11926d97523cd68f10123a743a71a17aafac62",
+  "repro": {
+    "experiment": "YR-332-be-manifest-reconciliation",
+    "code": {
+      "git_head": "2c11926d97523cd68f10123a743a71a17aafac62",
+      "git_dirty": false,
+      "python": "3.13.9"
+    },
+    "profile_id": null,
+    "seeds": {
+      "test_fixtures": [
+        9900306,
+        9920992,
+        9920993,
+        9920994,
+        9920995,
+        9920996,
+        9920997,
+        9921100,
+        9921110,
+        9921120
+      ]
+    },
+    "params": {
+      "tests": {
+        "repr": "['test_world_clone.py', 'test_visit_links.py', 'test_bnct_time_sync.py', 'test_fixed_vessel_admission.py']"
+      },
+      "baseline": {
+        "repr": "'d7c4a3b18fc0ecc7588845f585dd3fd00e0a2add'"
+      },
+      "runtime_changes": {
+        "repr": "False"
+      },
+      "training": {
+        "repr": "False"
+      },
+      "scope": {
+        "repr": "'metadata, historical evidence and existing regression tests'"
+      }
+    },
+    "prereg": ".claude/docs/dashboard-task-specs/YR-332-be-world-manifest-reconciliation.md"
+  },
+  "artifact_hashes": {
+    "outputs/reports/yr332_manifest_reconciliation/audit-before.json": "7d9fea85091ca5a83761b886823ded6b2964c310fb046970c4c7abce62517c8b",
+    "outputs/reports/yr332_manifest_reconciliation/audit-after.json": "c4fb4618dce9b5a5777e9292c9cc09ec8bd3b6058accfb88ad4c0b5d245506f1",
+    "outputs/reports/yr332_manifest_reconciliation/tests-after.xml": "4f620ba3195909ff59af2f6f33407393bf94cbfc4ae267be5de4f6166ab82bcf"
+  },
+  "mismatches_before": 4,
+  "mismatches_after": 0,
+  "tests_passed": 96,
+  "runtime_files_changed": 0,
+  "changes_mapped": 5,
+  "unique_commits": 3,
+  "runtime_source_tree": "32b7141c55e212222622c67df17d03e960179115",
+  "monthly_inventory_unresolved": true,
+  "training": false
+}
