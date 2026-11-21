@@ -1,0 +1,715 @@
+{
+  "commit": "a9d01685",
+  "system": "Windows",
+  "tested": 176,
+  "passed": 174,
+  "failed": 2,
+  "tests": [
+    {
+      "test": "tests.v7.test_fixed_seed.test_initial_inventory_needs_no_incoming_order",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_all_source_kinds_have_fixed_unique_exits_and_no_input_mutation",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_initial_block_label_uses_actual_owner_without_mutating_positions",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_held_initial_cargo_requires_a_release_plan",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_future_delivery_is_reserved_once_without_moving_pickup_time",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_future_source_not_reused_by_a_later_pickup",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_clock_boundary_uses_individual_moves_and_waits_for_named_cargo",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_invalid_real_initial_slots_fail_even_with_positive_ending_balance[position0]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_invalid_real_initial_slots_fail_even_with_positive_ending_balance[position1]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_invalid_real_initial_slots_fail_even_with_positive_ending_balance[position2]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_saved_seed_cannot_move_vessel_before_its_injection_day",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_negative_travel_is_invalid_even_if_block_arrival_is_positive",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_true_supply_shortage_does_not_create_cargo_or_drop_orders",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_truck_and_vessel_reserve_different_containers",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_exogenous_assignment_is_repeatable_and_seed_sensitive",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_outbound_size_metadata_follows_the_assigned_container",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_mutated_bundle_does_not_pass_independent_validation[source]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_mutated_bundle_does_not_pass_independent_validation[order]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_mutated_bundle_does_not_pass_independent_validation[duplicate_exit]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_mutated_bundle_does_not_pass_independent_validation[short_manifest]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_gzip_is_reproducible_load_checked_and_existing_file_preserved",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_vessel_source_size_sequence_matches_the_frozen_engine",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_seed.test_real_three_day_generator_and_command_write_valid_fixed_data",
+      "passed": false,
+      "message": "AttributeError: module 'os' has no attribute 'sched_getaffinity'"
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_full_yard_retains_waiting_order_and_continues_charging_ppo_reward",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_actual_pickup_frees_space_then_same_waiting_inbound_is_stored",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_negative_reservation_balance_does_not_reject_demand",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_actual_934_boxes_and_future_discharge_reservations_keep_new_order",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_capacity_change_does_not_relax_identity_time_or_ledger_checks[duplicate]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_capacity_change_does_not_relax_identity_time_or_ledger_checks[unknown_source]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_capacity_change_does_not_relax_identity_time_or_ledger_checks[past_time]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_capacity_wait.test_capacity_change_does_not_relax_identity_time_or_ledger_checks[no_ledger]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_pending_cargo_served_only_after_physical_storage[False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_pending_cargo_served_only_after_physical_storage[True]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[60-True]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_follow_reallocated_inbound_preserves_cargo_and_elapsed_wait[420-True]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_bad_source_rejected_without_replacing_or_injecting_any_box",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_restore_rejects_wrong_seed_or_day_calendar",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_completion_rejects_premature_exit",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_not_yet_announced_pickup_uses_actual_stored_block",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_failed_inbound_transfer_does_not_move_its_dependent",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_waiting_pickup_routes_after_daily_accounting_prune",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_cargo_runtime.test_dependent_accounting_failure_does_not_partially_commit_inbound",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_y08_shape_boundary[648-DISCHARGE]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_y08_shape_boundary[652-DISCHARGE]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_y08_shape_boundary[653-LOAD]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_without_initial_stock_is_the_legacy_plan",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_repairs_latest_load_first_and_repeats_until_no_shortage",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_truck_only_shortage_is_left_for_the_generator_to_refuse",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_vessel_stock_guard.test_original_failing_seed_9921000_now_generates",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_v3_six_field_schema_is_preserved",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_order_requires_nonempty_container_number[None]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_order_requires_nonempty_container_number[]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_order_requires_nonempty_container_number[ ]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_order_requires_nonempty_container_number[12]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_order_number_is_the_actual_retrieve_or_produced_container",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_explicit_conflicting_number_is_not_silently_overwritten[None]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_explicit_conflicting_number_is_not_silently_overwritten[]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_explicit_conflicting_number_is_not_silently_overwritten[CNpickup]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_explicit_conflicting_number_is_not_silently_overwritten[B]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_relocation_and_deferral_keep_container_identity",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_block_local_initial_names_get_unique_stable_ids",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_day_prefix_is_also_applied_to_the_produced_container",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_valid_fixed_plan_is_read_only_and_deterministic",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_same_box_cannot_be_exited_twice_even_under_different_order_names",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_truck_and_ship_cannot_claim_the_same_box",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_exit_requires_a_known_source",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_truck_arriving_before_known_cargo_is_pending_not_invalid",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_vessel_unload_supplies_a_fixed_named_box",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_vessel_load_without_manifest_cannot_pass",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_missing_and_reserved_targets_are_never_replaced_by_another_box",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_custom_retarget_hook_cannot_change_the_order",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_container_contract.test_real_default_input_is_rejected_before_runtime_bind",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[None-1-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[A-1-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[targets2-2-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[targets3-2-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[targets4-2-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[targets5-1-False]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_invalid_fixed_manifest_changes_no_world_state[targets6-1-True]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_missing_journal_callback_does_not_allow_failed_work_to_continue[truck]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_fixed_vessel_admission.test_missing_journal_callback_does_not_allow_failed_work_to_continue[vessel]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_announcer_uses_reservation_for_public_eta_and_actual_for_events[900]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_announcer_uses_reservation_for_public_eta_and_actual_for_events[1500]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_announcer_uses_reservation_for_public_eta_and_actual_for_events[2100]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_announcer_uses_reservation_for_public_eta_and_actual_for_events[-600]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_announcer_uses_reservation_for_public_eta_and_actual_for_events[87000]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_no_admission_before_notice_and_clone_preserves_both_clocks",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_changing_unobserved_actual_does_not_change_public_order_or_eta",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_missing_or_invalid_explicit_reservation_never_falls_back_to_actual[None]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_missing_or_invalid_explicit_reservation_never_falls_back_to_actual[nan]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_missing_or_invalid_explicit_reservation_never_falls_back_to_actual[inf]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_missing_or_invalid_explicit_reservation_never_falls_back_to_actual[True]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_missing_or_invalid_explicit_reservation_never_falls_back_to_actual[not-a-time]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_absent_new_reservation_and_unknown_schema_are_rejected",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_legacy_month_alias_is_not_reinterpreted_as_new_reservation",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_invalid_error_scale_is_rejected[-1]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_invalid_error_scale_is_rejected[nan]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_invalid_error_scale_is_rejected[inf]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_generation_preserves_physical_demand_and_repeats_exactly",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_month_shifts_public_and_private_times_together",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_unsupported_array_path_cannot_silently_disclose_actual_arrival",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_real_gate_record_stays_empty_until_event_even_with_earlier_reservation",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_new_saved_contract_cannot_silently_fall_back_to_actual",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_saved_seed_round_trip_preserves_both_times_and_contract",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_reservation_contract.test_array_entrypoints_reject_unimplemented_noisy_reservations",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_all_v6_source_files_were_copied",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/candidate.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/cost.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/fixtures.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/leakage.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/schema.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/serialize.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/state.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/transition.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/validate.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/vectors.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/contract/vessel.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/domain/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/domain/enums.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/domain/models.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/domain/validators.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/adapter.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/audit.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/baselines.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/block_congestion.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/candidates.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/cost.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/cost_config.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/cost_curve.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/cost_curve_v2.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/cranes.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/day_plan.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/dispatcher.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/engine.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/events.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/fixtures.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/jobplan.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/lane.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/ledger.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/multiblock.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/order_schema.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/policy_config.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/profile.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/profiles.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/reservation.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/resolver.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/scenario.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/scenario_gen.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/slot_plan.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/terminal_stream.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/time_contract.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/time_grid.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/time_sell.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/transfer.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/vessel.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/vessel_cost.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/vessel_signals.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/integrated/yard_layout.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/io/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/io/profile_loader.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/sim/__init__.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/sim/constraints.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/sim/kpis.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/sim/stack.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_world_is_unchanged_from_v6[world/sim/travel_time.py]",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_physical_corrections_are_explicit_and_scoped",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_reconciled_changes_are_tied_to_audited_history",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_copy_manifest_pins_the_declared_base_commit",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_world_clone.test_v7_has_no_absolute_import_from_another_generation",
+      "passed": true
+    },
+    {
+      "test": "tests.v7.test_month_stage.test_each_block_stays_near_its_starting_level",
+      "passed": false,
+      "message": "AssertionError: 계획 날짜 기준 경보: 최고 블록 1411/1440, 첫날 말 20226, 최저 9622, 월말 10076\nassert (1411 < (1440 * 0.9))"
+    },
+    {
+      "test": "tests.v7.test_month_stage.test_month_vessel_work_is_deterministic_and_policy_free",
+      "passed": true
+    }
+  ]
+}
