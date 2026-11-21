@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="28" time="1.516" timestamp="2026-11-21T12:12:59.233989+09:00" hostname="global05_58"><testcase classname="tests.v7.test_load_completion_bound" name="test_load_can_finish_before_continuous_average_supply_bound[2]" time="0.003"><failure message="assert 744.2777777777777 &lt;= (724.670202020202 + 1e-08)">moves = 2
+
+    @pytest.mark.parametrize('moves', [2, 3, 8, 32])
+    def test_load_can_finish_before_continuous_average_supply_bound(moves):
+        result = run_case(units=3, moves=moves)
+        for v in result['vessels']:
+&gt;           assert v['with_targets_s'] &lt;= v['actual_completion_s'] + 1e-8
+E           assert 744.2777777777777 &lt;= (724.670202020202 + 1e-08)
+
+tests\v7\test_load_completion_bound.py:20: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_load_can_finish_before_continuous_average_supply_bound[3]" time="0.002"><failure message="assert 900.9444444444443 &lt;= (855.5792929292929 + 1e-08)">moves = 3
+
+    @pytest.mark.parametrize('moves', [2, 3, 8, 32])
+    def test_load_can_finish_before_continuous_average_supply_bound(moves):
+        result = run_case(units=3, moves=moves)
+        for v in result['vessels']:
+&gt;           assert v['with_targets_s'] &lt;= v['actual_completion_s'] + 1e-8
+E           assert 900.9444444444443 &lt;= (855.5792929292929 + 1e-08)
+
+tests\v7\test_load_completion_bound.py:20: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_load_can_finish_before_continuous_average_supply_bound[8]" time="0.004"><failure message="assert 1684.2777777777776 &lt;= (1664.670202020202 + 1e-08)">moves = 8
+
+    @pytest.mark.parametrize('moves', [2, 3, 8, 32])
+    def test_load_can_finish_before_continuous_average_supply_bound(moves):
+        result = run_case(units=3, moves=moves)
+        for v in result['vessels']:
+&gt;           assert v['with_targets_s'] &lt;= v['actual_completion_s'] + 1e-8
+E           assert 1684.2777777777776 &lt;= (1664.670202020202 + 1e-08)
+
+tests\v7\test_load_completion_bound.py:20: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_load_can_finish_before_continuous_average_supply_bound[32]" time="0.016"><failure message="assert 5444.277777777777 &lt;= (5424.670202020202 + 1e-08)">moves = 32
+
+    @pytest.mark.parametrize('moves', [2, 3, 8, 32])
+    def test_load_can_finish_before_continuous_average_supply_bound(moves):
+        result = run_case(units=3, moves=moves)
+        for v in result['vessels']:
+&gt;           assert v['with_targets_s'] &lt;= v['actual_completion_s'] + 1e-8
+E           assert 5444.277777777777 &lt;= (5424.670202020202 + 1e-08)
+
+tests\v7\test_load_completion_bound.py:20: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-30.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-30.0-2]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-30.0-3]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-30.0-6]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-470.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-470.0-2]" time="0.001"><failure message="assert 1422.611111111111 == 1207.611111111111 ± 1.0e-08&#10;  &#10;  comparison failed&#10;  Obtained: 1422.611111111111&#10;  Expected: 1207.611111111111 ± 1.0e-08">units = 2, transfer = 470.0, cadence = 20.0
+
+    @pytest.mark.parametrize('units', [1, 2, 3, 6])
+    @pytest.mark.parametrize('transfer', [30., 470.])
+    @pytest.mark.parametrize('cadence', [20., 3600./27.5, 600.])
+    def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence):
+        profile, scenario = fixture(units=units, moves=1)
+        profile = replace(profile, transfer=replace(profile.transfer, move_time_s=transfer))
+        targets = list(scenario.containers.values())
+        earliest = 600. + _min_yc_cycle_s(profile, targets[0])
+        for moves in (1, 2, 3, 4, 8, 32):
+            actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
+            lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
+                moves=moves, cadence_s=cadence, load_targets=targets * moves)
+&gt;           assert lower == pytest.approx(actual, abs=1e-8)
+E           assert 1422.611111111111 == 1207.611111111111 ± 1.0e-08
+E             
+E             comparison failed
+E             Obtained: 1422.611111111111
+E             Expected: 1207.611111111111 ± 1.0e-08
+
+tests\v7\test_load_completion_bound.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-470.0-3]" time="0.001"><failure message="assert 1344.2777777777778 == 1207.611111111111 ± 1.0e-08&#10;  &#10;  comparison failed&#10;  Obtained: 1344.2777777777778&#10;  Expected: 1207.611111111111 ± 1.0e-08">units = 3, transfer = 470.0, cadence = 20.0
+
+    @pytest.mark.parametrize('units', [1, 2, 3, 6])
+    @pytest.mark.parametrize('transfer', [30., 470.])
+    @pytest.mark.parametrize('cadence', [20., 3600./27.5, 600.])
+    def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence):
+        profile, scenario = fixture(units=units, moves=1)
+        profile = replace(profile, transfer=replace(profile.transfer, move_time_s=transfer))
+        targets = list(scenario.containers.values())
+        earliest = 600. + _min_yc_cycle_s(profile, targets[0])
+        for moves in (1, 2, 3, 4, 8, 32):
+            actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
+            lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
+                moves=moves, cadence_s=cadence, load_targets=targets * moves)
+&gt;           assert lower == pytest.approx(actual, abs=1e-8)
+E           assert 1344.2777777777778 == 1207.611111111111 ± 1.0e-08
+E             
+E             comparison failed
+E             Obtained: 1344.2777777777778
+E             Expected: 1207.611111111111 ± 1.0e-08
+
+tests\v7\test_load_completion_bound.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[20.0-470.0-6]" time="0.001"><failure message="assert 1265.9444444444443 == 1207.611111111111 ± 1.0e-08&#10;  &#10;  comparison failed&#10;  Obtained: 1265.9444444444443&#10;  Expected: 1207.611111111111 ± 1.0e-08">units = 6, transfer = 470.0, cadence = 20.0
+
+    @pytest.mark.parametrize('units', [1, 2, 3, 6])
+    @pytest.mark.parametrize('transfer', [30., 470.])
+    @pytest.mark.parametrize('cadence', [20., 3600./27.5, 600.])
+    def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence):
+        profile, scenario = fixture(units=units, moves=1)
+        profile = replace(profile, transfer=replace(profile.transfer, move_time_s=transfer))
+        targets = list(scenario.containers.values())
+        earliest = 600. + _min_yc_cycle_s(profile, targets[0])
+        for moves in (1, 2, 3, 4, 8, 32):
+            actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
+            lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
+                moves=moves, cadence_s=cadence, load_targets=targets * moves)
+&gt;           assert lower == pytest.approx(actual, abs=1e-8)
+E           assert 1265.9444444444443 == 1207.611111111111 ± 1.0e-08
+E             
+E             comparison failed
+E             Obtained: 1265.9444444444443
+E             Expected: 1207.611111111111 ± 1.0e-08
+
+tests\v7\test_load_completion_bound.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-30.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-30.0-2]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-30.0-3]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-30.0-6]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-470.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-470.0-2]" time="0.001"><failure message="assert 1422.611111111111 == 1318.520202020202 ± 1.0e-08&#10;  &#10;  comparison failed&#10;  Obtained: 1422.611111111111&#10;  Expected: 1318.520202020202 ± 1.0e-08">units = 2, transfer = 470.0, cadence = 130.9090909090909
+
+    @pytest.mark.parametrize('units', [1, 2, 3, 6])
+    @pytest.mark.parametrize('transfer', [30., 470.])
+    @pytest.mark.parametrize('cadence', [20., 3600./27.5, 600.])
+    def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence):
+        profile, scenario = fixture(units=units, moves=1)
+        profile = replace(profile, transfer=replace(profile.transfer, move_time_s=transfer))
+        targets = list(scenario.containers.values())
+        earliest = 600. + _min_yc_cycle_s(profile, targets[0])
+        for moves in (1, 2, 3, 4, 8, 32):
+            actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
+            lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
+                moves=moves, cadence_s=cadence, load_targets=targets * moves)
+&gt;           assert lower == pytest.approx(actual, abs=1e-8)
+E           assert 1422.611111111111 == 1318.520202020202 ± 1.0e-08
+E             
+E             comparison failed
+E             Obtained: 1422.611111111111
+E             Expected: 1318.520202020202 ± 1.0e-08
+
+tests\v7\test_load_completion_bound.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-470.0-3]" time="0.001"><failure message="assert 1344.2777777777778 == 1318.520202020202 ± 1.0e-08&#10;  &#10;  comparison failed&#10;  Obtained: 1344.2777777777778&#10;  Expected: 1318.520202020202 ± 1.0e-08">units = 3, transfer = 470.0, cadence = 130.9090909090909
+
+    @pytest.mark.parametrize('units', [1, 2, 3, 6])
+    @pytest.mark.parametrize('transfer', [30., 470.])
+    @pytest.mark.parametrize('cadence', [20., 3600./27.5, 600.])
+    def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence):
+        profile, scenario = fixture(units=units, moves=1)
+        profile = replace(profile, transfer=replace(profile.transfer, move_time_s=transfer))
+        targets = list(scenario.containers.values())
+        earliest = 600. + _min_yc_cycle_s(profile, targets[0])
+        for moves in (1, 2, 3, 4, 8, 32):
+            actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
+            lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
+                moves=moves, cadence_s=cadence, load_targets=targets * moves)
+&gt;           assert lower == pytest.approx(actual, abs=1e-8)
+E           assert 1344.2777777777778 == 1318.520202020202 ± 1.0e-08
+E             
+E             comparison failed
+E             Obtained: 1344.2777777777778
+E             Expected: 1318.520202020202 ± 1.0e-08
+
+tests\v7\test_load_completion_bound.py:56: AssertionError</failure></testcase><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[130.9090909090909-470.0-6]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-30.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-30.0-2]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-30.0-3]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-30.0-6]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-470.0-1]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-470.0-2]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-470.0-3]" time="0.001" /><testcase classname="tests.v7.test_load_completion_bound" name="test_bound_matches_independent_relaxed_event_model[600.0-470.0-6]" time="0.001" /></testsuite></testsuites>

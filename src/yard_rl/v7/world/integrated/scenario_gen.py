@@ -270,10 +270,15 @@ def phys_min_completion_s(profile: IntegratedProfile, *, work: VesselWorkType,
         처음 여러 상자는 차량 귀환 전에 인출할 수 있으므로 평균 운반 간격을 전체 박스 수에
         곱하면 유한 작업의 하한이 되지 않는다(YR-332-i: 1~3박스 반례).
         이 함수에는 공유 인계·안벽 버퍼 상태가 없으므로 양하는 STS 간격 하한만 반환한다.
-      · 야드 공급 최소 간격 = `YT 편도 / 대수` (fleet 전량을 이 본선에 몰아줘도 이 이상 불가).
+      · 적하 작업은 생성기 계약대로 start 이후 해제된다. 모든 박스를 가장 빠른 YC 1사이클
+        직후 동시에 공급한다고 완화해도, n대 차량의 k번째 도착은
+        `start + min_yc + ceil(k/n)·YT시간`보다 빠를 수 없다.
+        k번째 도착 뒤에도 남은 moves−k개의 STS 간격이 필요하다.
+        이 하한들의 최댓값을 취하며, 평균 운반 간격을 첫 묶음에 적용하지 않는다.
 
-    적하의 기존 추정: `start + max(moves·cadence, lead + (moves−1)·max(cadence, 야드간격))`.
-    적하의 유한 차량 수 보정은 이 양하 반례 수정으로 검증한 것이 아니다.
+    YR-332-i: `q=floor((moves−1)/n)`일 때 공급 사슬 하한은
+    `start + lead + (moves−1)·cadence + max(0, q·(YT시간−n·cadence))`.
+    각 묶음 첫 박스의 하한은 q에 선형이므로 첫/마지막 묶음만 보면 된다.
 
     야드 **경합**(다른 트럭·본선과의 크레인 다툼)은 정책이 바꿀 수 있으므로 **넣지 않는다** —
     하한 이상이라는 사실만으로 실제 달성 가능한 마감임을 보장하지 않는다.
@@ -285,7 +290,10 @@ def phys_min_completion_s(profile: IntegratedProfile, *, work: VesselWorkType,
     if work != VesselWorkType.LOAD or not load_targets:
         return max(sts_only, start_s + moves * max(cadence_s, yard_interval))
     lead = min(_min_yc_cycle_s(profile, c) for c in load_targets) + profile.transfer.move_time_s
-    chain = start_s + lead + (moves - 1) * max(cadence_s, yard_interval)
+    units = max(1, profile.transfer.n_units)
+    batches = (moves - 1) // units
+    supply_gap = max(0.0, batches * (profile.transfer.move_time_s - units * cadence_s))
+    chain = start_s + lead + (moves - 1) * cadence_s + supply_gap
     return max(sts_only, chain)
 
 

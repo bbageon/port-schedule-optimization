@@ -108,7 +108,7 @@ def input_snapshot(path):
         assert row['audit'] == ref['audit']
         rows.append(row)
     path.write_text(json.dumps(dict(rows=rows, source_commit=subprocess.check_output(
-        ['git','rev-parse','HEAD'], text=True).strip()), ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8')
+        ['git','rev-parse','HEAD'], text=True).strip()), ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8', newline='\n')
 
 
 def main():
@@ -122,7 +122,7 @@ def main():
     sources = [Path(__file__), PREREG, Path('scripts/v7/audit_transport_calibration.py'),
                Path('tests/v7/test_discharge_backpressure.py'),
                *Path('src/yard_rl/v7').rglob('*.py')]
-    result = dict(task='YR-332-i', sources={p.as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+    result = dict(task='YR-332-i', sources={p.resolve().relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                                          for p in sources},
         repro=repro_stamp(experiment='YR-332-i-load-bound', seeds=dict(fixture=[0]),
             params=dict(cases=CASES, repeat=CASES[-1], cadence_s=CADENCE,
@@ -142,7 +142,7 @@ def main():
         result['physical_traces_unchanged'] = True
         assert not violations, violations
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8')
+    args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str)+'\n', encoding='utf-8', newline='\n')
     if args.inputs_out:
         input_snapshot(args.inputs_out)
     print(json.dumps(dict(runs=len(runs)+1, violations=violations, repeat_identical=True)))

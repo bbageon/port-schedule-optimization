@@ -53,7 +53,7 @@ def test_bound_matches_independent_relaxed_event_model(units, transfer, cadence)
         actual = relaxed_finish(units, transfer, cadence, moves, earliest, start=600.)
         lower = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
             moves=moves, cadence_s=cadence, load_targets=targets * moves)
-        assert lower == pytest.approx(actual, abs=1e-8)
+        assert lower == pytest.approx(actual, rel=0., abs=1e-8)
         without = phys_min_completion_s(profile, work=VesselWorkType.LOAD, start_s=600.,
                                         moves=moves, cadence_s=cadence)
         assert without <= actual + 1e-8
