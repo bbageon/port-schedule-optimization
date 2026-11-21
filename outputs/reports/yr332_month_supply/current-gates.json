@@ -1,0 +1,239 @@
+{
+  "task": "YR-332-bg",
+  "next_task": "YR-332-bh",
+  "scope": "fixed monthly input audit",
+  "evidence_commit": "8d3013ae9886bc79d34a7d73f6a38f8f32806eac",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "합성 탐색의 작업별 보호·완주 조건 미충족",
+      "reasons": [],
+      "evidence": {
+        "metric": "terminal_total_cost",
+        "baseline": "SF-SPT",
+        "hard_guards": {
+          "outbound_no_worse_than_zero": false,
+          "vessel_time_no_worse_than_zero": false,
+          "vessel_no_worse_than_zero": false,
+          "unfinished_no_worse_than_zero": false,
+          "all_final_jobs_complete": false
+        },
+        "candidate_minus_baseline": 289642541.47014475,
+        "candidate_minus_baseline_ci95_raw": [
+          225629235.64634967,
+          356697611.6618072
+        ],
+        "primary_global_vs_zero": {
+          "baseline": "zero",
+          "candidate": "global",
+          "paired_cost_matrix": [
+            [
+              65930781.984848976,
+              -75566557.94727004,
+              -2264303.980793953
+            ],
+            [
+              70749445.22842717,
+              -46230999.70430374,
+              -13814015.049166918
+            ],
+            [
+              85247820.06647849,
+              -42936661.82105017,
+              -13584469.44096303
+            ]
+          ],
+          "cost_difference": 3059004.3706896435,
+          "cost_difference_ci95": [
+            -51132473.29177797,
+            72369794.6787256
+          ],
+          "change_pct": 0.26214597794500527,
+          "change_pct_ci95": [
+            -4.570072383850721,
+            6.667558797841755
+          ],
+          "repeats": 10000,
+          "seed": 10089900,
+          "method": "crossed resampling of three synthetic curves and three model seeds; loads averaged first"
+        },
+        "conditions": {
+          "all_model_pairs_lower_cost": false,
+          "truck_no_worse_than_zero": false,
+          "outbound_no_worse_than_zero": false,
+          "vessel_time_no_worse_than_zero": false,
+          "vessel_no_worse_than_zero": false,
+          "unfinished_no_worse_than_zero": false,
+          "lower_cost_than_rule": false,
+          "lower_truck_time_than_rule": false,
+          "lower_vessel_time_than_rule": false,
+          "all_final_jobs_complete": false
+        },
+        "numerical_adoption_pass": false,
+        "model_pairs": 3,
+        "synthetic_curves": 3,
+        "diagnostic_only": true
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "a9d01685beb2d71a30c7ecd31124b1772e816d7f",
+            "stamp": {
+              "experiment": "YR-332-bg",
+              "code": {
+                "git_head": "a9d01685beb2d71a30c7ecd31124b1772e816d7f",
+                "git_dirty": false,
+                "python": "3.13.9"
+              },
+              "profile_id": null,
+              "seeds": {
+                "month": [
+                  9400777
+                ]
+              },
+              "params": {
+                "days": {
+                  "repr": "[{'index': 0, 'load': 3500, 'label': '원활', 'seed': 9401777, 't0': 0.0, 'train': False, 'n_days': 30}, {'index': 1, 'load': 7500, 'label': '혼잡시작', 'seed': 9402777, 't0': 86400.0, 'train': True, 'n_days': 30}, {'index': 2, 'load': 5000, 'label': '보통', 'seed': 9403777, 't0': 172800.0, 'train': True, 'n_days': 30}, {'index': 3, 'load': 3500, 'label': '원활', 'seed': 9404777, 't0': 259200.0, 'train': True, 'n_days': 30}, {'index': 4, 'load': 5000, 'label': '보통', 'seed': 9405777, 't0': 345600.0, 'train': True, 'n_days': 30}, {'index': 5, 'load': 15000, 'label': '초혼잡', 'seed': 9406777, 't0': 432000.0, 'train': True, 'n_days': 30}, {'index': 6, 'load': 3500, 'label': '원활', 'seed': 9407777, 't0': 518400.0, 'train': True, 'n_days': 30}, {'index': 7, 'load': 3500, 'label': '원활', 'seed': 9408777, 't0': 604800.0, 'train': True, 'n_days': 30}, {'index': 8, 'load': 7500, 'label': '혼잡시작', 'seed': 9409777, 't0': 691200.0, 'train': True, 'n_days': 30}, {'index': 9, 'load': 7500, 'label': '혼잡시작', 'seed': 9410777, 't0': 777600.0, 'train': True, 'n_days': 30}, {'index': 10, 'load': 3500, 'label': '원활', 'seed': 9411777, 't0': 864000.0, 'train': True, 'n_days': 30}, {'index': 11, 'load': 12500, 'label': '혼잡', 'seed': 9412777, 't0': 950400.0, 'train': True, 'n_days': 30}, {'index': 12, 'load': 3500, 'label': '원활', 'seed': 9413777, 't0': 1036800.0, 'train': True, 'n_days': 30}, {'index': 13, 'load': 5000, 'label': '보통', 'seed': 9414777, 't0': 1123200.0, 'train': True, 'n_days': 30}, {'index': 14, 'load': 3500, 'label': '원활', 'seed': 9415777, 't0': 1209600.0, 'train': True, 'n_days': 30}, {'index': 15, 'load': 3500, 'label': '원활', 'seed': 9416777, 't0': 1296000.0, 'train': True, 'n_days': 30}, {'index': 16, 'load': 3500, 'label': '원활', 'seed': 9417777, 't0': 1382400.0, 'train': True, 'n_days': 30}, {'index': 17, 'load': 3500, 'label': '원활', 'seed': 9418777, 't0': 1468800.0, 'train': True, 'n_days': 30}, {'index': 18, 'load': 7500, 'label': '혼잡시작', 'seed': 9419777, 't0': 1555200.0, 'train': True, 'n_days': 30}, {'index': 19, 'load': 12500, 'label': '혼잡', 'seed': 9420777, 't0': 1641600.0, 'train': True, 'n_days': 30}, {'index': 20, 'load': 5000, 'label': '보통', 'seed': 9421777, 't0': 1728000.0, 'train': True, 'n_days': 30}, {'index': 21, 'load': 7500, 'label': '혼잡시작', 'seed': 9422777, 't0': 1814400.0, 'train': True, 'n_days': 30}, {'index': 22, 'load': 3500, 'label': '원활', 'seed': 9423777, 't0': 1900800.0, 'train': True, 'n_days': 30}, {'index': 23, 'load': 3500, 'label': '원활', 'seed': 9424777, 't0': 1987200.0, 'train': True, 'n_days': 30}, {'index': 24, 'load': 5000, 'label': '보통', 'seed': 9425777, 't0': 2073600.0, 'train': True, 'n_days': 30}, {'index': 25, 'load': 5000, 'label': '보통', 'seed': 9426777, 't0': 2160000.0, 'train': True, 'n_days': 30}, {'index': 26, 'load': 12500, 'label': '혼잡', 'seed': 9427777, 't0': 2246400.0, 'train': True, 'n_days': 30}, {'index': 27, 'load': 3500, 'label': '원활', 'seed': 9428777, 't0': 2332800.0, 'train': True, 'n_days': 30}, {'index': 28, 'load': 7500, 'label': '혼잡시작', 'seed': 9429777, 't0': 2419200.0, 'train': True, 'n_days': 30}, {'index': 29, 'load': 3500, 'label': '원활', 'seed': 9430777, 't0': 2505600.0, 'train': False, 'n_days': 30}]"
+                },
+                "fill_ratio": {
+                  "repr": "0.45"
+                },
+                "lead_mode": {
+                  "repr": "'DGT'"
+                },
+                "baseline_commit": {
+                  "repr": "'8aed6fa5'"
+                },
+                "geometry": {
+                  "repr": "'H21'"
+                },
+                "training": {
+                  "repr": "False"
+                },
+                "policy_run": {
+                  "repr": "False"
+                }
+              },
+              "prereg": ".claude/docs/dashboard-task-specs/YR-332-bg-month-supply-contract.md"
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_month_supply/authorization.json": "685d221bffeea8a6a96a17e6dec040e75ceee92b7854f87b384b10a08d386d09",
+              "outputs/reports/yr332_month_supply/baseline.json": "ff670f20adc3e6904ba6ce2f5a797d472fd34dcecdfb698eeff3c19a8b2b4805",
+              "outputs/reports/yr332_month_supply/clock-ledger.json": "3749b59fe649d872c3e55642e91499d756d4869ad8640754a1f47fb6a23299aa",
+              "outputs/reports/yr332_month_supply/deficit-boundaries.json": "9d5fedef814dfb5eba5acbb9a6a8324528d0d3747757b8908dfaccf5bda7f4b2",
+              "outputs/reports/yr332_month_supply/future-supply.json": "f0cb33af9fcf9c36b34ea08a5c708e56946cb04c4e67cd7288c96d5a8405f3a6",
+              "outputs/reports/yr332_month_supply/result.json": "c1038b45154db0316263e5d9ac2567b1f25f2a7c7d37dc1bc02f887a52272b7a",
+              "outputs/reports/yr332_month_supply/tests.json": "4c2d830632686e079da5bc03875deff1129be121518a1e0176e4432c172a36a4",
+              "outputs/reports/yr332_month_supply/README.md": "bbc6885781b83f17e4c51c03b5433b95546b791c8181b72ad2e51bb123c0a270"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-bg",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-bg-month-supply-contract.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_month_supply\\authorization.json",
+              "outputs\\reports\\yr332_month_supply\\baseline.json",
+              "outputs\\reports\\yr332_month_supply\\clock-ledger.json",
+              "outputs\\reports\\yr332_month_supply\\deficit-boundaries.json",
+              "outputs\\reports\\yr332_month_supply\\future-supply.json",
+              "outputs\\reports\\yr332_month_supply\\result.json",
+              "outputs\\reports\\yr332_month_supply\\tests.json",
+              "outputs\\reports\\yr332_month_supply\\README.md",
+              "scripts\\v7\\audit_month_supply.py",
+              "src\\yard_rl\\v7\\stage\\month_supply.py",
+              "src\\yard_rl\\v7\\stage\\fixed_seed.py"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-bg-month-supply-contract.md"
+            ],
+            "evidence_commits": [
+              "8d3013ae9886bc79d34a7d73f6a38f8f32806eac"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "8d3013ae9886bc79d34a7d73f6a38f8f32806eac",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.0,
+            "reported_values": {
+              "block_days": 630,
+              "negative": 14,
+              "later": 2034,
+              "overnight": 1047,
+              "space": 0,
+              "board_later": 2034
+            },
+            "raw_values": {
+              "block_days": 630,
+              "negative": 14,
+              "later": 2034,
+              "overnight": 1047,
+              "space": 0,
+              "board_later": 2034
+            },
+            "absolute_differences": {
+              "block_days": 0.0,
+              "board_later": 0.0,
+              "later": 0.0,
+              "negative": 0.0,
+              "overnight": 0.0,
+              "space": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "계획 입력의 이월·공간 검산 통과, 월 실제 대기와 실측 운반 조건은 미확인",
+      "reasons": [
+        "월 실제 적치·공간 대기 미측정, 기존 혼잡·재고 유지 경보 미달",
+        "운반·인계·귀환과 고물량 외부 근거 대기"
+      ],
+      "evidence": {
+        "clock_accounting_verified": true,
+        "physical_month_replay": false,
+        "result_path": "outputs/reports/yr332_month_supply/result.json",
+        "result_sha256": "c1038b45154db0316263e5d9ac2567b1f25f2a7c7d37dc1bc02f887a52272b7a",
+        "prior_gate": "outputs/reports/yr332_month_inventory/current-gates.json",
+        "prior_sha256": "319f9338f2071629add94c302ea0e90cf603ce0d749216a7db49d62a291c345f"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
