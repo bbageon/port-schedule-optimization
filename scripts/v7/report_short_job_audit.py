@@ -84,7 +84,15 @@ def summarize():
 def report(s):
     rows = s["loads"]
     labels = ("짧은 실작업", "실제 도착순", "가까운 작업", "본선 우선·도착순", "가장 오래 기다린 작업")
+    first = {n:min(val["rules"],key=lambda k:val["rules"][k]["truck"]) for n,val in rows.items()}
+    winners = ", ".join(f"{int(n):,}건은 {labels[RULES.index(k)]}({rows[n]['rules'][k]['truck']:.2f}분)"
+                        for n,k in first.items())
+    normal = rows["3500"]
+    normal_rule, normal_ship = normal["rules"]["SF_SPT"], normal["vessel_exception"]["SF_SPT"]
     lines = ["# 짧은 작업 우선 규칙이 트럭 시간을 줄인 조건", "",
+        "현행 다섯 규칙 중 평균 트럭 시간이 가장 짧은 방식은 "+winners+"이었다.",
+        f"관측 도착률 범위인 3,500건에서 짧은 작업 규칙의 24분 보호 해제 효과는 {normal['spt_off_minus_on']:+.2f}분, "
+        f"순위용 소요시간에 ±30% 오차를 넣은 효과는 {normal['estimated_minus_exact']:+.2f}분이었다.", "",
         f"같은 트럭·기항 명단 9개를 16개 조건에서 재생했다. {s['trials']}회 중 모든 배를 끝낸 실행은 {s['complete_trials']}회다. "
         "직전 규칙의 비용·트럭 시간·본선 원장은 9개 입력 모두 정확히 재현했다.",
         "", "## 실제 블록 도착순과 비교한 평균", "",
@@ -125,6 +133,10 @@ def report(s):
             finite=m["complete"]==1
             lines.append(f"| {int(n):,} | {label} | {m['GATE_IN_average']:.2f} | {m['GATE_OUT_average']:.2f} | "
                 f"{m['GATE_OUT_p90']:.2f} | {m['pending']:.1f} | "+(f"{m['ship_hours_lower']:.2f} | {m['cost_lower']/1e8:.2f} |" if finite else "미완료 포함 | 미확정 |"))
+    if normal_rule["complete"] == normal_ship["complete"] == 1:
+        lines += ["",f"3,500건에서 장기대기 트럭과 본선이 경합할 때 본선을 먼저 주면 트럭 평균 "
+            f"{normal_ship['truck']-normal_rule['truck']:+.2f}분, 본선 평균 {normal_ship['ship_hours_lower']-normal_rule['ship_hours_lower']:+.2f}시간, "
+            f"하루 총비용 {100*(normal_ship['cost_lower']/normal_rule['cost_lower']-1):+.2f}%였다. 단위와 목적에 따라 순위가 달라질 수 있다."]
     lines += ["", "트럭이 자정까지 끝나지 않으면 자정까지의 경과시간을 쓴다. 긴 대기 경계는 일별 90분위의 평균이다. "
         "선박은 당일 하역 가능부터 마지막 안벽 작업까지 집계한다. 자정 이후 신규 도착은 없다.",
         "", "### 현행 다섯 규칙의 총비용", "",
@@ -151,7 +163,9 @@ def report(s):
         "베트남 터미널 조사에서 안정적 작업 중 고무차륜 야드크레인의 평균 사이클은 2.4분이었다. 장비·재취급·운반을 포함하는 범위가 달라 "
         "부산의 개별 작업시간이나 ±30% 오차로 직접 환산할 수 없다. [통합 배정 연구](https://www.sciencedirect.com/science/article/pii/S0377221712006832) · "
         "[실측 장비 연구](https://doi.org/10.3390/logistics6030044)",
-        "- 부산권에서 확보한 기록에는 실제 장비 작업 시작·재취급·예상 대비 실현 소요시간이 함께 들어 있지 않다. "
+        "- 부산권 기존 13일 표본에서 게이트 진입→완료 중앙값은 반입 16.08분, 반출 25.53분이었다. "
+        "블록 도착→완료 중앙값(10.23분·18.63분)에도 줄에서 기다린 시간이 들어간다. "
+        "이 기록에는 실제 장비 작업 시작·재취급·예상 대비 실현 소요시간이 함께 들어 있지 않다. "
         "장비별 대기열과 본선 작업 지시, 예상·실제 시작/종료의 짝이 있어야 현장 우선순위를 검증할 수 있다. [기존 실측 검토](../yr332_inbound_realism/README.md)",
         "", "[전체 결과·일별 지표](summary.json) · [실행 원장](runs/) · [조건과 시드](run-info.json)", ""]
     (OUT/"README.md").write_text("\n".join(lines),encoding="utf8",newline="\n")
