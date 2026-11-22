@@ -95,26 +95,32 @@ def main():
         steps = 0
         tail_samples = 0
         input_digests = []
+        daily_samples = []
+        applied_updates = 0
         for i in range(12):
             row=json.loads((OUT/"models"/str(seed)/f"day-{i}.json").read_text(encoding="utf8"))
             checked_metrics(row)
             assert (row["split"],row["index"],row["load"],row["input_seed"]) == ("train",i,LOADS[i % len(LOADS)],10084100+i)
             input_digests.append([row["demand_digest"],row["quay_manifest_digest"]])
+            daily_samples.append(row.get("reward_check", {}).get("samples", 0))
             if row["vessel_complete"]:
                 assert row["reward_check"]["final_cost"] == row["phi_krw"]
                 tail_samples += row["tail_samples"]
                 complete_days += 1
         for i in range(6):
             row=json.loads((OUT/"models"/str(seed)/f"fit-{i}.json").read_text(encoding="utf8"))
-            assert ((row["selected"],row["optimizer_steps"]) == (0,0)
-                    or (row["selected"],row["optimizer_steps"]) == (2048,128))
+            available = sum(daily_samples[2*i:2*i+2])
+            selected = min(2048, available)
+            assert row.get("available", 0) == available
+            assert row["selected"] == selected and row["optimizer_steps"] == 4 * math.ceil(selected/64)
+            applied_updates += int(selected > 0)
             steps += row["optimizer_steps"]
         old = torch.load(previous(seed), map_location="cpu", weights_only=False)["state_dict"]
         new = torch.load(OUT/"models"/str(seed)/"update-5.pt", map_location="cpu", weights_only=False)["state_dict"]
         assert old.keys() == new.keys()
         changed = sum(not torch.equal(old[name], new[name]) for name in old)
         assert (changed > 0) == (steps > 0)
-        training[str(seed)] = dict(complete_days=complete_days,optimizer_steps=steps,
+        training[str(seed)] = dict(complete_days=complete_days,optimizer_steps=steps,applied_updates=applied_updates,
             changed_state_tensors=changed,post_midnight_choices_on_complete_days=tail_samples,
             input_digests=input_digests)
     assert all(record["input_digests"] == training[str(SEEDS[0])]["input_digests"] for record in training.values())

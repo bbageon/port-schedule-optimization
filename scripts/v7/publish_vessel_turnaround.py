@@ -85,7 +85,7 @@ def write_report():
         "144시간에도 작업이 남으면 최종비용을 알 수 없어 그날을 가중치 갱신에서 제외했다.", "",
         "| 시작 모델 | 완료한 학습일 | 실제 가중치 갱신/예정 | 완료일의 자정 이후 선택(회) |", "|---|---:|---:|---:|"]
     for seed, rec in s["training"].items():
-        lines.append(f"| {seed} | {rec['complete_days']}/12 | {rec['optimizer_steps']//128}/6 | "
+        lines.append(f"| {seed} | {rec['complete_days']}/12 | {rec['applied_updates']}/6 | "
                      f"{rec['post_midnight_choices_on_complete_days']:,} |")
     lines += ["", "별도 동작확인 날짜에는 가장 유리하게 계산해도 지정 블록에 양하 최소 123개를 놓을 수 없었다.",
         "시험은 기존 합성 날짜 세 개를 다시 썼다. 자정 이후 신규 유입 없이 당일 배를 마무리했으며, 실제 항만의 연속운영 절감액은 검증 대상 밖이다.",
