@@ -43,6 +43,12 @@ def main():
     path = OUT/"campaign.json"
     if path.exists():
         stored = json.loads(path.read_text(encoding="utf8"))
+        if stored["code_commit"] != commit:
+            # Documentation, test and publication commits may follow the trial.
+            subprocess.run([git, "diff", "--exit-code", "--quiet", stored["code_commit"], commit, "--",
+                "src/yard_rl", "scripts/v7/vessel_turnaround_experiment.py", "scripts/v7/global_policy_inputs.py",
+                "scripts/v7/value_stability.py"], check=True)
+            manifest["code_commit"] = stored["code_commit"]
         if stored != json.loads(json.dumps(manifest)):
             raise ValueError("Existing campaign provenance differs")
     else:

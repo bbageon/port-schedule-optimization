@@ -38,3 +38,29 @@ def test_unfinished_and_missing_streams_cannot_be_counted_as_completed():
     built["vessel_schedule"].pop()
     with pytest.raises(ValueError, match="Incomplete"):
         VesselTurnaround(built, terminal)
+
+
+def test_last_quay_move_after_intake_cutoff_enters_policy_return(monkeypatch):
+    import torch
+    from yard_rl.v7.crane.actor_critic import SchedulingActorCritic
+    from yard_rl.v7.crane.on_policy import OnPolicyResolver
+    from yard_rl.v7.stage.episode import run_episode
+    from yard_rl.v7.stage import vessels
+    from yard_rl.v7.world.integrated.terminal_stream import ObservationContract
+
+    ship = DailyVessel("fixture", VESSEL_CLASSES[0], 16, 20000., 3300.)
+    monkeypatch.setattr(vessels, "sample_day_vessels", lambda *a, **kw: [ship])
+    torch.manual_seed(190022)
+    net = SchedulingActorCritic(kind="mlp").eval()
+    obs = ObservationContract(warmup_s=0., measure_s=3600.)
+    resolver = OnPolicyResolver(net, collect=True, stochastic=True, seed=190022,
+                                horizon=obs.observe_s, collect_until=39600.)
+    ep = run_episode(load=80, seed=190023, dispatcher="RL_CRANE", crane_net=net,
+                     joint_resolver=resolver, obs=obs, vessel_drain_s=36000.)
+    calls = ep.breakdown["vessel_calls"]
+    assert ep.breakdown["vessel_complete"] and calls[0]["finish_s"] > obs.observe_s
+    before = dict(resolver.costs)[obs.observe_s]
+    tail = (calls[0]["finish_s"] - obs.observe_s)*35.88*ship.gt/3600.
+    assert ep.phi_krw-before == pytest.approx(tail)
+    assert resolver.finish(ep.phi_krw, 100_000.)["samples"] > 0
+    assert any(s.state.time_fraction >= 1 for s in resolver.samples)
