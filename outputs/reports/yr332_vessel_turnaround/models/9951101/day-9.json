@@ -1,0 +1,137 @@
+{
+  "phi_krw": 664668355.1112783,
+  "admitted": 3500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 160,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 52243393.02239469,
+  "c_move": 515829.1666666667,
+  "c_rehandle": 10506000.0,
+  "c_vessel": 601403132.9222169,
+  "n_trucks": 3500,
+  "n_censored": 30,
+  "mean_turn_time_s": 1636.8859278865227,
+  "over_ratio": 0.05857142857142857,
+  "p50_turn_time_s": 1046.1238929303654,
+  "p90_turn_time_s": 2727.6906189781657,
+  "p99_turn_time_s": 11848.16982763791,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 20,
+  "n_job_done": 3480,
+  "n_exit_pending": 10,
+  "mean_gate_to_job_done_s": 1160.825616834639,
+  "p50_gate_to_job_done_s": 642.8183013856615,
+  "p90_gate_to_job_done_s": 2203.871739270442,
+  "p99_gate_to_job_done_s": 9314.124217447781,
+  "job_over_ratio": 0.03571428571428571,
+  "post_job_gate_s": 1666211.0886815903,
+  "mean_job_done_to_gate_out_s": 478.7962898510317,
+  "c_vessel_idle_24h": 65269515.106246576,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 482.7436452535591,
+      "finish_s": 96729.62878330763,
+      "hours": 26.735245871681688,
+      "cost": 47963031.09379695,
+      "moves": 836,
+      "stream_finishes": [
+        96729.62878330763,
+        93721.38005025183
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 10859.710015234852,
+      "finish_s": 113986.6519698696,
+      "hours": 28.64637276517632,
+      "cost": 51391592.74072632,
+      "moves": 894,
+      "stream_finishes": [
+        113986.6519698696,
+        107857.38606016699
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 14672.398908668636,
+      "finish_s": null,
+      "hours": 139.92433363648092,
+      "cost": 502048509.08769363,
+      "moves": 1828,
+      "stream_finishes": [
+        null,
+        108302.7247825165,
+        117589.07224172905,
+        109917.58900746965
+      ],
+      "remaining": 2
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "a08b28986a3bd5afe58742e75d240251565efc29c6de2cf4e8f89036eb9e8233",
+  "quay_manifest_digest": "48f209966afd426885e04b5c80dba43579be6c967baca2798dbad49ca945526a",
+  "vessel_complete": false,
+  "unfinished_streams": [
+    {
+      "block": "Y04",
+      "vessel_id": "M1",
+      "remaining": 2,
+      "buffer": 0,
+      "type": "DISCHARGE",
+      "clock": 518400.0,
+      "jobs": {
+        "DONE": 452,
+        "RELEASED": 3,
+        "PLANNED": 2
+      },
+      "stock": 1423
+    }
+  ],
+  "c_vessel_structural": 45365841.476172805,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 9,
+  "load": 3500,
+  "input_seed": 10084109,
+  "seconds": 528.5727216880769
+}

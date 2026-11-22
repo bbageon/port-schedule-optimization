@@ -1,0 +1,132 @@
+{
+  "phi_krw": 3503262097.156669,
+  "admitted": 15000,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 735,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 3159827510.9809365,
+  "c_move": 917217.7083333334,
+  "c_rehandle": 22212000.0,
+  "c_vessel": 320305368.46739924,
+  "n_trucks": 15000,
+  "n_censored": 4170,
+  "mean_turn_time_s": 13250.601093388741,
+  "over_ratio": 0.6452666666666667,
+  "p50_turn_time_s": 6508.359244816544,
+  "p90_turn_time_s": 36654.983,
+  "p99_turn_time_s": 52952.002,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 3244,
+  "n_job_done": 11756,
+  "n_exit_pending": 926,
+  "mean_gate_to_job_done_s": 10888.180174565596,
+  "p50_gate_to_job_done_s": 4492.290861106267,
+  "p90_gate_to_job_done_s": 32606.415,
+  "p99_gate_to_job_done_s": 52290.441,
+  "job_over_ratio": 0.5598666666666666,
+  "post_job_gate_s": 35436313.782347195,
+  "mean_job_done_to_gate_out_s": 3014.3172662765564,
+  "c_vessel_idle_24h": 126103573.46811822,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 17084.799734619846,
+      "finish_s": 155473.56241029486,
+      "hours": 38.44132296546528,
+      "cost": 68963733.40004472,
+      "moves": 485,
+      "stream_finishes": [
+        155473.56241029486,
+        152823.7007057404
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 26483.09651253262,
+      "finish_s": 179402.28427223244,
+      "hours": 42.477552155472175,
+      "cost": 76204728.56691709,
+      "moves": 700,
+      "stream_finishes": [
+        179402.28427223244,
+        169239.20953600775
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 11236.181871926889,
+      "finish_s": 186958.8305345731,
+      "hours": 48.81184685073506,
+      "cost": 175136906.5004374,
+      "moves": 1621,
+      "stream_finishes": [
+        186958.8305345731,
+        169358.55795188574,
+        183367.24894919017,
+        172621.20364288794
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "a78a71cb9e5401b77c6ffe1b115f59a75fb4d9a111349458d9e809bd069ffd0d",
+  "quay_manifest_digest": "df35f8ebbebc1061fd6e78a306e021f8ab6d7658cd696836744e569176a39d93",
+  "vessel_complete": true,
+  "c_vessel_structural": 58815127.74652936,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 11,
+  "load": 15000,
+  "input_seed": 10084111,
+  "seconds": 1378.8497910439037,
+  "reward_check": {
+    "samples": 15556,
+    "decisions": 17560,
+    "nontrivial": 15556,
+    "reward_sum": -9.512144051859348,
+    "final_cost": 3503262097.156669,
+    "scale": 368293633.7020551,
+    "max_candidates": 438,
+    "oracle_calls": 30243
+  },
+  "tail_samples": 5161
+}

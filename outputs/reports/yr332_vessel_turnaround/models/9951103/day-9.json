@@ -1,0 +1,132 @@
+{
+  "phi_krw": 266270214.30819076,
+  "admitted": 3500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 160,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 52631578.56113199,
+  "c_move": 519823.9583333333,
+  "c_rehandle": 10488000.0,
+  "c_vessel": 202630811.78872544,
+  "n_trucks": 3500,
+  "n_censored": 29,
+  "mean_turn_time_s": 1616.108037576686,
+  "over_ratio": 0.05114285714285714,
+  "p50_turn_time_s": 1036.6506091542906,
+  "p90_turn_time_s": 2618.1187678797505,
+  "p99_turn_time_s": 13228.673797490388,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 20,
+  "n_job_done": 3480,
+  "n_exit_pending": 9,
+  "mean_gate_to_job_done_s": 1150.4388530234971,
+  "p50_gate_to_job_done_s": 624.1971404154101,
+  "p90_gate_to_job_done_s": 2096.0094812914176,
+  "p99_gate_to_job_done_s": 11267.27368600593,
+  "job_over_ratio": 0.032857142857142856,
+  "post_job_gate_s": 1629842.1459361578,
+  "mean_job_done_to_gate_out_s": 468.3454442345281,
+  "c_vessel_idle_24h": 65357740.76773633,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 482.7436452535591,
+      "finish_s": 96434.93984360555,
+      "hours": 26.653387832875552,
+      "cost": 47816177.77217875,
+      "moves": 836,
+      "stream_finishes": [
+        96434.93984360555,
+        92076.09494271097
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 10859.710015234852,
+      "finish_s": 113842.76117892437,
+      "hours": 28.606403101024863,
+      "cost": 51319887.163238615,
+      "moves": 894,
+      "stream_finishes": [
+        113842.76117892437,
+        107799.96325452437
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 14672.398908668636,
+      "finish_s": 118513.28203907807,
+      "hours": 28.844689758447064,
+      "cost": 103494746.85330808,
+      "moves": 1828,
+      "stream_finishes": [
+        118349.31516255577,
+        109862.38933883233,
+        118513.28203907807,
+        107417.93000410574
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "a08b28986a3bd5afe58742e75d240251565efc29c6de2cf4e8f89036eb9e8233",
+  "quay_manifest_digest": "48f209966afd426885e04b5c80dba43579be6c967baca2798dbad49ca945526a",
+  "vessel_complete": true,
+  "c_vessel_structural": 45365841.476172805,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 9,
+  "load": 3500,
+  "input_seed": 10084109,
+  "seconds": 186.93953914614394,
+  "reward_check": {
+    "samples": 4755,
+    "decisions": 6910,
+    "nontrivial": 4755,
+    "reward_sum": -0.7229834836721615,
+    "final_cost": 266270214.30819076,
+    "scale": 368293633.7020551,
+    "max_candidates": 219,
+    "oracle_calls": 13041
+  },
+  "tail_samples": 801
+}

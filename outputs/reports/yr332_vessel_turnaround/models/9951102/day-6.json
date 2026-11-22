@@ -1,0 +1,132 @@
+{
+  "phi_krw": 234118533.26556543,
+  "admitted": 3500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 241,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 55004970.55351191,
+  "c_move": 590376.0416666666,
+  "c_rehandle": 12006000.0,
+  "c_vessel": 166517186.67038685,
+  "n_trucks": 3500,
+  "n_censored": 59,
+  "mean_turn_time_s": 1689.6434991749732,
+  "over_ratio": 0.055714285714285716,
+  "p50_turn_time_s": 1108.0048723069303,
+  "p90_turn_time_s": 2611.3987670382703,
+  "p99_turn_time_s": 13908.95929224405,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 37,
+  "n_job_done": 3463,
+  "n_exit_pending": 22,
+  "mean_gate_to_job_done_s": 1208.9086820189493,
+  "p50_gate_to_job_done_s": 712.0721052886456,
+  "p90_gate_to_job_done_s": 2104.462935063708,
+  "p99_gate_to_job_done_s": 11150.590414215549,
+  "job_over_ratio": 0.03742857142857143,
+  "post_job_gate_s": 1682571.8600460743,
+  "mean_job_done_to_gate_out_s": 485.8711695195132,
+  "c_vessel_idle_24h": 59627135.64603043,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 7447.227901645603,
+      "finish_s": 104419.4949708998,
+      "hours": 26.936740852570612,
+      "cost": 48324513.089511685,
+      "moves": 846,
+      "stream_finishes": [
+        104419.4949708998,
+        98055.79669300759
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 34329.51787030165,
+      "finish_s": 120937.27895307356,
+      "hours": 24.057711411881083,
+      "cost": 43159534.27291467,
+      "moves": 781,
+      "stream_finishes": [
+        120937.27895307356,
+        113544.52472065136
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 12987.089802009017,
+      "finish_s": 88271.17606417672,
+      "hours": 20.91224618393547,
+      "cost": 75033139.30796048,
+      "moves": 1278,
+      "stream_finishes": [
+        88271.17606417672,
+        86041.74592356947,
+        86508.49553219712,
+        85808.5627283918
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "e8c7fad1a33d10d04115260d15f188a1a44242c931fc3737ed14fa3ac7827547",
+  "quay_manifest_digest": "2c337f9d742b8ef749416e2ddeb0f13b136b88c190d706db4b2ab0dcfee71f8e",
+  "vessel_complete": true,
+  "c_vessel_structural": 56189327.2931477,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 6,
+  "load": 3500,
+  "input_seed": 10084106,
+  "seconds": 501.3269885722548,
+  "reward_check": {
+    "samples": 3934,
+    "decisions": 6223,
+    "nontrivial": 3934,
+    "reward_sum": -0.6356844426340651,
+    "final_cost": 234118533.26556543,
+    "scale": 368293633.7020551,
+    "max_candidates": 277,
+    "oracle_calls": 12345
+  },
+  "tail_samples": 457
+}

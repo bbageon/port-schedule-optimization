@@ -1,0 +1,150 @@
+{
+  "phi_krw": 3981224994.5555344,
+  "admitted": 15000,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 609,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 3344001970.0007286,
+  "c_move": 922580.2083333334,
+  "c_rehandle": 21930000.0,
+  "c_vessel": 614370444.3464725,
+  "n_trucks": 15000,
+  "n_censored": 4867,
+  "mean_turn_time_s": 13686.995154356313,
+  "over_ratio": 0.707,
+  "p50_turn_time_s": 8019.724361966175,
+  "p90_turn_time_s": 35338.881,
+  "p99_turn_time_s": 52613.258,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 3865,
+  "n_job_done": 11135,
+  "n_exit_pending": 1002,
+  "mean_gate_to_job_done_s": 11505.019717093883,
+  "p50_gate_to_job_done_s": 5929.670473817001,
+  "p90_gate_to_job_done_s": 31729.999000000003,
+  "p99_gate_to_job_done_s": 51327.152,
+  "job_over_ratio": 0.6376666666666667,
+  "post_job_gate_s": 32729631.558936708,
+  "mean_job_done_to_gate_out_s": 2939.3472437302835,
+  "c_vessel_idle_24h": 218494024.35255682,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 27420.454370990537,
+      "finish_s": 167581.2646946242,
+      "hours": 38.933558423231574,
+      "cost": 69846803.81127745,
+      "moves": 492,
+      "stream_finishes": [
+        167581.2646946242,
+        155926.5237905056
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 15241.871337426992,
+      "finish_s": 187682.30047646267,
+      "hours": 47.90011920528769,
+      "cost": 85932813.85428612,
+      "moves": 738,
+      "stream_finishes": [
+        187682.30047646267,
+        171843.08634745734
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 13681.453327346424,
+      "finish_s": 223029.09386354164,
+      "hours": 58.15212237116534,
+      "cost": 208649815.06774127,
+      "moves": 2218,
+      "stream_finishes": [
+        218475.24429228122,
+        195339.6124356711,
+        223029.09386354164,
+        202135.50517930486
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "L1",
+      "gt": 150000,
+      "start_s": 17250.22499552591,
+      "finish_s": 184434.84814814644,
+      "hours": 46.44017309795015,
+      "cost": 249941011.6131677,
+      "moves": 2166,
+      "stream_finishes": [
+        180367.50968122054,
+        170416.4985319133,
+        180810.4615246099,
+        172436.83992934672,
+        184434.84814814644,
+        171316.6214835645
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "70b77222f2a06639d3b8971519a31fd4ff2ea2b0ef0359745147651e66ca0676",
+  "quay_manifest_digest": "b8e6fd8b12d589cdd669c89b36fef35f5d3c7619478c139e232411c3fa194016",
+  "vessel_complete": true,
+  "c_vessel_structural": 109662407.41873924,
+  "n_vessels": 4,
+  "n_vessel_streams": 14,
+  "split": "train",
+  "index": 8,
+  "load": 15000,
+  "input_seed": 10084108,
+  "seconds": 3859.6389635158703,
+  "reward_check": {
+    "samples": 18263,
+    "decisions": 20413,
+    "nontrivial": 18263,
+    "reward_sum": -10.809920754091273,
+    "final_cost": 3981224994.5555344,
+    "scale": 368293633.7020551,
+    "max_candidates": 573,
+    "oracle_calls": 33142
+  },
+  "tail_samples": 8048
+}

@@ -1,0 +1,155 @@
+{
+  "phi_krw": 1169248304.963669,
+  "admitted": 7500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 297,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 355394165.8615317,
+  "c_move": 808965.625,
+  "c_rehandle": 18688000.0,
+  "c_vessel": 794357173.4771374,
+  "n_trucks": 7500,
+  "n_censored": 307,
+  "mean_turn_time_s": 4038.7148593223833,
+  "over_ratio": 0.27453333333333335,
+  "p50_turn_time_s": 2339.293642378492,
+  "p90_turn_time_s": 7618.492710200269,
+  "p99_turn_time_s": 39493.13270746373,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 222,
+  "n_job_done": 7278,
+  "n_exit_pending": 85,
+  "mean_gate_to_job_done_s": 3065.940955924473,
+  "p50_gate_to_job_done_s": 1834.846659004499,
+  "p90_gate_to_job_done_s": 5876.594619429379,
+  "p99_gate_to_job_done_s": 32452.883,
+  "job_over_ratio": 0.1848,
+  "post_job_gate_s": 7295804.275484365,
+  "mean_job_done_to_gate_out_s": 1002.4463143012318,
+  "c_vessel_idle_24h": 151954928.13137767,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 46362.68735934871,
+      "finish_s": 122300.35502245688,
+      "hours": 21.0937965730856,
+      "cost": 37842271.052115574,
+      "moves": 479,
+      "stream_finishes": [
+        117927.43270444917,
+        122300.35502245688
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 13903.160547333582,
+      "finish_s": 140316.60622355403,
+      "hours": 35.11484602117235,
+      "cost": 62996033.7619832,
+      "moves": 854,
+      "stream_finishes": [
+        140316.60622355403,
+        130615.08727147155
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 21716.083279523442,
+      "finish_s": null,
+      "hours": 137.96775464457684,
+      "cost": 495028303.66474175,
+      "moves": 1955,
+      "stream_finishes": [
+        156713.36294413303,
+        143811.47148920645,
+        null,
+        146698.23410676135
+      ],
+      "remaining": 35
+    },
+    {
+      "vessel_id": "L1",
+      "gt": 150000,
+      "start_s": 24802.347788726758,
+      "finish_s": 157571.95648323974,
+      "hours": 36.88044685958694,
+      "cost": 198490564.99829692,
+      "moves": 2729,
+      "stream_finishes": [
+        157571.95648323974,
+        141830.9364061309,
+        153017.31202998463,
+        147590.0444830742,
+        156991.94580940777,
+        142552.20285702907
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "19e42f017af228779a2606eb7ca0fb982498bf65d89a2ce728d32f417493525d",
+  "quay_manifest_digest": "ac56e29bbc95192ed48be415f4134ed585e5272afcacdcb14e85bd386309c259",
+  "vessel_complete": false,
+  "unfinished_streams": [
+    {
+      "block": "Y03",
+      "vessel_id": "M1",
+      "remaining": 35,
+      "buffer": 0,
+      "type": "DISCHARGE",
+      "clock": 518400.0,
+      "jobs": {
+        "DONE": 451,
+        "RELEASED": 3,
+        "PLANNED": 35
+      },
+      "stock": 1355
+    }
+  ],
+  "c_vessel_structural": 88371756.32499446,
+  "n_vessels": 4,
+  "n_vessel_streams": 14,
+  "split": "train",
+  "index": 7,
+  "load": 7500,
+  "input_seed": 10084107,
+  "seconds": 1660.604295451194
+}
