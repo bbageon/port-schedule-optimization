@@ -87,7 +87,9 @@ def write_report():
     for seed, rec in s["training"].items():
         lines.append(f"| {seed} | {rec['complete_days']}/12 | {rec['applied_updates']}/6 | "
                      f"{rec['post_midnight_choices_on_complete_days']:,} |")
-    lines += ["", "별도 동작확인 날짜에는 가장 유리하게 계산해도 지정 블록에 양하 최소 123개를 놓을 수 없었다.",
+    lines += ["", "같은 정책 학습 알고리즘과 모델 구조를 사용했다. 세 비교 방식 모두 새 산정식으로 채점했다.",
+        "기존 모델과 재학습 모델의 성적 차이에는 추가 학습의 효과도 포함된다. 산정식 변경만의 효과를 분리하려면 기존 식으로 같은 기간 추가 학습한 대조군이 필요하다.",
+        "별도 동작확인 날짜에는 가장 유리하게 계산해도 지정 블록에 양하 최소 123개를 놓을 수 없었다.",
         "시험은 기존 합성 날짜 세 개를 다시 썼다. 자정 이후 신규 유입 없이 당일 배를 마무리했으며, 실제 항만의 연속운영 절감액은 검증 대상 밖이다.",
         "", "[원자료 집계](summary.json) · [시험 63회](evaluation/) · [학습일과 가중치](models/) · "
         "[학습 설정](campaign.json) · [블록별 수용 한계](capacity-check.json) · [미래비용 검산](smoke/return-wiring.json)", ""]
