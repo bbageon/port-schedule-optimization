@@ -681,14 +681,28 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     res.phi_krw = phi.total
     res.breakdown = phi.as_dict()
     if calls is not None:
+        from ..evaluation_probe import digest
         # Exact final move timestamps; an incomplete cohort may only be reported as censored.
         call_rows = calls.rows(max(s.clock for s in mbt.blocks.values()))
+        for sim in mbt.blocks.values():
+            sim.check_invariants()
         res.breakdown["c_vessel_idle_24h"] = phi.vessel
         res.breakdown["c_vessel"] = sum(row["cost"] for row in call_rows)
         res.phi_krw = phi.wait + phi.move + phi.rehandle + res.breakdown["c_vessel"]
         res.breakdown.update(phi_krw=res.phi_krw, vessel_calls=call_rows,
                              vessel_cost_contract="full-quay-turnaround-v1",
+                             demand_digest=digest(built["schedule"]),
+                             quay_manifest_digest=digest(built["vessel_schedule"]),
                              vessel_complete=all(row["finish_s"] is not None for row in call_rows))
+        if not res.breakdown["vessel_complete"]:
+            from collections import Counter
+            res.breakdown["unfinished_streams"] = [
+                dict(block=bid, vessel_id=built["block_vessel"][bid]["vessel_id"],
+                     remaining=v.remaining_moves, buffer=v.buffer_level, type=v.work_type.value,
+                     clock=sim.clock, jobs=dict(Counter(j.status.value for j in sim.jobs.values()
+                                                       if j.vessel_id == v.vessel_id)),
+                     stock=len(sim.stacks.containers))
+                for bid, sim in mbt.blocks.items() for v in sim.vessels.values() if not v.done]
     res.admitted = ann.n_admitted
     res.traded_edges = bridge.traded_edges
     res.policy_exceptions = exc["n"]
