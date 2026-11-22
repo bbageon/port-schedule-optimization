@@ -1,0 +1,18 @@
+{
+  "canonical_schedule": "144 unique rule, guard, signal, date, and load combinations",
+  "main_workers": 16,
+  "early_medium_load_workers": 4,
+  "early_medium_load_cases": 21,
+  "early_medium_load_handling": "Identical registered cases evaluated in temporary directories, then reused by the main schedule",
+  "repeat": "Independent replay of the first date at 3500 orders with positive timing perturbation; all output bytes compared",
+  "choice_observations": {
+    "date_index": 0,
+    "loads": [3500, 7500, 15000],
+    "workers": 3,
+    "source": "scripts/v7/observe_short_job_choices.py",
+    "commit": "591fece3",
+    "selection": "Before applying a single-crane decision, count feasible same-tier service jobs and the first feasible alternative without the duration key",
+    "followup": "Keep the original allocation and check exact cost, truck time, ship clocks, and demand manifest against the original run",
+    "use": "Descriptive mechanism check only; no new policy arm, model fitting, or case selection"
+  }
+}
