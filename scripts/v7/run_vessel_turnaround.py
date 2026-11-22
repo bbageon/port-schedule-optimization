@@ -24,7 +24,7 @@ def evaluate(arm, seed, index, load):
     if p.exists():
         row = json.loads(p.read_text(encoding="utf8"))
         cp = previous(seed) if arm == "previous" else OUT/"models"/str(seed)/"update-5.pt"
-        if row["vessel_complete"] and (arm == "rule" or row["checkpoint_sha256"] == sha(cp)):
+        if arm == "rule" or row["checkpoint_sha256"] == sha(cp):
             return
     launch("evaluate", "--arm", arm, "--seed", seed, "--index", index, "--load", load)
 
@@ -38,7 +38,7 @@ def main():
         ".claude/docs/dashboard-task-specs/YR-332-bj-vessel-turnaround.md")),
         source_bundle=sha(PREVIOUS/"bundle.json"), initial={str(s):sha(previous(s)) for s in SEEDS},
         model_seeds=list(SEEDS), train_seed_base=10084100, test_seed_base=10084300,
-        loads=LOADS, intake_s=DAY, max_drain_s=DRAIN, updates=6, days=12,
+        loads=LOADS, intake_s=DAY, max_drain_s=DRAIN, scheduled_updates=6, days=12,
         max_samples=2048, epochs=4, batch_size=64, continuation="same policy")
     path = OUT/"campaign.json"
     if path.exists():
@@ -49,7 +49,8 @@ def main():
         save(path, manifest)
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
         work = {pool.submit(launch, "train", "--seed", seed): ("train",seed) for seed in SEEDS}
-        for arm, seeds in (("rule",(0,)), ("previous",SEEDS)):
+        baseline_arms = [] if "--models-only" in sys.argv else [("rule",(0,)), ("previous",SEEDS)]
+        for arm, seeds in baseline_arms:
             for idx in range(3):
                 for load in LOADS:
                     for seed in seeds:
