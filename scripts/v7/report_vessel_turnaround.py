@@ -4,6 +4,8 @@ import math
 from collections import defaultdict
 from statistics import mean
 
+import numpy as np
+
 from vessel_turnaround_experiment import LOADS, OUT, SEEDS, save
 
 
@@ -37,6 +39,21 @@ def averages(rows):
     return {k:mean(r[k] for r in rows) for k in rows[0]}
 
 
+def paired_cost_interval(rows, reference):
+    # Keep the three load levels together within a synthetic date; pair model initializations.
+    def grid(arm):
+        return np.array([[mean(rows[arm, day, load][0 if arm == "rule" else seed]["cost"]
+                               for load in LOADS) for seed in range(3)] for day in range(3)])
+    rng = np.random.default_rng(10089900)
+    days = rng.integers(3, size=(10000,3,1))
+    seeds = rng.integers(3, size=(10000,1,3))
+    base = grid(reference)[days,seeds].mean(axis=(1,2))
+    model = grid("trained")[days,seeds].mean(axis=(1,2))
+    return dict(change_pct_ci95=np.quantile(100*(model/base-1),[.025,.975]).tolist(),
+                cost_difference_ci95=np.quantile(model-base,[.025,.975]).tolist(),
+                bootstrap_seed=10089900,repeats=10000)
+
+
 def main():
     rows = defaultdict(list)
     paired = defaultdict(set)
@@ -62,6 +79,8 @@ def main():
                         for k in ("cost","ship_hours","truck_minutes","vessel_cost")}
         changes[ref]["wins"] = sum(averages(rows["trained",i,l])["cost"] < averages(rows[ref,i,l])["cost"]
                                    for i,l in eligible)
+        if len(eligible) == 9:
+            changes[ref].update(paired_cost_interval(rows,ref))
     training = {}
     for seed in SEEDS:
         complete_days = 0
