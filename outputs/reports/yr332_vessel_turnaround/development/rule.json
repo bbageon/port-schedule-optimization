@@ -1,0 +1,155 @@
+{
+  "phi_krw": 661283436.7281758,
+  "admitted": 3500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 235,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 51443139.57133852,
+  "c_move": 595860.4166666666,
+  "c_rehandle": 11474000.0,
+  "c_vessel": 597770436.7401706,
+  "n_trucks": 3500,
+  "n_censored": 40,
+  "mean_turn_time_s": 1616.1958717426367,
+  "over_ratio": 0.047714285714285716,
+  "p50_turn_time_s": 1110.2067724600347,
+  "p90_turn_time_s": 2514.513535505619,
+  "p99_turn_time_s": 11745.56426625041,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 23,
+  "n_job_done": 3477,
+  "n_exit_pending": 17,
+  "mean_gate_to_job_done_s": 1140.9550152877007,
+  "p50_gate_to_job_done_s": 703.8729627001085,
+  "p90_gate_to_job_done_s": 1955.1945980139717,
+  "p99_gate_to_job_done_s": 10413.290955037322,
+  "job_over_ratio": 0.033428571428571426,
+  "post_job_gate_s": 1663342.997592282,
+  "mean_job_done_to_gate_out_s": 478.384526198528,
+  "c_vessel_idle_24h": 56222803.21160835,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 1014.2052872642209,
+      "finish_s": 83803.68371016454,
+      "hours": 22.99707733969453,
+      "cost": 41256756.747411996,
+      "moves": 721,
+      "stream_finishes": [
+        83803.68371016454,
+        73773.42298801556
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 19324.477064176008,
+      "finish_s": 104808.54643785176,
+      "hours": 23.74557482602104,
+      "cost": 42599561.23788176,
+      "moves": 765,
+      "stream_finishes": [
+        104808.54643785176,
+        95523.11981242723
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 2767.104928217356,
+      "finish_s": null,
+      "hours": 143.23135974216186,
+      "cost": 513914118.7548768,
+      "moves": 2198,
+      "stream_finishes": [
+        null,
+        96841.02288153887,
+        null,
+        98043.86163319819
+      ],
+      "remaining": 54
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "2b2fee21de6525eb2fb65726fe8a4eaed66a0292c9c4cbd8012cedb99a3b2ccc",
+  "quay_manifest_digest": "3a0cf1898c03c713fe7f0892305f1b5d2bba2cb5e39ee453aeb8a9546e0c17ee",
+  "vessel_complete": false,
+  "unfinished_streams": [
+    {
+      "block": "Y17",
+      "vessel_id": "M1",
+      "remaining": 24,
+      "buffer": 0,
+      "type": "DISCHARGE",
+      "clock": 518400.0,
+      "jobs": {
+        "DONE": 523,
+        "RELEASED": 3,
+        "PLANNED": 24
+      },
+      "stock": 1393
+    },
+    {
+      "block": "Y20",
+      "vessel_id": "M1",
+      "remaining": 30,
+      "buffer": 0,
+      "type": "DISCHARGE",
+      "clock": 518400.0,
+      "jobs": {
+        "DONE": 516,
+        "RELEASED": 3,
+        "PLANNED": 30
+      },
+      "stock": 1392
+    }
+  ],
+  "c_vessel_structural": 53514341.19180854,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "selection",
+  "index": 0,
+  "load": 3500,
+  "input_seed": 10084200,
+  "seconds": 453.82286145491526,
+  "arm": "rule",
+  "model_seed": null,
+  "stage": "development-diagnostic-first-update",
+  "checkpoint_sha256": null
+}
