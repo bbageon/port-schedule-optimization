@@ -1,0 +1,132 @@
+{
+  "phi_krw": 518462971.5349299,
+  "admitted": 7500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 242,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 304233120.4554318,
+  "c_move": 776343.75,
+  "c_rehandle": 17304000.0,
+  "c_vessel": 196149507.32949802,
+  "n_trucks": 7500,
+  "n_censored": 222,
+  "mean_turn_time_s": 3599.3310718091893,
+  "over_ratio": 0.2574666666666667,
+  "p50_turn_time_s": 2231.468786626625,
+  "p90_turn_time_s": 7426.388993655943,
+  "p99_turn_time_s": 28625.672,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 154,
+  "n_job_done": 7346,
+  "n_exit_pending": 68,
+  "mean_gate_to_job_done_s": 2713.235318849516,
+  "p50_gate_to_job_done_s": 1525.9883416350349,
+  "p90_gate_to_job_done_s": 5552.709617215922,
+  "p99_gate_to_job_done_s": 22695.55016095951,
+  "job_over_ratio": 0.17306666666666667,
+  "post_job_gate_s": 6645718.147197595,
+  "mean_job_done_to_gate_out_s": 904.6716780829832,
+  "c_vessel_idle_24h": 79633330.30067587,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 33722.247104239315,
+      "finish_s": 123433.15838247101,
+      "hours": 24.91969757728658,
+      "cost": 44705937.45365213,
+      "moves": 554,
+      "stream_finishes": [
+        116254.52835682235,
+        123433.15838247101
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 45694.10335462898,
+      "finish_s": 119122.36114038392,
+      "hours": 20.39673827382082,
+      "cost": 36591748.46323455,
+      "moves": 462,
+      "stream_finishes": [
+        119122.36114038392,
+        116513.0807231417
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 24971.43411184766,
+      "finish_s": 140207.37532851455,
+      "hours": 32.00998367129636,
+      "cost": 114851821.41261135,
+      "moves": 1500,
+      "stream_finishes": [
+        140207.37532851455,
+        130128.46614271094,
+        139464.91427254025,
+        130746.45490599608
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "37f014cb095a0aa3e99087101f4064deb450723dc036ce9410d3618f1498f255",
+  "quay_manifest_digest": "33db3a01631800d34570c7d5b0e036ec1351d89d7e5eaae41a56e970b7b0d495",
+  "vessel_complete": true,
+  "c_vessel_structural": 50751984.60200971,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 4,
+  "load": 7500,
+  "input_seed": 10084104,
+  "seconds": 1349.378262932878,
+  "reward_check": {
+    "samples": 6853,
+    "decisions": 9690,
+    "nontrivial": 6853,
+    "reward_sum": -1.407743507058175,
+    "final_cost": 518462971.5349299,
+    "scale": 368293633.7020551,
+    "max_candidates": 261,
+    "oracle_calls": 19369
+  },
+  "tail_samples": 1624
+}

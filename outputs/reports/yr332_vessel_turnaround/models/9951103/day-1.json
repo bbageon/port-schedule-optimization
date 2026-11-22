@@ -1,0 +1,132 @@
+{
+  "phi_krw": 403350760.00672734,
+  "admitted": 7500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 330,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 167088521.3868683,
+  "c_move": 740146.875,
+  "c_rehandle": 16028000.0,
+  "c_vessel": 219494091.74485907,
+  "n_trucks": 7500,
+  "n_censored": 151,
+  "mean_turn_time_s": 2249.649237574025,
+  "over_ratio": 0.114,
+  "p50_turn_time_s": 1363.899442345326,
+  "p90_turn_time_s": 3864.989924162306,
+  "p99_turn_time_s": 18735.5070956016,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 110,
+  "n_job_done": 7390,
+  "n_exit_pending": 41,
+  "mean_gate_to_job_done_s": 1665.6257606998784,
+  "p50_gate_to_job_done_s": 911.6423954685597,
+  "p90_gate_to_job_done_s": 2884.9633047584357,
+  "p99_gate_to_job_done_s": 14119.075817220655,
+  "job_over_ratio": 0.06906666666666667,
+  "post_job_gate_s": 4380176.07655603,
+  "mean_job_done_to_gate_out_s": 592.7166544730758,
+  "c_vessel_idle_24h": 77150072.15420091,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 11226.93061778077,
+      "finish_s": 132052.32073750166,
+      "hours": 33.56260836658914,
+      "cost": 60211319.40966092,
+      "moves": 870,
+      "stream_finishes": [
+        132052.32073750166,
+        125098.80800112867
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 49299.96572450954,
+      "finish_s": 120111.8924070066,
+      "hours": 19.66997963402696,
+      "cost": 35287943.46344437,
+      "moves": 552,
+      "stream_finishes": [
+        120111.8924070066,
+        117453.97563601536
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 24819.680661754745,
+      "finish_s": 149229.20795782877,
+      "hours": 34.558202026687226,
+      "cost": 123994828.87175378,
+      "moves": 1789,
+      "stream_finishes": [
+        146083.89281088547,
+        138673.6385822841,
+        149229.20795782877,
+        140539.90543885814
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "87d1b23ad3029e7dca3ff8259d6db1a286803ea30469e077e0ac622ca042043e",
+  "quay_manifest_digest": "181f33aeec73b30351e5d2c083785d503269ee0e0ee849e2859d469e4949e293",
+  "vessel_complete": true,
+  "c_vessel_structural": 42951792.262006104,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 1,
+  "load": 7500,
+  "input_seed": 10084101,
+  "seconds": 1340.7701231571846,
+  "reward_check": {
+    "samples": 7103,
+    "decisions": 10347,
+    "nontrivial": 7103,
+    "reward_sum": -1.0951879780062477,
+    "final_cost": 403350760.00672734,
+    "scale": 368293633.7020551,
+    "max_candidates": 409,
+    "oracle_calls": 21330
+  },
+  "tail_samples": 1886
+}

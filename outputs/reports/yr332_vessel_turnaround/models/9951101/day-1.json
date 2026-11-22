@@ -1,0 +1,132 @@
+{
+  "phi_krw": 403676985.8303806,
+  "admitted": 7500,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 330,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 170069403.63852352,
+  "c_move": 725738.5416666666,
+  "c_rehandle": 15954000.0,
+  "c_vessel": 216927843.65019044,
+  "n_trucks": 7500,
+  "n_censored": 189,
+  "mean_turn_time_s": 2299.5499924071873,
+  "over_ratio": 0.116,
+  "p50_turn_time_s": 1355.3395688481614,
+  "p90_turn_time_s": 3915.8967870353517,
+  "p99_turn_time_s": 19771.43619004778,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 129,
+  "n_job_done": 7371,
+  "n_exit_pending": 60,
+  "mean_gate_to_job_done_s": 1678.6740497759306,
+  "p50_gate_to_job_done_s": 891.1544842526419,
+  "p90_gate_to_job_done_s": 2904.3549708691135,
+  "p99_gate_to_job_done_s": 14922.553951712027,
+  "job_over_ratio": 0.06786666666666667,
+  "post_job_gate_s": 4656569.569734462,
+  "mean_job_done_to_gate_out_s": 631.741903369212,
+  "c_vessel_idle_24h": 75354952.9055961,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 11226.93061778077,
+      "finish_s": 136112.7568533137,
+      "hours": 34.69050728764804,
+      "cost": 62234770.07404059,
+      "moves": 870,
+      "stream_finishes": [
+        136112.7568533137,
+        127032.27251876172
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 49299.96572450954,
+      "finish_s": 118696.28680774146,
+      "hours": 19.27675585645331,
+      "cost": 34582500.006477244,
+      "moves": 552,
+      "stream_finishes": [
+        118696.28680774146,
+        117012.79948479548
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 24819.680661754745,
+      "finish_s": 145331.9618353393,
+      "hours": 33.47563365932904,
+      "cost": 120110573.56967261,
+      "moves": 1789,
+      "stream_finishes": [
+        141755.53715083664,
+        135797.62769240612,
+        145331.9618353393,
+        140724.06848435855
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "87d1b23ad3029e7dca3ff8259d6db1a286803ea30469e077e0ac622ca042043e",
+  "quay_manifest_digest": "181f33aeec73b30351e5d2c083785d503269ee0e0ee849e2859d469e4949e293",
+  "vessel_complete": true,
+  "c_vessel_structural": 42951792.262006104,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 1,
+  "load": 7500,
+  "input_seed": 10084101,
+  "seconds": 1110.2457060031593,
+  "reward_check": {
+    "samples": 6905,
+    "decisions": 10349,
+    "nontrivial": 6905,
+    "reward_sum": -1.096073754446025,
+    "final_cost": 403676985.8303806,
+    "scale": 368293633.7020551,
+    "max_candidates": 415,
+    "oracle_calls": 20682
+  },
+  "tail_samples": 1776
+}

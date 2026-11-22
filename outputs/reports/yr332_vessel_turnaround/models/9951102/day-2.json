@@ -1,0 +1,132 @@
+{
+  "phi_krw": 3421009553.8114166,
+  "admitted": 15000,
+  "traded_edges": 0,
+  "policy_exceptions": 0,
+  "n_space": 0,
+  "n_time": 0,
+  "txn_failed": 0,
+  "n_decisions": 0,
+  "n_labels": 0,
+  "rollout_worlds": 0,
+  "missed_labels": 0,
+  "slot_mode": "HORIZON",
+  "n_crane_labels": 0,
+  "crane": {},
+  "environment": {
+    "reservation_contract": {
+      "schema": "all-reserved-synthetic-v1",
+      "all_orders_reserved": true,
+      "empirical_calibration": true,
+      "profile_schema": "empirical-reservation-notice-pairs-v1",
+      "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+      "calibration_dates": [
+        "2026-10-28",
+        "2026-11-05"
+      ],
+      "error_model": "joint empirical pairs by flow; tails retained",
+      "physical_arrival": "unchanged-diurnal-curve",
+      "public_reservation": "actual-minus-sampled-report-error",
+      "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+      "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+      "pre_window_notices": 729,
+      "announcement_grid": "exact-receipt-v1"
+    },
+    "preserve_external_demand": true,
+    "discharge_backpressure": true,
+    "discharge_capacity": 3,
+    "discharge_model": "shared-handover-wip-v1"
+  },
+  "c_wait": 3081894482.178895,
+  "c_move": 928619.7916666666,
+  "c_rehandle": 22400000.0,
+  "c_vessel": 315786451.8408551,
+  "n_trucks": 15000,
+  "n_censored": 4649,
+  "mean_turn_time_s": 13012.109148166108,
+  "over_ratio": 0.6798,
+  "p50_turn_time_s": 7414.733283116009,
+  "p90_turn_time_s": 34371.602,
+  "p99_turn_time_s": 51730.459,
+  "truck_time_contract": "gate-in-to-job-done-v1",
+  "n_job_censored": 3672,
+  "n_job_done": 11328,
+  "n_exit_pending": 977,
+  "mean_gate_to_job_done_s": 10677.025399668693,
+  "p50_gate_to_job_done_s": 5283.64496452015,
+  "p90_gate_to_job_done_s": 30177.381,
+  "p99_gate_to_job_done_s": 50109.648,
+  "job_over_ratio": 0.6003333333333334,
+  "post_job_gate_s": 35026256.227460094,
+  "mean_job_done_to_gate_out_s": 3092.00708222635,
+  "c_vessel_idle_24h": 111039387.92823306,
+  "vessel_calls": [
+    {
+      "vessel_id": "S1",
+      "gt": 50000,
+      "start_s": 3418.9023097605027,
+      "finish_s": 165927.8926581882,
+      "hours": 45.14138620789658,
+      "cost": 80983646.85696648,
+      "moves": 612,
+      "stream_finishes": [
+        165927.8926581882,
+        151454.57030871548
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "S2",
+      "gt": 50000,
+      "start_s": 37625.737246631026,
+      "finish_s": 193903.91637555236,
+      "hours": 43.41060531358926,
+      "cost": 77878625.93257914,
+      "moves": 713,
+      "stream_finishes": [
+        193903.91637555236,
+        174295.3114204588
+      ],
+      "remaining": 0
+    },
+    {
+      "vessel_id": "M1",
+      "gt": 100000,
+      "start_s": 32096.014012266674,
+      "finish_s": 189545.02309384808,
+      "hours": 43.735835855994836,
+      "cost": 156924179.0513095,
+      "moves": 1404,
+      "stream_finishes": [
+        183916.07272803216,
+        175082.4910141536,
+        189545.02309384808,
+        171460.08302000546
+      ],
+      "remaining": 0
+    }
+  ],
+  "vessel_cost_contract": "full-quay-turnaround-v1",
+  "demand_digest": "a71aa3e9284f1bdadb368acd5b824aac634814a88957b45fc8d8e64706c9177b",
+  "quay_manifest_digest": "f274d60dad2a912dcac78555aa39ae874ab0069fe7d5ef83c685eff011d6103b",
+  "vessel_complete": true,
+  "c_vessel_structural": 52096246.899686426,
+  "n_vessels": 3,
+  "n_vessel_streams": 8,
+  "split": "train",
+  "index": 2,
+  "load": 15000,
+  "input_seed": 10084102,
+  "seconds": 4635.701460143086,
+  "reward_check": {
+    "samples": 15687,
+    "decisions": 17480,
+    "nontrivial": 15687,
+    "reward_sum": -9.288809908071803,
+    "final_cost": 3421009553.8114166,
+    "scale": 368293633.7020551,
+    "max_candidates": 700,
+    "oracle_calls": 32154
+  },
+  "tail_samples": 5762
+}
