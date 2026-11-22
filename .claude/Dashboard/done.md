@@ -13,6 +13,7 @@
 
 | ID | Epic | Title | 완료 | Evidence |
 |---|---|---|---|---|
+| YR-332-bj | Sim | **본선 작업 턴타임 기준 재학습 성능 측정** | 2026-11-22 | 모델 3개 재학습·63회 평가. 전체 9입력 중 공통 완주 9개. 기존 모델 대비 총비용 -1.02%, 짧은 작업 우선 대비 +28.20%. [결과](../../outputs/reports/yr332_vessel_turnaround/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bj-vessel-turnaround.md) |
 | YR-332-bg | Sim | **월 중간 부족 14개 구간의 공급 이월 확인** | 2026-11-21 | 630개 블록·날짜 검산, 미래 공급 반출 2,034건. 최대 210건 자정 이월. 입력 지문 일치, 90%·50% 경보 유지. 관련 검사 174/176 통과, 실물 흐름 추적 bh 등록. `a9d01685` · [spec](../docs/dashboard-task-specs/YR-332-bg-month-supply-contract.md) · [결과](../../outputs/reports/yr332_month_supply/README.md) · [검산](../../outputs/reports/yr332_month_supply/result.json) |
 | YR-332-bf | Sim | **월말 보정의 중간 공급 점검 누락 확인** | 2026-11-21 | 176,500오더 반복 일치·1,890수지 검산. 실제 초기재고로5블록·14블록일 부족(최대209개), 월말 전부 양수라 보정0건. 명목재고 검사·첫날 비교 기준도 차이. 정책/임계 변경 없음, bg 등록. `d8760b84` · [spec](../docs/dashboard-task-specs/YR-332-bf-month-inventory-diagnosis.md) · [결과](../../outputs/reports/yr332_month_inventory/README.md) · [검산](../../outputs/reports/yr332_month_inventory/verification.json) |
 | YR-332-be | Infra | **코드 변경 기록 불일치4→0·96검사 통과** | 2026-11-21 | 변경5건·3커밋을 al/an 근거와 연결, 실행 소스 변경0. 기준 기록·범위 검사 보완, 월 재고bf·실측i/f/ap는 남음. `2c11926d` · [spec](../docs/dashboard-task-specs/YR-332-be-world-manifest-reconciliation.md) · [결과](../../outputs/reports/yr332_manifest_reconciliation/README.md) · [검산](../../outputs/reports/yr332_manifest_reconciliation/verification.json) |
