@@ -74,7 +74,9 @@ def summarize():
             hidden_minus_exact=avg("SF_SPT",signal="hidden")["truck"]-spt["truck"],
             hidden_minus_exact_off=avg("SF_SPT","off","hidden")["truck"]-avg("SF_SPT","off")["truck"],
             rules={k:avg(k) for k in RULES},vessel_exception={k:avg(k,"vessel") for k in RULES})
-    result=dict(trials=len(cells)*3,matched_inputs=len(inputs),baseline_replications=9,
+    decisions={str(n):read(OUT/"decisions"/f"{n}.json") for n in LOADS}
+    assert all(v["same_outcome"] and v["day"]==0 and v["seed"]==10084300 for v in decisions.values())
+    result=dict(trials=len(cells)*3,matched_inputs=len(inputs),baseline_replications=9,decisions=decisions,
         complete_trials=sum(sum(d["complete"] for d in v["days"]) for v in cells.values()),
         loads=out,cells={f"{k}/{n}":v for (k,n),v in cells.items()})
     write(OUT/"summary.json",result)
@@ -154,6 +156,14 @@ def report(s):
         lines.append(f"| {int(n):,} | "+" | ".join(f"{v:.1f}" for v in values)+" |")
     lines += ["", "한 기회는 자정 전 한 크레인에 24분 이상 트럭과 본선 실작업이 동시에 실행 가능 후보로 있었던 한 번이다. "
         "동시 장비 충돌 검사를 통과해야 실제 선택된다. 정책이 달라지면 다음 대기열도 달라지므로 두 조건의 경합 횟수 자체가 달라질 수 있다.",
+        "", "### 짧은 작업 순서가 실제 선택을 바꿀 수 있었던 횟수", "",
+        "| 첫 시험일 오더 | 단독 크레인의 실작업 선택 | 같은 등급에 2개 이상 | 시간을 빼면 다른 작업 선택 | 반입·반출 동시 후보 | 그중 반입 선택 |",
+        "|---:|---:|---:|---:|---:|---:|"]
+    for n,obs in s["decisions"].items():
+        cols=("single_crane_service","at_least_two_in_tier","different_choice_without_duration","in_and_out_present","chosen_GATE_IN")
+        lines.append(f"| {int(n):,} | "+" | ".join(f"{obs['counts'].get(k,0):,}" for k in cols)+" |")
+    lines += ["", "첫 날짜의 기존 배정을 그대로 재생했다. 동시에 한 크레인만 결정하는 시점에 후보에서 소요시간 키만 지우고, "
+        "실행 가능한 첫 선택이 달라지는지 세었다. 다음 대기열은 원래 선택대로 흘렀다. 이 표는 누적 정책 효과 표와 분모가 다르다.",
         "", "## 현장에 적용할 수 있는 범위", "",
         "- 부산 DGT는 블록마다 자동 야드크레인 2기를 두고 육측과 해측 작업을 분리한다고 설명한다. "
         "한 크레인 앞에서 트럭·본선이 경합하는 빈도를 해당 터미널에 옮기려면 장비별 작업 이력이 필요하다. [DGT 장비 소개](https://info.dgtbusan.com/DGT/terminal/equipment)",
