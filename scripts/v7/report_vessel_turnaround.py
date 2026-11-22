@@ -1,12 +1,14 @@
 """Independently verify matched port calls and aggregate the paired final trials."""
 import json
+import hashlib
 import math
 from collections import defaultdict
 from statistics import mean
 
 import numpy as np
+import torch
 
-from vessel_turnaround_experiment import LOADS, OUT, SEEDS, save
+from vessel_turnaround_experiment import LOADS, OUT, SEEDS, previous, save
 
 
 def checked_metrics(row):
@@ -57,6 +59,10 @@ def paired_cost_interval(rows, reference):
 def main():
     rows = defaultdict(list)
     paired = defaultdict(set)
+    weights = {}
+    for seed in SEEDS:
+        for arm, path in (("previous", previous(seed)), ("trained", OUT/"models"/str(seed)/"update-5.pt")):
+            weights[arm, seed] = hashlib.sha256(path.read_bytes()).hexdigest()
     for arm, seeds in (("rule",(0,)), ("previous",SEEDS), ("trained",SEEDS)):
         for index in range(3):
             for load in LOADS:
@@ -64,6 +70,8 @@ def main():
                     path = OUT/"evaluation"/f"{arm}-{seed}-{index}-{load}.json"
                     row = json.loads(path.read_text(encoding="utf8"))
                     assert (row["arm"],row["index"],row["load"],row["split"]) == (arm,index,load,"holdout")
+                    assert row["model_seed"] == (None if arm == "rule" else seed)
+                    assert row["checkpoint_sha256"] == weights.get((arm, seed))
                     paired[index,load].add((row["input_seed"],row["demand_digest"],row["quay_manifest_digest"]))
                     rows[arm,index,load].append(checked_metrics(row))
     assert len(paired) == 9 and all(len(s) == 1 for s in paired.values())
@@ -85,18 +93,31 @@ def main():
     for seed in SEEDS:
         complete_days = 0
         steps = 0
+        tail_samples = 0
+        input_digests = []
         for i in range(12):
             row=json.loads((OUT/"models"/str(seed)/f"day-{i}.json").read_text(encoding="utf8"))
             checked_metrics(row)
+            assert (row["split"],row["index"],row["load"],row["input_seed"]) == ("train",i,LOADS[i % len(LOADS)],10084100+i)
+            input_digests.append([row["demand_digest"],row["quay_manifest_digest"]])
             if row["vessel_complete"]:
                 assert row["reward_check"]["final_cost"] == row["phi_krw"]
+                tail_samples += row["tail_samples"]
                 complete_days += 1
         for i in range(6):
             row=json.loads((OUT/"models"/str(seed)/f"fit-{i}.json").read_text(encoding="utf8"))
             assert ((row["selected"],row["optimizer_steps"]) == (0,0)
                     or (row["selected"],row["optimizer_steps"]) == (2048,128))
             steps += row["optimizer_steps"]
-        training[str(seed)] = dict(complete_days=complete_days,optimizer_steps=steps)
+        old = torch.load(previous(seed), map_location="cpu", weights_only=False)["state_dict"]
+        new = torch.load(OUT/"models"/str(seed)/"update-5.pt", map_location="cpu", weights_only=False)["state_dict"]
+        assert old.keys() == new.keys()
+        changed = sum(not torch.equal(old[name], new[name]) for name in old)
+        assert (changed > 0) == (steps > 0)
+        training[str(seed)] = dict(complete_days=complete_days,optimizer_steps=steps,
+            changed_state_tensors=changed,post_midnight_choices_on_complete_days=tail_samples,
+            input_digests=input_digests)
+    assert all(record["input_digests"] == training[str(SEEDS[0])]["input_digests"] for record in training.values())
     save(OUT/"summary.json",dict(groups=groups, changes=changes, cases=cases,
          comparable_inputs=eligible, training=training,
          verification=dict(heldout_trials=63, matched_inputs=9, training_days_attempted=36),
