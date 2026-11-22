@@ -1,0 +1,150 @@
+{
+  "case": [
+    "VESSEL_FCFS",
+    "current",
+    "exact",
+    1,
+    3500
+  ],
+  "seed": 10084301,
+  "trucks": {
+    "GATE_OUT": {
+      "n": 1987,
+      "average": 26.059996058073104,
+      "p90": 45.416330296260575,
+      "p99": 226.35999588354636,
+      "maximum": 584.0353625627337,
+      "pending": 23
+    },
+    "GATE_IN": {
+      "n": 1513,
+      "average": 12.625532277214738,
+      "p90": 31.70210879288337,
+      "p99": 41.08228817192829,
+      "maximum": 70.95078442980133,
+      "pending": 11
+    }
+  },
+  "competing_choices": {
+    "opportunities": 439,
+    "urgent_truck": 436,
+    "other": 2,
+    "vessel": 1
+  },
+  "result": {
+    "phi_krw": 211247112.45803037,
+    "admitted": 3500,
+    "traded_edges": 0,
+    "policy_exceptions": 0,
+    "n_space": 0,
+    "n_time": 0,
+    "txn_failed": 0,
+    "n_decisions": 0,
+    "n_labels": 0,
+    "rollout_worlds": 0,
+    "missed_labels": 0,
+    "slot_mode": "HORIZON",
+    "n_crane_labels": 0,
+    "crane": {},
+    "environment": {
+      "reservation_contract": {
+        "schema": "all-reserved-synthetic-v1",
+        "all_orders_reserved": true,
+        "empirical_calibration": true,
+        "profile_schema": "empirical-reservation-notice-pairs-v1",
+        "profile_sha256": "11acb1c70f54921a824cb05eeac0b9602d71e0b760e89bfef6fc76ef2a86d523",
+        "calibration_dates": [
+          "2026-10-28",
+          "2026-11-05"
+        ],
+        "error_model": "joint empirical pairs by flow; tails retained",
+        "physical_arrival": "unchanged-diurnal-curve",
+        "public_reservation": "actual-minus-sampled-report-error",
+        "public_block_eta": "reservation-plus-training-flow-median-error-plus-layout-travel",
+        "notice": "actual-minus-joint-sampled-lead; pre-window receipts visible at zero",
+        "pre_window_notices": 146,
+        "announcement_grid": "exact-receipt-v1"
+      },
+      "preserve_external_demand": true,
+      "discharge_backpressure": true,
+      "discharge_capacity": 3,
+      "discharge_model": "shared-handover-wip-v1"
+    },
+    "c_wait": 54542839.24684817,
+    "c_move": 478670.8333333333,
+    "c_rehandle": 10100000.0,
+    "c_vessel": 146125602.37784886,
+    "n_trucks": 3500,
+    "n_censored": 44,
+    "mean_turn_time_s": 1690.0930372348926,
+    "over_ratio": 0.05885714285714286,
+    "p50_turn_time_s": 1124.8525096098165,
+    "p90_turn_time_s": 2804.0263645266605,
+    "p99_turn_time_s": 12234.032741008301,
+    "truck_time_contract": "gate-in-to-job-done-v1",
+    "n_job_censored": 34,
+    "n_job_done": 3466,
+    "n_exit_pending": 10,
+    "mean_gate_to_job_done_s": 1215.14815719115,
+    "p50_gate_to_job_done_s": 705.9630126212578,
+    "p90_gate_to_job_done_s": 2211.3917629591087,
+    "p99_gate_to_job_done_s": 10061.085006637542,
+    "job_over_ratio": 0.037714285714285714,
+    "post_job_gate_s": 1662307.0801530876,
+    "mean_job_done_to_gate_out_s": 479.60388925363173,
+    "c_vessel_idle_24h": 48009314.102229714,
+    "vessel_calls": [
+      {
+        "vessel_id": "S1",
+        "gt": 50000,
+        "start_s": 3816.6227070903287,
+        "finish_s": 86858.94424063664,
+        "hours": 23.0673115370962,
+        "cost": 41382756.89755058,
+        "moves": 723,
+        "stream_finishes": [
+          86858.94424063664,
+          85930.82047790193
+        ],
+        "remaining": 0
+      },
+      {
+        "vessel_id": "S2",
+        "gt": 50000,
+        "start_s": 34050.49312429884,
+        "finish_s": 103456.22586550399,
+        "hours": 19.27937020589032,
+        "cost": 34587190.149367236,
+        "moves": 602,
+        "stream_finishes": [
+          101913.01319021646,
+          103456.22586550399
+        ],
+        "remaining": 0
+      },
+      {
+        "vessel_id": "M1",
+        "gt": 100000,
+        "start_s": 44333.7040074732,
+        "finish_s": 114723.99363716989,
+        "hours": 19.552858230471305,
+        "cost": 70155655.33093105,
+        "moves": 1250,
+        "stream_finishes": [
+          114723.99363716989,
+          114251.58894303572,
+          112499.44764482322,
+          108433.23783207157
+        ],
+        "remaining": 0
+      }
+    ],
+    "vessel_cost_contract": "full-quay-turnaround-v1",
+    "demand_digest": "f14d33ec4ddbf4c559f027259958ad85312caddbed6ada477d7826365d2d6e24",
+    "quay_manifest_digest": "480fd856713d556943ccc240e165a96a42530639bd7f797dcc6cfa224ea63803",
+    "vessel_complete": true,
+    "c_vessel_structural": 48049813.6879798,
+    "n_vessels": 3,
+    "n_vessel_streams": 8
+  }
+}
