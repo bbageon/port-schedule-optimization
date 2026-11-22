@@ -91,10 +91,21 @@ def report(s):
                         for n,k in first.items())
     normal = rows["3500"]
     normal_rule, normal_ship = normal["rules"]["SF_SPT"], normal["vessel_exception"]["SF_SPT"]
+    def normal_times(arm):
+        return [v["truck"] for v in s["cells"][arm+"/3500"]["days"]]
+    exact = normal_times("SF_SPT/current/exact")
+    oldest = normal_times("LWKR/current/exact")
+    off = normal_times("SF_SPT/off/exact")
+    guard_changes = [a-b for a,b in zip(off,exact)]
+    noisy_changes = [((a+b)/2)-c for a,b,c in zip(normal_times("SF_SPT/current/noise_plus"),
+                                                    normal_times("SF_SPT/current/noise_minus"),exact)]
     lines = ["# 짧은 작업 우선 규칙이 트럭 시간을 줄인 조건", "",
         "현행 다섯 규칙 중 평균 트럭 시간이 가장 짧은 방식은 "+winners+"이었다.",
         f"관측 도착률 범위인 3,500건에서 짧은 작업 규칙의 24분 보호 해제 효과는 {normal['spt_off_minus_on']:+.2f}분, "
-        f"순위용 소요시간에 ±30% 오차를 넣은 효과는 {normal['estimated_minus_exact']:+.2f}분이었다.", "",
+        f"순위용 소요시간에 ±30% 오차를 넣은 효과는 {normal['estimated_minus_exact']:+.2f}분이었다. "
+        f"날짜별 범위는 보호 해제 {min(guard_changes):+.2f}~{max(guard_changes):+.2f}분, 두 오차 설정 평균 "
+        f"{min(noisy_changes):+.2f}~{max(noisy_changes):+.2f}분이다. 장기대기 우선이 최단 규칙보다 짧았던 날은 "
+        f"{sum(a<b for a,b in zip(oldest,exact))}/3일이다. 이 세 날짜에서 관측한 차이다.", "",
         f"같은 트럭·기항 명단 9개를 16개 조건에서 재생했다. {s['trials']}회 중 모든 배를 끝낸 실행은 {s['complete_trials']}회다. "
         "직전 규칙의 비용·트럭 시간·본선 원장은 9개 입력 모두 정확히 재현했다.",
         "", "## 실제 블록 도착순과 비교한 평균", "",
