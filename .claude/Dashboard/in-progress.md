@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-332-bj | Sim | **본선 작업 턴타임 기준으로 재학습·평가** | 🔴 | 2026-11-22 | 같은 기항을 마지막 안벽 작업까지 추적해 이전 모델·규칙과 비교한다. [spec](../docs/dashboard-task-specs/YR-332-bj-vessel-turnaround.md) |
 | YR-332-f | Sim | **대기 값 연결·반출입 구간 확인, 실제 작업 시작 자료 대기** | 🔴 | 2026-11-10 | ⏸ 외부 대기. bd의 실제18,432표본에서 work_min=블록→완료·wait_min=진입→블록 확인. 11/21 공개 코드·인계 문서에도 집계 단위·작업 시작 정의 미확인, 원본600파일·ba·bb 보정 유지. 회신 항목 정리. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [후속](../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) · [반출입 대조](../../outputs/reports/yr332_inbound_realism/README.md) |
 | YR-332-i | Sim | **적하 하한 내부 보정 완료·실측 운반 정의 대기** | 🔴 | 2026-11-09 | 11/21 고정19회 반례5→0·사건/비용 동일, 144조합 일치·9입력72계획 마감 유지. 기존 기록4실패는be 해소·bg에서 14개 월 중간 부족 구간의 지정 화물 이월 확인. 운반3대·470초·정책 유지. 실제 투입·인계·귀환 정의는 ⏸ 외부 대기. [spec](../docs/dashboard-task-specs/YR-332-i-discharge-calibration.md) · [결과](../../outputs/reports/yr332_load_bound/README.md) |
 | YR-332 | Infra | **v7 — 수평형 터미널·크레인 하나·공정한 장부 (상위)** | 🔴 | 2026-11-04 | 사용자 지시 *1~5단계 모두 진행*. v4·v5·v6 실패 원인을 설계로 막는다: 최고점 배포·학습 퇴화·배를 못 보는 비용표·미루기 장부 구멍·줄 길이 못 봄·공유 보상·하루 무대. **결정**: 배치는 수평형(HJNC 21블록 유지 — DGT 는 수직형이라 배치는 안 가져옴) · DGT 표본에서는 트럭 리드타임만(반입·반출 따로, 통지 전 도착 14%) · 재배정 끔(크레인만) · v4 반사실 교사 · 본선 단가 35.88원 · 입력 8칸+줄 길이 1칸 · 연속 30일 판정. 단계: [[YR-331-c]] → [[YR-332-a]]·[[YR-332-b]] → [[YR-332-c]] → [[YR-332-d]] → [[YR-332-e]](크레인 성공 시만). [spec](../docs/dashboard-task-specs/YR-332-v7-crane-only-horizontal.md) |

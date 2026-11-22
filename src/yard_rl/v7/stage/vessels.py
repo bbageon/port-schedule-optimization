@@ -140,7 +140,7 @@ def sample_day_vessels(seed: int, *, obs: ObservationContract | None = None
 
 
 def plan_streams(vessels: list[DailyVessel], layout: YardLayout, seed: int, *,
-                 obs: ObservationContract | None = None) -> list[dict]:
+                 obs: ObservationContract | None = None, full_calls: bool = False) -> list[dict]:
     """배 → STS 스트림들 → 블록 배정. **한 블록에 스트림 하나**를 지킨다."""
     obs = obs or OBS_24H
     blocks = list(layout.ids)
@@ -148,7 +148,7 @@ def plan_streams(vessels: list[DailyVessel], layout: YardLayout, seed: int, *,
 
     rows: list[dict] = []
     for v in vessels:
-        in_win = v.moves_in_window(obs.observe_s)
+        in_win = v.moves if full_calls else v.moves_in_window(obs.observe_s)
         if in_win < v.cls.sts:
             continue                            # 창 안 몫이 스트림 수보다 적다
         per = max(1, in_win // v.cls.sts)
@@ -156,7 +156,7 @@ def plan_streams(vessels: list[DailyVessel], layout: YardLayout, seed: int, *,
         for k in range(v.cls.sts):
             rows.append({"vessel_id": v.vessel_id, "vessel_class": v.cls.name,
                          "gt": v.cls.gt, "sts": v.cls.sts,
-                         "stream": k, "moves": per,
+                         "stream": k, "moves": per + int(full_calls and k < in_win % v.cls.sts),
                          "cadence_s": 3600.0 / STREAM_MOVES_PER_H,
                          "start_s": start,
                          # ★스트림 번호로 양하/적하를 가른다 — **`type_offset` 과 같은 식**.
@@ -190,7 +190,7 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
                      params: TerminalStreamParams | None = None,
                      drain_s: float = DIURNAL_DRAIN_S,
                      background_seed: int | None = None,
-                     initial_stock_mode: str = 'preserve') -> dict:
+                     initial_stock_mode: str = 'preserve', full_calls: bool = False) -> dict:
     """하루 무대 — 구 `build_diurnal` 과 같은 형태를 내되 **본선만 v3 선급**이다.
 
     트럭 요청·블록·도착 난수열은 구판을 유지한다. 재고 부족은 초기 배치로 보정하고
@@ -203,7 +203,7 @@ def build_diurnal_v3(profile, seed: int, *, load: int,
 
     # ── ① 본선 — v3 선급
     fleet = sample_day_vessels(bseed, obs=obs)
-    streams = plan_streams(fleet, layout, bseed, obs=obs)
+    streams = plan_streams(fleet, layout, bseed, obs=obs, full_calls=full_calls)
     by_block = {r["block"]: r for r in streams}
 
     scns = {}

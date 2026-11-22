@@ -179,7 +179,7 @@ class MultiBlockTerminal:
         for sim in self.blocks.values():
             sim.review_epochs = [t for t in eps if t <= sim.end]
 
-    def run(self, policy_fn, review_fn=None, cost_fn=None) -> dict:
+    def run(self, policy_fn, review_fn=None, cost_fn=None, *, stop_after_review=None) -> dict:
         """공용 시계 루프. policy_fn(sim, dp) → assignment · review_fn(self, t) → None.
 
         cost_fn(sim, t0, t1, raw) → float 이면 블록별 구간비용을 누적한다.
@@ -203,6 +203,8 @@ class MultiBlockTerminal:
                 until = getattr(self, 'review_until', None)   # [[YR-332-al]] clock-sync-only epochs
                 if review_fn is not None and (until is None or t <= until + 1e-9):
                     review_fn(self, t)
+                    if stop_after_review is not None and stop_after_review(t):
+                        break
                 continue
             bid = min(movable, key=lambda b: self.blocks[b].clock)
             sim = self.blocks[bid]

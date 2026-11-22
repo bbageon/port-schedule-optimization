@@ -404,7 +404,8 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                 appointment_sigma_s: float | None = None,
                 information_profile: dict | None = None,
                 demand_profile: dict | None = None,
-                initial_stock_mode: str = 'preserve', joint_resolver=None) -> EpisodeResult:
+                initial_stock_mode: str = 'preserve', joint_resolver=None,
+                vessel_drain_s: float | None = None) -> EpisodeResult:
     """한 셀을 돌린다. `budget` 이 있으면 교사가 라벨을 만든다(학습용).
 
     `slot_mode` — 이연 칸을 어디까지 낼까 ([[YR-216]])
@@ -446,16 +447,18 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
             f"지금 쓸 수 있는 배차: {DISPATCHERS_READY}")
 
     obs = obs or OBS_24H
+    if vessel_drain_s is not None and (vessel_drain_s <= 0 or budget or crane_budget or arm != CRANE_ONLY_ARM):
+        raise ValueError("Full-call objective requires a positive drain and crane-only execution")
     prof, layout = build_h21_profile(), terminal_layout()
     built = build_stage(load=load, seed=seed, profile=prof, layout=layout,
                         obs=obs, lead_mode=lead_mode, appointment_sigma_s=appointment_sigma_s,
                         information_profile=information_profile, demand_profile=demand_profile,
-                        initial_stock_mode=initial_stock_mode)
+                        initial_stock_mode=initial_stock_mode, vessel_drain_s=vessel_drain_s)
     orders, records = orders_from_schedule(built)
     ann = V3Announcer(built['schedule'], end_s=built['sim_end_s'])
 
     epochs = set(admission_epochs(obs)) | set(ann.by_epoch)
-    if built.get('visit_links') is not None:
+    if built.get('visit_links') is not None or vessel_drain_s is not None:
         # [[YR-332-al]] A truck's next stop is released when its previous stop is dispatched
         # (a crane job takes >=125 s). Common 60-s epochs keep every block within one epoch
         # of the others, also in the drain window after 24 h, so releases never land in a
@@ -466,7 +469,7 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
          for b, s in built["scenarios"].items()},
         preserve_external_demand=preserve_external_demand,
         extra_review_epochs=tuple(sorted(epochs)))
-    if built.get('visit_links') is not None:
+    if built.get('visit_links') is not None and vessel_drain_s is None:
         # Drain-window epochs only synchronise clocks: no admission or record sync after
         # the observation window, exactly as in unlinked runs.
         mbt.review_until = obs.observe_s
@@ -591,9 +594,16 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
     if observe_global is not None:
         observe_global(mbt, 0.)
 
+    from .vessel_turnaround import VesselTurnaround
+    calls = VesselTurnaround(built, mbt) if vessel_drain_s is not None else None
+    call_rows = []
+    other_cost = 0.
+
     def review(m, t):
-        ann.review(m, t)
-        bridge.review(m, t)
+        nonlocal call_rows, other_cost
+        if calls is None or t <= obs.observe_s:
+            ann.review(m, t)
+            bridge.review(m, t)
         if observe_global is not None:
             observe_global(m, t)
         # ★[[YR-235]] A2 (2026-08-26) — **항상** 찍는다.
@@ -603,11 +613,25 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
         #   관측창 뒤에는 안 찍는다 — 찍으면 그 값이 창끝 값을 덮는다.
         if t <= obs.observe_s:
             tape.snap(m, t)
-            if joint_resolver is not None:
+            if joint_resolver is not None and calls is None:
                 joint_resolver.observe_epoch(t, records, tape.read(t))
+        if calls is not None:
+            call_rows = calls.rows(t)
+            if joint_resolver is not None and joint_resolver.collect:
+                if t <= obs.observe_s:
+                    _, move, rehandles = tape.read(t)
+                    other_cost = terminal_cost_krw(records, end_s=t, yc_extra_move_s=move,
+                                                   rehandles=rehandles).total
+                joint_resolver.observe_cost(t, other_cost + sum(row["cost"] for row in call_rows))
+
+    def calls_finished(t):
+        return t >= obs.observe_s and all(row["finish_s"] is not None for row in call_rows)
 
     try:
-        mbt.run(exec_policy, review_fn=review)
+        if calls is None:
+            mbt.run(exec_policy, review_fn=review)
+        else:
+            mbt.run(exec_policy, review_fn=review, stop_after_review=calls_finished)
         if pool is not None:
             # ★작업자가 굴린 몫을 부모 계수기에 되받는다 — 안 그러면 판정 가드가
             #   "교사 호출 0" 을 잘못 통과시킨다.
@@ -656,6 +680,15 @@ def run_episode(*, load: int, dispatcher: str = "SF_SPT", arm: str = CRANE_ONLY_
                             yc_extra_move_s=yc_s, rehandles=reh)
     res.phi_krw = phi.total
     res.breakdown = phi.as_dict()
+    if calls is not None:
+        # Exact final move timestamps; an incomplete cohort may only be reported as censored.
+        call_rows = calls.rows(max(s.clock for s in mbt.blocks.values()))
+        res.breakdown["c_vessel_idle_24h"] = phi.vessel
+        res.breakdown["c_vessel"] = sum(row["cost"] for row in call_rows)
+        res.phi_krw = phi.wait + phi.move + phi.rehandle + res.breakdown["c_vessel"]
+        res.breakdown.update(phi_krw=res.phi_krw, vessel_calls=call_rows,
+                             vessel_cost_contract="full-quay-turnaround-v1",
+                             vessel_complete=all(row["finish_s"] is not None for row in call_rows))
     res.admitted = ann.n_admitted
     res.traded_edges = bridge.traded_edges
     res.policy_exceptions = exc["n"]

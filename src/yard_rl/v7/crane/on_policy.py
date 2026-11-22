@@ -49,9 +49,10 @@ def tier(candidate):
 
 class OnPolicyResolver(CentralResolver):
     def __init__(self, net, *, stochastic=False, seed=0, collect=False, horizon=86400.,
-                 global_context_mode='off'):
+                 global_context_mode='off', collect_until=None):
         super().__init__()
         self.net, self.stochastic, self.collect, self.horizon = net, stochastic, collect, horizon
+        self.collect_until = horizon if collect_until is None else collect_until
         self.rng = torch.Generator().manual_seed(seed)
         self.samples, self.costs, self.latencies = [], [(0., 0.)], []
         self.decisions = self.nontrivial = self.max_candidates = self.oracle_calls = 0
@@ -159,7 +160,7 @@ class OnPolicyResolver(CentralResolver):
         self.last_assignment = {c: g.candidate_id for c, g in chosen.items()}
         if state is not None:
             self.nontrivial += 1
-            if self.collect and sim.clock < self.horizon:
+            if self.collect and sim.clock < self.collect_until:
                 if self.costs[-1][0] > sim.clock + 1e-6:
                     raise ValueError('Past-cost baseline contains future information')
                 self.samples.append(DecisionSample(state, masks, picks, lp, value, self.costs[-1][1],
@@ -173,6 +174,9 @@ class OnPolicyResolver(CentralResolver):
         vessel, move, rehandles = counters
         cost = terminal_cost_krw(records, end_s=t, vessel_idle=vessel,
                                  yc_extra_move_s=move, rehandles=rehandles).total
+        self.observe_cost(t, cost)
+
+    def observe_cost(self, t, cost):
         if cost < self.costs[-1][1] - 1e-6:
             raise ValueError('Cumulative synchronized objective decreased')
         self.costs.append((t, cost))
