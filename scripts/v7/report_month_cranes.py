@@ -69,6 +69,11 @@ def audit(arm):
         assert w["unfinished_trucks"] == sum(r["finish"] is None for r in a)
         assert w["unfinished_ships"] == sum(r["finish"] is None for r in b)
     arrivals = Counter(int(r["gate"]//86400) for r in trucks)
+    day_means = {}
+    for day in range(30):
+        a = [r for r in trucks if r["day"] == day]
+        day_means[day+1] = dict(orders=len(a),truck_minutes=sum(r["seconds"] for r in a)/len(a)/60,
+            unfinished=sum(r["finish"] is None for r in a),midnight_backlog=progress[day+1]["unfinished"])
     for i,row in enumerate(progress):
         assert row["entered"] == sum(n for d,n in arrivals.items() if d < i) + sum(
             r["gate"] == i*86400 for r in trucks)
@@ -80,6 +85,7 @@ def audit(arm):
         cross_midnight=sum(r["finish"] is not None and int(r["gate"]//86400)<int(r["finish"]//86400) for r in trucks),
         future_supply_exits=sum(r["out"] is not None for r in waits),
         future_supply_ready=sum(r["ready"] is not None for r in waits),deficit_midnights=boundaries,
+        entry_days=day_means,
         day30_backlog=progress[30]["unfinished"], peak_backlog=max(r["unfinished"] for r in progress),
         peak_block_inventory=max(max(r["blocks"].values()) for r in progress))
 
@@ -101,6 +107,18 @@ def main():
         "세 방식에 같은 초기 야드와 고정 트럭 주문 176,500건을 투입했다. 30일간 자정마다 상태를 이어가고 5일간 잔여 작업을 추적했다.",
         "저장한 학습 모델 9951101은 최고점을 선택했다. 표에서 잔여가 있으면 비용과 시간은 동일 종료시각까지의 하한이다.", ""]
     names = {"SF_SPT":"짧은 작업 우선","LWKR":"오래 기다린 작업 우선","trained":"학습 모델"}
+    primary = {arm:r["windows"]["primary"] for arm,r in results.items()}
+    if summary["complete"]:
+        cheapest = min(primary,key=lambda arm:primary[arm]["total"])
+        text.extend([f"2~29일에 들어온 트럭 {primary['trained']['trucks']:,}건과 본선 {primary['trained']['ships']}척이 세 방식에서 모두 끝났다. 이 달의 총비용이 가장 낮은 방식은 {names[cheapest]}이었다.", ""])
+    else:
+        text.extend(["2~29일에 들어온 작업 중 마지막 관측 시각에도 남은 것이 있어 세 방식의 최종 비용 순위는 보류했다.", ""])
+    for rule in ("SF_SPT","LWKR"):
+        if all(primary[x]["unfinished_trucks"] == primary[x]["unfinished_ships"] == 0
+               for x in (rule,"trained")):
+            gap = primary["trained"]["total"]-primary[rule]["total"]
+            direction = "높았다" if gap>0 else "낮았다" if gap<0 else "같았다"
+            text.extend([f"측정 기간의 학습 모델 총비용은 {names[rule]}과 비교해 {abs(gap)/1e8:.2f}억 원({abs(gap)/primary[rule]['total']*100:.2f}%) {direction}.", ""])
     for window, title in (("primary","2~29일 진입 작업"),("all","1~30일 전체 진입 작업")):
         text.extend([f"## {title}", "",
             "| 방식 | 총비용(억원) | 트럭(분/건) | 본선(시간/척) | 잔여 트럭 | 잔여 본선 |",
