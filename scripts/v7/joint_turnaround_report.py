@@ -1,5 +1,6 @@
 """Summarize the retraining run and the unseen-month comparison from the saved ledgers."""
 import gzip
+import hashlib
 import json
 from math import ceil, fsum, isclose, sqrt
 from pathlib import Path
@@ -18,6 +19,10 @@ RESAMPLES, SEED = 10000, 12204201
 
 def read(path):
     return json.loads(Path(path).read_text(encoding="utf8"))
+
+
+def file_sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def ledger(arm):
@@ -158,7 +163,7 @@ def report(summary):
             continue
         lines.append(f"| {label} | {a['truck_minutes']:.2f} | {a['ship_hours']:.2f} | {a['weighted_minutes'] / 1e6:.3f} | "
                      f"{100 * (a['weighted_minutes'] / rule['weighted_minutes'] - 1):+.2f}% | "
-                     f"{a['truck_p95_minutes']:.1f} | {won(a['safe_rate_krw'])} |")
+                     f"{a['truck_p95_minutes']:.2f} | {won(a['safe_rate_krw'])} |")
     lines += ["", f"트럭 {rule['trucks']:,}건과 본선 {rule['ships']}척이 네 방식 모두에서 끝났는지와 진입 시각이 같은지를 원장에서 확인했다. "
               "가중 합계는 낮을수록 좋다.", "",
               "## 짧은 작업 우선과의 차이 (날짜 단위 재표집, 탐색용 95% 구간)", "",
@@ -175,14 +180,25 @@ def report(summary):
         lines.append(f"| {u['update'] + 1} | {u['complete_months']}/{u['months']} | {u['weighted_mean'] / 1e6:.3f} | "
                      f"±{100 * u['weighted_sd'] / u['weighted_mean']:.2f}% | {u['truck_minutes']:.2f} | {u['ship_hours']:.2f} | "
                      f"{u['value_explained_before_update']:.3f} | {u['policy_change']:.6f} |")
-    signal = summary["signal_to_noise"]
+    signal, clock = summary["signal_to_noise"], summary["signal_diagnostic"]
+    shares = [u["share_from_clock_alone"] for u in clock["updates"]]
+    flips = clock["top_choice_change"]
+    first, last = train["updates"][0], train["updates"][-1]
     lines += ["", "각 행은 그 갱신 직전 정책의 성적이다. 선택을 확률로 뽑으므로 시험 월의 고정 선택 성적과 직접 비교하지 않는다.", "",
-              "## 학습 신호와 잡음", "",
-              f"- 선택 하나의 학습 목표에 섞인 잡음은 평균 {signal['noise_per_decision']:,.0f} 가중 분이다. 비용 예측으로 설명하고 남은 크기다.",
-              f"- 기존 모델과 짧은 작업 우선의 시험 월 격차를 선택 수로 나누면 선택 하나당 {signal['gain_per_decision']:,.1f} 가중 분이다. "
-              "규칙만큼 잘하게 될 때 선택 하나가 평균적으로 벌 수 있는 크기다.",
-              f"- 잡음이 이 이득의 약 {signal['noise_over_gain']:,.0f}배다. 갱신 한 번의 2,048표본을 평균해도 약 {signal['noise_over_gain_after_averaging']:,.0f}배가 남는다.",
-              f"- 갱신 한 번의 정책 변화량은 평균 {signal['policy_change']:.6f}였다. 직전 하루 단위 학습은 0.001~0.003이었다.", "",
+              "## 왜 나빠졌나", "",
+              f"- 모델을 고치는 신호는 `실제로 남은 시간 − 모델이 예상한 시간`이다. 이 값의 크기가 결정 하나당 평균 "
+              f"{signal['noise_per_decision'] / 1e6:.2f}백만 가중 분이었다.",
+              f"- 이 신호의 {100 * min(shares):.0f}~{100 * max(shares):.0f}%는 그 결정이 한 달 중 어느 6시간대에 있었는지만으로 정해졌다. "
+              f"선택과 무관한 값을 같은 칸에 넣어도 나오는 비율은 {100 * clock['updates'][0]['share_expected_by_chance']:.0f}%다. "
+              "네 번의 갱신 모두 같았다.",
+              f"- 기존 모델과 짧은 작업 우선의 시험 월 격차를 선택 수로 나누면 선택 하나당 {signal['gain_per_decision']:.1f} 가중 분이다. "
+              f"신호의 크기가 이 값의 약 {signal['noise_over_gain'] / 1e4:.0f}만 배다. 선택의 좋고 나쁨은 신호에 거의 담기지 않았다.",
+              f"- 갱신 한 번의 정책 변화량은 평균 {signal['policy_change']:.4f}이며 직전 하루 단위 학습(0.001~0.003)과 같은 수준이다.",
+              f"- 기존 모델은 가장 높은 선택과 그다음 선택의 확률 차이가 평균 {100 * flips['start_mean_gap_between_two_best_probabilities']:.1f}%p뿐이다. "
+              f"그래서 네 번 고친 뒤 저장된 결정 {flips['decisions']:,}개 중 {100 * flips['updates'][-1]['top_choice_changed']:.1f}%에서 "
+              "가장 높은 선택이 바뀌었다. 이 항목은 결과를 본 뒤 추가한 측정이다.",
+              f"- 확률로 뽑는 학습 월 성적은 {first['weighted_mean'] / 1e6:.2f}→{last['weighted_mean'] / 1e6:.2f}백만 분으로 "
+              f"{100 * (last['weighted_mean'] / first['weighted_mean'] - 1):+.2f}%였다. 마지막 갱신 뒤의 학습 월 성적은 재지 않았다.", "",
               "## 한계", "",
               "- 모델 1개·학습 월 1개·시험 월 1개다. 학습 난수에 따른 차이를 분리하지 못한다.",
               "- 고물량 날짜가 섞인 합성 월이며 실제 작업시간·본선 물량과의 대조는 남아 있다.",
@@ -194,7 +210,18 @@ def report(summary):
 def main():
     arms, train = evaluation(), training()
     summary = dict(vessel_time_weight=VESSEL_TIME_WEIGHT, evaluation=arms, verdict=verdict(arms),
-                   paired_vs_short_job_rule=paired(arms), training=train)
+                   paired_vs_short_job_rule=paired(arms), training=train,
+                   signal_diagnostic=read(OUT / "signal-diagnostic.json"))
+    sources = train["sources_unchanged"] = all(file_sha256(path) == digest for path, digest in
+                                               read(OUT / "training" / "campaign.json")["sources"].items())
+    last = read(OUT / "training" / f"fit-{train['configuration']['updates'] - 1}.json")["checkpoint_sha256"]
+    if not sources or arms["retrained"]["checkpoint_sha256"] != last:
+        raise ValueError("The evaluated model or the executed code is not the registered one")
+    for name, arm in arms.items():   # the report recomputes the ledger; the runner's own totals must agree
+        window = read(OUT / "evaluation" / name / "result.json")["windows"]["all"]
+        if arm["complete"] and not (isclose(arm["truck_minutes"], window["truck_minutes"], rel_tol=1e-9)
+                                    and isclose(arm["ship_hours"], window["ship_hours"], rel_tol=1e-9)):
+            raise ValueError("Recomputed averages differ from the runner")
     old, rule = arms["previous"], arms[RULE]
     noise = mean(u["target_noise_weighted_minutes"] for u in train["updates"])
     gain = abs(old["weighted_minutes"] - rule["weighted_minutes"]) / old["decisions"]

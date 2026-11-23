@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-bm | RL | **학습 목표를 선택이 바꿀 수 있는 범위로 좁히기** | 🟠 | bl에서 갱신 신호의 약 8할이 결정 시각으로 정해졌다. 1대67은 그대로 두고 합산 범위를 같은 블록·정해진 시간으로 줄인다. 먼저 저장된 학습 월 16개로 재학습 없이 후보를 잰다. 착수는 사용자 확인 뒤. [spec](../docs/dashboard-task-specs/YR-332-bm-local-return-scope.md) |
 | YR-332-bk | Infra | **트럭 턴타임 감소의 원화 환산 검증** | 🟠 | 정책의 시간 성적에 안전운임 단가를 적용해 절감 추정액을 별도 보고한다. 실제 방문·정산 시각과 청구액을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |
 | YR-332-au | RL | **후보 점수 차이 학습과 크레인 공동 배정의 연결 확인** | 🟡 | 같은 크레인 내 점수 차이는 같아도 공동 배정이 달라지는 사후 반례 확인. 저장 모델의 크레인별 점수 기준 차이가 실제 배정에 영향을 주는지 읽기 전용으로 확인한다. 이번 성능 하락 원인으로 확정하지 않으며 재학습·점수 보정은 별도 판정. [spec](../docs/dashboard-task-specs/YR-332-au-cross-crane-score-contract.md) |

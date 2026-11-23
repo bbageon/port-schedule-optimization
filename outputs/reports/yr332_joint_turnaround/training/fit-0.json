@@ -1,0 +1,59 @@
+{
+  "update": 0,
+  "months": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "policy_samples": 2048,
+  "value_restart": {
+    "samples": 16384,
+    "epochs": 30,
+    "optimizer_steps": 1920,
+    "learning_rate": 0.001,
+    "normalized_rmse_before": 2.2801637649536133,
+    "normalized_rmse_after": 0.15032987296581268,
+    "normalization": {
+      "count": 16384,
+      "mean": -45.594579575789,
+      "scale": 22.384477210463466,
+      "scale_floor_hit": false,
+      "old_mean": 0.0,
+      "old_scale": 1.0,
+      "adam_moments": "retained unchanged; no optimizer invariance claim"
+    }
+  },
+  "value_before_update": {
+    "target_mean": -45.552550784348234,
+    "target_sd": 22.654973520772014,
+    "value_rmse": 3.466977250093281,
+    "explained": 0.9765806484472662
+  },
+  "fit": {
+    "available": 2048,
+    "selected": 2048,
+    "optimizer_steps": 128,
+    "epochs": 4,
+    "replay_logp_max_error": 7.152557373046875e-07,
+    "normalization": {
+      "count": 18432,
+      "mean": -45.58990971110444,
+      "scale": 22.414697449949802,
+      "scale_floor_hit": false,
+      "old_mean": -45.594579575789,
+      "old_scale": 22.384477210463466,
+      "adam_moments": "retained unchanged; no optimizer invariance claim",
+      "value_preservation_max_error": 1.52587890625e-05,
+      "logit_preservation_max_error": 0.0
+    },
+    "means": {
+      "loss": -0.015970764266967308,
+      "critic_loss": 0.011721509847120615,
+      "entropy": 1.862551026046276,
+      "approx_kl": 0.0019768646855596655,
+      "clip_fraction": 0.0230712890625
+    }
+  },
+  "checkpoint_sha256": "63464045d65f7c65bbf849a090e962dede5896d486cb9aedb7cbaf06eb80ca30"
+}
