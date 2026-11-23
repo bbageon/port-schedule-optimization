@@ -68,6 +68,16 @@ def verify(commit,state):
         numbers.append(summary["audits"][arm]["day30_backlog"])
         for j,(value,display) in enumerate(zip(numbers,row[1:],strict=True)):
             truth[arm+str(j)],published[arm+str(j)] = value,float(display.replace(",","").strip())
+    cargo = [line.split("|")[1:-1] for line in report.splitlines() if " · 반출 |" in line]
+    for arm,row in zip(("SF_SPT","LWKR","trained"),cargo,strict=True):
+        a = summary["audits"][arm]
+        n = a["started_delayed_pickups"]
+        values = [a["future_supply_exits"]]
+        if n:
+            values += [a["supply_wait_hours"]*60/n,a["wait_after_supply_and_arrival_hours"]*60/n]
+        for j,value in enumerate(values):
+            truth["cargo"+arm+str(j)] = value
+            published["cargo"+arm+str(j)] = float(row[j+1].replace(",","").strip())
     reliability = combine_reliability(runtime,board,judge_claim_alignment(published,truth,absolute_tolerance=.00501))
     assert reliability.status is GateStatus.PASS,reliability.as_dict()
     performance = GateOutcome("performance",GateStatus.INCONCLUSIVE if summary["complete"] else GateStatus.FAIL,

@@ -45,6 +45,9 @@ def audit(arm):
     assert all(r["out"] == jobs[r["job"]]["finish"] for r in waits)
     assert all(jobs[r["job"]]["start"] is None or r["ready"] is not None and
                r["ready"] <= jobs[r["job"]]["start"] for r in waits)
+    started = [r for r in waits if jobs[r["job"]]["start"] is not None]
+    spent_on_supply = sum(max(0.,r["ready"]-r["block"]) for r in started)
+    spent_after_ready = sum(jobs[r["job"]]["start"]-max(r["ready"],r["block"]) for r in started)
     assert len(trucks) == len({r["job"] for r in trucks}) == result["admitted"] == 176500
     assert len(progress) == 36 and [r["day"] for r in progress] == list(range(36))
     assert result["skipped"] == 0 and len({r["ship"] for r in ships}) == len(ships)
@@ -85,6 +88,8 @@ def audit(arm):
         cross_midnight=sum(r["finish"] is not None and int(r["gate"]//86400)<int(r["finish"]//86400) for r in trucks),
         future_supply_exits=sum(r["out"] is not None for r in waits),
         future_supply_ready=sum(r["ready"] is not None for r in waits),deficit_midnights=boundaries,
+        started_delayed_pickups=len(started),supply_wait_hours=spent_on_supply/3600,
+        wait_after_supply_and_arrival_hours=spent_after_ready/3600,
         entry_days=day_means,
         day30_backlog=progress[30]["unfinished"], peak_backlog=max(r["unfinished"] for r in progress),
         peak_block_inventory=max(max(r["blocks"].values()) for r in progress))
@@ -134,10 +139,22 @@ def main():
         costs = result["windows"]["primary"]["costs"]
         text.append(f"| {names[arm]} · 비용 | {costs['truck']/1e8:.2f} | {costs['ship']/1e8:.2f} | {costs['empty']/1e8:.2f} | {costs['rehandles']/1e8:.2f} | {audits[arm]['day30_backlog']:,} |")
     text.append("")
+    text.extend(["## 지정 화물이 늦게 공급되도록 계획된 반출 2,034건", "",
+        "| 방식 | 반출 완료 | 시작한 트럭당 블록 도착 후 화물 대기(분) | 화물과 트럭이 모두 도착한 뒤 작업 시작까지(분) |",
+        "|---|---:|---:|---:|"])
+    for arm, v in audits.items():
+        n = v["started_delayed_pickups"]
+        text.append(f"| {names[arm]} · 반출 | {v['future_supply_exits']:,} | {v['supply_wait_hours']*60/n:.2f} | {v['wait_after_supply_and_arrival_hours']*60/n:.2f} |" if n else f"| {names[arm]} · 반출 | 0 | 미측정 | 미측정 |")
+    text.extend(["", "화물 대기는 트럭이 블록에 온 시각부터 지정 상자가 실제 적치된 시각까지다. 그 뒤의 대기에는 크레인과 작업 공간을 기다린 시간이 함께 들어간다.", ""])
     text.extend(["트럭은 게이트 진입부터 야드 작업 완료, 본선은 하역 가능부터 마지막 안벽 작업 완료까지 측정했다. 장비의 빈 이동과 재조작은 각 달력 구간에 발생한 비용이다.",
         "한 개의 고정 합성 월과 모델 한 개를 비교했다. 이미 공급을 조사한 달이며 섞인 고물량 날짜는 혼잡 시험이다.",
         "", "[집계와 이월 검산](summary.json) · [입력 명단 지문](input.json) · [일별 기록과 원자료](runs/)"])
-    (OUT/"README.md").write_text("\n".join(text)+"\n",encoding="utf8")
+    (OUT/"README.md").write_text("\n".join(text)+"\n",encoding="utf8",newline="\n")
+    # Hash the same JSON bytes that Git stores on every platform.
+    for path in OUT.rglob("*.json"):
+        raw = path.read_bytes()
+        if b"\r\n" in raw:
+            path.write_bytes(raw.replace(b"\r\n",b"\n"))
 
 
 if __name__ == "__main__":
