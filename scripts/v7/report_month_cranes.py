@@ -109,6 +109,13 @@ def main():
             w = result["windows"][window]
             text.append(f"| {names[arm]} | {w['total']/1e8:.2f} | {w['truck_minutes']:.2f} | {w['ship_hours']:.2f} | {w['unfinished_trucks']:,} | {w['unfinished_ships']} |")
         text.append("")
+    text.extend(["## 2~29일 비용 구성", "",
+        "| 방식 | 트럭 시간(억원) | 본선 작업시간(억원) | 크레인 빈 이동(억원) | 재조작(억원) | 30일째 자정 잔여 트럭 |",
+        "|---|---:|---:|---:|---:|---:|"])
+    for arm,result in results.items():
+        costs = result["windows"]["primary"]["costs"]
+        text.append(f"| {names[arm]} · 비용 | {costs['truck']/1e8:.2f} | {costs['ship']/1e8:.2f} | {costs['empty']/1e8:.2f} | {costs['rehandles']/1e8:.2f} | {audits[arm]['day30_backlog']:,} |")
+    text.append("")
     text.extend(["트럭은 게이트 진입부터 야드 작업 완료, 본선은 하역 가능부터 마지막 안벽 작업 완료까지 측정했다. 장비의 빈 이동과 재조작은 각 달력 구간에 발생한 비용이다.",
         "한 개의 고정 합성 월과 모델 한 개를 비교했다. 이미 공급을 조사한 달이며 섞인 고물량 날짜는 혼잡 시험이다.",
         "", "[집계와 이월 검산](summary.json) · [입력 명단 지문](input.json) · [일별 기록과 원자료](runs/)"])
