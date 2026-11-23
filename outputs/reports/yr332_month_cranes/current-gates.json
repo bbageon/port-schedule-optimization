@@ -1,0 +1,672 @@
+{
+  "task": "YR-332-bh",
+  "evidence_commit": "2111dd66",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "INCONCLUSIVE",
+      "summary": "한 개의 독립 월에 대한 비교",
+      "reasons": [],
+      "evidence": {
+        "independent_months": 1,
+        "complete": true,
+        "primary": {
+          "SF_SPT": {
+            "trucks": 169500,
+            "ships": 91,
+            "unfinished_trucks": 0,
+            "unfinished_ships": 0,
+            "costs": {
+              "truck": 15416605558.46479,
+              "ship": 9465157631.5045,
+              "empty": 17672091.666666668,
+              "rehandles": 306038000.0
+            },
+            "total": 25205473281.635956,
+            "truck_minutes": 81.54619265081897,
+            "ship_hours": 35.64595587582522
+          },
+          "LWKR": {
+            "trucks": 169500,
+            "ships": 91,
+            "unfinished_trucks": 0,
+            "unfinished_ships": 0,
+            "costs": {
+              "truck": 22299081271.88835,
+              "ship": 11265896090.031408,
+              "empty": 19128850.0,
+              "rehandles": 348016000.0
+            },
+            "total": 33932122211.91976,
+            "truck_minutes": 112.92987162812202,
+            "ship_hours": 43.02893439911496
+          },
+          "trained": {
+            "trucks": 169500,
+            "ships": 91,
+            "unfinished_trucks": 0,
+            "unfinished_ships": 0,
+            "costs": {
+              "truck": 19341185678.74859,
+              "ship": 10800711409.373466,
+              "empty": 15727129.166666666,
+              "rehandles": 321454000.0
+            },
+            "total": 30479078217.288723,
+            "truck_minutes": 98.79977025773425,
+            "ship_hours": 40.73047226878908
+          }
+        }
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "759aa7affb412d4aa746015403613e71475b2135",
+            "stamp": {
+              "code": {
+                "git_head": "759aa7affb412d4aa746015403613e71475b2135",
+                "git_dirty": false
+              },
+              "seeds": {
+                "month": [
+                  9400777
+                ],
+                "model": [
+                  9951101
+                ]
+              },
+              "prereg": ".claude/docs/dashboard-task-specs/YR-332-bh-month-cargo-replay.md",
+              "params": {
+                "arms": [
+                  "SF_SPT",
+                  "LWKR",
+                  "trained"
+                ],
+                "days": 30,
+                "drain_days": 5,
+                "measured_days": [
+                  2,
+                  29
+                ],
+                "sampling": "deterministic, frozen weights",
+                "inputs": {
+                  "seed": 9400777,
+                  "days": [
+                    {
+                      "index": 0,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9401777,
+                      "t0": 0.0,
+                      "train": false,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 1,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9402777,
+                      "t0": 86400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 2,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9403777,
+                      "t0": 172800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 3,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9404777,
+                      "t0": 259200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 4,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9405777,
+                      "t0": 345600.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 5,
+                      "load": 15000,
+                      "label": "초혼잡",
+                      "seed": 9406777,
+                      "t0": 432000.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 6,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9407777,
+                      "t0": 518400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 7,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9408777,
+                      "t0": 604800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 8,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9409777,
+                      "t0": 691200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 9,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9410777,
+                      "t0": 777600.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 10,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9411777,
+                      "t0": 864000.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 11,
+                      "load": 12500,
+                      "label": "혼잡",
+                      "seed": 9412777,
+                      "t0": 950400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 12,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9413777,
+                      "t0": 1036800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 13,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9414777,
+                      "t0": 1123200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 14,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9415777,
+                      "t0": 1209600.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 15,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9416777,
+                      "t0": 1296000.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 16,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9417777,
+                      "t0": 1382400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 17,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9418777,
+                      "t0": 1468800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 18,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9419777,
+                      "t0": 1555200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 19,
+                      "load": 12500,
+                      "label": "혼잡",
+                      "seed": 9420777,
+                      "t0": 1641600.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 20,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9421777,
+                      "t0": 1728000.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 21,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9422777,
+                      "t0": 1814400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 22,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9423777,
+                      "t0": 1900800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 23,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9424777,
+                      "t0": 1987200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 24,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9425777,
+                      "t0": 2073600.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 25,
+                      "load": 5000,
+                      "label": "보통",
+                      "seed": 9426777,
+                      "t0": 2160000.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 26,
+                      "load": 12500,
+                      "label": "혼잡",
+                      "seed": 9427777,
+                      "t0": 2246400.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 27,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9428777,
+                      "t0": 2332800.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 28,
+                      "load": 7500,
+                      "label": "혼잡시작",
+                      "seed": 9429777,
+                      "t0": 2419200.0,
+                      "train": true,
+                      "n_days": 30
+                    },
+                    {
+                      "index": 29,
+                      "load": 3500,
+                      "label": "원활",
+                      "seed": 9430777,
+                      "t0": 2505600.0,
+                      "train": false,
+                      "n_days": 30
+                    }
+                  ],
+                  "path": "fixed.json.gz",
+                  "sha256": "9641e05468d4b3606c8fa636de162a388f7734a4005fc0b194ed6d54a9c6d275",
+                  "bytes": 18658191,
+                  "content_sha256": "ec213f7ae577d22c048ca7ef2d8b8ba4bdd8409e15e943619230e656c1fa8cdf",
+                  "uncompressed_bytes": 163543456
+                },
+                "executable": "scripts/v7/month_crane_replay.py",
+                "checkpoint": "outputs/reports/yr332_vessel_turnaround/models/9951101/update-5.pt",
+                "main_claim": "descriptive paired month"
+              }
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_month_cranes/authorization.json": "1058e76579a8a1b0a31be46458f6c0877b777a8e33639543128d81430c7fb60b",
+              "outputs/reports/yr332_month_cranes/input.json": "048b4c4ec7c14cc4fd22e10193e0570547d3a4d635027ff35f732c296a7cdcba",
+              "outputs/reports/yr332_month_cranes/README.md": "478b9ab6ef8f61aa11b8a7dbe01725e67b7c5ec240852a5ae58862f5a6941cf3",
+              "outputs/reports/yr332_month_cranes/smoke-input.json": "6de7bf933907c87064d032afbcba5fb0b27fdddb2333126c7f7b1792a08ef309",
+              "outputs/reports/yr332_month_cranes/summary.json": "a183ccbdbcac8fe8fa80aa8d4debe085122c1c4d38cd2e2ec3defed4deca7c2c",
+              "outputs/reports/yr332_month_cranes/smoke/trained/configuration.json": "4cc02bc356b61717a5637511d7268315f516289e438a99f512a2671f016fa7da",
+              "outputs/reports/yr332_month_cranes/smoke/trained/progress.json": "1b49729d71c58576bbba0064d803f0b6e4d75e88a52c81edf868515455bc0b39",
+              "outputs/reports/yr332_month_cranes/smoke/trained/result.json": "e478c1c921a44d9fc972e4cdb194055792934f56432c379a5e57be9f7ecef5fa",
+              "outputs/reports/yr332_month_cranes/smoke/trained/ships.json": "f15d422c95ec7059ee285d4218ef4ff4cff080bb5014768ccf990d9eb9da3b2e",
+              "outputs/reports/yr332_month_cranes/smoke/trained/trucks.jsonl.gz": "3f90e2ea6462178d834f682a3692f6c98e40842ef04c1d6232a3d4a6a2bcc59e",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/cargo-waits.jsonl.gz": "c503fa6c76b6c9cdac3140d9bfa1e5f5e89814f986ee04eee7cb34fe8f91b1d9",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/configuration.json": "680c28c2cfea27d0f8088d2bdaa6de56df15f14aeb54f32d2bac31a13852c67d",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/progress.json": "b24766e4a2a104be065acac49a1ecaa3515c6e764f90ed4069847da06805e0e5",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/result.json": "223f4d54745e7c923fc3d2a63bbacb17c6d4cce223a281f7f8ce724e90359e85",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/ships.json": "1afccd8d77fb9b67b17ad0949823b01528f6c99b0a6dc2d1c11d9359c45022cb",
+              "outputs/reports/yr332_month_cranes/runs/LWKR/trucks.jsonl.gz": "df4914b67b1066345692ca324bf02905f3d02888f9addbac93f6aeae89942aa4",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/cargo-waits.jsonl.gz": "da89a2f7564fc6e6cba4cc6484226fbd1e1a8aaca26caa290efec4736b7949f0",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/configuration.json": "576ec9992960a904668982df937bf19306ba180c745bab3f7656b5b248c52270",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/progress.json": "04ef3c42fce86de2faf9daba986c0650f17f7d648606222f34c5ce686e229866",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/result.json": "a66afae6c49684956e4ebf45d7b4121c8ec9bf62feaa22415402a39504172c48",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/ships.json": "b7ad3039ca8c5f1eba6ce4395449d05d112cdd52b21a5f93335d50f365a0338a",
+              "outputs/reports/yr332_month_cranes/runs/SF_SPT/trucks.jsonl.gz": "8bc1b15402bf4b0360e45890283d41bd0d3c82f45a4f675f51f46cfb8ed781f2",
+              "outputs/reports/yr332_month_cranes/runs/trained/cargo-waits.jsonl.gz": "fa7f4f01bd754e469d0c48bdc69739ddb0d3069eda76345fb6c500d375e892c6",
+              "outputs/reports/yr332_month_cranes/runs/trained/configuration.json": "b4f4f36cdccac968e4235b673274534cb75cf364320c2fe33cae2b4e1cb0211c",
+              "outputs/reports/yr332_month_cranes/runs/trained/progress.json": "1cc71c2f4549b5c637af21a6dbcdfb0e48f18c7ddc50c283484c93acee21a5de",
+              "outputs/reports/yr332_month_cranes/runs/trained/result.json": "5d125f973bbaef7e7c096cc43b6642874ed6aa0e43b8d54a19f3427235f80acf",
+              "outputs/reports/yr332_month_cranes/runs/trained/ships.json": "055d70ac17a27bb2ae74eed637e73e75027c1416b96633b58874f8171f007185",
+              "outputs/reports/yr332_month_cranes/runs/trained/trucks.jsonl.gz": "b01f3aba3cf5560525cd7547ec69db2c211a3f542edbf9c2142fecdde2a61fc2"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-bh",
+            "expected_state": "in-progress",
+            "board_matches": [
+              "in-progress.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-bh-month-cargo-replay.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_month_cranes\\README.md",
+              "outputs\\reports\\yr332_month_cranes\\summary.json",
+              "outputs\\reports\\yr332_month_cranes\\input.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\in-progress.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-bh-month-cargo-replay.md"
+            ],
+            "evidence_commits": [
+              "2111dd66"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "2111dd66",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.00501,
+            "reported_values": {
+              "0-0": 252.05,
+              "0-1": 81.55,
+              "0-2": 35.65,
+              "0-3": 0.0,
+              "0-4": 0.0,
+              "1-0": 339.32,
+              "1-1": 112.93,
+              "1-2": 43.03,
+              "1-3": 0.0,
+              "1-4": 0.0,
+              "2-0": 304.79,
+              "2-1": 98.8,
+              "2-2": 40.73,
+              "2-3": 0.0,
+              "2-4": 0.0,
+              "3-0": 261.1,
+              "3-1": 79.51,
+              "3-2": 35.26,
+              "3-3": 0.0,
+              "3-4": 0.0,
+              "4-0": 349.39,
+              "4-1": 109.99,
+              "4-2": 42.25,
+              "4-3": 0.0,
+              "4-4": 0.0,
+              "5-0": 314.35,
+              "5-1": 96.09,
+              "5-2": 40.23,
+              "5-3": 0.0,
+              "5-4": 0.0,
+              "SF_SPT0": 154.17,
+              "SF_SPT1": 94.65,
+              "SF_SPT2": 0.18,
+              "SF_SPT3": 3.06,
+              "SF_SPT4": 52.0,
+              "LWKR0": 222.99,
+              "LWKR1": 112.66,
+              "LWKR2": 0.19,
+              "LWKR3": 3.48,
+              "LWKR4": 84.0,
+              "trained0": 193.41,
+              "trained1": 108.01,
+              "trained2": 0.16,
+              "trained3": 3.21,
+              "trained4": 33.0,
+              "cargoSF_SPT0": 2034.0,
+              "cargoSF_SPT1": 731.41,
+              "cargoSF_SPT2": 0.97,
+              "cargoLWKR0": 2034.0,
+              "cargoLWKR1": 742.1,
+              "cargoLWKR2": 0.03,
+              "cargotrained0": 2034.0,
+              "cargotrained1": 713.16,
+              "cargotrained2": 1.46
+            },
+            "raw_values": {
+              "0-0": 252.05473281635955,
+              "0-1": 81.54619265081897,
+              "0-2": 35.64595587582522,
+              "0-3": 0,
+              "0-4": 0,
+              "1-0": 339.3212221191976,
+              "1-1": 112.92987162812202,
+              "1-2": 43.02893439911496,
+              "1-3": 0,
+              "1-4": 0,
+              "2-0": 304.79078217288725,
+              "2-1": 98.79977025773425,
+              "2-2": 40.73047226878908,
+              "2-3": 0,
+              "2-4": 0,
+              "3-0": 261.1040241330591,
+              "3-1": 79.50836097335272,
+              "3-2": 35.2647440864594,
+              "3-3": 0,
+              "3-4": 0,
+              "4-0": 349.38935407308213,
+              "4-1": 109.99290674381534,
+              "4-2": 42.24658039410955,
+              "4-3": 0,
+              "4-4": 0,
+              "5-0": 314.3509599125985,
+              "5-1": 96.08508686350775,
+              "5-2": 40.22973225009976,
+              "5-3": 0,
+              "5-4": 0,
+              "SF_SPT0": 154.1660555846479,
+              "SF_SPT1": 94.65157631504499,
+              "SF_SPT2": 0.17672091666666667,
+              "SF_SPT3": 3.06038,
+              "SF_SPT4": 52,
+              "LWKR0": 222.99081271888352,
+              "LWKR1": 112.65896090031409,
+              "LWKR2": 0.1912885,
+              "LWKR3": 3.48016,
+              "LWKR4": 84,
+              "trained0": 193.41185678748587,
+              "trained1": 108.00711409373467,
+              "trained2": 0.15727129166666667,
+              "trained3": 3.21454,
+              "trained4": 33,
+              "cargoSF_SPT0": 2034,
+              "cargoSF_SPT1": 731.4071119485887,
+              "cargoSF_SPT2": 0.9682663893394302,
+              "cargoLWKR0": 2034,
+              "cargoLWKR1": 742.1025705736046,
+              "cargoLWKR2": 0.02964859991886598,
+              "cargotrained0": 2034,
+              "cargotrained1": 713.1612807259859,
+              "cargotrained2": 1.4550417377044573
+            },
+            "absolute_differences": {
+              "0-0": 0.0047328163595352635,
+              "0-1": 0.0038073491810308724,
+              "0-2": 0.004044124174775732,
+              "0-3": 0.0,
+              "0-4": 0.0,
+              "1-0": 0.0012221191976209411,
+              "1-1": 0.00012837187799163985,
+              "1-2": 0.0010656008850418175,
+              "1-3": 0.0,
+              "1-4": 0.0,
+              "2-0": 0.0007821728872272615,
+              "2-1": 0.0002297422657449033,
+              "2-2": 0.00047226878908190884,
+              "2-3": 0.0,
+              "2-4": 0.0,
+              "3-0": 0.004024133059090218,
+              "3-1": 0.0016390266472825488,
+              "3-2": 0.004744086459403718,
+              "3-3": 0.0,
+              "3-4": 0.0,
+              "4-0": 0.0006459269178549221,
+              "4-1": 0.0029067438153447256,
+              "4-2": 0.0034196058904498727,
+              "4-3": 0.0,
+              "4-4": 0.0,
+              "5-0": 0.0009599125984891543,
+              "5-1": 0.004913136492248782,
+              "5-2": 0.00026774990023881173,
+              "5-3": 0.0,
+              "5-4": 0.0,
+              "LWKR0": 0.0008127188835089783,
+              "LWKR1": 0.0010390996859115376,
+              "LWKR2": 0.001288499999999998,
+              "LWKR3": 0.00016000000000016001,
+              "LWKR4": 0.0,
+              "SF_SPT0": 0.003944415352094666,
+              "SF_SPT1": 0.0015763150449856766,
+              "SF_SPT2": 0.0032790833333333214,
+              "SF_SPT3": 0.0003799999999998249,
+              "SF_SPT4": 0.0,
+              "cargoLWKR0": 0.0,
+              "cargoLWKR1": 0.0025705736045438243,
+              "cargoLWKR2": 0.0003514000811340179,
+              "cargoSF_SPT0": 0.0,
+              "cargoSF_SPT1": 0.0028880514112188393,
+              "cargoSF_SPT2": 0.001733610660569762,
+              "cargotrained0": 0.0,
+              "cargotrained1": 0.0012807259859073383,
+              "cargotrained2": 0.004958262295542637,
+              "trained0": 0.0018567874858774758,
+              "trained1": 0.002885906265333915,
+              "trained2": 0.0027287083333333295,
+              "trained3": 0.0045399999999999885,
+              "trained4": 0.0
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 미수집: achievable_vessel_deadline",
+        "내부타당성 미수집: deterministic_replay",
+        "내부타당성 미수집: information_boundary",
+        "지속운영 검사 미수집: flow_balance_consistent_with_classification",
+        "지속운영 검사 미수집: load_state_classified",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": true,
+        "internal_checks": {
+          "event_time_order": true,
+          "ledger_conservation": true,
+          "physical_constraints": true
+        },
+        "flow_checks": {
+          "continuous_arrivals": true,
+          "warmup_excluded": true,
+          "fixed_measurement_window": true
+        },
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
