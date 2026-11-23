@@ -118,6 +118,55 @@ def normalized_ppo_update(net, optimizer, samples, *, seed, max_samples=2048,
                                map(lambda xs: sum(xs)/len(xs), zip(*statistics)))))
 
 
+@torch.no_grad()
+def restart_value_head(net, *, seed):
+    """Forget predictions made in another reward unit. Action logits are untouched."""
+    state = torch.get_rng_state()
+    torch.manual_seed(seed)
+    for layer in net.critic:
+        if isinstance(layer, nn.Linear):
+            layer.reset_parameters()
+    torch.set_rng_state(state)
+    for name, value in [('target_mean', 0.), ('target_scale', 1.), ('target_count', 0.), ('target_m2', 0.)]:
+        getattr(net, name).fill_(value)
+
+
+def fit_value_head(net, samples, *, seed, epochs=30, batch_size=256, lr=1e-3):
+    """Regress only the value head on observed returns, with the shared encoder held fixed.
+
+    The policy that produced `samples` is therefore still the policy after the fit.
+    """
+    if not samples:
+        raise ValueError('No decisions to fit the value head on')
+    target = torch.tensor([s.target for s in samples])
+    with torch.no_grad():
+        context = torch.cat([net.actor_and_critic_input(pack_states([s.state for s in samples[b:b+64]]))[1]
+                             for b in range(0, len(samples), 64)])
+    normalization = net.update_statistics(target)
+    y = (target - net.target_mean.float()) / net.target_scale.float()
+
+    def rmse():
+        with torch.no_grad():
+            return float((net.critic(context).squeeze(-1) - y).square().mean().sqrt())
+
+    before, steps = rmse(), 0
+    optimizer = torch.optim.Adam(net.critic.parameters(), lr=lr)
+    rng = torch.Generator().manual_seed(seed)
+    for _ in range(epochs):
+        order = torch.randperm(len(samples), generator=rng)
+        for begin in range(0, len(order), batch_size):
+            ix = order[begin:begin+batch_size]
+            loss = .5 * (net.critic(context[ix]).squeeze(-1) - y[ix]).square().mean()
+            if not torch.isfinite(loss):
+                raise ValueError('Nonfinite value loss')
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            steps += 1
+    return dict(samples=len(samples), epochs=epochs, optimizer_steps=steps, learning_rate=lr,
+                normalized_rmse_before=before, normalized_rmse_after=rmse(), normalization=normalization)
+
+
 def fit(net, optimizer, samples, *, arm, **kwargs):
     if arm == 'control':
         assert net.target_count.item() == 0 and net.target_scale.item() == 1

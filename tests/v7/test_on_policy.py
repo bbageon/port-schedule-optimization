@@ -11,6 +11,21 @@ from yard_rl.v7.crane.on_policy import (DecisionSample, OnPolicyResolver, action
 torch.set_num_threads(1)
 
 
+def test_turnaround_targets_span_midnight_and_do_not_charge_a_ship_per_crane():
+    from yard_rl.v7.reward.joint_turnaround import JointTurnaroundClock
+    day = 86400
+    clock = JointTurnaroundClock([(day-60, day+60), (day, day+60)], [(day-60, day+120)])
+    assert clock.minutes_at(day) == 68
+    assert clock.total_minutes == 3 + 3*67
+    resolver = OnPolicyResolver(SchedulingActorCritic(), collect=True, horizon=day)
+    resolver.samples = [DecisionSample(NS(time_fraction=1.), [], [], 0., 0., 0.)]
+    info = resolver.finish_turnaround(clock, scale=2.)
+    assert resolver.samples[0].target == -(clock.total_minutes - 68)/2
+    assert info["reward_sum"] == -clock.total_minutes/2
+    with pytest.raises(ValueError):
+        JointTurnaroundClock([(0., None)], [])
+
+
 def state(n, seed=1):
     rng = torch.Generator().manual_seed(seed)
     return GraphState(torch.randn(n, 10, generator=rng), torch.arange(n),

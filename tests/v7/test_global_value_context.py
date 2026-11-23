@@ -92,3 +92,27 @@ def test_context_roundtrip_is_strict_and_normalized_update_replays():
                                   corpus, seed=31, max_samples=8, epochs=1, batch_size=4)
     assert result['replay_logp_max_error'] < 2e-5
     assert result['normalization']['logit_preservation_max_error'] == 0
+
+
+def test_value_head_restart_learns_a_new_unit_without_moving_action_logits():
+    from yard_rl.v7.crane.value_normalization import fit_value_head, restart_value_head
+    torch.manual_seed(5)
+    net = expand_value_net(NormalizedValueNet().eval())
+    net.update_statistics(torch.tensor([1e9, 3e9]))  # statistics left by an earlier reward unit
+    samples = [DecisionSample(replace(state(), time_fraction=i/96, global_waiting=.3), [], [], 0., 0., 0.,
+                              target=-30.*(1-i/96)) for i in range(96)]
+    batch = pack_states([s.state for s in samples])
+    with torch.no_grad():
+        logits = net(batch)[0]
+    rng = torch.get_rng_state()
+    restart_value_head(net, seed=7)
+    assert torch.equal(rng, torch.get_rng_state()) and net.target_count.item() == 0
+    info = fit_value_head(net, samples, seed=8, epochs=200, batch_size=32)
+    with torch.no_grad():
+        after, value = net(batch)
+    assert torch.equal(logits, after)
+    assert info['normalized_rmse_after'] < .5 * info['normalized_rmse_before']
+    assert net.target_count.item() == 96 and abs(net.target_mean.item() + 15.15625) < 1e-9
+    assert float((value - torch.tensor([s.target for s in samples])).abs().mean()) < 4.5
+    with pytest.raises(ValueError):
+        fit_value_head(net, [], seed=1)

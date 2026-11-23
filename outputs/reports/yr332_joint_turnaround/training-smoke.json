@@ -1,0 +1,85 @@
+{
+  "purpose": "Wiring check on three short days from an unregistered seed. These numbers are not results.",
+  "input_seed": 9900306,
+  "updates": 2,
+  "months_per_update": 2,
+  "previous_model_events_equal_archive": true,
+  "earlier_value_head_explained": [
+    -16.919376189562453,
+    -16.79796478449244
+  ],
+  "value_restart": {
+    "samples": 8192,
+    "epochs": 30,
+    "optimizer_steps": 960,
+    "learning_rate": 0.001,
+    "normalized_rmse_before": 3.284186840057373,
+    "normalized_rmse_after": 0.09819820523262024,
+    "normalization": {
+      "count": 8192,
+      "mean": -0.41218428972475607,
+      "scale": 0.23274688412769817,
+      "scale_floor_hit": false,
+      "old_mean": 0.0,
+      "old_scale": 1.0,
+      "adam_moments": "retained unchanged; no optimizer invariance claim"
+    }
+  },
+  "value_explained_on_unfitted_decisions": [
+    0.9899914293977552,
+    0.9911598445180562
+  ],
+  "action_probability_replay_max_error": [
+    4.76837158203125e-07,
+    4.76837158203125e-07
+  ],
+  "policy_change_per_update": [
+    {
+      "loss": -0.010092209558933973,
+      "critic_loss": 0.006376020619427436,
+      "entropy": 1.3142740726470947,
+      "approx_kl": 1.5713273239914734e-05,
+      "clip_fraction": 0.0
+    },
+    {
+      "loss": -0.011241284169955179,
+      "critic_loss": 0.004762005595694063,
+      "entropy": 1.3376639727503061,
+      "approx_kl": 1.7153465633194115e-05,
+      "clip_fraction": 0.0001220703125
+    }
+  ],
+  "same_policy_month_totals": [
+    [
+      786014.0949907147,
+      787826.4303384119
+    ],
+    [
+      785889.4038414159,
+      790255.3721060954
+    ]
+  ],
+  "all_training_months_complete": true,
+  "evaluation": {
+    "retrained": {
+      "truck_minutes": 17.479382655116112,
+      "ship_hours": 21.53353060262522,
+      "unfinished": 0
+    },
+    "previous": {
+      "truck_minutes": 17.167359896212268,
+      "ship_hours": 21.495193691068362,
+      "unfinished": 0
+    },
+    "SF_SPT": {
+      "truck_minutes": 15.217622201876955,
+      "ship_hours": 21.359624607140862,
+      "unfinished": 0
+    },
+    "LWKR": {
+      "truck_minutes": 16.377116673585913,
+      "ship_hours": 21.48764264719684,
+      "unfinished": 0
+    }
+  }
+}
