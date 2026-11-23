@@ -1,0 +1,40 @@
+{
+  "arguments": [
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_month_cranes/current-gates.json",
+    "--gate-sha256",
+    "96573fcd3949f67a247db210d33c96e97b5f57cc6d93aae96b9d20f54967c0e2",
+    "--gate-commit",
+    "702fe7cfa86b2e97054cc84722d3236a4558f9b7",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-bl",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-bl-joint-turnaround-reward.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "scenario_validity",
+    "--stage",
+    "inputs"
+  ],
+  "returncode": 0,
+  "decision": {
+    "task": "YR-332-bl",
+    "allowed": true,
+    "reason": "미통과 게이트를 직접 해결하는 단일축 보정 작업",
+    "kind": "REMEDIATION",
+    "targets": [
+      "scenario_validity"
+    ],
+    "stage": "inputs",
+    "current_unresolved": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}

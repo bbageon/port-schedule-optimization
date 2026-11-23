@@ -54,7 +54,7 @@ def write_lines(path, rows):
             stream.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False)+"\n")
 
 
-def run(arm, smoke):
+def run(arm, smoke, *, output_root=OUT):
     started = time.monotonic()
     info = json.loads((OUT/("smoke-input.json" if smoke else "input.json")).read_text("utf8"))
     manifest = MANIFEST.with_name(info["path"])
@@ -65,7 +65,7 @@ def run(arm, smoke):
     days = [DayPlan(**{k:v for k,v in d.items() if k != "train"}) for d in info["days"]]
     n_days, seed = len(days), document["seed"]
     end = (n_days+5)*DAY_S
-    folder = OUT/("smoke" if smoke else "runs")/arm
+    folder = output_root/("smoke" if smoke else "runs")/arm
     folder.mkdir(parents=True, exist_ok=True)
     terminal = initial_world(document, days, end)
     ann = V3Announcer(document["schedule"], end_s=end, resolve_entry=terminal.resolve_entry)
