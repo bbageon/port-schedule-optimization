@@ -54,7 +54,7 @@ def write_lines(path, rows):
             stream.write(json.dumps(row, separators=(",", ":"), ensure_ascii=False)+"\n")
 
 
-def run(arm, smoke, *, output_root=OUT):
+def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False):
     started = time.monotonic()
     info = json.loads((OUT/("smoke-input.json" if smoke else "input.json")).read_text("utf8"))
     manifest = MANIFEST.with_name(info["path"])
@@ -74,8 +74,8 @@ def run(arm, smoke, *, output_root=OUT):
     resolver, net = None, None
     if arm == "trained":
         net = restore(checkpoint)[0].eval()
-        resolver = OnPolicyResolver(net, stochastic=False, collect=False, horizon=DAY_S,
-                                    global_context_mode="global")
+        resolver = OnPolicyResolver(net, stochastic=False, collect=check_turnaround_targets, horizon=DAY_S,
+                                    collect_until=end, global_context_mode="global")
         resolver.observe_global_epoch(terminal, 0.)
     policy, errors = _rule_policy("RL_CRANE" if net is not None else arm, seed=seed,
         crane_net=net, candidate_cap=None, reuse_plans=True, joint_resolver=resolver)
@@ -166,6 +166,22 @@ def run(arm, smoke, *, output_root=OUT):
             stream_finishes=finishes,seconds=seconds,cost=seconds/3600*vessel_krw_per_hour(r["gt"])))
     write_lines(folder/"trucks.jsonl.gz",truck_rows)
     save(folder/"ships.json",ships)
+    if check_turnaround_targets:
+        from math import fsum, isclose
+        from yard_rl.v7.reward.joint_turnaround import JointTurnaroundClock, VESSEL_TIME_WEIGHT
+        clock = JointTurnaroundClock(((r["gate"], r["finish"]) for r in truck_rows),
+                                     ((r["start"], r["finish"]) for r in ships))
+        check = resolver.finish_turnaround(clock, scale=1.0)
+        comparisons = []
+        for sample in resolver.samples[::max(1, len(resolver.samples)//8)]:
+            t = sample.state.time_fraction * resolver.horizon
+            remaining = fsum(max(0, r["finish"] - max(r["gate"], t)) for r in truck_rows)
+            remaining += VESSEL_TIME_WEIGHT * fsum(max(0, r["finish"] - max(r["start"], t)) for r in ships)
+            if not isclose(sample.target, -remaining / 60, rel_tol=1e-11, abs_tol=1e-7):
+                raise ValueError("A decision target disagrees with the remaining elapsed time")
+            comparisons.append(dict(t=t, target=sample.target, expected=-remaining / 60))
+        check["sampled_decisions"] = comparisons
+        save(folder/"target-check.json", check)
     if not smoke:
         future = json.loads(Path("outputs/reports/yr332_month_supply/future-supply.json").read_text("utf8"))
         write_lines(folder/"cargo-waits.jsonl.gz",(dict(container=e["container"], job=e["demand"]["job"],

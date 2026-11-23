@@ -181,6 +181,18 @@ class OnPolicyResolver(CentralResolver):
             raise ValueError('Cumulative synchronized objective decreased')
         self.costs.append((t, cost))
 
+    def finish_turnaround(self, clock, scale):
+        """Attach remaining weighted minutes after the last truck and port call finish."""
+        if self.costs != [(0., 0.)]:
+            raise ValueError("Turnaround targets require a separate clock from KRW costs")
+        for sample in self.samples:
+            t = sample.state.time_fraction * self.horizon
+            sample.past_cost = clock.minutes_at(t)
+            self.observe_cost(t, sample.past_cost)
+        last = clock.times[-1] if clock.times else 0.0
+        self.observe_cost(max(last, self.costs[-1][0]), clock.total_minutes)
+        return self.finish(clock.total_minutes, scale)
+
     def finish(self, final_cost, scale):
         if not self.collect:
             return {}
