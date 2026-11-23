@@ -1,0 +1,325 @@
+{
+  "task": "YR-332-bl",
+  "evidence_commit": "caf87c21",
+  "common_gates": {
+    "performance": {
+      "name": "performance",
+      "status": "FAIL",
+      "summary": "새 모델이 처음 보는 한 달에서 짧은 작업 우선보다 두 평균 모두 길다 (모델 1개·시험 월 1개의 탐색)",
+      "reasons": [],
+      "evidence": {
+        "independent_months": 1,
+        "models": 1,
+        "verdict": "미달: 새 모델이 짧은 작업 우선보다 두 평균 모두 길다",
+        "weighted_minutes": {
+          "retrained": 51623981.74081044,
+          "previous": 41947957.40662096,
+          "SF_SPT": 34070155.69433717,
+          "LWKR": 49815180.194111235
+        },
+        "paired_vs_rule": {
+          "truck_minutes": {
+            "difference": 60.507766582737716,
+            "low": 31.760374869888636,
+            "high": 92.16613035995655
+          },
+          "ship_hours": {
+            "difference": 12.973719667481994,
+            "low": 9.625371678758817,
+            "high": 16.60456163918623
+          },
+          "weighted_percent": {
+            "difference": 51.52258828506295,
+            "low": 37.10112253134233,
+            "high": 65.7754301427484
+          },
+          "days_worse_for_trucks": 30,
+          "days": 30
+        }
+      }
+    },
+    "reliability": {
+      "name": "reliability",
+      "status": "PASS",
+      "summary": "실행 재현정보와 Dashboard 증거가 모두 일치함",
+      "reasons": [],
+      "evidence": {
+        "runtime": {
+          "name": "runtime_evidence",
+          "status": "PASS",
+          "summary": "실행 코드·시드·설정·산출물의 재현 사슬이 완전함",
+          "reasons": [],
+          "evidence": {
+            "git_head": "0cfddd0dcb9c1f300a37984223a35fc23e9aec86",
+            "stamp": {
+              "code": {
+                "git_head": "0cfddd0dcb9c1f300a37984223a35fc23e9aec86",
+                "git_dirty": false
+              },
+              "seeds": {
+                "model": [
+                  9951101
+                ],
+                "train_month": [
+                  12104101
+                ],
+                "test_month": [
+                  12204201
+                ]
+              },
+              "prereg": ".claude/docs/dashboard-task-specs/YR-332-bl-joint-turnaround-reward.md",
+              "params": {
+                "configuration": {
+                  "model_seed": 9951101,
+                  "updates": 4,
+                  "months_per_update": 4,
+                  "max_samples": 2048,
+                  "value_samples_per_first_month": 4096,
+                  "epochs": 4,
+                  "batch_size": 64,
+                  "lr": 0.0003,
+                  "clip": 0.2,
+                  "value_coefficient": 0.5,
+                  "entropy_coefficient": 0.01,
+                  "gradient_clip": 1.0,
+                  "discount": 1.0,
+                  "return_scale": 1000000.0,
+                  "vessel_time_weight": 67,
+                  "horizon_s": 2592000.0,
+                  "collection": "stochastic",
+                  "evaluation": "fixed argmax; last update only, no checkpoint selection",
+                  "baselines": {
+                    "0": "SF_SPT",
+                    "1": "LWKR",
+                    "2": "previous"
+                  },
+                  "train_input": "6dd21a1fe3c892cf4ba84e1a72ace5beac8873e96e01ed5ebf2b4ad72fb0b148",
+                  "test_input": "bcfe23ee40cd6a2f23a18f6404193649fe55e6d15001fd445ae004605e3ab8fa"
+                },
+                "arms": [
+                  "retrained",
+                  "previous",
+                  "SF_SPT",
+                  "LWKR"
+                ],
+                "days": 30,
+                "drain_days": 5,
+                "executable": "scripts/v7/joint_turnaround_train.py",
+                "train_input": "10ff259cde1c7e05cff808e26ab2ed7672de92ebb2dad640c1b934abcb8144ed",
+                "test_input": "5682661597b78952b58b6dd2eeb427bde070ef6dbfbfce5369bdf7027938bc39",
+                "main_claim": "exploratory comparison on one unseen synthetic month"
+              }
+            },
+            "artifact_hashes": {
+              "outputs/reports/yr332_joint_turnaround/clock-preflight.json": "02722e1506446c2cc9c24a280dc0bf822e4e4e1bc940cd1d6fe2e337b5a9ffba",
+              "outputs/reports/yr332_joint_turnaround/inputs-authorization.json": "c4a957d89e0c07bf8f15b39175072179d3937ebf03b7b89afb690127f1b87254",
+              "outputs/reports/yr332_joint_turnaround/README.md": "28cb1f9d1098e217e74095e01349682fa73f8c89824b4a55a6e5e846d44142f4",
+              "outputs/reports/yr332_joint_turnaround/reward-review.json": "01d5165080b58059ce7b2332acab462ddf0235891d349a0c1e73199439ea995f",
+              "outputs/reports/yr332_joint_turnaround/signal-diagnostic.json": "cbd2e23718c5374d5c21cd299f74d4af5596364e137cc3f668aae5a250d31b8a",
+              "outputs/reports/yr332_joint_turnaround/smoke-replay.json": "67ca213b8674815558ef1217ce2e40893dfb1a4c19f23ef4cedd2fd696b0b3d8",
+              "outputs/reports/yr332_joint_turnaround/summary.json": "d584330df64ca715abdfc4680b98c3e036bccdd2d38c54355e1a6f032e2d604e",
+              "outputs/reports/yr332_joint_turnaround/test-input.json": "9669319d8e81b87c4f7c51e53ebe1eb0ffc76609f8f277ed3fe55b7073ee6fe3",
+              "outputs/reports/yr332_joint_turnaround/train-input.json": "4255e1f906f0b4ba741a5ff6cd94409a13f4ba17a8703d53c701b46d5511c018",
+              "outputs/reports/yr332_joint_turnaround/training-authorization.json": "c29771d26a8b149dc4411c265832162f79c0bee5697c7db79057b24dfbed3ed3",
+              "outputs/reports/yr332_joint_turnaround/training-smoke.json": "80a6964567834431cafa8bae8d51c7450584980e8bed91e53afef473cede084b",
+              "outputs/reports/yr332_joint_turnaround/models/update-0.pt": "63464045d65f7c65bbf849a090e962dede5896d486cb9aedb7cbaf06eb80ca30",
+              "outputs/reports/yr332_joint_turnaround/models/update-1.pt": "a0350a186983982a3b60d8f93ad8224a32d9d7a694425416bfa6122065a5fee7",
+              "outputs/reports/yr332_joint_turnaround/models/update-2.pt": "0c0ebb1f2bcb70fcf62819235020b8b9c3b80c0eae32d2d550175a777342fa2e",
+              "outputs/reports/yr332_joint_turnaround/models/update-3.pt": "da3f2155bdf7eec4d9ee5a1da491cb008bd9e2601c7f627d8b9b294af60d3554",
+              "outputs/reports/yr332_joint_turnaround/training/campaign.json": "29f6f36627e50a3f0583f56670b804e8e95b7a41f488c08c28849ed4594f7026",
+              "outputs/reports/yr332_joint_turnaround/training/fit-0.json": "80129e2d9ce3394d07e785b26a32ee7cf5a8ab3e89289c7103a96d2ac1da4fb8",
+              "outputs/reports/yr332_joint_turnaround/training/fit-1.json": "e97f980df24383c11ebbb8285f2258383d7a7212f86830646fe84f3cd827fcd1",
+              "outputs/reports/yr332_joint_turnaround/training/fit-2.json": "3dff94cd3e2d08a107e77cb797f24c4693a63d4a7b91d178c6f71cdfb42c338d",
+              "outputs/reports/yr332_joint_turnaround/training/fit-3.json": "38d8c0a32921052525e2dd59ce2c0fff6adf566ea29f155bd34ee643aaa2c6e2",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-0-0.json": "7d1d8714f5e34e8ba60a97577034c57b7d265c77f653b6e57f9f6dd38a4ff62d",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-0-1.json": "1f775d3f76bee7ac77420317a977868b1ca593f6394d20f0f578cdedc7a83163",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-0-2.json": "7e8490acd18971016c39794787ec55b76048b76f8c85bf55063c6ecb089af504",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-0-3.json": "848923692a60969ae526b5e293391d43d59c4c85adbce8487ac2c0952715ec22",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-1-0.json": "c50b9043b06d6382c4cf28e0dfb4e40fdda8f51988db6ac53e4fc7040952c006",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-1-1.json": "d2b5bf4696a9d50a06f41b4e76093567498b0d8f887cd5c47f42fff971e046be",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-1-2.json": "ffc00d49bd3a8410e72b69f76f6352630b4a039f294839bbd7347a58319fe3b0",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-1-3.json": "29f8acc7ec1c0dec2af68d24ac8246826435eff8257a07974675ade0e7aaef31",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-2-0.json": "7cd9d8ae9ab17f621dc5fda9dbade2010c3eef3f4faff476edbb9f3ebc853afc",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-2-1.json": "ecee70435c9612dab89310bb84e9d8bc18d03c7219d465cb99203f0a531c2025",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-2-2.json": "9b41a7031c3a3577cd5e25cd49f36b169de08e7c874f643299311e98c97ab2ae",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-2-3.json": "fc141af5e5215a9dcf3c3a86a31bcc6d107a9999b28093b853a14563e85bd1b3",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-3-0.json": "e95c61e7b03f02bf7f5861203490abfcbb92b255935a45769647687f64471b1c",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-3-1.json": "dead9f34242646ee9a543a6c8703e70ec33a6437db480923a0ef8adf775fe893",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-3-2.json": "a97298a4ada089586cc4f1fed27e64b8de17fbe727c053ec9779e8db68e48251",
+              "outputs/reports/yr332_joint_turnaround/training/rollout-3-3.json": "75b368bf16bf97acb87979220f61af6236cf474f9beb225b48d8b7d363c3218a",
+              "outputs/reports/yr332_joint_turnaround/evaluation/LWKR/configuration.json": "f6db51f53d955393a4b5a4a6c2eca11e8d2f12d8fbcf5e719c1b1ac4eea3555e",
+              "outputs/reports/yr332_joint_turnaround/evaluation/LWKR/progress.json": "f8b3087b052cc9e1ec7f0a3349eb66f1aee6925cd45f45114e11d15c16d88e81",
+              "outputs/reports/yr332_joint_turnaround/evaluation/LWKR/result.json": "290009e2f0487ab826460faab82b0902be1a0583d54bd8bcd23c8a1a5690eb52",
+              "outputs/reports/yr332_joint_turnaround/evaluation/LWKR/ships.json": "b2ea6b3bf66bf9f12f59d196011379bae03b7626e54b9f9c735e33419ef8f1ec",
+              "outputs/reports/yr332_joint_turnaround/evaluation/LWKR/trucks.jsonl.gz": "2a334fda9544e3fe06a9e6d12335f5b4f977278e9d601904f7fb4f1d39ee4caa",
+              "outputs/reports/yr332_joint_turnaround/evaluation/previous/configuration.json": "c0fb259c8b94fe56ad8127d4eee8bcfc388bf49bc1783e98019ebbf02f36b41b",
+              "outputs/reports/yr332_joint_turnaround/evaluation/previous/progress.json": "ffa4361548a5b2bbe6669b2d6db509a7482ba79b0e51ad8d9924c6f3d85ebfbf",
+              "outputs/reports/yr332_joint_turnaround/evaluation/previous/result.json": "5dc5e4d360a6fee672e40bbc5e3a2f83d6d8768faca3952fa768770de61495da",
+              "outputs/reports/yr332_joint_turnaround/evaluation/previous/ships.json": "a0e540bc13318e833c93406ed45e3c54d0f461eb8f061baa7b730df7e5c99d9d",
+              "outputs/reports/yr332_joint_turnaround/evaluation/previous/trucks.jsonl.gz": "89c967f6f1b0883319a49fa875c619cd3aee17fd3930f2e5bea17114f040c6b8",
+              "outputs/reports/yr332_joint_turnaround/evaluation/retrained/configuration.json": "0ce6f2f3d208ec35a160eb17ab7ff22392905daaea303fcaf12dd5cde3cb208c",
+              "outputs/reports/yr332_joint_turnaround/evaluation/retrained/progress.json": "8153945371b68174f4831341e73e7bcaa7f7ff3e01fcb1bf8f09d45543ec2650",
+              "outputs/reports/yr332_joint_turnaround/evaluation/retrained/result.json": "21c473e5fe12df27a92fcc7745b1f30b29bec66e85080571c452f4842aff66d6",
+              "outputs/reports/yr332_joint_turnaround/evaluation/retrained/ships.json": "b72385b33e217d4b68d3ff46729d0d325cf6ca446b02a770e55be55d2fb3132f",
+              "outputs/reports/yr332_joint_turnaround/evaluation/retrained/trucks.jsonl.gz": "2f8a661d0073da4d305600f0b5ead68e1207e54017d1679a40d552180e0a86ca",
+              "outputs/reports/yr332_joint_turnaround/evaluation/SF_SPT/configuration.json": "b379f528f53c8de18b09168199ec7c3a420180e15a30d1df1f7fe1c48bf61d5c",
+              "outputs/reports/yr332_joint_turnaround/evaluation/SF_SPT/progress.json": "7630656fff8f9b38320131121aa28aeb21b81caaf85daa13856877ba898fadfa",
+              "outputs/reports/yr332_joint_turnaround/evaluation/SF_SPT/result.json": "5d1776eaa305925d717fb5991c9aee6701c5ec2f78765a882fc65472058c1cfc",
+              "outputs/reports/yr332_joint_turnaround/evaluation/SF_SPT/ships.json": "7c0488d162e217fbf57204e47bd1f4cb5dfc0facb12c4816ddb554552a474d6d",
+              "outputs/reports/yr332_joint_turnaround/evaluation/SF_SPT/trucks.jsonl.gz": "2e6d03733c88f882c7b016e9bd50094e2f1e0d38eec1d49d934714ed7787605d"
+            }
+          }
+        },
+        "dashboard": {
+          "name": "dashboard_code_alignment",
+          "status": "PASS",
+          "summary": "Dashboard·spec·코드·증거가 일치함",
+          "reasons": [],
+          "evidence": {
+            "task_id": "YR-332-bl",
+            "expected_state": "done",
+            "board_matches": [
+              "done.md"
+            ],
+            "spec_path": ".claude\\docs\\dashboard-task-specs\\YR-332-bl-joint-turnaround-reward.md",
+            "evidence_paths": [
+              "outputs\\reports\\yr332_joint_turnaround\\README.md",
+              "outputs\\reports\\yr332_joint_turnaround\\summary.json",
+              "outputs\\reports\\yr332_joint_turnaround\\training\\campaign.json"
+            ],
+            "control_paths": [
+              ".claude\\Dashboard\\done.md",
+              ".claude\\docs\\dashboard-task-specs\\YR-332-bl-joint-turnaround-reward.md"
+            ],
+            "evidence_commits": [
+              "caf87c21"
+            ],
+            "remote_ref": "origin/강화학습-판매",
+            "pin_commit": "caf87c21",
+            "drift": []
+          }
+        },
+        "claim_alignment": {
+          "name": "claim_alignment",
+          "status": "PASS",
+          "summary": "보고 핵심 수치가 원자료와 일치함",
+          "reasons": [],
+          "evidence": {
+            "absolute_tolerance": 0.00501,
+            "reported_values": {
+              "retrained-truck": 154.7,
+              "retrained-ship": 50.46,
+              "retrained-weighted": 51.624,
+              "retrained-slowest": 896.54,
+              "retrained-krw": 171.75,
+              "previous-truck": 121.01,
+              "previous-ship": 43.49,
+              "previous-weighted": 41.948,
+              "previous-slowest": 733.41,
+              "previous-krw": 126.87,
+              "SF_SPT-truck": 94.19,
+              "SF_SPT-ship": 37.49,
+              "SF_SPT-weighted": 34.07,
+              "SF_SPT-slowest": 548.45,
+              "SF_SPT-krw": 89.82,
+              "LWKR-truck": 150.47,
+              "LWKR-ship": 48.06,
+              "LWKR-weighted": 49.815,
+              "LWKR-slowest": 699.59,
+              "LWKR-krw": 161.71
+            },
+            "raw_values": {
+              "retrained-truck": 154.70076962162887,
+              "retrained-ship": 50.464873606052414,
+              "retrained-weighted": 51.623981740810436,
+              "retrained-slowest": 896.5412264544241,
+              "retrained-krw": 171.75401809668986,
+              "previous-truck": 121.00805191420959,
+              "previous-ship": 43.49334432563132,
+              "previous-weighted": 41.94795740662096,
+              "previous-slowest": 733.4051596299571,
+              "previous-krw": 126.8660018682651,
+              "SF_SPT-truck": 94.19300303889115,
+              "SF_SPT-ship": 37.49115393857042,
+              "SF_SPT-weighted": 34.07015569433717,
+              "SF_SPT-slowest": 548.4505705620744,
+              "SF_SPT-krw": 89.8164091271943,
+              "LWKR-truck": 150.47343355324676,
+              "LWKR-ship": 48.064871942775234,
+              "LWKR-weighted": 49.815180194111235,
+              "LWKR-slowest": 699.5899292948491,
+              "LWKR-krw": 161.7088380364313
+            },
+            "absolute_differences": {
+              "LWKR-krw": 0.0011619635687054597,
+              "LWKR-ship": 0.00487194277523173,
+              "LWKR-slowest": 7.070515096074814e-05,
+              "LWKR-truck": 0.0034335532467650864,
+              "LWKR-weighted": 0.0001801941112375971,
+              "SF_SPT-krw": 0.00359087280568815,
+              "SF_SPT-ship": 0.0011539385704182337,
+              "SF_SPT-slowest": 0.0005705620743583495,
+              "SF_SPT-truck": 0.0030030388911512773,
+              "SF_SPT-weighted": 0.0001556943371667785,
+              "previous-krw": 0.003998131734903154,
+              "previous-ship": 0.0033443256313177017,
+              "previous-slowest": 0.004840370042870745,
+              "previous-truck": 0.0019480857904170534,
+              "previous-weighted": 4.259337904244376e-05,
+              "retrained-krw": 0.00401809668986175,
+              "retrained-ship": 0.004873606052413493,
+              "retrained-slowest": 0.001226454424113399,
+              "retrained-truck": 0.0007696216288763935,
+              "retrained-weighted": 1.8259189566549594e-05
+            }
+          }
+        }
+      }
+    },
+    "scenario_validity": {
+      "name": "scenario_validity",
+      "status": "FAIL",
+      "summary": "시나리오가 주장에 필요한 물리·정보·흐름 계약을 충족하지 못함",
+      "reasons": [
+        "내부타당성 미수집: achievable_vessel_deadline",
+        "내부타당성 미수집: deterministic_replay",
+        "내부타당성 미수집: information_boundary",
+        "지속운영 검사 미수집: flow_balance_consistent_with_classification",
+        "지속운영 검사 미수집: load_state_classified",
+        "지속운영 검사 실패: warmup_excluded",
+        "필수 외부 앵커 미수집: crane_service_time",
+        "필수 외부 앵커 미수집: gate_to_block_time",
+        "필수 외부 앵커 미수집: initial_yard_occupancy",
+        "필수 외부 앵커 미수집: truck_arrival_rate",
+        "필수 외부 앵커 미수집: vessel_workload"
+      ],
+      "evidence": {
+        "continuous_operation": true,
+        "internal_checks": {
+          "event_time_order": true,
+          "ledger_conservation": true,
+          "physical_constraints": true
+        },
+        "flow_checks": {
+          "continuous_arrivals": true,
+          "warmup_excluded": false,
+          "fixed_measurement_window": true
+        },
+        "anchors": {},
+        "operational_trace_path": null,
+        "operational_trace_sha256": null,
+        "operational_trace_verified": false,
+        "operational_trace_records": 0,
+        "minimum_operational_trace_records": 30,
+        "allowed_claim_scope": "NO_PERFORMANCE_CLAIM"
+      }
+    },
+    "claim_eligible": false,
+    "allowed_claim_scope": "NO_PERFORMANCE_CLAIM",
+    "next_work_mode": "REMEDIATION_ONLY",
+    "unresolved_gates": [
+      "performance",
+      "scenario_validity"
+    ]
+  }
+}
