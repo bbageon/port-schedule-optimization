@@ -25,9 +25,26 @@ def audit(arm):
     ships = read(folder/"ships.json")
     trucks = list(lines(folder/"trucks.jsonl.gz"))
     waits = list(lines(folder/"cargo-waits.jsonl.gz"))
+    future = {r["container"]: r for r in waits}
+    jobs = {r["job"]:r for r in trucks}
+    limits = read(OUT.parent/"yr332_month_supply"/"deficit-boundaries.json")
+    boundaries = []
+    for row in limits:
+        t = row["cutoff_s"]
+        tracked = [future[c] for c in row["waiting_containers"]]
+        waiting = [r for r in tracked if r["block"] is not None and r["block"] <= t
+                   and (r["out"] is None or r["out"] > t)]
+        pending = sum(r["ready"] is None or r["ready"] > t for r in waiting)
+        boundaries.append(dict(time_s=t,block=row["block"],planned=len(tracked),
+            physically_waiting=len(waiting),awaiting_cargo=pending,
+            yard_inventory=progress[int(t//86400)]["blocks"][row["block"]]))
+    assert len(boundaries) == 14
     end = 35*86400
     assert len(waits) == len({r["container"] for r in waits}) == 2034
     assert all(r["out"] is None or r["ready"] is not None and r["ready"] <= r["out"] for r in waits)
+    assert all(r["out"] == jobs[r["job"]]["finish"] for r in waits)
+    assert all(jobs[r["job"]]["start"] is None or r["ready"] is not None and
+               r["ready"] <= jobs[r["job"]]["start"] for r in waits)
     assert len(trucks) == len({r["job"] for r in trucks}) == result["admitted"] == 176500
     assert len(progress) == 36 and [r["day"] for r in progress] == list(range(36))
     assert result["skipped"] == 0 and len({r["ship"] for r in ships}) == len(ships)
@@ -62,7 +79,7 @@ def audit(arm):
     return result, inputs, dict(
         cross_midnight=sum(r["finish"] is not None and int(r["gate"]//86400)<int(r["finish"]//86400) for r in trucks),
         future_supply_exits=sum(r["out"] is not None for r in waits),
-        future_supply_ready=sum(r["ready"] is not None for r in waits),
+        future_supply_ready=sum(r["ready"] is not None for r in waits),deficit_midnights=boundaries,
         day30_backlog=progress[30]["unfinished"], peak_backlog=max(r["unfinished"] for r in progress),
         peak_block_inventory=max(max(r["blocks"].values()) for r in progress))
 
