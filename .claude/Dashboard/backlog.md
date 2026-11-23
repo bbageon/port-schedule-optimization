@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-bk | Infra | **트럭 턴타임을 원화로 평가하는 기준 검증** | 🟠 | 안전운임 대기료를 방문별로 추정하고 부산항 기사 설문의 지연 보상액과 대조한다. 기준을 먼저 고정한 뒤 같은 30일의 학습 정책과 규칙을 재평가한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |
 | YR-332-au | RL | **후보 점수 차이 학습과 크레인 공동 배정의 연결 확인** | 🟡 | 같은 크레인 내 점수 차이는 같아도 공동 배정이 달라지는 사후 반례 확인. 저장 모델의 크레인별 점수 기준 차이가 실제 배정에 영향을 주는지 읽기 전용으로 확인한다. 이번 성능 하락 원인으로 확정하지 않으며 재학습·점수 보정은 별도 판정. [spec](../docs/dashboard-task-specs/YR-332-au-cross-crane-score-contract.md) |
 | YR-332-ap | Sim | **고물량 주장 범위 분리·실측 근거 외부 대기** | ⚪ | ⏸ 외부 대기. 11/21 저장90평가·12집단 재집계 일치. 관측 최대245방문/시간 이내3,500건도 전역 추가 비용+10.23%·트럭+8.52%(모델3개 모두 비용 증가). 7,500/15,000건은 범위 밖 혼잡 시험, 전체 포함률·고물량 자료 미확보. [spec](../docs/dashboard-task-specs/YR-332-ap-high-volume-bunching-data.md) · [후속](../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) |
