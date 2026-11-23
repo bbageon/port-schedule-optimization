@@ -10,6 +10,7 @@ from pathlib import Path
 RUNS = Path("outputs/reports/yr332_month_cranes/runs")
 POLICIES = ("SF_SPT", "trained", "LWKR")
 DAY = 86400
+VESSEL_TIME_WEIGHT = 67
 
 
 def times(rows, identity, start, lower, upper):
@@ -70,6 +71,7 @@ def review(lower_day, upper_day):
         result[name] = dict(truck_orders=len(trucks), port_calls=len(vessels),
                             truck_minutes=truck_seconds / len(trucks) / 60,
                             vessel_hours=vessel_seconds / len(vessels) / 3600,
+                            weighted_turnaround_minutes=(truck_seconds + VESSEL_TIME_WEIGHT * vessel_seconds) / 60,
                             truck_proxy_krw=exposure * 20000 / 1800)
     rule = result["SF_SPT"]
     for row in result.values():
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, help="Optional path for the diagnostic JSON")
     args = parser.parse_args()
-    report = dict(reference=POLICIES[0], source=str(RUNS.as_posix()),
+    report = dict(reference=POLICIES[0], source=str(RUNS.as_posix()), vessel_time_weight=VESSEL_TIME_WEIGHT,
                   primary_days_2_29=review(1, 29), all_days_1_30=review(0, 30))
     payload = json.dumps(report, indent=2, allow_nan=False) + "\n"
     if args.output:
