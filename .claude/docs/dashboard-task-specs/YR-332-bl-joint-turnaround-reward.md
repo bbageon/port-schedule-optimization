@@ -82,4 +82,6 @@
 - **이 결과로 말할 수 없는 것.** 가중치 67이 맞는지는 판단할 수 없다. 문제는 가중치가 아니라 한 달 끝까지 합산하는 범위다. 모델 1개·학습 월 1개·시험 월 1개이며 학습 난수의 영향을 분리하지 못한다. 학습 월(트럭 223분/작업)은 시험 월(94분)보다 훨씬 혼잡하다. 현실성 판정은 미통과로 보존한다.
 - 후속으로 합산 범위를 줄이는 [YR-332-bm](YR-332-bm-local-return-scope.md)을 등록했다.
 
+사후 원장 대조(2026-11-24). 시험 월 30개 진입일 중 새 모델이 기존 모델보다 가중 시간을 줄인 날은 1일, 짧은 작업 우선보다 줄인 날은 0일이다. 네 번째 갱신의 선택 2,048개 중 정규화 후 양의 학습 신호는 929개였다. [학습 회차와 시험 월 비용 그래프](../../../outputs/reports/yr332_joint_turnaround/policy-cost-trend.png)
+
 [결과](../../../outputs/reports/yr332_joint_turnaround/README.md) · [집계 원값](../../../outputs/reports/yr332_joint_turnaround/summary.json) · [신호 진단](../../../outputs/reports/yr332_joint_turnaround/signal-diagnostic.json) · [상세 이력](../strategy-history/2026-11-23-YR-332-bl-joint-turnaround-retraining.md)
