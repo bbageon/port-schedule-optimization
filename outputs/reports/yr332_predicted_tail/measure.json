@@ -1,0 +1,48 @@
+{
+  "purpose": "Noise of the 30-minute-plus-estimate signal with the start model, before any retraining",
+  "tags": [
+    "measure-0",
+    "measure-1",
+    "measure-2",
+    "measure-3"
+  ],
+  "fit_decisions": 32768,
+  "held_out_decisions": 32768,
+  "value_fit": {
+    "samples": 32768,
+    "epochs": 30,
+    "optimizer_steps": 3840,
+    "learning_rate": 0.001,
+    "normalized_rmse_before": 2.0323145389556885,
+    "normalized_rmse_after": 0.4801597595214844,
+    "normalization": {
+      "count": 32768,
+      "mean": -3.624193960439089,
+      "scale": 2.033547939970274,
+      "scale_floor_hit": false,
+      "old_mean": 0.0,
+      "old_scale": 1.0,
+      "adam_moments": "retained unchanged; no optimizer invariance claim"
+    }
+  },
+  "noise_weighted_minutes": 145758.29974033977,
+  "monte_carlo_noise_weighted_minutes": 962805.0049070352,
+  "actual_part_mean": 5909.473408255151,
+  "time_share": 0.009399427581303188,
+  "chance_share": 0.003906369212927641,
+  "gain_per_decision": 24.747435702432035,
+  "noise_over_gain": 5889.83446579944,
+  "decisions_per_update": 34690304,
+  "collected_per_wave": 970632,
+  "without_successor": 15,
+  "checks": {
+    "time_share": true,
+    "decisions": false
+  },
+  "outcome": "close without retraining",
+  "thresholds": {
+    "max_time_share": 0.2,
+    "min_decisions": 2048,
+    "round_to": 256
+  }
+}
