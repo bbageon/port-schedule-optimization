@@ -46,4 +46,6 @@
 
 ## 근거
 
+- 2026-11-24 사후 검토. 검사용 결정 32,768건에서 진행 중 배와 결정이 만난 48,645회 중 15.4%는 결정 블록의 몫이 이미 끝났다. 블록 몫이 남은 경우의 99.7%는 배가 30분 내내 작업 중이었다. BQ의 블록 귀속과 BP의 짧은 시간 범위를 설명하는 관측값이며, BP의 시험 월 성적은 별도로 판정한다. [두 반복 원장 대조](../../../outputs/reports/yr332_value_horizon/README.md)
+
 [bn 결과](../../../outputs/reports/yr332_predicted_tail/README.md) · [bn 흔들림 진단](../../../outputs/reports/yr332_predicted_tail/noise-diagnostic.json) · [bm 결과](../../../outputs/reports/yr332_local_return_scope/README.md)
