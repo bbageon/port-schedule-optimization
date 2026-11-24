@@ -26,7 +26,7 @@ class GraphState:
 def pack_states(states):
     """Pad complete candidate sets, never truncate them or mix episodes."""
     b, n = len(states), max(len(s.features) for s in states)
-    x = torch.zeros(b, n, 10)
+    x = torch.zeros(b, n, states[0].features.shape[1])
     op = torch.zeros(b, n, dtype=torch.long)
     cr = torch.zeros_like(op)
     valid = torch.zeros(b, n, dtype=torch.bool)
@@ -119,11 +119,19 @@ class TwoBranchBlock(nn.Module):
 
 class SchedulingActorCritic(nn.Module):
     def __init__(self, kind='transformer', width=32, heads=4, layers=2, global_value_context=False,
-                 vessel_work_context=False):
+                 vessel_work_context=False, planned_times=None):
         super().__init__()
         if kind not in ('mlp', 'transformer'):
             raise ValueError(kind)
         self.config = dict(kind=kind, width=width, heads=heads, layers=layers)
+        self.planned_times = planned_times
+        feature_count = 10
+        if planned_times:
+            from .planned_times import ARMS
+            if kind != 'transformer':
+                raise ValueError('Planned time experiment requires the registered Transformer')
+            feature_count += 2 * len(ARMS[planned_times])
+            self.config['planned_times'] = planned_times
         self.global_value_context = bool(global_value_context)
         if self.global_value_context:
             self.config['global_value_context'] = True
@@ -139,7 +147,7 @@ class SchedulingActorCritic(nn.Module):
                                        nn.Tanh(), nn.Linear(64, 1))
             self.critic = nn.Sequential(nn.Linear(11 + extra, 64), nn.Tanh(), nn.Linear(64, 1))
         else:
-            self.embedding = nn.Linear(10, width)
+            self.embedding = nn.Linear(feature_count, width)
             self.blocks = nn.ModuleList([TwoBranchBlock(width, heads) for _ in range(layers)])
             self.actor = nn.Sequential(nn.Linear(3 * width, width), nn.ReLU(), nn.Linear(width, 1))
             self.critic = nn.Sequential(nn.Linear(2 * width + 1 + extra, 64), nn.Tanh(), nn.Linear(64, 1))

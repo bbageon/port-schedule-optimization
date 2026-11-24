@@ -32,10 +32,12 @@ from yard_rl.v7.crane.actor_critic import pack_states
 from yard_rl.v7.crane.value_normalization import fit_value_head, normalized_ppo_update, restart_value_head
 from yard_rl.v7.reward.joint_turnaround import JointTurnaroundClock, VESSEL_TIME_WEIGHT
 from yard_rl.v7.stage.seed_bundle import file_sha256
+from yard_rl.v7.crane.planned_times import ARMS
 
 
 OUT = Path("outputs/reports/yr332_short_window")
 ROOT = CACHE / "short-window"
+PLANNED_ARM = None
 BM = Path("outputs/reports/yr332_local_return_scope/summary.json")
 # Thirty-minute block time is a few thousand weighted minutes. In units of 10^6 the targets are ~0.002 and the
 # output-preserving normalization right after the value head restart inflates the head by hundreds (wiring check).
@@ -50,6 +52,42 @@ SOURCES = ("scripts/v7/short_window_train.py", "scripts/v7/short_window_samples.
 def save(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     save_json(path, data)
+
+
+def configure_planned_times(arm, initialize=False):
+    """Each CLI process owns one arm and its own artifacts."""
+    global ROOT, OUT, START, PLANNED_ARM
+    if arm not in ARMS or PLANNED_ARM is not None:
+        raise ValueError(f"Invalid arm configuration: {arm}")
+    original = START
+    PLANNED_ARM = arm
+    ROOT = CACHE / "planned-times" / arm
+    OUT = Path("outputs/reports/yr332_planned_times") / arm
+    START = ROOT / "start.pt"
+    if initialize:
+        initialize_planned_start(arm, original)
+
+
+def initialize_planned_start(arm, original):
+    from yard_rl.v7.crane.value_normalization import NormalizedValueNet
+    ROOT.mkdir(parents=True, exist_ok=True)
+    if START.exists():
+        metadata = torch.load(START, map_location="cpu", weights_only=False)
+        if metadata["parent"] != file_sha256(original) or metadata["model_config"]["planned_times"] != arm:
+            raise ValueError("Unexpected planned-time starting checkpoint")
+        return
+    old, _, meta = restore(original)
+    net = NormalizedValueNet(**old.config, planned_times=arm).eval()
+    state = old.state_dict()
+    weight = torch.zeros_like(net.embedding.weight)
+    weight[:, :state["embedding.weight"].shape[1]] = state["embedding.weight"]
+    state["embedding.weight"] = weight
+    net.load_state_dict(state)
+    tmp = START.with_suffix(".tmp")
+    torch.save(dict(model_config=net.config, state_dict=net.state_dict(),
+                    optimizer=torch.optim.Adam(net.parameters(), lr=.0003).state_dict(),
+                    torch_rng=meta["torch_rng"], parent=file_sha256(original)), tmp)
+    tmp.replace(START)
 
 
 def decisions_per_update():
@@ -190,7 +228,7 @@ def update(u, tags, needed, smoke=False):
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     torch.save(dict(model_config=net.config, state_dict=net.state_dict(), optimizer=optimizer.state_dict(),
-                    torch_rng=torch.get_rng_state(), arm="short_window", seed=MODEL_SEED, iteration=u, return_scale=SCALE,
+                    torch_rng=torch.get_rng_state(), arm=PLANNED_ARM or "short_window", seed=MODEL_SEED, iteration=u, return_scale=SCALE,
                     window_h=WINDOW_H, return_unit=f"block truck minutes + {VESSEL_TIME_WEIGHT} x port-call minutes"), tmp)
     tmp.replace(path)
     report["checkpoint_sha256"] = file_sha256(path)
@@ -211,10 +249,14 @@ def smoke():
     records = [rollout(tag, START, MODEL_SEED + 7800 + k, 1024, smoke=True) for k, tag in enumerate(tags)]
     final = update(0, tags, 1024, smoke=True)
     evaluated = evaluate(final, smoke=True)
+    work = evaluated["windows"]["all"]
+    complete = not (work["unfinished_trucks"] or work["unfinished_ships"])
+    if not complete:
+        raise ValueError("Three-day replay did not finish all trucks and ships")
     save(OUT / "smoke" / "smoke-check.json", dict(
         purpose="Wiring check on three short days; numbers are not results", rollouts=records,
         update=read(OUT / "smoke" / "training" / "fit-0.json"),
-        evaluation=dict(complete=evaluated["windows"]["all"]["unfinished_trucks"] == 0, windows=evaluated["windows"]),
+        evaluation=dict(complete=complete, windows=evaluated["windows"]),
         decisions_per_update=decisions_per_update(),
         commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()))
     print("smoke check passed", flush=True)
@@ -223,7 +265,8 @@ def smoke():
 def parallel(jobs):
     logs = ROOT / "logs"
     logs.mkdir(parents=True, exist_ok=True)
-    running = {name: subprocess.Popen([sys.executable, "-X", "utf8", "scripts/v7/short_window_train.py", *arguments],
+    arm_args = ["--planned-times", PLANNED_ARM] if PLANNED_ARM else []
+    running = {name: subprocess.Popen([sys.executable, "-X", "utf8", "scripts/v7/short_window_train.py", *arguments, *arm_args],
                                       stdout=(logs / f"{name}.log").open("w", encoding="utf8"), stderr=subprocess.STDOUT,
                                       env={**os.environ, "PYTHONPATH": "src"})
                for name, (done, arguments) in jobs.items() if not done.exists()}
@@ -250,7 +293,17 @@ def train_campaign():
                         ["rollout", "--tag", tag, "--checkpoint", Path(source).as_posix(), "--seed", str(seed_of(u, k)),
                          "--keep", str(needed // MONTHS)])
                   for k, tag in enumerate(tags)})
-        if not (ROOT / "models" / f"update-{u}.pt").exists():
+        expected_model = file_sha256(source)
+        for k, tag in enumerate(tags):
+            row = read(OUT / "runs" / f"{tag}.json")
+            if (row["sampling_seed"] != seed_of(u, k) or row["checkpoint_sha256"] != expected_model
+                or row["anchors"] != needed // MONTHS):
+                raise ValueError(f"Rollout {tag} is not from this wave")
+        checkpoint = ROOT / "models" / f"update-{u}.pt"
+        fit = OUT / "training" / f"fit-{u}.json"
+        if fit.exists() and (not checkpoint.exists() or read(fit)["checkpoint_sha256"] != file_sha256(checkpoint)):
+            raise ValueError(f"Registered update {u} does not match its checkpoint")
+        if not fit.exists():
             update(u, tags, needed)
             print(time.strftime("%H:%M:%S"), f"update {u + 1}/{UPDATES} applied", flush=True)
     evaluate(ROOT / "models" / f"update-{UPDATES - 1}.pt")
@@ -264,9 +317,23 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--keep", type=int)
+    parser.add_argument("--planned-times", choices=ARMS)
     args = parser.parse_args()
     torch.set_num_threads(1)
-    if args.action == "rollout":
+    if args.planned_times:
+        from after_bp_planned_times import finished, lock
+        parent_checkpoint = START
+        configure_planned_times(args.planned_times)
+        if args.action == "rollout":
+            with lock(ROOT / "locks" / f"{args.tag}.lock", wait=True):
+                if not (OUT / "runs" / f"{args.tag}.json").exists():
+                    rollout(args.tag, Path(args.checkpoint), args.seed, args.keep)
+        else:
+            with lock(ROOT / "campaign.lock", wait=True):
+                if args.action == "smoke" or not finished(OUT, ROOT):
+                    initialize_planned_start(args.planned_times, parent_checkpoint)
+                    {"smoke": smoke, "train-campaign": train_campaign}[args.action]()
+    elif args.action == "rollout":
         rollout(args.tag, Path(args.checkpoint), args.seed, args.keep)
     else:
         {"smoke": smoke, "train-campaign": train_campaign}[args.action]()

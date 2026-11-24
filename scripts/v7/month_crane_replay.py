@@ -56,7 +56,7 @@ def write_lines(path, rows):
 
 def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_path=None,
         manifest_dir=None, checkpoint=None, folder=None, stochastic=False, sample_seed=0,
-        horizon=DAY_S, target_scale=None):
+        horizon=DAY_S, target_scale=None, resolver_factory=None):
     """Replay one month. `target_scale` keeps every decision and attaches time targets."""
     started = time.monotonic()
     common_month = info_path is None
@@ -79,9 +79,11 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
     resolver, net = None, None
     if arm == "trained":
         net = restore(checkpoint)[0].eval()
-        resolver = OnPolicyResolver(net, stochastic=stochastic, seed=sample_seed, collect=collect,
+        resolver = (resolver_factory or OnPolicyResolver)(net, stochastic=stochastic, seed=sample_seed, collect=collect,
                                     horizon=horizon, collect_until=end, global_context_mode="global")
         resolver.observe_global_epoch(terminal, 0.)
+        if resolver.public_schedule is not None:
+            ann.on_notice = resolver.public_schedule.notice
     policy, errors = _rule_policy("RL_CRANE" if net is not None else arm, seed=seed,
         crane_net=net, candidate_cap=None, reuse_plans=True, joint_resolver=resolver)
     meta = dict(arm=arm, seed=seed, manifest_sha256=info["sha256"], days=n_days,
@@ -208,6 +210,9 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
             ship_hours=sum(r["seconds"] for r in b)/3600/len(b))
     save(folder/"result.json",dict(**meta,windows=result, seconds=time.monotonic()-started,
         cargo=terminal.cargo_report(), admitted=ann.n_admitted,skipped=ann.n_skipped,
+        **({"planned_time_coverage": dict(decisions=resolver.public_schedule.decisions,
+                                          visible=resolver.public_schedule.visible)}
+           if resolver and resolver.public_schedule is not None else {}),
         model_decisions=resolver.decisions if resolver else None))
     return dict(resolver=resolver, complete=complete, trucks=truck_rows, ships=ships, windows=result)
 

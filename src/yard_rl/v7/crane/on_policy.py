@@ -67,6 +67,10 @@ class OnPolicyResolver(CentralResolver):
         self.global_context_mode = global_context_mode
         self.global_snapshots, self.global_decisions = [], []
         self.global_block_ids = {}
+        self.public_schedule = None
+        if getattr(net, 'planned_times', None):
+            from .planned_times import PublicSchedule
+            self.public_schedule = PublicSchedule(net.planned_times)
 
     def observe_global_epoch(self, terminal, t):
         if self.global_context_mode == 'off':
@@ -136,6 +140,9 @@ class OnPolicyResolver(CentralResolver):
                     common = decision_common(sim)
                     rows = [crane_features(sim, c, gc, common=common, feature_mode='feasible',
                                            include_flow=True) for c, gc in pairs]
+                    if self.public_schedule is not None:
+                        for row, times in zip(rows, self.public_schedule.candidates(sim, pairs)):
+                            row.extend(times)
                     operations, cranes = {}, {c: j for j, c in enumerate(decision.crane_ids)}
                     oi = []
                     for c, gc in pairs:

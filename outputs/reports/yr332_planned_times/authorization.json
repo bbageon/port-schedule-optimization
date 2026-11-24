@@ -1,0 +1,38 @@
+{
+  "arguments": [
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_joint_turnaround/current-gates.json",
+    "--gate-sha256",
+    "c862b97fd31856792ed91874814a0507227e6b0e68ea5a2d6e2d2564afdb2fe8",
+    "--gate-commit",
+    "aa0a76049fa29b5af6dbdb0b72f68efb390c82b7",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-bt",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-bt-planned-times.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance",
+    "--stage",
+    "training"
+  ],
+  "returncode": 2,
+  "decision": {
+    "allowed": false,
+    "reason": "저장된 runtime PASS 재계산 실패"
+  },
+  "user_request_date": "2026-11-24",
+  "user_request": "응 그러면 지금 해당 가설 진행할 수 있게 코드 세팅해놓고 지금 하고 있는 bp 갱신 코드 마치면 실행할 수있게 세팅해줘",
+  "scope": "Synthetic hypothesis test only after the complete BP evaluation; previous performance and scenario-validity findings remain unresolved.",
+  "runtime_evidence": {
+    "file": "outputs/reports/yr332_joint_turnaround/README.md",
+    "change_commit": "db08345d",
+    "previous_bp_authorization": "outputs/reports/yr332_short_window/authorization.json"
+  }
+}

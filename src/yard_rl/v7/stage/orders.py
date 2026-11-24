@@ -174,12 +174,13 @@ class V3Announcer:
     """
 
     def __init__(self, schedule: list[dict], *, end_s: float | None = None,
-                 period_s: float = EPOCH_S, retarget=None, resolve_entry=None):
+                 period_s: float = EPOCH_S, retarget=None, resolve_entry=None, on_notice=None):
         self.period_s = float(period_s)
         self.end_s = end_s
         #: Compatibility hook: verify a fixed target. Choosing another box is forbidden.
         self.retarget = retarget
         self.resolve_entry = resolve_entry
+        self.on_notice = on_notice
         self.n_retargeted = 0
         self.by_epoch: dict[float, list[dict]] = {}
         for e in schedule:
@@ -200,6 +201,7 @@ class V3Announcer:
         c.period_s, c.end_s, c.by_epoch = self.period_s, self.end_s, self.by_epoch
         c.retarget, c.n_retargeted = self.retarget, 0
         c.resolve_entry = self.resolve_entry
+        c.on_notice = None  # a branch owns its own policy's schedule observer
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         return c
 
@@ -217,6 +219,7 @@ class V3Announcer:
         c.by_epoch = {k: v for k, v in self.by_epoch.items() if lo <= k <= hi}
         c.retarget, c.n_retargeted = self.retarget, 0
         c.resolve_entry = self.resolve_entry
+        c.on_notice = None
         c.n_admitted, c.n_skipped, c.skips = 0, 0, []
         return c
 
@@ -256,6 +259,8 @@ class V3Announcer:
             try:
                 mbt.admit_external_job(e["block"], job, gate_in_s=arr,
                                        travel_s=e["travel_s"])
+                if getattr(self, "on_notice", None) is not None:
+                    self.on_notice(mbt.blocks[e["block"]], job)
                 self.n_admitted += 1
             except TransferError as ex:
                 self.n_skipped += 1
