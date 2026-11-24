@@ -1,0 +1,46 @@
+{
+  "purpose": "Noise of the 30-minute-plus-estimate signal with the start model, before any retraining",
+  "tags": [
+    "smoke-0",
+    "smoke-1"
+  ],
+  "fit_decisions": 1024,
+  "held_out_decisions": 1024,
+  "value_fit": {
+    "samples": 1024,
+    "epochs": 30,
+    "optimizer_steps": 120,
+    "learning_rate": 0.001,
+    "normalized_rmse_before": 4.364990234375,
+    "normalized_rmse_after": 0.5713611245155334,
+    "normalization": {
+      "count": 1024,
+      "mean": -0.07595778898232908,
+      "scale": 0.04953462157711602,
+      "scale_floor_hit": false,
+      "old_mean": 0.0,
+      "old_scale": 1.0,
+      "adam_moments": "retained unchanged; no optimizer invariance claim"
+    }
+  },
+  "noise_weighted_minutes": 14779.149057161192,
+  "monte_carlo_noise_weighted_minutes": 30963.628022632794,
+  "actual_part_mean": 2357.8928140943262,
+  "time_share": 0.00988206869660313,
+  "chance_share": 0.011730205278592375,
+  "gain_per_decision": 24.747435702432035,
+  "noise_over_gain": 597.1992102482271,
+  "decisions_per_update": 356864,
+  "collected_per_wave": 32236,
+  "without_successor": 8,
+  "checks": {
+    "time_share": true,
+    "decisions": false
+  },
+  "outcome": "close without retraining",
+  "thresholds": {
+    "max_time_share": 0.2,
+    "min_decisions": 2048,
+    "round_to": 256
+  }
+}
