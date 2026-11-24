@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-332-bq | RL | **예측 기간(할인 길이) 측정 중 (재학습 없음)** | 🟠 | 2026-11-24 | 사용자 요청으로 bp와 함께 착수. 저장된 bn 학습 월 4번으로 할인 길이 1~48시간마다 흔들림과 트럭·배 효과 보존을 재고, 필요한 결정 수가 한 물결 이내인 길이 중 배 효과를 가장 많이 남기는 길이를 고른다. 기준은 실행 전 등록. [착수 기록](../../outputs/reports/yr332_value_horizon/authorization.json) · [spec](../docs/dashboard-task-specs/YR-332-bq-value-horizon.md) |
 | YR-332-bp | RL | **30분 실제 시간 학습 실행 중 (갱신당 결정 331,520개)** | 🟡 | 2026-11-24 | 사용자 요청으로 bq와 함께 착수. 3일 배선 시험에서 단위 문제를 찾아 천 분 단위로 고침. 갱신 4회 뒤 시험 월에서 네 방식과 비교, 약 11시간. 30분에 담기는 효과는 트럭 약 10%·배 1% 미만이라 67은 이름뿐. 현실성 선결 거절 보존. [착수 기록](../../outputs/reports/yr332_short_window/authorization.json) · [spec](../docs/dashboard-task-specs/YR-332-bp-short-window-large-batch.md) |
 | YR-332-bh | Sim | **30일 비교 완료·규격별 빈자리 대기 분리 남음** | 🔴 | 2026-11-23 | 세 방식 각각 트럭 176,500건·본선 98척 완료. 월 총비용은 짧은 작업 261.10억·학습 314.35억·장기대기 349.39억원. 늦은 화물 반출 2,034건 모두 검산. [결과](../../outputs/reports/yr332_month_cranes/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bh-month-cargo-replay.md) |
 | YR-332-bi | Sim | **짧은 작업 우위의 모형 원인 대조 완료·실측 대기** | 🔴 | 2026-11-22 | ⏸ 외부 대기. 같은 입력 144회. 3,500건 최단 규칙의 보호 해제 +6.09분, 시간 오차 +0.07분. 15,000건 도착순−최단 +59.94분. 장비별 실제 작업·예측 오차, 높은 물량의 현장 보정 대기. [결과](../../outputs/reports/yr332_short_job_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bi-short-job-rule-advantage-audit.md) |

@@ -1,0 +1,109 @@
+{
+  "purpose": "Discount length versus noise and surviving effect, on stored bn months; no simulation",
+  "tags": [
+    "measure-0",
+    "measure-1",
+    "measure-2",
+    "measure-3"
+  ],
+  "fit_decisions": 32768,
+  "held_out_decisions": 32768,
+  "scale": 1000.0,
+  "gain": {
+    "per_decision": 24.747435702432035,
+    "truck_share": 0.7029000976400541,
+    "ship_share": 0.2970999023599459,
+    "source": "outputs/reports/yr332_joint_turnaround/summary.json"
+  },
+  "collected_per_wave": 970632,
+  "rows": {
+    "1h": {
+      "hours": 1,
+      "noise_weighted_minutes": 989.7816583815439,
+      "time_share": 0.08873772653512324,
+      "truck_effect_kept": 0.13228473254791492,
+      "ship_effect_kept": 0.012999009385887269,
+      "signal": 2.3966643178429,
+      "noise_over_signal": 412.9830160247012,
+      "decisions_for_equal_signal": 170554.9715248586,
+      "value_error_rms": 1867.7927961461326
+    },
+    "3h": {
+      "hours": 3,
+      "noise_weighted_minutes": 2730.0198101321757,
+      "time_share": 0.0464890173112672,
+      "truck_effect_kept": 0.25585762442069115,
+      "ship_effect_kept": 0.04042363944614759,
+      "signal": 4.747850194711854,
+      "noise_over_signal": 575.0012528139296,
+      "decisions_for_equal_signal": 330626.44073758856,
+      "value_error_rms": 5776.392757010159
+    },
+    "6h": {
+      "hours": 6,
+      "noise_weighted_minutes": 5841.535930351271,
+      "time_share": 0.04042716907517896,
+      "truck_effect_kept": 0.3728033747250891,
+      "ship_effect_kept": 0.08533281983707854,
+      "signal": 7.112311579568602,
+      "noise_over_signal": 821.3273371110648,
+      "decisions_for_equal_signal": 674578.5946859528,
+      "value_error_rms": 12583.576875241903
+    },
+    "12h": {
+      "hours": 12,
+      "noise_weighted_minutes": 12087.656092530682,
+      "time_share": 0.03616587341194211,
+      "truck_effect_kept": 0.5164293550495113,
+      "ship_effect_kept": 0.17693123212892736,
+      "signal": 10.284155641964803,
+      "noise_over_signal": 1175.3668957718455,
+      "decisions_for_equal_signal": 1381487.3396763443,
+      "value_error_rms": 29538.131667630638
+    },
+    "24h": {
+      "hours": 24,
+      "noise_weighted_minutes": 24307.819744948032,
+      "time_share": 0.02966867071353463,
+      "truck_effect_kept": 0.6659732770119855,
+      "ship_effect_kept": 0.3329999328615456,
+      "signal": 14.032957415105628,
+      "noise_over_signal": 1732.1950766259818,
+      "decisions_for_equal_signal": 3000499.7834872906,
+      "value_error_rms": 71488.19041244219
+    },
+    "48h": {
+      "hours": 48,
+      "noise_weighted_minutes": 46065.48603397437,
+      "time_share": 0.022060596277526434,
+      "truck_effect_kept": 0.7934038228257246,
+      "ship_effect_kept": 0.5296904081051369,
+      "signal": 17.695767565511495,
+      "noise_over_signal": 2603.19230931551,
+      "decisions_for_equal_signal": 6776610.199279418,
+      "value_error_rms": 151735.43579981476
+    },
+    "none": {
+      "hours": null,
+      "noise_weighted_minutes": 144485.14185953882,
+      "time_share": 0.009481811904087256,
+      "truck_effect_kept": 1.0,
+      "ship_effect_kept": 1.0,
+      "signal": 24.747435702432035,
+      "noise_over_signal": 5838.388413121108,
+      "decisions_for_equal_signal": 34086779.26246681,
+      "value_error_rms": 971099.361781852
+    }
+  },
+  "feasible": [
+    "1h",
+    "3h",
+    "6h"
+  ],
+  "chosen": "6h",
+  "outcome": "no length keeps the port-call effect; close",
+  "thresholds": {
+    "max_time_share": 0.2,
+    "min_ship_effect_kept": 0.25
+  }
+}
