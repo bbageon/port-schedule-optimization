@@ -148,8 +148,14 @@ def values(net, samples):
     return out
 
 
+def note(text):
+    print(time.strftime("%H:%M:%S"), text, flush=True)
+
+
 def update(u, tags, needed, smoke=False):
+    note(f"update {u}: loading decisions")
     anchors = [s for tag in tags for s in load(tag, smoke)]
+    note(f"update {u}: {len(anchors)} decisions loaded")
     net, optimizer, _ = restore(model_path(u, smoke))
     report = dict(update=u, tags=list(tags), anchors=len(anchors))
     if u == 0:
@@ -160,6 +166,7 @@ def update(u, tags, needed, smoke=False):
         optimizer = torch.optim.Adam(net.parameters(), lr=.0003)
         restart_value_head(net, seed=MODEL_SEED + 3000)
         report["value_fit"] = fit_value_head(net, anchors, seed=MODEL_SEED + 3001)
+        note(f"update {u}: value head fitted")
         with torch.no_grad():
             if not torch.equal(before, net(pack_states([s.state for s in probe]))[0]):
                 raise ValueError("Fitting the value head moved an action score")
@@ -169,8 +176,10 @@ def update(u, tags, needed, smoke=False):
     times = np.array([s.state.time_fraction * setting(smoke)["horizon"] for s in anchors])
     report["noise_weighted_minutes"] = float(np.sqrt(np.mean(advantage ** 2)))
     report["time_share"] = time_share(advantage, times)[0]
+    note(f"update {u}: policy update starts")
     report["fit"] = normalized_ppo_update(net, optimizer, anchors, seed=MODEL_SEED + 1100 + u,
                                           max_samples=needed, epochs=4, batch_size=64)
+    note(f"update {u}: policy update done")
     path = ROOT / ("smoke-models" if smoke else "models") / f"update-{u}.pt"
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
@@ -223,7 +232,8 @@ def train_campaign():
     if subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True).strip():
         raise RuntimeError("Commit the code before a registered run")
     needed = decisions_per_update()
-    save(OUT / "train-campaign.json", dict(
+    first = OUT / "train-campaign.json"
+    save(first if not first.exists() else OUT / f"train-campaign-resumed-{time.strftime('%m%d-%H%M')}.json", dict(
         commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         sources={p: file_sha256(p) for p in SOURCES}, start_model=file_sha256(START), decisions_per_update=needed,
         anchors_per_month=needed // MONTHS, window_h=WINDOW_H, updates=UPDATES, months_per_update=MONTHS))
