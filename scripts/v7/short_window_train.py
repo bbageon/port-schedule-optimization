@@ -26,6 +26,7 @@ import month_crane_replay
 from joint_turnaround_preflight import CACHE, read, save as save_json
 from joint_turnaround_train import MODEL_SEED, START, decode, encode, setting
 from local_return_scope import port_calls_in_window, time_share, window
+from short_window_samples import anchors_from
 from value_stability import restore
 from yard_rl.v7.crane.actor_critic import pack_states
 from yard_rl.v7.crane.value_normalization import fit_value_head, normalized_ppo_update, restart_value_head
@@ -40,7 +41,8 @@ BM = Path("outputs/reports/yr332_local_return_scope/summary.json")
 # output-preserving normalization right after the value head restart inflates the head by hundreds (wiring check).
 WINDOW_H, SCALE = .5, 1e3
 MONTHS, UPDATES = 4, 4
-SOURCES = ("scripts/v7/short_window_train.py", "scripts/v7/local_return_scope.py", "scripts/v7/month_crane_replay.py",
+SOURCES = ("scripts/v7/short_window_train.py", "scripts/v7/short_window_samples.py",
+           "scripts/v7/local_return_scope.py", "scripts/v7/month_crane_replay.py",
            "src/yard_rl/v7/crane/on_policy.py", "src/yard_rl/v7/crane/actor_critic.py",
            "src/yard_rl/v7/crane/value_normalization.py", str(BM).replace("\\", "/"))
 
@@ -129,14 +131,17 @@ def load(tag, smoke=False):
     path = ROOT / tag / "decisions.json.gz"
     if file_sha256(path) != record["decisions_sha256"]:
         raise ValueError(f"Stored decisions of {tag} changed")
-    with gzip.open(path, "rt", encoding="utf8") as stream:
-        data = json.load(stream)
     anchors = []
-    for x in data["anchors"]:
+    for x in anchors_from(path):
         s = decode(x)
+        # The critic input and decision time are already in the state. The full audit
+        # snapshot stays in the immutable gzip; PPO does not consume its per-block map.
+        s.global_observation = None
         s.block, s.cost = x["block"], x["cost"]
         s.target = -s.cost / SCALE
         anchors.append(s)
+    if len(anchors) != record["anchors"]:
+        raise ValueError(f"Incomplete anchors for {tag}")
     return anchors
 
 
@@ -173,7 +178,8 @@ def update(u, tags, needed, smoke=False):
         for s, v in zip(anchors, values(net, anchors)):
             s.old_value = v
     advantage = np.array([s.target - s.old_value for s in anchors]) * SCALE
-    times = np.array([s.state.time_fraction * setting(smoke)["horizon"] for s in anchors])
+    horizon = setting(smoke)["horizon"]
+    times = np.array([s.state.time_fraction * horizon for s in anchors])
     report["noise_weighted_minutes"] = float(np.sqrt(np.mean(advantage ** 2)))
     report["time_share"] = time_share(advantage, times)[0]
     note(f"update {u}: policy update starts")
