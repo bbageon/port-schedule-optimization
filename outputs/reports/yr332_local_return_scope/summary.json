@@ -1,0 +1,704 @@
+{
+  "purpose": "Recompute narrower learning targets from stored decisions; no simulation, no weight update",
+  "smoke": false,
+  "months": [
+    {
+      "wave": 0,
+      "month": 0,
+      "decisions": 6144,
+      "weighted_minutes": 77687263.72888273,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 0,
+      "month": 1,
+      "decisions": 6144,
+      "weighted_minutes": 77851659.70109835,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 0,
+      "month": 2,
+      "decisions": 6144,
+      "weighted_minutes": 77537437.84502177,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 0,
+      "month": 3,
+      "decisions": 6144,
+      "weighted_minutes": 77701004.66599602,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 1,
+      "month": 0,
+      "decisions": 2048,
+      "weighted_minutes": 78566486.32637331,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 1,
+      "month": 1,
+      "decisions": 2048,
+      "weighted_minutes": 78851419.68890521,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 1,
+      "month": 2,
+      "decisions": 2048,
+      "weighted_minutes": 77891344.76151799,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 1,
+      "month": 3,
+      "decisions": 2048,
+      "weighted_minutes": 78100230.61144236,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 2,
+      "month": 0,
+      "decisions": 2048,
+      "weighted_minutes": 78323236.05168433,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 2,
+      "month": 1,
+      "decisions": 2048,
+      "weighted_minutes": 78319168.5724492,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 2,
+      "month": 2,
+      "decisions": 2048,
+      "weighted_minutes": 78023412.44798046,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 2,
+      "month": 3,
+      "decisions": 2048,
+      "weighted_minutes": 77494006.68650255,
+      "month_end_target_max_abs_error": 2.2351741790771484e-08
+    },
+    {
+      "wave": 3,
+      "month": 0,
+      "decisions": 2048,
+      "weighted_minutes": 78642757.23394032,
+      "month_end_target_max_abs_error": 4.470348358154297e-08
+    },
+    {
+      "wave": 3,
+      "month": 1,
+      "decisions": 2048,
+      "weighted_minutes": 78429166.46876723,
+      "month_end_target_max_abs_error": 2.2351741790771484e-08
+    },
+    {
+      "wave": 3,
+      "month": 2,
+      "decisions": 2048,
+      "weighted_minutes": 77620855.08706567,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    },
+    {
+      "wave": 3,
+      "month": 3,
+      "decisions": 2048,
+      "weighted_minutes": 78565324.92033297,
+      "month_end_target_max_abs_error": 2.9802322387695312e-08
+    }
+  ],
+  "split": {
+    "fit": 32768,
+    "held_out": 16384
+  },
+  "gain": {
+    "per_decision": 24.747435702432035,
+    "truck_share": 0.7029000976400541,
+    "ship_share": 0.2970999023599459,
+    "source": "outputs/reports/yr332_joint_turnaround/summary.json"
+  },
+  "windows": [
+    "0.5h",
+    "1h",
+    "2h",
+    "3h",
+    "4h",
+    "6h",
+    "8h",
+    "12h",
+    "24h",
+    "48h",
+    "month"
+  ],
+  "scopes": [
+    "block",
+    "terminal",
+    "block_trucks"
+  ],
+  "capture": {
+    "0.5h": {
+      "truck": 0.09752576502753345,
+      "ship": 0.007076663858466723,
+      "signal": 1.7484891348629923,
+      "truck_signal": 1.6964582417381793
+    },
+    "1h": {
+      "truck": 0.15815813845480348,
+      "ship": 0.013689974726200505,
+      "signal": 2.8518118615538004,
+      "truck_signal": 2.7511568599730603
+    },
+    "2h": {
+      "truck": 0.233326514650741,
+      "ship": 0.02729570345408593,
+      "signal": 4.259399470322873,
+      "truck_signal": 4.058708882555736
+    },
+    "3h": {
+      "truck": 0.2914814887717227,
+      "ship": 0.04279696714406066,
+      "signal": 5.3849762221893736,
+      "truck_signal": 5.070313201863121
+    },
+    "4h": {
+      "truck": 0.3419306871363352,
+      "ship": 0.05564448188711036,
+      "signal": 6.356999612715414,
+      "truck_signal": 5.947875744751852
+    },
+    "6h": {
+      "truck": 0.4288332602878846,
+      "ship": 0.08508845829823083,
+      "signal": 8.085153377975438,
+      "truck_signal": 7.459543829688992
+    },
+    "8h": {
+      "truck": 0.5027667988129014,
+      "ship": 0.11436394271272114,
+      "signal": 9.586472279712684,
+      "truck_signal": 8.745615881892038
+    },
+    "12h": {
+      "truck": 0.6226088412483621,
+      "ship": 0.17973883740522326,
+      "signal": 12.151787954430782,
+      "truck_signal": 10.830265210599958
+    },
+    "24h": {
+      "truck": 0.8182665779324343,
+      "ship": 0.37754844144903116,
+      "signal": 17.009636732963692,
+      "truck_signal": 14.23372664321547
+    },
+    "48h": {
+      "truck": 0.9619303233625258,
+      "ship": 0.7156697556866048,
+      "signal": 21.99468767423933,
+      "truck_signal": 16.732753899295414
+    },
+    "month": {
+      "truck": 1.0,
+      "ship": 1.0,
+      "signal": 24.747435702432035,
+      "truck_signal": 17.39497497158044
+    }
+  },
+  "noise": {
+    "block/0.5h": {
+      "scope": "block",
+      "window": "0.5h",
+      "target_mean": 5065.893475640948,
+      "target_sd": 3409.606344886897,
+      "raw_time_share": 0.4950409606096917,
+      "noise": 1006.381102434789,
+      "time_share": 0.0877141471536389,
+      "chance_share": 0.00781297686626381,
+      "signal": 1.7484891348629923,
+      "noise_over_signal": 575.5718364893625,
+      "decisions_for_equal_signal": 331282.93895973737
+    },
+    "block/1h": {
+      "scope": "block",
+      "window": "1h",
+      "target_mean": 10150.376839713126,
+      "target_sd": 6822.719859907502,
+      "raw_time_share": 0.49486342529194427,
+      "noise": 2111.2758661913326,
+      "time_share": 0.10761909257161661,
+      "chance_share": 0.00781297686626381,
+      "signal": 2.8518118615538004,
+      "noise_over_signal": 740.3278928228494,
+      "decisions_for_equal_signal": 548085.3888915204
+    },
+    "block/2h": {
+      "scope": "block",
+      "window": "2h",
+      "target_mean": 20367.61960095641,
+      "target_sd": 13648.492170957445,
+      "raw_time_share": 0.49528201108608094,
+      "noise": 4128.389805317947,
+      "time_share": 0.11097630885550724,
+      "chance_share": 0.00781297686626381,
+      "signal": 4.259399470322873,
+      "noise_over_signal": 969.2422216047759,
+      "decisions_for_equal_signal": 939430.4841413614
+    },
+    "block/3h": {
+      "scope": "block",
+      "window": "3h",
+      "target_mean": 30634.30376109282,
+      "target_sd": 20473.287799752914,
+      "raw_time_share": 0.4955871141653162,
+      "noise": 6448.1798860030885,
+      "time_share": 0.12957038004404808,
+      "chance_share": 0.00781297686626381,
+      "signal": 5.3849762221893736,
+      "noise_over_signal": 1197.4388780831882,
+      "decisions_for_equal_signal": 1433859.8667451246
+    },
+    "block/4h": {
+      "scope": "block",
+      "window": "4h",
+      "target_mean": 40930.025852600666,
+      "target_sd": 27292.660961510934,
+      "raw_time_share": 0.4958540112078784,
+      "noise": 8895.976428427339,
+      "time_share": 0.15400216799897748,
+      "chance_share": 0.00781297686626381,
+      "signal": 6.356999612715414,
+      "noise_over_signal": 1399.3986110418202,
+      "decisions_for_equal_signal": 1958316.4725857757
+    },
+    "block/6h": {
+      "scope": "block",
+      "window": "6h",
+      "target_mean": 61520.33152798181,
+      "target_sd": 40881.72455673308,
+      "raw_time_share": 0.49446099671203525,
+      "noise": 14500.934935441323,
+      "time_share": 0.18705451706207765,
+      "chance_share": 0.00781297686626381,
+      "signal": 8.085153377975438,
+      "noise_over_signal": 1793.5262644420518,
+      "decisions_for_equal_signal": 3216736.461243461
+    },
+    "block/8h": {
+      "scope": "block",
+      "window": "8h",
+      "target_mean": 82004.70290374862,
+      "target_sd": 54362.95079623333,
+      "raw_time_share": 0.4917827807313877,
+      "noise": 20927.47026831806,
+      "time_share": 0.23577927282492117,
+      "chance_share": 0.00781297686626381,
+      "signal": 9.586472279712684,
+      "noise_over_signal": 2183.020996431158,
+      "decisions_for_equal_signal": 4765580.670859286
+    },
+    "block/12h": {
+      "scope": "block",
+      "window": "12h",
+      "target_mean": 122418.25032078715,
+      "target_sd": 80866.58178713897,
+      "raw_time_share": 0.48606821244375364,
+      "noise": 35995.90320381365,
+      "time_share": 0.32074445720330247,
+      "chance_share": 0.00781297686626381,
+      "signal": 12.151787954430782,
+      "noise_over_signal": 2962.189871877153,
+      "decisions_for_equal_signal": 8774568.837051585
+    },
+    "block/24h": {
+      "scope": "block",
+      "window": "24h",
+      "target_mean": 241741.20189591852,
+      "target_sd": 157413.812413826,
+      "raw_time_share": 0.4724708581424889,
+      "noise": 84006.91819388935,
+      "time_share": 0.3966207556447071,
+      "chance_share": 0.00781297686626381,
+      "signal": 17.009636732963692,
+      "noise_over_signal": 4938.783791372146,
+      "decisions_for_equal_signal": 24391585.33792023
+    },
+    "block/48h": {
+      "scope": "block",
+      "window": "48h",
+      "target_mean": 470597.1367118985,
+      "target_sd": 302032.5793973214,
+      "raw_time_share": 0.4820762712378228,
+      "noise": 205001.18651688824,
+      "time_share": 0.4286298666592876,
+      "chance_share": 0.00781297686626381,
+      "signal": 21.99468767423933,
+      "noise_over_signal": 9320.486362577005,
+      "decisions_for_equal_signal": 86871466.03498393
+    },
+    "block/month": {
+      "scope": "block",
+      "window": "month",
+      "target_mean": 3603534.198695922,
+      "target_sd": 2045078.5300314075,
+      "raw_time_share": 0.7839698060060737,
+      "noise": 972416.8975630701,
+      "time_share": 0.07432181024684037,
+      "chance_share": 0.00781297686626381,
+      "signal": 24.747435702432035,
+      "noise_over_signal": 39293.642753762426,
+      "decisions_for_equal_signal": 1543990360.8603065
+    },
+    "terminal/0.5h": {
+      "scope": "terminal",
+      "window": "0.5h",
+      "target_mean": 67540.71582254577,
+      "target_sd": 48339.62321798311,
+      "raw_time_share": 0.961941645203603,
+      "noise": 8742.718862388605,
+      "time_share": 0.45645748390754937,
+      "chance_share": 0.00781297686626381,
+      "signal": 1.7484891348629923,
+      "noise_over_signal": 5000.156242362733,
+      "decisions_for_equal_signal": 25001562.448039006
+    },
+    "terminal/1h": {
+      "scope": "terminal",
+      "window": "1h",
+      "target_mean": 135409.52499859576,
+      "target_sd": 96776.53666187165,
+      "raw_time_share": 0.9625231569326241,
+      "noise": 17619.114370018513,
+      "time_share": 0.4344749684803766,
+      "chance_share": 0.00781297686626381,
+      "signal": 2.8518118615538004,
+      "noise_over_signal": 6178.217647365698,
+      "decisions_for_equal_signal": 38170373.29822094
+    },
+    "terminal/2h": {
+      "scope": "terminal",
+      "window": "2h",
+      "target_mean": 271909.2536236688,
+      "target_sd": 193725.84482656053,
+      "raw_time_share": 0.9649874022987356,
+      "noise": 38188.19057867886,
+      "time_share": 0.46064064310613473,
+      "chance_share": 0.00781297686626381,
+      "signal": 4.259399470322873,
+      "noise_over_signal": 8965.627864855818,
+      "decisions_for_equal_signal": 80382483.0110791
+    },
+    "terminal/3h": {
+      "scope": "terminal",
+      "window": "3h",
+      "target_mean": 409064.2803449307,
+      "target_sd": 290495.6081148353,
+      "raw_time_share": 0.9682404658219228,
+      "noise": 63437.66830929337,
+      "time_share": 0.49318434304515657,
+      "chance_share": 0.00781297686626381,
+      "signal": 5.3849762221893736,
+      "noise_over_signal": 11780.491814966914,
+      "decisions_for_equal_signal": 138779987.40250245
+    },
+    "terminal/4h": {
+      "scope": "terminal",
+      "window": "4h",
+      "target_mean": 546421.4624551779,
+      "target_sd": 386739.3363088935,
+      "raw_time_share": 0.971235669168566,
+      "noise": 92507.29527409004,
+      "time_share": 0.47991024476869326,
+      "chance_share": 0.00781297686626381,
+      "signal": 6.356999612715414,
+      "noise_over_signal": 14552.03726755856,
+      "decisions_for_equal_signal": 211761788.63641322
+    },
+    "terminal/6h": {
+      "scope": "terminal",
+      "window": "6h",
+      "target_mean": 820050.5153531904,
+      "target_sd": 576297.6181686703,
+      "raw_time_share": 0.974870802427594,
+      "noise": 174374.79634885673,
+      "time_share": 0.6227770939357068,
+      "chance_share": 0.00781297686626381,
+      "signal": 8.085153377975438,
+      "noise_over_signal": 21567.28366141658,
+      "decisions_for_equal_signal": 465147724.5320065
+    },
+    "terminal/8h": {
+      "scope": "terminal",
+      "window": "8h",
+      "target_mean": 1089761.8921423047,
+      "target_sd": 760025.7388487161,
+      "raw_time_share": 0.9774687007023563,
+      "noise": 272031.48550928204,
+      "time_share": 0.5580162243191402,
+      "chance_share": 0.00781297686626381,
+      "signal": 9.586472279712684,
+      "noise_over_signal": 28376.59960535922,
+      "decisions_for_equal_signal": 805231405.162873
+    },
+    "terminal/12h": {
+      "scope": "terminal",
+      "window": "12h",
+      "target_mean": 1610073.2731964136,
+      "target_sd": 1104879.595687578,
+      "raw_time_share": 0.9846776141681322,
+      "noise": 498588.3594824384,
+      "time_share": 0.7229900146326609,
+      "chance_share": 0.00781297686626381,
+      "signal": 12.151787954430782,
+      "noise_over_signal": 41030.04112252002,
+      "decisions_for_equal_signal": 1683464274.5156841
+    },
+    "terminal/24h": {
+      "scope": "terminal",
+      "window": "24h",
+      "target_mean": 3094589.8671889435,
+      "target_sd": 2022912.2807945306,
+      "raw_time_share": 0.9940339098077023,
+      "noise": 1098276.0653065364,
+      "time_share": 0.7876632935899791,
+      "chance_share": 0.00781297686626381,
+      "signal": 17.009636732963692,
+      "noise_over_signal": 64567.87305622706,
+      "decisions_for_equal_signal": 4169010231.005052
+    },
+    "terminal/48h": {
+      "scope": "terminal",
+      "window": "48h",
+      "target_mean": 5890308.668335062,
+      "target_sd": 3653097.7459726995,
+      "raw_time_share": 0.9963362688755891,
+      "noise": 2463508.901047043,
+      "time_share": 0.8317344595893685,
+      "chance_share": 0.00781297686626381,
+      "signal": 21.99468767423933,
+      "noise_over_signal": 112004.72302829559,
+      "decisions_for_equal_signal": 12545057980.645208
+    },
+    "terminal/month": {
+      "scope": "terminal",
+      "window": "month",
+      "target_mean": 45731297.44058404,
+      "target_sd": 22598134.52017207,
+      "raw_time_share": 0.9996646120170112,
+      "noise": 2782815.6794023947,
+      "time_share": 0.7321759712646903,
+      "chance_share": 0.00781297686626381,
+      "signal": 24.747435702432035,
+      "noise_over_signal": 112448.6477251021,
+      "decisions_for_equal_signal": 12644698375.20411
+    },
+    "block_trucks/0.5h": {
+      "scope": "block_trucks",
+      "window": "0.5h",
+      "target_mean": 2479.876914088763,
+      "target_sd": 2430.861496235838,
+      "raw_time_share": 0.7219779413282181,
+      "noise": 111.78764459040895,
+      "time_share": 0.11557906014304598,
+      "chance_share": 0.00781297686626381,
+      "signal": 1.6964582417381793,
+      "noise_over_signal": 65.89472221601642,
+      "decisions_for_equal_signal": 4342.1144159259675
+    },
+    "block_trucks/1h": {
+      "scope": "block_trucks",
+      "window": "1h",
+      "target_mean": 4971.564004864921,
+      "target_sd": 4867.09160574174,
+      "raw_time_share": 0.7220870014914835,
+      "noise": 311.92499808200165,
+      "time_share": 0.18391322657248166,
+      "chance_share": 0.00781297686626381,
+      "signal": 2.7511568599730603,
+      "noise_over_signal": 113.37957592321946,
+      "decisions_for_equal_signal": 12854.928236529087
+    },
+    "block_trucks/2h": {
+      "scope": "block_trucks",
+      "window": "2h",
+      "target_mean": 9981.713357327606,
+      "target_sd": 9745.436914255399,
+      "raw_time_share": 0.7231590243364032,
+      "noise": 957.2908612786341,
+      "time_share": 0.30393105505831386,
+      "chance_share": 0.00781297686626381,
+      "signal": 4.058708882555736,
+      "noise_over_signal": 235.8609323750847,
+      "decisions_for_equal_signal": 55630.37942084428
+    },
+    "block_trucks/3h": {
+      "scope": "block_trucks",
+      "window": "3h",
+      "target_mean": 15012.217299159576,
+      "target_sd": 14617.146957611038,
+      "raw_time_share": 0.7246325659262184,
+      "noise": 2001.8448690386824,
+      "time_share": 0.39199465234582254,
+      "chance_share": 0.00781297686626381,
+      "signal": 5.070313201863121,
+      "noise_over_signal": 394.8168070373031,
+      "decisions_for_equal_signal": 155880.31111913102
+    },
+    "block_trucks/4h": {
+      "scope": "block_trucks",
+      "window": "4h",
+      "target_mean": 20043.781091982393,
+      "target_sd": 19470.093221061532,
+      "raw_time_share": 0.7258800975109876,
+      "noise": 3367.051126256969,
+      "time_share": 0.3773128110601559,
+      "chance_share": 0.00781297686626381,
+      "signal": 5.947875744751852,
+      "noise_over_signal": 566.0930508220366,
+      "decisions_for_equal_signal": 320461.3421890009
+    },
+    "block_trucks/6h": {
+      "scope": "block_trucks",
+      "window": "6h",
+      "target_mean": 30023.78898383175,
+      "target_sd": 29050.303311295324,
+      "raw_time_share": 0.7253979991125222,
+      "noise": 7126.508372945619,
+      "time_share": 0.4319565046260069,
+      "chance_share": 0.00781297686626381,
+      "signal": 7.459543829688992,
+      "noise_over_signal": 955.3544473567014,
+      "decisions_for_equal_signal": 912702.1200842283
+    },
+    "block_trucks/8h": {
+      "scope": "block_trucks",
+      "window": "8h",
+      "target_mean": 39787.70748862371,
+      "target_sd": 38388.79888000622,
+      "raw_time_share": 0.7226956788033048,
+      "noise": 11914.596779362486,
+      "time_share": 0.49521425752158965,
+      "chance_share": 0.00781297686626381,
+      "signal": 8.745615881892038,
+      "noise_over_signal": 1362.3507984191122,
+      "decisions_for_equal_signal": 1855999.6979531923
+    },
+    "block_trucks/12h": {
+      "scope": "block_trucks",
+      "window": "12h",
+      "target_mean": 58317.80822165712,
+      "target_sd": 56087.19775632987,
+      "raw_time_share": 0.716263598358157,
+      "noise": 23590.879146850322,
+      "time_share": 0.5904514993259306,
+      "chance_share": 0.00781297686626381,
+      "signal": 10.830265210599958,
+      "noise_over_signal": 2178.2365148141625,
+      "decisions_for_equal_signal": 4744714.314469749
+    },
+    "block_trucks/24h": {
+      "scope": "block_trucks",
+      "window": "24h",
+      "target_mean": 109416.26527974993,
+      "target_sd": 104142.54430877557,
+      "raw_time_share": 0.6926259793769054,
+      "noise": 57232.72042661279,
+      "time_share": 0.6469460176611823,
+      "chance_share": 0.00781297686626381,
+      "signal": 14.23372664321547,
+      "noise_over_signal": 4020.9231117904646,
+      "decisions_for_equal_signal": 16167822.670930713
+    },
+    "block_trucks/48h": {
+      "scope": "block_trucks",
+      "window": "48h",
+      "target_mean": 203545.63982476454,
+      "target_sd": 189536.07790137205,
+      "raw_time_share": 0.675545290760173,
+      "noise": 130539.21483113842,
+      "time_share": 0.6361456629596532,
+      "chance_share": 0.00781297686626381,
+      "signal": 16.732753899295414,
+      "noise_over_signal": 7801.418440549418,
+      "decisions_for_equal_signal": 60862129.68454451
+    },
+    "block_trucks/month": {
+      "scope": "block_trucks",
+      "window": "month",
+      "target_mean": 1569121.4513330765,
+      "target_sd": 879456.6549492107,
+      "raw_time_share": 0.7459322226265157,
+      "noise": 461051.990253633,
+      "time_share": 0.09475188227190046,
+      "chance_share": 0.00781297686626381,
+      "signal": 17.39497497158044,
+      "noise_over_signal": 26504.895293433332,
+      "decisions_for_equal_signal": 702509474.5158644
+    }
+  },
+  "decision": {
+    "recommended_window": "0.5h",
+    "checks": {
+      "time_share": true,
+      "noise": false,
+      "ship_capture": false
+    },
+    "outcome": "close without retraining",
+    "signal_over_noise": {
+      "0.5h": 0.0017374025909596112,
+      "1h": 0.0013507528349189007,
+      "2h": 0.0010317338408393913,
+      "3h": 0.0008351156942563613,
+      "4h": 0.0007145926772469232,
+      "6h": 0.0005575608341097197,
+      "8h": 0.0004580807979560517,
+      "12h": 0.00033758808288892554,
+      "24h": 0.00020247899933318792,
+      "48h": 0.00010729053840099302,
+      "month": 2.544940936798863e-05
+    },
+    "shortest_window": {
+      "ship_capture": "48h",
+      "truck_capture_90": "48h",
+      "time_share": "0.5h",
+      "noise": null
+    },
+    "thresholds": {
+      "max_time_share": 0.2,
+      "max_noise_over_signal": 45.254833995939045,
+      "min_ship_capture": 0.5
+    }
+  },
+  "collected_per_wave": [
+    971355,
+    970034,
+    973461,
+    973888
+  ],
+  "used_per_update": 2048,
+  "queue_hours": {
+    "truck_p50_median": 4.724972880954026,
+    "truck_p90_median": 13.221212506335512,
+    "controlled_ship_p50_median": 33.02954718667658,
+    "decisions_with_controlled_ship": 0.3830973307291667
+  },
+  "provenance": {
+    "commit": "dc4822f5b3e93027246179628677b3b6b16e11ce",
+    "dirty": false,
+    "sources": {
+      "scripts/v7/local_return_scope.py": "2944d3e2b301237bfd4379c42d5681057fdc56de82723a97d9d30ba69a3a5324",
+      "src/yard_rl/v7/reward/joint_turnaround.py": "9e6ffdb9c43ebe64ab36418678f431556f192db7f29f9dc3fe7380eea3d2928d",
+      "src/yard_rl/v7/crane/actor_critic.py": "829398f95dd429eb922f96a33d28ff29c0df075fa6cd4741a9d05ea84fc52fb2"
+    },
+    "start_model": "c1835b4dab12f0809bd67a1d4e25fb707ce9429ef38de7aea6c12af153d62f74",
+    "python": "3.13.9",
+    "torch": "2.14.0+cpu",
+    "seconds": 134.28070400003344
+  }
+}
