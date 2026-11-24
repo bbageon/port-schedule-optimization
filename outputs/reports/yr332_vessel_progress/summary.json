@@ -1,0 +1,35 @@
+{
+  "question": "Does the remaining quay work number let the value model see port call progress?",
+  "decisions": 32768,
+  "fit": 14529,
+  "held_out": 14542,
+  "target_sd_hours": 46.66353384772702,
+  "fits": {
+    "without": {
+      "rmse_hours": 39.169753217149655,
+      "explained": 0.2953938642607854,
+      "time_share": 0.3003512561935866
+    },
+    "with": {
+      "rmse_hours": 27.362551478199485,
+      "explained": 0.656158784606605,
+      "time_share": 0.4618116659337863
+    }
+  },
+  "error_cut": 0.3014367150462576,
+  "controlling_decisions": 12705,
+  "bottleneck_share": 0.7726879181424636,
+  "progressed_within_30_min": 0.6518693427784337,
+  "before_unclipped_share": 0.11906532129580456,
+  "number_and_target_agree_on_open_calls": 1.0,
+  "number_median_hours": 15.2,
+  "thresholds": {
+    "min_error_cut": 0.3,
+    "min_bottleneck_share": 0.5
+  },
+  "checks": {
+    "error_cut": true,
+    "bottleneck_share": true
+  },
+  "outcome": "hand the number to bn"
+}
