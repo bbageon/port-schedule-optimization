@@ -116,3 +116,35 @@ def test_value_head_restart_learns_a_new_unit_without_moving_action_logits():
     assert float((value - torch.tensor([s.target for s in samples])).abs().mean()) < 4.5
     with pytest.raises(ValueError):
         fit_value_head(net, [], seed=1)
+
+
+def test_quay_work_is_a_critic_only_column_after_the_global_context():
+    torch.manual_seed(3)
+    net = NormalizedValueNet(global_value_context=True, vessel_work_context=True).eval()
+    base = replace(state(), global_waiting=.4)
+    low, high = replace(base, vessel_work=0.), replace(base, vessel_work=2.)
+    with torch.no_grad():
+        net.critic[0].weight[:, -1].fill_(.3)
+        a, b = net(pack_states([low])), net(pack_states([high]))
+    assert torch.equal(a[0], b[0]) and not torch.allclose(a[1], b[1])
+    with pytest.raises(ValueError, match='mix'): pack_states([low, base])
+    with pytest.raises(ValueError, match='beside'): pack_states([replace(state(), vessel_work=1.)])
+    with pytest.raises(ValueError, match='Invalid'): pack_states([replace(base, vessel_work=-1.)])
+    with pytest.raises(ValueError, match='missing'): net(pack_states([base]))
+    with pytest.raises(ValueError, match='requires'): NormalizedValueNet(vessel_work_context=True)
+    old = NormalizedValueNet(global_value_context=True)
+    assert 'vessel_work_context' not in old.config
+    with pytest.raises(ValueError): old(pack_states([low]))
+
+
+def test_resolver_needs_a_quay_work_source_for_a_quay_work_model():
+    net = NormalizedValueNet(global_value_context=True, vessel_work_context=True)
+    with pytest.raises(ValueError, match='quay work'):
+        OnPolicyResolver(net, global_context_mode='global')
+
+    class Tracking(OnPolicyResolver):
+        def critic_vessel_work(self, sim):
+            return .5
+    assert Tracking(net, global_context_mode='global').critic_vessel_work(None) == .5
+    assert OnPolicyResolver(NormalizedValueNet(global_value_context=True),
+                            global_context_mode='global').critic_vessel_work(None) is None

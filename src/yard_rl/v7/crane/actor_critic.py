@@ -20,6 +20,7 @@ class GraphState:
     cranes: torch.Tensor
     time_fraction: float
     global_waiting: float | None = None
+    vessel_work: float | None = None    # critic-only: log(1 + hours of quay work left), see YR-332-bo
 
 
 def pack_states(states):
@@ -41,6 +42,16 @@ def pack_states(states):
         if not torch.isfinite(context).all() or (context < 0).any():
             raise ValueError('Invalid global waiting context')
         result += (context,)
+    work = [s.vessel_work is not None for s in states]
+    if any(work):
+        if not all(work):
+            raise ValueError('Cannot mix states with and without quay work')
+        if not all(present):
+            raise ValueError('Quay work is only defined beside the global context column')
+        column = torch.tensor([s.vessel_work for s in states]).unsqueeze(1)
+        if not torch.isfinite(column).all() or (column < 0).any():
+            raise ValueError('Invalid quay work input')
+        result += (column,)
     return result
 
 
@@ -107,7 +118,8 @@ class TwoBranchBlock(nn.Module):
 
 
 class SchedulingActorCritic(nn.Module):
-    def __init__(self, kind='transformer', width=32, heads=4, layers=2, global_value_context=False):
+    def __init__(self, kind='transformer', width=32, heads=4, layers=2, global_value_context=False,
+                 vessel_work_context=False):
         super().__init__()
         if kind not in ('mlp', 'transformer'):
             raise ValueError(kind)
@@ -115,21 +127,27 @@ class SchedulingActorCritic(nn.Module):
         self.global_value_context = bool(global_value_context)
         if self.global_value_context:
             self.config['global_value_context'] = True
+        self.vessel_work_context = bool(vessel_work_context)
+        if self.vessel_work_context:
+            if not self.global_value_context:
+                raise ValueError('Quay work input requires the global context input')
+            self.config['vessel_work_context'] = True
+        extra = int(self.global_value_context) + int(self.vessel_work_context)
         self.kind = kind
         if kind == 'mlp':
             self.actor = nn.Sequential(nn.Linear(10, 64), nn.Tanh(), nn.Linear(64, 64),
                                        nn.Tanh(), nn.Linear(64, 1))
-            self.critic = nn.Sequential(nn.Linear(11 + int(self.global_value_context), 64), nn.Tanh(), nn.Linear(64, 1))
+            self.critic = nn.Sequential(nn.Linear(11 + extra, 64), nn.Tanh(), nn.Linear(64, 1))
         else:
             self.embedding = nn.Linear(10, width)
             self.blocks = nn.ModuleList([TwoBranchBlock(width, heads) for _ in range(layers)])
             self.actor = nn.Sequential(nn.Linear(3 * width, width), nn.ReLU(), nn.Linear(width, 1))
-            self.critic = nn.Sequential(nn.Linear(2 * width + 1 + int(self.global_value_context), 64), nn.Tanh(), nn.Linear(64, 1))
+            self.critic = nn.Sequential(nn.Linear(2 * width + 1 + extra, 64), nn.Tanh(), nn.Linear(64, 1))
 
     def actor_and_critic_input(self, batch):
-        expected = 6 if self.global_value_context else 5
+        expected = 5 + int(self.global_value_context) + int(self.vessel_work_context)
         if len(batch) != expected:
-            raise ValueError('Global context missing or supplied to an incompatible model')
+            raise ValueError('Global context or quay work missing or supplied to an incompatible model')
         x, oi, ci, valid, clock = batch[:5]
         if self.kind == 'mlp':
             logits = self.actor(x).squeeze(-1)
@@ -144,6 +162,8 @@ class SchedulingActorCritic(nn.Module):
             context = torch.cat((masked_mean(ops, ov), masked_mean(mac, cv), clock), -1)
         if self.global_value_context:
             context = torch.cat((context, batch[5]), -1)
+        if self.vessel_work_context:
+            context = torch.cat((context, batch[6]), -1)
         return logits.masked_fill(~valid, -torch.inf), context
 
     def forward(self, batch):

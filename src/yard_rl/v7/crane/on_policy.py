@@ -61,6 +61,9 @@ class OnPolicyResolver(CentralResolver):
             raise ValueError(global_context_mode)
         if bool(getattr(net, 'global_value_context', False)) != (global_context_mode in ('zero', 'global')):
             raise ValueError('Resolver/model global-context contracts differ')
+        if (bool(getattr(net, 'vessel_work_context', False))
+                and type(self).critic_vessel_work is OnPolicyResolver.critic_vessel_work):
+            raise ValueError('Model expects quay work but this resolver provides none')
         self.global_context_mode = global_context_mode
         self.global_snapshots, self.global_decisions = [], []
         self.global_block_ids = {}
@@ -85,6 +88,10 @@ class OnPolicyResolver(CentralResolver):
                  0. if self.global_context_mode == 'zero' else None)
         self.global_decisions.append(obs)
         return value, obs
+
+    def critic_vessel_work(self, sim):
+        """Critic-only quay work input. None here; a resolver that tracks quay progress overrides it."""
+        return None
 
     def resolve(self, sim, decision, gen_by_crane):
         started = time.perf_counter()
@@ -138,7 +145,7 @@ class OnPolicyResolver(CentralResolver):
                     global_value, global_observation = self.global_state_context(sim)
                     state = GraphState(torch.tensor(rows), torch.tensor(oi),
                                        torch.tensor([cranes[c] for c, _ in pairs]), sim.clock/self.horizon,
-                                       global_value)
+                                       global_value, self.critic_vessel_work(sim))
                     with torch.no_grad():
                         ll, vv = self.net(pack_states([state]))
                     logits, value = ll[0], float(vv[0])
