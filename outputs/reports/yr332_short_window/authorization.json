@@ -1,0 +1,43 @@
+{
+  "arguments": [
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_joint_turnaround/current-gates.json",
+    "--gate-sha256",
+    "c862b97fd31856792ed91874814a0507227e6b0e68ea5a2d6e2d2564afdb2fe8",
+    "--gate-commit",
+    "aa0a76049fa29b5af6dbdb0b72f68efb390c82b7",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-bp",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-bp-short-window-large-batch.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance",
+    "--stage",
+    "training"
+  ],
+  "returncode": 2,
+  "decision": {
+    "task": "YR-332-bp",
+    "allowed": false,
+    "reason": "선결 게이트 scenario_validity부터 해결해야 함 (요청: performance)",
+    "kind": "REMEDIATION",
+    "targets": [
+      "performance"
+    ],
+    "stage": "training",
+    "current_unresolved": [
+      "performance",
+      "scenario_validity"
+    ]
+  },
+  "user_request_date": "2026-11-24",
+  "user_request": "응 두개다 진행해볼래? (bq와 bp 중 무엇을 할지 묻는 질문에 대한 답)",
+  "scope": "User-directed bounded synthetic policy exploration with a short-window target. The scenario-validity rejection above is preserved; physical, accounting and information constraints stay enforced; no field-performance claim and no automatic adoption."
+}
