@@ -1,0 +1,171 @@
+{
+  "observed": {
+    "confirmed_gate_orders": {
+      "IN": 15620,
+      "OUT": 18083
+    },
+    "dated_gate_days": 13,
+    "extra_files": [
+      "부산항만공사 공공데이터/부산항만공사_부산항 연도별 물동량 추이_20251231.csv",
+      "부산항만공사 공공데이터/부산항만공사_부산항 입항선박 톤급별 통계_20251231.csv",
+      "부산항만공사 공공데이터/부산항만공사_부산항 컨테이너 수송통계_20251231.csv",
+      "부산항만공사 공공데이터/부산항만공사_외내항컨테이너통합집계정보_20251231.csv"
+    ],
+    "gate_to_block_single_order_no_repeat": {
+      "IN": {
+        "max": 1454.8,
+        "mean": 5.995666887856669,
+        "median": 4.7,
+        "min": 0.45,
+        "n": 7535,
+        "negative": 0,
+        "over_7_min": 907,
+        "p90": 7.466666666666667
+      },
+      "OUT": {
+        "max": 90.18333333333334,
+        "mean": 5.459459575196985,
+        "median": 4.433333333333334,
+        "min": 0.21666666666666667,
+        "n": 7784,
+        "negative": 0,
+        "over_7_min": 799,
+        "p90": 7.083333333333333
+      }
+    },
+    "groups": {
+      "IN": {
+        "block_to_done": {
+          "max": 183.98333333333332,
+          "mean": 14.196757366048024,
+          "median": 10.233333333333333,
+          "min": 1.95,
+          "n": 6358,
+          "negative": 0,
+          "over_7_min": 4535,
+          "p90": 28.75
+        },
+        "gate_to_block": {
+          "max": 1454.8,
+          "mean": 5.8555706291334575,
+          "median": 4.666666666666667,
+          "min": 0.45,
+          "n": 11794,
+          "negative": 0,
+          "over_7_min": 1378,
+          "p90": 7.383333333333334
+        }
+      },
+      "OUT": {
+        "block_to_done": {
+          "max": 151.73333333333332,
+          "mean": 23.898638948705205,
+          "median": 18.633333333333333,
+          "min": 2.7333333333333334,
+          "n": 12074,
+          "negative": 0,
+          "over_7_min": 10407,
+          "p90": 49.53333333333333
+        },
+        "gate_to_block": {
+          "max": 124.4,
+          "mean": 7.433224769129287,
+          "median": 4.65,
+          "min": 0.21666666666666667,
+          "n": 12128,
+          "negative": 0,
+          "over_7_min": 2526,
+          "p90": 14.933333333333334
+        }
+      }
+    },
+    "inventory_count": 604,
+    "original_files_verified": 600,
+    "raw_request_names": [
+      "CancelInOut",
+      "CancelSingleOrder",
+      "ChangeConLoc",
+      "CopinoVerification",
+      "EnterBlock",
+      "GateIn",
+      "GateOut",
+      "JobDone"
+    ]
+  },
+  "percentile": "p90 = sorted values at round(0.9 * (n-1)), zero based",
+  "scope": "Descriptive comparison of different periods and loads; no field service-start event",
+  "simulated": {
+    "days": 30,
+    "groups": {
+      "IN": {
+        "block_to_done": {
+          "max": 100.71301413344239,
+          "mean": 13.395543445647522,
+          "median": 5.821485865717598,
+          "min": 2.0839144316729894,
+          "n": 82882,
+          "negative": 0,
+          "over_7_min": 38216,
+          "p90": 29.31680819785785
+        },
+        "gate_to_block": {
+          "max": 7.0,
+          "mean": 4.9971104607466135,
+          "median": 4.993208885960242,
+          "min": 3.0,
+          "n": 82882,
+          "negative": 0,
+          "over_7_min": 0,
+          "p90": 6.541903681633994
+        },
+        "start_to_done": {
+          "max": 3.7055795019143263,
+          "mean": 2.6050138471609983,
+          "median": 2.582579821200731,
+          "min": 2.0839144316729894,
+          "n": 82882,
+          "negative": 0,
+          "over_7_min": 0,
+          "p90": 2.987496807152638
+        }
+      },
+      "OUT": {
+        "block_to_done": {
+          "max": 3470.8075297956625,
+          "mean": 153.05754623027684,
+          "median": 30.91300952674161,
+          "min": 2.110997765006323,
+          "n": 123618,
+          "negative": 0,
+          "over_7_min": 97256,
+          "p90": 545.3936031689417
+        },
+        "gate_to_block": {
+          "max": 7.000000000000015,
+          "mean": 5.00062389447173,
+          "median": 5.003016005013585,
+          "min": 3.0,
+          "n": 123618,
+          "negative": 0,
+          "over_7_min": 0,
+          "p90": 6.536803415398269
+        },
+        "start_to_done": {
+          "max": 14.698401979566551,
+          "mean": 4.707639019538346,
+          "median": 3.6247046615579164,
+          "min": 2.0839144316729894,
+          "n": 123618,
+          "negative": 0,
+          "over_7_min": 21879,
+          "p90": 8.37682311621999
+        }
+      }
+    },
+    "ledger_sha256": "08bbf822db0e5e28ef65875f5cf38847f12f8831b202a923e4ada4760ca7f298",
+    "manifest_sha256": "bcfe23ee40cd6a2f23a18f6404193649fe55e6d15001fd445ae004605e3ab8fa",
+    "orders": 206500,
+    "seed": 12204201
+  },
+  "unit": "minutes per external truck order"
+}
