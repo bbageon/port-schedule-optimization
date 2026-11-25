@@ -36,6 +36,7 @@
 - 2026-11-25 14:06 대기 시작(대기 프로세스 PID 86960, 로그 `build/yr332_joint_turnaround/one-hour/wait-bt.log`). 이 프로세스를 끄지 않는다. 등록 직후 보드·명세·증거 일치 감사 통과. [감사 기록](../../../outputs/reports/yr332_one_hour/registration-audit.json)
 - 2026-11-25 23:38 시작 거부: bt 프로세스가 21:34쯤 사라져 2시간 유예 뒤 시작하려 했으나, 대기가 공유 작업 폴더에서 돌았고 17:42 방문 연결 커밋(`a6761e06`)이 등록 파일 5개(`month_crane_replay.py`·`cargo_runtime.py`·`container_contract.py`·`seed_inventory.py`·`visit_link.py`)를 바꿔 검사에서 멈췄다. 학습은 한 번도 시작하지 않았다.
 - 2026-11-26 08:44 등록 시점 고정 사본(`3c003a80`)에서 다시 대기한다. 결과·입력 폴더와 `build`는 공유 폴더에 연결했다. 새 사본에서 41개 파일이 줄바꿈만 달라(내용은 git과 동일) 등록 당시 바이트로 복원했고, 지문 197개가 모두 일치한다. bt가 '완료'를 기록하면 시작한다. [재대기 기록](../../../outputs/reports/yr332_one_hour/requeue-2026-11-26.json)
+- 2026-11-26 1시간 감시 등록: bt와 같은 예약 작업이 br 대기·학습 프로세스도 보고, 꺼졌으면 이 고정 사본에서 다시 띄운다(재시작하면 끝난 물결·갱신은 건너뛴다). [bt 명세](YR-332-bt-planned-times.md) · [감시 스크립트](../../../scripts/v7/queue_watchdog.py)
 
 ## 근거
 

@@ -12,7 +12,24 @@
       "no reboot (last boot 2026-09-27), no Application or System log events between 21:30 and 21:50, unrelated Python processes kept running",
       "no process-kill command found in local agent session logs between 21:00 and 22:30"
     ],
-    "cause": "not determined"
+    "cause": {
+      "finding": "an Orca pane in the working folder was closed and its process tree was killed; the runner had been started inside a pane",
+      "evidence": [
+        "%APPDATA%/orca/logs/daemon.log 2026-11-25T12:34:32.790Z session-exited cause operator_close, 12:34:32.791Z session-killed immediate (session s-UsxTtO, working folder 강화학습-판매)",
+        "same log 12:34:38Z session-exited/session-killed for pane 8c0edd4a in the same folder",
+        "last runner output 21:34:28 local, four seconds earlier; no exception, no status update",
+        "the br waiter, created through WMI outside any pane, kept running"
+      ],
+      "not_found": "the command that started the runner on 2026-11-25 09:18 (not in this project's agent session logs)",
+      "checked": "2026-11-26"
+    }
+  },
+  "watchdog": {
+    "requested": "2026-11-26 user: monitor every hour and relaunch when stopped",
+    "task": "Windows scheduled task yard-rl-queue-watchdog, hourly from 2026-11-26 08:58, windowless pythonw, 10-minute limit",
+    "script": "scripts/v7/queue_watchdog.py (deployed copy in ../yr332-watchdog, same SHA-256)",
+    "rule": "no live process and stage not 'complete' -> relaunch the waiter from its frozen worktree through WMI; at most 3 restarts per job in 6 hours; deletes the task when bt and br are both complete",
+    "checks": ["self-test of the decision and process matching", "live run logged both jobs alive with no restart", "WMI launch probe ran with the working folder and PYTHONPATH=src"]
   },
   "resumed": {
     "at": "2026-11-26 08:41:23 +0900",
