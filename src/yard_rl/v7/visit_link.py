@@ -126,17 +126,8 @@ def _stops(chosen, rng, layout, schedule):
     return stops, travel, exit_s
 
 
-def link_visits(seed, built: dict, spec: dict, within_spec: dict, layout) -> dict:
-    """`built['schedule']`의 오더를 방문으로 묶고 방문 도착 시각을 정한다(제자리 수정).
-
-    반환: 달성 통계(목표 대비 유형별 개수, 시각대별 방문 수, 실패한 유형 수).
-    """
-    from .demand_profile import within_hour_arrivals
+def _match_hourly_visits(seed, schedule, spec, out20, layout):
     validate_visit_link(spec)
-    if within_spec is None:
-        raise ValueError('visit_link needs a within_hour arrival template for visit times')
-    schedule = built['schedule']
-    out20 = _target_size20(built)
     singles = sum(p['count'] for p in spec['patterns'] if sum(map(sum, p['stops'])) == 1)
     multi = [(canonical(p['stops']), p['count']) for p in spec['patterns'] if sum(map(sum, p['stops'])) > 1]
     keys = [k for k, _ in multi]
@@ -172,6 +163,48 @@ def link_visits(seed, built: dict, spec: dict, within_spec: dict, layout) -> dic
         for i in pool:
             e = schedule[i]
             visits.append((h, [(e['block'], e['flow'], [i])], [float(e['travel_s'])], float(e['exit_travel_s'])))
+    return visits, drawn, made, failed
+
+
+def _attach_plan(schedule, vid, stops, travel, exit_s, *, strip_block_prefix=False):
+    ids = []
+    for b, flow, ix in stops:
+        jobs = [schedule[i]['job_id'] for i in ix]
+        ids.append([b, flow, [j.split(':')[-1] for j in jobs] if strip_block_prefix else jobs])
+    for k, (_, _, ix) in enumerate(stops):
+        for i in ix:
+            schedule[i]['visit'] = dict(id=vid, stop=k, stops=ids, travel_s=travel, exit_travel_s=exit_s)
+
+
+def link_fixed_month(seed, schedule, spec, layout):
+    """Link fixed cargo orders within their existing hour, using the first stop's gate time."""
+    if any(e.get('visit') is not None for e in schedule):
+        raise ValueError('Expected an unlinked fixed cargo schedule')
+    # fixed_seed_audit checks pickup sizes against the actual target container.
+    out20 = {e['job_id']: not e['size_ft40'] for e in schedule if e['flow'] == 'GATE_OUT'}
+    visits, _, _, _ = _match_hourly_visits(seed, schedule, spec, out20, layout)
+    for index, (_, stops, travel, exit_s) in enumerate(visits):
+        if sum(len(ix) for _, _, ix in stops) == 1:
+            continue
+        gate = schedule[stops[0][2][0]]['arrival_s']
+        _attach_plan(schedule, f'MV-{index:06d}', stops, travel, exit_s)
+        for _, _, indices in stops:
+            for i in indices:
+                entry = schedule[i]
+                delta = gate - entry['arrival_s']
+                if delta:
+                    entry['arrival_s'] = entry['gate_in_s'] = gate
+                    entry['lead_s'] = min(gate, entry['lead_s'])
+                    entry['reserved_s'] = round(entry['reserved_s'] + delta, 3)
+
+
+def link_visits(seed, built: dict, spec: dict, within_spec: dict, layout) -> dict:
+    """Group daily orders, then draw a gate time for each visit from the within-hour template."""
+    from .demand_profile import within_hour_arrivals
+    if within_spec is None:
+        raise ValueError('visit_link needs a within_hour arrival template for visit times')
+    schedule = built['schedule']
+    visits, drawn, made, failed = _match_hourly_visits(seed, schedule, spec, _target_size20(built), layout)
     per_hour = Counter(v[0] for v in visits)
     base = [3600.0 * h + 1800.0 for h in sorted(per_hour) for _ in range(per_hour[h])]
     # Same random stream as the ak order-level redraw: same date order per hour, fewer visits.
@@ -188,14 +221,12 @@ def link_visits(seed, built: dict, spec: dict, within_spec: dict, layout) -> dic
             visits[n] = (*visits[n], by_hour[h][cursor[h]])
             cursor[h] += 1
     for vid, (h, stops, travel, exit_s, t) in enumerate(visits):
-        ids = [[b, flow, [schedule[i]['job_id'].split(':')[-1] for i in ix]] for b, flow, ix in stops]
         size = sum(len(ix) for _, _, ix in stops)
-        for k, (_, _, ix) in enumerate(stops):
+        if size > 1:
+            _attach_plan(schedule, f'V-{vid:05d}', stops, travel, exit_s, strip_block_prefix=True)
+        for _, _, ix in stops:
             for i in ix:
                 schedule[i]['arrival_s'] = t
-                if size > 1:
-                    schedule[i]['visit'] = dict(id=f'V-{vid:05d}', stop=k, stops=ids,
-                                                travel_s=travel, exit_travel_s=exit_s)
     sizes = Counter(sum(len(ix) for _, _, ix in v[1]) for v in visits)
     in_multi = sum(n * c for n, c in sizes.items() if n > 1)
     return dict(schema=LINK_SCHEMA, visits=len(visits), orders=len(schedule),

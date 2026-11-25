@@ -65,3 +65,16 @@ class GateAgeTruckClock:
         area, rate, slope = self.segments[i]
         delta = (t - self.times[i]) / 60
         return base + MAX_SURCHARGE / RAMP_MIN * (area + delta * (rate + 0.5 * slope * delta))
+
+
+class StopGateAgeClock:
+    """Gate-aged points only while a visit belongs to this stop's block."""
+
+    def __init__(self, intervals):
+        intervals = list(intervals)
+        self.through_finish = GateAgeTruckClock((gate, finish) for gate, _, finish in intervals)
+        self.before_stop = GateAgeTruckClock((gate, start) for gate, start, _ in intervals if start > gate)
+        self.total_minutes = self.through_finish.total_minutes - self.before_stop.total_minutes
+
+    def minutes_at(self, t):
+        return self.through_finish.minutes_at(t) - self.before_stop.minutes_at(t)

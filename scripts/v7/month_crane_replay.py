@@ -23,6 +23,7 @@ from yard_rl.v7.stage.cargo_runtime import CargoBlock, CargoTerminal
 from yard_rl.v7.stage.episode import INFO_LEVEL, _rule_policy, rehandles_of, yc_empty_travel_s
 from yard_rl.v7.stage.month import DAY_S, DayPlan, prune_completed, retire_done_vessels
 from yard_rl.v7.stage.month_engine import VESSEL_DEADLINE_MULT, inject_vessel
+from yard_rl.v7.stage.month_visits import truck_visits
 from yard_rl.v7.stage.orders import V3Announcer
 from yard_rl.v7.stage.seed_bundle import file_sha256
 from yard_rl.v7.world.integrated.profiles import build_h21_profile
@@ -177,19 +178,25 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
             stream_finishes=finishes,seconds=seconds,cost=seconds/3600*vessel_krw_per_hour(r["gt"])))
     write_lines(folder/"trucks.jsonl.gz",truck_rows)
     save(folder/"ships.json",ships)
+    visit_rows = truck_rows
+    if terminal.visit_plans:
+        visit_rows = truck_visits(terminal.visit_plans, truck_rows, trucks, end)
+        write_lines(folder/"visits.jsonl.gz", visit_rows)
+        meta["turnaround_unit"] = "gate_to_last_job_per_truck_visit"
+        meta["visit_events"] = dict(terminal.visit_stats)
     # A month with work left at the end has no final turnaround; it is reported, never ranked or learned from.
     complete = all(r["finish"] is not None for r in truck_rows + ships)
     if collect and complete:
         from math import fsum, isclose
         from yard_rl.v7.reward.joint_turnaround import JointTurnaroundClock, VESSEL_TIME_WEIGHT
         scale = 1.0 if target_scale is None else target_scale
-        clock = JointTurnaroundClock(((r["gate"], r["finish"]) for r in truck_rows),
+        clock = JointTurnaroundClock(((r["gate"], r["finish"]) for r in visit_rows),
                                      ((r["start"], r["finish"]) for r in ships))
         check = resolver.finish_turnaround(clock, scale=scale)
         comparisons = []
         for sample in resolver.samples[::max(1, len(resolver.samples)//8)]:
             t = sample.state.time_fraction * resolver.horizon
-            remaining = fsum(max(0, r["finish"] - max(r["gate"], t)) for r in truck_rows)
+            remaining = fsum(max(0, r["finish"] - max(r["gate"], t)) for r in visit_rows)
             remaining += VESSEL_TIME_WEIGHT * fsum(max(0, r["finish"] - max(r["start"], t)) for r in ships)
             if not isclose(sample.target * scale, -remaining / 60, rel_tol=1e-11, abs_tol=1e-7):
                 raise ValueError("A decision target disagrees with the remaining elapsed time")
@@ -203,7 +210,7 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
             block=trucks[e["demand"]["job"]].block_arrival) for e in future))
     result = {}
     for name,lo,hi in (("primary",1,n_days-1),("all",0,n_days)):
-        a = [r for r in truck_rows if lo <= r["day"] < hi]
+        a = [r for r in visit_rows if lo <= r["day"] < hi]
         b = [r for r in ships if lo <= r["day"] < hi]
         counters = [y-x for x,y in zip(checkpoints[lo*DAY_S],checkpoints[hi*DAY_S])]
         costs = dict(truck=sum(r["cost"] for r in a),ship=sum(r["cost"] for r in b),
@@ -212,13 +219,18 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
             unfinished_ships=sum(r["finish"] is None for r in b),costs=costs, total=sum(costs.values()),
             truck_minutes=sum(r["seconds"] for r in a)/60/len(a),
             ship_hours=sum(r["seconds"] for r in b)/3600/len(b))
+        if terminal.visit_plans:
+            orders = [r for r in truck_rows if lo <= r["day"] < hi]
+            result[name].update(truck_orders=len(orders),
+                                minutes_per_order=sum(r["seconds"] for r in orders)/60/len(orders))
     save(folder/"result.json",dict(**meta,windows=result, seconds=time.monotonic()-started,
         cargo=terminal.cargo_report(), admitted=ann.n_admitted,skipped=ann.n_skipped,
         **({"planned_time_coverage": dict(decisions=resolver.public_schedule.decisions,
                                           visible=resolver.public_schedule.visible)}
            if resolver and resolver.public_schedule is not None else {}),
         model_decisions=resolver.decisions if resolver else None))
-    return dict(resolver=resolver, complete=complete, trucks=truck_rows, ships=ships, windows=result)
+    return dict(resolver=resolver, complete=complete, trucks=truck_rows, ships=ships, windows=result,
+                visits=visit_rows)
 
 
 if __name__ == "__main__":

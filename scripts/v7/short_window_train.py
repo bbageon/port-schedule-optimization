@@ -33,6 +33,7 @@ from yard_rl.v7.crane.actor_critic import pack_states
 from yard_rl.v7.crane.value_normalization import fit_value_head, normalized_ppo_update, restart_value_head
 from yard_rl.v7.reward.joint_turnaround import JointTurnaroundClock, VESSEL_TIME_WEIGHT
 from yard_rl.v7.stage.seed_bundle import file_sha256
+from yard_rl.v7.stage.month_visits import stop_intervals, visit_plans
 from yard_rl.v7.crane.planned_times import ARMS
 
 
@@ -129,22 +130,21 @@ def calls_and_jobs(manifest):
     for rows in document["vessels_by_day"].values():   # the replay lists stream finishes in this order
         for row in rows:
             order[row["ship"]].append(row["block"])
-    return {e["job_id"]: e["block"] for e in document["schedule"]}, order
+    return {e["job_id"]: e["block"] for e in document["schedule"]}, order, visit_plans(document["schedule"])
 
 
 def rollout(tag, checkpoint_path, seed, keep, smoke=False):
     started = time.monotonic()
     cfg = setting(smoke)
-    jobs, order = calls_and_jobs(cfg["manifests"] / read(cfg["train"])["path"])
+    jobs, order, plans = calls_and_jobs(cfg["manifests"] / read(cfg["train"])["path"])
     folder = ROOT / tag
     out = month_crane_replay.run("trained", False, info_path=cfg["train"], manifest_dir=cfg["manifests"],
                                  checkpoint=checkpoint_path, folder=folder, stochastic=True, sample_seed=seed,
                                  horizon=cfg["horizon"], target_scale=SCALE, **dispatch_options())
     if not out["complete"]:
         raise RuntimeError("A training month left work unfinished")
-    trucks, ships = defaultdict(list), defaultdict(list)
-    for r in out["trucks"]:
-        trucks[jobs[r["job"]]].append((r["gate"], r["finish"]))
+    trucks = stop_intervals(plans, out["trucks"], jobs)
+    ships = defaultdict(list)
     for r in out["ships"]:
         where = order[r["ship"]]
         if len(where) != len(r["stream_finishes"]) or r["finish"] != max(r["stream_finishes"]):
@@ -155,10 +155,10 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
         for b, f in own.items():
             ships[b].append((r["start"], r["finish"], f, f == r["finish"]))
     if GATE_AGE_ARM == "curve":
-        from yard_rl.v7.reward.gate_age import GateAgeTruckClock, truck_points
-        clocks = {b: GateAgeTruckClock(intervals) for b, intervals in trucks.items()}
+        from yard_rl.v7.reward.gate_age import StopGateAgeClock, truck_points
+        clocks = {b: StopGateAgeClock(intervals) for b, intervals in trucks.items()}
     else:
-        clocks = {b: JointTurnaroundClock(intervals, []) for b, intervals in trucks.items()}
+        clocks = {b: JointTurnaroundClock(((s, f) for _, s, f in intervals), []) for b, intervals in trucks.items()}
     empty = JointTurnaroundClock([], [])
     samples = out["resolver"].samples
     anchors = torch.randperm(len(samples), generator=torch.Generator().manual_seed(seed + 500000))[:keep].tolist()
@@ -171,10 +171,10 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
     for i, b, t, cost in random.Random(seed).sample(rows, min(64, len(rows))):   # direct sums, independent of the clock
         end = t + 3600 * WINDOW_H
         if GATE_AGE_ARM == "curve":
-            direct = 60 * fsum(truck_points((min(f, end) - g) / 60) - truck_points(max(0., t - g) / 60)
-                               for g, f in trucks[b] if g < end and f > t)
+            direct = 60 * fsum(truck_points((min(f, end) - g) / 60) - truck_points((max(s, t) - g) / 60)
+                               for g, s, f in trucks[b] if s < end and f > t)
         else:
-            direct = fsum(max(0., min(f, end) - max(g, t)) for g, f in trucks[b])
+            direct = fsum(max(0., min(f, end) - max(s, t)) for _, s, f in trucks[b])
         direct += VESSEL_TIME_WEIGHT * fsum(max(0., min(f, end) - max(g, t)) for g, f, own, _ in ships[b] if own > t)
         if not isclose(direct / 60, cost, rel_tol=1e-9, abs_tol=1e-6):
             raise ValueError("Block time in the window disagrees with the ledger")

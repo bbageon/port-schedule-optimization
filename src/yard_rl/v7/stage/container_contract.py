@@ -11,6 +11,8 @@ from collections import Counter, defaultdict
 import hashlib
 import json
 
+from .month_visits import earliest_block_time
+
 
 class ContainerContractError(ValueError):
     def __init__(self, message, *, report=None):
@@ -121,7 +123,7 @@ def audit_container_plan(built: dict, vessels_by_day: dict) -> dict:
         except ContainerContractError as error:
             issue('order_identity_mismatch', dict(order=e['job_id'], reason=str(error)))
             continue
-        at = float(e['arrival_s']) + float(e['travel_s'])
+        at = earliest_block_time(e)
         if e['flow'] == 'GATE_IN':
             source(cid, e['block'], e['job_id'], at)
         else:

@@ -8,6 +8,7 @@ from collections import Counter
 from dataclasses import replace
 
 from .month_engine import MonthTerminal
+from .month_visits import visit_plans
 from .cargo_moves import move_dependent, validate_dependent_move
 from .seed_inventory import enumerate_inventory
 from ..world.contract.schema import CandidateKind
@@ -65,6 +66,8 @@ class CargoTerminal(MonthTerminal):
         self._cargo_time = 0.0
         super().__init__(blocks, **kwargs)
         self.layout = layout
+        self.visit_plans = visit_plans(document['schedule'])
+        self.linked_orders = {j for plan in self.visit_plans.values() for _, _, js in plan['stops'] for j in js}
         sources, demands = enumerate_inventory(document['initial_inventory'], document['schedule'],
                                                document['vessels_by_day'], document['seed'])
         self.sources = {s['container']: s for s in sources}
@@ -127,15 +130,25 @@ class CargoTerminal(MonthTerminal):
         if jid in self.ledger.records or bid not in self.blocks:
             raise TransferError(f'{jid}: duplicate work or unknown block')
         sim = self.blocks[bid]
+        link = getattr(job, 'visit_link', None)
         arr = gate_in_s + travel_s
-        if (sim.time_ledger is None or job.exit_travel_s is None
-                or gate_in_s < sim.clock - 1e-9 or arr <= sim.clock + 1e-9 or arr > sim.end):
+        if link is not None:
+            stop = link['stop']
+            planned_block, flow, jobs = link['stops'][stop]
+            if planned_block != bid or flow != job.flow.value or jid not in jobs:
+                raise TransferError(f'{jid}: order differs from fixed visit itinerary')
+            arr = gate_in_s + link['travel_s'][0] if stop == 0 else None
+        invalid_arrival = arr is not None and (arr <= sim.clock + 1e-9 or arr > sim.end)
+        if sim.time_ledger is None or job.exit_travel_s is None or gate_in_s < sim.clock - 1e-9 or invalid_arrival:
             raise TransferError(f'{jid}: invalid admission time or accounting')
         if cid in self.ready_times and cid not in sim.stacks.containers:
             raise TransferError(f'{jid}: ready cargo missing from its actual stack')
+        if link is not None:
+            arr = self._visit_admit(jid, link, gate_in_s)
         job.actual_gate_in, job.actual_block_arrival = gate_in_s, arr
         sim.jobs[jid] = job
-        sim.queue.push(arr, EventKind.BLOCK_ARRIVAL, jid)
+        if arr is not None:
+            sim.queue.push(arr, EventKind.BLOCK_ARRIVAL, jid)
         tl = sim.time_ledger
         tl.records[jid] = TruckTimes(gate_in=gate_in_s)
         i = bisect_left(tl._a_sorted, gate_in_s)
@@ -150,6 +163,8 @@ class CargoTerminal(MonthTerminal):
         self.validate(txn)
         cid = 'IN_' + txn.job_id
         consumer = self.exit_jobs.get(cid)
+        if txn.job_id in self.linked_orders or consumer in self.linked_orders:
+            raise TransferError('A linked truck visit has a fixed block itinerary')
         if consumer:
             validate_dependent_move(self, consumer, txn.dst)
         super().commit(txn)
@@ -265,6 +280,8 @@ class CargoTerminal(MonthTerminal):
                             break
                 # Review can admit work at this exact timestamp; next iteration
                 # consumes those events before any clock moves forward.
+            if self.visits:
+                self._drain_visits()
         for s in self.blocks.values():
             if not s.terminal:
                 s._finalize()

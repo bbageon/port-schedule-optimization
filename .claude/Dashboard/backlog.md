@@ -10,7 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
-| YR-332-bx | RL | **현장 두 번째 블록에는 앞 작업 시간이 포함·시험 월은 방문 연결 0건** | 🟠 | 반입→반출 303방문의 두 번째 블록까지 평균 20.34분 중 앞 블록 체류가 11.59분. 장비 작업 시작 근거와 30일 성능 판정 대기. [순서 대조](../../outputs/reports/yr332_gate_age_curve/visit-sequence.json) · [spec](../docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md) |
+| YR-332-bx | RL | **두 달의 입력에 트럭 방문 연결·작업 순서와 점수 검산** | 🟠 | 시험 월 206,500개 작업을 169,637방문으로 연결. 장비 작업 시작 근거와 30일 성능 판정 대기. [월 입력](../../outputs/reports/yr332_gate_age_curve/linked-visits/test-input.json) · [spec](../docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md) |
 | YR-332-bs | RL | **배 효과를 담는 규모의 학습 비용 검토 (24시간 할인)** | ⚪ | bq에서 24시간 할인은 배 효과를 3분의 1 남기지만 갱신당 결정 약 300만 개(한 물결의 3배)가 필요하다. 동시 실행·갱신 시간·저장 용량을 실측해 전체 소요를 계산한다. bp 결과 뒤 판단. [spec](../docs/dashboard-task-specs/YR-332-bs-day-horizon-scale.md) |
 | YR-332-bk | Infra | **트럭 턴타임 감소의 원화 환산 검증** | 🟠 | 정책의 시간 성적에 안전운임 단가를 적용해 절감 추정액을 별도 보고한다. 실제 방문·정산 시각과 청구액을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |

@@ -7,6 +7,7 @@ import random
 
 from .container_contract import ContainerContractError, container_no
 from .month_engine import SIZE_MIX_FT40
+from .month_visits import earliest_block_time
 
 
 def enumerate_inventory(initial: dict, schedule: list, vessels: dict, seed: int):
@@ -33,7 +34,7 @@ def enumerate_inventory(initial: dict, schedule: list, vessels: dict, seed: int)
         if key in keys:
             raise ContainerContractError(f'Duplicate order key: {key}')
         keys.add(key)
-        at = float(e['arrival_s']) + float(e['travel_s'])
+        at = earliest_block_time(e)
         if bid not in initial or not math.isfinite(at) or at < 0:
             raise ContainerContractError(f'{key}: invalid block or arrival')
         if e['flow'] == 'GATE_IN':
