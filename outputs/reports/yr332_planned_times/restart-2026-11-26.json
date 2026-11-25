@@ -1,0 +1,28 @@
+{
+  "task": "YR-332-bt",
+  "stopped": {
+    "last_activity": "2026-11-25 21:34:28 +0900",
+    "arm": "etw",
+    "update": 0,
+    "observed": [
+      "eta finished its four updates and the held-out month at 21:32:47 (result.json written)",
+      "etw wave-0 month replays logged day 1 at 21:34:26-28 and nothing after",
+      "queue-status.json stayed at 'training'; the runner writes 'failed' on any Python exception, so the processes ended without running their handlers",
+      "the YR-332-br waiter saw no bt processes from about 21:38 and acted after its two-hour grace at 23:38",
+      "no reboot (last boot 2026-09-27), no Application or System log events between 21:30 and 21:50, unrelated Python processes kept running",
+      "no process-kill command found in local agent session logs between 21:00 and 22:30"
+    ],
+    "cause": "not determined"
+  },
+  "resumed": {
+    "at": "2026-11-26 08:41:23 +0900",
+    "how": "same frozen worktree (9afa8b70) and interpreter, launched detached with Win32_Process Create; output appended to build/yr332_joint_turnaround/planned-times/queue-gpu.log",
+    "checks": {
+      "registered_fingerprints_unchanged": "19/19",
+      "devices": {"train": "cuda", "inference": "cpu"},
+      "tracked_files_clean": true,
+      "finished_arms_skipped": ["eta"]
+    },
+    "etw": "the partial 21:32 attempt left no run records, so wave-0 restarts from day 0 with the same start model and sampling seeds; train-campaign-resumed-*.json records the restart"
+  }
+}

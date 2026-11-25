@@ -1,6 +1,6 @@
 # YR-332-br · 1시간 할인 + 예측값으로 단기 학습 (bp와 학습 목표만 다르게)
 
-- **상태**: in-progress (⏸ YR-332-bt 종료 대기 후 자동 시작)
+- **상태**: in-progress (⏸ YR-332-bt 종료 대기 후 자동 시작, 2026-11-26 고정 사본에서 재대기)
 - 상위 [[YR-332]]. 2026-11-24 등록. [YR-332-bq](YR-332-bq-value-horizon.md)에서 나온 후보다.
 - 보정 대상: performance — bp와 같은 단기 학습을, 30분 창 대신 1시간 할인 + 다음 결정의 예측값으로 한다.
 - 착수 조건: [YR-332-bp](YR-332-bp-short-window-large-batch.md) 결과를 본 뒤 판단한다. bp에서 단기 학습이 짧은 작업 우선 규칙에 다가가지 못하면 이 후보도 접는다. 현실성 미통과로 사용자 확인이 필요하다.
@@ -34,6 +34,8 @@
 - **3일 배선 시험**(`bea6c084`): 보관된 3일 재생 재현, 할인 시간 직접 검산(구간·전체 각 64건), 저장 예측값과 재계산 차이 0.000001, 예측부 맞춤 정규화 오차 5.27 → 0.96, 저장 확률 재계산 오차 0.000001, 평가 완주. [시험 기록](../../../outputs/reports/yr332_one_hour/smoke/smoke-check.json) · [실행 코드](../../../scripts/v7/one_hour_train.py)
 - 실행 상태는 `outputs/reports/yr332_one_hour/queue-status.json`에 5분마다 쓴다(커밋하지 않는 상태 파일).
 - 2026-11-25 14:06 대기 시작(대기 프로세스 PID 86960, 로그 `build/yr332_joint_turnaround/one-hour/wait-bt.log`). 이 프로세스를 끄지 않는다. 등록 직후 보드·명세·증거 일치 감사 통과. [감사 기록](../../../outputs/reports/yr332_one_hour/registration-audit.json)
+- 2026-11-25 23:38 시작 거부: bt 프로세스가 21:34쯤 사라져 2시간 유예 뒤 시작하려 했으나, 대기가 공유 작업 폴더에서 돌았고 17:42 방문 연결 커밋(`a6761e06`)이 등록 파일 5개(`month_crane_replay.py`·`cargo_runtime.py`·`container_contract.py`·`seed_inventory.py`·`visit_link.py`)를 바꿔 검사에서 멈췄다. 학습은 한 번도 시작하지 않았다.
+- 2026-11-26 08:44 등록 시점 고정 사본(`3c003a80`)에서 다시 대기한다. 결과·입력 폴더와 `build`는 공유 폴더에 연결했다. 새 사본에서 41개 파일이 줄바꿈만 달라(내용은 git과 동일) 등록 당시 바이트로 복원했고, 지문 197개가 모두 일치한다. bt가 '완료'를 기록하면 시작한다. [재대기 기록](../../../outputs/reports/yr332_one_hour/requeue-2026-11-26.json)
 
 ## 근거
 

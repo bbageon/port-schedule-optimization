@@ -1,0 +1,21 @@
+{
+  "task": "YR-332-br",
+  "refused": {
+    "at": "2026-11-25 23:38:24 +0900",
+    "error": "Registered files changed: scripts/v7/month_crane_replay.py, src/yard_rl/v7/stage/cargo_runtime.py, src/yard_rl/v7/stage/container_contract.py, src/yard_rl/v7/stage/seed_inventory.py, src/yard_rl/v7/visit_link.py",
+    "why": "the waiter ran in the shared working folder, where commit a6761e06 (2026-11-25 17:42, visit-link work) changed five registered files; training never started"
+  },
+  "requeued": {
+    "at": "2026-11-26 08:44:23 +0900",
+    "worktree": "frozen at 3c003a80 (registration commit bea6c084 plus the registration records)",
+    "linked_to_shared_folder": ["build", "outputs/reports/yr332_one_hour", "outputs/reports/yr332_planned_times", "outputs/reports/yr332_short_window", "outputs/reports/yr332_joint_turnaround"],
+    "how": "launched detached with Win32_Process Create; output appended to build/yr332_joint_turnaround/one-hour/wait-bt.log",
+    "checks": {
+      "registered_fingerprints": "197/197 match",
+      "line_endings_restored": 41,
+      "line_endings_note": "41 files differed only by line endings (fresh checkout LF, registered bytes CRLF); content equals git at 3c003a80 and at HEAD, so the registered bytes were copied from the shared folder",
+      "tracked_changes_since_3c003a80_in_linked_output_folders": 0
+    },
+    "state": "waiting_for_bt; starts when YR-332-bt reports complete"
+  }
+}
