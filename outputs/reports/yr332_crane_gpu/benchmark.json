@@ -1,0 +1,82 @@
+{
+  "devices": {
+    "cpu": {
+      "update_threads": 1,
+      "update_seconds": [
+        15.63276209961623,
+        15.529532100073993,
+        14.935694999992847
+      ],
+      "median_update_seconds": 15.529532100073993,
+      "single_decision_median_ms": 1.1174501851201057,
+      "max_parameter_difference_vs_cpu": 0.0,
+      "max_parameter_difference_on_repeat": 0.0,
+      "replay_logp_max_error": 4.76837158203125e-07,
+      "final_run": {
+        "loss": -0.00912212509138044,
+        "critic_loss": 0.025336509541375563,
+        "entropy": 1.8446233607828617,
+        "approx_kl": 0.0005990939866357785,
+        "clip_fraction": 0.002197265625
+      }
+    },
+    "cpu16": {
+      "update_threads": 16,
+      "update_seconds": [
+        4.119053499773145,
+        4.04332759976387,
+        3.977106999605894
+      ],
+      "median_update_seconds": 4.04332759976387,
+      "single_decision_median_ms": 1.1285501532256603,
+      "max_parameter_difference_vs_cpu": 0.0004310905933380127,
+      "max_parameter_difference_on_repeat": 0.0,
+      "replay_logp_max_error": 4.76837158203125e-07,
+      "final_run": {
+        "loss": -0.00912212578987237,
+        "critic_loss": 0.025336509410408325,
+        "entropy": 1.8446233700960875,
+        "approx_kl": 0.0005990929409104596,
+        "clip_fraction": 0.002197265625
+      }
+    },
+    "cuda": {
+      "update_threads": 1,
+      "update_seconds": [
+        3.48618679959327,
+        3.356870399788022,
+        3.0407560002058744
+      ],
+      "median_update_seconds": 3.356870399788022,
+      "single_decision_median_ms": 9.414299856871367,
+      "max_parameter_difference_vs_cpu": 0.001515217125415802,
+      "max_parameter_difference_on_repeat": 0.0,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "final_run": {
+        "loss": -0.009121763927396387,
+        "critic_loss": 0.02533594297710806,
+        "entropy": 1.8446229044348001,
+        "approx_kl": 0.000599184060715947,
+        "clip_fraction": 0.002197265625
+      }
+    }
+  },
+  "matched_inference": 256,
+  "compared_inference": 256,
+  "samples": 1024,
+  "epochs": 4,
+  "batch_size": 64,
+  "checkpoint_sha256": "8e3faad5e9742c739511df3870382dd34700c0c7126e8d325ab70d9224cb52ee",
+  "archive": "build/yr332_joint_turnaround/short-window/wave-3-0/decisions.json.gz",
+  "pytorch": "2.14.0+cu132",
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "model": {
+    "kind": "transformer",
+    "width": 32,
+    "heads": 4,
+    "layers": 2,
+    "global_value_context": true
+  },
+  "parameters": 43874,
+  "code_commit": "9afa8b702177c4d8f3cd2737cf87c9f6b24ae3f7"
+}
