@@ -104,7 +104,7 @@ TODO_ARMS = ()
 #: `USES_FUTURE_INFORMATION = True` 오라클이라 바닥이 될 수 없다(사용자 지적
 #: 2026-08-28 · [[YR-213]] 권장안 B 철회).
 #: ★`RL_CRANE` 은 규칙이 아니라 **학습 망**이다 ([[YR-248]] 2단계 · v7 재이식 [[YR-332-b]]).
-DISPATCHERS_READY = ("SF_SPT", RL_CRANE) + tuple(sorted(RULE_BASES))
+DISPATCHERS_READY = ("SF_SPT", "SPT_UNGUARDED", RL_CRANE) + tuple(sorted(RULE_BASES))
 
 
 @dataclass
@@ -246,8 +246,12 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
     cfg = DEFAULT_EXEC_CONFIG if exec_config is None else exec_config
     gens: dict[int, CandidateGenerator] = {}
     exc = {"n": 0, "hook": 0}
-    pref = (ServiceFirstSPTPreference() if dispatcher == "SF_SPT"
-            else make_preference(dispatcher, seed=seed, crane_net=crane_net))
+    unguarded_spt = dispatcher == "SPT_UNGUARDED"
+    # No finite wait overrides processing time in classical SPT.
+    wait_options = {"mandatory_wait_frac": float("inf")} if unguarded_spt else {}
+    rule = "SPT" if unguarded_spt else dispatcher
+    pref = (ServiceFirstSPTPreference() if rule == "SF_SPT"
+            else make_preference(rule, seed=seed, crane_net=crane_net))
     if dispatcher == RL_CRANE:
         pref.batched = batched
     pol = ResolverPolicy(pref, dispatcher)
@@ -260,7 +264,8 @@ def _rule_policy(dispatcher: str = "SF_SPT", *, seed: int = 0, exec_config=None,
         if g is None:
             observer = evaluation_probe if callable(getattr(evaluation_probe, 'capture_candidates', None)) else None
             g = gens[id(sim)] = CandidateGenerator(config=cfg, reuse_plans=reuse_plans,
-                                                   k_max=candidate_cap, observer=observer)
+                                                   k_max=candidate_cap, observer=observer,
+                                                   **wait_options)
         gb = {c: g.generate(sim, c, INFO_LEVEL) for c in dp.crane_ids}
         generated = perf_counter_ns() if evaluation_probe is not None else 0
         if hasattr(evaluation_probe, 'before_select'):

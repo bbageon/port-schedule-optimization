@@ -223,7 +223,7 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("arm",choices=["trained","SF_SPT","LWKR"])
+    parser.add_argument("arm",choices=["trained","SF_SPT","SPT_UNGUARDED","LWKR"])
     parser.add_argument("--smoke",action="store_true")
     parser.add_argument("--inference-device", choices=("cpu", "cuda"))
     args = parser.parse_args()
