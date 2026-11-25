@@ -3,12 +3,14 @@ import argparse
 from collections import Counter, defaultdict
 from dataclasses import asdict
 import gzip
+import hashlib
 import json
 from math import fsum, isclose
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from joint_turnaround_preflight import CACHE, OUT as REGISTERED, read, save
+from inbound_realism_common import stats
 from month_crane_input import MANIFEST, OUT as COMMON, build
 from yard_rl.v7.reward.gate_age import GateAgeTruckClock, StopGateAgeClock, truck_points
 from yard_rl.v7.stage.fixed_seed import as_audit_input, sha
@@ -27,6 +29,15 @@ PROFILE = Path("outputs/reports/yr332_confirmed_demand/confirmed/visit-link.json
 def assignment(schedule):
     return sha([(e["job_id"], int(e["arrival_s"] // 3600), e["block"], e["flow"],
                  e["con_no"], e["target"], e["size_ft40"]) for e in schedule])
+
+
+def ledger_digest(path):
+    digest = hashlib.sha256()
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rb") as stream:
+        for chunk in iter(lambda: stream.read(1024*1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def prepare(split):
@@ -82,16 +93,24 @@ def prepare_document(split, parent, doc):
 
 
 def verify(split):
-    """Independently regroup saved order events using the input and reconcile actual engine output."""
     import torch
     from month_crane_replay import run
     torch.set_num_threads(1)
     info_path = OUT / f"{split}-input.json"
-    info = read(info_path)
     folder = ROOT / f"{split}-replay"
     result = run("SPT_UNGUARDED", False, info_path=info_path, manifest_dir=ROOT, folder=folder)
     if not result["complete"]:
         raise ValueError("Incomplete visit accounting replay")
+    check_ledger(split)
+
+
+def check_ledger(split):
+    """Independently regroup saved order events using the input and reconcile actual engine output."""
+    info = read(OUT / f"{split}-input.json")
+    folder = ROOT / f"{split}-replay"
+    meta = read(folder / "result.json")
+    if meta["manifest_sha256"] != info["sha256"] or file_sha256(ROOT / info["path"]) != info["sha256"]:
+        raise ValueError("Ledger and input use different manifests")
     with gzip.open(ROOT / info["path"], "rt", encoding="utf8") as stream:
         schedule = json.load(stream)["schedule"]
     groups = defaultdict(list)
@@ -103,13 +122,14 @@ def verify(split):
         visits = list(map(json.loads, stream))
     if len(orders) != info["orders"] or len(visits) != len(groups) or {v["visit"] for v in visits} != groups.keys():
         raise ValueError("Missing or duplicate visits in the replay")
-    intervals = []
+    intervals, two_stop_pairs = [], defaultdict(list)
     followups = cross_block = multi_job_stops = cross_midnight = 0
     for v in visits:
         entries = groups[v["visit"]]
         records = [orders[e["job_id"]] for e in entries]
         gate, finish = v["gate"], max(r["finish"] for r in records)
-        if ({r["gate"] for r in records} != {gate} or finish != v["finish"]
+        if ({r["gate"] for r in records} != {gate} or any(e["arrival_s"] != gate for e in entries)
+                or finish != v["finish"]
                 or v["seconds"] != finish - gate or len(records) != v["orders"]):
             raise ValueError("Visit does not match original gate and final completion")
         intervals.append((gate, finish))
@@ -125,6 +145,10 @@ def verify(split):
                 followups += k > 0
                 cross_block += k > 0 and bid != plan["stops"][k-1][0]
                 multi_job_stops += len(jobs) > 1
+            if len(entries) == len(plan["stops"]) == 2 and plan["stops"][0][0] != plan["stops"][1][0]:
+                first, second = [orders[s[2][0]] for s in plan["stops"]]
+                pattern = first["flow"][5:] + "_to_" + second["flow"][5:]
+                two_stop_pairs[pattern].append((second["block"] - first["finish"])/60)
     direct = fsum((f-g)/60 for g, f in intervals)
     clock = GateAgeTruckClock(intervals)
     curved = fsum(truck_points((f-g)/60) for g, f in intervals)
@@ -132,13 +156,13 @@ def verify(split):
     by_block = [StopGateAgeClock(seg) for seg in segments.values()]
     hour_checks = [abs(clock.minutes_at(t) - fsum(b.minutes_at(t) for b in by_block))
                    for t in range(0, int(max(f for _, f in intervals)) + 3600, 3600)]
-    meta = read(folder / "result.json")
     events = meta["visit_events"]
     all_days = meta["windows"]["all"]
     if not (followups and cross_block and events["exits"] == info["multi_visits"]
             and events["late_releases"] == events["late_exits"] == 0
             and (split != "busy" or (multi_job_stops and cross_midnight))
             and all_days["trucks"] == len(visits) and all_days["truck_orders"] == len(orders)
+            and all_days["unfinished_trucks"] == all_days["unfinished_ships"] == meta["skipped"] == 0
             and isclose(all_days["truck_minutes"], direct/len(visits), abs_tol=1e-8)
             and isclose(clock.total_minutes, curved, rel_tol=1e-10) and max(hour_checks) < 1e-5):
         raise ValueError("Visit events, count, average or score failed reconciliation")
@@ -146,16 +170,18 @@ def verify(split):
          rule=meta["arm"], days=meta["days"], orders=len(orders), visits=len(visits),
          multi_visits=info["multi_visits"], subsequent_stops=followups, different_block_transitions=cross_block,
          multi_job_stops=multi_job_stops, visits_spanning_midnight=cross_midnight, visit_events=events,
+         first_done_to_second_block_min={key: stats(v) for key, v in two_stop_pairs.items()},
          visit_minutes=direct, per_order_minutes=fsum(r["seconds"]/60 for r in orders.values()),
          curved_visit_points=curved, clock_points=clock.total_minutes, windows=meta["windows"],
          hourly_block_checks=len(hour_checks), max_block_points_error=max(hour_checks),
          unfinished_orders=0, skipped=meta["skipped"], cargo=meta["cargo"],
-         ledger_sha256={p: file_sha256(folder / p) for p in ("visits.jsonl.gz","trucks.jsonl.gz","ships.json")}))
+         ledger_content_sha256={p: ledger_digest(folder / p) for p in ("visits.jsonl.gz","trucks.jsonl.gz","ships.json")}))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("prepare", "verify"))
+    actions = {"prepare": prepare, "verify": verify, "check-ledger": check_ledger}
+    parser.add_argument("action", choices=actions)
     parser.add_argument("split", choices=("smoke", "busy", "train", "test"))
     args = parser.parse_args()
-    (prepare if args.action == "prepare" else verify)(args.split)
+    actions[args.action](args.split)
