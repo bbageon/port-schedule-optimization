@@ -39,6 +39,7 @@ from yard_rl.v7.crane.planned_times import ARMS
 OUT = Path("outputs/reports/yr332_short_window")
 ROOT = CACHE / "short-window"
 PLANNED_ARM = None
+GATE_AGE_ARM = None
 BM = Path("outputs/reports/yr332_local_return_scope/summary.json")
 # Thirty-minute block time is a few thousand weighted minutes. In units of 10^6 the targets are ~0.002 and the
 # output-preserving normalization right after the value head restart inflates the head by hundreds (wiring check).
@@ -54,6 +55,22 @@ SOURCES = ("scripts/v7/short_window_train.py", "scripts/v7/short_window_samples.
 def save(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     save_json(path, data)
+
+
+def configure_gate_age(arm):
+    global ROOT, OUT, GATE_AGE_ARM
+    if arm not in ("flat", "curve") or PLANNED_ARM or GATE_AGE_ARM:
+        raise ValueError(f"Invalid gate-age arm: {arm}")
+    GATE_AGE_ARM = arm
+    ROOT = CACHE / "gate-age" / arm
+    OUT = Path("outputs/reports/yr332_gate_age_curve") / arm
+
+
+def dispatch_options():
+    if GATE_AGE_ARM:
+        from yard_rl.v7.crane.no_wait_promotion import NoWaitPromotionResolver
+        return {"resolver_factory": NoWaitPromotionResolver}
+    return {}
 
 
 def configure_planned_times(arm, initialize=False):
@@ -122,7 +139,7 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
     folder = ROOT / tag
     out = month_crane_replay.run("trained", False, info_path=cfg["train"], manifest_dir=cfg["manifests"],
                                  checkpoint=checkpoint_path, folder=folder, stochastic=True, sample_seed=seed,
-                                 horizon=cfg["horizon"], target_scale=SCALE)
+                                 horizon=cfg["horizon"], target_scale=SCALE, **dispatch_options())
     if not out["complete"]:
         raise RuntimeError("A training month left work unfinished")
     trucks, ships = defaultdict(list), defaultdict(list)
@@ -137,7 +154,11 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
             own[b] = max(own[b], f)
         for b, f in own.items():
             ships[b].append((r["start"], r["finish"], f, f == r["finish"]))
-    clocks = {b: JointTurnaroundClock(rows, []) for b, rows in trucks.items()}
+    if GATE_AGE_ARM == "curve":
+        from yard_rl.v7.reward.gate_age import GateAgeTruckClock, truck_points
+        clocks = {b: GateAgeTruckClock(intervals) for b, intervals in trucks.items()}
+    else:
+        clocks = {b: JointTurnaroundClock(intervals, []) for b, intervals in trucks.items()}
     empty = JointTurnaroundClock([], [])
     samples = out["resolver"].samples
     anchors = torch.randperm(len(samples), generator=torch.Generator().manual_seed(seed + 500000))[:keep].tolist()
@@ -149,7 +170,11 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
         rows.append((i, b, t, cost))
     for i, b, t, cost in random.Random(seed).sample(rows, min(64, len(rows))):   # direct sums, independent of the clock
         end = t + 3600 * WINDOW_H
-        direct = fsum(max(0., min(f, end) - max(g, t)) for g, f in trucks[b])
+        if GATE_AGE_ARM == "curve":
+            direct = 60 * fsum(truck_points((min(f, end) - g) / 60) - truck_points(max(0., t - g) / 60)
+                               for g, f in trucks[b] if g < end and f > t)
+        else:
+            direct = fsum(max(0., min(f, end) - max(g, t)) for g, f in trucks[b])
         direct += VESSEL_TIME_WEIGHT * fsum(max(0., min(f, end) - max(g, t)) for g, f, own, _ in ships[b] if own > t)
         if not isclose(direct / 60, cost, rel_tol=1e-9, abs_tol=1e-6):
             raise ValueError("Block time in the window disagrees with the ledger")
@@ -162,6 +187,8 @@ def rollout(tag, checkpoint_path, seed, keep, smoke=False):
                   checkpoint_sha256=file_sha256(checkpoint_path), decisions=out["resolver"].decisions,
                   nontrivial=len(samples), anchors=len(rows), decisions_sha256=file_sha256(path),
                   month=out["windows"]["all"], seconds=time.monotonic() - started)
+    if GATE_AGE_ARM:
+        record.update(gate_age_arm=GATE_AGE_ARM, wait_promotion=False)
     save((OUT / "smoke" if smoke else OUT) / "runs" / f"{tag}.json", record)
     return record
 
@@ -231,8 +258,10 @@ def update(u, tags, needed, smoke=False):
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     torch.save(dict(model_config=net.config, state_dict=net.state_dict(), optimizer=optimizer.state_dict(),
-                    torch_rng=torch.get_rng_state(), arm=PLANNED_ARM or "short_window", seed=MODEL_SEED, iteration=u, return_scale=SCALE,
-                    window_h=WINDOW_H, return_unit=f"block truck minutes + {VESSEL_TIME_WEIGHT} x port-call minutes"), tmp)
+                    torch_rng=torch.get_rng_state(), arm=PLANNED_ARM or (f"gate_age_{GATE_AGE_ARM}" if GATE_AGE_ARM else "short_window"),
+                    seed=MODEL_SEED, iteration=u, return_scale=SCALE, window_h=WINDOW_H,
+                    return_unit=("gate-age truck points" if GATE_AGE_ARM == "curve" else "block truck minutes")
+                                + f" + {VESSEL_TIME_WEIGHT} x port-call minutes"), tmp)
     tmp.replace(path)
     report["checkpoint_sha256"] = file_sha256(path)
     save((OUT / "smoke" if smoke else OUT) / "training" / f"fit-{u}.json", report)
@@ -243,8 +272,12 @@ def evaluate(checkpoint_path, smoke=False):
     cfg = setting(smoke)
     folder = (ROOT / "smoke-evaluation") if smoke else (OUT / "evaluation" / "retrained")
     month_crane_replay.run("trained", False, info_path=cfg["test"], manifest_dir=cfg["manifests"],
-                           checkpoint=checkpoint_path, folder=folder, horizon=cfg["horizon"])
-    return read(folder / "result.json")
+                           checkpoint=checkpoint_path, folder=folder, horizon=cfg["horizon"], **dispatch_options())
+    result = read(folder / "result.json")
+    if GATE_AGE_ARM:
+        result.update(gate_age_arm=GATE_AGE_ARM, wait_promotion=False)
+        save(folder / "result.json", result)
+    return result
 
 
 def smoke():
@@ -269,6 +302,8 @@ def parallel(jobs):
     logs = ROOT / "logs"
     logs.mkdir(parents=True, exist_ok=True)
     arm_args = ["--planned-times", PLANNED_ARM] if PLANNED_ARM else []
+    if GATE_AGE_ARM:
+        arm_args = ["--gate-age", GATE_AGE_ARM]
     running = {name: subprocess.Popen([sys.executable, "-X", "utf8", "scripts/v7/short_window_train.py", *arguments, *arm_args],
                                       stdout=(logs / f"{name}.log").open("w", encoding="utf8"), stderr=subprocess.STDOUT,
                                       env={**os.environ, "PYTHONPATH": "src"})
@@ -287,13 +322,22 @@ def train_campaign():
     first = OUT / "train-campaign.json"
     devices = {phase: os.environ.get(f"YARD_{phase.upper()}_DEVICE", "cpu")
                for phase in ("train", "inference")}
-    if first.exists() and PLANNED_ARM and read(first).get("devices", dict(train="cpu", inference="cpu")) != devices:
-        raise ValueError("Cannot resume a registered planned-time arm with different devices")
+    if first.exists() and (GATE_AGE_ARM or PLANNED_ARM) and read(first).get("devices", dict(train="cpu", inference="cpu")) != devices:
+        raise ValueError("Cannot resume a registered arm with different devices")
+    sources = list(SOURCES)
+    if GATE_AGE_ARM:
+        sources.extend(("src/yard_rl/v7/reward/gate_age.py", "src/yard_rl/v7/crane/no_wait_promotion.py"))
+    settings = dict(devices=devices, sources={p: file_sha256(p) for p in sources}, start_model=file_sha256(START),
+                    decisions_per_update=needed, anchors_per_month=needed // MONTHS, window_h=WINDOW_H,
+                    updates=UPDATES, months_per_update=MONTHS)
+    if GATE_AGE_ARM:
+        settings.update(gate_age_arm=GATE_AGE_ARM, wait_promotion=False)
+        if first.exists():
+            original = read(first)
+            if any(original.get(k) != v for k, v in settings.items()):
+                raise ValueError("Gate-age campaign settings changed")
     save(first if not first.exists() else OUT / f"train-campaign-resumed-{time.strftime('%m%d-%H%M')}.json", dict(
-        devices=devices,
-        commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-        sources={p: file_sha256(p) for p in SOURCES}, start_model=file_sha256(START), decisions_per_update=needed,
-        anchors_per_month=needed // MONTHS, window_h=WINDOW_H, updates=UPDATES, months_per_update=MONTHS))
+        commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(), **settings))
     for u in range(UPDATES):
         source = model_path(u)
         tags = [f"wave-{u}-{k}" for k in range(MONTHS)]
@@ -304,6 +348,8 @@ def train_campaign():
         expected_model = file_sha256(source)
         for k, tag in enumerate(tags):
             row = read(OUT / "runs" / f"{tag}.json")
+            if GATE_AGE_ARM and (row.get("gate_age_arm") != GATE_AGE_ARM or row.get("wait_promotion") is not False):
+                raise ValueError(f"Rollout {tag} has a different reward or dispatch contract")
             if (row["sampling_seed"] != seed_of(u, k) or row["checkpoint_sha256"] != expected_model
                 or row["anchors"] != needed // MONTHS):
                 raise ValueError(f"Rollout {tag} is not from this wave")
@@ -325,7 +371,9 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--keep", type=int)
-    parser.add_argument("--planned-times", choices=ARMS)
+    arms = parser.add_mutually_exclusive_group()
+    arms.add_argument("--planned-times", choices=ARMS)
+    arms.add_argument("--gate-age", choices=("flat", "curve"))
     parser.add_argument("--train-device", choices=("cpu", "cuda"))
     parser.add_argument("--inference-device", choices=("cpu", "cuda"))
     args = parser.parse_args()
@@ -334,10 +382,13 @@ if __name__ == "__main__":
         if requested:
             os.environ[f"YARD_{phase.upper()}_DEVICE"] = requested
     torch.set_num_threads(1)
-    if args.planned_times:
+    if args.gate_age or args.planned_times:
         from after_bp_planned_times import finished, lock
         parent_checkpoint = START
-        configure_planned_times(args.planned_times)
+        if args.gate_age:
+            configure_gate_age(args.gate_age)
+        else:
+            configure_planned_times(args.planned_times)
         if args.action == "rollout":
             with lock(ROOT / "locks" / f"{args.tag}.lock", wait=True):
                 if not (OUT / "runs" / f"{args.tag}.json").exists():
@@ -345,7 +396,8 @@ if __name__ == "__main__":
         else:
             with lock(ROOT / "campaign.lock", wait=True):
                 if args.action == "smoke" or not finished(OUT, ROOT):
-                    initialize_planned_start(args.planned_times, parent_checkpoint)
+                    if args.planned_times:
+                        initialize_planned_start(args.planned_times, parent_checkpoint)
                     {"smoke": smoke, "train-campaign": train_campaign}[args.action]()
     elif args.action == "rollout":
         rollout(args.tag, Path(args.checkpoint), args.seed, args.keep)
