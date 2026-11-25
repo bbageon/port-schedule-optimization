@@ -1,0 +1,40 @@
+{
+  "arguments": [
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_short_job_audit/current-gates.json",
+    "--gate-sha256",
+    "eec3ba2202a19f578606316e09c8ea99b11110b2edd5dae07312c7669b17fac6",
+    "--gate-commit",
+    "4af959723ace6a805d22631c6ac818407338877e",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-bx",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "scenario_validity",
+    "--stage",
+    "accounting"
+  ],
+  "decision": {
+    "task": "YR-332-bx",
+    "allowed": true,
+    "reason": "미통과 게이트를 직접 해결하는 단일축 보정 작업",
+    "kind": "REMEDIATION",
+    "targets": [
+      "scenario_validity"
+    ],
+    "stage": "accounting",
+    "current_unresolved": [
+      "performance",
+      "scenario_validity"
+    ]
+  },
+  "returncode": 0
+}

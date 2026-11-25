@@ -1,7 +1,8 @@
-# 블록 24분 승격과 게이트 장기 체류 가중치의 효과 비교
+# YR-332-bx · 블록 24분 승격과 게이트 장기 체류 가중치의 효과 비교
 
 - **상태**: backlog
-- 상위 [[YR-332]]. 2026-11-25 설계 등록. 성능 보정 대상은 [기존 BP 학습 정책](YR-332-bp-short-window-large-batch.md)의 트럭·본선 공동 성적이다. 이번 기록은 산식 검산까지다.
+- `accounting=scenario_validity` 게이트·블록·완료 시각과 24분 승격 설정이 실제 배차·학습 원장에 맞는지 검사한다. `training=performance` 고정 월에서 새 두 조건을 재학습해 두 평균을 비교한다.
+- 상위 [[YR-332]]. 2026-11-25 설계 등록·구현. 성능 보정 대상은 [기존 BP 학습 정책](YR-332-bp-short-window-large-batch.md)의 트럭·본선 공동 성적이다.
 
 ## 세 조건에서 바꾸는 것
 
@@ -53,3 +54,13 @@ print(0.10 * fsum(minutes) / fsum(map(extra_minutes, minutes)))
 ## 판정
 
 같은 30일 입력을 마지막 물량까지 모두 처리한 뒤 트럭당 평균 턴타임과 척당 평균 본선 작업시간을 각각 비교한다. 두 평균이 모두 낮아질 때 공동 개선으로 판정한다. 반입·반출별 상위 5% 경계, 같은 트럭 중 더 오래 걸린 비율, 60분 초과 비율과 미완료 수도 함께 본다. 월 가중합과 ③의 곡선 점수는 모든 방식의 원장에 동일한 식을 적용해 비교한다. 이미 살펴본 BP 시험 월의 결과는 탐색 비교로 표시한다.
+
+## 구현·검증 (2026-11-25)
+
+- [학습 실행기](../../../scripts/v7/short_window_train.py)에서 `--gate-age flat`은 ②, `--gate-age curve`는 ③이다. 두 조건 모두 재생·학습 표본 수집·평가에서 블록 대기 승격을 해제하며, 모든 물리적으로 가능한 후보를 같은 모델에 전달한다. [점수 계산 코드](../../../src/yard_rl/v7/reward/gate_age.py)는 게이트 시각을 기준으로 끝난 트럭과 아직 들어오지 않은 트럭을 결정 구간에서 제외한다.
+- 커밋 `809eb78a`. 3일 입력에서 기존 정책의 저장 원장과 ②·③의 새 원장은 같은 트럭 180건·기항 9건이다. ②·③은 같은 시작 모델·표집 난수를 썼고 1,024개 결정의 상태·행동이 일치했다. 이 중 109개의 30분 구간에서 ③의 점수가 더 컸다. 조건마다 표본 64개의 새 점수를 트럭·본선 건별 원장의 직접 합계와 대조했다. [3일 검산](../../../outputs/reports/yr332_gate_age_curve/accounting-check.json)
+- 게이트에서 블록까지 50분, 블록에서 완료까지 20분인 트럭은 전체 70.2042점이며 블록 도착 뒤 구간은 20.2042점이다. 각 결정의 30분 학습 구간은 서로 겹칠 수 있다. 월 점수는 트럭·기항별 원장에서 한 번씩 계산한다. 실제 학습 입력에 쓴 241,000건에서 누적 시계와 트럭별 합계의 차이는 0.000002점 미만이었다.
+- ②·③ 각각 1,024개 표본의 비용에 음의 부호를 붙여 학습기로 전달하고 모델을 한 번 갱신했다. 갱신한 모델을 다시 불러 배차했을 때 각각 트럭 180건·본선 9척을 모두 완료했다. 관련 자동 검사 24개도 통과했다. [② 갱신·평가](../../../outputs/reports/yr332_gate_age_curve/flat/smoke/update-check.json) · [③ 갱신·평가](../../../outputs/reports/yr332_gate_age_curve/curve/smoke/update-check.json)
+- 두 조건 모두 기존 30일 시험 월 원장에 적용할 수 있다. ①과 고전 규칙에서 게이트 60분을 초과한 비율은 각각 18.04%, 21.00%다. 이 값은 기존 배차의 재집계이며 ②·③ 재학습 성적은 아직 없다. [같은 산식의 원장 비교](../../../outputs/reports/yr332_gate_age_curve/reference-scores.json)
+- [선행 현실성 판정](../../../outputs/reports/yr332_short_job_audit/current-gates.json)을 검사한 결과 [시각·점수 검증](../../../outputs/reports/yr332_gate_age_curve/accounting-authorization.json)은 허용됐고 [30일 성능 재학습](../../../outputs/reports/yr332_gate_age_curve/training-authorization.json)은 보류됐다. 이 시험 월은 게이트→블록 시간, 크레인 작업시간 등과 현장 범위의 일치 여부가 확인되어야 한다.
+- 재현은 프로젝트 루트에서 `PYTHONPATH=src`로 [검산 실행기](../../../scripts/v7/gate_age_comparison.py)를 쓴다. `replay-flat`, `replay-curve`는 고정 모델로 각각 재생하고 `check`는 두 표본을 대조한다. `update-flat`, `update-curve`는 각각 위 표본으로 한 번 갱신해 평가 연결을 검사한다. `reference`는 저장된 기준 월을, `compare`는 두 재학습 월까지 포함해 집계한다.
