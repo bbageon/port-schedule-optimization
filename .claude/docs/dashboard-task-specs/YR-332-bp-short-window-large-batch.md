@@ -50,3 +50,5 @@
 ## 근거
 
 [bm 결과](../../../outputs/reports/yr332_local_return_scope/README.md) · [bn 결과](../../../outputs/reports/yr332_predicted_tail/README.md)
+
+2026-11-25 비교 규칙 표기 보충. 위 시험 월의 ‘짧은 작업 우선’에는 블록 대기 24분 이상인 트럭의 승격이 적용됐다. BP도 이 승격을 공유한다. [보호 없는 고전 최단 작업 우선과의 별도 비교](YR-332-bw-unguarded-spt.md).
