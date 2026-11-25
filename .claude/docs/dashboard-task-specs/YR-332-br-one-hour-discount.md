@@ -33,6 +33,7 @@
 - **코드 고정**: 3일 시험이 읽은 코드 190개와 입력 7개의 지문을 [등록 기록](../../../outputs/reports/yr332_one_hour/registration.json)에 남겼다. 하나라도 바뀌면 물결·갱신·평가 시작 전에 멈춘다. br이 끝나기 전에는 이 파일들을 바꾸지 않는다.
 - **3일 배선 시험**(`bea6c084`): 보관된 3일 재생 재현, 할인 시간 직접 검산(구간·전체 각 64건), 저장 예측값과 재계산 차이 0.000001, 예측부 맞춤 정규화 오차 5.27 → 0.96, 저장 확률 재계산 오차 0.000001, 평가 완주. [시험 기록](../../../outputs/reports/yr332_one_hour/smoke/smoke-check.json) · [실행 코드](../../../scripts/v7/one_hour_train.py)
 - 실행 상태는 `outputs/reports/yr332_one_hour/queue-status.json`에 5분마다 쓴다(커밋하지 않는 상태 파일).
+- 2026-11-25 14:06 대기 시작(대기 프로세스 PID 86960, 로그 `build/yr332_joint_turnaround/one-hour/wait-bt.log`). 이 프로세스를 끄지 않는다. 등록 직후 보드·명세·증거 일치 감사 통과. [감사 기록](../../../outputs/reports/yr332_one_hour/registration-audit.json)
 
 ## 근거
 
