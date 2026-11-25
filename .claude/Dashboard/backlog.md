@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-bx | RL | **블록 24분 승격과 게이트 장기 체류 가중치의 효과 비교** | 🟠 | 기존 BP, 승격만 해제, 해제 후 장기 체류 가중치 추가의 세 조건을 등록했다. 안전운임 시간 기준을 참고하고 학습 월 241,000건에서 가중치 크기를 검산했다. 재학습 전. [spec](../docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md) |
 | YR-332-bs | RL | **배 효과를 담는 규모의 학습 비용 검토 (24시간 할인)** | ⚪ | bq에서 24시간 할인은 배 효과를 3분의 1 남기지만 갱신당 결정 약 300만 개(한 물결의 3배)가 필요하다. 동시 실행·갱신 시간·저장 용량을 실측해 전체 소요를 계산한다. bp 결과 뒤 판단. [spec](../docs/dashboard-task-specs/YR-332-bs-day-horizon-scale.md) |
 | YR-332-bk | Infra | **트럭 턴타임 감소의 원화 환산 검증** | 🟠 | 정책의 시간 성적에 안전운임 단가를 적용해 절감 추정액을 별도 보고한다. 실제 방문·정산 시각과 청구액을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |
 | YR-332-aw | Infra | **고전 규칙 이름과 실제 동작 설명 정정** | 🟠 | 현 FIFO는 통지 시각순, LWKR는 트럭 최장 대기순인데 일부 과거 보고서는 도착순·남은 작업량순으로 설명했다. 실제 실행은 유지하고 문서 영향 범위와 정정·근거 해시를 확인한다. av는 올바른 정의로 보고한다. [spec](../docs/dashboard-task-specs/YR-332-aw-baseline-name-alignment.md) |
