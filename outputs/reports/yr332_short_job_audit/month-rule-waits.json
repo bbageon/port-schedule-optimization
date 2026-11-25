@@ -1,0 +1,121 @@
+{
+  "manifest_sha256": "bcfe23ee40cd6a2f23a18f6404193649fe55e6d15001fd445ae004605e3ab8fa",
+  "seed": 12204201,
+  "guarded_vs_classic": {
+    "equal": 23921,
+    "shorter": 71010,
+    "longer": 111569
+  },
+  "block_wait": {
+    "classic": {
+      "GATE_IN": {
+        "count": 82882,
+        "mean_min": 4.322801972205496,
+        "median_min": 1.8471629160815306,
+        "p95_min": 15.715720949116319,
+        "max_min": 150.80171217087386,
+        "over_24min": 2456,
+        "at_least_24h": 0
+      },
+      "GATE_OUT": {
+        "count": 123618,
+        "mean_min": 152.6419526321893,
+        "median_min": 11.270587417851008,
+        "p95_min": 791.5017259801117,
+        "max_min": 3942.822647384921,
+        "over_24min": 51334,
+        "at_least_24h": 1232
+      },
+      "all": {
+        "count": 206500,
+        "mean_min": 93.11174515034533,
+        "median_min": 3.9808956933894173,
+        "p95_min": 601.6289899375445,
+        "max_min": 3942.822647384921,
+        "over_24min": 53790,
+        "at_least_24h": 1232
+      },
+      "cargo": {
+        "counts": {
+          "cargo_ready_by_block_arrival": 70714,
+          "individual_discharge_finish_unrecorded": 52365,
+          "arrived_before_cargo_ready": 539,
+          "waited_at_least_24h_with_cargo_already_in_yard": 752
+        },
+        "longest_with_known_ready_cargo": {
+          "job": "D06-D-01587",
+          "source_kind": "GATE_IN",
+          "source_job": "D05-D-04620",
+          "cargo_ready_s": 506901.9791960857,
+          "block_s": 542179.275475235,
+          "start_s": 769795.5655123692,
+          "block": "Y04",
+          "block_wait_min": 3793.6048339522367
+        }
+      },
+      "peak_simultaneous_orders_at_one_block": {
+        "orders": 358,
+        "block": "Y01",
+        "time_s": 681628.6473661868
+      }
+    },
+    "guarded": {
+      "GATE_IN": {
+        "count": 82882,
+        "mean_min": 12.247411358661466,
+        "median_min": 6.269797220207208,
+        "p95_min": 29.72819067800107,
+        "max_min": 72.55572693445332,
+        "over_24min": 29968,
+        "at_least_24h": 0
+      },
+      "GATE_OUT": {
+        "count": 123618,
+        "mean_min": 134.3806586564154,
+        "median_min": 25.87849835205707,
+        "p95_min": 726.239310997905,
+        "max_min": 3478.990461993342,
+        "over_24min": 69571,
+        "at_least_24h": 1068
+      },
+      "all": {
+        "count": 206500,
+        "mean_min": 85.36057244560455,
+        "median_min": 19.15773512533439,
+        "p95_min": 539.4136504747983,
+        "max_min": 3478.990461993342,
+        "over_24min": 99539,
+        "at_least_24h": 1068
+      },
+      "cargo": {
+        "counts": {
+          "cargo_ready_by_block_arrival": 70222,
+          "individual_discharge_finish_unrecorded": 52365,
+          "arrived_before_cargo_ready": 1031,
+          "waited_at_least_24h_with_cargo_already_in_yard": 94
+        },
+        "longest_with_known_ready_cargo": {
+          "job": "D06-D-02480",
+          "source_kind": "GATE_IN",
+          "source_job": "D01-D-01119",
+          "cargo_ready_s": 120772.60852559166,
+          "block_s": 549070.4988373887,
+          "start_s": 716588.2504150462,
+          "block": "Y05",
+          "block_wait_min": 2791.9625262942923
+        }
+      },
+      "peak_simultaneous_orders_at_one_block": {
+        "orders": 247,
+        "block": "Y14",
+        "time_s": 668284.5570567008
+      }
+    }
+  },
+  "gate_peak_orders_per_hour": 1163,
+  "hours_over_245_orders": 320,
+  "truck_turnaround_min_saved": 1586957.4496049592,
+  "port_call_min_added": 35956.21514596595,
+  "vessel_weight_break_even": 44.13583140390696,
+  "registered_vessel_weight": 67
+}
