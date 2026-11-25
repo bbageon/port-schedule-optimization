@@ -1,0 +1,44 @@
+{
+  "purpose": "Thread count for the update step; same decisions, model and seed",
+  "decisions": 8192,
+  "model": "build/yr332_joint_turnaround/short-window/models/update-2.pt",
+  "source": "build/yr332_joint_turnaround/short-window/wave-3-0/decisions.json.gz",
+  "runs": {
+    "1": {
+      "threads": 1,
+      "seconds": 93.79908789973706,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "optimizer_steps": 512,
+      "kl": 0.0010293348059284995,
+      "max_weight_drift_from_one_thread": 0.0
+    },
+    "8": {
+      "threads": 8,
+      "seconds": 36.308522899635136,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "optimizer_steps": 512,
+      "kl": 0.0010530585507364696,
+      "max_weight_drift_from_one_thread": 0.010025963187217712
+    },
+    "16": {
+      "threads": 16,
+      "seconds": 30.783690699376166,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "optimizer_steps": 512,
+      "kl": 0.0010440076688994708,
+      "max_weight_drift_from_one_thread": 0.012133598327636719
+    },
+    "16-again": {
+      "threads": 16,
+      "seconds": 31.90434050001204,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "optimizer_steps": 512,
+      "kl": 0.0010440076688994708,
+      "max_weight_drift_from_one_thread": 0.012133598327636719
+    }
+  },
+  "speedup_8": 2.5833903560059075,
+  "speedup_16": 3.047038407959248,
+  "repeat_identical_16": true,
+  "commit": "c35a2023310af34ad9be0fbe5c779677760b9f94"
+}

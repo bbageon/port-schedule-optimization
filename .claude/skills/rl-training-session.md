@@ -88,6 +88,14 @@ Windows 에는 torch 가 없어 `tests/integrated/` 가 **수집 단계에서 19
 PYTHONPATH=src python -c "from yard_rl.integrated.repro import code_dirty, git_head; print(code_dirty(), git_head())"   # False <sha> 여야 한다. None 이면 GIT_DIR 누락
 ```
 
+## 4-1. 학습 갱신 단계 스레드 (YR-332-bu, 2026-11-25)
+
+- 한 달 시뮬레이션 굴리기는 프로세스당 1스레드로 여러 개를 동시에 돌린다. 시간의 대부분이 파이썬 시뮬레이션이라 GPU 이득이 없다.
+- 갱신 단계는 굴리기가 쉬는 동안 혼자 돌므로 `yard_rl.v7.crane.update_threads.update_threads()`(기본 16스레드)로 감싼다.
+  같은 갱신이 1스레드 93.8초 → 16스레드 30.8초(약 3배)였다. 같은 스레드 수로 다시 돌리면 결과가 같다.
+- 1스레드와는 소수점 끝자리부터 달라져 갱신이 쌓이면 다른 실행이 된다. 실행 기록에 스레드 수를 남긴다.
+- 다른 세션이 지문을 고정한 학습 파일은 고치지 않는다. 새 장치는 새 학습부터 쓴다.
+
 ## 5. 실행 전 필수 (오늘 하루에 다 겪은 것들)
 
 1. **코드를 먼저 커밋하고 깨끗한 트리에서 돌린다.** 로그 첫 줄에 `dirty=[]` 를
