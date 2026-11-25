@@ -1,0 +1,345 @@
+{
+  "closed_legs_min": {
+    "IN_to_IN": {
+      "first_block_to_first_done": {
+        "max": 11.333333333333334,
+        "mean": 7.7875,
+        "median": 8.333333333333332,
+        "min": 3.15,
+        "n": 4,
+        "negative": 0,
+        "p90": 11.333333333333334
+      },
+      "first_done_to_second_block": {
+        "max": 4.016666666666667,
+        "mean": 1.8791666666666667,
+        "median": 1.725,
+        "min": 0.05,
+        "n": 4,
+        "negative": 0,
+        "p90": 4.016666666666667
+      },
+      "gate_to_first": {
+        "max": 12.333333333333334,
+        "mean": 6.858333333333333,
+        "median": 5.508333333333334,
+        "min": 4.083333333333333,
+        "n": 4,
+        "negative": 0,
+        "p90": 12.333333333333334
+      },
+      "gate_to_second": {
+        "max": 27.683333333333334,
+        "mean": 16.525,
+        "median": 14.358333333333333,
+        "min": 9.7,
+        "n": 4,
+        "negative": 0,
+        "p90": 27.683333333333334
+      }
+    },
+    "IN_to_OUT": {
+      "first_block_to_first_done": {
+        "max": 66.53333333333333,
+        "mean": 11.586303630363036,
+        "median": 7.866666666666666,
+        "min": 3.45,
+        "n": 303,
+        "negative": 0,
+        "p90": 24.25
+      },
+      "first_done_to_second_block": {
+        "max": 44.65,
+        "mean": 2.7224972497249724,
+        "median": 0.9833333333333333,
+        "min": 0.0,
+        "n": 303,
+        "negative": 0,
+        "p90": 5.0
+      },
+      "gate_to_first": {
+        "max": 41.483333333333334,
+        "mean": 6.029097909790979,
+        "median": 4.683333333333334,
+        "min": 0.5166666666666667,
+        "n": 303,
+        "negative": 0,
+        "p90": 8.216666666666667
+      },
+      "gate_to_second": {
+        "max": 80.86666666666666,
+        "mean": 20.337898789878988,
+        "median": 14.966666666666667,
+        "min": 7.766666666666667,
+        "n": 303,
+        "negative": 0,
+        "p90": 38.5
+      }
+    },
+    "OUT_to_OUT": {
+      "first_block_to_first_done": {
+        "max": 101.25,
+        "mean": 19.584729064039408,
+        "median": 12.75,
+        "min": 3.3333333333333335,
+        "n": 203,
+        "negative": 0,
+        "p90": 44.3
+      },
+      "first_done_to_second_block": {
+        "max": 37.43333333333333,
+        "mean": 4.798029556650246,
+        "median": 3.4833333333333334,
+        "min": 1.6833333333333333,
+        "n": 203,
+        "negative": 0,
+        "p90": 7.183333333333334
+      },
+      "gate_to_first": {
+        "max": 40.766666666666666,
+        "mean": 5.030623973727422,
+        "median": 4.45,
+        "min": 2.3833333333333333,
+        "n": 203,
+        "negative": 0,
+        "p90": 6.3
+      },
+      "gate_to_second": {
+        "max": 110.26666666666667,
+        "mean": 29.413382594417076,
+        "median": 23.016666666666666,
+        "min": 10.116666666666667,
+        "n": 203,
+        "negative": 0,
+        "p90": 57.6
+      }
+    }
+  },
+  "confirmed_first_to_effective_scan_min": {
+    "max": 115.83333333333333,
+    "mean": 9.439420289855072,
+    "median": 5.3,
+    "min": 0.65,
+    "n": 115,
+    "negative": 0,
+    "p90": 19.033333333333335
+  },
+  "field_source": {
+    "driver_logs": 13,
+    "first_yard_time_in_gate_messages": {
+      "at_or_after_gate": 8,
+      "before_gate": 3603
+    },
+    "original_files": 600,
+    "structured_fields": {
+      "CancelInOut": [
+        "cancelTime"
+      ],
+      "CancelSingleOrder": [
+        "cancelTime"
+      ],
+      "ChangeConLoc": [
+        "conLocChangedTime"
+      ],
+      "CopinoVerification": [],
+      "EnterBlock": [
+        "blockInTime"
+      ],
+      "GateIn": [
+        "firstYardInTime",
+        "gateInTime"
+      ],
+      "GateOut": [
+        "gateOutTime"
+      ],
+      "JobDone": [
+        "jobDoneTime",
+        "rehandleCount"
+      ]
+    },
+    "table_timing_fields": {
+      "기사/방문": {
+        "files": 13,
+        "keys": [
+          "cancel_time",
+          "copino_first_time",
+          "copino_last_time",
+          "enter_block_time",
+          "gate_in_time",
+          "gate_out_time",
+          "in_out_reserve_time",
+          "job_done_time",
+          "work_min"
+        ]
+      },
+      "기사/오더": {
+        "files": 13,
+        "keys": [
+          "in_out_reserve_time",
+          "log_time"
+        ]
+      },
+      "기사/이벤트": {
+        "files": 13,
+        "keys": [
+          "event_time",
+          "first_yard_in_time",
+          "log_time"
+        ]
+      },
+      "선박/양적하목록": {
+        "files": 263,
+        "keys": [
+          "atw",
+          "firstYardInTime",
+          "lastYardInTime",
+          "receivedTime"
+        ]
+      }
+    }
+  },
+  "frequent_block_transitions": [
+    {
+      "destination": "A06",
+      "origin": "A10",
+      "visits_or_legs": 10
+    },
+    {
+      "destination": "A22",
+      "origin": "A13",
+      "visits_or_legs": 9
+    },
+    {
+      "destination": "A05",
+      "origin": "A14",
+      "visits_or_legs": 9
+    },
+    {
+      "destination": "A08",
+      "origin": "A10",
+      "visits_or_legs": 8
+    },
+    {
+      "destination": "A24",
+      "origin": "A14",
+      "visits_or_legs": 8
+    }
+  ],
+  "months": {
+    "test": {
+      "manifest_sha256": "bcfe23ee40cd6a2f23a18f6404193649fe55e6d15001fd445ae004605e3ab8fa",
+      "orders": 206500,
+      "orders_with_visit_link": 0,
+      "seed": 12204201
+    },
+    "train": {
+      "manifest_sha256": "6dd21a1fe3c892cf4ba84e1a72ace5beac8873e96e01ed5ebf2b4ad72fb0b148",
+      "orders": 241000,
+      "orders_with_visit_link": 0,
+      "seed": 12104101
+    }
+  },
+  "multi_visits": {
+    "distinct_block_report_windows_overlap": 226,
+    "incomplete_or_conflicting": 1888,
+    "one_block": 2601,
+    "ordered_blocks": 777
+  },
+  "outbound_gate_to_block_min": {
+    "distinct_block_report_windows_overlap": {
+      "max": 84.15,
+      "mean": 15.926595744680851,
+      "median": 12.166666666666666,
+      "min": 5.583333333333333,
+      "n": 235,
+      "negative": 0,
+      "over_7_min": 226,
+      "p90": 27.95
+    },
+    "first_of_distinct_blocks": {
+      "max": 40.766666666666666,
+      "mean": 5.053921568627451,
+      "median": 4.533333333333333,
+      "min": 2.3833333333333333,
+      "n": 272,
+      "negative": 0,
+      "over_7_min": 20,
+      "p90": 6.616666666666666
+    },
+    "incomplete_or_conflicting": {
+      "max": 104.38333333333334,
+      "mean": 21.15824295010846,
+      "median": 18.183333333333334,
+      "min": 2.8,
+      "n": 461,
+      "negative": 0,
+      "over_7_min": 445,
+      "p90": 36.0
+    },
+    "later_of_distinct_blocks": {
+      "max": 124.4,
+      "mean": 23.638561271434547,
+      "median": 17.966666666666665,
+      "min": 6.7,
+      "n": 797,
+      "negative": 0,
+      "over_7_min": 796,
+      "p90": 45.31666666666667
+    },
+    "one_block": {
+      "max": 85.35,
+      "mean": 5.373076413720037,
+      "median": 4.483333333333333,
+      "min": 0.9166666666666666,
+      "n": 2517,
+      "negative": 0,
+      "over_7_min": 227,
+      "p90": 6.783333333333333
+    },
+    "single_no_repeat": {
+      "max": 90.18333333333334,
+      "mean": 5.459459575196985,
+      "median": 4.433333333333334,
+      "min": 0.21666666666666667,
+      "n": 7784,
+      "negative": 0,
+      "over_7_min": 799,
+      "p90": 7.083333333333333
+    },
+    "single_rescan": {
+      "max": 58.68333333333333,
+      "mean": 6.748118279569892,
+      "median": 4.808333333333334,
+      "min": 0.2833333333333333,
+      "n": 62,
+      "negative": 0,
+      "over_7_min": 13,
+      "p90": 8.316666666666666
+    }
+  },
+  "proxy_coverage": {
+    "change_between_entry_and_done": 85,
+    "located_order_with_done": 18367
+  },
+  "rescans": {
+    "multi": 187,
+    "single": 230,
+    "superseded_gate_records": 850,
+    "visits": 417
+  },
+  "same_block_two_mixed_orders": {
+    "inbound_completed_first": 1712,
+    "missing_valid_completion": 7,
+    "tied_or_overlapping": 25
+  },
+  "source_audit_sha256": "6a265beb0be92b81bfdaa35a053d2318b2cc99000816e1a3f9d289c52823fb76",
+  "two_order_directions": {
+    "IN_to_IN|completion_unresolved_or_overlap": 1,
+    "IN_to_IN|first_done_by_second_entry": 4,
+    "IN_to_OUT|completion_unresolved_or_overlap": 148,
+    "IN_to_OUT|first_done_by_second_entry": 303,
+    "OUT_to_OUT|completion_unresolved_or_overlap": 1,
+    "OUT_to_OUT|first_done_by_second_entry": 203
+  },
+  "visits": 27415
+}
