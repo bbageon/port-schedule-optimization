@@ -8,7 +8,6 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
-| YR-332-bp | RL | **30분 실제 시간 학습 실행 중 (갱신당 결정 331,520개)** | 🟡 | 2026-11-24 | 첫 갱신의 저장 원장 네 개에서 재개. 4회 갱신과 시험 월 평가 뒤 [[YR-332-bt]]가 이어진다. 30분에 담기는 효과는 트럭 약 10%·배 1% 미만. 현실성 선결 거절 보존. [착수 기록](../../outputs/reports/yr332_short_window/authorization.json) · [spec](../docs/dashboard-task-specs/YR-332-bp-short-window-large-batch.md) |
 | YR-332-bh | Sim | **30일 비교 완료·규격별 빈자리 대기 분리 남음** | 🔴 | 2026-11-23 | 세 방식 각각 트럭 176,500건·본선 98척 완료. 월 총비용은 짧은 작업 261.10억·학습 314.35억·장기대기 349.39억원. 늦은 화물 반출 2,034건 모두 검산. [결과](../../outputs/reports/yr332_month_cranes/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bh-month-cargo-replay.md) |
 | YR-332-bi | Sim | **짧은 작업 우위의 모형 원인 대조 완료·실측 대기** | 🔴 | 2026-11-22 | ⏸ 외부 대기. 같은 입력 144회. 3,500건 최단 규칙의 보호 해제 +6.09분, 시간 오차 +0.07분. 15,000건 도착순−최단 +59.94분. 장비별 실제 작업·예측 오차, 높은 물량의 현장 보정 대기. [결과](../../outputs/reports/yr332_short_job_audit/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bi-short-job-rule-advantage-audit.md) |
 | YR-332-f | Sim | **대기 값 연결·반출입 구간 확인, 실제 작업 시작 자료 대기** | 🔴 | 2026-11-10 | ⏸ 외부 대기. bd의 실제18,432표본에서 work_min=블록→완료·wait_min=진입→블록 확인. 11/21 공개 코드·인계 문서에도 집계 단위·작업 시작 정의 미확인, 원본600파일·ba·bb 보정 유지. 회신 항목 정리. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [후속](../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) · [반출입 대조](../../outputs/reports/yr332_inbound_realism/README.md) |
