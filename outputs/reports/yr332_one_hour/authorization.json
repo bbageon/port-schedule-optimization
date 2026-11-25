@@ -1,0 +1,42 @@
+{
+  "arguments": [
+    "-m",
+    "yard_rl.experiments.gate_harness",
+    "authorize-next",
+    "--gate-file",
+    "outputs/reports/yr332_joint_turnaround/current-gates.json",
+    "--gate-sha256",
+    "c862b97fd31856792ed91874814a0507227e6b0e68ea5a2d6e2d2564afdb2fe8",
+    "--gate-commit",
+    "aa0a76049fa29b5af6dbdb0b72f68efb390c82b7",
+    "--remote-ref",
+    "origin/강화학습-판매",
+    "--task",
+    "YR-332-br",
+    "--spec",
+    ".claude/docs/dashboard-task-specs/YR-332-br-one-hour-discount.md",
+    "--kind",
+    "REMEDIATION",
+    "--target",
+    "performance",
+    "--stage",
+    "training"
+  ],
+  "returncode": 2,
+  "decision": {
+    "allowed": false,
+    "reason": "저장된 runtime PASS 재계산 실패"
+  },
+  "user_request_date": "2026-11-25",
+  "user_request": "bt 끝나고 br 시작해",
+  "scope": "User-directed bounded synthetic policy exploration: bp's short-horizon learning with only the learning target changed (one-hour discount; the value estimate at the block's first decision 30 minutes later carries the rest). The refusal above and the earlier scenario-validity precondition refusal are preserved; physical, accounting and information constraints stay enforced; no field-performance claim and no automatic adoption.",
+  "runtime_evidence": {
+    "file": "outputs/reports/yr332_joint_turnaround/README.md",
+    "change_commit": "db08345d",
+    "note": "The stored runtime PASS cites this report. A later cost analysis updated it, so the harness cannot recompute the stamp. Same reason as the YR-332-bt record."
+  },
+  "previous_refusals": [
+    "outputs/reports/yr332_short_window/authorization.json",
+    "outputs/reports/yr332_planned_times/authorization.json"
+  ]
+}

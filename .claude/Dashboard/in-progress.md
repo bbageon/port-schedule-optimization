@@ -8,6 +8,7 @@
 
 | ID | Epic | Title | Priority | 착수 | Note |
 |---|---|---|---|---|---|
+| YR-332-br | RL | **1시간 할인 + 예측값으로 단기 학습 (bp와 학습 목표만 다르게)** | 🟠 | 2026-11-25 | ⏸ YR-332-bt 종료 대기 후 자동 시작. 시작 모델·난수·갱신당 결정 331,520개·PPO·시험 월은 bp와 같고 학습 목표만 1시간 할인 + 30분 뒤 같은 블록 결정의 예측값으로 바꾼다. 3일 시험 통과(`bea6c084`), 코드·입력 197개 지문 등록, 예상 약 10시간. [등록](../../outputs/reports/yr332_one_hour/registration.json) · [spec](../docs/dashboard-task-specs/YR-332-br-one-hour-discount.md) |
 | YR-332-bh | Sim | **30일 비교 완료·규격별 빈자리 대기 분리 남음** | 🔴 | 2026-11-23 | 세 방식 각각 트럭 176,500건·본선 98척 완료. 월 총비용은 짧은 작업 261.10억·학습 314.35억·장기대기 349.39억원. 늦은 화물 반출 2,034건 모두 검산. [결과](../../outputs/reports/yr332_month_cranes/README.md) · [spec](../docs/dashboard-task-specs/YR-332-bh-month-cargo-replay.md) |
 | YR-332-bi | Sim | **최단 작업 규칙의 트럭·본선 대기 교환 확인, 현장 자료 대기** | 🔴 | 2026-11-22 | ⏸ 외부 대기. 144회 하루 대조와 30일 원장 점검. 승격 방식 평균 대기 −7.75분, 54.0%의 트럭 작업은 더 기다림. 한 블록 동시 대기 최대 358건의 현장 대응 확인 필요. [하루](../../outputs/reports/yr332_short_job_audit/README.md) · [한 달](../../outputs/reports/yr332_short_job_audit/month-rule-waits.md) · [spec](../docs/dashboard-task-specs/YR-332-bi-short-job-rule-advantage-audit.md) |
 | YR-332-f | Sim | **대기 값 연결·반출입 구간 확인, 실제 작업 시작 자료 대기** | 🔴 | 2026-11-10 | ⏸ 외부 대기. bd의 실제18,432표본에서 work_min=블록→완료·wait_min=진입→블록 확인. 11/21 공개 코드·인계 문서에도 집계 단위·작업 시작 정의 미확인, 원본600파일·ba·bb 보정 유지. 회신 항목 정리. [spec](../docs/dashboard-task-specs/YR-332-f-v7-truck-info-realism.md) · [후속](../../outputs/reports/yr332_realism_followup/2026-11-21/README.md) · [반출입 대조](../../outputs/reports/yr332_inbound_realism/README.md) |
