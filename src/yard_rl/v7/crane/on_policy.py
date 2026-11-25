@@ -30,6 +30,8 @@ class DecisionSample:
 
 def action_statistics(logits, samples):
     """Likelihood of the ordered joint construction that was actually executed."""
+    if logits.is_cuda:
+        return batched_action_statistics(logits, samples)
     logps, entropies = [], []
     for row, sample in zip(logits, samples):
         lp, ent = row[0] * 0., row[0] * 0.
@@ -40,6 +42,26 @@ def action_statistics(logits, samples):
         logps.append(lp)
         entropies.append(ent)
     return torch.stack(logps), torch.stack(entropies)
+
+
+def batched_action_statistics(logits, samples):
+    """Evaluate the same conditional categorical distributions together on the device."""
+    import numpy as np
+    steps = max(len(s.masks) for s in samples)
+    # A padded step has a single legal option and contributes exactly zero.
+    legal = np.zeros((len(samples), steps, logits.size(1)), dtype=bool)
+    chosen = np.zeros((len(samples), steps), dtype=np.int64)
+    for i, sample in enumerate(samples):
+        for j, (mask, pick) in enumerate(zip(sample.masks, sample.choices, strict=True)):
+            legal[i, j, mask] = True
+            chosen[i, j] = pick
+        legal[i, len(sample.masks):, 0] = True
+    mask = torch.from_numpy(legal).to(logits.device)
+    picks = torch.from_numpy(chosen).to(logits.device)
+    scores = logits[:, None, :].masked_fill(~mask, -torch.inf)
+    log_probs = scores.log_softmax(-1)
+    entropy = -(log_probs.exp() * log_probs.masked_fill(~mask, 0.)).sum(-1)
+    return log_probs.gather(2, picks.unsqueeze(-1)).squeeze(-1).sum(1), entropy.sum(1)
 
 
 def tier(candidate):
@@ -155,7 +177,8 @@ class OnPolicyResolver(CentralResolver):
                                        global_value, self.critic_vessel_work(sim))
                     with torch.no_grad():
                         ll, vv = self.net(pack_states([state]))
-                    logits, value = ll[0], float(vv[0])
+                    # The simulator and its seeded action sampler live on CPU.
+                    logits, value = ll[0].cpu(), float(vv[0])
                 distribution = torch.distributions.Categorical(logits=logits[legal])
                 j = int(torch.multinomial(distribution.probs, 1, generator=self.rng)) if self.stochastic else int(logits[legal].argmax())
                 pick = legal[j]

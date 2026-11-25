@@ -89,7 +89,10 @@ def test_stored_old_anchor_stream_matches_json_across_chunk_boundaries(tmp_path,
     assert list(anchors_from(p)) == rows
 
 
-def test_first_action_can_be_substituted_from_identical_live_prefix(tmp_path, monkeypatch):
+@pytest.mark.parametrize("device", ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(
+    not torch.cuda.is_available(), reason="CUDA runtime unavailable"))])
+def test_first_action_can_be_substituted_from_identical_live_prefix(tmp_path, monkeypatch, device):
+    monkeypatch.setenv("YARD_INFERENCE_DEVICE", device)
     monkeypatch.syspath_prepend(str(Path("scripts/v7").resolve()))
     import short_window_train as bp
     from planned_time_comparison import PairedResolver

@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-bv | Infra | **BP 신경망의 GPU 학습·추론 시간 비교와 BT 장치 설정** | 🟡 | 같은 저장 결정에서 갱신·한 건 추론을 각각 측정한다. [spec](../docs/dashboard-task-specs/YR-332-bv-crane-gpu.md) |
 | YR-332-br | RL | **1시간 할인 + 예측값으로 단기 학습** | ⚪ | bq에서 1시간 할인은 갱신당 결정 약 17만 개로 bp의 30분 창(33만 개)보다 흔들림 대비 효과가 낫다. 배 효과는 1.3%만 남아 단기 학습이다. bp에서 단기 학습이 규칙에 다가갈 때만 진행. [spec](../docs/dashboard-task-specs/YR-332-br-one-hour-discount.md) |
 | YR-332-bs | RL | **배 효과를 담는 규모의 학습 비용 검토 (24시간 할인)** | ⚪ | bq에서 24시간 할인은 배 효과를 3분의 1 남기지만 갱신당 결정 약 300만 개(한 물결의 3배)가 필요하다. 동시 실행·갱신 시간·저장 용량을 실측해 전체 소요를 계산한다. bp 결과 뒤 판단. [spec](../docs/dashboard-task-specs/YR-332-bs-day-horizon-scale.md) |
 | YR-332-bk | Infra | **트럭 턴타임 감소의 원화 환산 검증** | 🟠 | 정책의 시간 성적에 안전운임 단가를 적용해 절감 추정액을 별도 보고한다. 실제 방문·정산 시각과 청구액을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |

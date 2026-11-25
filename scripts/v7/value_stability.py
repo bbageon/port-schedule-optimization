@@ -59,11 +59,11 @@ def checkpoint(path, net, optimizer, *, arm, seed, iteration):
         return_scale=SCALE, resume_boundary='between complete outer updates'), path)
 
 
-def restore(path):
+def restore(path, *, device='cpu'):
     import torch
     from yard_rl.v7.crane.value_normalization import NormalizedValueNet
     obj = torch.load(path, map_location='cpu', weights_only=False)
-    net = NormalizedValueNet(**obj['model_config']).eval()
+    net = NormalizedValueNet(**obj['model_config']).to(device).eval()
     net.load_state_dict(obj['state_dict'])
     optimizer = torch.optim.Adam(net.parameters(), lr=.0003)
     optimizer.load_state_dict(obj['optimizer'])

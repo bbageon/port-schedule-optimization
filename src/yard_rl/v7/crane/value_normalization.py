@@ -64,13 +64,14 @@ def normalized_ppo_update(net, optimizer, samples, *, seed, max_samples=2048,
     corpus = [samples[i] for i in selected]
     if not corpus:
         raise ValueError('No decisions with alternative actions collected')
-    target = torch.tensor([s.target for s in corpus])
-    old = torch.tensor([s.old_log_probability for s in corpus])
-    advantage = target - torch.tensor([s.old_value for s in corpus])
+    device = net.target_mean.device
+    target = torch.tensor([s.target for s in corpus], device=device)
+    old = torch.tensor([s.old_log_probability for s in corpus], device=device)
+    advantage = target - torch.tensor([s.old_value for s in corpus], device=device)
     advantage = (advantage - advantage.mean()) / advantage.std(unbiased=False).clamp_min(1e-8)
     # Cache every selected prediction BEFORE the statistical head transformation.
     with torch.no_grad():
-        prior = [net(pack_states([s.state for s in corpus[b:b+batch_size]]))
+        prior = [tuple(t.cpu() for t in net(pack_states([s.state for s in corpus[b:b+batch_size]])))
                  for b in range(0, len(corpus), batch_size)]
     normalization = net.update_statistics(target)
     value_error = logit_error = replay_error = 0.
@@ -79,8 +80,8 @@ def normalized_ppo_update(net, optimizer, samples, *, seed, max_samples=2048,
             batch = corpus[begin:begin+batch_size]
             ll, value = net(pack_states([s.state for s in batch]))
             valid = torch.isfinite(ll)
-            logit_error = max(logit_error, float((ll[valid] - prior[j][0][valid]).abs().max()))
-            value_error = max(value_error, float((value - prior[j][1]).abs().max()))
+            logit_error = max(logit_error, float((ll[valid] - prior[j][0].to(device)[valid]).abs().max()))
+            value_error = max(value_error, float((value - prior[j][1].to(device)).abs().max()))
             logp, _ = action_statistics(ll, batch)
             replay_error = max(replay_error, float((logp - old[begin:begin+len(batch)]).abs().max()))
     if replay_error > 2e-5 or value_error > 2e-5 or logit_error != 0.:
@@ -121,12 +122,17 @@ def normalized_ppo_update(net, optimizer, samples, *, seed, max_samples=2048,
 @torch.no_grad()
 def restart_value_head(net, *, seed):
     """Forget predictions made in another reward unit. Action logits are untouched."""
-    state = torch.get_rng_state()
-    torch.manual_seed(seed)
-    for layer in net.critic:
-        if isinstance(layer, nn.Linear):
-            layer.reset_parameters()
-    torch.set_rng_state(state)
+    device = net.target_mean.device
+    # Initialize on CPU with BP's original generator, including on GPU resumes.
+    with torch.random.fork_rng(devices=[]):
+        torch.random.default_generator.manual_seed(seed)
+        for layer in net.critic:
+            if isinstance(layer, nn.Linear):
+                if device.type == 'cpu':
+                    layer.reset_parameters()
+                else:
+                    initial = nn.Linear(layer.in_features, layer.out_features)
+                    layer.load_state_dict(initial.state_dict())
     for name, value in [('target_mean', 0.), ('target_scale', 1.), ('target_count', 0.), ('target_m2', 0.)]:
         getattr(net, name).fill_(value)
 
@@ -138,7 +144,7 @@ def fit_value_head(net, samples, *, seed, epochs=30, batch_size=256, lr=1e-3):
     """
     if not samples:
         raise ValueError('No decisions to fit the value head on')
-    target = torch.tensor([s.target for s in samples])
+    target = torch.tensor([s.target for s in samples], device=net.target_mean.device)
     with torch.no_grad():
         context = torch.cat([net.actor_and_critic_input(pack_states([s.state for s in samples[b:b+64]]))[1]
                              for b in range(0, len(samples), 64)])

@@ -55,8 +55,9 @@ def pack_states(states):
     return result
 
 
-def node_mean(edges, ids, valid):
-    size = int(ids.max()) + 1
+def node_mean(edges, ids, valid, size=None):
+    if size is None:
+        size = int(ids.max()) + 1
     index = ids.unsqueeze(-1).expand_as(edges)
     sums = edges.new_zeros(edges.shape[0], size, edges.shape[-1])
     sums.scatter_add_(1, index, edges * valid.unsqueeze(-1))
@@ -98,7 +99,7 @@ class TwoBranchBlock(nn.Module):
         self_scores = (q.reshape(b, c, h, k) * self.k(machines).reshape(b, c, h, k)).sum(-1) / math.sqrt(k)
         scores = torch.cat((scores.masked_fill(~valid.unsqueeze(-1), -torch.inf), self_scores), dim=1)
         messages = torch.cat((messages, self.v(machines).reshape(b, c, h, k)), dim=1)
-        ids = torch.cat((ci, torch.arange(c).expand(b, c)), dim=1)
+        ids = torch.cat((ci, torch.arange(c, device=ci.device).expand(b, c)), dim=1)
         ix = ids.unsqueeze(-1).expand(-1, -1, h)
         maximum = edges.new_full((b, c, h), -torch.inf)
         maximum.scatter_reduce_(1, ix, scores, reduce='amax', include_self=True)
@@ -156,14 +157,22 @@ class SchedulingActorCritic(nn.Module):
         expected = 5 + int(self.global_value_context) + int(self.vessel_work_context)
         if len(batch) != expected:
             raise ValueError('Global context or quay work missing or supplied to an incompatible model')
+        device = self.actor[0].weight.device
+        operation_count = crane_count = None
+        if batch[0].device != device:
+            # Graph indices come from the simulator. Size the graph on the host
+            # before upload so a forward pass need not stop twice for a CUDA scalar.
+            if self.kind == "transformer":
+                operation_count, crane_count = (int(ids.max()) + 1 for ids in batch[1:3])
+            batch = tuple(t.to(device, non_blocking=True) for t in batch)
         x, oi, ci, valid, clock = batch[:5]
         if self.kind == 'mlp':
             logits = self.actor(x).squeeze(-1)
             context = torch.cat((masked_mean(x, valid), clock), dim=-1)
         else:
             edge = self.embedding(x)
-            ops, ov = node_mean(edge, oi, valid)
-            mac, cv = node_mean(edge, ci, valid)
+            ops, ov = node_mean(edge, oi, valid, operation_count)
+            mac, cv = node_mean(edge, ci, valid, crane_count)
             for block in self.blocks:
                 ops, mac = block(ops, mac, edge, oi, ci, valid, ov, cv)
             logits = self.actor(torch.cat((gather(ops, oi), gather(mac, ci), edge), -1)).squeeze(-1)

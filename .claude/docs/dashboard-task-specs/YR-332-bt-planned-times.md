@@ -26,4 +26,5 @@
 - 첫 선택 비교는 시험 월 3·10·17·24일차 각각 첫 규칙 불일치 한 건이다. 같은 결정까지의 선택 지문·시각·양쪽 배정을 대조하고 이후는 두 갈래 모두 같은 모델을 쓴다. 일치만 있는 날은 그대로 남긴다. 일어난 불일치 몇 건을 전체 결정의 평균 효과로 일반화하지 않는다.
 - 실행 상태는 `outputs/reports/yr332_planned_times/queue-status.json`, 조건별 평가 뒤 `comparison.json`, 첫 선택 대조는 `paired/summary.json`이다. 진행 중 BP 기록을 수정하거나 중간 모델로 시험 월 성적을 미리 재지 않는다.
 - [대기 실행기](../../../scripts/v7/after_bp_planned_times.py) · [원장 대조](../../../scripts/v7/planned_time_comparison.py) · [예정 정보 입력](../../../src/yard_rl/v7/crane/planned_times.py) · [검증](../../../tests/v7/test_planned_time_policy.py)
+- 2026-11-25 장치 전환. 네 조건의 학습을 모두 GPU로, 시뮬레이션의 한 건 추론은 CPU로 실행하는 별도 등록을 둔다. 최초 CPU 등록을 보존한다. CPU로 훈련한 BP와 수치 합산 순서가 다를 수 있다. [장치 비교](YR-332-bv-crane-gpu.md)
 - 기존 판정의 보고서가 이후 비용 분석으로 갱신되어 현재 사본의 지문이 당시와 다르다. 자동 승격 거절을 보존하고 요청 범위를 합성 비교로 한정했다. [판정 기록](../../../outputs/reports/yr332_planned_times/authorization.json)

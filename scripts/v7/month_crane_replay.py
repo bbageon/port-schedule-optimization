@@ -13,6 +13,7 @@ import torch
 
 from month_crane_input import MANIFEST, OUT
 from value_stability import restore
+from crane_devices import device_for
 from vessel_turnaround_experiment import OUT as TRAINING, save
 from yard_rl.v7.crane.on_policy import OnPolicyResolver
 from yard_rl.v7.information_contract import announcement_time
@@ -56,7 +57,7 @@ def write_lines(path, rows):
 
 def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_path=None,
         manifest_dir=None, checkpoint=None, folder=None, stochastic=False, sample_seed=0,
-        horizon=DAY_S, target_scale=None, resolver_factory=None):
+        horizon=DAY_S, target_scale=None, resolver_factory=None, inference_device=None):
     """Replay one month. `target_scale` keeps every decision and attaches time targets."""
     started = time.monotonic()
     common_month = info_path is None
@@ -78,7 +79,8 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
     checkpoint = Path(checkpoint or TRAINING/"models"/"9951101"/"update-5.pt")
     resolver, net = None, None
     if arm == "trained":
-        net = restore(checkpoint)[0].eval()
+        inference_device = device_for("inference", inference_device)
+        net = restore(checkpoint, device=inference_device)[0].eval()
         resolver = (resolver_factory or OnPolicyResolver)(net, stochastic=stochastic, seed=sample_seed, collect=collect,
                                     horizon=horizon, collect_until=end, global_context_mode="global")
         resolver.observe_global_epoch(terminal, 0.)
@@ -89,6 +91,8 @@ def run(arm, smoke, *, output_root=OUT, check_turnaround_targets=False, info_pat
     meta = dict(arm=arm, seed=seed, manifest_sha256=info["sha256"], days=n_days,
                 checkpoint_sha256=file_sha256(checkpoint) if net is not None else None,
                 code=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip())
+    if net is not None:
+        meta["inference_device"] = inference_device
     save(folder/"configuration.json", meta)
     groups = defaultdict(list)
     for rows in document["vessels_by_day"].values():
@@ -221,6 +225,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("arm",choices=["trained","SF_SPT","LWKR"])
     parser.add_argument("--smoke",action="store_true")
+    parser.add_argument("--inference-device", choices=("cpu", "cuda"))
     args = parser.parse_args()
     torch.set_num_threads(1)
-    run(args.arm,args.smoke)
+    run(args.arm,args.smoke,inference_device=args.inference_device)

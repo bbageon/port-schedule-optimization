@@ -18,6 +18,7 @@ CACHE = Path("build/yr332_joint_turnaround")
 ARMS = ("eta", "etw", "both", "both_need")
 SOURCE = Path(__file__).resolve()
 SOURCES = (SOURCE.name, "planned_time_comparison.py", "short_window_train.py", "short_window_samples.py",
+           "crane_devices.py", "value_stability.py",
            "month_crane_replay.py", "joint_turnaround_train.py", "local_return_scope.py")
 
 
@@ -95,12 +96,14 @@ def status(stage, **details):
          at=time.strftime("%Y-%m-%d %H:%M:%S %z"), **details))
 
 
-def queued(interval):
+def queued(interval, registry):
     with lock(CACHE / "planned-times/queue.lock"):
         try:
-            registration = read(OUT / "registration.json")
+            registration = read(registry)
             if registration["sources"] != contract():
                 raise ValueError("Registered experiment sources or inputs changed")
+            for phase, device in registration.get("devices", dict(train="cpu", inference="cpu")).items():
+                os.environ[f"YARD_{phase.upper()}_DEVICE"] = device
             status("waiting_for_bp")
             while not finished(BP, CACHE / "short-window"):
                 time.sleep(interval)
@@ -145,20 +148,28 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("register", "wait", "status", "smoke-pair"))
     parser.add_argument("--interval", type=int, default=60)
+    parser.add_argument("--train-device", choices=("cpu", "cuda"), default="cpu")
+    parser.add_argument("--inference-device", choices=("cpu", "cuda"), default="cpu")
     args = parser.parse_args()
+    devices = dict(train=args.train_device, inference=args.inference_device)
+    registry = OUT / ("registration.json" if set(devices.values()) == {"cpu"} else
+                      f"registration-{args.train_device}-{args.inference_device}.json")
     if args.action == "register":
         sources = contract()
-        dest = OUT / "registration.json"
+        dest = registry
         if dest.exists() and read(dest)["sources"] != sources:
             raise ValueError("Refusing to overwrite an existing registration")
         if not dest.exists():
-            save(dest, dict(sources=sources, arms=ARMS, baseline="completed BP, identical start and seeds",
+            if "cuda" in devices.values() and any((OUT / arm).exists() for arm in ARMS):
+                raise ValueError("Device change requires a fresh planned-time campaign")
+            save(dest, dict(sources=sources, arms=ARMS, devices=devices, baseline="completed BP, identical start and seeds",
                             commit=subprocess.check_output(["git","rev-parse","HEAD"], text=True).strip()))
     elif args.action == "wait":
         if args.interval < 1:
             parser.error("interval must be positive")
-        queued(args.interval)
+        queued(args.interval, registry)
     elif args.action == "smoke-pair":
+        os.environ["YARD_INFERENCE_DEVICE"] = args.inference_device
         import torch
         torch.set_num_threads(1)
         from planned_time_comparison import paired

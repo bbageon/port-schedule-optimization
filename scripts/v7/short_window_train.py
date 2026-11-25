@@ -27,6 +27,7 @@ from joint_turnaround_preflight import CACHE, read, save as save_json
 from joint_turnaround_train import MODEL_SEED, START, decode, encode, setting
 from local_return_scope import port_calls_in_window, time_share, window
 from short_window_samples import anchors_from
+from crane_devices import device_for
 from value_stability import restore
 from yard_rl.v7.crane.actor_critic import pack_states
 from yard_rl.v7.crane.value_normalization import fit_value_head, normalized_ppo_update, restart_value_head
@@ -44,6 +45,7 @@ BM = Path("outputs/reports/yr332_local_return_scope/summary.json")
 WINDOW_H, SCALE = .5, 1e3
 MONTHS, UPDATES = 4, 4
 SOURCES = ("scripts/v7/short_window_train.py", "scripts/v7/short_window_samples.py",
+           "scripts/v7/crane_devices.py", "scripts/v7/value_stability.py",
            "scripts/v7/local_return_scope.py", "scripts/v7/month_crane_replay.py",
            "src/yard_rl/v7/crane/on_policy.py", "src/yard_rl/v7/crane/actor_critic.py",
            "src/yard_rl/v7/crane/value_normalization.py", str(BM).replace("\\", "/"))
@@ -199,8 +201,9 @@ def update(u, tags, needed, smoke=False):
     note(f"update {u}: loading decisions")
     anchors = [s for tag in tags for s in load(tag, smoke)]
     note(f"update {u}: {len(anchors)} decisions loaded")
-    net, optimizer, _ = restore(model_path(u, smoke))
-    report = dict(update=u, tags=list(tags), anchors=len(anchors))
+    device = device_for("train")
+    net, optimizer, _ = restore(model_path(u, smoke), device=device)
+    report = dict(update=u, tags=list(tags), anchors=len(anchors), device=device)
     if u == 0:
         # The old value head predicted another quantity: start it again, fit it alone, keep actions fixed.
         probe = anchors[:256]
@@ -282,7 +285,12 @@ def train_campaign():
         raise RuntimeError("Commit the code before a registered run")
     needed = decisions_per_update()
     first = OUT / "train-campaign.json"
+    devices = {phase: os.environ.get(f"YARD_{phase.upper()}_DEVICE", "cpu")
+               for phase in ("train", "inference")}
+    if first.exists() and PLANNED_ARM and read(first).get("devices", dict(train="cpu", inference="cpu")) != devices:
+        raise ValueError("Cannot resume a registered planned-time arm with different devices")
     save(first if not first.exists() else OUT / f"train-campaign-resumed-{time.strftime('%m%d-%H%M')}.json", dict(
+        devices=devices,
         commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         sources={p: file_sha256(p) for p in SOURCES}, start_model=file_sha256(START), decisions_per_update=needed,
         anchors_per_month=needed // MONTHS, window_h=WINDOW_H, updates=UPDATES, months_per_update=MONTHS))
@@ -318,7 +326,13 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int)
     parser.add_argument("--keep", type=int)
     parser.add_argument("--planned-times", choices=ARMS)
+    parser.add_argument("--train-device", choices=("cpu", "cuda"))
+    parser.add_argument("--inference-device", choices=("cpu", "cuda"))
     args = parser.parse_args()
+    for phase in ("train", "inference"):
+        requested = getattr(args, phase + "_device")
+        if requested:
+            os.environ[f"YARD_{phase.upper()}_DEVICE"] = requested
     torch.set_num_threads(1)
     if args.planned_times:
         from after_bp_planned_times import finished, lock
