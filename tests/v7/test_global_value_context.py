@@ -148,3 +148,18 @@ def test_resolver_needs_a_quay_work_source_for_a_quay_work_model():
     assert Tracking(net, global_context_mode='global').critic_vessel_work(None) == .5
     assert OnPolicyResolver(NormalizedValueNet(global_value_context=True),
                             global_context_mode='global').critic_vessel_work(None) is None
+
+
+def test_update_threads_restores_the_previous_count_even_on_error():
+    from yard_rl.v7.crane.update_threads import update_threads
+    before = torch.get_num_threads()
+    with update_threads(2) as n:
+        assert n == 2 and torch.get_num_threads() == 2
+    assert torch.get_num_threads() == before
+    with pytest.raises(RuntimeError):
+        with update_threads(3):
+            raise RuntimeError("boom")
+    assert torch.get_num_threads() == before
+    with pytest.raises(ValueError):
+        with update_threads(0):
+            pass
