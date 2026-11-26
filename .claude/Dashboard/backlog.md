@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-by | Exp | **예정시각 실험 종료 후 트럭·본선 우선 선택의 이득 대조** | 🟠 | 고정한 네 날짜의 첫 불일치를 재현해 30분 안과 최종 완료의 차이를 확인한다. 종료 후 자동 검토 대기. [3일 작동 검산](../../outputs/reports/yr332_port_decision_review/check/review.json) · [검토 기준](../docs/dashboard-task-specs/YR-332-by-port-decision-review.md) |
 | YR-332-bx | RL | **시험 월 방문 연결·3일 실행에서 방문당 한 번 집계 확인** | 🟠 | 시험 월 206,500개 작업→169,637방문. 개발 3일 후속 정차 1,277번 검산. 블록 간 경과시간과 장비 시작 시각 근거 대기. [검산](../../outputs/reports/yr332_gate_age_curve/linked-visits/busy-accounting.json) · [spec](../docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md) |
 | YR-332-bs | RL | **배 효과를 담는 규모의 학습 비용 검토 (24시간 할인)** | ⚪ | bq에서 24시간 할인은 배 효과를 3분의 1 남기지만 갱신당 결정 약 300만 개(한 물결의 3배)가 필요하다. 동시 실행·갱신 시간·저장 용량을 실측해 전체 소요를 계산한다. bp 결과 뒤 판단. [spec](../docs/dashboard-task-specs/YR-332-bs-day-horizon-scale.md) |
 | YR-332-bk | Infra | **트럭 턴타임 감소의 원화 환산 검증** | 🟠 | 정책의 시간 성적에 안전운임 단가를 적용해 절감 추정액을 별도 보고한다. 실제 방문·정산 시각과 청구액을 대조한다. [spec](../docs/dashboard-task-specs/YR-332-bk-truck-turnaround-krw-valuation.md) |
