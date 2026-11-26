@@ -10,6 +10,7 @@
 
 | ID | Epic | Title | Priority | Note |
 |---|---|---|---|---|
+| YR-332-ca | Sim | **한 달 학습 데이터 점검 — 관측 범위 밖 물량·보정 누락·예정 시각 정확도** | 🔴 | 사용자 요청(11/26) 검토. 학습 표본의 42%가 하루 12,500~15,000건 날(관측 최대의 약 4배 몰림). 한 달 입력은 하루 단위 보정(여러 컨테이너 방문·시간 안 몰림·반출 비율·실제 예약 오차)을 받지 않는다. 트럭 예정 시각 오차는 ±20분 안(실제 자료는 절반 이상 1시간 넘게 어긋남), 본선은 예정 시각에 정확히 시작한다. 학습 달 1개, 시험 달 8회 재사용. [spec](../docs/dashboard-task-specs/YR-332-ca-month-training-data-audit.md) |
 | YR-332-by | Exp | **예정시각 실험 종료 후 트럭·본선 우선 선택의 이득 대조** | 🟠 | 고정한 네 날짜의 첫 불일치를 재현해 30분 안과 최종 완료의 차이를 확인한다. 종료 후 자동 검토 대기. [3일 작동 검산](../../outputs/reports/yr332_port_decision_review/check/review.json) · [검토 기준](../docs/dashboard-task-specs/YR-332-by-port-decision-review.md) |
 | YR-332-bz | Exp | **다음 배차 1·5·10건으로 첫 선택을 채점하는 방법 검토** | 🟠 | 첫 선택 대조 뒤, 개발용 사례에서 어느 범위가 트럭·본선 우선의 최종 유불리를 잘 구별하는지 30분 기준과 비교한다. [검토 기준](../docs/dashboard-task-specs/YR-332-bz-dispatch-count-horizon.md) |
 | YR-332-bx | RL | **시험 월 방문 연결·3일 실행에서 방문당 한 번 집계 확인** | 🟠 | 시험 월 206,500개 작업→169,637방문. 개발 3일 후속 정차 1,277번 검산. 블록 간 경과시간과 장비 시작 시각 근거 대기. [검산](../../outputs/reports/yr332_gate_age_curve/linked-visits/busy-accounting.json) · [spec](../docs/dashboard-task-specs/YR-332-bx-gate-age-curve.md) |
