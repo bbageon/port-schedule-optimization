@@ -1,0 +1,20 @@
+{
+  "task": "YR-332-bx condition 2 (flat): BP without the 24-minute promotion",
+  "decided": "2026-11-27 12:55 +0900",
+  "user_decision": "Question: the one-hour run (br) still uses the 24-minute promotion; the user had decided to remove it. Answer chosen: hold br and first run the retraining without the 24-minute promotion.",
+  "gate_status": "The earlier 30-day training authorization for this task was held (training-authorization.json). This run is a user-directed synthetic diagnostic, like bt and br; no adoption, real-terminal or continuous-operation claim.",
+  "same_as_bp": "start model, training and test months, sampling and anchor seeds, decisions per update, four updates, thirty-minute block-time target, PPO settings",
+  "changed_from_bp": "the 24-minute promotion is removed in training rollouts, sample collection and the final evaluation (NoWaitPromotionResolver)",
+  "run": {
+    "frozen_worktree": "../yr332-flat-fa00b1f9 at fa00b1f9 (gate-age code; before the visit-link changes)",
+    "command": "short_window_train.py train-campaign --gate-age flat --train-device cuda --inference-device cpu",
+    "devices": "GPU update, CPU inference (same as the bt arms; BP itself was CPU-trained)",
+    "started": "2026-11-27 13:02:40 +0900",
+    "outputs": "written in the frozen copy under outputs/reports/yr332_gate_age_curve/flat and copied to this folder when complete",
+    "watchdog": "yard-rl-queue-watchdog job 'flat' (hourly, relaunches through WMI)"
+  },
+  "held": {
+    "br": "stopped 2026-11-27 12:58 during update 0 collecting (started 12:19 after bt completed); hold marker in ../yr332-watchdog/hold-br",
+    "condition_3_curve": "not run"
+  }
+}

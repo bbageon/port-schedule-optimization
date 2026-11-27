@@ -10,7 +10,9 @@ Each run (Windows Task Scheduler, hourly, windowless pythonw) checks every job:
 - otherwise                                -> relaunch the job's waiter from its frozen worktree through WMI;
                                               the waiters resume (finished arms, waves and updates are skipped)
 At most MAX_RESTARTS per job within WINDOW_H hours; after that it only records the state (a repeated failure
-needs a person). When every job is complete it deletes its own scheduled task. Standard library only.
+needs a person). A file `hold-<job>` in HOME pauses that job (2026-11-27: br held by the user; it is not
+restarted and does not count as complete). When every job is complete it deletes its own scheduled task.
+Standard library only.
 """
 import json
 import os
@@ -34,6 +36,10 @@ def br_process(cmd):
     return "one_hour_train.py" in cmd
 
 
+def flat_process(cmd):
+    return "short_window_train.py" in cmd and "--gate-age flat" in cmd
+
+
 JOBS = (
     dict(name="bt", folder=BASE / "yr332-bt-gpu-9afa8b70", python=BASE / "yr332-cuda" / "Scripts" / "python.exe",
          args="-u scripts/v7/after_bp_planned_times.py wait --train-device cuda --inference-device cpu",
@@ -43,6 +49,14 @@ JOBS = (
          args=r"-X utf8 -u scripts\v7\one_hour_train.py wait-bt",
          log=r"build\yr332_joint_turnaround\one-hour\wait-bt.log",
          status="outputs/reports/yr332_one_hour/queue-status.json", owns=br_process),
+    # 2026-11-27 user decision: BP without the 24-minute promotion (YR-332-bx condition 2). No queue status file;
+    # the final evaluation record marks completion. Results stay in the frozen copy until copied to the main folder.
+    dict(name="flat", folder=BASE / "yr332-flat-fa00b1f9", python=BASE / "yr332-cuda" / "Scripts" / "python.exe",
+         args="-X utf8 -u scripts/v7/short_window_train.py train-campaign --gate-age flat "
+              "--train-device cuda --inference-device cpu",
+         log=r"build\yr332_joint_turnaround\gate-age\flat\train-campaign.log",
+         status=None, done="outputs/reports/yr332_gate_age_curve/flat/evaluation/retrained/result.json",
+         owns=flat_process),
 )
 
 
@@ -99,12 +113,17 @@ def main():
         commands = python_command_lines()
         done = 0
         for job in JOBS:
-            status = read_json(job["folder"] / job["status"], {})
+            if job.get("status") is None:
+                status = {"stage": "complete" if (job["folder"] / job["done"]).is_file() else "running"}
+            else:
+                status = read_json(job["folder"] / job["status"], {})
             stage = status.get("stage")
             alive = any(job["owns"](c) for c in commands)
             since = now - timedelta(hours=WINDOW_H)
             recent = [t for t in state["restarts"].get(job["name"], []) if datetime.fromisoformat(t) > since]
             action = decide(alive, stage, len(recent))
+            if action in ("restart", "gave_up") and (HOME / f"hold-{job['name']}").exists():
+                action = "held"
             detail = f"stage={stage} arm={status.get('arm', status.get('bt_arm'))}"
             if action == "complete":
                 done += 1
@@ -141,6 +160,9 @@ if __name__ == "__main__":
         assert not bt_process("python -X utf8 -u scripts\\v7\\one_hour_train.py wait-bt")
         assert br_process("python -X utf8 scripts/v7/one_hour_train.py rollout --tag wave-0-1")
         assert not br_process("python -u scripts/v7/after_bp_planned_times.py wait")
+        assert flat_process("python -X utf8 scripts/v7/short_window_train.py rollout --tag wave-0-0 --gate-age flat")
+        assert not flat_process("python -X utf8 scripts/v7/short_window_train.py rollout --planned-times etw")
+        assert not bt_process("python -X utf8 scripts/v7/short_window_train.py rollout --tag wave-0-0 --gate-age flat")
         print("self-test passed")
     else:
         main()
