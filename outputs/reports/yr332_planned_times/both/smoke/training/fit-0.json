@@ -1,0 +1,54 @@
+{
+  "update": 0,
+  "tags": [
+    "smoke-0",
+    "smoke-1"
+  ],
+  "anchors": 2048,
+  "device": "cuda",
+  "value_fit": {
+    "samples": 2048,
+    "epochs": 30,
+    "optimizer_steps": 240,
+    "learning_rate": 0.001,
+    "normalized_rmse_before": 8.169119834899902,
+    "normalized_rmse_after": 0.8696560263633728,
+    "normalization": {
+      "count": 2048,
+      "mean": -2.0048160021958665,
+      "scale": 0.2856366257055086,
+      "scale_floor_hit": false,
+      "old_mean": 0.0,
+      "old_scale": 1.0,
+      "adam_moments": "retained unchanged; no optimizer invariance claim"
+    }
+  },
+  "noise_weighted_minutes": 248.4056366007732,
+  "time_share": 0.04215728657525952,
+  "fit": {
+    "available": 2048,
+    "selected": 1024,
+    "optimizer_steps": 64,
+    "epochs": 4,
+    "replay_logp_max_error": 9.5367431640625e-07,
+    "normalization": {
+      "count": 3072,
+      "mean": -2.005085938808861,
+      "scale": 0.28992419935835084,
+      "scale_floor_hit": false,
+      "old_mean": -2.0048160021958665,
+      "old_scale": 0.2856366257055086,
+      "adam_moments": "retained unchanged; no optimizer invariance claim",
+      "value_preservation_max_error": 7.152557373046875e-07,
+      "logit_preservation_max_error": 0.0
+    },
+    "means": {
+      "loss": 0.18468650520662777,
+      "critic_loss": 0.3957547896570759,
+      "entropy": 1.3134411089122295,
+      "approx_kl": 1.7925104411065096e-06,
+      "clip_fraction": 0.0
+    }
+  },
+  "checkpoint_sha256": "276c0dc42ea9bb9559d4a4e3a70dbb5c3f1ae491412dfac32c9171f022ee4352"
+}

@@ -1,0 +1,148 @@
+{
+  "purpose": "Wiring check on three short days; numbers are not results",
+  "rollouts": [
+    {
+      "tag": "smoke-0",
+      "sampling_seed": 9958901,
+      "checkpoint": "build/yr332_joint_turnaround/planned-times/both/start.pt",
+      "checkpoint_sha256": "fe6041bdc6d7c0dc686233945f8fb62ca2020884fccdd47fd6767ede1313db2f",
+      "decisions": 9079,
+      "nontrivial": 8104,
+      "anchors": 1024,
+      "decisions_sha256": "e6677368ffa63799c74e2bb6ba5c8a09ed9fcb51d6564278ada2ec1d18d6840c",
+      "month": {
+        "trucks": 180,
+        "ships": 9,
+        "unfinished_trucks": 0,
+        "unfinished_ships": 0,
+        "costs": {
+          "truck": 2737381.8365044296,
+          "ship": 478309926.01568025,
+          "empty": 548721.875,
+          "rehandles": 7518000.0
+        },
+        "total": 489114029.72718465,
+        "truck_minutes": 18.20112935520985,
+        "ship_hours": 21.58265313928212
+      },
+      "seconds": 75.25812489911914
+    },
+    {
+      "tag": "smoke-1",
+      "sampling_seed": 9958902,
+      "checkpoint": "build/yr332_joint_turnaround/planned-times/both/start.pt",
+      "checkpoint_sha256": "fe6041bdc6d7c0dc686233945f8fb62ca2020884fccdd47fd6767ede1313db2f",
+      "decisions": 9089,
+      "nontrivial": 8045,
+      "anchors": 1024,
+      "decisions_sha256": "04dced04d30ffe73468ce690a9fc1c2abe3b78f6d8a37ffdf1996a1bf9cb81bb",
+      "month": {
+        "trucks": 180,
+        "ships": 9,
+        "unfinished_trucks": 0,
+        "unfinished_ships": 0,
+        "costs": {
+          "truck": 2493866.913489257,
+          "ship": 478400103.6416528,
+          "empty": 547069.7916666666,
+          "rehandles": 7456000.0
+        },
+        "total": 488897040.34680873,
+        "truck_minutes": 16.867427134282185,
+        "ship_hours": 21.614167293714782
+      },
+      "seconds": 78.00620840024203
+    }
+  ],
+  "update": {
+    "update": 0,
+    "tags": [
+      "smoke-0",
+      "smoke-1"
+    ],
+    "anchors": 2048,
+    "device": "cuda",
+    "value_fit": {
+      "samples": 2048,
+      "epochs": 30,
+      "optimizer_steps": 240,
+      "learning_rate": 0.001,
+      "normalized_rmse_before": 8.169119834899902,
+      "normalized_rmse_after": 0.8696560263633728,
+      "normalization": {
+        "count": 2048,
+        "mean": -2.0048160021958665,
+        "scale": 0.2856366257055086,
+        "scale_floor_hit": false,
+        "old_mean": 0.0,
+        "old_scale": 1.0,
+        "adam_moments": "retained unchanged; no optimizer invariance claim"
+      }
+    },
+    "noise_weighted_minutes": 248.4056366007732,
+    "time_share": 0.04215728657525952,
+    "fit": {
+      "available": 2048,
+      "selected": 1024,
+      "optimizer_steps": 64,
+      "epochs": 4,
+      "replay_logp_max_error": 9.5367431640625e-07,
+      "normalization": {
+        "count": 3072,
+        "mean": -2.005085938808861,
+        "scale": 0.28992419935835084,
+        "scale_floor_hit": false,
+        "old_mean": -2.0048160021958665,
+        "old_scale": 0.2856366257055086,
+        "adam_moments": "retained unchanged; no optimizer invariance claim",
+        "value_preservation_max_error": 7.152557373046875e-07,
+        "logit_preservation_max_error": 0.0
+      },
+      "means": {
+        "loss": 0.18468650520662777,
+        "critic_loss": 0.3957547896570759,
+        "entropy": 1.3134411089122295,
+        "approx_kl": 1.7925104411065096e-06,
+        "clip_fraction": 0.0
+      }
+    },
+    "checkpoint_sha256": "276c0dc42ea9bb9559d4a4e3a70dbb5c3f1ae491412dfac32c9171f022ee4352"
+  },
+  "evaluation": {
+    "complete": true,
+    "windows": {
+      "primary": {
+        "trucks": 60,
+        "ships": 3,
+        "unfinished_trucks": 0,
+        "unfinished_ships": 0,
+        "costs": {
+          "truck": 495638.4944680317,
+          "ship": 143757617.85862786,
+          "empty": 78291.14583333333,
+          "rehandles": 2554000.0
+        },
+        "total": 146885547.49892923,
+        "truck_minutes": 12.33113711354758,
+        "ship_hours": 20.315972439283918
+      },
+      "all": {
+        "trucks": 180,
+        "ships": 9,
+        "unfinished_trucks": 0,
+        "unfinished_ships": 0,
+        "costs": {
+          "truck": 2513075.307005972,
+          "ship": 471453410.31327987,
+          "empty": 269343.75,
+          "rehandles": 8940000.0
+        },
+        "total": 483175829.37028587,
+        "truck_minutes": 17.079508479014084,
+        "ship_hours": 21.346299282129934
+      }
+    }
+  },
+  "decisions_per_update": 331520,
+  "commit": "9afa8b702177c4d8f3cd2737cf87c9f6b24ae3f7"
+}
